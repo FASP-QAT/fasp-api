@@ -1,0 +1,5 @@
+cc/altius/FASP/model/ResponseFormat.class
+cc/altius/FASP/framework/GlobalConstants.class
+cc/altius/TigerCTIWebServices/ApplicationConfiguration.class
+cc/altius/FASP/web/controller/LoginController.class
+cc/altius/FASP/rest/webservice/restfulwebservices/RestfulWebServicesApplication.class

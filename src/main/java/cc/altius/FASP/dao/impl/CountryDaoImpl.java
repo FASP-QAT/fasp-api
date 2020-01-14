@@ -1,0 +1,39 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package cc.altius.FASP.dao.impl;
+
+import cc.altius.FASP.dao.CountryDao;
+import cc.altius.FASP.model.Country;
+import cc.altius.FASP.model.rowMapper.CountryRowMapper;
+import java.util.List;
+import javax.sql.DataSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+
+/**
+ *
+ * @author altius
+ */
+@Repository
+public class CountryDaoImpl implements CountryDao {
+
+    private JdbcTemplate jdbcTemplate;
+    private DataSource dataSource;
+
+    @Autowired
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
+    }
+
+    @Override
+    public List<Country> getCountryList() {
+        String sql = "SELECT * FROM country c ;";
+        return this.jdbcTemplate.query(sql, new CountryRowMapper());
+    }
+
+}
