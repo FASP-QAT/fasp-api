@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.service;
 
-import cc.altius.FASP.model.CustomUserDetails;
 import java.util.Map;
 
 /**

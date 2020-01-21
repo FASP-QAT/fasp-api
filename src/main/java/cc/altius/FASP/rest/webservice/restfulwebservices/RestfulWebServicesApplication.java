@@ -8,8 +8,8 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan(basePackages = {"cc.altius.FASP"})
 public class RestfulWebServicesApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(RestfulWebServicesApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(RestfulWebServicesApplication.class, args);
+    }
 
 }
