@@ -77,12 +77,12 @@
             <scope>test</scope>
             <type>jar</type>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>cc.altius</groupId>
             <artifactId>altiusUtilsMaven</artifactId>
             <version>[1.00,)</version>
         </dependency>
-         <dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
