@@ -23,8 +23,13 @@ public class CityServiceImpl implements CityService {
     CityDao cityDao;
 
     @Override
-    public List<City> getCityList(int countryId, int stateId) {
-        return this.cityDao.getCityList(countryId, stateId);
+    public List<City> getCityListByStateIdAndCountryId(int countryId, int stateId) {
+        return this.cityDao.getCityListByStateIdAndCountryId(countryId, stateId);
+    }
+
+    @Override
+    public List<City> getAllCityList() {
+        return this.cityDao.getAllCityList();
     }
 
 }

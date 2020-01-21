@@ -16,4 +16,6 @@ public interface StateDao {
 
     public List<State> getStateList(int countryId);
 
+    public List<State> getAllStateList();
+
 }

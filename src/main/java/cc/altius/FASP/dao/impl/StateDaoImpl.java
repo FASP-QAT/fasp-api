@@ -36,4 +36,10 @@ public class StateDaoImpl implements StateDao {
         return this.jdbcTemplate.query(sql, new StateRowMapper(), countryId);
     }
 
+    @Override
+    public List<State> getAllStateList() {
+        String sql = "SELECT * FROM state;";
+        return this.jdbcTemplate.query(sql, new StateRowMapper());
+    }
+
 }

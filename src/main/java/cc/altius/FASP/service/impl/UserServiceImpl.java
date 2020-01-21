@@ -7,7 +7,10 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.Role;
+import cc.altius.FASP.model.User;
 import cc.altius.FASP.service.UserService;
+import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,6 +38,21 @@ public class UserServiceImpl implements UserService {
     @Override
     public int updateFailedAttemptsByUserId(String username) {
         return this.userDao.updateFailedAttemptsByUserId(username);
+    }
+
+    @Override
+    public List<Role> getRoleList() {
+        return this.userDao.getRoleList();
+    }
+
+    @Override
+    public int addNewUser(User user) {
+        return this.userDao.addNewUser(user);
+    }
+
+    @Override
+    public List<User> getUserList() {
+        return this.userDao.getUserList();
     }
 
 }

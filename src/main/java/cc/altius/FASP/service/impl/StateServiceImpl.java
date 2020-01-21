@@ -27,4 +27,9 @@ public class StateServiceImpl implements StateService {
         return this.stateDao.getStateList(countryId);
     }
 
+    @Override
+    public List<State> getAllStateList() {
+        return this.stateDao.getAllStateList();
+    }
+
 }

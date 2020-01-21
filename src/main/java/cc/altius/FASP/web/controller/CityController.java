@@ -27,19 +27,30 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:4202")
 public class CityController {
-    
+
     @Autowired
     CityService cityService;
 
-    @GetMapping(value = "/getCityList/{countryId}/{stateId}")
-    public String getCityList(@PathVariable int countryId,@PathVariable int stateId) throws UnsupportedEncodingException {
+    @GetMapping(value = "/getCityListByStateIdAndCountryId/{countryId}/{stateId}")
+    public String getCityListByStateIdAndCountryId(@PathVariable int countryId, @PathVariable int stateId) throws UnsupportedEncodingException {
         String json;
-        List<City> cityList = this.cityService.getCityList(countryId, stateId);
+        List<City> cityList = this.cityService.getCityListByStateIdAndCountryId(countryId, stateId);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();
         json = gson.toJson(cityList, typeList);
         return json;
     }
-    
+
+    @GetMapping(value = "/getCityList")
+    public String getCityList() throws UnsupportedEncodingException {
+        String json;
+        List<City> cityList = this.cityService.getAllCityList();
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(cityList, typeList);
+        return json;
+    }
+
 }

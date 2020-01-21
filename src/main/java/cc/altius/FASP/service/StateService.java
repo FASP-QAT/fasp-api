@@ -16,4 +16,6 @@ public interface StateService {
 
     public List<State> getStateList(int countryId);
 
+    public List<State> getAllStateList();
+
 }

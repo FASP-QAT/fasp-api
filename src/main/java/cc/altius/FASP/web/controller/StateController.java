@@ -32,10 +32,21 @@ public class StateController {
     @Autowired
     StateService stateService;
 
-    @GetMapping(value = "/getStateList/{countryId}")
-    public String getStateList(@PathVariable int countryId) throws UnsupportedEncodingException {
+    @GetMapping(value = "/getStateListByCountryId/{countryId}")
+    public String getStateListByCountryId(@PathVariable int countryId) throws UnsupportedEncodingException {
         String json;
         List<State> stateList = this.stateService.getStateList(countryId);
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(stateList, typeList);
+        return json;
+    }
+
+    @GetMapping(value = "/getStateList")
+    public String getStateList() throws UnsupportedEncodingException {
+        String json;
+        List<State> stateList = this.stateService.getAllStateList();
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();
