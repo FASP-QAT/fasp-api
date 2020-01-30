@@ -6,6 +6,7 @@
 package cc.altius.FASP.model;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
@@ -18,12 +19,12 @@ public class User implements Serializable {
     private String emailId;
     private String phoneNumber;
     private String address;
-    private Country country;
-    private State state;
-    private City city;
+    private Realm realm;
     private Role role;
     private Language language;
     private boolean active;
+    private int faildAttempts;
+    private Date lastLoginDate;
 
     public int getUserId() {
         return userId;
@@ -65,28 +66,12 @@ public class User implements Serializable {
         this.address = address;
     }
 
-    public Country getCountry() {
-        return country;
+    public Realm getRealm() {
+        return realm;
     }
 
-    public void setCountry(Country country) {
-        this.country = country;
-    }
-
-    public State getState() {
-        return state;
-    }
-
-    public void setState(State state) {
-        this.state = state;
-    }
-
-    public City getCity() {
-        return city;
-    }
-
-    public void setCity(City city) {
-        this.city = city;
+    public void setRealm(Realm realm) {
+        this.realm = realm;
     }
 
     public Role getRole() {
@@ -113,9 +98,25 @@ public class User implements Serializable {
         this.active = active;
     }
 
+    public int getFaildAttempts() {
+        return faildAttempts;
+    }
+
+    public void setFaildAttempts(int faildAttempts) {
+        this.faildAttempts = faildAttempts;
+    }
+
+    public Date getLastLoginDate() {
+        return lastLoginDate;
+    }
+
+    public void setLastLoginDate(Date lastLoginDate) {
+        this.lastLoginDate = lastLoginDate;
+    }
+
     @Override
     public String toString() {
-        return "User{" + "userId=" + userId + ", emailId=" + emailId + ", phoneNumber=" + phoneNumber + ", address=" + address + ", country=" + country + ", state=" + state + ", city=" + city + ", role=" + role + ", language=" + language + ", active=" + active + '}';
+        return "User{" + "userId=" + userId + ", password=" + password + ", emailId=" + emailId + ", phoneNumber=" + phoneNumber + ", address=" + address + ", realm=" + realm + ", role=" + role + ", language=" + language + ", active=" + active + ", faildAttempts=" + faildAttempts + ", lastLoginDate=" + lastLoginDate + '}';
     }
 
 }

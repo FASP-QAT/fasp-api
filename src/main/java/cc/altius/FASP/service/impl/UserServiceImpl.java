@@ -55,4 +55,24 @@ public class UserServiceImpl implements UserService {
         return this.userDao.getUserList();
     }
 
+    @Override
+    public User getUserByUserId(int userId) {
+        return this.userDao.getUserByUserId(userId);
+    }
+
+    @Override
+    public int updateUser(User user) {
+        return this.userDao.updateUser(user);
+    }
+
+    @Override
+    public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page) {
+        return this.userDao.checkIfUserExistsByEmailIdAndPhoneNumber(user, page);
+    }
+
+    @Override
+    public int unlockAccount(User user) {
+        return this.userDao.unlockAccount(user);
+    }
+
 }

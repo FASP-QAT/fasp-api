@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.Registration;
+import java.util.List;
 
 /**
  *
@@ -14,5 +15,9 @@ import cc.altius.FASP.model.Registration;
 public interface RegistrationDao {
 
     public int saveRegistration(Registration registration);
+
+    public List<Registration> getUserApprovalList();
+
+    public int updateRegistration(Registration registration);
 
 }

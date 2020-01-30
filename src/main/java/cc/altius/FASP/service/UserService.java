@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.service;
 
-import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import java.util.List;
@@ -28,5 +27,13 @@ public interface UserService {
     public int addNewUser(User user);
 
     public List<User> getUserList();
+
+    public User getUserByUserId(int userId);
+
+    public int updateUser(User user);
+
+    public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page);
+
+    public int unlockAccount(User user);
 
 }

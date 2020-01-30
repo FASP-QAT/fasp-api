@@ -28,4 +28,12 @@ public interface UserDao {
 
     public List<User> getUserList();
 
+    public User getUserByUserId(int userId);
+
+    public int updateUser(User user);
+
+    public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page); // 1 add User , 2 Edit User
+
+    public int unlockAccount(User user);
+
 }

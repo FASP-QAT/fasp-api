@@ -11,9 +11,8 @@ import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.rowMapper.CustomUserDetailsRowMapper;
 import cc.altius.FASP.model.rowMapper.RoleRowMapper;
-import cc.altius.FASP.service.UserService;
+import cc.altius.FASP.model.rowMapper.UserRowMapper;
 import cc.altius.utils.DateUtils;
-import cc.altius.utils.PassPhrase;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,8 +22,10 @@ import javax.sql.DataSource;
 import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -40,11 +41,13 @@ public class UserDaoImpl implements UserDao {
 
     private JdbcTemplate jdbcTemplate;
     private DataSource dataSource;
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Override
@@ -90,13 +93,11 @@ public class UserDaoImpl implements UserDao {
                 return responseMap;
             }
         } catch (IncorrectResultSizeDataAccessException i) {
-            System.out.println("in catch");
             responseMap.put("customUserDetails", null);
             responseMap.put("message", "User does not exists");
 //            responseMap.put("failedValue", ErrorConstants.USER_DOES_NOT_EXIST);
             return responseMap;
         } catch (IndexOutOfBoundsException i) {
-            System.out.println("in catch");
             responseMap.put("customUserDetails", null);
             responseMap.put("message", "User does not exists");
 //            responseMap.put("failedValue", ErrorConstants.USER_DOES_NOT_EXIST);
@@ -132,7 +133,6 @@ public class UserDaoImpl implements UserDao {
     @Override
     public List<Role> getRoleList() {
         String sql = "SELECT * FROM us_role;";
-        System.out.println("role list---" + this.jdbcTemplate.query(sql, new RoleRowMapper()));
         return this.jdbcTemplate.query(sql, new RoleRowMapper());
     }
 
@@ -142,15 +142,17 @@ public class UserDaoImpl implements UserDao {
         SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("us_user").usingGeneratedKeyColumns("USER_ID");
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         Map<String, Object> map = new HashedMap<>();
+        map.put("REALM_ID", user.getRealm().getRealmId());
         map.put("USERNAME", user.getEmailId());
         map.put("PASSWORD", user.getPassword());
         map.put("EMAIL_ID", user.getEmailId());
         map.put("PHONE_NO", user.getPhoneNumber());
+        map.put("LANGUAGE_ID", user.getLanguage().getLanguageId());
         map.put("ACTIVE", 1);
         map.put("EXPIRED", 0);
         map.put("FAILED_ATTEMPTS", 0);
         map.put("EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
-        map.put("OUTSIDE_ACCESS", 1);
+        map.put("SYNC_EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
         map.put("LAST_LOGIN_DATE", null);
         map.put("CREATED_BY", 1);
         map.put("CREATED_DATE", curDate);
@@ -164,7 +166,118 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserList() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String sql = "SELECT u.`USER_ID`,u.`EMAIL_ID`,u.`PHONE_NO`,"
+                + "u.`REALM_ID`,rl.`REALM_CODE`,u.`LANGUAGE_ID`,"
+                + "l.`LANGUAGE_NAME`,ur.`ROLE_ID`,r.`ROLE_NAME`,"
+                + "u.`LAST_LOGIN_DATE`,u.`FAILED_ATTEMPTS`,u.`ACTIVE`"
+                + " FROM us_user u "
+                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID`"
+                + "LEFT JOIN us_role r ON r.`ROLE_ID`=ur.`ROLE_ID`"
+                + "LEFT JOIN rm_realm rl ON rl.`REALM_ID`=u.`REALM_ID`"
+                + "LEFT JOIN lc_language l ON l.`LANGUAGE_ID`=u.`LANGUAGE_ID`";
+        return this.jdbcTemplate.query(sql, new UserRowMapper());
+    }
+
+    @Override
+    public User getUserByUserId(int userId) {
+        String sql = "SELECT u.`USER_ID`,u.`EMAIL_ID`,u.`PHONE_NO`,"
+                + "u.`REALM_ID`,rl.`REALM_CODE`,u.`LANGUAGE_ID`,"
+                + "l.`LANGUAGE_NAME`,ur.`ROLE_ID`,r.`ROLE_NAME`,"
+                + "u.`LAST_LOGIN_DATE`,u.`FAILED_ATTEMPTS`,u.`ACTIVE`"
+                + " FROM us_user u "
+                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID`"
+                + "LEFT JOIN us_role r ON r.`ROLE_ID`=ur.`ROLE_ID`"
+                + "LEFT JOIN rm_realm rl ON rl.`REALM_ID`=u.`REALM_ID`"
+                + "LEFT JOIN lc_language l ON l.`LANGUAGE_ID`=u.`LANGUAGE_ID` WHERE u.`USER_ID`=?;";
+        return this.jdbcTemplate.queryForObject(sql, new UserRowMapper(), userId);
+    }
+
+    @Override
+    public int updateUser(User user) {
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
+        String sql = "";
+        sql = "UPDATE us_user u "
+                + "SET u.`REALM_ID`=:realmId, "
+                + "u.`USERNAME`=:userName, "
+                + "u.`EMAIL_ID`=:emailId, "
+                + "u.`PHONE_NO`=:phoneNo, "
+                + "u.`LANGUAGE_ID`=:languageId, "
+                + "u.`ACTIVE`=:active, "
+                + "u.`LAST_MODIFIED_BY`=:lastModifiedBy, "
+                + "u.`LAST_MODIFIED_DATE`=:lastModifiedDate "
+                + "WHERE  u.`USER_ID`=:userId;";
+        Map<String, Object> map = new HashMap<>();
+        map.put("realmId", user.getRealm().getRealmId());
+        map.put("userName", user.getEmailId());
+        map.put("emailId", user.getEmailId());
+        map.put("phoneNo", user.getPhoneNumber());
+        map.put("languageId", user.getLanguage().getLanguageId());
+        map.put("active", user.isActive());
+        map.put("lastModifiedBy", 1);
+        map.put("lastModifiedDate", curDate);
+        map.put("userId", user.getUserId());
+        int row = namedParameterJdbcTemplate.update(sql, map);
+        sql = "DELETE FROM us_user_role WHERE  USER_ID=?;";
+        this.jdbcTemplate.update(sql, user.getUserId());
+        sql = "INSERT INTO us_user_role (USER_ID, ROLE_ID) VALUES(?,?)";
+        this.jdbcTemplate.update(sql, user.getUserId(), user.getRole().getRoleId());
+        return row;
+    }
+
+    @Override
+    public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page) {
+        String message = "", sql, emailId = user.getEmailId(), phoneNo = user.getPhoneNumber();
+        int userId = 0;
+        if (page == 1) {
+            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`EMAIL_ID`=?;";
+            if ((this.jdbcTemplate.queryForObject(sql, Integer.class, emailId) > 0 ? true : false)) {
+                message += "Email id already exists.";
+            }
+            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`PHONE_NO`=?;";
+            if ((this.jdbcTemplate.queryForObject(sql, Integer.class, phoneNo) > 0 ? true : false)) {
+                message += "Phone no. already exists.";
+            }
+        } else if (page == 2) {
+            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`EMAIL_ID`=?;";
+            try {
+                userId = this.jdbcTemplate.queryForObject(sql, Integer.class, emailId);
+            } catch (EmptyResultDataAccessException e) {
+                userId = 0;
+            }
+            if (userId > 0 && userId != user.getUserId() ? true : false) {
+                message += "Email id already exists.";
+            }
+            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`PHONE_NO`=?;";
+            try {
+                userId = this.jdbcTemplate.queryForObject(sql, Integer.class, phoneNo);
+            } catch (EmptyResultDataAccessException e) {
+                userId = 0;
+            }
+            if (userId > 0 && userId != user.getUserId() ? true : false) {
+                message += "Phone no. already exists.";
+            }
+        }
+        return message;
+    }
+
+    @Override
+    public int unlockAccount(User user) {
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
+        String sql = "UPDATE us_user u "
+                + "SET "
+                + "u.`FAILED_ATTEMPTS`=0, "
+                + "u.`EXPIRES_ON`=:expiresOn, "
+                + "u.`PASSWORD`=:pwd, "
+                + "u.`LAST_LOGIN_DATE`=:lastModifiedDate, "
+                + "u.`LAST_MODIFIED_BY`=:lastModifiedBy "
+                + "WHERE u.`USER_ID`=:userId;";
+        Map<String, Object> map = new HashMap<>();
+        map.put("expiresOn", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
+        map.put("pwd", user.getPassword());
+        map.put("lastModifiedBy", 1);
+        map.put("lastModifiedDate", curDate);
+        map.put("userId", user.getUserId());
+        return namedParameterJdbcTemplate.update(sql, map);
     }
 
 }
