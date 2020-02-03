@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import java.util.List;
@@ -16,7 +17,11 @@ import java.util.Map;
  */
 public interface UserDao {
 
+    public CustomUserDetails getCustomUserByUsername(String username);
+    
     public Map<String, Object> checkIfUserExists(String username, String password);
+    
+    public List<String> getBusinessFunctionsForUserId(int userId);
 
     public int resetFailedAttemptsByUserId(int userId);
 
