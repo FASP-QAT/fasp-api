@@ -15,6 +15,7 @@ import java.util.Date;
 public class User implements Serializable {
 
     private int userId;
+    private String username;
     private String password;
     private String emailId;
     private String phoneNumber;
@@ -25,6 +26,7 @@ public class User implements Serializable {
     private boolean active;
     private int faildAttempts;
     private Date lastLoginDate;
+    private int[] countryIds;
 
     public int getUserId() {
         return userId;
@@ -32,6 +34,14 @@ public class User implements Serializable {
 
     public void setUserId(int userId) {
         this.userId = userId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getPassword() {
@@ -114,9 +124,17 @@ public class User implements Serializable {
         this.lastLoginDate = lastLoginDate;
     }
 
+    public int[] getCountryIds() {
+        return countryIds;
+    }
+
+    public void setCountryIds(int[] countryIds) {
+        this.countryIds = countryIds;
+    }
+
     @Override
     public String toString() {
-        return "User{" + "userId=" + userId + ", password=" + password + ", emailId=" + emailId + ", phoneNumber=" + phoneNumber + ", address=" + address + ", realm=" + realm + ", role=" + role + ", language=" + language + ", active=" + active + ", faildAttempts=" + faildAttempts + ", lastLoginDate=" + lastLoginDate + '}';
+        return "User{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", emailId=" + emailId + ", phoneNumber=" + phoneNumber + ", address=" + address + ", realm=" + realm + ", role=" + role + ", language=" + language + ", active=" + active + ", faildAttempts=" + faildAttempts + ", lastLoginDate=" + lastLoginDate + ", countryIds=" + countryIds + '}';
     }
 
 }

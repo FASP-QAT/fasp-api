@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.web.controller;
 
+import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.Registration;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.model.Role;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import cc.altius.FASP.service.UserService;
+import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -57,6 +59,20 @@ public class UserController {
         return json;
     }
 
+    @GetMapping(value = "/getBusinessFunctionList")
+    public String getBusinessFunctionList() {
+        String json = null;
+        try {
+            List<BusinessFunction> businessFunctionList = this.userService.getBusinessFunctionList();
+            Gson gson = new Gson();
+            Type typeList = new TypeToken<List>() {
+            }.getType();
+            json = gson.toJson(businessFunctionList, typeList);
+        } catch (Exception e) {
+        }
+        return json;
+    }
+
     @PutMapping(value = "/addNewUser")
     public ResponseEntity addNewUser(@RequestBody(required = true) String json) throws UnsupportedEncodingException {
         Map<String, Object> responseMap = null;
@@ -64,6 +80,7 @@ public class UserController {
         try {
             Gson g = new Gson();
             User user = g.fromJson(json, User.class);
+            System.out.println("user------------" + Arrays.toString(user.getCountryIds()));
             PasswordEncoder encoder = new BCryptPasswordEncoder();
             String hashPass = encoder.encode(PassPhrase.getPassword());
             user.setPassword(hashPass);

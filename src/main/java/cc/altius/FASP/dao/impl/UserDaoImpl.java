@@ -6,24 +6,26 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.UserDao;
+import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
-import cc.altius.FASP.model.rowMapper.CustomUserDetailsRowMapper;
+import cc.altius.FASP.model.rowMapper.BusinessFunctionRowMapper;
+import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RoleRowMapper;
 import cc.altius.FASP.model.rowMapper.UserRowMapper;
 import cc.altius.utils.DateUtils;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.apache.commons.collections4.map.HashedMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -39,6 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class UserDaoImpl implements UserDao {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private JdbcTemplate jdbcTemplate;
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -50,57 +53,72 @@ public class UserDaoImpl implements UserDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
+    /**
+     * Method to get Customer object from username
+     *
+     * @param username Username used to login
+     * @return Returns the Customer object, null if no object could be found
+     */
+    @Override
+    public CustomUserDetails getCustomUserByUsername(String username) {
+        logger.info("Inside the getCustomerUserByUsername method - " + username);
+        String sqlString = "SELECT user.*, user_role.ROLE_ID, role.ROLE_NAME FROM us_user `user`"
+                + " LEFT JOIN us_user_role user_role ON user.USER_ID=user_role.USER_ID "
+                + " LEFT JOIN us_role role ON user_role.ROLE_ID=role.ROLE_ID "
+                + " WHERE user.USERNAME=?";
+        return this.jdbcTemplate.query(sqlString, new CustomUserDetailsResultSetExtractor(), username);
+    }
+
+    /**
+     * Method to get the list of Business functions that a userId has access to
+     *
+     * @param userId userId that you want to get the Business functions for
+     * @return Returns a list of Business functions that the userId has access
+     * to
+     */
+    @Override
+    public List<String> getBusinessFunctionsForUserId(int userId) {
+        logger.info("Inside the getBusinessFunctionsForUserId method - " + userId);
+        String sqlString = "SELECT BUSINESS_FUNCTION_ID FROM us_user_role LEFT JOIN us_role_business_function ON us_user_role.ROLE_ID=us_role_business_function.ROLE_ID WHERE us_user_role.USER_ID=? AND BUSINESS_FUNCTION_ID IS NOT NULL";
+        return this.jdbcTemplate.queryForList(sqlString, String.class, userId);
+    }
+
     @Override
     public Map<String, Object> checkIfUserExists(String username, String password) {
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.GMT);
-        Calendar c = Calendar.getInstance();
-        c.setTime(curDate);
-        c.add(Calendar.HOUR, 4);
-
         CustomUserDetails customUserDetails = null;
-        Map<String, Object> responseMap = new HashMap<String, Object>();
+        Map<String, Object> responseMap = new HashMap<>();
         String sql = "SELECT user.*, user_role.ROLE_ID, role.ROLE_NAME FROM us_user `user`"
                 + " LEFT JOIN us_user_role user_role ON user.USER_ID=user_role.USER_ID "
                 + " LEFT JOIN us_role role ON user_role.ROLE_ID=role.ROLE_ID "
-                + " WHERE user.EMAIL_ID=?";
+                + " WHERE user.USERNAME=?";
         try {
-            customUserDetails = this.jdbcTemplate.query(sql, new CustomUserDetailsRowMapper(), username).get(0);
+            customUserDetails = this.jdbcTemplate.query(sql, new CustomUserDetailsResultSetExtractor(), username);
             PasswordEncoder encoder = new BCryptPasswordEncoder();
             if (encoder.matches(password, customUserDetails.getPassword())) {
                 if (!customUserDetails.isActive()) {
                     responseMap.put("customUserDetails", null);
-                    responseMap.put("message", "User is inactive");
-//                    responseMap.put("failedValue", ErrorConstants.USER_INACTIVE);
+                    responseMap.put("message", "User is not active");
                     return responseMap;
                 } else if (customUserDetails.getFailedAttempts() >= 3) {
-//                    logService.accessLog("0.0.0.0", username, user.getUserId(), false, "Account Locked");
-//                    LogUtils.debugLogger.debug(LogUtils.buildStringForSystemLog("Account Locked"));
-//                    LogUtils.systemLogger.info(LogUtils.buildStringForSystemLog("Account Locked"));
                     responseMap.put("customUserDetails", null);
                     responseMap.put("message", "User account is locked");
-//                    responseMap.put("failedValue", ErrorConstants.ACCOUNT_LOCKED);
                     return responseMap;
                 } else {
+                    customUserDetails.setBusinessFunction(this.getBusinessFunctionsForUserId(customUserDetails.getUserId()));
                     responseMap.put("customUserDetails", customUserDetails);
-                    responseMap.put("message", "Logined successfully");
+                    responseMap.put("message", "Login successful");
                     this.resetFailedAttemptsByUserId(customUserDetails.getUserId());
                 }
             } else {
                 this.updateFailedAttemptsByUserId(username);
                 responseMap.put("customUserDetails", null);
                 responseMap.put("message", "Password is invalid");
-//                responseMap.put("failedValue", ErrorConstants.INVALID_PASSWORD);
                 return responseMap;
             }
-        } catch (IncorrectResultSizeDataAccessException i) {
+        } catch (Exception i) {
+            logger.error("Error", i);
             responseMap.put("customUserDetails", null);
             responseMap.put("message", "User does not exists");
-//            responseMap.put("failedValue", ErrorConstants.USER_DOES_NOT_EXIST);
-            return responseMap;
-        } catch (IndexOutOfBoundsException i) {
-            responseMap.put("customUserDetails", null);
-            responseMap.put("message", "User does not exists");
-//            responseMap.put("failedValue", ErrorConstants.USER_DOES_NOT_EXIST);
             return responseMap;
         }
         return responseMap;
@@ -143,7 +161,7 @@ public class UserDaoImpl implements UserDao {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         Map<String, Object> map = new HashedMap<>();
         map.put("REALM_ID", user.getRealm().getRealmId());
-        map.put("USERNAME", user.getEmailId());
+        map.put("USERNAME", user.getUsername());
         map.put("PASSWORD", user.getPassword());
         map.put("EMAIL_ID", user.getEmailId());
         map.put("PHONE_NO", user.getPhoneNumber());
@@ -166,7 +184,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserList() {
-        String sql = "SELECT u.`USER_ID`,u.`EMAIL_ID`,u.`PHONE_NO`,"
+        String sql = "SELECT u.`USER_ID`,u.`USERNAME`,u.`EMAIL_ID`,u.`PHONE_NO`,"
                 + "u.`REALM_ID`,rl.`REALM_CODE`,u.`LANGUAGE_ID`,"
                 + "l.`LANGUAGE_NAME`,ur.`ROLE_ID`,r.`ROLE_NAME`,"
                 + "u.`LAST_LOGIN_DATE`,u.`FAILED_ATTEMPTS`,u.`ACTIVE`"
@@ -180,7 +198,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User getUserByUserId(int userId) {
-        String sql = "SELECT u.`USER_ID`,u.`EMAIL_ID`,u.`PHONE_NO`,"
+        String sql = "SELECT u.`USER_ID`,u.`USERNAME`,u.`EMAIL_ID`,u.`PHONE_NO`,"
                 + "u.`REALM_ID`,rl.`REALM_CODE`,u.`LANGUAGE_ID`,"
                 + "l.`LANGUAGE_NAME`,ur.`ROLE_ID`,r.`ROLE_NAME`,"
                 + "u.`LAST_LOGIN_DATE`,u.`FAILED_ATTEMPTS`,u.`ACTIVE`"
@@ -208,7 +226,7 @@ public class UserDaoImpl implements UserDao {
                 + "WHERE  u.`USER_ID`=:userId;";
         Map<String, Object> map = new HashMap<>();
         map.put("realmId", user.getRealm().getRealmId());
-        map.put("userName", user.getEmailId());
+        map.put("userName", user.getUsername());
         map.put("emailId", user.getEmailId());
         map.put("phoneNo", user.getPhoneNumber());
         map.put("languageId", user.getLanguage().getLanguageId());
@@ -226,35 +244,22 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page) {
-        String message = "", sql, emailId = user.getEmailId(), phoneNo = user.getPhoneNumber();
+        String message = "", sql, username = user.getUsername(), phoneNo = user.getPhoneNumber();
         int userId = 0;
         if (page == 1) {
-            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`EMAIL_ID`=?;";
-            if ((this.jdbcTemplate.queryForObject(sql, Integer.class, emailId) > 0 ? true : false)) {
-                message += "Email id already exists.";
-            }
-            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`PHONE_NO`=?;";
-            if ((this.jdbcTemplate.queryForObject(sql, Integer.class, phoneNo) > 0 ? true : false)) {
-                message += "Phone no. already exists.";
+            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`USERNAME`=?;";
+            if ((this.jdbcTemplate.queryForObject(sql, Integer.class, username) > 0 ? true : false)) {
+                message += "User already exists.";
             }
         } else if (page == 2) {
-            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`EMAIL_ID`=?;";
+            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`USERNAME`=?;";
             try {
-                userId = this.jdbcTemplate.queryForObject(sql, Integer.class, emailId);
+                userId = this.jdbcTemplate.queryForObject(sql, Integer.class, username);
             } catch (EmptyResultDataAccessException e) {
                 userId = 0;
             }
             if (userId > 0 && userId != user.getUserId() ? true : false) {
-                message += "Email id already exists.";
-            }
-            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`PHONE_NO`=?;";
-            try {
-                userId = this.jdbcTemplate.queryForObject(sql, Integer.class, phoneNo);
-            } catch (EmptyResultDataAccessException e) {
-                userId = 0;
-            }
-            if (userId > 0 && userId != user.getUserId() ? true : false) {
-                message += "Phone no. already exists.";
+                message += "User already exists.";
             }
         }
         return message;
@@ -278,6 +283,12 @@ public class UserDaoImpl implements UserDao {
         map.put("lastModifiedDate", curDate);
         map.put("userId", user.getUserId());
         return namedParameterJdbcTemplate.update(sql, map);
+    }
+
+    @Override
+    public List<BusinessFunction> getBusinessFunctionList() {
+        String sqlString = "SELECT b.* FROM us_business_function b WHERE b.`ACTIVE` ";
+        return this.jdbcTemplate.query(sqlString, new BusinessFunctionRowMapper());
     }
 
 }

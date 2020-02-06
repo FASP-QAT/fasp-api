@@ -8,15 +8,14 @@ package cc.altius.FASP.web.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.UserService;
-import com.google.gson.Gson;
 import java.io.UnsupportedEncodingException;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,10 +32,19 @@ public class LoginController {
     UserService userService;
 
     @GetMapping(value = "/checkIfUserExists")
-    public ResponseEntity checkIfUserExists(@RequestHeader(required = true) String username, @RequestHeader(required = true) String password) throws UnsupportedEncodingException {
+    public ResponseEntity checkIfUserExists(HttpServletRequest request) throws UnsupportedEncodingException {
         Map<String, Object> responseMap = null;
         ResponseFormat responseFormat = new ResponseFormat();
         try {
+            String username = request.getHeader("username");
+            String password = request.getHeader("password");
+            System.out.println("username---" + username);
+            System.out.println("password---" + password);
+            if (username == null || password == null) {
+                responseFormat.setStatus("failed");
+                responseFormat.setMessage("Username or Password not provided");
+                return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
+            }
             responseMap = this.userService.checkIfUserExists(username, password);
             CustomUserDetails customUserDetails = (CustomUserDetails) responseMap.get("customUserDetails");
             if (customUserDetails != null) {
