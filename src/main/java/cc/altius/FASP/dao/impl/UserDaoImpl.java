@@ -62,11 +62,18 @@ public class UserDaoImpl implements UserDao {
     @Override
     public CustomUserDetails getCustomUserByUsername(String username) {
         logger.info("Inside the getCustomerUserByUsername method - " + username);
-        String sqlString = "SELECT user.*, user_role.ROLE_ID, role.ROLE_NAME FROM us_user `user`"
-                + " LEFT JOIN us_user_role user_role ON user.USER_ID=user_role.USER_ID "
-                + " LEFT JOIN us_role role ON user_role.ROLE_ID=role.ROLE_ID "
-                + " WHERE user.USERNAME=?";
-        return this.jdbcTemplate.query(sqlString, new CustomUserDetailsResultSetExtractor(), username);
+        String sqlString = " SELECT user.*, user_role.ROLE_ID,lb.`LABEL_ID` ,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`"
+                + " FROM us_user `user`"
+                + " LEFT JOIN us_user_role user_role ON user.USER_ID=user_role.USER_ID"
+                + " LEFT JOIN us_role role ON user_role.ROLE_ID=role.ROLE_ID"
+                + " LEFT JOIN ap_label lb ON lb.`LABEL_ID`=role.`LABEL_ID`"
+                + " WHERE user.USERNAME=?;";
+        try {
+            return this.jdbcTemplate.query(sqlString, new CustomUserDetailsResultSetExtractor(), username);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     /**
@@ -128,7 +135,7 @@ public class UserDaoImpl implements UserDao {
     public int resetFailedAttemptsByUserId(int userId) {
         try {
             Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
-            String sqlreset = "UPDATE `user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=? WHERE USER_ID=?";
+            String sqlreset = "UPDATE `us_user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=? WHERE USER_ID=?";
             return this.jdbcTemplate.update(sqlreset, curDt, userId);
         } catch (DataAccessException e) {
 //            LogUtils.systemLogger.info(LogUtils.buildStringForSystemLog(GlobalConstants.TAG_SYSTEM, e));
@@ -139,7 +146,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int updateFailedAttemptsByUserId(String username) {
         try {
-            String sqlQuery = "UPDATE `user` SET FAILED_ATTEMPTS=FAILED_ATTEMPTS+1 WHERE USERNAME=?";
+            String sqlQuery = "UPDATE `us_user` SET FAILED_ATTEMPTS=FAILED_ATTEMPTS+1 WHERE USERNAME=?";
 //            LogUtils.systemLogger.info(LogUtils.buildStringForSystemLog(GlobalConstants.TAG_SYSTEM, sqlQuery));
             return this.jdbcTemplate.update(sqlQuery, username);
         } catch (DataAccessException e) {
@@ -150,7 +157,8 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<Role> getRoleList() {
-        String sql = "SELECT * FROM us_role;";
+        String sql = "SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP` FROM us_role"
+                + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID`;";
         return this.jdbcTemplate.query(sql, new RoleRowMapper());
     }
 

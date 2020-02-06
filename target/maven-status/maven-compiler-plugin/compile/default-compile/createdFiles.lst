@@ -69,6 +69,7 @@ cc/altius/FASP/web/controller/CountryController$1.class
 cc/altius/FASP/model/CustomUserDetails.class
 cc/altius/FASP/web/controller/StateController.class
 cc/altius/FASP/jwt/resource/JwtTokenResponse.class
+cc/altius/FASP/model/Label.class
 cc/altius/FASP/model/User.class
 cc/altius/FASP/model/rowMapper/BusinessFunctionRowMapper.class
 cc/altius/FASP/jwt/JwtTokenUtil.class

@@ -14,7 +14,7 @@ import java.util.Objects;
 public class Role implements Serializable {
 
     private String roleId;
-    private String roleName;
+    private Label label;
     private String[] businessFunctions;
 
     public Role() {
@@ -24,25 +24,25 @@ public class Role implements Serializable {
         this.roleId = roleId;
     }
 
-    public Role(String roleId, String roleName) {
-        this.roleId = roleId;
-        this.roleName = roleName;
-    }
-
     public String getRoleId() {
         return roleId;
+    }
+
+    public Role(String roleId, Label label) {
+        this.roleId = roleId;
+        this.label = label;
     }
 
     public void setRoleId(String roleId) {
         this.roleId = roleId;
     }
 
-    public String getRoleName() {
-        return roleName;
+    public Label getLabel() {
+        return label;
     }
 
-    public void setRoleName(String roleName) {
-        this.roleName = roleName;
+    public void setLabel(Label label) {
+        this.label = label;
     }
 
     public String[] getBusinessFunctions() {
@@ -51,11 +51,6 @@ public class Role implements Serializable {
 
     public void setBusinessFunctions(String[] businessFunctions) {
         this.businessFunctions = businessFunctions;
-    }
-
-    @Override
-    public String toString() {
-        return "Role{" + "roleId=" + roleId + ", roleName=" + roleName + ", businessFunctions=" + businessFunctions + '}';
     }
 
     @Override

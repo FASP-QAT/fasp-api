@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.Language;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.Role;
@@ -18,7 +19,7 @@ import org.springframework.jdbc.core.RowMapper;
  * @author altius
  */
 public class UserRowMapper implements RowMapper<User> {
-
+    
     @Override
     public User mapRow(ResultSet rs, int i) throws SQLException {
         User u = new User();
@@ -36,12 +37,18 @@ public class UserRowMapper implements RowMapper<User> {
         u.setLanguage(l);
         Role role = new Role();
         role.setRoleId(rs.getString("ROLE_ID"));
-        role.setRoleName(rs.getString("ROLE_NAME"));
+        Label lb = new Label();
+        lb.setLabelId(rs.getInt("LABEL_ID"));
+        lb.setEngLabel(rs.getString("LABEL_EN"));
+        lb.setFreLabel(rs.getString("LABEL_FR"));
+        lb.setSpaLabel(rs.getString("LABEL_SP"));
+        lb.setPorLabel(rs.getString("LABEL_PR"));
+        role.setLabel(lb);
         u.setRole(role);
         u.setLastLoginDate(rs.getDate("LAST_LOGIN_DATE"));
         u.setFaildAttempts(rs.getInt("FAILED_ATTEMPTS"));
         u.setActive(rs.getBoolean("ACTIVE"));
         return u;
     }
-
+    
 }

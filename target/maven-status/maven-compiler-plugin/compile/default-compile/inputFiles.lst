@@ -9,6 +9,7 @@
 /home/altius/NetBeansProjects/gitRepos/FASP/src/main/java/cc/altius/FASP/service/impl/StateServiceImpl.java
 /home/altius/NetBeansProjects/gitRepos/FASP/src/main/java/cc/altius/FASP/web/controller/RealmController.java
 /home/altius/NetBeansProjects/gitRepos/FASP/src/main/java/cc/altius/FASP/service/CountryService.java
+/home/altius/NetBeansProjects/gitRepos/FASP/src/main/java/cc/altius/FASP/model/Label.java
 /home/altius/NetBeansProjects/gitRepos/FASP/src/main/java/cc/altius/FASP/framework/GlobalConstants.java
 /home/altius/NetBeansProjects/gitRepos/FASP/src/main/java/cc/altius/FASP/service/impl/RegistrationServiceImpl.java
 /home/altius/NetBeansProjects/gitRepos/FASP/src/main/java/cc/altius/FASP/dao/impl/CountryDaoImpl.java

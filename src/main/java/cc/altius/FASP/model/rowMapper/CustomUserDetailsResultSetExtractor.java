@@ -5,6 +5,7 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.Role;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -37,7 +38,13 @@ public class CustomUserDetailsResultSetExtractor implements ResultSetExtractor<C
                 user.setRoleList(new LinkedList<>());
                 user.setBusinessFunction(new LinkedList<>());
             }
-            Role role = new Role(rs.getString("ROLE_ID"), rs.getString("ROLE_NAME"));
+            Label l = new Label();
+            l.setLabelId(rs.getInt("LABEL_ID"));
+            l.setEngLabel(rs.getString("LABEL_EN"));
+            l.setFreLabel(rs.getString("LABEL_FR"));
+            l.setSpaLabel(rs.getString("LABEL_SP"));
+            l.setPorLabel(rs.getString("LABEL_PR"));
+            Role role = new Role(rs.getString("ROLE_ID"), l);
             if (user.getRoleList().indexOf(role) == -1) {
                 user.getRoleList().add(role);
             }
