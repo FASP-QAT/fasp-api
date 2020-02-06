@@ -32,7 +32,7 @@ public class CountryDaoImpl implements CountryDao {
 
     @Override
     public List<Country> getCountryList() {
-        String sql = "SELECT * FROM country c ;";
+        String sql = "SELECT * FROM ap_country c ;";
         return this.jdbcTemplate.query(sql, new CountryRowMapper());
     }
 

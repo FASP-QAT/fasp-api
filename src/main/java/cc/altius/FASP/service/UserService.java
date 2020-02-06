@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import java.util.List;
@@ -35,5 +36,7 @@ public interface UserService {
     public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page);
 
     public int unlockAccount(User user);
+
+    public List<BusinessFunction> getBusinessFunctionList();
 
 }

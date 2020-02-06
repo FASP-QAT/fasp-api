@@ -6,9 +6,11 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.UserDao;
+import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
+import cc.altius.FASP.model.rowMapper.BusinessFunctionRowMapper;
 import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RoleRowMapper;
 import cc.altius.FASP.model.rowMapper.UserRowMapper;
@@ -66,7 +68,7 @@ public class UserDaoImpl implements UserDao {
                 + " WHERE user.USERNAME=?";
         return this.jdbcTemplate.query(sqlString, new CustomUserDetailsResultSetExtractor(), username);
     }
-    
+
     /**
      * Method to get the list of Business functions that a userId has access to
      *
@@ -80,7 +82,7 @@ public class UserDaoImpl implements UserDao {
         String sqlString = "SELECT BUSINESS_FUNCTION_ID FROM us_user_role LEFT JOIN us_role_business_function ON us_user_role.ROLE_ID=us_role_business_function.ROLE_ID WHERE us_user_role.USER_ID=? AND BUSINESS_FUNCTION_ID IS NOT NULL";
         return this.jdbcTemplate.queryForList(sqlString, String.class, userId);
     }
-    
+
     @Override
     public Map<String, Object> checkIfUserExists(String username, String password) {
         CustomUserDetails customUserDetails = null;
@@ -159,7 +161,7 @@ public class UserDaoImpl implements UserDao {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         Map<String, Object> map = new HashedMap<>();
         map.put("REALM_ID", user.getRealm().getRealmId());
-        map.put("USERNAME", user.getEmailId());
+        map.put("USERNAME", user.getUsername());
         map.put("PASSWORD", user.getPassword());
         map.put("EMAIL_ID", user.getEmailId());
         map.put("PHONE_NO", user.getPhoneNumber());
@@ -182,7 +184,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserList() {
-        String sql = "SELECT u.`USER_ID`,u.`EMAIL_ID`,u.`PHONE_NO`,"
+        String sql = "SELECT u.`USER_ID`,u.`USERNAME`,u.`EMAIL_ID`,u.`PHONE_NO`,"
                 + "u.`REALM_ID`,rl.`REALM_CODE`,u.`LANGUAGE_ID`,"
                 + "l.`LANGUAGE_NAME`,ur.`ROLE_ID`,r.`ROLE_NAME`,"
                 + "u.`LAST_LOGIN_DATE`,u.`FAILED_ATTEMPTS`,u.`ACTIVE`"
@@ -196,7 +198,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User getUserByUserId(int userId) {
-        String sql = "SELECT u.`USER_ID`,u.`EMAIL_ID`,u.`PHONE_NO`,"
+        String sql = "SELECT u.`USER_ID`,u.`USERNAME`,u.`EMAIL_ID`,u.`PHONE_NO`,"
                 + "u.`REALM_ID`,rl.`REALM_CODE`,u.`LANGUAGE_ID`,"
                 + "l.`LANGUAGE_NAME`,ur.`ROLE_ID`,r.`ROLE_NAME`,"
                 + "u.`LAST_LOGIN_DATE`,u.`FAILED_ATTEMPTS`,u.`ACTIVE`"
@@ -224,7 +226,7 @@ public class UserDaoImpl implements UserDao {
                 + "WHERE  u.`USER_ID`=:userId;";
         Map<String, Object> map = new HashMap<>();
         map.put("realmId", user.getRealm().getRealmId());
-        map.put("userName", user.getEmailId());
+        map.put("userName", user.getUsername());
         map.put("emailId", user.getEmailId());
         map.put("phoneNo", user.getPhoneNumber());
         map.put("languageId", user.getLanguage().getLanguageId());
@@ -242,35 +244,22 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page) {
-        String message = "", sql, emailId = user.getEmailId(), phoneNo = user.getPhoneNumber();
+        String message = "", sql, username = user.getUsername(), phoneNo = user.getPhoneNumber();
         int userId = 0;
         if (page == 1) {
-            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`EMAIL_ID`=?;";
-            if ((this.jdbcTemplate.queryForObject(sql, Integer.class, emailId) > 0 ? true : false)) {
-                message += "Email id already exists.";
-            }
-            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`PHONE_NO`=?;";
-            if ((this.jdbcTemplate.queryForObject(sql, Integer.class, phoneNo) > 0 ? true : false)) {
-                message += "Phone no. already exists.";
+            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`USERNAME`=?;";
+            if ((this.jdbcTemplate.queryForObject(sql, Integer.class, username) > 0 ? true : false)) {
+                message += "User already exists.";
             }
         } else if (page == 2) {
-            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`EMAIL_ID`=?;";
+            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`USERNAME`=?;";
             try {
-                userId = this.jdbcTemplate.queryForObject(sql, Integer.class, emailId);
+                userId = this.jdbcTemplate.queryForObject(sql, Integer.class, username);
             } catch (EmptyResultDataAccessException e) {
                 userId = 0;
             }
             if (userId > 0 && userId != user.getUserId() ? true : false) {
-                message += "Email id already exists.";
-            }
-            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`PHONE_NO`=?;";
-            try {
-                userId = this.jdbcTemplate.queryForObject(sql, Integer.class, phoneNo);
-            } catch (EmptyResultDataAccessException e) {
-                userId = 0;
-            }
-            if (userId > 0 && userId != user.getUserId() ? true : false) {
-                message += "Phone no. already exists.";
+                message += "User already exists.";
             }
         }
         return message;
@@ -294,6 +283,12 @@ public class UserDaoImpl implements UserDao {
         map.put("lastModifiedDate", curDate);
         map.put("userId", user.getUserId());
         return namedParameterJdbcTemplate.update(sql, map);
+    }
+
+    @Override
+    public List<BusinessFunction> getBusinessFunctionList() {
+        String sqlString = "SELECT b.* FROM us_business_function b WHERE b.`ACTIVE` ";
+        return this.jdbcTemplate.query(sqlString, new BusinessFunctionRowMapper());
     }
 
 }

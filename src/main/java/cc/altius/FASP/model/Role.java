@@ -15,6 +15,7 @@ public class Role implements Serializable {
 
     private String roleId;
     private String roleName;
+    private String[] businessFunctions;
 
     public Role() {
     }
@@ -44,9 +45,17 @@ public class Role implements Serializable {
         this.roleName = roleName;
     }
 
+    public String[] getBusinessFunctions() {
+        return businessFunctions;
+    }
+
+    public void setBusinessFunctions(String[] businessFunctions) {
+        this.businessFunctions = businessFunctions;
+    }
+
     @Override
     public String toString() {
-        return "Role{" + "roleId=" + roleId + ", roleName=" + roleName + '}';
+        return "Role{" + "roleId=" + roleId + ", roleName=" + roleName + ", businessFunctions=" + businessFunctions + '}';
     }
 
     @Override
@@ -73,7 +82,5 @@ public class Role implements Serializable {
         }
         return true;
     }
-    
-    
 
 }

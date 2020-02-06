@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.UserDao;
+import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
@@ -73,6 +74,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public int unlockAccount(User user) {
         return this.userDao.unlockAccount(user);
+    }
+
+    @Override
+    public List<BusinessFunction> getBusinessFunctionList() {
+        return this.userDao.getBusinessFunctionList();
     }
 
 }

@@ -75,7 +75,12 @@
             <artifactId>spring-data-rest-hal-browser</artifactId>
             <scope>runtime</scope>
         </dependency>
-        
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.1</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <pluginRepositories>
         <pluginRepository>

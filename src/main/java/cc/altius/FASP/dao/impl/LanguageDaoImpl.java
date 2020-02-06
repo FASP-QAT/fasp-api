@@ -41,7 +41,7 @@ public class LanguageDaoImpl implements LanguageDao {
     @Override
     public List<Language> getLanguageList(boolean active) {
         StringBuilder sb = new StringBuilder();
-        sb.append(" SELECT * FROM lc_language l ");
+        sb.append(" SELECT * FROM ap_language l ");
         if (active) {
             sb.append(" WHERE l.`ACTIVE` ");
         }
