@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.Role;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,7 +21,13 @@ public class RoleRowMapper implements RowMapper<Role> {
     public Role mapRow(ResultSet rs, int i) throws SQLException {
         Role r = new Role();
         r.setRoleId(rs.getString("ROLE_ID"));
-        r.setRoleName(rs.getString("ROLE_NAME"));
+        Label l = new Label();
+        l.setLabelId(rs.getInt("LABEL_ID"));
+        l.setEngLabel(rs.getString("LABEL_EN"));
+        l.setFreLabel(rs.getString("LABEL_FR"));
+        l.setSpaLabel(rs.getString("LABEL_SP"));
+        l.setPorLabel(rs.getString("LABEL_PR"));
+        r.setLabel(l);
         return r;
     }
 

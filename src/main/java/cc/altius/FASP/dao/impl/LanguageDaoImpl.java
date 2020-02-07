@@ -67,8 +67,8 @@ public class LanguageDaoImpl implements LanguageDao {
     public int editLanguage(Language language) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sql = "Update ap_language l set l.`LANGUAGE_NAME`=:languageName,l.`ACTIVE`=:active,"
-                + "l.`LAST_MODIFIED_BY`=:lastModifiedBy,l.`LAST_MODIFIED_DATE`=:lastModifiedDate"
-                + "WHERE l.`LANGUAGE_ID`=:languageId";
+                + " l.`LAST_MODIFIED_BY`=:lastModifiedBy,l.`LAST_MODIFIED_DATE`=:lastModifiedDate"
+                + " WHERE l.`LANGUAGE_ID`=:languageId";
         Map<String, Object> map = new HashMap<>();
         map.put("languageName", language.getLanguageName());
         map.put("active", language.isActive());

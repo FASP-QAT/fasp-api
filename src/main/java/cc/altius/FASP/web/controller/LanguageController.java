@@ -46,6 +46,17 @@ public class LanguageController {
         return json;
     }
 
+    @GetMapping(value = "/getLanguageListAll")
+    public String getLanguageListAll() throws UnsupportedEncodingException {
+        String json;
+        List<Language> languageList = this.languageService.getLanguageList(false);
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(languageList, typeList);
+        return json;
+    }
+
     @PutMapping(value = "/addLanguage")
     public ResponseEntity addLanguage(@RequestBody(required = true) String json) {
         System.out.println("json---->" + json);
@@ -77,6 +88,8 @@ public class LanguageController {
     public ResponseEntity editLanguage(@RequestBody(required = true) String json) {
         Gson g = new Gson();
         Language language = g.fromJson(json, Language.class);
+        System.out.println("language json--->" + json);
+        System.out.println("language json--->" + language);
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             int updatedId = this.languageService.editLanguage(language);
