@@ -30,9 +30,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4202")
-//@CrossOrigin(origins = "http://localhost:4202,http://localhost")
-//@CrossOrigin(origins = "http://localhost")
+//@CrossOrigin(origins = "http://localhost:4202")
 public class JwtAuthenticationRestController {
 
     @Value("${jwt.http.request.header}")
@@ -89,15 +87,15 @@ public class JwtAuthenticationRestController {
             if (true) {
 
             }
+        } catch (UsernameNotFoundException e) {
+            throw new AuthenticationException("USER_NOT_FOUND", e);
         } catch (DisabledException e) {
             throw new AuthenticationException("USER_DISABLED", e);
         } catch (AccountExpiredException e) {
-            throw new AuthenticationException("Account Expired", e);
+            throw new AuthenticationException("ACCOUNT_EXPIRED", e);
         } catch (BadCredentialsException e) {
             //++failedAttepts
             throw new AuthenticationException("INVALID_CREDENTIALS", e);
-        } catch (UsernameNotFoundException e) {
-            throw new AuthenticationException("User not found", e);
         }
     }
 }

@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -34,8 +33,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         logger.info("Inside loadUserByUsername" + LogUtils.getArgsString(), LogUtils.getIpAddress(), LogUtils.getUsername());
         try {
             CustomUserDetails user = this.userDao.getCustomUserByUsername(username);
-            if (user.getUserId()==0) {
-                throw new EmptyResultDataAccessException(1);
+            if (user.isPresent()) {
+                throw new UsernameNotFoundException("User not found");
             }
             if (!user.isActive()) {
                 logger.warn("Account disabled" + LogUtils.getArgsString(), LogUtils.getIpAddress(), LogUtils.getUsername());
@@ -49,19 +48,16 @@ public class CustomUserDetailsService implements UserDetailsService {
 //                this.logDao.accessLog(ipAddress, username, null, false, "Outside access");
             } else {
 //                if (user.isPasswordExpired()) {
-                    // only insert the ROLE_BF_PASSWORD_EXPIRED
+                // only insert the ROLE_BF_PASSWORD_EXPIRED
 //                    logger.info("Credentials are Expired so only put in ROLE_BF_PASSWORD_EXPIRED into Authoirites" + LogUtils.getArgsString(), LogUtils.getIpAddress(), LogUtils.getUsername());
 //                    List<String> businessFunctions = new LinkedList<>();
 //                    businessFunctions.add("ROLE_BF_PASSWORD_EXPIRED");
 //                    user.setBusinessFunction(businessFunctions);
 //                } else {
-                    user.setBusinessFunction(this.userDao.getBusinessFunctionsForUserId(user.getUserId()));
+                user.setBusinessFunction(this.userDao.getBusinessFunctionsForUserId(user.getUserId()));
 //                }
             }
             return user;
-        } catch (EmptyResultDataAccessException erda) {
-            logger.warn("Username not found", erda);
-            throw new UsernameNotFoundException("Username not found");
         } catch (NullPointerException ne) {
             logger.warn("Error occurred", ne);
             throw new UsernameNotFoundException(ne.getMessage());
