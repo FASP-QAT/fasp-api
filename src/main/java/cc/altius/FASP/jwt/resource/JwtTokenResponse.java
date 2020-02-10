@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.jwt.resource;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import java.io.Serializable;
 
 public class JwtTokenResponse implements Serializable {
@@ -12,12 +13,19 @@ public class JwtTokenResponse implements Serializable {
     private static final long serialVersionUID = 8317676219297719109L;
 
     private final String token;
+    private CustomUserDetails customUserDetails;
 
-    public JwtTokenResponse(String token) {
+    public JwtTokenResponse(String token, CustomUserDetails customUserDetails) {
         this.token = token;
+        this.customUserDetails = customUserDetails;
     }
 
     public String getToken() {
         return this.token;
     }
+
+    public CustomUserDetails getCustomUserDetails() {
+        return customUserDetails;
+    }
+
 }

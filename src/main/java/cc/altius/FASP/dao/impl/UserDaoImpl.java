@@ -69,8 +69,10 @@ public class UserDaoImpl implements UserDao {
                 + " LEFT JOIN ap_label lb ON lb.`LABEL_ID`=role.`LABEL_ID`"
                 + " WHERE user.USERNAME=?;";
         try {
+            System.out.println("result--------" + this.jdbcTemplate.query(sqlString, new CustomUserDetailsResultSetExtractor(), username));
             return this.jdbcTemplate.query(sqlString, new CustomUserDetailsResultSetExtractor(), username);
         } catch (Exception e) {
+            System.out.println("error--------------" + e);
             e.printStackTrace();
             return null;
         }
@@ -297,6 +299,31 @@ public class UserDaoImpl implements UserDao {
     public List<BusinessFunction> getBusinessFunctionList() {
         String sqlString = "SELECT b.* FROM us_business_function b WHERE b.`ACTIVE` ";
         return this.jdbcTemplate.query(sqlString, new BusinessFunctionRowMapper());
+    }
+
+    @Override
+    public int updatePassword(int userId, String newPassword, int offset) {
+        Date offsetDate = DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, offset);
+        System.out.println("offsetDate---" + offsetDate);
+        String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn WHERE us_user.USER_ID=:userId";
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+        String hash = encoder.encode(newPassword);
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", userId);
+        params.put("hash", hash);
+        params.put("expiresOn", offsetDate);
+        return namedParameterJdbcTemplate.update(sqlString, params);
+    }
+
+    @Override
+    public boolean confirmPassword(int userId, String password) {
+        String sqlString = "SELECT us_user.PASSWORD FROM us_user WHERE us_user.USER_ID=:userId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", userId);
+        String hash = namedParameterJdbcTemplate.queryForObject(sqlString, params, String.class);
+        PasswordEncoder encoder = new BCryptPasswordEncoder();
+
+        return encoder.matches(password, hash);
     }
 
 }
