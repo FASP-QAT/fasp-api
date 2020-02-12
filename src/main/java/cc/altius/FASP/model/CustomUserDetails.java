@@ -203,6 +203,14 @@ public class CustomUserDetails implements UserDetails, Serializable {
         }
     }
 
+    public boolean isPresent() {
+        if (this.userId == 0) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;

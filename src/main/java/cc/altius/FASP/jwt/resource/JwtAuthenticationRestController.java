@@ -32,9 +32,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:4202")
-//@CrossOrigin(origins = "http://localhost:4202,http://localhost")
-//@CrossOrigin(origins = "http://localhost")
+//@CrossOrigin(origins = "http://localhost:4202")
 public class JwtAuthenticationRestController {
 
     @Value("${jwt.http.request.header}")
@@ -89,9 +87,20 @@ public class JwtAuthenticationRestController {
 
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+<<<<<<< HEAD
+=======
+
+            // failed attempts
+            if (true) {
+
+            }
+        } catch (UsernameNotFoundException e) {
+            throw new AuthenticationException("USER_NOT_FOUND", e);
+>>>>>>> 18a3b1391c0f5b1ee7e7e1055f14528bdc032840
         } catch (DisabledException e) {
             throw new AuthenticationException("User is disabled", e);
         } catch (AccountExpiredException e) {
+<<<<<<< HEAD
             throw new AuthenticationException("Account Expired", e);
         } catch (LockedException e) {
             throw new AuthenticationException("User account is locked", e);
@@ -100,6 +109,12 @@ public class JwtAuthenticationRestController {
         } catch (BadCredentialsException e) {
             this.userService.updateFailedAttemptsByUserId(username);
             throw new AuthenticationException("Invalid credentials", e);
+=======
+            throw new AuthenticationException("ACCOUNT_EXPIRED", e);
+        } catch (BadCredentialsException e) {
+            //++failedAttepts
+            throw new AuthenticationException("INVALID_CREDENTIALS", e);
+>>>>>>> 18a3b1391c0f5b1ee7e7e1055f14528bdc032840
         }
     }
 }
