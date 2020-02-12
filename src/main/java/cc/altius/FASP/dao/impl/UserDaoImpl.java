@@ -62,7 +62,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public CustomUserDetails getCustomUserByUsername(String username) {
         logger.info("Inside the getCustomerUserByUsername method - " + username);
-        String sqlString = " SELECT user.*, user_role.ROLE_ID,lb.`LABEL_ID` ,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`"
+        String sqlString = " SELECT user.*,user_role.ROLE_ID,lb.`LABEL_ID` ,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`"
                 + " FROM us_user `user`"
                 + " LEFT JOIN us_user_role user_role ON user.USER_ID=user_role.USER_ID"
                 + " LEFT JOIN us_role role ON user_role.ROLE_ID=role.ROLE_ID"

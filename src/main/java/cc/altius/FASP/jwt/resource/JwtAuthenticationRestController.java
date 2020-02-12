@@ -8,6 +8,7 @@ package cc.altius.FASP.jwt.resource;
 import cc.altius.FASP.jwt.JwtTokenUtil;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.security.CustomUserDetailsService;
+import cc.altius.FASP.service.UserService;
 import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +21,7 @@ import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -47,6 +49,9 @@ public class JwtAuthenticationRestController {
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
+    @Autowired
+    private UserService userService;
+
     @RequestMapping(value = "${jwt.get.token.uri}", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtTokenRequest authenticationRequest)
             throws AuthenticationException {
@@ -55,7 +60,7 @@ public class JwtAuthenticationRestController {
         final CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         final String token = jwtTokenUtil.generateToken(userDetails);
 
-        return ResponseEntity.ok(new JwtTokenResponse(token, userDetails));
+        return ResponseEntity.ok(new JwtTokenResponse(token));
     }
 
     @RequestMapping(value = "${jwt.refresh.token.uri}", method = RequestMethod.GET)
@@ -63,11 +68,11 @@ public class JwtAuthenticationRestController {
         String authToken = request.getHeader(tokenHeader);
         final String token = authToken.substring(7);
 //        String username = jwtTokenUtil.getUsernameFromToken(token);
-        CustomUserDetails user = (CustomUserDetails) customUserDetailsService.loadUserByUsername("anchal.c@altius.cc");
+//        CustomUserDetails user = (CustomUserDetails) customUserDetailsService.loadUserByUsername("anchal.c@altius.cc");
 
         if (jwtTokenUtil.canTokenBeRefreshed(token)) {
             String refreshedToken = jwtTokenUtil.refreshToken(token);
-            return ResponseEntity.ok(new JwtTokenResponse(refreshedToken, user));
+            return ResponseEntity.ok(new JwtTokenResponse(refreshedToken));
         } else {
             return ResponseEntity.badRequest().body(null);
         }
@@ -84,20 +89,17 @@ public class JwtAuthenticationRestController {
 
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-
-            // failed attempts
-            if (true) {
-
-            }
         } catch (DisabledException e) {
-            throw new AuthenticationException("USER_DISABLED", e);
+            throw new AuthenticationException("User is disabled", e);
         } catch (AccountExpiredException e) {
             throw new AuthenticationException("Account Expired", e);
-        } catch (BadCredentialsException e) {
-            //++failedAttepts
-            throw new AuthenticationException("INVALID_CREDENTIALS", e);
+        } catch (LockedException e) {
+            throw new AuthenticationException("User account is locked", e);
         } catch (UsernameNotFoundException e) {
             throw new AuthenticationException("User not found", e);
+        } catch (BadCredentialsException e) {
+            this.userService.updateFailedAttemptsByUserId(username);
+            throw new AuthenticationException("Invalid credentials", e);
         }
     }
 }

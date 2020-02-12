@@ -34,6 +34,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private List<SimpleGrantedAuthority> businessFunction;
     private String emailId;
     private Date sessionExpiresOn;
+    private Language language;
 
     public String getEmailId() {
         return emailId;
@@ -146,6 +147,14 @@ public class CustomUserDetails implements UserDetails, Serializable {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return businessFunction;
+    }
+
+    public Language getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(Language language) {
+        this.language = language;
     }
 
     @Override
