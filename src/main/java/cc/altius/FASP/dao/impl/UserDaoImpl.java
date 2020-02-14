@@ -306,11 +306,9 @@ public class UserDaoImpl implements UserDao {
         Date offsetDate = DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, offset);
         System.out.println("offsetDate---" + offsetDate);
         String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn WHERE us_user.USER_ID=:userId";
-        PasswordEncoder encoder = new BCryptPasswordEncoder();
-        String hash = encoder.encode(newPassword);
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
-        params.put("hash", hash);
+        params.put("hash", newPassword);
         params.put("expiresOn", offsetDate);
         return namedParameterJdbcTemplate.update(sqlString, params);
     }

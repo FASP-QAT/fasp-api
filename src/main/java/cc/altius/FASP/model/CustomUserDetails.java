@@ -33,7 +33,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private List<Role> roleList;
     private List<SimpleGrantedAuthority> businessFunction;
     private String emailId;
-    private Date sessionExpiresOn;
+    private int sessionExpiresOn;
     private Language language;
 
     public String getEmailId() {
@@ -136,11 +136,11 @@ public class CustomUserDetails implements UserDetails, Serializable {
         this.lastLoginDate = lastLoginDate;
     }
 
-    public Date getSessionExpiresOn() {
+    public int getSessionExpiresOn() {
         return sessionExpiresOn;
     }
 
-    public void setSessionExpiresOn(Date sessionExpiresOn) {
+    public void setSessionExpiresOn(int sessionExpiresOn) {
         this.sessionExpiresOn = sessionExpiresOn;
     }
 

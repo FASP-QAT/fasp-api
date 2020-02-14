@@ -207,10 +207,14 @@ public class UserController {
                 responseFormat.setMessage("Old password is incorrect.");
                 return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
             } else {
+                PasswordEncoder encoder = new BCryptPasswordEncoder();
+                String hashPass = encoder.encode(password.getNewPassword());
+                password.setNewPassword(hashPass);
                 int row = this.userService.updatePassword(password.getUserId(), password.getNewPassword(), 90);
                 if (row > 0) {
                     responseFormat.setStatus("Success");
                     responseFormat.setMessage("Password updated successfully!");
+                    responseFormat.setData(hashPass);
                     return new ResponseEntity(responseFormat, HttpStatus.OK);
                 } else {
                     responseFormat.setStatus("failed");
