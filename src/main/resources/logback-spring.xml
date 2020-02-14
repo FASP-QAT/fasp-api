@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <property resource="application.properties" />
-    <property name="LOGS" value="${fasp.filestorepath}/" />
+    <property name="LOGS" value="${fasp.filestorepath}" />
  
     <appender name="RootConsole" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">

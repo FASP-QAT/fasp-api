@@ -6,7 +6,6 @@
 package cc.altius.FASP.jwt.resource;
 
 import cc.altius.FASP.jwt.JwtTokenUtil;
-import cc.altius.FASP.jwt.JwtUserDetails;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.security.CustomUserDetailsService;
 import java.util.Objects;

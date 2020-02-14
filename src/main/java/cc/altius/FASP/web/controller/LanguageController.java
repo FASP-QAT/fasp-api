@@ -59,7 +59,7 @@ public class LanguageController {
 
     @PutMapping(value = "/addLanguage")
     public ResponseEntity addLanguage(@RequestBody(required = true) String json) {
-        System.out.println("json---->" + json);
+        
         Gson g = new Gson();
         Language language = g.fromJson(json, Language.class);
         ResponseFormat responseFormat = new ResponseFormat();
