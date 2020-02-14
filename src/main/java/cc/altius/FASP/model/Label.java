@@ -57,4 +57,7 @@ public class Label {
         this.porLabel = porLabel;
     }
 
+    public String getLabel() {
+        return this.engLabel;
+    }
 }
