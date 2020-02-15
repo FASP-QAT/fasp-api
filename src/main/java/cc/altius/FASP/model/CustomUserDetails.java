@@ -164,10 +164,14 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     @Override
     public boolean isAccountNonExpired() {
-        if (isExpired()) {
-            return false;
-        } else {
+        String curDate = DateUtils.getCurrentDateString(DateUtils.IST, DateUtils.YMD);
+        System.out.println("difference-----" + DateUtils.compareDates(DateUtils.formatDate(this.expiresOn, DateUtils.YMD), curDate));
+        if (DateUtils.compareDates(DateUtils.formatDate(this.expiresOn, DateUtils.YMD), curDate) > 0) {
+            System.out.println("false-------------------------------");
             return true;
+        } else {
+            System.out.println("true-------------------------------");
+            return false;
         }
     }
 
