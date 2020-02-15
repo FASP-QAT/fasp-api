@@ -24,7 +24,7 @@ public interface UserDao {
 
     public List<String> getBusinessFunctionsForUserId(int userId);
 
-    public int resetFailedAttemptsByUserId(int userId);
+    public int resetFailedAttemptsByUsername(String username);
 
     public int updateFailedAttemptsByUserId(String username);
 

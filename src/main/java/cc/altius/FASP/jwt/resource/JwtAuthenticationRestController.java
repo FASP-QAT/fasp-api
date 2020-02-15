@@ -62,7 +62,7 @@ public class JwtAuthenticationRestController {
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
         final CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         userDetails.setSessionExpiresOn(sessionExpiryTime);
-        System.out.println("sessionExpiryTime---"+sessionExpiryTime);
+        System.out.println("sessionExpiryTime---" + sessionExpiryTime);
         final String token = jwtTokenUtil.generateToken(userDetails);
 
         return ResponseEntity.ok(new JwtTokenResponse(token));
@@ -104,17 +104,18 @@ public class JwtAuthenticationRestController {
 
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-        } catch (DisabledException e) {
-            throw new AuthenticationException("User is disabled", e);
-        } catch (AccountExpiredException e) {
-            throw new AuthenticationException("Account Expired", e);
-        } catch (LockedException e) {
-            throw new AuthenticationException("User account is locked", e);
-        } catch (UsernameNotFoundException e) {
-            throw new AuthenticationException("User not found", e);
+            this.userService.resetFailedAttemptsByUsername(username);
         } catch (BadCredentialsException e) {
             this.userService.updateFailedAttemptsByUserId(username);
             throw new AuthenticationException("Invalid credentials", e);
+        } catch (DisabledException e) {
+            throw new AuthenticationException("User is disabled", e);
+        } catch (LockedException e) {
+            throw new AuthenticationException("User account is locked", e);
+        } catch (AccountExpiredException e) {
+            throw new AuthenticationException("Account Expired", e);
+        } catch (UsernameNotFoundException e) {
+            throw new AuthenticationException("User not found", e);
         }
     }
 }

@@ -116,7 +116,7 @@ public class UserDaoImpl implements UserDao {
                     customUserDetails.setBusinessFunction(this.getBusinessFunctionsForUserId(customUserDetails.getUserId()));
                     responseMap.put("customUserDetails", customUserDetails);
                     responseMap.put("message", "Login successful");
-                    this.resetFailedAttemptsByUserId(customUserDetails.getUserId());
+                    this.resetFailedAttemptsByUsername(username);
                 }
             } else {
                 this.updateFailedAttemptsByUserId(username);
@@ -134,11 +134,11 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int resetFailedAttemptsByUserId(int userId) {
+    public int resetFailedAttemptsByUsername(String username) {
         try {
             Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
-            String sqlreset = "UPDATE `us_user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=? WHERE USER_ID=?";
-            return this.jdbcTemplate.update(sqlreset, curDt, userId);
+            String sqlreset = "UPDATE `us_user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=? WHERE USERNAME=?";
+            return this.jdbcTemplate.update(sqlreset, curDt, username);
         } catch (DataAccessException e) {
 //            LogUtils.systemLogger.info(LogUtils.buildStringForSystemLog(GlobalConstants.TAG_SYSTEM, e));
             return 0;
