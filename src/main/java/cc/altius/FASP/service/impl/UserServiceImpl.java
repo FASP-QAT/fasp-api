@@ -37,8 +37,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int resetFailedAttemptsByUserId(int userId) {
-        return this.userDao.resetFailedAttemptsByUserId(userId);
+    public int resetFailedAttemptsByUsername(String username) {
+        return this.userDao.resetFailedAttemptsByUsername(username);
     }
 
     @Override

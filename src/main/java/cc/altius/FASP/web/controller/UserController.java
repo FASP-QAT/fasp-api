@@ -236,25 +236,17 @@ public class UserController {
         System.out.println("username--------------" + username);
         ResponseFormat responseFormat = new ResponseFormat();
         try {
-//            Gson g = new Gson();
-//            String username1 = g.fromJson(username, String.class);
-//            System.out.println("username1----------" + username1.toString());
             CustomUserDetails customUser = this.userService.getCustomUserByUsername(username);
-            System.out.println("customUser----" + customUser);
             if (customUser != null) {
                 String pass = PassPhrase.getPassword();
-                int row = this.userService.updatePassword(customUser.getUserId(), pass, -1);
+                PasswordEncoder encoder = new BCryptPasswordEncoder();
+                String hashPass = encoder.encode(pass);
+                int row = this.userService.updatePassword(customUser.getUserId(), hashPass, -1);
                 if (row > 0) {
 
                     EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(1);
-                    System.out.println("emailTemplate----" + emailTemplate);
                     String[] subjectParam = new String[]{};
                     String[] bodyParam = new String[]{username, pass};
-                    System.out.println("emailTemplate.getEmailTemplateId()---" + emailTemplate.getEmailTemplateId());
-                    System.out.println("customUser.getEmailId()---" + customUser.getEmailId());
-                    System.out.println("emailTemplate.getCcTo()---" + emailTemplate.getCcTo());
-                    System.out.println("subjectParam---" + subjectParam);
-                    System.out.println("bodyparam---" + bodyParam);
                     Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), customUser.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
                     int emailerId = this.emailService.saveEmail(emailer);
                     emailer.setEmailerId(emailerId);

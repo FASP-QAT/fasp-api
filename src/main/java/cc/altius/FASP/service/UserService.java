@@ -22,7 +22,7 @@ public interface UserService {
 
     public Map<String, Object> checkIfUserExists(String username, String password);
 
-    public int resetFailedAttemptsByUserId(int userId);
+    public int resetFailedAttemptsByUsername(String username);
 
     public int updateFailedAttemptsByUserId(String username);
 
