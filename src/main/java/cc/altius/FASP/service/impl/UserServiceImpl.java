@@ -27,6 +27,11 @@ public class UserServiceImpl implements UserService {
     UserDao userDao;
 
     @Override
+    public CustomUserDetails getCustomUserByUsername(String username) {
+        return this.userDao.getCustomUserByUsername(username);
+    }
+
+    @Override
     public Map<String, Object> checkIfUserExists(String username, String password) {
         return this.userDao.checkIfUserExists(username, password);
     }
@@ -79,6 +84,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<BusinessFunction> getBusinessFunctionList() {
         return this.userDao.getBusinessFunctionList();
+    }
+
+    @Override
+    public int updatePassword(int userId, String newPassword, int offset) {
+        return this.userDao.updatePassword(userId, newPassword, offset);
+    }
+
+    @Override
+    public boolean confirmPassword(int userId, String password) {
+        return this.userDao.confirmPassword(userId, password);
     }
 
 }

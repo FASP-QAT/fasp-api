@@ -44,4 +44,8 @@ public interface UserDao {
 
     public List<BusinessFunction> getBusinessFunctionList();
 
+    public int updatePassword(int userId, String newPassword,int offset);
+
+    public boolean confirmPassword(int userId, String password);
+
 }

@@ -1,4 +1,4 @@
-package cc.altius.FASP.rest.webservice.restfulwebservices;
+package cc.altius.FASP;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 @SpringBootApplication
 @ComponentScan(basePackages = {"cc.altius.FASP"})
-public class RestfulWebServicesApplication extends  SpringBootServletInitializer{
+public class WebApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
-        SpringApplication.run(RestfulWebServicesApplication.class, args);
+        SpringApplication.run(WebApplication.class, args);
     }
 
     @RequestMapping("/FASP")
