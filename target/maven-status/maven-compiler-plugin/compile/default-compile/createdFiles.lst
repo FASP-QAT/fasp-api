@@ -59,6 +59,7 @@ cc/altius/FASP/service/impl/UserServiceImpl.class
 cc/altius/FASP/dao/UserDao.class
 cc/altius/FASP/service/CountryService.class
 cc/altius/FASP/model/Role.class
+cc/altius/FASP/model/CanCreateRole.class
 cc/altius/FASP/model/Registration.class
 cc/altius/FASP/model/Language.class
 cc/altius/FASP/web/controller/CountryController.class

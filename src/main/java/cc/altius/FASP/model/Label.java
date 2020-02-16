@@ -60,4 +60,10 @@ public class Label {
     public String getLabel() {
         return this.engLabel;
     }
+
+    @Override
+    public String toString() {
+        return "Label{" + "labelId=" + labelId + ", engLabel=" + engLabel + ", spaLabel=" + spaLabel + ", freLabel=" + freLabel + ", porLabel=" + porLabel + '}';
+    }
+
 }

@@ -57,6 +57,7 @@
 /home/altius/NetBeansProjects/gitRepos/FASP/src/main/java/cc/altius/FASP/ApplicationConfiguration.java
 /home/altius/NetBeansProjects/gitRepos/FASP/src/main/java/cc/altius/FASP/service/StateService.java
 /home/altius/NetBeansProjects/gitRepos/FASP/src/main/java/cc/altius/FASP/jwt/JwtTokenUtil.java
+/home/altius/NetBeansProjects/gitRepos/FASP/src/main/java/cc/altius/FASP/model/CanCreateRole.java
 /home/altius/NetBeansProjects/gitRepos/FASP/src/main/java/cc/altius/FASP/dao/CountryDao.java
 /home/altius/NetBeansProjects/gitRepos/FASP/src/main/java/cc/altius/FASP/model/User.java
 /home/altius/NetBeansProjects/gitRepos/FASP/src/main/java/cc/altius/FASP/model/rowMapper/RoleRowMapper.java

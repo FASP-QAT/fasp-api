@@ -26,9 +26,15 @@ public class UserRowMapper implements RowMapper<User> {
         u.setUserId(rs.getInt("USER_ID"));
         u.setUsername(rs.getString("USERNAME"));
         u.setEmailId(rs.getString("EMAIL_ID"));
-        u.setPhoneNumber(rs.getString("PHONE_NO"));
+        u.setPhoneNumber(rs.getString("PHONE"));
         Realm r = new Realm();
         r.setRealmId(rs.getInt("REALM_ID"));
+        Label l1 = new Label();
+        l1.setEngLabel(rs.getString("RL_ENG_LABEL"));
+        l1.setFreLabel(rs.getString("RL_FR_LABEL"));
+        l1.setPorLabel(rs.getString("RL_PR_LABEL"));
+        l1.setSpaLabel(rs.getString("RL_SP_LABEL"));
+        r.setLabel(l1);
         r.setRealmCode(rs.getString("REALM_CODE"));
         u.setRealm(r);
         Language l = new Language();
