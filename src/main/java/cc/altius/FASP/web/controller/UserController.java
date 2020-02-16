@@ -6,10 +6,14 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.BusinessFunction;
-import cc.altius.FASP.model.Registration;
+import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.EmailTemplate;
+import cc.altius.FASP.model.Emailer;
+import cc.altius.FASP.model.Password;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
+import cc.altius.FASP.service.EmailService;
 import cc.altius.utils.PassPhrase;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -29,8 +33,8 @@ import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import static org.springframework.web.bind.annotation.RequestMethod.HEAD;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -44,6 +48,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private EmailService emailService;
 
     @GetMapping(value = "/getRoleList")
     public String getRoleList() {
@@ -180,6 +186,84 @@ public class UserController {
                 responseFormat.setStatus("failed");
                 responseFormat.setMessage("Exception Occured. Please try again");
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Exception Occured :" + e.getClass());
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(value = "/updateExpiredPassword")
+    public ResponseEntity updateExpiredPassword(@RequestBody Password password) throws UnsupportedEncodingException {
+        Map<String, Object> responseMap = null;
+        System.out.println("password--------------" + password);
+        ResponseFormat responseFormat = new ResponseFormat();
+        try {
+            Gson g = new Gson();
+            if (!this.userService.confirmPassword(password.getUserId(), password.getOldPassword())) {
+                responseFormat.setStatus("Success");
+                responseFormat.setMessage("Old password is incorrect.");
+                return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
+            } else {
+                PasswordEncoder encoder = new BCryptPasswordEncoder();
+                String hashPass = encoder.encode(password.getNewPassword());
+                password.setNewPassword(hashPass);
+                int row = this.userService.updatePassword(password.getUserId(), password.getNewPassword(), 90);
+                if (row > 0) {
+                    responseFormat.setStatus("Success");
+                    responseFormat.setMessage("Password updated successfully!");
+                    responseFormat.setData(hashPass);
+                    return new ResponseEntity(responseFormat, HttpStatus.OK);
+                } else {
+                    responseFormat.setStatus("failed");
+                    responseFormat.setMessage("Exception Occured. Please try again");
+                    return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Exception Occured :" + e.getClass());
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "/forgotPassword/{username}")
+    public ResponseEntity forgotPassword(@PathVariable String username) throws UnsupportedEncodingException {
+        Map<String, Object> responseMap = null;
+        System.out.println("username--------------" + username);
+        ResponseFormat responseFormat = new ResponseFormat();
+        try {
+            CustomUserDetails customUser = this.userService.getCustomUserByUsername(username);
+            if (customUser != null) {
+                String pass = PassPhrase.getPassword();
+                PasswordEncoder encoder = new BCryptPasswordEncoder();
+                String hashPass = encoder.encode(pass);
+                int row = this.userService.updatePassword(customUser.getUserId(), hashPass, -1);
+                if (row > 0) {
+
+                    EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(1);
+                    String[] subjectParam = new String[]{};
+                    String[] bodyParam = new String[]{username, pass};
+                    Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), customUser.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
+                    int emailerId = this.emailService.saveEmail(emailer);
+                    emailer.setEmailerId(emailerId);
+                    this.emailService.sendMail(emailer);
+
+                    responseFormat.setStatus("Success");
+                    responseFormat.setMessage("New password sent on your registered email id.");
+                    return new ResponseEntity(responseFormat, HttpStatus.OK);
+                } else {
+                    responseFormat.setStatus("failed");
+                    responseFormat.setMessage("Exception Occured. Please try again");
+                    return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            } else {
+                responseFormat.setStatus("failed");
+                responseFormat.setMessage("User does not exists with this username.");
+                return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
             }
         } catch (Exception e) {
             e.printStackTrace();

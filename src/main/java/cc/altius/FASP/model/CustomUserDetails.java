@@ -33,6 +33,8 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private List<Role> roleList;
     private List<SimpleGrantedAuthority> businessFunction;
     private String emailId;
+    private int sessionExpiresOn;
+    private Language language;
 
     public String getEmailId() {
         return emailId;
@@ -134,9 +136,25 @@ public class CustomUserDetails implements UserDetails, Serializable {
         this.lastLoginDate = lastLoginDate;
     }
 
+    public int getSessionExpiresOn() {
+        return sessionExpiresOn;
+    }
+
+    public void setSessionExpiresOn(int sessionExpiresOn) {
+        this.sessionExpiresOn = sessionExpiresOn;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return businessFunction;
+    }
+
+    public Language getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(Language language) {
+        this.language = language;
     }
 
     @Override
@@ -146,10 +164,14 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     @Override
     public boolean isAccountNonExpired() {
-        if (isExpired()) {
-            return false;
-        } else {
+        String curDate = DateUtils.getCurrentDateString(DateUtils.IST, DateUtils.YMD);
+        System.out.println("difference-----" + DateUtils.compareDates(DateUtils.formatDate(this.expiresOn, DateUtils.YMD), curDate));
+        if (DateUtils.compareDates(DateUtils.formatDate(this.expiresOn, DateUtils.YMD), curDate) > 0) {
+            System.out.println("false-------------------------------");
             return true;
+        } else {
+            System.out.println("true-------------------------------");
+            return false;
         }
     }
 
@@ -182,6 +204,14 @@ public class CustomUserDetails implements UserDetails, Serializable {
             return false;
         } else {
             return true;
+        }
+    }
+
+    public boolean isPresent() {
+        if (this.userId == 0) {
+            return true;
+        } else {
+            return false;
         }
     }
 

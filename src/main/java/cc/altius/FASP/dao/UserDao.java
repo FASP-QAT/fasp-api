@@ -24,7 +24,7 @@ public interface UserDao {
 
     public List<String> getBusinessFunctionsForUserId(int userId);
 
-    public int resetFailedAttemptsByUserId(int userId);
+    public int resetFailedAttemptsByUsername(String username);
 
     public int updateFailedAttemptsByUserId(String username);
 
@@ -43,5 +43,9 @@ public interface UserDao {
     public int unlockAccount(User user);
 
     public List<BusinessFunction> getBusinessFunctionList();
+
+    public int updatePassword(int userId, String newPassword,int offset);
+
+    public boolean confirmPassword(int userId, String password);
 
 }
