@@ -94,6 +94,7 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 ).and().ignoring().antMatchers("/actuator/**")
                 .and().ignoring().antMatchers("/actuator**")
                 .and().ignoring().antMatchers("/browser**")
-                .and().ignoring().antMatchers("/browser/**");
+                .and().ignoring().antMatchers("/browser/**")
+                .and().ignoring().antMatchers("/api/**");
     }
 }
