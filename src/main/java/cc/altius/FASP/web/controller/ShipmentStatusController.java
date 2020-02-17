@@ -5,9 +5,9 @@
  */
 package cc.altius.FASP.web.controller;
 
-import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.ResponseFormat;
-import cc.altius.FASP.service.CurrencyService;
+import cc.altius.FASP.model.ShipmentStatus;
+import cc.altius.FASP.service.ShipmentStatusService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
@@ -30,85 +30,85 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:4202")
-public class CurrencyController {
+public class ShipmentStatusController {
 
     @Autowired
-    private CurrencyService currencyService;
+    private ShipmentStatusService shipmentStatusService;
 
-    @PutMapping(value = "/addCurrency")
-    public ResponseEntity addCurrency(@RequestBody(required = true) String json) {
-        System.out.println("json--->" + json);
+    @PutMapping(value = "/addShipmentStatus")
+    public ResponseEntity addDataSourceType(@RequestBody(required = true) String json) {
+        System.out.println("json---->" + json);
         Gson g = new Gson();
-        Currency currency = g.fromJson(json, Currency.class);
+        ShipmentStatus shipmentStatus = g.fromJson(json, ShipmentStatus.class);
         ResponseFormat responseFormat = new ResponseFormat();
         try {
-            int currencyId = this.currencyService.addCurrency(currency);
-            //System.out.println("currencyId inserted--------->" + currencyId);
-            if (currencyId > 0) {
+
+            int row = this.shipmentStatusService.addShipmentStatus(shipmentStatus);
+            if (row > 0) {
+                responseFormat.setMessage("ShipmentStatus Added successfully");
                 responseFormat.setStatus("Success");
-                responseFormat.setMessage("Currency added successfully.");
                 return new ResponseEntity(responseFormat, HttpStatus.OK);
             } else {
                 responseFormat.setStatus("failed");
                 responseFormat.setMessage("Error accured");
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+
             }
+
         } catch (Exception e) {
-            //e.printStackTrace();
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Exception Occured :" + e.getClass());
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
-
         }
 
     }
 
-    @GetMapping(value = "/getCurrencyList")
-    public String getCurrencyList() throws UnsupportedEncodingException {
+    @GetMapping(value = "/getShipmentStatusListAll")
+    public String getDataSourceTypeListAll() throws UnsupportedEncodingException {
         String json;
-        List<Currency> dataSourceTypeList = this.currencyService.getCurrencyList(false);
+        List<ShipmentStatus> shipmentStatusList = this.shipmentStatusService.getShipmentStatusList(false);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();
-        json = gson.toJson(dataSourceTypeList, typeList);
+        json = gson.toJson(shipmentStatusList, typeList);
         return json;
     }
 
-    @GetMapping(value = "/getCurrencyListActive")
-    public String getCurrencyListActive() throws UnsupportedEncodingException {
+    @GetMapping(value = "/getShipmentStatusListActive")
+    public String getDataSourceTypeListActive() throws UnsupportedEncodingException {
         String json;
-        List<Currency> dataSourceTypeList = this.currencyService.getCurrencyList(true);
+        List<ShipmentStatus> shipmentStatusList = this.shipmentStatusService.getShipmentStatusList(true);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();
-        json = gson.toJson(dataSourceTypeList, typeList);
+        json = gson.toJson(shipmentStatusList, typeList);
         return json;
     }
 
-    @PutMapping(value = "/editCurrency")
+    @PutMapping(value = "/editShipmentStatus")
     public ResponseEntity editDataSourceType(@RequestBody(required = true) String json) {
-
-        //System.out.println("jsoon--<------json---"+json);
+        System.out.println("json---->" + json);
         Gson g = new Gson();
-        Currency currency = g.fromJson(json, Currency.class);
-        //System.out.println("currency--class--->"+currency);
+        ShipmentStatus shipmentStatus = g.fromJson(json, ShipmentStatus.class);
         ResponseFormat responseFormat = new ResponseFormat();
         try {
-            int updateRow = this.currencyService.updateCurrency(currency);
-            if (updateRow > 0) {
+
+            int row = this.shipmentStatusService.editShipmentStatus(shipmentStatus);
+            if (row > 0) {
+                responseFormat.setMessage("ShipmentStatus Update successfully");
                 responseFormat.setStatus("Success");
-                responseFormat.setMessage("Currency updated successfully.");
                 return new ResponseEntity(responseFormat, HttpStatus.OK);
             } else {
                 responseFormat.setStatus("failed");
                 responseFormat.setMessage("Error accured");
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+
             }
+
         } catch (Exception e) {
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Exception Occured :" + e.getClass());
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
-
         }
 
     }
