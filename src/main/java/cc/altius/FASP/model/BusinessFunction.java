@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.model;
 
+import java.util.Objects;
+
 /**
  *
  * @author altius
@@ -12,7 +14,7 @@ package cc.altius.FASP.model;
 public class BusinessFunction {
 
     private String businessFunctionId;
-    private String businessFunctionDesc;
+    private Label label;
     private boolean active;
 
     public String getBusinessFunctionId() {
@@ -23,12 +25,12 @@ public class BusinessFunction {
         this.businessFunctionId = businessFunctionId;
     }
 
-    public String getBusinessFunctionDesc() {
-        return businessFunctionDesc;
+    public Label getLabel() {
+        return label;
     }
 
-    public void setBusinessFunctionDesc(String businessFunctionDesc) {
-        this.businessFunctionDesc = businessFunctionDesc;
+    public void setLabel(Label label) {
+        this.label = label;
     }
 
     public boolean isActive() {
@@ -37,6 +39,36 @@ public class BusinessFunction {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 41 * hash + Objects.hashCode(this.businessFunctionId);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final BusinessFunction other = (BusinessFunction) obj;
+        if (!Objects.equals(this.businessFunctionId, other.businessFunctionId)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "BusinessFunction{" + "businessFunctionId=" + businessFunctionId + ", label=" + label + ", active=" + active + '}';
     }
 
 }

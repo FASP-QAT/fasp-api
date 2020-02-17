@@ -6,6 +6,7 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.BusinessFunction;
+import cc.altius.FASP.model.CanCreateRole;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
@@ -31,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import cc.altius.FASP.service.UserService;
 import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,11 +58,29 @@ public class UserController {
         String json = null;
         try {
             List<Role> roleList = this.userService.getRoleList();
+            for (Role role : roleList) {
+                String[] businessFunctionId = new String[role.getBusinessFunctionList().size()];
+                int i = 0;
+                for (BusinessFunction b : role.getBusinessFunctionList()) {
+                    businessFunctionId[i] = b.getBusinessFunctionId();
+                    i++;
+                }
+                role.setBusinessFunctions(businessFunctionId);
+                i = 0;
+                String[] canCreateRoleId = new String[role.getCanCreateRoles().size()];
+                i = 0;
+                for (CanCreateRole c : role.getCanCreateRoles()) {
+                    canCreateRoleId[i] = c.getRoleId();
+                    i++;
+                }
+                role.setCanCreateRole(canCreateRoleId);
+            }
             Gson gson = new Gson();
             Type typeList = new TypeToken<List>() {
             }.getType();
             json = gson.toJson(roleList, typeList);
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return json;
     }
@@ -116,13 +136,18 @@ public class UserController {
     }
 
     @GetMapping(value = "/getUserList")
-    public List<User> getUserList() throws UnsupportedEncodingException {
+    public String getUserList() throws UnsupportedEncodingException {
+        String json = null;
         try {
             List<User> userList = this.userService.getUserList();
-            return userList;
+            Gson gson = new Gson();
+            Type typeList = new TypeToken<List>() {
+            }.getType();
+            json = gson.toJson(userList, typeList);
         } catch (Exception e) {
-            return null;
+            e.printStackTrace();
         }
+        return json;
     }
 
     @GetMapping(value = "/getUserByUserId/{userId}")
@@ -272,4 +297,67 @@ public class UserController {
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PutMapping(value = "/addNewRole")
+    public ResponseEntity addNewRole(@RequestBody(required = true) String json) throws UnsupportedEncodingException {
+        Map<String, Object> responseMap = null;
+        ResponseFormat responseFormat = new ResponseFormat();
+        try {
+            Gson g = new Gson();
+            Role role = g.fromJson(json, Role.class);
+            System.out.println("user------------" + role);
+            int row = this.userService.addRole(role);
+            if (row > 0) {
+                responseFormat.setStatus("Success");
+                responseFormat.setMessage("Role created successfully.");
+                return new ResponseEntity(responseFormat, HttpStatus.OK);
+            } else {
+                responseFormat.setStatus("failed");
+                responseFormat.setMessage("Exception Occured. Please try again");
+                return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (DuplicateKeyException e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Role already exists");
+            return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Exception Occured :" + e.getClass());
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping(value = "/editRole")
+    public ResponseEntity editRole(@RequestBody(required = true) String json) throws UnsupportedEncodingException {
+        Map<String, Object> responseMap = null;
+        ResponseFormat responseFormat = new ResponseFormat();
+        try {
+            Gson g = new Gson();
+            Role role = g.fromJson(json, Role.class);
+            System.out.println("role------------" + role);
+            int row = this.userService.updateRole(role);
+            if (row > 0) {
+                responseFormat.setStatus("Success");
+                responseFormat.setMessage("Role updated successfully.");
+                return new ResponseEntity(responseFormat, HttpStatus.OK);
+            } else {
+                responseFormat.setStatus("failed");
+                responseFormat.setMessage("Exception Occured. Please try again");
+                return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (DuplicateKeyException e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Role already exists");
+            return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Exception Occured :" + e.getClass());
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }
