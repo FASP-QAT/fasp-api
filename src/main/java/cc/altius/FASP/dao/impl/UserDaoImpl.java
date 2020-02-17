@@ -323,7 +323,7 @@ public class UserDaoImpl implements UserDao {
     public int updatePassword(int userId, String newPassword, int offset) {
         Date offsetDate = DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, offset);
         System.out.println("offsetDate---" + offsetDate);
-        String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn WHERE us_user.USER_ID=:userId";
+        String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn,FAILED_ATTEMPTS=0 WHERE us_user.USER_ID=:userId";
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
         params.put("hash", newPassword);

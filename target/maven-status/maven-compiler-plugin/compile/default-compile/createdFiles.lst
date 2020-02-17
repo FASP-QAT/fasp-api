@@ -51,6 +51,7 @@ cc/altius/FASP/web/controller/StateController$2.class
 cc/altius/FASP/model/rowMapper/CustomUserDetailsResultSetExtractor.class
 cc/altius/FASP/dao/impl/CityDaoImpl.class
 cc/altius/FASP/model/rowMapper/StateRowMapper.class
+cc/altius/FASP/web/controller/UserController$3.class
 cc/altius/FASP/service/CityService.class
 cc/altius/FASP/service/StateService.class
 cc/altius/FASP/dao/RealmDao.class
