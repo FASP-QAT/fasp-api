@@ -15,4 +15,8 @@ import java.util.List;
 public interface LanguageService {
 
     public List<Language> getLanguageList(boolean active);
+    
+    public int addLanguage(Language language);
+    
+    public int editLanguage(Language language);
 }

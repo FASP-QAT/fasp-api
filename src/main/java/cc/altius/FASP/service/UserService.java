@@ -46,4 +46,7 @@ public interface UserService {
 
     public boolean confirmPassword(int userId, String password);
 
+    public int addRole(Role role);
+
+    public int updateRole(Role role);
 }

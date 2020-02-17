@@ -96,4 +96,14 @@ public class UserServiceImpl implements UserService {
         return this.userDao.confirmPassword(userId, password);
     }
 
+    @Override
+    public int addRole(Role role) {
+        return this.userDao.addRole(role);
+    }
+
+    @Override
+    public int updateRole(Role role) {
+        return this.userDao.updateRole(role);
+    }
+
 }
