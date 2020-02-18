@@ -43,8 +43,10 @@ public interface UserService {
     public List<BusinessFunction> getBusinessFunctionList();
 
     public int updatePassword(int userId, String newPassword, int offset);
+    
+    public int updatePassword(String username, String newPassword, int offset);
 
-    public boolean confirmPassword(int userId, String password);
+    public boolean confirmPassword(String username, String password);
 
     public int addRole(Role role);
 

@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.web.controller;
 
+import cc.altius.FASP.jwt.JwtTokenUtil;
+import cc.altius.FASP.jwt.resource.JwtTokenResponse;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CanCreateRole;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -14,6 +16,7 @@ import cc.altius.FASP.model.Password;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
+import cc.altius.FASP.security.CustomUserDetailsService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.utils.PassPhrase;
 import com.google.gson.Gson;
@@ -32,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import cc.altius.FASP.service.UserService;
 import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -45,13 +49,19 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4202")
+//@CrossOrigin(origins = "http://localhost:4202")
 public class UserController {
 
     @Autowired
     private UserService userService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+    @Value("${session.expiry.time}")
+    private int sessionExpiryTime;
 
     @GetMapping(value = "/getRoleList")
     public String getRoleList() {
@@ -213,7 +223,7 @@ public class UserController {
             String password = PassPhrase.getPassword();
             String hashPass = encoder.encode(password);
             int row = this.userService.unlockAccount(userId, hashPass);
-            System.out.println("unlock password---"+password);
+            System.out.println("unlock password---" + password);
             if (row > 0) {
                 EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(1);
                 String[] subjectParam = new String[]{};
@@ -240,30 +250,26 @@ public class UserController {
 
     @PostMapping(value = "/updateExpiredPassword")
     public ResponseEntity updateExpiredPassword(@RequestBody Password password) throws UnsupportedEncodingException {
-        Map<String, Object> responseMap = null;
-        System.out.println("password--------------" + password);
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             Gson g = new Gson();
-            System.out.println("password.getOldPassword()---"+password.getOldPassword());
-            System.out.println("value---"+this.userService.confirmPassword(password.getUserId(), password.getOldPassword().trim()));
-            if (!this.userService.confirmPassword(password.getUserId(), password.getOldPassword().trim())) {
-                responseFormat.setStatus("Success");
+            if (!this.userService.confirmPassword(password.getUsername(), password.getOldPassword().trim())) {
+                responseFormat.setStatus("Failed");
                 responseFormat.setMessage("Old password is incorrect.");
-                return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
+                return new ResponseEntity(responseFormat, HttpStatus.UNAUTHORIZED);
             } else {
                 PasswordEncoder encoder = new BCryptPasswordEncoder();
                 String hashPass = encoder.encode(password.getNewPassword());
                 password.setNewPassword(hashPass);
-                int row = this.userService.updatePassword(password.getUserId(), password.getNewPassword(), 90);
+                int row = this.userService.updatePassword(password.getUsername(), password.getNewPassword(), 90);
                 if (row > 0) {
-                    responseFormat.setStatus("Success");
-                    responseFormat.setMessage("Password updated successfully!");
-                    responseFormat.setData(hashPass);
-                    return new ResponseEntity(responseFormat, HttpStatus.OK);
+                    final CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(password.getUsername());
+                    userDetails.setSessionExpiresOn(sessionExpiryTime);
+                    final String token = jwtTokenUtil.generateToken(userDetails);
+                    return ResponseEntity.ok(new JwtTokenResponse(token));
                 } else {
                     responseFormat.setStatus("failed");
-                    responseFormat.setMessage("Exception Occured. Please try again");
+                    responseFormat.setMessage("Exception occured. Please try again");
                     return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             }

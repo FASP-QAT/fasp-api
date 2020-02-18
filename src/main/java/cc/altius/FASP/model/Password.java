@@ -11,16 +11,16 @@ package cc.altius.FASP.model;
  */
 public class Password {
 
-    private Integer userId;
+    private String username;
     private String oldPassword;
     private String newPassword;
 
-    public Integer getUserId() {
-        return userId;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserId(Integer userId) {
-        this.userId = userId;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getOldPassword() {
@@ -41,7 +41,7 @@ public class Password {
 
     @Override
     public String toString() {
-        return "Password{" + "userId=" + userId + ", oldPassword=" + oldPassword + ", newPassword=" + newPassword + '}';
+        return "Password{" + "username=" + username + ", oldPassword=" + oldPassword + ", newPassword=" + newPassword + '}';
     }
 
 }
