@@ -102,6 +102,7 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().ignoring().antMatchers("/browser**")
                 .and().ignoring().antMatchers("/browser/**")
 //                .and().ignoring().antMatchers("/refresh")
-                .and().ignoring().antMatchers("/api/forgotPassword/**");
+                .and().ignoring().antMatchers("/api/forgotPassword/**")
+                .and().ignoring().antMatchers("/api/updateExpiredPassword/**");
     }
 }
