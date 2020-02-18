@@ -7,6 +7,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.Currency;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -19,4 +20,8 @@ public interface CurrencyService {
     public List<Currency> getCurrencyList(boolean active);
     
     public int updateCurrency(Currency currency);
+    
+    public String getAllCurrencyCode();
+
+    public void updateCurrencyConversionrate(Map<String, Double> currencyConversions);
 }
