@@ -82,6 +82,7 @@ public class CurrencyDaoImpl implements CurrencyDao {
     @Override
     public int updateCurrency(Currency currency) {
         Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
+        
 
         String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=? , al.`LABEL_FR`=?,"
                 + "al.`LABEL_PR`=?,al.`LABEL_SP`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
@@ -92,5 +93,33 @@ public class CurrencyDaoImpl implements CurrencyDao {
                 + " WHERE c.`CURRENCY_ID`=?;";
         return this.jdbcTemplate.update(sqlTwo, currency.getCurrencyCode(),currency.getCurrencySymbol(),currency.getConversionRateToUsd() ,1, curDt,currency.getCurrencyId() );
     }
+
+    @Override
+    public String getAllCurrencyCode() {
+       StringBuilder sb = new StringBuilder();
+        sb.append("SELECT GROUP_CONCAT(ac.`CURRENCY_CODE`) FROM `ap_currency` ac ");
+         return this.jdbcTemplate.queryForObject(sb.toString(), String.class);
+    }
+
+    @Override
+    public void updateCurrencyConversionrate(Map<String, Double> currencyConversions) {
+       
+         Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
+       
+        for (Map.Entry<String, Double> entry : currencyConversions.entrySet()) {
+            StringBuilder sb = new StringBuilder();
+            String k = entry.getKey();
+            Double v = entry.getValue();
+            System.out.println("Key: " + k + ", Value: " + v);
+           sb.append("update ap_currency set  CONVERSION_RATE_TO_USD=").append(v).append(" ,LAST_MODIFIED_DATE=? where CURRENCY_CODE ='").append(k.substring(3)).append("';");
+           System.out.println("sb"+sb.toString());
+           this.jdbcTemplate.update(sb.toString(),curDt);
+        }
+        
+        
+    }
+    
+    
+    
 
 }
