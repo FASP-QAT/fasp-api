@@ -106,16 +106,27 @@ public class UserController {
         try {
             Gson g = new Gson();
             User user = g.fromJson(json, User.class);
-            System.out.println("user------------" + Arrays.toString(user.getCountryIds()));
+            System.out.println("user------------" + user);
             PasswordEncoder encoder = new BCryptPasswordEncoder();
-            String hashPass = encoder.encode(PassPhrase.getPassword());
+            String password = PassPhrase.getPassword();
+            String hashPass = encoder.encode(password);
             user.setPassword(hashPass);
             String msg = this.userService.checkIfUserExistsByEmailIdAndPhoneNumber(user, 1);
+            System.out.println("message----------" + msg);
             if (msg.isEmpty()) {
                 int userId = this.userService.addNewUser(user);
                 if (userId > 0) {
+
+                    EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(2);
+                    String[] subjectParam = new String[]{};
+                    String[] bodyParam = new String[]{user.getUsername(), password};
+                    Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
+                    int emailerId = this.emailService.saveEmail(emailer);
+                    emailer.setEmailerId(emailerId);
+                    this.emailService.sendMail(emailer);
+
                     responseFormat.setStatus("Success");
-                    responseFormat.setMessage("User created successfully.");
+                    responseFormat.setMessage("User created successfully and credentials sent on email.");
                     return new ResponseEntity(responseFormat, HttpStatus.OK);
                 } else {
                     responseFormat.setStatus("failed");
@@ -192,18 +203,25 @@ public class UserController {
         }
     }
 
-    @PutMapping(value = "/unlockAccount")
-    public ResponseEntity unlockAccount(@RequestBody(required = true) String json) throws UnsupportedEncodingException {
+    @PutMapping(value = "/unlockAccount/{userId}/{emailId}")
+    public ResponseEntity unlockAccount(@PathVariable int userId, @PathVariable String emailId) throws UnsupportedEncodingException {
         Map<String, Object> responseMap = null;
         ResponseFormat responseFormat = new ResponseFormat();
         try {
-            Gson g = new Gson();
-            User user = g.fromJson(json, User.class);
+            System.out.println("unlock user account---" + userId);
             PasswordEncoder encoder = new BCryptPasswordEncoder();
-            String hashPass = encoder.encode(PassPhrase.getPassword());
-            user.setPassword(hashPass);
-            int row = this.userService.unlockAccount(user);
+            String password = PassPhrase.getPassword();
+            String hashPass = encoder.encode(password);
+            int row = this.userService.unlockAccount(userId, hashPass);
+            System.out.println("unlock password---"+password);
             if (row > 0) {
+                EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(1);
+                String[] subjectParam = new String[]{};
+                String[] bodyParam = new String[]{password};
+                Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), emailId, emailTemplate.getCcTo(), subjectParam, bodyParam);
+                int emailerId = this.emailService.saveEmail(emailer);
+                emailer.setEmailerId(emailerId);
+                this.emailService.sendMail(emailer);
                 responseFormat.setStatus("Success");
                 responseFormat.setMessage("Account unlocked successfully and new password is sent on the registered email id.");
                 return new ResponseEntity(responseFormat, HttpStatus.OK);
@@ -227,7 +245,9 @@ public class UserController {
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             Gson g = new Gson();
-            if (!this.userService.confirmPassword(password.getUserId(), password.getOldPassword())) {
+            System.out.println("password.getOldPassword()---"+password.getOldPassword());
+            System.out.println("value---"+this.userService.confirmPassword(password.getUserId(), password.getOldPassword().trim()));
+            if (!this.userService.confirmPassword(password.getUserId(), password.getOldPassword().trim())) {
                 responseFormat.setStatus("Success");
                 responseFormat.setMessage("Old password is incorrect.");
                 return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
@@ -271,7 +291,7 @@ public class UserController {
 
                     EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(1);
                     String[] subjectParam = new String[]{};
-                    String[] bodyParam = new String[]{username, pass};
+                    String[] bodyParam = new String[]{pass};
                     Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), customUser.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
                     int emailerId = this.emailService.saveEmail(emailer);
                     emailer.setEmailerId(emailerId);
