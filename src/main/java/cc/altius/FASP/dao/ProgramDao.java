@@ -5,17 +5,15 @@
  */
 package cc.altius.FASP.dao;
 
-import cc.altius.FASP.model.Country;
+import cc.altius.FASP.model.DTO.ProgramDTO;
 import java.util.List;
 
 /**
  *
  * @author altius
  */
-public interface CountryDao {
+public interface ProgramDao {
 
-    public List<Country> getCountryList(boolean active);
-    public int addCountry(Country country);
-    public int updateCountry(Country country);
+    public List<ProgramDTO> getProgramList();
 
 }

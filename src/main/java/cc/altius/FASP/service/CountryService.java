@@ -14,6 +14,8 @@ import java.util.List;
  */
 public interface CountryService {
 
-    public List<Country> getCountryList();
+    public List<Country> getCountryList(boolean active);
+    public int addCountry(Country country);
+    public int updateCountry(Country country);
 
 }
