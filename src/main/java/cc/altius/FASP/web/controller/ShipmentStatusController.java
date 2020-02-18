@@ -5,9 +5,9 @@
  */
 package cc.altius.FASP.web.controller;
 
-import cc.altius.FASP.model.DataSource;
 import cc.altius.FASP.model.ResponseFormat;
-import cc.altius.FASP.service.DataSourceService;
+import cc.altius.FASP.model.ShipmentStatus;
+import cc.altius.FASP.service.ShipmentStatusService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
@@ -30,22 +30,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:4202")
-public class DataSourceController {
+public class ShipmentStatusController {
 
     @Autowired
-    private DataSourceService dataSourceService;
+    private ShipmentStatusService shipmentStatusService;
 
-    @PutMapping(value = "/addDataSource")
+    @PutMapping(value = "/addShipmentStatus")
     public ResponseEntity addDataSourceType(@RequestBody(required = true) String json) {
-        //System.out.println("json---->" + json);
+        System.out.println("json---->" + json);
         Gson g = new Gson();
-        DataSource dataSource = g.fromJson(json, DataSource.class);
+        ShipmentStatus shipmentStatus = g.fromJson(json, ShipmentStatus.class);
         ResponseFormat responseFormat = new ResponseFormat();
         try {
 
-            int row = this.dataSourceService.addDataSource(dataSource);
+            int row = this.shipmentStatusService.addShipmentStatus(shipmentStatus);
             if (row > 0) {
-                responseFormat.setMessage("Data Source Added successfully");
+                responseFormat.setMessage("ShipmentStatus Added successfully");
                 responseFormat.setStatus("Success");
                 return new ResponseEntity(responseFormat, HttpStatus.OK);
             } else {
@@ -63,40 +63,54 @@ public class DataSourceController {
 
     }
 
-    @GetMapping(value = "/getDataSourceList")
-    public String getDataSourceTypeList() throws UnsupportedEncodingException {
+    @GetMapping(value = "/getShipmentStatusListAll")
+    public String getDataSourceTypeListAll() throws UnsupportedEncodingException {
         String json;
-        List<DataSource> dataSourceList = this.dataSourceService.getDataSourceList(false);
+        List<ShipmentStatus> shipmentStatusList = this.shipmentStatusService.getShipmentStatusList(false);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();
-        json = gson.toJson(dataSourceList, typeList);
+        json = gson.toJson(shipmentStatusList, typeList);
         return json;
     }
 
-    @PutMapping(value = "/editDataSource")
-    public ResponseEntity editDataSource(@RequestBody(required = true) String json) {
-        //System.out.println("----->" + json);
+    @GetMapping(value = "/getShipmentStatusListActive")
+    public String getDataSourceTypeListActive() throws UnsupportedEncodingException {
+        String json;
+        List<ShipmentStatus> shipmentStatusList = this.shipmentStatusService.getShipmentStatusList(true);
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(shipmentStatusList, typeList);
+        return json;
+    }
+
+    @PutMapping(value = "/editShipmentStatus")
+    public ResponseEntity editDataSourceType(@RequestBody(required = true) String json) {
+        System.out.println("json---->" + json);
         Gson g = new Gson();
-        DataSource dataSource = g.fromJson(json, DataSource.class);
+        ShipmentStatus shipmentStatus = g.fromJson(json, ShipmentStatus.class);
         ResponseFormat responseFormat = new ResponseFormat();
         try {
-            int updateRow = this.dataSourceService.updateDataSource(dataSource);
-            if (updateRow > 0) {
+
+            int row = this.shipmentStatusService.editShipmentStatus(shipmentStatus);
+            if (row > 0) {
+                responseFormat.setMessage("ShipmentStatus Update successfully");
                 responseFormat.setStatus("Success");
-                responseFormat.setMessage("Data Source Updated successfully");
                 return new ResponseEntity(responseFormat, HttpStatus.OK);
             } else {
-                responseFormat.setStatus("Failed");
-                responseFormat.setMessage("Updated failed");
-                return new ResponseEntity(responseFormat, HttpStatus.OK);
+                responseFormat.setStatus("failed");
+                responseFormat.setMessage("Error accured");
+                return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+
             }
+
         } catch (Exception e) {
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Exception Occured :" + e.getClass());
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
-
         }
+
     }
 
 }

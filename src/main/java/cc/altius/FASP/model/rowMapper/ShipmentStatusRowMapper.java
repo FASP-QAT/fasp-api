@@ -6,30 +6,30 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.Label;
-import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.ShipmentStatus;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
 
 /**
  *
- * @author altius
+ * @author palash
  */
-public class RealmRowMapper implements RowMapper<Realm> {
+public class ShipmentStatusRowMapper implements RowMapper<ShipmentStatus>{
 
     @Override
-    public Realm mapRow(ResultSet rs, int i) throws SQLException {
-        Realm r = new Realm();
-        r.setRealmId(rs.getInt("REALM_ID"));
-        Label l = new Label();
+    public ShipmentStatus mapRow(ResultSet rs, int i) throws SQLException {
+        ShipmentStatus ss= new ShipmentStatus();
+        ss.setActive(rs.getBoolean("ACTIVE"));
+        ss.setShipmentStatusId(rs.getInt("SHIPMENT_STATUS_ID"));
+        Label l= new Label();
         l.setLabelId(rs.getInt("LABEL_ID"));
         l.setEngLabel(rs.getString("LABEL_EN"));
-        l.setSpaLabel(rs.getString("LABEL_SP"));
         l.setFreLabel(rs.getString("LABEL_FR"));
+        l.setSpaLabel(rs.getString("LABEL_SP"));
         l.setPorLabel(rs.getString("LABEL_PR"));
-        r.setLabel(l);
-        r.setRealmCode(rs.getString("REALM_CODE"));
-        return r;
+        ss.setLabel(l);
+        return ss;
     }
-
+    
 }

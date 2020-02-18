@@ -5,9 +5,9 @@
  */
 package cc.altius.FASP.dao.impl;
 
-import cc.altius.FASP.dao.CurrencyDao;
-import cc.altius.FASP.model.Currency;
-import cc.altius.FASP.model.rowMapper.CurrencyRowMapper;
+import cc.altius.FASP.dao.ShipmentStatusDao;
+import cc.altius.FASP.model.ShipmentStatus;
+import cc.altius.FASP.model.rowMapper.ShipmentStatusRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -18,14 +18,13 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
  * @author palash
  */
 @Repository
-public class CurrencyDaoImpl implements CurrencyDao {
+public class ShipmentStatusDaoImp implements ShipmentStatusDao {
 
     private JdbcTemplate jdbcTemplate;
     private javax.sql.DataSource dataSource;
@@ -38,59 +37,57 @@ public class CurrencyDaoImpl implements CurrencyDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    @Transactional
     @Override
-    public int addCurrency(Currency currency) {
+    public int addShipmentStatus(ShipmentStatus shipmentStatus) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
 
         SimpleJdbcInsert labelInsert = new SimpleJdbcInsert(dataSource).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
         Map<String, Object> params = new HashMap<>();
-        params.put("LABEL_EN", currency.getLabel().getEngLabel());
-        params.put("LABEL_FR", currency.getLabel().getFreLabel());
-        params.put("LABEL_SP", currency.getLabel().getSpaLabel());//alreday scanned
-        params.put("LABEL_PR", currency.getLabel().getPorLabel());
+        params.put("LABEL_EN", shipmentStatus.getLabel().getEngLabel());
+        params.put("LABEL_FR", shipmentStatus.getLabel().getFreLabel());
+        params.put("LABEL_SP", shipmentStatus.getLabel().getSpaLabel());//alreday scanned
+        params.put("LABEL_PR", shipmentStatus.getLabel().getPorLabel());
         params.put("CREATED_BY", 1);
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", 1);
         params.put("LAST_MODIFIED_DATE", curDate);
         int insertedLabelRowId = labelInsert.executeAndReturnKey(params).intValue();
 
-        SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("ap_currency").usingGeneratedKeyColumns("CURRENCY_ID");
+        SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("ap_shipment_status").usingGeneratedKeyColumns("SHIPMENT_STATUS_ID");
         Map<String, Object> map = new HashMap<>();
-        map.put("CURRENCY_CODE", currency.getCurrencyCode());
-        map.put("CURRENCY_SYMBOL", currency.getCurrencySymbol());
         map.put("LABEL_ID", insertedLabelRowId);
-        map.put("CONVERSION_RATE_TO_USD", currency.getConversionRateToUsd());
+        map.put("ACTIVE", 1);
         map.put("CREATED_BY", 1);
         map.put("CREATED_DATE", curDate);
         map.put("LAST_MODIFIED_BY", 1);
         map.put("LAST_MODIFIED_DATE", curDate);
-        int currencyId = insert.executeAndReturnKey(map).intValue();
-        return currencyId;
+        int shipmentStatusId = insert.executeAndReturnKey(map).intValue();
+        return shipmentStatusId;
     }
 
     @Override
-    public List<Currency> getCurrencyList(boolean active) {
+    public List<ShipmentStatus> getShipmentStatusList(boolean active) {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT ac.* ,al.`LABEL_EN`,al.`LABEL_FR`,al.`LABEL_SP`,al.`LABEL_PR`,al.`LABEL_ID` \n"
-                + "FROM ap_currency ac \n"
-                + "LEFT JOIN ap_label al ON al.`LABEL_ID`=ac.`LABEL_ID`;");
-        return this.jdbcTemplate.query(sb.toString(), new CurrencyRowMapper());
+        sb.append("SELECT ss.* ,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_SP`,l.`LABEL_PR`,l.`LABEL_ID` FROM ap_shipment_status ss \n"
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=ss.`LABEL_ID`");
+        if (active) {
+            sb.append(" WHERE ss.`ACTIVE` ");
+        }
+        return this.jdbcTemplate.query(sb.toString(), new ShipmentStatusRowMapper());
     }
 
-    @Transactional
     @Override
-    public int updateCurrency(Currency currency) {
-        Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
-
+    public int editShipmentStatus(ShipmentStatus shipmentStatus) {
+         Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
+        
         String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=? , al.`LABEL_FR`=?,"
                 + "al.`LABEL_PR`=?,al.`LABEL_SP`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
-        this.jdbcTemplate.update(sqlOne, currency.getLabel().getEngLabel(), currency.getLabel().getFreLabel(),
-                currency.getLabel().getPorLabel(), currency.getLabel().getSpaLabel(), 1, curDt, currency.getLabel().getLabelId());
-
-        String sqlTwo = "UPDATE ap_currency c SET  c.`CURRENCY_CODE`=?,c.`CURRENCY_SYMBOL`=?,c.`CONVERSION_RATE_TO_USD`=?,c.`LAST_MODIFIED_BY`=?,c.`LAST_MODIFIED_DATE`=?"
-                + " WHERE c.`CURRENCY_ID`=?;";
-        return this.jdbcTemplate.update(sqlTwo, currency.getCurrencyCode(),currency.getCurrencySymbol(),currency.getConversionRateToUsd() ,1, curDt,currency.getCurrencyId() );
+        this.jdbcTemplate.update(sqlOne,shipmentStatus.getLabel().getEngLabel(),shipmentStatus.getLabel().getFreLabel(),
+                shipmentStatus.getLabel().getPorLabel(),shipmentStatus.getLabel().getSpaLabel(),1,curDt,shipmentStatus.getLabel().getLabelId());
+        
+        String sqlTwo = "UPDATE ap_shipment_status dt SET  dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
+                        + " WHERE dt.`SHIPMENT_STATUS_ID`=?;";
+        return this.jdbcTemplate.update(sqlTwo, shipmentStatus.isActive(),1,curDt,shipmentStatus.getShipmentStatusId());
     }
 
 }

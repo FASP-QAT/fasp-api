@@ -5,19 +5,26 @@
 package cc.altius.FASP.model;
 
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 /**
  *
- * @author shrutika
+ * @author altius
  */
 public class Role implements Serializable {
 
     private String roleId;
     private Label label;
+    private List<BusinessFunction> businessFunctionList;
     private String[] businessFunctions;
+    private List<CanCreateRole> canCreateRoles;
+    private String[] canCreateRole;
 
     public Role() {
+        this.businessFunctionList = new LinkedList<BusinessFunction>();
+        this.canCreateRoles = new LinkedList<CanCreateRole>();
     }
 
     public Role(String roleId) {
@@ -45,12 +52,36 @@ public class Role implements Serializable {
         this.label = label;
     }
 
+    public List<BusinessFunction> getBusinessFunctionList() {
+        return businessFunctionList;
+    }
+
+    public void setBusinessFunctionList(List<BusinessFunction> businessFunctionList) {
+        this.businessFunctionList = businessFunctionList;
+    }
+
     public String[] getBusinessFunctions() {
         return businessFunctions;
     }
 
     public void setBusinessFunctions(String[] businessFunctions) {
         this.businessFunctions = businessFunctions;
+    }
+
+    public List<CanCreateRole> getCanCreateRoles() {
+        return canCreateRoles;
+    }
+
+    public void setCanCreateRoles(List<CanCreateRole> canCreateRoles) {
+        this.canCreateRoles = canCreateRoles;
+    }
+
+    public String[] getCanCreateRole() {
+        return canCreateRole;
+    }
+
+    public void setCanCreateRole(String[] canCreateRole) {
+        this.canCreateRole = canCreateRole;
     }
 
     @Override
@@ -76,6 +107,11 @@ public class Role implements Serializable {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Role{" + "roleId=" + roleId + ", label=" + label + ", businessFunctionList=" + businessFunctionList + ", businessFunctions=" + businessFunctions + ", canCreateRoles=" + canCreateRoles + ", canCreateRole=" + canCreateRole + '}';
     }
 
 }
