@@ -6,6 +6,7 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.DTO.PrgProgramDataDTO;
+import cc.altius.FASP.model.DTO.ProgramDTO;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import cc.altius.FASP.service.ProgramDataService;
+import cc.altius.FASP.service.ProgramService;
 
 /**
  *
@@ -29,12 +31,14 @@ import cc.altius.FASP.service.ProgramDataService;
 public class ProgramController {
 
     @Autowired
-    private ProgramDataService programService;
+    private ProgramDataService programDataService;
+    @Autowired
+    private ProgramService programService;
 
     @GetMapping(value = "/getProgramData")
     public String getProgramData(@RequestParam String programId) throws UnsupportedEncodingException {
         String json;
-        List<PrgProgramDataDTO> programList = this.programService.getProgramData(programId);
+        List<PrgProgramDataDTO> programList = this.programDataService.getProgramData(programId);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();
@@ -42,4 +46,15 @@ public class ProgramController {
         return json;
     }
 
+    @GetMapping(value = "/getProgramList")
+    public String getProgramList() throws UnsupportedEncodingException {
+        System.out.println("in get Program kist");
+        String json;
+        List<ProgramDTO> programList = this.programService.getProgramList();
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(programList, typeList);
+        return json;
+    }
 }
