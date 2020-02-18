@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.web.controller;
 
+import cc.altius.FASP.model.NextShipmentStatusAllowed;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.model.ShipmentStatus;
 import cc.altius.FASP.service.ShipmentStatusService;
@@ -36,10 +37,11 @@ public class ShipmentStatusController {
     private ShipmentStatusService shipmentStatusService;
 
     @PutMapping(value = "/addShipmentStatus")
-    public ResponseEntity addDataSourceType(@RequestBody(required = true) String json) {
-        System.out.println("json---->" + json);
+    public ResponseEntity addShipmentStatus(@RequestBody(required = true) String json) {
+        //System.out.println("json---->" + json);
         Gson g = new Gson();
         ShipmentStatus shipmentStatus = g.fromJson(json, ShipmentStatus.class);
+        //System.out.println("shipmentSTatus---------->"+Arrays.toString(shipmentStatus.getNextShipmentStatusAllowed()));
         ResponseFormat responseFormat = new ResponseFormat();
         try {
 
@@ -64,18 +66,41 @@ public class ShipmentStatusController {
     }
 
     @GetMapping(value = "/getShipmentStatusListAll")
-    public String getDataSourceTypeListAll() throws UnsupportedEncodingException {
-        String json;
-        List<ShipmentStatus> shipmentStatusList = this.shipmentStatusService.getShipmentStatusList(false);
-        Gson gson = new Gson();
-        Type typeList = new TypeToken<List>() {
-        }.getType();
-        json = gson.toJson(shipmentStatusList, typeList);
+    public String getShipmentStatusListAll() throws UnsupportedEncodingException {
+        String json = null;
+
+        try {
+            List<ShipmentStatus> shipmentStatusList = this.shipmentStatusService.getShipmentStatusList(false);
+           
+            for (ShipmentStatus ss : shipmentStatusList) {
+                if (ss.getNextShipmentStatusAllowedList().size() > 0) {
+//                    System.out.println("in if--------->");
+//                    System.out.println("in if status--->"+ss.getNextShipmentStatusAllowedList());
+                    String[] shipmentStatusId = new String[ss.getNextShipmentStatusAllowedList().size()];
+                    int i = 0;
+                    for (NextShipmentStatusAllowed b : ss.getNextShipmentStatusAllowedList()) {
+                        shipmentStatusId[i] = String.valueOf(b.getShipmentStatusAllowedId());
+                        i++;
+                    }
+//                    System.out.println("ids------>"+Arrays.toString(shipmentStatusId));
+                    ss.setNextShipmentStatusAllowed(shipmentStatusId);
+
+                }
+            }
+            
+            System.out.println("shipmentStatusList--->"+shipmentStatusList);
+            Gson gson = new Gson();
+            Type typeList = new TypeToken<List>() {
+            }.getType();
+            json = gson.toJson(shipmentStatusList, typeList);
+
+        } catch (Exception e) {
+        }
         return json;
     }
 
     @GetMapping(value = "/getShipmentStatusListActive")
-    public String getDataSourceTypeListActive() throws UnsupportedEncodingException {
+    public String getShipmentStatusListActive() throws UnsupportedEncodingException {
         String json;
         List<ShipmentStatus> shipmentStatusList = this.shipmentStatusService.getShipmentStatusList(true);
         Gson gson = new Gson();
@@ -86,11 +111,12 @@ public class ShipmentStatusController {
     }
 
     @PutMapping(value = "/editShipmentStatus")
-    public ResponseEntity editDataSourceType(@RequestBody(required = true) String json) {
-        System.out.println("json---->" + json);
+    public ResponseEntity editShipmentStatus(@RequestBody(required = true) String json) {
+        //System.out.println("json---->" + json);
         Gson g = new Gson();
         ShipmentStatus shipmentStatus = g.fromJson(json, ShipmentStatus.class);
         ResponseFormat responseFormat = new ResponseFormat();
+       // System.out.println("shipmentSTatsus-->"+shipmentStatus);
         try {
 
             int row = this.shipmentStatusService.editShipmentStatus(shipmentStatus);
