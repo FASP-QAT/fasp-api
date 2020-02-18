@@ -39,7 +39,7 @@ public interface UserDao {
 
     public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page); // 1 add User , 2 Edit User
 
-    public int unlockAccount(User user);
+    public int unlockAccount(int userId, String password);
 
     public List<BusinessFunction> getBusinessFunctionList();
 

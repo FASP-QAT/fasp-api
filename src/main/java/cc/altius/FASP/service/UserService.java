@@ -38,7 +38,7 @@ public interface UserService {
 
     public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page);
 
-    public int unlockAccount(User user);
+    public int unlockAccount(int userId, String password);
 
     public List<BusinessFunction> getBusinessFunctionList();
 

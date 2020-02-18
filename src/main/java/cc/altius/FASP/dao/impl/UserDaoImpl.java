@@ -139,7 +139,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int resetFailedAttemptsByUsername(String username) {
         try {
-            Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
+            Date curDt = DateUtils.getCurrentDateObject(DateUtils.EST);
             String sqlreset = "UPDATE `us_user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=? WHERE USERNAME=?";
             return this.jdbcTemplate.update(sqlreset, curDt, username);
         } catch (DataAccessException e) {
@@ -287,22 +287,23 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int unlockAccount(User user) {
+    public int unlockAccount(int userId, String password) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sql = "UPDATE us_user u "
                 + "SET "
                 + "u.`FAILED_ATTEMPTS`=0, "
                 + "u.`EXPIRES_ON`=:expiresOn, "
                 + "u.`PASSWORD`=:pwd, "
-                + "u.`LAST_LOGIN_DATE`=:lastModifiedDate, "
+                + "u.`LAST_MODIFIED_DATE`=:lastModifiedDate, "
                 + "u.`LAST_MODIFIED_BY`=:lastModifiedBy "
                 + "WHERE u.`USER_ID`=:userId;";
         Map<String, Object> map = new HashMap<>();
+        System.out.println("date------" + DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
         map.put("expiresOn", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
-        map.put("pwd", user.getPassword());
+        map.put("pwd", password);
         map.put("lastModifiedBy", 1);
         map.put("lastModifiedDate", curDate);
-        map.put("userId", user.getUserId());
+        map.put("userId", userId);
         return namedParameterJdbcTemplate.update(sql, map);
     }
 
@@ -338,7 +339,7 @@ public class UserDaoImpl implements UserDao {
         params.put("userId", userId);
         String hash = namedParameterJdbcTemplate.queryForObject(sqlString, params, String.class);
         PasswordEncoder encoder = new BCryptPasswordEncoder();
-
+        System.out.println("result for password---"+encoder.matches(password, hash));
         return encoder.matches(password, hash);
     }
 
