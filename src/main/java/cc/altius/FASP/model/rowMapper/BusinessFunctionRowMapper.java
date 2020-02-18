@@ -6,6 +6,7 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.BusinessFunction;
+import cc.altius.FASP.model.Label;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -20,8 +21,12 @@ public class BusinessFunctionRowMapper implements RowMapper<BusinessFunction> {
     public BusinessFunction mapRow(ResultSet rs, int i) throws SQLException {
         BusinessFunction b = new BusinessFunction();
         b.setBusinessFunctionId(rs.getString("BUSINESS_FUNCTION_ID"));
-        b.setBusinessFunctionDesc(rs.getString("BUSINESS_FUNCTION_DESC"));
-        b.setActive(rs.getBoolean("ACTIVE"));
+        Label l = new Label();
+        l.setEngLabel(rs.getString("LABEL_EN"));
+        l.setFreLabel(rs.getString("LABEL_FR"));
+        l.setSpaLabel(rs.getString("LABEL_SP"));
+        l.setPorLabel(rs.getString("LABEL_PR"));
+        b.setLabel(l);
         return b;
     }
 

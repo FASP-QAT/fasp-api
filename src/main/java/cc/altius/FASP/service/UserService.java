@@ -22,7 +22,7 @@ public interface UserService {
 
     public Map<String, Object> checkIfUserExists(String username, String password);
 
-    public int resetFailedAttemptsByUserId(int userId);
+    public int resetFailedAttemptsByUsername(String username);
 
     public int updateFailedAttemptsByUserId(String username);
 
@@ -38,7 +38,7 @@ public interface UserService {
 
     public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page);
 
-    public int unlockAccount(User user);
+    public int unlockAccount(int userId, String password);
 
     public List<BusinessFunction> getBusinessFunctionList();
 
@@ -46,4 +46,7 @@ public interface UserService {
 
     public boolean confirmPassword(int userId, String password);
 
+    public int addRole(Role role);
+
+    public int updateRole(Role role);
 }

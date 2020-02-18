@@ -41,6 +41,8 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Value("${jwt.get.token.uri}")
     private String authenticationPath;
+    @Value("${jwt.refresh.token.uri}")
+    private String refreshPath;
 
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
@@ -85,6 +87,10 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
                         HttpMethod.POST,
                         authenticationPath
                 )
+                .antMatchers(
+                        HttpMethod.GET,
+                        refreshPath
+                )
                 .antMatchers(HttpMethod.OPTIONS, "/**")
                 .and()
                 .ignoring()
@@ -95,6 +101,7 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().ignoring().antMatchers("/actuator**")
                 .and().ignoring().antMatchers("/browser**")
                 .and().ignoring().antMatchers("/browser/**")
+//                .and().ignoring().antMatchers("/refresh")
                 .and().ignoring().antMatchers("/api/forgotPassword/**");
     }
 }

@@ -13,6 +13,7 @@ public class ResponseFormat {
 
     private String status;
     private String message;
+    private String data;
 
     public String getStatus() {
         return status;
@@ -28,6 +29,14 @@ public class ResponseFormat {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+
+    public String getData() {
+        return data;
+    }
+
+    public void setData(String data) {
+        this.data = data;
     }
 
     @Override
