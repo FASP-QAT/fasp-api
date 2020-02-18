@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.rowMapper.BusinessFunctionRowMapper;
@@ -27,7 +28,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -136,7 +139,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int resetFailedAttemptsByUsername(String username) {
         try {
-            Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
+            Date curDt = DateUtils.getCurrentDateObject(DateUtils.EST);
             String sqlreset = "UPDATE `us_user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=? WHERE USERNAME=?";
             return this.jdbcTemplate.update(sqlreset, curDt, username);
         } catch (DataAccessException e) {
@@ -159,8 +162,10 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<Role> getRoleList() {
-        String sql = "SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP` FROM us_role"
-                + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID`;";
+        String sql = " SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`,c.`ROLE_ID` AS  CAN_CREATE_ROLE,rb.`BUSINESS_FUNCTION_ID` FROM us_role "
+                + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID` "
+                + "LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=us_role.`ROLE_ID` "
+                + "LEFT JOIN us_can_create_role c ON c.`CAN_CREATE_ROLE`=us_role.`ROLE_ID`; ";
         return this.jdbcTemplate.query(sql, new RoleRowMapper());
     }
 
@@ -174,7 +179,7 @@ public class UserDaoImpl implements UserDao {
         map.put("USERNAME", user.getUsername());
         map.put("PASSWORD", user.getPassword());
         map.put("EMAIL_ID", user.getEmailId());
-        map.put("PHONE_NO", user.getPhoneNumber());
+        map.put("PHONE", user.getPhoneNumber());
         map.put("LANGUAGE_ID", user.getLanguage().getLanguageId());
         map.put("ACTIVE", 1);
         map.put("EXPIRED", 0);
@@ -187,36 +192,42 @@ public class UserDaoImpl implements UserDao {
         map.put("LAST_MODIFIED_BY", 1);
         map.put("LAST_MODIFIED_DATE", curDate);
         int userId = insert.executeAndReturnKey(map).intValue();
-        String sqlString = "INSERT INTO us_user_role (USER_ID, ROLE_ID) VALUES(?,?)";
-        this.jdbcTemplate.update(sqlString, userId, user.getRole().getRoleId());
+        String sqlString = "INSERT INTO us_user_role (USER_ID, ROLE_ID,CREATED_BY,CREATED_DATE,LAST_MODIFIED_BY,LAST_MODIFIED_DATE) VALUES(?,?,1,?,1,?)";
+        this.jdbcTemplate.update(sqlString, userId, user.getRole().getRoleId(), curDate, curDate);
         return userId;
     }
 
     @Override
     public List<User> getUserList() {
-        String sql = "SELECT u.`USER_ID`,u.`USERNAME`,u.`EMAIL_ID`,u.`PHONE_NO`,"
-                + "u.`REALM_ID`,rl.`REALM_CODE`,u.`LANGUAGE_ID`,"
-                + "l.`LANGUAGE_NAME`,ur.`ROLE_ID`,r.`ROLE_NAME`,"
-                + "u.`LAST_LOGIN_DATE`,u.`FAILED_ATTEMPTS`,u.`ACTIVE`"
+        String sql = "SELECT u.`USER_ID`,u.`USERNAME`,u.`EMAIL_ID`,u.`PHONE`, "
+                + "u.`REALM_ID`,rl.`REALM_CODE`,u.`LANGUAGE_ID`, "
+                + "l.`LANGUAGE_NAME`,ur.`ROLE_ID`,lb.*, "
+                + "u.`LAST_LOGIN_DATE`,u.`FAILED_ATTEMPTS`,u.`ACTIVE`,lr.`LABEL_EN` AS RL_ENG_LABEL,lr.`LABEL_FR` AS RL_FR_LABEL,lr.`LABEL_PR` AS RL_PR_LABEL,\n"
+                + "lr.`LABEL_SP` AS RL_SP_LABEL "
                 + " FROM us_user u "
-                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID`"
-                + "LEFT JOIN us_role r ON r.`ROLE_ID`=ur.`ROLE_ID`"
-                + "LEFT JOIN rm_realm rl ON rl.`REALM_ID`=u.`REALM_ID`"
-                + "LEFT JOIN lc_language l ON l.`LANGUAGE_ID`=u.`LANGUAGE_ID`";
+                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID` "
+                + "LEFT JOIN us_role r ON r.`ROLE_ID`=ur.`ROLE_ID` "
+                + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=r.`LABEL_ID` "
+                + "LEFT JOIN rm_realm rl ON rl.`REALM_ID`=u.`REALM_ID` "
+                + "LEFT JOIN rm_label lr ON lr.`LABEL_ID`=rl.`LABEL_ID`  "
+                + "LEFT JOIN ap_language l ON l.`LANGUAGE_ID`=u.`LANGUAGE_ID`";
         return this.jdbcTemplate.query(sql, new UserRowMapper());
     }
 
     @Override
     public User getUserByUserId(int userId) {
-        String sql = "SELECT u.`USER_ID`,u.`USERNAME`,u.`EMAIL_ID`,u.`PHONE_NO`,"
-                + "u.`REALM_ID`,rl.`REALM_CODE`,u.`LANGUAGE_ID`,"
-                + "l.`LANGUAGE_NAME`,ur.`ROLE_ID`,r.`ROLE_NAME`,"
-                + "u.`LAST_LOGIN_DATE`,u.`FAILED_ATTEMPTS`,u.`ACTIVE`"
+        String sql = "SELECT u.`USER_ID`,u.`USERNAME`,u.`EMAIL_ID`,u.`PHONE`, "
+                + "u.`REALM_ID`,rl.`REALM_CODE`,u.`LANGUAGE_ID`, "
+                + "l.`LANGUAGE_NAME`,ur.`ROLE_ID`,lb.*, "
+                + "u.`LAST_LOGIN_DATE`,u.`FAILED_ATTEMPTS`,u.`ACTIVE`,lr.`LABEL_EN` AS RL_ENG_LABEL,lr.`LABEL_FR` AS RL_FR_LABEL,lr.`LABEL_PR` AS RL_PR_LABEL,\n"
+                + "lr.`LABEL_SP` AS RL_SP_LABEL "
                 + " FROM us_user u "
-                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID`"
-                + "LEFT JOIN us_role r ON r.`ROLE_ID`=ur.`ROLE_ID`"
+                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID` "
+                + "LEFT JOIN us_role r ON r.`ROLE_ID`=ur.`ROLE_ID` "
+                + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=r.`LABEL_ID` "
                 + "LEFT JOIN rm_realm rl ON rl.`REALM_ID`=u.`REALM_ID`"
-                + "LEFT JOIN lc_language l ON l.`LANGUAGE_ID`=u.`LANGUAGE_ID` WHERE u.`USER_ID`=?;";
+                + "LEFT JOIN rm_label lr ON lr.`LABEL_ID`=rl.`LABEL_ID`  "
+                + "LEFT JOIN ap_language l ON l.`LANGUAGE_ID`=u.`LANGUAGE_ID` WHERE u.`USER_ID`=?;";
         return this.jdbcTemplate.queryForObject(sql, new UserRowMapper(), userId);
     }
 
@@ -228,7 +239,7 @@ public class UserDaoImpl implements UserDao {
                 + "SET u.`REALM_ID`=:realmId, "
                 + "u.`USERNAME`=:userName, "
                 + "u.`EMAIL_ID`=:emailId, "
-                + "u.`PHONE_NO`=:phoneNo, "
+                + "u.`PHONE`=:phoneNo, "
                 + "u.`LANGUAGE_ID`=:languageId, "
                 + "u.`ACTIVE`=:active, "
                 + "u.`LAST_MODIFIED_BY`=:lastModifiedBy, "
@@ -247,8 +258,8 @@ public class UserDaoImpl implements UserDao {
         int row = namedParameterJdbcTemplate.update(sql, map);
         sql = "DELETE FROM us_user_role WHERE  USER_ID=?;";
         this.jdbcTemplate.update(sql, user.getUserId());
-        sql = "INSERT INTO us_user_role (USER_ID, ROLE_ID) VALUES(?,?)";
-        this.jdbcTemplate.update(sql, user.getUserId(), user.getRole().getRoleId());
+        sql = "INSERT INTO us_user_role (USER_ID, ROLE_ID,CREATED_BY,CREATED_DATE,LAST_MODIFIED_BY,LAST_MODIFIED_DATE) VALUES(?,?,1,?,1,?)";
+        this.jdbcTemplate.update(sql, user.getUserId(), user.getRole().getRoleId(), curDate, curDate);
         return row;
     }
 
@@ -276,36 +287,44 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int unlockAccount(User user) {
+    public int unlockAccount(int userId, String password) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sql = "UPDATE us_user u "
                 + "SET "
                 + "u.`FAILED_ATTEMPTS`=0, "
                 + "u.`EXPIRES_ON`=:expiresOn, "
                 + "u.`PASSWORD`=:pwd, "
-                + "u.`LAST_LOGIN_DATE`=:lastModifiedDate, "
+                + "u.`LAST_MODIFIED_DATE`=:lastModifiedDate, "
                 + "u.`LAST_MODIFIED_BY`=:lastModifiedBy "
                 + "WHERE u.`USER_ID`=:userId;";
         Map<String, Object> map = new HashMap<>();
+        System.out.println("date------" + DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
         map.put("expiresOn", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
-        map.put("pwd", user.getPassword());
+        map.put("pwd", password);
         map.put("lastModifiedBy", 1);
         map.put("lastModifiedDate", curDate);
-        map.put("userId", user.getUserId());
+        map.put("userId", userId);
         return namedParameterJdbcTemplate.update(sql, map);
     }
 
     @Override
     public List<BusinessFunction> getBusinessFunctionList() {
-        String sqlString = "SELECT b.* FROM us_business_function b WHERE b.`ACTIVE` ";
-        return this.jdbcTemplate.query(sqlString, new BusinessFunctionRowMapper());
+        String sqlString = "SELECT b.*,l.* FROM us_business_function b\n"
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=b.`LABEL_ID`; ";
+        try {
+            System.out.println("labels----------" + this.jdbcTemplate.query(sqlString, new BusinessFunctionRowMapper()));
+            return this.jdbcTemplate.query(sqlString, new BusinessFunctionRowMapper());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
     public int updatePassword(int userId, String newPassword, int offset) {
         Date offsetDate = DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, offset);
         System.out.println("offsetDate---" + offsetDate);
-        String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn WHERE us_user.USER_ID=:userId";
+        String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn,FAILED_ATTEMPTS=0 WHERE us_user.USER_ID=:userId";
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
         params.put("hash", newPassword);
@@ -320,8 +339,146 @@ public class UserDaoImpl implements UserDao {
         params.put("userId", userId);
         String hash = namedParameterJdbcTemplate.queryForObject(sqlString, params, String.class);
         PasswordEncoder encoder = new BCryptPasswordEncoder();
-
+        System.out.println("result for password---"+encoder.matches(password, hash));
         return encoder.matches(password, hash);
+    }
+
+    @Override
+    @Transactional
+    public int addRole(Role role) {
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
+        SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("us_role");
+        Map<String, Object> params = new HashMap<>();
+        String roleId = "ROLE";
+        int labelId = 0;
+        System.out.println("label----------" + role.getLabel().getEngLabel());
+        String[] splited = role.getLabel().getEngLabel().split("\\s+");
+        System.out.println("splited length---" + splited.length);
+        for (int i = 0; i < splited.length; i++) {
+            roleId = roleId + "_" + splited[i].toUpperCase();
+        }
+        try {
+            labelId = this.addLabel(role.getLabel());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        System.out.println("label id ---" + labelId);
+        System.out.println("role id after---" + roleId);
+        params.put("ROLE_ID", roleId);
+        params.put("LABEL_ID", labelId);
+        params.put("CREATED_BY", 1);
+        params.put("CREATED_DATE", curDate);
+        params.put("LAST_MODIFIED_BY", 1);
+        params.put("LAST_MODIFIED_DATE", curDate);
+        int rows1 = si.execute(params);
+        si = new SimpleJdbcInsert(jdbcTemplate).withTableName("us_role_business_function");
+        SqlParameterSource[] paramList = new SqlParameterSource[role.getBusinessFunctions().length];
+        int i = 0;
+        for (String bf : role.getBusinessFunctions()) {
+            params = new HashMap<>();
+            params.put("ROLE_ID", roleId);
+            params.put("BUSINESS_FUNCTION_ID", bf);
+            params.put("CREATED_BY", 1);
+            params.put("CREATED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", 1);
+            params.put("LAST_MODIFIED_DATE", curDate);
+            paramList[i] = new MapSqlParameterSource(params);
+            i++;
+        }
+        int result[] = si.executeBatch(paramList);
+        si = new SimpleJdbcInsert(jdbcTemplate).withTableName("us_can_create_role");
+        paramList = new SqlParameterSource[role.getCanCreateRole().length];
+        i = 0;
+        for (String r : role.getCanCreateRole()) {
+            params = new HashMap<>();
+            params.put("ROLE_ID", r);
+            params.put("CAN_CREATE_ROLE", roleId);
+            paramList[i] = new MapSqlParameterSource(params);
+            i++;
+        }
+        si.executeBatch(paramList);
+
+        return (rows1 == 1 && result.length > 0 ? 1 : 0);
+    }
+
+    @Override
+    @Transactional
+    public int updateRole(Role role) {
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
+        String sql = "";
+        String roleId = "ROLE";
+        String[] splited = role.getLabel().getEngLabel().split("\\s+");
+        System.out.println("splited length---" + splited.length);
+        for (int i = 0; i < splited.length; i++) {
+            roleId = roleId + "_" + splited[i].toUpperCase();
+        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("newRoleId", roleId);
+        params.put("roleId", role.getRoleId());
+        params.put("engLabel", role.getLabel().getEngLabel());
+        params.put("spaLabel", role.getLabel().getSpaLabel());
+        params.put("freLabel", role.getLabel().getFreLabel());
+        params.put("porLabel", role.getLabel().getPorLabel());
+        params.put("lastModifiedBy", 1);
+        params.put("lastModifiedDate", curDate);
+        sql = "UPDATE us_role r "
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=r.`LABEL_ID` "
+                + "SET r.`ROLE_ID`=:newRoleId, "
+                + "l.`LABEL_EN`=:engLabel, "
+                + "l.`LABEL_FR`=:freLabel, "
+                + "l.`LABEL_PR`=:porLabel, "
+                + "l.`LABEL_SP`=:spaLabel, "
+                + "l.`LAST_MODIFIED_BY`=:lastModifiedBy, "
+                + "l.`LAST_MODIFIED_DATE`=:lastModifiedDate "
+                + "WHERE r.`ROLE_ID`=:roleId;";
+        namedParameterJdbcTemplate.update(sql, params);
+        params.clear();
+        this.jdbcTemplate.update("DELETE rbf.* FROM us_role_business_function rbf where rbf.ROLE_ID=?", role.getRoleId());
+        SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("us_role_business_function");
+        SqlParameterSource[] paramList = new SqlParameterSource[role.getBusinessFunctions().length];
+        int i = 0;
+        for (String bf : role.getBusinessFunctions()) {
+            params = new HashMap<>();
+            params.put("ROLE_ID", roleId);
+            params.put("BUSINESS_FUNCTION_ID", bf);
+            params.put("CREATED_BY", 1);
+            params.put("CREATED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", 1);
+            params.put("LAST_MODIFIED_DATE", curDate);
+            paramList[i] = new MapSqlParameterSource(params);
+            i++;
+        }
+        si.executeBatch(paramList);
+        params.clear();
+        this.jdbcTemplate.update("DELETE r.* FROM us_can_create_role r WHERE r.CAN_CREATE_ROLE=?;", role.getRoleId());
+        si = new SimpleJdbcInsert(jdbcTemplate).withTableName("us_can_create_role");
+        paramList = new SqlParameterSource[role.getCanCreateRole().length];
+        i = 0;
+        for (String r : role.getCanCreateRole()) {
+            params = new HashMap<>();
+            params.put("ROLE_ID", r);
+            params.put("CAN_CREATE_ROLE", roleId);
+            paramList[i] = new MapSqlParameterSource(params);
+            i++;
+        }
+        si.executeBatch(paramList);
+        return 1;
+    }
+
+    @Override
+    public int addLabel(Label label) {
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
+        SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
+        Map<String, Object> params = new HashMap<>();
+        params.put("LABEL_EN", label.getEngLabel());
+        params.put("LABEL_FR", label.getFreLabel());
+        params.put("LABEL_SP", label.getSpaLabel());
+        params.put("LABEL_PR", label.getPorLabel());
+        params.put("CREATED_BY", 1);
+        params.put("CREATED_DATE", curDate);
+        params.put("LAST_MODIFIED_BY", 1);
+        params.put("LAST_MODIFIED_DATE", curDate);
+        return si.executeAndReturnKey(params).intValue();
     }
 
 }

@@ -57,12 +57,10 @@ public class Label {
         this.porLabel = porLabel;
     }
 
-
     @Override
     public String toString() {
         return "Label{" + "labelId=" + labelId + ", engLabel=" + engLabel + ", spaLabel=" + spaLabel + ", freLabel=" + freLabel + ", porLabel=" + porLabel + '}';
     }
-
 
     public String getLabel() {
         return this.engLabel;

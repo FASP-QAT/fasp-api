@@ -1,0 +1,243 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package cc.altius.FASP.model.DTO.rowMapper;
+
+import cc.altius.FASP.model.DTO.PrgDataSourceDTO;
+import cc.altius.FASP.model.DTO.PrgDataSourceTypeDTO;
+import cc.altius.FASP.model.DTO.PrgInventoryDTO;
+import cc.altius.FASP.model.DTO.PrgLabelDTO;
+import cc.altius.FASP.model.DTO.PrgLogisticsUnitDTO;
+import cc.altius.FASP.model.DTO.PrgManufacturerDTO;
+import cc.altius.FASP.model.DTO.PrgPlanningUnitDTO;
+import cc.altius.FASP.model.DTO.PrgRegionDTO;
+import cc.altius.FASP.model.DTO.PrgUnitDTO;
+import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import org.springframework.jdbc.core.RowMapper;
+
+/**
+ *
+ * @author altius
+ */
+public class PrgInventoryDTORowMapper implements RowMapper<PrgInventoryDTO> {
+
+    @Override
+    public PrgInventoryDTO mapRow(ResultSet rs, int i) throws SQLException {
+        PrgInventoryDTO inventory = new PrgInventoryDTO();
+        inventory.setInventoryId(rs.getInt("INVENTORY_ID"));
+        inventory.setActualQty(rs.getDouble("ACTUAL_QTY"));
+        inventory.setAdjustmentQty(rs.getDouble("ADJUSTMENT_QTY"));
+        inventory.setBatchNo(rs.getString("BATCH_NO"));
+        PrgDataSourceDTO dataSource = new PrgDataSourceDTO();
+        dataSource.setDataSourceId(rs.getInt("DATA_SOURCE_ID"));
+        PrgDataSourceTypeDTO dataSourceType = new PrgDataSourceTypeDTO();
+        dataSourceType.setDataSourceTypeId(rs.getInt("DATA_SOURCE_TYPE_ID"));
+        PrgLabelDTO dataSourceTypeLabel = new PrgLabelDTO();
+        dataSourceTypeLabel.setLabelEn(rs.getString("DATA_SOURCE_TYPE_NAME_EN"));
+        dataSourceTypeLabel.setLabelPr(rs.getString("DATA_SOURCE_TYPE_NAME_PR"));
+        dataSourceTypeLabel.setLabelFr(rs.getString("DATA_SOURCE_TYPE_NAME_FR"));
+        dataSourceTypeLabel.setLabelSp(rs.getString("DATA_SOURCE_TYPE_NAME_SP"));
+        dataSourceType.setLabel(dataSourceTypeLabel);
+        dataSource.setDataSourceType(dataSourceType);
+        PrgLabelDTO dataSourceLabel = new PrgLabelDTO();
+        dataSourceLabel.setLabelEn(rs.getString("DATA_SOURCE_NAME_EN"));
+        dataSourceLabel.setLabelPr(rs.getString("DATA_SOURCE_NAME_PR"));
+        dataSourceLabel.setLabelFr(rs.getString("DATA_SOURCE_NAME_FR"));
+        dataSourceLabel.setLabelSp(rs.getString("DATA_SOURCE_NAME_SP"));
+        dataSource.setLabel(dataSourceLabel);
+        inventory.setDataSource(dataSource);
+        inventory.setExpiryDate(rs.getDate("EXPIRY_DATE"));
+        PrgLogisticsUnitDTO inventoryLogisticsUnit = new PrgLogisticsUnitDTO();
+        inventoryLogisticsUnit.setHeightQty(rs.getDouble("HEIGHT_QTY"));
+        PrgUnitDTO inventoryHeightUnit = new PrgUnitDTO();
+        PrgLabelDTO inventoryHeightUnitLabel = new PrgLabelDTO();
+        inventoryHeightUnitLabel.setLabelEn(rs.getString("HEIGHT_UNIT_NAME_EN"));
+        inventoryHeightUnitLabel.setLabelFr(rs.getString("HEIGHT_UNIT_NAME_FR"));
+        inventoryHeightUnitLabel.setLabelPr(rs.getString("HEIGHT_UNIT_NAME_PR"));
+        inventoryHeightUnitLabel.setLabelSp(rs.getString("HEIGHT_UNIT_NAME_SP"));
+        inventoryHeightUnit.setLabel(inventoryHeightUnitLabel);
+        inventoryHeightUnit.setUnitCode(rs.getString("HEIGHT_UNIT_CODE"));
+        inventoryHeightUnit.setUnitId(rs.getInt("HEIGHT_UNIT_ID"));
+        PrgUnitTypeDTO inventoryHeightUnitType = new PrgUnitTypeDTO();
+        PrgLabelDTO inventoryHeightUnitTypeLabel = new PrgLabelDTO();
+        inventoryHeightUnitTypeLabel.setLabelEn(rs.getString("HEIGHT_UNIT_TYPE_NAME_EN"));
+        inventoryHeightUnitTypeLabel.setLabelFr(rs.getString("HEIGHT_UNIT_TYPE_NAME_FR"));
+        inventoryHeightUnitTypeLabel.setLabelPr(rs.getString("HEIGHT_UNIT_TYPE_NAME_PR"));
+        inventoryHeightUnitTypeLabel.setLabelSp(rs.getString("HEIGHT_UNIT_TYPE_NAME_SP"));
+        inventoryHeightUnitType.setLabel(inventoryHeightUnitTypeLabel);
+        inventoryHeightUnitType.setUnitTypeId(rs.getInt("HEIGHT_UNIT_TYPE_ID"));
+        inventoryHeightUnit.setUnitType(inventoryHeightUnitType);
+        inventoryLogisticsUnit.setHeightUnit(inventoryHeightUnit);
+        PrgLabelDTO inventoryLogisticsUnitLabel = new PrgLabelDTO();
+        inventoryLogisticsUnitLabel.setLabelEn(rs.getString("LOGISTICS_UNIT_NAME_EN"));
+        inventoryLogisticsUnitLabel.setLabelFr(rs.getString("LOGISTICS_UNIT_NAME_FR"));
+        inventoryLogisticsUnitLabel.setLabelPr(rs.getString("LOGISTICS_UNIT_NAME_PR"));
+        inventoryLogisticsUnitLabel.setLabelSp(rs.getString("LOGISTICS_UNIT_NAME_SP"));
+        inventoryLogisticsUnit.setLabel(inventoryLogisticsUnitLabel);
+        inventoryLogisticsUnit.setLengthQty(rs.getInt("LENGTH_QTY"));
+
+        PrgUnitDTO inventoryLengthUnit = new PrgUnitDTO();
+        PrgLabelDTO inventoryLengthUnitLabel = new PrgLabelDTO();
+        inventoryLengthUnitLabel.setLabelEn(rs.getString("LENGTH_UNIT_NAME_EN"));
+        inventoryLengthUnitLabel.setLabelFr(rs.getString("LENGTH_UNIT_NAME_FR"));
+        inventoryLengthUnitLabel.setLabelPr(rs.getString("LENGTH_UNIT_NAME_PR"));
+        inventoryLengthUnitLabel.setLabelSp(rs.getString("LENGTH_UNIT_NAME_SP"));
+        inventoryLengthUnit.setLabel(inventoryLengthUnitLabel);
+        inventoryLengthUnit.setUnitCode(rs.getString("LENGTH_UNIT_CODE"));
+        inventoryLengthUnit.setUnitId(rs.getInt("LENGTH_UNIT_ID"));
+        PrgUnitTypeDTO inventoryLengthUnitType = new PrgUnitTypeDTO();
+        PrgLabelDTO inventoryLengthUnitTypeLabel = new PrgLabelDTO();
+        inventoryLengthUnitTypeLabel.setLabelEn(rs.getString("LENGTH_UNIT_TYPE_NAME_EN"));
+        inventoryLengthUnitTypeLabel.setLabelFr(rs.getString("LENGTH_UNIT_TYPE_NAME_FR"));
+        inventoryLengthUnitTypeLabel.setLabelPr(rs.getString("LENGTH_UNIT_TYPE_NAME_PR"));
+        inventoryLengthUnitTypeLabel.setLabelSp(rs.getString("LENGTH_UNIT_TYPE_NAME_SP"));
+        inventoryLengthUnitType.setLabel(inventoryLengthUnitTypeLabel);
+        inventoryLengthUnitType.setUnitTypeId(rs.getInt("LENGTH_UNIT_TYPE_ID"));
+        inventoryLengthUnit.setUnitType(inventoryLengthUnitType);
+        inventoryLogisticsUnit.setLengthUnit(inventoryLengthUnit);
+        inventoryLogisticsUnit.setLogisticsUnitId(rs.getInt("LOGISTICS_UNIT_ID"));
+        PrgManufacturerDTO inventoryManufacturer = new PrgManufacturerDTO();
+
+        PrgLabelDTO inventoryManufacturerLabel = new PrgLabelDTO();
+        inventoryManufacturerLabel.setLabelEn(rs.getString("MANUFACTURER_NAME_EN"));
+        inventoryManufacturerLabel.setLabelFr(rs.getString("MANUFACTURER_NAME_FR"));
+        inventoryManufacturerLabel.setLabelPr(rs.getString("MANUFACTURER_NAME_PR"));
+        inventoryManufacturerLabel.setLabelSp(rs.getString("MANUFACTURER_NAME_SP"));
+        inventoryManufacturer.setLabel(inventoryManufacturerLabel);
+        inventoryManufacturer.setManufacturerId(rs.getInt("MANUFACTURER_ID"));
+        inventoryLogisticsUnit.setManufacturer(inventoryManufacturer);
+
+        PrgPlanningUnitDTO inventoryPlanningUnit = new PrgPlanningUnitDTO();
+        PrgLabelDTO inventoryPlanningUnitLabel = new PrgLabelDTO();
+        inventoryPlanningUnitLabel.setLabelEn(rs.getString("PLANNING_UNIT_NAME_EN"));
+        inventoryPlanningUnitLabel.setLabelFr(rs.getString("PLANNING_UNIT_NAME_FR"));
+        inventoryPlanningUnitLabel.setLabelPr(rs.getString("PLANNING_UNIT_NAME_PR"));
+        inventoryPlanningUnitLabel.setLabelSp(rs.getString("PLANNING_UNIT_NAME_SP"));
+        inventoryPlanningUnit.setLabel(inventoryPlanningUnitLabel);
+        inventoryPlanningUnit.setPlanningUnitId(rs.getInt("PLANNING_UNIT_ID"));
+        inventoryPlanningUnit.setPrice(rs.getDouble("PRICE"));
+        inventoryPlanningUnit.setQtyOfForecastingUnits(rs.getDouble("QTY_OF_FORECASTING_UNITS"));
+        PrgUnitDTO inventoryPlanningUnitUnit = new PrgUnitDTO();
+        PrgLabelDTO inventoryPlanningUnitUnitLabel = new PrgLabelDTO();
+        inventoryPlanningUnitUnitLabel.setLabelEn(rs.getString("PLANNING_UNIT_UNIT_NAME_EN"));
+        inventoryPlanningUnitUnitLabel.setLabelFr(rs.getString("PLANNING_UNIT_UNIT_NAME_FR"));
+        inventoryPlanningUnitUnitLabel.setLabelPr(rs.getString("PLANNING_UNIT_UNIT_NAME_PR"));
+        inventoryPlanningUnitUnitLabel.setLabelSp(rs.getString("PLANNING_UNIT_UNIT_NAME_SP"));
+        inventoryPlanningUnitUnit.setLabel(inventoryPlanningUnitUnitLabel);
+        inventoryPlanningUnitUnit.setUnitCode(rs.getString("PLANNING_UNIT_UNIT_CODE"));
+        inventoryPlanningUnitUnit.setUnitId(rs.getInt("PLANNING_UNIT_UNIT_ID"));
+
+        PrgUnitTypeDTO inventoryPlanningUnitUnitType = new PrgUnitTypeDTO();
+        PrgLabelDTO inventoryPlanningUnitUnitTypeLabel = new PrgLabelDTO();
+        inventoryPlanningUnitUnitTypeLabel.setLabelEn(rs.getString("PLANNING_UNIT_UNIT_TYPE_NAME_EN"));
+        inventoryPlanningUnitUnitTypeLabel.setLabelFr(rs.getString("PLANNING_UNIT_UNIT_TYPE_NAME_FR"));
+        inventoryPlanningUnitUnitTypeLabel.setLabelPr(rs.getString("PLANNING_UNIT_UNIT_TYPE_NAME_PR"));
+        inventoryPlanningUnitUnitTypeLabel.setLabelSp(rs.getString("PLANNING_UNIT_UNIT_TYPE_NAME_SP"));
+        inventoryPlanningUnitUnitType.setLabel(inventoryPlanningUnitUnitTypeLabel);
+        inventoryPlanningUnitUnitType.setUnitTypeId(rs.getInt("PLANNING_UNIT_UNIT_TYPE_ID"));
+        inventoryPlanningUnitUnit.setUnitType(inventoryPlanningUnitUnitType);
+        inventoryPlanningUnit.setUnit(inventoryPlanningUnitUnit);
+        inventoryLogisticsUnit.setPlanningUnit(inventoryPlanningUnit);
+        inventoryLogisticsUnit.setQtyInEuro1(rs.getDouble("QTY_IN_EURO1"));
+        inventoryLogisticsUnit.setQtyInEuro2(rs.getDouble("QTY_IN_EURO2"));
+        inventoryLogisticsUnit.setQtyOfPlanningUnits(rs.getDouble("QTY_OF_PLANNING_UNITS"));
+        PrgUnitDTO inventoryLogisticsUnitUnit = new PrgUnitDTO();
+        PrgLabelDTO inventoryLogisticsUnitUnitLabel = new PrgLabelDTO();
+        inventoryLogisticsUnitUnitLabel.setLabelEn(rs.getString("LOGISTICS_UNIT_UNIT_NAME_EN"));
+        inventoryLogisticsUnitUnitLabel.setLabelFr(rs.getString("LOGISTICS_UNIT_UNIT_NAME_FR"));
+        inventoryLogisticsUnitUnitLabel.setLabelPr(rs.getString("LOGISTICS_UNIT_UNIT_NAME_PR"));
+        inventoryLogisticsUnitUnitLabel.setLabelSp(rs.getString("LOGISTICS_UNIT_UNIT_NAME_SP"));
+        inventoryLogisticsUnitUnit.setLabel(inventoryLogisticsUnitUnitLabel);
+        inventoryLogisticsUnitUnit.setUnitCode(rs.getString("LOGISTICS_UNIT_UNIT_CODE"));
+        inventoryLogisticsUnitUnit.setUnitId(rs.getInt("LOGISTICS_UNIT_UNIT_ID"));
+        PrgUnitTypeDTO inventoryLogisticsUnitUnitType = new PrgUnitTypeDTO();
+        PrgLabelDTO inventoryLogisticsUnitUnitTypeLabel = new PrgLabelDTO();
+        inventoryLogisticsUnitUnitTypeLabel.setLabelEn(rs.getString("LOGISTICS_UNIT_UNIT_TYPE_NAME_EN"));
+        inventoryLogisticsUnitUnitTypeLabel.setLabelFr(rs.getString("LOGISTICS_UNIT_UNIT_TYPE_NAME_FR"));
+        inventoryLogisticsUnitUnitTypeLabel.setLabelPr(rs.getString("LOGISTICS_UNIT_UNIT_TYPE_NAME_PR"));
+        inventoryLogisticsUnitUnitTypeLabel.setLabelSp(rs.getString("LOGISTICS_UNIT_UNIT_TYPE_NAME_SP"));
+        inventoryLogisticsUnitUnitType.setLabel(inventoryLogisticsUnitUnitTypeLabel);
+        inventoryLogisticsUnitUnitType.setUnitTypeId(rs.getInt("LOGISTICS_UNIT_UNIT_TYPE_ID"));
+        inventoryLogisticsUnitUnit.setUnitType(inventoryLogisticsUnitUnitType);
+        inventoryLogisticsUnit.setUnit(inventoryLogisticsUnitUnit);
+        inventoryLogisticsUnit.setVariant(rs.getString("VARIANT"));
+
+        inventoryLogisticsUnit.setWeightQty(rs.getDouble("WEIGHT_QTY"));
+        PrgUnitDTO inventoryWeightUnit = new PrgUnitDTO();
+        PrgLabelDTO inventoryWeightUnitLabel = new PrgLabelDTO();
+        inventoryWeightUnitLabel.setLabelEn(rs.getString("WEIGHT_UNIT_NAME_EN"));
+        inventoryWeightUnitLabel.setLabelFr(rs.getString("WEIGHT_UNIT_NAME_FR"));
+        inventoryWeightUnitLabel.setLabelPr(rs.getString("WEIGHT_UNIT_NAME_PR"));
+        inventoryWeightUnitLabel.setLabelSp(rs.getString("WEIGHT_UNIT_NAME_SP"));
+        inventoryWeightUnit.setLabel(inventoryWeightUnitLabel);
+        inventoryWeightUnit.setUnitCode(rs.getString("WEIGHT_UNIT_CODE"));
+        inventoryWeightUnit.setUnitId(rs.getInt("WEIGHT_UNIT_ID"));
+        PrgUnitTypeDTO inventoryWeightUnitType = new PrgUnitTypeDTO();
+        PrgLabelDTO inventoryWeightUnitTypeLabel = new PrgLabelDTO();
+        inventoryWeightUnitTypeLabel.setLabelEn(rs.getString("WEIGHT_UNIT_TYPE_NAME_EN"));
+        inventoryWeightUnitTypeLabel.setLabelFr(rs.getString("WEIGHT_UNIT_TYPE_NAME_FR"));
+        inventoryWeightUnitTypeLabel.setLabelPr(rs.getString("WEIGHT_UNIT_TYPE_NAME_PR"));
+        inventoryWeightUnitTypeLabel.setLabelSp(rs.getString("WEIGHT_UNIT_TYPE_NAME_SP"));
+        inventoryWeightUnitType.setLabel(inventoryWeightUnitTypeLabel);
+        inventoryWeightUnitType.setUnitTypeId(rs.getInt("WEIGHT_UNIT_TYPE_ID"));
+        inventoryWeightUnit.setUnitType(inventoryWeightUnitType);
+        inventoryLogisticsUnit.setWeightUnit(inventoryWeightUnit);
+        inventoryLogisticsUnit.setWidthQty(rs.getDouble("WIDTH_QTY"));
+        PrgUnitDTO inventoryWidthUnit = new PrgUnitDTO();
+        PrgLabelDTO inventoryWidthUnitLabel = new PrgLabelDTO();
+        inventoryWidthUnitLabel.setLabelEn(rs.getString("WIDTH_UNIT_NAME_EN"));
+        inventoryWidthUnitLabel.setLabelFr(rs.getString("WIDTH_UNIT_NAME_FR"));
+        inventoryWidthUnitLabel.setLabelPr(rs.getString("WIDTH_UNIT_NAME_PR"));
+        inventoryWidthUnitLabel.setLabelSp(rs.getString("WIDTH_UNIT_NAME_SP"));
+        inventoryWidthUnit.setLabel(inventoryWidthUnitLabel);
+        inventoryWidthUnit.setUnitCode(rs.getString("WIDTH_UNIT_CODE"));
+        inventoryWidthUnit.setUnitId(rs.getInt("WIDTH_UNIT_ID"));
+        PrgUnitTypeDTO inventoryWidthUnitType = new PrgUnitTypeDTO();
+        PrgLabelDTO inventoryWidthUnitTypeLabel = new PrgLabelDTO();
+        inventoryWidthUnitTypeLabel.setLabelEn(rs.getString("WIDTH_UNIT_TYPE_NAME_EN"));
+        inventoryWidthUnitTypeLabel.setLabelFr(rs.getString("WIDTH_UNIT_TYPE_NAME_FR"));
+        inventoryWidthUnitTypeLabel.setLabelPr(rs.getString("WIDTH_UNIT_TYPE_NAME_PR"));
+        inventoryWidthUnitTypeLabel.setLabelSp(rs.getString("WIDTH_UNIT_TYPE_NAME_SP"));
+        inventoryWidthUnitType.setLabel(inventoryWidthUnitTypeLabel);
+        inventoryWidthUnitType.setUnitTypeId(rs.getInt("WIDTH_UNIT_TYPE_ID"));
+        inventoryWidthUnit.setUnitType(inventoryWidthUnitType);
+        inventoryLogisticsUnit.setWidthUnit(inventoryWidthUnit);
+        inventory.setLogisticsUnit(inventoryLogisticsUnit);
+        inventory.setPackSize(rs.getDouble("PACK_SIZE"));
+        PrgRegionDTO inventoryRegion = new PrgRegionDTO();
+        inventoryRegion.setCapacityCbm(rs.getDouble("REGION_CAPACITY_CBM"));
+        PrgLabelDTO inventoryRegionLabel = new PrgLabelDTO();
+        inventoryRegionLabel.setLabelEn(rs.getString("REGION_NAME_EN"));
+        inventoryRegionLabel.setLabelFr(rs.getString("REGION_NAME_FR"));
+        inventoryRegionLabel.setLabelPr(rs.getString("REGION_NAME_PR"));
+        inventoryRegionLabel.setLabelSp(rs.getString("REGION_NAME_SP"));
+        inventoryRegion.setLabel(inventoryRegionLabel);
+        inventoryRegion.setRegionId(rs.getInt("REGION_ID"));
+        inventory.setRegion(inventoryRegion);
+        PrgUnitDTO inventoryUnit = new PrgUnitDTO();
+        PrgLabelDTO inventoryUnitLabel = new PrgLabelDTO();
+        inventoryUnitLabel.setLabelEn(rs.getString("UNIT_NAME_EN"));
+        inventoryUnitLabel.setLabelFr(rs.getString("UNIT_NAME_FR"));
+        inventoryUnitLabel.setLabelPr(rs.getString("UNIT_NAME_PR"));
+        inventoryUnitLabel.setLabelSp(rs.getString("UNIT_NAME_SP"));
+        inventoryUnit.setLabel(inventoryUnitLabel);
+        inventoryUnit.setUnitCode(rs.getString("UNIT_CODE"));
+        inventoryUnit.setUnitId(rs.getInt("UNIT_ID"));
+        PrgUnitTypeDTO inventoryUnitType = new PrgUnitTypeDTO();
+        PrgLabelDTO inventoryUnitTypeLabel = new PrgLabelDTO();
+        inventoryUnitTypeLabel.setLabelEn(rs.getString("UNIT_TYPE_NAME_EN"));
+        inventoryUnitTypeLabel.setLabelFr(rs.getString("UNIT_TYPE_NAME_FR"));
+        inventoryUnitTypeLabel.setLabelPr(rs.getString("UNIT_TYPE_NAME_PR"));
+        inventoryUnitTypeLabel.setLabelSp(rs.getString("UNIT_TYPE_NAME_SP"));
+        inventoryUnitType.setLabel(inventoryUnitTypeLabel);
+        inventoryUnitType.setUnitTypeId(rs.getInt("UNIT_TYPE_ID"));
+        inventoryUnit.setUnitType(inventoryUnitType);
+        inventory.setUnit(inventoryUnit);
+        return inventory;
+    }
+
+}

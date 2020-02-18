@@ -32,12 +32,16 @@ public class RealmController {
 
     @GetMapping(value = "/getRealmList")
     public String getRealmList() throws UnsupportedEncodingException {
-        String json;
-        List<Realm> realmList = this.realmService.getRealmList(true);
-        Gson gson = new Gson();
-        Type typeList = new TypeToken<List>() {
-        }.getType();
-        json = gson.toJson(realmList, typeList);
+        String json = null;
+        try {
+            List<Realm> realmList = this.realmService.getRealmList(true);
+            Gson gson = new Gson();
+            Type typeList = new TypeToken<List>() {
+            }.getType();
+            json = gson.toJson(realmList, typeList);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return json;
     }
 }
