@@ -25,7 +25,6 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private String username;
     private String password;
     private boolean active;
-    private boolean expired;
     private int failedAttempts;
     private boolean outsideAccess;
     private Date expiresOn;
@@ -96,14 +95,6 @@ public class CustomUserDetails implements UserDetails, Serializable {
         this.active = active;
     }
 
-    public boolean isExpired() {
-        return expired;
-    }
-
-    public void setExpired(boolean expired) {
-        this.expired = expired;
-    }
-
     public int getFailedAttempts() {
         return failedAttempts;
     }
@@ -164,15 +155,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     @Override
     public boolean isAccountNonExpired() {
-        String curDate = DateUtils.getCurrentDateString(DateUtils.IST, DateUtils.YMD);
-        System.out.println("difference-----" + DateUtils.compareDates(DateUtils.formatDate(this.expiresOn, DateUtils.YMD), curDate));
-        if (DateUtils.compareDates(DateUtils.formatDate(this.expiresOn, DateUtils.YMD), curDate) > 0) {
-            System.out.println("false-------------------------------");
-            return true;
-        } else {
-            System.out.println("true-------------------------------");
-            return false;
-        }
+        return this.active;
     }
 
     @Override
@@ -186,25 +169,20 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+                String curDate = DateUtils.getCurrentDateString(DateUtils.IST, DateUtils.YMD);
+        System.out.println("difference-----" + DateUtils.compareDates(DateUtils.formatDate(this.expiresOn, DateUtils.YMD), curDate));
+        if (DateUtils.compareDates(DateUtils.formatDate(this.expiresOn, DateUtils.YMD), curDate) > 0) {
+            System.out.println("false-------------------------------");
+            return true;
+        } else {
+            System.out.println("true-------------------------------");
+            return false;
+        }
     }
 
     @Override
     public boolean isEnabled() {
-        if (isActive()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    public boolean isPasswordExpired() {
-        String curDate = DateUtils.getCurrentDateString(DateUtils.IST, DateUtils.YMD);
-        if (DateUtils.compareDates(DateUtils.formatDate(this.expiresOn, DateUtils.YMD), curDate) > 0) {
-            return false;
-        } else {
-            return true;
-        }
+        return this.active;
     }
 
     public boolean isPresent() {
@@ -239,6 +217,6 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     @Override
     public String toString() {
-        return "CustomUserDetails{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", active=" + active + ", expired=" + expired + ", failedAttempts=" + failedAttempts + ", outsideAccess=" + outsideAccess + ", expiresOn=" + expiresOn + ", lastLoginDate=" + lastLoginDate + ", roleList=" + roleList + ", businessFunction=" + businessFunction + '}';
+        return "CustomUserDetails{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", active=" + active + ", failedAttempts=" + failedAttempts + ", outsideAccess=" + outsideAccess + ", expiresOn=" + expiresOn + ", lastLoginDate=" + lastLoginDate + ", roleList=" + roleList + ", businessFunction=" + businessFunction + '}';
     }
 }

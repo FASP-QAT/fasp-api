@@ -50,14 +50,11 @@ public class JwtTokenAuthorizationOncePerRequestFilter extends OncePerRequestFil
         String jwtToken = null;
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
             jwtToken = requestTokenHeader.substring(7);
-            System.out.println("jwt token-----------" + jwtToken);
             try {
                 username = jwtTokenUtil.getUsernameFromToken(jwtToken);
-                System.out.println("username---" + username);
             } catch (IllegalArgumentException e) {
                 logger.error("JWT_TOKEN_UNABLE_TO_GET_USERNAME", e);
             } catch (ExpiredJwtException e) {
-                System.out.println("token expired-------------------------------------");
                 logger.warn("JWT_TOKEN_EXPIRED", e);
             }
         } else {
@@ -66,20 +63,13 @@ public class JwtTokenAuthorizationOncePerRequestFilter extends OncePerRequestFil
 
         logger.debug("JWT_TOKEN_USERNAME_VALUE '{}'", username);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            System.out.println("--------------1--------------------");
             CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-            System.out.println("--------------2--------------------");
             if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
-                System.out.println("--------------3--------------------");
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-                System.out.println("--------------4--------------------");
             }
-            System.out.println("--------------5--------------------");
         }
-        System.out.println("--------------6--------------------");
-
         chain.doFilter(request, response);
     }
 }

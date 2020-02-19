@@ -331,12 +331,24 @@ public class UserDaoImpl implements UserDao {
         params.put("expiresOn", offsetDate);
         return namedParameterJdbcTemplate.update(sqlString, params);
     }
+    
+    @Override
+    public int updatePassword(String username, String newPassword, int offset) {
+        Date offsetDate = DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, offset);
+        System.out.println("offsetDate---" + offsetDate);
+        String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn, FAILED_ATTEMPTS=0 WHERE us_user.USERNAME=:username";
+        Map<String, Object> params = new HashMap<>();
+        params.put("username", username);
+        params.put("hash", newPassword);
+        params.put("expiresOn", offsetDate);
+        return namedParameterJdbcTemplate.update(sqlString, params);
+    }
 
     @Override
-    public boolean confirmPassword(int userId, String password) {
-        String sqlString = "SELECT us_user.PASSWORD FROM us_user WHERE us_user.USER_ID=:userId";
+    public boolean confirmPassword(String username, String password) {
+        String sqlString = "SELECT us_user.PASSWORD FROM us_user WHERE us_user.`USERNAME`=:username";
         Map<String, Object> params = new HashMap<>();
-        params.put("userId", userId);
+        params.put("username", username);
         String hash = namedParameterJdbcTemplate.queryForObject(sqlString, params, String.class);
         PasswordEncoder encoder = new BCryptPasswordEncoder();
         System.out.println("result for password---"+encoder.matches(password, hash));
