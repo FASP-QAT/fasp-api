@@ -33,7 +33,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import cc.altius.FASP.service.UserService;
-import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
@@ -49,7 +48,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-//@CrossOrigin(origins = "http://localhost:4202")
+@CrossOrigin(origins = {"http://localhost:4202", "http://192.168.43.113:4202"})
 public class UserController {
 
     @Autowired
@@ -111,18 +110,15 @@ public class UserController {
 
     @PutMapping(value = "/addNewUser")
     public ResponseEntity addNewUser(@RequestBody(required = true) String json) throws UnsupportedEncodingException {
-        Map<String, Object> responseMap = null;
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             Gson g = new Gson();
             User user = g.fromJson(json, User.class);
-            System.out.println("user------------" + user);
             PasswordEncoder encoder = new BCryptPasswordEncoder();
             String password = PassPhrase.getPassword();
             String hashPass = encoder.encode(password);
             user.setPassword(hashPass);
             String msg = this.userService.checkIfUserExistsByEmailIdAndPhoneNumber(user, 1);
-            System.out.println("message----------" + msg);
             if (msg.isEmpty()) {
                 int userId = this.userService.addNewUser(user);
                 if (userId > 0) {

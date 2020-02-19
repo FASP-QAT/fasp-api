@@ -331,7 +331,7 @@ public class UserDaoImpl implements UserDao {
         params.put("expiresOn", offsetDate);
         return namedParameterJdbcTemplate.update(sqlString, params);
     }
-    
+
     @Override
     public int updatePassword(String username, String newPassword, int offset) {
         Date offsetDate = DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, offset);
@@ -351,7 +351,7 @@ public class UserDaoImpl implements UserDao {
         params.put("username", username);
         String hash = namedParameterJdbcTemplate.queryForObject(sqlString, params, String.class);
         PasswordEncoder encoder = new BCryptPasswordEncoder();
-        System.out.println("result for password---"+encoder.matches(password, hash));
+        System.out.println("result for password---" + encoder.matches(password, hash));
         return encoder.matches(password, hash);
     }
 
@@ -477,8 +477,11 @@ public class UserDaoImpl implements UserDao {
         return 1;
     }
 
-    @Override
-    public int addLabel(Label label) {
+    /*
+    @
+     */
+//    @Override
+    private int addLabel(Label label) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
         Map<String, Object> params = new HashMap<>();

@@ -17,6 +17,21 @@ public class Label {
     private String freLabel;
     private String porLabel;
 
+    public Label(Integer labelId, String engLabel, String spaLabel, String freLabel, String porLabel) {
+        this.labelId = labelId;
+        this.engLabel = engLabel;
+        this.spaLabel = spaLabel;
+        this.freLabel = freLabel;
+        this.porLabel = porLabel;
+    }
+
+    public Label(Integer labelId) {
+        this.labelId = labelId;
+    }
+
+    public Label() {
+    }
+
     public Integer getLabelId() {
         return labelId;
     }

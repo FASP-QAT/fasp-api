@@ -55,5 +55,5 @@ public interface UserDao {
 
     public List<Role> getRoleList();
 
-    public int addLabel(Label label);
+//    public int addLabel(Label label);
 }

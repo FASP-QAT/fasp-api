@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -26,7 +27,7 @@ public class User implements Serializable {
     private boolean active;
     private int faildAttempts;
     private Date lastLoginDate;
-    private int[] countryIds;
+    private List<UserAcl> userAclList;
 
     public int getUserId() {
         return userId;
@@ -124,17 +125,17 @@ public class User implements Serializable {
         this.lastLoginDate = lastLoginDate;
     }
 
-    public int[] getCountryIds() {
-        return countryIds;
+    public List<UserAcl> getUserAclList() {
+        return userAclList;
     }
 
-    public void setCountryIds(int[] countryIds) {
-        this.countryIds = countryIds;
+    public void setUserAclList(List<UserAcl> userAclList) {
+        this.userAclList = userAclList;
     }
 
     @Override
     public String toString() {
-        return "User{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", emailId=" + emailId + ", phoneNumber=" + phoneNumber + ", address=" + address + ", realm=" + realm + ", role=" + role + ", language=" + language + ", active=" + active + ", faildAttempts=" + faildAttempts + ", lastLoginDate=" + lastLoginDate + ", countryIds=" + countryIds + '}';
+        return "User{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", emailId=" + emailId + ", phoneNumber=" + phoneNumber + ", address=" + address + ", realm=" + realm + ", role=" + role + ", language=" + language + ", active=" + active + ", faildAttempts=" + faildAttempts + ", lastLoginDate=" + lastLoginDate + '}';
     }
 
 }

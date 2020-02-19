@@ -17,6 +17,18 @@ public class Language implements Serializable {
     private String languageName;
     private boolean active;
 
+    public Language() {
+    }
+
+    public Language(Integer languageId) {
+        this.languageId = languageId;
+    }
+
+    public Language(Integer languageId, String languageName) {
+        this.languageId = languageId;
+        this.languageName = languageName;
+    }
+
     public Integer getLanguageId() {
         return languageId;
     }
