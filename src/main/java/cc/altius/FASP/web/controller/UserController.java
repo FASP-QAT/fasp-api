@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-//@CrossOrigin(origins = "http://localhost:4202")
+@CrossOrigin(origins = {"http://localhost:4202", "http://192.168.43.113:4202"})
 public class UserController {
 
     @Autowired
@@ -267,6 +267,39 @@ public class UserController {
                     userDetails.setSessionExpiresOn(sessionExpiryTime);
                     final String token = jwtTokenUtil.generateToken(userDetails);
                     return ResponseEntity.ok(new JwtTokenResponse(token));
+                } else {
+                    responseFormat.setStatus("failed");
+                    responseFormat.setMessage("Exception occured. Please try again");
+                    return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Exception Occured :" + e.getClass());
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(value = "/changePassword")
+    public ResponseEntity changePassword(@RequestBody Password password) throws UnsupportedEncodingException {
+        ResponseFormat responseFormat = new ResponseFormat();
+        try {
+            Gson g = new Gson();
+            if (!this.userService.confirmPassword(password.getUsername(), password.getOldPassword().trim())) {
+                responseFormat.setStatus("Failed");
+                responseFormat.setMessage("Old password is incorrect.");
+                return new ResponseEntity(responseFormat, HttpStatus.UNAUTHORIZED);
+            } else {
+                PasswordEncoder encoder = new BCryptPasswordEncoder();
+                String hashPass = encoder.encode(password.getNewPassword());
+                password.setNewPassword(hashPass);
+                int row = this.userService.updatePassword(password.getUsername(), password.getNewPassword(), 90);
+                if (row > 0) {
+                    responseFormat.setStatus("Success");
+                    responseFormat.setMessage("Password updated successfully!");
+                    responseFormat.setData(hashPass);
+                    return new ResponseEntity(responseFormat, HttpStatus.OK);
                 } else {
                     responseFormat.setStatus("failed");
                     responseFormat.setMessage("Exception occured. Please try again");
