@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.CurrencyDao;
 import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.service.CurrencyService;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -34,5 +35,16 @@ private CurrencyDao currencyDao;
     public int updateCurrency(Currency currency) {
        return  this.currencyDao.updateCurrency(currency);
     }
+
+    @Override
+    public String getAllCurrencyCode() {
+    return  this.currencyDao.getAllCurrencyCode();    
+    }
+
+    @Override
+    public void updateCurrencyConversionrate(Map<String, Double> currencyConversions) {
+        this.currencyDao.updateCurrencyConversionrate(currencyConversions);
+    }
+    
     
 }

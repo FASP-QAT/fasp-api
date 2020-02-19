@@ -22,11 +22,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AccountExpiredException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 //@CrossOrigin(origins = "http://localhost:4202")
-@CrossOrigin(origins = "http://localhost:4202")
+//@CrossOrigin(origins = "http://localhost:4202")
 
 public class JwtAuthenticationRestController {
 
@@ -58,15 +58,25 @@ public class JwtAuthenticationRestController {
     private int sessionExpiryTime;
 
     @RequestMapping(value = "${jwt.get.token.uri}", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtTokenRequest authenticationRequest)
-            throws AuthenticationException {
-
-        authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtTokenRequest authenticationRequest) throws AuthenticationException {
+        try {
+            authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+            this.userService.resetFailedAttemptsByUsername(authenticationRequest.getUsername());
+        } catch (BadCredentialsException e) {
+            this.userService.updateFailedAttemptsByUserId(authenticationRequest.getUsername());
+            throw new AuthenticationException("Invalid credentials", e);
+        } catch (DisabledException | AccountExpiredException e) {
+            throw new AuthenticationException("User is disabled", e);
+        } catch (LockedException e) {
+            throw new AuthenticationException("User account is locked", e);
+        } catch (CredentialsExpiredException e) {
+            throw new AuthenticationException("Password expired", e);
+        } catch (UsernameNotFoundException e) {
+            throw new AuthenticationException("User not found", e);
+        }
         final CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         userDetails.setSessionExpiresOn(sessionExpiryTime);
-        System.out.println("sessionExpiryTime---" + sessionExpiryTime);
         final String token = jwtTokenUtil.generateToken(userDetails);
-
         return ResponseEntity.ok(new JwtTokenResponse(token));
     }
 
@@ -103,21 +113,6 @@ public class JwtAuthenticationRestController {
     private void authenticate(String username, String password) {
         Objects.requireNonNull(username);
         Objects.requireNonNull(password);
-
-        try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-            this.userService.resetFailedAttemptsByUsername(username);
-        } catch (BadCredentialsException e) {
-            this.userService.updateFailedAttemptsByUserId(username);
-            throw new AuthenticationException("Invalid credentials", e);
-        } catch (DisabledException e) {
-            throw new AuthenticationException("User is disabled", e);
-        } catch (LockedException e) {
-            throw new AuthenticationException("User account is locked", e);
-        } catch (AccountExpiredException e) {
-            throw new AuthenticationException("Account Expired", e);
-        } catch (UsernameNotFoundException e) {
-            throw new AuthenticationException("User not found", e);
-        }
+        authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
     }
 }
