@@ -65,7 +65,7 @@ public class LanguageController {
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             int languageId = this.languageService.addLanguage(language);
-            System.out.println("languageId inserted--------->" + languageId);
+            //System.out.println("languageId inserted--------->" + languageId);
             if (languageId > 0) {
                 responseFormat.setStatus("Success");
                 responseFormat.setMessage("Language added successfully.");
@@ -88,8 +88,8 @@ public class LanguageController {
     public ResponseEntity editLanguage(@RequestBody(required = true) String json) {
         Gson g = new Gson();
         Language language = g.fromJson(json, Language.class);
-        System.out.println("language json--->" + json);
-        System.out.println("language json--->" + language);
+        //System.out.println("language json--->" + json);
+        //System.out.println("language json--->" + language);
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             int updatedId = this.languageService.editLanguage(language);
@@ -106,7 +106,7 @@ public class LanguageController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            responseFormat.setStatus("failed");
+            responseFormat.setStatus("Update failed");
             responseFormat.setMessage("Exception Occured :" + e.getClass());
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
 

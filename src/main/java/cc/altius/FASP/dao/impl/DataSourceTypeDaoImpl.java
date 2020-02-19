@@ -95,7 +95,7 @@ public class DataSourceTypeDaoImpl implements DataSourceTypeDao {
         String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=? , al.`LABEL_FR`=?,"
                 + "al.`LABEL_PR`=?,al.`LABEL_SP`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
         this.jdbcTemplate.update(sqlOne,dataSourceType.getLabel().getEngLabel(),dataSourceType.getLabel().getFreLabel(),
-                dataSourceType.getLabel().getPorLabel(),dataSourceType.getLabel().getSpaLabel(),1,curDt,dataSourceType.getLabelId());
+                dataSourceType.getLabel().getPorLabel(),dataSourceType.getLabel().getSpaLabel(),1,curDt,dataSourceType.getLabel().getLabelId());
         
         String sqlTwo = "UPDATE ap_data_source_type dt SET  dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
                         + " WHERE dt.`DATA_SOURCE_TYPE_ID`=?;";

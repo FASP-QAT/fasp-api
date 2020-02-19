@@ -22,13 +22,12 @@ public class DataSourceTypeRowMapper implements RowMapper<DataSourceType>{
         DataSourceType dt= new DataSourceType();
         dt.setDataSourceTypeId(rs.getInt("DATA_SOURCE_TYPE_ID"));
         dt.setActive(rs.getBoolean("ACTIVE"));
-        Label l = new Label();
-        
+        Label l = new Label();    
         l.setEngLabel(rs.getString("LABEL_EN"));
         l.setFreLabel(rs.getString("LABEL_FR"));
         l.setSpaLabel(rs.getString("LABEL_SP"));
         l.setPorLabel(rs.getString("LABEL_PR"));
-        dt.setLabelId(rs.getInt("LABEL_ID"));
+        l.setLabelId(rs.getInt("LABEL_ID"));
         dt.setLabel(l);
         return dt;
     }

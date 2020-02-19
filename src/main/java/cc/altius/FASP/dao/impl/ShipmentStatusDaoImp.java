@@ -127,10 +127,10 @@ public class ShipmentStatusDaoImp implements ShipmentStatusDao {
             params.put("LAST_MODIFIED_DATE", curDt);
             paramList[i] = new MapSqlParameterSource(params);
             i++;
-        }
+      }
         int result[] = si.executeBatch(paramList);
         params.clear();
-       
+        
         return this.jdbcTemplate.update(sqlTwo, shipmentStatus.isActive(), 1, curDt, shipmentStatus.getShipmentStatusId());
     }
 
