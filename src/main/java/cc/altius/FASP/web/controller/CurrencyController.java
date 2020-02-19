@@ -74,6 +74,17 @@ public class CurrencyController {
         return json;
     }
 
+    @GetMapping(value = "/getCurrencyListActive")
+    public String getCurrencyListActive() throws UnsupportedEncodingException {
+        String json;
+        List<Currency> dataSourceTypeList = this.currencyService.getCurrencyList(true);
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(dataSourceTypeList, typeList);
+        return json;
+    }
+
     @PutMapping(value = "/editCurrency")
     public ResponseEntity editDataSourceType(@RequestBody(required = true) String json) {
 

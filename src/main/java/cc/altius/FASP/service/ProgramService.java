@@ -3,19 +3,17 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.dao;
+package cc.altius.FASP.service;
 
-import cc.altius.FASP.model.Country;
+import cc.altius.FASP.model.DTO.ProgramDTO;
 import java.util.List;
 
 /**
  *
  * @author altius
  */
-public interface CountryDao {
+public interface ProgramService {
 
-    public List<Country> getCountryList(boolean active);
-    public int addCountry(Country country);
-    public int updateCountry(Country country);
+    public List<ProgramDTO> getProgramList();
 
 }

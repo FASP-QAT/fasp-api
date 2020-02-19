@@ -304,7 +304,12 @@ public class UserDaoImpl implements UserDao {
         map.put("lastModifiedBy", 1);
         map.put("lastModifiedDate", curDate);
         map.put("userId", userId);
-        return namedParameterJdbcTemplate.update(sql, map);
+        try {
+            return namedParameterJdbcTemplate.update(sql, map);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     @Override
@@ -351,7 +356,7 @@ public class UserDaoImpl implements UserDao {
         params.put("username", username);
         String hash = namedParameterJdbcTemplate.queryForObject(sqlString, params, String.class);
         PasswordEncoder encoder = new BCryptPasswordEncoder();
-        System.out.println("result for password---"+encoder.matches(password, hash));
+        System.out.println("result for password---" + encoder.matches(password, hash));
         return encoder.matches(password, hash);
     }
 

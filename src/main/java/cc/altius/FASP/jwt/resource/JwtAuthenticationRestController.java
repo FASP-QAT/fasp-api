@@ -27,6 +27,7 @@ import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.LockedException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -34,9 +35,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-//@CrossOrigin(origins = "http://localhost:4202")
-//@CrossOrigin(origins = "http://localhost:4202")
-
+@CrossOrigin(origins = {"http://localhost:4202", "http://192.168.43.113:4202"})
 public class JwtAuthenticationRestController {
 
     @Value("${jwt.http.request.header}")
@@ -63,15 +62,20 @@ public class JwtAuthenticationRestController {
             authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
             this.userService.resetFailedAttemptsByUsername(authenticationRequest.getUsername());
         } catch (BadCredentialsException e) {
+            System.out.println("---1---");
             this.userService.updateFailedAttemptsByUserId(authenticationRequest.getUsername());
             throw new AuthenticationException("Invalid credentials", e);
         } catch (DisabledException | AccountExpiredException e) {
+            System.out.println("---2---");
             throw new AuthenticationException("User is disabled", e);
         } catch (LockedException e) {
+            System.out.println("---3---");
             throw new AuthenticationException("User account is locked", e);
         } catch (CredentialsExpiredException e) {
+            System.out.println("---4---");
             throw new AuthenticationException("Password expired", e);
         } catch (UsernameNotFoundException e) {
+            System.out.println("---5---");
             throw new AuthenticationException("User not found", e);
         }
         final CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
