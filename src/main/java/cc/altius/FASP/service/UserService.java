@@ -38,13 +38,15 @@ public interface UserService {
 
     public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page);
 
-    public int unlockAccount(User user);
+    public int unlockAccount(int userId, String password);
 
     public List<BusinessFunction> getBusinessFunctionList();
 
     public int updatePassword(int userId, String newPassword, int offset);
+    
+    public int updatePassword(String username, String newPassword, int offset);
 
-    public boolean confirmPassword(int userId, String password);
+    public boolean confirmPassword(String username, String password);
 
     public int addRole(Role role);
 

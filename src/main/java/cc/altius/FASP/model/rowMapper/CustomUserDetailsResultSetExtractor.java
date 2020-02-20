@@ -30,7 +30,6 @@ public class CustomUserDetailsResultSetExtractor implements ResultSetExtractor<C
                 user.setUsername(rs.getString("USERNAME"));
                 user.setPassword(rs.getString("PASSWORD"));
                 user.setActive(rs.getBoolean("ACTIVE"));
-                user.setExpired(rs.getBoolean("EXPIRED"));
                 user.setFailedAttempts(rs.getInt("FAILED_ATTEMPTS"));
                 user.setExpiresOn(rs.getDate("EXPIRES_ON"));
 //                user.setOutsideAccess(rs.getBoolean("OUTSIDE_ACCESS"));

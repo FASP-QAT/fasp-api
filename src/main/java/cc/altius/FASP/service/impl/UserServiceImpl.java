@@ -77,8 +77,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int unlockAccount(User user) {
-        return this.userDao.unlockAccount(user);
+    public int unlockAccount(int userId, String password) {
+        return this.userDao.unlockAccount(userId, password);
     }
 
     @Override
@@ -92,8 +92,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean confirmPassword(int userId, String password) {
-        return this.userDao.confirmPassword(userId, password);
+    public int updatePassword(String username, String newPassword, int offset) {
+        return this.userDao.updatePassword(username, newPassword, offset);
+    }
+
+    @Override
+    public boolean confirmPassword(String username, String password) {
+        return this.userDao.confirmPassword(username, password);
     }
 
     @Override
