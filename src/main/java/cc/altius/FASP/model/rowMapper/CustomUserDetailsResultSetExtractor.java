@@ -6,6 +6,7 @@ package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Label;
+import cc.altius.FASP.model.Language;
 import cc.altius.FASP.model.Role;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,12 +30,14 @@ public class CustomUserDetailsResultSetExtractor implements ResultSetExtractor<C
                 user.setUsername(rs.getString("USERNAME"));
                 user.setPassword(rs.getString("PASSWORD"));
                 user.setActive(rs.getBoolean("ACTIVE"));
-                user.setExpired(rs.getBoolean("EXPIRED"));
                 user.setFailedAttempts(rs.getInt("FAILED_ATTEMPTS"));
                 user.setExpiresOn(rs.getDate("EXPIRES_ON"));
 //                user.setOutsideAccess(rs.getBoolean("OUTSIDE_ACCESS"));
                 user.setLastLoginDate(rs.getTimestamp("LAST_LOGIN_DATE"));
                 user.setEmailId(rs.getString("EMAIL_ID"));
+                Language l = new Language();
+                l.setLanguageId(rs.getInt("LANGUAGE_ID"));
+                user.setLanguage(l);
                 user.setRoleList(new LinkedList<>());
                 user.setBusinessFunction(new LinkedList<>());
             }

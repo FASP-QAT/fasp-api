@@ -5,11 +5,19 @@
  */
 package cc.altius.FASP.web.controller;
 
+import cc.altius.FASP.jwt.JwtTokenUtil;
+import cc.altius.FASP.jwt.resource.JwtTokenResponse;
 import cc.altius.FASP.model.BusinessFunction;
-import cc.altius.FASP.model.Registration;
+import cc.altius.FASP.model.CanCreateRole;
+import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.EmailTemplate;
+import cc.altius.FASP.model.Emailer;
+import cc.altius.FASP.model.Password;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
+import cc.altius.FASP.security.CustomUserDetailsService;
+import cc.altius.FASP.service.EmailService;
 import cc.altius.utils.PassPhrase;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -27,10 +35,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import cc.altius.FASP.service.UserService;
 import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import static org.springframework.web.bind.annotation.RequestMethod.HEAD;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -39,22 +49,48 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4202")
+@CrossOrigin(origins = {"http://localhost:4202", "http://192.168.43.113:4202"})
 public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private EmailService emailService;
+    @Autowired
+    private CustomUserDetailsService customUserDetailsService;
+    @Autowired
+    private JwtTokenUtil jwtTokenUtil;
+    @Value("${session.expiry.time}")
+    private int sessionExpiryTime;
 
     @GetMapping(value = "/getRoleList")
     public String getRoleList() {
         String json = null;
         try {
             List<Role> roleList = this.userService.getRoleList();
+            for (Role role : roleList) {
+                String[] businessFunctionId = new String[role.getBusinessFunctionList().size()];
+                int i = 0;
+                for (BusinessFunction b : role.getBusinessFunctionList()) {
+                    businessFunctionId[i] = b.getBusinessFunctionId();
+                    i++;
+                }
+                role.setBusinessFunctions(businessFunctionId);
+                i = 0;
+                String[] canCreateRoleId = new String[role.getCanCreateRoles().size()];
+                i = 0;
+                for (CanCreateRole c : role.getCanCreateRoles()) {
+                    canCreateRoleId[i] = c.getRoleId();
+                    i++;
+                }
+                role.setCanCreateRole(canCreateRoleId);
+            }
             Gson gson = new Gson();
             Type typeList = new TypeToken<List>() {
             }.getType();
             json = gson.toJson(roleList, typeList);
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return json;
     }
@@ -80,16 +116,27 @@ public class UserController {
         try {
             Gson g = new Gson();
             User user = g.fromJson(json, User.class);
-            System.out.println("user------------" + Arrays.toString(user.getCountryIds()));
+            System.out.println("user------------" + user);
             PasswordEncoder encoder = new BCryptPasswordEncoder();
-            String hashPass = encoder.encode(PassPhrase.getPassword());
+            String password = PassPhrase.getPassword();
+            String hashPass = encoder.encode(password);
             user.setPassword(hashPass);
             String msg = this.userService.checkIfUserExistsByEmailIdAndPhoneNumber(user, 1);
+            System.out.println("message----------" + msg);
             if (msg.isEmpty()) {
                 int userId = this.userService.addNewUser(user);
                 if (userId > 0) {
+
+                    EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(2);
+                    String[] subjectParam = new String[]{};
+                    String[] bodyParam = new String[]{user.getUsername(), password};
+                    Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
+                    int emailerId = this.emailService.saveEmail(emailer);
+                    emailer.setEmailerId(emailerId);
+                    this.emailService.sendMail(emailer);
+
                     responseFormat.setStatus("Success");
-                    responseFormat.setMessage("User created successfully.");
+                    responseFormat.setMessage("User created successfully and credentials sent on email.");
                     return new ResponseEntity(responseFormat, HttpStatus.OK);
                 } else {
                     responseFormat.setStatus("failed");
@@ -110,13 +157,18 @@ public class UserController {
     }
 
     @GetMapping(value = "/getUserList")
-    public List<User> getUserList() throws UnsupportedEncodingException {
+    public String getUserList() throws UnsupportedEncodingException {
+        String json = null;
         try {
             List<User> userList = this.userService.getUserList();
-            return userList;
+            Gson gson = new Gson();
+            Type typeList = new TypeToken<List>() {
+            }.getType();
+            json = gson.toJson(userList, typeList);
         } catch (Exception e) {
-            return null;
+            e.printStackTrace();
         }
+        return json;
     }
 
     @GetMapping(value = "/getUserByUserId/{userId}")
@@ -161,18 +213,25 @@ public class UserController {
         }
     }
 
-    @PutMapping(value = "/unlockAccount")
-    public ResponseEntity unlockAccount(@RequestBody(required = true) String json) throws UnsupportedEncodingException {
+    @PutMapping(value = "/unlockAccount/{userId}/{emailId}")
+    public ResponseEntity unlockAccount(@PathVariable int userId, @PathVariable String emailId) throws UnsupportedEncodingException {
         Map<String, Object> responseMap = null;
         ResponseFormat responseFormat = new ResponseFormat();
         try {
-            Gson g = new Gson();
-            User user = g.fromJson(json, User.class);
+            System.out.println("unlock user account---" + userId);
             PasswordEncoder encoder = new BCryptPasswordEncoder();
-            String hashPass = encoder.encode(PassPhrase.getPassword());
-            user.setPassword(hashPass);
-            int row = this.userService.unlockAccount(user);
+            String password = PassPhrase.getPassword();
+            String hashPass = encoder.encode(password);
+            int row = this.userService.unlockAccount(userId, hashPass);
+            System.out.println("unlock password---" + password);
             if (row > 0) {
+                EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(1);
+                String[] subjectParam = new String[]{};
+                String[] bodyParam = new String[]{password};
+                Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), emailId, emailTemplate.getCcTo(), subjectParam, bodyParam);
+                int emailerId = this.emailService.saveEmail(emailer);
+                emailer.setEmailerId(emailerId);
+                this.emailService.sendMail(emailer);
                 responseFormat.setStatus("Success");
                 responseFormat.setMessage("Account unlocked successfully and new password is sent on the registered email id.");
                 return new ResponseEntity(responseFormat, HttpStatus.OK);
@@ -188,4 +247,176 @@ public class UserController {
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @PostMapping(value = "/updateExpiredPassword")
+    public ResponseEntity updateExpiredPassword(@RequestBody Password password) throws UnsupportedEncodingException {
+        ResponseFormat responseFormat = new ResponseFormat();
+        try {
+            Gson g = new Gson();
+            if (!this.userService.confirmPassword(password.getUsername(), password.getOldPassword().trim())) {
+                responseFormat.setStatus("Failed");
+                responseFormat.setMessage("Old password is incorrect.");
+                return new ResponseEntity(responseFormat, HttpStatus.UNAUTHORIZED);
+            } else {
+                PasswordEncoder encoder = new BCryptPasswordEncoder();
+                String hashPass = encoder.encode(password.getNewPassword());
+                password.setNewPassword(hashPass);
+                int row = this.userService.updatePassword(password.getUsername(), password.getNewPassword(), 90);
+                if (row > 0) {
+                    final CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(password.getUsername());
+                    userDetails.setSessionExpiresOn(sessionExpiryTime);
+                    final String token = jwtTokenUtil.generateToken(userDetails);
+                    return ResponseEntity.ok(new JwtTokenResponse(token));
+                } else {
+                    responseFormat.setStatus("failed");
+                    responseFormat.setMessage("Exception occured. Please try again");
+                    return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Exception Occured :" + e.getClass());
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(value = "/changePassword")
+    public ResponseEntity changePassword(@RequestBody Password password) throws UnsupportedEncodingException {
+        ResponseFormat responseFormat = new ResponseFormat();
+        try {
+            Gson g = new Gson();
+            if (!this.userService.confirmPassword(password.getUsername(), password.getOldPassword().trim())) {
+                responseFormat.setStatus("Failed");
+                responseFormat.setMessage("Old password is incorrect.");
+                return new ResponseEntity(responseFormat, HttpStatus.UNAUTHORIZED);
+            } else {
+                PasswordEncoder encoder = new BCryptPasswordEncoder();
+                String hashPass = encoder.encode(password.getNewPassword());
+                password.setNewPassword(hashPass);
+                int row = this.userService.updatePassword(password.getUsername(), password.getNewPassword(), 90);
+                if (row > 0) {
+                    responseFormat.setStatus("Success");
+                    responseFormat.setMessage("Password updated successfully!");
+                    responseFormat.setData(hashPass);
+                    return new ResponseEntity(responseFormat, HttpStatus.OK);
+                } else {
+                    responseFormat.setStatus("failed");
+                    responseFormat.setMessage("Exception occured. Please try again");
+                    return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Exception Occured :" + e.getClass());
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "/forgotPassword/{username}")
+    public ResponseEntity forgotPassword(@PathVariable String username) throws UnsupportedEncodingException {
+        Map<String, Object> responseMap = null;
+        System.out.println("username--------------" + username);
+        ResponseFormat responseFormat = new ResponseFormat();
+        try {
+            CustomUserDetails customUser = this.userService.getCustomUserByUsername(username);
+            if (customUser != null) {
+                String pass = PassPhrase.getPassword();
+                PasswordEncoder encoder = new BCryptPasswordEncoder();
+                String hashPass = encoder.encode(pass);
+                int row = this.userService.updatePassword(customUser.getUserId(), hashPass, -1);
+                if (row > 0) {
+
+                    EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(1);
+                    String[] subjectParam = new String[]{};
+                    String[] bodyParam = new String[]{pass};
+                    Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), customUser.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
+                    int emailerId = this.emailService.saveEmail(emailer);
+                    emailer.setEmailerId(emailerId);
+                    this.emailService.sendMail(emailer);
+
+                    responseFormat.setStatus("Success");
+                    responseFormat.setMessage("New password sent on your registered email id.");
+                    return new ResponseEntity(responseFormat, HttpStatus.OK);
+                } else {
+                    responseFormat.setStatus("failed");
+                    responseFormat.setMessage("Exception Occured. Please try again");
+                    return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            } else {
+                responseFormat.setStatus("failed");
+                responseFormat.setMessage("User does not exists with this username.");
+                return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Exception Occured :" + e.getClass());
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping(value = "/addNewRole")
+    public ResponseEntity addNewRole(@RequestBody(required = true) String json) throws UnsupportedEncodingException {
+        Map<String, Object> responseMap = null;
+        ResponseFormat responseFormat = new ResponseFormat();
+        try {
+            Gson g = new Gson();
+            Role role = g.fromJson(json, Role.class);
+            System.out.println("user------------" + role);
+            int row = this.userService.addRole(role);
+            if (row > 0) {
+                responseFormat.setStatus("Success");
+                responseFormat.setMessage("Role created successfully.");
+                return new ResponseEntity(responseFormat, HttpStatus.OK);
+            } else {
+                responseFormat.setStatus("failed");
+                responseFormat.setMessage("Exception Occured. Please try again");
+                return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (DuplicateKeyException e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Role already exists");
+            return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Exception Occured :" + e.getClass());
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping(value = "/editRole")
+    public ResponseEntity editRole(@RequestBody(required = true) String json) throws UnsupportedEncodingException {
+        Map<String, Object> responseMap = null;
+        ResponseFormat responseFormat = new ResponseFormat();
+        try {
+            Gson g = new Gson();
+            Role role = g.fromJson(json, Role.class);
+            System.out.println("role------------" + role);
+            int row = this.userService.updateRole(role);
+            if (row > 0) {
+                responseFormat.setStatus("Success");
+                responseFormat.setMessage("Role updated successfully.");
+                return new ResponseEntity(responseFormat, HttpStatus.OK);
+            } else {
+                responseFormat.setStatus("failed");
+                responseFormat.setMessage("Exception Occured. Please try again");
+                return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (DuplicateKeyException e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Role already exists");
+            return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Exception Occured :" + e.getClass());
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

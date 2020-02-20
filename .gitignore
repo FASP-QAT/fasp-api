@@ -9,6 +9,7 @@
 build/
 nbbuild/
 dist/
+target/
 nbdist/
 .nb-gradle/
 

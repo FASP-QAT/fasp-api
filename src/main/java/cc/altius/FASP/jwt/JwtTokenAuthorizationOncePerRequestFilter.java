@@ -63,16 +63,13 @@ public class JwtTokenAuthorizationOncePerRequestFilter extends OncePerRequestFil
 
         logger.debug("JWT_TOKEN_USERNAME_VALUE '{}'", username);
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-
             CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
-
             if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 usernamePasswordAuthenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
         }
-
         chain.doFilter(request, response);
     }
 }

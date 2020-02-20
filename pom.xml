@@ -8,12 +8,12 @@
         <version>2.2.1.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>cc.altius.rest.webservice</groupId>
+    <groupId>cc.altius.FASP.rest.webservice</groupId>
     <artifactId>FASP</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>FASP</name>
     <description>Demo project for Spring Boot</description>
-    <packaging>jar</packaging>
+    <packaging>war</packaging>
 
     <properties>
         <java.version>1.8</java.version>
@@ -23,6 +23,11 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -80,6 +85,23 @@
             <artifactId>commons-collections4</artifactId>
             <version>4.1</version>
             <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+        <!-- API, java.xml.bind module -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+
+        <!-- Runtime, com.sun.xml.bind module -->
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>2.3.2</version>
         </dependency>
     </dependencies>
     <pluginRepositories>

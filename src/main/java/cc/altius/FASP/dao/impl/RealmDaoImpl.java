@@ -32,7 +32,8 @@ public class RealmDaoImpl implements RealmDao {
 
     @Override
     public List<Realm> getRealmList(boolean active) {
-        String sql = "SELECT * FROM rm_realm r";
+        String sql = "SELECT r.*,lb.* FROM rm_realm r "
+                + "LEFT JOIN rm_label lb ON lb.`LABEL_ID`=r.`LABEL_ID` ";
         if (active) {
             sql += " WHERE r.`ACTIVE`";
         }

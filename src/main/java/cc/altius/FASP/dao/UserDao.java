@@ -7,6 +7,7 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import java.util.List;
@@ -24,11 +25,9 @@ public interface UserDao {
 
     public List<String> getBusinessFunctionsForUserId(int userId);
 
-    public int resetFailedAttemptsByUserId(int userId);
+    public int resetFailedAttemptsByUsername(String username);
 
     public int updateFailedAttemptsByUserId(String username);
-
-    public List<Role> getRoleList();
 
     public int addNewUser(User user);
 
@@ -40,8 +39,21 @@ public interface UserDao {
 
     public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page); // 1 add User , 2 Edit User
 
-    public int unlockAccount(User user);
+    public int unlockAccount(int userId, String password);
 
     public List<BusinessFunction> getBusinessFunctionList();
 
+    public int updatePassword(int userId, String newPassword, int offset);
+    
+    public int updatePassword(String username, String newPassword, int offset);
+
+    public boolean confirmPassword(String username, String password);
+
+    public int addRole(Role role);
+
+    public int updateRole(Role role);
+
+    public List<Role> getRoleList();
+
+    public int addLabel(Label label);
 }

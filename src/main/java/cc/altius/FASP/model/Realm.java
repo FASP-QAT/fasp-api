@@ -14,6 +14,7 @@ import java.io.Serializable;
 public class Realm implements Serializable {
 
     private Integer realmId;
+    private Label label;
     private String realmCode;
 
     public Integer getRealmId() {
@@ -22,6 +23,14 @@ public class Realm implements Serializable {
 
     public void setRealmId(Integer realmId) {
         this.realmId = realmId;
+    }
+
+    public Label getLabel() {
+        return label;
+    }
+
+    public void setLabel(Label label) {
+        this.label = label;
     }
 
     public String getRealmCode() {

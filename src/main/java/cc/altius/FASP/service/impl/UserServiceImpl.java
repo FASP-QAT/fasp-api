@@ -27,13 +27,18 @@ public class UserServiceImpl implements UserService {
     UserDao userDao;
 
     @Override
+    public CustomUserDetails getCustomUserByUsername(String username) {
+        return this.userDao.getCustomUserByUsername(username);
+    }
+
+    @Override
     public Map<String, Object> checkIfUserExists(String username, String password) {
         return this.userDao.checkIfUserExists(username, password);
     }
 
     @Override
-    public int resetFailedAttemptsByUserId(int userId) {
-        return this.userDao.resetFailedAttemptsByUserId(userId);
+    public int resetFailedAttemptsByUsername(String username) {
+        return this.userDao.resetFailedAttemptsByUsername(username);
     }
 
     @Override
@@ -72,13 +77,38 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int unlockAccount(User user) {
-        return this.userDao.unlockAccount(user);
+    public int unlockAccount(int userId, String password) {
+        return this.userDao.unlockAccount(userId, password);
     }
 
     @Override
     public List<BusinessFunction> getBusinessFunctionList() {
         return this.userDao.getBusinessFunctionList();
+    }
+
+    @Override
+    public int updatePassword(int userId, String newPassword, int offset) {
+        return this.userDao.updatePassword(userId, newPassword, offset);
+    }
+
+    @Override
+    public int updatePassword(String username, String newPassword, int offset) {
+        return this.userDao.updatePassword(username, newPassword, offset);
+    }
+
+    @Override
+    public boolean confirmPassword(String username, String password) {
+        return this.userDao.confirmPassword(username, password);
+    }
+
+    @Override
+    public int addRole(Role role) {
+        return this.userDao.addRole(role);
+    }
+
+    @Override
+    public int updateRole(Role role) {
+        return this.userDao.updateRole(role);
     }
 
 }

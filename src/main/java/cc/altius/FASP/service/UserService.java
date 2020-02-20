@@ -6,6 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.BusinessFunction;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import java.util.List;
@@ -17,9 +18,11 @@ import java.util.Map;
  */
 public interface UserService {
 
+    public CustomUserDetails getCustomUserByUsername(String username);
+
     public Map<String, Object> checkIfUserExists(String username, String password);
 
-    public int resetFailedAttemptsByUserId(int userId);
+    public int resetFailedAttemptsByUsername(String username);
 
     public int updateFailedAttemptsByUserId(String username);
 
@@ -35,8 +38,17 @@ public interface UserService {
 
     public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page);
 
-    public int unlockAccount(User user);
+    public int unlockAccount(int userId, String password);
 
     public List<BusinessFunction> getBusinessFunctionList();
 
+    public int updatePassword(int userId, String newPassword, int offset);
+    
+    public int updatePassword(String username, String newPassword, int offset);
+
+    public boolean confirmPassword(String username, String password);
+
+    public int addRole(Role role);
+
+    public int updateRole(Role role);
 }
