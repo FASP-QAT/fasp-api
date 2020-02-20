@@ -167,14 +167,12 @@ cc/altius/FASP/model/Password.class
 cc/altius/FASP/jwt/JWTWebSecurityConfig.class
 cc/altius/FASP/dao/DataSourceDao.class
 cc/altius/FASP/model/rowMapper/RealmRowMapper.class
-cc/altius/FASP/model/DTO/rowMapper/PrgProgramDataDTOResultSetExtractor.class
 cc/altius/FASP/service/impl/DataSourceTypeServiceImpl.class
 cc/altius/FASP/web/controller/RegistrationController.class
 cc/altius/FASP/dao/impl/CurrencyDaoImpl.class
 cc/altius/FASP/service/EmailService.class
 cc/altius/FASP/web/controller/StateController.class
 cc/altius/FASP/model/DTO/PrgProcurementAgentDTO.class
-cc/altius/FASP/model/DTO/DataSourceDTO.class
 cc/altius/FASP/web/controller/LanguageController$2.class
 cc/altius/FASP/web/controller/CurrencyController$2.class
 cc/altius/FASP/service/impl/ProgramDataServiceImpl.class
