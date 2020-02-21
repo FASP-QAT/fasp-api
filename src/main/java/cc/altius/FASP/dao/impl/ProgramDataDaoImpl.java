@@ -43,9 +43,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<PrgProgramDataDTO> getProgramData(String programId) {
+    public PrgProgramDataDTO getProgramData(String programId) {
         String sql = "SELECT \n"
-                + "p.`PROGRAM_ID`,p.`AIR_FREIGHT_PERC`,p.`APPROVED_TO_SHIPPED_LEAD_TIME`,p.`DELIVERED_TO_RECEIVED_LEAD_TIME`,\n"
+                + "p.`PROGRAM_ID`,1 AS `PROGRAM_VERSION`,p.`AIR_FREIGHT_PERC`,p.`APPROVED_TO_SHIPPED_LEAD_TIME`,p.`DELIVERED_TO_RECEIVED_LEAD_TIME`,\n"
                 + "p.`DRAFT_TO_SUBMITTED_LEAD_TIME`,p.`HEALTH_AREA_ID`,ha_label.`LABEL_EN` AS HEALTH_AREA_NAME_EN,\n"
                 + "ha_label.`LABEL_FR` AS HEALTH_AREA_NAME_FR,ha_label.`LABEL_PR` AS HEALTH_AREA_NAME_PR,\n"
                 + "ha_label.`LABEL_SP` AS HEALTH_AREA_NAME_SP,p_label.`LABEL_EN` AS PROGRAM_NAME_EN,\n"
@@ -100,8 +100,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN ap_unit_type pu_type ON pu_type.`UNIT_TYPE_ID`=pallet_unit.`UNIT_TYPE_ID`\n"
                 + "LEFT JOIN ap_label put_label ON put_label.`LABEL_ID`=pu_type.`LABEL_ID`\n"
                 + "LEFT JOIN rm_realm rr ON rr.`REALM_ID`=rrc.`REALM_ID`\n"
-                + "LEFT JOIN rm_label rr_label ON rr_label.`LABEL_ID`=rr.`LABEL_ID` WHERE p.PROGRAM_ID IN (" + programId + ");";
-        return this.jdbcTemplate.query(sql, new PrgProgramDataDTORowMapper());
+                + "LEFT JOIN rm_label rr_label ON rr_label.`LABEL_ID`=rr.`LABEL_ID` WHERE p.PROGRAM_ID=?;";
+        return this.jdbcTemplate.queryForObject(sql, new PrgProgramDataDTORowMapper(),programId);
     }
 
     @Override
