@@ -322,27 +322,33 @@ public class UserController {
         try {
             CustomUserDetails customUser = this.userService.getCustomUserByUsername(username);
             if (customUser != null) {
-                String pass = PassPhrase.getPassword();
-                PasswordEncoder encoder = new BCryptPasswordEncoder();
-                String hashPass = encoder.encode(pass);
-                int row = this.userService.updatePassword(customUser.getUserId(), hashPass, -1);
-                if (row > 0) {
+                if (customUser.isActive()) {
+                    String pass = PassPhrase.getPassword();
+                    PasswordEncoder encoder = new BCryptPasswordEncoder();
+                    String hashPass = encoder.encode(pass);
+                    int row = this.userService.updatePassword(customUser.getUserId(), hashPass, -1);
+                    if (row > 0) {
 
-                    EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(1);
-                    String[] subjectParam = new String[]{};
-                    String[] bodyParam = new String[]{pass};
-                    Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), customUser.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
-                    int emailerId = this.emailService.saveEmail(emailer);
-                    emailer.setEmailerId(emailerId);
-                    this.emailService.sendMail(emailer);
+                        EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(1);
+                        String[] subjectParam = new String[]{};
+                        String[] bodyParam = new String[]{pass};
+                        Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), customUser.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
+                        int emailerId = this.emailService.saveEmail(emailer);
+                        emailer.setEmailerId(emailerId);
+                        this.emailService.sendMail(emailer);
 
-                    responseFormat.setStatus("Success");
-                    responseFormat.setMessage("New password sent on your registered email id.");
-                    return new ResponseEntity(responseFormat, HttpStatus.OK);
+                        responseFormat.setStatus("Success");
+                        responseFormat.setMessage("New password sent on your registered email id.");
+                        return new ResponseEntity(responseFormat, HttpStatus.OK);
+                    } else {
+                        responseFormat.setStatus("failed");
+                        responseFormat.setMessage("Exception Occured. Please try again");
+                        return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
                 } else {
                     responseFormat.setStatus("failed");
-                    responseFormat.setMessage("Exception Occured. Please try again");
-                    return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                    responseFormat.setMessage("User is disabled.");
+                    return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
                 }
             } else {
                 responseFormat.setStatus("failed");
