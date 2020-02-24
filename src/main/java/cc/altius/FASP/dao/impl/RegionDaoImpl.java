@@ -5,10 +5,30 @@
  */
 package cc.altius.FASP.dao.impl;
 
+import cc.altius.FASP.dao.RegionDao;
+import cc.altius.FASP.model.Region;
+import org.springframework.stereotype.Repository;
+
 /**
  *
  * @author altius
  */
-public class RegionDaoImpl {
-    
+@Repository
+public class RegionDaoImpl implements RegionDao {
+
+    @Override
+    public int addRegion(Region region) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int editRegion(Region region) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int getRegionList(boolean active) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }
