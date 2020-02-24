@@ -14,6 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -37,7 +38,7 @@ public class CurrencyController {
 
     @PutMapping(value = "/addCurrency")
     public ResponseEntity addCurrency(@RequestBody(required = true) String json) {
-        System.out.println("json--->" + json);
+        //System.out.println("json--->" + json);
         Gson g = new Gson();
         Currency currency = g.fromJson(json, Currency.class);
         ResponseFormat responseFormat = new ResponseFormat();
@@ -53,6 +54,10 @@ public class CurrencyController {
                 responseFormat.setMessage("Error accured");
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
             }
+        }catch (DuplicateKeyException e) {
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Currency already exists");
+            return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             //e.printStackTrace();
             responseFormat.setStatus("failed");
@@ -104,6 +109,10 @@ public class CurrencyController {
                 responseFormat.setMessage("Error accured");
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
             }
+        }catch (DuplicateKeyException e) {
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Currency already exists");
+            return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Exception Occured :" + e.getClass());

@@ -25,6 +25,9 @@ public class DataSourceRowMapper implements RowMapper<DataSource> {
         ds.setActive(rs.getBoolean("ACTIVE"));
         DataSourceType dst = new DataSourceType();
         dst.setDataSourceTypeId(rs.getInt("DATA_SOURCE_TYPE_ID"));
+        Label ll = new Label();
+        ll.setEngLabel(rs.getString("dataSourceTypename"));
+        dst.setLabel(ll);
         ds.setDataSourceType(dst);
         Label l = new Label();
         l.setEngLabel(rs.getString("LABEL_EN"));

@@ -6,6 +6,8 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LanguageDao;
+import cc.altius.FASP.model.DTO.PrgLanguageDTO;
+import cc.altius.FASP.model.DTO.rowMapper.PrgLanguageDTORowMapper;
 import cc.altius.FASP.model.Language;
 import cc.altius.FASP.model.rowMapper.LanguageRowMapper;
 import cc.altius.utils.DateUtils;
@@ -79,4 +81,16 @@ public class LanguageDaoImpl implements LanguageDao {
         return updatedRow;
     }
 
+    @Override
+    public List<PrgLanguageDTO> getLanguageListForSync(String lastSyncDate) {
+        String sql = "SELECT l.`LANGUAGE_ID`,l.`LANGUAGE_NAME`,l.`ACTIVE` FROM ap_language l";
+        Map<String, Object> params = new HashMap<>();
+        if (!lastSyncDate.equals("null")) {
+            System.out.println("in if");
+            sql += " WHERE l.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            params.put("lastSyncDate", lastSyncDate);
+        }
+        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
+        return nm.query(sql, params, new PrgLanguageDTORowMapper());
+    }
 }
