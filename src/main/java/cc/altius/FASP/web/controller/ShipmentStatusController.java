@@ -13,6 +13,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -41,7 +42,7 @@ public class ShipmentStatusController {
         //System.out.println("json---->" + json);
         Gson g = new Gson();
         ShipmentStatus shipmentStatus = g.fromJson(json, ShipmentStatus.class);
-        //System.out.println("shipmentSTatus---------->"+Arrays.toString(shipmentStatus.getNextShipmentStatusAllowed()));
+        System.out.println("shipmentSTatus---------->"+Arrays.toString(shipmentStatus.getNextShipmentStatusAllowed()));
         ResponseFormat responseFormat = new ResponseFormat();
         try {
 
@@ -85,10 +86,12 @@ public class ShipmentStatusController {
 //                    System.out.println("ids------>"+Arrays.toString(shipmentStatusId));
                     ss.setNextShipmentStatusAllowed(shipmentStatusId);
 
+                }else{
+                ss.setNextShipmentStatusAllowed( new String [0]);
                 }
             }
             
-            System.out.println("shipmentStatusList--->"+shipmentStatusList);
+            //System.out.println("shipmentStatusList--->"+shipmentStatusList);
             Gson gson = new Gson();
             Type typeList = new TypeToken<List>() {
             }.getType();
@@ -116,7 +119,7 @@ public class ShipmentStatusController {
         Gson g = new Gson();
         ShipmentStatus shipmentStatus = g.fromJson(json, ShipmentStatus.class);
         ResponseFormat responseFormat = new ResponseFormat();
-       // System.out.println("shipmentSTatsus-->"+shipmentStatus);
+        System.out.println("shipmentSTatsus-->"+shipmentStatus);
         try {
 
             int row = this.shipmentStatusService.editShipmentStatus(shipmentStatus);
@@ -132,6 +135,7 @@ public class ShipmentStatusController {
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Exception Occured :" + e.getClass());
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);

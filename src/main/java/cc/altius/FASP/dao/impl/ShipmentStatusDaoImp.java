@@ -46,10 +46,10 @@ public class ShipmentStatusDaoImp implements ShipmentStatusDao {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         SimpleJdbcInsert labelInsert = new SimpleJdbcInsert(dataSource).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
         Map<String, Object> params = new HashMap<>();
-        params.put("LABEL_EN", shipmentStatus.getLabel().getEngLabel());
-        params.put("LABEL_FR", shipmentStatus.getLabel().getFreLabel());
-        params.put("LABEL_SP", shipmentStatus.getLabel().getSpaLabel());//alreday scanned
-        params.put("LABEL_PR", shipmentStatus.getLabel().getPorLabel());
+        params.put("LABEL_EN", shipmentStatus.getLabel().getLabel_en());
+        params.put("LABEL_FR", shipmentStatus.getLabel().getLabel_fr());
+        params.put("LABEL_SP", shipmentStatus.getLabel().getLabel_sp());//alreday scanned
+        params.put("LABEL_PR", shipmentStatus.getLabel().getLabel_pr());
         params.put("CREATED_BY", 1);
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", 1);
@@ -107,8 +107,8 @@ public class ShipmentStatusDaoImp implements ShipmentStatusDao {
         Map<String, Object> params = new HashMap<>();
         String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=? , al.`LABEL_FR`=?,"
                 + "al.`LABEL_PR`=?,al.`LABEL_SP`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
-        this.jdbcTemplate.update(sqlOne, shipmentStatus.getLabel().getEngLabel(), shipmentStatus.getLabel().getFreLabel(),
-                shipmentStatus.getLabel().getPorLabel(), shipmentStatus.getLabel().getSpaLabel(), 1, curDt, shipmentStatus.getLabel().getLabelId());
+        this.jdbcTemplate.update(sqlOne, shipmentStatus.getLabel().getLabel_en(), shipmentStatus.getLabel().getLabel_fr(),
+                shipmentStatus.getLabel().getLabel_pr(), shipmentStatus.getLabel().getLabel_sp(), 1, curDt, shipmentStatus.getLabel().getLabelId());
 
         String sqlTwo = "UPDATE ap_shipment_status dt SET  dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
                 + " WHERE dt.`SHIPMENT_STATUS_ID`=?;";
@@ -127,10 +127,10 @@ public class ShipmentStatusDaoImp implements ShipmentStatusDao {
             params.put("LAST_MODIFIED_DATE", curDt);
             paramList[i] = new MapSqlParameterSource(params);
             i++;
-        }
+      }
         int result[] = si.executeBatch(paramList);
         params.clear();
-       
+        
         return this.jdbcTemplate.update(sqlTwo, shipmentStatus.isActive(), 1, curDt, shipmentStatus.getShipmentStatusId());
     }
 

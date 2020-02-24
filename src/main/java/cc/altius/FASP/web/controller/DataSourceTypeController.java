@@ -37,17 +37,29 @@ public class DataSourceTypeController {
     private DataSourceTypeService dataSourceTypeService;
 
     @PutMapping(value = "/addDataSourceType")
-    public int addDataSourceType(@RequestBody(required = true) String json) {
+    public ResponseEntity addDataSourceType(@RequestBody(required = true) String json) {
         Gson g = new Gson();
         DataSourceType dataSourceType = new DataSourceType();
         Label l = g.fromJson(json, Label.class);
         dataSourceType.setLabel(l);
+        ResponseFormat responseFormat = new ResponseFormat();
         try {
             int insertedRow = this.dataSourceTypeService.addDataSourceType(dataSourceType);
-            return insertedRow;
+            if (insertedRow > 0) {
+                responseFormat.setMessage("DataSourceType Added successfully");
+                responseFormat.setStatus("Success");
+                return new ResponseEntity(responseFormat, HttpStatus.OK);
+            } else {
+                responseFormat.setStatus("failed");
+                responseFormat.setMessage("Error accured");
+                return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+
+            }
+
         } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Exception Occured :" + e.getClass());
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -62,6 +74,7 @@ public class DataSourceTypeController {
         json = gson.toJson(dataSourceTypeList, typeList);
         return json;
     }
+
     @GetMapping(value = "/getDataSourceTypeListActive")
     public String getDataSourceTypeListActive() throws UnsupportedEncodingException {
         String json;
@@ -75,14 +88,27 @@ public class DataSourceTypeController {
 
     @PutMapping(value = "/editDataSourceType")
     public ResponseEntity editDataSourceType(@RequestBody(required = true) String json) {
-        
+        ResponseFormat responseFormat = new ResponseFormat();
         Gson g = new Gson();
         DataSourceType dataSourceType = g.fromJson(json, DataSourceType.class);
-        int updateRow=this.dataSourceTypeService.updateDataSourceType(dataSourceType);
-        
-        
-        ResponseFormat responseFormat = new ResponseFormat();
-        responseFormat.setStatus("Success");
-        return new ResponseEntity(responseFormat, HttpStatus.OK);
+        try {
+            int updateRow = this.dataSourceTypeService.updateDataSourceType(dataSourceType);
+            if (updateRow > 0) {
+                responseFormat.setMessage("DataSourceType Updated successfully");
+                responseFormat.setStatus("Success");
+                return new ResponseEntity(responseFormat, HttpStatus.OK);
+            } else {
+                responseFormat.setStatus("failed");
+                responseFormat.setMessage("Error accured");
+                return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+
+            }
+        } catch (Exception e) {
+            responseFormat.setStatus("Update failed");
+            responseFormat.setMessage("Exception Occured :" + e.getClass());
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+
+        }
+
     }
 }

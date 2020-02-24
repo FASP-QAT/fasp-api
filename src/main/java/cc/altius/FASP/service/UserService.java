@@ -28,13 +28,13 @@ public interface UserService {
 
     public List<Role> getRoleList();
 
-    public int addNewUser(User user);
+    public int addNewUser(User user, int curUser);
 
     public List<User> getUserList();
 
     public User getUserByUserId(int userId);
 
-    public int updateUser(User user);
+    public int updateUser(User user, int curUser);
 
     public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page);
 
