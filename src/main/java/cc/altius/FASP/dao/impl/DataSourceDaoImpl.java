@@ -48,9 +48,9 @@ public class DataSourceDaoImpl implements DataSourceDao {
         SimpleJdbcInsert labelInsert = new SimpleJdbcInsert(dataSource).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
         Map<String, Object> params = new HashMap<>();
         params.put("LABEL_EN", dataSourceObj.getLabel().getEngLabel());
-        params.put("LABEL_FR", dataSourceObj.getLabel().getFreLabel());
-        params.put("LABEL_SP", dataSourceObj.getLabel().getSpaLabel());//alreday scanned
-        params.put("LABEL_PR", dataSourceObj.getLabel().getPorLabel());
+//        params.put("LABEL_FR", dataSourceObj.getLabel().getFreLabel());
+//        params.put("LABEL_SP", dataSourceObj.getLabel().getSpaLabel());//alreday scanned
+//        params.put("LABEL_PR", dataSourceObj.getLabel().getPorLabel());
         params.put("CREATED_BY", 1);
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", 1);
@@ -91,12 +91,8 @@ public class DataSourceDaoImpl implements DataSourceDao {
     @Override
     public int updateDataSource(DataSource dataSource) {
         Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
-
-        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=? , al.`LABEL_FR`=?,"
-                + "al.`LABEL_PR`=?,al.`LABEL_SP`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
-        this.jdbcTemplate.update(sqlOne, dataSource.getLabel().getEngLabel(), dataSource.getLabel().getFreLabel(),
-                dataSource.getLabel().getPorLabel(), dataSource.getLabel().getSpaLabel(), 1, curDt, dataSource.getLabel().getLabelId());
-
+        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
+        this.jdbcTemplate.update(sqlOne, dataSource.getLabel().getEngLabel(), 1, curDt, dataSource.getLabel().getLabelId());
         String sqlTwo = "UPDATE ap_data_source dt SET  dt.`DATA_SOURCE_TYPE_ID`=?,dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
                 + " WHERE dt.`DATA_SOURCE_ID`=?;";
         return this.jdbcTemplate.update(sqlTwo, dataSource.getDataSourceType().getDataSourceTypeId(), dataSource.isActive(), 1, curDt, dataSource.getDataSourceId());
