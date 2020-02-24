@@ -5,9 +5,9 @@
  */
 package cc.altius.FASP.dao.impl;
 
-import cc.altius.FASP.dao.RealmDao;
-import cc.altius.FASP.model.Realm;
-import cc.altius.FASP.model.rowMapper.RealmRowMapper;
+import cc.altius.FASP.dao.ProgramDao;
+import cc.altius.FASP.model.DTO.ProgramDTO;
+import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
 import java.util.List;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +19,7 @@ import org.springframework.stereotype.Repository;
  * @author altius
  */
 @Repository
-public class RealmDaoImpl implements RealmDao {
+public class ProgramDaoImpl implements ProgramDao {
 
     private JdbcTemplate jdbcTemplate;
     private DataSource dataSource;
@@ -31,13 +31,11 @@ public class RealmDaoImpl implements RealmDao {
     }
 
     @Override
-    public List<Realm> getRealmList(boolean active) {
-        String sql = "SELECT r.*,lb.* FROM rm_realm r "
-                + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=r.`LABEL_ID` ";
-        if (active) {
-            sql += " WHERE r.`ACTIVE`";
-        }
-        return this.jdbcTemplate.query(sql, new RealmRowMapper());
+    public List<ProgramDTO> getProgramList() {
+        String sql = "SELECT r.`PROGRAM_ID`,label.`LABEL_ID`,label.`LABEL_EN`,label.`LABEL_FR`,label.`LABEL_PR`,label.`LABEL_SP`\n"
+                + "FROM rm_program r \n"
+                + "LEFT JOIN ap_label label ON label.`LABEL_ID`=r.`LABEL_ID`;";
+        return this.jdbcTemplate.query(sql, new ProgramDTORowMapper());
     }
 
 }

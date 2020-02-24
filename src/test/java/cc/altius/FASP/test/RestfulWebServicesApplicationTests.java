@@ -1,3 +1,5 @@
+package cc.altius.FASP.test;
+
 //package cc.altius.rest.webservice.restfulwebservices;
 //
 //import org.junit.jupiter.api.Test;

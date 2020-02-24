@@ -11,10 +11,45 @@ import java.io.Serializable;
  *
  * @author altius
  */
-public class Country implements Serializable {
+public class Country extends BaseModel implements Serializable  {
 
     private int countryId;
-    private String countryName;
+    private Label label;
+    private Currency currency;
+    private Language language;
+    private boolean active;
+
+    public Label getLabel() {
+        return label;
+    }
+
+    public void setLabel(Label label) {
+        this.label = label;
+    }
+
+    public Currency getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
+    }
+
+    public Language getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(Language language) {
+        this.language = language;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public int getCountryId() {
         return countryId;
@@ -24,17 +59,13 @@ public class Country implements Serializable {
         this.countryId = countryId;
     }
 
-    public String getCountryName() {
-        return countryName;
-    }
-
-    public void setCountryName(String countryName) {
-        this.countryName = countryName;
-    }
-
     @Override
     public String toString() {
-        return "Country{" + "countryId=" + countryId + ", countryName=" + countryName + '}';
+        return "Country{" + "countryId=" + countryId + ", label=" + label + ", currency=" + currency + ", language=" + language + ", active=" + active + '}';
     }
+
+   
+
+    
 
 }

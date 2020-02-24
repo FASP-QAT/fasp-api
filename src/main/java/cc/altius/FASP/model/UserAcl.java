@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.model;
 
-import com.sun.javadoc.SerialFieldTag;
 import java.io.Serializable;
 
 /**
@@ -60,7 +59,7 @@ public class UserAcl implements Serializable {
     }
 
     public void setRealmCountryId(int realmCountryId) {
-        this.realmCountryId = realmCountryId;
+        this.realmCountryId = realmCountryId == 0 ? -1 : realmCountryId;
     }
 
     public Label getCountryName() {
@@ -76,7 +75,7 @@ public class UserAcl implements Serializable {
     }
 
     public void setHealthAreaId(int healthAreaId) {
-        this.healthAreaId = healthAreaId;
+        this.healthAreaId = healthAreaId == 0 ? -1 : healthAreaId;
     }
 
     public Label getHealthAreaName() {
@@ -92,7 +91,7 @@ public class UserAcl implements Serializable {
     }
 
     public void setOrganisationId(int organisationId) {
-        this.organisationId = organisationId;
+        this.organisationId = organisationId == 0 ? -1 : organisationId;
     }
 
     public Label getOrganisationName() {
@@ -108,7 +107,7 @@ public class UserAcl implements Serializable {
     }
 
     public void setProgramId(int programId) {
-        this.programId = programId;
+        this.programId = programId == 0 ? -1 : programId;
     }
 
     public Label getProgramName() {
@@ -118,5 +117,48 @@ public class UserAcl implements Serializable {
     public void setProgramName(Label programName) {
         this.programName = programName;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 79 * hash + this.userId;
+        hash = 79 * hash + this.realmCountryId;
+        hash = 79 * hash + this.healthAreaId;
+        hash = 79 * hash + this.organisationId;
+        hash = 79 * hash + this.programId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final UserAcl other = (UserAcl) obj;
+        if (this.userId != other.userId) {
+            return false;
+        }
+        if (this.realmCountryId != other.realmCountryId) {
+            return false;
+        }
+        if (this.healthAreaId != other.healthAreaId) {
+            return false;
+        }
+        if (this.organisationId != other.organisationId) {
+            return false;
+        }
+        if (this.programId != other.programId) {
+            return false;
+        }
+        return true;
+    }
     
+    
+
 }

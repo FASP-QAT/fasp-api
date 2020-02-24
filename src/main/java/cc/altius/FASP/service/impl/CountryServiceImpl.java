@@ -23,8 +23,18 @@ public class CountryServiceImpl implements CountryService {
     CountryDao countryDao;
 
     @Override
-    public List<Country> getCountryList() {
-        return this.countryDao.getCountryList();
+    public List<Country> getCountryList(boolean active) {
+        return this.countryDao.getCountryList(active);
+    }
+
+    @Override
+    public int addCountry(Country country) {
+        return this.countryDao.addCountry(country);
+    }
+
+    @Override
+    public int updateCountry(Country country) {
+        return this.countryDao.updateCountry(country);
     }
 
 }

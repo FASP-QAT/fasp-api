@@ -3,15 +3,19 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.rest.webservice.restfulwebservices;
+package cc.altius.FASP.test;
 
 import cc.altius.FASP.model.Language;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.UserAcl;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.lang.reflect.Type;
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 
 
 
@@ -28,10 +32,20 @@ public class UserObjectTest {
         user.setLanguage(new Language(1));
         user.setPhoneNumber("9820517741");
         user.setRealm(new Realm(1));
-        user.setRole(new Role("ROLE_APPLICATION_ADMIN"));
+        List<Role> roles = new LinkedList<>();
+        roles.add(new Role("ROLE_APPLICATION_ADMIN"));
+        user.setRoles(roles);
         user.setUserId(1);
         user.setLastLoginDate(new Date());
         LinkedList<UserAcl> aclList = new LinkedList<>();
         aclList.add(new UserAcl(1, 1, 1, 1, -1));
+        aclList.add(new UserAcl(1, 2, -1, -1, -1));
+        user.setUserAclList(aclList);
+        Gson gson = new Gson();
+        Type type = new TypeToken<User>() {}.getType();
+        String json = gson.toJson(user, type);
+        System.out.println(json);
+        
+        
     }
 }

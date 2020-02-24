@@ -28,13 +28,7 @@ public class LabelRowMapper implements RowMapper<Label> {
 
     @Override
     public Label mapRow(ResultSet rs, int rowNum) throws SQLException {
-        Label l = new Label();
-        l.setLabelId(rs.getInt(prefix + "LABEL_ID"));
-        l.setEngLabel(rs.getString(prefix + "LABEL_EN"));
-        l.setFreLabel(rs.getString(prefix + "LABEL_FR"));
-        l.setSpaLabel(rs.getString(prefix + "LABEL_SP"));
-        l.setPorLabel(rs.getString(prefix + "LABEL_PR"));
-        return l;
+        return new Label(rs.getInt(prefix + "LABEL_ID"), rs.getString(prefix + "LABEL_EN"), rs.getString(prefix + "LABEL_SP"), rs.getString(prefix + "LABEL_FR"), rs.getString(prefix + "LABEL_PR"));
     }
 
 }

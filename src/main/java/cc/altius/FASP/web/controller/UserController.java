@@ -36,6 +36,7 @@ import cc.altius.FASP.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,7 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:4202", "http://192.168.43.113:4202"})
+@CrossOrigin(origins = {"http://localhost:4202", "http://192.168.43.113:4202", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class UserController {
 
     @Autowired
@@ -109,18 +110,20 @@ public class UserController {
     }
 
     @PutMapping(value = "/addNewUser")
-    public ResponseEntity addNewUser(@RequestBody(required = true) String json) throws UnsupportedEncodingException {
+    public ResponseEntity addNewUser(@RequestBody(required = true) String json, Authentication authentication) throws UnsupportedEncodingException {
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             Gson g = new Gson();
             User user = g.fromJson(json, User.class);
+            CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
+            System.out.println(curUser);
             PasswordEncoder encoder = new BCryptPasswordEncoder();
             String password = PassPhrase.getPassword();
             String hashPass = encoder.encode(password);
             user.setPassword(hashPass);
             String msg = this.userService.checkIfUserExistsByEmailIdAndPhoneNumber(user, 1);
             if (msg.isEmpty()) {
-                int userId = this.userService.addNewUser(user);
+                int userId = this.userService.addNewUser(user, curUser.getUserId());
                 if (userId > 0) {
 
                     EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(2);
@@ -178,27 +181,21 @@ public class UserController {
     }
 
     @PutMapping(value = "/editUser")
-    public ResponseEntity editUser(@RequestBody(required = true) String json) throws UnsupportedEncodingException {
+    public ResponseEntity editUser(@RequestBody(required = true) String json, Authentication authentication) throws UnsupportedEncodingException {
         Map<String, Object> responseMap = null;
         ResponseFormat responseFormat = new ResponseFormat();
+        CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
         try {
             Gson g = new Gson();
             User user = g.fromJson(json, User.class);
-            String msg = this.userService.checkIfUserExistsByEmailIdAndPhoneNumber(user, 2);
-            if (msg.isEmpty()) {
-                int row = this.userService.updateUser(user);
-                if (row > 0) {
-                    responseFormat.setStatus("Success");
-                    responseFormat.setMessage("User updated successfully.");
-                    return new ResponseEntity(responseFormat, HttpStatus.OK);
-                } else {
-                    responseFormat.setStatus("failed");
-                    responseFormat.setMessage("Exception Occured. Please try again");
-                    return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
-                }
+            int row = this.userService.updateUser(user, curUser.getUserId());
+            if (row > 0) {
+                responseFormat.setStatus("Success");
+                responseFormat.setMessage("User updated successfully.");
+                return new ResponseEntity(responseFormat, HttpStatus.OK);
             } else {
                 responseFormat.setStatus("failed");
-                responseFormat.setMessage(msg);
+                responseFormat.setMessage("Failed to update the user");
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (Exception e) {
@@ -263,6 +260,39 @@ public class UserController {
                     userDetails.setSessionExpiresOn(sessionExpiryTime);
                     final String token = jwtTokenUtil.generateToken(userDetails);
                     return ResponseEntity.ok(new JwtTokenResponse(token));
+                } else {
+                    responseFormat.setStatus("failed");
+                    responseFormat.setMessage("Exception occured. Please try again");
+                    return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Exception Occured :" + e.getClass());
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(value = "/changePassword")
+    public ResponseEntity changePassword(@RequestBody Password password) throws UnsupportedEncodingException {
+        ResponseFormat responseFormat = new ResponseFormat();
+        try {
+            Gson g = new Gson();
+            if (!this.userService.confirmPassword(password.getUsername(), password.getOldPassword().trim())) {
+                responseFormat.setStatus("Failed");
+                responseFormat.setMessage("Old password is incorrect.");
+                return new ResponseEntity(responseFormat, HttpStatus.UNAUTHORIZED);
+            } else {
+                PasswordEncoder encoder = new BCryptPasswordEncoder();
+                String hashPass = encoder.encode(password.getNewPassword());
+                password.setNewPassword(hashPass);
+                int row = this.userService.updatePassword(password.getUsername(), password.getNewPassword(), 90);
+                if (row > 0) {
+                    responseFormat.setStatus("Success");
+                    responseFormat.setMessage("Password updated successfully!");
+                    responseFormat.setData(hashPass);
+                    return new ResponseEntity(responseFormat, HttpStatus.OK);
                 } else {
                     responseFormat.setStatus("failed");
                     responseFormat.setMessage("Exception occured. Please try again");

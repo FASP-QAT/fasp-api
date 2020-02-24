@@ -15,22 +15,15 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author palash
  */
-public class DataSourceTypeRowMapper implements RowMapper<DataSourceType>{
+public class DataSourceTypeRowMapper implements RowMapper<DataSourceType> {
 
     @Override
     public DataSourceType mapRow(ResultSet rs, int i) throws SQLException {
-        DataSourceType dt= new DataSourceType();
+        DataSourceType dt = new DataSourceType();
         dt.setDataSourceTypeId(rs.getInt("DATA_SOURCE_TYPE_ID"));
         dt.setActive(rs.getBoolean("ACTIVE"));
-        Label l = new Label();
-        
-        l.setEngLabel(rs.getString("LABEL_EN"));
-        l.setFreLabel(rs.getString("LABEL_FR"));
-        l.setSpaLabel(rs.getString("LABEL_SP"));
-        l.setPorLabel(rs.getString("LABEL_PR"));
-        dt.setLabelId(rs.getInt("LABEL_ID"));
-        dt.setLabel(l);
+        dt.setLabel(new Label(rs.getInt("LABEL_ID"), rs.getString("LABEL_EN"), rs.getString("LABEL_SP"), rs.getString("LABEL_FR"), rs.getString("LABEL_PR")));
         return dt;
     }
-    
+
 }

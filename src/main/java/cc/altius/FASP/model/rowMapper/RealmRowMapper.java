@@ -19,17 +19,7 @@ public class RealmRowMapper implements RowMapper<Realm> {
 
     @Override
     public Realm mapRow(ResultSet rs, int i) throws SQLException {
-        Realm r = new Realm();
-        r.setRealmId(rs.getInt("REALM_ID"));
-        Label l = new Label();
-        l.setLabelId(rs.getInt("LABEL_ID"));
-        l.setEngLabel(rs.getString("LABEL_EN"));
-        l.setSpaLabel(rs.getString("LABEL_SP"));
-        l.setFreLabel(rs.getString("LABEL_FR"));
-        l.setPorLabel(rs.getString("LABEL_PR"));
-        r.setLabel(l);
-        r.setRealmCode(rs.getString("REALM_CODE"));
-        return r;
+        return new Realm(rs.getInt("REALM_ID"), new Label(rs.getInt("LABEL_ID"), rs.getString("LABEL_EN"), rs.getString("LABEL_SP"), rs.getString("LABEL_FR"), rs.getString("LABEL_PR")), rs.getString("REALM_CODE"));
     }
 
 }

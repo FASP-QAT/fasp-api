@@ -21,12 +21,7 @@ public class BusinessFunctionRowMapper implements RowMapper<BusinessFunction> {
     public BusinessFunction mapRow(ResultSet rs, int i) throws SQLException {
         BusinessFunction b = new BusinessFunction();
         b.setBusinessFunctionId(rs.getString("BUSINESS_FUNCTION_ID"));
-        Label l = new Label();
-        l.setEngLabel(rs.getString("LABEL_EN"));
-        l.setFreLabel(rs.getString("LABEL_FR"));
-        l.setSpaLabel(rs.getString("LABEL_SP"));
-        l.setPorLabel(rs.getString("LABEL_PR"));
-        b.setLabel(l);
+        b.setLabel(new Label(rs.getInt("LABEL_ID"), rs.getString("LABEL_EN"), rs.getString("LABEL_SP"), rs.getString("LABEL_FR"), rs.getString("LABEL_PR")));
         return b;
     }
 
