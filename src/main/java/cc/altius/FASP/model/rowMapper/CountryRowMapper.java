@@ -23,19 +23,11 @@ public class CountryRowMapper implements RowMapper<Country> {
     public Country mapRow(ResultSet rs, int i) throws SQLException {
         Country c = new Country();
         c.setCountryId(rs.getInt("COUNTRY_ID"));
-        Label l = new Label();
-        l.setEngLabel(rs.getString("LABEL_EN"));
-        l.setFreLabel(rs.getString("LABEL_FR"));
-        l.setSpaLabel(rs.getString("LABEL_SP"));
-        l.setPorLabel(rs.getString("LABEL_PR"));
-        l.setLabelId(rs.getInt("LABEL_ID"));
-        c.setLabel(l);
+        c.setLabel(new Label(rs.getInt("LABEL_ID"), rs.getString("LABEL_EN"), rs.getString("LABEL_SP"), rs.getString("LABEL_FR"), rs.getString("LABEL_PR")));
         Currency cu= new Currency();
         cu.setCurrencyId(rs.getInt("CURRENCY_ID"));
         c.setCurrency(cu);
-        Language la = new Language();
-        la.setLanguageId(rs.getInt("LANGUAGE_ID"));
-        c.setLanguage(la);
+        c.setLanguage(new Language(rs.getInt("LANGUAGE_ID")));
         c.setActive(rs.getBoolean("ACTIVE"));
         return c;
     }

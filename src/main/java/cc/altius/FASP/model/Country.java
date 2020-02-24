@@ -11,7 +11,7 @@ import java.io.Serializable;
  *
  * @author altius
  */
-public class Country implements Serializable {
+public class Country extends BaseModel implements Serializable  {
 
     private int countryId;
     private Label label;

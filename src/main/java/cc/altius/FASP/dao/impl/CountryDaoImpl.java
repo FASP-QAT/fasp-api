@@ -50,15 +50,15 @@ public class CountryDaoImpl implements CountryDao {
     @Transactional
     @Override
     public int addCountry(Country country) {
-       
+
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
 
         SimpleJdbcInsert labelInsert = new SimpleJdbcInsert(dataSource).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
         Map<String, Object> params = new HashMap<>();
-        params.put("LABEL_EN", country.getLabel().getEngLabel());
-        params.put("LABEL_FR", country.getLabel().getFreLabel());
-        params.put("LABEL_SP", country.getLabel().getSpaLabel());//alreday scanned
-        params.put("LABEL_PR", country.getLabel().getPorLabel());
+        params.put("LABEL_EN", country.getLabel().getLabel_en());
+        params.put("LABEL_FR", country.getLabel().getLabel_fr());
+        params.put("LABEL_SP", country.getLabel().getLabel_sp());//alreday scanned
+        params.put("LABEL_PR", country.getLabel().getLabel_pr());
         params.put("CREATED_BY", 1);
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", 1);
@@ -82,18 +82,18 @@ public class CountryDaoImpl implements CountryDao {
     @Transactional
     @Override
     public int updateCountry(Country country) {
-        
-        System.out.println("country--->"+country.getLabel().getEngLabel());
+
+        System.out.println("country--->" + country.getLabel().getLabel());
         Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
 
         String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=? , al.`LABEL_FR`=?,"
                 + "al.`LABEL_PR`=?,al.`LABEL_SP`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
-        this.jdbcTemplate.update(sqlOne, country.getLabel().getEngLabel(), country.getLabel().getFreLabel(),
-                country.getLabel().getPorLabel(), country.getLabel().getSpaLabel(), 1, curDt, country.getLabel().getLabelId());
+        this.jdbcTemplate.update(sqlOne, country.getLabel().getLabel_en(), country.getLabel().getLabel_fr(),
+                country.getLabel().getLabel_pr(), country.getLabel().getLabel_sp(), 1, curDt, country.getLabel().getLabelId());
 
         String sqlTwo = "UPDATE ap_country dt SET  dt.`LANGUAGE_ID`=?,dt.`CURRENCY_ID`=?,dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
                 + " WHERE dt.`COUNTRY_ID`=?;";
-        return this.jdbcTemplate.update(sqlTwo, country.getLanguage().getLanguageId(),country.getCurrency().getCurrencyId(),country.isActive(), 1, curDt, country.getCountryId());
+        return this.jdbcTemplate.update(sqlTwo, country.getLanguage().getLanguageId(), country.getCurrency().getCurrencyId(), country.isActive(), 1, curDt, country.getCountryId());
     }
 
 }
