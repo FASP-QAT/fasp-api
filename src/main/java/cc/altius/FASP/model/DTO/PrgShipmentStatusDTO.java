@@ -5,10 +5,7 @@
  */
 package cc.altius.FASP.model.DTO;
 
-import cc.altius.FASP.model.Label;
-import cc.altius.FASP.model.User;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  *

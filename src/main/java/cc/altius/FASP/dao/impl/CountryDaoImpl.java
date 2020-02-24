@@ -7,6 +7,9 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.CountryDao;
 import cc.altius.FASP.model.Country;
+import cc.altius.FASP.model.DTO.PrgCountryDTO;
+import cc.altius.FASP.model.DTO.rowMapper.PrgCountryDTORowMapper;
+import cc.altius.FASP.model.DTO.rowMapper.PrgLanguageDTORowMapper;
 import cc.altius.FASP.model.rowMapper.CountryRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
@@ -16,6 +19,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,7 +54,7 @@ public class CountryDaoImpl implements CountryDao {
     @Transactional
     @Override
     public int addCountry(Country country) {
-       
+
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
 
         SimpleJdbcInsert labelInsert = new SimpleJdbcInsert(dataSource).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
@@ -82,8 +86,8 @@ public class CountryDaoImpl implements CountryDao {
     @Transactional
     @Override
     public int updateCountry(Country country) {
-        
-        System.out.println("country--->"+country.getLabel().getEngLabel());
+
+        System.out.println("country--->" + country.getLabel().getEngLabel());
         Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
 
         String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=? , al.`LABEL_FR`=?,"
@@ -93,7 +97,22 @@ public class CountryDaoImpl implements CountryDao {
 
         String sqlTwo = "UPDATE ap_country dt SET  dt.`LANGUAGE_ID`=?,dt.`CURRENCY_ID`=?,dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
                 + " WHERE dt.`COUNTRY_ID`=?;";
-        return this.jdbcTemplate.update(sqlTwo, country.getLanguage().getLanguageId(),country.getCurrency().getCurrencyId(),country.isActive(), 1, curDt, country.getCountryId());
+        return this.jdbcTemplate.update(sqlTwo, country.getLanguage().getLanguageId(), country.getCurrency().getCurrencyId(), country.isActive(), 1, curDt, country.getCountryId());
+    }
+
+    @Override
+    public List<PrgCountryDTO> getCountryListForSync(String lastSyncDate) {
+        String sql = "SELECT c.`ACTIVE`,c.`COUNTRY_ID`,c.`CURRENCY_ID`,c.`LANGUAGE_ID`,label.`LABEL_EN`,label.`LABEL_FR`,label.`LABEL_PR`,label.`LABEL_SP`\n"
+                + "FROM ap_country c\n"
+                + "LEFT JOIN ap_label label ON label.`LABEL_ID`=c.`LABEL_ID`";
+        Map<String, Object> params = new HashMap<>();
+        if (!lastSyncDate.equals("null")) {
+            System.out.println("in if");
+            sql += " WHERE c.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            params.put("lastSyncDate", lastSyncDate);
+        }
+        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
+        return nm.query(sql, params, new PrgCountryDTORowMapper());
     }
 
 }

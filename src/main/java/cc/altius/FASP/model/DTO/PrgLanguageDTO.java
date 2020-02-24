@@ -13,6 +13,15 @@ public class PrgLanguageDTO {
 
     private Integer languageId;
     private String languageName;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public Integer getLanguageId() {
         return languageId;
