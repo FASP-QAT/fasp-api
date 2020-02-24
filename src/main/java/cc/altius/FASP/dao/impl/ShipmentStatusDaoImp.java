@@ -47,9 +47,9 @@ public class ShipmentStatusDaoImp implements ShipmentStatusDao {
         SimpleJdbcInsert labelInsert = new SimpleJdbcInsert(dataSource).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
         Map<String, Object> params = new HashMap<>();
         params.put("LABEL_EN", shipmentStatus.getLabel().getEngLabel());
-        params.put("LABEL_FR", shipmentStatus.getLabel().getFreLabel());
-        params.put("LABEL_SP", shipmentStatus.getLabel().getSpaLabel());//alreday scanned
-        params.put("LABEL_PR", shipmentStatus.getLabel().getPorLabel());
+//        params.put("LABEL_FR", shipmentStatus.getLabel().getFreLabel());
+//        params.put("LABEL_SP", shipmentStatus.getLabel().getSpaLabel());//alreday scanned
+//        params.put("LABEL_PR", shipmentStatus.getLabel().getPorLabel());
         params.put("CREATED_BY", 1);
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", 1);
@@ -105,10 +105,8 @@ public class ShipmentStatusDaoImp implements ShipmentStatusDao {
     public int editShipmentStatus(ShipmentStatus shipmentStatus) {
         Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
         Map<String, Object> params = new HashMap<>();
-        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=? , al.`LABEL_FR`=?,"
-                + "al.`LABEL_PR`=?,al.`LABEL_SP`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
-        this.jdbcTemplate.update(sqlOne, shipmentStatus.getLabel().getEngLabel(), shipmentStatus.getLabel().getFreLabel(),
-                shipmentStatus.getLabel().getPorLabel(), shipmentStatus.getLabel().getSpaLabel(), 1, curDt, shipmentStatus.getLabel().getLabelId());
+        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
+        this.jdbcTemplate.update(sqlOne, shipmentStatus.getLabel().getEngLabel(), 1, curDt, shipmentStatus.getLabel().getLabelId());
 
         String sqlTwo = "UPDATE ap_shipment_status dt SET  dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
                 + " WHERE dt.`SHIPMENT_STATUS_ID`=?;";
