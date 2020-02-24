@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.web.controller;
 
+import cc.altius.FASP.model.DTO.PrgLanguageDTO;
 import cc.altius.FASP.model.Language;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.LanguageService;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -117,6 +119,17 @@ public class LanguageController {
 
         }
 
+    }
+
+    @GetMapping(value = "/getLanguageListForSync")
+    public String getLanguageListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+        String json;
+        List<PrgLanguageDTO> languageList = this.languageService.getLanguageListForSync(lastSyncDate);
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(languageList, typeList);
+        return json;
     }
 
 }

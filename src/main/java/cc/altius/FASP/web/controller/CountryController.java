@@ -6,6 +6,7 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.Country;
+import cc.altius.FASP.model.DTO.PrgCountryDTO;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.CountryService;
 import com.google.gson.Gson;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -107,5 +109,17 @@ public class CountryController {
 
         }
     }
+    
+    @GetMapping(value = "/getCountryListForSync")
+    public String getCountryListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+        String json;
+        List<PrgCountryDTO> countryList = this.countryService.getCountryListForSync(lastSyncDate);
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(countryList, typeList);
+        return json;
+    }
+
 
 }

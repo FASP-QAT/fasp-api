@@ -51,7 +51,7 @@ public class UserRowMapper implements RowMapper<User> {
         lb.setPorLabel(rs.getString("LABEL_PR"));
         role.setLabel(lb);
         u.setRole(role);
-        u.setLastLoginDate(rs.getDate("LAST_LOGIN_DATE"));
+        u.setLastLoginDate(rs.getTimestamp("LAST_LOGIN_DATE"));
         u.setFaildAttempts(rs.getInt("FAILED_ATTEMPTS"));
         u.setActive(rs.getBoolean("ACTIVE"));
         return u;

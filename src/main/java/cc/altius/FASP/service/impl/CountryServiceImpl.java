@@ -7,6 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.CountryDao;
 import cc.altius.FASP.model.Country;
+import cc.altius.FASP.model.DTO.PrgCountryDTO;
 import cc.altius.FASP.service.CountryService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,11 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public int updateCountry(Country country) {
         return this.countryDao.updateCountry(country);
+    }
+
+    @Override
+    public List<PrgCountryDTO> getCountryListForSync(String lastSyncDate) {
+        return this.countryDao.getCountryListForSync(lastSyncDate);
     }
 
 }

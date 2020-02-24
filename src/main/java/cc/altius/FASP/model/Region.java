@@ -3,25 +3,23 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.model.DTO;
-
-import cc.altius.FASP.model.Label;
+package cc.altius.FASP.model;
 
 /**
  *
  * @author altius
  */
-public class ProgramDTO {
+public class Region extends BaseModel {
 
-    private int programId;
+    private int regionId;
     private Label label;
 
-    public int getProgramId() {
-        return programId;
+    public int getRegionId() {
+        return regionId;
     }
 
-    public void setProgramId(int programId) {
-        this.programId = programId;
+    public void setRegionId(int regionId) {
+        this.regionId = regionId;
     }
 
     public Label getLabel() {

@@ -5,15 +5,17 @@
  */
 package cc.altius.FASP.service;
 
-import cc.altius.FASP.model.DTO.ProgramDTO;
-import java.util.List;
+import cc.altius.FASP.model.Region;
 
 /**
  *
  * @author altius
  */
-public interface ProgramService {
+public interface RegionService {
 
-    public List<ProgramDTO> getProgramList();
+    public int addRegion(Region region);
 
+    public int editRegion(Region region);
+
+    public int getRegionList(boolean active);
 }

@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.DTO.PrgLanguageDTO;
 import cc.altius.FASP.model.Language;
 import java.util.List;
 
@@ -15,8 +16,10 @@ import java.util.List;
 public interface LanguageService {
 
     public List<Language> getLanguageList(boolean active);
-    
+
     public int addLanguage(Language language);
-    
+
     public int editLanguage(Language language);
+
+    public List<PrgLanguageDTO> getLanguageListForSync(String lastSyncDate);
 }

@@ -3,17 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.dao;
-
-import cc.altius.FASP.model.DTO.ProgramDTO;
-import java.util.List;
+package cc.altius.FASP.dao.impl;
 
 /**
  *
  * @author altius
  */
-public interface ProgramDao {
-
-    public List<ProgramDTO> getProgramList();
-
+public class RegionDaoImpl {
+    
 }
