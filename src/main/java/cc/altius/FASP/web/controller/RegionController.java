@@ -3,17 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.dao;
+package cc.altius.FASP.web.controller;
 
-import cc.altius.FASP.model.DTO.ProgramDTO;
-import java.util.List;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
  * @author altius
  */
-public interface ProgramDao {
-
-    public List<ProgramDTO> getProgramList();
-
+@RestController
+public class RegionController {
+    
 }
