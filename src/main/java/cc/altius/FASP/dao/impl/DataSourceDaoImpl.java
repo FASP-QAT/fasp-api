@@ -76,9 +76,11 @@ public class DataSourceDaoImpl implements DataSourceDao {
 
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT ds.`LABEL_ID`,ds.`ACTIVE`,ds.`DATA_SOURCE_TYPE_ID`,ds.`DATA_SOURCE_ID`,\n"
-                + "al.`LABEL_EN`,al.`LABEL_FR`,al.`LABEL_PR`,al.`LABEL_SP` \n"
+                + "al.`LABEL_EN`,al.`LABEL_FR`,al.`LABEL_PR`,al.`LABEL_SP`,l.`LABEL_EN` AS dataSourceTypeName \n"
                 + "FROM ap_data_source ds  \n"
-                + "LEFT JOIN  ap_label al ON al.`LABEL_ID`=ds.`LABEL_ID`");
+                + "LEFT JOIN  ap_label al ON al.`LABEL_ID`=ds.`LABEL_ID` \n"
+                + "LEFT JOIN  ap_data_source_type dt ON dt.`DATA_SOURCE_TYPE_ID`=ds.`DATA_SOURCE_TYPE_ID` \n"
+                + "LEFT JOIN  ap_label l ON l.`LABEL_ID`=dt.`LABEL_ID`");
         if (active) {
             sb.append(" WHERE dt.`ACTIVE` ");
         }
@@ -97,6 +99,6 @@ public class DataSourceDaoImpl implements DataSourceDao {
 
         String sqlTwo = "UPDATE ap_data_source dt SET  dt.`DATA_SOURCE_TYPE_ID`=?,dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
                 + " WHERE dt.`DATA_SOURCE_ID`=?;";
-        return this.jdbcTemplate.update(sqlTwo, dataSource.getDataSourceType().getDataSourceTypeId(),dataSource.isActive(), 1, curDt, dataSource.getDataSourceId());
+        return this.jdbcTemplate.update(sqlTwo, dataSource.getDataSourceType().getDataSourceTypeId(), dataSource.isActive(), 1, curDt, dataSource.getDataSourceId());
     }
 }

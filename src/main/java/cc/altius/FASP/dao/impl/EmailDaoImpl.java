@@ -6,14 +6,12 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.EmailDao;
-import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.rowMapper.EmailTemplateRowMapper;
 import cc.altius.FASP.model.rowMapper.EmailerRowMapper;
 import cc.altius.utils.DateUtils;
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -21,13 +19,11 @@ import java.util.Map;
 import java.util.Properties;
 import javax.mail.Message;
 import javax.mail.MessagingException;
-import javax.mail.Multipart;
+import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
-import javax.mail.internet.MimeMultipart;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -122,55 +118,28 @@ public class EmailDaoImpl implements EmailDao {
         String password = "pass123%$";
         try {
             Properties props = System.getProperties();
-            props.setProperty("mail.smtp.starttls.enable", "true");
-            props.setProperty("mail.transport.protocol", "smtp");
             props.setProperty("mail.host", "smtp.gmail.com");
-            props.put("mail.smtp.auth", "true");
+            props.setProperty("mail.smtp.port", "465");
+            props.setProperty("mail.smtp.auth", "true");
+            props.setProperty("mail.smtp.socketFactory.port", "465");
+            props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+
+//            props.setProperty("mail.transport.protocol", "smtp");
             props.setProperty("mail.user", from);
             props.setProperty("mail.password", password);
-            props.put("mail.debug", "true");
-            Session mailSession = Session.getDefaultInstance(props, null);
-            Transport transport = mailSession.getTransport("smtp");
-            MimeMessage message = new MimeMessage(mailSession);
-            message.setSentDate(new java.util.Date());
-            message.setSubject(emailer.getSubject());
-            message.setFrom(new InternetAddress(from));
-            Multipart multipart = new MimeMultipart();
-            // creates body part for the message
-            MimeBodyPart messageBodyPart = new MimeBodyPart();
-            messageBodyPart.setContent(emailer.getBody(), "text/html");
-//            message.setText(text, "UTF-8", "html");
-            List<String> attachment = this.getFilePathForEmailerId(emailer.getEmailerId());
-            if (attachment.size() > 0 && attachment != null) {
-                for (String filePath : attachment) {
-                    // creates body part for the attachment
-                    MimeBodyPart attachPart = new MimeBodyPart();
-                    try {
-                        attachPart.attachFile(filePath);
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-
-                    multipart.addBodyPart(attachPart);
+            props.setProperty("mail.debug", "true");
+            Session session = Session.getInstance(props, new javax.mail.Authenticator() {
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication(from, password);
                 }
-            }
-            multipart.addBodyPart(messageBodyPart);
-            message.setContent(multipart);
-            transport.connect("smtp.gmail.com", from, password);
-            message.setRecipients(MimeMessage.RecipientType.TO, (String) emailer.getToSend());
+            });
 
-            transport.sendMessage(message, message.getRecipients(Message.RecipientType.TO));
-
-            if (emailer.getCcToSend() != null && !emailer.getCcToSend().equals("")) {
-                message.setRecipients(MimeMessage.RecipientType.CC, (String) emailer.getCcToSend());
-                transport.sendMessage(message, message.getRecipients(Message.RecipientType.CC));
-            }
-            if (emailer.getBccToSend() != null && !emailer.getBccToSend().equals("")) {
-                message.setRecipients(MimeMessage.RecipientType.BCC, (String) emailer.getBccToSend());
-                transport.sendMessage(message, message.getRecipients(Message.RecipientType.BCC));
-            }
-            transport.close();
-//            LogUtils.schedulerLogger.info(LogUtils.buildStringForSystemLog(emailerId + " emailerId, Email sent"));
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(from));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailer.getToSend()));
+            message.setSubject(emailer.getSubject());
+            message.setText(emailer.getBody());
+            Transport.send(message);
             status = 1; //1 for success
             attempts++;
             reason = "Success";

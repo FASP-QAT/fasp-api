@@ -15,6 +15,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -77,6 +78,10 @@ public class LanguageController {
                 responseFormat.setMessage("Error accured");
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
             }
+        } catch (DuplicateKeyException e) {
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Language already exists");
+            return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Exception Occured :" + e.getClass());

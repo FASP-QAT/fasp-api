@@ -61,7 +61,6 @@ public class CountryController {
 
     @PutMapping(value = "/addCountry")
     public ResponseEntity addCountry(@RequestBody(required = true) String json) {
-        //System.out.println("json---->" + json);
         Gson g = new Gson();
         Country c = g.fromJson(json, Country.class);
         try {
@@ -88,17 +87,14 @@ public class CountryController {
 
     @PutMapping(value = "/editCountry")
     public ResponseEntity editDataSource(@RequestBody(required = true) String json) {
-        System.out.println("----->" + json);
         Gson g = new Gson();
         Country country = g.fromJson(json, Country.class);
-        
-        System.out.println("country0------>"+country);
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             int updateRow = this.countryService.updateCountry(country);
             if (updateRow > 0) {
                 responseFormat.setStatus("Success");
-                responseFormat.setMessage("Data Source Updated successfully");
+                responseFormat.setMessage("Country Details Updated successfully");
                 return new ResponseEntity(responseFormat, HttpStatus.OK);
             } else {
                 responseFormat.setStatus("Failed");
