@@ -16,6 +16,14 @@ public class BasicUser implements Serializable {
     private int userId;
     private String username;
 
+    public BasicUser(int userId, String username) {
+        this.userId = userId;
+        this.username = username;
+    }
+
+    public BasicUser() {
+    }
+
     public int getUserId() {
         return userId;
     }
@@ -32,16 +40,18 @@ public class BasicUser implements Serializable {
         this.username = username;
     }
 
-    public BasicUser(int userId, String username) {
-        this.userId = userId;
-        this.username = username;
-    }
 
+//    public BasicUser(int userId, String username) {
+//        this.userId = userId;
+//        this.username = username;
+//    }
+//
     public BasicUser(String username) {
         this.username = username;
     }
+//
+//    public BasicUser() {
+//    }
 
-    public BasicUser() {
-    }
 
 }

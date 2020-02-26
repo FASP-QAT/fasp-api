@@ -17,6 +17,19 @@ public class Realm implements Serializable {
     private Label label;
     private String realmCode;
 
+    public Realm(Integer realmId, Label label, String realmCode) {
+        this.realmId = realmId;
+        this.label = label;
+        this.realmCode = realmCode;
+    }
+
+    public Realm() {
+    }
+
+    public Realm(Integer realmId) {
+        this.realmId = realmId;
+    }
+
     public Integer getRealmId() {
         return realmId;
     }

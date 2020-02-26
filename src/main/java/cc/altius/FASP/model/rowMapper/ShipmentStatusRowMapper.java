@@ -31,13 +31,7 @@ public class ShipmentStatusRowMapper implements ResultSetExtractor<List<Shipment
             ss.setShipmentStatusId(rs.getInt("SHIPMENT_STATUS_ID"));
             if (shipmentStatusList.indexOf(ss) == -1) {
                 ss.setActive(rs.getBoolean("ACTIVE"));
-                Label l = new Label();
-                l.setLabelId(rs.getInt("LABEL_ID"));
-                l.setEngLabel(rs.getString("LABEL_EN"));
-                l.setFreLabel(rs.getString("LABEL_FR"));
-                l.setSpaLabel(rs.getString("LABEL_SP"));
-                l.setPorLabel(rs.getString("LABEL_PR"));
-                ss.setLabel(l);
+                ss.setLabel(new Label(rs.getInt("LABEL_ID"), rs.getString("LABEL_EN"), rs.getString("LABEL_SP"), rs.getString("LABEL_FR"), rs.getString("LABEL_PR")));
                 shipmentStatusList.add(ss);
             }
             ss = shipmentStatusList.get(shipmentStatusList.indexOf(ss));
