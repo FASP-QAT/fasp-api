@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.DataSourceDao;
+import cc.altius.FASP.model.DTO.PrgDataSourceDTO;
 import cc.altius.FASP.model.DataSource;
 import cc.altius.FASP.service.DataSourceService;
 import java.util.List;
@@ -35,6 +36,11 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Override
     public int updateDataSource(DataSource dataSource) {
         return this.dataSourceDao.updateDataSource(dataSource);
+    }
+
+    @Override
+    public List<PrgDataSourceDTO> getDataSourceListForSync(String lastSyncDate) {
+        return this.dataSourceDao.getDataSourceListForSync(lastSyncDate);
     }
 
 }

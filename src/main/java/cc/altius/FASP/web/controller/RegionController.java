@@ -5,6 +5,18 @@
  */
 package cc.altius.FASP.web.controller;
 
+import cc.altius.FASP.model.DTO.PrgRegionDTO;
+import cc.altius.FASP.service.RegionService;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -12,6 +24,23 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
+@RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:4202")
 public class RegionController {
+    
+    @Autowired
+    RegionService regionService;
+    
+    @GetMapping(value = "/getRegionListForSync")
+    public String getRegionListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+        String json;
+        List<PrgRegionDTO> regionList = this.regionService.getRegionListForSync(lastSyncDate);
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(regionList, typeList);
+        return json;
+    }
+
     
 }

@@ -6,6 +6,7 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.Currency;
+import cc.altius.FASP.model.DTO.PrgCurrencyDTO;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.CurrencyService;
 import com.google.gson.Gson;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -54,7 +56,7 @@ public class CurrencyController {
                 responseFormat.setMessage("Error accured");
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
             }
-        }catch (DuplicateKeyException e) {
+        } catch (DuplicateKeyException e) {
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Currency already exists");
             return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
@@ -109,7 +111,7 @@ public class CurrencyController {
                 responseFormat.setMessage("Error accured");
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
             }
-        }catch (DuplicateKeyException e) {
+        } catch (DuplicateKeyException e) {
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Currency already exists");
             return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
@@ -120,6 +122,19 @@ public class CurrencyController {
 
         }
 
+    }
+
+    @GetMapping(value = "/getCurrencyListForSync")
+    public String getCurrencyListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+        String json;
+        List<PrgCurrencyDTO> currencyList = this.currencyService.getCurrencyListForSync(lastSyncDate);
+        System.out.println("currencylist=================="+currencyList);
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(currencyList, typeList);
+        System.out.println("json========================");
+        return json;
     }
 
 }

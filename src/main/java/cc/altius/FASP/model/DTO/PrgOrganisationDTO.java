@@ -13,6 +13,15 @@ public class PrgOrganisationDTO {
 
     private int organisationId;
     private PrgLabelDTO label;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public PrgLabelDTO getLabel() {
         return label;

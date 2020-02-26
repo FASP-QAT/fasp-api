@@ -48,11 +48,11 @@
         <appender-ref ref="RootConsole" />
     </root>
    
-    <logger name="com.zaxxer.hikari" level="debug" additivity="false">
+    <logger name="com.zaxxer.hikari" level="info" additivity="false">
         <appender-ref ref="RootConsole" />
     </logger>
     
-    <logger name="org.springframework" level="debug" additivity="false">
+    <logger name="org.springframework" level="info" additivity="false">
         <appender-ref ref="RootConsole" />
     </logger>
  

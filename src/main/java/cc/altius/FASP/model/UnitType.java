@@ -3,15 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.model.DTO;
+package cc.altius.FASP.model;
 
+import cc.altius.FASP.model.DTO.PrgLabelDTO;
 import cc.altius.FASP.model.Label;
 
 /**
  *
  * @author altius
  */
-public class PrgUnitTypeDTO {
+public class UnitType {
 
     private int unitTypeId;
     private PrgLabelDTO label;

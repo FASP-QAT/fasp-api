@@ -17,6 +17,10 @@ public class PrgCurrencyDTO {
     private PrgLabelDTO label;
     private double conversionRateToUsd;
 
+    public PrgCurrencyDTO() {
+        this.label=new PrgLabelDTO();
+    }
+
     public int getCurrencyId() {
         return currencyId;
     }

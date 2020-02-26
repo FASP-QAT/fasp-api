@@ -14,6 +14,15 @@ public class PrgRegionDTO {
     private int regionId;
     private PrgLabelDTO label;
     private double capacityCbm;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public int getRegionId() {
         return regionId;

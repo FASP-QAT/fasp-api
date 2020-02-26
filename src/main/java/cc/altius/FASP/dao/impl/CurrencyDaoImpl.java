@@ -7,6 +7,8 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.CurrencyDao;
 import cc.altius.FASP.model.Currency;
+import cc.altius.FASP.model.DTO.PrgCurrencyDTO;
+import cc.altius.FASP.model.DTO.rowMapper.PrgCurrencyDTORowMapper;
 import cc.altius.FASP.model.rowMapper.CurrencyRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
@@ -109,6 +111,21 @@ public class CurrencyDaoImpl implements CurrencyDao {
             this.jdbcTemplate.update(sb.toString(), curDt);
         }
 
+    }
+
+    @Override
+    public List<PrgCurrencyDTO> getCurrencyListForSync(String lastSyncDate) {
+        String sql = "SELECT c.`CONVERSION_RATE_TO_USD`,c.`CURRENCY_CODE`,c.`CURRENCY_ID`,c.`CURRENCY_SYMBOL`,c.`LABEL_ID` ,l.`LABEL_EN`\n"
+                + ",l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
+                + "FROM ap_currency c \n"
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=c.`LABEL_ID`";
+        Map<String, Object> params = new HashMap<>();
+        if (!lastSyncDate.equals("null")) {
+            sql += " WHERE c.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            params.put("lastSyncDate", lastSyncDate);
+        }
+        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
+        return nm.query(sql, params, new PrgCurrencyDTORowMapper());
     }
 
 }

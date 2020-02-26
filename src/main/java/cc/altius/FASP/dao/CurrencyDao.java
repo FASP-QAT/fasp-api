@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.Currency;
+import cc.altius.FASP.model.DTO.PrgCurrencyDTO;
 import java.util.List;
 import java.util.Map;
 
@@ -24,4 +25,6 @@ public interface CurrencyDao {
     public String getAllCurrencyCode();
     
     public void updateCurrencyConversionrate(Map<String, Double> currencyConversions);
+    
+    public List<PrgCurrencyDTO> getCurrencyListForSync(String lastSyncDate);
 }

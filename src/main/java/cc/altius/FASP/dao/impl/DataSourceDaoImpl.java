@@ -6,6 +6,8 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.DataSourceDao;
+import cc.altius.FASP.model.DTO.PrgDataSourceDTO;
+import cc.altius.FASP.model.DTO.rowMapper.PrgDataSourceDTORowMapper;
 import cc.altius.FASP.model.DataSource;
 import cc.altius.FASP.model.rowMapper.DataSourceRowMapper;
 import cc.altius.utils.DateUtils;
@@ -97,4 +99,19 @@ public class DataSourceDaoImpl implements DataSourceDao {
                 + " WHERE dt.`DATA_SOURCE_ID`=?;";
         return this.jdbcTemplate.update(sqlTwo, dataSource.getDataSourceType().getDataSourceTypeId(), dataSource.isActive(), 1, curDt, dataSource.getDataSourceId());
     }
+
+    @Override
+    public List<PrgDataSourceDTO> getDataSourceListForSync(String lastSyncDate) {
+        String sql = "SELECT ds.`ACTIVE`,ds.`DATA_SOURCE_ID`,ds.`DATA_SOURCE_TYPE_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
+                + "FROM ap_data_source ds\n"
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=ds.`LABEL_ID`";
+        Map<String, Object> params = new HashMap<>();
+        if (!lastSyncDate.equals("null")) {
+            sql += " WHERE ds.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            params.put("lastSyncDate", lastSyncDate);
+        }
+        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
+        return nm.query(sql, params, new PrgDataSourceDTORowMapper());
+    }
+
 }

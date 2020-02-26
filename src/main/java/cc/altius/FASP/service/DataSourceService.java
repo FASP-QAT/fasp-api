@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.DTO.PrgDataSourceDTO;
 import cc.altius.FASP.model.DataSource;
 import java.util.List;
 
@@ -19,4 +20,6 @@ public interface DataSourceService {
     public List<DataSource> getDataSourceList(boolean active);
     
     public int updateDataSource(DataSource dataSource);
+    
+    public List<PrgDataSourceDTO> getDataSourceListForSync(String lastSyncDate);
 }

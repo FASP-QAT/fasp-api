@@ -6,6 +6,8 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.DataSourceTypeDao;
+import cc.altius.FASP.model.DTO.PrgDataSourceTypeDTO;
+import cc.altius.FASP.model.DTO.rowMapper.PrgDataSourceTypeDTORowMapper;
 import cc.altius.FASP.model.DataSourceType;
 import cc.altius.FASP.model.rowMapper.DataSourceTypeRowMapper;
 import cc.altius.utils.DateUtils;
@@ -86,17 +88,31 @@ public class DataSourceTypeDaoImpl implements DataSourceTypeDao {
         }
         return this.jdbcTemplate.query(sb.toString(), new DataSourceTypeRowMapper());
     }
-    
+
     @Transactional
     @Override
     public int updateDataSourceType(DataSourceType dataSourceType) {
         Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
         String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=? ,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
-        this.jdbcTemplate.update(sqlOne,dataSourceType.getLabel().getEngLabel(),1,curDt,dataSourceType.getLabel().getLabelId());
+        this.jdbcTemplate.update(sqlOne, dataSourceType.getLabel().getEngLabel(), 1, curDt, dataSourceType.getLabel().getLabelId());
         String sqlTwo = "UPDATE ap_data_source_type dt SET  dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
-                        + " WHERE dt.`DATA_SOURCE_TYPE_ID`=?;";
-        return this.jdbcTemplate.update(sqlTwo, dataSourceType.isActive(),1,curDt,dataSourceType.getDataSourceTypeId());
-  
+                + " WHERE dt.`DATA_SOURCE_TYPE_ID`=?;";
+        return this.jdbcTemplate.update(sqlTwo, dataSourceType.isActive(), 1, curDt, dataSourceType.getDataSourceTypeId());
+
+    }
+
+    @Override
+    public List<PrgDataSourceTypeDTO> getDataSourceTypeListForSync(String lastSyncDate) {
+        String sql = "SELECT dst.`ACTIVE`,dst.`DATA_SOURCE_TYPE_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
+                + "FROM ap_data_source_type dst \n"
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=dst.`LABEL_ID`";
+        Map<String, Object> params = new HashMap<>();
+        if (!lastSyncDate.equals("null")) {
+            sql += " WHERE dst.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            params.put("lastSyncDate", lastSyncDate);
+        }
+        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
+        return nm.query(sql, params, new PrgDataSourceTypeDTORowMapper());
     }
 
 }

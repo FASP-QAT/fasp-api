@@ -5,7 +5,9 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.DTO.PrgRegionDTO;
 import cc.altius.FASP.model.Region;
+import java.util.List;
 
 /**
  *
@@ -18,4 +20,6 @@ public interface RegionService {
     public int editRegion(Region region);
 
     public int getRegionList(boolean active);
+    
+    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate);
 }

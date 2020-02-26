@@ -9,7 +9,6 @@ import cc.altius.FASP.dao.CountryDao;
 import cc.altius.FASP.model.Country;
 import cc.altius.FASP.model.DTO.PrgCountryDTO;
 import cc.altius.FASP.model.DTO.rowMapper.PrgCountryDTORowMapper;
-import cc.altius.FASP.model.DTO.rowMapper.PrgLanguageDTORowMapper;
 import cc.altius.FASP.model.rowMapper.CountryRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
@@ -101,7 +100,6 @@ public class CountryDaoImpl implements CountryDao {
                 + "LEFT JOIN ap_label label ON label.`LABEL_ID`=c.`LABEL_ID`";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
-            System.out.println("in if");
             sql += " WHERE c.`LAST_MODIFIED_DATE`>:lastSyncDate;";
             params.put("lastSyncDate", lastSyncDate);
         }
