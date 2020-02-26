@@ -22,6 +22,7 @@ public class HealthAreaRowMapper implements RowMapper<HealthArea> {
         HealthArea ha = new HealthArea();
         ha.setHealthAreaId(rs.getInt("HEALTH_AREA_ID"));
         ha.setRealm(new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, rowNum), rs.getString("REALM_CODE")));
+        ha.setLabel(new LabelRowMapper().mapRow(rs, rowNum));
         ha.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return ha;
     }
