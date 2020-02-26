@@ -114,6 +114,7 @@ public class UserController {
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             Gson g = new Gson();
+            System.out.println("json---" + json);
             User user = g.fromJson(json, User.class);
             CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
             System.out.println(curUser);
@@ -160,6 +161,17 @@ public class UserController {
         String json = null;
         try {
             List<User> userList = this.userService.getUserList();
+            for (User user : userList) {
+                String[] roleId = new String[user.getRoles().size()];
+                int i = 0;
+                for (Role b : user.getRoles()) {
+                    roleId[i] = b.getRoleId();
+                    i++;
+                }
+                user.setRoleList(roleId);
+                i = 0;
+            }
+
             Gson gson = new Gson();
             Type typeList = new TypeToken<List>() {
             }.getType();

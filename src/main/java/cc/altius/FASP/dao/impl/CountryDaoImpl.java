@@ -43,8 +43,8 @@ public class CountryDaoImpl implements CountryDao {
     @Override
     public List<Country> getCountryList(boolean active) {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT c.*,l.`LABEL_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_SP`,l.`LABEL_PR` \n"
-                + "FROM ap_country c LEFT JOIN ap_label l ON l.`LABEL_ID`=c.`LABEL_ID`");
+        sb.append(" SELECT c.*,l.`LABEL_ID` AS CU_LABEL_ID,l.`LABEL_EN` CU_LABEL_EN,l.`LABEL_FR` CU_LABEL_FR,l.`LABEL_SP` CU_LABEL_SP,l.`LABEL_PR`  CU_LABEL_PR\n"
+                + " FROM ap_country c LEFT JOIN ap_label l ON l.`LABEL_ID`=c.`LABEL_ID` ");
         if (active) {
             sb.append(" WHERE c.`ACTIVE` ");
         }

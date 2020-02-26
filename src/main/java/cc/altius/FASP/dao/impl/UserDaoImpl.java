@@ -18,6 +18,7 @@ import cc.altius.FASP.model.rowMapper.RoleRowMapper;
 import cc.altius.FASP.model.rowMapper.UserListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserResultSetExtractor;
 import cc.altius.utils.DateUtils;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -221,37 +222,38 @@ public class UserDaoImpl implements UserDao {
         int userId = insert.executeAndReturnKey(map).intValue();
         String sqlString = "INSERT INTO us_user_role (USER_ID, ROLE_ID,CREATED_BY,CREATED_DATE,LAST_MODIFIED_BY,LAST_MODIFIED_DATE) VALUES(:userId,:roleId,:curUser,:curDate,:curUser,:curDate)";
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
-
-        Map<String, Object>[] paramArray = new HashMap[user.getRoles().size()];
+        System.out.println("role array---" + user.getRoles());
+        Map<String, Object>[] paramArray = new HashMap[user.getRoleList().length];
         Map<String, Object> params = new HashMap<>();
         int x = 0;
-        for (Role role : user.getRoles()) {
+        for (String role : user.getRoleList()) {
             params = new HashMap<>();
             params.put("userId", userId);
-            params.put("roleId", role.getRoleId());
+            params.put("roleId", role);
             params.put("curUser", curUser);
             params.put("curDate", curDate);
             paramArray[x] = params;
             x++;
         }
         nm.batchUpdate(sqlString, paramArray);
-
-        sqlString = "INSERT INTO us_user_acl (USER_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
-        paramArray = new HashMap[user.getUserAclList().size()];
-        x = 0;
-        for (UserAcl userAcl : user.getUserAclList()) {
-            params = new HashMap<>();
-            params.put("userId", userId);
-            params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-            params.put("healthAreaId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-            params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
-            params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
-            params.put("curUser", curUser);
-            params.put("curDate", curDate);
-            paramArray[x] = params;
-            x++;
+        if (user.getUserAclList() != null) {
+            sqlString = "INSERT INTO us_user_acl (USER_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
+            paramArray = new HashMap[user.getUserAclList().size()];
+            x = 0;
+            for (UserAcl userAcl : user.getUserAclList()) {
+                params = new HashMap<>();
+                params.put("userId", userId);
+                params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
+                params.put("healthAreaId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
+                params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
+                params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
+                params.put("curUser", curUser);
+                params.put("curDate", curDate);
+                paramArray[x] = params;
+                x++;
+            }
+            nm.batchUpdate(sqlString, paramArray);
         }
-        nm.batchUpdate(sqlString, paramArray);
         return userId;
     }
 
@@ -333,7 +335,8 @@ public class UserDaoImpl implements UserDao {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sqlString = "";
         sqlString = "UPDATE us_user u "
-                + "SET "
+                + "SET u.`REALM_ID`=:realmId, "
+                + "u.`USERNAME`=:userName, "
                 + "u.`EMAIL_ID`=:emailId, "
                 + "u.`PHONE`=:phoneNo, "
                 + "u.`LANGUAGE_ID`=:languageId, "
@@ -343,6 +346,7 @@ public class UserDaoImpl implements UserDao {
                 + "WHERE  u.`USER_ID`=:userId;";
         Map<String, Object> map = new HashMap<>();
         map.put("realmId", user.getRealm().getRealmId());
+        map.put("userName", user.getUsername());
         map.put("emailId", user.getEmailId());
         map.put("phoneNo", user.getPhoneNumber());
         map.put("languageId", user.getLanguage().getLanguageId());
@@ -351,43 +355,52 @@ public class UserDaoImpl implements UserDao {
         map.put("lastModifiedDate", curDate);
         map.put("userId", user.getUserId());
         int row = namedParameterJdbcTemplate.update(sqlString, map);
+        System.out.println("row---" + row);
         sqlString = "DELETE FROM us_user_role WHERE  USER_ID=?;";
-        this.jdbcTemplate.update(sqlString, user.getUserId());
+        row = this.jdbcTemplate.update(sqlString, user.getUserId());
+        System.out.println("row---" + row);
         sqlString = "INSERT INTO us_user_role (USER_ID, ROLE_ID,CREATED_BY,CREATED_DATE,LAST_MODIFIED_BY,LAST_MODIFIED_DATE) VALUES(:userId,:roleId,:curUser,:curDate,:curUser,:curDate)";
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
-
-        Map<String, Object>[] paramArray = new HashMap[user.getRoles().size()];
+        System.out.println("user---" + user);
+        Map<String, Object>[] paramArray = new HashMap[user.getRoleList().length];
         Map<String, Object> params = new HashMap<>();
         int x = 0;
-        for (Role role : user.getRoles()) {
+        for (String role : user.getRoleList()) {
             params = new HashMap<>();
+            System.out.println("user id---" + user.getUserId());
             params.put("userId", user.getUserId());
-            params.put("roleId", role.getRoleId());
+            params.put("roleId", role);
             params.put("curUser", curUser);
             params.put("curDate", curDate);
+//            params.put("curUser", curUser);
+//            params.put("curDate", curDate);
+            System.out.println("params===" + params);
             paramArray[x] = params;
             x++;
         }
+        System.out.println("paramArray---" + Arrays.toString(paramArray));
         nm.batchUpdate(sqlString, paramArray);
-
-        sqlString = "DELETE FROM us_user_acl WHERE  USER_ID=?;";
-        this.jdbcTemplate.update(sqlString, user.getUserId());
-        sqlString = "INSERT INTO us_user_acl (USER_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
-        paramArray = new HashMap[user.getUserAclList().size()];
-        x = 0;
-        for (UserAcl userAcl : user.getUserAclList()) {
-            params = new HashMap<>();
-            params.put("userId", user.getUserId());
-            params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-            params.put("healthAreaId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-            params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
-            params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
-            params.put("curUser", curUser);
-            params.put("curDate", curDate);
-            paramArray[x] = params;
-            x++;
-        }
-        nm.batchUpdate(sqlString, paramArray);
+        System.out.println("user.getUserAclList()---" + user.getUserAclList());
+//        if (user.getUserAclList() != null && user.getUserAclList().size()>0) {
+//            sqlString = "DELETE FROM us_user_acl WHERE  USER_ID=?;";
+//            this.jdbcTemplate.update(sqlString, user.getUserId());
+//            sqlString = "INSERT INTO us_user_acl (USER_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
+//            paramArray = new HashMap[user.getUserAclList().size()];
+//            x = 0;
+//            for (UserAcl userAcl : user.getUserAclList()) {
+//                params = new HashMap<>();
+//                params.put("userId", user.getUserId());
+//                params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
+//                params.put("healthAreaId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
+//                params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
+//                params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
+//                params.put("curUser", curUser);
+//                params.put("curDate", curDate);
+//                paramArray[x] = params;
+//                x++;
+//            }
+//            nm.batchUpdate(sqlString, paramArray);
+//        }
         return row;
     }
 
@@ -442,7 +455,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<BusinessFunction> getBusinessFunctionList() {
-        String sqlString = "SELECT b.*,l.* FROM us_business_function b"
+        String sqlString = "SELECT b.*,l.* FROM us_business_function b "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=b.`LABEL_ID`; ";
         try {
             System.out.println("labels----------" + this.jdbcTemplate.query(sqlString, new BusinessFunctionRowMapper()));

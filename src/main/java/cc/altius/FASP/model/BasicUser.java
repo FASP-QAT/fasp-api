@@ -21,6 +21,10 @@ public class BasicUser implements Serializable {
         this.username = username;
     }
 
+    public BasicUser(String username) {
+        this.username = username;
+    }
+
     public BasicUser() {
     }
 
@@ -39,19 +43,5 @@ public class BasicUser implements Serializable {
     public void setUsername(String username) {
         this.username = username;
     }
-
-
-//    public BasicUser(int userId, String username) {
-//        this.userId = userId;
-//        this.username = username;
-//    }
-//
-    public BasicUser(String username) {
-        this.username = username;
-    }
-//
-//    public BasicUser() {
-//    }
-
 
 }

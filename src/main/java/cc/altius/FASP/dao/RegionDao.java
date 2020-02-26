@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.Region;
+import java.util.List;
 
 /**
  *
@@ -13,10 +14,10 @@ import cc.altius.FASP.model.Region;
  */
 public interface RegionDao {
 
-    public int addRegion(Region region);
+    public int addRegion(Region region, int curUser);
 
-    public int editRegion(Region region);
+    public int editRegion(Region region, int curUser);
 
-    public int getRegionList(boolean active);
+    public List<Region> getRegionList(boolean active);
 
 }

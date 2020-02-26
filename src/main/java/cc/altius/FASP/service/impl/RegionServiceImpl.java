@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.RegionDao;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.service.RegionService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,17 +23,17 @@ public class RegionServiceImpl implements RegionService {
     private RegionDao regionDao;
 
     @Override
-    public int addRegion(Region region) {
-        return this.regionDao.addRegion(region);
+    public int addRegion(Region region, int curUser) {
+        return this.regionDao.addRegion(region, curUser);
     }
 
     @Override
-    public int editRegion(Region region) {
-        return this.regionDao.editRegion(region);
+    public int editRegion(Region region, int curUser) {
+        return this.regionDao.editRegion(region, curUser);
     }
 
     @Override
-    public int getRegionList(boolean active) {
+    public List<Region> getRegionList(boolean active) {
         return this.regionDao.getRegionList(active);
     }
 
