@@ -9,7 +9,8 @@ package cc.altius.FASP.model;
  *
  * @author palash
  */
-public class UnitType extends BaseModel{
+public class UnitType extends BaseModel {
+
     private int unitTypeId;
     private Label label;
 

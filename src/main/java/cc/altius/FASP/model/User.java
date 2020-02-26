@@ -29,6 +29,22 @@ public class User extends BaseModel implements Serializable {
     private Date lastLoginDate;
     private List<UserAcl> userAclList;
 
+    public String[] getRoleList() {
+        return roleList;
+    }
+
+    public void setRoleList(String[] roleList) {
+        this.roleList = roleList;
+        for (String r : roleList) {
+            this.getRoles().add(new Role(r));
+        }
+    }
+
+    public User() {
+        this.roles = new LinkedList<>();
+        this.userAclList = new LinkedList<>();
+    }
+
     public int getUserId() {
         return userId;
     }
@@ -115,14 +131,6 @@ public class User extends BaseModel implements Serializable {
 
     public void setUserAclList(List<UserAcl> userAclList) {
         this.userAclList = userAclList;
-    }
-
-    public String[] getRoleList() {
-        return roleList;
-    }
-
-    public void setRoleList(String[] roleList) {
-        this.roleList = roleList;
     }
 
     @Override

@@ -28,21 +28,21 @@ public class UserAcl implements Serializable {
 
     public UserAcl(int userId, int realmCountryId, int healthAreaId, int organisationId, int programId) {
         this.userId = userId;
-        this.realmCountryId = realmCountryId;
-        this.healthAreaId = healthAreaId;
-        this.organisationId = organisationId;
-        this.programId = programId;
+        this.setRealmCountryId(realmCountryId);
+        this.setHealthAreaId(healthAreaId);
+        this.setOrganisationId(organisationId);
+        this.setProgramId(programId);
     }
 
     public UserAcl(int userId, int realmCountryId, Label countryName, int healthAreaId, Label healthAreaName, int organisationId, Label organisationName, int programId, Label programName) {
         this.userId = userId;
-        this.realmCountryId = realmCountryId;
+        this.setRealmCountryId(realmCountryId);
+        this.setHealthAreaId(healthAreaId);
+        this.setOrganisationId(organisationId);
+        this.setProgramId(programId);
         this.countryName = countryName;
-        this.healthAreaId = healthAreaId;
         this.healthAreaName = healthAreaName;
-        this.organisationId = organisationId;
         this.organisationName = organisationName;
-        this.programId = programId;
         this.programName = programName;
     }
 
