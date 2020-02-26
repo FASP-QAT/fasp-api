@@ -45,10 +45,10 @@ public class CurrencyDaoImpl implements CurrencyDao {
 
         SimpleJdbcInsert labelInsert = new SimpleJdbcInsert(dataSource).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
         Map<String, Object> params = new HashMap<>();
-        params.put("LABEL_EN", currency.getLabel().getEngLabel());
-        params.put("LABEL_FR", currency.getLabel().getFreLabel());
-        params.put("LABEL_SP", currency.getLabel().getSpaLabel());//alreday scanned
-        params.put("LABEL_PR", currency.getLabel().getPorLabel());
+        params.put("LABEL_EN", currency.getLabel().getLabel_en());
+        params.put("LABEL_FR", currency.getLabel().getLabel_fr());
+        params.put("LABEL_SP", currency.getLabel().getLabel_sp());//alreday scanned
+        params.put("LABEL_PR", currency.getLabel().getLabel_pr());
         params.put("CREATED_BY", 1);
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", 1);
@@ -86,8 +86,8 @@ public class CurrencyDaoImpl implements CurrencyDao {
 
         String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=? , al.`LABEL_FR`=?,"
                 + "al.`LABEL_PR`=?,al.`LABEL_SP`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
-        this.jdbcTemplate.update(sqlOne, currency.getLabel().getEngLabel(), currency.getLabel().getFreLabel(),
-                currency.getLabel().getPorLabel(), currency.getLabel().getSpaLabel(), 1, curDt, currency.getLabel().getLabelId());
+        this.jdbcTemplate.update(sqlOne, currency.getLabel().getLabel_en(), currency.getLabel().getLabel_fr(),
+                currency.getLabel().getLabel_pr(), currency.getLabel().getLabel_sp(), 1, curDt, currency.getLabel().getLabelId());
 
         String sqlTwo = "UPDATE ap_currency c SET  c.`CURRENCY_CODE`=?,c.`CURRENCY_SYMBOL`=?,c.`CONVERSION_RATE_TO_USD`=?,c.`LAST_MODIFIED_BY`=?,c.`LAST_MODIFIED_DATE`=?"
                 + " WHERE c.`CURRENCY_ID`=?;";

@@ -34,7 +34,7 @@ public class ProgramDaoImpl implements ProgramDao {
     public List<ProgramDTO> getProgramList() {
         String sql = "SELECT r.`PROGRAM_ID`,label.`LABEL_ID`,label.`LABEL_EN`,label.`LABEL_FR`,label.`LABEL_PR`,label.`LABEL_SP`\n"
                 + "FROM rm_program r \n"
-                + "LEFT JOIN rm_label label ON label.`LABEL_ID`=r.`LABEL_ID`;";
+                + "LEFT JOIN ap_label label ON label.`LABEL_ID`=r.`LABEL_ID`;";
         return this.jdbcTemplate.query(sql, new ProgramDTORowMapper());
     }
 

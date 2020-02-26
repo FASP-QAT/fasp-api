@@ -20,13 +20,7 @@ public class ProgramDTORowMapper implements RowMapper<ProgramDTO> {
     @Override
     public ProgramDTO mapRow(ResultSet rs, int i) throws SQLException {
         ProgramDTO p = new ProgramDTO();
-        Label label=new Label();
-        label.setEngLabel(rs.getString("LABEL_EN"));
-        label.setFreLabel(rs.getString("LABEL_FR"));
-        label.setLabelId(rs.getInt("LABEL_ID"));
-        label.setPorLabel(rs.getString("LABEL_PR"));
-        label.setSpaLabel(rs.getString("LABEL_SP"));
-        p.setLabel(label);
+        p.setLabel(new Label(rs.getInt("LABEL_ID"), rs.getString("LABEL_EN"), rs.getString("LABEL_SP"), rs.getString("LABEL_FR"), rs.getString("LABEL_PR")));
         p.setProgramId(rs.getInt("PROGRAM_ID"));
         return p;
     }

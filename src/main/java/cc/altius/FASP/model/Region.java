@@ -13,6 +13,7 @@ public class Region extends BaseModel {
 
     private int regionId;
     private Label label;
+    private RealmCountry realmCountry;
 
     public int getRegionId() {
         return regionId;
@@ -28,6 +29,14 @@ public class Region extends BaseModel {
 
     public void setLabel(Label label) {
         this.label = label;
+    }
+
+    public RealmCountry getRealmCountry() {
+        return realmCountry;
+    }
+
+    public void setRealmCountry(RealmCountry realmCountry) {
+        this.realmCountry = realmCountry;
     }
 
 }

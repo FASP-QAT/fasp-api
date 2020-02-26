@@ -6,6 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.Region;
+import java.util.List;
 
 /**
  *
@@ -13,9 +14,9 @@ import cc.altius.FASP.model.Region;
  */
 public interface RegionService {
 
-    public int addRegion(Region region);
+    public int addRegion(Region region, int curUser);
 
-    public int editRegion(Region region);
+    public int editRegion(Region region, int curUser);
 
-    public int getRegionList(boolean active);
+    public List<Region> getRegionList(boolean active);
 }

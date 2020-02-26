@@ -10,27 +10,16 @@ package cc.altius.FASP.model;
  * @author palash
  */
 public class DataSourceType {
-    
+
     private int dataSourceTypeId;
     private Label label;
     private boolean active;
-    private int labelId;
 
-    public int getLabelId() {
-        return labelId;
-    }
-
-    public void setLabelId(int labelId) {
-        this.labelId = labelId;
-    }
-
-    
-    
     public DataSourceType() {
-        
-        this.label=new Label();
+
+        this.label = new Label();
     }
-    
+
     public int getDataSourceTypeId() {
         return dataSourceTypeId;
     }
@@ -57,9 +46,9 @@ public class DataSourceType {
 
     @Override
     public String toString() {
-        return "DataSourceType{" + "dataSourceTypeId=" + dataSourceTypeId + ", label=" + label + ", active=" + active + ", labelId=" + labelId + '}';
+        return "DataSourceType{" + "dataSourceTypeId=" + dataSourceTypeId + ", label=" + label + ", active=" + active + '}';
     }
 
-    
+   
     
 }
