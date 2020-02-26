@@ -21,7 +21,7 @@ public class HealthAreaRestController {
     
     @PostMapping(path = "/api/healthArea")
     public ResponseFormat postHealthArea(@RequestBody HealthArea heatlhArea) {
-        
+        return null;
     }
 
 }
