@@ -10,6 +10,7 @@ import cc.altius.FASP.model.DTO.PrgProductCategoryDTO;
 import cc.altius.FASP.model.DTO.PrgProductDTO;
 import cc.altius.FASP.model.DTO.PrgProgramProductDTO;
 import cc.altius.FASP.model.DTO.PrgUnitDTO;
+import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
 import cc.altius.FASP.model.UnitType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -38,7 +39,7 @@ public class PrgProgramProductDTORowMapper implements RowMapper<PrgProgramProduc
         forecastUnit.setLabel(forecastUnitLabel);
         forecastUnit.setUnitCode(rs.getString("FORECAST_UNIT_CODE"));
         forecastUnit.setUnitId(rs.getInt("FORECAST_UNIT_ID"));
-        UnitType forecastUnitType = new UnitType();
+        PrgUnitTypeDTO forecastUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO forecastUnitTypeLabel = new PrgLabelDTO();
         forecastUnitTypeLabel.setLabelEn(rs.getString("FORECAST_UNIT_TYPE_NAME_EN"));
         forecastUnitTypeLabel.setLabelFr(rs.getString("FORECAST_UNIT_TYPE_NAME_FR"));

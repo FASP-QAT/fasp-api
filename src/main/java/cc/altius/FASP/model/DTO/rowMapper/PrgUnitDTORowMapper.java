@@ -7,6 +7,7 @@ package cc.altius.FASP.model.DTO.rowMapper;
 
 import cc.altius.FASP.model.DTO.PrgLabelDTO;
 import cc.altius.FASP.model.DTO.PrgUnitDTO;
+import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
 import cc.altius.FASP.model.UnitType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,7 +30,7 @@ public class PrgUnitDTORowMapper implements RowMapper<PrgUnitDTO> {
         unit.setLabel(label);
         unit.setUnitCode(rs.getString("UNIT_CODE"));
         unit.setUnitId(rs.getInt("UNIT_ID"));
-        UnitType unitType = new UnitType();
+        PrgUnitTypeDTO unitType = new PrgUnitTypeDTO();
         unitType.setUnitTypeId(rs.getInt("UNIT_TYPE_ID"));
         unit.setUnitType(unitType);
         unit.setActive(rs.getBoolean("ACTIVE"));

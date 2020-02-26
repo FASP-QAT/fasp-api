@@ -33,10 +33,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import cc.altius.FASP.service.UserService;
-import java.util.Arrays;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:4202"})
+@CrossOrigin(origins = {"http://localhost:4202", "http://192.168.43.113:4202", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class UserController {
 
     @Autowired
@@ -110,21 +110,21 @@ public class UserController {
     }
 
     @PutMapping(value = "/addNewUser")
-    public ResponseEntity addNewUser(@RequestBody(required = true) String json) throws UnsupportedEncodingException {
-        Map<String, Object> responseMap = null;
+    public ResponseEntity addNewUser(@RequestBody(required = true) String json, Authentication authentication) throws UnsupportedEncodingException {
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             Gson g = new Gson();
+            System.out.println("json---" + json);
             User user = g.fromJson(json, User.class);
-            System.out.println("user------------" + user);
+            CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
+            System.out.println(curUser);
             PasswordEncoder encoder = new BCryptPasswordEncoder();
             String password = PassPhrase.getPassword();
             String hashPass = encoder.encode(password);
             user.setPassword(hashPass);
             String msg = this.userService.checkIfUserExistsByEmailIdAndPhoneNumber(user, 1);
-            System.out.println("message----------" + msg);
             if (msg.isEmpty()) {
-                int userId = this.userService.addNewUser(user);
+                int userId = this.userService.addNewUser(user, curUser.getUserId());
                 if (userId > 0) {
 
                     EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(2);
@@ -161,6 +161,17 @@ public class UserController {
         String json = null;
         try {
             List<User> userList = this.userService.getUserList();
+            for (User user : userList) {
+                String[] roleId = new String[user.getRoles().size()];
+                int i = 0;
+                for (Role b : user.getRoles()) {
+                    roleId[i] = b.getRoleId();
+                    i++;
+                }
+                user.setRoleList(roleId);
+                i = 0;
+            }
+
             Gson gson = new Gson();
             Type typeList = new TypeToken<List>() {
             }.getType();
@@ -182,27 +193,21 @@ public class UserController {
     }
 
     @PutMapping(value = "/editUser")
-    public ResponseEntity editUser(@RequestBody(required = true) String json) throws UnsupportedEncodingException {
+    public ResponseEntity editUser(@RequestBody(required = true) String json, Authentication authentication) throws UnsupportedEncodingException {
         Map<String, Object> responseMap = null;
         ResponseFormat responseFormat = new ResponseFormat();
+        CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
         try {
             Gson g = new Gson();
             User user = g.fromJson(json, User.class);
-            String msg = this.userService.checkIfUserExistsByEmailIdAndPhoneNumber(user, 2);
-            if (msg.isEmpty()) {
-                int row = this.userService.updateUser(user);
-                if (row > 0) {
-                    responseFormat.setStatus("Success");
-                    responseFormat.setMessage("User updated successfully.");
-                    return new ResponseEntity(responseFormat, HttpStatus.OK);
-                } else {
-                    responseFormat.setStatus("failed");
-                    responseFormat.setMessage("Exception Occured. Please try again");
-                    return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
-                }
+            int row = this.userService.updateUser(user, curUser.getUserId());
+            if (row > 0) {
+                responseFormat.setStatus("Success");
+                responseFormat.setMessage("User updated successfully.");
+                return new ResponseEntity(responseFormat, HttpStatus.OK);
             } else {
                 responseFormat.setStatus("failed");
-                responseFormat.setMessage(msg);
+                responseFormat.setMessage("Failed to update the user");
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (Exception e) {

@@ -42,8 +42,8 @@ public class CountryDaoImpl implements CountryDao {
     @Override
     public List<Country> getCountryList(boolean active) {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT c.*,l.`LABEL_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_SP`,l.`LABEL_PR` \n"
-                + "FROM ap_country c LEFT JOIN ap_label l ON l.`LABEL_ID`=c.`LABEL_ID`");
+        sb.append(" SELECT c.*,l.`LABEL_ID` AS CU_LABEL_ID,l.`LABEL_EN` CU_LABEL_EN,l.`LABEL_FR` CU_LABEL_FR,l.`LABEL_SP` CU_LABEL_SP,l.`LABEL_PR`  CU_LABEL_PR\n"
+                + " FROM ap_country c LEFT JOIN ap_label l ON l.`LABEL_ID`=c.`LABEL_ID` ");
         if (active) {
             sb.append(" WHERE c.`ACTIVE` ");
         }
@@ -58,10 +58,17 @@ public class CountryDaoImpl implements CountryDao {
 
         SimpleJdbcInsert labelInsert = new SimpleJdbcInsert(dataSource).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
         Map<String, Object> params = new HashMap<>();
-        params.put("LABEL_EN", country.getLabel().getEngLabel());
+
+//        params.put("LABEL_EN", country.getLabel().getEngLabel());
 //        params.put("LABEL_FR", country.getLabel().getFreLabel());
 //        params.put("LABEL_SP", country.getLabel().getSpaLabel());
 //        params.put("LABEL_PR", country.getLabel().getPorLabel());
+
+        params.put("LABEL_EN", country.getLabel().getLabel_en());
+//        params.put("LABEL_FR", country.getLabel().getLabel_fr());
+//        params.put("LABEL_SP", country.getLabel().getLabel_sp());//alreday scanned
+//        params.put("LABEL_PR", country.getLabel().getLabel_pr());
+
         params.put("CREATED_BY", 1);
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", 1);
@@ -87,7 +94,7 @@ public class CountryDaoImpl implements CountryDao {
     public int updateCountry(Country country) {
         Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
         String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
-        this.jdbcTemplate.update(sqlOne, country.getLabel().getEngLabel(),1, curDt, country.getLabel().getLabelId());
+        this.jdbcTemplate.update(sqlOne, country.getLabel().getLabel_en(),1, curDt, country.getLabel().getLabelId());
         String sqlTwo = "UPDATE ap_country dt SET  dt.`LANGUAGE_ID`=?,dt.`CURRENCY_ID`=?,dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
                 + " WHERE dt.`COUNTRY_ID`=?;";
         return this.jdbcTemplate.update(sqlTwo, country.getLanguage().getLanguageId(), country.getCurrency().getCurrencyId(), country.isActive(), 1, curDt, country.getCountryId());
@@ -105,6 +112,20 @@ public class CountryDaoImpl implements CountryDao {
         }
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
         return nm.query(sql, params, new PrgCountryDTORowMapper());
+//=======
+//
+//        System.out.println("country--->" + country.getLabel().getLabel());
+//        Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
+//
+//        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=? , al.`LABEL_FR`=?,"
+//                + "al.`LABEL_PR`=?,al.`LABEL_SP`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
+//        this.jdbcTemplate.update(sqlOne, country.getLabel().getLabel_en(), country.getLabel().getLabel_fr(),
+//                country.getLabel().getLabel_pr(), country.getLabel().getLabel_sp(), 1, curDt, country.getLabel().getLabelId());
+//
+//        String sqlTwo = "UPDATE ap_country dt SET  dt.`LANGUAGE_ID`=?,dt.`CURRENCY_ID`=?,dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
+//                + " WHERE dt.`COUNTRY_ID`=?;";
+//        return this.jdbcTemplate.update(sqlTwo, country.getLanguage().getLanguageId(), country.getCurrency().getCurrencyId(), country.isActive(), 1, curDt, country.getCountryId());
+//>>>>>>> userCrud
     }
 
 }

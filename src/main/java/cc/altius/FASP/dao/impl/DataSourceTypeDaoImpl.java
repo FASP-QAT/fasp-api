@@ -51,10 +51,17 @@ public class DataSourceTypeDaoImpl implements DataSourceTypeDao {
 
         SimpleJdbcInsert labelInsert = new SimpleJdbcInsert(dataSource).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
         Map<String, Object> params = new HashMap<>();
-        params.put("LABEL_EN", dataSourceType.getLabel().getEngLabel());
+
+//        params.put("LABEL_EN", dataSourceType.getLabel().getEngLabel());
 //        params.put("LABEL_FR", dataSourceType.getLabel().getFreLabel());
 //        params.put("LABEL_SP", dataSourceType.getLabel().getSpaLabel());//alreday scanned
 //        params.put("LABEL_PR", dataSourceType.getLabel().getPorLabel());
+
+        params.put("LABEL_EN", dataSourceType.getLabel().getLabel_en());
+//        params.put("LABEL_FR", dataSourceType.getLabel().getLabel_fr());
+//        params.put("LABEL_SP", dataSourceType.getLabel().getLabel_sp());//alreday scanned
+//        params.put("LABEL_PR", dataSourceType.getLabel().getLabel_pr());
+
         params.put("CREATED_BY", 1);
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", 1);
@@ -94,7 +101,7 @@ public class DataSourceTypeDaoImpl implements DataSourceTypeDao {
     public int updateDataSourceType(DataSourceType dataSourceType) {
         Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
         String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=? ,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
-        this.jdbcTemplate.update(sqlOne, dataSourceType.getLabel().getEngLabel(), 1, curDt, dataSourceType.getLabel().getLabelId());
+        this.jdbcTemplate.update(sqlOne,dataSourceType.getLabel().getLabel_en(),1,curDt,dataSourceType.getLabel().getLabelId());
         String sqlTwo = "UPDATE ap_data_source_type dt SET  dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
                 + " WHERE dt.`DATA_SOURCE_TYPE_ID`=?;";
         return this.jdbcTemplate.update(sqlTwo, dataSourceType.isActive(), 1, curDt, dataSourceType.getDataSourceTypeId());

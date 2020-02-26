@@ -14,6 +14,7 @@ import cc.altius.FASP.model.DTO.PrgManufacturerDTO;
 import cc.altius.FASP.model.DTO.PrgPlanningUnitDTO;
 import cc.altius.FASP.model.DTO.PrgRegionDTO;
 import cc.altius.FASP.model.DTO.PrgUnitDTO;
+import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
 import cc.altius.FASP.model.UnitType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -62,7 +63,7 @@ public class PrgConsumptionDTORowMapper implements RowMapper<PrgConsumptionDTO> 
         consumptionHeightUnit.setLabel(consumptionHeightUnitLabel);
         consumptionHeightUnit.setUnitCode(rs.getString("HEIGHT_UNIT_CODE"));
         consumptionHeightUnit.setUnitId(rs.getInt("HEIGHT_UNIT_ID"));
-        UnitType consumptionHeightUnitType = new UnitType();
+        PrgUnitTypeDTO consumptionHeightUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO consumptionHeightUnitTypeLabel = new PrgLabelDTO();
         consumptionHeightUnitTypeLabel.setLabelEn(rs.getString("HEIGHT_UNIT_TYPE_NAME_EN"));
         consumptionHeightUnitTypeLabel.setLabelFr(rs.getString("HEIGHT_UNIT_TYPE_NAME_FR"));
@@ -89,7 +90,7 @@ public class PrgConsumptionDTORowMapper implements RowMapper<PrgConsumptionDTO> 
         consumptionLengthUnit.setLabel(consumptionLengthUnitLabel);
         consumptionLengthUnit.setUnitCode(rs.getString("LENGTH_UNIT_CODE"));
         consumptionLengthUnit.setUnitId(rs.getInt("LENGTH_UNIT_ID"));
-        UnitType consumptionLengthUnitType = new UnitType();
+        PrgUnitTypeDTO consumptionLengthUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO consumptionLengthUnitTypeLabel = new PrgLabelDTO();
         consumptionLengthUnitTypeLabel.setLabelEn(rs.getString("LENGTH_UNIT_TYPE_NAME_EN"));
         consumptionLengthUnitTypeLabel.setLabelFr(rs.getString("LENGTH_UNIT_TYPE_NAME_FR"));
@@ -129,7 +130,7 @@ public class PrgConsumptionDTORowMapper implements RowMapper<PrgConsumptionDTO> 
         consumptionPlanningUnitUnit.setUnitCode(rs.getString("PLANNING_UNIT_UNIT_CODE"));
         consumptionPlanningUnitUnit.setUnitId(rs.getInt("PLANNING_UNIT_UNIT_ID"));
 
-        UnitType consumptionPlanningUnitUnitType = new UnitType();
+        PrgUnitTypeDTO consumptionPlanningUnitUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO consumptionPlanningUnitUnitTypeLabel = new PrgLabelDTO();
         consumptionPlanningUnitUnitTypeLabel.setLabelEn(rs.getString("PLANNING_UNIT_UNIT_TYPE_NAME_EN"));
         consumptionPlanningUnitUnitTypeLabel.setLabelFr(rs.getString("PLANNING_UNIT_UNIT_TYPE_NAME_FR"));
@@ -152,7 +153,7 @@ public class PrgConsumptionDTORowMapper implements RowMapper<PrgConsumptionDTO> 
         consumptionLogisticsUnitUnit.setLabel(consumptionLogisticsUnitUnitLabel);
         consumptionLogisticsUnitUnit.setUnitCode(rs.getString("LOGISTICS_UNIT_UNIT_CODE"));
         consumptionLogisticsUnitUnit.setUnitId(rs.getInt("LOGISTICS_UNIT_UNIT_ID"));
-        UnitType consumptionLogisticsUnitUnitType = new UnitType();
+        PrgUnitTypeDTO consumptionLogisticsUnitUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO consumptionLogisticsUnitUnitTypeLabel = new PrgLabelDTO();
         consumptionLogisticsUnitUnitTypeLabel.setLabelEn(rs.getString("LOGISTICS_UNIT_UNIT_TYPE_NAME_EN"));
         consumptionLogisticsUnitUnitTypeLabel.setLabelFr(rs.getString("LOGISTICS_UNIT_UNIT_TYPE_NAME_FR"));
@@ -174,7 +175,7 @@ public class PrgConsumptionDTORowMapper implements RowMapper<PrgConsumptionDTO> 
         consumptionWeightUnit.setLabel(consumptionWeightUnitLabel);
         consumptionWeightUnit.setUnitCode(rs.getString("WEIGHT_UNIT_CODE"));
         consumptionWeightUnit.setUnitId(rs.getInt("WEIGHT_UNIT_ID"));
-        UnitType consumptionWeightUnitType = new UnitType();
+        PrgUnitTypeDTO consumptionWeightUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO consumptionWeightUnitTypeLabel = new PrgLabelDTO();
         consumptionWeightUnitTypeLabel.setLabelEn(rs.getString("WEIGHT_UNIT_TYPE_NAME_EN"));
         consumptionWeightUnitTypeLabel.setLabelFr(rs.getString("WEIGHT_UNIT_TYPE_NAME_FR"));
@@ -194,7 +195,7 @@ public class PrgConsumptionDTORowMapper implements RowMapper<PrgConsumptionDTO> 
         consumptionWidthUnit.setLabel(consumptionWidthUnitLabel);
         consumptionWidthUnit.setUnitCode(rs.getString("WIDTH_UNIT_CODE"));
         consumptionWidthUnit.setUnitId(rs.getInt("WIDTH_UNIT_ID"));
-        UnitType consumptionWidthUnitType = new UnitType();
+        PrgUnitTypeDTO consumptionWidthUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO consumptionWidthUnitTypeLabel = new PrgLabelDTO();
         consumptionWidthUnitTypeLabel.setLabelEn(rs.getString("WIDTH_UNIT_TYPE_NAME_EN"));
         consumptionWidthUnitTypeLabel.setLabelFr(rs.getString("WIDTH_UNIT_TYPE_NAME_FR"));
@@ -225,7 +226,7 @@ public class PrgConsumptionDTORowMapper implements RowMapper<PrgConsumptionDTO> 
         consumptionUnit.setLabel(consumptionUnitLabel);
         consumptionUnit.setUnitCode(rs.getString("UNIT_CODE"));
         consumptionUnit.setUnitId(rs.getInt("UNIT_ID"));
-        UnitType consumptionUnitType = new UnitType();
+        PrgUnitTypeDTO consumptionUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO consumptionUnitTypeLabel = new PrgLabelDTO();
         consumptionUnitTypeLabel.setLabelEn(rs.getString("UNIT_TYPE_NAME_EN"));
         consumptionUnitTypeLabel.setLabelFr(rs.getString("UNIT_TYPE_NAME_FR"));

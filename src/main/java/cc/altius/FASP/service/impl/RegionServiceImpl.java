@@ -24,17 +24,17 @@ public class RegionServiceImpl implements RegionService {
     private RegionDao regionDao;
 
     @Override
-    public int addRegion(Region region) {
-        return this.regionDao.addRegion(region);
+    public int addRegion(Region region, int curUser) {
+        return this.regionDao.addRegion(region, curUser);
     }
 
     @Override
-    public int editRegion(Region region) {
-        return this.regionDao.editRegion(region);
+    public int editRegion(Region region, int curUser) {
+        return this.regionDao.editRegion(region, curUser);
     }
 
     @Override
-    public int getRegionList(boolean active) {
+    public List<Region> getRegionList(boolean active) {
         return this.regionDao.getRegionList(active);
     }
 

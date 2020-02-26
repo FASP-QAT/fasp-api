@@ -15,6 +15,7 @@ import cc.altius.FASP.model.DTO.PrgProgramDataDTO;
 import cc.altius.FASP.model.DTO.PrgRealmCountryDTO;
 import cc.altius.FASP.model.DTO.PrgRealmDTO;
 import cc.altius.FASP.model.DTO.PrgUnitDTO;
+import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
 import cc.altius.FASP.model.UnitType;
 import cc.altius.FASP.model.User;
 import java.sql.ResultSet;
@@ -138,7 +139,7 @@ public class PrgProgramDataDTORowMapper implements RowMapper<PrgProgramDataDTO> 
         palletUnit.setUnitCode(rs.getString("PALLET_UNIT_CODE"));
         palletUnit.setUnitId(rs.getInt("PALLET_UNIT_ID"));
 
-        UnitType palletUnitType = new UnitType();
+        PrgUnitTypeDTO palletUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO palletUnitTypeLabel = new PrgLabelDTO();
         palletUnitTypeLabel.setLabelEn(rs.getString("PALLET_UNIT_TYPE_NAME_EN"));
         palletUnitTypeLabel.setLabelFr(rs.getString("PALLET_UNIT_TYPE_NAME_FR"));

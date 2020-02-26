@@ -14,6 +14,7 @@ import cc.altius.FASP.model.DTO.PrgManufacturerDTO;
 import cc.altius.FASP.model.DTO.PrgPlanningUnitDTO;
 import cc.altius.FASP.model.DTO.PrgRegionDTO;
 import cc.altius.FASP.model.DTO.PrgUnitDTO;
+import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
 import cc.altius.FASP.model.UnitType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -62,7 +63,7 @@ public class PrgInventoryDTORowMapper implements RowMapper<PrgInventoryDTO> {
         inventoryHeightUnit.setLabel(inventoryHeightUnitLabel);
         inventoryHeightUnit.setUnitCode(rs.getString("HEIGHT_UNIT_CODE"));
         inventoryHeightUnit.setUnitId(rs.getInt("HEIGHT_UNIT_ID"));
-        UnitType inventoryHeightUnitType = new UnitType();
+        PrgUnitTypeDTO inventoryHeightUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO inventoryHeightUnitTypeLabel = new PrgLabelDTO();
         inventoryHeightUnitTypeLabel.setLabelEn(rs.getString("HEIGHT_UNIT_TYPE_NAME_EN"));
         inventoryHeightUnitTypeLabel.setLabelFr(rs.getString("HEIGHT_UNIT_TYPE_NAME_FR"));
@@ -89,7 +90,7 @@ public class PrgInventoryDTORowMapper implements RowMapper<PrgInventoryDTO> {
         inventoryLengthUnit.setLabel(inventoryLengthUnitLabel);
         inventoryLengthUnit.setUnitCode(rs.getString("LENGTH_UNIT_CODE"));
         inventoryLengthUnit.setUnitId(rs.getInt("LENGTH_UNIT_ID"));
-        UnitType inventoryLengthUnitType = new UnitType();
+        PrgUnitTypeDTO inventoryLengthUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO inventoryLengthUnitTypeLabel = new PrgLabelDTO();
         inventoryLengthUnitTypeLabel.setLabelEn(rs.getString("LENGTH_UNIT_TYPE_NAME_EN"));
         inventoryLengthUnitTypeLabel.setLabelFr(rs.getString("LENGTH_UNIT_TYPE_NAME_FR"));
@@ -131,7 +132,7 @@ public class PrgInventoryDTORowMapper implements RowMapper<PrgInventoryDTO> {
         inventoryPlanningUnitUnit.setUnitCode(rs.getString("PLANNING_UNIT_UNIT_CODE"));
         inventoryPlanningUnitUnit.setUnitId(rs.getInt("PLANNING_UNIT_UNIT_ID"));
 
-        UnitType inventoryPlanningUnitUnitType = new UnitType();
+        PrgUnitTypeDTO inventoryPlanningUnitUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO inventoryPlanningUnitUnitTypeLabel = new PrgLabelDTO();
         inventoryPlanningUnitUnitTypeLabel.setLabelEn(rs.getString("PLANNING_UNIT_UNIT_TYPE_NAME_EN"));
         inventoryPlanningUnitUnitTypeLabel.setLabelFr(rs.getString("PLANNING_UNIT_UNIT_TYPE_NAME_FR"));
@@ -154,7 +155,7 @@ public class PrgInventoryDTORowMapper implements RowMapper<PrgInventoryDTO> {
         inventoryLogisticsUnitUnit.setLabel(inventoryLogisticsUnitUnitLabel);
         inventoryLogisticsUnitUnit.setUnitCode(rs.getString("LOGISTICS_UNIT_UNIT_CODE"));
         inventoryLogisticsUnitUnit.setUnitId(rs.getInt("LOGISTICS_UNIT_UNIT_ID"));
-        UnitType inventoryLogisticsUnitUnitType = new UnitType();
+        PrgUnitTypeDTO inventoryLogisticsUnitUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO inventoryLogisticsUnitUnitTypeLabel = new PrgLabelDTO();
         inventoryLogisticsUnitUnitTypeLabel.setLabelEn(rs.getString("LOGISTICS_UNIT_UNIT_TYPE_NAME_EN"));
         inventoryLogisticsUnitUnitTypeLabel.setLabelFr(rs.getString("LOGISTICS_UNIT_UNIT_TYPE_NAME_FR"));
@@ -176,7 +177,7 @@ public class PrgInventoryDTORowMapper implements RowMapper<PrgInventoryDTO> {
         inventoryWeightUnit.setLabel(inventoryWeightUnitLabel);
         inventoryWeightUnit.setUnitCode(rs.getString("WEIGHT_UNIT_CODE"));
         inventoryWeightUnit.setUnitId(rs.getInt("WEIGHT_UNIT_ID"));
-        UnitType inventoryWeightUnitType = new UnitType();
+        PrgUnitTypeDTO inventoryWeightUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO inventoryWeightUnitTypeLabel = new PrgLabelDTO();
         inventoryWeightUnitTypeLabel.setLabelEn(rs.getString("WEIGHT_UNIT_TYPE_NAME_EN"));
         inventoryWeightUnitTypeLabel.setLabelFr(rs.getString("WEIGHT_UNIT_TYPE_NAME_FR"));
@@ -196,7 +197,7 @@ public class PrgInventoryDTORowMapper implements RowMapper<PrgInventoryDTO> {
         inventoryWidthUnit.setLabel(inventoryWidthUnitLabel);
         inventoryWidthUnit.setUnitCode(rs.getString("WIDTH_UNIT_CODE"));
         inventoryWidthUnit.setUnitId(rs.getInt("WIDTH_UNIT_ID"));
-        UnitType inventoryWidthUnitType = new UnitType();
+        PrgUnitTypeDTO inventoryWidthUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO inventoryWidthUnitTypeLabel = new PrgLabelDTO();
         inventoryWidthUnitTypeLabel.setLabelEn(rs.getString("WIDTH_UNIT_TYPE_NAME_EN"));
         inventoryWidthUnitTypeLabel.setLabelFr(rs.getString("WIDTH_UNIT_TYPE_NAME_FR"));
@@ -227,7 +228,7 @@ public class PrgInventoryDTORowMapper implements RowMapper<PrgInventoryDTO> {
         inventoryUnit.setLabel(inventoryUnitLabel);
         inventoryUnit.setUnitCode(rs.getString("UNIT_CODE"));
         inventoryUnit.setUnitId(rs.getInt("UNIT_ID"));
-        UnitType inventoryUnitType = new UnitType();
+        PrgUnitTypeDTO inventoryUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO inventoryUnitTypeLabel = new PrgLabelDTO();
         inventoryUnitTypeLabel.setLabelEn(rs.getString("UNIT_TYPE_NAME_EN"));
         inventoryUnitTypeLabel.setLabelFr(rs.getString("UNIT_TYPE_NAME_FR"));

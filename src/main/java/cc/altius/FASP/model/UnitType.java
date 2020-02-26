@@ -5,17 +5,13 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.model.DTO.PrgLabelDTO;
-import cc.altius.FASP.model.Label;
-
 /**
  *
- * @author altius
+ * @author palash
  */
-public class UnitType {
-
+public class UnitType extends BaseModel{
     private int unitTypeId;
-    private PrgLabelDTO label;
+    private Label label;
 
     public int getUnitTypeId() {
         return unitTypeId;
@@ -25,12 +21,18 @@ public class UnitType {
         this.unitTypeId = unitTypeId;
     }
 
-    public PrgLabelDTO getLabel() {
+    public Label getLabel() {
         return label;
     }
 
-    public void setLabel(PrgLabelDTO label) {
+    public void setLabel(Label label) {
         this.label = label;
     }
 
+    @Override
+    public String toString() {
+        return "UnitType{" + "unitTypeId=" + unitTypeId + ", label=" + label + '}';
+    }
+   
+   
 }

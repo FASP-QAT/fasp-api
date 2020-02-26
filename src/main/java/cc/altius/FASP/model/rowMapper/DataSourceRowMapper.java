@@ -26,17 +26,10 @@ public class DataSourceRowMapper implements RowMapper<DataSource> {
         DataSourceType dst = new DataSourceType();
         dst.setDataSourceTypeId(rs.getInt("DATA_SOURCE_TYPE_ID"));
         Label ll = new Label();
-        ll.setEngLabel(rs.getString("dataSourceTypename"));
+        ll.setLabel_en(rs.getString("dataSourceTypename"));
         dst.setLabel(ll);
         ds.setDataSourceType(dst);
-        Label l = new Label();
-        l.setEngLabel(rs.getString("LABEL_EN"));
-        l.setFreLabel(rs.getString("LABEL_FR"));
-        l.setSpaLabel(rs.getString("LABEL_SP"));
-        l.setPorLabel(rs.getString("LABEL_PR"));
-        l.setLabelId(rs.getInt("LABEL_ID"));
-        
-        ds.setLabel(l);
+        ds.setLabel(new LabelRowMapper("LANG_").mapRow(rs, i));
         return ds;
     }
 

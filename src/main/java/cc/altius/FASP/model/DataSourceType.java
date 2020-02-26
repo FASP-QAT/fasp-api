@@ -10,16 +10,16 @@ package cc.altius.FASP.model;
  * @author palash
  */
 public class DataSourceType {
-    
+
     private int dataSourceTypeId;
     private Label label;
     private boolean active;
 
     public DataSourceType() {
-        
-        this.label=new Label();
+
+        this.label = new Label();
     }
-    
+
     public int getDataSourceTypeId() {
         return dataSourceTypeId;
     }

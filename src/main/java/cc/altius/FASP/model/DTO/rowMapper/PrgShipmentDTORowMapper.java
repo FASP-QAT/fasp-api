@@ -21,6 +21,7 @@ import cc.altius.FASP.model.DTO.PrgShipmentDTO;
 import cc.altius.FASP.model.DTO.PrgShipmentStatusDTO;
 import cc.altius.FASP.model.DTO.PrgSubFundingSourceDTO;
 import cc.altius.FASP.model.DTO.PrgUnitDTO;
+import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
 import cc.altius.FASP.model.UnitType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -67,7 +68,7 @@ public class PrgShipmentDTORowMapper implements RowMapper<PrgShipmentDTO> {
         shipmentHeightUnit.setLabel(shipmentHeightUnitLabel);
         shipmentHeightUnit.setUnitCode(rs.getString("HEIGHT_UNIT_CODE"));
         shipmentHeightUnit.setUnitId(rs.getInt("HEIGHT_UNIT_ID"));
-        UnitType shipmentHeightUnitType = new UnitType();
+        PrgUnitTypeDTO shipmentHeightUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO shipmentHeightUnitTypeLabel = new PrgLabelDTO();
         shipmentHeightUnitTypeLabel.setLabelEn(rs.getString("HEIGHT_UNIT_TYPE_NAME_EN"));
         shipmentHeightUnitTypeLabel.setLabelFr(rs.getString("HEIGHT_UNIT_TYPE_NAME_FR"));
@@ -94,7 +95,7 @@ public class PrgShipmentDTORowMapper implements RowMapper<PrgShipmentDTO> {
         shipmentLengthUnit.setLabel(shipmentLengthUnitLabel);
         shipmentLengthUnit.setUnitCode(rs.getString("LENGTH_UNIT_CODE"));
         shipmentLengthUnit.setUnitId(rs.getInt("LENGTH_UNIT_ID"));
-        UnitType shipmentLengthUnitType = new UnitType();
+        PrgUnitTypeDTO shipmentLengthUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO shipmentLengthUnitTypeLabel = new PrgLabelDTO();
         shipmentLengthUnitTypeLabel.setLabelEn(rs.getString("LENGTH_UNIT_TYPE_NAME_EN"));
         shipmentLengthUnitTypeLabel.setLabelFr(rs.getString("LENGTH_UNIT_TYPE_NAME_FR"));
@@ -134,7 +135,7 @@ public class PrgShipmentDTORowMapper implements RowMapper<PrgShipmentDTO> {
         shipmentPlanningUnitUnit.setUnitCode(rs.getString("PLANNING_UNIT_UNIT_CODE"));
         shipmentPlanningUnitUnit.setUnitId(rs.getInt("PLANNING_UNIT_UNIT_ID"));
 
-        UnitType shipmentPlanningUnitUnitType = new UnitType();
+        PrgUnitTypeDTO shipmentPlanningUnitUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO shipmentPlanningUnitUnitTypeLabel = new PrgLabelDTO();
         shipmentPlanningUnitUnitTypeLabel.setLabelEn(rs.getString("PLANNING_UNIT_UNIT_TYPE_NAME_EN"));
         shipmentPlanningUnitUnitTypeLabel.setLabelFr(rs.getString("PLANNING_UNIT_UNIT_TYPE_NAME_FR"));
@@ -157,7 +158,7 @@ public class PrgShipmentDTORowMapper implements RowMapper<PrgShipmentDTO> {
         shipmentLogisticsUnitUnit.setLabel(shipmentLogisticsUnitUnitLabel);
         shipmentLogisticsUnitUnit.setUnitCode(rs.getString("LOGISTICS_UNIT_UNIT_CODE"));
         shipmentLogisticsUnitUnit.setUnitId(rs.getInt("LOGISTICS_UNIT_UNIT_ID"));
-        UnitType shipmentLogisticsUnitUnitType = new UnitType();
+        PrgUnitTypeDTO shipmentLogisticsUnitUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO shipmentLogisticsUnitUnitTypeLabel = new PrgLabelDTO();
         shipmentLogisticsUnitUnitTypeLabel.setLabelEn(rs.getString("LOGISTICS_UNIT_UNIT_TYPE_NAME_EN"));
         shipmentLogisticsUnitUnitTypeLabel.setLabelFr(rs.getString("LOGISTICS_UNIT_UNIT_TYPE_NAME_FR"));
@@ -179,7 +180,7 @@ public class PrgShipmentDTORowMapper implements RowMapper<PrgShipmentDTO> {
         shipmentWeightUnit.setLabel(shipmentWeightUnitLabel);
         shipmentWeightUnit.setUnitCode(rs.getString("WEIGHT_UNIT_CODE"));
         shipmentWeightUnit.setUnitId(rs.getInt("WEIGHT_UNIT_ID"));
-        UnitType shipmentWeightUnitType = new UnitType();
+        PrgUnitTypeDTO shipmentWeightUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO shipmentWeightUnitTypeLabel = new PrgLabelDTO();
         shipmentWeightUnitTypeLabel.setLabelEn(rs.getString("WEIGHT_UNIT_TYPE_NAME_EN"));
         shipmentWeightUnitTypeLabel.setLabelFr(rs.getString("WEIGHT_UNIT_TYPE_NAME_FR"));
@@ -199,7 +200,7 @@ public class PrgShipmentDTORowMapper implements RowMapper<PrgShipmentDTO> {
         shipmentWidthUnit.setLabel(shipmentWidthUnitLabel);
         shipmentWidthUnit.setUnitCode(rs.getString("WIDTH_UNIT_CODE"));
         shipmentWidthUnit.setUnitId(rs.getInt("WIDTH_UNIT_ID"));
-        UnitType shipmentWidthUnitType = new UnitType();
+        PrgUnitTypeDTO shipmentWidthUnitType = new PrgUnitTypeDTO();
         PrgLabelDTO shipmentWidthUnitTypeLabel = new PrgLabelDTO();
         shipmentWidthUnitTypeLabel.setLabelEn(rs.getString("WIDTH_UNIT_TYPE_NAME_EN"));
         shipmentWidthUnitTypeLabel.setLabelFr(rs.getString("WIDTH_UNIT_TYPE_NAME_FR"));

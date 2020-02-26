@@ -6,6 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.RealmCountry;
 import java.util.List;
 
 /**
@@ -15,4 +16,8 @@ import java.util.List;
 public interface RealmService {
 
     public List<Realm> getRealmList(boolean active);
+
+    public List<RealmCountry> getRealmCountryList(boolean active);
+
+    public List<RealmCountry> getRealmCountryListByRealmId(int realmId);
 }

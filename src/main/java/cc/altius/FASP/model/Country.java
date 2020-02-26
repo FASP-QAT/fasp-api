@@ -11,13 +11,15 @@ import java.io.Serializable;
  *
  * @author altius
  */
-public class Country implements Serializable {
+public class Country extends BaseModel implements Serializable {
 
     private int countryId;
     private Label label;
     private Currency currency;
     private Language language;
-    private boolean active;
+
+//    private boolean active;
+
 
     public Label getLabel() {
         return label;
@@ -43,13 +45,14 @@ public class Country implements Serializable {
         this.language = language;
     }
 
-    public boolean isActive() {
-        return active;
-    }
 
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+//    public boolean isActive() {
+//        return active;
+//    }
+//
+//    public void setActive(boolean active) {
+//        this.active = active;
+//    }
 
     public int getCountryId() {
         return countryId;
@@ -61,11 +64,7 @@ public class Country implements Serializable {
 
     @Override
     public String toString() {
-        return "Country{" + "countryId=" + countryId + ", label=" + label + ", currency=" + currency + ", language=" + language + ", active=" + active + '}';
+        return "Country{" + "countryId=" + countryId + ", label=" + label + ", currency=" + currency + ", language=" + language + '}';
     }
-
-   
-
-    
 
 }

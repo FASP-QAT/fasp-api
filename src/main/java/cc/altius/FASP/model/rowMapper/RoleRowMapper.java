@@ -32,13 +32,7 @@ public class RoleRowMapper implements ResultSetExtractor<List<Role>> {
             role = new Role();
             role.setRoleId(rs.getString("ROLE_ID"));
             if (roleList.indexOf(role) == -1) {
-                Label l = new Label();
-                l.setLabelId(rs.getInt("LABEL_ID"));
-                l.setEngLabel(rs.getString("LABEL_EN"));
-                l.setSpaLabel(rs.getString("LABEL_SP"));
-                l.setFreLabel(rs.getString("LABEL_FR"));
-                l.setPorLabel(rs.getString("LABEL_PR"));
-                role.setLabel(l);
+                role.setLabel(new Label(rs.getInt("LABEL_ID"), rs.getString("LABEL_EN"), rs.getString("LABEL_SP"), rs.getString("LABEL_FR"), rs.getString("LABEL_PR")));
                 roleList.add(role);
             }
             role = roleList.get(roleList.indexOf(role));

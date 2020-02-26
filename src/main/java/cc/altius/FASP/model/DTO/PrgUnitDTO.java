@@ -15,7 +15,7 @@ import java.io.Serializable;
 public class PrgUnitDTO implements Serializable {
 
     private int unitId;
-    private UnitType unitType;
+    private PrgUnitTypeDTO unitType;
     private PrgLabelDTO label;
     private String unitCode;
     private boolean active;
@@ -28,11 +28,11 @@ public class PrgUnitDTO implements Serializable {
         this.active = active;
     }
 
-    public UnitType getUnitType() {
+    public PrgUnitTypeDTO getUnitType() {
         return unitType;
     }
 
-    public void setUnitType(UnitType unitType) {
+    public void setUnitType(PrgUnitTypeDTO unitType) {
         this.unitType = unitType;
     }
 

@@ -15,11 +15,11 @@ import java.util.List;
  */
 public interface RegionService {
 
-    public int addRegion(Region region);
+    public int addRegion(Region region, int curUser);
 
-    public int editRegion(Region region);
+    public int editRegion(Region region, int curUser);
 
-    public int getRegionList(boolean active);
-    
     public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate);
+
+    public List<Region> getRegionList(boolean active);
 }
