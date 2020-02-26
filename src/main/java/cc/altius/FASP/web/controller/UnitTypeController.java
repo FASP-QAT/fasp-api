@@ -5,18 +5,19 @@
  */
 package cc.altius.FASP.web.controller;
 
-import cc.altius.FASP.model.DataSource;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseFormat;
-import cc.altius.FASP.service.DataSourceService;
+import cc.altius.FASP.model.UnitType;
+import cc.altius.FASP.service.UnitTypeService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -31,22 +32,64 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:4202")
-public class DataSourceController {
+public class UnitTypeController {
 
     @Autowired
-    private DataSourceService dataSourceService;
+    private UnitTypeService unitTypeService;
 
-    @PutMapping(value = "/addDataSource")
-    public ResponseEntity addDataSource(@RequestBody(required = true) String json) {
-        //System.out.println("json---->" + json);
+    @PutMapping(value = "/addUnitType")
+    public ResponseEntity addUnitType(@RequestBody(required = true) String json, Authentication authentication) {
+
+        CustomUserDetails cd = (CustomUserDetails) authentication.getPrincipal();
         Gson g = new Gson();
-        DataSource dataSource = g.fromJson(json, DataSource.class);
+        UnitType ut = g.fromJson(json, UnitType.class);
         ResponseFormat responseFormat = new ResponseFormat();
         try {
+            int unitTypeId = this.unitTypeService.addUnitType(ut, cd.getUserId());
+            if (unitTypeId > 0) {
+                responseFormat.setStatus("Success");
+                responseFormat.setMessage("Unit type added successfully.");
+                return new ResponseEntity(responseFormat, HttpStatus.OK);
+            } else {
+                responseFormat.setStatus("failed");
+                responseFormat.setMessage("Error accured");
+                return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (Exception e) {
+            // e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("Exception Occured :" + e.getClass());
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
-            int row = this.dataSourceService.addDataSource(dataSource);
-            if (row > 0) {
-                responseFormat.setMessage("Data Source Added successfully");
+    @GetMapping(value = "/unitTypeList")
+    public String getUnitTypeList() throws UnsupportedEncodingException {
+        String json;
+        try {
+            List<UnitType> unitTypeList = this.unitTypeService.getUnitTypeList(false);
+            Gson gson = new Gson();
+            Type typeList = new TypeToken<List>() {
+            }.getType();
+            json = gson.toJson(unitTypeList, typeList);
+            return json;
+        } catch (Exception e) {
+            //e.printStackTrace();
+            return "";
+        }
+
+    }
+
+    @PutMapping(value = "/editUnitType")
+    public ResponseEntity editUnitType(@RequestBody(required = true) String json, Authentication authentication) {
+        ResponseFormat responseFormat = new ResponseFormat();
+        Gson g = new Gson();
+        UnitType unitType = g.fromJson(json, UnitType.class);
+        CustomUserDetails cd = (CustomUserDetails) authentication.getPrincipal();
+        try {
+            int updateRow = this.unitTypeService.updateUnitType(unitType, cd.getUserId());
+            if (updateRow > 0) {
+                responseFormat.setMessage("UnitType Updated successfully");
                 responseFormat.setStatus("Success");
                 return new ResponseEntity(responseFormat, HttpStatus.OK);
             } else {
@@ -55,58 +98,13 @@ public class DataSourceController {
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
 
             }
-
-        } catch (DuplicateKeyException e) {
-            responseFormat.setStatus("failed");
-            responseFormat.setMessage("DataSource already exists");
-            return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
-            responseFormat.setStatus("failed");
-            responseFormat.setMessage("Exception Occured :" + e.getClass());
-            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-    }
-
-    @GetMapping(value = "/getDataSourceList")
-    public String getDataSourceList() throws UnsupportedEncodingException {
-        String json;
-        List<DataSource> dataSourceList = this.dataSourceService.getDataSourceList(false);
-        System.out.println("dataSourceList---->"+dataSourceList);
-        Gson gson = new Gson();
-        Type typeList = new TypeToken<List>() {
-        }.getType();
-        json = gson.toJson(dataSourceList, typeList);
-        return json;
-    }
-
-    @PutMapping(value = "/editDataSource")
-    public ResponseEntity editDataSource(@RequestBody(required = true) String json) {
-        //System.out.println("----->" + json);
-        Gson g = new Gson();
-        DataSource dataSource = g.fromJson(json, DataSource.class);
-        ResponseFormat responseFormat = new ResponseFormat();
-        try {
-            int updateRow = this.dataSourceService.updateDataSource(dataSource);
-            if (updateRow > 0) {
-                responseFormat.setStatus("Success");
-                responseFormat.setMessage("Data Source Updated successfully");
-                return new ResponseEntity(responseFormat, HttpStatus.OK);
-            } else {
-                responseFormat.setStatus("Failed");
-                responseFormat.setMessage("Updated failed");
-                return new ResponseEntity(responseFormat, HttpStatus.OK);
-            }
-        }catch (DuplicateKeyException e) {
-            responseFormat.setStatus("failed");
-            responseFormat.setMessage("DataSource already exists");
-            return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
-        } catch (Exception e) {
-            responseFormat.setStatus("failed");
+            responseFormat.setStatus("Update failed");
             responseFormat.setMessage("Exception Occured :" + e.getClass());
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
 
         }
+
     }
 
 }

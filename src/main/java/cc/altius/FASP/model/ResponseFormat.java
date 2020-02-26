@@ -11,9 +11,28 @@ package cc.altius.FASP.model;
  */
 public class ResponseFormat {
 
-    private String status;
-    private String message;
-    private String data;
+    private String status; // Success or Failed
+    private String message; // Error or Complete message to show on React side
+    private Object data; // Actual payload if you are returning some data
+
+    public ResponseFormat() {
+    }
+
+    public ResponseFormat(String status, String message) {
+        this.status = status;
+        this.message = message;
+    }
+
+    public ResponseFormat(String message) {
+        this.message = message;
+        this.status = "Success";
+    }
+
+    public ResponseFormat(String status, String message, Object data) {
+        this.status = status;
+        this.message = message;
+        this.data = data;
+    }
 
     public String getStatus() {
         return status;
@@ -31,11 +50,11 @@ public class ResponseFormat {
         this.message = message;
     }
 
-    public String getData() {
+    public Object getData() {
         return data;
     }
 
-    public void setData(String data) {
+    public void setData(Object data) {
         this.data = data;
     }
 

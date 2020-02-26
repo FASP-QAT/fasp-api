@@ -5,31 +5,31 @@
  */
 package cc.altius.FASP.service.impl;
 
-import cc.altius.FASP.dao.StateDao;
-import cc.altius.FASP.model.State;
-import cc.altius.FASP.service.StateService;
+import cc.altius.FASP.dao.LabelsDao;
+import cc.altius.FASP.model.Label;
+import cc.altius.FASP.service.LabelsService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
  *
- * @author altius
+ * @author palash
  */
 @Service
-public class StateServiceImpl implements StateService {
+public class LabelsServiceImpl implements LabelsService {
 
     @Autowired
-    StateDao stateDao;
+    private LabelsDao labelsDao;
 
     @Override
-    public List<State> getStateList(int countryId) {
-        return this.stateDao.getStateList(countryId);
+    public List<Label> getLabelsListAll() {
+        return this.labelsDao.getLabelsListAll();
     }
 
     @Override
-    public List<State> getAllStateList() {
-        return this.stateDao.getAllStateList();
+    public int updateLabels(Label label,int userId) {
+        return this.labelsDao.updateLabels(label,userId);
     }
 
 }

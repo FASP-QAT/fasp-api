@@ -171,6 +171,7 @@ public class PrgProgramDataDTORowMapper implements RowMapper<PrgProgramDataDTO> 
         programData.setRealmCountry(realmCountry);
         programData.setSeaFreightPerc(rs.getDouble("SEA_FREIGHT_PERC"));
         programData.setSubmittedToApprovedLeadTime(rs.getInt("SUBMITTED_TO_APPROVED_LEAD_TIME"));
+        programData.setProgramVersion(rs.getInt("PROGRAM_VERSION"));
         return programData;
     }
 }

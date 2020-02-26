@@ -3,19 +3,16 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.service;
+package cc.altius.FASP.dao;
 
-import cc.altius.FASP.model.State;
+import cc.altius.FASP.model.Label;
 import java.util.List;
 
 /**
  *
- * @author altius
+ * @author palash
  */
-public interface StateService {
-
-    public List<State> getStateList(int countryId);
-
-    public List<State> getAllStateList();
-
+public interface LabelsDao {
+    public List<Label> getLabelsListAll();
+    public int updateLabels(Label label,int userId);
 }

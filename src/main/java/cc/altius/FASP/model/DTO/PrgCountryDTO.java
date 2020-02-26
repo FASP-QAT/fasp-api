@@ -17,6 +17,15 @@ public class PrgCountryDTO implements Serializable {
     private PrgLabelDTO label;
     private PrgCurrencyDTO currency;
     private PrgLanguageDTO language;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public PrgLabelDTO getLabel() {
         return label;

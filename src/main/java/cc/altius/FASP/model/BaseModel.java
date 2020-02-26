@@ -63,7 +63,7 @@ public class BaseModel implements Serializable {
     public void setBaseModel(BaseModel b) {
         this.active = b.isActive();
         this.createdBy = b.getCreatedBy();
-        this.createdDate = b.createdDate;
+        this.createdDate = b.getCreatedDate();
         this.lastModifiedBy = b.getLastModifiedBy();
         this.lastModifiedDate = b.getLastModifiedDate();
     }

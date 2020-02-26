@@ -11,7 +11,7 @@ import java.util.Objects;
  *
  * @author altius
  */
-public class Label {
+public class Label extends BaseModel{
 
     private Integer labelId;
     private String label_en;
@@ -103,4 +103,8 @@ public class Label {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "Label{" + "labelId=" + labelId + ", label_en=" + label_en + '}';
+    }
 }

@@ -6,6 +6,7 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.Country;
+import cc.altius.FASP.model.DTO.PrgCountryDTO;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.CountryService;
 import com.google.gson.Gson;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -59,7 +61,6 @@ public class CountryController {
 
     @PutMapping(value = "/addCountry")
     public ResponseEntity addCountry(@RequestBody(required = true) String json) {
-        //System.out.println("json---->" + json);
         Gson g = new Gson();
         Country c = g.fromJson(json, Country.class);
         try {
@@ -86,17 +87,14 @@ public class CountryController {
 
     @PutMapping(value = "/editCountry")
     public ResponseEntity editDataSource(@RequestBody(required = true) String json) {
-        System.out.println("----->" + json);
         Gson g = new Gson();
         Country country = g.fromJson(json, Country.class);
-        
-        System.out.println("country0------>"+country);
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             int updateRow = this.countryService.updateCountry(country);
             if (updateRow > 0) {
                 responseFormat.setStatus("Success");
-                responseFormat.setMessage("Data Source Updated successfully");
+                responseFormat.setMessage("Country Details Updated successfully");
                 return new ResponseEntity(responseFormat, HttpStatus.OK);
             } else {
                 responseFormat.setStatus("Failed");
@@ -111,5 +109,17 @@ public class CountryController {
 
         }
     }
+    
+    @GetMapping(value = "/getCountryListForSync")
+    public String getCountryListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+        String json;
+        List<PrgCountryDTO> countryList = this.countryService.getCountryListForSync(lastSyncDate);
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(countryList, typeList);
+        return json;
+    }
+
 
 }

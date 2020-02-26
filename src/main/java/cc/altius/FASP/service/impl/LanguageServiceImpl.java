@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.LanguageDao;
+import cc.altius.FASP.model.DTO.PrgLanguageDTO;
 import cc.altius.FASP.model.Language;
 import cc.altius.FASP.service.LanguageService;
 import java.util.List;
@@ -35,6 +36,11 @@ public class LanguageServiceImpl implements LanguageService {
     @Override
     public int editLanguage(Language language) {
         return this.languageDao.editLanguage(language);
+    }
+
+    @Override
+    public List<PrgLanguageDTO> getLanguageListForSync(String lastSyncDate) {
+        return this.languageDao.getLanguageListForSync(lastSyncDate);
     }
 
 }

@@ -5,10 +5,11 @@
  */
 package cc.altius.FASP.dao.impl;
 
+
+
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.RegionDao;
 import cc.altius.FASP.model.Region;
-import cc.altius.FASP.model.rowMapper.RealmCountryRowMapper;
 import cc.altius.FASP.model.rowMapper.RegionRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+
 /**
  *
  * @author altius
@@ -31,6 +33,21 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class RegionDaoImpl implements RegionDao {
 
+
+//    @Override
+//    public int addRegion(Region region) {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
+//
+//    @Override
+//    public int editRegion(Region region) {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
+//
+//    @Override
+//    public int getRegionList(boolean active) {
+//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+//    }
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private JdbcTemplate jdbcTemplate;
     private DataSource dataSource;
@@ -111,6 +128,7 @@ public class RegionDaoImpl implements RegionDao {
                 + "LEFT JOIN ap_label lr ON lr.`LABEL_ID`=r.`LABEL_ID` "
                 + "LEFT JOIN us_user lastModifiedBy ON lastModifiedBy.`USER_ID`=rg.`LAST_MODIFIED_BY`;";
         return this.jdbcTemplate.query(sql, new RegionRowMapper());
+
     }
 
 }

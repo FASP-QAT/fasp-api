@@ -18,6 +18,9 @@ public class Country extends BaseModel implements Serializable {
     private Currency currency;
     private Language language;
 
+//    private boolean active;
+
+
     public Label getLabel() {
         return label;
     }
@@ -41,6 +44,15 @@ public class Country extends BaseModel implements Serializable {
     public void setLanguage(Language language) {
         this.language = language;
     }
+
+
+//    public boolean isActive() {
+//        return active;
+//    }
+//
+//    public void setActive(boolean active) {
+//        this.active = active;
+//    }
 
     public int getCountryId() {
         return countryId;
