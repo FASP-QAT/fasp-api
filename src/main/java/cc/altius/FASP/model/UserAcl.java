@@ -159,4 +159,9 @@ public class UserAcl implements Serializable {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "UserAcl{" + "userId=" + userId + ", realmCountryId=" + realmCountryId + ", countryName=" + countryName + ", healthAreaId=" + healthAreaId + ", healthAreaName=" + healthAreaName + ", organisationId=" + organisationId + ", organisationName=" + organisationName + ", programId=" + programId + ", programName=" + programName + '}';
+    }
+
 }

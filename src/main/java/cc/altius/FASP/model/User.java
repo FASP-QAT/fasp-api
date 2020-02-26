@@ -23,11 +23,11 @@ public class User extends BaseModel implements Serializable {
     private String phoneNumber;
     private Realm realm;
     private List<Role> roles;
+    private String[] roleList;
     private Language language;
     private int faildAttempts;
     private Date lastLoginDate;
     private List<UserAcl> userAclList;
-    private String[] roleList;
 
     public String[] getRoleList() {
         return roleList;
@@ -135,7 +135,7 @@ public class User extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "User{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", emailId=" + emailId + ", phoneNumber=" + phoneNumber + ", realm=" + realm + ", roles=" + roles + ", language=" + language + ", active=" + super.isActive() + ", faildAttempts=" + faildAttempts + ", lastLoginDate=" + lastLoginDate + '}';
+        return "User{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", emailId=" + emailId + ", phoneNumber=" + phoneNumber + ", realm=" + realm + ", roles=" + roles + ", roleList=" + roleList + ", language=" + language + ", faildAttempts=" + faildAttempts + ", lastLoginDate=" + lastLoginDate + ", userAclList=" + userAclList + '}';
     }
 
 }

@@ -14,6 +14,7 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -36,7 +37,7 @@ public class DataSourceController {
     private DataSourceService dataSourceService;
 
     @PutMapping(value = "/addDataSource")
-    public ResponseEntity addDataSourceType(@RequestBody(required = true) String json) {
+    public ResponseEntity addDataSource(@RequestBody(required = true) String json) {
         //System.out.println("json---->" + json);
         Gson g = new Gson();
         DataSource dataSource = g.fromJson(json, DataSource.class);
@@ -55,6 +56,10 @@ public class DataSourceController {
 
             }
 
+        } catch (DuplicateKeyException e) {
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("DataSource already exists");
+            return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Exception Occured :" + e.getClass());
@@ -64,9 +69,10 @@ public class DataSourceController {
     }
 
     @GetMapping(value = "/getDataSourceList")
-    public String getDataSourceTypeList() throws UnsupportedEncodingException {
+    public String getDataSourceList() throws UnsupportedEncodingException {
         String json;
         List<DataSource> dataSourceList = this.dataSourceService.getDataSourceList(false);
+        System.out.println("dataSourceList---->"+dataSourceList);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();
@@ -91,6 +97,10 @@ public class DataSourceController {
                 responseFormat.setMessage("Updated failed");
                 return new ResponseEntity(responseFormat, HttpStatus.OK);
             }
+        }catch (DuplicateKeyException e) {
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("DataSource already exists");
+            return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Exception Occured :" + e.getClass());

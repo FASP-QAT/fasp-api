@@ -3,12 +3,15 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.model.DTO;
+package cc.altius.FASP.dao;
+
+import cc.altius.FASP.model.Label;
 
 /**
  *
  * @author altius
  */
-public class DataSourceDTO {
-    
+public interface LabelDao {
+
+    public int addLabel(Label label, int curUser);
 }

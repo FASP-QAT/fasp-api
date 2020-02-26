@@ -114,6 +114,7 @@ public class UserController {
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             Gson g = new Gson();
+            System.out.println("json---" + json);
             User user = g.fromJson(json, User.class);
             CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
             System.out.println(curUser);
@@ -160,6 +161,17 @@ public class UserController {
         String json = null;
         try {
             List<User> userList = this.userService.getUserList();
+            for (User user : userList) {
+                String[] roleId = new String[user.getRoles().size()];
+                int i = 0;
+                for (Role b : user.getRoles()) {
+                    roleId[i] = b.getRoleId();
+                    i++;
+                }
+                user.setRoleList(roleId);
+                i = 0;
+            }
+
             Gson gson = new Gson();
             Type typeList = new TypeToken<List>() {
             }.getType();
@@ -315,27 +327,33 @@ public class UserController {
         try {
             CustomUserDetails customUser = this.userService.getCustomUserByUsername(username);
             if (customUser != null) {
-                String pass = PassPhrase.getPassword();
-                PasswordEncoder encoder = new BCryptPasswordEncoder();
-                String hashPass = encoder.encode(pass);
-                int row = this.userService.updatePassword(customUser.getUserId(), hashPass, -1);
-                if (row > 0) {
+                if (customUser.isActive()) {
+                    String pass = PassPhrase.getPassword();
+                    PasswordEncoder encoder = new BCryptPasswordEncoder();
+                    String hashPass = encoder.encode(pass);
+                    int row = this.userService.updatePassword(customUser.getUserId(), hashPass, -1);
+                    if (row > 0) {
 
-                    EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(1);
-                    String[] subjectParam = new String[]{};
-                    String[] bodyParam = new String[]{pass};
-                    Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), customUser.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
-                    int emailerId = this.emailService.saveEmail(emailer);
-                    emailer.setEmailerId(emailerId);
-                    this.emailService.sendMail(emailer);
+                        EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(1);
+                        String[] subjectParam = new String[]{};
+                        String[] bodyParam = new String[]{pass};
+                        Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), customUser.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
+                        int emailerId = this.emailService.saveEmail(emailer);
+                        emailer.setEmailerId(emailerId);
+                        this.emailService.sendMail(emailer);
 
-                    responseFormat.setStatus("Success");
-                    responseFormat.setMessage("New password sent on your registered email id.");
-                    return new ResponseEntity(responseFormat, HttpStatus.OK);
+                        responseFormat.setStatus("Success");
+                        responseFormat.setMessage("New password sent on your registered email id.");
+                        return new ResponseEntity(responseFormat, HttpStatus.OK);
+                    } else {
+                        responseFormat.setStatus("failed");
+                        responseFormat.setMessage("Exception Occured. Please try again");
+                        return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
                 } else {
                     responseFormat.setStatus("failed");
-                    responseFormat.setMessage("Exception Occured. Please try again");
-                    return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                    responseFormat.setMessage("User is disabled.");
+                    return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
                 }
             } else {
                 responseFormat.setStatus("failed");

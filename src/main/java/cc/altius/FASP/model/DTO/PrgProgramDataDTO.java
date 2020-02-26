@@ -37,6 +37,15 @@ public class PrgProgramDataDTO implements Serializable {
     private List<PrgProgramProductDTO> programProductList;
     private List<PrgRegionDTO> regionList;
     private List<PrgBudgetDTO> budgetData;
+    private int programVersion;
+
+    public int getProgramVersion() {
+        return programVersion;
+    }
+
+    public void setProgramVersion(int programVersion) {
+        this.programVersion = programVersion;
+    }
 
     public List<PrgBudgetDTO> getBudgetData() {
         return budgetData;

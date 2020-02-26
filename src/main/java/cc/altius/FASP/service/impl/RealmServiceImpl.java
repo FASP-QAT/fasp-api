@@ -7,6 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.service.RealmService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,16 @@ public class RealmServiceImpl implements RealmService {
     @Override
     public List<Realm> getRealmList(boolean active) {
         return this.realmDao.getRealmList(active);
+    }
+
+    @Override
+    public List<RealmCountry> getRealmCountryList(boolean active) {
+        return this.realmDao.getRealmCountryList(active);
+    }
+
+    @Override
+    public List<RealmCountry> getRealmCountryListByRealmId(int realmId) {
+        return this.realmDao.getRealmCountryListByRealmId(realmId);
     }
 
 }

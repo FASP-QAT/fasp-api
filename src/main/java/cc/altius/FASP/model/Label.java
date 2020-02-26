@@ -11,7 +11,7 @@ import java.util.Objects;
  *
  * @author altius
  */
-public class Label {
+public class Label extends BaseModel{
 
     private Integer labelId;
     private String label_en;

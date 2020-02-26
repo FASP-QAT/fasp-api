@@ -49,6 +49,6 @@ public class DataSourceType {
         return "DataSourceType{" + "dataSourceTypeId=" + dataSourceTypeId + ", label=" + label + ", active=" + active + '}';
     }
 
-   
-    
+ 
+
 }

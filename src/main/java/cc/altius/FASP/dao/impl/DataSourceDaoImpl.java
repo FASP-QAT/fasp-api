@@ -47,10 +47,17 @@ public class DataSourceDaoImpl implements DataSourceDao {
 
         SimpleJdbcInsert labelInsert = new SimpleJdbcInsert(dataSource).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
         Map<String, Object> params = new HashMap<>();
+
+//        params.put("LABEL_EN", dataSourceObj.getLabel().getEngLabel());
+//        params.put("LABEL_FR", dataSourceObj.getLabel().getFreLabel());
+//        params.put("LABEL_SP", dataSourceObj.getLabel().getSpaLabel());//alreday scanned
+//        params.put("LABEL_PR", dataSourceObj.getLabel().getPorLabel());
+
         params.put("LABEL_EN", dataSourceObj.getLabel().getLabel_en());
-        params.put("LABEL_FR", dataSourceObj.getLabel().getLabel_fr());
-        params.put("LABEL_SP", dataSourceObj.getLabel().getLabel_sp());//alreday scanned
-        params.put("LABEL_PR", dataSourceObj.getLabel().getLabel_pr());
+//        params.put("LABEL_FR", dataSourceObj.getLabel().getLabel_fr());
+//        params.put("LABEL_SP", dataSourceObj.getLabel().getLabel_sp());//alreday scanned
+//        params.put("LABEL_PR", dataSourceObj.getLabel().getLabel_pr());
+
         params.put("CREATED_BY", 1);
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", 1);
@@ -75,10 +82,12 @@ public class DataSourceDaoImpl implements DataSourceDao {
     public List<DataSource> getDataSourceList(boolean active) {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT ds.`LABEL_ID`,ds.`ACTIVE`,ds.`DATA_SOURCE_TYPE_ID`,ds.`DATA_SOURCE_ID`,\n"
-                + "al.`LABEL_EN`,al.`LABEL_FR`,al.`LABEL_PR`,al.`LABEL_SP` \n"
+        sb.append("SELECT ds.`LABEL_ID` `LANG_LABEL_ID`,ds.`ACTIVE`,ds.`DATA_SOURCE_TYPE_ID`,ds.`DATA_SOURCE_ID`,\n"
+                + "al.`LABEL_EN` `LANG_LABEL_EN`,al.`LABEL_FR` `LANG_LABEL_FR`,al.`LABEL_PR` `LANG_LABEL_PR`,al.`LABEL_SP` `LANG_LABEL_SP`,l.`LABEL_EN` AS dataSourceTypeName \n"
                 + "FROM ap_data_source ds  \n"
-                + "LEFT JOIN  ap_label al ON al.`LABEL_ID`=ds.`LABEL_ID`");
+                + "LEFT JOIN  ap_label al ON al.`LABEL_ID`=ds.`LABEL_ID` \n"
+                + "LEFT JOIN  ap_data_source_type dt ON dt.`DATA_SOURCE_TYPE_ID`=ds.`DATA_SOURCE_TYPE_ID` \n"
+                + "LEFT JOIN  ap_label l ON l.`LABEL_ID`=dt.`LABEL_ID`");
         if (active) {
             sb.append(" WHERE dt.`ACTIVE` ");
         }
@@ -90,13 +99,18 @@ public class DataSourceDaoImpl implements DataSourceDao {
     public int updateDataSource(DataSource dataSource) {
         Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
 
-        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=? , al.`LABEL_FR`=?,"
-                + "al.`LABEL_PR`=?,al.`LABEL_SP`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
-        this.jdbcTemplate.update(sqlOne, dataSource.getLabel().getLabel_en(), dataSource.getLabel().getLabel_fr(),
-                dataSource.getLabel().getLabel_pr(), dataSource.getLabel().getLabel_sp(), 1, curDt, dataSource.getLabel().getLabelId());
+        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
+        this.jdbcTemplate.update(sqlOne, dataSource.getLabel().getLabel_en(), 1, curDt, dataSource.getLabel().getLabelId());
+
+
+//        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=? , al.`LABEL_FR`=?,"
+//                + "al.`LABEL_PR`=?,al.`LABEL_SP`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
+//        this.jdbcTemplate.update(sqlOne, dataSource.getLabel().getLabel_en(), dataSource.getLabel().getLabel_fr(),
+//                dataSource.getLabel().getLabel_pr(), dataSource.getLabel().getLabel_sp(), 1, curDt, dataSource.getLabel().getLabelId());
+
 
         String sqlTwo = "UPDATE ap_data_source dt SET  dt.`DATA_SOURCE_TYPE_ID`=?,dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
                 + " WHERE dt.`DATA_SOURCE_ID`=?;";
-        return this.jdbcTemplate.update(sqlTwo, dataSource.getDataSourceType().getDataSourceTypeId(),dataSource.isActive(), 1, curDt, dataSource.getDataSourceId());
+        return this.jdbcTemplate.update(sqlTwo, dataSource.getDataSourceType().getDataSourceTypeId(), dataSource.isActive(), 1, curDt, dataSource.getDataSourceId());
     }
 }

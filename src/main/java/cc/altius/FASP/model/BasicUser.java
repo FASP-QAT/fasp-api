@@ -21,6 +21,10 @@ public class BasicUser implements Serializable {
         this.username = username;
     }
 
+    public BasicUser(String username) {
+        this.username = username;
+    }
+
     public BasicUser() {
     }
 
