@@ -35,7 +35,7 @@ public class PrgLogisticsUnitDTORowMapper implements RowMapper<PrgLogisticsUnitD
         lu.setLabel(label);
         lu.setLengthQty(rs.getDouble("LENGTH_QTY"));
         PrgUnitDTO lengthUnit=new PrgUnitDTO();
-        lengthUnit.setUnitId(rs.getInt("LENGTH_UNIT_ID_ID"));
+        lengthUnit.setUnitId(rs.getInt("LENGTH_UNIT_ID"));
         lu.setLengthUnit(lengthUnit);
         lu.setLogisticsUnitId(rs.getInt("LOGISTICS_UNIT_ID"));
         PrgManufacturerDTO manufacturer=new PrgManufacturerDTO();
@@ -44,8 +44,8 @@ public class PrgLogisticsUnitDTORowMapper implements RowMapper<PrgLogisticsUnitD
         PrgPlanningUnitDTO planningUnit=new PrgPlanningUnitDTO();
         planningUnit.setPlanningUnitId(rs.getInt("PLANNING_UNIT_ID"));
         lu.setPlanningUnit(planningUnit);
-        lu.setQtyInEuro1(rs.getDouble("QTY_IN_EURO_1"));
-        lu.setQtyInEuro2(rs.getDouble("QTY_IN_EURO_2"));
+        lu.setQtyInEuro1(rs.getDouble("QTY_IN_EURO1"));
+        lu.setQtyInEuro2(rs.getDouble("QTY_IN_EURO2"));
         lu.setQtyOfPlanningUnits(rs.getDouble("QTY_OF_PLANNING_UNITS"));
         PrgUnitDTO unit=new PrgUnitDTO();
         unit.setUnitId(rs.getInt("UNIT_ID"));
