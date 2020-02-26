@@ -45,7 +45,7 @@ public class UserObjectTest {
         Type type = new TypeToken<User>() {}.getType();
         String json = gson.toJson(user, type);
         System.out.println(json);
-        
-        
+
+
     }
 }

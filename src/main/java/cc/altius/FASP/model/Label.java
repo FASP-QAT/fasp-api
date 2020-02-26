@@ -103,4 +103,8 @@ public class Label {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "Label{" + "labelId=" + labelId + ", label_en=" + label_en + '}';
+    }
 }

@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -26,6 +27,23 @@ public class User extends BaseModel implements Serializable {
     private int faildAttempts;
     private Date lastLoginDate;
     private List<UserAcl> userAclList;
+    private String[] roleList;
+
+    public String[] getRoleList() {
+        return roleList;
+    }
+
+    public void setRoleList(String[] roleList) {
+        this.roleList = roleList;
+        for (String r : roleList) {
+            this.getRoles().add(new Role(r));
+        }
+    }
+
+    public User() {
+        this.roles = new LinkedList<>();
+        this.userAclList = new LinkedList<>();
+    }
 
     public int getUserId() {
         return userId;
@@ -114,7 +132,7 @@ public class User extends BaseModel implements Serializable {
     public void setUserAclList(List<UserAcl> userAclList) {
         this.userAclList = userAclList;
     }
-    
+
     @Override
     public String toString() {
         return "User{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", emailId=" + emailId + ", phoneNumber=" + phoneNumber + ", realm=" + realm + ", roles=" + roles + ", language=" + language + ", active=" + super.isActive() + ", faildAttempts=" + faildAttempts + ", lastLoginDate=" + lastLoginDate + '}';
