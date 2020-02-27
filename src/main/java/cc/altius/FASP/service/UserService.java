@@ -59,4 +59,6 @@ public interface UserService {
     
     public void updateTriggeredDateForForgotPasswordToken(String username, String token);
     
+    public void updateCompletionDateForForgotPasswordToken(String username, String token);
+    
 }

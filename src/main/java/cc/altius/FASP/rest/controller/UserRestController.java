@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
 import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.ResponseFormat;
@@ -12,6 +13,7 @@ import cc.altius.FASP.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -51,6 +53,7 @@ public class UserRestController {
                 this.userService.updateTriggeredDateForForgotPasswordToken(user.getUsername(), user.getToken());
                 return new ResponseFormat("Success", "");
             } else {
+                this.userService.updateCompletionDateForForgotPasswordToken(user.getUsername(), user.getToken());
                 return new ResponseFormat("Failed", fpt.inValidReasonForTriggering());
             }
         } catch (Exception e) {
@@ -65,8 +68,14 @@ public class UserRestController {
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getUsername(), user.getToken());
             if (fpt.isValidForCompletion()) {
                 // Go ahead and reset the password
-                this.userService.updatePassword(user.getUsername(), user.getToken(), user.getHashPassword(), 90);
-                return new ResponseFormat("Success", "");
+                CustomUserDetails curUser = this.userService.getCustomUserByUsername(user.getUsername());
+                BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
+                if (bcrypt.matches(user.getPassword(), curUser.getPassword())) {
+                    return new ResponseFormat("Failed", "New password is same as current password.");
+                } else {
+                    this.userService.updatePassword(user.getUsername(), user.getToken(), user.getHashPassword(), 90);
+                    return new ResponseFormat("Success", "");
+                }
             } else {
                 return new ResponseFormat("Failed", fpt.inValidReasonForCompletion());
             }
