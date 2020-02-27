@@ -56,7 +56,7 @@ public class Realm implements Serializable {
 
     @Override
     public String toString() {
-        return "Realm{" + "realmId=" + realmId + ", realmCode=" + realmCode + '}';
+        return "Realm{" + "realmId=" + realmId + ", label=" + label + ", realmCode=" + realmCode + '}';
     }
 
 }

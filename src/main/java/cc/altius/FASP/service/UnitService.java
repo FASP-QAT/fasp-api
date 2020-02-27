@@ -5,17 +5,20 @@
  */
 package cc.altius.FASP.service;
 
-import cc.altius.FASP.model.State;
+import cc.altius.FASP.model.Unit;
 import java.util.List;
 
 /**
  *
- * @author altius
+ * @author akil
  */
-public interface StateService {
+public interface UnitService {
 
-    public List<State> getStateList(int countryId);
+    public int addUnit(Unit u, int curUser);
 
-    public List<State> getAllStateList();
+    public int updateUnit(Unit u, int CurUser);
 
+    public List<Unit> getUnitList();
+
+    public Unit getUnitById(int unitId);
 }

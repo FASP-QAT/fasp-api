@@ -9,9 +9,22 @@ package cc.altius.FASP.model;
  *
  * @author palash
  */
-public class UnitType extends BaseModel{
+public class UnitType {
+
     private int unitTypeId;
     private Label label;
+
+    public UnitType() {
+    }
+
+    public UnitType(int unitTypeId) {
+        this.unitTypeId = unitTypeId;
+    }
+
+    public UnitType(int unitTypeId, Label label) {
+        this.unitTypeId = unitTypeId;
+        this.label = label;
+    }
 
     public int getUnitTypeId() {
         return unitTypeId;
@@ -33,6 +46,5 @@ public class UnitType extends BaseModel{
     public String toString() {
         return "UnitType{" + "unitTypeId=" + unitTypeId + ", label=" + label + '}';
     }
-    
-    
+
 }

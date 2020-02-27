@@ -105,8 +105,6 @@ public class Label extends BaseModel{
 
     @Override
     public String toString() {
-        return "Label{" + "labelId=" + labelId + ", label_en=" + label_en + ", label_sp=" + label_sp + ", label_fr=" + label_fr + ", label_pr=" + label_pr + '}';
+        return "Label{" + "labelId=" + labelId + ", label_en=" + label_en + '}';
     }
-    
-
 }

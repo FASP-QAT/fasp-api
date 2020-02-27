@@ -5,15 +5,19 @@
  */
 package cc.altius.FASP.dao.impl;
 
+import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.Label;
+import cc.altius.FASP.model.EmailUser;
+import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.rowMapper.BusinessFunctionRowMapper;
 import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.EmailUserRowMapper;
+import cc.altius.FASP.model.rowMapper.ForgotPasswordTokenRowMapper;
 import cc.altius.FASP.model.rowMapper.RoleRowMapper;
 import cc.altius.FASP.model.rowMapper.UserListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserResultSetExtractor;
@@ -51,6 +55,9 @@ public class UserDaoImpl implements UserDao {
     private JdbcTemplate jdbcTemplate;
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+
+    @Autowired
+    private LabelDao labelDao;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -479,7 +486,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int updatePassword(String username, String newPassword, int offset) {
+    public int updatePassword(String username, String token, String newPassword, int offset) {
         Date offsetDate = DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, offset);
         System.out.println("offsetDate---" + offsetDate);
         String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn, FAILED_ATTEMPTS=0 WHERE us_user.USERNAME=:username";
@@ -515,11 +522,7 @@ public class UserDaoImpl implements UserDao {
         for (int i = 0; i < splited.length; i++) {
             roleId = roleId + "_" + splited[i].toUpperCase();
         }
-        try {
-            labelId = this.addLabel(role.getLabel());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        labelId = this.labelDao.addLabel(role.getLabel(), 1);
         System.out.println("label id ---" + labelId);
         System.out.println("role id after---" + roleId);
         params.put("ROLE_ID", roleId);
@@ -623,23 +626,29 @@ public class UserDaoImpl implements UserDao {
         return 1;
     }
 
-    /*
-    @
-     */
-//    @Override
-    private int addLabel(Label label) {
-        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
-        SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
-        Map<String, Object> params = new HashMap<>();
-        params.put("LABEL_EN", label.getLabel_en());
-        params.put("LABEL_FR", label.getLabel_fr());
-        params.put("LABEL_SP", label.getLabel_sp());
-        params.put("LABEL_PR", label.getLabel_pr());
-        params.put("CREATED_BY", 1);
-        params.put("CREATED_DATE", curDate);
-        params.put("LAST_MODIFIED_BY", 1);
-        params.put("LAST_MODIFIED_DATE", curDate);
-        return si.executeAndReturnKey(params).intValue();
+    @Override
+    public String generateTokenForUserId(int userId) {
+        return this.jdbcTemplate.queryForObject("CALL generateForgotPasswordToken(?,?)", String.class, userId, DateUtils.getCurrentDateObject(DateUtils.EST));
+    }
+
+    @Override
+    public EmailUser getEmailUserByUsername(String username) {
+        return this.jdbcTemplate.queryForObject("SELECT USERNAME, USER_ID, EMAIL_ID FROM us_user WHERE USERNAME=?", new EmailUserRowMapper(), username);
+    }
+
+    @Override
+    public ForgotPasswordToken getForgotPasswordToken(String username, String token) {
+        return this.jdbcTemplate.queryForObject("SELECT fpt.*, u.USERNAME FROM us_forgot_password_token fpt LEFT JOIN us_user u on fpt.USER_ID=u.USER_ID WHERE fpt.token=? and u.USERNAME=?", new ForgotPasswordTokenRowMapper(), token, username);
+    }
+
+    @Override
+    public void updateTriggeredDateForForgotPasswordToken(String username, String token) {
+        this.jdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_TRIGGERED_DATE=? WHERE u.USERNAME=? AND fpt.TOKEN=?", DateUtils.getCurrentDateObject(DateUtils.EST), username, token);
+    }
+
+    @Override
+    public void updateCompletionDateForForgotPasswordToken(String username, String token) {
+        this.jdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_COMPLETION_DATE=? WHERE u.USERNAME=? AND fpt.TOKEN=?", DateUtils.getCurrentDateObject(DateUtils.EST), username, token);
     }
 
 }

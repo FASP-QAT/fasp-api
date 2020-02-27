@@ -83,26 +83,21 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity webSecurity) throws Exception {
         webSecurity
                 .ignoring()
-                .antMatchers(
-                        HttpMethod.POST,
-                        authenticationPath
-                )
-                .antMatchers(
-                        HttpMethod.GET,
-                        refreshPath
-                )
+                .antMatchers(HttpMethod.POST,authenticationPath)
+                .antMatchers(HttpMethod.GET,refreshPath)
                 .antMatchers(HttpMethod.OPTIONS, "/**")
                 .and()
                 .ignoring()
-                .antMatchers(
-                        HttpMethod.GET,
-                        "/" //Other Stuff You want to Ignore
-                ).and().ignoring().antMatchers("/actuator/**")
+                .antMatchers(HttpMethod.GET,"/")
+                //Other Stuff You want to Ignore
+                .and().ignoring().antMatchers("/actuator/**")
                 .and().ignoring().antMatchers("/actuator**")
                 .and().ignoring().antMatchers("/browser**")
                 .and().ignoring().antMatchers("/browser/**")
-//                .and().ignoring().antMatchers("/refresh")
-                .and().ignoring().antMatchers("/api/forgotPassword/**")
+                .and().ignoring().antMatchers("/api/user/getForgotPasswordToken/**")
+                .and().ignoring().antMatchers("/api/user/confirmForgotPasswordToken/**")
+                .and().ignoring().antMatchers("/api/user/updatePassword/**")
+                
                 .and().ignoring().antMatchers("/api/updateExpiredPassword/**");
     }
 }
