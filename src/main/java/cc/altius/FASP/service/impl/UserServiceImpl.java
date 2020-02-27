@@ -8,8 +8,13 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.EmailTemplate;
+import cc.altius.FASP.model.EmailUser;
+import cc.altius.FASP.model.Emailer;
+import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
+import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +29,13 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl implements UserService {
 
     @Autowired
-    UserDao userDao;
+    private UserDao userDao;
+    @Autowired
+    private EmailService emailService;
+//    @Value("${urlHost}")
+    private static String HOST_URL = "http://localhost/FASP";
+//    @Value("${urlPasswordReset}")
+    private static String PASSWORD_RESET_URL = "resetPassword.htm";
 
     @Override
     public CustomUserDetails getCustomUserByUsername(String username) {
@@ -92,8 +103,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int updatePassword(String username, String newPassword, int offset) {
-        return this.userDao.updatePassword(username, newPassword, offset);
+    public int updatePassword(String username, String token, String newPassword, int offset) {
+        int r = this.userDao.updatePassword(username, token, newPassword, offset);
+        this.userDao.updateCompletionDateForForgotPasswordToken(username, token);
+        return r;
     }
 
     @Override
@@ -109,6 +122,35 @@ public class UserServiceImpl implements UserService {
     @Override
     public int updateRole(Role role) {
         return this.userDao.updateRole(role);
+    }
+
+    @Override
+    public String generateTokenForUsername(String username) {
+        EmailUser user = this.userDao.getEmailUserByUsername(username);
+        if (user == null) {
+            return null;
+        }
+        String token = this.userDao.generateTokenForUserId(user.getUserId());
+        if (token != null && !token.isEmpty()) {
+            EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(1);
+            String[] subjectParam = new String[]{};
+            String[] bodyParam = new String[]{HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
+            Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
+            int emailerId = this.emailService.saveEmail(emailer);
+            emailer.setEmailerId(emailerId);
+            this.emailService.sendMail(emailer);
+        }
+        return token;
+    }
+
+    @Override
+    public ForgotPasswordToken getForgotPasswordToken(String username, String token) {
+        return this.userDao.getForgotPasswordToken(username, token);
+    }
+
+    @Override
+    public void updateTriggeredDateForForgotPasswordToken(String username, String token) {
+        this.userDao.updateTriggeredDateForForgotPasswordToken(username, token);
     }
 
 }
