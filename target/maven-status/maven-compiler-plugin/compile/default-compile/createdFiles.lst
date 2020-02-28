@@ -26,7 +26,6 @@ cc/altius/FASP/model/DTO/PrgBudgetDTO.class
 cc/altius/FASP/web/controller/RegionController.class
 cc/altius/FASP/web/controller/LoginController.class
 cc/altius/FASP/dao/ManufacturerDao.class
-cc/altius/FASP/dao/impl/StateDaoImpl.class
 cc/altius/FASP/service/SubFundingSourceService.class
 cc/altius/FASP/utils/LogUtils.class
 cc/altius/FASP/model/City.class
@@ -57,7 +56,6 @@ cc/altius/FASP/model/DTO/rowMapper/PrgRegionDTORowMapper.class
 cc/altius/FASP/model/rowMapper/EmailerRowMapper.class
 cc/altius/FASP/jwt/JwtUnAuthorizedResponseAuthenticationEntryPoint.class
 cc/altius/FASP/web/controller/CurrencyController.class
-cc/altius/FASP/dao/StateDao.class
 cc/altius/FASP/dao/impl/ShipmentStatusDaoImp.class
 cc/altius/FASP/web/controller/CountryController$1.class
 cc/altius/FASP/service/impl/ProgramServiceImpl.class
@@ -67,6 +65,7 @@ cc/altius/FASP/model/DTO/rowMapper/PrgUnitDTORowMapper.class
 cc/altius/FASP/web/controller/ProgramController$1.class
 cc/altius/FASP/jwt/JwtTokenUtil.class
 cc/altius/FASP/service/impl/UnitTypeServiceImpl.class
+cc/altius/FASP/rest/controller/HealthAreaRestController.class
 cc/altius/FASP/web/controller/ShipmentStatusController$3.class
 cc/altius/FASP/model/DTO/PrgCurrencyDTO.class
 cc/altius/FASP/service/RealmService.class
@@ -159,6 +158,7 @@ cc/altius/FASP/service/impl/EmailServiceImpl.class
 cc/altius/FASP/service/ProductService.class
 cc/altius/FASP/web/controller/UnitTypeController.class
 cc/altius/FASP/web/controller/RegionController$2.class
+cc/altius/FASP/model/rowMapper/HealthAreaRowMapper.class
 cc/altius/FASP/model/rowMapper/RegistrationRowMapper.class
 cc/altius/FASP/model/DTO/PrgDataSourceTypeDTO.class
 cc/altius/FASP/model/DTO/PrgRealmDTO.class
@@ -183,7 +183,6 @@ cc/altius/FASP/service/ProgramService.class
 cc/altius/FASP/model/DTO/PrgProductCategoryDTO.class
 cc/altius/FASP/service/impl/LogisticsUnitServiceImpl.class
 cc/altius/FASP/web/controller/LanguageController$3.class
-cc/altius/FASP/service/impl/StateServiceImpl.class
 cc/altius/FASP/model/DTO/rowMapper/PrgShipmentStatusDTORowMapper.class
 cc/altius/FASP/jwt/resource/JwtTokenRequest.class
 cc/altius/FASP/web/controller/UserController$1.class
@@ -199,6 +198,7 @@ cc/altius/FASP/service/ShipmentStatusService.class
 cc/altius/FASP/dao/impl/ProgramDaoImpl.class
 cc/altius/FASP/service/DataSourceTypeService.class
 cc/altius/FASP/model/DTO/PrgShipmentStatusDTO.class
+cc/altius/FASP/model/HealthArea.class
 cc/altius/FASP/web/controller/OrganisationController.class
 cc/altius/FASP/model/rowMapper/RegionRowMapper.class
 cc/altius/FASP/model/DTO/PrgProcurementAgentLogisiticsUnitDTO.class
@@ -247,7 +247,6 @@ cc/altius/FASP/model/rowMapper/RoleRowMapper.class
 cc/altius/FASP/web/controller/LanguageController$1.class
 cc/altius/FASP/web/controller/LanguageController.class
 cc/altius/FASP/model/rowMapper/LanguageRowMapper.class
-cc/altius/FASP/web/controller/StateController$1.class
 cc/altius/FASP/web/controller/UserController$2.class
 cc/altius/FASP/dao/HealthAreaDao.class
 cc/altius/FASP/dao/impl/RegistrationDaoImpl.class
@@ -269,11 +268,9 @@ cc/altius/FASP/model/DTO/PrgShipmentStatusAllowedDTO.class
 cc/altius/FASP/service/ManufacturerService.class
 cc/altius/FASP/model/DTO/PrgManufacturerDTO.class
 cc/altius/FASP/model/DTO/PrgRegionDTO.class
-cc/altius/FASP/web/controller/StateController$2.class
 cc/altius/FASP/model/rowMapper/CustomUserDetailsResultSetExtractor.class
 cc/altius/FASP/model/DTO/PrgProductDTO.class
 cc/altius/FASP/web/controller/UserController$3.class
-cc/altius/FASP/service/StateService.class
 cc/altius/FASP/model/DTO/PrgInventoryDTO.class
 cc/altius/FASP/web/controller/ShipmentStatusController.class
 cc/altius/FASP/dao/impl/LabelsDaoImpl.class
@@ -297,7 +294,6 @@ cc/altius/FASP/model/rowMapper/RealmRowMapper.class
 cc/altius/FASP/dao/LabelDao.class
 cc/altius/FASP/web/controller/RegistrationController.class
 cc/altius/FASP/dao/impl/LogisticsUnitDaoImpl.class
-cc/altius/FASP/web/controller/StateController.class
 cc/altius/FASP/model/DTO/rowMapper/PrgUnitTypeDTORowMapper.class
 cc/altius/FASP/web/controller/UnitController$1.class
 cc/altius/FASP/web/controller/LanguageController$2.class
