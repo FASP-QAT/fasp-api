@@ -5,7 +5,9 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  *
@@ -14,16 +16,19 @@ import java.io.Serializable;
 public class Organisation extends BaseModel implements Serializable {
 
     private int organisationId;
-    private OrganisationCountry organisationCountry;
+    private String code;
     private Realm realm;
     private Label label;
+    @JsonIgnore
+    List<RealmCountry> realmCountryList;
+    int[] realmCountryArray;
 
     public Organisation() {
     }
 
-    public Organisation(int organisationId, OrganisationCountry organisationCountry, Realm realm, Label label) {
+    public Organisation(int organisationId, String code, Realm realm, Label label) {
         this.organisationId = organisationId;
-        this.organisationCountry = organisationCountry;
+        this.code = code;
         this.realm = realm;
         this.label = label;
     }
@@ -34,14 +39,6 @@ public class Organisation extends BaseModel implements Serializable {
 
     public void setOrganisationId(int organisationId) {
         this.organisationId = organisationId;
-    }
-
-    public OrganisationCountry getOrganisationCountry() {
-        return organisationCountry;
-    }
-
-    public void setOrganisationCountry(OrganisationCountry organisationCountry) {
-        this.organisationCountry = organisationCountry;
     }
 
     public Realm getRealm() {
@@ -58,6 +55,30 @@ public class Organisation extends BaseModel implements Serializable {
 
     public void setLabel(Label label) {
         this.label = label;
+    }
+
+    public List<RealmCountry> getRealmCountryList() {
+        return realmCountryList;
+    }
+
+    public void setRealmCountryList(List<RealmCountry> realmCountryList) {
+        this.realmCountryList = realmCountryList;
+    }
+
+    public int[] getRealmCountryArray() {
+        return realmCountryArray;
+    }
+
+    public void setRealmCountryArray(int[] realmCountryArray) {
+        this.realmCountryArray = realmCountryArray;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 
     @Override
@@ -87,7 +108,7 @@ public class Organisation extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "Organisation{" + "organisationId=" + organisationId + ", organisationCountry=" + organisationCountry + ", realm=" + realm + ", label=" + label + '}';
+        return "Organisation{" + "organisationId=" + organisationId + ", code=" + code + ", realm=" + realm + ", label=" + label + ", realmCountryList=" + realmCountryList + ", realmCountryArray=" + realmCountryArray + '}';
     }
 
 }
