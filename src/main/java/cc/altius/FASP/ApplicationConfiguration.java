@@ -5,15 +5,10 @@
  */
 package cc.altius.FASP;
 
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-
 /**
  *
  * @author altius
  */
-@Configuration
-@ComponentScan(basePackages = {"cc.altius.FASP"})
 public class ApplicationConfiguration {
-    
+
 }

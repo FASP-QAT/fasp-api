@@ -5,18 +5,22 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.util.Objects;
 
 /**
  *
  * @author altius
  */
-public class Label extends BaseModel{
+public class Label extends BaseModel {
 
     private Integer labelId;
     private String label_en;
+    @JsonIgnore
     private String label_sp;
+    @JsonIgnore
     private String label_fr;
+    @JsonIgnore
     private String label_pr;
 
     public Label(Integer labelId, String label_en, String label_sp, String label_fr, String label_pr) {
@@ -74,6 +78,7 @@ public class Label extends BaseModel{
         this.label_pr = label_pr;
     }
 
+    @JsonIgnore
     public String getLabel() {
         return this.label_en;
     }

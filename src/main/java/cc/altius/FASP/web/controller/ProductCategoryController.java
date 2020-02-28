@@ -25,8 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4202")
-public class productCategoryController {
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
+public class ProductCategoryController {
 
     @Autowired
     ProductCategoryService productCategoryService;
