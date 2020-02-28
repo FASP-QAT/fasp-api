@@ -5,7 +5,9 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  *
@@ -16,6 +18,9 @@ public class HealthArea extends BaseModel implements Serializable {
     private int healthAreaId;
     private Realm realm;
     private Label label;
+    @JsonIgnore
+    List<RealmCountry> realmCountryList;
+    int[] realmCountryArray;
 
     public HealthArea() {
     }
@@ -50,6 +55,22 @@ public class HealthArea extends BaseModel implements Serializable {
         this.label = label;
     }
 
+    public List<RealmCountry> getRealmCountryList() {
+        return realmCountryList;
+    }
+
+    public void setRealmCountryList(List<RealmCountry> realmCountryList) {
+        this.realmCountryList = realmCountryList;
+    }
+
+    public int[] getRealmCountryArray() {
+        return realmCountryArray;
+    }
+
+    public void setRealmCountryArray(int[] realmCountryArray) {
+        this.realmCountryArray = realmCountryArray;
+    }
+
     @Override
     public int hashCode() {
         int hash = 7;
@@ -79,7 +100,5 @@ public class HealthArea extends BaseModel implements Serializable {
     public String toString() {
         return "HealthArea{" + "healthAreaId=" + healthAreaId + ", realm=" + realm + ", label=" + label + '}';
     }
-
-    
 
 }
