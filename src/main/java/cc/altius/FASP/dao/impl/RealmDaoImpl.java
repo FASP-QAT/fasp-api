@@ -10,6 +10,7 @@ import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.rowMapper.RealmCountryRowMapper;
 import cc.altius.FASP.model.rowMapper.RealmRowMapper;
+import cc.altius.FASP.rest.controller.RealmRestController;
 import java.util.List;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -86,6 +87,21 @@ public class RealmDaoImpl implements RealmDao {
                 + "LEFT JOIN ap_label lr ON lr.`LABEL_ID`=r.`LABEL_ID` WHERE rc.`ACTIVE` AND rc.`REALM_ID`=? ";
 
         return this.jdbcTemplate.query(sql, new RealmCountryRowMapper(), realmId);
+    }
+
+    @Override
+    public int addRealm(Realm realm, int curUser) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int updateRealm(Realm realm, int curUser) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public Realm getRealmById(int realmId) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }

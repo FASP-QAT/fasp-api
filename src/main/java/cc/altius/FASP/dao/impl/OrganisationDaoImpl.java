@@ -53,6 +53,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
         params.put("REALM_ID", o.getRealm().getRealmId());
         int labelId = this.labelDao.addLabel(o.getLabel(), curUser);
         params.put("LABEL_ID", labelId);
+        params.put("CODE", o.getCode());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser);
         params.put("CREATED_DATE", curDate);
@@ -85,11 +86,12 @@ public class OrganisationDaoImpl implements OrganisationDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("organisationId", o.getOrganisationId());
+        params.put("code", o.getCode());
         params.put("active", o.isActive());
         params.put("curUser", curUser);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(this.jdbcTemplate);
-        int rows = nm.update("UPDATE rm_organisation o SET o.ACTIVE=:active, o.LAST_MODIFIED_BY=:curUser, o.LAST_MODIFIED_DATE=:curDate WHERE o.ORGANISATION_ID=:organisationId", params);
+        int rows = nm.update("UPDATE rm_organisation o SET o.ACTIVE=:active,o.CODE=:code ,o.LAST_MODIFIED_BY=:curUser, o.LAST_MODIFIED_DATE=:curDate WHERE o.ORGANISATION_ID=:organisationId", params);
         this.jdbcTemplate.update("DELETE FROM rm_organisation_country WHERE ORGANISATION_ID=?", o.getOrganisationId());
         SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_organisation_country");
         SqlParameterSource[] paramList = new SqlParameterSource[o.getRealmCountryArray().length];
