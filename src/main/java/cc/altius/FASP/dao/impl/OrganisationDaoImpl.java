@@ -82,6 +82,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
     }
 
     @Override
+    @Transactional
     public int updateOrganisation(Organisation o, int curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
