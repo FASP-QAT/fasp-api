@@ -6,7 +6,6 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.OrganisationService;
