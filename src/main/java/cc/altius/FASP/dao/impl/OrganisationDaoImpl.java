@@ -114,6 +114,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
 
     @Override
     public List<Organisation> getOrganisationList() {
+
         String sqlString = " SELECT "
                 + " o.ORGANISATION_ID, o.CODE, ol.LABEL_ID, ol.LABEL_EN, ol.LABEL_FR, ol.LABEL_SP, ol.LABEL_PR, "
                 + " r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
