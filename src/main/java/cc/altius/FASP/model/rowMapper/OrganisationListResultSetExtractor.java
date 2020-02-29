@@ -42,7 +42,7 @@ public class OrganisationListResultSetExtractor implements ResultSetExtractor<Li
                     oList.add(o);
                 }
                 o = new Organisation();
-                o.setCode(rs.getString("CODE"));
+                o.setCode(rs.getString("ORGANISATION_CODE"));
                 o.setOrganisationId(rs.getInt("ORGANISATION_ID"));
                 o.setRealm(new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")));
                 o.setLabel(new LabelRowMapper().mapRow(rs, 1));

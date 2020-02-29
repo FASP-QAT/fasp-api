@@ -53,7 +53,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
         params.put("REALM_ID", o.getRealm().getRealmId());
         int labelId = this.labelDao.addLabel(o.getLabel(), curUser);
         params.put("LABEL_ID", labelId);
-        params.put("CODE", o.getCode());
+        params.put("ORGANISATION_CODE", o.getCode());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser);
         params.put("CREATED_DATE", curDate);
@@ -87,12 +87,12 @@ public class OrganisationDaoImpl implements OrganisationDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("organisationId", o.getOrganisationId());
-        params.put("code", o.getCode());
+        params.put("organisationCode", o.getCode());
         params.put("active", o.isActive());
         params.put("curUser", curUser);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(this.jdbcTemplate);
-        int rows = nm.update("UPDATE rm_organisation o SET o.ACTIVE=:active,o.CODE=:code ,o.LAST_MODIFIED_BY=:curUser, o.LAST_MODIFIED_DATE=:curDate WHERE o.ORGANISATION_ID=:organisationId", params);
+        int rows = nm.update("UPDATE rm_organisation o SET o.ACTIVE=:active,o.ORGANISATION_CODE=:organisationCode ,o.LAST_MODIFIED_BY=:curUser, o.LAST_MODIFIED_DATE=:curDate WHERE o.ORGANISATION_ID=:organisationId", params);
         this.jdbcTemplate.update("DELETE FROM rm_organisation_country WHERE ORGANISATION_ID=?", o.getOrganisationId());
         SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_organisation_country");
         SqlParameterSource[] paramList = new SqlParameterSource[o.getRealmCountryArray().length];
@@ -117,7 +117,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
     public List<Organisation> getOrganisationList() {
 
         String sqlString = " SELECT "
-                + " o.ORGANISATION_ID, o.CODE, ol.LABEL_ID, ol.LABEL_EN, ol.LABEL_FR, ol.LABEL_SP, ol.LABEL_PR, "
+                + " o.ORGANISATION_ID, o.ORGANISATION_CODE, ol.LABEL_ID, ol.LABEL_EN, ol.LABEL_FR, ol.LABEL_SP, ol.LABEL_PR, "
                 + " r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
                 + " o.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, o.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, o.LAST_MODIFIED_DATE, "
                 + " rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
@@ -138,7 +138,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
     public Organisation getOrganisationById(int organisationId) {
 
         String sqlString = " SELECT "
-                + " o.ORGANISATION_ID, o.CODE, ol.LABEL_ID, ol.LABEL_EN, ol.LABEL_FR, ol.LABEL_SP, ol.LABEL_PR, "
+                + " o.ORGANISATION_ID, o.ORGANISATION_CODE, ol.LABEL_ID, ol.LABEL_EN, ol.LABEL_FR, ol.LABEL_SP, ol.LABEL_PR, "
                 + " r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
                 + " o.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, o.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, o.LAST_MODIFIED_DATE, "
                 + " rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
