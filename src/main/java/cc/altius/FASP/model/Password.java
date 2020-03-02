@@ -11,9 +11,18 @@ package cc.altius.FASP.model;
  */
 public class Password {
 
+    private int userId;
     private String username;
     private String oldPassword;
     private String newPassword;
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 
     public String getUsername() {
         return username;
@@ -41,7 +50,7 @@ public class Password {
 
     @Override
     public String toString() {
-        return "Password{" + "username=" + username + ", oldPassword=" + oldPassword + ", newPassword=" + newPassword + '}';
+        return "Password{" + "userId=" + userId + ", oldPassword=" + oldPassword + ", newPassword=" + newPassword + '}';
     }
 
 }
