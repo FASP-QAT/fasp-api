@@ -132,17 +132,17 @@ public class UserController {
                 int userId = this.userService.addNewUser(user, curUser.getUserId());
                 if (userId > 0) {
 
-                    EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(2);
-                    String[] subjectParam = new String[]{};
-                    String[] bodyParam = new String[]{user.getUsername(), password};
-                    Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
-                    int emailerId = this.emailService.saveEmail(emailer);
-                    emailer.setEmailerId(emailerId);
-                    this.emailService.sendMail(emailer);
+                    String token = this.userService.generateTokenForUsername(user.getUsername(), 2);
+                    if (token == null || token.isEmpty()) {
+                        responseFormat.setStatus("failed");
+                        responseFormat.setMessage("Exception Occured. Please try again");
+                        return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                    } else {
+                        responseFormat.setStatus("Success");
+                        responseFormat.setMessage("User created successfully and credentials sent on email.");
+                        return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                    }
 
-                    responseFormat.setStatus("Success");
-                    responseFormat.setMessage("User created successfully and credentials sent on email.");
-                    return new ResponseEntity(responseFormat, HttpStatus.OK);
                 } else {
                     responseFormat.setStatus("failed");
                     responseFormat.setMessage("Exception Occured. Please try again");
@@ -334,7 +334,7 @@ public class UserController {
             CustomUserDetails customUser = this.userService.getCustomUserByUsername(username);
             if (customUser != null) {
                 if (customUser.isActive()) {
-                    String token = this.userService.generateTokenForUsername(username);
+                    String token = this.userService.generateTokenForUsername(username, 1);
                     if (token == null || token.isEmpty()) {
                         return new ResponseFormat("Failed", "Cound not generate Token");
                     } else {

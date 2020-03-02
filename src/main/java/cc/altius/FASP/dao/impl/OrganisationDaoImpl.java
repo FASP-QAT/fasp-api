@@ -5,6 +5,9 @@
  */
 package cc.altius.FASP.dao.impl;
 
+import cc.altius.FASP.dao.OrganisationDao;
+import cc.altius.FASP.model.DTO.PrgOrganisationDTO;
+import cc.altius.FASP.model.DTO.rowMapper.PrgOrganisationDTORowMapper;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.rowMapper.OrganisationListResultSetExtractor;
@@ -20,6 +23,8 @@ import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.stereotype.Repository;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -39,6 +44,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
     private JdbcTemplate jdbcTemplate;
 
     @Autowired
+
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
@@ -46,6 +52,21 @@ public class OrganisationDaoImpl implements OrganisationDao {
 
     @Autowired
     private LabelDao labelDao;
+
+    @Override
+    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate) {
+        String sql = "SELECT o.`ACTIVE`,o.`LABEL_ID`,o.`ORGANISATION_ID`,o.`REALM_ID`\n"
+                + ",l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
+                + "FROM rm_organisation o\n"
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=o.`LABEL_ID`";
+        Map<String, Object> params = new HashMap<>();
+        if (!lastSyncDate.equals("null")) {
+            sql += " WHERE o.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            params.put("lastSyncDate", lastSyncDate);
+        }
+        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
+        return nm.query(sql, params, new PrgOrganisationDTORowMapper());
+    }
 
     @Override
     @Transactional
@@ -119,59 +140,44 @@ public class OrganisationDaoImpl implements OrganisationDao {
     @Override
     public List<Organisation> getOrganisationList() {
         String sqlString = " SELECT "
-                + "                 o.ORGANISATION_ID, o.ORGANISATION_CODE, ol.LABEL_ID, ol.LABEL_EN, ol.LABEL_FR, ol.LABEL_SP, ol.LABEL_PR, "
-                + "                 r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
-                + "                 o.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, o.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, o.LAST_MODIFIED_DATE, "
-                + "                 rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
-                + "                 FROM rm_organisation o "
-                + "                 LEFT JOIN rm_realm r ON o.REALM_ID=r.REALM_ID "
-                + "                 LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
-                + "                 LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "                 LEFT JOIN us_user cb ON o.CREATED_BY=cb.USER_ID "
-                + "                 LEFT JOIN us_user lmb ON o.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "                 LEFT JOIN rm_organisation_country oc ON o.ORGANISATION_ID=oc.ORGANISATION_ID "
-                + "                 LEFT JOIN rm_realm_country rc ON oc.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "                 LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + "                 LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID; ";
+                + "  o.ORGANISATION_ID, o.ORGANISATION_CODE, ol.LABEL_ID, ol.LABEL_EN, ol.LABEL_FR, ol.LABEL_SP, ol.LABEL_PR, "
+                + "  r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
+                + "  o.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, o.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, o.LAST_MODIFIED_DATE, "
+                + "  rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
+                + "  FROM rm_organisation o "
+                + "  LEFT JOIN rm_realm r ON o.REALM_ID=r.REALM_ID "
+                + "  LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
+                + "  LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "  LEFT JOIN us_user cb ON o.CREATED_BY=cb.USER_ID "
+                + "  LEFT JOIN us_user lmb ON o.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "  LEFT JOIN rm_organisation_country oc ON o.ORGANISATION_ID=oc.ORGANISATION_ID "
+                + "  LEFT JOIN rm_realm_country rc ON oc.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "  LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + "  LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID; ";
+
         return this.jdbcTemplate.query(sqlString, new OrganisationListResultSetExtractor());
     }
 
     @Override
     public Organisation getOrganisationById(int organisationId) {
-
         String sqlString = " SELECT "
-                + "                 o.ORGANISATION_ID, o.ORGANISATION_CODE, ol.LABEL_ID, ol.LABEL_EN, ol.LABEL_FR, ol.LABEL_SP, ol.LABEL_PR, "
-                + "                 r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
-                + "                 o.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, o.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, o.LAST_MODIFIED_DATE, "
-                + "                 rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
-                + "                 FROM rm_organisation o "
-                + "                 LEFT JOIN rm_realm r ON o.REALM_ID=r.REALM_ID "
-                + "                 LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
-                + "                 LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "                 LEFT JOIN us_user cb ON o.CREATED_BY=cb.USER_ID "
-                + "                 LEFT JOIN us_user lmb ON o.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "                 LEFT JOIN rm_organisation_country oc ON o.ORGANISATION_ID=oc.ORGANISATION_ID "
-                + "                 LEFT JOIN rm_realm_country rc ON oc.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "                 LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + "                 LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-                + "                 WHERE o.ORGANISATION_ID=?; ";
+                + "  o.ORGANISATION_ID, o.ORGANISATION_CODE, ol.LABEL_ID, ol.LABEL_EN, ol.LABEL_FR, ol.LABEL_SP, ol.LABEL_PR, "
+                + "  r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
+                + "  o.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, o.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, o.LAST_MODIFIED_DATE, "
+                + "  rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
+                + "  FROM rm_organisation o "
+                + "  LEFT JOIN rm_realm r ON o.REALM_ID=r.REALM_ID "
+                + "  LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
+                + "  LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "  LEFT JOIN us_user cb ON o.CREATED_BY=cb.USER_ID "
+                + "  LEFT JOIN us_user lmb ON o.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "  LEFT JOIN rm_organisation_country oc ON o.ORGANISATION_ID=oc.ORGANISATION_ID "
+                + "  LEFT JOIN rm_realm_country rc ON oc.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "  LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + "  LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+                + "  WHERE o.ORGANISATION_ID=?; ";
 
         return this.jdbcTemplate.query(sqlString, new OrganisationResultSetExtractor(), organisationId);
-    }
-
-    @Override
-    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate) {
-        String sql = "SELECT o.`ACTIVE`,o.`LABEL_ID`,o.`ORGANISATION_ID`,o.`REALM_ID`\n"
-                + ",l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
-                + "FROM rm_organisation o\n"
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=o.`LABEL_ID`";
-        Map<String, Object> params = new HashMap<>();
-        if (!lastSyncDate.equals("null")) {
-            sql += " WHERE o.`LAST_MODIFIED_DATE`>:lastSyncDate;";
-            params.put("lastSyncDate", lastSyncDate);
-        }
-        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
-        return nm.query(sql, params, new PrgOrganisationDTORowMapper());
     }
 
 }

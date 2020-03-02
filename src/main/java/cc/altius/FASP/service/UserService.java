@@ -53,7 +53,7 @@ public interface UserService {
 
     public int updateRole(Role role);
 
-    public String generateTokenForUsername(String username);
+    public String generateTokenForUsername(String username,int emailTemplateId);
 
     public ForgotPasswordToken getForgotPasswordToken(String username, String token);
 

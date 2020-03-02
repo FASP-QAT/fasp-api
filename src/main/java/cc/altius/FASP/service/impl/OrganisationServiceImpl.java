@@ -6,8 +6,8 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.OrganisationDao;
-import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.DTO.PrgOrganisationDTO;
+import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.service.OrganisationService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +22,11 @@ public class OrganisationServiceImpl implements OrganisationService {
 
     @Autowired
     private OrganisationDao organisationDao;
+
+    @Override
+    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate) {
+        return this.organisationDao.getOrganisationListForSync(lastSyncDate);
+    }
 
     @Override
     public int addOrganisation(Organisation organisation, int curUser) {
@@ -42,10 +47,4 @@ public class OrganisationServiceImpl implements OrganisationService {
     public Organisation getOrganisationById(int organisationId) {
         return organisationDao.getOrganisationById(organisationId);
     }
-
-    @Override
-    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate) {
-        return this.organisationDao.getOrganisationListForSync(lastSyncDate);
-    }
-
 }
