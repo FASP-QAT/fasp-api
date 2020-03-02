@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.DTO;
 
+import cc.altius.FASP.model.UnitType;
 import java.io.Serializable;
 
 /**
@@ -17,6 +18,15 @@ public class PrgUnitDTO implements Serializable {
     private PrgUnitTypeDTO unitType;
     private PrgLabelDTO label;
     private String unitCode;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public PrgUnitTypeDTO getUnitType() {
         return unitType;

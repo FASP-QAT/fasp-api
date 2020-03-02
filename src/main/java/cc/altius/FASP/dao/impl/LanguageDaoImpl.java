@@ -86,7 +86,6 @@ public class LanguageDaoImpl implements LanguageDao {
         String sql = "SELECT l.`LANGUAGE_ID`,l.`LANGUAGE_NAME`,l.`ACTIVE` FROM ap_language l";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
-            System.out.println("in if");
             sql += " WHERE l.`LAST_MODIFIED_DATE`>:lastSyncDate;";
             params.put("lastSyncDate", lastSyncDate);
         }

@@ -64,4 +64,9 @@ public class RealmCountry {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "RealmCountry{" + "realmCountryId=" + realmCountryId + ", country=" + country + ", realm=" + realm + '}';
+    }
+
 }

@@ -44,7 +44,7 @@ public interface UserService {
     public List<BusinessFunction> getBusinessFunctionList();
 
     public int updatePassword(int userId, String newPassword, int offset);
-    
+
     public int updatePassword(String username, String token, String newPassword, int offset);
 
     public boolean confirmPassword(String username, String password);
@@ -52,13 +52,13 @@ public interface UserService {
     public int addRole(Role role);
 
     public int updateRole(Role role);
-    
+
     public String generateTokenForUsername(String username);
-    
+
     public ForgotPasswordToken getForgotPasswordToken(String username, String token);
-    
+
     public void updateTriggeredDateForForgotPasswordToken(String username, String token);
-    
+
     public void updateCompletionDateForForgotPasswordToken(String username, String token);
-    
+
 }

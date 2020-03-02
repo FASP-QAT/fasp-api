@@ -7,6 +7,8 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.HealthAreaDao;
 import cc.altius.FASP.dao.LabelDao;
+import cc.altius.FASP.model.DTO.PrgHealthAreaDTO;
+import cc.altius.FASP.model.DTO.rowMapper.PrgHealthAreaDTORowMapper;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.rowMapper.HealthAreaListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.HealthAreaResultSetExtractor;
@@ -27,7 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
- * @author akil
+ * @author altius
  */
 @Repository
 public class HealthAreaDaoImpl implements HealthAreaDao {
@@ -40,9 +42,23 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         this.dataSource = dataSource;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-
+    
     @Autowired
-    private LabelDao labelDao;
+    LabelDao labelDao;
+
+    @Override
+    public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate) {
+        String sql = "SELECT  ha.`ACTIVE`,ha.`HEALTH_AREA_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
+                + "FROM rm_health_area ha \n"
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=ha.`LABEL_ID`";
+        Map<String, Object> params = new HashMap<>();
+        if (!lastSyncDate.equals("null")) {
+            sql += " WHERE ha.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            params.put("lastSyncDate", lastSyncDate);
+        }
+        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
+        return nm.query(sql, params, new PrgHealthAreaDTORowMapper());
+    }
 
     @Override
     @Transactional
@@ -62,7 +78,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_health_area_country");
         SqlParameterSource[] paramList = new SqlParameterSource[h.getRealmCountryArray().length];
         int i = 0;
-        for (int realmCountryId : h.getRealmCountryArray()) {
+        for (String realmCountryId : h.getRealmCountryArray()) {
             params = new HashMap<>();
             params.put("HEALTH_AREA_ID", healthAreaId);
             params.put("REALM_COUNTRY_ID", realmCountryId);
@@ -93,7 +109,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_health_area_country");
         SqlParameterSource[] paramList = new SqlParameterSource[h.getRealmCountryArray().length];
         int i = 0;
-        for (int realmCountryId : h.getRealmCountryArray()) {
+        for (String realmCountryId : h.getRealmCountryArray()) {
             params = new HashMap<>();
             params.put("HEALTH_AREA_ID", h.getHealthAreaId());
             params.put("REALM_COUNTRY_ID", realmCountryId);

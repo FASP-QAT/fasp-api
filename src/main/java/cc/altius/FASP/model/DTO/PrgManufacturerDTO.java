@@ -5,9 +5,7 @@
  */
 package cc.altius.FASP.model.DTO;
 
-import cc.altius.FASP.model.DTO.PrgLabelDTO;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  *
@@ -17,6 +15,15 @@ public class PrgManufacturerDTO implements Serializable {
 
     private int manufacturerId;
     private PrgLabelDTO label;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public int getManufacturerId() {
         return manufacturerId;

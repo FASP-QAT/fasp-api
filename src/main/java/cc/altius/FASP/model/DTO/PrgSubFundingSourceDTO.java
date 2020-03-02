@@ -14,6 +14,15 @@ public class PrgSubFundingSourceDTO {
     private int subFundingSourceId;
     private PrgFundingSourceDTO fundingSource;
     private PrgLabelDTO label;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public int getSubFundingSourceId() {
         return subFundingSourceId;

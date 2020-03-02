@@ -35,3 +35,4 @@ public class UnitTypeRowMapper implements RowMapper<UnitType> {
     }
 
 }
+

@@ -5,28 +5,21 @@
  */
 package cc.altius.FASP.web.controller;
 
-import cc.altius.FASP.model.BusinessFunction;
-import cc.altius.FASP.model.CanCreateRole;
+import cc.altius.FASP.model.DTO.PrgRegionDTO;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.EmailTemplate;
-import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.ResponseFormat;
-import cc.altius.FASP.model.Role;
-import cc.altius.FASP.model.User;
 import cc.altius.FASP.service.RegionService;
-import cc.altius.utils.PassPhrase;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,11 +33,11 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:4202", "http://192.168.43.113:4202", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
+@CrossOrigin(origins = {"http://localhost:4202", "http://192.168.43.113:4202", "https://faspdeveloper.github.io","chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class RegionController {
 
     @Autowired
-    private RegionService regionService;
+    RegionService regionService;
 
     @PutMapping(value = "/addRegion")
     public ResponseEntity addRegion(@RequestBody(required = true) String json, Authentication authentication) throws UnsupportedEncodingException {
@@ -117,4 +110,16 @@ public class RegionController {
         }
         return json;
     }
+
+    @GetMapping(value = "/getRegionListForSync")
+    public String getRegionListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+        String json;
+        List<PrgRegionDTO> regionList = this.regionService.getRegionListForSync(lastSyncDate);
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(regionList, typeList);
+        return json;
+    }
+    
 }

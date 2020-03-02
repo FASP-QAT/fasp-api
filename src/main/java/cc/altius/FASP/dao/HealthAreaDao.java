@@ -5,17 +5,20 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.model.DTO.PrgHealthAreaDTO;
 import cc.altius.FASP.model.HealthArea;
 import java.util.List;
 
 /**
  *
- * @author akil
+ * @author altius
  */
 public interface HealthAreaDao {
 
+    public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate);
+
     public int addHealthArea(HealthArea h, int curUser);
-    
+
     public int updateHealthArea(HealthArea h, int CurUser);
 
     public List<HealthArea> getHealthAreaList();

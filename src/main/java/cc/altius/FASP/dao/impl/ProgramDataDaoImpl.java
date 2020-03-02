@@ -509,7 +509,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public List<PrgRegionDTO> getRegionListByProgramId(int programId) {
-        String sql = "SELECT rpr.`REGION_ID`,r.`CAPACITY_CBM`,ap_label.`LABEL_EN` AS REGION_NAME_EN\n"
+        String sql = "SELECT rpr.`REGION_ID`,r.`CAPACITY_CBM`,ap_label.`LABEL_EN` AS REGION_NAME_EN,r.`ACTIVE`\n"
                 + ",ap_label.`LABEL_FR` AS REGION_NAME_FR,ap_label.`LABEL_PR` AS REGION_NAME_PR,ap_label.`LABEL_SP` AS REGION_NAME_SP\n"
                 + "FROM rm_program_region rpr\n"
                 + "LEFT JOIN rm_region r ON r.`REGION_ID`=rpr.`REGION_ID`\n"

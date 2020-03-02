@@ -9,6 +9,8 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.RegionDao;
+import cc.altius.FASP.model.DTO.PrgRegionDTO;
+import cc.altius.FASP.model.DTO.rowMapper.PrgRegionDTORowMapper;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.rowMapper.RegionRowMapper;
 import cc.altius.utils.DateUtils;
@@ -33,21 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class RegionDaoImpl implements RegionDao {
 
-
-//    @Override
-//    public int addRegion(Region region) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
-//
-//    @Override
-//    public int editRegion(Region region) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
-//
-//    @Override
-//    public int getRegionList(boolean active) {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-//    }
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private JdbcTemplate jdbcTemplate;
     private DataSource dataSource;
@@ -129,6 +116,20 @@ public class RegionDaoImpl implements RegionDao {
                 + "LEFT JOIN us_user lastModifiedBy ON lastModifiedBy.`USER_ID`=rg.`LAST_MODIFIED_BY`;";
         return this.jdbcTemplate.query(sql, new RegionRowMapper());
 
+    }
+
+    @Override
+    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate) {
+        String sql = "SELECT r.`ACTIVE`,r.`CAPACITY_CBM`,r.`LABEL_ID`,r.`REGION_ID`,l.`LABEL_EN` AS `REGION_NAME_EN`,l.`LABEL_FR` AS `REGION_NAME_FR`,l.`LABEL_PR` AS `REGION_NAME_PR`,l.`LABEL_SP` AS `REGION_NAME_SP`\n"
+                + "FROM rm_region r\n"
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=r.`LABEL_ID`";
+        Map<String, Object> params = new HashMap<>();
+        if (!lastSyncDate.equals("null")) {
+            sql += " WHERE r.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            params.put("lastSyncDate", lastSyncDate);
+        }
+        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
+        return nm.query(sql, params, new PrgRegionDTORowMapper());
     }
 
 }

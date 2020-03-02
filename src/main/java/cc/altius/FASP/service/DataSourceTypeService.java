@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.DTO.PrgDataSourceTypeDTO;
+import cc.altius.FASP.model.DTO.PrgOrganisationDTO;
 import cc.altius.FASP.model.DataSourceType;
 import java.util.List;
 
@@ -19,4 +21,6 @@ public interface DataSourceTypeService {
     public List<DataSourceType> getDataSourceTypeList(boolean active);
     
     public int updateDataSourceType(DataSourceType dataSourceType);
+    
+    public List<PrgDataSourceTypeDTO> getDataSourceTypeListForSync(String lastSyncDate);
 }

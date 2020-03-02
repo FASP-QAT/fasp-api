@@ -6,6 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.Organisation;
+import cc.altius.FASP.model.DTO.PrgOrganisationDTO;
 import java.util.List;
 
 /**
@@ -21,5 +22,7 @@ public interface OrganisationService {
     public List<Organisation> getOrganisationList();
 
     public Organisation getOrganisationById(int organisationId);
-    
+
+    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate);
+
 }

@@ -6,6 +6,8 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
+import cc.altius.FASP.model.DTO.PrgUnitDTO;
+import cc.altius.FASP.model.DTO.rowMapper.PrgUnitDTORowMapper;
 import cc.altius.FASP.dao.UnitDao;
 import cc.altius.FASP.model.Unit;
 import cc.altius.FASP.model.rowMapper.UnitRowMapper;
@@ -24,7 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
- * @author akil
+ * @author altius
  */
 @Repository
 public class UnitDaoImpl implements UnitDao {
@@ -39,7 +41,22 @@ public class UnitDaoImpl implements UnitDao {
     }
 
     @Autowired
-    private LabelDao labelDao;
+    LabelDao labelDao;
+
+    @Override
+    public List<PrgUnitDTO> getUnitListForSync(String lastSyncDate) {
+        String sql = "SELECT u.`ACTIVE`,u.`LABEL_ID`,u.`UNIT_CODE`,u.`UNIT_ID`,u.`UNIT_TYPE_ID`,\n"
+                + "l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
+                + "FROM ap_unit u \n"
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=u.`LABEL_ID`";
+        Map<String, Object> params = new HashMap<>();
+        if (!lastSyncDate.equals("null")) {
+            sql += " WHERE u.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            params.put("lastSyncDate", lastSyncDate);
+        }
+        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
+        return nm.query(sql, params, new PrgUnitDTORowMapper());
+    }
 
     @Override
     @Transactional

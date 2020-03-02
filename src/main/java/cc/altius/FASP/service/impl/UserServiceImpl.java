@@ -33,9 +33,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private EmailService emailService;
 //    @Value("${urlHost}")
-    private static String HOST_URL = "http://localhost/FASP";
+    private static String HOST_URL = "http://localhost:4202";
 //    @Value("${urlPasswordReset}")
-    private static String PASSWORD_RESET_URL = "resetPassword.htm";
+    private static String PASSWORD_RESET_URL = "resetPassword";
 
     @Override
     public CustomUserDetails getCustomUserByUsername(String username) {
