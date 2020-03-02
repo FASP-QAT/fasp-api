@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.RegionDao;
+import cc.altius.FASP.model.DTO.PrgRegionDTO;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.service.RegionService;
 import java.util.List;
@@ -35,6 +36,11 @@ public class RegionServiceImpl implements RegionService {
     @Override
     public List<Region> getRegionList(boolean active) {
         return this.regionDao.getRegionList(active);
+    }
+
+    @Override
+    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate) {
+        return this.regionDao.getRegionListForSync(lastSyncDate);
     }
 
 }

@@ -153,4 +153,9 @@ public class UserServiceImpl implements UserService {
         this.userDao.updateTriggeredDateForForgotPasswordToken(username, token);
     }
 
+    @Override
+    public void updateCompletionDateForForgotPasswordToken(String username, String token) {
+        this.userDao.updateCompletionDateForForgotPasswordToken(username, token);
+    }
+
 }

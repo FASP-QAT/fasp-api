@@ -5,18 +5,22 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
 import cc.altius.FASP.model.UnitType;
 import java.util.List;
 
 /**
  *
- * @author palash
+ * @author altius
  */
-public interface UnityTypeDao {
-
+public interface UnitTypeDao {
+    
+    public List<PrgUnitTypeDTO> getUnitTypeListForSync();
+    
     public int addUnitType(UnitType unitType, int userId);
 
     public List<UnitType> getUnitTypeList(boolean active);
 
     public int updateUnitType(UnitType unitType, int userId);
+    
 }

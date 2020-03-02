@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:4202", "http://192.168.43.113:4202", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
+@CrossOrigin(origins = {"http://localhost:4202", "http://192.168.43.113:4202", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop","https://faspdeveloper.github.io"})
 
 
 public class JwtAuthenticationRestController {

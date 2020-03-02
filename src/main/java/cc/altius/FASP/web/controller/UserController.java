@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:4202", "http://192.168.43.113:4202", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class UserController {
 
     @Autowired

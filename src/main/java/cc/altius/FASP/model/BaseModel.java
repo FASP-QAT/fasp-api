@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -14,9 +15,13 @@ import java.util.Date;
  */
 public class BaseModel implements Serializable {
 
+    @JsonIgnore
     private BasicUser createdBy;
+    @JsonIgnore
     private Date createdDate;
+    @JsonIgnore
     private BasicUser lastModifiedBy;
+    @JsonIgnore
     private Date lastModifiedDate;
     private boolean active;
 

@@ -15,6 +15,15 @@ public class PrgShipmentStatusDTO implements Serializable {
 
     private int shipmentStatusId;
     private PrgLabelDTO label;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public int getShipmentStatusId() {
         return shipmentStatusId;

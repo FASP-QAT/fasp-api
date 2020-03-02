@@ -6,11 +6,15 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
-import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.rowMapper.OrganisationRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
+
+import cc.altius.FASP.dao.OrganisationDao;
+import cc.altius.FASP.model.DTO.PrgOrganisationDTO;
+import cc.altius.FASP.model.DTO.rowMapper.PrgOrganisationDTORowMapper;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,9 +22,11 @@ import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+import org.springframework.stereotype.Repository;
 
 /**
  *
@@ -99,6 +105,22 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 + "LEFT JOIN us_user lmb ON o.LAST_MODIFIED_BY=lmb.USER_ID "
                 + "WHERE o.ORGANISATION_ID=?";
         return this.jdbcTemplate.queryForObject(sqlString, new OrganisationRowMapper(), organisationId);
+    }
+
+    @Override
+    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate) {
+        String sql = "SELECT o.`ACTIVE`,o.`LABEL_ID`,o.`ORGANISATION_ID`,o.`REALM_ID`\n"
+                + ",l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
+                + "FROM rm_organisation o\n"
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=o.`LABEL_ID`";
+        Map<String, Object> params = new HashMap<>();
+        if (!lastSyncDate.equals("null")) {
+            sql += " WHERE o.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            params.put("lastSyncDate", lastSyncDate);
+        }
+        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
+        return nm.query(sql, params, new PrgOrganisationDTORowMapper());
+
     }
 
 }

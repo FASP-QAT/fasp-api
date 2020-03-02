@@ -6,6 +6,7 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.model.UnitType;
 import cc.altius.FASP.service.UnitTypeService;
@@ -31,11 +32,11 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4202")
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
 public class UnitTypeController {
 
     @Autowired
-    private UnitTypeService unitTypeService;
+    UnitTypeService unitTypeService;
 
     @PutMapping(value = "/addUnitType")
     public ResponseEntity addUnitType(@RequestBody(required = true) String json, Authentication authentication) {
@@ -105,6 +106,17 @@ public class UnitTypeController {
 
         }
 
+    }
+
+    @GetMapping(value = "/getUnitTypeListForSync")
+    public String getUnitTypeListForSync() throws UnsupportedEncodingException {
+        String json;
+        List<PrgUnitTypeDTO> unitTypeList = this.unitTypeService.getUnitTypeListForSync();
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(unitTypeList, typeList);
+        return json;
     }
 
 }

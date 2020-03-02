@@ -31,6 +31,9 @@ public class HealthAreaRestController {
     @PostMapping(path = "/api/healthArea")
     public ResponseFormat postHealthArea(@RequestBody HealthArea heatlhArea, Authentication auth) {
         try {
+            for (int a : heatlhArea.getRealmCountryArray()) {
+                System.out.println(a);
+            }
             int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
             int healthAreaId = this.healthAreaService.addHealthArea(heatlhArea, curUser);
             return new ResponseFormat("Successfully added HealthArea with Id " + healthAreaId);

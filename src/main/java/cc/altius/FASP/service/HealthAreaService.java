@@ -5,14 +5,17 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.DTO.PrgHealthAreaDTO;
 import cc.altius.FASP.model.HealthArea;
 import java.util.List;
 
 /**
  *
- * @author akil
+ * @author altius
  */
 public interface HealthAreaService {
+    
+    public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate);
 
     public int addHealthArea(HealthArea h, int curUser);
     

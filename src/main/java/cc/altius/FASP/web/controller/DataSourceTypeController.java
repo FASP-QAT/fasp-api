@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.web.controller;
 
+import cc.altius.FASP.model.DTO.PrgDataSourceTypeDTO;
 import cc.altius.FASP.model.DataSourceType;
 import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.ResponseFormat;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -30,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4202")
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
 public class DataSourceTypeController {
 
     @Autowired
@@ -111,4 +113,16 @@ public class DataSourceTypeController {
         }
 
     }
+    
+    @GetMapping(value = "/getDataSourceTypeListForSync")
+    public String getDataSourceTypeListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+        String json;
+        List<PrgDataSourceTypeDTO> dataSourceTypeList = this.dataSourceTypeService.getDataSourceTypeListForSync(lastSyncDate);
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(dataSourceTypeList, typeList);
+        return json;
+    }
+
 }
