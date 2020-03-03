@@ -59,6 +59,7 @@ cc/altius/FASP/model/DTO/rowMapper/PrgRegionDTORowMapper.class
 cc/altius/FASP/model/rowMapper/EmailerRowMapper.class
 cc/altius/FASP/jwt/JwtUnAuthorizedResponseAuthenticationEntryPoint.class
 cc/altius/FASP/web/controller/CurrencyController.class
+cc/altius/FASP/model/rowMapper/OrganisationListResultSetExtractor.class
 cc/altius/FASP/dao/impl/ShipmentStatusDaoImp.class
 cc/altius/FASP/web/controller/CountryController$1.class
 cc/altius/FASP/service/impl/ProgramServiceImpl.class
@@ -66,6 +67,7 @@ cc/altius/FASP/model/CustomUserDetails.class
 cc/altius/FASP/service/impl/PlanningUnitServiceImpl.class
 cc/altius/FASP/model/DTO/rowMapper/PrgUnitDTORowMapper.class
 cc/altius/FASP/web/controller/ProgramController$1.class
+cc/altius/FASP/model/Organisation.class
 cc/altius/FASP/jwt/JwtTokenUtil.class
 cc/altius/FASP/service/impl/UnitTypeServiceImpl.class
 cc/altius/FASP/rest/controller/HealthAreaRestController.class
@@ -200,6 +202,7 @@ cc/altius/FASP/dao/impl/UserDaoImpl.class
 cc/altius/FASP/dao/UnitDao.class
 cc/altius/FASP/model/DTO/rowMapper/PrgProgramDataDTORowMapper.class
 cc/altius/FASP/model/RealmCountry.class
+cc/altius/FASP/model/rowMapper/OrganisationResultSetExtractor.class
 cc/altius/FASP/dao/impl/UnitDaoImpl.class
 cc/altius/FASP/dao/OrganisationDao.class
 cc/altius/FASP/dao/ShipmentStatusDao.class
@@ -243,6 +246,7 @@ cc/altius/FASP/dao/CurrencyDao.class
 cc/altius/FASP/web/controller/DataSourceController$1.class
 cc/altius/FASP/service/FundingSourceService.class
 cc/altius/FASP/model/DTO/rowMapper/PrgCurrencyDTORowMapper.class
+cc/altius/FASP/rest/controller/OrganisationRestController.class
 cc/altius/FASP/jwt/JwtTokenAuthorizationOncePerRequestFilter.class
 cc/altius/FASP/dao/impl/ProductCategoryDaoImpl.class
 cc/altius/FASP/dao/ProgramDataDao.class
