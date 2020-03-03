@@ -23,6 +23,7 @@ public class CountryRowMapper implements RowMapper<Country> {
     public Country mapRow(ResultSet rs, int i) throws SQLException {
         Country c = new Country();
         c.setCountryId(rs.getInt("COUNTRY_ID"));
+        c.setCountryCode(rs.getString("COUNTRY_CODE"));
         c.setLabel(new LabelRowMapper("CU_").mapRow(rs, i));
         Currency cu = new Currency();
         cu.setCurrencyId(rs.getInt("CURRENCY_ID"));
