@@ -34,7 +34,6 @@ public class OrganisationRestController {
     @PostMapping(path = "/api/organisation")
     public ResponseFormat postOrganisation(@RequestBody Organisation organisation, Authentication auth) {
         try {
-            System.out.println("organisation---" + organisation);
             int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
             int organisationId = this.organisationService.addOrganisation(organisation, curUser);
             return new ResponseFormat("Successfully added Organisation with Id " + organisationId);
@@ -58,7 +57,6 @@ public class OrganisationRestController {
     @GetMapping("/api/organisation")
     public ResponseFormat getOrganisation() {
         try {
-            System.out.println("organisation list---" + this.organisationService.getOrganisationList());
             return new ResponseFormat("Success", "", this.organisationService.getOrganisationList());
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
