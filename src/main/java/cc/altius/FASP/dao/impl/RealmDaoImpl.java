@@ -5,17 +5,25 @@
  */
 package cc.altius.FASP.dao.impl;
 
+import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.rowMapper.RealmCountryRowMapper;
 import cc.altius.FASP.model.rowMapper.RealmRowMapper;
 import cc.altius.FASP.rest.controller.RealmRestController;
+import cc.altius.utils.DateUtils;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -32,10 +40,13 @@ public class RealmDaoImpl implements RealmDao {
         this.dataSource = dataSource;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
+    
+    @Autowired
+    private LabelDao labelDao;
 
     @Override
     public List<Realm> getRealmList(boolean active) {
-        String sql = " SELECT r.*,lb.`LABEL_ID` AS RM_LABEL_ID,lb.`LABEL_EN` RM_LABEL_EN,lb.`LABEL_FR` RM_LABEL_FR,lb.`LABEL_PR` RM_LABEL_PR,lb.`LABEL_SP` AS RM_LABEL_SP FROM rm_realm r\n"
+        String sql = " SELECT r.*,lb.`LABEL_ID` AS RM_LABEL_ID,lb.`LABEL_EN` RM_LABEL_EN,lb.`LABEL_FR` RM_LABEL_FR,lb.`LABEL_PR` RM_LABEL_PR,lb.`LABEL_SP` AS RM_LABEL_SP FROM rm_realm r "
                 + " LEFT JOIN ap_label lb ON lb.`LABEL_ID`=r.`LABEL_ID` ";
         if (active) {
             sql += " WHERE r.`ACTIVE`";
@@ -90,18 +101,52 @@ public class RealmDaoImpl implements RealmDao {
     }
 
     @Override
-    public int addRealm(Realm realm, int curUser) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    @Transactional
+    public int addRealm(Realm r, int curUser) {
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("rm_realm").usingGeneratedKeyColumns("REALM_ID");
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params = new HashMap<>();
+        params.put("REALM_CODE", r.getRealmCode());
+        int labelId = this.labelDao.addLabel(r.getLabel(), curUser);
+        params.put("LABEL_ID", labelId);
+        params.put("MONTHS_IN_PAST_FOR_AMC", r.getMonthInPastForAmc());
+        params.put("MONTHS_IN_FUTURE_FOR_AMC", r.getMonthInFutureForAmc());
+        params.put("ORDER_FREQUENCY", r.getOrderFrequency());
+        params.put("DEFAULT", false);
+        params.put("ACTIVE", true);
+        params.put("CREATED_BY", curUser);
+        params.put("CREATED_DATE", curDate);
+        params.put("LAST_MODIFIED_BY", curUser);
+        params.put("LAST_MODIFIED_DATE", curDate);
+        int realmId = si.executeAndReturnKey(params).intValue();
+        return realmId;
     }
 
     @Override
-    public int updateRealm(Realm realm, int curUser) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    @Transactional
+    public int updateRealm(Realm r, int curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", r.getRealmId());
+        params.put("realmCode", r.getRealmCode());
+        params.put("monthInPastForAmc", r.getMonthInPastForAmc());
+        params.put("monthInFutureForAmc", r.getMonthInFutureForAmc());
+        params.put("orgerFrequency", r.getOrderFrequency());
+        params.put("default", r.isDefaultRealm());
+        params.put("active", r.isActive());
+        params.put("curUser", curUser);
+        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
+        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(this.jdbcTemplate);
+        int rows = nm.update("UPDATE rm_realm r SET r.REALM_CODE=:realmCode ,r.MONTHS_IN_PAST_FOR_AMC=:monthInPastForAmc ,r.MONTHS_IN_FUTURE_FOR_AMC=:monthInFutureForAmc ,r.ORDER_FREQUENCY=:orgerFrequency ,r.DEFAULT=:default ,r.ACTIVE=:active ,r.LAST_MODIFIED_BY=:curUser, r.LAST_MODIFIED_DATE=:curDate WHERE r.REALM_ID=:realmId", params);
+        return rows;
     }
 
     @Override
     public Realm getRealmById(int realmId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        String sql = " SELECT r.*,lb.`LABEL_ID` AS RM_LABEL_ID,lb.`LABEL_EN` RM_LABEL_EN,lb.`LABEL_FR` RM_LABEL_FR,lb.`LABEL_PR` RM_LABEL_PR,lb.`LABEL_SP` AS RM_LABEL_SP FROM rm_realm r "
+                + " LEFT JOIN ap_label lb ON lb.`LABEL_ID`=r.`LABEL_ID` ";
+            sql += " WHERE r.REALM_ID=?; ";
+        return this.jdbcTemplate.queryForObject(sql, new RealmRowMapper(),realmId);
     }
 
 }
