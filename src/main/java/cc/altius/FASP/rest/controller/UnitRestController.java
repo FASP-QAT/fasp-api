@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@CrossOrigin(origins = "http://localhost:4202")
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
 public class UnitRestController {
 
     @Autowired
