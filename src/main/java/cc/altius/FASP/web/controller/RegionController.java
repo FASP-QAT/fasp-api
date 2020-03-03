@@ -44,10 +44,8 @@ public class RegionController {
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             Gson g = new Gson();
-            System.out.println("json---" + json);
             Region region = g.fromJson(json, Region.class);
             CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
-            System.out.println(curUser);
             int userId = this.regionService.addRegion(region, curUser.getUserId());
             if (userId > 0) {
                 responseFormat.setStatus("Success");
@@ -72,10 +70,8 @@ public class RegionController {
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             Gson g = new Gson();
-            System.out.println("json---" + json);
             Region region = g.fromJson(json, Region.class);
             CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
-            System.out.println(curUser);
             int row = this.regionService.editRegion(region, curUser.getUserId());
             if (row > 0) {
                 responseFormat.setStatus("Success");
@@ -100,7 +96,6 @@ public class RegionController {
         String json = null;
         try {
             List<Region> regionList = this.regionService.getRegionList(false);
-            System.out.println("regionList---" + regionList);
             Gson gson = new Gson();
             Type typeList = new TypeToken<List>() {
             }.getType();

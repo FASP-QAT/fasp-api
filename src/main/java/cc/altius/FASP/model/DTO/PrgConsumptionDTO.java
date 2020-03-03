@@ -17,6 +17,7 @@ public class PrgConsumptionDTO implements Serializable {
     private int consumptionId;
     private PrgRegionDTO region;
     private PrgLogisticsUnitDTO logisticsUnit;
+    private PrgPlanningUnitDTO planningUnit;
     private PrgUnitDTO unit;
     private double packSize;
     private double consumptionQty;
@@ -24,6 +25,14 @@ public class PrgConsumptionDTO implements Serializable {
     private Date stopDate;
     private int daysOfStockOut;
     private PrgDataSourceDTO dataSource;
+
+    public PrgPlanningUnitDTO getPlanningUnit() {
+        return planningUnit;
+    }
+
+    public void setPlanningUnit(PrgPlanningUnitDTO planningUnit) {
+        this.planningUnit = planningUnit;
+    }
 
     public int getConsumptionId() {
         return consumptionId;

@@ -43,6 +43,7 @@ public class PrgLogisticsUnitDTORowMapper implements RowMapper<PrgLogisticsUnitD
         lu.setManufacturer(manufacturer);
         PrgPlanningUnitDTO planningUnit=new PrgPlanningUnitDTO();
         planningUnit.setPlanningUnitId(rs.getInt("PLANNING_UNIT_ID"));
+        planningUnit.setQtyOfForecastingUnits(rs.getDouble("QTY_OF_FORECASTING_UNITS"));
         lu.setPlanningUnit(planningUnit);
         lu.setQtyInEuro1(rs.getDouble("QTY_IN_EURO1"));
         lu.setQtyInEuro2(rs.getDouble("QTY_IN_EURO2"));

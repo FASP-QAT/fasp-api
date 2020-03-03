@@ -115,14 +115,10 @@ public class UserController {
     }
 
     @PutMapping(value = "/addNewUser")
-    public ResponseEntity addNewUser(@RequestBody(required = true) String json, Authentication authentication) throws UnsupportedEncodingException {
+    public ResponseEntity addNewUser(@RequestBody User user, Authentication authentication) throws UnsupportedEncodingException {
         ResponseFormat responseFormat = new ResponseFormat();
         try {
-            Gson g = new Gson();
-            System.out.println("json---" + json);
-            User user = g.fromJson(json, User.class);
             CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
-            System.out.println(curUser);
             PasswordEncoder encoder = new BCryptPasswordEncoder();
             String password = PassPhrase.getPassword();
             String hashPass = encoder.encode(password);
@@ -131,7 +127,6 @@ public class UserController {
             if (msg.isEmpty()) {
                 int userId = this.userService.addNewUser(user, curUser.getUserId());
                 if (userId > 0) {
-
                     String token = this.userService.generateTokenForUsername(user.getUsername(), 2);
                     if (token == null || token.isEmpty()) {
                         responseFormat.setStatus("failed");
@@ -140,7 +135,7 @@ public class UserController {
                     } else {
                         responseFormat.setStatus("Success");
                         responseFormat.setMessage("User created successfully and credentials sent on email.");
-                        return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                        return new ResponseEntity(responseFormat, HttpStatus.OK);
                     }
 
                 } else {
@@ -153,6 +148,11 @@ public class UserController {
                 responseFormat.setMessage(msg);
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
             }
+        } catch (DuplicateKeyException e) {
+            e.printStackTrace();
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("User already exists.");
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             e.printStackTrace();
             responseFormat.setStatus("failed");
@@ -198,13 +198,11 @@ public class UserController {
     }
 
     @PutMapping(value = "/editUser")
-    public ResponseEntity editUser(@RequestBody(required = true) String json, Authentication authentication) throws UnsupportedEncodingException {
+    public ResponseEntity editUser(@RequestBody User user, Authentication authentication) throws UnsupportedEncodingException {
         Map<String, Object> responseMap = null;
         ResponseFormat responseFormat = new ResponseFormat();
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
         try {
-            Gson g = new Gson();
-            User user = g.fromJson(json, User.class);
             int row = this.userService.updateUser(user, curUser.getUserId());
             if (row > 0) {
                 responseFormat.setStatus("Success");
@@ -215,8 +213,11 @@ public class UserController {
                 responseFormat.setMessage("Failed to update the user");
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
             }
+        } catch (DuplicateKeyException e) {
+            responseFormat.setStatus("failed");
+            responseFormat.setMessage("User already exists.");
+            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
-            e.printStackTrace();
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Exception Occured :" + e.getClass());
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -228,30 +229,28 @@ public class UserController {
         Map<String, Object> responseMap = null;
         ResponseFormat responseFormat = new ResponseFormat();
         try {
-            System.out.println("unlock user account---" + userId);
+            User user = this.userService.getUserByUserId(userId);
             PasswordEncoder encoder = new BCryptPasswordEncoder();
             String password = PassPhrase.getPassword();
             String hashPass = encoder.encode(password);
             int row = this.userService.unlockAccount(userId, hashPass);
-            System.out.println("unlock password---" + password);
             if (row > 0) {
-                EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(1);
-                String[] subjectParam = new String[]{};
-                String[] bodyParam = new String[]{password};
-                Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), emailId, emailTemplate.getCcTo(), subjectParam, bodyParam);
-                int emailerId = this.emailService.saveEmail(emailer);
-                emailer.setEmailerId(emailerId);
-                this.emailService.sendMail(emailer);
-                responseFormat.setStatus("Success");
-                responseFormat.setMessage("Account unlocked successfully and new password is sent on the registered email id.");
-                return new ResponseEntity(responseFormat, HttpStatus.OK);
+                String token = this.userService.generateTokenForUsername(user.getUsername(), 1);
+                if (token == null || token.isEmpty()) {
+                    responseFormat.setStatus("failed");
+                    responseFormat.setMessage("Exception Occured. Please try again");
+                    return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                } else {
+                    responseFormat.setStatus("Success");
+                    responseFormat.setMessage("Account unlocked successfully and new password is sent on the registered email id.");
+                    return new ResponseEntity(responseFormat, HttpStatus.OK);
+                }
             } else {
                 responseFormat.setStatus("failed");
                 responseFormat.setMessage("Exception Occured. Please try again");
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (Exception e) {
-            e.printStackTrace();
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Exception Occured :" + e.getClass());
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -328,7 +327,6 @@ public class UserController {
     @GetMapping(value = "/forgotPassword/{username}")
     public ResponseFormat forgotPassword(@PathVariable String username) throws UnsupportedEncodingException {
         Map<String, Object> responseMap = null;
-        System.out.println("username--------------" + username);
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             CustomUserDetails customUser = this.userService.getCustomUserByUsername(username);
@@ -401,7 +399,6 @@ public class UserController {
         try {
             Gson g = new Gson();
             Role role = g.fromJson(json, Role.class);
-            System.out.println("user------------" + role);
             int row = this.userService.addRole(role);
             if (row > 0) {
                 responseFormat.setStatus("Success");
@@ -432,7 +429,6 @@ public class UserController {
         try {
             Gson g = new Gson();
             Role role = g.fromJson(json, Role.class);
-            System.out.println("role------------" + role);
             int row = this.userService.updateRole(role);
             if (row > 0) {
                 responseFormat.setStatus("Success");
