@@ -81,10 +81,12 @@ public class UnitDaoImpl implements UnitDao {
         Map<String, Object> params = new HashMap<>();
         params.put("unitId", h.getUnitId());
         params.put("active", h.isActive());
+        params.put("unitCode", h.getUnitCode());
+        params.put("unitTypeId", h.getUnitType().getUnitTypeId());
         params.put("curUser", curUser);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(this.jdbcTemplate);
-        return nm.update("UPDATE ap_unit u SET u.ACTIVE=:active, u.LAST_MODIFIED_BY=:curUser, u.LAST_MODIFIED_DATE=:curDate WHERE u.UNIT_ID=:unitId", params);
+        return nm.update("UPDATE ap_unit u SET u.UNIT_TYPE_ID=:unitTypeId,u.UNIT_CODE=:unitCode,u.ACTIVE=:active, u.LAST_MODIFIED_BY=:curUser, u.LAST_MODIFIED_DATE=:curDate WHERE u.UNIT_ID=:unitId", params);
     }
 
     @Override

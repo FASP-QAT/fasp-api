@@ -64,20 +64,15 @@ public class JwtAuthenticationRestController {
             authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
             this.userService.resetFailedAttemptsByUsername(authenticationRequest.getUsername());
         } catch (BadCredentialsException e) {
-            System.out.println("---1---");
             this.userService.updateFailedAttemptsByUserId(authenticationRequest.getUsername());
             throw new AuthenticationException("Invalid credentials", e);
         } catch (DisabledException | AccountExpiredException e) {
-            System.out.println("---2---");
             throw new AuthenticationException("User is disabled", e);
         } catch (LockedException e) {
-            System.out.println("---3---");
             throw new AuthenticationException("User account is locked", e);
         } catch (CredentialsExpiredException e) {
-            System.out.println("---4---");
             throw new AuthenticationException("Password expired", e);
         } catch (UsernameNotFoundException e) {
-            System.out.println("---5---");
             throw new AuthenticationException("User not found", e);
         }
         final CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
@@ -104,7 +99,6 @@ public class JwtAuthenticationRestController {
             String refreshedToken = jwtTokenUtil.refreshToken(token);
             return ResponseEntity.ok(new JwtTokenResponse(refreshedToken));
         } catch (Exception e) {
-            System.out.println("in main exception");
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Error occured");
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);

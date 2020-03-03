@@ -31,10 +31,10 @@ public class HealthAreaListResultSetExtractor implements ResultSetExtractor<List
             newHealthAreaId = rs.getInt("HEALTH_AREA_ID");
             if (oldHealthAreaId != newHealthAreaId) {
                 if (oldHealthAreaId != 0) {
-                    ha.setRealmCountryArray(new int[ha.getRealmCountryList().size()]);
+                    ha.setRealmCountryArray(new String[ha.getRealmCountryList().size()]);
                     int x = 0;
                     for (RealmCountry rc : ha.getRealmCountryList()) {
-                        ha.getRealmCountryArray()[x] = rc.getRealmCountryId();
+                        ha.getRealmCountryArray()[x] = Integer.toString(rc.getRealmCountryId());
                         x++;
                     }
                     haList.add(ha);
@@ -55,10 +55,10 @@ public class HealthAreaListResultSetExtractor implements ResultSetExtractor<List
             oldHealthAreaId = newHealthAreaId;
         }
         if (ha.getHealthAreaId() != 0) {
-            ha.setRealmCountryArray(new int[ha.getRealmCountryList().size()]);
+            ha.setRealmCountryArray(new String[ha.getRealmCountryList().size()]);
             int x = 0;
             for (RealmCountry rc : ha.getRealmCountryList()) {
-                ha.getRealmCountryArray()[x] = rc.getRealmCountryId();
+                ha.getRealmCountryArray()[x] = Integer.toString(rc.getRealmCountryId());
                 x++;
             }
             haList.add(ha);

@@ -14,6 +14,7 @@ import java.io.Serializable;
 public class Country extends BaseModel implements Serializable {
 
     private int countryId;
+    private String countryCode;
     private Label label;
     private Currency currency;
     private Language language;
@@ -28,6 +29,15 @@ public class Country extends BaseModel implements Serializable {
         this.label = label;
     }
 
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
+
+    
 
     public Label getLabel() {
         return label;
@@ -72,7 +82,6 @@ public class Country extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "Country{" + "countryId=" + countryId + ", label=" + label + ", currency=" + currency + ", language=" + language + '}';
+        return "Country{" + "countryId=" + countryId + ", countryCode=" + countryCode + ", label=" + label + ", currency=" + currency + ", language=" + language + '}';
     }
-
 }

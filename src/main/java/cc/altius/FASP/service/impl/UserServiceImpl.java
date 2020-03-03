@@ -33,9 +33,10 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private EmailService emailService;
 //    @Value("${urlHost}")
-    private static String HOST_URL = "http://localhost/FASP";
+//    private static String HOST_URL = "http://localhost:4202";
+    private static String HOST_URL = "https://faspdeveloper.github.io/palashSprint1";
 //    @Value("${urlPasswordReset}")
-    private static String PASSWORD_RESET_URL = "resetPassword.htm";
+    private static String PASSWORD_RESET_URL = "resetPassword";
 
     @Override
     public CustomUserDetails getCustomUserByUsername(String username) {
@@ -125,14 +126,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String generateTokenForUsername(String username) {
+    public String generateTokenForUsername(String username, int emailTemplateId) {
         EmailUser user = this.userDao.getEmailUserByUsername(username);
         if (user == null) {
             return null;
         }
         String token = this.userDao.generateTokenForUserId(user.getUserId());
         if (token != null && !token.isEmpty()) {
-            EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(1);
+            EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(emailTemplateId);
             String[] subjectParam = new String[]{};
             String[] bodyParam = new String[]{HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
             Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);

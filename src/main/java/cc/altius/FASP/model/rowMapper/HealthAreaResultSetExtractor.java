@@ -43,10 +43,10 @@ public class HealthAreaResultSetExtractor implements ResultSetExtractor<HealthAr
             }
             isFirst = false;
         }
-        ha.setRealmCountryArray(new int[ha.getRealmCountryList().size()]);
+        ha.setRealmCountryArray(new String[ha.getRealmCountryList().size()]);
         int x =0;
         for (RealmCountry rc : ha.getRealmCountryList()) {
-            ha.getRealmCountryArray()[x] = rc.getRealmCountryId();
+            ha.getRealmCountryArray()[x] = Integer.toString(rc.getRealmCountryId());
             x++;
         }
         return ha;

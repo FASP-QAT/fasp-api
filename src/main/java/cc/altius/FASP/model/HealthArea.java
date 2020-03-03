@@ -20,7 +20,7 @@ public class HealthArea extends BaseModel implements Serializable {
     private Label label;
     @JsonIgnore
     List<RealmCountry> realmCountryList;
-    int[] realmCountryArray;
+    String[] realmCountryArray;
 
     public HealthArea() {
     }
@@ -63,11 +63,11 @@ public class HealthArea extends BaseModel implements Serializable {
         this.realmCountryList = realmCountryList;
     }
 
-    public int[] getRealmCountryArray() {
+    public String[] getRealmCountryArray() {
         return realmCountryArray;
     }
 
-    public void setRealmCountryArray(int[] realmCountryArray) {
+    public void setRealmCountryArray(String[] realmCountryArray) {
         this.realmCountryArray = realmCountryArray;
     }
 

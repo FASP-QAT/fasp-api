@@ -7,6 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.SubFundingSourceDao;
 import cc.altius.FASP.model.DTO.PrgSubFundingSourceDTO;
+import cc.altius.FASP.model.SubFundingSource;
 import cc.altius.FASP.service.SubFundingSourceService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +26,26 @@ public class SubFundingSourceServiceImpl implements SubFundingSourceService {
     @Override
     public List<PrgSubFundingSourceDTO> getSubFundingSourceListForSync(String lastSyncDate) {
         return this.subFundingSourceDao.getSubFundingSourceListForSync(lastSyncDate);
+    }
+
+    @Override
+    public SubFundingSource getSubFundingSourceById(int subFundingSourceId) {
+        return this.subFundingSourceDao.getSubFundingSourceById(subFundingSourceId);
+    }
+
+    @Override
+    public List<SubFundingSource> getSubFundingSourceList() {
+        return this.subFundingSourceDao.getSubFundingSourceList();
+    }
+
+    @Override
+    public int updateSubFundingSource(SubFundingSource subFundingSource, int curUser) {
+        return this.subFundingSourceDao.updateSubFundingSource(subFundingSource,curUser);
+    }
+
+    @Override
+    public int addSubFundingSource(SubFundingSource subFundingSource, int curUser) {
+        return this.subFundingSourceDao.addSubFundingSource(subFundingSource,curUser);
     }
 
 }

@@ -53,14 +53,12 @@ public class RegistrationDaoImpl implements RegistrationDao {
     @Override
     public List<Registration> getUserApprovalList() {
         String sql = "SELECT * FROM registration r WHERE r.`STATUS` IS NULL;";
-        System.out.println("in daoImpl");
         List<Registration> r = new LinkedList<>();
         try {
             r = this.jdbcTemplate.query(sql, new RegistrationRowMapper());
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("r" + r);
         return r;
     }
 
