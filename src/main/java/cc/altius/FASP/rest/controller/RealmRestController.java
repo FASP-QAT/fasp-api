@@ -6,12 +6,11 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.HealthArea;
+import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.ResponseFormat;
-import cc.altius.FASP.service.HealthAreaService;
+import cc.altius.FASP.service.RealmService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -21,52 +20,52 @@ import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
- * @author akil
+ * @author altius
  */
 @RestController
-@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
-public class HealthAreaRestController {
-
+public class RealmRestController {
+    
     @Autowired
-    private HealthAreaService healthAreaService;
-
-    @PostMapping(path = "/api/healthArea")
-    public ResponseFormat postHealthArea(@RequestBody HealthArea heatlhArea, Authentication auth) {
+    private RealmService realmService;
+    
+    @PostMapping(path = "/api/realm")
+    public ResponseFormat postRealm(@RequestBody Realm realm, Authentication auth) {
         try {
             int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
-            int healthAreaId = this.healthAreaService.addHealthArea(heatlhArea, curUser);
-            return new ResponseFormat("Successfully added HealthArea with Id " + healthAreaId);
+            int realmId = this.realmService.addRealm(realm, curUser);
+            return new ResponseFormat("Successfully added Organisation with Id " + realmId);
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
-
-    @PutMapping(path = "/api/healthArea")
-    public ResponseFormat putHealhArea(@RequestBody HealthArea heatlhArea, Authentication auth) {
+    
+    @PutMapping(path = "/api/realm")
+    public ResponseFormat putRealm(@RequestBody Realm realm, Authentication auth) {
         try {
             int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
-            int rows = this.healthAreaService.updateHealthArea(heatlhArea, curUser);
-            return new ResponseFormat("Successfully updated HealthArea");
+            int rows = this.realmService.updateRealm(realm, curUser);
+            return new ResponseFormat("Successfully updated Organisation");
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
-
-    @GetMapping("/api/healthArea")
-    public ResponseFormat getHealthArea() {
+    
+    @GetMapping("/api/realm")
+    public ResponseFormat postRealm() {
         try {
-            return new ResponseFormat("Success", "", this.healthAreaService.getHealthAreaList());
+            return new ResponseFormat("Success", "", this.realmService.getRealmList(true));
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
-
-    @GetMapping("/api/healthArea/{healthAreaId}")
-    public ResponseFormat getHealthArea(@PathVariable("healthAreaId") int healthAreaId) {
+    
+    @GetMapping("/api/realm/{realmId}")
+    public ResponseFormat postRealm(@PathVariable("realmId") int realmId) {
         try {
-            return new ResponseFormat("Success", "", this.healthAreaService.getHealthAreaById(healthAreaId));
+            return new ResponseFormat("Success", "", this.realmService.getRealmById(realmId));
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
+    
 }

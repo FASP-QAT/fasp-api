@@ -14,6 +14,7 @@ public class RealmCountry {
     private int realmCountryId;
     private Country country;
     private Realm realm;
+    
 
     public int getRealmCountryId() {
         return realmCountryId;

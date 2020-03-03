@@ -7,6 +7,7 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
+import cc.altius.FASP.rest.controller.RealmRestController;
 import java.util.List;
 
 /**
@@ -20,4 +21,10 @@ public interface RealmDao {
     public List<RealmCountry> getRealmCountryList(boolean active);
 
     public List<RealmCountry> getRealmCountryListByRealmId(int realmId);
+
+    public int addRealm(Realm realm, int curUser);
+
+    public int updateRealm(Realm realm, int curUser);
+
+    public Realm getRealmById(int realmId);
 }
