@@ -356,10 +356,13 @@ public class UserController {
     public ResponseFormat confirmForgotPasswordToken(@RequestBody EmailUser user) {
         try {
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getUsername(), user.getToken());
+            logger.error("token response---" + fpt.isValidForTriggering());
             if (fpt.isValidForTriggering()) {
+                logger.error("Inside if---");
                 this.userService.updateTriggeredDateForForgotPasswordToken(user.getUsername(), user.getToken());
                 return new ResponseFormat("Success", "");
             } else {
+                logger.error("Inside else---");
                 this.userService.updateCompletionDateForForgotPasswordToken(user.getUsername(), user.getToken());
                 return new ResponseFormat("Failed", fpt.inValidReasonForTriggering());
             }

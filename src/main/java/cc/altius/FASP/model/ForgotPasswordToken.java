@@ -9,6 +9,8 @@ import cc.altius.utils.DateUtils;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -16,6 +18,7 @@ import java.util.Date;
  */
 public class ForgotPasswordToken implements Serializable {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private int userId;
     private String username;
     private String token;
@@ -74,27 +77,30 @@ public class ForgotPasswordToken implements Serializable {
     public boolean isValidForTriggering() {
         return inValidReasonForTriggering().isEmpty();
     }
-    
+
     public String inValidReasonForTriggering() {
         if (this.tokenTriggeredDate != null || this.tokenCompletionDate != null) {
             return "Token already used";
-        } 
+        }
         Calendar allowedTriggerDate = Calendar.getInstance();
         allowedTriggerDate.setTime(this.tokenGenerationDate);
         allowedTriggerDate.add(Calendar.MINUTE, 15);
         Calendar curDate = Calendar.getInstance();
         curDate.setTime(DateUtils.getCurrentDateObject(DateUtils.EST));
-        if (DateUtils.compareDate(allowedTriggerDate.getTime(), curDate.getTime())==1) {
+        logger.error("allowed trigger date---" + allowedTriggerDate.getTime());
+        logger.error("cur date---" + curDate.getTime());
+        logger.error("difference---" + DateUtils.compareDate(allowedTriggerDate.getTime(), curDate.getTime()));
+        if (DateUtils.compareDate(allowedTriggerDate.getTime(), curDate.getTime()) == 1) {
             return "";
         } else {
             return "Token expired";
         }
     }
-    
+
     public boolean isValidForCompletion() {
         return inValidReasonForCompletion().isEmpty();
     }
-    
+
     public String inValidReasonForCompletion() {
         if (this.tokenTriggeredDate == null) {
             return "Invalid Token";
@@ -106,7 +112,7 @@ public class ForgotPasswordToken implements Serializable {
         allowedCompletionDate.add(Calendar.MINUTE, 15);
         Calendar curDate = Calendar.getInstance();
         curDate.setTime(DateUtils.getCurrentDateObject(DateUtils.EST));
-        if (DateUtils.compareDate(allowedCompletionDate.getTime(), curDate.getTime())==1) {
+        if (DateUtils.compareDate(allowedCompletionDate.getTime(), curDate.getTime()) == 1) {
             return "";
         } else {
             return "Token expired";

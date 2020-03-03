@@ -11,6 +11,7 @@ import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.OrganisationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -37,6 +38,8 @@ public class OrganisationRestController {
             int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
             int organisationId = this.organisationService.addOrganisation(organisation, curUser);
             return new ResponseFormat("Successfully added Organisation with Id " + organisationId);
+        } catch (DuplicateKeyException e) {
+            return new ResponseFormat("Organisation code already exist.", "Failed");
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
