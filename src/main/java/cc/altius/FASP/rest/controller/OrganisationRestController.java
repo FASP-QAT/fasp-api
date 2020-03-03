@@ -6,7 +6,6 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.OrganisationService;
@@ -39,7 +38,7 @@ public class OrganisationRestController {
             int organisationId = this.organisationService.addOrganisation(organisation, curUser);
             return new ResponseFormat("Successfully added Organisation with Id " + organisationId);
         } catch (DuplicateKeyException e) {
-            return new ResponseFormat("Organisation code already exist.", "Failed");
+            return new ResponseFormat("Failed", "Organisation code already exist.");
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }

@@ -356,6 +356,7 @@ public class UserController {
     public ResponseFormat confirmForgotPasswordToken(@RequestBody EmailUser user) {
         try {
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getUsername(), user.getToken());
+            logger.error("token---" + user.getToken());
             logger.error("token response---" + fpt.isValidForTriggering());
             if (fpt.isValidForTriggering()) {
                 logger.error("Inside if---");

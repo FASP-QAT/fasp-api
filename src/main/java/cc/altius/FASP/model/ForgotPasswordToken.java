@@ -79,6 +79,8 @@ public class ForgotPasswordToken implements Serializable {
     }
 
     public String inValidReasonForTriggering() {
+        logger.error("tokenTriggeredDate----" + tokenTriggeredDate);
+        logger.error("tokenCompletionDate---" + tokenCompletionDate);
         if (this.tokenTriggeredDate != null || this.tokenCompletionDate != null) {
             return "Token already used";
         }
