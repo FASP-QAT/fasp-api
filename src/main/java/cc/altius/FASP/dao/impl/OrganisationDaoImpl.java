@@ -105,12 +105,16 @@ public class OrganisationDaoImpl implements OrganisationDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("organisationId", o.getOrganisationId());
+
         params.put("organisationCode", o.getOrganisationCode());
+
         params.put("active", o.isActive());
         params.put("curUser", curUser);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(this.jdbcTemplate);
+
         int rows = nm.update("UPDATE rm_organisation o SET o.ACTIVE=:active,o.ORGANISATION_CODE=:organisationCode, o.LAST_MODIFIED_BY=:curUser, o.LAST_MODIFIED_DATE=:curDate WHERE o.ORGANISATION_ID=:organisationId", params);
+
         this.jdbcTemplate.update("DELETE FROM rm_organisation_country WHERE ORGANISATION_ID=?", o.getOrganisationId());
         SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_organisation_country");
         SqlParameterSource[] paramList = new SqlParameterSource[o.getRealmCountryArray().length];
@@ -133,6 +137,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
 
     @Override
     public List<Organisation> getOrganisationList() {
+
         String sqlString = " SELECT "
                 + "  o.ORGANISATION_ID, o.ORGANISATION_CODE, ol.LABEL_ID, ol.LABEL_EN, ol.LABEL_FR, ol.LABEL_SP, ol.LABEL_PR, "
                 + "  r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
@@ -170,6 +175,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 + "  LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + "  LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
                 + "  WHERE o.ORGANISATION_ID=?; ";
+
 
         return this.jdbcTemplate.query(sqlString, new OrganisationResultSetExtractor(), organisationId);
     }

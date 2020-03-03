@@ -11,11 +11,15 @@ import java.io.Serializable;
  *
  * @author altius
  */
-public class Realm implements Serializable {
+public class Realm extends BaseModel implements Serializable {
 
     private Integer realmId;
     private Label label;
     private String realmCode;
+    private int monthInPastForAmc;
+    private int monthInFutureForAmc;
+    private int orderFrequency;
+    private boolean defaultRealm;
 
     public Realm(Integer realmId, Label label, String realmCode) {
         this.realmId = realmId;
@@ -54,9 +58,41 @@ public class Realm implements Serializable {
         this.realmCode = realmCode;
     }
 
+    public int getMonthInPastForAmc() {
+        return monthInPastForAmc;
+    }
+
+    public void setMonthInPastForAmc(int monthInPastForAmc) {
+        this.monthInPastForAmc = monthInPastForAmc;
+    }
+
+    public int getMonthInFutureForAmc() {
+        return monthInFutureForAmc;
+    }
+
+    public void setMonthInFutureForAmc(int monthInFutureForAmc) {
+        this.monthInFutureForAmc = monthInFutureForAmc;
+    }
+
+    public int getOrderFrequency() {
+        return orderFrequency;
+    }
+
+    public void setOrderFrequency(int orderFrequency) {
+        this.orderFrequency = orderFrequency;
+    }
+
+    public boolean isDefaultRealm() {
+        return defaultRealm;
+    }
+
+    public void setDefaultRealm(boolean defaultRealm) {
+        this.defaultRealm = defaultRealm;
+    }
+
     @Override
     public String toString() {
-        return "Realm{" + "realmId=" + realmId + ", label=" + label + ", realmCode=" + realmCode + '}';
+        return "Realm{" + "realmId=" + realmId + ", label=" + label + ", realmCode=" + realmCode + ", monthInPastForAmc=" + monthInPastForAmc + ", monthInFutureForAmc=" + monthInFutureForAmc + ", orderFrequency=" + orderFrequency + ", defaultRealm=" + defaultRealm + '}';
     }
 
 }

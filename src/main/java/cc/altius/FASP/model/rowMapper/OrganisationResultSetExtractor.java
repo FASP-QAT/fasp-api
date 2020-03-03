@@ -28,7 +28,9 @@ public class OrganisationResultSetExtractor implements ResultSetExtractor<Organi
         while (rs.next()) {
             if (isFirst) {
                 o.setOrganisationId(rs.getInt("ORGANISATION_ID"));
+
                 o.setOrganisationCode(rs.getString("ORGANISATION_CODE"));
+
                 o.setRealm(new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")));
                 o.setLabel(new LabelRowMapper().mapRow(rs, 1));
                 o.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));

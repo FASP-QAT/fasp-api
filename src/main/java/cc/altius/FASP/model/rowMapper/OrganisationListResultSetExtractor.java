@@ -6,7 +6,6 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.Country;
-import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
@@ -16,7 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowMapper;
 
 /**
  *
@@ -42,7 +40,9 @@ public class OrganisationListResultSetExtractor implements ResultSetExtractor<Li
                     oList.add(o);
                 }
                 o = new Organisation();
+
                 o.setOrganisationCode(rs.getString("ORGANISATION_CODE"));
+
                 o.setOrganisationId(rs.getInt("ORGANISATION_ID"));
                 o.setRealm(new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")));
                 o.setLabel(new LabelRowMapper().mapRow(rs, 1));
