@@ -7,6 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.CurrencyDao;
 import cc.altius.FASP.model.Currency;
+import cc.altius.FASP.model.DTO.PrgCurrencyDTO;
 import cc.altius.FASP.service.CurrencyService;
 import java.util.List;
 import java.util.Map;
@@ -18,9 +19,11 @@ import org.springframework.stereotype.Service;
  * @author palash
  */
 @Service
-public class CurrencyServiceImp implements CurrencyService{
-@Autowired
-private CurrencyDao currencyDao;
+public class CurrencyServiceImp implements CurrencyService {
+
+    @Autowired
+    private CurrencyDao currencyDao;
+
     @Override
     public int addCurrency(Currency currency) {
         return this.currencyDao.addCurrency(currency);
@@ -33,18 +36,22 @@ private CurrencyDao currencyDao;
 
     @Override
     public int updateCurrency(Currency currency) {
-       return  this.currencyDao.updateCurrency(currency);
+        return this.currencyDao.updateCurrency(currency);
     }
 
     @Override
     public String getAllCurrencyCode() {
-    return  this.currencyDao.getAllCurrencyCode();    
+        return this.currencyDao.getAllCurrencyCode();
     }
 
     @Override
     public void updateCurrencyConversionrate(Map<String, Double> currencyConversions) {
         this.currencyDao.updateCurrencyConversionrate(currencyConversions);
     }
-    
-    
+
+    @Override
+    public List<PrgCurrencyDTO> getCurrencyListForSync(String lastSyncDate) {
+        return this.currencyDao.getCurrencyListForSync(lastSyncDate);
+    }
+
 }

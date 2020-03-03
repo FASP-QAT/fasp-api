@@ -5,12 +5,13 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
 import cc.altius.FASP.model.UnitType;
 import java.util.List;
 
 /**
  *
- * @author palash
+ * @author altius
  */
 public interface UnitTypeService {
 
@@ -19,4 +20,6 @@ public interface UnitTypeService {
     public List<UnitType> getUnitTypeList(boolean active);
 
     public int updateUnitType(UnitType unitType, int userId);
+
+    public List<PrgUnitTypeDTO> getUnitTypeListForSync();
 }

@@ -5,14 +5,17 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.DTO.PrgUnitDTO;
 import cc.altius.FASP.model.Unit;
 import java.util.List;
 
 /**
  *
- * @author akil
+ * @author altius
  */
 public interface UnitService {
+    
+    public List<PrgUnitDTO> getUnitListForSync(String lastSyncDate);
 
     public int addUnit(Unit u, int curUser);
 

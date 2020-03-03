@@ -15,6 +15,7 @@ public class RealmCountry {
     private Country country;
     private Realm realm;
     
+    
 
     public int getRealmCountryId() {
         return realmCountryId;
@@ -63,6 +64,11 @@ public class RealmCountry {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "RealmCountry{" + "realmCountryId=" + realmCountryId + ", country=" + country + ", realm=" + realm + '}';
     }
 
 }

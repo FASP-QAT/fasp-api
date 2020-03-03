@@ -27,7 +27,7 @@ import cc.altius.FASP.service.ProgramService;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4202")
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
 public class ProgramController {
 
     @Autowired

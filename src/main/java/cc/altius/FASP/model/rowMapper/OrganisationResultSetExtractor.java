@@ -28,7 +28,7 @@ public class OrganisationResultSetExtractor implements ResultSetExtractor<Organi
         while (rs.next()) {
             if (isFirst) {
                 o.setOrganisationId(rs.getInt("ORGANISATION_ID"));
-                o.setCode(rs.getString("ORGANISATION_CODE"));
+                o.setOrganisationCode(rs.getString("ORGANISATION_CODE"));
                 o.setRealm(new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")));
                 o.setLabel(new LabelRowMapper().mapRow(rs, 1));
                 o.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
@@ -39,14 +39,14 @@ public class OrganisationResultSetExtractor implements ResultSetExtractor<Organi
             rc.setCountry(new Country(rs.getInt("COUNTRY_ID"), new LabelRowMapper("COUNTRY_").mapRow(rs, 1)));
             if (o.getRealmCountryList().indexOf(rc) == -1) {
                 o.getRealmCountryList().add(rc);
-                
+
             }
             isFirst = false;
         }
-        o.setRealmCountryArray(new int[o.getRealmCountryList().size()]);
-        int x =0;
+        o.setRealmCountryArray(new String[o.getRealmCountryList().size()]);
+        int x = 0;
         for (RealmCountry rc : o.getRealmCountryList()) {
-            o.getRealmCountryArray()[x] = rc.getRealmCountryId();
+            o.getRealmCountryArray()[x] = Integer.toString(rc.getRealmCountryId());
             x++;
         }
         return o;

@@ -16,6 +16,15 @@ public class PrgPlanningUnitDTO {
     private PrgUnitDTO unit;
     private double qtyOfForecastingUnits;
     private double price;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public PrgLabelDTO getLabel() {
         return label;

@@ -13,6 +13,15 @@ public class PrgDataSourceTypeDTO {
 
     private int dataSourceTypeId;
     private PrgLabelDTO label;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public int getDataSourceTypeId() {
         return dataSourceTypeId;

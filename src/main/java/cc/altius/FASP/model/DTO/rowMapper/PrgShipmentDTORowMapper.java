@@ -22,6 +22,7 @@ import cc.altius.FASP.model.DTO.PrgShipmentStatusDTO;
 import cc.altius.FASP.model.DTO.PrgSubFundingSourceDTO;
 import cc.altius.FASP.model.DTO.PrgUnitDTO;
 import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
+import cc.altius.FASP.model.UnitType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;

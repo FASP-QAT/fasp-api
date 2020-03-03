@@ -22,6 +22,15 @@ public class PrgProductDTO implements Serializable {
     private List<PrgInventoryDTO> inventoryData;
     private List<PrgConsumptionDTO> consumptionData;
     private List<PrgShipmentDTO> shipmentData;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public int getProductId() {
         return productId;

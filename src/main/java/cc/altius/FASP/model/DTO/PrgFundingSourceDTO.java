@@ -5,11 +5,6 @@
  */
 package cc.altius.FASP.model.DTO;
 
-import cc.altius.FASP.model.Label;
-import cc.altius.FASP.model.Realm;
-import cc.altius.FASP.model.User;
-import java.util.Date;
-
 /**
  *
  * @author altius
@@ -18,6 +13,15 @@ public class PrgFundingSourceDTO {
 
     private int fundingSourceId;
     private PrgLabelDTO label;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public int getFundingSourceId() {
         return fundingSourceId;
