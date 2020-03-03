@@ -12,7 +12,6 @@ import cc.altius.FASP.model.DTO.rowMapper.PrgManufacturerDTORowMapper;
 import cc.altius.FASP.model.Manufacturer;
 import cc.altius.FASP.model.rowMapper.ManufacturerRowMapper;
 import cc.altius.utils.DateUtils;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -71,15 +70,15 @@ public class ManufacturerDaoImpl implements ManufacturerDao {
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", curUser);
         params.put("LAST_MODIFIED_DATE", curDate);
-        
-        int insertedRow=si.executeAndReturnKey(params).intValue();
+
+        int insertedRow = si.executeAndReturnKey(params).intValue();
 
         SimpleJdbcInsert sii = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("tk_ticket").usingGeneratedKeyColumns("TICKET_ID");
         Map<String, Object> paramsTwo = new HashMap<>();
-        paramsTwo.put("TICKET_TYPE_ID",1);
+        paramsTwo.put("TICKET_TYPE_ID", 1);
         paramsTwo.put("TICKET_STATUS_ID", 1);
-        paramsTwo.put("REFFERENCE_ID",insertedRow);
-        paramsTwo.put("NOTES","");
+        paramsTwo.put("REFFERENCE_ID", insertedRow);
+        paramsTwo.put("NOTES", "");
         paramsTwo.put("CREATED_BY", curUser);
         paramsTwo.put("CREATED_DATE", curDate);
         paramsTwo.put("LAST_MODIFIED_BY", curUser);
@@ -114,8 +113,15 @@ public class ManufacturerDaoImpl implements ManufacturerDao {
 
     @Override
     public Manufacturer getManufacturerById(int manufacturerId) {
-        Manufacturer m = new Manufacturer();
-        return m;
+        String sql = "SELECT rm.*,al.`LABEL_EN`,al.`LABEL_FR`,al.`LABEL_SP`,al.`LABEL_PR`,al.`LABEL_ID`,\n"
+                + "rr.`REALM_ID` `RM_REALM_ID`,lr.`LABEL_ID` `RM_LABEL_ID`,\n"
+                + "lr.`LABEL_EN` `RM_LABEL_EN`,lr.`LABEL_FR` `RM_LABEL_FR` ,lr.`LABEL_SP` `RM_LABEL_SP`,lr.`LABEL_PR` `RM_LABEL_PR`\n"
+                + "  FROM rm_manufacturer rm \n"
+                + "LEFT JOIN  ap_label al ON al.`LABEL_ID`=rm.`LABEL_ID`\n"
+                + "LEFT JOIN rm_realm rr ON rr.`REALM_ID`=rm.`REALM_ID`\n"
+                + "LEFT JOIN ap_label lr ON lr.`LABEL_ID`=rr.`LABEL_ID`"
+                + "WHERE rm.`MANUFACTURER_ID`=?";
+        return this.jdbcTemplate.queryForObject(sql, new ManufacturerRowMapper(), manufacturerId);
     }
 
 }

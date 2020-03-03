@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.DTO.PrgFundingSourceDTO;
+import cc.altius.FASP.model.FundingSource;
 import java.util.List;
 
 /**
@@ -15,5 +16,13 @@ import java.util.List;
 public interface FundingSourceDao {
     
     public List<PrgFundingSourceDTO> getFundingSourceListForSync(String lastSyncDate);
+    
+     public int addFundingSource(FundingSource f, int curUser);
+
+    public int updateFundingSource(FundingSource f, int CurUser);
+
+    public List<FundingSource> getFundingSourceList();
+
+    public FundingSource getFundingSourceById(int fundingSourceId);
     
 }
