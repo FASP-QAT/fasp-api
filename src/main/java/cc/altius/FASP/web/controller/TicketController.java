@@ -40,7 +40,7 @@ public class TicketController {
     }
 
     @PutMapping(path = "/api/ticket")
-    public ResponseFormat putHealhArea(@RequestBody Ticket ticket, Authentication auth) {
+    public ResponseFormat putTicket(@RequestBody Ticket ticket, Authentication auth) {
         try {
             int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
             int rows = this.ticketService.updateTicket(ticket, curUser);

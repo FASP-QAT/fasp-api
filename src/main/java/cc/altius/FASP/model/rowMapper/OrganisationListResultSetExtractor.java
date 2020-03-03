@@ -6,7 +6,6 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.Country;
-import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
@@ -16,7 +15,6 @@ import java.util.LinkedList;
 import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.RowMapper;
 
 /**
  *

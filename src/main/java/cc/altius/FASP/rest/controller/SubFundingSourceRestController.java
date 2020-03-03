@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-public class SubFundingSourceController {
+public class SubFundingSourceRestController {
     
     @Autowired
     private SubFundingSourceService subFundingSourceService;

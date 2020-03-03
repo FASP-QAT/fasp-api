@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -25,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
+@RequestMapping("/api")
 @CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class OrganisationRestController {
 
@@ -34,7 +36,6 @@ public class OrganisationRestController {
     @PostMapping(path = "/api/organisation")
     public ResponseFormat postOrganisation(@RequestBody Organisation organisation, Authentication auth) {
         try {
-            System.out.println("organisation---" + organisation);
             int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
             int organisationId = this.organisationService.addOrganisation(organisation, curUser);
             return new ResponseFormat("Successfully added Organisation with Id " + organisationId);
@@ -58,7 +59,6 @@ public class OrganisationRestController {
     @GetMapping("/api/organisation")
     public ResponseFormat getOrganisation() {
         try {
-            System.out.println("organisation list---" + this.organisationService.getOrganisationList());
             return new ResponseFormat("Success", "", this.organisationService.getOrganisationList());
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
