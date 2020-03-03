@@ -107,14 +107,12 @@ public class OrganisationDaoImpl implements OrganisationDao {
         params.put("organisationId", o.getOrganisationId());
 
         params.put("organisationCode", o.getOrganisationCode());
-
         params.put("active", o.isActive());
         params.put("curUser", curUser);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(this.jdbcTemplate);
 
         int rows = nm.update("UPDATE rm_organisation o SET o.ACTIVE=:active,o.ORGANISATION_CODE=:organisationCode, o.LAST_MODIFIED_BY=:curUser, o.LAST_MODIFIED_DATE=:curDate WHERE o.ORGANISATION_ID=:organisationId", params);
-
         this.jdbcTemplate.update("DELETE FROM rm_organisation_country WHERE ORGANISATION_ID=?", o.getOrganisationId());
         SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_organisation_country");
         SqlParameterSource[] paramList = new SqlParameterSource[o.getRealmCountryArray().length];
@@ -175,7 +173,6 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 + "  LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + "  LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
                 + "  WHERE o.ORGANISATION_ID=?; ";
-
 
         return this.jdbcTemplate.query(sqlString, new OrganisationResultSetExtractor(), organisationId);
     }

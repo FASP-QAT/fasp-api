@@ -40,17 +40,16 @@ public class RealmDaoImpl implements RealmDao {
         this.dataSource = dataSource;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
-    
+
     @Autowired
     private LabelDao labelDao;
 
     @Override
     public List<Realm> getRealmList(boolean active) {
-        String sql = " SELECT r.*,lb.`LABEL_ID` AS RM_LABEL_ID,lb.`LABEL_EN` RM_LABEL_EN,lb.`LABEL_FR` RM_LABEL_FR,lb.`LABEL_PR` RM_LABEL_PR,lb.`LABEL_SP` AS RM_LABEL_SP FROM rm_realm r "
-                + " LEFT JOIN ap_label lb ON lb.`LABEL_ID`=r.`LABEL_ID` ";
-        if (active) {
-            sql += " WHERE r.`ACTIVE`";
-        }
+        String sql = " SELECT r.*,lb.`LABEL_ID` AS RM_LABEL_ID,lb.`LABEL_EN` RM_LABEL_EN,lb.`LABEL_FR` RM_LABEL_FR,lb.`LABEL_PR` RM_LABEL_PR,lb.`LABEL_SP` AS RM_LABEL_SP,cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`,lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME` FROM rm_realm r "
+                + " LEFT JOIN ap_label lb ON lb.`LABEL_ID`=r.`LABEL_ID` "
+                + " LEFT JOIN us_user cb ON r.CREATED_BY=cb.USER_ID "
+                + " LEFT JOIN us_user lmb ON r.LAST_MODIFIED_BY=lmb.USER_ID ";
         return this.jdbcTemplate.query(sql, new RealmRowMapper());
     }
 
@@ -112,7 +111,7 @@ public class RealmDaoImpl implements RealmDao {
         params.put("MONTHS_IN_PAST_FOR_AMC", r.getMonthInPastForAmc());
         params.put("MONTHS_IN_FUTURE_FOR_AMC", r.getMonthInFutureForAmc());
         params.put("ORDER_FREQUENCY", r.getOrderFrequency());
-        params.put("DEFAULT", false);
+        params.put("DEFAULT_REALM", false);
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser);
         params.put("CREATED_DATE", curDate);
@@ -132,21 +131,23 @@ public class RealmDaoImpl implements RealmDao {
         params.put("monthInPastForAmc", r.getMonthInPastForAmc());
         params.put("monthInFutureForAmc", r.getMonthInFutureForAmc());
         params.put("orgerFrequency", r.getOrderFrequency());
-        params.put("default", r.isDefaultRealm());
+        params.put("default_realm", r.isDefaultRealm());
         params.put("active", r.isActive());
         params.put("curUser", curUser);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(this.jdbcTemplate);
-        int rows = nm.update("UPDATE rm_realm r SET r.REALM_CODE=:realmCode ,r.MONTHS_IN_PAST_FOR_AMC=:monthInPastForAmc ,r.MONTHS_IN_FUTURE_FOR_AMC=:monthInFutureForAmc ,r.ORDER_FREQUENCY=:orgerFrequency ,r.DEFAULT=:default ,r.ACTIVE=:active ,r.LAST_MODIFIED_BY=:curUser, r.LAST_MODIFIED_DATE=:curDate WHERE r.REALM_ID=:realmId", params);
+        int rows = nm.update("UPDATE rm_realm r SET r.REALM_CODE=:realmCode ,r.MONTHS_IN_PAST_FOR_AMC=:monthInPastForAmc ,r.MONTHS_IN_FUTURE_FOR_AMC=:monthInFutureForAmc ,r.ORDER_FREQUENCY=:orgerFrequency ,r.DEFAULT_REALM=:default_realm ,r.ACTIVE=:active ,r.LAST_MODIFIED_BY=:curUser, r.LAST_MODIFIED_DATE=:curDate WHERE r.REALM_ID=:realmId", params);
         return rows;
     }
 
     @Override
     public Realm getRealmById(int realmId) {
-        String sql = " SELECT r.*,lb.`LABEL_ID` AS RM_LABEL_ID,lb.`LABEL_EN` RM_LABEL_EN,lb.`LABEL_FR` RM_LABEL_FR,lb.`LABEL_PR` RM_LABEL_PR,lb.`LABEL_SP` AS RM_LABEL_SP FROM rm_realm r "
-                + " LEFT JOIN ap_label lb ON lb.`LABEL_ID`=r.`LABEL_ID` ";
-            sql += " WHERE r.REALM_ID=?; ";
-        return this.jdbcTemplate.queryForObject(sql, new RealmRowMapper(),realmId);
+        String sql = " SELECT r.*,lb.`LABEL_ID` AS RM_LABEL_ID,lb.`LABEL_EN` RM_LABEL_EN,lb.`LABEL_FR` RM_LABEL_FR,lb.`LABEL_PR` RM_LABEL_PR,lb.`LABEL_SP` AS RM_LABEL_SP,cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`,lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME` FROM rm_realm r "
+                + " LEFT JOIN ap_label lb ON lb.`LABEL_ID`=r.`LABEL_ID` "
+                + " LEFT JOIN us_user cb ON r.CREATED_BY=cb.USER_ID "
+                + " LEFT JOIN us_user lmb ON r.LAST_MODIFIED_BY=lmb.USER_ID ";
+        sql += " WHERE r.REALM_ID=?; ";
+        return this.jdbcTemplate.queryForObject(sql, new RealmRowMapper(), realmId);
     }
 
 }
