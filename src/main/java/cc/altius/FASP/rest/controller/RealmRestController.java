@@ -37,6 +37,7 @@ public class RealmRestController {
             int realmId = this.realmService.addRealm(realm, curUser);
             return new ResponseFormat("Successfully added Realm with Id " + realmId);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseFormat("Failed", e.getMessage());
         }
     }

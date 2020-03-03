@@ -104,7 +104,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
 
     @Override
     public List<FundingSource> getFundingSourceList() {
-        String sql = "SELECT rm.*,al.`LABEL_EN`,al.`LABEL_FR`,al.`LABEL_SP`,al.`LABEL_PR`,al.`LABEL_ID`,\n"
+        String sql = "SELECT rm.*,rr.`REALM_CODE`,rr.`MONTHS_IN_PAST_FOR_AMC`,rr.`MONTHS_IN_FUTURE_FOR_AMC`,rr.`ORDER_FREQUENCY`,rr.`DEFAULT_REALM`,al.`LABEL_EN`,al.`LABEL_FR`,al.`LABEL_SP`,al.`LABEL_PR`,al.`LABEL_ID`,\n"
                 + "rr.`REALM_ID` `RM_REALM_ID`,lr.`LABEL_ID` `RM_LABEL_ID`,\n"
                 + "lr.`LABEL_EN` `RM_LABEL_EN`,lr.`LABEL_FR` `RM_LABEL_FR` ,lr.`LABEL_SP` `RM_LABEL_SP`,lr.`LABEL_PR` `RM_LABEL_PR`\n"
                 + "  FROM rm_funding_source rm \n"
@@ -116,7 +116,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
 
     @Override
     public FundingSource getFundingSourceById(int fundingSourceId) {
-        String sql = "SELECT rm.*,al.`LABEL_EN`,al.`LABEL_FR`,al.`LABEL_SP`,al.`LABEL_PR`,al.`LABEL_ID`,\n"
+        String sql = "SELECT rm.*,rr.`REALM_CODE`,rr.`MONTHS_IN_PAST_FOR_AMC`,rr.`MONTHS_IN_FUTURE_FOR_AMC`,rr.`ORDER_FREQUENCY`,rr.`DEFAULT_REALM`,al.`LABEL_EN`,al.`LABEL_FR`,al.`LABEL_SP`,al.`LABEL_PR`,al.`LABEL_ID`,\n"
                 + "rr.`REALM_ID` `RM_REALM_ID`,lr.`LABEL_ID` `RM_LABEL_ID`,\n"
                 + "lr.`LABEL_EN` `RM_LABEL_EN`,lr.`LABEL_FR` `RM_LABEL_FR` ,lr.`LABEL_SP` `RM_LABEL_SP`,lr.`LABEL_PR` `RM_LABEL_PR`\n"
                 + "  FROM rm_funding_source rm \n"
