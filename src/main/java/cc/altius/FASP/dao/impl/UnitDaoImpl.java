@@ -78,6 +78,10 @@ public class UnitDaoImpl implements UnitDao {
 
     @Override
     public int updateUnit(Unit h, int curUser) {
+
+        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
+        this.jdbcTemplate.update(sqlOne, h.getLabel().getLabel_en(), curUser, DateUtils.getCurrentDateObject(DateUtils.EST), h.getLabel().getLabelId());
+
         Map<String, Object> params = new HashMap<>();
         params.put("unitId", h.getUnitId());
         params.put("active", h.isActive());
