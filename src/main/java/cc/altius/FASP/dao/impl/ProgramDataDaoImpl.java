@@ -73,7 +73,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "pallet_unit.`UNIT_CODE` AS PALLET_UNIT_CODE,pallet_unit.`UNIT_TYPE_ID` AS PALLET_UNIT_TYPE_ID,\n"
                 + "put_label.`LABEL_EN` AS PALLET_UNIT_TYPE_NAME_EN,put_label.`LABEL_FR` AS PALLET_UNIT_TYPE_NAME_FR,\n"
                 + "put_label.`LABEL_PR` AS PALLET_UNIT_TYPE_NAME_PR,put_label.`LABEL_SP` AS PALLET_UNIT_TYPE_NAME_SP,\n"
-                + "rrc.`REALM_ID`,rr.`DEFAULT` AS DEFAULT_REALM,rr_label.`LABEL_EN` AS REALM_NAME_EN\n"
+                + "rrc.`REALM_ID`,rr.`DEFAULT_REALM` AS DEFAULT_REALM,rr_label.`LABEL_EN` AS REALM_NAME_EN\n"
                 + ",rr_label.`LABEL_FR` AS REALM_NAME_FR,rr_label.`LABEL_PR` AS REALM_NAME_PR\n"
                 + ",rr_label.`LABEL_SP` AS REALM_NAME_SP,rr.`MONTHS_IN_FUTURE_FOR_AMC` AS MONTHS_IN_FUTURE_FOR_AMC_REALM\n"
                 + ",rr.`MONTHS_IN_PAST_FOR_AMC` AS MONTHS_IN_PAST_FOR_AMC_REALM,rr.`ORDER_FREQUENCY`,rr.`REALM_CODE`,\n"
@@ -100,11 +100,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN ap_unit_type pu_type ON pu_type.`UNIT_TYPE_ID`=pallet_unit.`UNIT_TYPE_ID`\n"
                 + "LEFT JOIN ap_label put_label ON put_label.`LABEL_ID`=pu_type.`LABEL_ID`\n"
                 + "LEFT JOIN rm_realm rr ON rr.`REALM_ID`=rrc.`REALM_ID`\n"
-                //                + "LEFT JOIN rm_label rr_label ON rr_label.`LABEL_ID`=rr.`LABEL_ID` WHERE p.PROGRAM_ID=?;";
-                //        return this.jdbcTemplate.queryForObject(sql, new PrgProgramDataDTORowMapper(),programId);
+                                + "LEFT JOIN rm_label rr_label ON rr_label.`LABEL_ID`=rr.`LABEL_ID` WHERE p.PROGRAM_ID=?;";
+                        return this.jdbcTemplate.queryForObject(sql, new PrgProgramDataDTORowMapper(),programId);
 
-                + "LEFT JOIN ap_label rr_label ON rr_label.`LABEL_ID`=rr.`LABEL_ID` WHERE p.PROGRAM_ID IN (" + programId + ");";
-        return this.jdbcTemplate.queryForObject(sql, new PrgProgramDataDTORowMapper());
+//                + "LEFT JOIN ap_label rr_label ON rr_label.`LABEL_ID`=rr.`LABEL_ID` WHERE p.PROGRAM_ID IN (" + programId + ");";
+//        return this.jdbcTemplate.queryForObject(sql, new PrgProgramDataDTORowMapper());
 
     }
 
