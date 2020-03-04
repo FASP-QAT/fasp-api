@@ -86,7 +86,7 @@ public class ForgotPasswordToken implements Serializable {
         }
         Calendar allowedTriggerDate = Calendar.getInstance();
         allowedTriggerDate.setTime(this.tokenGenerationDate);
-        allowedTriggerDate.add(Calendar.MINUTE, 15);
+        allowedTriggerDate.add(Calendar.MINUTE, 5);
         Calendar curDate = Calendar.getInstance();
         curDate.setTime(DateUtils.getCurrentDateObject(DateUtils.EST));
         logger.error("allowed trigger date---" + allowedTriggerDate.getTime());
@@ -111,7 +111,7 @@ public class ForgotPasswordToken implements Serializable {
         }
         Calendar allowedCompletionDate = Calendar.getInstance();
         allowedCompletionDate.setTime(this.tokenTriggeredDate);
-        allowedCompletionDate.add(Calendar.MINUTE, 15);
+        allowedCompletionDate.add(Calendar.MINUTE, 5);
         Calendar curDate = Calendar.getInstance();
         curDate.setTime(DateUtils.getCurrentDateObject(DateUtils.EST));
         if (DateUtils.compareDate(allowedCompletionDate.getTime(), curDate.getTime()) == 1) {
