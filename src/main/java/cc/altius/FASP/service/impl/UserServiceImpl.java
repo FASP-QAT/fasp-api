@@ -34,7 +34,7 @@ public class UserServiceImpl implements UserService {
     private EmailService emailService;
 //    @Value("${urlHost}")
 //    private static String HOST_URL = "http://localhost:4202";
-    private static String HOST_URL = "https://faspdeveloper.github.io/palashSprint1";
+    private static String HOST_URL = "https://faspdeveloper.github.io/fasp";
 //    @Value("${urlPasswordReset}")
     private static String PASSWORD_RESET_URL = "resetPassword";
 
