@@ -11,7 +11,6 @@ import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.rowMapper.RealmCountryRowMapper;
 import cc.altius.FASP.model.rowMapper.RealmRowMapper;
-import cc.altius.FASP.rest.controller.RealmRestController;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -111,7 +110,7 @@ public class RealmDaoImpl implements RealmDao {
         params.put("MONTHS_IN_PAST_FOR_AMC", r.getMonthInPastForAmc());
         params.put("MONTHS_IN_FUTURE_FOR_AMC", r.getMonthInFutureForAmc());
         params.put("ORDER_FREQUENCY", r.getOrderFrequency());
-        params.put("DEFAULT_REALM", false);
+        params.put("DEFAULT_REALM", r.isDefaultRealm());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser);
         params.put("CREATED_DATE", curDate);
