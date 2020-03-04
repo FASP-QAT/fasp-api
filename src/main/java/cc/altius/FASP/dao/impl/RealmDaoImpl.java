@@ -124,8 +124,13 @@ public class RealmDaoImpl implements RealmDao {
     @Transactional
     public int updateRealm(Realm r, int curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+
+        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
+        this.jdbcTemplate.update(sqlOne, r.getLabel().getLabel_en(), curUser, curDate, r.getLabel().getLabelId());
+
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", r.getRealmId());
+        params.put("reaNameEn", r.getLabel().getLabel_en());
         params.put("realmCode", r.getRealmCode());
         params.put("monthInPastForAmc", r.getMonthInPastForAmc());
         params.put("monthInFutureForAmc", r.getMonthInFutureForAmc());
