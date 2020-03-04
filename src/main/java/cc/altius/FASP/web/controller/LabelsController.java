@@ -41,7 +41,6 @@ public class LabelsController {
         String json;
         List<Label> labelList = new ArrayList();
         labelList = this.labelsService.getLabelsListAll();
-      //  System.out.println("labelsList------." + labelList);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();
@@ -55,7 +54,6 @@ public class LabelsController {
       
         Gson g = new Gson();
         Label labels = g.fromJson(json, Label.class);
-        //System.out.println("label--->"+labels);
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             CustomUserDetails cd = (CustomUserDetails) authentication.getPrincipal();

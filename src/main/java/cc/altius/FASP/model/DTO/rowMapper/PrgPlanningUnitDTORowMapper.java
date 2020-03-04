@@ -31,6 +31,7 @@ public class PrgPlanningUnitDTORowMapper implements RowMapper<PrgPlanningUnitDTO
         pu.setPlanningUnitId(rs.getInt("PLANNING_UNIT_ID"));
         pu.setPrice(rs.getDouble("PRICE"));
         pu.setQtyOfForecastingUnits(rs.getDouble("QTY_OF_FORECASTING_UNITS"));
+        pu.setProductId(rs.getInt("PRODUCT_ID"));
         PrgUnitDTO unit = new PrgUnitDTO();
         unit.setUnitId(rs.getInt("UNIT_ID"));
         pu.setUnit(unit);

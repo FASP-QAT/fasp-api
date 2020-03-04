@@ -54,8 +54,6 @@ public class JwtTokenUtil implements Serializable {
 
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = getAllClaimsFromToken(token);
-        System.out.println("claims-----" + claims);
-        System.out.println("claimsResolver.apply(claims)------" + claimsResolver.apply(claims));
         return claimsResolver.apply(claims);
     }
 
@@ -93,14 +91,12 @@ public class JwtTokenUtil implements Serializable {
     }
 
     public String refreshToken(String token) {
-        System.out.println("refresh token method called---------------------");
         final Date createdDate = clock.now();
         final Date expirationDate = calculateExpirationDate(createdDate);
 
         final Claims claims = getAllClaimsFromToken(token);
         claims.setIssuedAt(createdDate);
         claims.setExpiration(expirationDate);
-        System.out.println("token renew---------------------"+token);
 
         return Jwts.builder().setClaims(claims).signWith(SignatureAlgorithm.HS512, secret).compact();
     }

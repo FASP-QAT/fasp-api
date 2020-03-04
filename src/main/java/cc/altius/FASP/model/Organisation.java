@@ -16,19 +16,19 @@ import java.util.List;
 public class Organisation extends BaseModel implements Serializable {
 
     private int organisationId;
-    private String code;
+    private String organisationCode;
     private Realm realm;
     private Label label;
     @JsonIgnore
     List<RealmCountry> realmCountryList;
-    int[] realmCountryArray;
+    String[] realmCountryArray;
 
     public Organisation() {
     }
 
-    public Organisation(int organisationId, String code, Realm realm, Label label) {
+    public Organisation(int organisationId, String organisationCode, Realm realm, Label label) {
         this.organisationId = organisationId;
-        this.code = code;
+        this.organisationCode = organisationCode;
         this.realm = realm;
         this.label = label;
     }
@@ -65,20 +65,20 @@ public class Organisation extends BaseModel implements Serializable {
         this.realmCountryList = realmCountryList;
     }
 
-    public int[] getRealmCountryArray() {
+    public String[] getRealmCountryArray() {
         return realmCountryArray;
     }
 
-    public void setRealmCountryArray(int[] realmCountryArray) {
+    public void setRealmCountryArray(String[] realmCountryArray) {
         this.realmCountryArray = realmCountryArray;
     }
 
-    public String getCode() {
-        return code;
+    public String getOrganisationCode() {
+        return organisationCode;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setOrganisationCode(String organisationCode) {
+        this.organisationCode = organisationCode;
     }
 
     @Override
@@ -108,7 +108,7 @@ public class Organisation extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "Organisation{" + "organisationId=" + organisationId + ", code=" + code + ", realm=" + realm + ", label=" + label + ", realmCountryList=" + realmCountryList + ", realmCountryArray=" + realmCountryArray + '}';
+        return "Organisation{" + "organisationId=" + organisationId + ", organisationCode=" + organisationCode + ", realm=" + realm + ", label=" + label + ", realmCountryList=" + realmCountryList + ", realmCountryArray=" + realmCountryArray + '}';
     }
 
 }

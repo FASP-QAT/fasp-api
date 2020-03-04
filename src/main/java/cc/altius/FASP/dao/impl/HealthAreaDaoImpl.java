@@ -78,7 +78,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_health_area_country");
         SqlParameterSource[] paramList = new SqlParameterSource[h.getRealmCountryArray().length];
         int i = 0;
-        for (int realmCountryId : h.getRealmCountryArray()) {
+        for (String realmCountryId : h.getRealmCountryArray()) {
             params = new HashMap<>();
             params.put("HEALTH_AREA_ID", healthAreaId);
             params.put("REALM_COUNTRY_ID", realmCountryId);
@@ -109,7 +109,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_health_area_country");
         SqlParameterSource[] paramList = new SqlParameterSource[h.getRealmCountryArray().length];
         int i = 0;
-        for (int realmCountryId : h.getRealmCountryArray()) {
+        for (String realmCountryId : h.getRealmCountryArray()) {
             params = new HashMap<>();
             params.put("HEALTH_AREA_ID", h.getHealthAreaId());
             params.put("REALM_COUNTRY_ID", realmCountryId);

@@ -77,6 +77,7 @@ public class CountryController {
                 return new ResponseEntity(responseFormat, HttpStatus.OK);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             ResponseFormat responseFormat = new ResponseFormat();
             responseFormat.setMessage("Error Accured");
             responseFormat.setStatus("Failed");

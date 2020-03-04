@@ -53,7 +53,7 @@ public class CountryDaoImpl implements CountryDao {
     @Transactional
     @Override
     public int addCountry(Country country) {
-
+        System.out.println("country----->"+country);
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
 
         SimpleJdbcInsert labelInsert = new SimpleJdbcInsert(dataSource).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
@@ -78,6 +78,7 @@ public class CountryDaoImpl implements CountryDao {
         SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("ap_country").usingGeneratedKeyColumns("COUNTRY_ID");
         Map<String, Object> map = new HashMap<>();
         map.put("CURRENCY_ID", country.getCurrency().getCurrencyId());
+        map.put("COUNTRY_CODE", country.getCountryCode());
         map.put("LANGUAGE_ID", country.getLanguage().getLanguageId());
         map.put("LABEL_ID", insertedLabelRowId);
         map.put("ACTIVE", 1);
@@ -95,9 +96,9 @@ public class CountryDaoImpl implements CountryDao {
         Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
         String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
         this.jdbcTemplate.update(sqlOne, country.getLabel().getLabel_en(),1, curDt, country.getLabel().getLabelId());
-        String sqlTwo = "UPDATE ap_country dt SET  dt.`LANGUAGE_ID`=?,dt.`CURRENCY_ID`=?,dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
+        String sqlTwo = "UPDATE ap_country dt SET  dt.`COUNTRY_CODE`=?,dt.`LANGUAGE_ID`=?,dt.`CURRENCY_ID`=?,dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
                 + " WHERE dt.`COUNTRY_ID`=?;";
-        return this.jdbcTemplate.update(sqlTwo, country.getLanguage().getLanguageId(), country.getCurrency().getCurrencyId(), country.isActive(), 1, curDt, country.getCountryId());
+        return this.jdbcTemplate.update(sqlTwo,country.getCountryCode() ,country.getLanguage().getLanguageId(), country.getCurrency().getCurrencyId(), country.isActive(), 1, curDt, country.getCountryId());
     }
 
     @Override

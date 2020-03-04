@@ -5,8 +5,10 @@
  */
 package cc.altius.FASP.web.controller;
 
-import cc.altius.FASP.model.DTO.PrgCurrencyDTO;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgManufacturerDTO;
+import cc.altius.FASP.model.Manufacturer;
+import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.ManufacturerService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -14,8 +16,13 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -41,6 +48,46 @@ public class ManufacturerController {
         }.getType();
         json = gson.toJson(manufacturerList, typeList);
         return json;
+    }
+    
+    @PostMapping(path = "/manufacturer")
+    public ResponseFormat postUnit(@RequestBody Manufacturer manufacturer, Authentication auth) {
+        try {
+            int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
+            int unitId = this.manufacturerService.addManufacturer(manufacturer, curUser);
+            return new ResponseFormat("Successfully added manufacturer with Id " + unitId);
+        } catch (Exception e) {
+            return new ResponseFormat("Failed", e.getMessage());
+        }
+    }
+
+    @PutMapping(path = "/manufacturer")
+    public ResponseFormat putHealhArea(@RequestBody Manufacturer manufacturer, Authentication auth) {
+        try {
+            int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
+            int rows = this.manufacturerService.updateManufacturer(manufacturer, curUser);
+            return new ResponseFormat("Successfully updated manufacturer");
+        } catch (Exception e) {
+            return new ResponseFormat("Failed", e.getMessage());
+        }
+    }
+
+    @GetMapping("/manufacturer")
+    public ResponseFormat getUnit() {
+        try {
+            return new ResponseFormat("Success", "", this.manufacturerService.getManufacturerList());
+        } catch (Exception e) {
+            return new ResponseFormat("Failed", e.getMessage());
+        }
+    }
+
+    @GetMapping("/manufacturer/{manufacturerId}")
+    public ResponseFormat getUnit(@PathVariable("manufacturerId") int manufacturerId) {
+        try {
+            return new ResponseFormat("Success", "", this.manufacturerService.getManufacturerById(manufacturerId));
+        } catch (Exception e) {
+            return new ResponseFormat("Failed", e.getMessage());
+        }
     }
 
 }

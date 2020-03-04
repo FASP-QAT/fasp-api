@@ -17,6 +17,15 @@ public class PrgPlanningUnitDTO {
     private double qtyOfForecastingUnits;
     private double price;
     private boolean active;
+    private int productId;
+
+    public int getProductId() {
+        return productId;
+    }
+
+    public void setProductId(int productId) {
+        this.productId = productId;
+    }
 
     public boolean isActive() {
         return active;

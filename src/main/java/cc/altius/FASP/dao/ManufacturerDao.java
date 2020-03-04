@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.DTO.PrgManufacturerDTO;
+import cc.altius.FASP.model.Manufacturer;
 import java.util.List;
 
 /**
@@ -13,7 +14,15 @@ import java.util.List;
  * @author altius
  */
 public interface ManufacturerDao {
-    
+
     public List<PrgManufacturerDTO> getManufacturerListForSync(String lastSyncDate);
-    
+
+    public int addManufacturer(Manufacturer m, int curUser);
+
+    public int updateManufacturer(Manufacturer m, int CurUser);
+
+    public List<Manufacturer> getManufacturerList();
+
+    public Manufacturer getManufacturerById(int unitId);
+
 }

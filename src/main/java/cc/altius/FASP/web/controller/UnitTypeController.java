@@ -75,7 +75,7 @@ public class UnitTypeController {
             json = gson.toJson(unitTypeList, typeList);
             return json;
         } catch (Exception e) {
-            //e.printStackTrace();
+            e.printStackTrace();
             return "";
         }
 
