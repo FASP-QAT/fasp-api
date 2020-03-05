@@ -330,13 +330,19 @@ public class UserController {
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             CustomUserDetails customUser = this.userService.getCustomUserByUsername(username);
+            System.out.println("customUser---" + customUser);
             if (customUser != null) {
                 if (customUser.isActive()) {
-                    String token = this.userService.generateTokenForUsername(username, 1);
-                    if (token == null || token.isEmpty()) {
+                    try {
+                        String token = this.userService.generateTokenForUsername(username, 1);
+                        if (token == null || token.isEmpty()) {
+                            return new ResponseFormat("Failed", "Cound not generate Token");
+                        } else {
+                            return new ResponseFormat("Success", "Email with password reset link sent", token);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                         return new ResponseFormat("Failed", "Cound not generate Token");
-                    } else {
-                        return new ResponseFormat("Success", "Email with password reset link sent", token);
                     }
                 } else {
                     logger.error("User is disabled---" + username);

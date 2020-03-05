@@ -133,13 +133,21 @@ public class UserServiceImpl implements UserService {
         }
         String token = this.userDao.generateTokenForUserId(user.getUserId());
         if (token != null && !token.isEmpty()) {
-            EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(emailTemplateId);
-            String[] subjectParam = new String[]{};
-            String[] bodyParam = new String[]{HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
-            Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
-            int emailerId = this.emailService.saveEmail(emailer);
-            emailer.setEmailerId(emailerId);
-            this.emailService.sendMail(emailer);
+            try {
+                EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(emailTemplateId);
+                String[] subjectParam = new String[]{};
+                String[] bodyParam = new String[]{HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
+                Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
+                try {
+                    int emailerId = this.emailService.saveEmail(emailer);
+                    emailer.setEmailerId(emailerId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                this.emailService.sendMail(emailer);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         return token;
     }
