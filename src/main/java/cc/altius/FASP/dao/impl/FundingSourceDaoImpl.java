@@ -7,6 +7,7 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.FundingSourceDao;
 import cc.altius.FASP.dao.LabelDao;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgFundingSourceDTO;
 import cc.altius.FASP.model.DTO.rowMapper.PrgFundingSourceDTORowMapper;
 import cc.altius.FASP.model.FundingSource;
@@ -33,6 +34,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
 
     private JdbcTemplate jdbcTemplate;
     private DataSource dataSource;
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
     private LabelDao labelDao;
@@ -41,12 +43,13 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Override
     public List<PrgFundingSourceDTO> getFundingSourceListForSync(String lastSyncDate) {
-        String sql = "SELECT fs.`ACTIVE`,fs.`FUNDING_SOURCE_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
-                + "FROM rm_funding_source fs \n"
+        String sql = "SELECT fs.`ACTIVE`,fs.`FUNDING_SOURCE_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP` "
+                + "FROM rm_funding_source fs  "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=fs.`LABEL_ID`";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
@@ -60,70 +63,75 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
 
     @Override
     @Transactional
-    public int addFundingSource(FundingSource f, int curUser) {
+    public int addFundingSource(FundingSource f, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("rm_funding_source").usingGeneratedKeyColumns("FUNDING_SOURCE_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", f.getRealm().getRealmId());
-        int labelId = this.labelDao.addLabel(f.getLabel(), curUser);
+        int labelId = this.labelDao.addLabel(f.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser);
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", curUser);
         params.put("LAST_MODIFIED_DATE", curDate);
-
-        int insertedRow = si.executeAndReturnKey(params).intValue();
-
-        SimpleJdbcInsert sii = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("tk_ticket").usingGeneratedKeyColumns("TICKET_ID");
-        Map<String, Object> paramsTwo = new HashMap<>();
-        paramsTwo.put("TICKET_TYPE_ID", 2);
-        paramsTwo.put("TICKET_STATUS_ID", 1);
-        paramsTwo.put("REFFERENCE_ID", insertedRow);
-        paramsTwo.put("NOTES", "");
-        paramsTwo.put("CREATED_BY", curUser);
-        paramsTwo.put("CREATED_DATE", curDate);
-        paramsTwo.put("LAST_MODIFIED_BY", curUser);
-        paramsTwo.put("LAST_MODIFIED_DATE", curDate);
-        sii.execute(paramsTwo);
-
-        return insertedRow;
+        return si.executeAndReturnKey(params).intValue();
+//        SimpleJdbcInsert sii = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("tk_ticket").usingGeneratedKeyColumns("TICKET_ID");
+//        Map<String, Object> paramsTwo = new HashMap<>();
+//        paramsTwo.put("TICKET_TYPE_ID", 2);
+//        paramsTwo.put("TICKET_STATUS_ID", 1);
+//        paramsTwo.put("REFFERENCE_ID", insertedRow);
+//        paramsTwo.put("NOTES", "");
+//        paramsTwo.put("CREATED_BY", curUser);
+//        paramsTwo.put("CREATED_DATE", curDate);
+//        paramsTwo.put("LAST_MODIFIED_BY", curUser);
+//        paramsTwo.put("LAST_MODIFIED_DATE", curDate);
+//        sii.execute(paramsTwo);
     }
 
     @Override
     @Transactional
-    public int updateFundingSource(FundingSource f, int curUser) {
+    public int updateFundingSource(FundingSource f, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
-        this.jdbcTemplate.update(sqlOne, f.getLabel().getLabel_en(), curUser, curDate, f.getLabel().getLabelId());
-
-        String sqlTwo = "UPDATE rm_funding_source dt SET  dt.`REALM_ID`=?,dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
-                + " WHERE dt.`FUNDING_SOURCE_ID`=?;";
-        return this.jdbcTemplate.update(sqlTwo, f.getRealm().getRealmId(), f.isActive(), curUser, curDate, f.getFundingSourceId());
+        Map<String, Object> params = new HashMap<>();
+        params.put("curDate", curDate);
+        params.put("curUser", curUser.getUserId());
+        params.put("fundingSourceId", f.getFundingSourceId());
+        params.put("active", f.isActive());
+        params.put("labelEn", f.getLabel().getLabel_en());
+        return this.namedParameterJdbcTemplate.update("UPDATE rm_funding_source fs LEFT JOIN ap_label fsl on fs.LABEL_ID=fsl.LABEL_ID SET fs.`ACTIVE`=:active, fs.`LAST_MODIFIED_BY`=:curUser, fs.`LAST_MODIFIED_DATE`=:curDate, fsl.LABEL_EN=:labelEn, fsl.LAST_MODIFIED_BY=:curUser, fsl.LAST_MODIFIED_DATE=:curDate WHERE fs.FUNDING_SOURCE_ID=:fundingSourceId", params);
     }
 
     @Override
-    public List<FundingSource> getFundingSourceList() {
-        String sql = "SELECT rm.*,rr.`REALM_CODE`,rr.`MONTHS_IN_PAST_FOR_AMC`,rr.`MONTHS_IN_FUTURE_FOR_AMC`,rr.`ORDER_FREQUENCY`,rr.`DEFAULT_REALM`,al.`LABEL_EN`,al.`LABEL_FR`,al.`LABEL_SP`,al.`LABEL_PR`,al.`LABEL_ID`,\n"
-                + "rr.`REALM_ID` `RM_REALM_ID`,lr.`LABEL_ID` `RM_LABEL_ID`,\n"
-                + "lr.`LABEL_EN` `RM_LABEL_EN`,lr.`LABEL_FR` `RM_LABEL_FR` ,lr.`LABEL_SP` `RM_LABEL_SP`,lr.`LABEL_PR` `RM_LABEL_PR`\n"
-                + "  FROM rm_funding_source rm \n"
-                + "LEFT JOIN  ap_label al ON al.`LABEL_ID`=rm.`LABEL_ID`\n"
-                + "LEFT JOIN rm_realm rr ON rr.`REALM_ID`=rm.`REALM_ID`\n"
-                + "LEFT JOIN ap_label lr ON lr.`LABEL_ID`=rr.`LABEL_ID`";
+    public List<FundingSource> getFundingSourceList(CustomUserDetails curUser) {
+        String sql = "SELECT  "
+                + "    fs.FUNDING_SOURCE_ID,  "
+                + "    fsl.`LABEL_ID`, fsl.`LABEL_EN`, fsl.`LABEL_FR`, fsl.`LABEL_PR`, fsl.`LABEL_SP`,  "
+                + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE,  "
+                + "    fs.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fs.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, fs.LAST_MODIFIED_DATE  "
+                + "FROM rm_funding_source fs  "
+                + "LEFT JOIN ap_label fsl ON fs.`LABEL_ID`=fsl.`LABEL_ID`  "
+                + "LEFT JOIN rm_realm r ON fs.`REALM_ID`=r.`REALM_ID`  "
+                + "LEFT JOIN ap_label rl ON r.`LABEL_ID`=rl.`LABEL_ID` "
+                + "LEFT JOIN us_user cb ON fs.CREATED_BY=cb.USER_ID  "
+                + "LEFT JOIN us_user lmb ON fs.LAST_MODIFIED_BY=lmb.USER_ID";
         return this.jdbcTemplate.query(sql, new FundingSourceRowMapper());
     }
 
     @Override
-    public FundingSource getFundingSourceById(int fundingSourceId) {
-        String sql = "SELECT rm.*,rr.`REALM_CODE`,rr.`MONTHS_IN_PAST_FOR_AMC`,rr.`MONTHS_IN_FUTURE_FOR_AMC`,rr.`ORDER_FREQUENCY`,rr.`DEFAULT_REALM`,al.`LABEL_EN`,al.`LABEL_FR`,al.`LABEL_SP`,al.`LABEL_PR`,al.`LABEL_ID`,\n"
-                + "rr.`REALM_ID` `RM_REALM_ID`,lr.`LABEL_ID` `RM_LABEL_ID`,\n"
-                + "lr.`LABEL_EN` `RM_LABEL_EN`,lr.`LABEL_FR` `RM_LABEL_FR` ,lr.`LABEL_SP` `RM_LABEL_SP`,lr.`LABEL_PR` `RM_LABEL_PR`\n"
-                + "  FROM rm_funding_source rm \n"
-                + "LEFT JOIN  ap_label al ON al.`LABEL_ID`=rm.`LABEL_ID`\n"
-                + "LEFT JOIN rm_realm rr ON rr.`REALM_ID`=rm.`REALM_ID`\n"
-                + "LEFT JOIN ap_label lr ON lr.`LABEL_ID`=rr.`LABEL_ID`"
-                + "WHERE rm.`FUNDING_SOURCE_ID`=?";
+    public FundingSource getFundingSourceById(int fundingSourceId, CustomUserDetails curUser) {
+        String sql = "SELECT  "
+                + "    fs.FUNDING_SOURCE_ID,  "
+                + "    fsl.`LABEL_ID`, fsl.`LABEL_EN`, fsl.`LABEL_FR`, fsl.`LABEL_PR`, fsl.`LABEL_SP`,  "
+                + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE,  "
+                + "    fs.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fs.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, fs.LAST_MODIFIED_DATE  "
+                + "FROM rm_funding_source fs  "
+                + "LEFT JOIN ap_label fsl ON fs.`LABEL_ID`=fsl.`LABEL_ID`  "
+                + "LEFT JOIN rm_realm r ON fs.`REALM_ID`=r.`REALM_ID`  "
+                + "LEFT JOIN ap_label rl ON r.`LABEL_ID`=rl.`LABEL_ID` "
+                + "LEFT JOIN us_user cb ON fs.CREATED_BY=cb.USER_ID  "
+                + "LEFT JOIN us_user lmb ON fs.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE fs.`FUNDING_SOURCE_ID`=?";
         return this.jdbcTemplate.queryForObject(sql, new FundingSourceRowMapper(), fundingSourceId);
     }
 

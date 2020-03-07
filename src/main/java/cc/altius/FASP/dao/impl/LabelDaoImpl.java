@@ -7,7 +7,7 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.Label;
-import cc.altius.FASP.model.rowMapper.LabelsRowMapper;
+import cc.altius.FASP.model.rowMapper.LabelRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.HashMap;
 import java.util.List;
@@ -58,7 +58,7 @@ public class LabelDaoImpl implements LabelDao {
     @Override
     public List<Label> getLabelsListAll() {
         String sql = "select * from ap_label";
-        return this.jdbcTemplate.query(sql, new LabelsRowMapper());
+        return this.jdbcTemplate.query(sql, new LabelRowMapper());
     }
 
     @Override

@@ -30,3 +30,4 @@ nbdist/
 .nb-gradle/
 
 # End of https://www.gitignore.io/api/netbeans
+/src/main/resources/fasp - db design.mwb.bak

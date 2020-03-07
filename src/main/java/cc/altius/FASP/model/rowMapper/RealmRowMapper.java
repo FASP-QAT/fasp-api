@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
-import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.Realm;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,9 +25,8 @@ public class RealmRowMapper implements RowMapper<Realm> {
         r.setMonthInFutureForAmc(rs.getInt("MONTHS_IN_FUTURE_FOR_AMC"));
         r.setOrderFrequency(rs.getInt("ORDER_FREQUENCY"));
         r.setDefaultRealm(rs.getBoolean("DEFAULT_REALM"));
-//        r.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
-        
-        r.setLabel(new LabelRowMapper("RM_").mapRow(rs, i));
+        r.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
+        r.setLabel(new LabelRowMapper().mapRow(rs, i));
         return r;
     }
 

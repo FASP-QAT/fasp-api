@@ -14,7 +14,7 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author palash
  */
-public class ManufacturerRowMapper implements RowMapper<Manufacturer>{
+public class ManufacturerRowMapper implements RowMapper<Manufacturer> {
 
     @Override
     public Manufacturer mapRow(ResultSet rs, int i) throws SQLException {
@@ -23,8 +23,8 @@ public class ManufacturerRowMapper implements RowMapper<Manufacturer>{
         m.setManufacturerId(rs.getInt("MANUFACTURER_ID"));
         m.setLabel(new LabelRowMapper().mapRow(rs, i));
         m.setRealm(new RealmRowMapper().mapRow(rs, i));
-        
+
         return m;
     }
-    
+
 }

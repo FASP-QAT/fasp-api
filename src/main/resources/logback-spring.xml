@@ -52,12 +52,13 @@
         <appender-ref ref="RootConsole" />
     </logger>
     
-    <logger name="org.springframework" level="info" additivity="false">
+    <logger name="org.springframework" level="debug" additivity="false">
         <appender-ref ref="RootConsole" />
     </logger>
  
     <!-- LOG "cc.altius.sb*" at INFO level -->
     <logger name="cc.altius.FASP" level="info" additivity="false">
+        <appender-ref ref="RootConsole" />
         <appender-ref ref="SpringBootFile" />
     </logger>
  

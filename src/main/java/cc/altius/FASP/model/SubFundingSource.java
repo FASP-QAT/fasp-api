@@ -14,15 +14,24 @@ import java.util.Objects;
  */
 public class SubFundingSource extends BaseModel implements Serializable {
 
-    private Integer subFundingSourceId;
+    private int subFundingSourceId;
     private FundingSource fundingSource;
     private Label label;
 
-    public Integer getSubFundingSourceId() {
+    public SubFundingSource() {
+    }
+
+    public SubFundingSource(int subFundingSourceId, Label label, FundingSource fundingSource) {
+        this.subFundingSourceId = subFundingSourceId;
+        this.label = label;
+        this.fundingSource = fundingSource;
+    }
+
+    public int getSubFundingSourceId() {
         return subFundingSourceId;
     }
 
-    public void setSubFundingSourceId(Integer subFundingSourceId) {
+    public void setSubFundingSourceId(int subFundingSourceId) {
         this.subFundingSourceId = subFundingSourceId;
     }
 

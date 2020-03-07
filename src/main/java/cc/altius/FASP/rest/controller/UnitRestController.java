@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -24,13 +25,14 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
+@RequestMapping("/api")
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class UnitRestController {
 
     @Autowired
     private UnitService unitService;
 
-    @PostMapping(path = "/api/unit")
+    @PostMapping(path = "/unit")
     public ResponseFormat postUnit(@RequestBody Unit heatlhArea, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
@@ -41,7 +43,7 @@ public class UnitRestController {
         }
     }
 
-    @PutMapping(path = "/api/unit")
+    @PutMapping(path = "/unit")
     public ResponseFormat putHealhArea(@RequestBody Unit heatlhArea, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
@@ -52,7 +54,7 @@ public class UnitRestController {
         }
     }
 
-    @GetMapping("/api/unit")
+    @GetMapping("/unit")
     public ResponseFormat getUnit() {
         try {
             return new ResponseFormat("Success", "", this.unitService.getUnitList());
@@ -61,7 +63,7 @@ public class UnitRestController {
         }
     }
 
-    @GetMapping("/api/unit/{unitId}")
+    @GetMapping("/unit/{unitId}")
     public ResponseFormat getUnit(@PathVariable("unitId") int unitId) {
         try {
             return new ResponseFormat("Success", "", this.unitService.getUnitById(unitId));

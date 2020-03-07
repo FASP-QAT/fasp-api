@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgFundingSourceDTO;
 import cc.altius.FASP.model.FundingSource;
 import java.util.List;
@@ -17,12 +18,12 @@ public interface FundingSourceService {
 
     public List<PrgFundingSourceDTO> getFundingSourceListForSync(String lastSyncDate);
 
-    public int addFundingSource(FundingSource f, int curUser);
+    public int addFundingSource(FundingSource f, CustomUserDetails curUser);
 
-    public int updateFundingSource(FundingSource f, int CurUser);
+    public int updateFundingSource(FundingSource f, CustomUserDetails CurUser);
 
-    public List<FundingSource> getFundingSourceList();
+    public List<FundingSource> getFundingSourceList(CustomUserDetails curUser);
 
-    public FundingSource getFundingSourceById(int unitId);
+    public FundingSource getFundingSourceById(int unitId, CustomUserDetails curUser);
 
 }

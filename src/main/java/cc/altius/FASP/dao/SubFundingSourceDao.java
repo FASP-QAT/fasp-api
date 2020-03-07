@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgSubFundingSourceDTO;
 import cc.altius.FASP.model.SubFundingSource;
 import java.util.List;
@@ -15,14 +16,14 @@ import java.util.List;
  */
 public interface SubFundingSourceDao {
     
-    public List<PrgSubFundingSourceDTO> getSubFundingSourceListForSync(String lastSyncDate);
+public List<PrgSubFundingSourceDTO> getSubFundingSourceListForSync(String lastSyncDate);
 
-    public SubFundingSource getSubFundingSourceById(int subFundingSourceId);
+    public SubFundingSource getSubFundingSourceById(int subFundingSourceId, CustomUserDetails curUser);
 
-    public List<SubFundingSource> getSubFundingSourceList();
+    public List<SubFundingSource> getSubFundingSourceList(CustomUserDetails curUser);
 
-    public int updateSubFundingSource(SubFundingSource subFundingSource, int curUser);
+    public int updateSubFundingSource(SubFundingSource subFundingSource, CustomUserDetails curUser);
 
-    public int addSubFundingSource(SubFundingSource subFundingSource, int curUser);
+    public int addSubFundingSource(SubFundingSource subFundingSource, CustomUserDetails curUser);
     
 }

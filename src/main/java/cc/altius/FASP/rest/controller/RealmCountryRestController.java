@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -26,13 +27,14 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
+@RequestMapping("/api")
 @CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class RealmCountryRestController extends BaseModel implements Serializable {
     
     @Autowired
     private RealmCountryService realmCountryService;
     
-    @PostMapping(path = "/api/realmCountry")
+    @PostMapping(path = "/realmCountry")
     public ResponseFormat postOrganisation(@RequestBody RealmCountry realmCountry, Authentication auth) {
         try {
             int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
@@ -43,7 +45,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @PutMapping(path = "/api/realmCountry")
+    @PutMapping(path = "/realmCountry")
     public ResponseFormat putOrganisation(@RequestBody RealmCountry realmCountry, Authentication auth) {
         try {
             int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
@@ -55,7 +57,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/api/realmCountry")
+    @GetMapping("/realmCountry")
     public ResponseFormat getOrganisation() {
         try {
             return new ResponseFormat("Success", "", this.realmCountryService.getRealmCountryList());
@@ -64,7 +66,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/api/realmCountry/{realmCountryId}")
+    @GetMapping("/realmCountry/{realmCountryId}")
     public ResponseFormat getOrganisation(@PathVariable("organisationId") int organisationId) {
         try {
             return new ResponseFormat("Success", "", this.realmCountryService.getRealmCountryById(organisationId));

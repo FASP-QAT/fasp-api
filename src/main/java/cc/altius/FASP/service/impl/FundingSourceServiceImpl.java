@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.FundingSourceDao;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgFundingSourceDTO;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.service.FundingSourceService;
@@ -29,23 +30,23 @@ public class FundingSourceServiceImpl implements FundingSourceService {
     }
 
     @Override
-    public int addFundingSource(FundingSource f, int curUser) {
-        return this.fundingSourceDao.addFundingSource(f,curUser);
+    public int addFundingSource(FundingSource f, CustomUserDetails curUser) {
+        return this.fundingSourceDao.addFundingSource(f, curUser);
     }
 
     @Override
-    public int updateFundingSource(FundingSource f, int CurUser) {
-         return this.fundingSourceDao.updateFundingSource(f,CurUser);
+    public int updateFundingSource(FundingSource f, CustomUserDetails curUser) {
+        return this.fundingSourceDao.updateFundingSource(f, curUser);
     }
 
     @Override
-    public List<FundingSource> getFundingSourceList() {
-          return this.fundingSourceDao.getFundingSourceList();
+    public List<FundingSource> getFundingSourceList(CustomUserDetails curUser) {
+        return this.fundingSourceDao.getFundingSourceList(curUser);
     }
 
     @Override
-    public FundingSource getFundingSourceById(int fundingSourceId) {
-      return this.fundingSourceDao.getFundingSourceById(fundingSourceId);
+    public FundingSource getFundingSourceById(int fundingSourceId, CustomUserDetails curUser) {
+        return this.fundingSourceDao.getFundingSourceById(fundingSourceId, curUser);
     }
 
 }

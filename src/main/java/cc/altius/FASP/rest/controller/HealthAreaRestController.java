@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
+@RequestMapping("/api")
 @CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class HealthAreaRestController {
 
@@ -34,7 +35,7 @@ public class HealthAreaRestController {
     @Autowired
     private AclService aclService;
 
-    @PostMapping(path = "/api/healthArea")
+    @PostMapping(path = "/healthArea")
     public ResponseFormat postHealthArea(@RequestBody HealthArea heatlhArea, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
@@ -45,7 +46,7 @@ public class HealthAreaRestController {
         }
     }
 
-    @PutMapping(path = "/api/healthArea")
+    @PutMapping(path = "/healthArea")
     public ResponseFormat putHealhArea(@RequestBody HealthArea heatlhArea, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
@@ -56,7 +57,7 @@ public class HealthAreaRestController {
         }
     }
 
-    @GetMapping("/api/healthArea")
+    @GetMapping("/healthArea")
     public ResponseFormat getHealthArea(Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
@@ -66,7 +67,7 @@ public class HealthAreaRestController {
         }
     }
 
-    @GetMapping("/api/healthArea/{healthAreaId}")
+    @GetMapping("/healthArea/{healthAreaId}")
     public ResponseFormat getHealthArea(@PathVariable("healthAreaId") int healthAreaId, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
