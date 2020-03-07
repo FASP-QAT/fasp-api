@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.PrgHealthAreaDTO;
 import cc.altius.FASP.model.HealthArea;
 import java.util.List;
 
@@ -14,6 +15,8 @@ import java.util.List;
  * @author akil
  */
 public interface HealthAreaDao {
+
+    public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate);
 
     public int addHealthArea(HealthArea h, CustomUserDetails curUser);
 

@@ -6,6 +6,8 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
+import cc.altius.FASP.model.DTO.PrgUnitDTO;
+import cc.altius.FASP.model.DTO.rowMapper.PrgUnitDTORowMapper;
 import cc.altius.FASP.dao.UnitDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Unit;
@@ -25,22 +27,39 @@ import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
- * @author akil
+ * @author altius
  */
 @Repository
 public class UnitDaoImpl implements UnitDao {
 
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
-
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Autowired
-    private LabelDao labelDao;
+    LabelDao labelDao;
+
+    @Override
+    public List<PrgUnitDTO> getUnitListForSync(String lastSyncDate) {
+        String sql = "SELECT u.`ACTIVE`,u.`LABEL_ID`,u.`UNIT_CODE`,u.`UNIT_ID`,u.`UNIT_TYPE_ID`,\n"
+                + "l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
+                + "FROM ap_unit u \n"
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=u.`LABEL_ID`";
+        Map<String, Object> params = new HashMap<>();
+        if (!lastSyncDate.equals("null")) {
+            sql += " WHERE u.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            params.put("lastSyncDate", lastSyncDate);
+        }
+        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
+        return nm.query(sql, params, new PrgUnitDTORowMapper());
+    }
 
     @Override
     @Transactional
@@ -62,13 +81,15 @@ public class UnitDaoImpl implements UnitDao {
 
     @Override
     public int updateUnit(Unit h, CustomUserDetails curUser) {
+        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
+        this.jdbcTemplate.update(sqlOne, h.getLabel().getLabel_en(), curUser, DateUtils.getCurrentDateObject(DateUtils.EST), h.getLabel().getLabelId());
         Map<String, Object> params = new HashMap<>();
         params.put("unitId", h.getUnitId());
         params.put("active", h.isActive());
+        params.put("unitCode", h.getUnitCode());
+        params.put("unitTypeId", h.getUnitType().getUnitTypeId());
         params.put("curUser", curUser.getUserId());
-        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(this.jdbcTemplate);
-        return nm.update("UPDATE ap_unit u SET u.ACTIVE=:active, u.LAST_MODIFIED_BY=:curUser, u.LAST_MODIFIED_DATE=:curDate WHERE u.UNIT_ID=:unitId", params);
+        return this.namedParameterJdbcTemplate.update("UPDATE ap_unit u SET u.UNIT_TYPE_ID=:unitTypeId,u.UNIT_CODE=:unitCode,u.ACTIVE=:active, u.LAST_MODIFIED_BY=:curUser, u.LAST_MODIFIED_DATE=:curDate WHERE u.UNIT_ID=:unitId", params);
     }
 
     @Override

@@ -16,6 +16,7 @@ import cc.altius.FASP.model.DTO.PrgRealmCountryDTO;
 import cc.altius.FASP.model.DTO.PrgRealmDTO;
 import cc.altius.FASP.model.DTO.PrgUnitDTO;
 import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
+import cc.altius.FASP.model.UnitType;
 import cc.altius.FASP.model.User;
 import java.sql.ResultSet;
 import java.sql.SQLException;

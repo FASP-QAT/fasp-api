@@ -7,6 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.HealthAreaDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.PrgHealthAreaDTO;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.HealthAreaService;
@@ -27,6 +28,11 @@ public class HealthAreaServiceImpl implements HealthAreaService {
     @Autowired
     private AclService aclService;
 
+    @Override
+    public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate) {
+        return this.healthAreaDao.getHealthAreaListForSync(lastSyncDate);
+    }
+    
     @Override
     public int addHealthArea(HealthArea h, CustomUserDetails curUser) {
         if (this.aclService.checkRealmAccessForUser(curUser, h.getRealm().getRealmId())) {

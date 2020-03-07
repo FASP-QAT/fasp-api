@@ -11,6 +11,7 @@ import cc.altius.FASP.model.DTO.PrgProductDTO;
 import cc.altius.FASP.model.DTO.PrgProgramProductDTO;
 import cc.altius.FASP.model.DTO.PrgUnitDTO;
 import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
+import cc.altius.FASP.model.UnitType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;

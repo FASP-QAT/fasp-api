@@ -31,16 +31,17 @@ public class OrganisationListResultSetExtractor implements ResultSetExtractor<Li
             newOrganisationId = rs.getInt("ORGANISATION_ID");
             if (oldOrganisationId != newOrganisationId) {
                 if (oldOrganisationId != 0) {
-                    o.setRealmCountryArray(new int[o.getRealmCountryList().size()]);
+                    o.setRealmCountryArray(new String[o.getRealmCountryList().size()]);
                     int x = 0;
                     for (RealmCountry rc : o.getRealmCountryList()) {
-                        o.getRealmCountryArray()[x] = rc.getRealmCountryId();
+                        o.getRealmCountryArray()[x] = Integer.toString(rc.getRealmCountryId());
                         x++;
                     }
                     oList.add(o);
                 }
                 o = new Organisation();
-                o.setCode(rs.getString("CODE"));
+
+                o.setOrganisationCode(rs.getString("ORGANISATION_CODE"));
                 o.setOrganisationId(rs.getInt("ORGANISATION_ID"));
                 o.setRealm(new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")));
                 o.setLabel(new LabelRowMapper().mapRow(rs, 1));
@@ -56,10 +57,10 @@ public class OrganisationListResultSetExtractor implements ResultSetExtractor<Li
             oldOrganisationId = newOrganisationId;
         }
         if (o.getOrganisationId() != 0) {
-            o.setRealmCountryArray(new int[o.getRealmCountryList().size()]);
+            o.setRealmCountryArray(new String[o.getRealmCountryList().size()]);
             int x = 0;
             for (RealmCountry rc : o.getRealmCountryList()) {
-                o.getRealmCountryArray()[x] = rc.getRealmCountryId();
+                o.getRealmCountryArray()[x] = Integer.toString(rc.getRealmCountryId());
                 x++;
             }
             oList.add(o);

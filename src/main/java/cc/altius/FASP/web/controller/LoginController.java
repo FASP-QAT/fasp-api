@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4202")
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
 public class LoginController {
 
     @Autowired
@@ -38,8 +38,6 @@ public class LoginController {
         try {
             String username = request.getHeader("username");
             String password = request.getHeader("password");
-            System.out.println("username---" + username);
-            System.out.println("password---" + password);
             if (username == null || password == null) {
                 responseFormat.setStatus("failed");
                 responseFormat.setMessage("Username or Password not provided");

@@ -30,8 +30,9 @@ public class UnitTypeRowMapper implements RowMapper<UnitType> {
     public UnitType mapRow(ResultSet rs, int i) throws SQLException {
         UnitType ut = new UnitType();
         ut.setUnitTypeId(rs.getInt("UNIT_TYPE_ID"));
-        ut.setLabel(new LabelRowMapper().mapRow(rs, i));
+        ut.setLabel(new LabelRowMapper(prefix).mapRow(rs, i));
         return ut;
     }
 
 }
+

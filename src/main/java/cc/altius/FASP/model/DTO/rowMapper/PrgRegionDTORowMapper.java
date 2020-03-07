@@ -28,6 +28,7 @@ public class PrgRegionDTORowMapper implements RowMapper<PrgRegionDTO> {
         regionLabel.setLabelPr(rs.getString("REGION_NAME_PR"));
         regionLabel.setLabelSp(rs.getString("REGION_NAME_SP"));
         region.setLabel(regionLabel);
+        region.setActive(rs.getBoolean("ACTIVE"));
         return region;
     }
 

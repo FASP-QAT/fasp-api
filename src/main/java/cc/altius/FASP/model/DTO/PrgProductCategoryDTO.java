@@ -5,9 +5,6 @@
  */
 package cc.altius.FASP.model.DTO;
 
-import cc.altius.FASP.model.DTO.PrgLabelDTO;
-import java.util.Date;
-
 /**
  *
  * @author altius
@@ -16,6 +13,15 @@ public class PrgProductCategoryDTO {
 
     private int productCategoryId;
     private PrgLabelDTO label;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public int getProductCategoryId() {
         return productCategoryId;

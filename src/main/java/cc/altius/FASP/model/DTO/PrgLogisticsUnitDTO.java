@@ -28,6 +28,15 @@ public class PrgLogisticsUnitDTO {
     private double weightQty;
     private double qtyInEuro1;
     private double qtyInEuro2;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public PrgPlanningUnitDTO getPlanningUnit() {
         return planningUnit;

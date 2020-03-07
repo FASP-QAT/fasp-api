@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4202")
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
 public class LabelsController {
 
     @Autowired
@@ -41,7 +41,6 @@ public class LabelsController {
         String json;
         List<Label> labelList = new ArrayList();
         labelList = this.labelsService.getLabelsListAll();
-      //  System.out.println("labelsList------." + labelList);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();
@@ -55,7 +54,6 @@ public class LabelsController {
       
         Gson g = new Gson();
         Label labels = g.fromJson(json, Label.class);
-        //System.out.println("label--->"+labels);
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             CustomUserDetails cd = (CustomUserDetails) authentication.getPrincipal();

@@ -5,7 +5,9 @@
  */
 package cc.altius.FASP.dao.impl;
 
-import cc.altius.FASP.dao.UnityTypeDao;
+import cc.altius.FASP.dao.UnitTypeDao;
+import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
+import cc.altius.FASP.model.DTO.rowMapper.PrgUnitTypeDTORowMapper;
 import cc.altius.FASP.model.UnitType;
 import cc.altius.FASP.model.rowMapper.UnitTypeRowMapper;
 import cc.altius.utils.DateUtils;
@@ -16,28 +18,33 @@ import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 /**
  *
- * @author palash
+ * @author altius
  */
 @Repository
-public class UnityTypeDaoImpl implements UnityTypeDao {
+public class UnitTypeDaoImpl implements UnitTypeDao {
 
     private JdbcTemplate jdbcTemplate;
     private DataSource dataSource;
-    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
+    @Override
+    public List<PrgUnitTypeDTO> getUnitTypeListForSync() {
+        String sql = "SELECT u.`UNIT_TYPE_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
+                + "FROM ap_unit_type u\n"
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=u.`LABEL_ID`";
+        return this.jdbcTemplate.query(sql, new PrgUnitTypeDTORowMapper());
+    }
+    
     @Override
     public int addUnitType(UnitType unitType, int userId) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
@@ -71,7 +78,7 @@ public class UnityTypeDaoImpl implements UnityTypeDao {
     public List<UnitType> getUnitTypeList(boolean active) {
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT ut.`LABEL_ID`,ut.`UNIT_TYPE_ID`,\n"
-                + "al.`LABEL_EN`,al.`LABEL_FR`,al.`LABEL_PR`,al.`LABEL_SP`,al.`CREATED_DATE`,al.`LAST_MODIFIED_DATE` \n"
+                + "al.`LABEL_EN`,al.`LABEL_FR`,al.`LABEL_PR`,al.`LABEL_SP` \n"
                 + "FROM ap_unit_type ut  \n"
                 + "LEFT JOIN  ap_label al ON al.`LABEL_ID`=ut.`LABEL_ID`");
         if (active) {

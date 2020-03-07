@@ -229,7 +229,6 @@ public class UserDaoImpl implements UserDao {
         int userId = insert.executeAndReturnKey(map).intValue();
         String sqlString = "INSERT INTO us_user_role (USER_ID, ROLE_ID,CREATED_BY,CREATED_DATE,LAST_MODIFIED_BY,LAST_MODIFIED_DATE) VALUES(:userId,:roleId,:curUser,:curDate,:curUser,:curDate)";
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
-        System.out.println("role array---" + user.getRoles());
         Map<String, Object>[] paramArray = new HashMap[user.getRoleList().length];
         Map<String, Object> params = new HashMap<>();
         int x = 0;
@@ -338,6 +337,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    @Transactional
     public int updateUser(User user, int curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sqlString = "";
@@ -362,32 +362,25 @@ public class UserDaoImpl implements UserDao {
         map.put("lastModifiedDate", curDate);
         map.put("userId", user.getUserId());
         int row = namedParameterJdbcTemplate.update(sqlString, map);
-        System.out.println("row---" + row);
         sqlString = "DELETE FROM us_user_role WHERE  USER_ID=?;";
         row = this.jdbcTemplate.update(sqlString, user.getUserId());
-        System.out.println("row---" + row);
         sqlString = "INSERT INTO us_user_role (USER_ID, ROLE_ID,CREATED_BY,CREATED_DATE,LAST_MODIFIED_BY,LAST_MODIFIED_DATE) VALUES(:userId,:roleId,:curUser,:curDate,:curUser,:curDate)";
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
-        System.out.println("user---" + user);
         Map<String, Object>[] paramArray = new HashMap[user.getRoleList().length];
         Map<String, Object> params = new HashMap<>();
         int x = 0;
         for (String role : user.getRoleList()) {
             params = new HashMap<>();
-            System.out.println("user id---" + user.getUserId());
             params.put("userId", user.getUserId());
             params.put("roleId", role);
             params.put("curUser", curUser);
             params.put("curDate", curDate);
 //            params.put("curUser", curUser);
 //            params.put("curDate", curDate);
-            System.out.println("params===" + params);
             paramArray[x] = params;
             x++;
         }
-        System.out.println("paramArray---" + Arrays.toString(paramArray));
         nm.batchUpdate(sqlString, paramArray);
-        System.out.println("user.getUserAclList()---" + user.getUserAclList());
 //        if (user.getUserAclList() != null && user.getUserAclList().size()>0) {
 //            sqlString = "DELETE FROM us_user_acl WHERE  USER_ID=?;";
 //            this.jdbcTemplate.update(sqlString, user.getUserId());
@@ -446,7 +439,6 @@ public class UserDaoImpl implements UserDao {
                 + "u.`LAST_MODIFIED_BY`=:lastModifiedBy "
                 + "WHERE u.`USER_ID`=:userId;";
         Map<String, Object> map = new HashMap<>();
-        System.out.println("date------" + DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
         map.put("expiresOn", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
         map.put("pwd", password);
         map.put("lastModifiedBy", 1);
@@ -465,7 +457,6 @@ public class UserDaoImpl implements UserDao {
         String sqlString = "SELECT b.*,l.* FROM us_business_function b "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=b.`LABEL_ID`; ";
         try {
-            System.out.println("labels----------" + this.jdbcTemplate.query(sqlString, new BusinessFunctionRowMapper()));
             return this.jdbcTemplate.query(sqlString, new BusinessFunctionRowMapper());
         } catch (Exception e) {
             e.printStackTrace();
@@ -476,7 +467,6 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int updatePassword(int userId, String newPassword, int offset) {
         Date offsetDate = DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, offset);
-        System.out.println("offsetDate---" + offsetDate);
         String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn,FAILED_ATTEMPTS=0 WHERE us_user.USER_ID=:userId";
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
@@ -488,7 +478,6 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int updatePassword(String username, String token, String newPassword, int offset) {
         Date offsetDate = DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, offset);
-        System.out.println("offsetDate---" + offsetDate);
         String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn, FAILED_ATTEMPTS=0 WHERE us_user.USERNAME=:username";
         Map<String, Object> params = new HashMap<>();
         params.put("username", username);
@@ -504,7 +493,6 @@ public class UserDaoImpl implements UserDao {
         params.put("username", username);
         String hash = namedParameterJdbcTemplate.queryForObject(sqlString, params, String.class);
         PasswordEncoder encoder = new BCryptPasswordEncoder();
-        System.out.println("result for password---" + encoder.matches(password, hash));
         return encoder.matches(password, hash);
     }
 
@@ -516,15 +504,11 @@ public class UserDaoImpl implements UserDao {
         Map<String, Object> params = new HashMap<>();
         String roleId = "ROLE";
         int labelId = 0;
-        System.out.println("label----------" + role.getLabel().getLabel());
         String[] splited = role.getLabel().getLabel().split("\\s+");
-        System.out.println("splited length---" + splited.length);
         for (int i = 0; i < splited.length; i++) {
             roleId = roleId + "_" + splited[i].toUpperCase();
         }
         labelId = this.labelDao.addLabel(role.getLabel(), 1);
-        System.out.println("label id ---" + labelId);
-        System.out.println("role id after---" + roleId);
         params.put("ROLE_ID", roleId);
         params.put("LABEL_ID", labelId);
         params.put("CREATED_BY", 1);
@@ -569,7 +553,6 @@ public class UserDaoImpl implements UserDao {
         String sql = "";
         String roleId = "ROLE";
         String[] splited = role.getLabel().getLabel().split("\\s+");
-        System.out.println("splited length---" + splited.length);
         for (int i = 0; i < splited.length; i++) {
             roleId = roleId + "_" + splited[i].toUpperCase();
         }

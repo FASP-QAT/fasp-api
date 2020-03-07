@@ -6,7 +6,9 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.OrganisationDao;
+
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.PrgOrganisationDTO;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.OrganisationService;
@@ -26,6 +28,11 @@ public class OrganisationServiceImpl implements OrganisationService {
     private OrganisationDao organisationDao;
     @Autowired
     private AclService aclService;
+
+    @Override
+    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate) {
+        return this.organisationDao.getOrganisationListForSync(lastSyncDate);
+    }
 
     @Override
     public int addOrganisation(Organisation organisation, CustomUserDetails curUser) {

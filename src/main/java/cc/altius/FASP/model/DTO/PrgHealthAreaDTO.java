@@ -13,6 +13,15 @@ public class PrgHealthAreaDTO {
 
     private int healthAreaId;
     private PrgLabelDTO label;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public int getHealthAreaId() {
         return healthAreaId;

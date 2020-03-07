@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4202")
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
 public class CountryController {
 
     @Autowired
@@ -77,6 +77,7 @@ public class CountryController {
                 return new ResponseEntity(responseFormat, HttpStatus.OK);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             ResponseFormat responseFormat = new ResponseFormat();
             responseFormat.setMessage("Error Accured");
             responseFormat.setStatus("Failed");
