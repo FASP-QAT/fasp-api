@@ -6,6 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.Country;
+import cc.altius.FASP.model.DTO.PrgCountryDTO;
 import java.util.List;
 
 /**
@@ -14,6 +15,12 @@ import java.util.List;
  */
 public interface CountryService {
 
-    public List<Country> getCountryList();
+    public List<Country> getCountryList(boolean active);
+
+    public int addCountry(Country country);
+
+    public int updateCountry(Country country);
+
+    public List<PrgCountryDTO> getCountryListForSync(String lastSyncDate);
 
 }

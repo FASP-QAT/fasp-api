@@ -6,6 +6,9 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.Country;
+import cc.altius.FASP.model.Currency;
+import cc.altius.FASP.model.Label;
+import cc.altius.FASP.model.Language;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -15,13 +18,19 @@ import org.springframework.jdbc.core.RowMapper;
  * @author altius
  */
 public class CountryRowMapper implements RowMapper<Country> {
-    
+
     @Override
     public Country mapRow(ResultSet rs, int i) throws SQLException {
         Country c = new Country();
         c.setCountryId(rs.getInt("COUNTRY_ID"));
-        c.setCountryName(rs.getString("COUNTRY_NAME"));
+        c.setCountryCode(rs.getString("COUNTRY_CODE"));
+        c.setLabel(new LabelRowMapper("CU_").mapRow(rs, i));
+        Currency cu = new Currency();
+        cu.setCurrencyId(rs.getInt("CURRENCY_ID"));
+        c.setCurrency(cu);
+        c.setLanguage(new Language(rs.getInt("LANGUAGE_ID")));
+        c.setActive(rs.getBoolean("ACTIVE"));
         return c;
     }
-    
+
 }

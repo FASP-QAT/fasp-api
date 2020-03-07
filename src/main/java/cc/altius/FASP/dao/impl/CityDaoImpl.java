@@ -31,9 +31,15 @@ public class CityDaoImpl implements CityDao {
     }
 
     @Override
-    public List<City> getCityList(int countryId, int stateId) {
+    public List<City> getCityListByStateIdAndCountryId(int countryId, int stateId) {
         String sql = "SELECT * FROM city c WHERE c.`COUNTRY_ID`=? AND (c.`STATE_ID`=? OR ?=0)";
         return this.jdbcTemplate.query(sql, new CityRowMapper(), countryId, stateId, stateId);
+    }
+
+    @Override
+    public List<City> getAllCityList() {
+        String sql = "SELECT * FROM city";
+        return this.jdbcTemplate.query(sql, new CityRowMapper());
     }
 
 }

@@ -14,6 +14,8 @@ import java.util.List;
  */
 public interface CityDao {
 
-    public List<City> getCityList(int countryId, int stateId);
+    public List<City> getCityListByStateIdAndCountryId(int countryId, int stateId);
+
+    public List<City> getAllCityList();
 
 }

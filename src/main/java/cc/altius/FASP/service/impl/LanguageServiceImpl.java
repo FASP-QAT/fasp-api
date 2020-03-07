@@ -1,0 +1,46 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package cc.altius.FASP.service.impl;
+
+import cc.altius.FASP.dao.LanguageDao;
+import cc.altius.FASP.model.DTO.PrgLanguageDTO;
+import cc.altius.FASP.model.Language;
+import cc.altius.FASP.service.LanguageService;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+/**
+ *
+ * @author altius
+ */
+@Service
+public class LanguageServiceImpl implements LanguageService {
+
+    @Autowired
+    private LanguageDao languageDao;
+
+    @Override
+    public List<Language> getLanguageList(boolean active) {
+        return this.languageDao.getLanguageList(active);
+    }
+
+    @Override
+    public int addLanguage(Language language) {
+        return this.languageDao.addLanguage(language);
+    }
+
+    @Override
+    public int editLanguage(Language language) {
+        return this.languageDao.editLanguage(language);
+    }
+
+    @Override
+    public List<PrgLanguageDTO> getLanguageListForSync(String lastSyncDate) {
+        return this.languageDao.getLanguageListForSync(lastSyncDate);
+    }
+
+}

@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "http://localhost:4202")
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
 public class RegistrationController {
 
     @Autowired
@@ -70,9 +70,7 @@ public class RegistrationController {
     @GetMapping(value = "/getUserApprovalList")
     public List<Registration> saveRegistration() throws UnsupportedEncodingException {
         try {
-            System.out.println("in method");
             List<Registration> userApprovalList = this.registrationService.getUserApprovalList();
-            System.out.println("user" + userApprovalList);
             return userApprovalList;
         } catch (Exception e) {
             return null;
@@ -84,10 +82,8 @@ public class RegistrationController {
         Map<String, Object> responseMap = null;
         ResponseFormat responseFormat = new ResponseFormat();
         try {
-            System.out.println("json" + json);
             Gson g = new Gson();
             Registration register = g.fromJson(json, Registration.class);
-            System.out.println("register" + register);
             int registrationId = this.registrationService.updateRegistration(register);
             if (registrationId > 0) {
                 responseFormat.setStatus("Success");
