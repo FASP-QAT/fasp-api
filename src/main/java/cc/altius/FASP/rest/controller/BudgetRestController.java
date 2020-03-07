@@ -44,7 +44,7 @@ public class BudgetRestController {
     }
 
     @PutMapping(path = "/budget")
-    public ResponseFormat putHealhArea(@RequestBody Budget budget, Authentication auth) {
+    public ResponseFormat putBudget(@RequestBody Budget budget, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int rows = this.budgetService.updateBudget(budget, curUser);
