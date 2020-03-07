@@ -7,6 +7,7 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.UnitDao;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Unit;
 import cc.altius.FASP.model.rowMapper.UnitRowMapper;
 import cc.altius.utils.DateUtils;
@@ -43,28 +44,28 @@ public class UnitDaoImpl implements UnitDao {
 
     @Override
     @Transactional
-    public int addUnit(Unit h, int curUser) {
+    public int addUnit(Unit h, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("ap_unit").usingGeneratedKeyColumns("UNIT_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("UNIT_TYPE_ID", h.getUnitType().getUnitTypeId());
         params.put("UNIT_CODE", h.getUnitCode());
-        int labelId = this.labelDao.addLabel(h.getLabel(), curUser);
+        int labelId = this.labelDao.addLabel(h.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);
-        params.put("CREATED_BY", curUser);
+        params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
-        params.put("LAST_MODIFIED_BY", curUser);
+        params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
         return si.executeAndReturnKey(params).intValue();
     }
 
     @Override
-    public int updateUnit(Unit h, int curUser) {
+    public int updateUnit(Unit h, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         params.put("unitId", h.getUnitId());
         params.put("active", h.isActive());
-        params.put("curUser", curUser);
+        params.put("curUser", curUser.getUserId());
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(this.jdbcTemplate);
         return nm.update("UPDATE ap_unit u SET u.ACTIVE=:active, u.LAST_MODIFIED_BY=:curUser, u.LAST_MODIFIED_DATE=:curDate WHERE u.UNIT_ID=:unitId", params);

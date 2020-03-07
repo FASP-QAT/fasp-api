@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.HealthArea;
 import java.util.List;
 
@@ -14,11 +15,11 @@ import java.util.List;
  */
 public interface HealthAreaDao {
 
-    public int addHealthArea(HealthArea h, int curUser);
-    
-    public int updateHealthArea(HealthArea h, int CurUser);
+    public int addHealthArea(HealthArea h, CustomUserDetails curUser);
 
-    public List<HealthArea> getHealthAreaList();
+    public int updateHealthArea(HealthArea h, CustomUserDetails CurUser);
 
-    public HealthArea getHealthAreaById(int healthAreaId);
+    public List<HealthArea> getHealthAreaList(CustomUserDetails curUser);
+
+    public HealthArea getHealthAreaById(int healthAreaId, CustomUserDetails curUser);
 }

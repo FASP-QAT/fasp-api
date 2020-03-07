@@ -69,6 +69,9 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(jwtUnAuthorizedResponseAuthenticationEntryPoint).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
+                .antMatchers("/api/healthArea/**").access("hasRole('ROLE_BF_UPDATE_REALM_ADMIN')")
+                .antMatchers("/api/organisation/**").access("hasRole('ROLE_BF_UPDATE_REALM_ADMIN')")
+                .antMatchers("/api/unit/**").access("hasRole('ROLE_BF_UPDATE_APPL_ADMIN')")
                 .anyRequest().authenticated();
 
         httpSecurity
@@ -83,12 +86,12 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
     public void configure(WebSecurity webSecurity) throws Exception {
         webSecurity
                 .ignoring()
-                .antMatchers(HttpMethod.POST,authenticationPath)
-                .antMatchers(HttpMethod.GET,refreshPath)
+                .antMatchers(HttpMethod.POST, authenticationPath)
+                .antMatchers(HttpMethod.GET, refreshPath)
                 .antMatchers(HttpMethod.OPTIONS, "/**")
                 .and()
                 .ignoring()
-                .antMatchers(HttpMethod.GET,"/")
+                .antMatchers(HttpMethod.GET, "/")
                 //Other Stuff You want to Ignore
                 .and().ignoring().antMatchers("/actuator/**")
                 .and().ignoring().antMatchers("/actuator**")
@@ -97,7 +100,6 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().ignoring().antMatchers("/api/user/getForgotPasswordToken/**")
                 .and().ignoring().antMatchers("/api/user/confirmForgotPasswordToken/**")
                 .and().ignoring().antMatchers("/api/user/updatePassword/**")
-                
                 .and().ignoring().antMatchers("/api/updateExpiredPassword/**");
     }
 }

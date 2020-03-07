@@ -31,7 +31,7 @@ public class UnitRestController {
     @PostMapping(path = "/api/unit")
     public ResponseFormat postUnit(@RequestBody Unit heatlhArea, Authentication auth) {
         try {
-            int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int unitId = this.unitService.addUnit(heatlhArea, curUser);
             return new ResponseFormat("Successfully added Unit with Id " + unitId);
         } catch (Exception e) {
@@ -42,7 +42,7 @@ public class UnitRestController {
     @PutMapping(path = "/api/unit")
     public ResponseFormat putHealhArea(@RequestBody Unit heatlhArea, Authentication auth) {
         try {
-            int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int rows = this.unitService.updateUnit(heatlhArea, curUser);
             return new ResponseFormat("Successfully updated Unit");
         } catch (Exception e) {

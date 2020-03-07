@@ -6,10 +6,13 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.OrganisationDao;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Organisation;
+import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.OrganisationService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,29 +20,39 @@ import org.springframework.stereotype.Service;
  * @author altius
  */
 @Service
-public class OrganisationServiceImpl implements OrganisationService{
-    
+public class OrganisationServiceImpl implements OrganisationService {
+
     @Autowired
     private OrganisationDao organisationDao;
-    
+    @Autowired
+    private AclService aclService;
+
     @Override
-    public int addOrganisation(Organisation organisation, int curUser) {
-        return organisationDao.addOrganisation(organisation, curUser);
+    public int addOrganisation(Organisation organisation, CustomUserDetails curUser) {
+        if (this.aclService.checkRealmAccessForUser(curUser, organisation.getRealm().getRealmId())) {
+            return organisationDao.addOrganisation(organisation, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
     @Override
-    public int updateOrganisation(Organisation organisation, int curUser) {
-        return organisationDao.updateOrganisation(organisation,curUser);
+    public int updateOrganisation(Organisation organisation, CustomUserDetails curUser) {
+        if (this.aclService.checkRealmAccessForUser(curUser, organisation.getRealm().getRealmId())) {
+            return organisationDao.updateOrganisation(organisation, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
     @Override
-    public List<Organisation> getOrganisationList() {
-        return organisationDao.getOrganisationList();
+    public List<Organisation> getOrganisationList(CustomUserDetails curUser) {
+        return organisationDao.getOrganisationList(curUser);
     }
 
     @Override
-    public Organisation getOrganisationById(int organisationId) {
-        return organisationDao.getOrganisationById(organisationId);
+    public Organisation getOrganisationById(int organisationId, CustomUserDetails curUser) {
+        return organisationDao.getOrganisationById(organisationId, curUser);
     }
-    
+
 }

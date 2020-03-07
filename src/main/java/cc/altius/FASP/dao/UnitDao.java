@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Unit;
 import java.util.List;
 
@@ -14,9 +15,9 @@ import java.util.List;
  */
 public interface UnitDao {
 
-    public int addUnit(Unit u, int curUser);
+    public int addUnit(Unit u, CustomUserDetails curUser);
 
-    public int updateUnit(Unit u, int CurUser);
+    public int updateUnit(Unit u, CustomUserDetails CurUser);
 
     public List<Unit> getUnitList();
 

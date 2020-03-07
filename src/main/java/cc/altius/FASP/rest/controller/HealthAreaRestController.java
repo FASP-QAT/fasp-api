@@ -8,6 +8,7 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.ResponseFormat;
+import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.HealthAreaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -27,14 +28,13 @@ public class HealthAreaRestController {
 
     @Autowired
     private HealthAreaService healthAreaService;
+    @Autowired
+    private AclService aclService;
 
     @PostMapping(path = "/api/healthArea")
     public ResponseFormat postHealthArea(@RequestBody HealthArea heatlhArea, Authentication auth) {
         try {
-            for (int a : heatlhArea.getRealmCountryArray()) {
-                System.out.println(a);
-            }
-            int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int healthAreaId = this.healthAreaService.addHealthArea(heatlhArea, curUser);
             return new ResponseFormat("Successfully added HealthArea with Id " + healthAreaId);
         } catch (Exception e) {
@@ -45,8 +45,8 @@ public class HealthAreaRestController {
     @PutMapping(path = "/api/healthArea")
     public ResponseFormat putHealhArea(@RequestBody HealthArea heatlhArea, Authentication auth) {
         try {
-            int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
-            int rows = this.healthAreaService.updateHealthArea(heatlhArea, curUser);
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            this.healthAreaService.updateHealthArea(heatlhArea, curUser);
             return new ResponseFormat("Successfully updated HealthArea");
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
@@ -54,18 +54,20 @@ public class HealthAreaRestController {
     }
 
     @GetMapping("/api/healthArea")
-    public ResponseFormat getHealthArea() {
+    public ResponseFormat getHealthArea(Authentication auth) {
         try {
-            return new ResponseFormat("Success", "", this.healthAreaService.getHealthAreaList());
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseFormat("Success", "", this.healthAreaService.getHealthAreaList(curUser));
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
 
     @GetMapping("/api/healthArea/{healthAreaId}")
-    public ResponseFormat getHealthArea(@PathVariable("healthAreaId") int healthAreaId) {
+    public ResponseFormat getHealthArea(@PathVariable("healthAreaId") int healthAreaId, Authentication auth) {
         try {
-            return new ResponseFormat("Success", "", this.healthAreaService.getHealthAreaById(healthAreaId));
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseFormat("Success", "", this.healthAreaService.getHealthAreaById(healthAreaId, curUser));
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }

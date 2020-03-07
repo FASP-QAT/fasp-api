@@ -7,6 +7,7 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.OrganisationDao;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.rowMapper.OrganisationListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.OrganisationResultSetExtractor;
@@ -34,11 +35,13 @@ public class OrganisationDaoImpl implements OrganisationDao {
 
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Autowired
@@ -46,17 +49,17 @@ public class OrganisationDaoImpl implements OrganisationDao {
 
     @Override
     @Transactional
-    public int addOrganisation(Organisation o, int curUser) {
+    public int addOrganisation(Organisation o, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("rm_organisation").usingGeneratedKeyColumns("ORGANISATION_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", o.getRealm().getRealmId());
-        int labelId = this.labelDao.addLabel(o.getLabel(), curUser);
+        int labelId = this.labelDao.addLabel(o.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);
-        params.put("CREATED_BY", curUser);
+        params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
-        params.put("LAST_MODIFIED_BY", curUser);
+        params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
         int organisationId = si.executeAndReturnKey(params).intValue();
 
@@ -68,9 +71,9 @@ public class OrganisationDaoImpl implements OrganisationDao {
             params.put("ORGANISATION_ID", organisationId);
             params.put("REALM_COUNTRY_ID", realmCountryId);
             params.put("ACTIVE", true);
-            params.put("CREATED_BY", curUser);
+            params.put("CREATED_BY", curUser.getUserId());
             params.put("CREATED_DATE", curDate);
-            params.put("LAST_MODIFIED_BY", curUser);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
             paramList[i] = new MapSqlParameterSource(params);
             i++;
@@ -81,15 +84,14 @@ public class OrganisationDaoImpl implements OrganisationDao {
     }
 
     @Override
-    public int updateOrganisation(Organisation o, int curUser) {
+    public int updateOrganisation(Organisation o, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("organisationId", o.getOrganisationId());
         params.put("active", o.isActive());
-        params.put("curUser", curUser);
+        params.put("curUser", curUser.getUserId());
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(this.jdbcTemplate);
-        int rows = nm.update("UPDATE rm_organisation o SET o.ACTIVE=:active, o.LAST_MODIFIED_BY=:curUser, o.LAST_MODIFIED_DATE=:curDate WHERE o.ORGANISATION_ID=:organisationId", params);
+        int rows = this.namedParameterJdbcTemplate.update("UPDATE rm_organisation o SET o.ACTIVE=:active, o.LAST_MODIFIED_BY=:curUser, o.LAST_MODIFIED_DATE=:curDate WHERE o.ORGANISATION_ID=:organisationId", params);
         this.jdbcTemplate.update("DELETE FROM rm_organisation_country WHERE ORGANISATION_ID=?", o.getOrganisationId());
         SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_organisation_country");
         SqlParameterSource[] paramList = new SqlParameterSource[o.getRealmCountryArray().length];
@@ -98,9 +100,9 @@ public class OrganisationDaoImpl implements OrganisationDao {
             params = new HashMap<>();
             params.put("ORGANISATION_ID", o.getOrganisationId());
             params.put("REALM_COUNTRY_ID", realmCountryId);
-            params.put("CREATED_BY", curUser);
+            params.put("CREATED_BY", curUser.getUserId());
             params.put("CREATED_DATE", curDate);
-            params.put("LAST_MODIFIED_BY", curUser);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
             params.put("ACTIVE", true);
             paramList[i] = new MapSqlParameterSource(params);
@@ -111,7 +113,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
     }
 
     @Override
-    public List<Organisation> getOrganisationList() {
+    public List<Organisation> getOrganisationList(CustomUserDetails curUser) {
         String sqlString = " SELECT "
                 + " o.ORGANISATION_ID, o.CODE, ol.LABEL_ID, ol.LABEL_EN, ol.LABEL_FR, ol.LABEL_SP, ol.LABEL_PR, "
                 + " r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
@@ -126,12 +128,18 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 + " LEFT JOIN rm_organisation_country oc ON o.ORGANISATION_ID=oc.ORGANISATION_ID "
                 + " LEFT JOIN rm_realm_country rc ON oc.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + " LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID; ";
-        return this.jdbcTemplate.query(sqlString, new OrganisationListResultSetExtractor());
+                + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+                + "WHERE TRUE ";
+        Map<String, Object> params = new HashMap<>();
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND o.REALM_ID=:realmId ";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new OrganisationListResultSetExtractor());
     }
 
     @Override
-    public Organisation getOrganisationById(int organisationId) {
+    public Organisation getOrganisationById(int organisationId, CustomUserDetails curUser) {
 
         String sqlString = " SELECT "
                 + " o.ORGANISATION_ID, o.CODE, ol.LABEL_ID, ol.LABEL_EN, ol.LABEL_FR, ol.LABEL_SP, ol.LABEL_PR, "
@@ -148,8 +156,13 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 + " LEFT JOIN rm_realm_country rc ON oc.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + " LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-                + " WHERE o.ORGANISATION_ID=?; ";
-
+                + " WHERE o.ORGANISATION_ID=:organisationId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("organisationId", organisationId);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND o.REALM_ID=:realmId ";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
         return this.jdbcTemplate.query(sqlString, new OrganisationResultSetExtractor(), organisationId);
     }
 

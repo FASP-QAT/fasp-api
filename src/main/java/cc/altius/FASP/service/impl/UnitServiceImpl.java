@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.UnitDao;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Unit;
 import cc.altius.FASP.service.UnitService;
 import java.util.List;
@@ -23,12 +24,12 @@ public class UnitServiceImpl implements UnitService {
     private UnitDao UnitDao;
 
     @Override
-    public int addUnit(Unit h, int curUser) {
+    public int addUnit(Unit h, CustomUserDetails curUser) {
         return this.UnitDao.addUnit(h, curUser);
     }
 
     @Override
-    public int updateUnit(Unit h, int curUser) {
+    public int updateUnit(Unit h, CustomUserDetails curUser) {
         return this.UnitDao.updateUnit(h, curUser);
     }
 

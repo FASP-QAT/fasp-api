@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Organisation;
 import java.util.List;
 
@@ -14,12 +15,12 @@ import java.util.List;
  */
 public interface OrganisationService {
 
-    public int addOrganisation(Organisation organisation, int curUser);
+    public int addOrganisation(Organisation organisation, CustomUserDetails curUser);
 
-    public int updateOrganisation(Organisation organisation, int curUser);
+    public int updateOrganisation(Organisation organisation, CustomUserDetails curUser);
 
-    public List<Organisation> getOrganisationList();
+    public List<Organisation> getOrganisationList(CustomUserDetails curUser);
 
-    public Organisation getOrganisationById(int organisationId);
-    
+    public Organisation getOrganisationById(int organisationId, CustomUserDetails curUser);
+
 }

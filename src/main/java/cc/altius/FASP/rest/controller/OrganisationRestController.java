@@ -8,6 +8,7 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.ResponseFormat;
+import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.OrganisationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -24,45 +25,49 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 public class OrganisationRestController {
-    
+
     @Autowired
     private OrganisationService organisationService;
-    
+    @Autowired
+    private AclService aclService;
+
     @PostMapping(path = "/api/organisation")
     public ResponseFormat postOrganisation(@RequestBody Organisation organisation, Authentication auth) {
         try {
-            int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int organisationId = this.organisationService.addOrganisation(organisation, curUser);
             return new ResponseFormat("Successfully added Organisation with Id " + organisationId);
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
-    
+
     @PutMapping(path = "/api/organisation")
     public ResponseFormat putOrganisation(@RequestBody Organisation organisation, Authentication auth) {
         try {
-            int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int rows = this.organisationService.updateOrganisation(organisation, curUser);
             return new ResponseFormat("Successfully updated Organisation");
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
-    
+
     @GetMapping("/api/organisation")
-    public ResponseFormat getOrganisation() {
+    public ResponseFormat getOrganisation(Authentication auth) {
         try {
-            return new ResponseFormat("Success", "", this.organisationService.getOrganisationList());
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseFormat("Success", "", this.organisationService.getOrganisationList(curUser));
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
-    
+
     @GetMapping("/api/organisation/{organisationId}")
-    public ResponseFormat getOrganisation(@PathVariable("organisationId") int organisationId) {
+    public ResponseFormat getOrganisation(@PathVariable("organisationId") int organisationId, Authentication auth) {
         try {
-            return new ResponseFormat("Success", "", this.organisationService.getOrganisationById(organisationId));
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseFormat("Success", "", this.organisationService.getOrganisationById(organisationId, curUser));
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
