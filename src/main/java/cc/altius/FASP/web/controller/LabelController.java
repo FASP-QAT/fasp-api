@@ -8,7 +8,7 @@ package cc.altius.FASP.web.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.ResponseFormat;
-import cc.altius.FASP.service.LabelsService;
+import cc.altius.FASP.service.LabelService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
@@ -31,16 +31,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
-public class LabelsController {
+public class LabelController {
 
     @Autowired
-    private LabelsService labelsService;
+    private LabelService labelService;
 
     @RequestMapping(value = "/getLabelsListAll")
     public String getLabelListAll() {
         String json;
         List<Label> labelList = new ArrayList();
-        labelList = this.labelsService.getLabelsListAll();
+        labelList = this.labelService.getLabelsListAll();
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();
@@ -57,7 +57,7 @@ public class LabelsController {
         ResponseFormat responseFormat = new ResponseFormat();
         try {
             CustomUserDetails cd = (CustomUserDetails) authentication.getPrincipal();
-            int row = this.labelsService.updateLabels(labels,cd.getUserId());
+            int row = this.labelService.updateLabels(labels,cd.getUserId());
             if (row > 0) {
                 responseFormat.setMessage("Labels updated successfully");
                 responseFormat.setStatus("Success");

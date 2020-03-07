@@ -5,7 +5,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.web.bind.annotation.RequestMapping;
 
 @SpringBootApplication
 @EnableScheduling
@@ -16,8 +15,4 @@ public class WebApplication extends SpringBootServletInitializer {
         SpringApplication.run(WebApplication.class, args);
     }
 
-    @RequestMapping("/FASP")
-    String helloWorld() {
-        return "Hello World!";
-    }
 }

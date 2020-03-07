@@ -5,31 +5,31 @@
  */
 package cc.altius.FASP.service.impl;
 
-import cc.altius.FASP.dao.LabelsDao;
+import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.Label;
-import cc.altius.FASP.service.LabelsService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import cc.altius.FASP.service.LabelService;
 
 /**
  *
  * @author palash
  */
 @Service
-public class LabelsServiceImpl implements LabelsService {
+public class LabelServiceImpl implements LabelService {
 
     @Autowired
-    private LabelsDao labelsDao;
+    private LabelDao labelDao;
 
     @Override
     public List<Label> getLabelsListAll() {
-        return this.labelsDao.getLabelsListAll();
+        return this.labelDao.getLabelsListAll();
     }
 
     @Override
     public int updateLabels(Label label,int userId) {
-        return this.labelsDao.updateLabels(label,userId);
+        return this.labelDao.updateLabels(label,userId);
     }
 
 }

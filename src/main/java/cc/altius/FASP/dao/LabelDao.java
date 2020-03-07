@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.Label;
+import java.util.List;
 
 /**
  *
@@ -14,4 +15,8 @@ import cc.altius.FASP.model.Label;
 public interface LabelDao {
 
     public int addLabel(Label label, int curUser);
+
+    public List<Label> getLabelsListAll();
+
+    public int updateLabels(Label label, int userId);
 }

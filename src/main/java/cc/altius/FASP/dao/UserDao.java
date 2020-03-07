@@ -56,7 +56,6 @@ public interface UserDao {
 
     public List<Role> getRoleList();
 
-//    public int addLabel(Label label);
     public String generateTokenForUserId(int userId);
 
     public EmailUser getEmailUserByUsername(String username);

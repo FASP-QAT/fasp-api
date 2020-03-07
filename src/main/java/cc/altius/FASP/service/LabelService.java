@@ -5,17 +5,16 @@
  */
 package cc.altius.FASP.service;
 
-import cc.altius.FASP.model.City;
+import cc.altius.FASP.model.Label;
 import java.util.List;
 
 /**
  *
- * @author altius
+ * @author palash
  */
-public interface CityService {
+public interface LabelService {
 
-    public List<City> getCityListByStateIdAndCountryId(int countryId, int stateId);
+    public List<Label> getLabelsListAll();
 
-    public List<City> getAllCityList();
-
+    public int updateLabels(Label label, int userId);
 }

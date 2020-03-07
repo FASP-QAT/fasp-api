@@ -13,5 +13,6 @@ import java.util.List;
  * @author palash
  */
 public interface TicketTypeDao {
-   public List<TicketType> getTicketTypeList(); 
+
+    public List<TicketType> getTicketTypeList();
 }

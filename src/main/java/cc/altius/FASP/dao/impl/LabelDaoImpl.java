@@ -7,8 +7,10 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.Label;
+import cc.altius.FASP.model.rowMapper.LabelsRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
@@ -51,6 +53,20 @@ public class LabelDaoImpl implements LabelDao {
         params.put("LAST_MODIFIED_BY", curUser);
         params.put("LAST_MODIFIED_DATE", curDate);
         return si.executeAndReturnKey(params).intValue();
+    }
+
+    @Override
+    public List<Label> getLabelsListAll() {
+        String sql = "select * from ap_label";
+        return this.jdbcTemplate.query(sql, new LabelsRowMapper());
+    }
+
+    @Override
+    public int updateLabels(Label label, int userId) {
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
+        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=?,al.`LABEL_FR`=?,al.`LABEL_PR`=?,al.`LABEL_SP`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
+        return this.jdbcTemplate.update(sqlOne, label.getLabel_en(), label.getLabel_fr(), label.getLabel_pr(), label.getLabel_sp(), userId, curDate, label.getLabelId());
+
     }
 
 }

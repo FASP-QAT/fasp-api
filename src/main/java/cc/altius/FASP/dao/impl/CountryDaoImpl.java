@@ -113,20 +113,6 @@ public class CountryDaoImpl implements CountryDao {
         }
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
         return nm.query(sql, params, new PrgCountryDTORowMapper());
-//=======
-//
-//        System.out.println("country--->" + country.getLabel().getLabel());
-//        Date curDt = DateUtils.getCurrentDateObject(DateUtils.IST);
-//
-//        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=? , al.`LABEL_FR`=?,"
-//                + "al.`LABEL_PR`=?,al.`LABEL_SP`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
-//        this.jdbcTemplate.update(sqlOne, country.getLabel().getLabel_en(), country.getLabel().getLabel_fr(),
-//                country.getLabel().getLabel_pr(), country.getLabel().getLabel_sp(), 1, curDt, country.getLabel().getLabelId());
-//
-//        String sqlTwo = "UPDATE ap_country dt SET  dt.`LANGUAGE_ID`=?,dt.`CURRENCY_ID`=?,dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
-//                + " WHERE dt.`COUNTRY_ID`=?;";
-//        return this.jdbcTemplate.update(sqlTwo, country.getLanguage().getLanguageId(), country.getCurrency().getCurrencyId(), country.isActive(), 1, curDt, country.getCountryId());
-//>>>>>>> userCrud
     }
 
 }
