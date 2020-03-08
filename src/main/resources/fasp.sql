@@ -1378,7 +1378,7 @@ DROP TABLE IF EXISTS `fasp`.`rm_procurement_agent` ;
 CREATE TABLE IF NOT EXISTS `fasp`.`rm_procurement_agent` (
   `PROCUREMENT_AGENT_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Procurement agent',
   `REALM_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that determines the Realm this Procurement Agent belongs to',
-  `PROGRAM_ID` INT(10) UNSIGNED NULL COMMENT 'Foreign key that determines the Program this Procurement Agent belongs to. If it is null then the record is a Realm level Procurement Agent. If it is not null then it is a Program level Procurement Agent.',
+  `PROCUREMENT_AGENT_CODE` VARCHAR(6) NULL COMMENT 'Foreign key that determines the Program this Procurement Agent belongs to. If it is null then the record is a Realm level Procurement Agent. If it is not null then it is a Program level Procurement Agent.',
   `LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',
   `SUBMITTED_TO_APPROVED_LEAD_TIME` INT(10) UNSIGNED NOT NULL COMMENT 'No of days for an Order to move from Submitted to Approved status, this will be used only in the case the Procurement Agent is TBD',
   `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'If True indicates this Procurement Agent is Active. False indicates this Procurement Agent has been Deactivated',
@@ -1390,11 +1390,6 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_procurement_agent` (
   CONSTRAINT `fk_procurement_agent_realmId`
     FOREIGN KEY (`REALM_ID`)
     REFERENCES `fasp`.`rm_realm` (`REALM_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_procurement_agent_programId`
-    FOREIGN KEY (`PROGRAM_ID`)
-    REFERENCES `fasp`.`rm_program` (`PROGRAM_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_procurement_agent_labelId`
@@ -1417,13 +1412,13 @@ COMMENT = 'Table used to list the procurement_agents for a Realm\nNote: Are base
 
 CREATE INDEX `fk_procurement_agent_realmId_idx` ON `fasp`.`rm_procurement_agent` (`REALM_ID` ASC);
 
-CREATE INDEX `fk_procurement_agent_programId_idx` ON `fasp`.`rm_procurement_agent` (`PROGRAM_ID` ASC);
-
 CREATE INDEX `fk_procurement_agent_labelId_idx` ON `fasp`.`rm_procurement_agent` (`LABEL_ID` ASC);
 
 CREATE INDEX `fk_procurement_agent_createdBy_idx` ON `fasp`.`rm_procurement_agent` (`CREATED_BY` ASC);
 
 CREATE INDEX `fk_procurement_agent_lastModifiedBy_idx` ON `fasp`.`rm_procurement_agent` (`LAST_MODIFIED_BY` ASC);
+
+CREATE UNIQUE INDEX `un_procurementAgentCode` ON `fasp`.`rm_procurement_agent` (`PROCUREMENT_AGENT_CODE` ASC);
 
 
 -- -----------------------------------------------------
@@ -2596,31 +2591,6 @@ BEGIN
 END$$
 
 DELIMITER ;
-USE `fasp`;
-
-DELIMITER $$
-
-USE `fasp`$$
-DROP TRIGGER IF EXISTS `fasp`.`ap_currency_AFTER_INSERT` $$
-USE `fasp`$$
-CREATE DEFINER = CURRENT_USER TRIGGER `fasp`.`ap_currency_AFTER_INSERT` AFTER INSERT ON `ap_currency` FOR EACH ROW
-BEGIN
-	INSERT INTO ap_currency_history (CURRENCY_ID, CONVERSION_RATE_TO_USD, LAST_MODIFIED_DATE) 
-    VALUES(new.`CURRENCY_ID`,new.`CONVERSION_RATE_TO_USD`,new.`LAST_MODIFIED_DATE`);
-END$$
-
-
-USE `fasp`$$
-DROP TRIGGER IF EXISTS `fasp`.`ap_currency_AFTER_UPDATE` $$
-USE `fasp`$$
-CREATE DEFINER = CURRENT_USER TRIGGER `fasp`.`ap_currency_AFTER_UPDATE` AFTER UPDATE ON `ap_currency` FOR EACH ROW
-BEGIN
-	INSERT INTO ap_currency_history (CURRENCY_ID, CONVERSION_RATE_TO_USD, LAST_MODIFIED_DATE) 
-    VALUES(new.`CURRENCY_ID`,new.`CONVERSION_RATE_TO_USD`,new.`LAST_MODIFIED_DATE`);
-END$$
-
-
-DELIMITER ;
 
 -- -----------------------------------------------------
 -- Data for table `fasp`.`ap_language`
@@ -2750,7 +2720,7 @@ INSERT INTO `fasp`.`ap_label` (`LABEL_ID`, `LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `
 INSERT INTO `fasp`.`ap_label` (`LABEL_ID`, `LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (108, 'pallet', '', '', '', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
 INSERT INTO `fasp`.`ap_label` (`LABEL_ID`, `LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (109, 'PSM', '', '', '', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
 INSERT INTO `fasp`.`ap_label` (`LABEL_ID`, `LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (110, 'GF', '', '', '', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`ap_label` (`LABEL_ID`, `LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (111, 'PSM', '', '', '', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`ap_label` (`LABEL_ID`, `LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (111, 'PEPFAR', '', '', '', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
 INSERT INTO `fasp`.`ap_label` (`LABEL_ID`, `LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (112, 'Glaxo', '', '', '', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
 INSERT INTO `fasp`.`ap_label` (`LABEL_ID`, `LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (113, 'Flazo', '', '', '', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
 INSERT INTO `fasp`.`ap_label` (`LABEL_ID`, `LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (114, 'Cloned Consumption', '', '', '', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
@@ -3150,9 +3120,9 @@ COMMIT;
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `fasp`;
-INSERT INTO `fasp`.`rm_procurement_agent` (`PROCUREMENT_AGENT_ID`, `REALM_ID`, `PROGRAM_ID`, `LABEL_ID`, `SUBMITTED_TO_APPROVED_LEAD_TIME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 1, 109, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_procurement_agent` (`PROCUREMENT_AGENT_ID`, `REALM_ID`, `PROGRAM_ID`, `LABEL_ID`, `SUBMITTED_TO_APPROVED_LEAD_TIME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 1, 1, 110, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_procurement_agent` (`PROCUREMENT_AGENT_ID`, `REALM_ID`, `PROGRAM_ID`, `LABEL_ID`, `SUBMITTED_TO_APPROVED_LEAD_TIME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 1, 1, 111, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_agent` (`PROCUREMENT_AGENT_ID`, `REALM_ID`, `PROCUREMENT_AGENT_CODE`, `LABEL_ID`, `SUBMITTED_TO_APPROVED_LEAD_TIME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 'PSM', 109, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_agent` (`PROCUREMENT_AGENT_ID`, `REALM_ID`, `PROCUREMENT_AGENT_CODE`, `LABEL_ID`, `SUBMITTED_TO_APPROVED_LEAD_TIME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 1, 'GF', 110, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_agent` (`PROCUREMENT_AGENT_ID`, `REALM_ID`, `PROCUREMENT_AGENT_CODE`, `LABEL_ID`, `SUBMITTED_TO_APPROVED_LEAD_TIME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 1, 'PEPFAR', 111, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
 
 COMMIT;
 
@@ -3307,6 +3277,31 @@ INSERT INTO `fasp`.`em_email_template` (`EMAIL_TEMPLATE_ID`, `EMAIL_DESC`, `SUBJ
 
 COMMIT;
 
+USE `fasp`;
+
+DELIMITER $$
+
+USE `fasp`$$
+DROP TRIGGER IF EXISTS `fasp`.`ap_currency_AFTER_INSERT` $$
+USE `fasp`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `fasp`.`ap_currency_AFTER_INSERT` AFTER INSERT ON `ap_currency` FOR EACH ROW
+BEGIN
+	INSERT INTO ap_currency_history (CURRENCY_ID, CONVERSION_RATE_TO_USD, LAST_MODIFIED_DATE) 
+    VALUES(new.`CURRENCY_ID`,new.`CONVERSION_RATE_TO_USD`,new.`LAST_MODIFIED_DATE`);
+END$$
+
+
+USE `fasp`$$
+DROP TRIGGER IF EXISTS `fasp`.`ap_currency_AFTER_UPDATE` $$
+USE `fasp`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `fasp`.`ap_currency_AFTER_UPDATE` AFTER UPDATE ON `ap_currency` FOR EACH ROW
+BEGIN
+	INSERT INTO ap_currency_history (CURRENCY_ID, CONVERSION_RATE_TO_USD, LAST_MODIFIED_DATE) 
+    VALUES(new.`CURRENCY_ID`,new.`CONVERSION_RATE_TO_USD`,new.`LAST_MODIFIED_DATE`);
+END$$
+
+
+DELIMITER ;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
