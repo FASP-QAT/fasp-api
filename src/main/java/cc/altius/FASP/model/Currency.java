@@ -17,6 +17,17 @@ public class Currency {
     private Label label;
     private double conversionRateToUsd;
 
+    public Currency() {
+    }
+
+    public Currency(int currencyId, String currencyCode, String currencySymbol, Label label, double conversionRateToUsd) {
+        this.currencyId = currencyId;
+        this.currencyCode = currencyCode;
+        this.currencySymbol = currencySymbol;
+        this.label = label;
+        this.conversionRateToUsd = conversionRateToUsd;
+    }
+
     public int getCurrencyId() {
         return currencyId;
     }

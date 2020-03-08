@@ -5,8 +5,8 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
-import cc.altius.FASP.model.RealmCountry;
 import java.util.List;
 
 /**
@@ -15,15 +15,13 @@ import java.util.List;
  */
 public interface RealmDao {
 
-    public List<Realm> getRealmList(boolean active);
+    public List<Realm> getRealmList(boolean active, CustomUserDetails curUser);
 
-    public List<RealmCountry> getRealmCountryList(boolean active);
+//    public List<RealmCountry> getRealmCountryList(boolean active);
+//    public List<RealmCountry> getRealmCountryListByRealmId(int realmId);
+    public int addRealm(Realm realm, CustomUserDetails curUser);
 
-    public List<RealmCountry> getRealmCountryListByRealmId(int realmId);
+    public int updateRealm(Realm realm, CustomUserDetails curUser);
 
-    public int addRealm(Realm realm, int curUser);
-
-    public int updateRealm(Realm realm, int curUser);
-
-    public Realm getRealmById(int realmId);
+    public Realm getRealmById(int realmId, CustomUserDetails curUser);
 }

@@ -16,10 +16,10 @@ public class RealmCountry extends BaseModel implements Serializable {
     private int realmCountryId;
     private Country country;
     private Realm realm;
-    private int defaultCurrencyId;
-    private int palletUnitId;
-    private int airFrightPercentage;
-    private int seaFrightPercentage;
+    private Currency defaultCurrency;
+    private Unit palletUnit;
+    private double airFreightPercentage;
+    private double seaFreightPercentage;
     private int shippedToArrivedAirLeadTime;
     private int shippedToArrivedSeaLeadTime;
     private int arrivedToDeliveredLeadTime;
@@ -27,17 +27,10 @@ public class RealmCountry extends BaseModel implements Serializable {
     public RealmCountry() {
     }
 
-    public RealmCountry(int realmCountryId, Country country, Realm realm, int defaultCurrencyId, int palletUnitId, int airFrightPercentage, int seaFrightPercentage, int shippedToArrivedAirLeadTime, int shippedToArrivedSeaLeadTime, int arrivedToDeliveredLeadTime) {
+    public RealmCountry(int realmCountryId, Country country, Realm realm) {
         this.realmCountryId = realmCountryId;
         this.country = country;
         this.realm = realm;
-        this.defaultCurrencyId = defaultCurrencyId;
-        this.palletUnitId = palletUnitId;
-        this.airFrightPercentage = airFrightPercentage;
-        this.seaFrightPercentage = seaFrightPercentage;
-        this.shippedToArrivedAirLeadTime = shippedToArrivedAirLeadTime;
-        this.shippedToArrivedSeaLeadTime = shippedToArrivedSeaLeadTime;
-        this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
     }
 
     public int getRealmCountryId() {
@@ -64,36 +57,40 @@ public class RealmCountry extends BaseModel implements Serializable {
         this.realm = realm;
     }
 
-    public int getDefaultCurrencyId() {
-        return defaultCurrencyId;
+    public Currency getDefaultCurrency() {
+        return defaultCurrency;
     }
 
-    public void setDefaultCurrencyId(int defaultCurrencyId) {
-        this.defaultCurrencyId = defaultCurrencyId;
+    public void setDefaultCurrency(Currency defaultCurrency) {
+        this.defaultCurrency = defaultCurrency;
     }
 
-    public int getPalletUnitId() {
-        return palletUnitId;
+    public Unit getPalletUnit() {
+        return palletUnit;
     }
 
-    public void setPalletUnitId(int palletUnitId) {
-        this.palletUnitId = palletUnitId;
+    public void setPalletUnit(Unit palletUnit) {
+        this.palletUnit = palletUnit;
     }
 
-    public int getAirFrightPercentage() {
-        return airFrightPercentage;
+    public double getAirFreightPercentage() {
+        return airFreightPercentage;
     }
 
-    public void setAirFrightPercentage(int airFrightPercentage) {
-        this.airFrightPercentage = airFrightPercentage;
+    public void setAirFreightPercentage(double airFreightPercentage) {
+        this.airFreightPercentage = airFreightPercentage;
     }
 
-    public int getSeaFrightPercentage() {
-        return seaFrightPercentage;
+    public double getSeaFreightPercentage() {
+        return seaFreightPercentage;
     }
 
-    public void setSeaFrightPercentage(int seaFrightPercentage) {
-        this.seaFrightPercentage = seaFrightPercentage;
+    public void setSeaFreightPercentage(double seaFreightPercentage) {
+        this.seaFreightPercentage = seaFreightPercentage;
+    }
+
+    public void setSeaFrightPercentage(int seaFreightPercentage) {
+        this.seaFreightPercentage = seaFreightPercentage;
     }
 
     public int getShippedToArrivedAirLeadTime() {
@@ -147,7 +144,7 @@ public class RealmCountry extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "RealmCountry{" + "realmCountryId=" + realmCountryId + ", country=" + country + ", realm=" + realm + ", defaultCurrencyId=" + defaultCurrencyId + ", palletUnitId=" + palletUnitId + ", airFrightPercentage=" + airFrightPercentage + ", seaFrightPercentage=" + seaFrightPercentage + ", shippedToArrivedAirLeadTime=" + shippedToArrivedAirLeadTime + ", shippedToArrivedSeaLeadTime=" + shippedToArrivedSeaLeadTime + ", arrivedToDeliveredLeadTime=" + arrivedToDeliveredLeadTime + '}';
+        return "RealmCountry{" + "realmCountryId=" + realmCountryId + ", country=" + country + ", realm=" + realm + ", airFreightPercentage=" + airFreightPercentage + ", seaFreightPercentage=" + seaFreightPercentage + ", shippedToArrivedAirLeadTime=" + shippedToArrivedAirLeadTime + ", shippedToArrivedSeaLeadTime=" + shippedToArrivedSeaLeadTime + ", arrivedToDeliveredLeadTime=" + arrivedToDeliveredLeadTime + '}';
     }
 
 }

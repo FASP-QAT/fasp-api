@@ -6,12 +6,13 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
-import cc.altius.FASP.model.RealmCountry;
-import cc.altius.FASP.rest.controller.RealmRestController;
+import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.RealmService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,35 +24,45 @@ public class RealmServiceImpl implements RealmService {
 
     @Autowired
     private RealmDao realmDao;
+    @Autowired
+    private AclService aclService;
 
     @Override
-    public List<Realm> getRealmList(boolean active) {
-        return this.realmDao.getRealmList(active);
+    public List<Realm> getRealmList(boolean active, CustomUserDetails curUser) {
+        return this.realmDao.getRealmList(active, curUser);
+    }
+
+//    @Override
+//    public List<RealmCountry> getRealmCountryList(boolean active) {
+//        return this.realmDao.getRealmCountryList(active);
+//    }
+//
+//    @Override
+//    public List<RealmCountry> getRealmCountryListByRealmId(int realmId) {
+//        return this.realmDao.getRealmCountryListByRealmId(realmId);
+//    }
+    @Override
+    public int addRealm(Realm realm, CustomUserDetails curUser) {
+        return this.realmDao.addRealm(realm, curUser);
     }
 
     @Override
-    public List<RealmCountry> getRealmCountryList(boolean active) {
-        return this.realmDao.getRealmCountryList(active);
+    public int updateRealm(Realm realm, CustomUserDetails curUser) {
+        if (this.aclService.checkRealmAccessForUser(curUser, realm.getRealmId())) {
+            return this.realmDao.updateRealm(realm, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
     @Override
-    public List<RealmCountry> getRealmCountryListByRealmId(int realmId) {
-        return this.realmDao.getRealmCountryListByRealmId(realmId);
-    }
+    public Realm getRealmById(int realmId, CustomUserDetails curUser) {
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            return this.realmDao.getRealmById(realmId, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
 
-    @Override
-    public int addRealm(Realm realm, int curUser) {
-        return this.realmDao.addRealm(realm,curUser);
-    }
-
-    @Override
-    public int updateRealm(Realm realm, int curUser) {
-        return this.realmDao.updateRealm(realm,curUser);
-    }
-
-    @Override
-    public Realm getRealmById(int realmId) {
-        return this.realmDao.getRealmById(realmId);
     }
 
 }

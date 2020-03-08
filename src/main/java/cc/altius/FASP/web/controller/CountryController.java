@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class CountryController {
 
     @Autowired
@@ -110,7 +110,7 @@ public class CountryController {
 
         }
     }
-    
+
     @GetMapping(value = "/getCountryListForSync")
     public String getCountryListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
         String json;
@@ -121,6 +121,5 @@ public class CountryController {
         json = gson.toJson(countryList, typeList);
         return json;
     }
-
 
 }

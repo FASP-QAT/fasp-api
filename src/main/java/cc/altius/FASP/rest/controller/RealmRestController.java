@@ -35,7 +35,7 @@ public class RealmRestController {
     @PostMapping(path = "/realm")
     public ResponseFormat postRealm(@RequestBody Realm realm, Authentication auth) {
         try {
-            int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int realmId = this.realmService.addRealm(realm, curUser);
             return new ResponseFormat("Successfully added Realm with Id " + realmId);
         } catch (Exception e) {
@@ -47,7 +47,7 @@ public class RealmRestController {
     @PutMapping(path = "/realm")
     public ResponseFormat putRealm(@RequestBody Realm realm, Authentication auth) {
         try {
-            int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int rows = this.realmService.updateRealm(realm, curUser);
             return new ResponseFormat("Successfully updated Realm");
         } catch (Exception e) {
@@ -56,18 +56,20 @@ public class RealmRestController {
     }
 
     @GetMapping("/realm")
-    public ResponseFormat getRealm() {
+    public ResponseFormat getRealm(Authentication auth) {
         try {
-            return new ResponseFormat("Success", "", this.realmService.getRealmList(true));
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseFormat("Success", "", this.realmService.getRealmList(true, curUser));
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
 
     @GetMapping("/realm/{realmId}")
-    public ResponseFormat getRealm(@PathVariable("realmId") int realmId) {
+    public ResponseFormat getRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            return new ResponseFormat("Success", "", this.realmService.getRealmById(realmId));
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseFormat("Success", "", this.realmService.getRealmById(realmId, curUser));
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }

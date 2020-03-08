@@ -24,6 +24,6 @@ public interface FundingSourceDao {
 
     public List<FundingSource> getFundingSourceList(CustomUserDetails curUser);
 
-    public FundingSource getFundingSourceById(int unitId, CustomUserDetails curUser);
+    public FundingSource getFundingSourceById(int fundingSourceId, CustomUserDetails curUser);
 
 }

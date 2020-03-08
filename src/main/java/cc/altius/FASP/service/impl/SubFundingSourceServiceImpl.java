@@ -5,13 +5,17 @@
  */
 package cc.altius.FASP.service.impl;
 
+import cc.altius.FASP.dao.FundingSourceDao;
 import cc.altius.FASP.dao.SubFundingSourceDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgSubFundingSourceDTO;
+import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.SubFundingSource;
+import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.SubFundingSourceService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,6 +27,10 @@ public class SubFundingSourceServiceImpl implements SubFundingSourceService {
 
     @Autowired
     SubFundingSourceDao subFundingSourceDao;
+    @Autowired
+    FundingSourceDao fundingSourceDao;
+    @Autowired
+    private AclService aclService;
 
     @Override
     public List<PrgSubFundingSourceDTO> getSubFundingSourceListForSync(String lastSyncDate) {
@@ -41,12 +49,23 @@ public class SubFundingSourceServiceImpl implements SubFundingSourceService {
 
     @Override
     public int updateSubFundingSource(SubFundingSource subFundingSource, CustomUserDetails curUser) {
-        return this.subFundingSourceDao.updateSubFundingSource(subFundingSource, curUser);
+        SubFundingSource sfs = this.subFundingSourceDao.getSubFundingSourceById(subFundingSource.getSubFundingSourceId(), curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, sfs.getFundingSource().getRealm().getRealmId())) {
+            return this.subFundingSourceDao.updateSubFundingSource(subFundingSource, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+        
     }
 
     @Override
     public int addSubFundingSource(SubFundingSource subFundingSource, CustomUserDetails curUser) {
-        return this.subFundingSourceDao.addSubFundingSource(subFundingSource, curUser);
+        FundingSource fs = this.fundingSourceDao.getFundingSourceById(subFundingSource.getFundingSource().getFundingSourceId(), curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, fs.getRealm().getRealmId())) {
+            return this.subFundingSourceDao.addSubFundingSource(subFundingSource, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
 }

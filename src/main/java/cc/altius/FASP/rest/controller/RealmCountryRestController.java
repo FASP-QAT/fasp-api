@@ -11,6 +11,7 @@ import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.RealmCountryService;
 import java.io.Serializable;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -35,10 +36,10 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     private RealmCountryService realmCountryService;
     
     @PostMapping(path = "/realmCountry")
-    public ResponseFormat postOrganisation(@RequestBody RealmCountry realmCountry, Authentication auth) {
+    public ResponseFormat postRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
         try {
-            int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
-            int realmCountryId = this.realmCountryService.addRealmCountry(realmCountry, curUser);
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            int realmCountryId = this.realmCountryService.addRealmCountry(realmCountryList, curUser);
             return new ResponseFormat("Successfully added RealmCountry with Id " + realmCountryId);
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
@@ -46,10 +47,10 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     }
 
     @PutMapping(path = "/realmCountry")
-    public ResponseFormat putOrganisation(@RequestBody RealmCountry realmCountry, Authentication auth) {
+    public ResponseFormat putRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
         try {
-            int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
-            int rows = this.realmCountryService.updateRealmCountry(realmCountry, curUser);
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            int rows = this.realmCountryService.updateRealmCountry(realmCountryList, curUser);
             return new ResponseFormat("Successfully updated RealmCountry");
         } catch (Exception e) {
             e.printStackTrace();
@@ -58,18 +59,20 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     }
 
     @GetMapping("/realmCountry")
-    public ResponseFormat getOrganisation() {
+    public ResponseFormat getRealmCountry(Authentication auth) {
         try {
-            return new ResponseFormat("Success", "", this.realmCountryService.getRealmCountryList());
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseFormat("Success", "", this.realmCountryService.getRealmCountryList(curUser));
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
 
     @GetMapping("/realmCountry/{realmCountryId}")
-    public ResponseFormat getOrganisation(@PathVariable("organisationId") int organisationId) {
+    public ResponseFormat getRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
-            return new ResponseFormat("Success", "", this.realmCountryService.getRealmCountryById(organisationId));
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseFormat("Success", "", this.realmCountryService.getRealmCountryById(realmCountryId, curUser));
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }

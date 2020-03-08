@@ -9,9 +9,11 @@ import cc.altius.FASP.dao.FundingSourceDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgFundingSourceDTO;
 import cc.altius.FASP.model.FundingSource;
+import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.FundingSourceService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,6 +25,8 @@ public class FundingSourceServiceImpl implements FundingSourceService {
 
     @Autowired
     FundingSourceDao fundingSourceDao;
+    @Autowired
+    private AclService aclService;
 
     @Override
     public List<PrgFundingSourceDTO> getFundingSourceListForSync(String lastSyncDate) {
@@ -31,12 +35,21 @@ public class FundingSourceServiceImpl implements FundingSourceService {
 
     @Override
     public int addFundingSource(FundingSource f, CustomUserDetails curUser) {
-        return this.fundingSourceDao.addFundingSource(f, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, f.getRealm().getRealmId())) {
+            return this.fundingSourceDao.addFundingSource(f, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
     @Override
     public int updateFundingSource(FundingSource f, CustomUserDetails curUser) {
-        return this.fundingSourceDao.updateFundingSource(f, curUser);
+        FundingSource fs = this.fundingSourceDao.getFundingSourceById(f.getFundingSourceId(), curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, fs.getRealm().getRealmId())) {
+            return this.fundingSourceDao.updateFundingSource(f, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
     @Override

@@ -21,6 +21,12 @@ public class Unit extends BaseModel implements Serializable {
     public Unit() {
     }
 
+    public Unit(int unitId, Label label, String unitCode) {
+        this.unitId = unitId;
+        this.label = label;
+        this.unitCode = unitCode;
+    }
+
     public Unit(int unitId, Label label, String unitCode, UnitType unitType) {
         this.unitId = unitId;
         this.label = label;

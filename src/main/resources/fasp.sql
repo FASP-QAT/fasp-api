@@ -90,12 +90,12 @@ DROP TABLE IF EXISTS `fasp`.`rm_realm` ;
 
 CREATE TABLE IF NOT EXISTS `fasp`.`rm_realm` (
   `REALM_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Realm',
-  `REALM_CODE` VARCHAR(4) NOT NULL COMMENT 'Unique Code for each Realm, will be given at the time of creation and cannot be edited',
+  `REALM_CODE` VARCHAR(6) NOT NULL COMMENT 'Unique Code for each Realm, will be given at the time of creation and cannot be edited',
   `LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',
   `MONTHS_IN_PAST_FOR_AMC` INT(10) UNSIGNED NOT NULL COMMENT 'No of months that we should go back in the past to calculate AMC. Default to be used when we create a Program',
   `MONTHS_IN_FUTURE_FOR_AMC` INT(10) UNSIGNED NOT NULL COMMENT 'No of months that we should go into the future to calculate AMC. Default to be used when we create a Program',
   `ORDER_FREQUENCY` INT(10) UNSIGNED NOT NULL COMMENT 'In how many months do you want to place orders. Default to be used when we create a Program',
-  `DEFAULT` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'If True indicates this Realm is the Default Realm for the Application',
+  `DEFAULT_REALM` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'If True indicates this Realm is the Default Realm for the Application',
   `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'If True indicates this Realm is Active. False indicates this Realm has been De-activated',
   `CREATED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Created by',
   `CREATED_DATE` DATETIME NOT NULL,
@@ -2791,7 +2791,7 @@ COMMIT;
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `fasp`;
-INSERT INTO `fasp`.`rm_realm` (`REALM_ID`, `REALM_CODE`, `LABEL_ID`, `MONTHS_IN_PAST_FOR_AMC`, `MONTHS_IN_FUTURE_FOR_AMC`, `ORDER_FREQUENCY`, `DEFAULT`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 'UAID', 4, 3, 6, 4, 1, 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
+INSERT INTO `fasp`.`rm_realm` (`REALM_ID`, `REALM_CODE`, `LABEL_ID`, `MONTHS_IN_PAST_FOR_AMC`, `MONTHS_IN_FUTURE_FOR_AMC`, `ORDER_FREQUENCY`, `DEFAULT_REALM`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 'UAID', 4, 3, 6, 4, 1, 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
 
 COMMIT;
 
@@ -2953,6 +2953,7 @@ COMMIT;
 START TRANSACTION;
 USE `fasp`;
 INSERT INTO `fasp`.`us_user_role` (`USER_ROLE_ID`, `USER_ID`, `ROLE_ID`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 'ROLE_APPL_ADMIN', 1, '2020-03-10 12:00:00', 1, '2020-03-10 12:00:00');
+INSERT INTO `fasp`.`us_user_role` (`USER_ROLE_ID`, `USER_ID`, `ROLE_ID`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 1, 'ROLE_REALM_ADMIN', 1, '2020-03-10 12:00:00', 1, '2020-03-10 12:00:00');
 
 COMMIT;
 
@@ -3126,8 +3127,8 @@ COMMIT;
 START TRANSACTION;
 USE `fasp`;
 INSERT INTO `fasp`.`rm_sub_funding_source` (`SUB_FUNDING_SOURCE_ID`, `FUNDING_SOURCE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 140, 1, 1, '2020-03-02 10:00:00', 1, '2020-03-02 10:00:00');
-INSERT INTO `fasp`.`rm_sub_funding_source` (`SUB_FUNDING_SOURCE_ID`, `FUNDING_SOURCE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 1, 141, 1, 1, '2020-03-02 10:00:00', 1, '2020-03-02 10:00:00');
-INSERT INTO `fasp`.`rm_sub_funding_source` (`SUB_FUNDING_SOURCE_ID`, `FUNDING_SOURCE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 4, 142, 1, 1, '2020-03-02 10:00:00', 1, '2020-03-02 10:00:00');
+INSERT INTO `fasp`.`rm_sub_funding_source` (`SUB_FUNDING_SOURCE_ID`, `FUNDING_SOURCE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 2, 141, 1, 1, '2020-03-02 10:00:00', 1, '2020-03-02 10:00:00');
+INSERT INTO `fasp`.`rm_sub_funding_source` (`SUB_FUNDING_SOURCE_ID`, `FUNDING_SOURCE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 3, 142, 1, 1, '2020-03-02 10:00:00', 1, '2020-03-02 10:00:00');
 
 COMMIT;
 

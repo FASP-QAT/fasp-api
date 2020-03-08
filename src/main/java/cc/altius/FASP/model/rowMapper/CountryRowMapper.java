@@ -7,7 +7,6 @@ package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.Country;
 import cc.altius.FASP.model.Currency;
-import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.Language;
 import java.sql.ResultSet;
 import java.sql.SQLException;

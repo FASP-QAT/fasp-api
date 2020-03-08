@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.RealmCountry;
 import java.util.List;
 
@@ -14,12 +15,12 @@ import java.util.List;
  */
 public interface RealmCountryService {
 
-    public int addRealmCountry(RealmCountry realmCountry, int curUser);
+    public int addRealmCountry(List<RealmCountry> realmCountryList, CustomUserDetails curUser);
 
-    public int updateRealmCountry(RealmCountry realmCountry, int curUser);
+    public int updateRealmCountry(List<RealmCountry> realmCountryList, CustomUserDetails curUser);
 
-    public List<RealmCountry> getRealmCountryList();
+    public List<RealmCountry> getRealmCountryList(CustomUserDetails curUser);
 
-    public RealmCountry getRealmCountryById(int organisationId);
+    public RealmCountry getRealmCountryById(int realmCountryId, CustomUserDetails curUser);
     
 }

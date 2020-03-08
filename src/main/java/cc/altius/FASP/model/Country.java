@@ -22,13 +22,17 @@ public class Country extends BaseModel implements Serializable {
     public Country() {
     }
 
-//    private boolean active;
-
     public Country(int countryId, Label label) {
         this.countryId = countryId;
         this.label = label;
     }
 
+    public Country(int countryId, String countryCode, Label label) {
+        this.countryId = countryId;
+        this.countryCode = countryCode;
+        this.label = label;
+    }
+    
     public String getCountryCode() {
         return countryCode;
     }
