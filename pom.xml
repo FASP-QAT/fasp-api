@@ -10,7 +10,7 @@
     </parent>
     <groupId>cc.altius.FASP.rest.webservice</groupId>
     <artifactId>FASP</artifactId>
-    <version>DEV.0.0200</version>
+    <version>DEV.0.0202</version>
     <name>FASP</name>
     <description>Demo project for Spring Boot</description>
     <packaging>jar</packaging>
