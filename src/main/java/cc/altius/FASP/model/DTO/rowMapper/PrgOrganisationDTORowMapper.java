@@ -20,12 +20,7 @@ public class PrgOrganisationDTORowMapper implements RowMapper<PrgOrganisationDTO
     @Override
     public PrgOrganisationDTO mapRow(ResultSet rs, int i) throws SQLException {
         PrgOrganisationDTO o=new PrgOrganisationDTO();
-        PrgLabelDTO label = new PrgLabelDTO();
-        label.setLabelEn(rs.getString("LABEL_EN"));
-        label.setLabelFr(rs.getString("LABEL_FR"));
-        label.setLabelPr(rs.getString("LABEL_PR"));
-        label.setLabelSp(rs.getString("LABEL_SP"));
-        o.setLabel(label);
+        o.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
         o.setOrganisationId(rs.getInt("ORGANISATION_ID"));
         o.setActive(rs.getBoolean("ACTIVE"));
         return o;

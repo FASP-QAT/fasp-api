@@ -27,12 +27,7 @@ public class PrgLogisticsUnitDTORowMapper implements RowMapper<PrgLogisticsUnitD
         PrgUnitDTO heightUnit=new PrgUnitDTO();
         heightUnit.setUnitId(rs.getInt("HEIGHT_UNIT_ID"));
         lu.setHeightUnit(heightUnit);
-        PrgLabelDTO label = new PrgLabelDTO();
-        label.setLabelEn(rs.getString("LABEL_EN"));
-        label.setLabelFr(rs.getString("LABEL_FR"));
-        label.setLabelPr(rs.getString("LABEL_PR"));
-        label.setLabelSp(rs.getString("LABEL_SP"));
-        lu.setLabel(label);
+        lu.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
         lu.setLengthQty(rs.getDouble("LENGTH_QTY"));
         PrgUnitDTO lengthUnit=new PrgUnitDTO();
         lengthUnit.setUnitId(rs.getInt("LENGTH_UNIT_ID"));

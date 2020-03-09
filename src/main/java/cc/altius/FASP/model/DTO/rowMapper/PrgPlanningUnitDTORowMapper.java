@@ -22,12 +22,7 @@ public class PrgPlanningUnitDTORowMapper implements RowMapper<PrgPlanningUnitDTO
     public PrgPlanningUnitDTO mapRow(ResultSet rs, int i) throws SQLException {
         PrgPlanningUnitDTO pu = new PrgPlanningUnitDTO();
         pu.setActive(rs.getBoolean("ACTIVE"));
-        PrgLabelDTO label = new PrgLabelDTO();
-        label.setLabelEn(rs.getString("LABEL_EN"));
-        label.setLabelFr(rs.getString("LABEL_FR"));
-        label.setLabelPr(rs.getString("LABEL_PR"));
-        label.setLabelSp(rs.getString("LABEL_SP"));
-        pu.setLabel(label);
+        pu.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
         pu.setPlanningUnitId(rs.getInt("PLANNING_UNIT_ID"));
         pu.setPrice(rs.getDouble("PRICE"));
         pu.setQtyOfForecastingUnits(rs.getDouble("QTY_OF_FORECASTING_UNITS"));

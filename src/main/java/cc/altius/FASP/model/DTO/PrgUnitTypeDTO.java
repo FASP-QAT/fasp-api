@@ -5,8 +5,6 @@
  */
 package cc.altius.FASP.model.DTO;
 
-import cc.altius.FASP.model.Label;
-
 /**
  *
  * @author altius

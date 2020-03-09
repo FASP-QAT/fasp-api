@@ -20,13 +20,8 @@ public class PrgUnitTypeDTORowMapper implements RowMapper<PrgUnitTypeDTO>{
     @Override
     public PrgUnitTypeDTO mapRow(ResultSet rs, int i) throws SQLException {
         PrgUnitTypeDTO unitType=new PrgUnitTypeDTO();
-        unitType.setUnitTypeId(rs.getInt("UNIT_TYPE_ID"));
-        PrgLabelDTO label = new PrgLabelDTO();
-        label.setLabelEn(rs.getString("LABEL_EN"));
-        label.setLabelFr(rs.getString("LABEL_FR"));
-        label.setLabelPr(rs.getString("LABEL_PR"));
-        label.setLabelSp(rs.getString("LABEL_SP"));
-        unitType.setLabel(label);
+        unitType.setUnitTypeId(rs.getInt("UNIT_TYPE_ID"));        
+        unitType.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
         return unitType;
     }
 
