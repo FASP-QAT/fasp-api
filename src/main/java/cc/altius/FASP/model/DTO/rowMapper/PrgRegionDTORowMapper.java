@@ -22,12 +22,7 @@ public class PrgRegionDTORowMapper implements RowMapper<PrgRegionDTO> {
         PrgRegionDTO region = new PrgRegionDTO();
         region.setRegionId(rs.getInt("REGION_ID"));
         region.setCapacityCbm(rs.getDouble("CAPACITY_CBM"));
-        PrgLabelDTO regionLabel = new PrgLabelDTO();
-        regionLabel.setLabelEn(rs.getString("REGION_NAME_EN"));
-        regionLabel.setLabelFr(rs.getString("REGION_NAME_FR"));
-        regionLabel.setLabelPr(rs.getString("REGION_NAME_PR"));
-        regionLabel.setLabelSp(rs.getString("REGION_NAME_SP"));
-        region.setLabel(regionLabel);
+        region.setLabel(new PrgLabelDTORowMapper("REGION_").mapRow(rs, i));
         region.setActive(rs.getBoolean("ACTIVE"));
         return region;
     }

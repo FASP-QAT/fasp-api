@@ -25,12 +25,7 @@ public class PrgSubFundingSourceDTORowMapper implements RowMapper<PrgSubFundingS
         PrgFundingSourceDTO fundingSource=new PrgFundingSourceDTO();
         fundingSource.setFundingSourceId(rs.getInt("FUNDING_SOURCE_ID"));
         sfs.setFundingSource(fundingSource);
-        PrgLabelDTO label = new PrgLabelDTO();
-        label.setLabelEn(rs.getString("LABEL_EN"));
-        label.setLabelFr(rs.getString("LABEL_FR"));
-        label.setLabelPr(rs.getString("LABEL_PR"));
-        label.setLabelSp(rs.getString("LABEL_SP"));
-        sfs.setLabel(label);
+        sfs.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
         sfs.setSubFundingSourceId(rs.getInt("SUB_FUNDING_SOURCE_ID"));
         return sfs;
     }

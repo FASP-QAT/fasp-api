@@ -22,12 +22,7 @@ public class PrgFundingSourceDTORowMapper implements RowMapper<PrgFundingSourceD
         PrgFundingSourceDTO fs=new PrgFundingSourceDTO();
         fs.setActive(rs.getBoolean("ACTIVE"));
         fs.setFundingSourceId(rs.getInt("FUNDING_SOURCE_ID"));
-        PrgLabelDTO label = new PrgLabelDTO();
-        label.setLabelEn(rs.getString("LABEL_EN"));
-        label.setLabelFr(rs.getString("LABEL_FR"));
-        label.setLabelPr(rs.getString("LABEL_PR"));
-        label.setLabelSp(rs.getString("LABEL_SP"));
-        fs.setLabel(label);
+        fs.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
         return fs;
     }
     

@@ -21,12 +21,7 @@ public class PrgProductCategoryDTORowMapper implements RowMapper<PrgProductCateg
     public PrgProductCategoryDTO mapRow(ResultSet rs, int i) throws SQLException {
         PrgProductCategoryDTO pc = new PrgProductCategoryDTO();
         pc.setActive(rs.getBoolean("ACTIVE"));
-        PrgLabelDTO label = new PrgLabelDTO();
-        label.setLabelEn(rs.getString("LABEL_EN"));
-        label.setLabelFr(rs.getString("LABEL_FR"));
-        label.setLabelPr(rs.getString("LABEL_PR"));
-        label.setLabelSp(rs.getString("LABEL_SP"));
-        pc.setLabel(label);
+        pc.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
         pc.setProductCategoryId(rs.getInt("PRODUCT_CATEGORY_ID"));
         return pc;
     }

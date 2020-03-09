@@ -22,12 +22,7 @@ public class PrgDataSourceTypeDTORowMapper implements RowMapper<PrgDataSourceTyp
         PrgDataSourceTypeDTO dst=new PrgDataSourceTypeDTO();
         dst.setActive(rs.getBoolean("ACTIVE"));
         dst.setDataSourceTypeId(rs.getInt("DATA_SOURCE_TYPE_ID"));
-        PrgLabelDTO label = new PrgLabelDTO();
-        label.setLabelEn(rs.getString("LABEL_EN"));
-        label.setLabelFr(rs.getString("LABEL_FR"));
-        label.setLabelPr(rs.getString("LABEL_PR"));
-        label.setLabelSp(rs.getString("LABEL_SP"));
-        dst.setLabel(label);
+        dst.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
         return dst;
     }
     

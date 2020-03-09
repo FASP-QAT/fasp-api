@@ -16,6 +16,16 @@ public class PrgLabelDTO {
     private String labelPr;
     private String labelSp;
 
+    public PrgLabelDTO() {
+    }
+
+    public PrgLabelDTO(String labelEn, String labelFr, String labelPr, String labelSp) {
+        this.labelEn = labelEn;
+        this.labelFr = labelFr;
+        this.labelPr = labelPr;
+        this.labelSp = labelSp;
+    }
+
     public String getLabelEn() {
         return labelEn;
     }
