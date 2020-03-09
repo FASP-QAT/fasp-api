@@ -48,7 +48,6 @@ public class ProgramController {
 
     @GetMapping(value = "/getProgramList")
     public String getProgramList() throws UnsupportedEncodingException {
-        System.out.println("in get Program kist");
         String json;
         List<ProgramDTO> programList = this.programService.getProgramList();
         Gson gson = new Gson();

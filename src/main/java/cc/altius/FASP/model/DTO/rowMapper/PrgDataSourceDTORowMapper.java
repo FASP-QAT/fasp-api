@@ -25,12 +25,7 @@ public class PrgDataSourceDTORowMapper implements RowMapper<PrgDataSourceDTO>{
         PrgDataSourceTypeDTO dataSourceType=new PrgDataSourceTypeDTO();
         dataSourceType.setDataSourceTypeId(rs.getInt("DATA_SOURCE_TYPE_ID"));
         ds.setDataSourceType(dataSourceType);
-        PrgLabelDTO label = new PrgLabelDTO();
-        label.setLabelEn(rs.getString("LABEL_EN"));
-        label.setLabelFr(rs.getString("LABEL_FR"));
-        label.setLabelPr(rs.getString("LABEL_PR"));
-        label.setLabelSp(rs.getString("LABEL_SP"));
-        ds.setLabel(label);
+        ds.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
         ds.setActive(rs.getBoolean("ACTIVE"));
         return ds;
     }

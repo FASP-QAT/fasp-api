@@ -5,10 +5,8 @@
  */
 package cc.altius.FASP.model.DTO.rowMapper;
 
-import cc.altius.FASP.model.DTO.PrgLabelDTO;
 import cc.altius.FASP.model.DTO.PrgUnitDTO;
 import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
-import cc.altius.FASP.model.UnitType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -22,12 +20,7 @@ public class PrgUnitDTORowMapper implements RowMapper<PrgUnitDTO> {
     @Override
     public PrgUnitDTO mapRow(ResultSet rs, int i) throws SQLException {
         PrgUnitDTO unit = new PrgUnitDTO();
-        PrgLabelDTO label = new PrgLabelDTO();
-        label.setLabelEn(rs.getString("LABEL_EN"));
-        label.setLabelFr(rs.getString("LABEL_FR"));
-        label.setLabelPr(rs.getString("LABEL_PR"));
-        label.setLabelSp(rs.getString("LABEL_SP"));
-        unit.setLabel(label);
+        unit.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
         unit.setUnitCode(rs.getString("UNIT_CODE"));
         unit.setUnitId(rs.getInt("UNIT_ID"));
         PrgUnitTypeDTO unitType = new PrgUnitTypeDTO();

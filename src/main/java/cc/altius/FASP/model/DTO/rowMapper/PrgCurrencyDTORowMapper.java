@@ -24,12 +24,7 @@ public class PrgCurrencyDTORowMapper implements RowMapper<PrgCurrencyDTO>{
         c.setCurrencyCode(rs.getString("CURRENCY_CODE"));
         c.setCurrencyId(rs.getInt("CURRENCY_ID"));
         c.setCurrencySymbol(rs.getString("CURRENCY_SYMBOL"));
-        PrgLabelDTO label = new PrgLabelDTO();
-        label.setLabelEn(rs.getString("LABEL_EN"));
-        label.setLabelFr(rs.getString("LABEL_FR"));
-        label.setLabelPr(rs.getString("LABEL_PR"));
-        label.setLabelSp(rs.getString("LABEL_SP"));
-        c.setLabel(label);
+        c.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
         return c;
     }
     

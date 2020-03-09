@@ -21,12 +21,7 @@ public class PrgManufacturerDTORowMapper implements RowMapper<PrgManufacturerDTO
     public PrgManufacturerDTO mapRow(ResultSet rs, int i) throws SQLException {
         PrgManufacturerDTO m = new PrgManufacturerDTO();
         m.setActive(rs.getBoolean("ACTIVE"));
-        PrgLabelDTO label = new PrgLabelDTO();
-        label.setLabelEn(rs.getString("LABEL_EN"));
-        label.setLabelFr(rs.getString("LABEL_FR"));
-        label.setLabelPr(rs.getString("LABEL_PR"));
-        label.setLabelSp(rs.getString("LABEL_SP"));
-        m.setLabel(label);
+        m.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
         m.setManufacturerId(rs.getInt("MANUFACTURER_ID"));
         return m;
     }

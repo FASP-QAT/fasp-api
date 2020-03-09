@@ -22,12 +22,7 @@ public class PrgHealthAreaDTORowMapper implements RowMapper<PrgHealthAreaDTO>{
         PrgHealthAreaDTO ha=new PrgHealthAreaDTO();
         ha.setHealthAreaId(rs.getInt("HEALTH_AREA_ID"));
         ha.setActive(rs.getBoolean("ACTIVE"));
-        PrgLabelDTO label = new PrgLabelDTO();
-        label.setLabelEn(rs.getString("LABEL_EN"));
-        label.setLabelFr(rs.getString("LABEL_FR"));
-        label.setLabelPr(rs.getString("LABEL_PR"));
-        label.setLabelSp(rs.getString("LABEL_SP"));
-        ha.setLabel(label);
+        ha.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
         return ha;
     }
     
