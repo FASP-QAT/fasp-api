@@ -34,6 +34,7 @@ public class Program extends BaseModel implements Serializable {
     @JsonIgnore
     private List<Region> regionList;
     String[] regionArray;
+    private List<Product> productList;
 
     public Program() {
     }

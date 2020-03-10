@@ -7,10 +7,8 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.model.DTO.PrgProductCategoryDTO;
 import cc.altius.FASP.model.DTO.PrgUnitDTO;
-import cc.altius.FASP.model.DTO.*;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  *

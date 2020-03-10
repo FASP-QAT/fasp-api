@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.model.DTO;
 
-import cc.altius.FASP.model.UnitType;
 import java.io.Serializable;
 
 /**

@@ -57,8 +57,8 @@ public class AclServiceImpl implements AclService {
             logger.info(acl.toString());
             if ((acl.getRealmCountryId() == -1 || acl.getRealmCountryId() == realmCountryId || realmCountryId == 0)
                     && (acl.getHealthAreaId() == -1 || acl.getHealthAreaId() == healthAreaId || healthAreaId == 0)
-                    && (acl.getOrganisationId() == -1 && acl.getOrganisationId() == organisationId || organisationId == 0)
-                    && (acl.getProgramId() == -1 && acl.getProgramId() == programId || programId == 0)) {
+                    && (acl.getOrganisationId() == -1 || acl.getOrganisationId() == organisationId || organisationId == 0)
+                    && (acl.getProgramId() == -1 || acl.getProgramId() == programId || programId == 0)) {
                 logger.info("Check passed");
                 hasAccess = true;
             } else {

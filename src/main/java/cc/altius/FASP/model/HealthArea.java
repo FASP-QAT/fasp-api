@@ -25,6 +25,11 @@ public class HealthArea extends BaseModel implements Serializable {
     public HealthArea() {
     }
 
+    public HealthArea(int healthAreaId, Label label) {
+        this.healthAreaId = healthAreaId;
+        this.label = label;
+    }
+
     public HealthArea(int healthAreaId, Realm realm, Label label) {
         this.healthAreaId = healthAreaId;
         this.realm = realm;

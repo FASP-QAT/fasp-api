@@ -30,30 +30,5 @@ import cc.altius.FASP.service.ProgramService;
 @CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
 public class ProgramController {
 
-    @Autowired
-    private ProgramDataService programDataService;
-    @Autowired
-    private ProgramService programService;
 
-    @GetMapping(value = "/getProgramData")
-    public String getProgramData(@RequestParam String programId) throws UnsupportedEncodingException {
-        String json;
-        PrgProgramDataDTO program = this.programDataService.getProgramData(programId);
-        Gson gson = new Gson();
-        Type typeList = new TypeToken<PrgProgramDataDTO>() {
-        }.getType();
-        json = gson.toJson(program, typeList);
-        return json;
-    }
-
-    @GetMapping(value = "/getProgramList")
-    public String getProgramList() throws UnsupportedEncodingException {
-        String json;
-        List<ProgramDTO> programList = this.programService.getProgramList();
-        Gson gson = new Gson();
-        Type typeList = new TypeToken<List>() {
-        }.getType();
-        json = gson.toJson(programList, typeList);
-        return json;
-    }
 }

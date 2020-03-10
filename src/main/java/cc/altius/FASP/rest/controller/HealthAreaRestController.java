@@ -8,9 +8,9 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.ResponseFormat;
-import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.HealthAreaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,14 +32,13 @@ public class HealthAreaRestController {
 
     @Autowired
     private HealthAreaService healthAreaService;
-    @Autowired
-    private AclService aclService;
 
     @PostMapping(path = "/healthArea")
-    public ResponseFormat postHealthArea(@RequestBody HealthArea heatlhArea, Authentication auth) {
+    public ResponseFormat postHealthArea(@RequestBody HealthArea healthArea, Authentication auth, HttpRequest request) {
         try {
+            
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            int healthAreaId = this.healthAreaService.addHealthArea(heatlhArea, curUser);
+            int healthAreaId = this.healthAreaService.addHealthArea(healthArea, curUser);
             return new ResponseFormat("Successfully added HealthArea with Id " + healthAreaId);
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
@@ -47,10 +46,10 @@ public class HealthAreaRestController {
     }
 
     @PutMapping(path = "/healthArea")
-    public ResponseFormat putHealhArea(@RequestBody HealthArea heatlhArea, Authentication auth) {
+    public ResponseFormat putHealhArea(@RequestBody HealthArea healthArea, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            this.healthAreaService.updateHealthArea(heatlhArea, curUser);
+            this.healthAreaService.updateHealthArea(healthArea, curUser);
             return new ResponseFormat("Successfully updated HealthArea");
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());

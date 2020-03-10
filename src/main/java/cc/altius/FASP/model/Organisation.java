@@ -26,6 +26,12 @@ public class Organisation extends BaseModel implements Serializable {
     public Organisation() {
     }
 
+    public Organisation(int organisationId, String organisationCode, Label label) {
+        this.organisationId = organisationId;
+        this.organisationCode = organisationCode;
+        this.label = label;
+    }
+
     public Organisation(int organisationId, String organisationCode, Realm realm, Label label) {
         this.organisationId = organisationId;
         this.organisationCode = organisationCode;

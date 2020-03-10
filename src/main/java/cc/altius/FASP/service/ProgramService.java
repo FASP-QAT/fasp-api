@@ -5,7 +5,9 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramDTO;
+import cc.altius.FASP.model.Program;
 import java.util.List;
 
 /**
@@ -15,5 +17,15 @@ import java.util.List;
 public interface ProgramService {
 
     public List<ProgramDTO> getProgramList();
+
+    public int addProgram(Program p, CustomUserDetails curUser);
+
+    public int updateProgram(Program p, CustomUserDetails curUser);
+
+    public List<Program> getProgramList(CustomUserDetails curUser);
+    
+    public List<Program> getProgramList(int realmId, CustomUserDetails curUser);
+
+    public Program getProgramById(int programId, CustomUserDetails curUser);
 
 }
