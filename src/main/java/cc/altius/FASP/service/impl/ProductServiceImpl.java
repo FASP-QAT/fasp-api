@@ -6,10 +6,14 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ProductDao;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgProductDTO;
+import cc.altius.FASP.model.Product;
+import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProductService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -21,10 +25,47 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     ProductDao productDao;
+    @Autowired
+    private AclService aclService;
 
     @Override
     public List<PrgProductDTO> getProductListForSync(String lastSyncDate) {
         return this.productDao.getProductListForSync(lastSyncDate);
     }
 
+    @Override
+    public List<Product> getProductList(boolean active, CustomUserDetails curUser) {
+        return this.productDao.getProductList(active, curUser);
+    }
+
+    @Override
+    public List<Product> getProductList(int realmId, boolean active, CustomUserDetails curUser) {
+        return this.productDao.getProductList(realmId, active, curUser);
+    }
+
+    @Override
+    public int addProduct(Product product, CustomUserDetails curUser) {
+        return this.productDao.addProduct(product, curUser);
+    }
+
+    @Override
+    public int updateProduct(Product product, CustomUserDetails curUser) {
+        Product pr = this.getProductById(product.getProductId(), curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, pr.getRealm().getRealmId())) {
+            return this.productDao.updateProduct(product, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public Product getProductById(int productId, CustomUserDetails curUser) {
+        Product pr = this.productDao.getProductById(productId, curUser);
+        if (this.aclService.checkAccessForUser(curUser, pr.getRealm().getRealmId(), 0, 0, 0, pr.getProductId())) {
+            return pr;
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+
+    }
 }
