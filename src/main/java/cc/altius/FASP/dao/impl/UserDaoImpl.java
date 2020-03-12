@@ -634,4 +634,20 @@ public class UserDaoImpl implements UserDao {
         this.jdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_COMPLETION_DATE=? WHERE u.USERNAME=? AND fpt.TOKEN=?", DateUtils.getCurrentDateObject(DateUtils.EST), username, token);
     }
 
+    @Override
+    public boolean isTokenLogout(String token) {
+        String sqlString = "SELECT COUNT(*) FROM us_token_logout WHERE TOKEN=?";
+        return (this.jdbcTemplate.queryForObject(sqlString, Integer.class, token) > 0);
+    }
+
+    @Override
+    public void addTokenToLogout(String token) {
+        String sqlString = "INSERT IGNORE INTO us_token_logout (TOKEN, LOGOUT_DATE) VALUES (:token, :curDate)";
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("token", token);
+        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.IST));
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+    }
+
 }

@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import cc.altius.FASP.service.UserService;
+import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,8 @@ public class UserController {
     private JwtTokenUtil jwtTokenUtil;
     @Value("${session.expiry.time}")
     private int sessionExpiryTime;
+    @Value("${jwt.http.request.header}")
+    private String tokenHeader;
 
     @GetMapping(value = "/getRoleList")
     public String getRoleList() {
@@ -454,4 +457,21 @@ public class UserController {
         }
     }
 
+    @GetMapping(value = "/logout")
+    public ResponseFormat logout(HttpServletRequest request) {
+        try {
+            final String requestTokenHeader = request.getHeader(this.tokenHeader);
+            String jwtToken;
+            if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
+                jwtToken = requestTokenHeader.substring(7);
+                this.userService.addTokenToLogout(jwtToken);
+                return new ResponseFormat("Successfully logged out");
+            } else {
+                return new ResponseFormat("Failed", "Could not logout - Invalid token");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseFormat("Failed", "Exception Occured :" + e.getClass());
+        }
+    }
 }

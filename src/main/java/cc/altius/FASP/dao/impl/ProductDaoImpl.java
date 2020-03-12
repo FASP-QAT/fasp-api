@@ -65,6 +65,7 @@ public class ProductDaoImpl implements ProductDao {
                 + "    pgl.LABEL_ID `GENERIC_LABEL_ID`, pgl.LABEL_EN `GENERIC_LABEL_EN`, pgl.LABEL_FR `GENERIC_LABEL_FR`, pgl.LABEL_PR `GENERIC_LABEL_PR`, pgl.LABEL_SP `GENERIC_LABEL_SP`, "
                 + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
                 + "    u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, ul.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, ul.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, ul.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, ul.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, "
+                + "    pc.PRODUCT_CATEGORY_ID, pcl.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pcl.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pcl.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pcl.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pcl.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, "
                 + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.ACTIVE, p.CREATED_DATE, p.LAST_MODIFIED_DATE "
                 + "FROM rm_product p  "
                 + "LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
@@ -72,9 +73,11 @@ public class ProductDaoImpl implements ProductDao {
                 + "LEFT JOIN rm_realm r ON p.REALM_ID=r.REALM_ID "
                 + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
                 + "LEFT JOIN ap_unit u ON p.FORECASTING_UNIT_ID=u.UNIT_ID "
-                + "LEFT JOIN ap_label ul on u.LABEL_ID=ul.LABEL_ID "
-                + " LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID "
-                + " LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
+                + "LEFT JOIN rm_product_category pc ON p.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
+                + "LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID "
                 + "WHERE p.ACTIVE=:active ";
 
         Map<String, Object> params = new HashMap<>();
@@ -93,6 +96,7 @@ public class ProductDaoImpl implements ProductDao {
                 + "    pgl.LABEL_ID `GENERIC_LABEL_ID`, pgl.LABEL_EN `GENERIC_LABEL_EN`, pgl.LABEL_FR `GENERIC_LABEL_FR`, pgl.LABEL_PR `GENERIC_LABEL_PR`, pgl.LABEL_SP `GENERIC_LABEL_SP`, "
                 + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
                 + "    u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, ul.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, ul.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, ul.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, ul.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, "
+                + "    pc.PRODUCT_CATEGORY_ID, pcl.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pcl.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pcl.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pcl.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pcl.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, "
                 + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.ACTIVE, p.CREATED_DATE, p.LAST_MODIFIED_DATE "
                 + "FROM rm_product p  "
                 + "LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
@@ -100,7 +104,9 @@ public class ProductDaoImpl implements ProductDao {
                 + "LEFT JOIN rm_realm r ON p.REALM_ID=r.REALM_ID "
                 + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
                 + "LEFT JOIN ap_unit u ON p.FORECASTING_UNIT_ID=u.UNIT_ID "
-                + "LEFT JOIN ap_label ul on u.LABEL_ID=ul.LABEL_ID "
+                + "LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
+                + "LEFT JOIN rm_product_category pc ON p.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
+                + "LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID "
                 + "LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID "
                 + "LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID "
                 + "WHERE p.ACTIVE=:active AND p.REALM_ID=:userRealmId ";
@@ -126,6 +132,7 @@ public class ProductDaoImpl implements ProductDao {
         params.put("GENERIC_LABEL_ID", genericLabelId);
         params.put("FORECASTING_UNIT_ID", product.getForecastingUnit().getUnitId());
         params.put("REALM_ID", product.getRealm().getRealmId());
+        params.put("PRODUCT_CATEGORY_ID", product.getProductCategory().getProductCategoryId());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
@@ -140,9 +147,10 @@ public class ProductDaoImpl implements ProductDao {
         String sqlString = "UPDATE rm_product p LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID LEFT JOIN ap_label pgl ON p.GENERIC_LABEL_ID=pgl.LABEL_ID "
                 + "SET  "
                 + "    p.FORECASTING_UNIT_ID=:forecastingUnitId, "
+                + "    pc.PRODUCT_CATEGORY_ID=:productCategoryId, "
                 + "    p.ACTIVE=:active, "
-                + "    p.LAST_MODIFIED_BY=IF(p.FORECASTING_UNIT_ID!=:forecastingUnitId OR p.ACTIVE!=:active,:curUser, p.LAST_MODIFIED_BY), "
-                + "    p.LAST_MODIFIED_DATE=IF(p.FORECASTING_UNIT_ID!=:forecastingUnitId OR p.ACTIVE!=:active,:curDate, p.LAST_MODIFIED_DATE), "
+                + "    p.LAST_MODIFIED_BY=IF(p.FORECASTING_UNIT_ID!=:forecastingUnitId OR pc.PRODUCT_CATEGORY_ID!=:productCategoryId OR p.ACTIVE!=:active,:curUser, p.LAST_MODIFIED_BY), "
+                + "    p.LAST_MODIFIED_DATE=IF(p.FORECASTING_UNIT_ID!=:forecastingUnitId OR pc.PRODUCT_CATEGORY_ID!=:productCategoryId OR p.ACTIVE!=:active,:curDate, p.LAST_MODIFIED_DATE), "
                 + "    pl.LABEL_EN=:labelEn, "
                 + "    pl.LAST_MODIFIED_BY=IF(pl.LABEL_EN=:labelEn,:curUser, p.LAST_MODIFIED_BY), "
                 + "    pl.LAST_MODIFIED_DATE=IF(pl.LABEL_EN=:labelEn,:curDate, p.LAST_MODIFIED_DATE), "
@@ -153,6 +161,7 @@ public class ProductDaoImpl implements ProductDao {
         Map<String, Object> params = new HashMap<>();
         params.put("forecastingUnitId", product.getForecastingUnit().getUnitId());
         params.put("productId", product.getProductId());
+        params.put("productCategoryId", product.getProductCategory().getProductCategoryId());
         params.put("active", product.isActive());
         params.put("labelEn", product.getLabel().getLabel_en());
         params.put("genericLabelEn", product.getGenericLabel().getLabel_en());
@@ -168,6 +177,7 @@ public class ProductDaoImpl implements ProductDao {
                 + "    pgl.LABEL_ID `GENERIC_LABEL_ID`, pgl.LABEL_EN `GENERIC_LABEL_EN`, pgl.LABEL_FR `GENERIC_LABEL_FR`, pgl.LABEL_PR `GENERIC_LABEL_PR`, pgl.LABEL_SP `GENERIC_LABEL_SP`, "
                 + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
                 + "    u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, ul.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, ul.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, ul.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, ul.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, "
+                + "    pc.PRODUCT_CATEGORY_ID, pcl.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pcl.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pcl.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pcl.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pcl.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, "
                 + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.ACTIVE, p.CREATED_DATE, p.LAST_MODIFIED_DATE "
                 + "FROM rm_product p  "
                 + "LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
@@ -175,7 +185,9 @@ public class ProductDaoImpl implements ProductDao {
                 + "LEFT JOIN rm_realm r ON p.REALM_ID=r.REALM_ID "
                 + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
                 + "LEFT JOIN ap_unit u ON p.FORECASTING_UNIT_ID=u.UNIT_ID "
-                + "LEFT JOIN ap_label ul on u.LABEL_ID=ul.LABEL_ID "
+                + "LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
+                + "LEFT JOIN rm_product_category pc ON p.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
+                + "LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID "
                 + "LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID "
                 + "LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID "
                 + "WHERE p.PRODUCT_ID=:productId ";

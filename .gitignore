@@ -31,3 +31,4 @@ nbdist/
 
 # End of https://www.gitignore.io/api/netbeans
 /src/main/resources/fasp - db design.mwb.bak
+/src/main/resources/fasp - db design(2).mwb

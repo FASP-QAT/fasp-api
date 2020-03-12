@@ -17,6 +17,7 @@ public class Product extends BaseModel implements Serializable {
     private Realm realm;
     private Label genericLabel;
     private Label label;
+    private ProductCategory productCategory;
     private Unit forecastingUnit;
 
     public Product() {
@@ -28,11 +29,12 @@ public class Product extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public Product(int productId, Realm realm, Label genericLabel, Label label, Unit forecastingUnit) {
+    public Product(int productId, Realm realm, Label genericLabel, Label label, ProductCategory productCategory, Unit forecastingUnit) {
         this.productId = productId;
         this.realm = realm;
         this.genericLabel = genericLabel;
         this.label = label;
+        this.productCategory = productCategory;
         this.forecastingUnit = forecastingUnit;
     }
     
@@ -66,6 +68,14 @@ public class Product extends BaseModel implements Serializable {
 
     public void setLabel(Label label) {
         this.label = label;
+    }
+
+    public ProductCategory getProductCategory() {
+        return productCategory;
+    }
+
+    public void setProductCategory(ProductCategory productCategory) {
+        this.productCategory = productCategory;
     }
 
     public Unit getForecastingUnit() {

@@ -6,6 +6,7 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.Product;
+import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.Unit;
 import java.sql.ResultSet;
@@ -25,6 +26,7 @@ public class ProductRowMapper implements RowMapper<Product>{
                 new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, rowNum), rs.getString("REALM_CODE")), 
                 new LabelRowMapper("GENERIC_").mapRow(rs, rowNum), 
                 new LabelRowMapper().mapRow(rs, rowNum), 
+                new ProductCategory(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, rowNum)),
                 new Unit(rs.getInt("UNIT_ID"), new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, rowNum), rs.getString("UNIT_CODE"))
         );
         p.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
