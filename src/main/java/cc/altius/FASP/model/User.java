@@ -135,7 +135,7 @@ public class User extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "User{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", emailId=" + emailId + ", phoneNumber=" + phoneNumber + ", realm=" + realm + ", roles=" + roles + ", roleList=" + roleList + ", language=" + language + ", faildAttempts=" + faildAttempts + ", lastLoginDate=" + lastLoginDate + ", userAclList=" + userAclList + '}';
+        return "User{" + "userId=" + userId + ", username=" + username + ", emailId=" + emailId + ", phoneNumber=" + phoneNumber + ", realm=" + realm + ", roles=" + roles + ", roleList=" + roleList + ", language=" + language + ", faildAttempts=" + faildAttempts + ", lastLoginDate=" + lastLoginDate + ", userAclList=" + userAclList + '}';
     }
 
 }

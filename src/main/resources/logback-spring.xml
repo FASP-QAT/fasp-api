@@ -2,6 +2,9 @@
 <configuration>
     <property resource="application.properties" />
     <property name="LOGS" value="${fasp.filestorepath}" />
+    <property name="jdbcUrl" value="${spring.datasource.url}"/>
+    <property name="jdbcUsername" value="${spring.datasource.username}"/>
+    <property name="jdbcPassword" value="${spring.datasource.password}"/>
  
     <appender name="RootConsole" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
@@ -42,6 +45,17 @@
             </timeBasedFileNamingAndTriggeringPolicy>
         </rollingPolicy>
     </appender>
+    
+    <appender name="SpringBootDb" class="ch.qos.logback.classic.db.DBAppender">
+        <connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">
+            <dataSource class="com.zaxxer.hikari.HikariDataSource">
+                <driverClassName>com.mysql.cj.jdbc.Driver</driverClassName>
+                <jdbcUrl>${jdbcUrl}</jdbcUrl>
+                <username>${jdbcUsername}</username>
+                <password>${jdbcPassword}</password>
+            </dataSource>
+        </connectionSource>
+    </appender>
      
     <!-- LOG everything at INFO level -->
     <root level="info">
@@ -52,7 +66,7 @@
         <appender-ref ref="RootConsole" />
     </logger>
     
-    <logger name="org.springframework" level="debug" additivity="false">
+    <logger name="org.springframework" level="info" additivity="false">
         <appender-ref ref="RootConsole" />
     </logger>
  
@@ -60,6 +74,11 @@
     <logger name="cc.altius.FASP" level="info" additivity="false">
         <appender-ref ref="RootConsole" />
         <appender-ref ref="SpringBootFile" />
+    </logger>
+    
+    <!-- LOG "cc.altius.FASP.web.controller.UserController" at INFO level -->
+    <logger name="cc.altius.FASP.web.controller.UserController" level="info" additivity="false">
+        <appender-ref ref="SpringBootDb" />
     </logger>
  
 </configuration>

@@ -6,13 +6,19 @@
 package cc.altius.FASP.jwt;
 
 import cc.altius.FASP.security.CustomUserDetailsService;
+import cc.altius.FASP.web.controller.UserController;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.event.EventListener;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.event.AbstractAuthenticationFailureEvent;
+import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -44,6 +50,7 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Value("${jwt.refresh.token.uri}")
     private String refreshPath;
 
+    private final Logger logger = LoggerFactory.getLogger(UserController.class);
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth
@@ -107,4 +114,14 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().ignoring().antMatchers("/api/user/updatePassword/**")
                 .and().ignoring().antMatchers("/api/updateExpiredPassword/**");
     }
+    
+//    @EventListener
+//    public void authSuccessEventListener(AuthenticationSuccessEvent authorizedEvent){
+//        authorizedEvent.
+//    }
+//
+//    @EventListener
+//    public void authFailedEventListener(AbstractAuthenticationFailureEvent oAuth2AuthenticationFailureEvent){
+//        
+//    }
 }
