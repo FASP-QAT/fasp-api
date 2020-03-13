@@ -33,10 +33,10 @@ public class UnitRestController {
     private UnitService unitService;
 
     @PostMapping(path = "/unit")
-    public ResponseFormat postUnit(@RequestBody Unit heatlhArea, Authentication auth) {
+    public ResponseFormat postUnit(@RequestBody Unit unit, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            int unitId = this.unitService.addUnit(heatlhArea, curUser);
+            int unitId = this.unitService.addUnit(unit, curUser);
             return new ResponseFormat("Successfully added Unit with Id " + unitId);
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
@@ -44,10 +44,10 @@ public class UnitRestController {
     }
 
     @PutMapping(path = "/unit")
-    public ResponseFormat putHealhArea(@RequestBody Unit heatlhArea, Authentication auth) {
+    public ResponseFormat putHealhArea(@RequestBody Unit unit, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            int rows = this.unitService.updateUnit(heatlhArea, curUser);
+            int rows = this.unitService.updateUnit(unit, curUser);
             return new ResponseFormat("Successfully updated Unit");
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());

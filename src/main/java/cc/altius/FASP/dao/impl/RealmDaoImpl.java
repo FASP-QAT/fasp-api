@@ -170,7 +170,7 @@ public class RealmDaoImpl implements RealmDao {
 
     @Override
     public Realm getRealmById(int realmId, CustomUserDetails curUser) {
-        String sql = " SELECT r.REALM_ID, r.REALM_CODE, r.MONTHS_IN_PAST_FOR_AMC, r.MONTHS_IN_FUTURE_FOR_AMC, r.ORDER_FREQUENCY, r.DEFAULT_REALM, "
+        String sqlString = " SELECT r.REALM_ID, r.REALM_CODE, r.MONTHS_IN_PAST_FOR_AMC, r.MONTHS_IN_FUTURE_FOR_AMC, r.ORDER_FREQUENCY, r.DEFAULT_REALM, "
                 + "rl.`LABEL_ID` ,rl.`LABEL_EN`, rl.`LABEL_FR`, rl.`LABEL_PR`, rl.`LABEL_SP`,"
                 + "cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, r.ACTIVE, r.CREATED_DATE, r.LAST_MODIFIED_DATE "
                 + "FROM rm_realm r "
@@ -180,7 +180,8 @@ public class RealmDaoImpl implements RealmDao {
                 + " WHERE r.REALM_ID=:realmId";
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
-        return this.namedParameterJdbcTemplate.queryForObject(sql, params, new RealmRowMapper());
+        System.out.println(sqlString);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new RealmRowMapper());
     }
 
 }

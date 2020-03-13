@@ -32,7 +32,7 @@ public class HealthAreaServiceImpl implements HealthAreaService {
     public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate) {
         return this.healthAreaDao.getHealthAreaListForSync(lastSyncDate);
     }
-    
+
     @Override
     public int addHealthArea(HealthArea h, CustomUserDetails curUser) {
         if (this.aclService.checkRealmAccessForUser(curUser, h.getRealm().getRealmId())) {
@@ -44,7 +44,8 @@ public class HealthAreaServiceImpl implements HealthAreaService {
 
     @Override
     public int updateHealthArea(HealthArea h, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, h.getRealm().getRealmId())) {
+        HealthArea ha = this.getHealthAreaById(h.getHealthAreaId(), curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, ha.getRealm().getRealmId())) {
             return this.healthAreaDao.updateHealthArea(h, curUser);
         } else {
             throw new AccessDeniedException("Access denied");

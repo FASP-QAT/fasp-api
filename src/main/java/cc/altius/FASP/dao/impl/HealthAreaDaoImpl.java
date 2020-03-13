@@ -36,13 +36,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class HealthAreaDaoImpl implements HealthAreaDao {
 
     private DataSource dataSource;
-    private JdbcTemplate jdbcTemplate;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
     
@@ -65,7 +63,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
     @Override
     @Transactional
     public int addHealthArea(HealthArea h, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("rm_health_area").usingGeneratedKeyColumns("HEALTH_AREA_ID");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_health_area").usingGeneratedKeyColumns("HEALTH_AREA_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", h.getRealm().getRealmId());
@@ -77,7 +75,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
         int healthAreaId = si.executeAndReturnKey(params).intValue();
-        si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_health_area_country");
+        si = new SimpleJdbcInsert(dataSource).withTableName("rm_health_area_country");
         SqlParameterSource[] paramList = new SqlParameterSource[h.getRealmCountryArray().length];
         int i = 0;
         for (String realmCountryId : h.getRealmCountryArray()) {
@@ -102,12 +100,13 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("healthAreaId", h.getHealthAreaId());
+        params.put("labelEn", h.getLabel().getLabel_en());
         params.put("active", h.isActive());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
-        int rows = this.namedParameterJdbcTemplate.update("UPDATE rm_health_area ha SET ha.ACTIVE=:active, ha.LAST_MODIFIED_BY=:curUser, ha.LAST_MODIFIED_DATE=:curDate WHERE ha.HEALTH_AREA_ID=:healthAreaId", params);
-        this.jdbcTemplate.update("DELETE FROM rm_health_area_country WHERE HEALTH_AREA_ID=?", h.getHealthAreaId());
-        SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_health_area_country");
+        int rows = this.namedParameterJdbcTemplate.update("UPDATE rm_health_area ha LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID SET ha.ACTIVE=:active, ha.LAST_MODIFIED_BY=IF(ha.ACTIVE!=:active,:curUser,ha.LAST_MODIFIED_BY), ha.LAST_MODIFIED_DATE=IF(ha.ACTIVE!=:active, :curDate, ha.LAST_MODIFIED_DATE), hal.LABEL_EN=:labelEn, hal.LAST_MODIFIED_BY=IF(hal.LABEL_EN!=:labelEn,:curUser,hal.LAST_MODIFIED_BY), hal.LAST_MODIFIED_DATE=IF(hal.LABEL_EN!=:labelEn, :curDate, hal.LAST_MODIFIED_DATE)  WHERE ha.HEALTH_AREA_ID=:healthAreaId", params);
+        this.namedParameterJdbcTemplate.update("DELETE FROM rm_health_area_country WHERE HEALTH_AREA_ID=?", params);
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_health_area_country");
         SqlParameterSource[] paramList = new SqlParameterSource[h.getRealmCountryArray().length];
         int i = 0;
         for (String realmCountryId : h.getRealmCountryArray()) {

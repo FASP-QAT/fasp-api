@@ -77,7 +77,15 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         params.put("labelEn", b.getLabel().getLabel_en());
-        return this.namedParameterJdbcTemplate.update("UPDATE rm_budget b LEFT JOIN ap_label bl ON b.LABEL_ID=bl.LABEL_ID SET bl.`LABEL_EN`=:labelEn, bl.`LAST_MODIFIED_BY`=:curUser, bl.`LAST_MODIFIED_DATE`=:curDate, b.BUDGET_AMT=:budgetAmt, b.START_DATE=:startDate, b.STOP_DATE=:stopDate, b.ACTIVE=:active, b.LAST_MODIFIED_BY=:curUser, b.LAST_MODIFIED_DATE=:curDate WHERE b.BUDGET_ID=:budgetId", params);
+        return this.namedParameterJdbcTemplate.update("UPDATE rm_budget b "
+                + "LEFT JOIN ap_label bl ON b.LABEL_ID=bl.LABEL_ID SET "
+                + "bl.`LABEL_EN`=:labelEn, "
+                + "bl.`LAST_MODIFIED_BY`=IF(bl.`LABEL_EN`!=:labelEn, :curUser, bl.LAST_MODIFIED_BY), "
+                + "bl.`LAST_MODIFIED_DATE`=IF(bl.`LABEL_EN`!=:labelEn, :curDate, bl.LAST_MODIFIED_DATE), "
+                + "b.BUDGET_AMT=:budgetAmt, b.START_DATE=:startDate, b.STOP_DATE=:stopDate, b.ACTIVE=:active, "
+                + "b.LAST_MODIFIED_BY=IF(b.BUDGET_AMT!=:budgetAmt OR b.START_DATE!=:startDate OR b.STOP_DATE!=:stopDate OR b.ACTIVE!=:active, :curUser, b.LAST_MODIFIED_BY), "
+                + "b.LAST_MODIFIED_DATE=IF(b.BUDGET_AMT!=:budgetAmt OR b.START_DATE!=:startDate OR b.STOP_DATE!=:stopDate OR b.ACTIVE!=:active, :curDate, b.LAST_MODIFIED_DATE) "
+                + "WHERE b.BUDGET_ID=:budgetId", params);
     }
 
     @Override

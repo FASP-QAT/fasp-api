@@ -20,7 +20,7 @@ public class FundingSource extends BaseModel implements Serializable {
     public FundingSource() {
     }
 
-    public FundingSource(int fundingSourceId, Label label, Realm rm) {
+    public FundingSource(int fundingSourceId, Label label, Realm realm) {
         this.fundingSourceId = fundingSourceId;
         this.label = label;
         this.realm = realm;
