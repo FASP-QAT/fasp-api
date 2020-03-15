@@ -7,6 +7,7 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ManufacturerDao;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgManufacturerDTO;
 import cc.altius.FASP.model.DTO.rowMapper.PrgManufacturerDTORowMapper;
 import cc.altius.FASP.model.Manufacturer;
@@ -18,7 +19,6 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -31,99 +31,111 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class ManufacturerDaoImpl implements ManufacturerDao {
 
-    private JdbcTemplate jdbcTemplate;
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
     @Autowired
     private LabelDao labelDao;
 
     @Override
     public List<PrgManufacturerDTO> getManufacturerListForSync(String lastSyncDate) {
-        String sql = "SELECT m.`ACTIVE`,m.`MANUFACTURER_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
-                + "FROM rm_manufacturer m \n"
+        String sql = "SELECT m.`ACTIVE`,m.`MANUFACTURER_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP` "
+                + "FROM rm_manufacturer m  "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=m.`LABEL_ID`";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
             sql += " WHERE m.`LAST_MODIFIED_DATE`>:lastSyncDate;";
             params.put("lastSyncDate", lastSyncDate);
         }
-        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
-        return nm.query(sql, params, new PrgManufacturerDTORowMapper());
+        return this.namedParameterJdbcTemplate.query(sql, params, new PrgManufacturerDTORowMapper());
     }
 
     @Override
     @Transactional
-    public int addManufacturer(Manufacturer m, int curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("rm_manufacturer").usingGeneratedKeyColumns("MANUFACTURER_ID");
+    public int addManufacturer(Manufacturer m, CustomUserDetails curUser) {
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_manufacturer").usingGeneratedKeyColumns("MANUFACTURER_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", m.getRealm().getRealmId());
-        int labelId = this.labelDao.addLabel(m.getLabel(), curUser);
+        int labelId = this.labelDao.addLabel(m.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);
-        params.put("CREATED_BY", curUser);
+        params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
-        params.put("LAST_MODIFIED_BY", curUser);
+        params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
-
-        int insertedRow = si.executeAndReturnKey(params).intValue();
-
-        SimpleJdbcInsert sii = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("tk_ticket").usingGeneratedKeyColumns("TICKET_ID");
-        Map<String, Object> paramsTwo = new HashMap<>();
-        paramsTwo.put("TICKET_TYPE_ID", 1);
-        paramsTwo.put("TICKET_STATUS_ID", 1);
-        paramsTwo.put("REFFERENCE_ID", insertedRow);
-        paramsTwo.put("NOTES", "");
-        paramsTwo.put("CREATED_BY", curUser);
-        paramsTwo.put("CREATED_DATE", curDate);
-        paramsTwo.put("LAST_MODIFIED_BY", curUser);
-        paramsTwo.put("LAST_MODIFIED_DATE", curDate);
-        sii.execute(paramsTwo);
-
-        return insertedRow;
+        return si.executeAndReturnKey(params).intValue();
     }
 
     @Override
-    public int updateManufacturer(Manufacturer m, int curUser) {
+    public int updateManufacturer(Manufacturer m, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
-        this.jdbcTemplate.update(sqlOne, m.getLabel().getLabel_en(), curUser, curDate, m.getLabel().getLabelId());
-
-        String sqlTwo = "UPDATE rm_manufacturer dt SET  dt.`REALM_ID`=?,dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
-                + " WHERE dt.`MANUFACTURER_ID`=?;";
-        return this.jdbcTemplate.update(sqlTwo, m.getRealm().getRealmId(), m.isActive(), curUser, curDate, m.getManufacturerId());
+        String sqlString = "UPDATE rm_manufacturer m LEFT JOIN ap_label ml ON m.LABEL_ID=ml.LABEL_ID "
+                + "SET  "
+                + "m.`ACTIVE`=:active, "
+                + "m.`LAST_MODIFIED_BY`=IF(m.`ACTIVE`!=:active, :curUser, m.LAST_MODIFIED_BY), "
+                + "m.`LAST_MODIFIED_DATE`=IF(m.`ACTIVE`!=:active, :curDate, m.LAST_MODIFIED_DATE), "
+                + "ml.LABEL_EN=:labelEn, "
+                + "ml.`LAST_MODIFIED_BY`=IF(ml.LABEL_EN!=:labelEn, :curUser, ml.LAST_MODIFIED_BY), "
+                + "ml.`LAST_MODIFIED_DATE`=IF(ml.LABEL_EN!=:labelEn, :curDate, ml.LAST_MODIFIED_DATE) "
+                + " WHERE m.`MANUFACTURER_ID`=:manufacturerId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("manufacturerId", m.getManufacturerId());
+        params.put("active", m.isActive());
+        params.put("curDate", curDate);
+        params.put("curUser", curUser.getUserId());
+        params.put("labelEn", m.getLabel().getLabel_en());
+        return this.namedParameterJdbcTemplate.update(sqlString, params);
     }
 
     @Override
-    public List<Manufacturer> getManufacturerList() {
-        String sql = "SELECT rm.*,rr.`REALM_CODE`,rr.`MONTHS_IN_PAST_FOR_AMC`,rr.`MONTHS_IN_FUTURE_FOR_AMC`,rr.`ORDER_FREQUENCY`,rr.`DEFAULT_REALM`,"
-                + "al.`LABEL_EN`,al.`LABEL_FR`,al.`LABEL_SP`,al.`LABEL_PR`,al.`LABEL_ID`,\n"
-                + "rr.`REALM_ID` `RM_REALM_ID`,lr.`LABEL_ID` `RM_LABEL_ID`,\n"
-                + "lr.`LABEL_EN` `RM_LABEL_EN`,lr.`LABEL_FR` `RM_LABEL_FR` ,lr.`LABEL_SP` `RM_LABEL_SP`,lr.`LABEL_PR` `RM_LABEL_PR`\n"
-                + "  FROM rm_manufacturer rm \n"
-                + "LEFT JOIN  ap_label al ON al.`LABEL_ID`=rm.`LABEL_ID`\n"
-                + "LEFT JOIN rm_realm rr ON rr.`REALM_ID`=rm.`REALM_ID`\n"
-                + "LEFT JOIN ap_label lr ON lr.`LABEL_ID`=rr.`LABEL_ID`";
-        return this.jdbcTemplate.query(sql, new ManufacturerRowMapper());
+    public List<Manufacturer> getManufacturerList(CustomUserDetails curUser) {
+        String sqlString = "SELECT  "
+                + "    m.MANUFACTURER_ID,  "
+                + "    ml.LABEL_ID, ml.LABEL_EN, ml.LABEL_FR, ml.LABEL_SP, ml.LABEL_PR, "
+                + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
+                + "    m.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, m.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, m.LAST_MODIFIED_DATE "
+                + "FROM rm_manufacturer m  "
+                + "LEFT JOIN ap_label ml ON m.LABEL_ID=ml.LABEL_ID "
+                + "LEFT JOIN rm_realm r ON m.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON m.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON m.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE TRUE ";
+        Map<String, Object> params = new HashMap<>();
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND m.REALM_ID=:realmId ";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new ManufacturerRowMapper());
     }
 
     @Override
-    public Manufacturer getManufacturerById(int manufacturerId) {
-        String sql = "SELECT rm.*,rr.`REALM_CODE`,rr.`MONTHS_IN_PAST_FOR_AMC`,rr.`MONTHS_IN_FUTURE_FOR_AMC`,rr.`ORDER_FREQUENCY`,rr.`DEFAULT_REALM`"
-                + ",al.`LABEL_EN`,al.`LABEL_FR`,al.`LABEL_SP`,al.`LABEL_PR`,al.`LABEL_ID`,\n"
-                + "rr.`REALM_ID` `RM_REALM_ID`,lr.`LABEL_ID` `RM_LABEL_ID`,\n"
-                + "lr.`LABEL_EN` `RM_LABEL_EN`,lr.`LABEL_FR` `RM_LABEL_FR` ,lr.`LABEL_SP` `RM_LABEL_SP`,lr.`LABEL_PR` `RM_LABEL_PR`\n"
-                + "  FROM rm_manufacturer rm \n"
-                + "LEFT JOIN  ap_label al ON al.`LABEL_ID`=rm.`LABEL_ID`\n"
-                + "LEFT JOIN rm_realm rr ON rr.`REALM_ID`=rm.`REALM_ID`\n"
-                + "LEFT JOIN ap_label lr ON lr.`LABEL_ID`=rr.`LABEL_ID`"
-                + "WHERE rm.`MANUFACTURER_ID`=?";
-        return this.jdbcTemplate.queryForObject(sql, new ManufacturerRowMapper(), manufacturerId);
+    public Manufacturer getManufacturerById(int manufacturerId, CustomUserDetails curUser) {
+        String sqlString = "SELECT  "
+                + "    m.MANUFACTURER_ID,  "
+                + "    ml.LABEL_ID, ml.LABEL_EN, ml.LABEL_FR, ml.LABEL_SP, ml.LABEL_PR, "
+                + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
+                + "    m.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, m.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, m.LAST_MODIFIED_DATE "
+                + "FROM rm_manufacturer m  "
+                + "LEFT JOIN ap_label ml ON m.LABEL_ID=ml.LABEL_ID "
+                + "LEFT JOIN rm_realm r ON m.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON m.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON m.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE m.`MANUFACTURER_ID`=:manufacturerId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("manufacturerId", manufacturerId);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND m.REALM_ID=:realmId ";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new ManufacturerRowMapper());
     }
 
 }

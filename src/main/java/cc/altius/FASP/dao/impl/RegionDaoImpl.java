@@ -5,10 +5,9 @@
  */
 package cc.altius.FASP.dao.impl;
 
-
-
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.RegionDao;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgRegionDTO;
 import cc.altius.FASP.model.DTO.rowMapper.PrgRegionDTORowMapper;
 import cc.altius.FASP.model.Region;
@@ -18,15 +17,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-
 
 /**
  *
@@ -35,15 +30,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class RegionDaoImpl implements RegionDao {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private JdbcTemplate jdbcTemplate;
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
     @Autowired
@@ -51,85 +43,106 @@ public class RegionDaoImpl implements RegionDao {
 
     @Override
     @Transactional
-    public int addRegion(Region region, int curUser) {
+    public int addRegion(Region region, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
-        SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_region").usingGeneratedKeyColumns("REGION_ID");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_region").usingGeneratedKeyColumns("REGION_ID");
         Map<String, Object> params = new HashMap<>();
-        int labelId = this.labelDao.addLabel(region.getLabel(), curUser);
+        int labelId = this.labelDao.addLabel(region.getLabel(), curUser.getUserId());
         params.put("REALM_COUNTRY_ID", region.getRealmCountry().getRealmCountryId());
         params.put("LABEL_ID", labelId);
-        params.put("CREATED_BY", curUser);
+        params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
-        params.put("LAST_MODIFIED_BY", curUser);
+        params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
-        params.put("ACTIVE", 1);
+        params.put("ACTIVE", true);
         return si.executeAndReturnKey(params).intValue();
     }
 
     @Override
-    public int editRegion(Region region, int curUser) {
+    public int updateRegion(Region region, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
-        String sql = "UPDATE rm_region r "
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=r.`LABEL_ID` "
-                + "SET l.`LABEL_EN`=:engLabel, "
-                + "l.`LAST_MODIFIED_BY`=:lastModifiedBy, "
-                + "l.`LAST_MODIFIED_DATE`=:lastModifiedDate, "
-                + "r.`REALM_COUNTRY_ID`=:realmCountryId, "
-                + "r.`LAST_MODIFIED_BY`=:lastModifiedBy, "
-                + "r.`LAST_MODIFIED_DATE`=:lastModifiedDate, "
-                + "r.`ACTIVE`=:active "
-                + "WHERE r.`REGION_ID`=:regionId;";
+        String sql = "UPDATE rm_region re LEFT JOIN ap_label rel ON re.`LABEL_ID`=rel.`LABEL_ID` "
+                + "SET "
+                + "re.`ACTIVE`=:active, "
+                + "re.`LAST_MODIFIED_BY`=IF(re.`ACTIVE`!=:active, :curUser, re.LAST_MODIFIED_BY), "
+                + "re.`LAST_MODIFIED_DATE`=IF(re.`ACTIVE`!=:active, :curDate, re.LAST_MODIFIED_DATE), "
+                + "rel.LABEL_EN=:labelEn, "
+                + "rel.`LAST_MODIFIED_BY`=IF(rel.LABEL_EN!=:labelEn, :curUser, rel.LAST_MODIFIED_BY), "
+                + "rel.`LAST_MODIFIED_DATE`=IF(rel.LABEL_EN!=:labelEn, :curDate, rel.LAST_MODIFIED_DATE) "
+                + "WHERE re.`REGION_ID`=:regionId;";
         Map<String, Object> map = new HashMap<>();
-        map.put("engLabel", region.getLabel().getLabel_en());
-        map.put("lastModifiedBy", curUser);
-        map.put("lastModifiedDate", curDate);
-        map.put("realmCountryId", region.getRealmCountry().getRealmCountryId());
+        map.put("labelEn", region.getLabel().getLabel_en());
+        map.put("curUser", curUser.getUserId());
+        map.put("curDate", curDate);
         map.put("active", region.isActive());
         map.put("regionId", region.getRegionId());
         return namedParameterJdbcTemplate.update(sql, map);
     }
 
     @Override
-    public List<Region> getRegionList(boolean active) {
-        String sql = "SELECT rg.`REGION_ID`,lrg.`LABEL_ID` AS RG_LABEL_ID,lrg.`LABEL_EN` AS RG_LABEL_EN "
-                + ",lrg.`LABEL_FR` AS RG_LABEL_FR "
-                + ",lrg.`LABEL_SP` AS RG_LABEL_SP "
-                + ",lrg.`LABEL_PR` AS RG_LABEL_PR,"
-                + "lc.`LABEL_ID` AS CU_LABEL_ID, "
-                + "lc.`LABEL_EN` AS CU_LABEL_EN "
-                + ",lc.`LABEL_FR` AS CU_LABEL_FR "
-                + ",lc.`LABEL_SP` AS CU_LABEL_SP "
-                + ",lc.`LABEL_PR` AS CU_LABEL_PR,"
-                + "lr.`LABEL_ID` AS RM_LABEL_ID, "
-                + "lr.`LABEL_EN` AS RM_LABEL_EN "
-                + ",lr.`LABEL_FR` AS RM_LABEL_FR "
-                + ",lr.`LABEL_SP` AS RM_LABEL_SP "
-                + ",lr.`LABEL_PR` AS RM_LABEL_PR, "
-                + "rg.`ACTIVE`,rg.`LAST_MODIFIED_DATE`,lastModifiedBy.`USERNAME` AS LAST_MODIFIED_BY,rc.`REALM_COUNTRY_ID`,c.*,r.* "
-                + " FROM rm_region rg "
-                + "LEFT JOIN ap_label lrg ON lrg.`LABEL_ID`=rg.`LABEL_ID` "
-                + "LEFT JOIN rm_realm_country rc ON rc.`REALM_COUNTRY_ID`=rg.`REALM_COUNTRY_ID` "
-                + "LEFT JOIN ap_country c ON c.`COUNTRY_ID`=rc.`COUNTRY_ID` "
-                + "LEFT JOIN ap_label lc ON lc.`LABEL_ID`=c.`LABEL_ID` "
-                + "LEFT JOIN rm_realm r ON r.`REALM_ID`=rc.`REALM_ID` "
-                + "LEFT JOIN ap_label lr ON lr.`LABEL_ID`=r.`LABEL_ID` "
-                + "LEFT JOIN us_user lastModifiedBy ON lastModifiedBy.`USER_ID`=rg.`LAST_MODIFIED_BY`;";
-        return this.jdbcTemplate.query(sql, new RegionRowMapper());
+    public List<Region> getRegionList(CustomUserDetails curUser) {
+        String sqlString = "SELECT "
+                + "    re.REGION_ID, rc.REALM_COUNTRY_ID, "
+                + "    rel.LABEL_ID, rel.LABEL_EN, rel.LABEL_FR, rel.LABEL_SP, rel.LABEL_PR, "
+                + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
+                + "    c.COUNTRY_ID, cl.`LABEL_ID` `COUNTRY_LABEL_ID`, cl.`LABEL_EN` `COUNTRY_LABEL_EN` , cl.`LABEL_FR` `COUNTRY_LABEL_FR`, cl.`LABEL_PR` `COUNTRY_LABEL_PR`, cl.`LABEL_SP` `COUNTRY_LABEL_SP`, c.COUNTRY_CODE, "
+                + "    re.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, re.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, re.LAST_MODIFIED_DATE "
+                + "FROM rm_region re "
+                + "LEFT JOIN ap_label rel ON re.LABEL_ID=rel.LABEL_ID "
+                + "LEFT JOIN rm_realm_country rc on re.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON re.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON re.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE TRUE ";
+        Map<String, Object> params = new HashMap<>();
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND rc.REALM_ID=:realmId ";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new RegionRowMapper());
+    }
 
+    @Override
+    public Region getRegionById(int regionId, CustomUserDetails curUser) {
+        String sqlString = "SELECT "
+                + "    re.REGION_ID, rc.REALM_COUNTRY_ID, "
+                + "    rel.LABEL_ID, rel.LABEL_EN, rel.LABEL_FR, rel.LABEL_SP, rel.LABEL_PR, "
+                + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
+                + "    c.COUNTRY_ID, cl.`LABEL_ID` `COUNTRY_LABEL_ID`, cl.`LABEL_EN` `COUNTRY_LABEL_EN` , cl.`LABEL_FR` `COUNTRY_LABEL_FR`, cl.`LABEL_PR` `COUNTRY_LABEL_PR`, cl.`LABEL_SP` `COUNTRY_LABEL_SP`, c.COUNTRY_CODE, "
+                + "    re.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, re.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, re.LAST_MODIFIED_DATE "
+                + "FROM rm_region re "
+                + "LEFT JOIN ap_label rel ON re.LABEL_ID=rel.LABEL_ID "
+                + "LEFT JOIN rm_realm_country rc on re.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON re.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON re.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE re.REGION_ID=:regionId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("regionId", regionId);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND rc.REALM_ID=:realmId ";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new RegionRowMapper());
     }
 
     @Override
     public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate) {
-        String sql = "SELECT r.`ACTIVE`,r.`CAPACITY_CBM`,r.`LABEL_ID`,r.`REGION_ID`,l.`LABEL_EN` AS `REGION_NAME_EN`,l.`LABEL_FR` AS `REGION_NAME_FR`,l.`LABEL_PR` AS `REGION_NAME_PR`,l.`LABEL_SP` AS `REGION_NAME_SP`\n"
-                + "FROM rm_region r\n"
+        String sql = "SELECT r.`ACTIVE`,r.`CAPACITY_CBM`,r.`LABEL_ID`,r.`REGION_ID`,l.`LABEL_EN` AS `REGION_NAME_EN`,l.`LABEL_FR` AS `REGION_NAME_FR`,l.`LABEL_PR` AS `REGION_NAME_PR`,l.`LABEL_SP` AS `REGION_NAME_SP` "
+                + "FROM rm_region r "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=r.`LABEL_ID`";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
             sql += " WHERE r.`LAST_MODIFIED_DATE`>:lastSyncDate;";
             params.put("lastSyncDate", lastSyncDate);
         }
-        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
-        return nm.query(sql, params, new PrgRegionDTORowMapper());
+        return this.namedParameterJdbcTemplate.query(sql, params, new PrgRegionDTORowMapper());
     }
 
 }

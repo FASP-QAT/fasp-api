@@ -5,8 +5,8 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
-import cc.altius.FASP.model.BasicUser;
-import cc.altius.FASP.model.Label;
+import cc.altius.FASP.model.Country;
+import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.Region;
 import java.sql.ResultSet;
@@ -21,14 +21,16 @@ public class RegionRowMapper implements RowMapper<Region> {
     
     @Override
     public Region mapRow(ResultSet rs, int i) throws SQLException {
-        Region r = new Region();
-        r.setRegionId(rs.getInt("REGION_ID"));
-        r.setLabel(new LabelRowMapper("RG_").mapRow(rs, 1));
-        r.setRealmCountry(new RealmCountryRowMapper().mapRow(rs, i));
-        BasicUser b = new BasicUser(rs.getString("LAST_MODIFIED_BY"));
-        r.setCreatedBy(b);
-        r.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
-        r.setActive(rs.getBoolean("ACTIVE"));
+        Region r = new Region(
+                rs.getInt("REGION_ID"), 
+                new LabelRowMapper().mapRow(rs, i), 
+                new RealmCountry(
+                        rs.getInt("REALM_COUNTRY_ID"), 
+                        new Country(rs.getInt("COUNTRY_ID"), rs.getString("COUNTRY_CODE"), new LabelRowMapper("COUNTRY_").mapRow(rs, i)), 
+                        new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i), rs.getString("REALM_CODE"))
+                )
+        );
+        r.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return r;
     }
     
