@@ -106,6 +106,33 @@ public class RegionDaoImpl implements RegionDao {
     }
 
     @Override
+    public List<Region> getRegionListByRealmCountryId(int realmCountryId, CustomUserDetails curUser) {
+        String sqlString = "SELECT "
+                + "    re.REGION_ID, rc.REALM_COUNTRY_ID, "
+                + "    rel.LABEL_ID, rel.LABEL_EN, rel.LABEL_FR, rel.LABEL_SP, rel.LABEL_PR, "
+                + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
+                + "    c.COUNTRY_ID, cl.`LABEL_ID` `COUNTRY_LABEL_ID`, cl.`LABEL_EN` `COUNTRY_LABEL_EN` , cl.`LABEL_FR` `COUNTRY_LABEL_FR`, cl.`LABEL_PR` `COUNTRY_LABEL_PR`, cl.`LABEL_SP` `COUNTRY_LABEL_SP`, c.COUNTRY_CODE, "
+                + "    re.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, re.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, re.LAST_MODIFIED_DATE "
+                + "FROM rm_region re "
+                + "LEFT JOIN ap_label rel ON re.LABEL_ID=rel.LABEL_ID "
+                + "LEFT JOIN rm_realm_country rc on re.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON re.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON re.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE re.REALM_COUNTRY_ID=:realmCountryId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmCountryId", realmCountryId);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND rc.REALM_ID=:realmId ";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new RegionRowMapper());
+    }
+
+    @Override
     public Region getRegionById(int regionId, CustomUserDetails curUser) {
         String sqlString = "SELECT "
                 + "    re.REGION_ID, rc.REALM_COUNTRY_ID, "

@@ -67,4 +67,9 @@ public class RegionServiceImpl implements RegionService {
         return this.regionDao.getRegionById(regionId, curUser);
     }
 
+    @Override
+    public List<Region> getRegionListByRealmCountryId(int realmCountryId, CustomUserDetails curUser) {
+        return this.regionDao.getRegionListByRealmCountryId(realmCountryId, curUser);
+    }
+
 }

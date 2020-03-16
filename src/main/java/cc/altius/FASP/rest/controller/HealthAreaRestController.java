@@ -63,6 +63,16 @@ public class HealthAreaRestController {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
+    
+    @GetMapping("/healthArea/realmId/{realmId}")
+    public ResponseFormat getHealthAreaByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseFormat("Success", "", this.healthAreaService.getHealthAreaListByRealmId(realmId, curUser));
+        } catch (Exception e) {
+            return new ResponseFormat("Failed", e.getMessage());
+        }
+    }
 
     @GetMapping("/healthArea/{healthAreaId}")
     public ResponseFormat getHealthArea(@PathVariable("healthAreaId") int healthAreaId, Authentication auth) {

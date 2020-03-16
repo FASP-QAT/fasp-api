@@ -25,5 +25,7 @@ public interface RegionDao {
     public List<Region> getRegionList(CustomUserDetails curUser);
 
     public Region getRegionById(int regionId, CustomUserDetails curUser);
+    
+    public List<Region> getRegionListByRealmCountryId(int realmCountryId, CustomUserDetails curUser);
 
 }

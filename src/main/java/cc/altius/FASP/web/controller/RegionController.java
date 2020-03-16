@@ -80,6 +80,16 @@ public class RegionController {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
+    
+    @GetMapping("/region/realmCountryId/{realmCountryId}")
+    public ResponseFormat getRegionByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseFormat("Success", "", this.regionService.getRegionListByRealmCountryId(realmCountryId, curUser));
+        } catch (Exception e) {
+            return new ResponseFormat("Failed", e.getMessage());
+        }
+    }
 
     @GetMapping(value = "/getRegionListForSync")
     public String getRegionListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
