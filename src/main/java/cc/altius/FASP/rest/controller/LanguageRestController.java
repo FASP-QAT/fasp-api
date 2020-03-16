@@ -5,61 +5,28 @@
  */
 package cc.altius.FASP.rest.controller;
 
-import org.springframework.stereotype.Controller;
+import cc.altius.FASP.service.LanguageService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
  * @author akil
  */
-@Controller
+@RestController
+@RequestMapping("/api")
 public class LanguageRestController {
 
-    
-    @GetMapping("/locales/{language}")
-    @ResponseBody
-    String getLanguageJson(@PathVariable("language") String language) {
-        switch (language) {
-            case "sp":
-                return "{\n"
-                        + "\"btn.primary\": \"primaria\",\n"
-                        + "\"btn.secondary\": \"secundaria\",\n"
-                        + "\"btn.success\": \"éxito\",\n"
-                        + "\"btn.warning\": \"Advertencia\",\n"
-                        + "\"btn.info\": \"Informacion\",\n"
-                        + "\"btn.light\": \"Ligera\",\n"
-                        + "\"btn.dark\": \"Oscura\",\n"
-                        + "\"btn.link\": \"Enlace\",\n"
-                        + "\"btn.stdtype\": \"Botón estándar\",\n"
-                        + "\"btn.otltype\": \"Botón de esquema\",\n"
-                        + "\"btn.ghostType\": \"Botón fantasma\",\n"
-                        + "\"btn.sqrType\": \"Botón cuadrado\",\n"
-                        + "\"btn.statenorm\": \"Estado normal\",\n"
-                        + "\"btn.stateActive\": \"Estado activo\",\n"
-                        + "\"btn.stateDisable\": \"Estado discapacitado\"\n"
-                        + "}";
-            default:
-            case "en":
-                return "{\n"
-                        + "\"btn.primary\": \"primary\",\n"
-                        + "\"btn.secondary\": \"secondary\",\n"
-                        + "\"btn.success\": \"success\",\n"
-                        + "\"btn.warning\": \"warning\",\n"
-                        + "\"btn.info\": \"info\",\n"
-                        + "\"btn.light\": \"light\",\n"
-                        + "\"btn.dark\": \"dark\",\n"
-                        + "\"btn.link\": \"link\",\n"
-                        + "\"btn.stdtype\": \"stdtype\",\n"
-                        + "\"btn.otltype\": \"otltype\",\n"
-                        + "\"btn.ghostType\": \"ghostType\",\n"
-                        + "\"btn.sqrType\": \"sqrType\",\n"
-                        + "\"btn.statenorm\": \"statenorm\",\n"
-                        + "\"btn.stateActive\": \"stateActive\",\n"
-                        + "\"btn.stateDisable\": \"stateDisable\"\n"
-                        + "}";
+    @Autowired
+    private LanguageService languageService;
 
-        }
+    @GetMapping("/locales/{languageCode}")
+    ResponseEntity getLanguageJson(@PathVariable("languageCode") String languageCode) {
+        return new ResponseEntity(this.languageService.getLanguageJsonForStaticLabels(languageCode), HttpStatus.OK);
     }
 }

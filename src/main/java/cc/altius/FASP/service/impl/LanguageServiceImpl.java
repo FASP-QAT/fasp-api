@@ -10,6 +10,7 @@ import cc.altius.FASP.model.DTO.PrgLanguageDTO;
 import cc.altius.FASP.model.Language;
 import cc.altius.FASP.service.LanguageService;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -41,6 +42,11 @@ public class LanguageServiceImpl implements LanguageService {
     @Override
     public List<PrgLanguageDTO> getLanguageListForSync(String lastSyncDate) {
         return this.languageDao.getLanguageListForSync(lastSyncDate);
+    }
+
+    @Override
+    public Map<String, String> getLanguageJsonForStaticLabels(String language) {
+        return this.languageDao.getLanguageJsonForStaticLabels(language);
     }
 
 }
