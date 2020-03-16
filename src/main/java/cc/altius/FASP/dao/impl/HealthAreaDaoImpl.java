@@ -48,15 +48,16 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
     LabelDao labelDao;
 
     @Override
-    public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate) {
-        String sql = "SELECT  ha.`ACTIVE`,ha.`HEALTH_AREA_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
+    public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate,int realmId) {
+        String sql = "SELECT  ha.`ACTIVE`,ha.`HEALTH_AREA_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,ha.`REALM_ID`\n"
                 + "FROM rm_health_area ha \n"
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=ha.`LABEL_ID`";
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=ha.`LABEL_ID` WHERE ha.`REALM_ID`=:realmId";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
-            sql += " WHERE ha.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            sql += " AND ha.`LAST_MODIFIED_DATE`>:lastSyncDate;";
             params.put("lastSyncDate", lastSyncDate);
         }
+        params.put("realmId", realmId);
         return this.namedParameterJdbcTemplate.query(sql, params, new PrgHealthAreaDTORowMapper());
     }
 

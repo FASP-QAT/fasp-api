@@ -40,9 +40,9 @@ public class SubFundingSourceRestController {
     private SubFundingSourceService subFundingSourceService;
 
     @GetMapping(value = "/getSubFundingSourceListForSync")
-    public String getSubFundingSourceListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+    public String getSubFundingSourceListForSync(@RequestParam String lastSyncDate,int realmId) throws UnsupportedEncodingException {
         String json;
-        List<PrgSubFundingSourceDTO> subFundingSourceList = this.subFundingSourceService.getSubFundingSourceListForSync(lastSyncDate);
+        List<PrgSubFundingSourceDTO> subFundingSourceList = this.subFundingSourceService.getSubFundingSourceListForSync(lastSyncDate,realmId);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();

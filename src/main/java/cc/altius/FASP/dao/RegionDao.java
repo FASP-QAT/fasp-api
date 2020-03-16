@@ -21,6 +21,6 @@ public interface RegionDao {
     
     public List<Region> getRegionList(boolean active);
     
-    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate);
+    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate,int realmId);
 
 }

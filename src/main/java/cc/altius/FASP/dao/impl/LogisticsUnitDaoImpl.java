@@ -34,19 +34,22 @@ public class LogisticsUnitDaoImpl implements LogisticsUnitDao {
     }
 
     @Override
-    public List<PrgLogisticsUnitDTO> getLogisticsUnitListForSync(String lastSyncDate) {
-        String sql = "SELECT lu.`ACTIVE`,lu.`HEIGHT_QTY`,lu.`HEIGHT_UNIT_ID`,lu.`LABEL_ID`,\n"
-                + "l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,lu.`LENGTH_QTY`,lu.`LENGTH_UNIT_ID`,lu.`LOGISTICS_UNIT_ID`\n"
-                + ",lu.`MANUFACTURER_ID`,lu.`PLANNING_UNIT_ID`,lu.`QTY_IN_EURO1`,lu.`QTY_IN_EURO2`,lu.`QTY_OF_PLANNING_UNITS`,lu.`UNIT_ID`\n"
-                + ",lu.`VARIANT`,lu.`WEIGHT_QTY`,lu.`WEIGHT_UNIT_ID`,lu.`WIDTH_QTY`,lu.`WIDTH_UNIT_ID`,pu.`QTY_OF_FORECASTING_UNITS`,pu.`PRODUCT_ID`\n"
-                + "FROM rm_logistics_unit lu\n"
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=lu.`LABEL_ID`"
-                + "LEFT JOIN rm_planning_unit pu ON pu.`PLANNING_UNIT_ID`=lu.`PLANNING_UNIT_ID`";
+    public List<PrgLogisticsUnitDTO> getLogisticsUnitListForSync(String lastSyncDate, int realmId) {
+        String sql = "SELECT lu.`ACTIVE`,lu.`HEIGHT_QTY`,lu.`HEIGHT_UNIT_ID`,lu.`LABEL_ID`,p.`REALM_ID`,\n"
+                + "                l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,lu.`LENGTH_QTY`,lu.`LENGTH_UNIT_ID`,lu.`LOGISTICS_UNIT_ID`\n"
+                + "                ,lu.`MANUFACTURER_ID`,lu.`PLANNING_UNIT_ID`,lu.`QTY_IN_EURO1`,lu.`QTY_IN_EURO2`,lu.`QTY_OF_PLANNING_UNITS`,lu.`UNIT_ID`\n"
+                + "                ,lu.`VARIANT`,lu.`WEIGHT_QTY`,lu.`WEIGHT_UNIT_ID`,lu.`WIDTH_QTY`,lu.`WIDTH_UNIT_ID`,pu.`QTY_OF_FORECASTING_UNITS`,pu.`PRODUCT_ID`\n"
+                + "                FROM rm_logistics_unit lu\n"
+                + "                LEFT JOIN ap_label l ON l.`LABEL_ID`=lu.`LABEL_ID`\n"
+                + "                LEFT JOIN rm_planning_unit pu ON pu.`PLANNING_UNIT_ID`=lu.`PLANNING_UNIT_ID`\n"
+                + "                LEFT JOIN rm_product p ON p.`PRODUCT_ID`=pu.`PRODUCT_ID`\n"
+                + "		WHERE p.`REALM_ID`=:realmId";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
-            sql += " WHERE lu.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            sql += " AND lu.`LAST_MODIFIED_DATE`>:lastSyncDate;";
             params.put("lastSyncDate", lastSyncDate);
         }
+        params.put("realmId", realmId);
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
         return nm.query(sql, params, new PrgLogisticsUnitDTORowMapper());
     }

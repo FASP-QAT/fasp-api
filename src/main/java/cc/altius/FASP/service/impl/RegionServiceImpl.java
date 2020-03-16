@@ -39,8 +39,8 @@ public class RegionServiceImpl implements RegionService {
     }
 
     @Override
-    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate) {
-        return this.regionDao.getRegionListForSync(lastSyncDate);
+    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate,int realmId) {
+        return this.regionDao.getRegionListForSync(lastSyncDate,realmId);
     }
 
 }

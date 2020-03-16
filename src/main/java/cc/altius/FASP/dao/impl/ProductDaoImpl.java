@@ -43,18 +43,19 @@ public class ProductDaoImpl implements ProductDao {
     private LabelDao labelDao;
 
     @Override
-    public List<PrgProductDTO> getProductListForSync(String lastSyncDate) {
-        String sql = "SELECT p.`ACTIVE`,p.`FORECASTING_UNIT_ID`,p.`GENERIC_LABEL_ID`,p.`PRODUCT_CATEGORY_ID`,p.`PRODUCT_ID`, "
+    public List<PrgProductDTO> getProductListForSync(String lastSyncDate,int realmId) {
+        String sql = "SELECT p.`REALM_ID`,p.`ACTIVE`,p.`FORECASTING_UNIT_ID`,p.`GENERIC_LABEL_ID`,p.`PRODUCT_CATEGORY_ID`,p.`PRODUCT_ID`, "
                 + "l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`, "
                 + "gl.`LABEL_EN` AS 'GL_LABEL_EN',gl.`LABEL_PR` AS 'GL_LABEL_PR',gl.`LABEL_FR` AS 'GL_LABEL_FR',gl.`LABEL_SP` AS 'GL_LABEL_SP' "
                 + "FROM rm_product p "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
-                + "LEFT JOIN ap_label gl ON gl.`LABEL_ID`=p.`GENERIC_LABEL_ID`";
+                + "LEFT JOIN ap_label gl ON gl.`LABEL_ID`=p.`GENERIC_LABEL_ID` WHERE p.`REALM_ID`=:realmId";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
-            sql += " WHERE p.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            sql += " AND p.`LAST_MODIFIED_DATE`>:lastSyncDate;";
             params.put("lastSyncDate", lastSyncDate);
         }
+        params.put("realmId", realmId);
         return this.namedParameterJdbcTemplate.query(sql, params, new PrgProductDTORowMapper());
     }
 

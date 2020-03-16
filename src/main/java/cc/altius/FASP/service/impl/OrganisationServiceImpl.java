@@ -30,8 +30,8 @@ public class OrganisationServiceImpl implements OrganisationService {
     private AclService aclService;
 
     @Override
-    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate) {
-        return this.organisationDao.getOrganisationListForSync(lastSyncDate);
+    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate,int realmId) {
+        return this.organisationDao.getOrganisationListForSync(lastSyncDate,realmId);
     }
 
     @Override

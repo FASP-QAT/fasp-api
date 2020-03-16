@@ -20,7 +20,7 @@ import java.util.List;
  */
 public interface ProgramDataDao {
 
-    public PrgProgramDataDTO getProgramData(String programId);
+    public List<PrgProgramDataDTO> getProgramData(String programId);
 
     public List<PrgProgramProductDTO> getProgramProductListByProgramId(int programId);
 

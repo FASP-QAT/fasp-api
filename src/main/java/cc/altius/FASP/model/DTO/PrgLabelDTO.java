@@ -11,51 +11,51 @@ package cc.altius.FASP.model.DTO;
  */
 public class PrgLabelDTO {
 
-    private String labelEn;
-    private String labelFr;
-    private String labelPr;
-    private String labelSp;
+    private String label_en;
+    private String label_fr;
+    private String label_pr;
+    private String label_sp;
 
     public PrgLabelDTO() {
     }
 
-    public PrgLabelDTO(String labelEn, String labelFr, String labelPr, String labelSp) {
-        this.labelEn = labelEn;
-        this.labelFr = labelFr;
-        this.labelPr = labelPr;
-        this.labelSp = labelSp;
+    public PrgLabelDTO(String label_en, String label_fr, String label_pr, String label_sp) {
+        this.label_en = label_en;
+        this.label_fr = label_fr;
+        this.label_pr = label_pr;
+        this.label_sp = label_sp;
     }
 
-    public String getLabelEn() {
-        return labelEn;
+    public String getLabel_en() {
+        return label_en;
     }
 
-    public void setLabelEn(String labelEn) {
-        this.labelEn = labelEn;
+    public void setLabel_en(String label_en) {
+        this.label_en = label_en;
     }
 
-    public String getLabelFr() {
-        return labelFr;
+    public String getLabel_fr() {
+        return label_fr;
     }
 
-    public void setLabelFr(String labelFr) {
-        this.labelFr = labelFr;
+    public void setLabel_fr(String label_fr) {
+        this.label_fr = label_fr;
     }
 
-    public String getLabelPr() {
-        return labelPr;
+    public String getLabel_pr() {
+        return label_pr;
     }
 
-    public void setLabelPr(String labelPr) {
-        this.labelPr = labelPr;
+    public void setLabel_pr(String label_pr) {
+        this.label_pr = label_pr;
     }
 
-    public String getLabelSp() {
-        return labelSp;
+    public String getLabel_sp() {
+        return label_sp;
     }
 
-    public void setLabelSp(String labelSp) {
-        this.labelSp = labelSp;
+    public void setLabel_sp(String label_sp) {
+        this.label_sp = label_sp;
     }
 
 }

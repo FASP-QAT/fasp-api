@@ -46,11 +46,11 @@ public class ProgramRestController {
     @GetMapping(value = "/getProgramData")
     public String getProgramData(@RequestParam String programId) throws UnsupportedEncodingException {
         String json;
-        PrgProgramDataDTO program = this.programDataService.getProgramData(programId);
+        List<PrgProgramDataDTO> programList = this.programDataService.getProgramData(programId);
         Gson gson = new Gson();
-        Type typeList = new TypeToken<PrgProgramDataDTO>() {
+        Type typeList = new TypeToken<List>() {
         }.getType();
-        json = gson.toJson(program, typeList);
+        json = gson.toJson(programList, typeList);
         return json;
     }
 

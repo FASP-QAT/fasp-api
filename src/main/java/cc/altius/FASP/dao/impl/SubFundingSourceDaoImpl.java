@@ -47,15 +47,18 @@ public class SubFundingSourceDaoImpl implements SubFundingSourceDao {
     private LabelDao labelDao;
 
     @Override
-    public List<PrgSubFundingSourceDTO> getSubFundingSourceListForSync(String lastSyncDate) {
-        String sql = "SELECT sfs.`ACTIVE`,sfs.`FUNDING_SOURCE_ID`,sfs.`SUB_FUNDING_SOURCE_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
-                + "FROM rm_sub_funding_source sfs \n"
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=sfs.`LABEL_ID`";
+    public List<PrgSubFundingSourceDTO> getSubFundingSourceListForSync(String lastSyncDate, int realmId) {
+        String sql = "SELECT fs.`REALM_ID`,sfs.`ACTIVE`,sfs.`FUNDING_SOURCE_ID`,sfs.`SUB_FUNDING_SOURCE_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
+                + "                FROM rm_sub_funding_source sfs \n"
+                + "                LEFT JOIN ap_label l ON l.`LABEL_ID`=sfs.`LABEL_ID`\n"
+                + "                LEFT JOIN rm_funding_source fs ON fs.`FUNDING_SOURCE_ID`=sfs.`FUNDING_SOURCE_ID`\n"
+                + "                WHERE fs.`REALM_ID`=:realmId";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
-            sql += " WHERE sfs.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            sql += " AND sfs.`LAST_MODIFIED_DATE`>:lastSyncDate;";
             params.put("lastSyncDate", lastSyncDate);
         }
+        params.put("realmId", realmId);
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
         return nm.query(sql, params, new PrgSubFundingSourceDTORowMapper());
     }

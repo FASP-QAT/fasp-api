@@ -32,9 +32,9 @@ public class OrganisationController {
     OrganisationService organisationService;
     
     @GetMapping(value = "/getOrganisationListForSync")
-    public String getOrganisationListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+    public String getOrganisationListForSync(@RequestParam String lastSyncDate,int realmId) throws UnsupportedEncodingException {
         String json;
-        List<PrgOrganisationDTO> organisationList = this.organisationService.getOrganisationListForSync(lastSyncDate);
+        List<PrgOrganisationDTO> organisationList = this.organisationService.getOrganisationListForSync(lastSyncDate,realmId);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();

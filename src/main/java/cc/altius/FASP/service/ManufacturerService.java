@@ -15,7 +15,7 @@ import java.util.List;
  */
 public interface ManufacturerService {
 
-    public List<PrgManufacturerDTO> getManufacturerListForSync(String lastSyncDate);
+    public List<PrgManufacturerDTO> getManufacturerListForSync(String lastSyncDate,int realmId);
     
     public int addManufacturer(Manufacturer m, int curUser);
 

@@ -19,7 +19,7 @@ public interface RegionService {
 
     public int editRegion(Region region, int curUser);
 
-    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate);
+    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate,int realmId);
 
     public List<Region> getRegionList(boolean active);
 }

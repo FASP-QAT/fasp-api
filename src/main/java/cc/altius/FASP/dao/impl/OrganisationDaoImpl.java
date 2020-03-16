@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -49,16 +48,17 @@ public class OrganisationDaoImpl implements OrganisationDao {
     private LabelDao labelDao;
 
     @Override
-    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate) {
+    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate,int realmId) {
         String sql = "SELECT o.`ACTIVE`,o.`LABEL_ID`,o.`ORGANISATION_ID`,o.`REALM_ID`\n"
                 + ",l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
                 + "FROM rm_organisation o\n"
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=o.`LABEL_ID`";
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=o.`LABEL_ID` WHERE o.`REALM_ID`=:realmId";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
-            sql += " WHERE o.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            sql += " AND o.`LAST_MODIFIED_DATE`>:lastSyncDate;";
             params.put("lastSyncDate", lastSyncDate);
         }
+        params.put("realmId", realmId);
         return this.namedParameterJdbcTemplate.query(sql, params, new PrgOrganisationDTORowMapper());
     }
 

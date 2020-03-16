@@ -43,15 +43,16 @@ public class ManufacturerDaoImpl implements ManufacturerDao {
     private LabelDao labelDao;
 
     @Override
-    public List<PrgManufacturerDTO> getManufacturerListForSync(String lastSyncDate) {
-        String sql = "SELECT m.`ACTIVE`,m.`MANUFACTURER_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
+    public List<PrgManufacturerDTO> getManufacturerListForSync(String lastSyncDate,int realmId) {
+        String sql = "SELECT m.`ACTIVE`,m.`MANUFACTURER_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,m.`REALM_ID`\n"
                 + "FROM rm_manufacturer m \n"
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=m.`LABEL_ID`";
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=m.`LABEL_ID` WHERE m.`REALM_ID`=:realmId";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
-            sql += " WHERE m.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            sql += " AND m.`LAST_MODIFIED_DATE`>:lastSyncDate;";
             params.put("lastSyncDate", lastSyncDate);
         }
+        params.put("realmId", realmId);
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
         return nm.query(sql, params, new PrgManufacturerDTORowMapper());
     }

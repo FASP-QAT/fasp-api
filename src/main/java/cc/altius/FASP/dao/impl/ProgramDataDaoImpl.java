@@ -43,7 +43,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public PrgProgramDataDTO getProgramData(String programId) {
+    public List<PrgProgramDataDTO> getProgramData(String programId) {
         String sql = "SELECT \n"
                 + "p.`PROGRAM_ID`,1 AS `PROGRAM_VERSION`,p.`AIR_FREIGHT_PERC`,p.`APPROVED_TO_SHIPPED_LEAD_TIME`,p.`DELIVERED_TO_RECEIVED_LEAD_TIME`,\n"
                 + "p.`DRAFT_TO_SUBMITTED_LEAD_TIME`,p.`HEALTH_AREA_ID`,ha_label.`LABEL_EN` AS HEALTH_AREA_LABEL_EN,\n"
@@ -100,12 +100,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN ap_unit_type pu_type ON pu_type.`UNIT_TYPE_ID`=pallet_unit.`UNIT_TYPE_ID`\n"
                 + "LEFT JOIN ap_label put_label ON put_label.`LABEL_ID`=pu_type.`LABEL_ID`\n"
                 + "LEFT JOIN rm_realm rr ON rr.`REALM_ID`=rrc.`REALM_ID`\n"
-                                + "LEFT JOIN rm_label rr_label ON rr_label.`LABEL_ID`=rr.`LABEL_ID` WHERE p.PROGRAM_ID=?;";
-                        return this.jdbcTemplate.queryForObject(sql, new PrgProgramDataDTORowMapper(),programId);
+                + "LEFT JOIN rm_label rr_label ON rr_label.`LABEL_ID`=rr.`LABEL_ID` WHERE p.PROGRAM_ID IN (" + programId + ");";
+        return this.jdbcTemplate.query(sql, new PrgProgramDataDTORowMapper());
 
 //                + "LEFT JOIN ap_label rr_label ON rr_label.`LABEL_ID`=rr.`LABEL_ID` WHERE p.PROGRAM_ID IN (" + programId + ");";
 //        return this.jdbcTemplate.queryForObject(sql, new PrgProgramDataDTORowMapper());
-
     }
 
     @Override
@@ -370,7 +369,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN ap_unit_type cpu_ut ON cpu_ut.`UNIT_TYPE_ID`=cpu_unit.`UNIT_TYPE_ID`\n"
                 + "LEFT JOIN ap_label cpuut_label ON cpuut_label.`LABEL_ID`=cpu_ut.`LABEL_ID`\n"
                 + "WHERE (irpu.`PRODUCT_ID`=? OR cpu.`PRODUCT_ID`=?);";
-        return this.jdbcTemplate.query(sql, new PrgConsumptionDTORowMapper(), productId,productId);
+        return this.jdbcTemplate.query(sql, new PrgConsumptionDTORowMapper(), productId, productId);
     }
 
     @Override
@@ -515,11 +514,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     public List<PrgRegionDTO> getRegionListByProgramId(int programId) {
         String sql = "SELECT rpr.`REGION_ID`,r.`CAPACITY_CBM`,ap_label.`LABEL_EN` AS REGION_LABEL_EN,r.`ACTIVE`\n"
-                + ",ap_label.`LABEL_FR` AS REGION_LABEL_FR,ap_label.`LABEL_PR` AS REGION_LABEL_PR,ap_label.`LABEL_SP` AS REGION_LABEL_SP\n"
-                + "FROM rm_program_region rpr\n"
-                + "LEFT JOIN rm_region r ON r.`REGION_ID`=rpr.`REGION_ID`\n"
-                + "LEFT JOIN ap_label ON ap_label.`LABEL_ID`=r.`LABEL_ID` \n"
-                + "WHERE rpr.`PROGRAM_ID`=?;";
+                + "                ,ap_label.`LABEL_FR` AS REGION_LABEL_FR,ap_label.`LABEL_PR` AS REGION_LABEL_PR,ap_label.`LABEL_SP` AS REGION_LABEL_SP,rc.`REALM_ID`\n"
+                + "                FROM rm_program_region rpr\n"
+                + "                LEFT JOIN rm_region r ON r.`REGION_ID`=rpr.`REGION_ID`\n"
+                + "                LEFT JOIN rm_realm_country rc ON rc.`REALM_COUNTRY_ID`=r.`REALM_COUNTRY_ID`\n"
+                + "                LEFT JOIN ap_label ON ap_label.`LABEL_ID`=r.`LABEL_ID` "
+                + " WHERE rpr.`PROGRAM_ID`=?;";
         return this.jdbcTemplate.query(sql, new PrgRegionDTORowMapper(), programId);
     }
 

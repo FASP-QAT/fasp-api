@@ -23,8 +23,8 @@ public class LogisticsUnitServiceImpl implements LogisticsUnitService {
     LogisticsUnitDao logisticsUnitDao;
 
     @Override
-    public List<PrgLogisticsUnitDTO> getLogisticsUnitListForSync(String lastSyncDate) {
-        return this.logisticsUnitDao.getLogisticsUnitListForSync(lastSyncDate);
+    public List<PrgLogisticsUnitDTO> getLogisticsUnitListForSync(String lastSyncDate,int realmId) {
+        return this.logisticsUnitDao.getLogisticsUnitListForSync(lastSyncDate,realmId);
     }
 
 }

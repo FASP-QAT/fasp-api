@@ -24,6 +24,7 @@ public class PrgRegionDTORowMapper implements RowMapper<PrgRegionDTO> {
         region.setCapacityCbm(rs.getDouble("CAPACITY_CBM"));
         region.setLabel(new PrgLabelDTORowMapper("REGION_").mapRow(rs, i));
         region.setActive(rs.getBoolean("ACTIVE"));
+        region.setRealmId(rs.getInt("REALM_ID"));
         return region;
     }
 
