@@ -62,7 +62,7 @@ public class SubFundingSourceRestController {
     }
 
     @PutMapping(path = "/subFundingSource")
-    public ResponseFormat putHealhArea(@RequestBody SubFundingSource subFundingSource, Authentication auth) {
+    public ResponseFormat putSubFundingSource(@RequestBody SubFundingSource subFundingSource, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int rows = this.subFundingSourceService.updateSubFundingSource(subFundingSource, curUser);

@@ -2565,6 +2565,20 @@ CREATE INDEX `fk_us_forgot_password_token_us_user1_idx` ON `fasp`.`us_forgot_pas
 
 CREATE UNIQUE INDEX `unq_token` ON `fasp`.`us_forgot_password_token` (`TOKEN` ASC)  COMMENT 'Token must be unique';
 
+
+-- -----------------------------------------------------
+-- Table `fasp`.`us_token_logout`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `fasp`.`us_token_logout` ;
+
+CREATE TABLE IF NOT EXISTS `fasp`.`us_token_logout` (
+  `TOKEN_ID` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Autoincrement Id for the Tokens',
+  `TOKEN` TEXT NOT NULL COMMENT 'Field to store the Token',
+  `LOGOUT_DATE` DATETIME NOT NULL COMMENT 'Date that the Logout happened',
+  PRIMARY KEY (`TOKEN_ID`))
+ENGINE = InnoDB
+COMMENT = 'A Store of the Tokens that have been logged out';
+
 USE `fasp` ;
 
 -- -----------------------------------------------------
@@ -2601,31 +2615,6 @@ BEGIN
 		select null;
     END IF;
 END$$
-
-DELIMITER ;
-USE `fasp`;
-
-DELIMITER $$
-
-USE `fasp`$$
-DROP TRIGGER IF EXISTS `fasp`.`ap_currency_AFTER_INSERT` $$
-USE `fasp`$$
-CREATE DEFINER = CURRENT_USER TRIGGER `fasp`.`ap_currency_AFTER_INSERT` AFTER INSERT ON `ap_currency` FOR EACH ROW
-BEGIN
-	INSERT INTO ap_currency_history (CURRENCY_ID, CONVERSION_RATE_TO_USD, LAST_MODIFIED_DATE) 
-    VALUES(new.`CURRENCY_ID`,new.`CONVERSION_RATE_TO_USD`,new.`LAST_MODIFIED_DATE`);
-END$$
-
-
-USE `fasp`$$
-DROP TRIGGER IF EXISTS `fasp`.`ap_currency_AFTER_UPDATE` $$
-USE `fasp`$$
-CREATE DEFINER = CURRENT_USER TRIGGER `fasp`.`ap_currency_AFTER_UPDATE` AFTER UPDATE ON `ap_currency` FOR EACH ROW
-BEGIN
-	INSERT INTO ap_currency_history (CURRENCY_ID, CONVERSION_RATE_TO_USD, LAST_MODIFIED_DATE) 
-    VALUES(new.`CURRENCY_ID`,new.`CONVERSION_RATE_TO_USD`,new.`LAST_MODIFIED_DATE`);
-END$$
-
 
 DELIMITER ;
 
@@ -3317,6 +3306,31 @@ INSERT INTO `fasp`.`em_email_template` (`EMAIL_TEMPLATE_ID`, `EMAIL_DESC`, `SUBJ
 
 COMMIT;
 
+USE `fasp`;
+
+DELIMITER $$
+
+USE `fasp`$$
+DROP TRIGGER IF EXISTS `fasp`.`ap_currency_AFTER_INSERT` $$
+USE `fasp`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `fasp`.`ap_currency_AFTER_INSERT` AFTER INSERT ON `ap_currency` FOR EACH ROW
+BEGIN
+	INSERT INTO ap_currency_history (CURRENCY_ID, CONVERSION_RATE_TO_USD, LAST_MODIFIED_DATE) 
+    VALUES(new.`CURRENCY_ID`,new.`CONVERSION_RATE_TO_USD`,new.`LAST_MODIFIED_DATE`);
+END$$
+
+
+USE `fasp`$$
+DROP TRIGGER IF EXISTS `fasp`.`ap_currency_AFTER_UPDATE` $$
+USE `fasp`$$
+CREATE DEFINER = CURRENT_USER TRIGGER `fasp`.`ap_currency_AFTER_UPDATE` AFTER UPDATE ON `ap_currency` FOR EACH ROW
+BEGIN
+	INSERT INTO ap_currency_history (CURRENCY_ID, CONVERSION_RATE_TO_USD, LAST_MODIFIED_DATE) 
+    VALUES(new.`CURRENCY_ID`,new.`CONVERSION_RATE_TO_USD`,new.`LAST_MODIFIED_DATE`);
+END$$
+
+
+DELIMITER ;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

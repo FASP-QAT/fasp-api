@@ -24,6 +24,8 @@ public interface OrganisationDao {
     public int updateOrganisation(Organisation organisation, CustomUserDetails curUser);
 
     public List<Organisation> getOrganisationList(CustomUserDetails curUser);
+    
+    public List<Organisation> getOrganisationListByRealmId(int realmId, CustomUserDetails curUser);
 
     public Organisation getOrganisationById(int organisationId, CustomUserDetails curUser);
 

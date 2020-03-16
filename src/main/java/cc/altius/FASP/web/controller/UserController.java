@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import cc.altius.FASP.service.UserService;
+import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +66,8 @@ public class UserController {
     private JwtTokenUtil jwtTokenUtil;
     @Value("${session.expiry.time}")
     private int sessionExpiryTime;
+    @Value("${jwt.http.request.header}")
+    private String tokenHeader;
 
     @GetMapping(value = "/getRoleList")
     public String getRoleList() {
@@ -113,10 +116,11 @@ public class UserController {
     }
 
     @PutMapping(value = "/addNewUser")
-    public ResponseEntity addNewUser(@RequestBody User user, Authentication authentication) throws UnsupportedEncodingException {
+    public ResponseEntity addNewUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) throws UnsupportedEncodingException {
         ResponseFormat responseFormat = new ResponseFormat();
+        CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
+        logger.info("Adding new User " + user.toString(), request.getRemoteAddr(), curUser.getUsername());
         try {
-            CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
             PasswordEncoder encoder = new BCryptPasswordEncoder();
             String password = PassPhrase.getPassword();
             String hashPass = encoder.encode(password);
@@ -127,32 +131,38 @@ public class UserController {
                 if (userId > 0) {
                     String token = this.userService.generateTokenForUsername(user.getUsername(), 2);
                     if (token == null || token.isEmpty()) {
+                        logger.info("Could not generate a Token for the new user");
                         responseFormat.setStatus("failed");
-                        responseFormat.setMessage("Exception Occured. Please try again");
+                        responseFormat.setMessage("Exception occured. Please try again");
                         return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
                     } else {
+                        logger.info("User has been created and credentials link sent on email");
                         responseFormat.setStatus("Success");
                         responseFormat.setMessage("User created successfully and credentials sent on email.");
                         return new ResponseEntity(responseFormat, HttpStatus.OK);
                     }
 
                 } else {
+                    logger.info("Failed to add the User");
                     responseFormat.setStatus("failed");
-                    responseFormat.setMessage("Exception Occured. Please try again");
+                    responseFormat.setMessage("Exception occured. Please try again");
                     return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             } else {
+                logger.info("Failed to add the User beacuse the Username already exists");
                 responseFormat.setStatus("failed");
                 responseFormat.setMessage(msg);
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (DuplicateKeyException e) {
-            e.printStackTrace();
+            logger.error("Error", e);
+            logger.info("Failed to add the User");
             responseFormat.setStatus("failed");
             responseFormat.setMessage("User already exists.");
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error", e);
+            logger.info("Failed to add the User");
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Exception Occured :" + e.getClass());
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -196,26 +206,31 @@ public class UserController {
     }
 
     @PutMapping(value = "/editUser")
-    public ResponseEntity editUser(@RequestBody User user, Authentication authentication) throws UnsupportedEncodingException {
+    public ResponseEntity editUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) throws UnsupportedEncodingException {
         Map<String, Object> responseMap = null;
         ResponseFormat responseFormat = new ResponseFormat();
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
+        logger.info("Going to update User " + user.toString(), request.getRemoteAddr(), curUser.getUsername());
         try {
             int row = this.userService.updateUser(user, curUser.getUserId());
             if (row > 0) {
+                logger.info("User updated successfully");
                 responseFormat.setStatus("Success");
                 responseFormat.setMessage("User updated successfully.");
                 return new ResponseEntity(responseFormat, HttpStatus.OK);
             } else {
-                responseFormat.setStatus("failed");
+                logger.info("User could not be updated");
+                responseFormat.setStatus("Failed");
                 responseFormat.setMessage("Failed to update the user");
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (DuplicateKeyException e) {
+            logger.info("User could not be updated, Username already exists");
             responseFormat.setStatus("failed");
             responseFormat.setMessage("User already exists.");
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
+            logger.info("User could not be updated", e);
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Exception Occured :" + e.getClass());
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -223,9 +238,11 @@ public class UserController {
     }
 
     @PutMapping(value = "/unlockAccount/{userId}/{emailId}")
-    public ResponseEntity unlockAccount(@PathVariable int userId, @PathVariable String emailId) throws UnsupportedEncodingException {
+    public ResponseEntity unlockAccount(@PathVariable int userId, @PathVariable String emailId, Authentication authentication, HttpServletRequest request) throws UnsupportedEncodingException {
         Map<String, Object> responseMap = null;
         ResponseFormat responseFormat = new ResponseFormat();
+        CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
+        logger.info("Going to unlock account for userId: " + userId + " emailId:" + emailId, request.getRemoteAddr(), curUser.getUsername());
         try {
             User user = this.userService.getUserByUserId(userId);
             PasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -235,20 +252,24 @@ public class UserController {
             if (row > 0) {
                 String token = this.userService.generateTokenForUsername(user.getUsername(), 1);
                 if (token == null || token.isEmpty()) {
+                    logger.info("User could not be unlocked as Token could not be generated");
                     responseFormat.setStatus("failed");
-                    responseFormat.setMessage("Exception Occured. Please try again");
+                    responseFormat.setMessage("Exception occured. Please try again");
                     return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
                 } else {
                     responseFormat.setStatus("Success");
+                    logger.info("User unlocked and email sent with credentials link");
                     responseFormat.setMessage("Account unlocked successfully and new password is sent on the registered email id.");
                     return new ResponseEntity(responseFormat, HttpStatus.OK);
                 }
             } else {
+                logger.info("User could not be unlocked");
                 responseFormat.setStatus("failed");
                 responseFormat.setMessage("Exception Occured. Please try again");
                 return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (Exception e) {
+            logger.info("User could not be unlocked", e);
             responseFormat.setStatus("failed");
             responseFormat.setMessage("Exception Occured :" + e.getClass());
             return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -323,7 +344,8 @@ public class UserController {
     }
 
     @GetMapping(value = "/forgotPassword/{username}")
-    public ResponseFormat forgotPassword(@PathVariable String username) throws UnsupportedEncodingException {
+    public ResponseFormat forgotPassword(@PathVariable String username, HttpServletRequest request) throws UnsupportedEncodingException {
+        logger.info("Forgot password action triggered for Username:" + username, request.getRemoteAddr());
         Map<String, Object> responseMap = null;
         ResponseFormat responseFormat = new ResponseFormat();
         try {
@@ -332,64 +354,69 @@ public class UserController {
                 if (customUser.isActive()) {
                     String token = this.userService.generateTokenForUsername(username, 1);
                     if (token == null || token.isEmpty()) {
+                        logger.info("Could not process request as Token could not be generated");
                         return new ResponseFormat("Failed", "Cound not generate Token");
                     } else {
+                        logger.info("Forgot password request processed for Username: " + username + " email with password reset link sent");
                         return new ResponseFormat("Success", "Email with password reset link sent", token);
                     }
                 } else {
-                    logger.error("User is disabled---" + username);
+                    logger.info("User is disabled Username: " + username);
                     return new ResponseFormat("Failed", "User is disabled");
                 }
             } else {
-                logger.error("User does not exists with this username---" + username);
-                return new ResponseFormat("Failed", "User does not exists with this username.");
+                logger.info("User does not exists with this Username " + username);
+                return new ResponseFormat("Failed", "User does not exists");
             }
         } catch (Exception e) {
-            logger.error("Error while generating Token for forgot password", e);
+            logger.info("Error while generating Token for forgot password", e);
             return new ResponseFormat("Failed", "Cound not generate Token");
         }
     }
 
     @PostMapping("/confirmForgotPasswordToken")
-    public ResponseFormat confirmForgotPasswordToken(@RequestBody EmailUser user) {
+    public ResponseFormat confirmForgotPasswordToken(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getUsername(), user.getToken());
-            logger.error("token---" + user.getToken());
-            logger.error("token response---" + fpt.isValidForTriggering());
+            logger.info("Confirm forgot password has been triggered for Username:" + user.getUsername(), request.getRemoteAddr());
             if (fpt.isValidForTriggering()) {
-                logger.error("Inside if---");
                 this.userService.updateTriggeredDateForForgotPasswordToken(user.getUsername(), user.getToken());
+                logger.info("Token is valid and reset can proceed");
                 return new ResponseFormat("Success", "");
             } else {
-                logger.error("Inside else---");
                 this.userService.updateCompletionDateForForgotPasswordToken(user.getUsername(), user.getToken());
+                logger.info("Token is not valid or has expired");
                 return new ResponseFormat("Failed", fpt.inValidReasonForTriggering());
             }
         } catch (Exception e) {
-            logger.error("Error while generating Token for forgot password", e);
+            logger.info("Error while generating Token for forgot password", e);
             return new ResponseFormat("Failed", "Could not validate token");
         }
     }
 
     @PostMapping("/updatePassword")
-    public ResponseFormat updatePaassword(@RequestBody EmailUser user) {
+    public ResponseFormat updatePaassword(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
+            logger.info("Update password triggered for Username: " + user.getUsername(), request.getRemoteAddr());
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getUsername(), user.getToken());
             if (fpt.isValidForCompletion()) {
                 // Go ahead and reset the password
                 CustomUserDetails curUser = this.userService.getCustomUserByUsername(user.getUsername());
                 BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
                 if (bcrypt.matches(user.getPassword(), curUser.getPassword())) {
+                    logger.info("Failed to reset the password because New password is same as current password");
                     return new ResponseFormat("Failed", "New password is same as current password.");
                 } else {
                     this.userService.updatePassword(user.getUsername(), user.getToken(), user.getHashPassword(), 90);
-                    return new ResponseFormat("Success", "Password updated successfully!!!");
+                    logger.info("Password has now been updated successfully for Username: " + user.getUsername());
+                    return new ResponseFormat("Success", "Password updated successfully");
                 }
             } else {
+                logger.info("Failed to reset the password invlaid Token");
                 return new ResponseFormat("Failed", fpt.inValidReasonForCompletion());
             }
         } catch (Exception e) {
-            logger.error("Error while generating Token for forgot password", e);
+            logger.info("Error while generating Token for forgot password", e);
             return new ResponseFormat("Failed", "Cound not update password");
         }
     }
@@ -454,4 +481,25 @@ public class UserController {
         }
     }
 
+    @GetMapping(value = "/logout")
+    public ResponseFormat logout(Authentication authentication, HttpServletRequest request) {
+        CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
+        try {
+            logger.info("Received a Logout request for Username: " + curUser.getUsername(), request.getRemoteAddr());
+            final String requestTokenHeader = request.getHeader(this.tokenHeader);
+            String jwtToken;
+            if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
+                jwtToken = requestTokenHeader.substring(7);
+                this.userService.addTokenToLogout(jwtToken);
+                logger.info("Successfully logged out Username: " + curUser.getUsername());
+                return new ResponseFormat("Successfully logged out");
+            } else {
+                logger.info("Could not logout Invalid Token Username: " + curUser.getUsername());
+                return new ResponseFormat("Failed", "Could not logout - Invalid token");
+            }
+        } catch (Exception e) {
+            logger.info("Error while trying to logout Username: " + curUser.getUsername(), e);
+            return new ResponseFormat("Failed", "Exception Occured :" + e.getMessage());
+        }
+    }
 }

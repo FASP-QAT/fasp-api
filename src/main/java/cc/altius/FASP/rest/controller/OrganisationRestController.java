@@ -67,6 +67,16 @@ public class OrganisationRestController {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
+    
+    @GetMapping("/organisation/realmId/{realmId}")
+    public ResponseFormat getOrganisationByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseFormat("Success", "", this.organisationService.getOrganisationListByRealmId(realmId, curUser));
+        } catch (Exception e) {
+            return new ResponseFormat("Failed", e.getMessage());
+        }
+    }
 
     @GetMapping("/organisation/{organisationId}")
     public ResponseFormat getOrganisation(@PathVariable("organisationId") int organisationId, Authentication auth) {

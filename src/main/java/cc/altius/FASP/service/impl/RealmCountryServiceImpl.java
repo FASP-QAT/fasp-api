@@ -12,6 +12,7 @@ import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.RealmCountryService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +37,12 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     public int addRealmCountry(List<RealmCountry> realmCountryList, CustomUserDetails curUser) {
         int rows = 0;
         for (RealmCountry realmCountry : realmCountryList) {
-            RealmCountry rc = this.realmCountryDao.getRealmCountryByRealmAndCountry(realmCountry.getRealm().getRealmId(), realmCountry.getCountry().getCountryId(), curUser);
+            RealmCountry rc = null;
+            try {
+                rc = this.realmCountryDao.getRealmCountryByRealmAndCountry(realmCountry.getRealm().getRealmId(), realmCountry.getCountry().getCountryId(), curUser);
+            } catch (IncorrectResultSizeDataAccessException i) {
+                
+            }
             if (rc != null) {
                 if (this.aclService.checkRealmAccessForUser(curUser, realmCountry.getRealm().getRealmId())) {
                     realmCountry.setRealmCountryId(rc.getRealmCountryId());
@@ -78,6 +84,11 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     @Override
     public RealmCountry getRealmCountryById(int realmCountryId, CustomUserDetails curUser) {
         return this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
+    }
+
+    @Override
+    public List<RealmCountry> getRealmCountryListByRealmId(int realmId, CustomUserDetails curUser) {
+        return this.realmCountryDao.getRealmCountryListByRealmId(realmId, curUser);
     }
 
 }

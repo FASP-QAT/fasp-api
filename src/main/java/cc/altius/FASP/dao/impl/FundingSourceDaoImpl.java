@@ -71,22 +71,11 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
         int labelId = this.labelDao.addLabel(f.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);
-        params.put("CREATED_BY", curUser);
+        params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
-        params.put("LAST_MODIFIED_BY", curUser);
+        params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
         return si.executeAndReturnKey(params).intValue();
-//        SimpleJdbcInsert sii = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("tk_ticket").usingGeneratedKeyColumns("TICKET_ID");
-//        Map<String, Object> paramsTwo = new HashMap<>();
-//        paramsTwo.put("TICKET_TYPE_ID", 2);
-//        paramsTwo.put("TICKET_STATUS_ID", 1);
-//        paramsTwo.put("REFFERENCE_ID", insertedRow);
-//        paramsTwo.put("NOTES", "");
-//        paramsTwo.put("CREATED_BY", curUser);
-//        paramsTwo.put("CREATED_DATE", curDate);
-//        paramsTwo.put("LAST_MODIFIED_BY", curUser);
-//        paramsTwo.put("LAST_MODIFIED_DATE", curDate);
-//        sii.execute(paramsTwo);
     }
 
     @Override

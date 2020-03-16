@@ -63,13 +63,13 @@ public class UnitDaoImpl implements UnitDao {
 
     @Override
     @Transactional
-    public int addUnit(Unit h, CustomUserDetails curUser) {
+    public int addUnit(Unit u, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("ap_unit").usingGeneratedKeyColumns("UNIT_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("UNIT_TYPE_ID", h.getUnitType().getUnitTypeId());
-        params.put("UNIT_CODE", h.getUnitCode());
-        int labelId = this.labelDao.addLabel(h.getLabel(), curUser.getUserId());
+        params.put("UNIT_TYPE_ID", u.getUnitType().getUnitTypeId());
+        params.put("UNIT_CODE", u.getUnitCode());
+        int labelId = this.labelDao.addLabel(u.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
@@ -80,16 +80,23 @@ public class UnitDaoImpl implements UnitDao {
     }
 
     @Override
-    public int updateUnit(Unit h, CustomUserDetails curUser) {
-        String sqlOne = "UPDATE ap_label al SET al.`LABEL_EN`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
-        this.jdbcTemplate.update(sqlOne, h.getLabel().getLabel_en(), curUser, DateUtils.getCurrentDateObject(DateUtils.EST), h.getLabel().getLabelId());
+    public int updateUnit(Unit u, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("unitId", h.getUnitId());
-        params.put("active", h.isActive());
-        params.put("unitCode", h.getUnitCode());
-        params.put("unitTypeId", h.getUnitType().getUnitTypeId());
+        params.put("unitId", u.getUnitId());
+        params.put("active", u.isActive());
+        params.put("labelEn", u.getLabel().getLabel_en());
+        params.put("unitCode", u.getUnitCode());
         params.put("curUser", curUser.getUserId());
-        return this.namedParameterJdbcTemplate.update("UPDATE ap_unit u SET u.UNIT_TYPE_ID=:unitTypeId,u.UNIT_CODE=:unitCode,u.ACTIVE=:active, u.LAST_MODIFIED_BY=:curUser, u.LAST_MODIFIED_DATE=:curDate WHERE u.UNIT_ID=:unitId", params);
+        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
+        return this.namedParameterJdbcTemplate.update("UPDATE ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID SET "
+                + "u.UNIT_CODE=:unitCode, "
+                + "u.ACTIVE=:active, "
+                + "u.LAST_MODIFIED_BY=IF(u.UNIT_CODE!=:unitCode OR u.ACTIVE!=:active, :curUser,u.LAST_MODIFIED_BY), "
+                + "u.LAST_MODIFIED_DATE=IF(u.UNIT_CODE!=:unitCode OR u.ACTIVE!=:active, :curDate,u.LAST_MODIFIED_DATE), "
+                + "ul.LABEL_EN=:labelEn,  "
+                + "ul.LAST_MODIFIED_BY=IF(ul.LABEL_EN!=:labelEn, :curUser,ul.LAST_MODIFIED_BY), "
+                + "ul.LAST_MODIFIED_DATE=IF(ul.LABEL_EN!=:labelEn, :curDate,ul.LAST_MODIFIED_DATE) "
+                + "WHERE u.UNIT_ID=:unitId", params);
     }
 
     @Override

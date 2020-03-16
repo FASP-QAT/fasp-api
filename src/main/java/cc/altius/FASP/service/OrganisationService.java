@@ -25,7 +25,8 @@ public interface OrganisationService {
 
     public List<Organisation> getOrganisationList(CustomUserDetails curUser);
 
-    public Organisation getOrganisationById(int organisationId, CustomUserDetails curUser);
+    public List<Organisation> getOrganisationListByRealmId(int realmId, CustomUserDetails curUser);
 
+    public Organisation getOrganisationById(int organisationId, CustomUserDetails curUser);
 
 }

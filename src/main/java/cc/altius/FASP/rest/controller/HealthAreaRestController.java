@@ -10,7 +10,6 @@ import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.HealthAreaService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,9 +33,8 @@ public class HealthAreaRestController {
     private HealthAreaService healthAreaService;
 
     @PostMapping(path = "/healthArea")
-    public ResponseFormat postHealthArea(@RequestBody HealthArea healthArea, Authentication auth, HttpRequest request) {
+    public ResponseFormat postHealthArea(@RequestBody HealthArea healthArea, Authentication auth) {
         try {
-            
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int healthAreaId = this.healthAreaService.addHealthArea(healthArea, curUser);
             return new ResponseFormat("Successfully added HealthArea with Id " + healthAreaId);
@@ -61,6 +59,16 @@ public class HealthAreaRestController {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
             return new ResponseFormat("Success", "", this.healthAreaService.getHealthAreaList(curUser));
+        } catch (Exception e) {
+            return new ResponseFormat("Failed", e.getMessage());
+        }
+    }
+    
+    @GetMapping("/healthArea/realmId/{realmId}")
+    public ResponseFormat getHealthAreaByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseFormat("Success", "", this.healthAreaService.getHealthAreaListByRealmId(realmId, curUser));
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.web.controller;
+package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgManufacturerDTO;
@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
-public class ManufacturerController {
+public class ManufacturerRestController {
 
     @Autowired
     ManufacturerService manufacturerService;
@@ -49,23 +49,23 @@ public class ManufacturerController {
         json = gson.toJson(manufacturerList, typeList);
         return json;
     }
-    
+
     @PostMapping(path = "/manufacturer")
-    public ResponseFormat postUnit(@RequestBody Manufacturer manufacturer, Authentication auth) {
+    public ResponseFormat postManufacturer(@RequestBody Manufacturer manufacturer, Authentication auth) {
         try {
-            int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
-            int unitId = this.manufacturerService.addManufacturer(manufacturer, curUser);
-            return new ResponseFormat("Successfully added manufacturer with Id " + unitId);
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            int manufacturerId = this.manufacturerService.addManufacturer(manufacturer, curUser);
+            return new ResponseFormat("Successfully added manufacturer with Id " + manufacturerId);
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
 
     @PutMapping(path = "/manufacturer")
-    public ResponseFormat putHealhArea(@RequestBody Manufacturer manufacturer, Authentication auth) {
+    public ResponseFormat putManufacturer(@RequestBody Manufacturer manufacturer, Authentication auth) {
         try {
-            int curUser = ((CustomUserDetails) auth.getPrincipal()).getUserId();
-            int rows = this.manufacturerService.updateManufacturer(manufacturer, curUser);
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            this.manufacturerService.updateManufacturer(manufacturer, curUser);
             return new ResponseFormat("Successfully updated manufacturer");
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
@@ -73,18 +73,20 @@ public class ManufacturerController {
     }
 
     @GetMapping("/manufacturer")
-    public ResponseFormat getUnit() {
+    public ResponseFormat getManufacturer(Authentication auth) {
         try {
-            return new ResponseFormat("Success", "", this.manufacturerService.getManufacturerList());
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseFormat("Success", "", this.manufacturerService.getManufacturerList(curUser));
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
 
     @GetMapping("/manufacturer/{manufacturerId}")
-    public ResponseFormat getUnit(@PathVariable("manufacturerId") int manufacturerId) {
+    public ResponseFormat getManufacturer(@PathVariable("manufacturerId") int manufacturerId, Authentication auth) {
         try {
-            return new ResponseFormat("Success", "", this.manufacturerService.getManufacturerById(manufacturerId));
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseFormat("Success", "", this.manufacturerService.getManufacturerById(manufacturerId, curUser));
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }

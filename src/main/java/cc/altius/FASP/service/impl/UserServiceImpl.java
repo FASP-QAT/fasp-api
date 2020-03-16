@@ -159,4 +159,14 @@ public class UserServiceImpl implements UserService {
         this.userDao.updateCompletionDateForForgotPasswordToken(username, token);
     }
 
+    @Override
+    public boolean isTokenLogout(String token) {
+        return this.userDao.isTokenLogout(token);
+    }
+
+    @Override
+    public void addTokenToLogout(String token) {
+        this.userDao.addTokenToLogout(token);
+    }
+
 }

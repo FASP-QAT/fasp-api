@@ -17,11 +17,11 @@ import java.lang.reflect.Type;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,71 +39,56 @@ public class RegionController {
     @Autowired
     RegionService regionService;
 
-    @PutMapping(value = "/addRegion")
-    public ResponseEntity addRegion(@RequestBody(required = true) String json, Authentication authentication) throws UnsupportedEncodingException {
-        ResponseFormat responseFormat = new ResponseFormat();
+    @PostMapping(value = "/region")
+    public ResponseFormat addRegion(@RequestBody Region region, Authentication auth) {
         try {
-            Gson g = new Gson();
-            Region region = g.fromJson(json, Region.class);
-            CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
-            int userId = this.regionService.addRegion(region, curUser.getUserId());
-            if (userId > 0) {
-                responseFormat.setStatus("Success");
-                responseFormat.setMessage("Region added successfully.");
-                return new ResponseEntity(responseFormat, HttpStatus.OK);
-            } else {
-                responseFormat.setStatus("failed");
-                responseFormat.setMessage("Exception Occured. Please try again");
-                return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            int regionId = this.regionService.addRegion(region, curUser);
+            return new ResponseFormat("Successfully added REgion with Id " + regionId);
         } catch (Exception e) {
-            e.printStackTrace();
-            responseFormat.setStatus("failed");
-            responseFormat.setMessage("Exception Occured :" + e.getClass());
-            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseFormat("Failed", e.getMessage());
         }
     }
 
-    @PutMapping(value = "/editRegion")
-    public ResponseEntity editRegion(@RequestBody(required = true) String json, Authentication authentication) throws UnsupportedEncodingException {
-        ResponseFormat responseFormat = new ResponseFormat();
+    @PutMapping(path = "/region")
+    public ResponseFormat putRegion(@RequestBody Region region, Authentication auth) {
         try {
-            Gson g = new Gson();
-            Region region = g.fromJson(json, Region.class);
-            CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
-            int row = this.regionService.editRegion(region, curUser.getUserId());
-            if (row > 0) {
-                responseFormat.setStatus("Success");
-                responseFormat.setMessage("Region updated successfully.");
-                return new ResponseEntity(responseFormat, HttpStatus.OK);
-            } else {
-                responseFormat.setStatus("failed");
-                responseFormat.setMessage("Exception Occured. Please try again");
-                return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            this.regionService.updateRegion(region, curUser);
+            return new ResponseFormat("Successfully updated region");
         } catch (Exception e) {
-            e.printStackTrace();
-            responseFormat.setStatus("failed");
-            responseFormat.setMessage("Exception Occured :" + e.getClass());
-            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseFormat("Failed", e.getMessage());
         }
     }
 
-    @GetMapping(value = "/getRegionList")
-    public String getRegionList() {
-        String json = null;
+    @GetMapping("/region")
+    public ResponseFormat getRegion(Authentication auth) {
         try {
-            List<Region> regionList = this.regionService.getRegionList(false);
-            Gson gson = new Gson();
-            Type typeList = new TypeToken<List>() {
-            }.getType();
-            json = gson.toJson(regionList, typeList);
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseFormat("Success", "", this.regionService.getRegionList(curUser));
         } catch (Exception e) {
-            e.printStackTrace();
+            return new ResponseFormat("Failed", e.getMessage());
         }
-        return json;
+    }
+
+    @GetMapping("/region/{regionId}")
+    public ResponseFormat getRegion(@PathVariable("regionId") int regionId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseFormat("Success", "", this.regionService.getRegionById(regionId, curUser));
+        } catch (Exception e) {
+            return new ResponseFormat("Failed", e.getMessage());
+        }
+    }
+    
+    @GetMapping("/region/realmCountryId/{realmCountryId}")
+    public ResponseFormat getRegionByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseFormat("Success", "", this.regionService.getRegionListByRealmCountryId(realmCountryId, curUser));
+        } catch (Exception e) {
+            return new ResponseFormat("Failed", e.getMessage());
+        }
     }
 
     @GetMapping(value = "/getRegionListForSync")

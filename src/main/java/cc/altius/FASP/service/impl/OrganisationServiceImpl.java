@@ -45,7 +45,8 @@ public class OrganisationServiceImpl implements OrganisationService {
 
     @Override
     public int updateOrganisation(Organisation organisation, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, organisation.getRealm().getRealmId())) {
+        Organisation o = this.getOrganisationById(organisation.getOrganisationId(), curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, o.getRealm().getRealmId())) {
             return organisationDao.updateOrganisation(organisation, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -55,6 +56,11 @@ public class OrganisationServiceImpl implements OrganisationService {
     @Override
     public List<Organisation> getOrganisationList(CustomUserDetails curUser) {
         return organisationDao.getOrganisationList(curUser);
+    }
+
+    @Override
+    public List<Organisation> getOrganisationListByRealmId(int realmId, CustomUserDetails curUser) {
+        return this.organisationDao.getOrganisationListByRealmId(realmId, curUser);
     }
 
     @Override
