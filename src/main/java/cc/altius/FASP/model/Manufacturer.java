@@ -17,6 +17,15 @@ public class Manufacturer extends BaseModel implements Serializable {
     private Label label;
     private Realm realm;
 
+    public Manufacturer(int manufacturerId, Label label, Realm realm) {
+        this.manufacturerId = manufacturerId;
+        this.label = label;
+        this.realm = realm;
+    }
+
+    public Manufacturer() {
+    }
+
     public int getManufacturerId() {
         return manufacturerId;
     }

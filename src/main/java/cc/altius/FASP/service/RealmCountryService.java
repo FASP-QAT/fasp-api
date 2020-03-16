@@ -23,4 +23,6 @@ public interface RealmCountryService {
 
     public RealmCountry getRealmCountryById(int realmCountryId, CustomUserDetails curUser);
     
+    public List<RealmCountry> getRealmCountryListByRealmId(int realmId, CustomUserDetails curUser);
+    
 }

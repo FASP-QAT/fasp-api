@@ -164,6 +164,33 @@ public class OrganisationDaoImpl implements OrganisationDao {
         }
         return this.namedParameterJdbcTemplate.query(sqlString, params, new OrganisationListResultSetExtractor());
     }
+    
+    @Override
+    public List<Organisation> getOrganisationListByRealmId(int realmId, CustomUserDetails curUser) {
+        String sqlString = " SELECT "
+                + " o.ORGANISATION_ID, o.ORGANISATION_CODE, ol.LABEL_ID, ol.LABEL_EN, ol.LABEL_FR, ol.LABEL_SP, ol.LABEL_PR, "
+                + " r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
+                + " o.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, o.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, o.LAST_MODIFIED_DATE, "
+                + " rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
+                + " FROM rm_organisation o "
+                + " LEFT JOIN rm_realm r ON o.REALM_ID=r.REALM_ID "
+                + " LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
+                + " LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + " LEFT JOIN us_user cb ON o.CREATED_BY=cb.USER_ID "
+                + " LEFT JOIN us_user lmb ON o.LAST_MODIFIED_BY=lmb.USER_ID "
+                + " LEFT JOIN rm_organisation_country oc ON o.ORGANISATION_ID=oc.ORGANISATION_ID "
+                + " LEFT JOIN rm_realm_country rc ON oc.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + " LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+                + "WHERE o.REALM_ID=:realmId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND o.REALM_ID=:userRealmId ";
+            params.put("userRealmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new OrganisationListResultSetExtractor());
+    }
 
     @Override
     public Organisation getOrganisationById(int organisationId, CustomUserDetails curUser) {

@@ -59,6 +59,11 @@ public class OrganisationServiceImpl implements OrganisationService {
     }
 
     @Override
+    public List<Organisation> getOrganisationListByRealmId(int realmId, CustomUserDetails curUser) {
+        return this.organisationDao.getOrganisationListByRealmId(realmId, curUser);
+    }
+
+    @Override
     public Organisation getOrganisationById(int organisationId, CustomUserDetails curUser) {
         return organisationDao.getOrganisationById(organisationId, curUser);
     }

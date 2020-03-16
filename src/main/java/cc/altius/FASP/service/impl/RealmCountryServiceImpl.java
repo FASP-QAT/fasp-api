@@ -86,4 +86,9 @@ public class RealmCountryServiceImpl implements RealmCountryService {
         return this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
     }
 
+    @Override
+    public List<RealmCountry> getRealmCountryListByRealmId(int realmId, CustomUserDetails curUser) {
+        return this.realmCountryDao.getRealmCountryListByRealmId(realmId, curUser);
+    }
+
 }

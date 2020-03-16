@@ -10,10 +10,13 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.security.CustomUserDetailsService;
 import cc.altius.FASP.service.UserService;
+import cc.altius.FASP.web.controller.UserController;
 import io.jsonwebtoken.ExpiredJwtException;
 import java.util.Objects;
 
 import javax.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -35,8 +38,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:4202", "http://192.168.43.113:4202", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop","https://faspdeveloper.github.io"})
-
+@CrossOrigin(origins = {"http://localhost:4202", "http://192.168.43.113:4202", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop", "https://faspdeveloper.github.io"})
 
 public class JwtAuthenticationRestController {
 
@@ -58,21 +60,30 @@ public class JwtAuthenticationRestController {
     @Value("${session.expiry.time}")
     private int sessionExpiryTime;
 
+    private final Logger logger = LoggerFactory.getLogger(UserController.class);
+
     @RequestMapping(value = "${jwt.get.token.uri}", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtTokenRequest authenticationRequest) throws AuthenticationException {
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtTokenRequest authenticationRequest, HttpServletRequest request) throws AuthenticationException {
         try {
+            logger.info("Received a JWT Token request for Username: " + authenticationRequest.getUsername(), request.getRemoteAddr());
             authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+            logger.info("JWT Token generated successfully for Username: " + authenticationRequest.getUsername());
             this.userService.resetFailedAttemptsByUsername(authenticationRequest.getUsername());
         } catch (BadCredentialsException e) {
             this.userService.updateFailedAttemptsByUserId(authenticationRequest.getUsername());
+            logger.info("JWT Token generation failed because of BadCredentials for Username: " + authenticationRequest.getUsername());
             throw new AuthenticationException("Invalid credentials", e);
         } catch (DisabledException | AccountExpiredException e) {
+            logger.info("JWT Token generation failed because user is Disabled for Username: " + authenticationRequest.getUsername());
             throw new AuthenticationException("User is disabled", e);
         } catch (LockedException e) {
+            logger.info("JWT Token generation failed because user is Locked for Username: " + authenticationRequest.getUsername());
             throw new AuthenticationException("User account is locked", e);
         } catch (CredentialsExpiredException e) {
+            logger.info("JWT Token generation failed because Password has expired for Username: " + authenticationRequest.getUsername());
             throw new AuthenticationException("Password expired", e);
         } catch (UsernameNotFoundException e) {
+            logger.info("JWT Token generation failed because User not found for Username: " + authenticationRequest.getUsername());
             throw new AuthenticationException("User not found", e);
         }
         final CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());

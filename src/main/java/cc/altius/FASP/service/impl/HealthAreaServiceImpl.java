@@ -58,6 +58,11 @@ public class HealthAreaServiceImpl implements HealthAreaService {
     }
 
     @Override
+    public List<HealthArea> getHealthAreaListByRealmId(int realmId, CustomUserDetails curUser) {
+        return this.healthAreaDao.getHealthAreaListByRealmId(realmId, curUser);
+    }
+
+    @Override
     public HealthArea getHealthAreaById(int healthAreaId, CustomUserDetails curUser) {
         return this.healthAreaDao.getHealthAreaById(healthAreaId, curUser);
     }

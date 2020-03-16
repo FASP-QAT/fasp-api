@@ -6,6 +6,7 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.Manufacturer;
+import cc.altius.FASP.model.Realm;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -18,12 +19,8 @@ public class ManufacturerRowMapper implements RowMapper<Manufacturer> {
 
     @Override
     public Manufacturer mapRow(ResultSet rs, int i) throws SQLException {
-        Manufacturer m = new Manufacturer();
-        m.setActive(rs.getBoolean("ACTIVE"));
-        m.setManufacturerId(rs.getInt("MANUFACTURER_ID"));
-        m.setLabel(new LabelRowMapper().mapRow(rs, i));
-        m.setRealm(new RealmRowMapper().mapRow(rs, i));
-
+        Manufacturer m = new Manufacturer(rs.getInt("MANUFACTURER_ID"), new LabelRowMapper().mapRow(rs, i), new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i), rs.getString("REALM_CODE")));
+        m.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return m;
     }
 

@@ -24,5 +24,7 @@ public interface RealmCountryDao {
     public RealmCountry getRealmCountryById(int realmCountryId, CustomUserDetails curUser);
 
     public RealmCountry getRealmCountryByRealmAndCountry(int realmId, int countryId, CustomUserDetails curUser);
+    
+    public List<RealmCountry> getRealmCountryListByRealmId(int realmId, CustomUserDetails curUser);
 
 }

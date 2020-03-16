@@ -180,7 +180,6 @@ public class RealmDaoImpl implements RealmDao {
                 + " WHERE r.REALM_ID=:realmId";
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
-        System.out.println(sqlString);
         return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new RealmRowMapper());
     }
 

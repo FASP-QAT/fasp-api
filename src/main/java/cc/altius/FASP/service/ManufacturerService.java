@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgManufacturerDTO;
 import cc.altius.FASP.model.Manufacturer;
 import java.util.List;
@@ -16,13 +17,13 @@ import java.util.List;
 public interface ManufacturerService {
 
     public List<PrgManufacturerDTO> getManufacturerListForSync(String lastSyncDate,int realmId);
-    
-    public int addManufacturer(Manufacturer m, int curUser);
 
-    public int updateManufacturer(Manufacturer m, int CurUser);
+    public int addManufacturer(Manufacturer m, CustomUserDetails curUser);
 
-    public List<Manufacturer> getManufacturerList();
+    public int updateManufacturer(Manufacturer m, CustomUserDetails curUser);
 
-    public Manufacturer getManufacturerById(int unitId);
+    public List<Manufacturer> getManufacturerList(CustomUserDetails curUser);
+
+    public Manufacturer getManufacturerById(int unitId, CustomUserDetails curUser);
 
 }

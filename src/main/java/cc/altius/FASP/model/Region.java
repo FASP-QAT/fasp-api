@@ -15,12 +15,18 @@ public class Region extends BaseModel {
     private Label label;
     private RealmCountry realmCountry;
 
+    public Region() {
+    }
+
     public Region(int regionId, Label label) {
         this.regionId = regionId;
         this.label = label;
     }
 
-    public Region() {
+    public Region(int regionId, Label label, RealmCountry realmCountry) {
+        this.regionId = regionId;
+        this.label = label;
+        this.realmCountry = realmCountry;
     }
 
     public int getRegionId() {

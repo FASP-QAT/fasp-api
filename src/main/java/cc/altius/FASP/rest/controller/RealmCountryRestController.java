@@ -78,4 +78,14 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
     
+    @GetMapping("/realmCountry/realmId/{realmId}")
+    public ResponseFormat getRealmCountryByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseFormat("Success", "", this.realmCountryService.getRealmCountryListByRealmId(realmId, curUser));
+        } catch (Exception e) {
+            return new ResponseFormat("Failed", e.getMessage());
+        }
+    }
+    
 }
