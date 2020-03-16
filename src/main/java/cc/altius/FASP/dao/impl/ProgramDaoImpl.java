@@ -240,18 +240,6 @@ public class ProgramDaoImpl implements ProgramDao {
             sqlString += "AND rc.REALM_ID=:userRealmId ";
             params.put("userRealmId", curUser.getRealm().getRealmId());
         }
-        int count = 1;
-        for (UserAcl acl : curUser.getAclList()) {
-            sqlString += "AND ("
-                    + "(p.PROGRAM_ID=:programId" + count + " OR :programId" + count + "=-1) AND "
-                    + "(p.REALM_COUNTRY_ID=:realmCountryId" + count + " OR :realmCountryId" + count + "=-1) AND "
-                    + "(p.ORGANISATION_ID=:organisationId" + count + " OR :organisationId" + count + "=-1) AND "
-                    + "(p.HEALTH_AREA_ID=:healthAreaId" + count + " OR :healthAreaId" + count + "=-1)) ";
-            params.put("programId" + count, acl.getProgramId());
-            params.put("realmCountryId" + count, acl.getRealmCountryId());
-            params.put("organisationId" + count, acl.getOrganisationId());
-            params.put("healthAreaId" + count, acl.getHealthAreaId());
-        }
         return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramListResultSetExtractor());
     }
 

@@ -37,12 +37,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 @CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class ProgramRestController {
-
+    
     @Autowired
     private ProgramDataService programDataService;
     @Autowired
     private ProgramService programService;
-
+    
     @GetMapping(value = "/getProgramData")
     public String getProgramData(@RequestParam String programId) throws UnsupportedEncodingException {
         String json;
@@ -53,7 +53,7 @@ public class ProgramRestController {
         json = gson.toJson(program, typeList);
         return json;
     }
-
+    
     @GetMapping(value = "/getProgramList")
     public String getProgramList() throws UnsupportedEncodingException {
         String json;
@@ -64,7 +64,7 @@ public class ProgramRestController {
         json = gson.toJson(programList, typeList);
         return json;
     }
-
+    
     @PostMapping(path = "/program")
     public ResponseFormat postProgram(@RequestBody Program program, Authentication auth) {
         try {
@@ -75,18 +75,18 @@ public class ProgramRestController {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
-
+    
     @PutMapping(path = "/program")
     public ResponseFormat putProgram(@RequestBody Program program, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
             this.programService.updateProgram(program, curUser);
             return new ResponseFormat("Successfully updated Program");
-            } catch (Exception e) {
+        } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
-
+    
     @GetMapping("/program")
     public ResponseFormat getProgram(Authentication auth) {
         try {
@@ -96,7 +96,7 @@ public class ProgramRestController {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
-
+    
     @GetMapping("/program/realmId/{realmId}")
     public ResponseFormat getProgramForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
@@ -106,7 +106,7 @@ public class ProgramRestController {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
-
+    
     @GetMapping("/program/{programId}")
     public ResponseFormat getProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {

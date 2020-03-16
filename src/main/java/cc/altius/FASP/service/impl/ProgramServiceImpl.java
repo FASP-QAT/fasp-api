@@ -49,7 +49,7 @@ public class ProgramServiceImpl implements ProgramService {
             return this.programDao.addProgram(p, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
-        }
+    }
     }
 
     @Override
@@ -65,7 +65,7 @@ public class ProgramServiceImpl implements ProgramService {
             return this.programDao.updateProgram(p, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
-        }
+    }
     }
 
     @Override
