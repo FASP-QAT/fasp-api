@@ -7,10 +7,11 @@ package cc.altius.FASP.jwt.resource;
 
 import cc.altius.FASP.jwt.JwtTokenUtil;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.ResponseFormat;
+import cc.altius.FASP.rest.controller.UserRestController;
 import cc.altius.FASP.security.CustomUserDetailsService;
 import cc.altius.FASP.service.UserService;
-import cc.altius.FASP.web.controller.UserController;
 import io.jsonwebtoken.ExpiredJwtException;
 import java.util.Objects;
 
@@ -60,7 +61,7 @@ public class JwtAuthenticationRestController {
     @Value("${session.expiry.time}")
     private int sessionExpiryTime;
 
-    private final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final Logger logger = LoggerFactory.getLogger(UserRestController.class);
 
     @RequestMapping(value = "${jwt.get.token.uri}", method = RequestMethod.POST)
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtTokenRequest authenticationRequest, HttpServletRequest request) throws AuthenticationException {
@@ -72,19 +73,19 @@ public class JwtAuthenticationRestController {
         } catch (BadCredentialsException e) {
             this.userService.updateFailedAttemptsByUserId(authenticationRequest.getUsername());
             logger.info("JWT Token generation failed because of BadCredentials for Username: " + authenticationRequest.getUsername());
-            throw new AuthenticationException("Invalid credentials", e);
+            return new ResponseEntity(new ResponseCode("static.message.login.invalidCredentials"), HttpStatus.UNAUTHORIZED);
         } catch (DisabledException | AccountExpiredException e) {
             logger.info("JWT Token generation failed because user is Disabled for Username: " + authenticationRequest.getUsername());
-            throw new AuthenticationException("User is disabled", e);
+            return new ResponseEntity(new ResponseCode("static.message.login.disabled"), HttpStatus.UNAUTHORIZED);
         } catch (LockedException e) {
             logger.info("JWT Token generation failed because user is Locked for Username: " + authenticationRequest.getUsername());
-            throw new AuthenticationException("User account is locked", e);
+            return new ResponseEntity(new ResponseCode("static.message.login.locked"), HttpStatus.UNAUTHORIZED);
         } catch (CredentialsExpiredException e) {
             logger.info("JWT Token generation failed because Password has expired for Username: " + authenticationRequest.getUsername());
-            throw new AuthenticationException("Password expired", e);
+            return new ResponseEntity(new ResponseCode("static.message.login.passwordExpired"), HttpStatus.UNAUTHORIZED);
         } catch (UsernameNotFoundException e) {
             logger.info("JWT Token generation failed because User not found for Username: " + authenticationRequest.getUsername());
-            throw new AuthenticationException("User not found", e);
+            return new ResponseEntity(new ResponseCode("static.message.login.noUser"), HttpStatus.UNAUTHORIZED);
         }
         final CustomUserDetails userDetails = customUserDetailsService.loadUserByUsername(authenticationRequest.getUsername());
         userDetails.setSessionExpiresOn(sessionExpiryTime);
@@ -96,9 +97,6 @@ public class JwtAuthenticationRestController {
     public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request) {
         String authToken = request.getHeader(tokenHeader);
         final String token = authToken.substring(7);
-        ResponseFormat responseFormat = new ResponseFormat();
-//        String username = jwtTokenUtil.getUsernameFromToken(token);
-//        CustomUserDetails user = (CustomUserDetails) customUserDetailsService.loadUserByUsername("anchal.c@altius.cc");
         try {
             if (jwtTokenUtil.canTokenBeRefreshed(token)) {
                 return ResponseEntity.ok(new JwtTokenResponse(authToken));
@@ -110,15 +108,13 @@ public class JwtAuthenticationRestController {
             String refreshedToken = jwtTokenUtil.refreshToken(token);
             return ResponseEntity.ok(new JwtTokenResponse(refreshedToken));
         } catch (Exception e) {
-            responseFormat.setStatus("failed");
-            responseFormat.setMessage("Error occured");
-            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @ExceptionHandler({AuthenticationException.class})
     public ResponseEntity<String> handleAuthenticationException(AuthenticationException e) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+        return new ResponseEntity(new ResponseCode("static.message.login.unauthorized"), HttpStatus.UNAUTHORIZED);
     }
 
     private void authenticate(String username, String password) {

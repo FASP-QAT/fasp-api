@@ -5,7 +5,7 @@
  */
 package cc.altius.FASP.jwt;
 
-import cc.altius.FASP.web.controller.UserController;
+import cc.altius.FASP.rest.controller.UserRestController;
 import java.io.IOException;
 import java.io.Serializable;
 
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 public class JwtUnAuthorizedResponseAuthenticationEntryPoint implements AuthenticationEntryPoint, Serializable {
 
     private static final long serialVersionUID = -8970718410437077606L;
-    private final Logger logger = LoggerFactory.getLogger(UserController.class);
+    private final Logger logger = LoggerFactory.getLogger(UserRestController.class);
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {

@@ -74,6 +74,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public List<User> getUserListForRealm(int realmId) {
+        return this.userDao.getUserListForRealm(realmId);
+    }
+
+    @Override
     public User getUserByUserId(int userId) {
         return this.userDao.getUserByUserId(userId);
     }
@@ -116,13 +121,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int addRole(Role role) {
-        return this.userDao.addRole(role);
+    public int addRole(Role role, CustomUserDetails curUser) {
+        return this.userDao.addRole(role, curUser);
     }
 
     @Override
-    public int updateRole(Role role) {
-        return this.userDao.updateRole(role);
+    public int updateRole(Role role, CustomUserDetails curUser) {
+        return this.userDao.updateRole(role, curUser);
     }
 
     @Override

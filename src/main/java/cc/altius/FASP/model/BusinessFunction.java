@@ -11,11 +11,10 @@ import java.util.Objects;
  *
  * @author altius
  */
-public class BusinessFunction {
+public class BusinessFunction extends BaseModel {
 
     private String businessFunctionId;
     private Label label;
-    private boolean active;
 
     public String getBusinessFunctionId() {
         return businessFunctionId;
@@ -31,14 +30,6 @@ public class BusinessFunction {
 
     public void setLabel(Label label) {
         this.label = label;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     @Override
@@ -68,7 +59,7 @@ public class BusinessFunction {
 
     @Override
     public String toString() {
-        return "BusinessFunction{" + "businessFunctionId=" + businessFunctionId + ", label=" + label + ", active=" + active + '}';
+        return "BusinessFunction{" + "businessFunctionId=" + businessFunctionId + ", label=" + label + '}';
     }
 
 }

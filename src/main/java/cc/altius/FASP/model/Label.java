@@ -16,11 +16,8 @@ public class Label extends BaseModel {
 
     private Integer labelId;
     private String label_en;
-    @JsonIgnore
     private String label_sp;
-    @JsonIgnore
     private String label_fr;
-    @JsonIgnore
     private String label_pr;
 
     public Label(Integer labelId, String label_en, String label_sp, String label_fr, String label_pr) {

@@ -32,9 +32,9 @@ public class UserObjectTest {
         user.setLanguage(new Language(1));
         user.setPhoneNumber("9820517741");
         user.setRealm(new Realm(1));
-        List<Role> roles = new LinkedList<>();
-        roles.add(new Role("ROLE_APPLICATION_ADMIN"));
-        user.setRoles(roles);
+        List<Role> roleList = new LinkedList<>();
+        roleList.add(new Role("ROLE_APPLICATION_ADMIN"));
+        user.setRoleList(roleList);
         user.setUserId(1);
         user.setLastLoginDate(new Date());
         LinkedList<UserAcl> aclList = new LinkedList<>();
