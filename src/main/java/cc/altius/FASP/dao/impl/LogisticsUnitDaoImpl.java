@@ -43,7 +43,7 @@ public class LogisticsUnitDaoImpl implements LogisticsUnitDao {
                 + "                LEFT JOIN ap_label l ON l.`LABEL_ID`=lu.`LABEL_ID`\n"
                 + "                LEFT JOIN rm_planning_unit pu ON pu.`PLANNING_UNIT_ID`=lu.`PLANNING_UNIT_ID`\n"
                 + "                LEFT JOIN rm_product p ON p.`PRODUCT_ID`=pu.`PRODUCT_ID`\n"
-                + "		WHERE p.`REALM_ID`=:realmId";
+                + "		WHERE (p.`REALM_ID`=:realmId  OR -1=:realmId)";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
             sql += " AND lu.`LAST_MODIFIED_DATE`>:lastSyncDate;";

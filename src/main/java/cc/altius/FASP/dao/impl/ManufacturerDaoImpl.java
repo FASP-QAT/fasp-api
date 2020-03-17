@@ -46,7 +46,7 @@ public class ManufacturerDaoImpl implements ManufacturerDao {
     public List<PrgManufacturerDTO> getManufacturerListForSync(String lastSyncDate,int realmId) {
         String sql = "SELECT m.`ACTIVE`,m.`MANUFACTURER_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,m.`REALM_ID`\n"
                 + "FROM rm_manufacturer m \n"
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=m.`LABEL_ID` WHERE m.`REALM_ID`=:realmId";
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=m.`LABEL_ID` WHERE (m.`REALM_ID`=:realmId OR -1=:realmId)";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
             sql += " AND m.`LAST_MODIFIED_DATE`>:lastSyncDate;";

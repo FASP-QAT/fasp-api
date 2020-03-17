@@ -167,7 +167,7 @@ public class RegionDaoImpl implements RegionDao {
                 + "                FROM rm_region r\n"
                 + "                LEFT JOIN ap_label l ON l.`LABEL_ID`=r.`LABEL_ID`\n"
                 + "                LEFT JOIN rm_realm_country rrc ON rrc.`REALM_COUNTRY_ID`=r.`REALM_COUNTRY_ID`\n"
-                + "                WHERE rrc.`REALM_ID`=:realmId";
+                + "                WHERE (rrc.`REALM_ID`=:realmId OR -1=:realmId)";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
             sql += " AND r.`LAST_MODIFIED_DATE`>:lastSyncDate;";

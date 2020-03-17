@@ -52,7 +52,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
         String sql = "SELECT o.`ACTIVE`,o.`LABEL_ID`,o.`ORGANISATION_ID`,o.`REALM_ID`\n"
                 + ",l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
                 + "FROM rm_organisation o\n"
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=o.`LABEL_ID` WHERE o.`REALM_ID`=:realmId";
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=o.`LABEL_ID` WHERE (o.`REALM_ID`=:realmId OR -1=:realmId)";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
             sql += " AND o.`LAST_MODIFIED_DATE`>:lastSyncDate;";

@@ -50,7 +50,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
     public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate,int realmId) {
         String sql = "SELECT  ha.`ACTIVE`,ha.`HEALTH_AREA_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,ha.`REALM_ID`\n"
                 + "FROM rm_health_area ha \n"
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=ha.`LABEL_ID` WHERE ha.`REALM_ID`=:realmId";
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=ha.`LABEL_ID` WHERE (ha.`REALM_ID`=:realmId OR -1=:realmId)";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
             sql += " AND ha.`LAST_MODIFIED_DATE`>:lastSyncDate;";

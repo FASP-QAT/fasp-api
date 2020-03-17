@@ -52,7 +52,7 @@ public class SubFundingSourceDaoImpl implements SubFundingSourceDao {
                 + "                FROM rm_sub_funding_source sfs \n"
                 + "                LEFT JOIN ap_label l ON l.`LABEL_ID`=sfs.`LABEL_ID`\n"
                 + "                LEFT JOIN rm_funding_source fs ON fs.`FUNDING_SOURCE_ID`=sfs.`FUNDING_SOURCE_ID`\n"
-                + "                WHERE fs.`REALM_ID`=:realmId";
+                + "                WHERE (fs.`REALM_ID`=:realmId  OR -1=:realmId)";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
             sql += " AND sfs.`LAST_MODIFIED_DATE`>:lastSyncDate;";

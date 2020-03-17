@@ -49,7 +49,7 @@ public class ProductDaoImpl implements ProductDao {
                 + "gl.`LABEL_EN` AS 'GL_LABEL_EN',gl.`LABEL_PR` AS 'GL_LABEL_PR',gl.`LABEL_FR` AS 'GL_LABEL_FR',gl.`LABEL_SP` AS 'GL_LABEL_SP' "
                 + "FROM rm_product p "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
-                + "LEFT JOIN ap_label gl ON gl.`LABEL_ID`=p.`GENERIC_LABEL_ID` WHERE p.`REALM_ID`=:realmId";
+                + "LEFT JOIN ap_label gl ON gl.`LABEL_ID`=p.`GENERIC_LABEL_ID` WHERE (p.`REALM_ID`=:realmId OR -1=:realmId)";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
             sql += " AND p.`LAST_MODIFIED_DATE`>:lastSyncDate;";

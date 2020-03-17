@@ -40,7 +40,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
                 + "                FROM rm_planning_unit pu\n"
                 + "                LEFT JOIN ap_label l ON l.`LABEL_ID`=pu.`LABEL_ID`\n"
                 + "                LEFT JOIN rm_product p ON p.`PRODUCT_ID`=pu.`PRODUCT_ID`\n"
-                + "                WHERE p.`REALM_ID`=:realmId";
+                + "                WHERE (p.`REALM_ID`=:realmId  OR -1=:realmId)";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
             sql += " AND pu.`LAST_MODIFIED_DATE`>:lastSyncDate;";

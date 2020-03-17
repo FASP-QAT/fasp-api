@@ -50,7 +50,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
     public List<PrgFundingSourceDTO> getFundingSourceListForSync(String lastSyncDate,int realmId) {
         String sql = "SELECT fs.`ACTIVE`,fs.`FUNDING_SOURCE_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,fs.`REALM_ID` "
                 + "FROM rm_funding_source fs  "
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=fs.`LABEL_ID` WHERE fs.`REALM_ID`=:realmId";
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=fs.`LABEL_ID` WHERE (fs.`REALM_ID`=:realmId OR -1=:realmId)";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
             sql += " AND fs.`LAST_MODIFIED_DATE`>:lastSyncDate;";
