@@ -32,8 +32,8 @@ public class ProgramServiceImpl implements ProgramService {
     private AclService aclService;
 
     @Override
-    public List<ProgramDTO> getProgramList() {
-        return this.programDao.getProgramList();
+    public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser) {
+        return this.programDao.getProgramListForDropdown(curUser);
     }
 
     @Override

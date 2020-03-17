@@ -29,8 +29,8 @@ public class HealthAreaServiceImpl implements HealthAreaService {
     private AclService aclService;
 
     @Override
-    public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate) {
-        return this.healthAreaDao.getHealthAreaListForSync(lastSyncDate);
+    public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate,int realmId) {
+        return this.healthAreaDao.getHealthAreaListForSync(lastSyncDate,realmId);
     }
 
     @Override

@@ -43,18 +43,19 @@ public class ProductDaoImpl implements ProductDao {
     private LabelDao labelDao;
 
     @Override
-    public List<PrgProductDTO> getProductListForSync(String lastSyncDate) {
-        String sql = "SELECT p.`ACTIVE`,p.`FORECASTING_UNIT_ID`,p.`GENERIC_LABEL_ID`,p.`PRODUCT_CATEGORY_ID`,p.`PRODUCT_ID`, "
+    public List<PrgProductDTO> getProductListForSync(String lastSyncDate,int realmId) {
+        String sql = "SELECT p.`REALM_ID`,p.`ACTIVE`,p.`FORECASTING_UNIT_ID`,p.`GENERIC_LABEL_ID`,p.`PRODUCT_CATEGORY_ID`,p.`PRODUCT_ID`, "
                 + "l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`, "
                 + "gl.`LABEL_EN` AS 'GL_LABEL_EN',gl.`LABEL_PR` AS 'GL_LABEL_PR',gl.`LABEL_FR` AS 'GL_LABEL_FR',gl.`LABEL_SP` AS 'GL_LABEL_SP' "
                 + "FROM rm_product p "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
-                + "LEFT JOIN ap_label gl ON gl.`LABEL_ID`=p.`GENERIC_LABEL_ID`";
+                + "LEFT JOIN ap_label gl ON gl.`LABEL_ID`=p.`GENERIC_LABEL_ID` WHERE (p.`REALM_ID`=:realmId OR -1=:realmId)";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
-            sql += " WHERE p.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            sql += " AND p.`LAST_MODIFIED_DATE`>:lastSyncDate;";
             params.put("lastSyncDate", lastSyncDate);
         }
+        params.put("realmId", realmId);
         return this.namedParameterJdbcTemplate.query(sql, params, new PrgProductDTORowMapper());
     }
 
@@ -147,10 +148,10 @@ public class ProductDaoImpl implements ProductDao {
         String sqlString = "UPDATE rm_product p LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID LEFT JOIN ap_label pgl ON p.GENERIC_LABEL_ID=pgl.LABEL_ID "
                 + "SET  "
                 + "    p.FORECASTING_UNIT_ID=:forecastingUnitId, "
-                + "    pc.PRODUCT_CATEGORY_ID=:productCategoryId, "
+                + "    p.PRODUCT_CATEGORY_ID=:productCategoryId, "
                 + "    p.ACTIVE=:active, "
-                + "    p.LAST_MODIFIED_BY=IF(p.FORECASTING_UNIT_ID!=:forecastingUnitId OR pc.PRODUCT_CATEGORY_ID!=:productCategoryId OR p.ACTIVE!=:active,:curUser, p.LAST_MODIFIED_BY), "
-                + "    p.LAST_MODIFIED_DATE=IF(p.FORECASTING_UNIT_ID!=:forecastingUnitId OR pc.PRODUCT_CATEGORY_ID!=:productCategoryId OR p.ACTIVE!=:active,:curDate, p.LAST_MODIFIED_DATE), "
+                + "    p.LAST_MODIFIED_BY=IF(p.FORECASTING_UNIT_ID!=:forecastingUnitId OR p.PRODUCT_CATEGORY_ID!=:productCategoryId OR p.ACTIVE!=:active,:curUser, p.LAST_MODIFIED_BY), "
+                + "    p.LAST_MODIFIED_DATE=IF(p.FORECASTING_UNIT_ID!=:forecastingUnitId OR p.PRODUCT_CATEGORY_ID!=:productCategoryId OR p.ACTIVE!=:active,:curDate, p.LAST_MODIFIED_DATE), "
                 + "    pl.LABEL_EN=:labelEn, "
                 + "    pl.LAST_MODIFIED_BY=IF(pl.LABEL_EN=:labelEn,:curUser, p.LAST_MODIFIED_BY), "
                 + "    pl.LAST_MODIFIED_DATE=IF(pl.LABEL_EN=:labelEn,:curDate, p.LAST_MODIFIED_DATE), "

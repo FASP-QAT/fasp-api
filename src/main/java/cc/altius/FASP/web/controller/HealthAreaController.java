@@ -32,9 +32,9 @@ public class HealthAreaController {
     HealthAreaService healthAreaService;
 
     @GetMapping(value = "/getHealthAreaListForSync")
-    public String getHealthAreaListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+    public String getHealthAreaListForSync(@RequestParam String lastSyncDate,int realmId) throws UnsupportedEncodingException {
         String json;
-        List<PrgHealthAreaDTO> healthAreaList = this.healthAreaService.getHealthAreaListForSync(lastSyncDate);
+        List<PrgHealthAreaDTO> healthAreaList = this.healthAreaService.getHealthAreaListForSync(lastSyncDate,realmId);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();

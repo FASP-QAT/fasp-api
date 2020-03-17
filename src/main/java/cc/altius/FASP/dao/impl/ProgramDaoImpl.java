@@ -48,11 +48,19 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<ProgramDTO> getProgramList() {
+    public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
         String sql = "SELECT r.`PROGRAM_ID`,label.`LABEL_ID`,label.`LABEL_EN`,label.`LABEL_FR`,label.`LABEL_PR`,label.`LABEL_SP` "
                 + "FROM rm_program r  "
-                + "LEFT JOIN ap_label label ON label.`LABEL_ID`=r.`LABEL_ID`;";
-        return this.namedParameterJdbcTemplate.query(sql, new ProgramDTORowMapper());
+                + "LEFT JOIN ap_label label ON label.`LABEL_ID`=r.`LABEL_ID` WHERE 1 ";
+        int count = 1;
+        for (UserAcl acl : curUser.getAclList()) {
+            sql += "AND ("
+                    + "(r.PROGRAM_ID=:programId" + count + " OR :programId" + count + "=-1)) ";
+            params.put("programId" + count, acl.getProgramId());
+            count++;
+        }
+        return this.namedParameterJdbcTemplate.query(sql,params, new ProgramDTORowMapper());
     }
 
     @Override
@@ -240,6 +248,21 @@ public class ProgramDaoImpl implements ProgramDao {
             sqlString += "AND rc.REALM_ID=:userRealmId ";
             params.put("userRealmId", curUser.getRealm().getRealmId());
         }
+
+        int count = 1;
+        for (UserAcl acl : curUser.getAclList()) {
+            sqlString += "AND ("
+                    + "(p.PROGRAM_ID=:programId" + count + " OR :programId" + count + "=-1) AND "
+                    + "(p.REALM_COUNTRY_ID=:realmCountryId" + count + " OR :realmCountryId" + count + "=-1) AND "
+                    + "(p.ORGANISATION_ID=:organisationId" + count + " OR :organisationId" + count + "=-1) AND "
+                    + "(p.HEALTH_AREA_ID=:healthAreaId" + count + " OR :healthAreaId" + count + "=-1)) ";
+            params.put("programId" + count, acl.getProgramId());
+            params.put("realmCountryId" + count, acl.getRealmCountryId());
+            params.put("organisationId" + count, acl.getOrganisationId());
+            params.put("healthAreaId" + count, acl.getHealthAreaId());
+            count++;
+        }
+
         return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramListResultSetExtractor());
     }
 

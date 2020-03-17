@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface FundingSourceDao {
 
-    public List<PrgFundingSourceDTO> getFundingSourceListForSync(String lastSyncDate);
+    public List<PrgFundingSourceDTO> getFundingSourceListForSync(String lastSyncDate,int realmId);
 
     public int addFundingSource(FundingSource f, CustomUserDetails curUser);
 

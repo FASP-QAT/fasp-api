@@ -9,15 +9,20 @@ import cc.altius.FASP.dao.LanguageDao;
 import cc.altius.FASP.model.DTO.PrgLanguageDTO;
 import cc.altius.FASP.model.DTO.rowMapper.PrgLanguageDTORowMapper;
 import cc.altius.FASP.model.Language;
+import cc.altius.FASP.model.LabelJson;
 import cc.altius.FASP.model.rowMapper.LanguageRowMapper;
 import cc.altius.utils.DateUtils;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.apache.commons.collections4.map.HashedMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -92,4 +97,25 @@ public class LanguageDaoImpl implements LanguageDao {
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
         return nm.query(sql, params, new PrgLanguageDTORowMapper());
     }
+
+    @Override
+    public Map<String, String> getLanguageJsonForStaticLabels(String languageCode) {
+        String sqlString = "SELECT "
+                + "	sl.LABEL_CODE, sll.LABEL_TEXT "
+                + "FROM ap_static_label sl  "
+                + "LEFT JOIN ap_static_label_languages sll ON sll.STATIC_LABEL_ID=sl.STATIC_LABEL_ID "
+                + "LEFT JOIN ap_language l ON sll.LANGUAGE_ID=l.LANGUAGE_ID "
+                + "WHERE l.LANGUAGE_CODE=:languageCode";
+        Map<String, Object> params = new HashMap<>();
+        params.put("languageCode", languageCode);
+        List<LabelJson> result = this.namedParameterJdbcTemplate.query(sqlString, params, new RowMapper<LabelJson>() {
+            @Override
+            public LabelJson mapRow(ResultSet rs, int rowNum) throws SQLException {
+                return new LabelJson(rs.getString("LABEL_CODE"), rs.getString("LABEL_TEXT"));
+            }
+        });
+        Map<String, String> result1 = result.stream().collect(Collectors.toMap(LabelJson::getLabelCode, LabelJson::getLabelText));
+        return result1;
+    }
+
 }

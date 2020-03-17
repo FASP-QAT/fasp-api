@@ -57,6 +57,7 @@ public class PrgLogisticsUnitDTORowMapper implements RowMapper<PrgLogisticsUnitD
         widthUnit.setUnitId(rs.getInt("WIDTH_UNIT_ID"));
         lu.setWidthUnit(widthUnit);
         lu.setActive(rs.getBoolean("ACTIVE"));
+        lu.setRealmId(rs.getInt("REALM_ID"));
         return lu;
     }
     

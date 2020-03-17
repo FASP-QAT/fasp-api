@@ -32,9 +32,9 @@ public class PlanningUnitController {
     PlanningUnitService planningUnitService;
     
     @GetMapping(value = "/getPlanningUnitListForSync")
-    public String getPlanningUnitListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+    public String getPlanningUnitListForSync(@RequestParam String lastSyncDate,int realmId) throws UnsupportedEncodingException {
         String json;
-        List<PrgPlanningUnitDTO> planningUnitList = this.planningUnitService.getPlanningUnitListForSync(lastSyncDate);
+        List<PrgPlanningUnitDTO> planningUnitList = this.planningUnitService.getPlanningUnitListForSync(lastSyncDate,realmId);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();

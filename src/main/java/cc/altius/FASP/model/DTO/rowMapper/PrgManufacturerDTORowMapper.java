@@ -23,6 +23,7 @@ public class PrgManufacturerDTORowMapper implements RowMapper<PrgManufacturerDTO
         m.setActive(rs.getBoolean("ACTIVE"));
         m.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
         m.setManufacturerId(rs.getInt("MANUFACTURER_ID"));
+        m.setRealmId(rs.getInt("REALM_ID"));
         return m;
     }
     

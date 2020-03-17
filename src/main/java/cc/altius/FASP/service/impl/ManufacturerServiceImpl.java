@@ -29,8 +29,8 @@ public class ManufacturerServiceImpl implements ManufacturerService {
     private AclService aclService;
 
     @Override
-    public List<PrgManufacturerDTO> getManufacturerListForSync(String lastSyncDate) {
-        return this.manufacturerDao.getManufacturerListForSync(lastSyncDate);
+    public List<PrgManufacturerDTO> getManufacturerListForSync(String lastSyncDate,int realmId) {
+        return this.manufacturerDao.getManufacturerListForSync(lastSyncDate,realmId);
     }
 
     @Override

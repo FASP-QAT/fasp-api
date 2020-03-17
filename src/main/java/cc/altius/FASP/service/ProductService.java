@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface ProductService {
     
-    public List<PrgProductDTO> getProductListForSync(String lastSyncDate);
+    public List<PrgProductDTO> getProductListForSync(String lastSyncDate,int realmId);
 
     public List<Product> getProductList(boolean active, CustomUserDetails curUser);
     

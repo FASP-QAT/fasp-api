@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface ProgramDao {
 
-    public List<ProgramDTO> getProgramList();
+    public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser);
     
     public int addProgram(Program p, CustomUserDetails curUser);
 

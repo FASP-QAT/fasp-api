@@ -32,9 +32,9 @@ public class ProductController {
     ProductService productService;
 
     @GetMapping(value = "/getProductListForSync")
-    public String getProductListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+    public String getProductListForSync(@RequestParam String lastSyncDate,int realmId) throws UnsupportedEncodingException {
         String json;
-        List<PrgProductDTO> productList = this.productService.getProductListForSync(lastSyncDate);
+        List<PrgProductDTO> productList = this.productService.getProductListForSync(lastSyncDate,realmId);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();

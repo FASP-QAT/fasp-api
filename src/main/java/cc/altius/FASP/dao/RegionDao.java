@@ -16,8 +16,6 @@ import java.util.List;
  */
 public interface RegionDao {
 
-    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate);
-
     public int addRegion(Region region, CustomUserDetails curUser);
 
     public int updateRegion(Region region, CustomUserDetails curUser);
@@ -25,6 +23,8 @@ public interface RegionDao {
     public List<Region> getRegionList(CustomUserDetails curUser);
 
     public Region getRegionById(int regionId, CustomUserDetails curUser);
+    
+    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate,int realmId);
     
     public List<Region> getRegionListByRealmCountryId(int realmCountryId, CustomUserDetails curUser);
 

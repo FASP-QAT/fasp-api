@@ -23,8 +23,8 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     PlanningUnitDao planningUnitDao;
 
     @Override
-    public List<PrgPlanningUnitDTO> getPlanningUnitListForSync(String lastSyncDate) {
-        return this.planningUnitDao.getPlanningUnitListForSync(lastSyncDate);
+    public List<PrgPlanningUnitDTO> getPlanningUnitListForSync(String lastSyncDate,int realmId) {
+        return this.planningUnitDao.getPlanningUnitListForSync(lastSyncDate,realmId);
     }
 
 }

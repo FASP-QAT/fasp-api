@@ -29,8 +29,8 @@ public class ProductServiceImpl implements ProductService {
     private AclService aclService;
 
     @Override
-    public List<PrgProductDTO> getProductListForSync(String lastSyncDate) {
-        return this.productDao.getProductListForSync(lastSyncDate);
+    public List<PrgProductDTO> getProductListForSync(String lastSyncDate, int realmId) {
+        return this.productDao.getProductListForSync(lastSyncDate, realmId);
     }
 
     @Override

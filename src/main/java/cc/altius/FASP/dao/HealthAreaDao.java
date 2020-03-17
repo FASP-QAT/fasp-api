@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface HealthAreaDao {
 
-    public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate);
+    public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate,int realmId);
 
     public int addHealthArea(HealthArea h, CustomUserDetails curUser);
 
