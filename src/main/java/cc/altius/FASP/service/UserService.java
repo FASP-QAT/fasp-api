@@ -33,6 +33,8 @@ public interface UserService {
 
     public List<User> getUserList();
 
+    public List<User> getUserListForRealm(int realmId);
+
     public User getUserByUserId(int userId);
 
     public int updateUser(User user, int curUser);
@@ -49,20 +51,20 @@ public interface UserService {
 
     public boolean confirmPassword(String username, String password);
 
-    public int addRole(Role role);
+    public int addRole(Role role, CustomUserDetails curUser);
 
-    public int updateRole(Role role);
+    public int updateRole(Role role, CustomUserDetails curUser);
 
-    public String generateTokenForUsername(String username,int emailTemplateId);
+    public String generateTokenForUsername(String username, int emailTemplateId);
 
     public ForgotPasswordToken getForgotPasswordToken(String username, String token);
 
     public void updateTriggeredDateForForgotPasswordToken(String username, String token);
 
     public void updateCompletionDateForForgotPasswordToken(String username, String token);
-    
+
     public boolean isTokenLogout(String token);
-    
+
     public void addTokenToLogout(String token);
 
 }

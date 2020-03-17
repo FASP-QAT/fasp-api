@@ -157,6 +157,38 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
     }
 
     @Override
+    public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeMainBranch, boolean includeAllChildren) {
+        String sqlString = "SELECT  "
+                + "	pc.PRODUCT_CATEGORY_ID, pc.SORT_ORDER, pc.`LEVEL`,  "
+                + "    pcl.LABEL_ID, pcl.LABEL_EN, pcl.LABEL_FR, pcl.LABEL_PR, pcl.LABEL_SP, "
+                + "    r.REALM_ID, r.REALM_CODE,  "
+                + "    rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
+                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pc.ACTIVE, pc.CREATED_DATE, pc.LAST_MODIFIED_DATE "
+                + "	FROM rm_product_category pc  "
+                + "LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID "
+                + "LEFT JOIN rm_realm r ON pc.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON pc.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON pc.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE  "
+                + "	pc.ACTIVE AND pc.REALM_ID=:realmId "
+                + "    AND pc.`SORT_ORDER` LIKE (SELECT CONCAT(pc2.`SORT_ORDER`,IF(:includeMainBranch,\"\",\".\"),\"%\") FROM rm_product_category pc2 WHERE pc2.`PRODUCT_CATEGORY_ID`=:productCategoryId) "
+                + "    AND (:includeAllChildren OR pc.`LEVEL` = (SELECT pc3.`LEVEL` FROM rm_product_category pc3 WHERE pc3.PRODUCT_CATEGORY_ID=:productCategoryId) OR pc.`LEVEL` = (SELECT pc3.`LEVEL`+1 FROM rm_product_category pc3 WHERE pc3.PRODUCT_CATEGORY_ID=:productCategoryId)) ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND pc.REALM_ID=:userRealmId ";
+            params.put("userRealmId", curUser.getRealm().getRealmId());
+        }
+        sqlString += " ORDER BY pc.SORT_ORDER";
+        System.out.println(sqlString);
+        params.put("includeAllChildren", includeAllChildren);
+        params.put("includeMainBranch", includeMainBranch);
+        params.put("productCategoryId", productCategoryId);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProductCategoryRowMapper());
+    }
+
+    @Override
     public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser, int productCategoryId, boolean includeMainBranch, boolean includeAllChildren) {
         String sqlString = "SELECT  "
                 + "	pc.PRODUCT_CATEGORY_ID, pc.SORT_ORDER, pc.`LEVEL`,  "

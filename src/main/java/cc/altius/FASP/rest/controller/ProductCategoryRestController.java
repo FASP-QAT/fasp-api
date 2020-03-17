@@ -67,6 +67,25 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         }
     }
 
+    @GetMapping("/productCategory/realmId/{realmId}/list/{productCategoryId}/{includeCurrentLevel}/{includeAllChildren}")
+    public ResponseFormat getProductCategoryByRealmId(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "productCategoryId", required = true) int productCategoryId, @PathVariable(value = "includeCurrentLevel", required = false) Optional<Boolean> includeCurrentLevel, @PathVariable("includeAllChildren") Optional<Boolean> includeAllChildren, Authentication auth) {
+        boolean bolIncludeCurrentLevel = true;
+        boolean bolIncludeAllChildren = false;
+        if (includeCurrentLevel.isPresent()) {
+            bolIncludeCurrentLevel = includeCurrentLevel.get();
+        }
+        if (includeAllChildren.isPresent()) {
+            bolIncludeAllChildren = includeAllChildren.get();
+        }
+        
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseFormat("Success", "", this.productCategoryService.getProductCategoryList(curUser, realmId, productCategoryId, bolIncludeCurrentLevel, bolIncludeAllChildren));
+        } catch (Exception e) {
+            return new ResponseFormat("Failed", e.getMessage());
+        }
+    }
+    
     @GetMapping("/productCategory/list/{productCategoryId}/{includeCurrentLevel}/{includeAllChildren}")
     public ResponseFormat getProductCategory(@PathVariable(value = "productCategoryId", required = true) int productCategoryId, @PathVariable(value = "includeCurrentLevel", required = false) Optional<Boolean> includeCurrentLevel, @PathVariable("includeAllChildren") Optional<Boolean> includeAllChildren, Authentication auth) {
         boolean bolIncludeCurrentLevel = true;
