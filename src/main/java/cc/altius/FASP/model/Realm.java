@@ -22,6 +22,9 @@ public class Realm extends BaseModel implements Serializable {
     private boolean defaultRealm;
 
     public Realm(Integer realmId, Label label, String realmCode) {
+        if (realmId == 0) {
+            realmId = -1;
+        }
         this.realmId = realmId;
         this.label = label;
         this.realmCode = realmCode;
@@ -31,6 +34,9 @@ public class Realm extends BaseModel implements Serializable {
     }
 
     public Realm(Integer realmId) {
+        if (realmId == 0) {
+            realmId = -1;
+        }
         this.realmId = realmId;
     }
 
@@ -39,6 +45,9 @@ public class Realm extends BaseModel implements Serializable {
     }
 
     public void setRealmId(Integer realmId) {
+        if (realmId == 0) {
+            realmId = -1;
+        }
         this.realmId = realmId;
     }
 

@@ -62,7 +62,12 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser) {
         return this.productCategoryDao.getProductCategoryList(curUser);
     }
-    
+
+    @Override
+    public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren) {
+        return this.productCategoryDao.getProductCategoryList(curUser, realmId, productCategoryId, includeCurrentLevel, includeAllChildren);
+    }
+
     @Override
     public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren) {
         return this.productCategoryDao.getProductCategoryList(curUser, productCategoryId, includeCurrentLevel, includeAllChildren);
