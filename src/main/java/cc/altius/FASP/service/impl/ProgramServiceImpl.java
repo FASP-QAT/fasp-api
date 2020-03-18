@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.ProgramProduct;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
@@ -72,7 +73,7 @@ public class ProgramServiceImpl implements ProgramService {
     public List<Program> getProgramList(CustomUserDetails curUser) {
         return this.programDao.getProgramList(curUser);
     }
-    
+
     @Override
     public List<Program> getProgramList(int realmId, CustomUserDetails curUser) {
         return this.programDao.getProgramList(realmId, curUser);
@@ -81,6 +82,24 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public Program getProgramById(int programId, CustomUserDetails curUser) {
         return this.programDao.getProgramById(programId, curUser);
+    }
+
+    @Override
+    public ProgramProduct getProgramProductListForProgramId(int programId, CustomUserDetails curUser) {
+        if (this.aclService.checkProgramAccessForUser(curUser, programId)) {
+            return this.programDao.getProgramProductListForProgramId(programId, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public int saveProgramProduct(ProgramProduct pp, CustomUserDetails curUser) {
+        if (this.aclService.checkProgramAccessForUser(curUser, pp.getProgramId())) {
+            return this.programDao.saveProgramProduct(pp, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
 }

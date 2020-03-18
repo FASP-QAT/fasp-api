@@ -21,6 +21,7 @@ public class LanguageRowMapper implements RowMapper<Language> {
         Language l = new Language();
         l.setLanguageId(rs.getInt("LANGUAGE_ID"));
         l.setLanguageName(rs.getString("LANGUAGE_NAME"));
+        l.setLanguageCode(rs.getString("LANGUAGE_CODE"));
         l.setActive(rs.getBoolean("ACTIVE"));
         return l;
     }

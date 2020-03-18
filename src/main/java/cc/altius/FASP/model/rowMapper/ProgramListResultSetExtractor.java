@@ -30,7 +30,7 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
 
     @Override
     public List<Program> extractData(ResultSet rs) throws SQLException, DataAccessException {
-        List<Program> pList = new LinkedList<>();
+        List<Program> pList = new LinkedList<Program>();
         int oldProgramId = 0, newProgramId;
         Program p = new Program();
         while (rs.next()) {
@@ -44,7 +44,9 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
                         x++;
                     }
                     pList.add(p);
-                    p=new Program();
+
+                    p = new Program();
+
                 }
                 p.setProgramId(rs.getInt("PROGRAM_ID"));
                 p.setRealmCountry(
@@ -76,7 +78,7 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
                 p.setMonthsInPastForAmc(rs.getInt("MONTHS_IN_PAST_FOR_AMC"));
                 p.setMonthsInFutureForAmc(rs.getInt("MONTHS_IN_FUTURE_FOR_AMC"));
                 p.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
-                p.setRegionList(new LinkedList<>());
+                p.setRegionList(new LinkedList<Region>());
             }
             Region r = new Region(rs.getInt("REGION_ID"), new LabelRowMapper("REGION_").mapRow(rs, 0));
             if (p.getRegionList().indexOf(r) == -1) {

@@ -8,6 +8,7 @@ package cc.altius.FASP.dao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.ProgramProduct;
 import java.util.List;
 
 /**
@@ -28,4 +29,7 @@ public interface ProgramDao {
 
     public Program getProgramById(int programId, CustomUserDetails curUser);
 
+    public ProgramProduct getProgramProductListForProgramId(int programId, CustomUserDetails curUser);
+    
+    public int saveProgramProduct(ProgramProduct pp, CustomUserDetails curUser);
 }

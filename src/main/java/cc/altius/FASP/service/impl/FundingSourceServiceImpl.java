@@ -58,6 +58,11 @@ public class FundingSourceServiceImpl implements FundingSourceService {
     }
 
     @Override
+    public List<FundingSource> getFundingSourceList(int realmId, CustomUserDetails curUser) {
+        return this.fundingSourceDao.getFundingSourceList(realmId, curUser);
+    }
+
+    @Override
     public FundingSource getFundingSourceById(int fundingSourceId, CustomUserDetails curUser) {
         return this.fundingSourceDao.getFundingSourceById(fundingSourceId, curUser);
     }

@@ -23,6 +23,8 @@ public interface FundingSourceService {
     public int updateFundingSource(FundingSource f, CustomUserDetails CurUser);
 
     public List<FundingSource> getFundingSourceList(CustomUserDetails curUser);
+    
+    public List<FundingSource> getFundingSourceList(int realmId, CustomUserDetails curUser);
 
     public FundingSource getFundingSourceById(int fundingSourceId, CustomUserDetails curUser);
 

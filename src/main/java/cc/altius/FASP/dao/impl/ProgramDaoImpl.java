@@ -11,9 +11,12 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.ProgramProduct;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.rowMapper.ProgramListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ProgramProductResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.SimpleProduct;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -60,7 +63,7 @@ public class ProgramDaoImpl implements ProgramDao {
             params.put("programId" + count, acl.getProgramId());
             count++;
         }
-        return this.namedParameterJdbcTemplate.query(sql,params, new ProgramDTORowMapper());
+        return this.namedParameterJdbcTemplate.query(sql, params, new ProgramDTORowMapper());
     }
 
     @Override
@@ -262,7 +265,6 @@ public class ProgramDaoImpl implements ProgramDao {
             params.put("healthAreaId" + count, acl.getHealthAreaId());
 //            count++;
         }
-        
 
         return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramListResultSetExtractor());
     }
@@ -394,5 +396,51 @@ public class ProgramDaoImpl implements ProgramDao {
         }
         return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramResultSetExtractor());
     }
+
+    @Override
+    public ProgramProduct getProgramProductListForProgramId(int programId, CustomUserDetails curUser) {
+        String sqlString = "SELECT pp.PROGRAM_PRODUCT_ID,  "
+                + "pg.PROGRAM_ID, pgl.LABEL_ID, pgl.LABEL_EN, pgl.LABEL_FR, pgl.LABEL_PR, pgl.LABEL_SP, "
+                + "pr.PRODUCT_ID, prl.LABEL_ID `PRODUCT_LABEL_ID`, prl.LABEL_EN `PRODUCT_LABEL_EN`, prl.LABEL_FR `PRODUCT_LABEL_FR`, prl.LABEL_PR `PRODUCT_LABEL_PR`, prl.LABEL_SP `PRODUCT_LABEL_SP`, "
+                + "pp.MAX_MONTHS, pp.MIN_MONTHS "
+                + "FROM rm_program pg  "
+                + "LEFT JOIN  rm_program_product pp  ON pp.PROGRAM_ID=pg.PROGRAM_ID "
+                + "LEFT JOIN ap_label pgl ON pgl.LABEL_ID=pg.LABEL_ID "
+                + "LEFT JOIN rm_product pr ON pp.PRODUCT_ID=pr.PRODUCT_ID "
+                + "LEFT JOIN ap_label prl ON pr.LABEL_ID=prl.LABEL_ID "
+                + "WHERE pg.PROGRAM_ID=:programId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramProductResultSetExtractor());
+    }
+
+    @Override
+    public int saveProgramProduct(ProgramProduct pp, CustomUserDetails curUser) {
+        String sqlString = "DELETE pp.* FROM rm_program_product pp WHERE pp.PROGRAM_ID=:programId";
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", pp.getProgramId());
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_product");
+        Map<String, Object>[] paramArray = new HashMap[pp.getProdcuts().length];
+        int x = 0;
+        for (SimpleProduct sp : pp.getProdcuts()) {
+            params = new HashMap<>();
+            params.put("PROGRAM_ID", pp.getProgramId());
+            params.put("PRODUCT_ID", sp.getProductId());
+            params.put("MIN_MONTHS", sp.getMinMonth());
+            params.put("MAX_MONTHS", sp.getMaxMonth());
+            params.put("ACTIVE", true);
+            params.put("CREATED_DATE", curDate);
+            params.put("CREATED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            paramArray[x] = params;
+            x++;
+        }
+        return si.executeBatch(paramArray).length;
+    }
+    
+    
 
 }
