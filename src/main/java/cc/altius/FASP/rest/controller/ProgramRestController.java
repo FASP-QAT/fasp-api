@@ -115,7 +115,7 @@ public class ProgramRestController {
         try {
             System.out.println("pp--------->"+pp);
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            return new ResponseFormat("Successfully update Program Product list");
+            return new ResponseFormat("Successfully update Program Product list","",this.programService.saveProgramProduct(pp, curUser));
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
