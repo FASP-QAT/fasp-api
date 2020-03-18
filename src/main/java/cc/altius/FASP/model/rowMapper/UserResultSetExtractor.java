@@ -34,16 +34,16 @@ public class UserResultSetExtractor implements ResultSetExtractor<User> {
                 user.setPhoneNumber(rs.getString("PHONE"));
                 user.setPassword(rs.getString("PASSWORD"));
                 user.setRealm(new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")));
-                user.setLanguage(new Language(rs.getInt("LANGUAGE_ID"), rs.getString("LANGUAGE_NAME")));
+                user.setLanguage(new Language(rs.getInt("LANGUAGE_ID"), rs.getString("LANGUAGE_NAME"), rs.getString("LANGUAGE_CODE")));
                 user.setFaildAttempts(rs.getInt("FAILED_ATTEMPTS"));
                 user.setLastLoginDate(rs.getTimestamp("LAST_LOGIN_DATE"));
                 user.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
-                user.setRoles(new LinkedList<>());
+                user.setRoleList(new LinkedList<>());
                 user.setUserAclList(new LinkedList<>());
             }
             Role r = new Role(rs.getString("ROLE_ID"), new LabelRowMapper("ROLE_").mapRow(rs, 1));
-            if (user.getRoles().indexOf(r) == -1) {
-                user.getRoles().add(r);
+            if (user.getRoleList().indexOf(r) == -1) {
+                user.getRoleList().add(r);
             }
             UserAcl acl = new UserAcl(
                     user.getUserId(),

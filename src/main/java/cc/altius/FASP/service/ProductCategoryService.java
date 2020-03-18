@@ -24,6 +24,8 @@ public interface ProductCategoryService {
     public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser);
 
     public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren);
+    
+    public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren);
 
     public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser);
 

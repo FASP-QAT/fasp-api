@@ -33,6 +33,8 @@ public interface UserDao {
     public int addNewUser(User user, int curUser);
 
     public List<User> getUserList();
+    
+    public List<User> getUserListForRealm(int realmId);
 
     public User getUserByUserId(int userId);
 
@@ -50,9 +52,9 @@ public interface UserDao {
 
     public boolean confirmPassword(String username, String password);
 
-    public int addRole(Role role);
+    public int addRole(Role role, CustomUserDetails curUser);
 
-    public int updateRole(Role role);
+    public int updateRole(Role role, CustomUserDetails curUser);
 
     public List<Role> getRoleList();
 

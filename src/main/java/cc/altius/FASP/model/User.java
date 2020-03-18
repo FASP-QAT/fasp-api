@@ -22,26 +22,27 @@ public class User extends BaseModel implements Serializable {
     private String emailId;
     private String phoneNumber;
     private Realm realm;
-    private List<Role> roles;
-    private String[] roleList;
+    private List<Role> roleList;
+    private String[] roles;
     private Language language;
     private int faildAttempts;
     private Date lastLoginDate;
     private List<UserAcl> userAclList;
+    private UserAcl[] userAcls;
 
-    public String[] getRoleList() {
-        return roleList;
+    public String[] getRoles() {
+        return roles;
     }
 
-    public void setRoleList(String[] roleList) {
-        this.roleList = roleList;
-        for (String r : roleList) {
-            this.getRoles().add(new Role(r));
+    public void setRoles(String[] roles) {
+        this.roles = roles;
+        for (String r : roles) {
+            this.getRoleList().add(new Role(r));
         }
     }
 
     public User() {
-        this.roles = new LinkedList<>();
+        this.roleList = new LinkedList<>();
         this.userAclList = new LinkedList<>();
     }
 
@@ -93,12 +94,12 @@ public class User extends BaseModel implements Serializable {
         this.realm = realm;
     }
 
-    public List<Role> getRoles() {
-        return roles;
+    public List<Role> getRoleList() {
+        return roleList;
     }
 
-    public void setRoles(List<Role> roles) {
-        this.roles = roles;
+    public void setRoleList(List<Role> roleList) {
+        this.roleList = roleList;
     }
 
     public Language getLanguage() {
@@ -131,6 +132,14 @@ public class User extends BaseModel implements Serializable {
 
     public void setUserAclList(List<UserAcl> userAclList) {
         this.userAclList = userAclList;
+    }
+
+    public UserAcl[] getUserAcls() {
+        return userAcls;
+    }
+
+    public void setUserAcls(UserAcl[] userAcls) {
+        this.userAcls = userAcls;
     }
 
     @Override

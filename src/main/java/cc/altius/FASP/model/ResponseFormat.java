@@ -7,47 +7,44 @@ package cc.altius.FASP.model;
 
 /**
  *
- * @author Nikhil Pande
+ * @author Akil Mahimwala
  */
 public class ResponseFormat {
 
-    private String status; // Success or Failed
-    private String message; // Error or Complete message to show on React side
+    private String messageCode; // Code that you want to show, will be converted to actual text by i18
     private Object data; // Actual payload if you are returning some data
 
     public ResponseFormat() {
     }
 
-    public ResponseFormat(String status, String message) {
-        this.status = status;
-        this.message = message;
+    public ResponseFormat(String messageCode) {
+        this.messageCode = messageCode;
     }
 
-    public ResponseFormat(String message) {
-        this.message = message;
-        this.status = "Success";
-    }
-
-    public ResponseFormat(String status, String message, Object data) {
-        this.status = status;
-        this.message = message;
+    public ResponseFormat(String messageCode, Object data) {
+        this.messageCode = messageCode;
         this.data = data;
     }
 
-    public String getStatus() {
-        return status;
+    public ResponseFormat(String messageCode, String temp, Object data) {
+        this.messageCode = messageCode;
+        this.data = data;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getMessage() {
-        return message;
+    public String getMessageCode() {
+        return messageCode;
     }
 
     public void setMessage(String message) {
-        this.message = message;
+        this.messageCode = message;
+    }
+    
+    public void setStatus(String status) {
+        
+    }
+
+    public void setMessageCode(String messageCode) {
+        this.messageCode = messageCode;
     }
 
     public Object getData() {
@@ -56,11 +53,6 @@ public class ResponseFormat {
 
     public void setData(Object data) {
         this.data = data;
-    }
-
-    @Override
-    public String toString() {
-        return "ResponseFormat{" + "status=" + status + ", message=" + message + '}';
     }
 
 }

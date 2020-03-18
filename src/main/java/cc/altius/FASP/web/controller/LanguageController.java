@@ -7,7 +7,7 @@ package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.DTO.PrgLanguageDTO;
 import cc.altius.FASP.model.Language;
-import cc.altius.FASP.model.ResponseFormat;
+import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.LanguageService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -38,87 +39,53 @@ public class LanguageController {
     @Autowired
     private LanguageService languageService;
 
-    @GetMapping(value = "/getLanguageList")
-    public String getLanguageList() throws UnsupportedEncodingException {
-        String json;
-        List<Language> languageList = this.languageService.getLanguageList(true);
-        Gson gson = new Gson();
-        Type typeList = new TypeToken<List>() {
-        }.getType();
-        json = gson.toJson(languageList, typeList);
-        return json;
+    @GetMapping(value = "/language")
+    public ResponseEntity getLanguageList() {
+        try {
+            return new ResponseEntity(this.languageService.getLanguageList(true), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(new ResponseCode("static.language.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @GetMapping(value = "/getLanguageListAll")
-    public String getLanguageListAll() throws UnsupportedEncodingException {
-        String json;
-        List<Language> languageList = this.languageService.getLanguageList(false);
-        Gson gson = new Gson();
-        Type typeList = new TypeToken<List>() {
-        }.getType();
-        json = gson.toJson(languageList, typeList);
-        return json;
+    @GetMapping(value = "/language/all")
+    public ResponseEntity getLanguageListAll() {
+        try {
+            return new ResponseEntity(this.languageService.getLanguageList(false), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(new ResponseCode("static.language.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @PutMapping(value = "/addLanguage")
-    public ResponseEntity addLanguage(@RequestBody(required = true) String json) {
-
-        Gson g = new Gson();
-        Language language = g.fromJson(json, Language.class);
-        ResponseFormat responseFormat = new ResponseFormat();
+    @PostMapping(value = "/language")
+    public ResponseEntity addLanguage(@RequestBody(required = true) Language language) {
         try {
             int languageId = this.languageService.addLanguage(language);
-            //System.out.println("languageId inserted--------->" + languageId);
             if (languageId > 0) {
-                responseFormat.setStatus("Success");
-                responseFormat.setMessage("Language added successfully.");
-                return new ResponseEntity(responseFormat, HttpStatus.OK);
+                return new ResponseEntity(new ResponseCode("static.language.addSuccess"),HttpStatus.OK);
             } else {
-                responseFormat.setStatus("failed");
-                responseFormat.setMessage("Error accured");
-                return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity(new ResponseCode("static.language.addFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (DuplicateKeyException e) {
-            responseFormat.setStatus("failed");
-            responseFormat.setMessage("Language already exists");
-            return new ResponseEntity(responseFormat, HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.language.alreadyExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
-            responseFormat.setStatus("failed");
-            responseFormat.setMessage("Exception Occured :" + e.getClass());
-            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
-
+            return new ResponseEntity(new ResponseCode("static.language.addFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
 
-    @PutMapping(value = "/editLanguage")
-    public ResponseEntity editLanguage(@RequestBody(required = true) String json) {
-        Gson g = new Gson();
-        Language language = g.fromJson(json, Language.class);
-        //System.out.println("language json--->" + json);
-        //System.out.println("language json--->" + language);
-        ResponseFormat responseFormat = new ResponseFormat();
+    @PutMapping(value = "/language")
+    public ResponseEntity editLanguage(@RequestBody(required = true) Language language) {
         try {
             int updatedId = this.languageService.editLanguage(language);
             if (updatedId > 0) {
-                responseFormat.setStatus("Success");
-                responseFormat.setMessage("Language updated successfully.");
-                return new ResponseEntity(responseFormat, HttpStatus.OK);
+                return new ResponseEntity(new ResponseCode("static.language.updateSuccess"), HttpStatus.OK);
             } else {
-                responseFormat.setStatus("Success");
-                responseFormat.setMessage("Error accured.");
-                return new ResponseEntity(responseFormat, HttpStatus.OK);
-
+                return new ResponseEntity(new ResponseCode("static.language.updateFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
-
         } catch (Exception e) {
-            e.printStackTrace();
-            responseFormat.setStatus("Update failed");
-            responseFormat.setMessage("Exception Occured :" + e.getClass());
-            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
-
+            return new ResponseEntity(new ResponseCode("static.language.updateFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 
     @GetMapping(value = "/getLanguageListForSync")
