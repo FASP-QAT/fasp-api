@@ -8,6 +8,7 @@ package cc.altius.FASP.service;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.ProgramProduct;
 import java.util.List;
 
 /**
@@ -27,5 +28,9 @@ public interface ProgramService {
     public List<Program> getProgramList(int realmId, CustomUserDetails curUser);
 
     public Program getProgramById(int programId, CustomUserDetails curUser);
+    
+    public ProgramProduct getProgramProductListForProgramId(int programId, CustomUserDetails curUser);
+    
+    public int saveProgramProduct(ProgramProduct pp, CustomUserDetails curUser);
 
 }
