@@ -48,11 +48,19 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<ProgramDTO> getProgramList() {
+    public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
         String sql = "SELECT r.`PROGRAM_ID`,label.`LABEL_ID`,label.`LABEL_EN`,label.`LABEL_FR`,label.`LABEL_PR`,label.`LABEL_SP` "
                 + "FROM rm_program r  "
-                + "LEFT JOIN ap_label label ON label.`LABEL_ID`=r.`LABEL_ID`;";
-        return this.namedParameterJdbcTemplate.query(sql, new ProgramDTORowMapper());
+                + "LEFT JOIN ap_label label ON label.`LABEL_ID`=r.`LABEL_ID` WHERE 1 ";
+        int count = 1;
+        for (UserAcl acl : curUser.getAclList()) {
+            sql += "AND ("
+                    + "(r.PROGRAM_ID=:programId" + count + " OR :programId" + count + "=-1)) ";
+            params.put("programId" + count, acl.getProgramId());
+            count++;
+        }
+        return this.namedParameterJdbcTemplate.query(sql,params, new ProgramDTORowMapper());
     }
 
     @Override
@@ -251,6 +259,7 @@ public class ProgramDaoImpl implements ProgramDao {
             params.put("realmCountryId" + count, acl.getRealmCountryId());
             params.put("organisationId" + count, acl.getOrganisationId());
             params.put("healthAreaId" + count, acl.getHealthAreaId());
+            count++;
         }
         System.out.println(sqlString);
         System.out.println(params);

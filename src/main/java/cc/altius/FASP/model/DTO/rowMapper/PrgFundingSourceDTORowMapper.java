@@ -23,6 +23,7 @@ public class PrgFundingSourceDTORowMapper implements RowMapper<PrgFundingSourceD
         fs.setActive(rs.getBoolean("ACTIVE"));
         fs.setFundingSourceId(rs.getInt("FUNDING_SOURCE_ID"));
         fs.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
+        fs.setRealmId(rs.getInt("REALM_ID"));
         return fs;
     }
     

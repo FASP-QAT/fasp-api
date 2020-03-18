@@ -46,18 +46,19 @@ public class ProgramRestController {
     @GetMapping(value = "/getProgramData")
     public String getProgramData(@RequestParam String programId) throws UnsupportedEncodingException {
         String json;
-        PrgProgramDataDTO program = this.programDataService.getProgramData(programId);
+        List<PrgProgramDataDTO> programList = this.programDataService.getProgramData(programId);
         Gson gson = new Gson();
-        Type typeList = new TypeToken<PrgProgramDataDTO>() {
+        Type typeList = new TypeToken<List>() {
         }.getType();
-        json = gson.toJson(program, typeList);
+        json = gson.toJson(programList, typeList);
         return json;
     }
 
     @GetMapping(value = "/getProgramList")
-    public String getProgramList() throws UnsupportedEncodingException {
+    public String getProgramList(Authentication auth) throws UnsupportedEncodingException {
+        CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
         String json;
-        List<ProgramDTO> programList = this.programService.getProgramList();
+        List<ProgramDTO> programList = this.programService.getProgramListForDropdown(curUser);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();
@@ -82,7 +83,7 @@ public class ProgramRestController {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
             this.programService.updateProgram(program, curUser);
             return new ResponseFormat("Successfully updated Program");
-            } catch (Exception e) {
+        } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
     }

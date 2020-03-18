@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface SubFundingSourceDao {
     
-public List<PrgSubFundingSourceDTO> getSubFundingSourceListForSync(String lastSyncDate);
+public List<PrgSubFundingSourceDTO> getSubFundingSourceListForSync(String lastSyncDate,int realmId);
 
     public SubFundingSource getSubFundingSourceById(int subFundingSourceId, CustomUserDetails curUser);
 

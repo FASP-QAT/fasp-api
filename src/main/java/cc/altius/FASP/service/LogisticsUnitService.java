@@ -14,6 +14,6 @@ import java.util.List;
  */
 public interface LogisticsUnitService {
     
-    public List<PrgLogisticsUnitDTO> getLogisticsUnitListForSync(String lastSyncDate);
+    public List<PrgLogisticsUnitDTO> getLogisticsUnitListForSync(String lastSyncDate,int realmId);
     
 }

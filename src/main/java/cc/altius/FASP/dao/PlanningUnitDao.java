@@ -14,6 +14,6 @@ import java.util.List;
  */
 public interface PlanningUnitDao {
     
-    public List<PrgPlanningUnitDTO> getPlanningUnitListForSync(String lastSyncDate);
+    public List<PrgPlanningUnitDTO> getPlanningUnitListForSync(String lastSyncDate,int realmId);
     
 }

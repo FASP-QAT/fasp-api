@@ -33,11 +33,6 @@ public class RegionServiceImpl implements RegionService {
     private AclService aclService;
 
     @Override
-    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate) {
-        return this.regionDao.getRegionListForSync(lastSyncDate);
-    }
-
-    @Override
     public int addRegion(Region r, CustomUserDetails curUser) {
         RealmCountry rc = this.realmCountryService.getRealmCountryById(r.getRealmCountry().getRealmCountryId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, rc.getRealm().getRealmId())) {
@@ -55,6 +50,11 @@ public class RegionServiceImpl implements RegionService {
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate, int realmId) {
+        return this.regionDao.getRegionListForSync(lastSyncDate, realmId);
     }
 
     @Override

@@ -23,6 +23,7 @@ public class PrgOrganisationDTORowMapper implements RowMapper<PrgOrganisationDTO
         o.setLabel(new PrgLabelDTORowMapper().mapRow(rs, i));
         o.setOrganisationId(rs.getInt("ORGANISATION_ID"));
         o.setActive(rs.getBoolean("ACTIVE"));
+        o.setRealmId(rs.getInt("REALM_ID"));
         return o;
     }
     

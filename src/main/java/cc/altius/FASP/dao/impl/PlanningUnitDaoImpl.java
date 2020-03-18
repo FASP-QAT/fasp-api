@@ -34,16 +34,19 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     }
 
     @Override
-    public List<PrgPlanningUnitDTO> getPlanningUnitListForSync(String lastSyncDate) {
-        String sql = "SELECT pu.`ACTIVE`,pu.`LABEL_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,pu.`PLANNING_UNIT_ID`\n"
-                + ",pu.`PRICE`,pu.`PRODUCT_ID`,pu.`QTY_OF_FORECASTING_UNITS`,pu.`UNIT_ID`,pu.`PRODUCT_ID`\n"
-                + "FROM rm_planning_unit pu\n"
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=pu.`LABEL_ID`";
+    public List<PrgPlanningUnitDTO> getPlanningUnitListForSync(String lastSyncDate, int realmId) {
+        String sql = "SELECT pu.`ACTIVE`,pu.`LABEL_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,pu.`PLANNING_UNIT_ID`,p.`REALM_ID`\n"
+                + "                ,pu.`PRICE`,pu.`PRODUCT_ID`,pu.`QTY_OF_FORECASTING_UNITS`,pu.`UNIT_ID`,pu.`PRODUCT_ID`\n"
+                + "                FROM rm_planning_unit pu\n"
+                + "                LEFT JOIN ap_label l ON l.`LABEL_ID`=pu.`LABEL_ID`\n"
+                + "                LEFT JOIN rm_product p ON p.`PRODUCT_ID`=pu.`PRODUCT_ID`\n"
+                + "                WHERE (p.`REALM_ID`=:realmId  OR -1=:realmId)";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
-            sql += " WHERE pu.`LAST_MODIFIED_DATE`>:lastSyncDate;";
+            sql += " AND pu.`LAST_MODIFIED_DATE`>:lastSyncDate;";
             params.put("lastSyncDate", lastSyncDate);
         }
+        params.put("realmId", realmId);
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
         return nm.query(sql, params, new PrgPlanningUnitDTORowMapper());
     }

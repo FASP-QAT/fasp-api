@@ -92,9 +92,9 @@ public class RegionController {
     }
 
     @GetMapping(value = "/getRegionListForSync")
-    public String getRegionListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+    public String getRegionListForSync(@RequestParam String lastSyncDate,int realmId) throws UnsupportedEncodingException {
         String json;
-        List<PrgRegionDTO> regionList = this.regionService.getRegionListForSync(lastSyncDate);
+        List<PrgRegionDTO> regionList = this.regionService.getRegionListForSync(lastSyncDate,realmId);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();

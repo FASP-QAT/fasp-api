@@ -47,7 +47,7 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
     @Override
     public List<PrgProductCategoryDTO> getProductCategoryListForSync(String lastSyncDate) {
         String sql = "SELECT pc.`ACTIVE`,pc.`PRODUCT_CATEGORY_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP` "
-                + "FROM rm_`product_category pc "
+                + "FROM `rm_product_category` pc "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=pc.`LABEL_ID`";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {

@@ -17,7 +17,7 @@ import java.util.List;
  */
 public interface OrganisationDao {
 
-    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate);
+    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate,int realmId);
 
     public int addOrganisation(Organisation organisation, CustomUserDetails curUser);
 

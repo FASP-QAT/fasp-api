@@ -40,9 +40,9 @@ public class ManufacturerRestController {
     ManufacturerService manufacturerService;
 
     @GetMapping(value = "/getManufacturerListForSync")
-    public String getManufacturerListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+    public String getManufacturerListForSync(@RequestParam String lastSyncDate,int realmId) throws UnsupportedEncodingException {
         String json;
-        List<PrgManufacturerDTO> manufacturerList = this.manufacturerService.getManufacturerListForSync(lastSyncDate);
+        List<PrgManufacturerDTO> manufacturerList = this.manufacturerService.getManufacturerListForSync(lastSyncDate,realmId);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();

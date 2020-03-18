@@ -17,6 +17,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ProgramDataService;
+import java.util.LinkedList;
 
 /**
  *
@@ -29,19 +30,21 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     ProgramDataDao programDao;
 
     @Override
-    public PrgProgramDataDTO getProgramData(String programId) {
-        PrgProgramDataDTO program = new PrgProgramDataDTO();
-        program = this.programDao.getProgramData(programId);
-        List<PrgProgramProductDTO> programProductList = this.getProgramProductListByProgramId(program.getProgramId());
-        program.setProgramProductList(programProductList);
-        for (PrgProgramProductDTO programProduct : programProductList) {
-            programProduct.getProduct().setInventoryData(this.getInventoryListByProductId(programProduct.getProduct().getProductId()));
-            programProduct.getProduct().setConsumptionData(this.getConsumptionListByProductId(programProduct.getProduct().getProductId()));
-            programProduct.getProduct().setShipmentData(this.getShipmentListByProductId(programProduct.getProduct().getProductId()));
+    public List<PrgProgramDataDTO> getProgramData(String programId) {
+        List<PrgProgramDataDTO> programList = new LinkedList<>();
+        programList = this.programDao.getProgramData(programId);
+        for (PrgProgramDataDTO program : programList) {
+            List<PrgProgramProductDTO> programProductList = this.getProgramProductListByProgramId(program.getProgramId());
+            program.setProgramProductList(programProductList);
+            for (PrgProgramProductDTO programProduct : programProductList) {
+                programProduct.getProduct().setInventoryData(this.getInventoryListByProductId(programProduct.getProduct().getProductId()));
+                programProduct.getProduct().setConsumptionData(this.getConsumptionListByProductId(programProduct.getProduct().getProductId()));
+                programProduct.getProduct().setShipmentData(this.getShipmentListByProductId(programProduct.getProduct().getProductId()));
+            }
+            program.setRegionList(this.getRegionListByProgramId(program.getProgramId()));
+            program.setBudgetData(this.getBudgetListByProgramId(program.getProgramId()));
         }
-        program.setRegionList(this.getRegionListByProgramId(program.getProgramId()));
-        program.setBudgetData(this.getBudgetListByProgramId(program.getProgramId()));
-        return program;
+        return programList;
     }
 
     @Override

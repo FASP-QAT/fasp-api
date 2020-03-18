@@ -32,6 +32,7 @@ public class PrgProductDTORowMapper implements RowMapper<PrgProductDTO> {
         p.setProductCategory(productCategory);
         p.setProductId(rs.getInt("PRODUCT_ID"));
         p.setActive(rs.getBoolean("ACTIVE"));
+        p.setRealmId(rs.getInt("REALM_ID"));
         return p;
     }
     

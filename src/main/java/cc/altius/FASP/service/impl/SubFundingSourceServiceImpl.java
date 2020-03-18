@@ -33,8 +33,8 @@ public class SubFundingSourceServiceImpl implements SubFundingSourceService {
     private AclService aclService;
 
     @Override
-    public List<PrgSubFundingSourceDTO> getSubFundingSourceListForSync(String lastSyncDate) {
-        return this.subFundingSourceDao.getSubFundingSourceListForSync(lastSyncDate);
+    public List<PrgSubFundingSourceDTO> getSubFundingSourceListForSync(String lastSyncDate,int realmId) {
+        return this.subFundingSourceDao.getSubFundingSourceListForSync(lastSyncDate,realmId);
     }
 
     @Override

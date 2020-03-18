@@ -29,8 +29,8 @@ public class FundingSourceServiceImpl implements FundingSourceService {
     private AclService aclService;
 
     @Override
-    public List<PrgFundingSourceDTO> getFundingSourceListForSync(String lastSyncDate) {
-        return this.fundingSourceDao.getFundingSourceListForSync(lastSyncDate);
+    public List<PrgFundingSourceDTO> getFundingSourceListForSync(String lastSyncDate,int realmId) {
+        return this.fundingSourceDao.getFundingSourceListForSync(lastSyncDate,realmId);
     }
 
     @Override

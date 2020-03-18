@@ -15,6 +15,17 @@ public class PrgRegionDTO {
     private PrgLabelDTO label;
     private double capacityCbm;
     private boolean active;
+    private int realmId;
+
+    public int getRealmId() {
+        return realmId;
+    }
+
+    public void setRealmId(int realmId) {
+        this.realmId = realmId;
+    }
+    
+    
 
     public boolean isActive() {
         return active;
