@@ -252,6 +252,8 @@ public class ProgramDaoImpl implements ProgramDao {
             params.put("organisationId" + count, acl.getOrganisationId());
             params.put("healthAreaId" + count, acl.getHealthAreaId());
         }
+        System.out.println(sqlString);
+        System.out.println(params);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramListResultSetExtractor());
     }
 

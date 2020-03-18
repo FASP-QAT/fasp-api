@@ -44,6 +44,7 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
                         x++;
                     }
                     pList.add(p);
+                    p = new Program();
                 }
                 p.setProgramId(rs.getInt("PROGRAM_ID"));
                 p.setRealmCountry(

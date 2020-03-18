@@ -7,7 +7,7 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.ResponseFormat;
+import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.BudgetService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,10 +43,10 @@ public class BudgetRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.budgetService.addBudget(budget, curUser);
-            return new ResponseEntity("static.message.budget.addSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.budget.addSuccess"), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to add Budget", e);
-            return new ResponseEntity("static.message.budget.addFailed", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.budget.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -55,9 +55,9 @@ public class BudgetRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int rows = this.budgetService.updateBudget(budget, curUser);
-            return new ResponseEntity("static.message.budget.updateSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.budget.updateSuccess"), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity("static.message.budget.updateFailed", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.budget.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -67,7 +67,7 @@ public class BudgetRestController {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.budgetService.getBudgetList(curUser), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity("static.message.budget.notFound", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.budget.notFound"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -77,9 +77,9 @@ public class BudgetRestController {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.budgetService.getBudgetById(budgetId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException erda) {
-            return new ResponseEntity("static.message.budget.notFound", HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.budget.notFound"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseEntity("static.message.budget.notFound", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.budget.notFound"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

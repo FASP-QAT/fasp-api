@@ -15,6 +15,7 @@ public class Language implements Serializable {
 
     private Integer languageId;
     private String languageName;
+    private String languageCode;
     private boolean active;
 
     public Language() {
@@ -24,9 +25,10 @@ public class Language implements Serializable {
         this.languageId = languageId;
     }
 
-    public Language(Integer languageId, String languageName) {
+    public Language(Integer languageId, String languageName, String languageCode) {
         this.languageId = languageId;
         this.languageName = languageName;
+        this.languageCode = languageCode;
     }
 
     public Integer getLanguageId() {
@@ -43,6 +45,14 @@ public class Language implements Serializable {
 
     public void setLanguageName(String languageName) {
         this.languageName = languageName;
+    }
+
+    public String getLanguageCode() {
+        return languageCode;
+    }
+
+    public void setLanguageCode(String languageCode) {
+        this.languageCode = languageCode;
     }
 
     public boolean isActive() {

@@ -82,7 +82,7 @@ public class JwtAuthenticationRestController {
             return new ResponseEntity(new ResponseCode("static.message.login.locked"), HttpStatus.UNAUTHORIZED);
         } catch (CredentialsExpiredException e) {
             logger.info("JWT Token generation failed because Password has expired for Username: " + authenticationRequest.getUsername());
-            return new ResponseEntity(new ResponseCode("static.message.login.passwordExpired"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.login.passwordExpired"), HttpStatus.NOT_ACCEPTABLE);
         } catch (UsernameNotFoundException e) {
             logger.info("JWT Token generation failed because User not found for Username: " + authenticationRequest.getUsername());
             return new ResponseEntity(new ResponseCode("static.message.login.noUser"), HttpStatus.UNAUTHORIZED);
