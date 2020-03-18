@@ -9,6 +9,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgProgramDataDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.ProgramProduct;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
@@ -93,6 +94,27 @@ public class ProgramRestController {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
             return new ResponseFormat("Success", "", this.programService.getProgramList(curUser));
+        } catch (Exception e) {
+            return new ResponseFormat("Failed", e.getMessage());
+        }
+    }
+
+    @GetMapping("/programProduct/{programId}")
+    public ResponseFormat getProgramProductForProgram(@PathVariable("programId") int programId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseFormat("Success", "", this.programService.getProgramProductListForProgramId(programId, curUser));
+        } catch (Exception e) {
+            return new ResponseFormat("Failed", e.getMessage());
+        }
+    }
+    
+    @PutMapping("/programProduct")
+    public ResponseFormat saveProgramProductForProgram(@RequestBody ProgramProduct pp, Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            this.programService.saveProgramProduct(pp, curUser);
+            return new ResponseFormat("Successfully update Program Product list");
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
