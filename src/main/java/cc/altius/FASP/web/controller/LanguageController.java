@@ -8,7 +8,6 @@ package cc.altius.FASP.web.controller;
 import cc.altius.FASP.model.DTO.PrgLanguageDTO;
 import cc.altius.FASP.model.Language;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.LanguageService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -45,7 +44,7 @@ public class LanguageController {
         try {
             return new ResponseEntity(this.languageService.getLanguageList(true), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity(new ResponseCode("static.language.listFailed"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.language.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -54,7 +53,7 @@ public class LanguageController {
         try {
             return new ResponseEntity(this.languageService.getLanguageList(false), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity(new ResponseCode("static.language.listFailed"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.language.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
