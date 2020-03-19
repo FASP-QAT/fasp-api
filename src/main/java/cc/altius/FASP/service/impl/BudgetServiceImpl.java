@@ -38,7 +38,7 @@ public class BudgetServiceImpl implements BudgetService {
             return this.budgetDao.addBudget(b, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
-        }
+    }
     }
 
     @Override
@@ -48,8 +48,8 @@ public class BudgetServiceImpl implements BudgetService {
             return this.budgetDao.updateBudget(b, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
-        }
     }
+}
 
     @Override
     public List<Budget> getBudgetList(CustomUserDetails curUser) {
