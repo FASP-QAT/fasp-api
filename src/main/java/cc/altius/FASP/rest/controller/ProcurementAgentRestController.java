@@ -39,7 +39,6 @@ public class ProcurementAgentRestController {
             int procurementAgentId = this.procurementAgentService.addProcurementAgent(procurementAgent, curUser);
             return new ResponseFormat("Successfully added ProcurementAgent with Id " + procurementAgentId);
         } catch (Exception e) {
-            e.printStackTrace();
             return new ResponseFormat("Failed", e.getMessage());
         }
     }

@@ -200,9 +200,10 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<Role> getRoleList() {
-        String sql = " SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID` FROM us_role "
+        String sql = " SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID`,c.`ROLE_ID` AS  CAN_CREATE_ROLE FROM us_role "
                 + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID` "
-                + "LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=us_role.`ROLE_ID` ";
+                + "LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=us_role.`ROLE_ID` "
+                + "LEFT JOIN us_can_create_role c ON c.`CAN_CREATE_ROLE`=us_role.`ROLE_ID`";
         return this.namedParameterJdbcTemplate.query(sql, new RoleResultSetExtractor());
     }
 
@@ -270,7 +271,7 @@ public class UserDaoImpl implements UserDao {
                 + "    `user`.`USER_ID`, `user`.`USERNAME`, `user`.`EMAIL_ID`, `user`.`PHONE`, `user`.`PASSWORD`, "
                 + "    `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, "
                 + "    realm.`REALM_ID`, realm.`REALM_CODE`, realm_lb.`LABEL_ID` `REALM_LABEL_ID`, realm_lb.`LABEL_EN` `REALM_LABEL_EN`, realm_lb.`LABEL_FR` `REALM_LABEL_FR`, realm_lb.`LABEL_SP` `REALM_LABEL_SP`, realm_lb.`LABEL_PR` `REALM_LABEL_PR`, "
-                + "    lang.`LANGUAGE_ID`, lang.`LANGUAGE_NAME`, land.`LANGUAGE_CODE`, "
+                + "    lang.`LANGUAGE_ID`, lang.`LANGUAGE_NAME`, lang.`LANGUAGE_CODE`, "
                 + "    `user`.`CREATED_DATE`, cb.`USER_ID` `CB_USER_ID`, cb.`USERNAME` `CB_USERNAME`, `user`.`LAST_MODIFIED_DATE`, lmb.`USER_ID` `LMB_USER_ID`, lmb.`USERNAME` `LMB_USERNAME`, `user`.`ACTIVE`, "
                 + "    role.`ROLE_ID`, role_lb.`LABEL_ID` `ROLE_LABEL_ID`, role_lb.`LABEL_EN` `ROLE_LABEL_EN`, role_lb.`LABEL_FR` `ROLE_LABEL_FR`, role_lb.`LABEL_SP` `ROLE_LABEL_SP`, role_lb.`LABEL_PR` `ROLE_LABEL_PR`, "
                 + "    acl.`REALM_COUNTRY_ID` `ACL_REALM_COUNTRY_ID`, acl_country_lb.`LABEL_ID` `ACL_REALM_LABEL_ID`, acl_country_lb.`LABEL_EN` `ACL_REALM_LABEL_EN`, acl_country_lb.`LABEL_FR` `ACL_REALM_LABEL_FR`, acl_country_lb.`LABEL_SP` `ACL_REALM_LABEL_SP`, acl_country_lb.`LABEL_PR` `ACL_REALM_LABEL_PR`, "
@@ -578,17 +579,17 @@ public class UserDaoImpl implements UserDao {
             i++;
         }
         int result[] = si.executeBatch(paramList);
-//        si = new SimpleJdbcInsert(dataSource).withTableName("us_can_create_role");
-//        paramList = new SqlParameterSource[role.getCanCreateRole().length];
-//        i = 0;
-//        for (String r : role.getCanCreateRole()) {
-//            params = new HashMap<>();
-//            params.put("ROLE_ID", r);
-//            params.put("CAN_CREATE_ROLE", roleId);
-//            paramList[i] = new MapSqlParameterSource(params);
-//            i++;
-//        }
-//        si.executeBatch(paramList);
+        si = new SimpleJdbcInsert(dataSource).withTableName("us_can_create_role");
+        paramList = new SqlParameterSource[role.getCanCreateRole().length];
+        i = 0;
+        for (String r : role.getCanCreateRole()) {
+            params = new HashMap<>();
+            params.put("ROLE_ID", r);
+            params.put("CAN_CREATE_ROLE", roleId);
+            paramList[i] = new MapSqlParameterSource(params);
+            i++;
+        }
+        si.executeBatch(paramList);
         return (rows1 == 1 && result.length > 0 ? 1 : 0);
     }
 
@@ -603,7 +604,7 @@ public class UserDaoImpl implements UserDao {
         params.put("lastModifiedBy", curUser.getUserId());
         params.put("lastModifiedDate", curDate);
         this.namedParameterJdbcTemplate.update("DELETE rbf.* FROM us_role_business_function rbf where rbf.ROLE_ID=:roleId", params);
-//        this.namedParameterJdbcTemplate.update("DELETE r.* FROM us_can_create_role r WHERE r.CAN_CREATE_ROLE=:roleId", params);
+        this.namedParameterJdbcTemplate.update("DELETE r.* FROM us_can_create_role r WHERE r.CAN_CREATE_ROLE=:roleId", params);
         sql = "UPDATE us_role r "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=r.`LABEL_ID` "
                 + "SET "
@@ -625,22 +626,21 @@ public class UserDaoImpl implements UserDao {
             params.put("LAST_MODIFIED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
             paramList[i] = new MapSqlParameterSource(params);
-            System.out.println(params);
             i++;
         }
         si.executeBatch(paramList);
-//        params.clear();
-//        si = new SimpleJdbcInsert(dataSource).withTableName("us_can_create_role");
-//        paramList = new SqlParameterSource[role.getCanCreateRole().length];
-//        i = 0;
-//        for (String r : role.getCanCreateRole()) {
-//            params = new HashMap<>();
-//            params.put("ROLE_ID", r);
-//            params.put("CAN_CREATE_ROLE", roleId);
-//            paramList[i] = new MapSqlParameterSource(params);
-//            i++;
-//        }
-//        si.executeBatch(paramList);
+        params.clear();
+        si = new SimpleJdbcInsert(dataSource).withTableName("us_can_create_role");
+        paramList = new SqlParameterSource[role.getCanCreateRole().length];
+        i = 0;
+        for (String r : role.getCanCreateRole()) {
+            params = new HashMap<>();
+            params.put("ROLE_ID", r);
+            params.put("CAN_CREATE_ROLE", role.getRoleId());
+            paramList[i] = new MapSqlParameterSource(params);
+            i++;
+        }
+        si.executeBatch(paramList);
         return 1;
     }
 

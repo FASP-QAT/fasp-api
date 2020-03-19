@@ -7,6 +7,8 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.jwt.JwtTokenUtil;
 import cc.altius.FASP.jwt.resource.JwtTokenResponse;
+import cc.altius.FASP.model.BusinessFunction;
+import cc.altius.FASP.model.CanCreateRole;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
 import cc.altius.FASP.model.ForgotPasswordToken;
@@ -19,6 +21,7 @@ import cc.altius.FASP.service.UserService;
 import cc.altius.utils.PassPhrase;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -64,7 +67,25 @@ public class UserRestController {
     @GetMapping(value = "/role")
     public ResponseEntity getRoleList() {
         try {
-            return new ResponseEntity(this.userService.getRoleList(), HttpStatus.OK);
+            List<Role> roleList = this.userService.getRoleList();
+            for (Role role : roleList) {
+                String[] businessFunctionId = new String[role.getBusinessFunctionList().size()];
+                int i = 0;
+                for (BusinessFunction b : role.getBusinessFunctionList()) {
+                    businessFunctionId[i] = b.getBusinessFunctionId();
+                    i++;
+                }
+                role.setBusinessFunctions(businessFunctionId);
+                i = 0;
+                String[] canCreateRoleId = new String[role.getCanCreateRoles().size()];
+                i = 0;
+                for (CanCreateRole c : role.getCanCreateRoles()) {
+                    canCreateRoleId[i] = c.getRoleId();
+                    i++;
+                }
+                role.setCanCreateRole(canCreateRoleId);
+            }
+            return new ResponseEntity(roleList, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(new ResponseCode("static.message.role.failedRoleList"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -116,7 +137,20 @@ public class UserRestController {
     @GetMapping(value = "/user")
     public ResponseEntity getUserList() {
         try {
-            return new ResponseEntity(this.userService.getUserList(), HttpStatus.OK);
+             List<User> userList = this.userService.getUserList();
+            for (User user : userList) {
+                String[] roleId = new String[user.getRoleList().size()];
+                int i = 0;
+                for (Role b : user.getRoleList()) {
+                    roleId[i] = b.getRoleId();
+                    i++;
+                }
+                user.setRoles(roleId);
+                i = 0;
+            }
+
+            
+            return new ResponseEntity(userList, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(new ResponseCode("static.message.user.failedUserList"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
