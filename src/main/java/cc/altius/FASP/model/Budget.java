@@ -115,6 +115,6 @@ public class Budget extends BaseModel implements Serializable {
     public String toString() {
         return "Budget{" + "budgetId=" + budgetId + ", label=" + label + ", budgetAmt=" + budgetAmt + ", startDate=" + startDate + ", stopDate=" + stopDate + '}';
     }
-    
+
     
 }

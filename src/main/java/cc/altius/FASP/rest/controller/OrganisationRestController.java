@@ -53,7 +53,6 @@ public class OrganisationRestController {
             int rows = this.organisationService.updateOrganisation(organisation, curUser);
             return new ResponseFormat("Successfully updated Organisation");
         } catch (Exception e) {
-            e.printStackTrace();
             return new ResponseFormat("Failed", e.getMessage());
         }
     }

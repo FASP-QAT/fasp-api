@@ -28,7 +28,7 @@ public class ProgramProductResultSetExtractor implements ResultSetExtractor<Prog
                 pp.setLabel(new LabelRowMapper().mapRow(rs, 1));
                 pp.setProductList(new LinkedList<>());
             }
-
+            if(rs.getInt("PRODUCT_ID")>0){
             SimpleProduct sp = new SimpleProduct();
             sp.setProductId(rs.getInt("PRODUCT_ID"));
             sp.setLabel(new LabelRowMapper("PRODUCT_").mapRow(rs, 1));
@@ -37,7 +37,9 @@ public class ProgramProductResultSetExtractor implements ResultSetExtractor<Prog
             if (pp.getProductList().indexOf(sp) == -1) {
                 pp.getProductList().add(sp);
             }
+            }
             isFirst = false;
+            
         }
         return pp;
     }

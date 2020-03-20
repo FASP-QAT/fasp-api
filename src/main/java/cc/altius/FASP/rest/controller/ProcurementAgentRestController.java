@@ -7,9 +7,13 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementAgent;
+import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.ProcurementAgentService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,15 +37,21 @@ public class ProcurementAgentRestController {
     private ProcurementAgentService procurementAgentService;
 
     @PostMapping(path = "/procurementAgent")
-    public ResponseFormat postProcurementAgent(@RequestBody ProcurementAgent procurementAgent, Authentication auth) {
+    public ResponseEntity postProcurementAgent(@RequestBody ProcurementAgent procurementAgent, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int procurementAgentId = this.procurementAgentService.addProcurementAgent(procurementAgent, curUser);
-            return new ResponseFormat("Successfully added ProcurementAgent with Id " + procurementAgentId);
+            if (procurementAgentId > 0) {
+                return new ResponseEntity(new ResponseCode("static.message.procurementAgentAdded"), HttpStatus.OK);
+            } else {
+                return new ResponseEntity(new ResponseCode("static.message.procurementAgent.couldNotAddProcurementAgent"), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (DuplicateKeyException e) {
+            return new ResponseEntity(new ResponseCode("static.message.procurementAgent.procurementAgentAlreadyExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseFormat("Failed", e.getMessage());
+            return new ResponseEntity(new ResponseCode("static.message.procurementAgent.couldNotAddProcurementAgent"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
     }
 
     @PutMapping(path = "/procurementAgent")
@@ -49,7 +59,7 @@ public class ProcurementAgentRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int rows = this.procurementAgentService.updateProcurementAgent(procurementAgent, curUser);
-            return new ResponseFormat("Successfully updated ProcurementAgent");
+            return new ResponseFormat("Successfully updated Procurement Agent");
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
@@ -73,5 +83,5 @@ public class ProcurementAgentRestController {
         } catch (Exception e) {
             return new ResponseFormat("Failed", e.getMessage());
         }
-    }   
+    }
 }

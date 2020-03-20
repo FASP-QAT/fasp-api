@@ -6,6 +6,7 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.BusinessFunction;
+import cc.altius.FASP.model.CanCreateRole;
 import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.Role;
 import java.sql.ResultSet;
@@ -26,7 +27,7 @@ public class RoleResultSetExtractor implements ResultSetExtractor<List<Role>> {
         List<Role> roleList = new LinkedList<>();
         Role role;
         BusinessFunction businessFunction;
-//        CanCreateRole canCreateRole;
+        CanCreateRole canCreateRole;
         while (rs.next()) {
             role = new Role();
             role.setRoleId(rs.getString("ROLE_ID"));
@@ -40,11 +41,11 @@ public class RoleResultSetExtractor implements ResultSetExtractor<List<Role>> {
             if (role.getBusinessFunctionList().indexOf(businessFunction) == -1) {
                 role.getBusinessFunctionList().add(businessFunction);
             }
-//            canCreateRole = new CanCreateRole();
-//            canCreateRole.setRoleId(rs.getString("CAN_CREATE_ROLE"));
-//            if (role.getCanCreateRoles().indexOf(canCreateRole) == -1) {
-//                role.getCanCreateRoles().add(canCreateRole);
-//            }
+            canCreateRole = new CanCreateRole();
+            canCreateRole.setRoleId(rs.getString("CAN_CREATE_ROLE"));
+            if (role.getCanCreateRoles().indexOf(canCreateRole) == -1) {
+                role.getCanCreateRoles().add(canCreateRole);
+            }
         }
         return roleList;
     }

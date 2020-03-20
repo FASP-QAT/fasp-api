@@ -33,8 +33,8 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private EmailService emailService;
 //    @Value("${urlHost}")
-//    private static String HOST_URL = "http://localhost:4202";
-    private static String HOST_URL = "https://faspdeveloper.github.io/fasp";
+    private static String HOST_URL = "http://localhost:4202/#";
+//    private static String HOST_URL = "https://faspdeveloper.github.io/fasp";
 //    @Value("${urlPasswordReset}")
     private static String PASSWORD_RESET_URL = "resetPassword";
 

@@ -251,6 +251,7 @@ public class ProgramDaoImpl implements ProgramDao {
             sqlString += "AND rc.REALM_ID=:userRealmId ";
             params.put("userRealmId", curUser.getRealm().getRealmId());
         }
+
         int count = 1;
         for (UserAcl acl : curUser.getAclList()) {
             sqlString += "AND ("
@@ -262,10 +263,9 @@ public class ProgramDaoImpl implements ProgramDao {
             params.put("realmCountryId" + count, acl.getRealmCountryId());
             params.put("organisationId" + count, acl.getOrganisationId());
             params.put("healthAreaId" + count, acl.getHealthAreaId());
-            count++;
+//            count++;
         }
-        System.out.println(sqlString);
-        System.out.println(params);
+
         return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramListResultSetExtractor());
     }
 
@@ -403,12 +403,12 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "pg.PROGRAM_ID, pgl.LABEL_ID, pgl.LABEL_EN, pgl.LABEL_FR, pgl.LABEL_PR, pgl.LABEL_SP, "
                 + "pr.PRODUCT_ID, prl.LABEL_ID `PRODUCT_LABEL_ID`, prl.LABEL_EN `PRODUCT_LABEL_EN`, prl.LABEL_FR `PRODUCT_LABEL_FR`, prl.LABEL_PR `PRODUCT_LABEL_PR`, prl.LABEL_SP `PRODUCT_LABEL_SP`, "
                 + "pp.MAX_MONTHS, pp.MIN_MONTHS "
-                + "FROM rm_program_product pp  "
-                + "LEFT JOIN rm_program pg ON pp.PROGRAM_ID=pg.PROGRAM_ID "
+                + "FROM rm_program pg  "
+                + "LEFT JOIN  rm_program_product pp  ON pp.PROGRAM_ID=pg.PROGRAM_ID "
                 + "LEFT JOIN ap_label pgl ON pgl.LABEL_ID=pg.LABEL_ID "
                 + "LEFT JOIN rm_product pr ON pp.PRODUCT_ID=pr.PRODUCT_ID "
                 + "LEFT JOIN ap_label prl ON pr.LABEL_ID=prl.LABEL_ID "
-                + "WHERE pp.PROGRAM_ID=:programId";
+                + "WHERE pg.PROGRAM_ID=:programId";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramProductResultSetExtractor());

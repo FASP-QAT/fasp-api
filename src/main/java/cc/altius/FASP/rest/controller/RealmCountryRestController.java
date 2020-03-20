@@ -53,7 +53,6 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
             int rows = this.realmCountryService.updateRealmCountry(realmCountryList, curUser);
             return new ResponseFormat("Successfully updated RealmCountry");
         } catch (Exception e) {
-            e.printStackTrace();
             return new ResponseFormat("Failed", e.getMessage());
         }
     }
