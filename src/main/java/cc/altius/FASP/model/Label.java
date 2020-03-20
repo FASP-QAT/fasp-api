@@ -109,4 +109,13 @@ public class Label extends BaseModel {
     public String toString() {
         return "Label{" + "labelId=" + labelId + ", label_en=" + label_en + '}';
     }
+    
+    public void setLabel(Label l) {
+        this.labelId=l.getLabelId();
+        this.label_en=l.getLabel_en();
+        this.label_fr=l.getLabel_fr();
+        this.label_pr=l.getLabel_pr();
+        this.label_sp=l.getLabel_sp();
+        
+    }
 }

@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.StaticLabelDTO;
 import cc.altius.FASP.model.Label;
 import java.util.List;
 
@@ -14,7 +16,11 @@ import java.util.List;
  */
 public interface LabelService {
 
-    public List<Label> getLabelsListAll();
-
-    public int updateLabels(Label label, int userId);
+    public List<Label> getDatabaseLabelsList();
+    
+    public boolean saveDatabaseLabels(List<String> label,CustomUserDetails curUser);
+    
+    public List<StaticLabelDTO> getStaticLabelsList();
+    
+    public boolean saveStaticLabels(List<String> label,CustomUserDetails curUser);
 }

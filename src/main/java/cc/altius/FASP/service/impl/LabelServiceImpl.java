@@ -6,6 +6,8 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.LabelDao;
+import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.StaticLabelDTO;
 import cc.altius.FASP.model.Label;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,13 +25,23 @@ public class LabelServiceImpl implements LabelService {
     private LabelDao labelDao;
 
     @Override
-    public List<Label> getLabelsListAll() {
-        return this.labelDao.getLabelsListAll();
+    public List<Label> getDatabaseLabelsList() {
+        return this.labelDao.getDatabaseLabelsList();
     }
 
     @Override
-    public int updateLabels(Label label,int userId) {
-        return this.labelDao.updateLabels(label,userId);
+    public boolean saveDatabaseLabels(List<String> label, CustomUserDetails curUser) {
+        return this.labelDao.saveDatabaseLabels(label, curUser);
+    }
+
+    @Override
+    public List<StaticLabelDTO> getStaticLabelsList() {
+        return this.labelDao.getStaticLabelsList();
+    }
+
+    @Override
+    public boolean saveStaticLabels(List<String> label, CustomUserDetails curUser) {
+        return this.labelDao.saveStaticLabels(label, curUser);
     }
 
 }

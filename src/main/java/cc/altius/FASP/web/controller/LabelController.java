@@ -7,12 +7,16 @@ package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Label;
+import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.LabelService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,45 +40,56 @@ public class LabelController {
     @Autowired
     private LabelService labelService;
 
-    @RequestMapping(value = "/getLabelsListAll")
-    public String getLabelListAll() {
-        String json;
-        List<Label> labelList = new ArrayList();
-        labelList = this.labelService.getLabelsListAll();
-        Gson gson = new Gson();
-        Type typeList = new TypeToken<List>() {
-        }.getType();
-        json = gson.toJson(labelList, typeList);
-        return json;
-
-    }
-
-    @PutMapping(value = "/updateLabels")
-    public ResponseEntity updateLabels(@RequestBody(required = true) String json,Authentication authentication) {
-      
-        Gson g = new Gson();
-        Label labels = g.fromJson(json, Label.class);
-        ResponseFormat responseFormat = new ResponseFormat();
+    @RequestMapping(value = "/getDatabaseLabelsListAll")
+    public ResponseEntity getDatabaseLabelsList() {
         try {
-            CustomUserDetails cd = (CustomUserDetails) authentication.getPrincipal();
-            int row = this.labelService.updateLabels(labels,cd.getUserId());
-            if (row > 0) {
-                responseFormat.setMessage("Labels updated successfully");
-                responseFormat.setStatus("Success");
-                return new ResponseEntity(responseFormat, HttpStatus.OK);
-            } else {
-                responseFormat.setStatus("failed");
-                responseFormat.setMessage("Error accured");
-                return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
-
-            }
-
-        }catch (Exception e) {
-           // e.printStackTrace();
-            responseFormat.setStatus("failed");
-            responseFormat.setMessage("Exception Occured :" + e.getClass());
-            return new ResponseEntity(responseFormat, HttpStatus.INTERNAL_SERVER_ERROR);
+            System.out.println("in method");
+            return new ResponseEntity(this.labelService.getDatabaseLabelsList(), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
+    @RequestMapping(value = "/getStaticLabelsListAll")
+    public ResponseEntity getStaticLabelsList() {
+        try {
+            return new ResponseEntity(this.labelService.getStaticLabelsList(), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @PutMapping(path = "/saveDatabaseLabels")
+    public ResponseEntity putDatabaseLabels(@RequestBody String json, Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            System.out.println("jsonn======================"+json);
+            Gson gson = new Gson(); 
+            List<String> labelArray = gson.fromJson(json, LinkedList.class);  
+            System.out.println("Label array"+labelArray);
+            this.labelService.saveDatabaseLabels(labelArray, curUser);
+            return new ResponseEntity(new ResponseCode("static.label.labelSuccess"), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(new ResponseCode("static.label.labelFail"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @PutMapping(path = "/saveStaticLabels")
+    public ResponseEntity putStaticLabels(@RequestBody String json, Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            System.out.println("jsonn======================"+json);
+            Gson gson = new Gson(); 
+            List<String> labelArray = gson.fromJson(json, LinkedList.class);  
+            System.out.println("Label array"+labelArray);
+            this.labelService.saveStaticLabels(labelArray, curUser);
+            return new ResponseEntity(new ResponseCode("static.label.labelSuccess"), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(new ResponseCode("static.label.labelFail"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    
 }
