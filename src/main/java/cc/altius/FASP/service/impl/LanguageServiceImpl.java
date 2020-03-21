@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.LanguageDao;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgLanguageDTO;
 import cc.altius.FASP.model.Language;
 import cc.altius.FASP.service.LanguageService;
@@ -25,18 +26,23 @@ public class LanguageServiceImpl implements LanguageService {
     private LanguageDao languageDao;
 
     @Override
-    public List<Language> getLanguageList(boolean active) {
-        return this.languageDao.getLanguageList(active);
+    public List<Language> getLanguageList(boolean active, CustomUserDetails curUser) {
+        return this.languageDao.getLanguageList(active, curUser);
     }
 
     @Override
-    public int addLanguage(Language language) {
-        return this.languageDao.addLanguage(language);
+    public Language getLanguageById(int languageId, CustomUserDetails curUser) {
+        return this.languageDao.getLanguageById(languageId, curUser);
     }
 
     @Override
-    public int editLanguage(Language language) {
-        return this.languageDao.editLanguage(language);
+    public int addLanguage(Language language, CustomUserDetails curUser) {
+        return this.languageDao.addLanguage(language, curUser);
+    }
+
+    @Override
+    public int editLanguage(Language language, CustomUserDetails curUser) {
+        return this.languageDao.editLanguage(language, curUser);
     }
 
     @Override

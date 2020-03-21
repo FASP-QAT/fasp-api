@@ -7,6 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.CountryDao;
 import cc.altius.FASP.model.Country;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgCountryDTO;
 import cc.altius.FASP.service.CountryService;
 import java.util.List;
@@ -24,18 +25,23 @@ public class CountryServiceImpl implements CountryService {
     CountryDao countryDao;
 
     @Override
-    public List<Country> getCountryList(boolean active) {
-        return this.countryDao.getCountryList(active);
+    public List<Country> getCountryList(boolean active, CustomUserDetails curUser) {
+        return this.countryDao.getCountryList(active, curUser);
     }
 
     @Override
-    public int addCountry(Country country) {
-        return this.countryDao.addCountry(country);
+    public Country getCountryById(int countryId, CustomUserDetails curUser) {
+        return this.countryDao.getCountryById(countryId, curUser);
     }
 
     @Override
-    public int updateCountry(Country country) {
-        return this.countryDao.updateCountry(country);
+    public int addCountry(Country country, CustomUserDetails curUser) {
+        return this.countryDao.addCountry(country, curUser);
+    }
+
+    @Override
+    public int updateCountry(Country country, CustomUserDetails curUser) {
+        return this.countryDao.updateCountry(country, curUser);
     }
 
     @Override

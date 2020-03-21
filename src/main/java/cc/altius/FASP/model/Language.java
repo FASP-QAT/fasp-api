@@ -11,12 +11,11 @@ import java.io.Serializable;
  *
  * @author altius
  */
-public class Language implements Serializable {
+public class Language extends BaseModel implements Serializable {
 
     private Integer languageId;
     private String languageName;
     private String languageCode;
-    private boolean active;
 
     public Language() {
     }
@@ -55,17 +54,9 @@ public class Language implements Serializable {
         this.languageCode = languageCode;
     }
 
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
     @Override
     public String toString() {
-        return "Language{" + "languageId=" + languageId + ", languageName=" + languageName + ", active=" + active + '}';
+        return "Language{" + "languageId=" + languageId + ", languageName=" + languageName + '}';
     }
 
 }

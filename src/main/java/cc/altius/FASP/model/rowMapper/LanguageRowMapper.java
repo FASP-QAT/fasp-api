@@ -18,11 +18,8 @@ public class LanguageRowMapper implements RowMapper<Language> {
 
     @Override
     public Language mapRow(ResultSet rs, int i) throws SQLException {
-        Language l = new Language();
-        l.setLanguageId(rs.getInt("LANGUAGE_ID"));
-        l.setLanguageName(rs.getString("LANGUAGE_NAME"));
-        l.setLanguageCode(rs.getString("LANGUAGE_CODE"));
-        l.setActive(rs.getBoolean("ACTIVE"));
+        Language l = new Language(rs.getInt("LANGUAGE_ID"), rs.getString("LANGUAGE_NAME"), rs.getString("LANGUAGE_CODE"));
+        l.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return l;
     }
 

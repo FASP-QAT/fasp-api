@@ -20,15 +20,10 @@ public class CountryRowMapper implements RowMapper<Country> {
 
     @Override
     public Country mapRow(ResultSet rs, int i) throws SQLException {
-        Country c = new Country();
-        c.setCountryId(rs.getInt("COUNTRY_ID"));
-        c.setCountryCode(rs.getString("COUNTRY_CODE"));
-        c.setLabel(new LabelRowMapper("CU_").mapRow(rs, i));
-        Currency cu = new Currency();
-        cu.setCurrencyId(rs.getInt("CURRENCY_ID"));
-        c.setCurrency(cu);
-        c.setLanguage(new Language(rs.getInt("LANGUAGE_ID")));
-        c.setActive(rs.getBoolean("ACTIVE"));
+        Country c = new Country(rs.getInt("COUNTRY_ID"), rs.getString("COUNTRY_CODE"), new LabelRowMapper("").mapRow(rs, i));
+        c.setCurrency(new Currency(rs.getInt("CURRENCY_ID"), rs.getString("CURRENCY_CODE"), rs.getString("CURRENCY_SYMBOL"), new LabelRowMapper("CURRENCY_").mapRow(rs, i), rs.getDouble("CONVERSION_RATE_TO_USD")));
+        c.setLanguage(new Language(rs.getInt("LANGUAGE_ID"), rs.getString("LANGUAGE_NAME"), rs.getString("LANGUAGE_CODE")));
+        c.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return c;
     }
 
