@@ -7,9 +7,16 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Product;
+import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.ProductService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,59 +36,77 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class ProductRestController {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private ProductService productService;
 
     @PostMapping(path = "/product")
-    public ResponseFormat postProduct(@RequestBody Product product, Authentication auth) {
+    public ResponseEntity postProduct(@RequestBody Product product, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            int productId = this.productService.addProduct(product, curUser);
-            return new ResponseFormat("Successfully added Product with Id " + productId);
+            this.productService.addProduct(product, curUser);
+            return new ResponseEntity("static.product.addSuccess", HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to add Product", ae);
+            return new ResponseEntity(new ResponseCode("static.message.product.addFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to add Product", e);
+            return new ResponseEntity(new ResponseCode("static.message.product.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping(path = "/product")
-    public ResponseFormat putProduct(@RequestBody Product product, Authentication auth) {
+    public ResponseEntity putProduct(@RequestBody Product product, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            int rows = this.productService.updateProduct(product, curUser);
-            return new ResponseFormat("Successfully updated Product");
+            this.productService.updateProduct(product, curUser);
+            return new ResponseEntity("static.product.updateSuccess", HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to update Product", ae);
+            return new ResponseEntity(new ResponseCode("static.message.product.updateFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to update Product", e);
+            return new ResponseEntity(new ResponseCode("static.message.product.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/product")
-    public ResponseFormat getProduct(Authentication auth) {
+    public ResponseEntity getProduct(Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseFormat("Success", "", this.productService.getProductList(true, curUser));
+            return new ResponseEntity(this.productService.getProductList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to list Product", e);
+            return new ResponseEntity(new ResponseCode("static.message.product.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/product/realm/{realmId}")
-    public ResponseFormat getProductForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
+    public ResponseEntity getProductForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseFormat("Success", "", this.productService.getProductList(realmId, true, curUser));
+            return new ResponseEntity(this.productService.getProductList(realmId, true, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list Product", e);
+            return new ResponseEntity(new ResponseCode("static.message.product.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to list Product", e);
+            return new ResponseEntity(new ResponseCode("static.message.product.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/product/{productId}")
-    public ResponseFormat getProductById(@PathVariable("productId") int productId, Authentication auth) {
+    public ResponseEntity getProductById(@PathVariable("productId") int productId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseFormat("Success", "", this.productService.getProductById(productId, curUser));
+            return new ResponseEntity(this.productService.getProductById(productId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException er) {
+            logger.error("Error while trying to list Product", er);
+            return new ResponseEntity(new ResponseCode("static.message.product.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to list Product", e);
+            return new ResponseEntity(new ResponseCode("static.message.product.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

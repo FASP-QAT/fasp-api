@@ -47,9 +47,9 @@ public class FundingSourceRestController {
     FundingSourceService fundingSourceService;
 
     @GetMapping(value = "/getFundingSourceListForSync")
-    public String getFundingSourceListForSync(@RequestParam String lastSyncDate,@RequestParam int realmId) throws UnsupportedEncodingException {
+    public String getFundingSourceListForSync(@RequestParam String lastSyncDate, @RequestParam int realmId) throws UnsupportedEncodingException {
         String json;
-        List<PrgFundingSourceDTO> fundingSourceList = this.fundingSourceService.getFundingSourceListForSync(lastSyncDate,realmId);
+        List<PrgFundingSourceDTO> fundingSourceList = this.fundingSourceService.getFundingSourceListForSync(lastSyncDate, realmId);
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();
@@ -97,12 +97,15 @@ public class FundingSourceRestController {
             return new ResponseEntity(new ResponseCode("static.message.fundingSource.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/fundingSource/realmId/{realmId}")
     public ResponseEntity getFundingSourceForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.fundingSourceService.getFundingSourceList(realmId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException ae) {
+            logger.error("Error while trying to get Funding source for Realm, RealmId=" + realmId, ae);
+            return new ResponseEntity(new ResponseCode("static.message.fundingSource.listNotFound"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to list Funding source", e);
             return new ResponseEntity(new ResponseCode("static.message.fundingSource.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -115,10 +118,13 @@ public class FundingSourceRestController {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.fundingSourceService.getFundingSourceById(fundingSourceId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
-            logger.error("Error while trying to get Funding source", ae);
+            logger.error("Error while trying to get Funding source Id=" + fundingSourceId, ae);
             return new ResponseEntity(new ResponseCode("static.message.fundingSource.listNotFound"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to get Funding source Id=" + fundingSourceId, ae);
+            return new ResponseEntity(new ResponseCode("static.message.fundingSource.listNotFound"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            logger.error("Error while trying to get Funding source", e);
+            logger.error("Error while trying to get Funding source Id=" + fundingSourceId, e);
             return new ResponseEntity(new ResponseCode("static.message.fundingSource.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

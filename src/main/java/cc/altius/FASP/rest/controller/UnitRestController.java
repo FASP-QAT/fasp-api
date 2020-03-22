@@ -6,10 +6,16 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.ResponseFormat;
+import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Unit;
 import cc.altius.FASP.service.UnitService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,46 +35,61 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class UnitRestController {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     @Autowired
     private UnitService unitService;
 
     @PostMapping(path = "/unit")
-    public ResponseFormat postUnit(@RequestBody Unit unit, Authentication auth) {
+    public ResponseEntity postUnit(@RequestBody Unit unit, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            int unitId = this.unitService.addUnit(unit, curUser);
-            return new ResponseFormat("Successfully added Unit with Id " + unitId);
+            this.unitService.addUnit(unit, curUser);
+            return new ResponseEntity("static.message.unit.addSuccess", HttpStatus.OK);
+        } catch (DuplicateKeyException ae) {
+            logger.error("Error while trying to add Unit", ae);
+            return new ResponseEntity(new ResponseCode("static.message.unit.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to add Unit", e);
+            return new ResponseEntity(new ResponseCode("static.message.unit.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping(path = "/unit")
-    public ResponseFormat putHealhArea(@RequestBody Unit unit, Authentication auth) {
+    public ResponseEntity putUnit(@RequestBody Unit unit, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            int rows = this.unitService.updateUnit(unit, curUser);
-            return new ResponseFormat("Successfully updated Unit");
+            this.unitService.updateUnit(unit, curUser);
+            return new ResponseEntity("static.message.unit.updateSuccess", HttpStatus.OK);
+        } catch (DuplicateKeyException ae) {
+            logger.error("Error while trying to update Unit ", ae);
+            return new ResponseEntity(new ResponseCode("static.message.unit.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to add Unit", e);
+            return new ResponseEntity(new ResponseCode("static.message.unit.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/unit")
-    public ResponseFormat getUnit() {
+    public ResponseEntity getUnit(Authentication auth) {
         try {
-            return new ResponseFormat("Success", "", this.unitService.getUnitList());
+            return new ResponseEntity(this.unitService.getUnitList(), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to list Unit", e);
+            return new ResponseEntity(new ResponseCode("static.message.unit.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/unit/{unitId}")
-    public ResponseFormat getUnit(@PathVariable("unitId") int unitId) {
+    public ResponseEntity getUnit(@PathVariable("unitId") int unitId, Authentication auth) {
         try {
-            return new ResponseFormat("Success", "", this.unitService.getUnitById(unitId));
+            return new ResponseEntity(this.unitService.getUnitById(unitId), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list Unit", e);
+            return new ResponseEntity(new ResponseCode("static.message.unit.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to list Unit", e);
+            return new ResponseEntity(new ResponseCode("static.message.unit.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

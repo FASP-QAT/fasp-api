@@ -102,8 +102,28 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                 + " LEFT JOIN rm_realm r ON pa.REALM_ID=r.REALM_ID "
                 + " LEFT JOIN ap_label rl ON r.`LABEL_ID`=rl.`LABEL_ID` "
                 + " LEFT JOIN us_user cb ON pa.CREATED_BY=cb.USER_ID "
-                + " LEFT JOIN us_user lmb ON pa.LAST_MODIFIED_BY=lmb.USER_ID ";
+                + " LEFT JOIN us_user lmb ON pa.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "";
         return this.namedParameterJdbcTemplate.query(sql, new ProcurementAgentRowMapper());
+    }
+
+    @Override
+    public List<ProcurementAgent> getProcurementAgentByRealm(int realmId, CustomUserDetails curUser) {
+        String sql = " SELECT pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.SUBMITTED_TO_APPROVED_LEAD_TIME, "
+                + "r.REALM_ID, r.REALM_CODE, "
+                + "pal.`LABEL_ID` ,pal.`LABEL_EN`, pal.`LABEL_FR`, pal.`LABEL_PR`, pal.`LABEL_SP`,"
+                + "rl.`LABEL_ID` `REALM_LABEL_ID` ,rl.`LABEL_EN` `REALM_LABEL_EN`, rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`,"
+                + "cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pa.ACTIVE, pa.CREATED_DATE, pa.LAST_MODIFIED_DATE "
+                + "FROM rm_procurement_agent pa "
+                + " LEFT JOIN ap_label pal ON pa.`LABEL_ID`=pal.`LABEL_ID` "
+                + " LEFT JOIN rm_realm r ON pa.REALM_ID=r.REALM_ID "
+                + " LEFT JOIN ap_label rl ON r.`LABEL_ID`=rl.`LABEL_ID` "
+                + " LEFT JOIN us_user cb ON pa.CREATED_BY=cb.USER_ID "
+                + " LEFT JOIN us_user lmb ON pa.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE pa.REALM_ID=:realmId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        return this.namedParameterJdbcTemplate.query(sql, params, new ProcurementAgentRowMapper());
     }
 
     @Override

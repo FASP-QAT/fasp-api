@@ -7,7 +7,7 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgSubFundingSourceDTO;
-import cc.altius.FASP.model.ResponseFormat;
+import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.SubFundingSource;
 import cc.altius.FASP.service.SubFundingSourceService;
 import com.google.gson.Gson;
@@ -15,7 +15,13 @@ import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,6 +42,8 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class SubFundingSourceRestController {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    
     @Autowired
     private SubFundingSourceService subFundingSourceService;
 
@@ -51,44 +59,94 @@ public class SubFundingSourceRestController {
     }
 
     @PostMapping(path = "/subFundingSource")
-    public ResponseFormat postSubFundingSource(@RequestBody SubFundingSource subFundingSource, Authentication auth) {
+    public ResponseEntity postSubFundingSource(@RequestBody SubFundingSource subFundingSource, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            int subFundingSourceId = this.subFundingSourceService.addSubFundingSource(subFundingSource, curUser);
-            return new ResponseFormat("Successfully added SubFundingSource with Id " + subFundingSourceId);
+            this.subFundingSourceService.addSubFundingSource(subFundingSource, curUser);
+            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.addSucccess"), HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to add SubFunding source", ae);
+            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.addFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to add SubFunding source", e);
+            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping(path = "/subFundingSource")
-    public ResponseFormat putSubFundingSource(@RequestBody SubFundingSource subFundingSource, Authentication auth) {
+    public ResponseEntity putSubFundingSource(@RequestBody SubFundingSource subFundingSource, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            int rows = this.subFundingSourceService.updateSubFundingSource(subFundingSource, curUser);
-            return new ResponseFormat("Successfully updated SubFundingSource");
+            this.subFundingSourceService.updateSubFundingSource(subFundingSource, curUser);
+            return new ResponseEntity("static.message.subFundingSource.updateSuccess", HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to add SubFunding source", ae);
+            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.addFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to add SubFunding source", e);
+            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/subFundingSource")
-    public ResponseFormat getSubFundingSource(Authentication auth) {
+    public ResponseEntity getSubFundingSource(Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseFormat("Success", "", this.subFundingSourceService.getSubFundingSourceList(curUser));
+            return new ResponseEntity(this.subFundingSourceService.getSubFundingSourceList(curUser), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to list SubFunding source", e);
+            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/subFundingSource/{subFundingSourceId}")
-    public ResponseFormat getSubFundingSource(@PathVariable("subFundingSourceId") int subFundingSourceId, Authentication auth) {
+    public ResponseEntity getSubFundingSource(@PathVariable("subFundingSourceId") int subFundingSourceId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseFormat("Success", "", this.subFundingSourceService.getSubFundingSourceById(subFundingSourceId, curUser));
+            return new ResponseEntity(this.subFundingSourceService.getSubFundingSourceById(subFundingSourceId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException ae) {
+            logger.error("Error while trying to get SubFunding source Id=" + subFundingSourceId, ae);
+            return new ResponseEntity(new ResponseCode("static.message.fundingSource.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to get SubFunding source Id=" + subFundingSourceId, ae);
+            return new ResponseEntity(new ResponseCode("static.message.fundingSource.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to get SubFunding source Id=" + subFundingSourceId, e);
+            return new ResponseEntity(new ResponseCode("static.message.fundingSource.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/subFundingSource/fundingSourceId/{fundingSourceId}")
+    public ResponseEntity getSubFundingSourceByFundingSource(@PathVariable("fundingSourceId") int fundingSourceId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.subFundingSourceService.getSubFundingSourceListByFundingSource(fundingSourceId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException ae) {
+            logger.error("Error while trying to get SubFunding source fundingSourceId=" + fundingSourceId, ae);
+            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to get SubFunding source fundingSourceId=" + fundingSourceId, ae);
+            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.listFailed"), HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            logger.error("Error while trying to get SubFunding source fundingSourceId=" + fundingSourceId, e);
+            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/subFundingSource/realmId/{realmId}")
+    public ResponseEntity getSubFundingSourceByRealm(@PathVariable("realmId") int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.subFundingSourceService.getSubFundingSourceListByRealm(realmId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException ae) {
+            logger.error("Error while trying to get SubFunding source realmId=" + realmId, ae);
+            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to get SubFunding source realmId=" + realmId, ae);
+            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.listFailed"), HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            logger.error("Error while trying to get SubFunding source realmId=" + realmId, e);
+            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

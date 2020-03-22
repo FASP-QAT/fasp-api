@@ -302,7 +302,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> getUserListForRealm(int realmId) {
+    public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser) {
         String sql = "SELECT "
                 + "    `user`.`USER_ID`, `user`.`USERNAME`, `user`.`EMAIL_ID`, `user`.`PHONE`, `user`.`PASSWORD`, "
                 + "    `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, "
@@ -333,10 +333,15 @@ public class UserDaoImpl implements UserDao {
                 + "    LEFT JOIN ap_label acl_organisation_lb ON acl_organisation.`LABEL_ID`=acl_organisation_lb.`LABEL_ID` "
                 + "    LEFT JOIN rm_program acl_program ON acl.`PROGRAM_ID`=acl_program.`PROGRAM_ID` "
                 + "    LEFT JOIN ap_label acl_program_lb on acl_program.`LABEL_ID`=acl_program_lb.`LABEL_ID` "
-                + " WHERE user.REALM_ID=:realmId "
-                + "ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,acl.`USER_ACL_ID`";
+                + " WHERE user.REALM_ID=:realmId ";
+                
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
+        if (curUser.getRealm().getRealmId() != -1) {
+            params.put("userRealmId", curUser.getRealm().getRealmId());
+            sql += " AND user.REALM_ID=:userRealmId ";
+        }
+        sql+= " ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,acl.`USER_ACL_ID`";
         return this.namedParameterJdbcTemplate.query(sql, params, new UserListResultSetExtractor());
     }
 

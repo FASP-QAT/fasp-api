@@ -8,11 +8,17 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.BaseModel;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.RealmCountry;
-import cc.altius.FASP.model.ResponseFormat;
+import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.RealmCountryService;
 import java.io.Serializable;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,60 +37,85 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 @CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class RealmCountryRestController extends BaseModel implements Serializable {
-    
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private RealmCountryService realmCountryService;
-    
+
     @PostMapping(path = "/realmCountry")
-    public ResponseFormat postRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
+    public ResponseEntity postRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            int realmCountryId = this.realmCountryService.addRealmCountry(realmCountryList, curUser);
-            return new ResponseFormat("Successfully added RealmCountry with Id " + realmCountryId);
+            this.realmCountryService.addRealmCountry(realmCountryList, curUser);
+            return new ResponseEntity("static.message.realmCountry.addSuccess", HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to add RealmCountry", ae);
+            return new ResponseEntity(new ResponseCode("static.message.realmCountry.addFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to add RealmCountry", e);
+            return new ResponseEntity(new ResponseCode("static.message.realmCountry.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @PutMapping(path = "/realmCountry")
-    public ResponseFormat putRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
+    public ResponseEntity putRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            int rows = this.realmCountryService.updateRealmCountry(realmCountryList, curUser);
-            return new ResponseFormat("Successfully updated RealmCountry");
+            this.realmCountryService.updateRealmCountry(realmCountryList, curUser);
+            return new ResponseEntity("static.message.realmCountry.updateSuccess", HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to update RealmCountry", ae);
+            return new ResponseEntity(new ResponseCode("static.message.realmCountry.updateFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to update RealmCountry", e);
+            return new ResponseEntity(new ResponseCode("static.message.realmCountry.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/realmCountry")
-    public ResponseFormat getRealmCountry(Authentication auth) {
+    public ResponseEntity getRealmCountry(Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseFormat("Success", "", this.realmCountryService.getRealmCountryList(curUser));
+            return new ResponseEntity(this.realmCountryService.getRealmCountryList(curUser), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to list RealmCountry", e);
+            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/realmCountry/{realmCountryId}")
-    public ResponseFormat getRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
+    public ResponseEntity getRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseFormat("Success", "", this.realmCountryService.getRealmCountryById(realmCountryId, curUser));
+            return new ResponseEntity(this.realmCountryService.getRealmCountryById(realmCountryId, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list RealmCountry", e);
+            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.UNAUTHORIZED);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list RealmCountry", e);
+            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to list RealmCountry", e);
+            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/realmCountry/realmId/{realmId}")
-    public ResponseFormat getRealmCountryByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
+    public ResponseEntity getRealmCountryByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseFormat("Success", "", this.realmCountryService.getRealmCountryListByRealmId(realmId, curUser));
+            return new ResponseEntity(this.realmCountryService.getRealmCountryListByRealmId(realmId, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list RealmCountry", e);
+            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.UNAUTHORIZED);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list RealmCountry", e);
+            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to list RealmCountry", e);
+            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
 }

@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service.impl;
 
+import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.dao.UserDao;
 import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -12,13 +13,16 @@ import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.EmailUser;
 import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.ForgotPasswordToken;
+import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
+import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -32,6 +36,11 @@ public class UserServiceImpl implements UserService {
     private UserDao userDao;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private RealmDao realmDao;
+    @Autowired
+    private AclService aclService;
+    
 //    @Value("${urlHost}")
     private static String HOST_URL = "http://localhost:4202/#";
 //    private static String HOST_URL = "https://faspdeveloper.github.io/fasp";
@@ -74,8 +83,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getUserListForRealm(int realmId) {
-        return this.userDao.getUserListForRealm(realmId);
+    public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser) {
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            return this.userDao.getUserListForRealm(realmId, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
     @Override

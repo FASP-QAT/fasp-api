@@ -33,7 +33,7 @@ public interface UserService {
 
     public List<User> getUserList();
 
-    public List<User> getUserListForRealm(int realmId);
+    public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser);
 
     public User getUserByUserId(int userId);
 

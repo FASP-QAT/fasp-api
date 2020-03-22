@@ -21,6 +21,10 @@ public List<PrgSubFundingSourceDTO> getSubFundingSourceListForSync(String lastSy
     public SubFundingSource getSubFundingSourceById(int subFundingSourceId, CustomUserDetails curUser);
 
     public List<SubFundingSource> getSubFundingSourceList(CustomUserDetails curUser);
+    
+    public List<SubFundingSource> getSubFundingSourceListByFundingSource(int fundingSourceId, CustomUserDetails curUser);
+    
+    public List<SubFundingSource> getSubFundingSourceListByRealm(int realmId, CustomUserDetails curUser);
 
     public int updateSubFundingSource(SubFundingSource subFundingSource, CustomUserDetails curUser);
 

@@ -57,6 +57,7 @@ public class BudgetRestController {
             int rows = this.budgetService.updateBudget(budget, curUser);
             return new ResponseEntity(new ResponseCode("static.message.budget.updateSuccess"), HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Error while trying to update Budget", e);
             return new ResponseEntity(new ResponseCode("static.message.budget.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -67,6 +68,7 @@ public class BudgetRestController {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.budgetService.getBudgetList(curUser), HttpStatus.OK);
         } catch (Exception e) {
+            logger.error("Error while trying to get Budget list", e);
             return new ResponseEntity(new ResponseCode("static.message.budget.notFound"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -77,8 +79,10 @@ public class BudgetRestController {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.budgetService.getBudgetById(budgetId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException erda) {
+            logger.error("Error while trying to get Budget Id=" + budgetId, erda);
             return new ResponseEntity(new ResponseCode("static.message.budget.notFound"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
+            logger.error("Error while trying to get Budget Id=" + budgetId, e);
             return new ResponseEntity(new ResponseCode("static.message.budget.notFound"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

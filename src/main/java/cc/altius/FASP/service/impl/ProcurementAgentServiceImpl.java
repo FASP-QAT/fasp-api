@@ -57,4 +57,13 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
         }
     }
 
+    @Override
+    public List<ProcurementAgent> getProcurementAgentByRealm(int realmId, CustomUserDetails curUser) {
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            return this.procurementAgentDao.getProcurementAgentByRealm(realmId, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
 }

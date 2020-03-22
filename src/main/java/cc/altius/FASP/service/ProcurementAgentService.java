@@ -16,6 +16,8 @@ import java.util.List;
 public interface ProcurementAgentService {
 
     public List<ProcurementAgent> getProcurementAgentList(boolean active, CustomUserDetails curUser);
+    
+    public List<ProcurementAgent> getProcurementAgentByRealm(int realmId, CustomUserDetails curUser);
 
     public int addProcurementAgent(ProcurementAgent procurementAgent, CustomUserDetails curUser);
 

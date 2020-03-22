@@ -50,7 +50,7 @@ public class ProgramServiceImpl implements ProgramService {
             return this.programDao.addProgram(p, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
-    }
+        }
     }
 
     @Override
@@ -66,7 +66,7 @@ public class ProgramServiceImpl implements ProgramService {
             return this.programDao.updateProgram(p, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
-    }
+        }
     }
 
     @Override
@@ -76,12 +76,21 @@ public class ProgramServiceImpl implements ProgramService {
 
     @Override
     public List<Program> getProgramList(int realmId, CustomUserDetails curUser) {
-        return this.programDao.getProgramList(realmId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            return this.programDao.getProgramList(realmId, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
     @Override
     public Program getProgramById(int programId, CustomUserDetails curUser) {
-        return this.programDao.getProgramById(programId, curUser);
+        Program p = this.programDao.getProgramById(programId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId())) {
+            return p;
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
     @Override

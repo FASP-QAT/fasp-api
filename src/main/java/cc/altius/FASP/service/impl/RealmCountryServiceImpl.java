@@ -41,7 +41,7 @@ public class RealmCountryServiceImpl implements RealmCountryService {
             try {
                 rc = this.realmCountryDao.getRealmCountryByRealmAndCountry(realmCountry.getRealm().getRealmId(), realmCountry.getCountry().getCountryId(), curUser);
             } catch (IncorrectResultSizeDataAccessException i) {
-                
+
             }
             if (rc != null) {
                 if (this.aclService.checkRealmAccessForUser(curUser, realmCountry.getRealm().getRealmId())) {
@@ -83,12 +83,21 @@ public class RealmCountryServiceImpl implements RealmCountryService {
 
     @Override
     public RealmCountry getRealmCountryById(int realmCountryId, CustomUserDetails curUser) {
-        return this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
+        RealmCountry rc = this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, rc.getRealm().getRealmId())) {
+            return rc;
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
     @Override
     public List<RealmCountry> getRealmCountryListByRealmId(int realmId, CustomUserDetails curUser) {
-        return this.realmCountryDao.getRealmCountryListByRealmId(realmId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            return this.realmCountryDao.getRealmCountryListByRealmId(realmId, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
 }

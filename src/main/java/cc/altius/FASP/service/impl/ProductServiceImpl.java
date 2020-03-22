@@ -40,12 +40,21 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public List<Product> getProductList(int realmId, boolean active, CustomUserDetails curUser) {
-        return this.productDao.getProductList(realmId, active, curUser);
+        if(this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            return this.productDao.getProductList(realmId, active, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+        
     }
 
     @Override
     public int addProduct(Product product, CustomUserDetails curUser) {
-        return this.productDao.addProduct(product, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, product.getRealm().getRealmId())) {
+            return this.productDao.addProduct(product, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
     @Override

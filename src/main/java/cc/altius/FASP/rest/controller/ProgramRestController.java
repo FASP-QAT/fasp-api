@@ -10,7 +10,7 @@ import cc.altius.FASP.model.DTO.PrgProgramDataDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramProduct;
-import cc.altius.FASP.model.ResponseFormat;
+import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import com.google.gson.Gson;
@@ -18,7 +18,13 @@ import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,12 +44,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 @CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class ProgramRestController {
-    
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private ProgramDataService programDataService;
     @Autowired
     private ProgramService programService;
-    
+
     @GetMapping(value = "/getProgramData")
     public String getProgramData(@RequestParam String programId) throws UnsupportedEncodingException {
         String json;
@@ -54,7 +62,7 @@ public class ProgramRestController {
         json = gson.toJson(programList, typeList);
         return json;
     }
-    
+
     @GetMapping(value = "/getProgramList")
     public String getProgramList(Authentication auth) throws UnsupportedEncodingException {
         CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
@@ -66,79 +74,104 @@ public class ProgramRestController {
         json = gson.toJson(programList, typeList);
         return json;
     }
-    
+
     @PostMapping(path = "/program")
-    public ResponseFormat postProgram(@RequestBody Program program, Authentication auth) {
+    public ResponseEntity postProgram(@RequestBody Program program, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            int programId = this.programService.addProgram(program, curUser);
-            return new ResponseFormat("Successfully added Program with Id " + programId);
+            this.programService.addProgram(program, curUser);
+            return new ResponseEntity("static.message.program.addSuccess", HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to add Program", ae);
+            return new ResponseEntity(new ResponseCode("static.message.program.addFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to add Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.program.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PutMapping(path = "/program")
-    public ResponseFormat putProgram(@RequestBody Program program, Authentication auth) {
+    public ResponseEntity putProgram(@RequestBody Program program, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
             this.programService.updateProgram(program, curUser);
-            return new ResponseFormat("Successfully updated Program");
+            return new ResponseEntity("static.message.program.updateSuccess", HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to update Program", ae);
+            return new ResponseEntity(new ResponseCode("static.message.program.updateFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
-        }
-    }
-    
-    @GetMapping("/program")
-    public ResponseFormat getProgram(Authentication auth) {
-        try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            return new ResponseFormat("Success", "", this.programService.getProgramList(curUser));
-        } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to update Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.program.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    @GetMapping("/program")
+    public ResponseEntity getProgram(Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseEntity(this.programService.getProgramList(curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.program.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/programProduct/{programId}")
-    public ResponseFormat getProgramProductForProgram(@PathVariable("programId") int programId, Authentication auth) {
+    public ResponseEntity getProgramProductForProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            return new ResponseFormat("Success", "", this.programService.getProgramProductListForProgramId(programId, curUser));
+            return new ResponseEntity(this.programService.getProgramProductListForProgramId(programId, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list ProgramProduct", e);
+            return new ResponseEntity(new ResponseCode("static.message.programProduct.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
-        }
-    }
-    
-    @PutMapping("/programProduct")
-    public ResponseFormat saveProgramProductForProgram(@RequestBody ProgramProduct pp, Authentication auth) {
-        try {
-            System.out.println("pp--------->"+pp);
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            return new ResponseFormat("Successfully update Program Product list","",this.programService.saveProgramProduct(pp, curUser));
-        } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to list ProgramProduct", e);
+            return new ResponseEntity(new ResponseCode("static.message.programProduct.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
+    @PutMapping("/programProduct")
+    public ResponseEntity saveProgramProductForProgram(@RequestBody ProgramProduct pp, Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseEntity(this.programService.saveProgramProduct(pp, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to update ProgramProduct", e);
+            return new ResponseEntity(new ResponseCode("static.message.programProduct.updateFailed"), HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            logger.error("Error while trying to update ProgramProduct", e);
+            return new ResponseEntity(new ResponseCode("static.message.programProduct.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/program/realmId/{realmId}")
-    public ResponseFormat getProgramForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
+    public ResponseEntity getProgramForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            return new ResponseFormat("Success", "", this.programService.getProgramList(realmId, curUser));
+            return new ResponseEntity(this.programService.getProgramList(realmId, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.program.updateFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to update Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.program.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/program/{programId}")
-    public ResponseFormat getProgram(@PathVariable("programId") int programId, Authentication auth) {
+    public ResponseEntity getProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            return new ResponseFormat("Success", "", this.programService.getProgramById(programId, curUser));
+            return new ResponseEntity(this.programService.getProgramById(programId, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.program.listFailed"), HttpStatus.UNAUTHORIZED);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.program.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.program.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

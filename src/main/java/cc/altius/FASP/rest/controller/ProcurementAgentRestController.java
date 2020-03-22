@@ -8,12 +8,15 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.ProcurementAgentService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +36,8 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class ProcurementAgentRestController {
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Autowired
     private ProcurementAgentService procurementAgentService;
 
@@ -42,46 +47,72 @@ public class ProcurementAgentRestController {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int procurementAgentId = this.procurementAgentService.addProcurementAgent(procurementAgent, curUser);
             if (procurementAgentId > 0) {
-                return new ResponseEntity(new ResponseCode("static.message.procurementAgentAdded"), HttpStatus.OK);
+                return new ResponseEntity(new ResponseCode("static.message.procurementAgent.addSuccess"), HttpStatus.OK);
             } else {
-                return new ResponseEntity(new ResponseCode("static.message.procurementAgent.couldNotAddProcurementAgent"), HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity(new ResponseCode("static.message.procurementAgent.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (DuplicateKeyException e) {
-            return new ResponseEntity(new ResponseCode("static.message.procurementAgent.procurementAgentAlreadyExists"), HttpStatus.NOT_ACCEPTABLE);
+            logger.error("Error while trying to add Procurement Agent", e);
+            return new ResponseEntity(new ResponseCode("static.message.procurementAgent.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
-            return new ResponseEntity(new ResponseCode("static.message.procurementAgent.couldNotAddProcurementAgent"), HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.error("Error while trying to add Procurement Agent", e);
+            return new ResponseEntity(new ResponseCode("static.message.procurementAgent.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
 
     @PutMapping(path = "/procurementAgent")
-    public ResponseFormat putProcurementAgent(@RequestBody ProcurementAgent procurementAgent, Authentication auth) {
+    public ResponseEntity putProcurementAgent(@RequestBody ProcurementAgent procurementAgent, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int rows = this.procurementAgentService.updateProcurementAgent(procurementAgent, curUser);
-            return new ResponseFormat("Successfully updated Procurement Agent");
+            return new ResponseEntity(new ResponseCode("static.message.procurementAgent.updateSuccess"), HttpStatus.OK);
+        } catch (DuplicateKeyException e) {
+            logger.error("Error while trying to update Procurement Agent", e);
+            return new ResponseEntity(new ResponseCode("static.message.procurementAgent.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to add Procurement Agent", e);
+            return new ResponseEntity(new ResponseCode("static.message.procurementAgent.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/procurementAgent")
-    public ResponseFormat getProcurementAgent(Authentication auth) {
+    public ResponseEntity getProcurementAgent(Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseFormat("Success", "", this.procurementAgentService.getProcurementAgentList(true, curUser));
+            return new ResponseEntity(this.procurementAgentService.getProcurementAgentList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to list Procurement Agent", e);
+            return new ResponseEntity(new ResponseCode("static.message.procurementAgent.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/procurementAgent/{procurementAgentId}")
-    public ResponseFormat getProcurementAgent(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
+    @GetMapping("/procurementAgent/realmId/{realmId}")
+    public ResponseEntity getProcurementAgentForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseFormat("Success", "", this.procurementAgentService.getProcurementAgentById(procurementAgentId, curUser));
+            return new ResponseEntity(this.procurementAgentService.getProcurementAgentByRealm(realmId, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list Procurement Agent", e);
+            return new ResponseEntity(new ResponseCode("static.message.procurementAgent.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            return new ResponseFormat("Failed", e.getMessage());
+            logger.error("Error while trying to list Procurement Agent", e);
+            return new ResponseEntity(new ResponseCode("static.message.procurementAgent.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    
+    @GetMapping("/procurementAgent/{procurementAgentId}")
+    public ResponseEntity getProcurementAgent(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.procurementAgentService.getProcurementAgentById(procurementAgentId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException er) {
+            logger.error("Error while trying to get Procurement Agent Id" + procurementAgentId, er);
+            return new ResponseEntity(new ResponseCode("static.message.procurementAgent.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Procurement Agent", e);
+            return new ResponseEntity(new ResponseCode("static.message.procurementAgent.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
