@@ -95,7 +95,7 @@ public class ManufacturerDaoImpl implements ManufacturerDao {
     }
 
     @Override
-    public List<Manufacturer> getManufacturerList(CustomUserDetails curUser) {
+    public List<Manufacturer> getManufacturerList(boolean active, CustomUserDetails curUser) {
         String sqlString = "SELECT  "
                 + "    m.MANUFACTURER_ID,  "
                 + "    ml.LABEL_ID, ml.LABEL_EN, ml.LABEL_FR, ml.LABEL_SP, ml.LABEL_PR, "
@@ -112,6 +112,35 @@ public class ManufacturerDaoImpl implements ManufacturerDao {
         if (curUser.getRealm().getRealmId() != -1) {
             sqlString += "AND m.REALM_ID=:realmId ";
             params.put("realmId", curUser.getRealm().getRealmId());
+        }
+        if (active) {
+            sqlString +=" AND m.ACTIVE ";
+        }
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new ManufacturerRowMapper());
+    }
+    
+    @Override
+    public List<Manufacturer> getManufacturerListForRealm(int realmId, boolean active, CustomUserDetails curUser) {
+        String sqlString = "SELECT  "
+                + "    m.MANUFACTURER_ID,  "
+                + "    ml.LABEL_ID, ml.LABEL_EN, ml.LABEL_FR, ml.LABEL_SP, ml.LABEL_PR, "
+                + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
+                + "    m.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, m.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, m.LAST_MODIFIED_DATE "
+                + "FROM rm_manufacturer m  "
+                + "LEFT JOIN ap_label ml ON m.LABEL_ID=ml.LABEL_ID "
+                + "LEFT JOIN rm_realm r ON m.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON m.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON m.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE TRUE AND m.REALM_ID=:realmId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND m.REALM_ID=:userRealmId ";
+            params.put("userRealmId", curUser.getRealm().getRealmId());
+        }
+        if (active) {
+            sqlString +=" AND m.ACTIVE ";
         }
         return this.namedParameterJdbcTemplate.query(sqlString, params, new ManufacturerRowMapper());
     }

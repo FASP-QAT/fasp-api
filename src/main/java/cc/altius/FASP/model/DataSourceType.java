@@ -5,19 +5,30 @@
  */
 package cc.altius.FASP.model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author palash
  */
-public class DataSourceType {
+public class DataSourceType extends BaseModel implements Serializable {
 
     private int dataSourceTypeId;
+    private Realm realm;
     private Label label;
-    private boolean active;
 
     public DataSourceType() {
+    }
 
-        this.label = new Label();
+    public DataSourceType(int dataSourceTypeId, Label label) {
+        this.dataSourceTypeId = dataSourceTypeId;
+        this.label = label;
+    }
+
+    public DataSourceType(int dataSourceTypeId, Label label, Realm realm) {
+        this.dataSourceTypeId = dataSourceTypeId;
+        this.label = label;
+        this.realm = realm;
     }
 
     public int getDataSourceTypeId() {
@@ -28,6 +39,14 @@ public class DataSourceType {
         this.dataSourceTypeId = dataSourceTypeId;
     }
 
+    public Realm getRealm() {
+        return realm;
+    }
+
+    public void setRealm(Realm realm) {
+        this.realm = realm;
+    }
+
     public Label getLabel() {
         return label;
     }
@@ -36,19 +55,33 @@ public class DataSourceType {
         this.label = label;
     }
 
-    public boolean isActive() {
-        return active;
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 11 * hash + this.dataSourceTypeId;
+        return hash;
     }
 
-    public void setActive(boolean active) {
-        this.active = active;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final DataSourceType other = (DataSourceType) obj;
+        if (this.dataSourceTypeId != other.dataSourceTypeId) {
+            return false;
+        }
+        return true;
     }
 
     @Override
     public String toString() {
-        return "DataSourceType{" + "dataSourceTypeId=" + dataSourceTypeId + ", label=" + label + ", active=" + active + '}';
+        return "DataSourceType{" + "dataSourceTypeId=" + dataSourceTypeId + ", label=" + label + '}';
     }
-
- 
-
 }

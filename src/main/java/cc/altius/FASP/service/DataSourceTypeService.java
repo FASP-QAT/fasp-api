@@ -5,8 +5,8 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgDataSourceTypeDTO;
-import cc.altius.FASP.model.DTO.PrgOrganisationDTO;
 import cc.altius.FASP.model.DataSourceType;
 import java.util.List;
 
@@ -16,11 +16,15 @@ import java.util.List;
  */
 public interface DataSourceTypeService {
 
-    public int addDataSourceType(DataSourceType dataSourceType);
-
-    public List<DataSourceType> getDataSourceTypeList(boolean active);
+    public int addDataSourceType(DataSourceType dataSourceType, CustomUserDetails curUser);
     
-    public int updateDataSourceType(DataSourceType dataSourceType);
+    public List<DataSourceType> getDataSourceTypeList(boolean active, CustomUserDetails curUser);
+    
+    public DataSourceType getDataSourceTypeById(int dataSourceTypeId, CustomUserDetails curUser);
+    
+    public List<DataSourceType> getDataSourceTypeForRealm(int realmId, boolean active, CustomUserDetails curUser);
+    
+    public int updateDataSourceType(DataSourceType dataSourceType, CustomUserDetails curUser);
     
     public List<PrgDataSourceTypeDTO> getDataSourceTypeListForSync(String lastSyncDate);
 }

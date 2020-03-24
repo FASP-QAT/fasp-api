@@ -7,6 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.CurrencyDao;
 import cc.altius.FASP.model.Currency;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgCurrencyDTO;
 import cc.altius.FASP.service.CurrencyService;
 import java.util.List;
@@ -25,18 +26,23 @@ public class CurrencyServiceImp implements CurrencyService {
     private CurrencyDao currencyDao;
 
     @Override
-    public int addCurrency(Currency currency) {
-        return this.currencyDao.addCurrency(currency);
+    public int addCurrency(Currency currency, CustomUserDetails curUser) {
+        return this.currencyDao.addCurrency(currency, curUser);
     }
 
     @Override
-    public List<Currency> getCurrencyList(boolean active) {
-        return this.currencyDao.getCurrencyList(active);
+    public List<Currency> getCurrencyList(boolean active, CustomUserDetails curUser) {
+        return this.currencyDao.getCurrencyList(active, curUser);
     }
 
     @Override
-    public int updateCurrency(Currency currency) {
-        return this.currencyDao.updateCurrency(currency);
+    public int updateCurrency(Currency currency, CustomUserDetails curUser) {
+        return this.currencyDao.updateCurrency(currency, curUser);
+    }
+
+    @Override
+    public Currency getCurrencyById(int currencyId, CustomUserDetails curUser) {
+        return this.currencyDao.getCurrencyById(currencyId, curUser);
     }
 
     @Override
@@ -45,8 +51,8 @@ public class CurrencyServiceImp implements CurrencyService {
     }
 
     @Override
-    public void updateCurrencyConversionrate(Map<String, Double> currencyConversions) {
-        this.currencyDao.updateCurrencyConversionrate(currencyConversions);
+    public void updateCurrencyConversionRate(Map<String, Double> currencyConversions) {
+        this.currencyDao.updateCurrencyConversionRate(currencyConversions);
     }
 
     @Override

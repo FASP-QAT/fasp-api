@@ -5,20 +5,18 @@
  */
 package cc.altius.FASP.model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author palash
  */
-public class UnitType {
+public class UnitType extends BaseModel implements Serializable {
 
     private int unitTypeId;
     private Label label;
 
     public UnitType() {
-    }
-
-    public UnitType(int unitTypeId) {
-        this.unitTypeId = unitTypeId;
     }
 
     public UnitType(int unitTypeId, Label label) {
@@ -40,6 +38,31 @@ public class UnitType {
 
     public void setLabel(Label label) {
         this.label = label;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 97 * hash + this.unitTypeId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final UnitType other = (UnitType) obj;
+        if (this.unitTypeId != other.unitTypeId) {
+            return false;
+        }
+        return true;
     }
 
     @Override

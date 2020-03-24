@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
 import cc.altius.FASP.model.UnitType;
 import java.util.List;
@@ -14,13 +15,15 @@ import java.util.List;
  * @author altius
  */
 public interface UnitTypeDao {
-    
+
     public List<PrgUnitTypeDTO> getUnitTypeListForSync();
-    
-    public int addUnitType(UnitType unitType, int userId);
 
-    public List<UnitType> getUnitTypeList(boolean active);
+    public int addUnitType(UnitType u, CustomUserDetails curUser);
 
-    public int updateUnitType(UnitType unitType, int userId);
-    
+    public int updateUnitType(UnitType u, CustomUserDetails curUser);
+
+    public List<UnitType> getUnitTypeList();
+
+    public UnitType getUnitTypeById(int unitTypeId);
+
 }

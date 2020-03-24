@@ -15,6 +15,7 @@ import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -56,6 +57,9 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public int updateProgram(Program p, CustomUserDetails curUser) {
         Program curProg = this.getProgramById(p.getProgramId(), curUser);
+        if (curProg == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
         if (this.aclService.checkAccessForUser(
                 curUser,
                 curProg.getRealmCountry().getRealm().getRealmId(),
@@ -86,6 +90,9 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public Program getProgramById(int programId, CustomUserDetails curUser) {
         Program p = this.programDao.getProgramById(programId, curUser);
+        if (p == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
         if (this.aclService.checkRealmAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId())) {
             return p;
         } else {

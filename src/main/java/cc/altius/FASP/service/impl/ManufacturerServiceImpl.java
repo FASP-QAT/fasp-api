@@ -29,8 +29,8 @@ public class ManufacturerServiceImpl implements ManufacturerService {
     private AclService aclService;
 
     @Override
-    public List<PrgManufacturerDTO> getManufacturerListForSync(String lastSyncDate,int realmId) {
-        return this.manufacturerDao.getManufacturerListForSync(lastSyncDate,realmId);
+    public List<PrgManufacturerDTO> getManufacturerListForSync(String lastSyncDate, int realmId) {
+        return this.manufacturerDao.getManufacturerListForSync(lastSyncDate, realmId);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ManufacturerServiceImpl implements ManufacturerService {
 
     @Override
     public int updateManufacturer(Manufacturer m, CustomUserDetails curUser) {
-        Manufacturer manufacturer = this.getManufacturerById(m.getManufacturerId(), curUser);
+        Manufacturer manufacturer = this.manufacturerDao.getManufacturerById(m.getManufacturerId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, manufacturer.getRealm().getRealmId())) {
             return this.manufacturerDao.updateManufacturer(m, curUser);
         } else {
@@ -53,13 +53,27 @@ public class ManufacturerServiceImpl implements ManufacturerService {
     }
 
     @Override
-    public List<Manufacturer> getManufacturerList(CustomUserDetails curUser) {
-        return this.manufacturerDao.getManufacturerList(curUser);
+    public List<Manufacturer> getManufacturerList(boolean active, CustomUserDetails curUser) {
+        return this.manufacturerDao.getManufacturerList(active, curUser);
+    }
+
+    @Override
+    public List<Manufacturer> getManufacturerListForRealm(int realmId, boolean active, CustomUserDetails curUser) {
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            return this.manufacturerDao.getManufacturerListForRealm(realmId, active, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
     @Override
     public Manufacturer getManufacturerById(int manufacturerId, CustomUserDetails curUser) {
-        return this.manufacturerDao.getManufacturerById(manufacturerId, curUser);
+        Manufacturer manufacturer = this.manufacturerDao.getManufacturerById(manufacturerId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, manufacturer.getRealm().getRealmId())) {
+            return this.manufacturerDao.getManufacturerById(manufacturerId, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
 }

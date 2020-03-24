@@ -9,7 +9,7 @@ package cc.altius.FASP.model;
  *
  * @author palash
  */
-public class Currency {
+public class Currency extends BaseModel {
     
     private int currencyId;
     private String currencyCode;

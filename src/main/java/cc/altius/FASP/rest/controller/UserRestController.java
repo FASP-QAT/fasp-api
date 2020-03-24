@@ -447,4 +447,25 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.user.logoutFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @GetMapping(value = "/checkIfUserExists")
+    public ResponseEntity checkIfUserExists(HttpServletRequest request) throws UnsupportedEncodingException {
+        try {
+            String username = request.getHeader("username");
+            String password = request.getHeader("password");
+            if (username == null || password == null) {
+                return new ResponseEntity("static.message.user.usernameOrPassword", HttpStatus.NOT_ACCEPTABLE);
+            }
+            Map<String, Object> responseMap = this.userService.checkIfUserExists(username, password);
+            CustomUserDetails customUserDetails = (CustomUserDetails) responseMap.get("customUserDetails");
+            if (customUserDetails != null) {
+                return new ResponseEntity(customUserDetails, HttpStatus.OK);
+            } else {
+                return new ResponseEntity("static.message.user.notFound", HttpStatus.NOT_ACCEPTABLE);
+            }
+        } catch (Exception e) {
+            logger.error("Error", e);
+            return new ResponseEntity("static.message.user.listFailed", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

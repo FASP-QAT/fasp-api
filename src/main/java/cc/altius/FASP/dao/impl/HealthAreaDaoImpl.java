@@ -105,7 +105,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         int rows = this.namedParameterJdbcTemplate.update("UPDATE rm_health_area ha LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID SET ha.ACTIVE=:active, ha.LAST_MODIFIED_BY=IF(ha.ACTIVE!=:active,:curUser,ha.LAST_MODIFIED_BY), ha.LAST_MODIFIED_DATE=IF(ha.ACTIVE!=:active, :curDate, ha.LAST_MODIFIED_DATE), hal.LABEL_EN=:labelEn, hal.LAST_MODIFIED_BY=IF(hal.LABEL_EN!=:labelEn,:curUser,hal.LAST_MODIFIED_BY), hal.LAST_MODIFIED_DATE=IF(hal.LABEL_EN!=:labelEn, :curDate, hal.LAST_MODIFIED_DATE)  WHERE ha.HEALTH_AREA_ID=:healthAreaId", params);
-        this.namedParameterJdbcTemplate.update("DELETE FROM rm_health_area_country WHERE HEALTH_AREA_ID=?", params);
+        this.namedParameterJdbcTemplate.update("DELETE FROM rm_health_area_country WHERE HEALTH_AREA_ID=:healthAreaId", params);
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_health_area_country");
         SqlParameterSource[] paramList = new SqlParameterSource[h.getRealmCountryArray().length];
         int i = 0;

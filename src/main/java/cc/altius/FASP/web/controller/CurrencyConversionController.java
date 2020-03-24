@@ -11,7 +11,6 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.client.RestTemplate;
 
 /**
@@ -23,9 +22,7 @@ public class CurrencyConversionController {
 
     @Autowired
     CurrencyService currencyService;
-//@RequestMapping(value="/test.htm")
     @Scheduled(cron = "0 0 8 * * ?")
-//@Scheduled(cron = "0 */1 * * * *")
     public void updateCurrencyConversion() {
 
         String currencyCodes = currencyService.getAllCurrencyCode();
@@ -33,9 +30,8 @@ public class CurrencyConversionController {
         if (currencyCodes != null && !currencyCodes.isEmpty() && !currencyCodes.equals("")) {
             currencyConversions = getLiveCurrencyValue(currencyCodes);
         }
-        System.out.println(""+currencyConversions);
-        if(currencyConversions!=null){
-            currencyService.updateCurrencyConversionrate(currencyConversions);
+        if (currencyConversions != null) {
+            currencyService.updateCurrencyConversionRate(currencyConversions);
         }
 
     }

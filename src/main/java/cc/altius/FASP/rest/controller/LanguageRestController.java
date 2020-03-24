@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class LanguageRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -96,14 +96,14 @@ public class LanguageRestController {
                 return new ResponseEntity(new ResponseCode("static.language.addSuccess"),HttpStatus.OK);
             } else {
                 logger.error("Error while adding language no Id returned");
-                return new ResponseEntity(new ResponseCode("static.language.addFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity(new ResponseCode("static.language.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (DuplicateKeyException e) {
             logger.error("Error while adding language", e);
             return new ResponseEntity(new ResponseCode("static.language.alreadyExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while adding language", e);
-            return new ResponseEntity(new ResponseCode("static.language.addFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.language.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -117,14 +117,14 @@ public class LanguageRestController {
                 return new ResponseEntity(new ResponseCode("static.language.updateSuccess"), HttpStatus.OK);
             } else {
                 logger.error("Error while updating language, no rows updated");
-                return new ResponseEntity(new ResponseCode("static.language.updateFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity(new ResponseCode("static.language.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (DuplicateKeyException e) {
             logger.error("Error while updating language", e);
             return new ResponseEntity(new ResponseCode("static.language.alreadyExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while updating language", e);
-            return new ResponseEntity(new ResponseCode("static.language.updateFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.language.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

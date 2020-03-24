@@ -48,13 +48,13 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.realmCountryService.addRealmCountry(realmCountryList, curUser);
-            return new ResponseEntity("static.message.realmCountry.addSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add RealmCountry", ae);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.addFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to add RealmCountry", e);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -63,13 +63,13 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.realmCountryService.updateRealmCountry(realmCountryList, curUser);
-            return new ResponseEntity("static.message.realmCountry.updateSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update RealmCountry", ae);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.updateFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to update RealmCountry", e);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -80,7 +80,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
             return new ResponseEntity(this.realmCountryService.getRealmCountryList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list RealmCountry", e);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -91,13 +91,13 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
             return new ResponseEntity(this.realmCountryService.getRealmCountryById(realmCountryId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list RealmCountry", e);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list RealmCountry", e);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to list RealmCountry", e);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -108,13 +108,13 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
             return new ResponseEntity(this.realmCountryService.getRealmCountryListByRealmId(realmId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list RealmCountry", e);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list RealmCountry", e);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to list RealmCountry", e);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

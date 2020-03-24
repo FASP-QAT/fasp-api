@@ -6,9 +6,15 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.PrgHealthAreaDTO;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.HealthAreaService;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +30,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -36,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class HealthAreaRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     private HealthAreaService healthAreaService;
 
@@ -80,12 +87,15 @@ public class HealthAreaRestController {
             return new ResponseEntity(new ResponseCode("static.message.healthArea.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/healthArea/realmId/{realmId}")
     public ResponseEntity getHealthAreaByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
             return new ResponseEntity(this.healthAreaService.getHealthAreaListByRealmId(realmId, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get Health Area list", e);
+            return new ResponseEntity(new ResponseCode("static.message.healthArea.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to get Health Area list", e);
             return new ResponseEntity(new ResponseCode("static.message.healthArea.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -100,9 +110,23 @@ public class HealthAreaRestController {
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Health Area list", er);
             return new ResponseEntity(new ResponseCode("static.message.healthArea.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get Health Area list", e);
+            return new ResponseEntity(new ResponseCode("static.message.healthArea.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to get Health Area list", e);
             return new ResponseEntity(new ResponseCode("static.message.healthArea.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping(value = "/getHealthAreaListForSync")
+    public String getHealthAreaListForSync(@RequestParam String lastSyncDate, int realmId) throws UnsupportedEncodingException {
+        String json;
+        List<PrgHealthAreaDTO> healthAreaList = this.healthAreaService.getHealthAreaListForSync(lastSyncDate, realmId);
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(healthAreaList, typeList);
+        return json;
     }
 }

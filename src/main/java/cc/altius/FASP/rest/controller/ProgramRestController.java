@@ -63,18 +63,6 @@ public class ProgramRestController {
         return json;
     }
 
-    @GetMapping(value = "/getProgramList")
-    public String getProgramList(Authentication auth) throws UnsupportedEncodingException {
-        CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-        String json;
-        List<ProgramDTO> programList = this.programService.getProgramListForDropdown(curUser);
-        Gson gson = new Gson();
-        Type typeList = new TypeToken<List>() {
-        }.getType();
-        json = gson.toJson(programList, typeList);
-        return json;
-    }
-
     @PostMapping(path = "/program")
     public ResponseEntity postProgram(@RequestBody Program program, Authentication auth) {
         try {
@@ -96,6 +84,9 @@ public class ProgramRestController {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
             this.programService.updateProgram(program, curUser);
             return new ResponseEntity("static.message.program.updateSuccess", HttpStatus.OK);
+        } catch (EmptyResultDataAccessException ae) {
+            logger.error("Error while trying to update Program", ae);
+            return new ResponseEntity(new ResponseCode("static.message.program.updateFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update Program", ae);
             return new ResponseEntity(new ResponseCode("static.message.program.updateFailed"), HttpStatus.UNAUTHORIZED);
@@ -121,6 +112,9 @@ public class ProgramRestController {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
             return new ResponseEntity(this.programService.getProgramProductListForProgramId(programId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list ProgramProduct", e);
+            return new ResponseEntity(new ResponseCode("static.message.programProduct.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list ProgramProduct", e);
             return new ResponseEntity(new ResponseCode("static.message.programProduct.listFailed"), HttpStatus.UNAUTHORIZED);

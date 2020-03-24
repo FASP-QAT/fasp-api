@@ -6,7 +6,7 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.DataSourceType;
-import cc.altius.FASP.model.Label;
+import cc.altius.FASP.model.Realm;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -19,11 +19,9 @@ public class DataSourceTypeRowMapper implements RowMapper<DataSourceType> {
 
     @Override
     public DataSourceType mapRow(ResultSet rs, int i) throws SQLException {
-        DataSourceType dt = new DataSourceType();
-        dt.setDataSourceTypeId(rs.getInt("DATA_SOURCE_TYPE_ID"));
-        dt.setActive(rs.getBoolean("ACTIVE"));
-        dt.setLabel(new Label(rs.getInt("LABEL_ID"), rs.getString("LABEL_EN"), rs.getString("LABEL_SP"), rs.getString("LABEL_FR"), rs.getString("LABEL_PR")));
-        return dt;
+        DataSourceType dst = new DataSourceType(rs.getInt("DATA_SOURCE_TYPE_ID"), new LabelRowMapper().mapRow(rs, i), new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i), rs.getString("REALM_CODE")));
+        dst.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
+        return dst;
     }
 
 }

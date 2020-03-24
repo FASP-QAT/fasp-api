@@ -7,7 +7,7 @@ package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.DataSource;
 import cc.altius.FASP.model.DataSourceType;
-import cc.altius.FASP.model.Label;
+import cc.altius.FASP.model.Realm;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -20,16 +20,13 @@ public class DataSourceRowMapper implements RowMapper<DataSource> {
 
     @Override
     public DataSource mapRow(ResultSet rs, int i) throws SQLException {
-        DataSource ds = new DataSource();
-        ds.setDataSourceId(rs.getInt("DATA_SOURCE_ID"));
-        ds.setActive(rs.getBoolean("ACTIVE"));
-        DataSourceType dst = new DataSourceType();
-        dst.setDataSourceTypeId(rs.getInt("DATA_SOURCE_TYPE_ID"));
-        Label ll = new Label();
-        ll.setLabel_en(rs.getString("dataSourceTypename"));
-        dst.setLabel(ll);
-        ds.setDataSourceType(dst);
-        ds.setLabel(new LabelRowMapper("LANG_").mapRow(rs, i));
+        DataSource ds = new DataSource(
+                rs.getInt("DATA_SOURCE_ID"), 
+                new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i), rs.getString("REALM_CODE")),
+                new LabelRowMapper("").mapRow(rs, i),
+                new DataSourceType(rs.getInt("DATA_SOURCE_TYPE_ID"), new LabelRowMapper("DATA_SOURCE_TYPE_").mapRow(rs, i))
+        );
+        ds.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return ds;
     }
 

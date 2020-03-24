@@ -6,15 +6,18 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.FundingSourceDao;
+import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.dao.SubFundingSourceDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgSubFundingSourceDTO;
 import cc.altius.FASP.model.FundingSource;
+import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SubFundingSource;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.SubFundingSourceService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -26,9 +29,11 @@ import org.springframework.stereotype.Service;
 public class SubFundingSourceServiceImpl implements SubFundingSourceService {
 
     @Autowired
-    SubFundingSourceDao subFundingSourceDao;
+    private SubFundingSourceDao subFundingSourceDao;
     @Autowired
-    FundingSourceDao fundingSourceDao;
+    private FundingSourceDao fundingSourceDao;
+    @Autowired
+    private RealmDao realmDao;
     @Autowired
     private AclService aclService;
 
@@ -55,6 +60,9 @@ public class SubFundingSourceServiceImpl implements SubFundingSourceService {
     @Override
     public List<SubFundingSource> getSubFundingSourceListByFundingSource(int fundingSourceId, CustomUserDetails curUser) {
         FundingSource fs = this.fundingSourceDao.getFundingSourceById(fundingSourceId, curUser);
+        if (fs == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
         if (this.aclService.checkRealmAccessForUser(curUser, fs.getRealm().getRealmId())) {
             return this.subFundingSourceDao.getSubFundingSourceListByFundingSource(fundingSourceId, curUser);
         } else {
@@ -64,6 +72,10 @@ public class SubFundingSourceServiceImpl implements SubFundingSourceService {
 
     @Override
     public List<SubFundingSource> getSubFundingSourceListByRealm(int realmId, CustomUserDetails curUser) {
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (r == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
             return this.subFundingSourceDao.getSubFundingSourceListByRealm(realmId, curUser);
         } else {
@@ -74,6 +86,9 @@ public class SubFundingSourceServiceImpl implements SubFundingSourceService {
     @Override
     public int updateSubFundingSource(SubFundingSource subFundingSource, CustomUserDetails curUser) {
         SubFundingSource sfs = this.subFundingSourceDao.getSubFundingSourceById(subFundingSource.getSubFundingSourceId(), curUser);
+        if (sfs == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
         if (this.aclService.checkRealmAccessForUser(curUser, sfs.getFundingSource().getRealm().getRealmId())) {
             return this.subFundingSourceDao.updateSubFundingSource(subFundingSource, curUser);
         } else {

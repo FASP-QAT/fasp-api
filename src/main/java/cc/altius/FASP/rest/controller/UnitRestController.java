@@ -6,9 +6,15 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.PrgUnitDTO;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Unit;
 import cc.altius.FASP.service.UnitService;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +30,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -36,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class UnitRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     private UnitService unitService;
 
@@ -93,4 +100,14 @@ public class UnitRestController {
         }
     }
 
+    @GetMapping(value = "/getUnitListForSync")
+    public String getUnitListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+        String json;
+        List<PrgUnitDTO> unitList = this.unitService.getUnitListForSync(lastSyncDate);
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(unitList, typeList);
+        return json;
+    }
 }

@@ -6,10 +6,15 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.PrgProductDTO;
 import cc.altius.FASP.model.Product;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.ProductService;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +30,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -108,5 +114,16 @@ public class ProductRestController {
             logger.error("Error while trying to list Product", e);
             return new ResponseEntity(new ResponseCode("static.message.product.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    @GetMapping(value = "/getProductListForSync")
+    public String getProductListForSync(@RequestParam String lastSyncDate, int realmId) throws UnsupportedEncodingException {
+        String json;
+        List<PrgProductDTO> productList = this.productService.getProductListForSync(lastSyncDate, realmId);
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(productList, typeList);
+        return json;
     }
 }

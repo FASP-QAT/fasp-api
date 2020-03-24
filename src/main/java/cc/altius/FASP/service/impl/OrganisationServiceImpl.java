@@ -9,11 +9,13 @@ import cc.altius.FASP.dao.OrganisationDao;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgOrganisationDTO;
+import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.OrganisationService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -30,8 +32,8 @@ public class OrganisationServiceImpl implements OrganisationService {
     private AclService aclService;
 
     @Override
-    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate,int realmId) {
-        return this.organisationDao.getOrganisationListForSync(lastSyncDate,realmId);
+    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate, int realmId) {
+        return this.organisationDao.getOrganisationListForSync(lastSyncDate, realmId);
     }
 
     @Override
@@ -60,12 +62,21 @@ public class OrganisationServiceImpl implements OrganisationService {
 
     @Override
     public List<Organisation> getOrganisationListByRealmId(int realmId, CustomUserDetails curUser) {
-        return this.organisationDao.getOrganisationListByRealmId(realmId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            return this.organisationDao.getOrganisationListByRealmId(realmId, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
     @Override
     public Organisation getOrganisationById(int organisationId, CustomUserDetails curUser) {
-        return organisationDao.getOrganisationById(organisationId, curUser);
+        Organisation org = organisationDao.getOrganisationById(organisationId, curUser);
+        if (org != null) {
+            return org;
+        } else {
+            throw new EmptyResultDataAccessException(1);
+        }
     }
 
 }

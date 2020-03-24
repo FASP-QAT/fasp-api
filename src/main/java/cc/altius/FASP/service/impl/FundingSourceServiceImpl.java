@@ -59,7 +59,11 @@ public class FundingSourceServiceImpl implements FundingSourceService {
 
     @Override
     public List<FundingSource> getFundingSourceList(int realmId, CustomUserDetails curUser) {
-        return this.fundingSourceDao.getFundingSourceList(realmId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            return this.fundingSourceDao.getFundingSourceList(realmId, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
     @Override
