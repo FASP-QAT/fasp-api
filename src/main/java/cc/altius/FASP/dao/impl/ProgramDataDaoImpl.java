@@ -54,7 +54,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "p.`LAST_MODIFIED_DATE`,p.`MONTHS_IN_FUTURE_FOR_AMC`,p.`MONTHS_IN_PAST_FOR_AMC`,\n"
                 + "p.`ORGANISATION_ID`,ro_label.`LABEL_EN` AS ORGANISATION_LABEL_EN,ro_label.`LABEL_PR` AS ORGANISATION_LABEL_PR,\n"
                 + "ro_label.`LABEL_FR` AS ORGANISATION_LABEL_FR,ro_label.`LABEL_SP` AS ORGANISATION_LABEL_SP,\n"
-                + "p.`PLAN_DRAFT_LEAD_TIME` AS `PLAN_TO_DRAFT_LEAD_TIME`,p.`PROGRAM_MANAGER_USER_ID`\n"
+                + "p.`PLANNED_TO_DRAFT_LEAD_TIME` AS `PLAN_TO_DRAFT_LEAD_TIME`,p.`PROGRAM_MANAGER_USER_ID`\n"
                 + ",prg_manager.`USERNAME` AS `PROGRAM_MANAGER_USERNAME`,p.`PROGRAM_NOTES`,p.`REALM_COUNTRY_ID`,\n"
                 + "rrc.`AIR_FREIGHT_PERC` AS REALM_COUNTRY_AIR_FREIGHT_PERC,rrc.`ARRIVED_TO_DELIVERED_LEAD_TIME`,rrc.`COUNTRY_ID`,\n"
                 + "a_currency.`CONVERSION_RATE_TO_USD`,a_currency.`CURRENCY_CODE`,ac.`CURRENCY_ID`,a_currency.`CURRENCY_SYMBOL`\n"
@@ -100,7 +100,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN ap_unit_type pu_type ON pu_type.`UNIT_TYPE_ID`=pallet_unit.`UNIT_TYPE_ID`\n"
                 + "LEFT JOIN ap_label put_label ON put_label.`LABEL_ID`=pu_type.`LABEL_ID`\n"
                 + "LEFT JOIN rm_realm rr ON rr.`REALM_ID`=rrc.`REALM_ID`\n"
-                + "LEFT JOIN rm_label rr_label ON rr_label.`LABEL_ID`=rr.`LABEL_ID` WHERE p.PROGRAM_ID IN (" + programId + ");";
+                + "LEFT JOIN ap_label rr_label ON rr_label.`LABEL_ID`=rr.`LABEL_ID` WHERE p.PROGRAM_ID IN (" + programId + ");";
         return this.jdbcTemplate.query(sql, new PrgProgramDataDTORowMapper());
 
 //                + "LEFT JOIN ap_label rr_label ON rr_label.`LABEL_ID`=rr.`LABEL_ID` WHERE p.PROGRAM_ID IN (" + programId + ");";
