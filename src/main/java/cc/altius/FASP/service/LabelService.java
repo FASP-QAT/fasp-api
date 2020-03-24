@@ -6,6 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.DatabaseTranslationsDTO;
 import cc.altius.FASP.model.DTO.StaticLabelDTO;
 import cc.altius.FASP.model.Label;
 import java.util.List;
@@ -16,7 +17,7 @@ import java.util.List;
  */
 public interface LabelService {
 
-    public List<Label> getDatabaseLabelsList();
+    public List<DatabaseTranslationsDTO> getDatabaseLabelsList(int realmId);
     
     public boolean saveDatabaseLabels(List<String> label,CustomUserDetails curUser);
     
