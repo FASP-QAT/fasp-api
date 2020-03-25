@@ -154,7 +154,7 @@ public class DataSourceTypeDaoImpl implements DataSourceTypeDao {
     @Override
     public List<PrgDataSourceTypeDTO> getDataSourceTypeListForSync(String lastSyncDate) {
         String sql = "SELECT dst.`ACTIVE`,dst.`DATA_SOURCE_TYPE_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP` "
-                + "FROM ap_data_source_type dst  "
+                + "FROM rm_data_source_type dst  "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=dst.`LABEL_ID`";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
