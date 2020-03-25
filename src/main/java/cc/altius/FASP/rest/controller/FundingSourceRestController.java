@@ -62,13 +62,13 @@ public class FundingSourceRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.fundingSourceService.addFundingSource(fundingSource, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.addSucccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSucccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Funding source", ae);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.addFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to add Funding source", e);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -77,16 +77,16 @@ public class FundingSourceRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.fundingSourceService.updateFundingSource(fundingSource, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.updateSucccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSucccess"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to update Funding source", ae);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.updateFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update Funding source", ae);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.updateFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to update Funding source", e);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -97,7 +97,7 @@ public class FundingSourceRestController {
             return new ResponseEntity(this.fundingSourceService.getFundingSourceList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Funding source", e);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -108,10 +108,10 @@ public class FundingSourceRestController {
             return new ResponseEntity(this.fundingSourceService.getFundingSourceList(realmId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to get Funding source for Realm, RealmId=" + realmId, ae);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to list Funding source", e);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -122,13 +122,13 @@ public class FundingSourceRestController {
             return new ResponseEntity(this.fundingSourceService.getFundingSourceById(fundingSourceId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to get Funding source Id=" + fundingSourceId, ae);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.listNotFound"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to get Funding source Id=" + fundingSourceId, ae);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.listNotFound"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to get Funding source Id=" + fundingSourceId, e);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
