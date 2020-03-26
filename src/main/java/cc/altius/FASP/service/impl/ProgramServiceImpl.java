@@ -6,10 +6,12 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ProgramDao;
+import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramProduct;
+import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
@@ -30,6 +32,8 @@ public class ProgramServiceImpl implements ProgramService {
     private ProgramDao programDao;
     @Autowired
     private RealmCountryService realmCountryService;
+    @Autowired
+    private RealmDao realmDao;
     @Autowired
     private AclService aclService;
 
@@ -80,6 +84,10 @@ public class ProgramServiceImpl implements ProgramService {
 
     @Override
     public List<Program> getProgramList(int realmId, CustomUserDetails curUser) {
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (r == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
             return this.programDao.getProgramList(realmId, curUser);
         } else {

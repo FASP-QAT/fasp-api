@@ -7,14 +7,17 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.DataSourceDao;
 import cc.altius.FASP.dao.DataSourceTypeDao;
+import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgDataSourceDTO;
 import cc.altius.FASP.model.DataSource;
 import cc.altius.FASP.model.DataSourceType;
+import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.DataSourceService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +32,8 @@ public class DataSourceServiceImpl implements DataSourceService {
     private DataSourceDao dataSourceDao;
     @Autowired
     private DataSourceTypeDao dataSourceTypeDao;
+    @Autowired
+    private RealmDao realmDao;
     @Autowired
     private AclService aclService;
 
@@ -63,6 +68,10 @@ public class DataSourceServiceImpl implements DataSourceService {
 
     @Override
     public List<DataSource> getDataSourceForRealm(int realmId, boolean active, CustomUserDetails curUser) {
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (r == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
             return this.dataSourceDao.getDataSourceForRealm(realmId, active, curUser);
         } else {
