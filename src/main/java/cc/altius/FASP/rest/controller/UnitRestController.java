@@ -52,13 +52,13 @@ public class UnitRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.unitService.addUnit(unit, curUser);
-            return new ResponseEntity("static.message.unit.addSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException ae) {
             logger.error("Error while trying to add Unit", ae);
-            return new ResponseEntity(new ResponseCode("static.message.unit.addFailed"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to add Unit", e);
-            return new ResponseEntity(new ResponseCode("static.message.unit.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -67,13 +67,13 @@ public class UnitRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.unitService.updateUnit(unit, curUser);
-            return new ResponseEntity("static.message.unit.updateSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException ae) {
             logger.error("Error while trying to update Unit ", ae);
-            return new ResponseEntity(new ResponseCode("static.message.unit.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to add Unit", e);
-            return new ResponseEntity(new ResponseCode("static.message.unit.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -83,7 +83,7 @@ public class UnitRestController {
             return new ResponseEntity(this.unitService.getUnitList(), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Unit", e);
-            return new ResponseEntity(new ResponseCode("static.message.unit.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -93,10 +93,10 @@ public class UnitRestController {
             return new ResponseEntity(this.unitService.getUnitById(unitId), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Unit", e);
-            return new ResponseEntity(new ResponseCode("static.message.unit.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to list Unit", e);
-            return new ResponseEntity(new ResponseCode("static.message.unit.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

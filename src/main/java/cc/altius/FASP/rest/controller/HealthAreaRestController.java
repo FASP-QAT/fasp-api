@@ -52,13 +52,13 @@ public class HealthAreaRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.healthAreaService.addHealthArea(healthArea, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.healthArea.addSucccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSucccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Health Area", ae);
-            return new ResponseEntity(new ResponseCode("static.message.healthArea.addFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to add Health Area", e);
-            return new ResponseEntity(new ResponseCode("static.message.healthArea.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -67,13 +67,13 @@ public class HealthAreaRestController {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
             this.healthAreaService.updateHealthArea(healthArea, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.healthArea.updateSucccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSucccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update Health Area", ae);
-            return new ResponseEntity(new ResponseCode("static.message.healthArea.updateFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to update Health Area", e);
-            return new ResponseEntity(new ResponseCode("static.message.healthArea.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -84,7 +84,7 @@ public class HealthAreaRestController {
             return new ResponseEntity(this.healthAreaService.getHealthAreaList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Health Area list", e);
-            return new ResponseEntity(new ResponseCode("static.message.healthArea.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -95,10 +95,10 @@ public class HealthAreaRestController {
             return new ResponseEntity(this.healthAreaService.getHealthAreaListByRealmId(realmId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get Health Area list", e);
-            return new ResponseEntity(new ResponseCode("static.message.healthArea.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to get Health Area list", e);
-            return new ResponseEntity(new ResponseCode("static.message.healthArea.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -109,13 +109,13 @@ public class HealthAreaRestController {
             return new ResponseEntity(this.healthAreaService.getHealthAreaById(healthAreaId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Health Area list", er);
-            return new ResponseEntity(new ResponseCode("static.message.healthArea.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get Health Area list", e);
-            return new ResponseEntity(new ResponseCode("static.message.healthArea.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to get Health Area list", e);
-            return new ResponseEntity(new ResponseCode("static.message.healthArea.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

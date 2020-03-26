@@ -106,13 +106,13 @@ public class ManufacturerRestController {
             return new ResponseEntity(this.manufacturerService.getManufacturerById(manufacturerId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Manufacturer list", er);
-            return new ResponseEntity(new ResponseCode("static.message.manufacturer.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException er) {
             logger.error("Error while trying to get Manufacturer list", er);
-            return new ResponseEntity(new ResponseCode("static.message.manufacturer.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to get Manufacturer list", e);
-            return new ResponseEntity(new ResponseCode("static.message.manufacturer.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -123,13 +123,13 @@ public class ManufacturerRestController {
             return new ResponseEntity(this.manufacturerService.getManufacturerListForRealm(realmId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Manufacturer list", er);
-            return new ResponseEntity(new ResponseCode("static.message.manufacturer.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException er) {
             logger.error("Error while trying to get Manufacturer list", er);
-            return new ResponseEntity(new ResponseCode("static.message.manufacturer.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to get Manufacturer list", e);
-            return new ResponseEntity(new ResponseCode("static.message.manufacturer.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

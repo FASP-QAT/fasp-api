@@ -52,13 +52,13 @@ public class ProductRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.productService.addProduct(product, curUser);
-            return new ResponseEntity("static.product.addSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Product", ae);
-            return new ResponseEntity(new ResponseCode("static.message.product.addFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to add Product", e);
-            return new ResponseEntity(new ResponseCode("static.message.product.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -67,13 +67,13 @@ public class ProductRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.productService.updateProduct(product, curUser);
-            return new ResponseEntity("static.product.updateSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update Product", ae);
-            return new ResponseEntity(new ResponseCode("static.message.product.updateFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to update Product", e);
-            return new ResponseEntity(new ResponseCode("static.message.product.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -84,7 +84,7 @@ public class ProductRestController {
             return new ResponseEntity(this.productService.getProductList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Product", e);
-            return new ResponseEntity(new ResponseCode("static.message.product.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -95,10 +95,10 @@ public class ProductRestController {
             return new ResponseEntity(this.productService.getProductList(realmId, true, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list Product", e);
-            return new ResponseEntity(new ResponseCode("static.message.product.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to list Product", e);
-            return new ResponseEntity(new ResponseCode("static.message.product.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -109,10 +109,10 @@ public class ProductRestController {
             return new ResponseEntity(this.productService.getProductById(productId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to list Product", er);
-            return new ResponseEntity(new ResponseCode("static.message.product.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to list Product", e);
-            return new ResponseEntity(new ResponseCode("static.message.product.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

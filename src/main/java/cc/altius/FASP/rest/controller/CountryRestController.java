@@ -53,7 +53,7 @@ public class CountryRestController {
             return new ResponseEntity(this.countryService.getCountryList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
-            return new ResponseEntity(new ResponseCode("static.country.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -64,7 +64,7 @@ public class CountryRestController {
             return new ResponseEntity(this.countryService.getCountryList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list all", e);
-            return new ResponseEntity(new ResponseCode("static.country.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -75,10 +75,10 @@ public class CountryRestController {
             return new ResponseEntity(this.countryService.getCountryById(countryId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while getting country id="+countryId, er);
-            return new ResponseEntity(new ResponseCode("static.country.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while getting country id="+countryId, e);
-            return new ResponseEntity(new ResponseCode("static.country.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -88,17 +88,17 @@ public class CountryRestController {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int countryId = this.countryService.addCountry(country, curUser);
             if (countryId > 0) {
-                return new ResponseEntity(new ResponseCode("static.country.addSuccess"),HttpStatus.OK);
+                return new ResponseEntity(new ResponseCode("static.message.addSuccess"),HttpStatus.OK);
             } else {
                 logger.error("Error while adding country no Id returned");
-                return new ResponseEntity(new ResponseCode("static.country.addFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (DuplicateKeyException e) {
             logger.error("Error while adding country", e);
-            return new ResponseEntity(new ResponseCode("static.country.alreadyExists"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.alreadyExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while adding country", e);
-            return new ResponseEntity(new ResponseCode("static.country.addFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -109,17 +109,17 @@ public class CountryRestController {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int updatedId = this.countryService.updateCountry(country, curUser);
             if (updatedId > 0) {
-                return new ResponseEntity(new ResponseCode("static.country.updateSuccess"), HttpStatus.OK);
+                return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
             } else {
                 logger.error("Error while updating country, 0 rows updated");
-                return new ResponseEntity(new ResponseCode("static.country.updateFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (DuplicateKeyException e) {
             logger.error("Error while updating country", e);
-            return new ResponseEntity(new ResponseCode("static.country.alreadyExists"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.alreadyExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while updating country", e);
-            return new ResponseEntity(new ResponseCode("static.country.updateFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

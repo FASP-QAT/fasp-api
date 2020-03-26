@@ -53,16 +53,16 @@ public class DataSourceTypeRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.dataSourceTypeService.addDataSourceType(dataSourceType, curUser);
-            return new ResponseEntity("static.message.dataSourceType.addSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to add DataSourceType", e);
-            return new ResponseEntity("static.message.dataSourceType.addFailed", HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.UNAUTHORIZED);
         } catch (DuplicateKeyException e) {
             logger.error("Error while trying to add DataSourceType", e);
-            return new ResponseEntity("static.message.dataSourceType.addFailed", HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to add DataSourceType", e);
-            return new ResponseEntity("static.message.dataSourceType.addFailed", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -73,7 +73,7 @@ public class DataSourceTypeRestController {
             return new ResponseEntity(this.dataSourceTypeService.getDataSourceTypeList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get DataSourceType list", e);
-            return new ResponseEntity(new ResponseCode("static.message.dataSourceType.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -84,7 +84,7 @@ public class DataSourceTypeRestController {
             return new ResponseEntity(this.dataSourceTypeService.getDataSourceTypeList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get DataSourceType list", e);
-            return new ResponseEntity(new ResponseCode("static.message.dataSourceType.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -95,13 +95,13 @@ public class DataSourceTypeRestController {
             return new ResponseEntity(this.dataSourceTypeService.getDataSourceTypeById(dataSourceTypeId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get DataSourceType list", e);
-            return new ResponseEntity(new ResponseCode("static.message.dataSourceType.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get DataSourceType list", e);
-            return new ResponseEntity(new ResponseCode("static.message.dataSourceType.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to get DataSourceType list", e);
-            return new ResponseEntity(new ResponseCode("static.message.dataSourceType.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -112,13 +112,13 @@ public class DataSourceTypeRestController {
             return new ResponseEntity(this.dataSourceTypeService.getDataSourceTypeForRealm(realmId, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get DataSourceType list", e);
-            return new ResponseEntity(new ResponseCode("static.message.dataSourceType.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get DataSourceType list", e);
-            return new ResponseEntity(new ResponseCode("static.message.dataSourceType.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to get DataSourceType list", e);
-            return new ResponseEntity(new ResponseCode("static.message.dataSourceType.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -127,16 +127,16 @@ public class DataSourceTypeRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.dataSourceTypeService.updateDataSourceType(dataSourceType, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.DataSourceType.updateSuccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update DataSourceType", e);
-            return new ResponseEntity(new ResponseCode("static.message.dataSourceType.updateFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.UNAUTHORIZED);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to update DataSourceType", e);
-            return new ResponseEntity(new ResponseCode("static.message.dataSourceType.updateFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to update DataSourceType", e);
-            return new ResponseEntity(new ResponseCode("static.message.dataSourceType.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
