@@ -218,7 +218,7 @@ public class UserRestController {
                     String token = this.userService.generateTokenForUsername(user.getUsername(), 2);
                     if (token == null || token.isEmpty()) {
                         auditLogger.info("Could not generate a Token for the new user");
-                        return new ResponseEntity(new ResponseCode("static.message.tokenFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+                        return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
                     } else {
                         auditLogger.info("User has been created and credentials link sent on email");
                         return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
@@ -272,7 +272,7 @@ public class UserRestController {
             User user = this.userService.getUserByUserId(userId);
             if (!user.getEmailId().equals(emailId)) {
                 auditLogger.info("Incorrect emailId or UserId");
-                return new ResponseEntity(new ResponseCode("static.message.login.incorrectEmailUser"), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity(new ResponseCode("static.message.accountUnlocked"), HttpStatus.OK);
             }
             PasswordEncoder encoder = new BCryptPasswordEncoder();
             String password = PassPhrase.getPassword();
@@ -289,11 +289,11 @@ public class UserRestController {
                 }
             } else {
                 auditLogger.info("User could not be unlocked");
-                return new ResponseEntity(new ResponseCode("static.message.couldNotBeUnlocked"), HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (Exception e) {
             auditLogger.info("User could not be unlocked", e);
-            return new ResponseEntity(new ResponseCode("static.message.couldNotBeUnlocked"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -358,7 +358,7 @@ public class UserRestController {
                     String token = this.userService.generateTokenForUsername(username, 1);
                     if (token == null || token.isEmpty()) {
                         auditLogger.info("Could not process request as Token could not be generated");
-                        return new ResponseEntity(new ResponseCode("static.message.tokenFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+                        return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
                     } else {
                         auditLogger.info("Forgot password request processed for Username: " + username + " email with password reset link sent");
                         Map<String, String> params = new HashMap<>();
@@ -375,7 +375,7 @@ public class UserRestController {
             }
         } catch (Exception e) {
             auditLogger.info("Error while generating Token for forgot password", e);
-            return new ResponseEntity(new ResponseCode("static.message.forgotPasswordTokenFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -454,7 +454,7 @@ public class UserRestController {
             String username = request.getHeader("username");
             String password = request.getHeader("password");
             if (username == null || password == null) {
-                return new ResponseEntity("static.message.usernameOrPassword", HttpStatus.NOT_ACCEPTABLE);
+                return new ResponseEntity("static.message.notExist", HttpStatus.NOT_ACCEPTABLE);
             }
             Map<String, Object> responseMap = this.userService.checkIfUserExists(username, password);
             CustomUserDetails customUserDetails = (CustomUserDetails) responseMap.get("customUserDetails");
