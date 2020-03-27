@@ -51,13 +51,13 @@ public class UnitTypeController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.unitTypeService.addUnitType(unitType, curUser);
-            return new ResponseEntity("static.message.unitType.addSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException ae) {
             logger.error("Error while trying to add UnitType", ae);
-            return new ResponseEntity(new ResponseCode("static.message.unitType.addFailed"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to add UnitType", e);
-            return new ResponseEntity(new ResponseCode("static.message.unitType.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -66,16 +66,16 @@ public class UnitTypeController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.unitTypeService.updateUnitType(unitType, curUser);
-            return new ResponseEntity("static.message.unitType.updateSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to update UnitType ", ae);
-            return new ResponseEntity(new ResponseCode("static.message.unitType.updateFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
         } catch (DuplicateKeyException ae) {
             logger.error("Error while trying to update UnitType ", ae);
-            return new ResponseEntity(new ResponseCode("static.message.unitType.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to add UnitType", e);
-            return new ResponseEntity(new ResponseCode("static.message.unitType.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -85,7 +85,7 @@ public class UnitTypeController {
             return new ResponseEntity(this.unitTypeService.getUnitTypeList(), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list UnitType", e);
-            return new ResponseEntity(new ResponseCode("static.message.unitType.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -95,10 +95,10 @@ public class UnitTypeController {
             return new ResponseEntity(this.unitTypeService.getUnitTypeById(unitTypeId), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list UnitType", e);
-            return new ResponseEntity(new ResponseCode("static.message.unitType.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to list UnitType", e);
-            return new ResponseEntity(new ResponseCode("static.message.unitType.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
