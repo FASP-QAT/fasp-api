@@ -22,12 +22,13 @@ DROP TABLE IF EXISTS `fasp`.`ap_language` ;
 
 CREATE TABLE IF NOT EXISTS `fasp`.`ap_language` (
   `LANGUAGE_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Language that we support, this includes Db languages and UI languages',
+  `LANGUAGE_CODE` VARCHAR(2) NOT NULL,
   `LANGUAGE_NAME` VARCHAR(100) NOT NULL COMMENT 'Language name, no need for a Label here since the Language name will be in the required language',
   `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'If True indicates this Language is Active. False indicates this Language has been De-activated',
   `CREATED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Created by',
   `CREATED_DATE` DATETIME NOT NULL COMMENT 'Created date',
   `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Last Modified By',
-  `LAST_MODIFIED_DATE` DATETIME NOT NULL COMMENT 'Last Modified date',
+  `LAST_MODIFIED_DATE` DATETIME NOT NULL COMMENT '2 char language code that is used in the translations',
   PRIMARY KEY (`LANGUAGE_ID`),
   CONSTRAINT `fk_language_createdBy`
     FOREIGN KEY (`CREATED_BY`)
@@ -47,6 +48,8 @@ CREATE INDEX `fk_language_createdBy_idx` ON `fasp`.`ap_language` (`CREATED_BY` A
 CREATE INDEX `fk_language_lastModifiedBy_idx` ON `fasp`.`ap_language` (`LAST_MODIFIED_BY` ASC);
 
 CREATE UNIQUE INDEX `unqLanguageName` ON `fasp`.`ap_language` (`LANGUAGE_NAME` ASC)  COMMENT 'Language name should be unique';
+
+CREATE UNIQUE INDEX `unqLanguageCode` ON `fasp`.`ap_language` (`LANGUAGE_CODE` ASC);
 
 
 -- -----------------------------------------------------
@@ -136,7 +139,7 @@ DROP TABLE IF EXISTS `fasp`.`us_user` ;
 
 CREATE TABLE IF NOT EXISTS `fasp`.`us_user` (
   `USER_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique User Id for each User',
-  `REALM_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Realm Id that the User belongs to',
+  `REALM_ID` INT(10) UNSIGNED NULL COMMENT 'Realm Id that the User belongs to',
   `USERNAME` VARCHAR(25) NOT NULL COMMENT 'Username used to login',
   `PASSWORD` TINYBLOB NOT NULL COMMENT 'Encrypted password for the User\nOffline notes: Password cannot be updated when a User is offline',
   `EMAIL_ID` VARCHAR(50) NULL,
@@ -200,6 +203,7 @@ CREATE TABLE IF NOT EXISTS `fasp`.`ap_currency` (
   `CREATED_DATE` DATETIME NOT NULL COMMENT 'Created date',
   `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Last Modified by',
   `LAST_MODIFIED_DATE` DATETIME NOT NULL COMMENT 'Last Modified date',
+  `ACTIVE` TINYINT(1) UNSIGNED NOT NULL COMMENT '			',
   PRIMARY KEY (`CURRENCY_ID`),
   CONSTRAINT `fk_currency_labelId`
     FOREIGN KEY (`LABEL_ID`)
@@ -875,12 +879,13 @@ CREATE INDEX `fk_user_acl_organisationId_idx` ON `fasp`.`us_user_acl` (`ORGANISA
 
 
 -- -----------------------------------------------------
--- Table `fasp`.`ap_data_source_type`
+-- Table `fasp`.`rm_data_source_type`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `fasp`.`ap_data_source_type` ;
+DROP TABLE IF EXISTS `fasp`.`rm_data_source_type` ;
 
-CREATE TABLE IF NOT EXISTS `fasp`.`ap_data_source_type` (
+CREATE TABLE IF NOT EXISTS `fasp`.`rm_data_source_type` (
   `DATA_SOURCE_TYPE_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for Data Source Type',
+  `REALM_ID` INT(10) UNSIGNED NOT NULL,
   `LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',
   `ACTIVE` TINYINT(1) UNSIGNED NOT NULL COMMENT 'If True indicates this Funding Source is Active. False indicates this Funding Source has been De-activated',
   `CREATED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Created by	',
@@ -897,22 +902,30 @@ CREATE TABLE IF NOT EXISTS `fasp`.`ap_data_source_type` (
     FOREIGN KEY (`LAST_MODIFIED_BY`)
     REFERENCES `fasp`.`us_user` (`USER_ID`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_data_source_type_rm_realm1`
+    FOREIGN KEY (`REALM_ID`)
+    REFERENCES `fasp`.`rm_realm` (`REALM_ID`)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 COMMENT = 'Super Classification of data_source\nNote: There are 3 DataSourceTypes Inventory, Shipment and Consumption';
 
-CREATE INDEX `fk_data_source_type_createdBy_idx` ON `fasp`.`ap_data_source_type` (`CREATED_BY` ASC);
+CREATE INDEX `fk_data_source_type_createdBy_idx` ON `fasp`.`rm_data_source_type` (`CREATED_BY` ASC);
 
-CREATE INDEX `fk_data_source_type_lastModifiedBy_idx` ON `fasp`.`ap_data_source_type` (`LAST_MODIFIED_BY` ASC);
+CREATE INDEX `fk_data_source_type_lastModifiedBy_idx` ON `fasp`.`rm_data_source_type` (`LAST_MODIFIED_BY` ASC);
+
+CREATE INDEX `fk_rm_data_source_type_rm_realm1_idx` ON `fasp`.`rm_data_source_type` (`REALM_ID` ASC);
 
 
 -- -----------------------------------------------------
--- Table `fasp`.`ap_data_source`
+-- Table `fasp`.`rm_data_source`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `fasp`.`ap_data_source` ;
+DROP TABLE IF EXISTS `fasp`.`rm_data_source` ;
 
-CREATE TABLE IF NOT EXISTS `fasp`.`ap_data_source` (
+CREATE TABLE IF NOT EXISTS `fasp`.`rm_data_source` (
   `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Data source ',
+  `REALM_ID` INT(10) UNSIGNED NOT NULL,
   `DATA_SOURCE_TYPE_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key for Data Source Type Id',
   `LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',
   `ACTIVE` VARCHAR(50) NOT NULL COMMENT 'If True indicates this Funding Source is Active. False indicates this Funding Source has been De-activated',
@@ -923,7 +936,7 @@ CREATE TABLE IF NOT EXISTS `fasp`.`ap_data_source` (
   PRIMARY KEY (`DATA_SOURCE_ID`),
   CONSTRAINT `fk_data_source_dataSourceTypeId`
     FOREIGN KEY (`DATA_SOURCE_TYPE_ID`)
-    REFERENCES `fasp`.`ap_data_source_type` (`DATA_SOURCE_TYPE_ID`)
+    REFERENCES `fasp`.`rm_data_source_type` (`DATA_SOURCE_TYPE_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_data_source_createdBy`
@@ -940,17 +953,24 @@ CREATE TABLE IF NOT EXISTS `fasp`.`ap_data_source` (
     FOREIGN KEY (`LABEL_ID`)
     REFERENCES `fasp`.`ap_label` (`LABEL_ID`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ap_data_source_rm_realm1`
+    FOREIGN KEY (`REALM_ID`)
+    REFERENCES `fasp`.`rm_realm` (`REALM_ID`)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 COMMENT = 'Table to capture the Data Source\nNote: To be used in Shipments, Inventory and Consumption tables to identify where the data came from. Application level field so can only be administered by Application Admin';
 
-CREATE INDEX `fk_data_source_dataSourceTypeId_idx` ON `fasp`.`ap_data_source` (`DATA_SOURCE_TYPE_ID` ASC);
+CREATE INDEX `fk_data_source_dataSourceTypeId_idx` ON `fasp`.`rm_data_source` (`DATA_SOURCE_TYPE_ID` ASC);
 
-CREATE INDEX `fk_data_source_createdBy_idx` ON `fasp`.`ap_data_source` (`CREATED_BY` ASC);
+CREATE INDEX `fk_data_source_createdBy_idx` ON `fasp`.`rm_data_source` (`CREATED_BY` ASC);
 
-CREATE INDEX `fk_data_source_lastModifiedBy_idx` ON `fasp`.`ap_data_source` (`LAST_MODIFIED_BY` ASC);
+CREATE INDEX `fk_data_source_lastModifiedBy_idx` ON `fasp`.`rm_data_source` (`LAST_MODIFIED_BY` ASC);
 
-CREATE INDEX `fk_data_source_labelId_idx` ON `fasp`.`ap_data_source` (`LABEL_ID` ASC);
+CREATE INDEX `fk_data_source_labelId_idx` ON `fasp`.`rm_data_source` (`LABEL_ID` ASC);
+
+CREATE INDEX `fk_ap_data_source_rm_realm1_idx` ON `fasp`.`rm_data_source` (`REALM_ID` ASC);
 
 
 -- -----------------------------------------------------
@@ -1441,6 +1461,11 @@ DROP TABLE IF EXISTS `fasp`.`ap_unit_type` ;
 CREATE TABLE IF NOT EXISTS `fasp`.`ap_unit_type` (
   `UNIT_TYPE_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `LABEL_ID` INT(10) UNSIGNED NOT NULL,
+  `ACTIVE` TINYINT(1) UNSIGNED NOT NULL,
+  `CREATED_BY` INT(10) UNSIGNED NOT NULL,
+  `CREATED_DATE` DATETIME NOT NULL,
+  `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL,
+  `LAST_MODIFIED_DATE` DATETIME NOT NULL,
   PRIMARY KEY (`UNIT_TYPE_ID`),
   CONSTRAINT `fk_unit_type_labelId`
     FOREIGN KEY (`LABEL_ID`)
@@ -1492,6 +1517,8 @@ CREATE INDEX `fk_unit_unit_typeId_idx` ON `fasp`.`ap_unit` (`UNIT_TYPE_ID` ASC);
 CREATE INDEX `fk_unit_createdBy_idx` ON `fasp`.`ap_unit` (`CREATED_BY` ASC);
 
 CREATE INDEX `fk_unit_lastModifiedBy_idx` ON `fasp`.`ap_unit` (`LAST_MODIFIED_BY` ASC);
+
+CREATE UNIQUE INDEX `fk_unit_unitCode` ON `fasp`.`ap_unit` (`UNIT_CODE` ASC);
 
 
 -- -----------------------------------------------------
@@ -1968,7 +1995,7 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_inventory` (
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_inventory_dataSourceId`
     FOREIGN KEY (`DATA_SOURCE_ID`)
-    REFERENCES `fasp`.`ap_data_source` (`DATA_SOURCE_ID`)
+    REFERENCES `fasp`.`rm_data_source` (`DATA_SOURCE_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_inventory_createdBy`
@@ -2043,7 +2070,7 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_consumption` (
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_consumption_dataSourceId`
     FOREIGN KEY (`DATA_SOURCE_ID`)
-    REFERENCES `fasp`.`ap_data_source` (`DATA_SOURCE_ID`)
+    REFERENCES `fasp`.`rm_data_source` (`DATA_SOURCE_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_consumption_createdBy`
@@ -2121,7 +2148,7 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_shipment` (
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_shipment_dataSourceId`
     FOREIGN KEY (`DATA_SOURCE_ID`)
-    REFERENCES `fasp`.`ap_data_source` (`DATA_SOURCE_ID`)
+    REFERENCES `fasp`.`rm_data_source` (`DATA_SOURCE_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_shipment_createdBy`
@@ -2579,6 +2606,73 @@ CREATE TABLE IF NOT EXISTS `fasp`.`us_token_logout` (
 ENGINE = InnoDB
 COMMENT = 'A Store of the Tokens that have been logged out';
 
+
+-- -----------------------------------------------------
+-- Table `fasp`.`ap_static_label`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `fasp`.`ap_static_label` ;
+
+CREATE TABLE IF NOT EXISTS `fasp`.`ap_static_label` (
+  `STATIC_LABEL_ID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `LABEL_CODE` VARCHAR(100) NOT NULL,
+  `ACTIVE` TINYINT(1) NOT NULL,
+  PRIMARY KEY (`STATIC_LABEL_ID`))
+ENGINE = InnoDB
+COMMENT = 'Static labels to be used across the application';
+
+
+-- -----------------------------------------------------
+-- Table `fasp`.`ap_static_label_languages`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `fasp`.`ap_static_label_languages` ;
+
+CREATE TABLE IF NOT EXISTS `fasp`.`ap_static_label_languages` (
+  `STATIC_LABEL_LANGUAGE_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `STATIC_LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Static Label that this Text is for',
+  `LANGUAGE_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Language that this text is for',
+  `LABEL_TEXT` VARCHAR(255) NOT NULL COMMENT 'Text in the Language to be displayed',
+  PRIMARY KEY (`STATIC_LABEL_LANGUAGE_ID`),
+  CONSTRAINT `fk_ap_static_label_languages_ap_static_label1`
+    FOREIGN KEY (`STATIC_LABEL_ID`)
+    REFERENCES `fasp`.`ap_static_label` (`STATIC_LABEL_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ap_static_label_languages_ap_language1`
+    FOREIGN KEY (`LANGUAGE_ID`)
+    REFERENCES `fasp`.`ap_language` (`LANGUAGE_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+COMMENT = 'Languages for each of the Static Labels';
+
+CREATE INDEX `fk_ap_static_label_languages_ap_static_label1_idx` ON `fasp`.`ap_static_label_languages` (`STATIC_LABEL_ID` ASC);
+
+CREATE INDEX `fk_ap_static_label_languages_ap_language1_idx` ON `fasp`.`ap_static_label_languages` (`LANGUAGE_ID` ASC);
+
+
+-- -----------------------------------------------------
+-- Table `fasp`.`us_can_create_role`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `fasp`.`us_can_create_role` ;
+
+CREATE TABLE IF NOT EXISTS `fasp`.`us_can_create_role` (
+  `ROLE_ID` VARCHAR(100) NOT NULL,
+  `CAN_CREATE_ROLE` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (`ROLE_ID`, `CAN_CREATE_ROLE`),
+  CONSTRAINT `fk_us_can_create_role_us_role1`
+    FOREIGN KEY (`ROLE_ID`)
+    REFERENCES `fasp`.`us_role` (`ROLE_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_us_can_create_role_us_role2`
+    FOREIGN KEY (`CAN_CREATE_ROLE`)
+    REFERENCES `fasp`.`us_role` (`ROLE_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+CREATE INDEX `fk_us_can_create_role_us_role2_idx` ON `fasp`.`us_can_create_role` (`CAN_CREATE_ROLE` ASC);
+
 USE `fasp` ;
 
 -- -----------------------------------------------------
@@ -2623,10 +2717,10 @@ DELIMITER ;
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `fasp`;
-INSERT INTO `fasp`.`ap_language` (`LANGUAGE_ID`, `LANGUAGE_NAME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 'English', 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
-INSERT INTO `fasp`.`ap_language` (`LANGUAGE_ID`, `LANGUAGE_NAME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 'French', 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
-INSERT INTO `fasp`.`ap_language` (`LANGUAGE_ID`, `LANGUAGE_NAME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 'Spanish', 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
-INSERT INTO `fasp`.`ap_language` (`LANGUAGE_ID`, `LANGUAGE_NAME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 'Pourtegese', 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
+INSERT INTO `fasp`.`ap_language` (`LANGUAGE_ID`, `LANGUAGE_CODE`, `LANGUAGE_NAME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 'en', 'English', 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
+INSERT INTO `fasp`.`ap_language` (`LANGUAGE_ID`, `LANGUAGE_CODE`, `LANGUAGE_NAME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 'fr', 'French', 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
+INSERT INTO `fasp`.`ap_language` (`LANGUAGE_ID`, `LANGUAGE_CODE`, `LANGUAGE_NAME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 'sp', 'Spanish', 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
+INSERT INTO `fasp`.`ap_language` (`LANGUAGE_ID`, `LANGUAGE_CODE`, `LANGUAGE_NAME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 'pr', 'Pourtegese', 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
 
 COMMIT;
 
@@ -2797,7 +2891,7 @@ COMMIT;
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `fasp`;
-INSERT INTO `fasp`.`us_user` (`USER_ID`, `REALM_ID`, `USERNAME`, `PASSWORD`, `EMAIL_ID`, `PHONE`, `LANGUAGE_ID`, `ACTIVE`, `FAILED_ATTEMPTS`, `EXPIRES_ON`, `SYNC_EXPIRES_ON`, `LAST_LOGIN_DATE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 'anchal', 0x24326124313024645875672E42784E52575748656F4A7746596C593575706E6E68397A4C56596A43616E615569395073494753566241577A507A7757, 'anchal.c@altius.cc', '96371396638', 1, 1, 0, '2020-03-10 12:00:00', '2020-03-10 12:00:00', NULL, 1, '2020-02-12 12:00:00', 1, '2020-02-12 12:00:00');
+INSERT INTO `fasp`.`us_user` (`USER_ID`, `REALM_ID`, `USERNAME`, `PASSWORD`, `EMAIL_ID`, `PHONE`, `LANGUAGE_ID`, `ACTIVE`, `FAILED_ATTEMPTS`, `EXPIRES_ON`, `SYNC_EXPIRES_ON`, `LAST_LOGIN_DATE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, NULL, 'anchal', 0x24326124313024645875672E42784E52575748656F4A7746596C593575706E6E68397A4C56596A43616E615569395073494753566241577A507A7757, 'anchal.c@altius.cc', '96371396638', 1, 1, 0, '2020-03-10 12:00:00', '2020-03-10 12:00:00', NULL, 1, '2020-02-12 12:00:00', 1, '2020-02-12 12:00:00');
 
 COMMIT;
 
@@ -2807,9 +2901,9 @@ COMMIT;
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `fasp`;
-INSERT INTO `fasp`.`ap_currency` (`CURRENCY_ID`, `CURRENCY_CODE`, `CURRENCY_SYMBOL`, `LABEL_ID`, `CONVERSION_RATE_TO_USD`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 'USD', '$', 5, 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
-INSERT INTO `fasp`.`ap_currency` (`CURRENCY_ID`, `CURRENCY_CODE`, `CURRENCY_SYMBOL`, `LABEL_ID`, `CONVERSION_RATE_TO_USD`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 'GBP', '£', 20, 1.29, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
-INSERT INTO `fasp`.`ap_currency` (`CURRENCY_ID`, `CURRENCY_CODE`, `CURRENCY_SYMBOL`, `LABEL_ID`, `CONVERSION_RATE_TO_USD`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 'EUR', '€', 21, 1.08, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
+INSERT INTO `fasp`.`ap_currency` (`CURRENCY_ID`, `CURRENCY_CODE`, `CURRENCY_SYMBOL`, `LABEL_ID`, `CONVERSION_RATE_TO_USD`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`) VALUES (1, 'USD', '$', 5, 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00', 1);
+INSERT INTO `fasp`.`ap_currency` (`CURRENCY_ID`, `CURRENCY_CODE`, `CURRENCY_SYMBOL`, `LABEL_ID`, `CONVERSION_RATE_TO_USD`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`) VALUES (2, 'GBP', '£', 20, 1.29, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00', 1);
+INSERT INTO `fasp`.`ap_currency` (`CURRENCY_ID`, `CURRENCY_CODE`, `CURRENCY_SYMBOL`, `LABEL_ID`, `CONVERSION_RATE_TO_USD`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`) VALUES (3, 'EUR', '€', 21, 1.08, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00', 1);
 
 COMMIT;
 
@@ -2984,35 +3078,35 @@ COMMIT;
 
 
 -- -----------------------------------------------------
--- Data for table `fasp`.`ap_data_source_type`
+-- Data for table `fasp`.`rm_data_source_type`
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `fasp`;
-INSERT INTO `fasp`.`ap_data_source_type` (`DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 126, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`ap_data_source_type` (`DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 127, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`ap_data_source_type` (`DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 128, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`ap_data_source_type` (`DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 129, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source_type` (`DATA_SOURCE_TYPE_ID`, `REALM_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 126, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source_type` (`DATA_SOURCE_TYPE_ID`, `REALM_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 1, 127, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source_type` (`DATA_SOURCE_TYPE_ID`, `REALM_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 1, 128, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source_type` (`DATA_SOURCE_TYPE_ID`, `REALM_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 1, 129, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
 
 COMMIT;
 
 
 -- -----------------------------------------------------
--- Data for table `fasp`.`ap_data_source`
+-- Data for table `fasp`.`rm_data_source`
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `fasp`;
-INSERT INTO `fasp`.`ap_data_source` (`DATA_SOURCE_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 2, 114, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`ap_data_source` (`DATA_SOURCE_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 3, 115, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`ap_data_source` (`DATA_SOURCE_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 2, 116, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`ap_data_source` (`DATA_SOURCE_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 2, 117, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`ap_data_source` (`DATA_SOURCE_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (5, 1, 118, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`ap_data_source` (`DATA_SOURCE_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (6, 1, 119, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`ap_data_source` (`DATA_SOURCE_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (7, 3, 120, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`ap_data_source` (`DATA_SOURCE_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (8, 1, 121, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`ap_data_source` (`DATA_SOURCE_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (9, 3, 122, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`ap_data_source` (`DATA_SOURCE_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (10, 4, 123, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`ap_data_source` (`DATA_SOURCE_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (11, 2, 124, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`ap_data_source` (`DATA_SOURCE_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (12, 4, 125, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source` (`DATA_SOURCE_ID`, `REALM_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 2, 114, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source` (`DATA_SOURCE_ID`, `REALM_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 1, 3, 115, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source` (`DATA_SOURCE_ID`, `REALM_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 1, 2, 116, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source` (`DATA_SOURCE_ID`, `REALM_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 1, 2, 117, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source` (`DATA_SOURCE_ID`, `REALM_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (5, 1, 1, 118, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source` (`DATA_SOURCE_ID`, `REALM_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (6, 1, 1, 119, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source` (`DATA_SOURCE_ID`, `REALM_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (7, 1, 3, 120, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source` (`DATA_SOURCE_ID`, `REALM_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (8, 1, 1, 121, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source` (`DATA_SOURCE_ID`, `REALM_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (9, 1, 3, 122, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source` (`DATA_SOURCE_ID`, `REALM_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (10, 1, 4, 123, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source` (`DATA_SOURCE_ID`, `REALM_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (11, 1, 2, 124, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_data_source` (`DATA_SOURCE_ID`, `REALM_ID`, `DATA_SOURCE_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (12, 1, 4, 125, '1', 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
 
 COMMIT;
 
@@ -3161,11 +3255,11 @@ COMMIT;
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `fasp`;
-INSERT INTO `fasp`.`ap_unit_type` (`UNIT_TYPE_ID`, `LABEL_ID`) VALUES (1, 6);
-INSERT INTO `fasp`.`ap_unit_type` (`UNIT_TYPE_ID`, `LABEL_ID`) VALUES (2, 7);
-INSERT INTO `fasp`.`ap_unit_type` (`UNIT_TYPE_ID`, `LABEL_ID`) VALUES (3, 8);
-INSERT INTO `fasp`.`ap_unit_type` (`UNIT_TYPE_ID`, `LABEL_ID`) VALUES (4, 9);
-INSERT INTO `fasp`.`ap_unit_type` (`UNIT_TYPE_ID`, `LABEL_ID`) VALUES (5, 10);
+INSERT INTO `fasp`.`ap_unit_type` (`UNIT_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 6, 1, 1, '2020-01-01 10:00:00', 1, '2020-01-01 10:00:00');
+INSERT INTO `fasp`.`ap_unit_type` (`UNIT_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 7, 1, 1, '2020-01-01 10:00:00', 1, '2020-01-01 10:00:00');
+INSERT INTO `fasp`.`ap_unit_type` (`UNIT_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 8, 1, 1, '2020-01-01 10:00:00', 1, '2020-01-01 10:00:00');
+INSERT INTO `fasp`.`ap_unit_type` (`UNIT_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 9, 1, 1, '2020-01-01 10:00:00', 1, '2020-01-01 10:00:00');
+INSERT INTO `fasp`.`ap_unit_type` (`UNIT_TYPE_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (5, 10, 1, 1, '2020-01-01 10:00:00', 1, '2020-01-01 10:00:00');
 
 COMMIT;
 
@@ -3306,6 +3400,34 @@ INSERT INTO `fasp`.`em_email_template` (`EMAIL_TEMPLATE_ID`, `EMAIL_DESC`, `SUBJ
 
 COMMIT;
 
+
+-- -----------------------------------------------------
+-- Data for table `fasp`.`ap_static_label`
+-- -----------------------------------------------------
+START TRANSACTION;
+USE `fasp`;
+INSERT INTO `fasp`.`ap_static_label` (`STATIC_LABEL_ID`, `LABEL_CODE`, `ACTIVE`) VALUES (1, 'static.realm.realmName', 1);
+INSERT INTO `fasp`.`ap_static_label` (`STATIC_LABEL_ID`, `LABEL_CODE`, `ACTIVE`) VALUES (2, 'static.realm.realmCode', 1);
+
+COMMIT;
+
+
+-- -----------------------------------------------------
+-- Data for table `fasp`.`ap_static_label_languages`
+-- -----------------------------------------------------
+START TRANSACTION;
+USE `fasp`;
+INSERT INTO `fasp`.`ap_static_label_languages` (`STATIC_LABEL_LANGUAGE_ID`, `STATIC_LABEL_ID`, `LANGUAGE_ID`, `LABEL_TEXT`) VALUES (1, 1, 1, 'Realm name');
+INSERT INTO `fasp`.`ap_static_label_languages` (`STATIC_LABEL_LANGUAGE_ID`, `STATIC_LABEL_ID`, `LANGUAGE_ID`, `LABEL_TEXT`) VALUES (2, 1, 2, 'Nom de domaine');
+INSERT INTO `fasp`.`ap_static_label_languages` (`STATIC_LABEL_LANGUAGE_ID`, `STATIC_LABEL_ID`, `LANGUAGE_ID`, `LABEL_TEXT`) VALUES (3, 1, 3, 'Nombre del reino');
+INSERT INTO `fasp`.`ap_static_label_languages` (`STATIC_LABEL_LANGUAGE_ID`, `STATIC_LABEL_ID`, `LANGUAGE_ID`, `LABEL_TEXT`) VALUES (4, 1, 4, 'Nome da região');
+INSERT INTO `fasp`.`ap_static_label_languages` (`STATIC_LABEL_LANGUAGE_ID`, `STATIC_LABEL_ID`, `LANGUAGE_ID`, `LABEL_TEXT`) VALUES (5, 2, 1, 'Realm code');
+INSERT INTO `fasp`.`ap_static_label_languages` (`STATIC_LABEL_LANGUAGE_ID`, `STATIC_LABEL_ID`, `LANGUAGE_ID`, `LABEL_TEXT`) VALUES (6, 2, 2, 'Code de domaine');
+INSERT INTO `fasp`.`ap_static_label_languages` (`STATIC_LABEL_LANGUAGE_ID`, `STATIC_LABEL_ID`, `LANGUAGE_ID`, `LABEL_TEXT`) VALUES (7, 2, 3, 'Código de reino');
+INSERT INTO `fasp`.`ap_static_label_languages` (`STATIC_LABEL_LANGUAGE_ID`, `STATIC_LABEL_ID`, `LANGUAGE_ID`, `LABEL_TEXT`) VALUES (8, 2, 4, 'Código da região');
+
+COMMIT;
+
 USE `fasp`;
 
 DELIMITER $$
@@ -3335,3 +3457,197 @@ DELIMITER ;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+-- begin attached script 'script'
+SET GLOBAL event_scheduler = ON;
+DELIMITER $$
+
+CREATE DEFINER=`faspUser`@`localhost` EVENT `tokenLogoutCleanup` ON SCHEDULE EVERY 1 DAY STARTS '2020-02-01 03:00:00' ON COMPLETION NOT PRESERVE ENABLE DO BEGIN
+	DELETE tl.* FROM rm_token_logout tl WHERE timestampdiff(DAY, tl.LOGOUT_DATE,  now())>=2;
+END$$
+
+DELIMITER ;
+
+
+-- end attached script 'script'
+-- begin attached script 'script1'
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE ap_static_label;
+TRUNCATE TABLE ap_static_label_languages;
+
+INSERT INTO ap_static_label VALUES (null, 'static.login.login', true);	INSERT INTO ap_static_label_languages VALUES (null, 1, 1, 'Login');
+INSERT INTO ap_static_label VALUES (null, 'static.login.signintext', true);	INSERT INTO ap_static_label_languages VALUES (null, 2, 1, 'Sign in to your account');
+INSERT INTO ap_static_label VALUES (null, 'static.login.username', true);	INSERT INTO ap_static_label_languages VALUES (null, 3, 1, 'Username');
+INSERT INTO ap_static_label VALUES (null, 'static.login.password', true);	INSERT INTO ap_static_label_languages VALUES (null, 4, 1, 'Password');
+INSERT INTO ap_static_label VALUES (null, 'static.login.forgotpassword', true);	INSERT INTO ap_static_label_languages VALUES (null, 5, 1, 'Forgot Password');
+INSERT INTO ap_static_label VALUES (null, 'static.common.select', true);	INSERT INTO ap_static_label_languages VALUES (null, 6, 1, 'Please Select');
+INSERT INTO ap_static_label VALUES (null, 'static.common.submit', true);	INSERT INTO ap_static_label_languages VALUES (null, 7, 1, 'Submit');
+INSERT INTO ap_static_label VALUES (null, 'static.common.cancel', true);	INSERT INTO ap_static_label_languages VALUES (null, 8, 1, 'Cancel');
+INSERT INTO ap_static_label VALUES (null, 'static.common.clear', true);	INSERT INTO ap_static_label_languages VALUES (null, 9, 1, 'Clear');
+INSERT INTO ap_static_label VALUES (null, 'static.common.reset', true);	INSERT INTO ap_static_label_languages VALUES (null, 10, 1, 'Reset');
+INSERT INTO ap_static_label VALUES (null, 'static.common.active', true);	INSERT INTO ap_static_label_languages VALUES (null, 11, 1, 'Active');
+INSERT INTO ap_static_label VALUES (null, 'static.common.disabled', true);	INSERT INTO ap_static_label_languages VALUES (null, 12, 1, 'Disabled');
+INSERT INTO ap_static_label VALUES (null, 'static.fundingsource.fundingsourceaddttext', true);	INSERT INTO ap_static_label_languages VALUES (null, 13, 1, 'Add Funding Source');
+INSERT INTO ap_static_label VALUES (null, 'static.fundingsource.fundingsource', true);	INSERT INTO ap_static_label_languages VALUES (null, 14, 1, 'Funding Source');
+INSERT INTO ap_static_label VALUES (null, 'static.fundingsource.realm', true);	INSERT INTO ap_static_label_languages VALUES (null, 15, 1, 'Realm');
+INSERT INTO ap_static_label VALUES (null, 'static.fundingsource.fundingsourcelisttext', true);	INSERT INTO ap_static_label_languages VALUES (null, 16, 1, 'Funding Source List');
+INSERT INTO ap_static_label VALUES (null, 'static.fundingsource.errorrealm', true);	INSERT INTO ap_static_label_languages VALUES (null, 17, 1, 'Please select realm');
+INSERT INTO ap_static_label VALUES (null, 'static.fundingsource.fundingsourceedittext', true);	INSERT INTO ap_static_label_languages VALUES (null, 18, 1, 'Update Funding Source');
+INSERT INTO ap_static_label VALUES (null, 'static.common.status', true);	INSERT INTO ap_static_label_languages VALUES (null, 19, 1, 'Status');
+INSERT INTO ap_static_label VALUES (null, 'static.budget.budgetlist', true);	INSERT INTO ap_static_label_languages VALUES (null, 20, 1, 'Budget List');
+INSERT INTO ap_static_label VALUES (null, 'static.budget.budgetadd', true);	INSERT INTO ap_static_label_languages VALUES (null, 21, 1, 'Add Budget');
+INSERT INTO ap_static_label VALUES (null, 'static.budget.budgetedit', true);	INSERT INTO ap_static_label_languages VALUES (null, 22, 1, 'Update Budget');
+INSERT INTO ap_static_label VALUES (null, 'static.budget.budget', true);	INSERT INTO ap_static_label_languages VALUES (null, 23, 1, 'Budget');
+INSERT INTO ap_static_label VALUES (null, 'static.budget.program', true);	INSERT INTO ap_static_label_languages VALUES (null, 24, 1, 'Program');
+INSERT INTO ap_static_label VALUES (null, 'static.budget.subfundingsource', true);	INSERT INTO ap_static_label_languages VALUES (null, 25, 1, 'Sub Funding Source');
+INSERT INTO ap_static_label VALUES (null, 'static.budget.budgetamount', true);	INSERT INTO ap_static_label_languages VALUES (null, 26, 1, 'Budget Amount');
+INSERT INTO ap_static_label VALUES (null, 'static.common.startdate', true);	INSERT INTO ap_static_label_languages VALUES (null, 27, 1, 'Start Date');
+INSERT INTO ap_static_label VALUES (null, 'static.common.stopdate', true);	INSERT INTO ap_static_label_languages VALUES (null, 28, 1, 'End Date');
+INSERT INTO ap_static_label VALUES (null, 'static.budget.budgetamountdesc', true);	INSERT INTO ap_static_label_languages VALUES (null, 29, 1, 'Budget amount in USD');
+INSERT INTO ap_static_label VALUES (null, 'static.budget.budgetstartdate', true);	INSERT INTO ap_static_label_languages VALUES (null, 30, 1, 'Start Date of Budget');
+INSERT INTO ap_static_label VALUES (null, 'static.budget.budgetstopdate', true);	INSERT INTO ap_static_label_languages VALUES (null, 31, 1, 'End Date of Budget');
+INSERT INTO ap_static_label VALUES (null, 'static.manufacturer.manufacturerlist', true);	INSERT INTO ap_static_label_languages VALUES (null, 32, 1, 'Manufacturer List');
+INSERT INTO ap_static_label VALUES (null, 'static.manufacturer.manufactureradd', true);	INSERT INTO ap_static_label_languages VALUES (null, 33, 1, 'Add Manufacturer');
+INSERT INTO ap_static_label VALUES (null, 'static.manufacturer.manufactureredit', true);	INSERT INTO ap_static_label_languages VALUES (null, 34, 1, 'Update Manufacturer');
+INSERT INTO ap_static_label VALUES (null, 'static.manufacturer.realm', true);	INSERT INTO ap_static_label_languages VALUES (null, 35, 1, 'Realm');
+INSERT INTO ap_static_label VALUES (null, 'static.manufacturer.manufacturer', true);	INSERT INTO ap_static_label_languages VALUES (null, 36, 1, 'Manufacturer');
+INSERT INTO ap_static_label VALUES (null, 'static.budget.fundingsource', true);	INSERT INTO ap_static_label_languages VALUES (null, 37, 1, 'Funding Source');
+INSERT INTO ap_static_label VALUES (null, 'static.language.languageadd', true);	INSERT INTO ap_static_label_languages VALUES (null, 38, 1, 'Add Language');
+INSERT INTO ap_static_label VALUES (null, 'static.language.languageedit', true);	INSERT INTO ap_static_label_languages VALUES (null, 39, 1, 'Update Language');
+INSERT INTO ap_static_label VALUES (null, 'static.language.languagelist', true);	INSERT INTO ap_static_label_languages VALUES (null, 40, 1, 'Language List');
+INSERT INTO ap_static_label VALUES (null, 'static.language.language', true);	INSERT INTO ap_static_label_languages VALUES (null, 41, 1, 'Language');
+INSERT INTO ap_static_label VALUES (null, 'static.country.countryadd', true);	INSERT INTO ap_static_label_languages VALUES (null, 42, 1, 'Add Country');
+INSERT INTO ap_static_label VALUES (null, 'static.country.countryedit', true);	INSERT INTO ap_static_label_languages VALUES (null, 43, 1, 'Update Country');
+INSERT INTO ap_static_label VALUES (null, 'static.country.countrylist', true);	INSERT INTO ap_static_label_languages VALUES (null, 44, 1, 'Country List');
+INSERT INTO ap_static_label VALUES (null, 'static.country.country', true);	INSERT INTO ap_static_label_languages VALUES (null, 45, 1, 'Country Name (English)');
+INSERT INTO ap_static_label VALUES (null, 'static.country.countrycode', true);	INSERT INTO ap_static_label_languages VALUES (null, 46, 1, 'Country Code');
+INSERT INTO ap_static_label VALUES (null, 'static.country.language', true);	INSERT INTO ap_static_label_languages VALUES (null, 47, 1, 'Language');
+INSERT INTO ap_static_label VALUES (null, 'static.country.currency', true);	INSERT INTO ap_static_label_languages VALUES (null, 48, 1, 'Currency');
+INSERT INTO ap_static_label VALUES (null, 'static.datasource.datasourceadd', true);	INSERT INTO ap_static_label_languages VALUES (null, 49, 1, 'Add Data Source');
+INSERT INTO ap_static_label VALUES (null, 'static.datasource.datasourceedit', true);	INSERT INTO ap_static_label_languages VALUES (null, 50, 1, 'Update Data Source');
+INSERT INTO ap_static_label VALUES (null, 'static.datasource.datasourcelist', true);	INSERT INTO ap_static_label_languages VALUES (null, 51, 1, 'Data Source List');
+INSERT INTO ap_static_label VALUES (null, 'static.datasource.datasource', true);	INSERT INTO ap_static_label_languages VALUES (null, 52, 1, 'Data Source');
+INSERT INTO ap_static_label VALUES (null, 'static.datasource.datasourcetype', true);	INSERT INTO ap_static_label_languages VALUES (null, 53, 1, 'Data Source Type');
+INSERT INTO ap_static_label VALUES (null, 'static.datasourcetype.datasourcetypeadd', true);	INSERT INTO ap_static_label_languages VALUES (null, 54, 1, 'Add Data Source Type');
+INSERT INTO ap_static_label VALUES (null, 'static.datasourcetype.datasourcetypeedit', true);	INSERT INTO ap_static_label_languages VALUES (null, 55, 1, 'Update Data Source Type');
+INSERT INTO ap_static_label VALUES (null, 'static.datasourcetype.datasourcetypelist', true);	INSERT INTO ap_static_label_languages VALUES (null, 56, 1, 'Data Source Type List');
+INSERT INTO ap_static_label VALUES (null, 'static.datasourcetype.datasourcetype', true);	INSERT INTO ap_static_label_languages VALUES (null, 57, 1, 'Data Source Type');
+INSERT INTO ap_static_label VALUES (null, 'static.currency.currencyadd', true);	INSERT INTO ap_static_label_languages VALUES (null, 58, 1, 'Add Currency');
+INSERT INTO ap_static_label VALUES (null, 'static.currency.currencyedit', true);	INSERT INTO ap_static_label_languages VALUES (null, 59, 1, 'Update Currency');
+INSERT INTO ap_static_label VALUES (null, 'static.currency.currencylist', true);	INSERT INTO ap_static_label_languages VALUES (null, 60, 1, 'Currency List');
+INSERT INTO ap_static_label VALUES (null, 'static.currency.currency', true);	INSERT INTO ap_static_label_languages VALUES (null, 61, 1, 'Currency (English)');
+INSERT INTO ap_static_label VALUES (null, 'static.currency.currencycode', true);	INSERT INTO ap_static_label_languages VALUES (null, 62, 1, 'Currency Code');
+INSERT INTO ap_static_label VALUES (null, 'static.currency.conversionrateusd', true);	INSERT INTO ap_static_label_languages VALUES (null, 63, 1, 'Conversion Rate to USD');
+INSERT INTO ap_static_label VALUES (null, 'static.currency.currencysymbol', true);	INSERT INTO ap_static_label_languages VALUES (null, 64, 1, 'Currency Symbol');
+INSERT INTO ap_static_label VALUES (null, 'static.message.budget.addFailed', true);	INSERT INTO ap_static_label_languages VALUES (null, 65, 1, 'Failed to add Budget "${budget}"');
+INSERT INTO ap_static_label VALUES (null, 'static.actionCancelled', true);	INSERT INTO ap_static_label_languages VALUES (null, 66, 1, 'Action cancelled');
+INSERT INTO ap_static_label VALUES (null, 'static.language.listFailed', true);	INSERT INTO ap_static_label_languages VALUES (null, 67, 1, 'Could not get Language list');
+INSERT INTO ap_static_label VALUES (null, 'static.language.addSuccess', true);	INSERT INTO ap_static_label_languages VALUES (null, 68, 1, 'Language "${language}" was sucessfully added');
+INSERT INTO ap_static_label VALUES (null, 'static.language.addFailure', true);	INSERT INTO ap_static_label_languages VALUES (null, 69, 1, 'Failed to add Language "${language}"');
+INSERT INTO ap_static_label VALUES (null, 'static.language.alreadyExists', true);	INSERT INTO ap_static_label_languages VALUES (null, 70, 1, 'Language "${language}" already exists');
+INSERT INTO ap_static_label VALUES (null, 'static.language.updateSuccess', true);	INSERT INTO ap_static_label_languages VALUES (null, 71, 1, 'Language "${language}" was sucessfully updated');
+INSERT INTO ap_static_label VALUES (null, 'static.language.updateFailure', true);	INSERT INTO ap_static_label_languages VALUES (null, 72, 1, 'Failed to update Language "${language}"');
+INSERT INTO ap_static_label VALUES (null, 'static.message.budget.addSuccess', true);	INSERT INTO ap_static_label_languages VALUES (null, 73, 1, 'Budget "${budget}" was successfully added');
+INSERT INTO ap_static_label VALUES (null, 'static.message.budget.notFound', true);	INSERT INTO ap_static_label_languages VALUES (null, 74, 1, 'Could not find Budget "${budget}"');
+INSERT INTO ap_static_label VALUES (null, 'static.message.budget.updateFailed', true);	INSERT INTO ap_static_label_languages VALUES (null, 75, 1, 'Failed to update Budget "${budget}"');
+INSERT INTO ap_static_label VALUES (null, 'static.message.budget.updateSuccess', true);	INSERT INTO ap_static_label_languages VALUES (null, 76, 1, 'Budget "${budget}" was successfully updated');
+INSERT INTO ap_static_label VALUES (null, 'static.message.fundingSource.addFailed', true);	INSERT INTO ap_static_label_languages VALUES (null, 77, 1, 'Failed to add Funding Source "${fundingSource}"');
+INSERT INTO ap_static_label VALUES (null, 'static.message.fundingSource.addSucccess', true);	INSERT INTO ap_static_label_languages VALUES (null, 78, 1, 'Funding Source "${funding_source}" was successfully updated');
+INSERT INTO ap_static_label VALUES (null, 'static.message.fundingSource.listFailed', true);	INSERT INTO ap_static_label_languages VALUES (null, 79, 1, 'Could not get Funding Source list');
+INSERT INTO ap_static_label VALUES (null, 'static.message.fundingSource.listNotFound', true);	INSERT INTO ap_static_label_languages VALUES (null, 80, 1, 'No Funding Source found');
+INSERT INTO ap_static_label VALUES (null, 'static.message.fundingSource.updateFailed', true);	INSERT INTO ap_static_label_languages VALUES (null, 81, 1, 'Failed to update Funding Source "${fundingSource}"');
+INSERT INTO ap_static_label VALUES (null, 'static.message.fundingSource.updateSucccess', true);	INSERT INTO ap_static_label_languages VALUES (null, 82, 1, 'Successfully updated Funding Source "${fundingSource}"');
+INSERT INTO ap_static_label VALUES (null, 'static.message.login.disabled', true);	INSERT INTO ap_static_label_languages VALUES (null, 83, 1, 'User account "${username}" is disabled');
+INSERT INTO ap_static_label VALUES (null, 'static.message.login.incorrectEmailUser', true);	INSERT INTO ap_static_label_languages VALUES (null, 84, 1, 'Incorrect email or username');
+INSERT INTO ap_static_label VALUES (null, 'static.message.login.invalidCredentials', true);	INSERT INTO ap_static_label_languages VALUES (null, 85, 1, 'Incorrect login or password');
+INSERT INTO ap_static_label VALUES (null, 'static.message.login.locked', true);	INSERT INTO ap_static_label_languages VALUES (null, 86, 1, 'User account is locked');
+INSERT INTO ap_static_label VALUES (null, 'static.message.login.noUser', true);	INSERT INTO ap_static_label_languages VALUES (null, 87, 1, 'Incorrect login or password');
+INSERT INTO ap_static_label VALUES (null, 'static.message.login.passwordExpired', true);	INSERT INTO ap_static_label_languages VALUES (null, 88, 1, 'Your password expired');
+INSERT INTO ap_static_label VALUES (null, 'static.message.login.unauthorized', true);	INSERT INTO ap_static_label_languages VALUES (null, 89, 1, 'You don`t have permission to perform this operation or access this resource. Please contact the realm admin if you need access to this resource.');
+INSERT INTO ap_static_label VALUES (null, 'static.message.role.addedSuccess', true);	INSERT INTO ap_static_label_languages VALUES (null, 90, 1, 'Role "${role}" added successfully');
+INSERT INTO ap_static_label VALUES (null, 'static.message.role.couldNotAddRole', true);	INSERT INTO ap_static_label_languages VALUES (null, 91, 1, 'Failed to add Role "${role}"');
+INSERT INTO ap_static_label VALUES (null, 'static.message.role.couldNotUpdateRole', true);	INSERT INTO ap_static_label_languages VALUES (null, 92, 1, 'Could not update Role');
+INSERT INTO ap_static_label VALUES (null, 'static.message.role.failedBfList', true);	INSERT INTO ap_static_label_languages VALUES (null, 93, 1, 'Could not get Business function list');
+INSERT INTO ap_static_label VALUES (null, 'static.message.role.failedRoleList', true);	INSERT INTO ap_static_label_languages VALUES (null, 94, 1, 'Could not get Role list');
+INSERT INTO ap_static_label VALUES (null, 'static.message.role.roleAlreadyExists', true);	INSERT INTO ap_static_label_languages VALUES (null, 95, 1, 'Role already exists');
+INSERT INTO ap_static_label VALUES (null, 'static.message.role.updatedSuccess', true);	INSERT INTO ap_static_label_languages VALUES (null, 96, 1, 'Role updated successfully');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.accountUnlocked', true);	INSERT INTO ap_static_label_languages VALUES (null, 97, 1, 'Account unlocked successfully and new password is sent to the registered email address');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.couldNotBeUnlocked', true);	INSERT INTO ap_static_label_languages VALUES (null, 98, 1, 'User could not be unlocked');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.disabled', true);	INSERT INTO ap_static_label_languages VALUES (null, 99, 1, 'User is disabled');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.failedPasswordUpdate', true);	INSERT INTO ap_static_label_languages VALUES (null, 100, 1, 'Could not update password');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.failedUserAdd', true);	INSERT INTO ap_static_label_languages VALUES (null, 101, 1, 'Failed to add User');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.failedUserList', true);	INSERT INTO ap_static_label_languages VALUES (null, 102, 1, 'Failed to get user list');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.failedUserUpdate', true);	INSERT INTO ap_static_label_languages VALUES (null, 103, 1, 'Failed to update User');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.forgotPasswordSuccess', true);	INSERT INTO ap_static_label_languages VALUES (null, 104, 1, 'Email with password reset link sent');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.forgotPasswordTokenError', true);	INSERT INTO ap_static_label_languages VALUES (null, 105, 1, 'Could not confirm Token');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.forgotPasswordTokenExpired', true);	INSERT INTO ap_static_label_languages VALUES (null, 106, 1, 'Token expired');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.forgotPasswordTokenFailed', true);	INSERT INTO ap_static_label_languages VALUES (null, 107, 1, 'Error while generating Token for forgot password');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.forgotPasswordTokenUsed', true);	INSERT INTO ap_static_label_languages VALUES (null, 108, 1, 'Token already used');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.incorrectPassword', true);	INSERT INTO ap_static_label_languages VALUES (null, 109, 1, 'Password is incorrect');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.logoutFailed', true);	INSERT INTO ap_static_label_languages VALUES (null, 110, 1, 'Could not logout');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.newUserTokenFailed', true);	INSERT INTO ap_static_label_languages VALUES (null, 111, 1, 'Could not generate a Token for User');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.notExist', true);	INSERT INTO ap_static_label_languages VALUES (null, 112, 1, 'User does not exists');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.passwordSame', true);	INSERT INTO ap_static_label_languages VALUES (null, 113, 1, 'New password cannot be the same as current password');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.passwordSuccess', true);	INSERT INTO ap_static_label_languages VALUES (null, 114, 1, 'Password updated successfully');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.tokenNotGenerated', true);	INSERT INTO ap_static_label_languages VALUES (null, 115, 1, 'User could not be unlocked as Token could not be generated');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.userCreated', true);	INSERT INTO ap_static_label_languages VALUES (null, 116, 1, 'User has been created and credentials link sent on email');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.usernameExists', true);	INSERT INTO ap_static_label_languages VALUES (null, 117, 1, 'Username already exists');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.userNotFound', true);	INSERT INTO ap_static_label_languages VALUES (null, 118, 1, 'User not found');
+INSERT INTO ap_static_label VALUES (null, 'static.message.user.userUpdated', true);	INSERT INTO ap_static_label_languages VALUES (null, 119, 1, 'User updated successfully');
+INSERT INTO ap_static_label VALUES (null, 'static.product.product', true);	INSERT INTO ap_static_label_languages VALUES (null, 120, 1, 'Product');
+INSERT INTO ap_static_label VALUES (null, 'static.product.productadd', true);	INSERT INTO ap_static_label_languages VALUES (null, 121, 1, 'Add Product');
+INSERT INTO ap_static_label VALUES (null, 'static.product.productcategory', true);	INSERT INTO ap_static_label_languages VALUES (null, 122, 1, 'Product Category');
+INSERT INTO ap_static_label VALUES (null, 'static.product.productedit', true);	INSERT INTO ap_static_label_languages VALUES (null, 123, 1, 'Update Product');
+INSERT INTO ap_static_label VALUES (null, 'static.product.productgenericname', true);	INSERT INTO ap_static_label_languages VALUES (null, 124, 1, 'Generic Name');
+INSERT INTO ap_static_label VALUES (null, 'static.product.productlist', true);	INSERT INTO ap_static_label_languages VALUES (null, 125, 1, 'Product list');
+INSERT INTO ap_static_label VALUES (null, 'static.product.realm', true);	INSERT INTO ap_static_label_languages VALUES (null, 126, 1, 'Realm');
+INSERT INTO ap_static_label VALUES (null, 'static.product.unit', true);	INSERT INTO ap_static_label_languages VALUES (null, 127, 1, 'Forcasting Unit');
+INSERT INTO ap_static_label VALUES (null, 'static.program.airfreightperc', true);	INSERT INTO ap_static_label_languages VALUES (null, 128, 1, 'Air Freight Percentage');
+INSERT INTO ap_static_label VALUES (null, 'static.program.airfreightperctext', true);	INSERT INTO ap_static_label_languages VALUES (null, 129, 1, 'Air Freight Percentage');
+INSERT INTO ap_static_label VALUES (null, 'static.program.approvetoshipleadtime', true);	INSERT INTO ap_static_label_languages VALUES (null, 130, 1, 'Approve To Shipped Lead Time');
+INSERT INTO ap_static_label VALUES (null, 'static.program.approvetoshiptext', true);	INSERT INTO ap_static_label_languages VALUES (null, 131, 1, 'Enter approved to shipped lead time');
+INSERT INTO ap_static_label VALUES (null, 'static.program.delivedtoreceivedleadtime', true);	INSERT INTO ap_static_label_languages VALUES (null, 132, 1, 'Delivered To Recived Lead Time');
+INSERT INTO ap_static_label VALUES (null, 'static.program.delivertoreceivetext', true);	INSERT INTO ap_static_label_languages VALUES (null, 133, 1, 'Enter delivered to received lead time');
+INSERT INTO ap_static_label VALUES (null, 'static.program.download', true);	INSERT INTO ap_static_label_languages VALUES (null, 134, 1, 'Download Program Data');
+INSERT INTO ap_static_label VALUES (null, 'static.program.draftleadtext', true);	INSERT INTO ap_static_label_languages VALUES (null, 135, 1, 'Enter plan to draft lead time');
+INSERT INTO ap_static_label VALUES (null, 'static.program.draftleadtime', true);	INSERT INTO ap_static_label_languages VALUES (null, 136, 1, 'Plan Draft Lead Time');
+INSERT INTO ap_static_label VALUES (null, 'static.program.drafttosubmitleadtime', true);	INSERT INTO ap_static_label_languages VALUES (null, 137, 1, 'Draft To Submitted Lead Time');
+INSERT INTO ap_static_label VALUES (null, 'static.program.drafttosubmittext', true);	INSERT INTO ap_static_label_languages VALUES (null, 138, 1, 'Enter draft to submitted lead time');
+INSERT INTO ap_static_label VALUES (null, 'static.program.export', true);	INSERT INTO ap_static_label_languages VALUES (null, 139, 1, 'Export Program Data');
+INSERT INTO ap_static_label VALUES (null, 'static.program.fileinput', true);	INSERT INTO ap_static_label_languages VALUES (null, 140, 1, 'File Input');
+INSERT INTO ap_static_label VALUES (null, 'static.program.healtharea', true);	INSERT INTO ap_static_label_languages VALUES (null, 141, 1, 'Health Area');
+INSERT INTO ap_static_label VALUES (null, 'static.program.import', true);	INSERT INTO ap_static_label_languages VALUES (null, 142, 1, 'Import Program Data');
+INSERT INTO ap_static_label VALUES (null, 'static.program.monthfutureamc', true);	INSERT INTO ap_static_label_languages VALUES (null, 143, 1, 'Month In Future For AMC');
+INSERT INTO ap_static_label VALUES (null, 'static.program.monthfutureamctext', true);	INSERT INTO ap_static_label_languages VALUES (null, 144, 1, 'Enter month in future for AMC');
+INSERT INTO ap_static_label VALUES (null, 'static.program.monthpastamc', true);	INSERT INTO ap_static_label_languages VALUES (null, 145, 1, 'Month In Past For AMC');
+INSERT INTO ap_static_label VALUES (null, 'static.program.monthpastamctext', true);	INSERT INTO ap_static_label_languages VALUES (null, 146, 1, 'Enter month in Past for AMC');
+INSERT INTO ap_static_label VALUES (null, 'static.program.notes', true);	INSERT INTO ap_static_label_languages VALUES (null, 147, 1, 'Program Notes');
+INSERT INTO ap_static_label VALUES (null, 'static.program.organisation', true);	INSERT INTO ap_static_label_languages VALUES (null, 148, 1, 'Organisation');
+INSERT INTO ap_static_label VALUES (null, 'static.program.program', true);	INSERT INTO ap_static_label_languages VALUES (null, 149, 1, 'Program Name');
+INSERT INTO ap_static_label VALUES (null, 'static.program.programadd', true);	INSERT INTO ap_static_label_languages VALUES (null, 150, 1, 'Add Program');
+INSERT INTO ap_static_label VALUES (null, 'static.program.programedit', true);	INSERT INTO ap_static_label_languages VALUES (null, 151, 1, 'Update Program');
+INSERT INTO ap_static_label VALUES (null, 'static.program.programlist', true);	INSERT INTO ap_static_label_languages VALUES (null, 152, 1, 'Program List');
+INSERT INTO ap_static_label VALUES (null, 'static.program.programmanager', true);	INSERT INTO ap_static_label_languages VALUES (null, 153, 1, 'Program Manager');
+INSERT INTO ap_static_label VALUES (null, 'static.program.programtext', true);	INSERT INTO ap_static_label_languages VALUES (null, 154, 1, 'Enter program name');
+INSERT INTO ap_static_label VALUES (null, 'static.program.realm', true);	INSERT INTO ap_static_label_languages VALUES (null, 155, 1, 'Realm');
+INSERT INTO ap_static_label VALUES (null, 'static.program.realmcountry', true);	INSERT INTO ap_static_label_languages VALUES (null, 156, 1, 'Country');
+INSERT INTO ap_static_label VALUES (null, 'static.program.region', true);	INSERT INTO ap_static_label_languages VALUES (null, 157, 1, 'Region');
+INSERT INTO ap_static_label VALUES (null, 'static.program.seafreightperc', true);	INSERT INTO ap_static_label_languages VALUES (null, 158, 1, 'Sea Freight Percentage');
+INSERT INTO ap_static_label VALUES (null, 'static.program.seafreightperctext', true);	INSERT INTO ap_static_label_languages VALUES (null, 159, 1, 'Sea Freight Percentage');
+INSERT INTO ap_static_label VALUES (null, 'static.program.submittoapproveleadtime', true);	INSERT INTO ap_static_label_languages VALUES (null, 160, 1, 'Submitted To Approved Lead Time');
+INSERT INTO ap_static_label VALUES (null, 'static.program.submittoapprovetext', true);	INSERT INTO ap_static_label_languages VALUES (null, 161, 1, 'Enter submited to approved lead time');
+INSERT INTO ap_static_label VALUES (null, 'static.region.country', true);	INSERT INTO ap_static_label_languages VALUES (null, 162, 1, 'Country');
+INSERT INTO ap_static_label VALUES (null, 'static.region.region', true);	INSERT INTO ap_static_label_languages VALUES (null, 163, 1, 'Region');
+INSERT INTO ap_static_label VALUES (null, 'static.region.regionadd', true);	INSERT INTO ap_static_label_languages VALUES (null, 164, 1, 'Add Region');
+INSERT INTO ap_static_label VALUES (null, 'static.region.regionedit', true);	INSERT INTO ap_static_label_languages VALUES (null, 165, 1, 'Update Region');
+INSERT INTO ap_static_label VALUES (null, 'static.region.regionlist', true);	INSERT INTO ap_static_label_languages VALUES (null, 166, 1, 'Region List');
+INSERT INTO ap_static_label VALUES (null, 'static.subfundingsource.errorfundingsource', true);	INSERT INTO ap_static_label_languages VALUES (null, 167, 1, 'Please select Funding source');
+INSERT INTO ap_static_label VALUES (null, 'static.subfundingsource.fundingsource', true);	INSERT INTO ap_static_label_languages VALUES (null, 168, 1, 'Funding Source');
+INSERT INTO ap_static_label VALUES (null, 'static.subfundingsource.subfundingsource', true);	INSERT INTO ap_static_label_languages VALUES (null, 169, 1, 'Sub Funding Source');
+INSERT INTO ap_static_label VALUES (null, 'static.subfundingsource.subfundingsourceaddttext', true);	INSERT INTO ap_static_label_languages VALUES (null, 170, 1, 'Add Sub Funding Source');
+INSERT INTO ap_static_label VALUES (null, 'static.subfundingsource.subfundingsourceedittext', true);	INSERT INTO ap_static_label_languages VALUES (null, 171, 1, 'Update Funding Source');
+INSERT INTO ap_static_label VALUES (null, 'static.subfundingsource.subfundingsourcelisttext', true);	INSERT INTO ap_static_label_languages VALUES (null, 172, 1, 'Sub Funding Source List');
+INSERT INTO ap_static_label VALUES (null, 'static.unkownError', true);	INSERT INTO ap_static_label_languages VALUES (null, 173, 1, 'Unkown error occurred');
+
+
+SET FOREIGN_KEY_CHECKS = 1;
+-- end attached script 'script1'

@@ -6,11 +6,12 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.OrganisationDao;
+import cc.altius.FASP.dao.RealmDao;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgOrganisationDTO;
-import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.Organisation;
+import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.OrganisationService;
 import java.util.List;
@@ -28,6 +29,8 @@ public class OrganisationServiceImpl implements OrganisationService {
 
     @Autowired
     private OrganisationDao organisationDao;
+    @Autowired
+    private RealmDao realmDao;
     @Autowired
     private AclService aclService;
 
@@ -62,6 +65,10 @@ public class OrganisationServiceImpl implements OrganisationService {
 
     @Override
     public List<Organisation> getOrganisationListByRealmId(int realmId, CustomUserDetails curUser) {
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (r == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
             return this.organisationDao.getOrganisationListByRealmId(realmId, curUser);
         } else {

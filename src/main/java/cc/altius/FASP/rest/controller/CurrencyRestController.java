@@ -13,7 +13,6 @@ import cc.altius.FASP.service.CurrencyService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
-import static java.lang.System.out;
 import java.lang.reflect.Type;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -55,13 +54,13 @@ public class CurrencyRestController {
             System.out.println("From the mapping="+currency.getCurrencySymbol());
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.currencyService.addCurrency(currency, curUser);
-            return new ResponseEntity("static.message.currency.addSuccess", HttpStatus.OK);
+            return new ResponseEntity("static.message.addSuccess", HttpStatus.OK);
         } catch (DuplicateKeyException e) {
             logger.error("Error while trying to add Currency", e);
-            return new ResponseEntity("static.message.currency.addFailed", HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity("static.message.addFailed", HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to add Currency", e);
-            return new ResponseEntity("static.message.currency.addFailed", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity("static.message.addFailed", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -72,7 +71,7 @@ public class CurrencyRestController {
             return new ResponseEntity(this.currencyService.getCurrencyList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Currency list", e);
-            return new ResponseEntity(new ResponseCode("static.message.currency.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -83,10 +82,10 @@ public class CurrencyRestController {
             return new ResponseEntity(this.currencyService.getCurrencyById(currencyId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Currency list", e);
-            return new ResponseEntity(new ResponseCode("static.message.currency.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to get Currency list", e);
-            return new ResponseEntity(new ResponseCode("static.message.currency.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -97,7 +96,7 @@ public class CurrencyRestController {
             return new ResponseEntity(this.currencyService.getCurrencyList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Currency list", e);
-            return new ResponseEntity(new ResponseCode("static.message.currency.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -106,13 +105,13 @@ public class CurrencyRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.currencyService.updateCurrency(currency, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.currency.updateSuccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException e) {
             logger.error("Error while trying to update Currency", e);
-            return new ResponseEntity(new ResponseCode("static.message.currency.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to update Currency", e);
-            return new ResponseEntity(new ResponseCode("static.message.currency.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

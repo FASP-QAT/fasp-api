@@ -46,13 +46,13 @@ public class RealmRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.realmService.addRealm(realm, curUser);
-            return new ResponseEntity("static.message.realm.addSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException ae) {
             logger.error("Error while trying to add Realm", ae);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.addFailed"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to add Realm", e);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -61,16 +61,16 @@ public class RealmRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.realmService.updateRealm(realm, curUser);
-            return new ResponseEntity("static.message.realm.updateSuccess", HttpStatus.OK);
+            return new ResponseEntity("static.message.updateSuccess", HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Realm", ae);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.addFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.UNAUTHORIZED);
         } catch (DuplicateKeyException ae) {
             logger.error("Error while trying to add Realm", ae);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.addFailed"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to add Realm", e);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -81,7 +81,7 @@ public class RealmRestController {
             return new ResponseEntity(this.realmService.getRealmList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Realm", e);
-            return new ResponseEntity(new ResponseCode("static.message.realm.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -92,13 +92,13 @@ public class RealmRestController {
             return new ResponseEntity(this.realmService.getRealmById(realmId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to list Realm", ae);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to list Realm", ae);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to list Realm", e);
-            return new ResponseEntity(new ResponseCode("static.message.realmCountry.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

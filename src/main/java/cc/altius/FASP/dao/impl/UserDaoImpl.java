@@ -334,14 +334,14 @@ public class UserDaoImpl implements UserDao {
                 + "    LEFT JOIN rm_program acl_program ON acl.`PROGRAM_ID`=acl_program.`PROGRAM_ID` "
                 + "    LEFT JOIN ap_label acl_program_lb on acl_program.`LABEL_ID`=acl_program_lb.`LABEL_ID` "
                 + " WHERE user.REALM_ID=:realmId ";
-                
+
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         if (curUser.getRealm().getRealmId() != -1) {
             params.put("userRealmId", curUser.getRealm().getRealmId());
             sql += " AND user.REALM_ID=:userRealmId ";
         }
-        sql+= " ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,acl.`USER_ACL_ID`";
+        sql += " ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,acl.`USER_ACL_ID`";
         return this.namedParameterJdbcTemplate.query(sql, params, new UserListResultSetExtractor());
     }
 
@@ -561,6 +561,7 @@ public class UserDaoImpl implements UserDao {
         for (int i = 0; i < splited.length; i++) {
             roleId = roleId + "_" + splited[i].toUpperCase();
         }
+        System.out.println(roleId);
         labelId = this.labelDao.addLabel(role.getLabel(), 1);
         params.put("ROLE_ID", roleId);
         params.put("LABEL_ID", labelId);
@@ -585,16 +586,19 @@ public class UserDaoImpl implements UserDao {
         }
         int result[] = si.executeBatch(paramList);
         si = new SimpleJdbcInsert(dataSource).withTableName("us_can_create_role");
-        paramList = new SqlParameterSource[role.getCanCreateRole().length];
-        i = 0;
-        for (String r : role.getCanCreateRole()) {
-            params = new HashMap<>();
-            params.put("ROLE_ID", r);
-            params.put("CAN_CREATE_ROLE", roleId);
-            paramList[i] = new MapSqlParameterSource(params);
-            i++;
+        int noOfCanCreateRoles = (role.getCanCreateRole() == null ? 0 : role.getCanCreateRole().length);
+        if (noOfCanCreateRoles > 0) {
+            paramList = new SqlParameterSource[noOfCanCreateRoles];
+            i = 0;
+            for (String r : role.getCanCreateRole()) {
+                params = new HashMap<>();
+                params.put("ROLE_ID", r);
+                params.put("CAN_CREATE_ROLE", roleId);
+                paramList[i] = new MapSqlParameterSource(params);
+                i++;
+            }
+            si.executeBatch(paramList);
         }
-        si.executeBatch(paramList);
         return (rows1 == 1 && result.length > 0 ? 1 : 0);
     }
 
@@ -636,16 +640,19 @@ public class UserDaoImpl implements UserDao {
         si.executeBatch(paramList);
         params.clear();
         si = new SimpleJdbcInsert(dataSource).withTableName("us_can_create_role");
-        paramList = new SqlParameterSource[role.getCanCreateRole().length];
-        i = 0;
-        for (String r : role.getCanCreateRole()) {
-            params = new HashMap<>();
-            params.put("ROLE_ID", r);
-            params.put("CAN_CREATE_ROLE", role.getRoleId());
-            paramList[i] = new MapSqlParameterSource(params);
-            i++;
+        int noOfCanCreateRoles = (role.getCanCreateRole() == null ? 0 : role.getCanCreateRole().length);
+        if (noOfCanCreateRoles > 0) {
+            paramList = new SqlParameterSource[noOfCanCreateRoles];
+            i = 0;
+            for (String r : role.getCanCreateRole()) {
+                params = new HashMap<>();
+                params.put("ROLE_ID", r);
+                params.put("CAN_CREATE_ROLE", role.getRoleId());
+                paramList[i] = new MapSqlParameterSource(params);
+                i++;
+            }
+            si.executeBatch(paramList);
         }
-        si.executeBatch(paramList);
         return 1;
     }
 

@@ -6,12 +6,15 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ProcurementAgentDao;
+import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementAgent;
+import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProcurementAgentService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +27,8 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
 
     @Autowired
     private ProcurementAgentDao procurementAgentDao;
+    @Autowired
+    private RealmDao realmDao;
     @Autowired
     private AclService aclService;
 
@@ -59,6 +64,10 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
 
     @Override
     public List<ProcurementAgent> getProcurementAgentByRealm(int realmId, CustomUserDetails curUser) {
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (r == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
             return this.procurementAgentDao.getProcurementAgentByRealm(realmId, curUser);
         } else {

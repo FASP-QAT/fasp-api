@@ -54,13 +54,13 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.productCategoryService.saveProductCategoryList(productCategoryList, curUser);
-            return new ResponseEntity("static.productCategory.updateSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update Product Category", e);
-            return new ResponseEntity(new ResponseCode("static.message.productCategory.updateFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to update Product Category", e);
-            return new ResponseEntity(new ResponseCode("static.message.productCategory.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -71,7 +71,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
             return new ResponseEntity(this.productCategoryService.getProductCategoryList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Product Category", e);
-            return new ResponseEntity(new ResponseCode("static.message.productCategory.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -90,7 +90,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
             return new ResponseEntity(this.productCategoryService.getProductCategoryList(curUser, realmId, productCategoryId, bolIncludeCurrentLevel, bolIncludeAllChildren), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Product Category", e);
-            return new ResponseEntity(new ResponseCode("static.message.productCategory.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -110,7 +110,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
             return new ResponseEntity(this.productCategoryService.getProductCategoryList(curUser, productCategoryId, bolIncludeCurrentLevel, bolIncludeAllChildren), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Product Category", e);
-            return new ResponseEntity(new ResponseCode("static.message.productCategory.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -121,10 +121,10 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
             return new ResponseEntity(this.productCategoryService.getProductCategoryById(productCategoryId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Product Category Id=" + productCategoryId, er);
-            return new ResponseEntity(new ResponseCode("static.message.productCategory.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to get Product Category Id=" + productCategoryId, e);
-            return new ResponseEntity(new ResponseCode("static.message.productCategory.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

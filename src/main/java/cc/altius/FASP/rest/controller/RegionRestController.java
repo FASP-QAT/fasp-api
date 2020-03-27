@@ -75,13 +75,13 @@ public class RegionRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.regoin.updateFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.UNAUTHORIZED);
         } catch (DuplicateKeyException e) {
             logger.error("Error while trying to update Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.regoin.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to update Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.regoin.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -92,10 +92,10 @@ public class RegionRestController {
             return new ResponseEntity(this.regionService.getRegionList(curUser), HttpStatus.OK);
         } catch (DataAccessException e) {
             logger.error("Error while trying to list Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.regoin.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to list Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.regoin.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -106,13 +106,13 @@ public class RegionRestController {
             return new ResponseEntity(this.regionService.getRegionById(regionId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.regoin.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (DataAccessException e) {
             logger.error("Error while trying to list Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.regoin.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to list Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.regoin.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -123,13 +123,13 @@ public class RegionRestController {
             return new ResponseEntity(this.regionService.getRegionListByRealmCountryId(realmCountryId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.regoin.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (DataAccessException e) {
             logger.error("Error while trying to list Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.regoin.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to list Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.regoin.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
