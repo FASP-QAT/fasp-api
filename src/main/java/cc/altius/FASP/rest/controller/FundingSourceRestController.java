@@ -62,7 +62,7 @@ public class FundingSourceRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.fundingSourceService.addFundingSource(fundingSource, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSucccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Funding source", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.UNAUTHORIZED);
@@ -77,7 +77,7 @@ public class FundingSourceRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.fundingSourceService.updateFundingSource(fundingSource, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.updateSucccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to update Funding source", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);

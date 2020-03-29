@@ -63,7 +63,7 @@ public class SubFundingSourceRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.subFundingSourceService.addSubFundingSource(subFundingSource, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSucccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add SubFunding source", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.UNAUTHORIZED);

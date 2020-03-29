@@ -53,16 +53,16 @@ public class DataSourceRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.dataSourceService.addDataSource(dataSource, curUser);
-            return new ResponseEntity("static.message.addSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to add DataSource", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.UNAUTHORIZED);
         } catch (DuplicateKeyException e) {
             logger.error("Error while trying to add DataSource", e);
-            return new ResponseEntity("static.message.addFailed", HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to add DataSource", e);
-            return new ResponseEntity("static.message.addFailed", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
