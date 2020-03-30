@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop", "https://qat.altius.cc"})
 public class ProgramRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -127,7 +127,8 @@ public class ProgramRestController {
     public ResponseEntity saveProgramProductForProgram(@RequestBody ProgramProduct pp, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            return new ResponseEntity(this.programService.saveProgramProduct(pp, curUser), HttpStatus.OK);
+            this.programService.saveProgramProduct(pp, curUser);
+            return new ResponseEntity("static.message.addSuccess", HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update ProgramProduct", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.UNAUTHORIZED);
