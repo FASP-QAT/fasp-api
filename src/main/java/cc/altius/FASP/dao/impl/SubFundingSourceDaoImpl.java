@@ -128,7 +128,7 @@ public class SubFundingSourceDaoImpl implements SubFundingSourceDao {
                 + "WHERE TRUE ";
         Map<String, Object> params = new HashMap<>();
         if (curUser.getRealm().getRealmId()!=-1) {
-            sql+=" fs.REALM_ID=:userRealmId ";
+            sql+=" AND fs.REALM_ID=:userRealmId ";
             params.put("userRealmId", curUser.getRealm().getRealmId());
         }
         return this.namedParameterJdbcTemplate.query(sql, params, new SubFundingSourceRowMapper());
