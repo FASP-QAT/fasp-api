@@ -100,9 +100,10 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
                 + "LEFT JOIN ap_label rl ON r.`LABEL_ID`=rl.`LABEL_ID` "
                 + "LEFT JOIN us_user cb ON fs.CREATED_BY=cb.USER_ID  "
                 + "LEFT JOIN us_user lmb ON fs.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE fs.REALM_ID=:userRealmId ";
+                + "WHERE TRUE ";
         Map<String, Object> params = new HashMap<>();
         if (curUser.getRealm().getRealmId() != -1) {
+            sql+= " AND fs.REALM_ID=:userRealmId ";
             params.put("userRealmId", curUser.getRealm().getRealmId());
         }
         return this.namedParameterJdbcTemplate.query(sql, params, new FundingSourceRowMapper());

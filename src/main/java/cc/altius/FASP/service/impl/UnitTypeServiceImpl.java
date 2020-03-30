@@ -6,11 +6,13 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.UnitTypeDao;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
 import cc.altius.FASP.model.UnitType;
 import cc.altius.FASP.service.UnitTypeService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
 
 /**
@@ -24,18 +26,27 @@ public class UnitTypeServiceImpl implements UnitTypeService {
     private UnitTypeDao unitTypeDao;
 
     @Override
-    public int addUnitType(UnitType unitType, int userId) {
-        return this.unitTypeDao.addUnitType(unitType, userId);
+    public int addUnitType(UnitType u, CustomUserDetails curUser) {
+        return this.unitTypeDao.addUnitType(u, curUser);
     }
 
     @Override
-    public List<UnitType> getUnitTypeList(boolean active) {
-        return this.unitTypeDao.getUnitTypeList(active);
+    public int updateUnitType(UnitType u, CustomUserDetails curUser) {
+        UnitType ut = this.unitTypeDao.getUnitTypeById(u.getUnitTypeId());
+        if (ut == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
+        return this.unitTypeDao.updateUnitType(u, curUser);
     }
 
     @Override
-    public int updateUnitType(UnitType unitType, int userId) {
-        return this.unitTypeDao.updateUnitType(unitType, userId);
+    public List<UnitType> getUnitTypeList() {
+        return this.unitTypeDao.getUnitTypeList();
+    }
+
+    @Override
+    public UnitType getUnitTypeById(int unitTypeId) {
+        return this.unitTypeDao.getUnitTypeById(unitTypeId);
     }
 
     @Override

@@ -22,8 +22,10 @@ public interface ManufacturerService {
 
     public int updateManufacturer(Manufacturer m, CustomUserDetails curUser);
 
-    public List<Manufacturer> getManufacturerList(CustomUserDetails curUser);
+    public List<Manufacturer> getManufacturerList(boolean active, CustomUserDetails curUser);
+    
+    public List<Manufacturer> getManufacturerListForRealm(int realmId, boolean active, CustomUserDetails curUser);
 
-    public Manufacturer getManufacturerById(int unitId, CustomUserDetails curUser);
+    public Manufacturer getManufacturerById(int manufacturerId, CustomUserDetails curUser);
 
 }

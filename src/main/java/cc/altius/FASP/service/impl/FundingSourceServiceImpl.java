@@ -6,13 +6,16 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.FundingSourceDao;
+import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgFundingSourceDTO;
 import cc.altius.FASP.model.FundingSource;
+import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.FundingSourceService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +28,8 @@ public class FundingSourceServiceImpl implements FundingSourceService {
 
     @Autowired
     FundingSourceDao fundingSourceDao;
+    @Autowired
+    private RealmDao realmDao;
     @Autowired
     private AclService aclService;
 
@@ -59,7 +64,15 @@ public class FundingSourceServiceImpl implements FundingSourceService {
 
     @Override
     public List<FundingSource> getFundingSourceList(int realmId, CustomUserDetails curUser) {
-        return this.fundingSourceDao.getFundingSourceList(realmId, curUser);
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (r == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            return this.fundingSourceDao.getFundingSourceList(realmId, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
     @Override

@@ -15,6 +15,7 @@ import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.RegionService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -45,6 +46,9 @@ public class RegionServiceImpl implements RegionService {
     @Override
     public int updateRegion(Region m, CustomUserDetails curUser) {
         Region region = this.getRegionById(m.getRegionId(), curUser);
+        if (region==null) {
+            throw new EmptyResultDataAccessException(1);
+        }
         if (this.aclService.checkRealmAccessForUser(curUser, region.getRealmCountry().getRealm().getRealmId())) {
             return this.regionDao.updateRegion(m, curUser);
         } else {
@@ -69,7 +73,15 @@ public class RegionServiceImpl implements RegionService {
 
     @Override
     public List<Region> getRegionListByRealmCountryId(int realmCountryId, CustomUserDetails curUser) {
-        return this.regionDao.getRegionListByRealmCountryId(realmCountryId, curUser);
+        RealmCountry rc = this.realmCountryService.getRealmCountryById(realmCountryId, curUser);
+        if (rc == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
+        if (this.aclService.checkRealmAccessForUser(curUser, rc.getRealm().getRealmId())) {
+            return this.regionDao.getRegionListByRealmCountryId(realmCountryId, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
 }

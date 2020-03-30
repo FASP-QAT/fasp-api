@@ -6,15 +6,18 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ProgramDao;
+import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramProduct;
+import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -29,6 +32,8 @@ public class ProgramServiceImpl implements ProgramService {
     private ProgramDao programDao;
     @Autowired
     private RealmCountryService realmCountryService;
+    @Autowired
+    private RealmDao realmDao;
     @Autowired
     private AclService aclService;
 
@@ -56,6 +61,9 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public int updateProgram(Program p, CustomUserDetails curUser) {
         Program curProg = this.getProgramById(p.getProgramId(), curUser);
+        if (curProg == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
         if (this.aclService.checkAccessForUser(
                 curUser,
                 curProg.getRealmCountry().getRealm().getRealmId(),
@@ -76,6 +84,10 @@ public class ProgramServiceImpl implements ProgramService {
 
     @Override
     public List<Program> getProgramList(int realmId, CustomUserDetails curUser) {
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (r == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
             return this.programDao.getProgramList(realmId, curUser);
         } else {
@@ -86,6 +98,9 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public Program getProgramById(int programId, CustomUserDetails curUser) {
         Program p = this.programDao.getProgramById(programId, curUser);
+        if (p == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
         if (this.aclService.checkRealmAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId())) {
             return p;
         } else {

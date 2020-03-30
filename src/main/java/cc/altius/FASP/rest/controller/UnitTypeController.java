@@ -6,10 +6,10 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgUnitDTO;
+import cc.altius.FASP.model.DTO.PrgUnitTypeDTO;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.Unit;
-import cc.altius.FASP.service.UnitService;
+import cc.altius.FASP.model.UnitType;
+import cc.altius.FASP.service.UnitTypeService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import java.io.UnsupportedEncodingException;
@@ -30,84 +30,87 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
  *
- * @author akil
+ * @author palash
  */
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
-public class UnitRestController {
+public class UnitTypeController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
+    
     @Autowired
-    private UnitService unitService;
+    private UnitTypeService unitTypeService;
 
-    @PostMapping(path = "/unit")
-    public ResponseEntity postUnit(@RequestBody Unit unit, Authentication auth) {
+    @PostMapping(path = "/unitType")
+    public ResponseEntity postUnitType(@RequestBody UnitType unitType, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            this.unitService.addUnit(unit, curUser);
+            this.unitTypeService.addUnitType(unitType, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException ae) {
-            logger.error("Error while trying to add Unit", ae);
+            logger.error("Error while trying to add UnitType", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
-            logger.error("Error while trying to add Unit", e);
+            logger.error("Error while trying to add UnitType", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PutMapping(path = "/unit")
-    public ResponseEntity putUnit(@RequestBody Unit unit, Authentication auth) {
+    @PutMapping(path = "/unitType")
+    public ResponseEntity putUnitType(@RequestBody UnitType unitType, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            this.unitService.updateUnit(unit, curUser);
+            this.unitTypeService.updateUnitType(unitType, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException ae) {
+            logger.error("Error while trying to update UnitType ", ae);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
         } catch (DuplicateKeyException ae) {
-            logger.error("Error while trying to update Unit ", ae);
+            logger.error("Error while trying to update UnitType ", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
-            logger.error("Error while trying to add Unit", e);
+            logger.error("Error while trying to add UnitType", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/unit")
-    public ResponseEntity getUnit(Authentication auth) {
+    @GetMapping("/unitType")
+    public ResponseEntity getUnitType(Authentication auth) {
         try {
-            return new ResponseEntity(this.unitService.getUnitList(), HttpStatus.OK);
+            return new ResponseEntity(this.unitTypeService.getUnitTypeList(), HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Error while trying to list Unit", e);
+            logger.error("Error while trying to list UnitType", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/unit/{unitId}")
-    public ResponseEntity getUnit(@PathVariable("unitId") int unitId, Authentication auth) {
+    @GetMapping("/unitType/{unitTypeId}")
+    public ResponseEntity getUnitType(@PathVariable("unitTypeId") int unitTypeId, Authentication auth) {
         try {
-            return new ResponseEntity(this.unitService.getUnitById(unitId), HttpStatus.OK);
+            return new ResponseEntity(this.unitTypeService.getUnitTypeById(unitTypeId), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list Unit", e);
+            logger.error("Error while trying to list UnitType", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error while trying to list Unit", e);
+            logger.error("Error while trying to list UnitType", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping(value = "/getUnitListForSync")
-    public String getUnitListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
+    @GetMapping(value = "/getUnitTypeListForSync")
+    public String getUnitTypeListForSync() throws UnsupportedEncodingException {
         String json;
-        List<PrgUnitDTO> unitList = this.unitService.getUnitListForSync(lastSyncDate);
+        List<PrgUnitTypeDTO> unitTypeList = this.unitTypeService.getUnitTypeListForSync();
         Gson gson = new Gson();
         Type typeList = new TypeToken<List>() {
         }.getType();
-        json = gson.toJson(unitList, typeList);
+        json = gson.toJson(unitTypeList, typeList);
         return json;
     }
+
 }

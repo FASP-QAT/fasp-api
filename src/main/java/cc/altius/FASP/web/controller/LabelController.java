@@ -6,16 +6,9 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.Label;
-import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.service.LabelService;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +34,11 @@ public class LabelController {
     private LabelService labelService;
 
     @RequestMapping(value = "/getDatabaseLabelsListAll")
-    public ResponseEntity getDatabaseLabelsList() {
+    public ResponseEntity getDatabaseLabelsList(Authentication auth) {
         try {
             System.out.println("in method");
-            return new ResponseEntity(this.labelService.getDatabaseLabelsList(), HttpStatus.OK);
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.labelService.getDatabaseLabelsList(curUser.getRealm().getRealmId()), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

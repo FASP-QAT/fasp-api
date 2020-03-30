@@ -39,7 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class ManufacturerRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -63,13 +63,13 @@ public class ManufacturerRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.manufacturerService.addManufacturer(manufacturer, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.manufacturer.addSucccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Manufacturer", ae);
-            return new ResponseEntity(new ResponseCode("static.message.manufacturer.addFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to add Manufacturer", e);
-            return new ResponseEntity(new ResponseCode("static.message.manufacturer.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -78,13 +78,13 @@ public class ManufacturerRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.manufacturerService.updateManufacturer(manufacturer, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.manufacturer.addSucccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Manufacturer", ae);
-            return new ResponseEntity(new ResponseCode("static.message.manufacturer.addFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to add Manufacturer", e);
-            return new ResponseEntity(new ResponseCode("static.message.manufacturer.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -92,10 +92,10 @@ public class ManufacturerRestController {
     public ResponseEntity getManufacturer(Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.manufacturerService.getManufacturerList(curUser), HttpStatus.OK);
+            return new ResponseEntity(this.manufacturerService.getManufacturerList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Manufacturer list", e);
-            return new ResponseEntity(new ResponseCode("static.message.manufacturer.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -106,10 +106,30 @@ public class ManufacturerRestController {
             return new ResponseEntity(this.manufacturerService.getManufacturerById(manufacturerId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Manufacturer list", er);
-            return new ResponseEntity(new ResponseCode("static.message.manufacturer.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException er) {
+            logger.error("Error while trying to get Manufacturer list", er);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to get Manufacturer list", e);
-            return new ResponseEntity(new ResponseCode("static.message.manufacturer.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/manufacturer/realmId/{realmId}")
+    public ResponseEntity getManufacturerForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.manufacturerService.getManufacturerListForRealm(realmId, false, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException er) {
+            logger.error("Error while trying to get Manufacturer list", er);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException er) {
+            logger.error("Error while trying to get Manufacturer list", er);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
+        } catch (Exception e) {
+            logger.error("Error while trying to get Manufacturer list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

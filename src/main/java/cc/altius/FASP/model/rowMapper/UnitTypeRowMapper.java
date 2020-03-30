@@ -31,6 +31,7 @@ public class UnitTypeRowMapper implements RowMapper<UnitType> {
         UnitType ut = new UnitType();
         ut.setUnitTypeId(rs.getInt("UNIT_TYPE_ID"));
         ut.setLabel(new LabelRowMapper(prefix).mapRow(rs, i));
+        ut.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return ut;
     }
 

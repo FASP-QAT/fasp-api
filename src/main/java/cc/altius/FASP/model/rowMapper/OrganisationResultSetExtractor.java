@@ -39,17 +39,19 @@ public class OrganisationResultSetExtractor implements ResultSetExtractor<Organi
             rc.setCountry(new Country(rs.getInt("COUNTRY_ID"), new LabelRowMapper("COUNTRY_").mapRow(rs, 1)));
             if (o.getRealmCountryList().indexOf(rc) == -1) {
                 o.getRealmCountryList().add(rc);
-
             }
             isFirst = false;
         }
-        o.setRealmCountryArray(new String[o.getRealmCountryList().size()]);
-        int x = 0;
-        for (RealmCountry rc : o.getRealmCountryList()) {
-            o.getRealmCountryArray()[x] = Integer.toString(rc.getRealmCountryId());
-            x++;
+        if (!isFirst) {
+            o.setRealmCountryArray(new String[o.getRealmCountryList().size()]);
+            int x = 0;
+            for (RealmCountry rc : o.getRealmCountryList()) {
+                o.getRealmCountryArray()[x] = Integer.toString(rc.getRealmCountryId());
+                x++;
+            }
+            return o;
+        } else {
+            return null;
         }
-        return o;
     }
-
 }

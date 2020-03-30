@@ -63,13 +63,13 @@ public class SubFundingSourceRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.subFundingSourceService.addSubFundingSource(subFundingSource, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.addSucccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add SubFunding source", ae);
-            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.addFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to add SubFunding source", e);
-            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -78,13 +78,13 @@ public class SubFundingSourceRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.subFundingSourceService.updateSubFundingSource(subFundingSource, curUser);
-            return new ResponseEntity("static.message.subFundingSource.updateSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add SubFunding source", ae);
-            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.addFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to add SubFunding source", e);
-            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -95,7 +95,7 @@ public class SubFundingSourceRestController {
             return new ResponseEntity(this.subFundingSourceService.getSubFundingSourceList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list SubFunding source", e);
-            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -106,13 +106,13 @@ public class SubFundingSourceRestController {
             return new ResponseEntity(this.subFundingSourceService.getSubFundingSourceById(subFundingSourceId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to get SubFunding source Id=" + subFundingSourceId, ae);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to get SubFunding source Id=" + subFundingSourceId, ae);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to get SubFunding source Id=" + subFundingSourceId, e);
-            return new ResponseEntity(new ResponseCode("static.message.fundingSource.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -123,13 +123,13 @@ public class SubFundingSourceRestController {
             return new ResponseEntity(this.subFundingSourceService.getSubFundingSourceListByFundingSource(fundingSourceId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to get SubFunding source fundingSourceId=" + fundingSourceId, ae);
-            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to get SubFunding source fundingSourceId=" + fundingSourceId, ae);
-            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to get SubFunding source fundingSourceId=" + fundingSourceId, e);
-            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -140,13 +140,13 @@ public class SubFundingSourceRestController {
             return new ResponseEntity(this.subFundingSourceService.getSubFundingSourceListByRealm(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to get SubFunding source realmId=" + realmId, ae);
-            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to get SubFunding source realmId=" + realmId, ae);
-            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
             logger.error("Error while trying to get SubFunding source realmId=" + realmId, e);
-            return new ResponseEntity(new ResponseCode("static.message.subFundingSource.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

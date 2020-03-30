@@ -334,14 +334,14 @@ public class UserDaoImpl implements UserDao {
                 + "    LEFT JOIN rm_program acl_program ON acl.`PROGRAM_ID`=acl_program.`PROGRAM_ID` "
                 + "    LEFT JOIN ap_label acl_program_lb on acl_program.`LABEL_ID`=acl_program_lb.`LABEL_ID` "
                 + " WHERE user.REALM_ID=:realmId ";
-                
+
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         if (curUser.getRealm().getRealmId() != -1) {
             params.put("userRealmId", curUser.getRealm().getRealmId());
             sql += " AND user.REALM_ID=:userRealmId ";
         }
-        sql+= " ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,acl.`USER_ACL_ID`";
+        sql += " ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,acl.`USER_ACL_ID`";
         return this.namedParameterJdbcTemplate.query(sql, params, new UserListResultSetExtractor());
     }
 
@@ -585,16 +585,19 @@ public class UserDaoImpl implements UserDao {
         }
         int result[] = si.executeBatch(paramList);
         si = new SimpleJdbcInsert(dataSource).withTableName("us_can_create_role");
-        paramList = new SqlParameterSource[role.getCanCreateRole().length];
-        i = 0;
-        for (String r : role.getCanCreateRole()) {
-            params = new HashMap<>();
-            params.put("ROLE_ID", r);
-            params.put("CAN_CREATE_ROLE", roleId);
-            paramList[i] = new MapSqlParameterSource(params);
-            i++;
+        int noOfCanCreateRoles = (role.getCanCreateRole() == null ? 0 : role.getCanCreateRole().length);
+        if (noOfCanCreateRoles > 0) {
+            paramList = new SqlParameterSource[noOfCanCreateRoles];
+            i = 0;
+            for (String r : role.getCanCreateRole()) {
+                params = new HashMap<>();
+                params.put("ROLE_ID", r);
+                params.put("CAN_CREATE_ROLE", roleId);
+                paramList[i] = new MapSqlParameterSource(params);
+                i++;
+            }
+            si.executeBatch(paramList);
         }
-        si.executeBatch(paramList);
         return (rows1 == 1 && result.length > 0 ? 1 : 0);
     }
 
@@ -636,16 +639,19 @@ public class UserDaoImpl implements UserDao {
         si.executeBatch(paramList);
         params.clear();
         si = new SimpleJdbcInsert(dataSource).withTableName("us_can_create_role");
-        paramList = new SqlParameterSource[role.getCanCreateRole().length];
-        i = 0;
-        for (String r : role.getCanCreateRole()) {
-            params = new HashMap<>();
-            params.put("ROLE_ID", r);
-            params.put("CAN_CREATE_ROLE", role.getRoleId());
-            paramList[i] = new MapSqlParameterSource(params);
-            i++;
+        int noOfCanCreateRoles = (role.getCanCreateRole() == null ? 0 : role.getCanCreateRole().length);
+        if (noOfCanCreateRoles > 0) {
+            paramList = new SqlParameterSource[noOfCanCreateRoles];
+            i = 0;
+            for (String r : role.getCanCreateRole()) {
+                params = new HashMap<>();
+                params.put("ROLE_ID", r);
+                params.put("CAN_CREATE_ROLE", role.getRoleId());
+                paramList[i] = new MapSqlParameterSource(params);
+                i++;
+            }
+            si.executeBatch(paramList);
         }
-        si.executeBatch(paramList);
         return 1;
     }
 
@@ -705,6 +711,36 @@ public class UserDaoImpl implements UserDao {
         params.put("token", token);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.IST));
         this.namedParameterJdbcTemplate.update(sqlString, params);
+    }
+
+    @Override
+    public int mapAccessControls(User user, CustomUserDetails curUser) {
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
+        String sqlString = "";
+        int row = 0, x = 0;
+        Map<String, Object> params = new HashMap<>();
+        Map<String, Object>[] paramArray = new HashMap[user.getUserAcls().length];
+        if (user.getUserAcls() != null && user.getUserAcls().length > 0) {
+            sqlString = "DELETE FROM us_user_acl WHERE  USER_ID=:userId";
+            params.put("userId", user.getUserId());
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+            sqlString = "INSERT INTO us_user_acl (USER_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
+            paramArray = new HashMap[user.getUserAcls().length];
+            for (UserAcl userAcl : user.getUserAcls()) {
+                params = new HashMap<>();
+                params.put("userId", user.getUserId());
+                params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
+                params.put("healthAreaId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
+                params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
+                params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
+                params.put("curUser", curUser.getUserId());
+                params.put("curDate", curDate);
+                paramArray[x] = params;
+                x++;
+            }
+            row = this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray).length;
+        }
+        return row;
     }
 
 }

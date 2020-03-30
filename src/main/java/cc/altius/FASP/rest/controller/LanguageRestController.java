@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
+@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class LanguageRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -58,7 +58,7 @@ public class LanguageRestController {
             return new ResponseEntity(this.languageService.getLanguageList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting language list", e);
-            return new ResponseEntity(new ResponseCode("static.language.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -69,7 +69,7 @@ public class LanguageRestController {
             return new ResponseEntity(this.languageService.getLanguageList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting language list", e);
-            return new ResponseEntity(new ResponseCode("static.language.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     
@@ -80,10 +80,10 @@ public class LanguageRestController {
             return new ResponseEntity(this.languageService.getLanguageById(languageId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while getting languageId="+languageId, er);
-            return new ResponseEntity(new ResponseCode("static.language.listFailed"), HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while getting languageId="+languageId, e);
-            return new ResponseEntity(new ResponseCode("static.language.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -93,17 +93,17 @@ public class LanguageRestController {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int languageId = this.languageService.addLanguage(language, curUser);
             if (languageId > 0) {
-                return new ResponseEntity(new ResponseCode("static.language.addSuccess"),HttpStatus.OK);
+                return new ResponseEntity(new ResponseCode("static.message.addSuccess"),HttpStatus.OK);
             } else {
                 logger.error("Error while adding language no Id returned");
-                return new ResponseEntity(new ResponseCode("static.language.addFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (DuplicateKeyException e) {
             logger.error("Error while adding language", e);
-            return new ResponseEntity(new ResponseCode("static.language.alreadyExists"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.alreadyExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while adding language", e);
-            return new ResponseEntity(new ResponseCode("static.language.addFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
@@ -114,17 +114,17 @@ public class LanguageRestController {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int updatedId = this.languageService.editLanguage(language, curUser);
             if (updatedId > 0) {
-                return new ResponseEntity(new ResponseCode("static.language.updateSuccess"), HttpStatus.OK);
+                return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
             } else {
                 logger.error("Error while updating language, no rows updated");
-                return new ResponseEntity(new ResponseCode("static.language.updateFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (DuplicateKeyException e) {
             logger.error("Error while updating language", e);
-            return new ResponseEntity(new ResponseCode("static.language.alreadyExists"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.alreadyExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while updating language", e);
-            return new ResponseEntity(new ResponseCode("static.language.updateFailure"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

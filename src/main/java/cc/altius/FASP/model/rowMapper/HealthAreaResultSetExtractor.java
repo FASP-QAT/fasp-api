@@ -38,16 +38,20 @@ public class HealthAreaResultSetExtractor implements ResultSetExtractor<HealthAr
             rc.setCountry(new Country(rs.getInt("COUNTRY_ID"), new LabelRowMapper("COUNTRY_").mapRow(rs, 1)));
             if (ha.getRealmCountryList().indexOf(rc) == -1) {
                 ha.getRealmCountryList().add(rc);
-                
             }
             isFirst = false;
         }
-        ha.setRealmCountryArray(new String[ha.getRealmCountryList().size()]);
-        int x =0;
-        for (RealmCountry rc : ha.getRealmCountryList()) {
-            ha.getRealmCountryArray()[x] = Integer.toString(rc.getRealmCountryId());
-            x++;
+        if (!isFirst) {
+            ha.setRealmCountryArray(new String[ha.getRealmCountryList().size()]);
+            int x = 0;
+            for (RealmCountry rc : ha.getRealmCountryList()) {
+                ha.getRealmCountryArray()[x] = Integer.toString(rc.getRealmCountryId());
+                x++;
+            }
+            return ha;
+        } else {
+            return null;
         }
-        return ha;
     }
 }
+    

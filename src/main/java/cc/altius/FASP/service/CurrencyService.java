@@ -6,6 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.Currency;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.PrgCurrencyDTO;
 import java.util.List;
 import java.util.Map;
@@ -16,15 +17,17 @@ import java.util.Map;
  */
 public interface CurrencyService {
     
-    public int addCurrency(Currency currency);
+    public int addCurrency(Currency currency, CustomUserDetails curUser);
     
-    public List<Currency> getCurrencyList(boolean active);
+    public List<Currency> getCurrencyList(boolean active, CustomUserDetails curUser);
     
-    public int updateCurrency(Currency currency);
+    public int updateCurrency(Currency currency, CustomUserDetails curUser);
+    
+    public Currency getCurrencyById(int currencyId, CustomUserDetails curUser);
     
     public String getAllCurrencyCode();
 
-    public void updateCurrencyConversionrate(Map<String, Double> currencyConversions);
+    public void updateCurrencyConversionRate(Map<String, Double> currencyConversions);
     
     public List<PrgCurrencyDTO> getCurrencyListForSync(String lastSyncDate);
 }

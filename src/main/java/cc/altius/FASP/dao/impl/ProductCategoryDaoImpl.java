@@ -89,8 +89,8 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
                 + "pc.LAST_MODIFIED_BY=IF(pc.`LEVEL`!=:level OR pc.SORT_ORDER!=:sortOrder OR pc.ACTIVE!=:active =:curUser, :curUser, pc.LAST_MODIFIED_BY), "
                 + "pc.LAST_MODIFIED_DATE=IF(pc.`LEVEL`!=:level OR pc.SORT_ORDER!=:sortOrder OR pc.ACTIVE!=:active =:curUser, :curDate, pc.LAST_MODIFIED_DATE), "
                 + "pcl.LABEL_EN=:labelEn, "
-                + "pcl.LAST_MODIFIED_BY=IF(pc;.LABEL_EN!=:labelEn, :curUser, pcl.LAST_MODIFIED_BY), "
-                + "pcl.LAST_MODIFIED_DATE=IF(pc;.LABEL_EN!=:labelEn, :curDate, pcl.LAST_MODIFIED_DATE), "
+                + "pcl.LAST_MODIFIED_BY=IF(pcl.LABEL_EN!=:labelEn, :curUser, pcl.LAST_MODIFIED_BY), "
+                + "pcl.LAST_MODIFIED_DATE=IF(pcl.LABEL_EN!=:labelEn, :curDate, pcl.LAST_MODIFIED_DATE) "
                 + "WHERE PRODUCT_CATEGORY_ID=:productCategoryId ";
         Map<String, Object> params = new HashMap<>();
         params.put("productCategoryId", productCategory.getProductCategoryId());
@@ -108,7 +108,31 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
     @Override
     public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser) {
         String sqlString = "SELECT  "
-                + "    pc.PRODUCT_CATEGORY_ID, pc.SORT_ORDER,  "
+                + "    pc.PRODUCT_CATEGORY_ID, pc.SORT_ORDER, pc.LEVEL, pc.SORT_ORDER,  "
+                + "    pcl.LABEL_ID, pcl.LABEL_EN, pcl.LABEL_FR, pcl.LABEL_PR, pcl.LABEL_SP, "
+                + "    r.REALM_ID, r.REALM_CODE,  "
+                + "    rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`,"
+                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pc.ACTIVE, pc.CREATED_DATE, pc.LAST_MODIFIED_DATE "
+                + "	FROM rm_product_category pc  "
+                + "LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID "
+                + "LEFT JOIN rm_realm r ON pc.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON pc.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON pc.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE pc.`ACTIVE` ";
+        Map<String, Object> params = new HashMap<>();
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND pc.REALM_ID=:realmId ";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
+        sqlString += "ORDER BY pc.SORT_ORDER";
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProductCategoryRowMapper());
+    }
+
+    @Override
+    public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser) {
+        String sqlString = "SELECT  "
+                + "    pc.PRODUCT_CATEGORY_ID, pc.SORT_ORDER, pc.LEVEL, pc.SORT_ORDER, "
                 + "    pcl.LABEL_ID, pcl.LABEL_EN, pcl.LABEL_FR, pcl.LABEL_PR, pcl.LABEL_SP, "
                 + "    r.REALM_ID, r.REALM_CODE,  "
                 + "    rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`,"
@@ -122,37 +146,11 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
                 + "WHERE PRODUCT_CATEGORY_ID=:productCategoryId "
                 + "AND pc.`ACTIVE` ";
         Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND pc.REALM_ID=:realmId ";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-        sqlString += "ORDER BY pc.SORT_ORDER";
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProductCategoryRowMapper());
-    }
-
-    @Override
-    public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser) {
-        String sqlString = "SELECT  "
-                + "    pc.PRODUCT_CATEGORY_ID, pc.SORT_ORDER,  "
-                + "    pcl.LABEL_ID, pcl.LABEL_EN, pcl.LABEL_FR, pcl.LABEL_PR, pcl.LABEL_SP, "
-                + "    r.REALM_ID, r.REALM_CODE,  "
-                + "    rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`,"
-                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pc.ACTIVE, pc.CREATED_DATE, pc.LAST_MODIFIED_DATE "
-                + "	FROM rm_product_category pc  "
-                + "LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID "
-                + "LEFT JOIN rm_realm r ON pc.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "LEFT JOIN us_user cb ON pc.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON pc.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE PRODUCT_CATEGORY_ID=:productCategoryId "
-                + "AND pc.`ACTIVE` "
-                + "WHERE pc.PRODUCT_CATEGORY_ID=:productCategoryId ";
-        Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND pc.REALM_ID=:realmId ";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
         params.put("productCategoryId", productCategoryId);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND pc.REALM_ID=:realmId ";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
         return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new ProductCategoryRowMapper());
     }
 

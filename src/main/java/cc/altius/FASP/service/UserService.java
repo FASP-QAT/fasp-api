@@ -67,4 +67,6 @@ public interface UserService {
 
     public void addTokenToLogout(String token);
 
+    public int mapAccessControls(User user, CustomUserDetails curUser);
+
 }

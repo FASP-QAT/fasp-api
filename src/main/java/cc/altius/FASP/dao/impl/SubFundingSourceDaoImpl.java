@@ -104,7 +104,7 @@ public class SubFundingSourceDaoImpl implements SubFundingSourceDao {
                 + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
                 + "LEFT JOIN us_user cb ON sfs.CREATED_BY=cb.USER_ID "
                 + "LEFT JOIN us_user lmb ON sfs.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE sfs.SUB_FUNDING_SOURCE_ID=? ";
+                + "WHERE sfs.SUB_FUNDING_SOURCE_ID=:subFundingSourceId ";
         Map<String, Object> params = new HashMap<>();
         params.put("subFundingSourceId", subFundingSourceId);
         return this.namedParameterJdbcTemplate.queryForObject(sql, params, new SubFundingSourceRowMapper());
@@ -124,8 +124,14 @@ public class SubFundingSourceDaoImpl implements SubFundingSourceDao {
                 + "LEFT JOIN rm_realm r on fs.REALM_ID=r.REALM_ID "
                 + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
                 + "LEFT JOIN us_user cb ON sfs.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON sfs.LAST_MODIFIED_BY=lmb.USER_ID ";
-        return this.namedParameterJdbcTemplate.query(sql, new SubFundingSourceRowMapper());
+                + "LEFT JOIN us_user lmb ON sfs.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE TRUE ";
+        Map<String, Object> params = new HashMap<>();
+        if (curUser.getRealm().getRealmId()!=-1) {
+            sql+=" fs.REALM_ID=:userRealmId ";
+            params.put("userRealmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.query(sql, params, new SubFundingSourceRowMapper());
     }
 
     @Override
@@ -142,9 +148,13 @@ public class SubFundingSourceDaoImpl implements SubFundingSourceDao {
                 + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
                 + "LEFT JOIN us_user cb ON sfs.CREATED_BY=cb.USER_ID "
                 + "LEFT JOIN us_user lmb ON sfs.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE sfs.FUNDING_SOURCE_ID=:fundingSourceId";
+                + "WHERE sfs.FUNDING_SOURCE_ID=:fundingSourceId ";
         Map<String, Object> params = new HashMap<>();
         params.put("fundingSourceId", fundingSourceId);
+        if (curUser.getRealm().getRealmId()!=-1) {
+            sql+=" fs.REALM_ID=:userRealmId ";
+            params.put("userRealmId", curUser.getRealm().getRealmId());
+        }
         return this.namedParameterJdbcTemplate.query(sql, params, new SubFundingSourceRowMapper());
     }
 
@@ -162,8 +172,12 @@ public class SubFundingSourceDaoImpl implements SubFundingSourceDao {
                 + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
                 + "LEFT JOIN us_user cb ON sfs.CREATED_BY=cb.USER_ID "
                 + "LEFT JOIN us_user lmb ON sfs.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE fs.REALM_ID=:realmId";
+                + "WHERE fs.REALM_ID=:realmId ";
         Map<String, Object> params = new HashMap<>();
+        if (curUser.getRealm().getRealmId()!=-1) {
+            sql+=" fs.REALM_ID=:userRealmId ";
+            params.put("userRealmId", curUser.getRealm().getRealmId());
+        }
         params.put("realmId", realmId);
         return this.namedParameterJdbcTemplate.query(sql, params, new SubFundingSourceRowMapper());
     }

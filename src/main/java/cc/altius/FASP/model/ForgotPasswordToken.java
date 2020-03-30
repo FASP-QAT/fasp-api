@@ -82,7 +82,7 @@ public class ForgotPasswordToken implements Serializable {
         logger.error("tokenTriggeredDate----" + tokenTriggeredDate);
         logger.error("tokenCompletionDate---" + tokenCompletionDate);
         if (this.tokenTriggeredDate != null || this.tokenCompletionDate != null) {
-            return "static.message.user.forgotPasswordTokenUsed";
+            return "static.message.user.forgotPasswordTokenExpired";
         }
         Calendar allowedTriggerDate = Calendar.getInstance();
         allowedTriggerDate.setTime(this.tokenGenerationDate);
