@@ -5,9 +5,8 @@
  */
 package cc.altius.FASP.model.DTO.rowMapper;
 
-import cc.altius.FASP.model.DTO.PrgLabelDTO;
 import cc.altius.FASP.model.DTO.PrgLogisticsUnitDTO;
-import cc.altius.FASP.model.DTO.PrgManufacturerDTO;
+import cc.altius.FASP.model.DTO.PrgSupplierDTO;
 import cc.altius.FASP.model.DTO.PrgPlanningUnitDTO;
 import cc.altius.FASP.model.DTO.PrgUnitDTO;
 import java.sql.ResultSet;
@@ -33,8 +32,8 @@ public class PrgLogisticsUnitDTORowMapper implements RowMapper<PrgLogisticsUnitD
         lengthUnit.setUnitId(rs.getInt("LENGTH_UNIT_ID"));
         lu.setLengthUnit(lengthUnit);
         lu.setLogisticsUnitId(rs.getInt("LOGISTICS_UNIT_ID"));
-        PrgManufacturerDTO manufacturer=new PrgManufacturerDTO();
-        manufacturer.setManufacturerId(rs.getInt("MANUFACTURER_ID"));
+        PrgSupplierDTO manufacturer=new PrgSupplierDTO();
+        manufacturer.setSupplierId(rs.getInt("SUPPLIER_ID"));
         lu.setManufacturer(manufacturer);
         PrgPlanningUnitDTO planningUnit=new PrgPlanningUnitDTO();
         planningUnit.setPlanningUnitId(rs.getInt("PLANNING_UNIT_ID"));
