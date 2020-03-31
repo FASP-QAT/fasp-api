@@ -1058,12 +1058,12 @@ CREATE INDEX `fk_shipment_status_allowed_lastModifiedBy_idx` ON `fasp`.`ap_shipm
 
 
 -- -----------------------------------------------------
--- Table `fasp`.`rm_manufacturer`
+-- Table `fasp`.`rm_supplier`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `fasp`.`rm_manufacturer` ;
+DROP TABLE IF EXISTS `fasp`.`rm_supplier` ;
 
-CREATE TABLE IF NOT EXISTS `fasp`.`rm_manufacturer` (
-  `MANUFACTURER_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Manufacturer',
+CREATE TABLE IF NOT EXISTS `fasp`.`rm_supplier` (
+  `SUPPLIER_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Manufacturer',
   `REALM_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key to indicate which Realm this Manufacturer belongs to',
   `LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',
   `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'If True indicates this Organisation is Active. False indicates this Organisation has been Deactivated',
@@ -1071,37 +1071,37 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_manufacturer` (
   `CREATED_DATE` DATETIME NOT NULL COMMENT 'Created date',
   `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Last modified by',
   `LAST_MODIFIED_DATE` DATETIME NOT NULL COMMENT 'Last modified date',
-  PRIMARY KEY (`MANUFACTURER_ID`),
-  CONSTRAINT `fk_manufacturer_realmId`
+  PRIMARY KEY (`SUPPLIER_ID`),
+  CONSTRAINT `fk_supplier_realmId`
     FOREIGN KEY (`REALM_ID`)
     REFERENCES `fasp`.`rm_realm` (`REALM_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_manufacturer_labelId`
+  CONSTRAINT `fk_supplier_labelId`
     FOREIGN KEY (`LABEL_ID`)
     REFERENCES `fasp`.`ap_label` (`LABEL_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_manufacturer_createdBy`
+  CONSTRAINT `fk_supplier_createdBy`
     FOREIGN KEY (`CREATED_BY`)
     REFERENCES `fasp`.`us_user` (`USER_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_manufacturer_lastModifiedBy`
+  CONSTRAINT `fk_supplier_lastModifiedBy`
     FOREIGN KEY (`LAST_MODIFIED_BY`)
     REFERENCES `fasp`.`us_user` (`USER_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-COMMENT = 'Table used to define the manufacturers for each Realm\nNote: A Manufacturer can only be created and administered by a Realm Admin';
+COMMENT = 'Table used to define the manufacturers for each Realm\nNote: A Supplier can only be created and administered by a Realm Admin';
 
-CREATE INDEX `fk_manufacturer_realmId_idx` ON `fasp`.`rm_manufacturer` (`REALM_ID` ASC);
+CREATE INDEX `fk_supplier_realmId_idx` ON `fasp`.`rm_supplier` (`REALM_ID` ASC);
 
-CREATE INDEX `fk_manufacturer_labelId_idx` ON `fasp`.`rm_manufacturer` (`LABEL_ID` ASC);
+CREATE INDEX `fk_supplier_labelId_idx` ON `fasp`.`rm_supplier` (`LABEL_ID` ASC);
 
-CREATE INDEX `fk_manufacturer_createdBy_idx` ON `fasp`.`rm_manufacturer` (`CREATED_BY` ASC);
+CREATE INDEX `fk_supplier_createdBy_idx` ON `fasp`.`rm_supplier` (`CREATED_BY` ASC);
 
-CREATE INDEX `fk_manufacturer_lastModifiedBy_idx` ON `fasp`.`rm_manufacturer` (`LAST_MODIFIED_BY` ASC);
+CREATE INDEX `fk_supplier_lastModifiedBy_idx` ON `fasp`.`rm_supplier` (`LAST_MODIFIED_BY` ASC);
 
 
 -- -----------------------------------------------------
@@ -1454,6 +1454,117 @@ CREATE UNIQUE INDEX `un_procurementAgentCode` ON `fasp`.`rm_procurement_agent` (
 
 
 -- -----------------------------------------------------
+-- Table `fasp`.`rm_tracer_category`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `fasp`.`rm_tracer_category` ;
+
+CREATE TABLE IF NOT EXISTS `fasp`.`rm_tracer_category` (
+  `TRACER_CATEGORY_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Product Category',
+  `REALM_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Realm that this Product Category belongs to',
+  `LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',
+  `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'If True indicates this Product Category is Active. False indicates this Product Category has been De-activated',
+  `CREATED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Created by',
+  `CREATED_DATE` DATETIME NOT NULL COMMENT 'Created date',
+  `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Last modified by\n',
+  `LAST_MODIFIED_DATE` DATETIME NOT NULL COMMENT 'Last modified date',
+  PRIMARY KEY (`TRACER_CATEGORY_ID`),
+  CONSTRAINT `fk_tracer_category_labelId0`
+    FOREIGN KEY (`LABEL_ID`)
+    REFERENCES `fasp`.`ap_label` (`LABEL_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_tracer_category_createdBy0`
+    FOREIGN KEY (`CREATED_BY`)
+    REFERENCES `fasp`.`us_user` (`USER_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_tracer_category_lastModifiedBy0`
+    FOREIGN KEY (`LAST_MODIFIED_BY`)
+    REFERENCES `fasp`.`us_user` (`USER_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_tracer_category_realmId0`
+    FOREIGN KEY (`REALM_ID`)
+    REFERENCES `fasp`.`rm_realm` (`REALM_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+COMMENT = 'Table used to define the product_categories for each health_area\nNote: A Product category can only be created and administered by a Realm Admin';
+
+CREATE INDEX `fk_tracer_category_labelId_idx` ON `fasp`.`rm_tracer_category` (`LABEL_ID` ASC);
+
+CREATE INDEX `fk_tracer_category_createdBy_idx` ON `fasp`.`rm_tracer_category` (`CREATED_BY` ASC);
+
+CREATE INDEX `fk_tracer_category_lastModifiedBy_idx` ON `fasp`.`rm_tracer_category` (`LAST_MODIFIED_BY` ASC);
+
+CREATE INDEX `fk_rm_tracer_category_realmId_idx` ON `fasp`.`rm_tracer_category` (`REALM_ID` ASC);
+
+
+-- -----------------------------------------------------
+-- Table `fasp`.`rm_forecasting_unit`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `fasp`.`rm_forecasting_unit` ;
+
+CREATE TABLE IF NOT EXISTS `fasp`.`rm_forecasting_unit` (
+  `FORECASTING_UNIT_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Product',
+  `REALM_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that determines the Realm this Product belongs to',
+  `PRODUCT_CATEGORY_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that determines the Product Category for this product',
+  `TRACER_CATEGORY_ID` INT(10) UNSIGNED NULL,
+  `GENERIC_LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Generic name for the Product, also called the INN',
+  `LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',
+  `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'If True indicates this Product is Active. False indicates this Product has been Deactivated',
+  `CREATED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Created date',
+  `CREATED_DATE` DATETIME NOT NULL COMMENT 'Created date',
+  `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Last modified by',
+  `LAST_MODIFIED_DATE` DATETIME NOT NULL COMMENT 'Last modified date',
+  PRIMARY KEY (`FORECASTING_UNIT_ID`),
+  CONSTRAINT `fk_forecastingUnit_genericLabelId`
+    FOREIGN KEY (`GENERIC_LABEL_ID`)
+    REFERENCES `fasp`.`ap_label` (`LABEL_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastingUnit_labelId`
+    FOREIGN KEY (`LABEL_ID`)
+    REFERENCES `fasp`.`ap_label` (`LABEL_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastingUnit_createdBy`
+    FOREIGN KEY (`CREATED_BY`)
+    REFERENCES `fasp`.`us_user` (`USER_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastingUnit_lastModifiedBy`
+    FOREIGN KEY (`LAST_MODIFIED_BY`)
+    REFERENCES `fasp`.`us_user` (`USER_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastingUnit_productCategoryId`
+    FOREIGN KEY (`PRODUCT_CATEGORY_ID`)
+    REFERENCES `fasp`.`rm_product_category` (`PRODUCT_CATEGORY_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_forecasting_unit_rm_tracer_category1`
+    FOREIGN KEY (`TRACER_CATEGORY_ID`)
+    REFERENCES `fasp`.`rm_tracer_category` (`TRACER_CATEGORY_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+COMMENT = 'Table used to list the Products\nNote: Are based on a Realm and can be created or administered by a Realm Admin';
+
+CREATE INDEX `fk_forecastingUnit_genericLabelId_idx` ON `fasp`.`rm_forecasting_unit` (`GENERIC_LABEL_ID` ASC);
+
+CREATE INDEX `fk_forecastingUnit_labelId_idx` ON `fasp`.`rm_forecasting_unit` (`LABEL_ID` ASC);
+
+CREATE INDEX `fk_forecastingUnit_createdBy_idx` ON `fasp`.`rm_forecasting_unit` (`CREATED_BY` ASC);
+
+CREATE INDEX `fk_forecastingUnit_lastModifedBy_idx` ON `fasp`.`rm_forecasting_unit` (`LAST_MODIFIED_BY` ASC);
+
+CREATE INDEX `fk_forecastingUnit_productCategoryId_idx` ON `fasp`.`rm_forecasting_unit` (`PRODUCT_CATEGORY_ID` ASC);
+
+CREATE INDEX `fk_rm_forecasting_unit_rm_tracer_category1_idx` ON `fasp`.`rm_forecasting_unit` (`TRACER_CATEGORY_ID` ASC);
+
+
+-- -----------------------------------------------------
 -- Table `fasp`.`ap_unit_type`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `fasp`.`ap_unit_type` ;
@@ -1522,90 +1633,25 @@ CREATE UNIQUE INDEX `fk_unit_unitCode` ON `fasp`.`ap_unit` (`UNIT_CODE` ASC);
 
 
 -- -----------------------------------------------------
--- Table `fasp`.`rm_product`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `fasp`.`rm_product` ;
-
-CREATE TABLE IF NOT EXISTS `fasp`.`rm_product` (
-  `PRODUCT_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Product',
-  `REALM_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that determines the Realm this Product belongs to',
-  `PRODUCT_CATEGORY_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that determines the Product Category for this product',
-  `GENERIC_LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Generic name for the Product, also called the INN',
-  `LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',
-  `FORECASTING_UNIT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that gives the Unit in which we need to make forecasts in',
-  `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'If True indicates this Product is Active. False indicates this Product has been Deactivated',
-  `CREATED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Created date',
-  `CREATED_DATE` DATETIME NOT NULL COMMENT 'Created date',
-  `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Last modified by',
-  `LAST_MODIFIED_DATE` DATETIME NOT NULL COMMENT 'Last modified date',
-  PRIMARY KEY (`PRODUCT_ID`),
-  CONSTRAINT `fk_product_genericLabelId`
-    FOREIGN KEY (`GENERIC_LABEL_ID`)
-    REFERENCES `fasp`.`ap_label` (`LABEL_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_product_labelId`
-    FOREIGN KEY (`LABEL_ID`)
-    REFERENCES `fasp`.`ap_label` (`LABEL_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_product_createdBy`
-    FOREIGN KEY (`CREATED_BY`)
-    REFERENCES `fasp`.`us_user` (`USER_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_product_lastModifiedBy`
-    FOREIGN KEY (`LAST_MODIFIED_BY`)
-    REFERENCES `fasp`.`us_user` (`USER_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_product_forecastingUnitId`
-    FOREIGN KEY (`FORECASTING_UNIT_ID`)
-    REFERENCES `fasp`.`ap_unit` (`UNIT_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_product_product_productCategoryId`
-    FOREIGN KEY (`PRODUCT_CATEGORY_ID`)
-    REFERENCES `fasp`.`rm_product_category` (`PRODUCT_CATEGORY_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-COMMENT = 'Table used to list the Products\nNote: Are based on a Realm and can be created or administered by a Realm Admin';
-
-CREATE INDEX `fk_product_genericLabelId_idx` ON `fasp`.`rm_product` (`GENERIC_LABEL_ID` ASC);
-
-CREATE INDEX `fk_product_labelId_idx` ON `fasp`.`rm_product` (`LABEL_ID` ASC);
-
-CREATE INDEX `fk_product_createdBy_idx` ON `fasp`.`rm_product` (`CREATED_BY` ASC);
-
-CREATE INDEX `fk_product_lastModifedBy_idx` ON `fasp`.`rm_product` (`LAST_MODIFIED_BY` ASC);
-
-CREATE INDEX `fk_product_forecastingUnitId_idx` ON `fasp`.`rm_product` (`FORECASTING_UNIT_ID` ASC);
-
-CREATE INDEX `fk_product_productIdProductCategoryId_idx` ON `fasp`.`rm_product` (`PRODUCT_CATEGORY_ID` ASC);
-
-
--- -----------------------------------------------------
 -- Table `fasp`.`rm_planning_unit`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `fasp`.`rm_planning_unit` ;
 
 CREATE TABLE IF NOT EXISTS `fasp`.`rm_planning_unit` (
   `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Planning unit',
-  `PRODUCT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key for the Product that this Planning unit represents',
+  `FORECASTING_UNIT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key for the Product that this Planning unit represents',
   `LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',
   `UNIT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Unit of measure for this Planning unit',
-  `QTY_OF_FORECASTING_UNITS` DECIMAL(12,2) NOT NULL COMMENT 'Quantity of items in this unit versus the Forecasting Unit Id',
-  `PRICE` DECIMAL(14,4) NOT NULL COMMENT 'Default price that we should consider for this Planning unit. In case the Procurement Agent has not specified the price or if the Procurement agent has not been decided as yet we will default to this price.',
+  `MULTIPLIER` DECIMAL(12,2) NOT NULL COMMENT 'Quantity of items in this unit versus the Forecasting Unit Id',
   `ACTIVE` TINYINT(1) UNSIGNED NOT NULL COMMENT 'If True indicates this Funding Source is Active. False indicates this Funding Source has been Deactivated',
   `CREATED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Created by',
   `CREATED_DATE` DATETIME NOT NULL COMMENT 'Created date',
   `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Last Modified by',
   `LAST_MODIFIED_DATE` DATETIME NOT NULL COMMENT 'Last Modified date',
   PRIMARY KEY (`PLANNING_UNIT_ID`),
-  CONSTRAINT `fk_planning_unit_productId`
-    FOREIGN KEY (`PRODUCT_ID`)
-    REFERENCES `fasp`.`rm_product` (`PRODUCT_ID`)
+  CONSTRAINT `fk_planning_unit_forecastingUnitId`
+    FOREIGN KEY (`FORECASTING_UNIT_ID`)
+    REFERENCES `fasp`.`rm_forecasting_unit` (`FORECASTING_UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_planning_unit_labelId`
@@ -1631,7 +1677,7 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_planning_unit` (
 ENGINE = InnoDB
 COMMENT = 'Table used to list the Planning units that will be used to map a Product to a Program\nNote: Units are Realm level master and can only be Administered by a Realm level admin';
 
-CREATE INDEX `fk_planning_unit_productId_idx` ON `fasp`.`rm_planning_unit` (`PRODUCT_ID` ASC);
+CREATE INDEX `fk_planning_unit_forecastingUnit_idx` ON `fasp`.`rm_planning_unit` (`FORECASTING_UNIT_ID` ASC);
 
 CREATE INDEX `fk_planning_unit_labelId_idx` ON `fasp`.`rm_planning_unit` (`LABEL_ID` ASC);
 
@@ -1643,18 +1689,17 @@ CREATE INDEX `fk_planning_unit_lastModifiedBy_idx` ON `fasp`.`rm_planning_unit` 
 
 
 -- -----------------------------------------------------
--- Table `fasp`.`rm_logistics_unit`
+-- Table `fasp`.`rm_procurement_unit`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `fasp`.`rm_logistics_unit` ;
+DROP TABLE IF EXISTS `fasp`.`rm_procurement_unit` ;
 
-CREATE TABLE IF NOT EXISTS `fasp`.`rm_logistics_unit` (
-  `LOGISTICS_UNIT_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Logistics unit',
+CREATE TABLE IF NOT EXISTS `fasp`.`rm_procurement_unit` (
+  `PROCUREMENT_UNIT_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Logistics unit',
   `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key to point which Planning unit this maps to',
   `LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',
   `UNIT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Unit of measure for this sku',
-  `QTY_OF_PLANNING_UNITS` DECIMAL(12,2) UNSIGNED NOT NULL COMMENT 'Quantity of items in this unit as per the Forecasting Unit Id',
-  `VARIANT` VARCHAR(50) NULL COMMENT 'Variant of the SKU, text updated by the user while creating the SKU',
-  `MANUFACTURER_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key to point which Manufacturer this Logistics unit is from',
+  `MULTIPLIER` DECIMAL(12,2) UNSIGNED NOT NULL COMMENT 'Quantity of items in this unit as per the Forecasting Unit Id',
+  `SUPPLIER_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key to point which Manufacturer this Logistics unit is from',
   `WIDTH_UNIT_ID` INT(10) UNSIGNED NULL COMMENT 'Unit Id for a the Width of the Logistics Unit',
   `WIDTH_QTY` DECIMAL(12,2) UNSIGNED NULL COMMENT 'Width',
   `HEIGHT_UNIT_ID` INT(10) UNSIGNED NULL COMMENT 'Unit Id for a the Height of the Logistics Unit',
@@ -1663,209 +1708,211 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_logistics_unit` (
   `LENGTH_QTY` DECIMAL(12,2) UNSIGNED NULL COMMENT 'Length',
   `WEIGHT_UNIT_ID` INT(10) UNSIGNED NULL COMMENT 'Unit Id for a the Weight of the Logistics Unit',
   `WEIGHT_QTY` DECIMAL(12,2) UNSIGNED NULL COMMENT 'Weight',
-  `QTY_IN_EURO1` DECIMAL(12,2) UNSIGNED NULL COMMENT 'No of Forecast units that fit in a Euro1 pallet',
-  `QTY_IN_EURO2` DECIMAL(12,2) UNSIGNED NULL COMMENT 'No of Forecast units that fit in a Euro2 pallet',
+  `UNITS_PER_CONTAINER` DECIMAL(12,2) UNSIGNED NULL COMMENT 'No of Forecast units that fit in a Euro1 pallet',
+  `LABELING` VARCHAR(200) NULL COMMENT 'No of Forecast units that fit in a Euro2 pallet',
   `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'If True indicates this Logistics unit is Active. False indicates this Logistics unit has been Deactivated',
   `CREATED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Create by',
   `CREATED_DATE` DATETIME NOT NULL COMMENT 'Created date',
   `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Last modified by',
   `LAST_MODIFIED_DATE` DATETIME NOT NULL COMMENT 'Last modified date',
-  PRIMARY KEY (`LOGISTICS_UNIT_ID`),
-  CONSTRAINT `fk_logistics_unit_planningUnitId`
+  PRIMARY KEY (`PROCUREMENT_UNIT_ID`),
+  CONSTRAINT `fk_procurement_unit_planningUnitId`
     FOREIGN KEY (`PLANNING_UNIT_ID`)
     REFERENCES `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_logistics_unit_labelId`
+  CONSTRAINT `fk_procurement_unit_labelId`
     FOREIGN KEY (`LABEL_ID`)
     REFERENCES `fasp`.`ap_label` (`LABEL_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_logistics_unit_unitId`
+  CONSTRAINT `fk_procurement_unit_unitId`
     FOREIGN KEY (`UNIT_ID`)
     REFERENCES `fasp`.`ap_unit` (`UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_logistics_unit_widthUnitId`
+  CONSTRAINT `fk_procurement_unit_widthUnitId`
     FOREIGN KEY (`WIDTH_UNIT_ID`)
     REFERENCES `fasp`.`ap_unit` (`UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_logistics_unit_heightUnitId`
+  CONSTRAINT `fk_procurement_unit_heightUnitId`
     FOREIGN KEY (`HEIGHT_UNIT_ID`)
     REFERENCES `fasp`.`ap_unit` (`UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_logistics_unit_lengthUnitId`
+  CONSTRAINT `fk_procurement_unit_lengthUnitId`
     FOREIGN KEY (`LENGTH_UNIT_ID`)
     REFERENCES `fasp`.`ap_unit` (`UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_logistics_unit_weightUnitId`
+  CONSTRAINT `fk_procurement_unit_weightUnitId`
     FOREIGN KEY (`WEIGHT_UNIT_ID`)
     REFERENCES `fasp`.`ap_unit` (`UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_logistics_unit_createdBy`
+  CONSTRAINT `fk_procurement_unit_createdBy`
     FOREIGN KEY (`CREATED_BY`)
     REFERENCES `fasp`.`us_user` (`USER_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_logistics_unit_lastModifiedBy`
+  CONSTRAINT `fk_procurement_unit_lastModifiedBy`
     FOREIGN KEY (`LAST_MODIFIED_BY`)
     REFERENCES `fasp`.`us_user` (`USER_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_logistics_unit_manufacturerId`
-    FOREIGN KEY (`MANUFACTURER_ID`)
-    REFERENCES `fasp`.`rm_manufacturer` (`MANUFACTURER_ID`)
+  CONSTRAINT `fk_procurement_unit_supplierId`
+    FOREIGN KEY (`SUPPLIER_ID`)
+    REFERENCES `fasp`.`rm_supplier` (`SUPPLIER_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
 COMMENT = 'Table used to list the SKU\'s for a Product					\nNote: Are based on a Planning unit and can be created or administered by a Realm Admin';
 
-CREATE INDEX `fk_logistics_unit_planningUnitId_idx` ON `fasp`.`rm_logistics_unit` (`PLANNING_UNIT_ID` ASC);
+CREATE INDEX `fk_procurement_unit_planningUnitId_idx` ON `fasp`.`rm_procurement_unit` (`PLANNING_UNIT_ID` ASC);
 
-CREATE INDEX `fk_logistics_unit_labelId_idx` ON `fasp`.`rm_logistics_unit` (`LABEL_ID` ASC);
+CREATE INDEX `fk_procurement_unit_labelId_idx` ON `fasp`.`rm_procurement_unit` (`LABEL_ID` ASC);
 
-CREATE INDEX `fk_logistics_unit_unitId_idx` ON `fasp`.`rm_logistics_unit` (`UNIT_ID` ASC);
+CREATE INDEX `fk_procurement_unit_unitId_idx` ON `fasp`.`rm_procurement_unit` (`UNIT_ID` ASC);
 
-CREATE INDEX `fk_logistics_unit_widthUnitId_idx` ON `fasp`.`rm_logistics_unit` (`WIDTH_UNIT_ID` ASC);
+CREATE INDEX `fk_procurement_unit_widthUnitId_idx` ON `fasp`.`rm_procurement_unit` (`WIDTH_UNIT_ID` ASC);
 
-CREATE INDEX `fk_logistics_unit_heightUnitId_idx` ON `fasp`.`rm_logistics_unit` (`HEIGHT_UNIT_ID` ASC);
+CREATE INDEX `fk_procurement_unit_heightUnitId_idx` ON `fasp`.`rm_procurement_unit` (`HEIGHT_UNIT_ID` ASC);
 
-CREATE INDEX `fk_logistics_unit_lengthUnitId_idx` ON `fasp`.`rm_logistics_unit` (`LENGTH_UNIT_ID` ASC);
+CREATE INDEX `fk_procurement_unit_lengthUnitId_idx` ON `fasp`.`rm_procurement_unit` (`LENGTH_UNIT_ID` ASC);
 
-CREATE INDEX `fk_logistics_unit_weightUnitId_idx` ON `fasp`.`rm_logistics_unit` (`WEIGHT_UNIT_ID` ASC);
+CREATE INDEX `fk_procurement_unit_weightUnitId_idx` ON `fasp`.`rm_procurement_unit` (`WEIGHT_UNIT_ID` ASC);
 
-CREATE INDEX `fk_logistics_unit_createdBy_idx` ON `fasp`.`rm_logistics_unit` (`CREATED_BY` ASC);
+CREATE INDEX `fk_procurement_unit_createdBy_idx` ON `fasp`.`rm_procurement_unit` (`CREATED_BY` ASC);
 
-CREATE INDEX `fk_logistics_unit_lastModifiedBy_idx` ON `fasp`.`rm_logistics_unit` (`LAST_MODIFIED_BY` ASC);
+CREATE INDEX `fk_procurement_unit_lastModifiedBy_idx` ON `fasp`.`rm_procurement_unit` (`LAST_MODIFIED_BY` ASC);
 
-CREATE INDEX `fk_logistics_unit_manufacturerId_idx` ON `fasp`.`rm_logistics_unit` (`MANUFACTURER_ID` ASC);
+CREATE INDEX `fk_procurement_unit_supplierId_idx` ON `fasp`.`rm_procurement_unit` (`SUPPLIER_ID` ASC);
 
 
 -- -----------------------------------------------------
--- Table `fasp`.`rm_procurement_agent_logistics_unit`
+-- Table `fasp`.`rm_procurement_unit_procurement_agent`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `fasp`.`rm_procurement_agent_logistics_unit` ;
+DROP TABLE IF EXISTS `fasp`.`rm_procurement_unit_procurement_agent` ;
 
-CREATE TABLE IF NOT EXISTS `fasp`.`rm_procurement_agent_logistics_unit` (
-  `PROCUREMENT_AGENT_SKU_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Procurement Agent SKU',
+CREATE TABLE IF NOT EXISTS `fasp`.`rm_procurement_unit_procurement_agent` (
+  `PROCUREMENT_AGENT_PROCUREMENT_UNIT_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Procurement Agent SKU',
+  `PROCUREMENT_UNIT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that indicates which Logistics Unit Id this Procurement Sku maps to',
   `PROCUREMENT_AGENT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that determines the Procuremnt Agent this Logistics Unit belongs to',
   `SKU_CODE` VARCHAR(50) NOT NULL COMMENT 'The Sku code that the Procurement agent refers to this Sku as',
-  `LOGISTICS_UNIT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that indicates which Logistics Unit Id this Procurement Sku maps to',
-  `PRICE` DECIMAL(14,4) NOT NULL COMMENT 'Price that this Procurement agent is purchasing this Logistics Unit at. If null then default to the price set in for the Planning Unit',
+  `VENDOR_PRICE` DECIMAL(14,4) NOT NULL COMMENT 'Price that this Procurement agent is purchasing this Logistics Unit at. If null then default to the price set in for the Planning Unit',
   `APPROVED_TO_SHIPPED_LEAD_TIME` INT(10) NOT NULL COMMENT 'No of days for an Order to move from Approved to Shipped, if we do not have this then take from SKU table',
+  `GTIN` VARCHAR(45) NULL,
   `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'If True indicates this Procurement Sku mapping is Active. False indicates this Procurement Sku has been De-activated',
   `CREATED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Created by',
   `CREATED_DATE` DATETIME NOT NULL COMMENT 'Created date',
   `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Last modified by',
   `LAST_MODIFIED_DATE` DATETIME NOT NULL COMMENT 'Last modified date',
-  PRIMARY KEY (`PROCUREMENT_AGENT_SKU_ID`),
-  CONSTRAINT `fk_procurement_agent_logistics_unit_procurementAgentId`
+  PRIMARY KEY (`PROCUREMENT_AGENT_PROCUREMENT_UNIT_ID`),
+  CONSTRAINT `fk_procurement_unit_procurement_agent_procurementAgentId`
     FOREIGN KEY (`PROCUREMENT_AGENT_ID`)
     REFERENCES `fasp`.`rm_procurement_agent` (`PROCUREMENT_AGENT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_procurement_agent_logistics_unit_logisticsUnitId`
-    FOREIGN KEY (`LOGISTICS_UNIT_ID`)
-    REFERENCES `fasp`.`rm_logistics_unit` (`LOGISTICS_UNIT_ID`)
+  CONSTRAINT `fk_procurement_unit_procurement_agent_procurementUnitId`
+    FOREIGN KEY (`PROCUREMENT_UNIT_ID`)
+    REFERENCES `fasp`.`rm_procurement_unit` (`PROCUREMENT_UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_procurement_agent_logistics_unit_createdBy`
+  CONSTRAINT `fk_procurement_unit_procurement_agent_createdBy`
     FOREIGN KEY (`CREATED_BY`)
     REFERENCES `fasp`.`us_user` (`USER_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_procurement_agent_logistics_unit_lastModifiedBy`
+  CONSTRAINT `fk_procurement_unit_procurement_agent_lastModifiedBy`
     FOREIGN KEY (`LAST_MODIFIED_BY`)
     REFERENCES `fasp`.`us_user` (`USER_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-COMMENT = 'Table used to map the Procurement Agent Sku to Logistics Unit\nNote: Can be administered at the Realm admin';
+COMMENT = 'Table used to map the Procurement Agent Sku to Procuremnt Unit\nNote: Can be administered at the Realm admin';
 
-CREATE INDEX `fk_procurement_agent_logistics_unit_procurementAgentId_idx` ON `fasp`.`rm_procurement_agent_logistics_unit` (`PROCUREMENT_AGENT_ID` ASC);
+CREATE INDEX `fk_procurement_unit_procurement_agent_procurementAgentId_idx` ON `fasp`.`rm_procurement_unit_procurement_agent` (`PROCUREMENT_AGENT_ID` ASC);
 
-CREATE INDEX `fk_procurement_agent_logistics_unit_logisticsUnitId_idx` ON `fasp`.`rm_procurement_agent_logistics_unit` (`LOGISTICS_UNIT_ID` ASC);
+CREATE INDEX `fk_procurement_unit_procurement_agent_procurementUnitId_idx` ON `fasp`.`rm_procurement_unit_procurement_agent` (`PROCUREMENT_UNIT_ID` ASC);
 
-CREATE INDEX `fk_procurement_agent_logistics_unit_createdBy_idx` ON `fasp`.`rm_procurement_agent_logistics_unit` (`CREATED_BY` ASC);
+CREATE INDEX `fk_procurement_unit_procurement_agent_createdBy_idx` ON `fasp`.`rm_procurement_unit_procurement_agent` (`CREATED_BY` ASC);
 
-CREATE INDEX `fk_procurement_agent_logistics_unit_lastModifiedBy_idx` ON `fasp`.`rm_procurement_agent_logistics_unit` (`LAST_MODIFIED_BY` ASC);
+CREATE INDEX `fk_procurement_unit_procurement_agent_lastModifiedBy_idx` ON `fasp`.`rm_procurement_unit_procurement_agent` (`LAST_MODIFIED_BY` ASC);
 
-CREATE UNIQUE INDEX `unqProcurementAgentLogisticsUnitId` ON `fasp`.`rm_procurement_agent_logistics_unit` (`PROCUREMENT_AGENT_ID` ASC, `LOGISTICS_UNIT_ID` ASC)  COMMENT 'Unique mapping for Procurement agent and Logistics Unit Id';
+CREATE UNIQUE INDEX `unqProcurementUnitProcurementAgentId` ON `fasp`.`rm_procurement_unit_procurement_agent` (`PROCUREMENT_AGENT_ID` ASC, `PROCUREMENT_UNIT_ID` ASC)  COMMENT 'Unique mapping for Procurement agent and Logistics Unit Id';
 
 
 -- -----------------------------------------------------
--- Table `fasp`.`rm_country_logistics_unit`
+-- Table `fasp`.`rm_planning_unit_country`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `fasp`.`rm_country_logistics_unit` ;
+DROP TABLE IF EXISTS `fasp`.`rm_planning_unit_country` ;
 
-CREATE TABLE IF NOT EXISTS `fasp`.`rm_country_logistics_unit` (
-  `COUNTRY_SKU_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Country level SKU',
-  `REALM_COUNTRY_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that determines the Realm-Country this Sku belongs to',
-  `SKU_CODE` VARCHAR(50) NOT NULL COMMENT 'Code that the Country uses to identify the SKU',
-  `LOGISTICS_UNIT_ID` INT(10) UNSIGNED NULL COMMENT 'Foreign key that indicates which Logistics unit Id this Country Sku maps to',
+CREATE TABLE IF NOT EXISTS `fasp`.`rm_planning_unit_country` (
+  `PLANNING_UNIT_COUNTRTY_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Country level SKU',
   `PLANNING_UNIT_ID` INT(10) UNSIGNED NULL COMMENT 'Foreign key that indicates which Planning unit Id this Country Sku maps to',
-  `PACK_SIZE` DECIMAL(12,2) UNSIGNED NULL COMMENT 'No of items of Planning Unit inside this Country Sku',
+  `REALM_COUNTRY_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that determines the Realm-Country this Sku belongs to',
+  `LABEL_ID` INT(10) UNSIGNED NOT NULL,
+  `SKU_CODE` VARCHAR(50) NOT NULL COMMENT 'Code that the Country uses to identify the SKU',
+  `UNIT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'No of items of Planning Unit inside this Country Sku',
+  `MULTIPLIER` DECIMAL(12,2) UNSIGNED NOT NULL,
+  `GTIN` VARCHAR(45) NULL,
   `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'If True indicates this Country Sku is Active. False indicates this Country Sku has been Deactivated',
   `CREATED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Created by',
   `CREATED_DATE` DATETIME NOT NULL COMMENT 'Created date',
   `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Last Modified by',
   `LAST_MODIFIED_DATE` DATETIME NOT NULL COMMENT 'Last Modified date',
-  PRIMARY KEY (`COUNTRY_SKU_ID`),
-  CONSTRAINT `fk_country_logistics_unit_realmCountryId`
+  PRIMARY KEY (`PLANNING_UNIT_COUNTRTY_ID`),
+  CONSTRAINT `fk_planning_unit_country_realmCountryId`
     FOREIGN KEY (`REALM_COUNTRY_ID`)
     REFERENCES `fasp`.`rm_realm_country` (`REALM_COUNTRY_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_country_logistics_unit_logisticsUnitId`
-    FOREIGN KEY (`LOGISTICS_UNIT_ID`)
-    REFERENCES `fasp`.`rm_logistics_unit` (`LOGISTICS_UNIT_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_country_logistics_unit_planningUnitId`
+  CONSTRAINT `fk_planning_unit_country_planningUnitId`
     FOREIGN KEY (`PLANNING_UNIT_ID`)
     REFERENCES `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_country_logistics_unit_createdBy`
+  CONSTRAINT `fk_planning_unit_country_createdBy`
     FOREIGN KEY (`CREATED_BY`)
     REFERENCES `fasp`.`us_user` (`USER_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_country_logistics_unit_lastModifiedBy`
+  CONSTRAINT `fk_planning_unit_country_lastModifiedBy`
     FOREIGN KEY (`LAST_MODIFIED_BY`)
     REFERENCES `fasp`.`us_user` (`USER_ID`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_planning_unit_country_ap_unit1`
+    FOREIGN KEY (`UNIT_ID`)
+    REFERENCES `fasp`.`ap_unit` (`UNIT_ID`)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-COMMENT = 'Table used to map the Country Sku to Logistics Unit or Planning Unit\nNote: Can be administered at the Realm admin. We can either use the Logistics Unit or the Planning Unit + Unit and Qty';
+COMMENT = 'Table used to map the Country Sku to Planning Unit\nNote: Can be administered at the Realm admin.';
 
-CREATE INDEX `fk_country_logistics_unit_realmCountryId_idx` ON `fasp`.`rm_country_logistics_unit` (`REALM_COUNTRY_ID` ASC);
+CREATE INDEX `fk_planning_unit_country_realmCountryId_idx` ON `fasp`.`rm_planning_unit_country` (`REALM_COUNTRY_ID` ASC);
 
-CREATE INDEX `fk_country_logistics_unit_logisticsUnitId_idx` ON `fasp`.`rm_country_logistics_unit` (`LOGISTICS_UNIT_ID` ASC);
+CREATE INDEX `fk_planning_unit_country_planningUnitId_idx` ON `fasp`.`rm_planning_unit_country` (`PLANNING_UNIT_ID` ASC);
 
-CREATE INDEX `fk_country_logistics_unit_planningUnitId_idx` ON `fasp`.`rm_country_logistics_unit` (`PLANNING_UNIT_ID` ASC);
+CREATE INDEX `fk_planning_unit_country_createdBy_idx` ON `fasp`.`rm_planning_unit_country` (`CREATED_BY` ASC);
 
-CREATE INDEX `fk_country_logistics_unit_createdBy_idx` ON `fasp`.`rm_country_logistics_unit` (`CREATED_BY` ASC);
+CREATE INDEX `fk_planning_unit_country_lastModifiedBy_idx` ON `fasp`.`rm_planning_unit_country` (`LAST_MODIFIED_BY` ASC);
 
-CREATE INDEX `fk_country_logistics_unit_lastModifiedBy_idx` ON `fasp`.`rm_country_logistics_unit` (`LAST_MODIFIED_BY` ASC);
+CREATE UNIQUE INDEX `unqCountryPlanningUnitAndUnitId` ON `fasp`.`rm_planning_unit_country` (`REALM_COUNTRY_ID` ASC, `PLANNING_UNIT_ID` ASC)  COMMENT 'Unique mapping for Country - Planning Unit and Unit Id mapping';
 
-CREATE UNIQUE INDEX `unqCountryLogisticsUnitId` ON `fasp`.`rm_country_logistics_unit` (`REALM_COUNTRY_ID` ASC, `LOGISTICS_UNIT_ID` ASC)  COMMENT 'Unique mapping between Country and Logistics unit';
-
-CREATE UNIQUE INDEX `unqCountryPlanningUnitAndUnitId` ON `fasp`.`rm_country_logistics_unit` (`REALM_COUNTRY_ID` ASC, `PLANNING_UNIT_ID` ASC)  COMMENT 'Unique mapping for Country - Planning Unit and Unit Id mapping';
+CREATE INDEX `fk_rm_planning_unit_country_ap_unit1_idx` ON `fasp`.`rm_planning_unit_country` (`UNIT_ID` ASC);
 
 
 -- -----------------------------------------------------
--- Table `fasp`.`rm_logistics_unit_capacity`
+-- Table `fasp`.`rm_planning_unit_capacity`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `fasp`.`rm_logistics_unit_capacity` ;
+DROP TABLE IF EXISTS `fasp`.`rm_planning_unit_capacity` ;
 
-CREATE TABLE IF NOT EXISTS `fasp`.`rm_logistics_unit_capacity` (
-  `LOGISTICS_UNIT_CAPACITY_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Logistics Unit Capacity Id',
-  `LOGISTICS_UNIT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that points to the Logistics Unit Id that this record is for',
+CREATE TABLE IF NOT EXISTS `fasp`.`rm_planning_unit_capacity` (
+  `PLANNING_UNIT_CAPACITY_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Logistics Unit Capacity Id',
+  `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL,
+  `SUPPLIER_ID` INT(10) UNSIGNED NOT NULL,
   `CAPACITY` DECIMAL(12,2) UNSIGNED NOT NULL COMMENT 'Global capacity level beyond which the manufacture cannot produce that GTIN',
   `START_DATE` DATE NOT NULL COMMENT 'Start period for the Capacity for this Logistics Unit',
   `STOP_DATE` DATE NOT NULL COMMENT 'Stop period for the Capacity for this Logistics Unit',
@@ -1873,41 +1920,48 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_logistics_unit_capacity` (
   `CREATED_DATE` DATETIME NOT NULL COMMENT 'Created date',
   `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Last Modified by',
   `LAST_MODIFIED_DATE` DATETIME NOT NULL COMMENT 'Last Modified date',
-  PRIMARY KEY (`LOGISTICS_UNIT_CAPACITY_ID`),
-  CONSTRAINT `fk_logistics_unit_capacity_logisticsUnitId`
-    FOREIGN KEY (`LOGISTICS_UNIT_ID`)
-    REFERENCES `fasp`.`rm_logistics_unit` (`LOGISTICS_UNIT_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_logistics_unit_capacity_createdBy`
+  PRIMARY KEY (`PLANNING_UNIT_CAPACITY_ID`),
+  CONSTRAINT `fk_planning_unit_capacity_createdBy`
     FOREIGN KEY (`CREATED_BY`)
     REFERENCES `fasp`.`us_user` (`USER_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_logistics_unit_capacity_lastModifiedBy`
+  CONSTRAINT `fk_planning_unit_capacity_lastModifiedBy`
     FOREIGN KEY (`LAST_MODIFIED_BY`)
     REFERENCES `fasp`.`us_user` (`USER_ID`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_planning_unit_capacity_rm_supplier1`
+    FOREIGN KEY (`SUPPLIER_ID`)
+    REFERENCES `fasp`.`rm_supplier` (`SUPPLIER_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_planning_unit_capacity_rm_planning_unit1`
+    FOREIGN KEY (`PLANNING_UNIT_ID`)
+    REFERENCES `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`)
+    ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-COMMENT = 'Table used to store the Global capacity for each Logistics unit\nNote: More than one record for each Logistics unit, we need to check if the periods overlap an existing record and not allow a new entry if it does overlap. Also only those Logistics unit should be allowed whose Unit Id is the same as the Forecasting Unit Id of the corresponding Planning unit';
+COMMENT = 'Table used to store the Global capacity for each Planning unit\nNote: More than one record for each Planning unit, we need to check if the periods overlap an existing record and not allow a new entry if it does overlap.LOGISTICS_UNIT_ID';
 
-CREATE INDEX `fk_logistics_unit_capacity_logisticsUnitId_idx` ON `fasp`.`rm_logistics_unit_capacity` (`LOGISTICS_UNIT_ID` ASC);
+CREATE INDEX `fk_planning_unit_capacity_createdBy_idx` ON `fasp`.`rm_planning_unit_capacity` (`CREATED_BY` ASC);
 
-CREATE INDEX `fk_logistics_unit_capacity_createdBy_idx` ON `fasp`.`rm_logistics_unit_capacity` (`CREATED_BY` ASC);
+CREATE INDEX `fk_planning_unit_capacity_lastModifiedBy_idx` ON `fasp`.`rm_planning_unit_capacity` (`LAST_MODIFIED_BY` ASC);
 
-CREATE INDEX `fk_logistics_unit_capacity_lastModifiedBy_idx` ON `fasp`.`rm_logistics_unit_capacity` (`LAST_MODIFIED_BY` ASC);
+CREATE INDEX `fk_rm_planning_unit_capacity_rm_supplier1_idx` ON `fasp`.`rm_planning_unit_capacity` (`SUPPLIER_ID` ASC);
+
+CREATE INDEX `fk_rm_planning_unit_capacity_rm_planning_unit1_idx` ON `fasp`.`rm_planning_unit_capacity` (`PLANNING_UNIT_ID` ASC);
 
 
 -- -----------------------------------------------------
--- Table `fasp`.`rm_program_product`
+-- Table `fasp`.`rm_program_forecasting_unit`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `fasp`.`rm_program_product` ;
+DROP TABLE IF EXISTS `fasp`.`rm_program_forecasting_unit` ;
 
-CREATE TABLE IF NOT EXISTS `fasp`.`rm_program_product` (
-  `PROGRAM_PRODUCT_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Program - Product',
+CREATE TABLE IF NOT EXISTS `fasp`.`rm_program_forecasting_unit` (
+  `PROGRAM_FORECASTING_UNIT_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Program - Product',
   `PROGRAM_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key for the Program that this mapping refers to',
-  `PRODUCT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key for the Planning Unit that this mapping refers to',
+  `FORECASTING_UNIT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key for the Planning Unit that this mapping refers to',
   `MIN_MONTHS` INT(10) UNSIGNED NOT NULL COMMENT 'Min number of months of stock that we should have before triggering a reorder',
   `MAX_MONTHS` INT(10) UNSIGNED NULL COMMENT 'Max number of months of stock that is recommended',
   `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'If True indicates this mapping is Active. False indicates this mapping has been Deactivated',
@@ -1915,39 +1969,39 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_program_product` (
   `CREATED_DATE` DATETIME NOT NULL COMMENT 'Created date',
   `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Last Modified by',
   `LAST_MODIFIED_DATE` DATETIME NOT NULL COMMENT 'Last Modified date',
-  PRIMARY KEY (`PROGRAM_PRODUCT_ID`),
-  CONSTRAINT `fk_program_product_programId`
+  PRIMARY KEY (`PROGRAM_FORECASTING_UNIT_ID`),
+  CONSTRAINT `fk_program_forecasting_unit_programId`
     FOREIGN KEY (`PROGRAM_ID`)
     REFERENCES `fasp`.`rm_program` (`PROGRAM_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_program_product_productId`
-    FOREIGN KEY (`PRODUCT_ID`)
-    REFERENCES `fasp`.`rm_product` (`PRODUCT_ID`)
+  CONSTRAINT `fk_program_forecasting_unit_forecastingUnitId`
+    FOREIGN KEY (`FORECASTING_UNIT_ID`)
+    REFERENCES `fasp`.`rm_forecasting_unit` (`FORECASTING_UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_program_product_createdBy`
+  CONSTRAINT `fk_program_forecasting_unit_createdBy`
     FOREIGN KEY (`CREATED_BY`)
     REFERENCES `fasp`.`us_user` (`USER_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_program_product_lastModifiedBy`
+  CONSTRAINT `fk_program_forecasting_unit_lastModifiedBy`
     FOREIGN KEY (`LAST_MODIFIED_BY`)
     REFERENCES `fasp`.`us_user` (`USER_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB
-COMMENT = 'Table used to map the Products inside a Program\nNote: Allow the user to select a Product Category and therefore then select all the Products that should be used in the Program';
+COMMENT = 'Table used to map the ForecastingUnits inside a Program\nNote: Allow the user to select a Product Category and therefore then select all the ForecastingUnits that should be used in the Program';
 
-CREATE INDEX `fk_program_product_programId_idx` ON `fasp`.`rm_program_product` (`PROGRAM_ID` ASC);
+CREATE INDEX `fk_program_forecasting_unit_programId_idx` ON `fasp`.`rm_program_forecasting_unit` (`PROGRAM_ID` ASC);
 
-CREATE INDEX `fk_program_product_productId_idx` ON `fasp`.`rm_program_product` (`PRODUCT_ID` ASC);
+CREATE INDEX `fk_program_forecasting_unit_forecastingUnitId_idx` ON `fasp`.`rm_program_forecasting_unit` (`FORECASTING_UNIT_ID` ASC);
 
-CREATE INDEX `fk_program_product_createdBy_idx` ON `fasp`.`rm_program_product` (`CREATED_BY` ASC);
+CREATE INDEX `fk_program_forecasting_unit_createdBy_idx` ON `fasp`.`rm_program_forecasting_unit` (`CREATED_BY` ASC);
 
-CREATE INDEX `fk_program_product_lastModifiedBy_idx` ON `fasp`.`rm_program_product` (`LAST_MODIFIED_BY` ASC);
+CREATE INDEX `fk_program_forecasting_unit_lastModifiedBy_idx` ON `fasp`.`rm_program_forecasting_unit` (`LAST_MODIFIED_BY` ASC);
 
-CREATE UNIQUE INDEX `unqProgramIdProductId` ON `fasp`.`rm_program_product` (`PROGRAM_ID` ASC, `PRODUCT_ID` ASC)  COMMENT 'Unique mapping for Program - Product mapping';
+CREATE UNIQUE INDEX `unqProgramIdForecastingUnitId` ON `fasp`.`rm_program_forecasting_unit` (`PROGRAM_ID` ASC, `FORECASTING_UNIT_ID` ASC)  COMMENT 'Unique mapping for Program - Product mapping';
 
 
 -- -----------------------------------------------------
@@ -1985,7 +2039,7 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_inventory` (
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_inventory_logisticsUnitId`
     FOREIGN KEY (`LOGISTICS_UNIT_ID`)
-    REFERENCES `fasp`.`rm_logistics_unit` (`LOGISTICS_UNIT_ID`)
+    REFERENCES `fasp`.`rm_procurement_unit` (`PROCUREMENT_UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_inventory_planningUnitId`
@@ -2065,7 +2119,7 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_consumption` (
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_consumption_logisticsUnitId`
     FOREIGN KEY (`LOGISTICS_UNIT_ID`)
-    REFERENCES `fasp`.`rm_logistics_unit` (`LOGISTICS_UNIT_ID`)
+    REFERENCES `fasp`.`rm_procurement_unit` (`PROCUREMENT_UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_consumption_dataSourceId`
@@ -2143,7 +2197,7 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_shipment` (
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_shipment_logisticsUnitId`
     FOREIGN KEY (`LOGISTICS_UNIT_ID`)
-    REFERENCES `fasp`.`rm_logistics_unit` (`LOGISTICS_UNIT_ID`)
+    REFERENCES `fasp`.`rm_procurement_unit` (`PROCUREMENT_UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_shipment_dataSourceId`
@@ -2189,46 +2243,6 @@ CREATE INDEX `fk_shipment_lastModifiedBy_idx` ON `fasp`.`rm_shipment` (`LAST_MOD
 CREATE INDEX `fk_shipment_procurementAgentId_idx` ON `fasp`.`rm_shipment` (`PROCUREMENT_AGENT_ID` ASC);
 
 CREATE INDEX `fk_shipment_shipmentStatusId_idx` ON `fasp`.`rm_shipment` (`SHIPMENT_STATUS_ID` ASC);
-
-
--- -----------------------------------------------------
--- Table `fasp`.`rm_logistics_unit_gtin`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `fasp`.`rm_logistics_unit_gtin` ;
-
-CREATE TABLE IF NOT EXISTS `fasp`.`rm_logistics_unit_gtin` (
-  `LOGISTICS_UNIT_GTIN_ID` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Logistics Unit GTIN mapping',
-  `LOGISTICS_UNIT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that points to the Logistics Unit Id that this record is for',
-  `GTIN` VARCHAR(14) NOT NULL COMMENT 'GTIN for this SKU, this is a Universal number used to identify a packing unit from a Manufacturer including the actual production line. 14 char long.',
-  `ACTIVE` TINYINT(1) UNSIGNED NOT NULL COMMENT 'If True indicates this mapping is Active. False indicates this mapping has been Deactivated',
-  `CREATED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Created by',
-  `CREATED_DATE` DATETIME NOT NULL COMMENT 'Created date',
-  `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Last modified by',
-  `LAST_MODIFIED_DATE` DATETIME NOT NULL COMMENT 'Last modified date',
-  PRIMARY KEY (`LOGISTICS_UNIT_GTIN_ID`),
-  CONSTRAINT `fk_logistics_uni_gtin_logisticsUnitId`
-    FOREIGN KEY (`LOGISTICS_UNIT_ID`)
-    REFERENCES `fasp`.`rm_logistics_unit` (`LOGISTICS_UNIT_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_logistics_uni_gtin_createdBy`
-    FOREIGN KEY (`CREATED_BY`)
-    REFERENCES `fasp`.`us_user` (`USER_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_logistics_uni_gtin_lastModifiedBy`
-    FOREIGN KEY (`LAST_MODIFIED_BY`)
-    REFERENCES `fasp`.`us_user` (`USER_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB
-COMMENT = 'Table used to store the different GTIN\'s for each Logistics Unit\nNote: Since there a GTIN is based on a Manufacturer site and the actual line where the Product was made you can have more than 1 GTIN for each Logistics Unit';
-
-CREATE INDEX `fk_logistics_uni_gtin_logisticsUnitId_idx` ON `fasp`.`rm_logistics_unit_gtin` (`LOGISTICS_UNIT_ID` ASC);
-
-CREATE INDEX `fk_logistics_uni_gtin_createdBy_idx` ON `fasp`.`rm_logistics_unit_gtin` (`CREATED_BY` ASC);
-
-CREATE INDEX `fk_logistics_uni_gtin_lastModifiedBy_idx` ON `fasp`.`rm_logistics_unit_gtin` (`LAST_MODIFIED_BY` ASC);
 
 
 -- -----------------------------------------------------
@@ -2672,6 +2686,59 @@ CREATE TABLE IF NOT EXISTS `fasp`.`us_can_create_role` (
 ENGINE = InnoDB;
 
 CREATE INDEX `fk_us_can_create_role_us_role2_idx` ON `fasp`.`us_can_create_role` (`CAN_CREATE_ROLE` ASC);
+
+
+-- -----------------------------------------------------
+-- Table `fasp`.`rm_planning_unit_procurement_agent`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `fasp`.`rm_planning_unit_procurement_agent` ;
+
+CREATE TABLE IF NOT EXISTS `fasp`.`rm_planning_unit_procurement_agent` (
+  `PLANNING_UNIT_PROCUREMENT_AGENT_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL,
+  `PROCUREMENT_AGENT_ID` INT(10) UNSIGNED NOT NULL,
+  `SKU_CODE` VARCHAR(25) NOT NULL,
+  `CATALOG_PRICE` DECIMAL(12,2) UNSIGNED NULL,
+  `MOQ` INT(10) UNSIGNED NULL,
+  `UNITS_PER_PALLET` INT(10) UNSIGNED NULL,
+  `UNITS_PER_CONTAINER` INT(10) UNSIGNED NULL,
+  `VOLUME` DECIMAL(12,2) UNSIGNED NULL,
+  `WEIGHT` DECIMAL(12,2) UNSIGNED NULL,
+  `ACTIVE` TINYINT(1) UNSIGNED NOT NULL,
+  `CREATED_BY` INT(10) UNSIGNED NOT NULL,
+  `CREATED_DATE` DATETIME NOT NULL,
+  `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL,
+  `LAST_MODIFIED_DATE` DATETIME NOT NULL,
+  PRIMARY KEY (`PLANNING_UNIT_PROCUREMENT_AGENT_ID`),
+  CONSTRAINT `fk_rm_planning_unit_procurement_agent_rm_planning_unit1`
+    FOREIGN KEY (`PLANNING_UNIT_ID`)
+    REFERENCES `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_planning_unit_procurement_agent_rm_procurement_agent1`
+    FOREIGN KEY (`PROCUREMENT_AGENT_ID`)
+    REFERENCES `fasp`.`rm_procurement_agent` (`PROCUREMENT_AGENT_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_planning_unit_procurement_agent_us_user1`
+    FOREIGN KEY (`CREATED_BY`)
+    REFERENCES `fasp`.`us_user` (`USER_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_planning_unit_procurement_agent_us_user2`
+    FOREIGN KEY (`LAST_MODIFIED_BY`)
+    REFERENCES `fasp`.`us_user` (`USER_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+CREATE INDEX `fk_rm_planning_unit_procurement_agent_rm_planning_unit1_idx` ON `fasp`.`rm_planning_unit_procurement_agent` (`PLANNING_UNIT_ID` ASC);
+
+CREATE INDEX `fk_rm_planning_unit_procurement_agent_rm_procurement_agent1_idx` ON `fasp`.`rm_planning_unit_procurement_agent` (`PROCUREMENT_AGENT_ID` ASC);
+
+CREATE INDEX `fk_rm_planning_unit_procurement_agent_us_user1_idx` ON `fasp`.`rm_planning_unit_procurement_agent` (`CREATED_BY` ASC);
+
+CREATE INDEX `fk_rm_planning_unit_procurement_agent_us_user2_idx` ON `fasp`.`rm_planning_unit_procurement_agent` (`LAST_MODIFIED_BY` ASC);
 
 USE `fasp` ;
 
@@ -3154,12 +3221,12 @@ COMMIT;
 
 
 -- -----------------------------------------------------
--- Data for table `fasp`.`rm_manufacturer`
+-- Data for table `fasp`.`rm_supplier`
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `fasp`;
-INSERT INTO `fasp`.`rm_manufacturer` (`MANUFACTURER_ID`, `REALM_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 112, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_manufacturer` (`MANUFACTURER_ID`, `REALM_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 1, 113, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_supplier` (`SUPPLIER_ID`, `REALM_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 112, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_supplier` (`SUPPLIER_ID`, `REALM_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 1, 113, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
 
 COMMIT;
 
@@ -3251,6 +3318,20 @@ COMMIT;
 
 
 -- -----------------------------------------------------
+-- Data for table `fasp`.`rm_forecasting_unit`
+-- -----------------------------------------------------
+START TRANSACTION;
+USE `fasp`;
+INSERT INTO `fasp`.`rm_forecasting_unit` (`FORECASTING_UNIT_ID`, `REALM_ID`, `PRODUCT_CATEGORY_ID`, `TRACER_CATEGORY_ID`, `GENERIC_LABEL_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 3, NULL, 65, 65, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_forecasting_unit` (`FORECASTING_UNIT_ID`, `REALM_ID`, `PRODUCT_CATEGORY_ID`, `TRACER_CATEGORY_ID`, `GENERIC_LABEL_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 1, 15, NULL, 66, 66, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_forecasting_unit` (`FORECASTING_UNIT_ID`, `REALM_ID`, `PRODUCT_CATEGORY_ID`, `TRACER_CATEGORY_ID`, `GENERIC_LABEL_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 1, 3, NULL, 67, 67, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_forecasting_unit` (`FORECASTING_UNIT_ID`, `REALM_ID`, `PRODUCT_CATEGORY_ID`, `TRACER_CATEGORY_ID`, `GENERIC_LABEL_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 1, 3, NULL, 68, 68, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_forecasting_unit` (`FORECASTING_UNIT_ID`, `REALM_ID`, `PRODUCT_CATEGORY_ID`, `TRACER_CATEGORY_ID`, `GENERIC_LABEL_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (5, 1, 16, NULL, 69, 69, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+
+COMMIT;
+
+
+-- -----------------------------------------------------
 -- Data for table `fasp`.`ap_unit_type`
 -- -----------------------------------------------------
 START TRANSACTION;
@@ -3303,89 +3384,50 @@ COMMIT;
 
 
 -- -----------------------------------------------------
--- Data for table `fasp`.`rm_product`
--- -----------------------------------------------------
-START TRANSACTION;
-USE `fasp`;
-INSERT INTO `fasp`.`rm_product` (`PRODUCT_ID`, `REALM_ID`, `PRODUCT_CATEGORY_ID`, `GENERIC_LABEL_ID`, `LABEL_ID`, `FORECASTING_UNIT_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 3, 65, 65, 18, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_product` (`PRODUCT_ID`, `REALM_ID`, `PRODUCT_CATEGORY_ID`, `GENERIC_LABEL_ID`, `LABEL_ID`, `FORECASTING_UNIT_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 1, 15, 66, 66, 25, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_product` (`PRODUCT_ID`, `REALM_ID`, `PRODUCT_CATEGORY_ID`, `GENERIC_LABEL_ID`, `LABEL_ID`, `FORECASTING_UNIT_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 1, 3, 67, 67, 18, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_product` (`PRODUCT_ID`, `REALM_ID`, `PRODUCT_CATEGORY_ID`, `GENERIC_LABEL_ID`, `LABEL_ID`, `FORECASTING_UNIT_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 1, 3, 68, 68, 18, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_product` (`PRODUCT_ID`, `REALM_ID`, `PRODUCT_CATEGORY_ID`, `GENERIC_LABEL_ID`, `LABEL_ID`, `FORECASTING_UNIT_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (5, 1, 16, 69, 69, 25, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-
-COMMIT;
-
-
--- -----------------------------------------------------
 -- Data for table `fasp`.`rm_planning_unit`
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `fasp`;
-INSERT INTO `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`, `PRODUCT_ID`, `LABEL_ID`, `UNIT_ID`, `QTY_OF_FORECASTING_UNITS`, `PRICE`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 4, 93, 92, 6, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`, `PRODUCT_ID`, `LABEL_ID`, `UNIT_ID`, `QTY_OF_FORECASTING_UNITS`, `PRICE`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 2, 94, 92, 6, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`, `PRODUCT_ID`, `LABEL_ID`, `UNIT_ID`, `QTY_OF_FORECASTING_UNITS`, `PRICE`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 2, 95, 92, 5, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`, `PRODUCT_ID`, `LABEL_ID`, `UNIT_ID`, `QTY_OF_FORECASTING_UNITS`, `PRICE`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 4, 96, 90, 60, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`, `PRODUCT_ID`, `LABEL_ID`, `UNIT_ID`, `QTY_OF_FORECASTING_UNITS`, `PRICE`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (5, 4, 97, 91, 12, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`, `PRODUCT_ID`, `LABEL_ID`, `UNIT_ID`, `QTY_OF_FORECASTING_UNITS`, `PRICE`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (6, 5, 98, 90, 90, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`, `PRODUCT_ID`, `LABEL_ID`, `UNIT_ID`, `QTY_OF_FORECASTING_UNITS`, `PRICE`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (7, 5, 99, 90, 30, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`, `FORECASTING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `MULTIPLIER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 4, 93, 92, 6, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`, `FORECASTING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `MULTIPLIER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 2, 94, 92, 6, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`, `FORECASTING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `MULTIPLIER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 2, 95, 92, 5, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`, `FORECASTING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `MULTIPLIER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 4, 96, 90, 60, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`, `FORECASTING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `MULTIPLIER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (5, 4, 97, 91, 12, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`, `FORECASTING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `MULTIPLIER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (6, 5, 98, 90, 90, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`, `FORECASTING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `MULTIPLIER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (7, 5, 99, 90, 30, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
 
 COMMIT;
 
 
 -- -----------------------------------------------------
--- Data for table `fasp`.`rm_logistics_unit`
+-- Data for table `fasp`.`rm_procurement_unit`
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `fasp`;
-INSERT INTO `fasp`.`rm_logistics_unit` (`LOGISTICS_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `QTY_OF_PLANNING_UNITS`, `VARIANT`, `MANUFACTURER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `QTY_IN_EURO1`, `QTY_IN_EURO2`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 6, 100, 26, 1, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_logistics_unit` (`LOGISTICS_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `QTY_OF_PLANNING_UNITS`, `VARIANT`, `MANUFACTURER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `QTY_IN_EURO1`, `QTY_IN_EURO2`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 6, 101, 20, 1, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_logistics_unit` (`LOGISTICS_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `QTY_OF_PLANNING_UNITS`, `VARIANT`, `MANUFACTURER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `QTY_IN_EURO1`, `QTY_IN_EURO2`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 6, 102, 29, 1, NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_logistics_unit` (`LOGISTICS_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `QTY_OF_PLANNING_UNITS`, `VARIANT`, `MANUFACTURER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `QTY_IN_EURO1`, `QTY_IN_EURO2`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 2, 103, 20, 1, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_logistics_unit` (`LOGISTICS_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `QTY_OF_PLANNING_UNITS`, `VARIANT`, `MANUFACTURER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `QTY_IN_EURO1`, `QTY_IN_EURO2`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (5, 2, 104, 21, 1, NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_logistics_unit` (`LOGISTICS_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `QTY_OF_PLANNING_UNITS`, `VARIANT`, `MANUFACTURER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `QTY_IN_EURO1`, `QTY_IN_EURO2`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (6, 5, 105, 28, 1, NULL, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_logistics_unit` (`LOGISTICS_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `QTY_OF_PLANNING_UNITS`, `VARIANT`, `MANUFACTURER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `QTY_IN_EURO1`, `QTY_IN_EURO2`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (7, 4, 106, 20, 1, NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_logistics_unit` (`LOGISTICS_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `QTY_OF_PLANNING_UNITS`, `VARIANT`, `MANUFACTURER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `QTY_IN_EURO1`, `QTY_IN_EURO2`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (8, 3, 107, 20, 1, NULL, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_unit` (`PROCUREMENT_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `MULTIPLIER`, `SUPPLIER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `UNITS_PER_CONTAINER`, `LABELING`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 6, 100, 26, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_unit` (`PROCUREMENT_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `MULTIPLIER`, `SUPPLIER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `UNITS_PER_CONTAINER`, `LABELING`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 6, 101, 20, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_unit` (`PROCUREMENT_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `MULTIPLIER`, `SUPPLIER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `UNITS_PER_CONTAINER`, `LABELING`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 6, 102, 29, 1, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_unit` (`PROCUREMENT_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `MULTIPLIER`, `SUPPLIER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `UNITS_PER_CONTAINER`, `LABELING`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 2, 103, 20, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_unit` (`PROCUREMENT_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `MULTIPLIER`, `SUPPLIER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `UNITS_PER_CONTAINER`, `LABELING`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (5, 2, 104, 21, 1, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_unit` (`PROCUREMENT_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `MULTIPLIER`, `SUPPLIER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `UNITS_PER_CONTAINER`, `LABELING`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (6, 5, 105, 28, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_unit` (`PROCUREMENT_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `MULTIPLIER`, `SUPPLIER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `UNITS_PER_CONTAINER`, `LABELING`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (7, 4, 106, 20, 1, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_unit` (`PROCUREMENT_UNIT_ID`, `PLANNING_UNIT_ID`, `LABEL_ID`, `UNIT_ID`, `MULTIPLIER`, `SUPPLIER_ID`, `WIDTH_UNIT_ID`, `WIDTH_QTY`, `HEIGHT_UNIT_ID`, `HEIGHT_QTY`, `LENGTH_UNIT_ID`, `LENGTH_QTY`, `WEIGHT_UNIT_ID`, `WEIGHT_QTY`, `UNITS_PER_CONTAINER`, `LABELING`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (8, 3, 107, 20, 1, 2, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
 
 COMMIT;
 
 
 -- -----------------------------------------------------
--- Data for table `fasp`.`rm_procurement_agent_logistics_unit`
+-- Data for table `fasp`.`rm_procurement_unit_procurement_agent`
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `fasp`;
-INSERT INTO `fasp`.`rm_procurement_agent_logistics_unit` (`PROCUREMENT_AGENT_SKU_ID`, `PROCUREMENT_AGENT_ID`, `SKU_CODE`, `LOGISTICS_UNIT_ID`, `PRICE`, `APPROVED_TO_SHIPPED_LEAD_TIME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 'ARTMIS 15 code', 1, 2.35, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_procurement_agent_logistics_unit` (`PROCUREMENT_AGENT_SKU_ID`, `PROCUREMENT_AGENT_ID`, `SKU_CODE`, `LOGISTICS_UNIT_ID`, `PRICE`, `APPROVED_TO_SHIPPED_LEAD_TIME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 1, 'ARTMIS 15 code', 2, 2.13, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_procurement_agent_logistics_unit` (`PROCUREMENT_AGENT_SKU_ID`, `PROCUREMENT_AGENT_ID`, `SKU_CODE`, `LOGISTICS_UNIT_ID`, `PRICE`, `APPROVED_TO_SHIPPED_LEAD_TIME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 1, 'ARTMIS 15 code', 3, 2.13, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_procurement_agent_logistics_unit` (`PROCUREMENT_AGENT_SKU_ID`, `PROCUREMENT_AGENT_ID`, `SKU_CODE`, `LOGISTICS_UNIT_ID`, `PRICE`, `APPROVED_TO_SHIPPED_LEAD_TIME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 2, 'G1021', 1, 2.38, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_procurement_agent_logistics_unit` (`PROCUREMENT_AGENT_SKU_ID`, `PROCUREMENT_AGENT_ID`, `SKU_CODE`, `LOGISTICS_UNIT_ID`, `PRICE`, `APPROVED_TO_SHIPPED_LEAD_TIME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (5, 2, 'G1022', 2, 3.12, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_procurement_agent_logistics_unit` (`PROCUREMENT_AGENT_SKU_ID`, `PROCUREMENT_AGENT_ID`, `SKU_CODE`, `LOGISTICS_UNIT_ID`, `PRICE`, `APPROVED_TO_SHIPPED_LEAD_TIME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (6, 2, 'G1023', 3, 97.2, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_procurement_agent_logistics_unit` (`PROCUREMENT_AGENT_SKU_ID`, `PROCUREMENT_AGENT_ID`, `SKU_CODE`, `LOGISTICS_UNIT_ID`, `PRICE`, `APPROVED_TO_SHIPPED_LEAD_TIME`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (7, 3, 'C1021G5011F1', 1, 0.00, 0, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-
-COMMIT;
-
-
--- -----------------------------------------------------
--- Data for table `fasp`.`rm_country_logistics_unit`
--- -----------------------------------------------------
-START TRANSACTION;
-USE `fasp`;
-INSERT INTO `fasp`.`rm_country_logistics_unit` (`COUNTRY_SKU_ID`, `REALM_COUNTRY_ID`, `SKU_CODE`, `LOGISTICS_UNIT_ID`, `PLANNING_UNIT_ID`, `PACK_SIZE`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 2, 'MACON0003', NULL, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_country_logistics_unit` (`COUNTRY_SKU_ID`, `REALM_COUNTRY_ID`, `SKU_CODE`, `LOGISTICS_UNIT_ID`, `PLANNING_UNIT_ID`, `PACK_SIZE`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 2, 'MACON0102', NULL, 1, 50, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_country_logistics_unit` (`COUNTRY_SKU_ID`, `REALM_COUNTRY_ID`, `SKU_CODE`, `LOGISTICS_UNIT_ID`, `PLANNING_UNIT_ID`, `PACK_SIZE`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 1, 'KYABCD01', 1, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_country_logistics_unit` (`COUNTRY_SKU_ID`, `REALM_COUNTRY_ID`, `SKU_CODE`, `LOGISTICS_UNIT_ID`, `PLANNING_UNIT_ID`, `PACK_SIZE`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 1, 'KYXYZ01', 2, NULL, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-
-COMMIT;
-
-
--- -----------------------------------------------------
--- Data for table `fasp`.`rm_logistics_unit_gtin`
--- -----------------------------------------------------
-START TRANSACTION;
-USE `fasp`;
-INSERT INTO `fasp`.`rm_logistics_unit_gtin` (`LOGISTICS_UNIT_GTIN_ID`, `LOGISTICS_UNIT_ID`, `GTIN`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 'GT101020K01211', 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_logistics_unit_gtin` (`LOGISTICS_UNIT_GTIN_ID`, `LOGISTICS_UNIT_ID`, `GTIN`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 2, 'GT101020M01211', 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
-INSERT INTO `fasp`.`rm_logistics_unit_gtin` (`LOGISTICS_UNIT_GTIN_ID`, `LOGISTICS_UNIT_ID`, `GTIN`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 3, 'GT101020P01212', 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_unit_procurement_agent` (`PROCUREMENT_AGENT_PROCUREMENT_UNIT_ID`, `PROCUREMENT_UNIT_ID`, `PROCUREMENT_AGENT_ID`, `SKU_CODE`, `VENDOR_PRICE`, `APPROVED_TO_SHIPPED_LEAD_TIME`, `GTIN`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 1, 'ARTMIS 15 code', 2.35, 0, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_unit_procurement_agent` (`PROCUREMENT_AGENT_PROCUREMENT_UNIT_ID`, `PROCUREMENT_UNIT_ID`, `PROCUREMENT_AGENT_ID`, `SKU_CODE`, `VENDOR_PRICE`, `APPROVED_TO_SHIPPED_LEAD_TIME`, `GTIN`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 2, 1, 'ARTMIS 15 code', 2.13, 0, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_unit_procurement_agent` (`PROCUREMENT_AGENT_PROCUREMENT_UNIT_ID`, `PROCUREMENT_UNIT_ID`, `PROCUREMENT_AGENT_ID`, `SKU_CODE`, `VENDOR_PRICE`, `APPROVED_TO_SHIPPED_LEAD_TIME`, `GTIN`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 3, 1, 'ARTMIS 15 code', 2.13, 0, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_unit_procurement_agent` (`PROCUREMENT_AGENT_PROCUREMENT_UNIT_ID`, `PROCUREMENT_UNIT_ID`, `PROCUREMENT_AGENT_ID`, `SKU_CODE`, `VENDOR_PRICE`, `APPROVED_TO_SHIPPED_LEAD_TIME`, `GTIN`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (4, 1, 2, 'G1021', 2.38, 0, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_unit_procurement_agent` (`PROCUREMENT_AGENT_PROCUREMENT_UNIT_ID`, `PROCUREMENT_UNIT_ID`, `PROCUREMENT_AGENT_ID`, `SKU_CODE`, `VENDOR_PRICE`, `APPROVED_TO_SHIPPED_LEAD_TIME`, `GTIN`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (5, 2, 2, 'G1022', 3.12, 0, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_unit_procurement_agent` (`PROCUREMENT_AGENT_PROCUREMENT_UNIT_ID`, `PROCUREMENT_UNIT_ID`, `PROCUREMENT_AGENT_ID`, `SKU_CODE`, `VENDOR_PRICE`, `APPROVED_TO_SHIPPED_LEAD_TIME`, `GTIN`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (6, 3, 2, 'G1023', 97.2, 0, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
+INSERT INTO `fasp`.`rm_procurement_unit_procurement_agent` (`PROCUREMENT_AGENT_PROCUREMENT_UNIT_ID`, `PROCUREMENT_UNIT_ID`, `PROCUREMENT_AGENT_ID`, `SKU_CODE`, `VENDOR_PRICE`, `APPROVED_TO_SHIPPED_LEAD_TIME`, `GTIN`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (7, 1, 3, 'C1021G5011F1', 0.00, 0, NULL, 1, 1, '2020-02-25 12:00:00', 1, '2020-02-25 12:00:00');
 
 COMMIT;
 
