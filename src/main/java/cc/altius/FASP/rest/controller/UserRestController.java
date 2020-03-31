@@ -16,6 +16,7 @@ import cc.altius.FASP.model.Password;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
+import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.security.CustomUserDetailsService;
 import cc.altius.FASP.service.UserService;
 import cc.altius.utils.PassPhrase;
@@ -51,12 +52,11 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop"})
 public class UserRestController {
-    
+
     private final Logger auditLogger = LoggerFactory.getLogger(UserRestController.class);
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     private UserService userService;
     @Autowired
@@ -67,7 +67,7 @@ public class UserRestController {
     private int sessionExpiryTime;
     @Value("${jwt.http.request.header}")
     private String tokenHeader;
-    
+
     @GetMapping(value = "/role")
     public ResponseEntity getRoleList() {
         try {
@@ -95,7 +95,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping(value = "/role")
     public ResponseEntity addNewRole(@RequestBody Role role, Authentication auth) {
         try {
@@ -116,7 +116,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PutMapping(value = "/role")
     public ResponseEntity editRole(@RequestBody Role role, Authentication auth) {
         try {
@@ -137,7 +137,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping(value = "/businessFunction")
     public ResponseEntity getBusinessFunctionList() {
         try {
@@ -147,7 +147,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping(value = "/user")
     public ResponseEntity getUserList() {
         try {
@@ -168,7 +168,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping(value = "/user/realmId/{realmId}")
     public ResponseEntity getUserList(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -185,7 +185,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping(value = "/user/{userId}")
     public ResponseEntity getUserByUserId(@PathVariable int userId) {
         try {
@@ -201,7 +201,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping(value = "/user")
     public ResponseEntity addUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
@@ -241,7 +241,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PutMapping(value = "/user")
     public ResponseEntity editUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
@@ -263,7 +263,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PutMapping(value = "/unlockAccount/{userId}/{emailId}")
     public ResponseEntity unlockAccount(@PathVariable int userId, @PathVariable String emailId, Authentication authentication, HttpServletRequest request) throws UnsupportedEncodingException {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
@@ -296,7 +296,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping(value = "/updateExpiredPassword")
     public ResponseEntity updateExpiredPassword(@RequestBody Password password) {
         try {
@@ -313,6 +313,7 @@ public class UserRestController {
                 int row = this.userService.updatePassword(userDetails.getUserId(), password.getNewPassword(), 90);
                 if (row > 0) {
                     userDetails.setSessionExpiresOn(sessionExpiryTime);
+                    userDetails.setPassword(hashPass);
                     final String token = jwtTokenUtil.generateToken(userDetails);
                     return ResponseEntity.ok(new JwtTokenResponse(token));
                 } else {
@@ -323,7 +324,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.failedPasswordUpdate"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping(value = "/changePassword")
     public ResponseEntity changePassword(@RequestBody Password password) {
         try {
@@ -347,7 +348,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.failedPasswordUpdate"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping(value = "/forgotPassword/{username}")
     public ResponseEntity forgotPassword(@PathVariable String username, HttpServletRequest request) {
         auditLogger.info("Forgot password action triggered for Username:" + username, request.getRemoteAddr());
@@ -378,7 +379,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping("/confirmForgotPasswordToken")
     public ResponseEntity confirmForgotPasswordToken(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
@@ -398,7 +399,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.forgotPasswordTokenError"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping("/updatePassword")
     public ResponseEntity updatePaassword(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
@@ -425,7 +426,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.forgotPasswordTokenError"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping(value = "/logout")
     public ResponseEntity logout(Authentication authentication, HttpServletRequest request) {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
@@ -447,7 +448,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.logoutFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping(value = "/checkIfUserExists")
     public ResponseEntity checkIfUserExists(HttpServletRequest request) throws UnsupportedEncodingException {
         try {
@@ -466,6 +467,24 @@ public class UserRestController {
         } catch (Exception e) {
             logger.error("Error", e);
             return new ResponseEntity("static.message.listFailed", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping(value = "/accessControls")
+    public ResponseEntity accessControl(@RequestBody User user, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            int row = this.userService.mapAccessControls(user, curUser);
+            if (row > 0) {
+                auditLogger.error(user + " updated successfully");
+                return new ResponseEntity(new ResponseCode("static.message.updatedSuccess"), HttpStatus.OK);
+            } else {
+                auditLogger.error("Could not updated " + user + " 0 rows updated");
+                return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (Exception e) {
+            auditLogger.error("Error while trying to Add Access Controls", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

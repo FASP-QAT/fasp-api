@@ -5,12 +5,14 @@
  */
 package cc.altius.FASP.rest.controller;
 
-import cc.altius.FASP.model.BaseModel;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.RealmCountry;
+import cc.altius.FASP.model.DTO.PrgSupplierDTO;
+import cc.altius.FASP.model.Supplier;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.service.RealmCountryService;
-import java.io.Serializable;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,14 +22,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import cc.altius.FASP.service.SupplierService;
 
 /**
  *
@@ -35,84 +38,95 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/api")
-public class RealmCountryRestController extends BaseModel implements Serializable {
+public class SupplierRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private RealmCountryService realmCountryService;
+    SupplierService supplierService;
 
-    @PostMapping(path = "/realmCountry")
-    public ResponseEntity postRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
+    @GetMapping(value = "/getSupplierListForSync")
+    public String getSupplierListForSync(@RequestParam String lastSyncDate, int realmId) throws UnsupportedEncodingException {
+        String json;
+        List<PrgSupplierDTO> supplierList = this.supplierService.getSupplierListForSync(lastSyncDate, realmId);
+        Gson gson = new Gson();
+        Type typeList = new TypeToken<List>() {
+        }.getType();
+        json = gson.toJson(supplierList, typeList);
+        return json;
+    }
+
+    @PostMapping(path = "/supplier")
+    public ResponseEntity postSupplier(@RequestBody Supplier supplier, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            this.realmCountryService.addRealmCountry(realmCountryList, curUser);
+            this.supplierService.addSupplier(supplier, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
-            logger.error("Error while trying to add RealmCountry", ae);
+            logger.error("Error while trying to add Supplier", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            logger.error("Error while trying to add RealmCountry", e);
+            logger.error("Error while trying to add Supplier", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PutMapping(path = "/realmCountry")
-    public ResponseEntity putRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
+    @PutMapping(path = "/supplier")
+    public ResponseEntity putSupplier(@RequestBody Supplier supplier, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            this.realmCountryService.updateRealmCountry(realmCountryList, curUser);
+            this.supplierService.updateSupplier(supplier, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
-            logger.error("Error while trying to update RealmCountry", ae);
+            logger.error("Error while trying to add Supplier", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            logger.error("Error while trying to update RealmCountry", e);
+            logger.error("Error while trying to add Supplier", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/realmCountry")
-    public ResponseEntity getRealmCountry(Authentication auth) {
+    @GetMapping("/supplier")
+    public ResponseEntity getSupplier(Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.realmCountryService.getRealmCountryList(curUser), HttpStatus.OK);
+            return new ResponseEntity(this.supplierService.getSupplierList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Error while trying to list RealmCountry", e);
+            logger.error("Error while trying to get Supplier list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping("/realmCountry/{realmCountryId}")
-    public ResponseEntity getRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
+    @GetMapping("/supplier/{supplierId}")
+    public ResponseEntity getSupplier(@PathVariable("supplierId") int supplierId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.realmCountryService.getRealmCountryById(realmCountryId, curUser), HttpStatus.OK);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list RealmCountry", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list RealmCountry", e);
+            return new ResponseEntity(this.supplierService.getSupplierById(supplierId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException er) {
+            logger.error("Error while trying to get Supplier list", er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException er) {
+            logger.error("Error while trying to get Supplier list", er);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            logger.error("Error while trying to list RealmCountry", e);
+            logger.error("Error while trying to get Supplier list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    @GetMapping("/realmCountry/realmId/{realmId}")
-    public ResponseEntity getRealmCountryByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
+    
+    @GetMapping("/supplier/realmId/{realmId}")
+    public ResponseEntity getSupplierForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.realmCountryService.getRealmCountryListByRealmId(realmId, curUser), HttpStatus.OK);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list RealmCountry", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list RealmCountry", e);
+            return new ResponseEntity(this.supplierService.getSupplierListForRealm(realmId, false, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException er) {
+            logger.error("Error while trying to get Supplier list", er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException er) {
+            logger.error("Error while trying to get Supplier list", er);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            logger.error("Error while trying to list RealmCountry", e);
+            logger.error("Error while trying to get Supplier list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

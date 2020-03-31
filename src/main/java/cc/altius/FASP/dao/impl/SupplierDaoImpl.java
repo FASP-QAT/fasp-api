@@ -6,12 +6,11 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
-import cc.altius.FASP.dao.ManufacturerDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgManufacturerDTO;
-import cc.altius.FASP.model.DTO.rowMapper.PrgManufacturerDTORowMapper;
-import cc.altius.FASP.model.Manufacturer;
-import cc.altius.FASP.model.rowMapper.ManufacturerRowMapper;
+import cc.altius.FASP.model.DTO.PrgSupplierDTO;
+import cc.altius.FASP.model.DTO.rowMapper.PrgSupplierDTORowMapper;
+import cc.altius.FASP.model.Supplier;
+import cc.altius.FASP.model.rowMapper.SupplierRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -23,13 +22,14 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import cc.altius.FASP.dao.SupplierDao;
 
 /**
  *
  * @author altius
  */
 @Repository
-public class ManufacturerDaoImpl implements ManufacturerDao {
+public class SupplierDaoImpl implements SupplierDao {
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
@@ -43,9 +43,9 @@ public class ManufacturerDaoImpl implements ManufacturerDao {
     private LabelDao labelDao;
 
     @Override
-    public List<PrgManufacturerDTO> getManufacturerListForSync(String lastSyncDate,int realmId) {
-        String sql = "SELECT m.`ACTIVE`,m.`MANUFACTURER_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,m.`REALM_ID`\n"
-                + "FROM rm_manufacturer m \n"
+    public List<PrgSupplierDTO> getSupplierListForSync(String lastSyncDate,int realmId) {
+        String sql = "SELECT m.`ACTIVE`,m.`SUPPLIER_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,m.`REALM_ID`\n"
+                + "FROM rm_supplier m \n"
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=m.`LABEL_ID` WHERE (m.`REALM_ID`=:realmId OR -1=:realmId)";
         Map<String, Object> params = new HashMap<>();
         if (!lastSyncDate.equals("null")) {
@@ -53,13 +53,13 @@ public class ManufacturerDaoImpl implements ManufacturerDao {
             params.put("lastSyncDate", lastSyncDate);
         }
         params.put("realmId", realmId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new PrgManufacturerDTORowMapper());
+        return this.namedParameterJdbcTemplate.query(sql, params, new PrgSupplierDTORowMapper());
     }
 
     @Override
     @Transactional
-    public int addManufacturer(Manufacturer m, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_manufacturer").usingGeneratedKeyColumns("MANUFACTURER_ID");
+    public int addSupplier(Supplier m, CustomUserDetails curUser) {
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_supplier").usingGeneratedKeyColumns("SUPPLIER_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", m.getRealm().getRealmId());
@@ -74,9 +74,9 @@ public class ManufacturerDaoImpl implements ManufacturerDao {
     }
 
     @Override
-    public int updateManufacturer(Manufacturer m, CustomUserDetails curUser) {
+    public int updateSupplier(Supplier m, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        String sqlString = "UPDATE rm_manufacturer m LEFT JOIN ap_label ml ON m.LABEL_ID=ml.LABEL_ID "
+        String sqlString = "UPDATE rm_supplier m LEFT JOIN ap_label ml ON m.LABEL_ID=ml.LABEL_ID "
                 + "SET  "
                 + "m.`ACTIVE`=:active, "
                 + "m.`LAST_MODIFIED_BY`=IF(m.`ACTIVE`!=:active, :curUser, m.LAST_MODIFIED_BY), "
@@ -84,9 +84,9 @@ public class ManufacturerDaoImpl implements ManufacturerDao {
                 + "ml.LABEL_EN=:labelEn, "
                 + "ml.`LAST_MODIFIED_BY`=IF(ml.LABEL_EN!=:labelEn, :curUser, ml.LAST_MODIFIED_BY), "
                 + "ml.`LAST_MODIFIED_DATE`=IF(ml.LABEL_EN!=:labelEn, :curDate, ml.LAST_MODIFIED_DATE) "
-                + " WHERE m.`MANUFACTURER_ID`=:manufacturerId";
+                + " WHERE m.`SUPPLIER_ID`=:supplierId";
         Map<String, Object> params = new HashMap<>();
-        params.put("manufacturerId", m.getManufacturerId());
+        params.put("supplierId", m.getSupplierId());
         params.put("active", m.isActive());
         params.put("curDate", curDate);
         params.put("curUser", curUser.getUserId());
@@ -95,13 +95,13 @@ public class ManufacturerDaoImpl implements ManufacturerDao {
     }
 
     @Override
-    public List<Manufacturer> getManufacturerList(boolean active, CustomUserDetails curUser) {
+    public List<Supplier> getSupplierList(boolean active, CustomUserDetails curUser) {
         String sqlString = "SELECT  "
-                + "    m.MANUFACTURER_ID,  "
+                + "    m.SUPPLIER_ID,  "
                 + "    ml.LABEL_ID, ml.LABEL_EN, ml.LABEL_FR, ml.LABEL_SP, ml.LABEL_PR, "
                 + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
                 + "    m.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, m.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, m.LAST_MODIFIED_DATE "
-                + "FROM rm_manufacturer m  "
+                + "FROM rm_supplier m  "
                 + "LEFT JOIN ap_label ml ON m.LABEL_ID=ml.LABEL_ID "
                 + "LEFT JOIN rm_realm r ON m.REALM_ID=r.REALM_ID "
                 + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
@@ -116,17 +116,17 @@ public class ManufacturerDaoImpl implements ManufacturerDao {
         if (active) {
             sqlString +=" AND m.ACTIVE ";
         }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ManufacturerRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new SupplierRowMapper());
     }
     
     @Override
-    public List<Manufacturer> getManufacturerListForRealm(int realmId, boolean active, CustomUserDetails curUser) {
+    public List<Supplier> getSupplierListForRealm(int realmId, boolean active, CustomUserDetails curUser) {
         String sqlString = "SELECT  "
-                + "    m.MANUFACTURER_ID,  "
+                + "    m.SUPPLIER_ID,  "
                 + "    ml.LABEL_ID, ml.LABEL_EN, ml.LABEL_FR, ml.LABEL_SP, ml.LABEL_PR, "
                 + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
                 + "    m.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, m.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, m.LAST_MODIFIED_DATE "
-                + "FROM rm_manufacturer m  "
+                + "FROM rm_supplier m  "
                 + "LEFT JOIN ap_label ml ON m.LABEL_ID=ml.LABEL_ID "
                 + "LEFT JOIN rm_realm r ON m.REALM_ID=r.REALM_ID "
                 + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
@@ -142,30 +142,30 @@ public class ManufacturerDaoImpl implements ManufacturerDao {
         if (active) {
             sqlString +=" AND m.ACTIVE ";
         }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ManufacturerRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new SupplierRowMapper());
     }
 
     @Override
-    public Manufacturer getManufacturerById(int manufacturerId, CustomUserDetails curUser) {
+    public Supplier getSupplierById(int supplierId, CustomUserDetails curUser) {
         String sqlString = "SELECT  "
-                + "    m.MANUFACTURER_ID,  "
+                + "    m.SUPPLIER_ID,  "
                 + "    ml.LABEL_ID, ml.LABEL_EN, ml.LABEL_FR, ml.LABEL_SP, ml.LABEL_PR, "
                 + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
                 + "    m.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, m.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, m.LAST_MODIFIED_DATE "
-                + "FROM rm_manufacturer m  "
+                + "FROM rm_supplier m  "
                 + "LEFT JOIN ap_label ml ON m.LABEL_ID=ml.LABEL_ID "
                 + "LEFT JOIN rm_realm r ON m.REALM_ID=r.REALM_ID "
                 + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
                 + "LEFT JOIN us_user cb ON m.CREATED_BY=cb.USER_ID "
                 + "LEFT JOIN us_user lmb ON m.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE m.`MANUFACTURER_ID`=:manufacturerId ";
+                + "WHERE m.`SUPPLIER_ID`=:supplierId ";
         Map<String, Object> params = new HashMap<>();
-        params.put("manufacturerId", manufacturerId);
+        params.put("supplierId", supplierId);
         if (curUser.getRealm().getRealmId() != -1) {
             sqlString += "AND m.REALM_ID=:realmId ";
             params.put("realmId", curUser.getRealm().getRealmId());
         }
-        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new ManufacturerRowMapper());
+        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new SupplierRowMapper());
     }
 
 }

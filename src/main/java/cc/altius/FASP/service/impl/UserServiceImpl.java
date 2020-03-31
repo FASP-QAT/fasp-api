@@ -188,4 +188,10 @@ public class UserServiceImpl implements UserService {
         this.userDao.addTokenToLogout(token);
     }
 
+    @Override
+    public int mapAccessControls(User user, CustomUserDetails curUser) {
+    return this.userDao.mapAccessControls(user, curUser);
+    }
+    
+
 }

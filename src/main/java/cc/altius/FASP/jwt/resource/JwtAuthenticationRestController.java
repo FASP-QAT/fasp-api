@@ -8,7 +8,6 @@ package cc.altius.FASP.jwt.resource;
 import cc.altius.FASP.jwt.JwtTokenUtil;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.ResponseFormat;
 import cc.altius.FASP.rest.controller.UserRestController;
 import cc.altius.FASP.security.CustomUserDetailsService;
 import cc.altius.FASP.service.UserService;
@@ -39,8 +38,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@CrossOrigin(origins = {"http://localhost:4202", "http://192.168.43.113:4202", "chrome-extension://fhbjgbiflinjbdggehcddcbncdddomop", "https://faspdeveloper.github.io"})
-
 public class JwtAuthenticationRestController {
 
     @Value("${jwt.http.request.header}")

@@ -17,7 +17,7 @@ public class PrgLogisticsUnitDTO {
     private PrgUnitDTO unit;
     private double qtyOfPlanningUnits;
     private String variant;
-    private PrgManufacturerDTO manufacturer;
+    private PrgSupplierDTO manufacturer;
     private PrgUnitDTO widthUnit;
     private double widthQty;
     private PrgUnitDTO heightUnit;
@@ -79,11 +79,11 @@ public class PrgLogisticsUnitDTO {
         this.variant = variant;
     }
 
-    public PrgManufacturerDTO getManufacturer() {
+    public PrgSupplierDTO getManufacturer() {
         return manufacturer;
     }
 
-    public void setManufacturer(PrgManufacturerDTO manufacturer) {
+    public void setManufacturer(PrgSupplierDTO manufacturer) {
         this.manufacturer = manufacturer;
     }
 

@@ -11,9 +11,9 @@ import java.io.Serializable;
  *
  * @author altius
  */
-public class PrgManufacturerDTO implements Serializable {
+public class PrgSupplierDTO implements Serializable {
 
-    private int manufacturerId;
+    private int supplierId;
     private PrgLabelDTO label;
     private boolean active;
     private int realmId;
@@ -34,12 +34,12 @@ public class PrgManufacturerDTO implements Serializable {
         this.active = active;
     }
 
-    public int getManufacturerId() {
-        return manufacturerId;
+    public int getSupplierId() {
+        return supplierId;
     }
 
-    public void setManufacturerId(int manufacturerId) {
-        this.manufacturerId = manufacturerId;
+    public void setSupplierId(int supplierId) {
+        this.supplierId = supplierId;
     }
 
     public PrgLabelDTO getLabel() {

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @author palash
  */
 @RestController
-@CrossOrigin(origins = {"http://localhost:4202", "https://faspdeveloper.github.io"})
 public class TicketTypeController {
     @Autowired
     private TicketTypeService ticketTypeService;
