@@ -130,6 +130,7 @@ public class LanguageDaoImpl implements LanguageDao {
             }
         });
         Map<String, String> result1 = result.stream().collect(Collectors.toMap(LabelJson::getLabelCode, LabelJson::getLabelText));
+        System.out.println("result"+result1);
         return result1;
     }
 

@@ -124,7 +124,7 @@ public class UserRestController {
             int row = this.userService.updateRole(role, curUser);
             if (row > 0) {
                 auditLogger.error(role + " updated successfully");
-                return new ResponseEntity(new ResponseCode("static.message.updatedSuccess"), HttpStatus.OK);
+                return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
             } else {
                 auditLogger.error("Could not updated " + role + " 0 rows updated");
                 return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
