@@ -33,7 +33,7 @@ public interface UserDao {
     public int addNewUser(User user, int curUser);
 
     public List<User> getUserList();
-    
+
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser);
 
     public User getUserByUserId(int userId);
@@ -61,14 +61,16 @@ public interface UserDao {
     public String generateTokenForUserId(int userId);
 
     public EmailUser getEmailUserByUsername(String username);
-    
+
     public ForgotPasswordToken getForgotPasswordToken(String username, String token);
-    
+
     public void updateTriggeredDateForForgotPasswordToken(String username, String token);
-    
+
     public void updateCompletionDateForForgotPasswordToken(String username, String token);
-    
+
     public boolean isTokenLogout(String token);
-    
+
     public void addTokenToLogout(String token);
+
+    public int mapAccessControls(User user, CustomUserDetails curUser);
 }
