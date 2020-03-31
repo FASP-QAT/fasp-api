@@ -7,7 +7,6 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.Country;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgCountryDTO;
 import java.util.List;
 
 /**
@@ -24,6 +23,6 @@ public List<Country> getCountryList(boolean active, CustomUserDetails curUser);
 
     public int updateCountry(Country country, CustomUserDetails curUser);
 
-    public List<PrgCountryDTO> getCountryListForSync(String lastSyncDate);
+    public List<Country> getCountryListForSync(String lastSyncDate);
 
 }

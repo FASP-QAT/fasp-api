@@ -12,8 +12,10 @@ import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.CountryService;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Type;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,14 +25,12 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -66,17 +66,17 @@ public class CountryRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping(value = "/country/{countryId}")
     public ResponseEntity getCountryById(@PathVariable("countryId") int countryId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.countryService.getCountryById(countryId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
-            logger.error("Error while getting country id="+countryId, er);
+            logger.error("Error while getting country id=" + countryId, er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error while getting country id="+countryId, e);
+            logger.error("Error while getting country id=" + countryId, e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -87,7 +87,7 @@ public class CountryRestController {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int countryId = this.countryService.addCountry(country, curUser);
             if (countryId > 0) {
-                return new ResponseEntity(new ResponseCode("static.message.addSuccess"),HttpStatus.OK);
+                return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
             } else {
                 logger.error("Error while adding country no Id returned");
                 return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -122,14 +122,18 @@ public class CountryRestController {
         }
     }
 
-    @GetMapping(value = "/getCountryListForSync")
-    public String getCountryListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
-        String json;
-        List<PrgCountryDTO> countryList = this.countryService.getCountryListForSync(lastSyncDate);
-        Gson gson = new Gson();
-        Type typeList = new TypeToken<List>() {
-        }.getType();
-        json = gson.toJson(countryList, typeList);
-        return json;
+    @GetMapping(value = "/sync/country/{lastSyncDate}")
+    public ResponseEntity getCountryListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.parse(lastSyncDate);
+            return new ResponseEntity(this.countryService.getCountryListForSync(lastSyncDate), HttpStatus.OK);
+        } catch (ParseException p) {
+            logger.error("Error while listing country", p);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (Exception e) {
+            logger.error("Error while listing country", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

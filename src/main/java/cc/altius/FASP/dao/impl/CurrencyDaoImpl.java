@@ -9,8 +9,6 @@ import cc.altius.FASP.dao.CurrencyDao;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgCurrencyDTO;
-import cc.altius.FASP.model.DTO.rowMapper.PrgCurrencyDTORowMapper;
 import cc.altius.FASP.model.rowMapper.CurrencyRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
@@ -143,17 +141,19 @@ public class CurrencyDaoImpl implements CurrencyDao {
     }
 
     @Override
-    public List<PrgCurrencyDTO> getCurrencyListForSync(String lastSyncDate) {
-        String sql = "SELECT c.`CONVERSION_RATE_TO_USD`,c.`CURRENCY_CODE`,c.`CURRENCY_ID`,c.`CURRENCY_SYMBOL`,c.`LABEL_ID` ,l.`LABEL_EN` "
-                + ",l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP` "
-                + "FROM ap_currency c  "
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=c.`LABEL_ID`";
+    public List<Currency> getCurrencyListForSync(String lastSyncDate) {
+        String sqlString = "SELECT  "
+                + "	cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD, "
+                + "    cul.`LABEL_ID`, cul.`LABEL_EN`, cul.`LABEL_FR`, cul.`LABEL_SP`, cul.`LABEL_PR`, "
+                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, cu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, cu.LAST_MODIFIED_DATE, cu.ACTIVE  "
+                + "FROM ap_currency cu   "
+                + "LEFT JOIN ap_label cul ON cu.`LABEL_ID`=cul.`LABEL_ID` "
+                + "LEFT JOIN us_user cb ON cu.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON cu.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE cu.LAST_MODIFIED_DATE>=:lastSyncDate";
         Map<String, Object> params = new HashMap<>();
-        if (!lastSyncDate.equals("null")) {
-            sql += " WHERE c.`LAST_MODIFIED_DATE`>:lastSyncDate;";
-            params.put("lastSyncDate", lastSyncDate);
-        }
-        return this.namedParameterJdbcTemplate.query(sql, params, new PrgCurrencyDTORowMapper());
+        params.put("lastSyncDate", lastSyncDate);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new CurrencyRowMapper());
     }
 
 }
