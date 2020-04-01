@@ -244,24 +244,6 @@ public class UserDaoImpl implements UserDao {
             x++;
         }
         this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray);
-        if (user.getUserAcls() != null && user.getUserAcls().length > 0) {
-            sqlString = "INSERT INTO us_user_acl (USER_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
-            paramArray = new HashMap[user.getUserAcls().length];
-            x = 0;
-            for (UserAcl userAcl : user.getUserAcls()) {
-                params = new HashMap<>();
-                params.put("userId", userId);
-                params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-                params.put("healthAreaId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-                params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
-                params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
-                params.put("curUser", curUser);
-                params.put("curDate", curDate);
-                paramArray[x] = params;
-                x++;
-            }
-            this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray);
-        }
         return userId;
     }
 
@@ -434,28 +416,6 @@ public class UserDaoImpl implements UserDao {
             x++;
         }
         this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray);
-        params.clear();
-        if (user.getUserAcls() != null && user.getUserAcls().length > 0) {
-            sqlString = "DELETE FROM us_user_acl WHERE  USER_ID=:userId";
-            params.put("userId", user.getUserId());
-            this.namedParameterJdbcTemplate.update(sqlString, params);
-            sqlString = "INSERT INTO us_user_acl (USER_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
-            paramArray = new HashMap[user.getUserAcls().length];
-            x = 0;
-            for (UserAcl userAcl : user.getUserAcls()) {
-                params = new HashMap<>();
-                params.put("userId", user.getUserId());
-                params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-                params.put("healthAreaId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-                params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
-                params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
-                params.put("curUser", curUser);
-                params.put("curDate", curDate);
-                paramArray[x] = params;
-                x++;
-            }
-            this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray);
-        }
         return row;
     }
 
@@ -733,7 +693,7 @@ public class UserDaoImpl implements UserDao {
                 params = new HashMap<>();
                 params.put("userId", user.getUserId());
                 params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-                params.put("healthAreaId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
+                params.put("healthAreaId", (userAcl.getHealthAreaId() == -1 ? null : userAcl.getHealthAreaId()));
                 params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
                 params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
                 params.put("curUser", curUser.getUserId());
