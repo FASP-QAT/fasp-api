@@ -6,30 +6,25 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgLanguageDTO;
 import cc.altius.FASP.model.Language;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.LanguageService;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import java.io.UnsupportedEncodingException;
-import java.lang.reflect.Type;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.dao.EmptyResultDataAccessException;import org.springframework.http.HttpStatus;
+import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -41,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class LanguageRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
+
     @Autowired
     private LanguageService languageService;
 
@@ -49,7 +44,7 @@ public class LanguageRestController {
     ResponseEntity getLanguageJson(@PathVariable("languageCode") String languageCode) {
         return new ResponseEntity(this.languageService.getLanguageJsonForStaticLabels(languageCode), HttpStatus.OK);
     }
-    
+
     @GetMapping(value = "/language")
     public ResponseEntity getLanguageList(Authentication auth) {
         try {
@@ -71,17 +66,17 @@ public class LanguageRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping(value = "/language/{languageId}")
     public ResponseEntity getLanguageById(@PathVariable("languageId") int languageId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.languageService.getLanguageById(languageId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
-            logger.error("Error while getting languageId="+languageId, er);
+            logger.error("Error while getting languageId=" + languageId, er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error while getting languageId="+languageId, e);
+            logger.error("Error while getting languageId=" + languageId, e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -92,7 +87,7 @@ public class LanguageRestController {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             int languageId = this.languageService.addLanguage(language, curUser);
             if (languageId > 0) {
-                return new ResponseEntity(new ResponseCode("static.message.addSuccess"),HttpStatus.OK);
+                return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
             } else {
                 logger.error("Error while adding language no Id returned");
                 return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -127,15 +122,19 @@ public class LanguageRestController {
         }
     }
 
-    @GetMapping(value = "/getLanguageListForSync")
-    public String getLanguageListForSync(@RequestParam String lastSyncDate) throws UnsupportedEncodingException {
-        String json;
-        List<PrgLanguageDTO> languageList = this.languageService.getLanguageListForSync(lastSyncDate);
-        Gson gson = new Gson();
-        Type typeList = new TypeToken<List>() {
-        }.getType();
-        json = gson.toJson(languageList, typeList);
-        return json;
+    @GetMapping(value = "/sync/language/{lastSyncDate}")
+    public ResponseEntity getLanguageListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.parse(lastSyncDate);
+            return new ResponseEntity(this.languageService.getLanguageListForSync(lastSyncDate), HttpStatus.OK);
+        } catch (ParseException p) {
+            logger.error("Error while listing language", p);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (Exception e) {
+            logger.error("Error while listing language", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
 }

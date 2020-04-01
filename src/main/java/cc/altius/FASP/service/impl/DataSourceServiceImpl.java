@@ -9,7 +9,6 @@ import cc.altius.FASP.dao.DataSourceDao;
 import cc.altius.FASP.dao.DataSourceTypeDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgDataSourceDTO;
 import cc.altius.FASP.model.DataSource;
 import cc.altius.FASP.model.DataSourceType;
 import cc.altius.FASP.model.Realm;
@@ -38,8 +37,8 @@ public class DataSourceServiceImpl implements DataSourceService {
     private AclService aclService;
 
     @Override
-    public List<PrgDataSourceDTO> getDataSourceListForSync(String lastSyncDate) {
-        return this.dataSourceDao.getDataSourceListForSync(lastSyncDate);
+    public List<DataSource> getDataSourceListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.dataSourceDao.getDataSourceListForSync(lastSyncDate, curUser);
     }
 
     @Override

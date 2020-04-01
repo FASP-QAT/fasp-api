@@ -8,8 +8,6 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.RegionDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgRegionDTO;
-import cc.altius.FASP.model.DTO.rowMapper.PrgRegionDTORowMapper;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.rowMapper.RegionRowMapper;
 import cc.altius.utils.DateUtils;
@@ -160,21 +158,30 @@ public class RegionDaoImpl implements RegionDao {
     }
 
     @Override
-    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate, int realmId) {
-        String sql = "SELECT r.`ACTIVE`,r.`CAPACITY_CBM`,r.`LABEL_ID`,r.`REGION_ID`,l.`LABEL_EN` AS `REGION_LABEL_EN`,\n"
-                + "l.`LABEL_FR` AS `REGION_LABEL_FR`,l.`LABEL_PR` AS `REGION_LABEL_PR`,l.`LABEL_SP` AS `REGION_LABEL_SP`\n"
-                + ",rrc.`REALM_ID`\n"
-                + "                FROM rm_region r\n"
-                + "                LEFT JOIN ap_label l ON l.`LABEL_ID`=r.`LABEL_ID`\n"
-                + "                LEFT JOIN rm_realm_country rrc ON rrc.`REALM_COUNTRY_ID`=r.`REALM_COUNTRY_ID`\n"
-                + "                WHERE (rrc.`REALM_ID`=:realmId OR -1=:realmId)";
+    public List<Region> getRegionListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        String sqlString = "SELECT "
+                + "    re.REGION_ID, rc.REALM_COUNTRY_ID, "
+                + "    rel.LABEL_ID, rel.LABEL_EN, rel.LABEL_FR, rel.LABEL_SP, rel.LABEL_PR, "
+                + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
+                + "    c.COUNTRY_ID, cl.`LABEL_ID` `COUNTRY_LABEL_ID`, cl.`LABEL_EN` `COUNTRY_LABEL_EN` , cl.`LABEL_FR` `COUNTRY_LABEL_FR`, cl.`LABEL_PR` `COUNTRY_LABEL_PR`, cl.`LABEL_SP` `COUNTRY_LABEL_SP`, c.COUNTRY_CODE, "
+                + "    re.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, re.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, re.LAST_MODIFIED_DATE "
+                + "FROM rm_region re "
+                + "LEFT JOIN ap_label rel ON re.LABEL_ID=rel.LABEL_ID "
+                + "LEFT JOIN rm_realm_country rc on re.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON re.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON re.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE re.LAST_MODIFIED_DATE>:lastSyncDate ";
         Map<String, Object> params = new HashMap<>();
-        if (!lastSyncDate.equals("null")) {
-            sql += " AND r.`LAST_MODIFIED_DATE`>:lastSyncDate;";
-            params.put("lastSyncDate", lastSyncDate);
+        params.put("lastSyncDate", lastSyncDate);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND rc.REALM_ID=:realmId ";
+            params.put("realmId", curUser.getRealm().getRealmId());
         }
-        params.put("realmId", realmId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new PrgRegionDTORowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new RegionRowMapper());
     }
 
 }

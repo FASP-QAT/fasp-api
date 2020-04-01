@@ -109,4 +109,9 @@ public class RealmCountryServiceImpl implements RealmCountryService {
         }
     }
 
+    @Override
+    public List<RealmCountry> getRealmCountryListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.realmCountryDao.getRealmCountryListForSync(lastSyncDate, curUser);
+    }
+
 }

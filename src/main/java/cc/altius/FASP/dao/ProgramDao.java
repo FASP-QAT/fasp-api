@@ -32,4 +32,6 @@ public interface ProgramDao {
     public ProgramProduct getProgramProductListForProgramId(int programId, CustomUserDetails curUser);
     
     public int saveProgramProduct(ProgramProduct pp, CustomUserDetails curUser);
+    
+    public List<Program> getProgramListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

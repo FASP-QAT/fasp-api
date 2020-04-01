@@ -49,54 +49,16 @@ public class RealmDaoImpl implements RealmDao {
                 + "FROM rm_realm r "
                 + " LEFT JOIN ap_label rl ON r.`LABEL_ID`=rl.`LABEL_ID` "
                 + " LEFT JOIN us_user cb ON r.CREATED_BY=cb.USER_ID "
-                + " LEFT JOIN us_user lmb ON r.LAST_MODIFIED_BY=lmb.USER_ID ";
-        return this.namedParameterJdbcTemplate.query(sql, new RealmRowMapper());
+                + " LEFT JOIN us_user lmb ON r.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE TRUE ";
+        Map<String, Object> params = new HashMap<>();
+        if (curUser.getRealm().getRealmId() != -1) {
+            sql += " AND r.REALM_ID=:realmId";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.query(sql, params, new RealmRowMapper());
     }
 
-//    @Override
-//    public List<RealmCountry> getRealmCountryList(boolean active) {
-//        String sql = "SELECT rc.`REALM_COUNTRY_ID`, "
-//                + "lc.`LABEL_ID` AS CU_LABEL_ID, "
-//                + "lc.`LABEL_EN` AS CU_LABEL_EN  "
-//                + ",lc.`LABEL_FR` AS CU_LABEL_FR  "
-//                + ",lc.`LABEL_SP` AS CU_LABEL_SP  "
-//                + ",lc.`LABEL_PR` AS CU_LABEL_PR, "
-//                + "lr.`LABEL_ID` AS RM_LABEL_ID,  "
-//                + "lr.`LABEL_EN` AS RM_LABEL_EN  "
-//                + ",lr.`LABEL_FR` AS RM_LABEL_FR "
-//                + ",lr.`LABEL_SP` AS RM_LABEL_SP "
-//                + ",lr.`LABEL_PR` AS RM_LABEL_PR, c.*,r.* "
-//                + " FROM rm_realm_country rc "
-//                + "LEFT JOIN ap_country c ON c.`COUNTRY_ID`=rc.`COUNTRY_ID` "
-//                + "LEFT JOIN ap_label lc ON lc.`LABEL_ID`=c.`LABEL_ID` "
-//                + "LEFT JOIN rm_realm r ON r.`REALM_ID`=rc.`REALM_ID` "
-//                + "LEFT JOIN ap_label lr ON lr.`LABEL_ID`=r.`LABEL_ID` ";
-//        if (active) {
-//            sql += "WHERE rc.`ACTIVE`;";
-//        }
-//        return this.jdbcTemplate.query(sql, new RealmCountryRowMapper());
-//    }
-//    @Override
-//    public List<RealmCountry> getRealmCountryListByRealmId(int realmId) {
-//        String sql = "SELECT rc.`REALM_COUNTRY_ID`, "
-//                + "lc.`LABEL_ID` AS CU_LABEL_ID, "
-//                + "lc.`LABEL_EN` AS CU_LABEL_EN  "
-//                + ",lc.`LABEL_FR` AS CU_LABEL_FR  "
-//                + ",lc.`LABEL_SP` AS CU_LABEL_SP  "
-//                + ",lc.`LABEL_PR` AS CU_LABEL_PR, "
-//                + "lr.`LABEL_ID` AS RM_LABEL_ID,  "
-//                + "lr.`LABEL_EN` AS RM_LABEL_EN  "
-//                + ",lr.`LABEL_FR` AS RM_LABEL_FR "
-//                + ",lr.`LABEL_SP` AS RM_LABEL_SP "
-//                + ",lr.`LABEL_PR` AS RM_LABEL_PR, c.*,r.* "
-//                + " FROM rm_realm_country rc "
-//                + "LEFT JOIN ap_country c ON c.`COUNTRY_ID`=rc.`COUNTRY_ID` "
-//                + "LEFT JOIN ap_label lc ON lc.`LABEL_ID`=c.`LABEL_ID` "
-//                + "LEFT JOIN rm_realm r ON r.`REALM_ID`=rc.`REALM_ID` "
-//                + "LEFT JOIN ap_label lr ON lr.`LABEL_ID`=r.`LABEL_ID` WHERE rc.`ACTIVE` AND rc.`REALM_ID`=? ";
-//
-//        return this.jdbcTemplate.query(sql, new RealmCountryRowMapper(), realmId);
-//    }
     @Override
     @Transactional
     public int addRealm(Realm r, CustomUserDetails curUser) {
@@ -181,6 +143,25 @@ public class RealmDaoImpl implements RealmDao {
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new RealmRowMapper());
+    }
+
+    @Override
+    public List<Realm> getRealmListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        String sql = " SELECT r.REALM_ID, r.REALM_CODE, r.MONTHS_IN_PAST_FOR_AMC, r.MONTHS_IN_FUTURE_FOR_AMC, r.ORDER_FREQUENCY, r.DEFAULT_REALM, "
+                + "rl.`LABEL_ID` ,rl.`LABEL_EN`, rl.`LABEL_FR`, rl.`LABEL_PR`, rl.`LABEL_SP`,"
+                + "cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, r.ACTIVE, r.CREATED_DATE, r.LAST_MODIFIED_DATE "
+                + "FROM rm_realm r "
+                + " LEFT JOIN ap_label rl ON r.`LABEL_ID`=rl.`LABEL_ID` "
+                + " LEFT JOIN us_user cb ON r.CREATED_BY=cb.USER_ID "
+                + " LEFT JOIN us_user lmb ON r.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE r.LAST_MODIFIED_DATE>:lastSyncDate ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sql += " AND r.REALM_ID=:realmId";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.query(sql, params, new RealmRowMapper());
     }
 
 }

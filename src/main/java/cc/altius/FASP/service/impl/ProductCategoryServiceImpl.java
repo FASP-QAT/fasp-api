@@ -35,11 +35,6 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     private AclService aclService;
 
     @Override
-    public List<PrgProductCategoryDTO> getProductCategoryListForSync(String lastSyncDate) {
-        return this.productCategoryDao.getProductCategoryListForSync(lastSyncDate);
-    }
-
-    @Override
     @Transactional
     public int saveProductCategoryList(List<ProductCategory> productCategoryList, CustomUserDetails curUser) {
         int rows = 0;
@@ -90,6 +85,11 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     @Override
     public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser) {
         return this.productCategoryDao.getProductCategoryById(productCategoryId, curUser);
+    }
+
+    @Override
+    public List<ProductCategory> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.productCategoryDao.getProductCategoryListForSync(lastSyncDate, curUser);
     }
 
 }

@@ -11,7 +11,7 @@
     <groupId>cc.altius.FASP.rest.webservice</groupId>
     <artifactId>FASP</artifactId>
 
-    <version>DEV.0.0274</version>
+    <version>DEV.0.0289</version>
 
     <name>FASP</name>
     <description>Demo project for Spring Boot</description>

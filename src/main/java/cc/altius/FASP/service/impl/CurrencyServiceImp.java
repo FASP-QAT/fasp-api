@@ -56,7 +56,7 @@ public class CurrencyServiceImp implements CurrencyService {
     }
 
     @Override
-    public List<PrgCurrencyDTO> getCurrencyListForSync(String lastSyncDate) {
+    public List<Currency> getCurrencyListForSync(String lastSyncDate) {
         return this.currencyDao.getCurrencyListForSync(lastSyncDate);
     }
 

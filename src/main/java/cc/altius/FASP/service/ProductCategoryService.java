@@ -6,7 +6,6 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgProductCategoryDTO;
 import cc.altius.FASP.model.ProductCategory;
 import java.util.List;
 
@@ -16,9 +15,6 @@ import java.util.List;
  */
 public interface ProductCategoryService {
 
-    public List<PrgProductCategoryDTO> getProductCategoryListForSync(String lastSyncDate);
-
-//    public int addProductCategory(List<ProductCategory> productCategoryList, CustomUserDetails curUser);
     public int saveProductCategoryList(List<ProductCategory> productCategoryList, CustomUserDetails curUser);
 
     public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser);
@@ -28,5 +24,7 @@ public interface ProductCategoryService {
     public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren);
 
     public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser);
+    
+    public List<ProductCategory> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser);
 
 }

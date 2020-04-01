@@ -11,27 +11,27 @@ import java.io.Serializable;
  *
  * @author palash
  */
-public class Manufacturer extends BaseModel implements Serializable {
+public class Supplier extends BaseModel implements Serializable {
 
-    private int manufacturerId;
+    private int supplierId;
     private Label label;
     private Realm realm;
 
-    public Manufacturer(int manufacturerId, Label label, Realm realm) {
-        this.manufacturerId = manufacturerId;
+    public Supplier(int supplierId, Label label, Realm realm) {
+        this.supplierId = supplierId;
         this.label = label;
         this.realm = realm;
     }
 
-    public Manufacturer() {
+    public Supplier() {
     }
 
-    public int getManufacturerId() {
-        return manufacturerId;
+    public int getSupplierId() {
+        return supplierId;
     }
 
-    public void setManufacturerId(int manufacturerId) {
-        this.manufacturerId = manufacturerId;
+    public void setSupplierId(int supplierId) {
+        this.supplierId = supplierId;
     }
 
     public Label getLabel() {
@@ -52,7 +52,7 @@ public class Manufacturer extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "Manufacturer{" + "manufacturerId=" + manufacturerId + ", label=" + label + ", realm=" + realm + '}';
+        return "Supplier{" + "supplierId=" + supplierId + ", label=" + label + ", realm=" + realm + '}';
     }
 
 }

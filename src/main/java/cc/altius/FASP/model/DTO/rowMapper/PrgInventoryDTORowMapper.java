@@ -9,7 +9,7 @@ import cc.altius.FASP.model.DTO.PrgDataSourceDTO;
 import cc.altius.FASP.model.DTO.PrgDataSourceTypeDTO;
 import cc.altius.FASP.model.DTO.PrgInventoryDTO;
 import cc.altius.FASP.model.DTO.PrgLogisticsUnitDTO;
-import cc.altius.FASP.model.DTO.PrgManufacturerDTO;
+import cc.altius.FASP.model.DTO.PrgSupplierDTO;
 import cc.altius.FASP.model.DTO.PrgPlanningUnitDTO;
 import cc.altius.FASP.model.DTO.PrgRegionDTO;
 import cc.altius.FASP.model.DTO.PrgUnitDTO;
@@ -64,9 +64,9 @@ public class PrgInventoryDTORowMapper implements RowMapper<PrgInventoryDTO> {
         inventoryLengthUnit.setUnitType(inventoryLengthUnitType);
         inventoryLogisticsUnit.setLengthUnit(inventoryLengthUnit);
         inventoryLogisticsUnit.setLogisticsUnitId(rs.getInt("LOGISTICS_UNIT_ID"));
-        PrgManufacturerDTO inventoryManufacturer = new PrgManufacturerDTO();
-        inventoryManufacturer.setLabel(new PrgLabelDTORowMapper("MANUFACTURER_").mapRow(rs, i));
-        inventoryManufacturer.setManufacturerId(rs.getInt("MANUFACTURER_ID"));
+        PrgSupplierDTO inventoryManufacturer = new PrgSupplierDTO();
+        inventoryManufacturer.setLabel(new PrgLabelDTORowMapper("SUPPLIER_").mapRow(rs, i));
+        inventoryManufacturer.setSupplierId(rs.getInt("SUPPLIER_ID"));
         inventoryLogisticsUnit.setManufacturer(inventoryManufacturer);
 
         PrgPlanningUnitDTO inventoryPlanningUnit = new PrgPlanningUnitDTO();

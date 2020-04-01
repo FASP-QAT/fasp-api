@@ -46,7 +46,7 @@ public class LanguageServiceImpl implements LanguageService {
     }
 
     @Override
-    public List<PrgLanguageDTO> getLanguageListForSync(String lastSyncDate) {
+    public List<Language> getLanguageListForSync(String lastSyncDate) {
         return this.languageDao.getLanguageListForSync(lastSyncDate);
     }
 

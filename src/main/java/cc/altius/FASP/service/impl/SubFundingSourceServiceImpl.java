@@ -38,11 +38,6 @@ public class SubFundingSourceServiceImpl implements SubFundingSourceService {
     private AclService aclService;
 
     @Override
-    public List<PrgSubFundingSourceDTO> getSubFundingSourceListForSync(String lastSyncDate, int realmId) {
-        return this.subFundingSourceDao.getSubFundingSourceListForSync(lastSyncDate, realmId);
-    }
-
-    @Override
     public SubFundingSource getSubFundingSourceById(int subFundingSourceId, CustomUserDetails curUser) {
         SubFundingSource sf = this.subFundingSourceDao.getSubFundingSourceById(subFundingSourceId, curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, sf.getFundingSource().getRealm().getRealmId())) {
@@ -105,6 +100,11 @@ public class SubFundingSourceServiceImpl implements SubFundingSourceService {
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    public List<SubFundingSource> getSubFundingSourceListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.subFundingSourceDao.getSubFundingSourceListForSync(lastSyncDate, curUser);
     }
 
 }

@@ -6,7 +6,6 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgRegionDTO;
 import cc.altius.FASP.model.Region;
 import java.util.List;
 
@@ -24,8 +23,8 @@ public interface RegionDao {
 
     public Region getRegionById(int regionId, CustomUserDetails curUser);
     
-    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate,int realmId);
-    
     public List<Region> getRegionListByRealmCountryId(int realmCountryId, CustomUserDetails curUser);
+    
+    public List<Region> getRegionListForSync(String lastSyncDate, CustomUserDetails curUser);
 
 }

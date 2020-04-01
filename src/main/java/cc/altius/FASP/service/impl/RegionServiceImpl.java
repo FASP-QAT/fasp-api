@@ -57,11 +57,6 @@ public class RegionServiceImpl implements RegionService {
     }
 
     @Override
-    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate, int realmId) {
-        return this.regionDao.getRegionListForSync(lastSyncDate, realmId);
-    }
-
-    @Override
     public List<Region> getRegionList(CustomUserDetails curUser) {
         return this.regionDao.getRegionList(curUser);
     }
@@ -83,5 +78,12 @@ public class RegionServiceImpl implements RegionService {
             throw new AccessDeniedException("Access denied");
         }
     }
+
+    @Override
+    public List<Region> getRegionListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.regionDao.getRegionListForSync(lastSyncDate, curUser);
+    }
+    
+    
 
 }

@@ -8,7 +8,6 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.UnitDao;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgUnitDTO;
 import cc.altius.FASP.model.Unit;
 import cc.altius.FASP.service.UnitService;
 import java.util.List;
@@ -26,7 +25,7 @@ public class UnitServiceImpl implements UnitService {
     UnitDao unitDao;
 
     @Override
-    public List<PrgUnitDTO> getUnitListForSync(String lastSyncDate) {
+    public List<Unit> getUnitListForSync(String lastSyncDate) {
         return this.unitDao.getUnitListForSync(lastSyncDate);
     }
 

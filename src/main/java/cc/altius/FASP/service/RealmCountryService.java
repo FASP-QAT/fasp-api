@@ -25,4 +25,6 @@ public interface RealmCountryService {
     
     public List<RealmCountry> getRealmCountryListByRealmId(int realmId, CustomUserDetails curUser);
     
+    public List<RealmCountry> getRealmCountryListForSync(String lastSyncDate, CustomUserDetails curUser);
+    
 }

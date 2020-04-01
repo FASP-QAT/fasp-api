@@ -21,7 +21,7 @@ public class UnitRowMapper implements RowMapper<Unit> {
         Unit u = new Unit();
         u.setUnitId(rs.getInt("UNIT_ID"));
         u.setUnitCode(rs.getString("UNIT_CODE"));
-        u.setUnitType(new UnitTypeRowMapper("UNIT_TYPE_").mapRow(rs, rowNum));
+        u.setDimension(new DimensionRowMapper("DIMENSION_").mapRow(rs, rowNum));
         u.setLabel(new LabelRowMapper().mapRow(rs, rowNum));
         u.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return u;

@@ -6,7 +6,6 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgUnitDTO;
 import cc.altius.FASP.model.Unit;
 import java.util.List;
 
@@ -16,7 +15,7 @@ import java.util.List;
  */
 public interface UnitDao {
 
-    public List<PrgUnitDTO> getUnitListForSync(String lastSyncDate);
+    public List<Unit> getUnitListForSync(String lastSyncDate);
 
     public int addUnit(Unit u, CustomUserDetails curUser);
 

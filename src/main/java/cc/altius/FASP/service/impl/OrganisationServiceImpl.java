@@ -35,11 +35,6 @@ public class OrganisationServiceImpl implements OrganisationService {
     private AclService aclService;
 
     @Override
-    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate, int realmId) {
-        return this.organisationDao.getOrganisationListForSync(lastSyncDate, realmId);
-    }
-
-    @Override
     public int addOrganisation(Organisation organisation, CustomUserDetails curUser) {
         if (this.aclService.checkRealmAccessForUser(curUser, organisation.getRealm().getRealmId())) {
             return organisationDao.addOrganisation(organisation, curUser);
@@ -84,6 +79,11 @@ public class OrganisationServiceImpl implements OrganisationService {
         } else {
             throw new EmptyResultDataAccessException(1);
         }
+    }
+
+    @Override
+    public List<Organisation> getOrganisationListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.organisationDao.getOrganisationListForSync(lastSyncDate, curUser);
     }
 
 }

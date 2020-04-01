@@ -44,22 +44,6 @@ public class SubFundingSourceDaoImpl implements SubFundingSourceDao {
     private LabelDao labelDao;
 
     @Override
-    public List<PrgSubFundingSourceDTO> getSubFundingSourceListForSync(String lastSyncDate, int realmId) {
-        String sql = "SELECT fs.`REALM_ID`,sfs.`ACTIVE`,sfs.`FUNDING_SOURCE_ID`,sfs.`SUB_FUNDING_SOURCE_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
-                + "                FROM rm_sub_funding_source sfs \n"
-                + "                LEFT JOIN ap_label l ON l.`LABEL_ID`=sfs.`LABEL_ID`\n"
-                + "                LEFT JOIN rm_funding_source fs ON fs.`FUNDING_SOURCE_ID`=sfs.`FUNDING_SOURCE_ID`\n"
-                + "                WHERE (fs.`REALM_ID`=:realmId  OR -1=:realmId)";
-        Map<String, Object> params = new HashMap<>();
-        if (!lastSyncDate.equals("null")) {
-            sql += " AND sfs.`LAST_MODIFIED_DATE`>:lastSyncDate;";
-            params.put("lastSyncDate", lastSyncDate);
-        }
-        params.put("realmId", realmId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new PrgSubFundingSourceDTORowMapper());
-    }
-
-    @Override
     @Transactional
     public int addSubFundingSource(SubFundingSource s, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_sub_funding_source").usingGeneratedKeyColumns("SUB_FUNDING_SOURCE_ID");
@@ -181,4 +165,29 @@ public class SubFundingSourceDaoImpl implements SubFundingSourceDao {
         params.put("realmId", realmId);
         return this.namedParameterJdbcTemplate.query(sql, params, new SubFundingSourceRowMapper());
     }
+
+    @Override
+    public List<SubFundingSource> getSubFundingSourceListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        String sql = "SELECT sfs.SUB_FUNDING_SOURCE_ID, sfsl.`LABEL_ID`, sfsl.`LABEL_EN` , sfsl.`LABEL_FR`, sfsl.`LABEL_PR`, sfsl.`LABEL_SP`, "
+                + "     fs.FUNDING_SOURCE_ID, fsl.`LABEL_ID` `FUNDING_SOURCE_LABEL_ID`, fsl.`LABEL_EN` `FUNDING_SOURCE_LABEL_EN` , fsl.`LABEL_FR` `FUNDING_SOURCE_LABEL_FR`, fsl.`LABEL_PR` `FUNDING_SOURCE_LABEL_PR`, fsl.`LABEL_SP` `FUNDING_SOURCE_LABEL_SP`, "
+                + "     r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
+                + "	sfs.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, sfs.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, sfs.LAST_MODIFIED_DATE "
+                + "FROM rm_sub_funding_source sfs "
+                + "LEFT JOIN ap_label sfsl ON sfs.LABEL_ID=sfsl.LABEL_ID "
+                + "LEFT JOIN rm_funding_source fs on sfs.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID "
+                + "LEFT JOIN ap_label fsl ON fs.LABEL_ID=fsl.LABEL_ID "
+                + "LEFT JOIN rm_realm r on fs.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON sfs.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON sfs.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE sfs.LAST_MODIFIED_DATE>:lastSyncDate ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        if (curUser.getRealm().getRealmId()!=-1) {
+            sql+=" AND fs.REALM_ID=:userRealmId ";
+            params.put("userRealmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.query(sql, params, new SubFundingSourceRowMapper());
+    }
+    
 }

@@ -6,7 +6,6 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgDataSourceDTO;
 import cc.altius.FASP.model.DataSource;
 import java.util.List;
 
@@ -28,5 +27,5 @@ public interface DataSourceDao {
     
     public int updateDataSource(DataSource dataSource, CustomUserDetails curUser);
     
-    public List<PrgDataSourceDTO> getDataSourceListForSync(String lastSyncDate);
+    public List<DataSource> getDataSourceListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

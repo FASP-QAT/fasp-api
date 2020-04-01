@@ -6,7 +6,6 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgOrganisationDTO;
 import cc.altius.FASP.model.Organisation;
 
 import java.util.List;
@@ -16,8 +15,6 @@ import java.util.List;
  * @author altius
  */
 public interface OrganisationDao {
-
-    public List<PrgOrganisationDTO> getOrganisationListForSync(String lastSyncDate,int realmId);
 
     public int addOrganisation(Organisation organisation, CustomUserDetails curUser);
 
@@ -29,4 +26,5 @@ public interface OrganisationDao {
 
     public Organisation getOrganisationById(int organisationId, CustomUserDetails curUser);
 
+    public List<Organisation> getOrganisationListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

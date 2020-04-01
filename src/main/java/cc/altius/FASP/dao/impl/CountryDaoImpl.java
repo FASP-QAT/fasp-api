@@ -9,8 +9,6 @@ import cc.altius.FASP.dao.CountryDao;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.Country;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgCountryDTO;
-import cc.altius.FASP.model.DTO.rowMapper.PrgCountryDTORowMapper;
 import cc.altius.FASP.model.rowMapper.CountryRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
@@ -129,16 +127,24 @@ public class CountryDaoImpl implements CountryDao {
     }
 
     @Override
-    public List<PrgCountryDTO> getCountryListForSync(String lastSyncDate) {
-        String sql = "SELECT c.`ACTIVE`,c.`COUNTRY_ID`,c.`CURRENCY_ID`,c.`LANGUAGE_ID`,label.`LABEL_EN`,label.`LABEL_FR`,label.`LABEL_PR`,label.`LABEL_SP` "
-                + "FROM ap_country c "
-                + "LEFT JOIN ap_label label ON label.`LABEL_ID`=c.`LABEL_ID`";
+    public List<Country> getCountryListForSync(String lastSyncDate) {
+        String sqlString = "SELECT c.COUNTRY_ID, c.COUNTRY_CODE, "
+                + "	cl.LABEL_ID, cl.LABEL_EN, cl.LABEL_FR, cl.LABEL_PR, cl.LABEL_SP, "
+                + "    la.LANGUAGE_ID, la.LANGUAGE_CODE, la.LANGUAGE_NAME, "
+                + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD, "
+                + "    cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
+                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, c.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, c.LAST_MODIFIED_DATE, c.ACTIVE  "
+                + "FROM ap_country c  "
+                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+                + "LEFT JOIN ap_language la ON c.LANGUAGE_ID=la.LANGUAGE_ID "
+                + "LEFT JOIN ap_currency cu ON c.CURRENCY_ID=cu.CURRENCY_ID "
+                + "LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
+                + "LEFT JOIN us_user cb ON c.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON c.LAST_MODIFIED_BY=lmb.USER_ID "
+                + " WHERE c.LAST_MODIFIED_DATE>=:lastSyncDate";
         Map<String, Object> params = new HashMap<>();
-        if (!lastSyncDate.equals("null")) {
-            sql += " WHERE c.`LAST_MODIFIED_DATE`>:lastSyncDate;";
-            params.put("lastSyncDate", lastSyncDate);
-        }
-        return this.namedParameterJdbcTemplate.query(sql, params, new PrgCountryDTORowMapper());
+        params.put("lastSyncDate", lastSyncDate);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new CountryRowMapper());
     }
 
 }
