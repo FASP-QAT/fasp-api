@@ -45,19 +45,6 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
     }
 
     @Override
-    public List<PrgProductCategoryDTO> getProductCategoryListForSync(String lastSyncDate) {
-        String sql = "SELECT pc.`ACTIVE`,pc.`PRODUCT_CATEGORY_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP` "
-                + "FROM `rm_product_category` pc "
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=pc.`LABEL_ID`";
-        Map<String, Object> params = new HashMap<>();
-        if (!lastSyncDate.equals("null")) {
-            sql += " WHERE pc.`LAST_MODIFIED_DATE`>:lastSyncDate;";
-            params.put("lastSyncDate", lastSyncDate);
-        }
-        return this.namedParameterJdbcTemplate.query(sql, params, new PrgProductCategoryDTORowMapper());
-    }
-
-    @Override
     @Transactional(propagation = Propagation.NESTED)
     public int addProductCategory(ProductCategory productCategory, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_product_category").usingGeneratedKeyColumns("PRODUCT_CATEGORY_ID");
@@ -213,6 +200,31 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
         params.put("includeAllChildren", includeAllChildren);
         params.put("includeMainBranch", includeMainBranch);
         params.put("productCategoryId", productCategoryId);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProductCategoryRowMapper());
+    }
+
+    @Override
+    public List<ProductCategory> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        String sqlString = "SELECT  "
+                + "    pc.PRODUCT_CATEGORY_ID, pc.SORT_ORDER, pc.LEVEL, pc.SORT_ORDER,  "
+                + "    pcl.LABEL_ID, pcl.LABEL_EN, pcl.LABEL_FR, pcl.LABEL_PR, pcl.LABEL_SP, "
+                + "    r.REALM_ID, r.REALM_CODE,  "
+                + "    rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`,"
+                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pc.ACTIVE, pc.CREATED_DATE, pc.LAST_MODIFIED_DATE "
+                + "	FROM rm_product_category pc  "
+                + "LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID "
+                + "LEFT JOIN rm_realm r ON pc.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON pc.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON pc.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE pc.LAST_MODIFIED_DATE>:lastSyncDate ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND pc.REALM_ID=:realmId ";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
+        sqlString += "ORDER BY pc.SORT_ORDER";
         return this.namedParameterJdbcTemplate.query(sqlString, params, new ProductCategoryRowMapper());
     }
 

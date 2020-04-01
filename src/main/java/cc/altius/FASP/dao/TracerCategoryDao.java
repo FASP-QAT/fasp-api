@@ -15,16 +15,16 @@ import java.util.List;
  */
 public interface TracerCategoryDao {
 
-//    public List<PrgTracerCategoryDTO> getTracerCategoryListForSync(String lastSyncDate,int realmId);
-
     public int addTracerCategory(TracerCategory m, CustomUserDetails curUser);
 
     public int updateTracerCategory(TracerCategory m, CustomUserDetails curUser);
 
     public List<TracerCategory> getTracerCategoryList(boolean active, CustomUserDetails curUser);
-    
+
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, boolean active, CustomUserDetails curUser);
 
     public TracerCategory getTracerCategoryById(int tracerCategoryId, CustomUserDetails curUser);
+
+    public List<TracerCategory> getTracerCategoryListForSync(String lastSyncDate, CustomUserDetails curUser);
 
 }

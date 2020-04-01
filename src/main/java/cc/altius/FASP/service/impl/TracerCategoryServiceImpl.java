@@ -32,11 +32,6 @@ public class TracerCategoryServiceImpl implements TracerCategoryService {
     @Autowired
     private AclService aclService;
 
-//    @Override
-//    public List<PrgTracerCategoryDTO> getTracerCategoryListForSync(String lastSyncDate, int realmId) {
-//        return this.tracerCategoryDao.getTracerCategoryListForSync(lastSyncDate, realmId);
-//    }
-
     @Override
     public int addTracerCategory(TracerCategory m, CustomUserDetails curUser) {
         if (this.aclService.checkRealmAccessForUser(curUser, m.getRealm().getRealmId())) {
@@ -82,6 +77,11 @@ public class TracerCategoryServiceImpl implements TracerCategoryService {
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    public List<TracerCategory> getTracerCategoryListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.tracerCategoryDao.getTracerCategoryListForSync(lastSyncDate, curUser);
     }
 
 }

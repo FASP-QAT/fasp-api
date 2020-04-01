@@ -11,25 +11,25 @@ import java.io.Serializable;
  *
  * @author palash
  */
-public class UnitType extends BaseModel implements Serializable {
+public class Dimension extends BaseModel implements Serializable {
 
-    private int unitTypeId;
+    private int dimensionId;
     private Label label;
 
-    public UnitType() {
+    public Dimension() {
     }
 
-    public UnitType(int unitTypeId, Label label) {
-        this.unitTypeId = unitTypeId;
+    public Dimension(int dimensionId, Label label) {
+        this.dimensionId = dimensionId;
         this.label = label;
     }
 
-    public int getUnitTypeId() {
-        return unitTypeId;
+    public int getDimensionId() {
+        return dimensionId;
     }
 
-    public void setUnitTypeId(int unitTypeId) {
-        this.unitTypeId = unitTypeId;
+    public void setDimensionId(int dimensionId) {
+        this.dimensionId = dimensionId;
     }
 
     public Label getLabel() {
@@ -43,7 +43,7 @@ public class UnitType extends BaseModel implements Serializable {
     @Override
     public int hashCode() {
         int hash = 5;
-        hash = 97 * hash + this.unitTypeId;
+        hash = 97 * hash + this.dimensionId;
         return hash;
     }
 
@@ -58,8 +58,8 @@ public class UnitType extends BaseModel implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final UnitType other = (UnitType) obj;
-        if (this.unitTypeId != other.unitTypeId) {
+        final Dimension other = (Dimension) obj;
+        if (this.dimensionId != other.dimensionId) {
             return false;
         }
         return true;
@@ -67,7 +67,7 @@ public class UnitType extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "UnitType{" + "unitTypeId=" + unitTypeId + ", label=" + label + '}';
+        return "Dimension{" + "dimensionId=" + dimensionId + ", label=" + label + '}';
     }
    
    

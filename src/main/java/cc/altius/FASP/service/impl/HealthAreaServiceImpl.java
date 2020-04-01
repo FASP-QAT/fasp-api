@@ -34,11 +34,6 @@ public class HealthAreaServiceImpl implements HealthAreaService {
     private AclService aclService;
 
     @Override
-    public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate, int realmId) {
-        return this.healthAreaDao.getHealthAreaListForSync(lastSyncDate, realmId);
-    }
-
-    @Override
     public int addHealthArea(HealthArea h, CustomUserDetails curUser) {
         if (this.aclService.checkRealmAccessForUser(curUser, h.getRealm().getRealmId())) {
             return this.healthAreaDao.addHealthArea(h, curUser);
@@ -83,6 +78,11 @@ public class HealthAreaServiceImpl implements HealthAreaService {
         } else {
             throw new EmptyResultDataAccessException(1);
         }
+    }
+
+    @Override
+    public List<HealthArea> getHealthAreaListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.healthAreaDao.getHealthAreaListForSync(lastSyncDate, curUser);
     }
 
 }

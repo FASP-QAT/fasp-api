@@ -27,7 +27,7 @@ import cc.altius.FASP.dao.TracerCategoryDao;
  * @author altius
  */
 @Repository
-public class TraverCategoryDaoImpl implements TracerCategoryDao {
+public class TracerCategoryDaoImpl implements TracerCategoryDao {
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
@@ -39,20 +39,6 @@ public class TraverCategoryDaoImpl implements TracerCategoryDao {
     }
     @Autowired
     private LabelDao labelDao;
-//
-//    @Override
-//    public List<PrgTracerCategoryDTO> getTracerCategoryListForSync(String lastSyncDate,int realmId) {
-//        String sql = "SELECT m.`ACTIVE`,m.`TRACER_CATEGORY_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,m.`REALM_ID`\n"
-//                + "FROM rm_tracer_category m \n"
-//                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=m.`LABEL_ID` WHERE (m.`REALM_ID`=:realmId OR -1=:realmId)";
-//        Map<String, Object> params = new HashMap<>();
-//        if (!lastSyncDate.equals("null")) {
-//            sql += " AND m.`LAST_MODIFIED_DATE`>:lastSyncDate;";
-//            params.put("lastSyncDate", lastSyncDate);
-//        }
-//        params.put("realmId", realmId);
-//        return this.namedParameterJdbcTemplate.query(sql, params, new PrgTracerCategoryDTORowMapper());
-//    }
 
     @Override
     @Transactional
@@ -164,6 +150,29 @@ public class TraverCategoryDaoImpl implements TracerCategoryDao {
             params.put("realmId", curUser.getRealm().getRealmId());
         }
         return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new TracerCategoryRowMapper());
+    }
+
+    @Override
+    public List<TracerCategory> getTracerCategoryListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        String sqlString = "SELECT  "
+                + "    m.TRACER_CATEGORY_ID,  "
+                + "    ml.LABEL_ID, ml.LABEL_EN, ml.LABEL_FR, ml.LABEL_SP, ml.LABEL_PR, "
+                + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
+                + "    m.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, m.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, m.LAST_MODIFIED_DATE "
+                + "FROM rm_tracer_category m  "
+                + "LEFT JOIN ap_label ml ON m.LABEL_ID=ml.LABEL_ID "
+                + "LEFT JOIN rm_realm r ON m.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON m.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON m.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE m.LAST_MODIFIED_DATE>:lastSyncDate ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND m.REALM_ID=:realmId ";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new TracerCategoryRowMapper());
     }
 
 }

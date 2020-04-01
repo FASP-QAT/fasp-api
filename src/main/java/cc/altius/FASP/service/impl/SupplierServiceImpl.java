@@ -34,11 +34,6 @@ public class SupplierServiceImpl implements SupplierService {
     private AclService aclService;
 
     @Override
-    public List<PrgSupplierDTO> getSupplierListForSync(String lastSyncDate, int realmId) {
-        return this.supplierDao.getSupplierListForSync(lastSyncDate, realmId);
-    }
-
-    @Override
     public int addSupplier(Supplier m, CustomUserDetails curUser) {
         if (this.aclService.checkRealmAccessForUser(curUser, m.getRealm().getRealmId())) {
             return this.supplierDao.addSupplier(m, curUser);
@@ -83,6 +78,11 @@ public class SupplierServiceImpl implements SupplierService {
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    public List<Supplier> getSupplierListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.supplierDao.getSupplierListForSync(lastSyncDate, curUser);
     }
 
 }

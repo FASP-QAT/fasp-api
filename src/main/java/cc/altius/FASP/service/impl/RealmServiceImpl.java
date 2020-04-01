@@ -32,15 +32,6 @@ public class RealmServiceImpl implements RealmService {
         return this.realmDao.getRealmList(active, curUser);
     }
 
-//    @Override
-//    public List<RealmCountry> getRealmCountryList(boolean active) {
-//        return this.realmDao.getRealmCountryList(active);
-//    }
-//
-//    @Override
-//    public List<RealmCountry> getRealmCountryListByRealmId(int realmId) {
-//        return this.realmDao.getRealmCountryListByRealmId(realmId);
-//    }
     @Override
     public int addRealm(Realm realm, CustomUserDetails curUser) {
         return this.realmDao.addRealm(realm, curUser);
@@ -63,6 +54,11 @@ public class RealmServiceImpl implements RealmService {
             throw new AccessDeniedException("Access denied");
         }
 
+    }
+
+    @Override
+    public List<Realm> getRealmListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.realmDao.getRealmListForSync(lastSyncDate, curUser);
     }
 
 }

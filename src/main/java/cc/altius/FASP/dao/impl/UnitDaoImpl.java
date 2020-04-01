@@ -6,8 +6,6 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
-import cc.altius.FASP.model.DTO.PrgUnitDTO;
-import cc.altius.FASP.model.DTO.rowMapper.PrgUnitDTORowMapper;
 import cc.altius.FASP.dao.UnitDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Unit;
@@ -35,7 +33,7 @@ public class UnitDaoImpl implements UnitDao {
     private DataSource dataSource;
     private JdbcTemplate jdbcTemplate;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    
+
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -47,18 +45,21 @@ public class UnitDaoImpl implements UnitDao {
     LabelDao labelDao;
 
     @Override
-    public List<PrgUnitDTO> getUnitListForSync(String lastSyncDate) {
-        String sql = "SELECT u.`ACTIVE`,u.`LABEL_ID`,u.`UNIT_CODE`,u.`UNIT_ID`,u.`UNIT_TYPE_ID`,\n"
-                + "l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
-                + "FROM ap_unit u \n"
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=u.`LABEL_ID`";
+    public List<Unit> getUnitListForSync(String lastSyncDate) {
+        String sqlString = "SELECT "
+                + "	u.UNIT_ID, ul.LABEL_ID, ul.LABEL_EN, ul.LABEL_FR, ul.LABEL_SP, ul.LABEL_PR, u.UNIT_CODE, "
+                + "    ut.DIMENSION_ID, utl.LABEL_ID `DIMENSION_LABEL_ID`, utl.LABEL_EN `DIMENSION_LABEL_EN`, utl.LABEL_FR `DIMENSION_LABEL_FR`, utl.LABEL_SP `DIMENSION_LABEL_SP`, utl.LABEL_PR `DIMENSION_LABEL_PR`, "
+                + "	u.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, u.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, u.LAST_MODIFIED_DATE "
+                + "FROM ap_unit u "
+                + "LEFT JOIN ap_dimension ut ON u.DIMENSION_ID=ut.DIMENSION_ID "
+                + "LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
+                + "LEFT JOIN ap_label utl ON ut.LABEL_ID=utl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON u.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON u.LAST_MODIFIED_BY=lmb.USER_ID "
+                + " WHERE u.LAST_MODIFIED_DATE>=:lastSyncDate";
         Map<String, Object> params = new HashMap<>();
-        if (!lastSyncDate.equals("null")) {
-            sql += " WHERE u.`LAST_MODIFIED_DATE`>:lastSyncDate;";
-            params.put("lastSyncDate", lastSyncDate);
-        }
-        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
-        return nm.query(sql, params, new PrgUnitDTORowMapper());
+        params.put("lastSyncDate", lastSyncDate);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new UnitRowMapper());
     }
 
     @Override
@@ -67,7 +68,7 @@ public class UnitDaoImpl implements UnitDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("ap_unit").usingGeneratedKeyColumns("UNIT_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("UNIT_TYPE_ID", u.getUnitType().getUnitTypeId());
+        params.put("DIMENSION_ID", u.getDimension().getDimensionId());
         params.put("UNIT_CODE", u.getUnitCode());
         int labelId = this.labelDao.addLabel(u.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
@@ -103,10 +104,10 @@ public class UnitDaoImpl implements UnitDao {
     public List<Unit> getUnitList() {
         String sqlString = "SELECT "
                 + "	u.UNIT_ID, ul.LABEL_ID, ul.LABEL_EN, ul.LABEL_FR, ul.LABEL_SP, ul.LABEL_PR, u.UNIT_CODE, "
-                + "    ut.UNIT_TYPE_ID, utl.LABEL_ID `UNIT_TYPE_LABEL_ID`, utl.LABEL_EN `UNIT_TYPE_LABEL_EN`, utl.LABEL_FR `UNIT_TYPE_LABEL_FR`, utl.LABEL_SP `UNIT_TYPE_LABEL_SP`, utl.LABEL_PR `UNIT_TYPE_LABEL_PR`, "
+                + "    ut.DIMENSION_ID, utl.LABEL_ID `DIMENSION_LABEL_ID`, utl.LABEL_EN `DIMENSION_LABEL_EN`, utl.LABEL_FR `DIMENSION_LABEL_FR`, utl.LABEL_SP `DIMENSION_LABEL_SP`, utl.LABEL_PR `DIMENSION_LABEL_PR`, "
                 + "	u.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, u.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, u.LAST_MODIFIED_DATE "
                 + "FROM ap_unit u "
-                + "LEFT JOIN ap_unit_type ut ON u.UNIT_TYPE_ID=ut.UNIT_TYPE_ID "
+                + "LEFT JOIN ap_dimension ut ON u.DIMENSION_ID=ut.DIMENSION_ID "
                 + "LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
                 + "LEFT JOIN ap_label utl ON ut.LABEL_ID=utl.LABEL_ID "
                 + "LEFT JOIN us_user cb ON u.CREATED_BY=cb.USER_ID "
@@ -118,10 +119,10 @@ public class UnitDaoImpl implements UnitDao {
     public Unit getUnitById(int unitId) {
         String sqlString = "SELECT "
                 + "	u.UNIT_ID, ul.LABEL_ID, ul.LABEL_EN, ul.LABEL_FR, ul.LABEL_SP, ul.LABEL_PR, u.UNIT_CODE, "
-                + "    ut.UNIT_TYPE_ID, utl.LABEL_ID `UNIT_TYPE_LABEL_ID`, utl.LABEL_EN `UNIT_TYPE_LABEL_EN`, utl.LABEL_FR `UNIT_TYPE_LABEL_FR`, utl.LABEL_SP `UNIT_TYPE_LABEL_SP`, utl.LABEL_PR `UNIT_TYPE_LABEL_PR`, "
+                + "    ut.DIMENSION_ID, utl.LABEL_ID `DIMENSION_LABEL_ID`, utl.LABEL_EN `DIMENSION_LABEL_EN`, utl.LABEL_FR `DIMENSION_LABEL_FR`, utl.LABEL_SP `DIMENSION_LABEL_SP`, utl.LABEL_PR `DIMENSION_LABEL_PR`, "
                 + "	u.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, u.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, u.LAST_MODIFIED_DATE "
                 + "FROM ap_unit u "
-                + "LEFT JOIN ap_unit_type ut ON u.UNIT_TYPE_ID=ut.UNIT_TYPE_ID "
+                + "LEFT JOIN ap_dimension ut ON u.DIMENSION_ID=ut.DIMENSION_ID "
                 + "LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
                 + "LEFT JOIN ap_label utl ON ut.LABEL_ID=utl.LABEL_ID "
                 + "LEFT JOIN us_user cb ON u.CREATED_BY=cb.USER_ID "

@@ -47,20 +47,6 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
     LabelDao labelDao;
 
     @Override
-    public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate,int realmId) {
-        String sql = "SELECT  ha.`ACTIVE`,ha.`HEALTH_AREA_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,ha.`REALM_ID`\n"
-                + "FROM rm_health_area ha \n"
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=ha.`LABEL_ID` WHERE (ha.`REALM_ID`=:realmId OR -1=:realmId)";
-        Map<String, Object> params = new HashMap<>();
-        if (!lastSyncDate.equals("null")) {
-            sql += " AND ha.`LAST_MODIFIED_DATE`>:lastSyncDate;";
-            params.put("lastSyncDate", lastSyncDate);
-        }
-        params.put("realmId", realmId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new PrgHealthAreaDTORowMapper());
-    }
-
-    @Override
     @Transactional
     public int addHealthArea(HealthArea h, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_health_area").usingGeneratedKeyColumns("HEALTH_AREA_ID");
@@ -184,7 +170,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
                 + "LEFT JOIN rm_realm_country rc ON hac.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-                    + "WHERE ha.REALM_ID=:realmId ";
+                + "WHERE ha.REALM_ID=:realmId ";
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         if (curUser.getRealm().getRealmId() != -1) {
@@ -235,6 +221,33 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
 //            }
 //        }
         return this.namedParameterJdbcTemplate.query(sqlString, params, new HealthAreaResultSetExtractor());
+    }
+
+    @Override
+    public List<HealthArea> getHealthAreaListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        String sqlString = "SELECT "
+                + "	ha.HEALTH_AREA_ID, hal.LABEL_ID, hal.LABEL_EN, hal.LABEL_FR, hal.LABEL_SP, hal.LABEL_PR, "
+                + "     r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
+                + "	ha.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ha.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ha.LAST_MODIFIED_DATE, "
+                + "     rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
+                + "FROM rm_health_area ha "
+                + "LEFT JOIN rm_realm r ON ha.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON ha.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON ha.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "LEFT JOIN rm_health_area_country hac ON ha.HEALTH_AREA_ID=hac.HEALTH_AREA_ID "
+                + "LEFT JOIN rm_realm_country rc ON hac.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+                + "WHERE ha.LAST_MODIFIED_DATE>:lastSyncDate ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND ha.REALM_ID=:realmId ";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new HealthAreaListResultSetExtractor());
     }
 
 }

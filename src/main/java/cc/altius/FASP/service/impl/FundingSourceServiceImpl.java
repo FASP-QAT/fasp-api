@@ -34,11 +34,6 @@ public class FundingSourceServiceImpl implements FundingSourceService {
     private AclService aclService;
 
     @Override
-    public List<PrgFundingSourceDTO> getFundingSourceListForSync(String lastSyncDate, int realmId) {
-        return this.fundingSourceDao.getFundingSourceListForSync(lastSyncDate, realmId);
-    }
-
-    @Override
     public int addFundingSource(FundingSource f, CustomUserDetails curUser) {
         if (this.aclService.checkRealmAccessForUser(curUser, f.getRealm().getRealmId())) {
             return this.fundingSourceDao.addFundingSource(f, curUser);
@@ -83,6 +78,11 @@ public class FundingSourceServiceImpl implements FundingSourceService {
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    public List<FundingSource> getFundingSourceListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.fundingSourceDao.getFundingSourceListForSync(lastSyncDate, curUser);
     }
 
 }

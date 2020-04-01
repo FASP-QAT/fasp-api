@@ -15,8 +15,6 @@ import java.util.List;
  */
 public interface TracerCategoryService {
 
-//public List<PrgTracerCategoryDTO> getTracerCategoryListForSync(String lastSyncDate,int realmId);
-
     public int addTracerCategory(TracerCategory m, CustomUserDetails curUser);
 
     public int updateTracerCategory(TracerCategory m, CustomUserDetails curUser);
@@ -27,5 +25,5 @@ public interface TracerCategoryService {
 
     public TracerCategory getTracerCategoryById(int tracerCategoryId, CustomUserDetails curUser);
 
-
+    public List<TracerCategory> getTracerCategoryListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

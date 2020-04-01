@@ -11,14 +11,12 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.rowMapper.BudgetRowMapper;
 import cc.altius.utils.DateUtils;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
@@ -32,13 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class BudgetDaoImpl implements BudgetDao {
 
     private DataSource dataSource;
-    private JdbcTemplate jdbcTemplate;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
@@ -48,7 +44,7 @@ public class BudgetDaoImpl implements BudgetDao {
     @Override
     @Transactional
     public int addBudget(Budget b, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("rm_budget").usingGeneratedKeyColumns("BUDGET_ID");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_budget").usingGeneratedKeyColumns("BUDGET_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("PROGRAM_ID", b.getProgram().getProgramId());
@@ -90,7 +86,7 @@ public class BudgetDaoImpl implements BudgetDao {
     }
 
     @Override
-    public List<Budget> getBudgetList(CustomUserDetails curUSer) {
+    public List<Budget> getBudgetList(CustomUserDetails curUser) {
         String sqlString = "SELECT "
                 + "     b.BUDGET_ID, bl.LABEL_ID, bl.LABEL_EN, bl.LABEL_FR, bl.LABEL_SP, bl.LABEL_PR, "
                 + "     b.BUDGET_AMT, b.START_DATE, b.STOP_DATE, "
@@ -110,8 +106,14 @@ public class BudgetDaoImpl implements BudgetDao {
                 + "LEFT JOIN rm_realm r ON fs.REALM_ID=r.REALM_ID "
                 + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
                 + "LEFT JOIN us_user cb ON b.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON b.LAST_MODIFIED_BY=lmb.USER_ID";
-        return this.jdbcTemplate.query(sqlString, new BudgetRowMapper());
+                + "LEFT JOIN us_user lmb ON b.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE TRUE ";
+        Map<String, Object> params = new HashMap<>();
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += " AND fs.REALM_ID=:userRealmId ";
+            params.put("userRealmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new BudgetRowMapper());
     }
 
     @Override
@@ -136,7 +138,47 @@ public class BudgetDaoImpl implements BudgetDao {
                 + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
                 + "LEFT JOIN us_user cb ON b.CREATED_BY=cb.USER_ID "
                 + "LEFT JOIN us_user lmb ON b.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE b.BUDGET_ID=?";
-        return this.jdbcTemplate.queryForObject(sqlString, new BudgetRowMapper(), budgetId);
+                + "WHERE b.BUDGET_ID=:budgetId ";
+        Map<String, Object> params = new HashMap<>();
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += " AND fs.REALM_ID=:userRealmId ";
+            params.put("userRealmId", curUser.getRealm().getRealmId());
+        }
+        params.put("budgetId", budgetId);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new BudgetRowMapper());
     }
+
+    @Override
+    public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        String sqlString = "SELECT "
+                + "     b.BUDGET_ID, bl.LABEL_ID, bl.LABEL_EN, bl.LABEL_FR, bl.LABEL_SP, bl.LABEL_PR, "
+                + "     b.BUDGET_AMT, b.START_DATE, b.STOP_DATE, "
+                + "     p.PROGRAM_ID, pl.LABEL_ID `PROGRAM_LABEL_ID`, pl.LABEL_EN `PROGRAM_LABEL_EN`, pl.LABEL_FR `PROGRAM_LABEL_FR`, pl.LABEL_SP `PROGRAM_LABEL_SP`, pl.LABEL_PR `PROGRAM_LABEL_PR`, "
+                + "     sfs.SUB_FUNDING_SOURCE_ID, sfsl.LABEL_ID `SUB_FUNDING_SOURCE_LABEL_ID`, sfsl.LABEL_EN `SUB_FUNDING_SOURCE_LABEL_EN`, sfsl.LABEL_FR `SUB_FUNDING_SOURCE_LABEL_FR`, sfsl.LABEL_SP `SUB_FUNDING_SOURCE_LABEL_SP`, sfsl.LABEL_PR `SUB_FUNDING_SOURCE_LABEL_PR`, "
+                + "     fs.FUNDING_SOURCE_ID, fsl.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fsl.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fsl.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fsl.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fsl.LABEL_PR `FUNDING_SOURCE_LABEL_PR`, "
+                + "     r.REALM_ID, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, r.`REALM_CODE`, "
+                + "	b.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, b.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, b.LAST_MODIFIED_DATE "
+                + "FROM rm_budget b "
+                + "LEFT JOIN ap_label bl ON b.LABEL_ID=bl.LABEL_ID "
+                + "LEFT JOIN rm_program p ON b.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
+                + "LEFT JOIN rm_sub_funding_source sfs ON b.SUB_FUNDING_SOURCE_ID=sfs.SUB_FUNDING_SOURCE_ID "
+                + "LEFT JOIN ap_label sfsl ON sfs.LABEL_ID=sfsl.LABEL_ID "
+                + "LEFT JOIN rm_funding_source fs ON sfs.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID "
+                + "LEFT JOIN ap_label fsl ON fs.LABEL_ID=fsl.LABEL_ID "
+                + "LEFT JOIN rm_realm r ON fs.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON b.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON b.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE b.LAST_MODIFIED_DATE>:lastSyncDate ";
+        Map<String, Object> params = new HashMap<>();
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += " AND fs.REALM_ID=:userRealmId ";
+            params.put("userRealmId", curUser.getRealm().getRealmId());
+        }
+        
+        params.put("lastSyncDate", lastSyncDate);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new BudgetRowMapper());
+    }
+
 }

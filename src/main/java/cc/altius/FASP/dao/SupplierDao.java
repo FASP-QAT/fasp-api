@@ -6,7 +6,6 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgSupplierDTO;
 import cc.altius.FASP.model.Supplier;
 import java.util.List;
 
@@ -15,8 +14,6 @@ import java.util.List;
  * @author altius
  */
 public interface SupplierDao {
-
-    public List<PrgSupplierDTO> getSupplierListForSync(String lastSyncDate,int realmId);
 
     public int addSupplier(Supplier m, CustomUserDetails curUser);
 
@@ -28,4 +25,5 @@ public interface SupplierDao {
 
     public Supplier getSupplierById(int supplierId, CustomUserDetails curUser);
 
+    public List<Supplier> getSupplierListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

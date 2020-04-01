@@ -7,8 +7,6 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LanguageDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgLanguageDTO;
-import cc.altius.FASP.model.DTO.rowMapper.PrgLanguageDTORowMapper;
 import cc.altius.FASP.model.Language;
 import cc.altius.FASP.model.LabelJson;
 import cc.altius.FASP.model.rowMapper.LanguageRowMapper;
@@ -103,14 +101,16 @@ public class LanguageDaoImpl implements LanguageDao {
     }
 
     @Override
-    public List<PrgLanguageDTO> getLanguageListForSync(String lastSyncDate) {
-        String sql = "SELECT l.`LANGUAGE_ID`,l.`LANGUAGE_NAME`,l.`ACTIVE` FROM ap_language l";
+    public List<Language> getLanguageListForSync(String lastSyncDate) {
+        String sqlString = "SELECT la.LANGUAGE_ID, la.LANGUAGE_CODE, la.LANGUAGE_NAME, "
+                + "cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, la.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, la.LAST_MODIFIED_DATE, la.ACTIVE  "
+                + "FROM ap_language la  "
+                + "LEFT JOIN us_user cb ON la.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON la.LAST_MODIFIED_BY=lmb.USER_ID "
+                + " WHERE la.LAST_MODIFIED_DATE>=:lastSyncDate";
         Map<String, Object> params = new HashMap<>();
-        if (!lastSyncDate.equals("null")) {
-            sql += " WHERE l.`LAST_MODIFIED_DATE`>:lastSyncDate;";
-            params.put("lastSyncDate", lastSyncDate);
-        }
-        return this.namedParameterJdbcTemplate.query(sql, params, new PrgLanguageDTORowMapper());
+        params.put("lastSyncDate", lastSyncDate);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new LanguageRowMapper());
     }
 
     @Override

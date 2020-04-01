@@ -6,7 +6,6 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgRegionDTO;
 import cc.altius.FASP.model.Region;
 import java.util.List;
 
@@ -18,8 +17,6 @@ public interface RegionService {
 
     public int addRegion(Region region, CustomUserDetails curUser);
 
-    public List<PrgRegionDTO> getRegionListForSync(String lastSyncDate, int realmId);
-
     public int updateRegion(Region region, CustomUserDetails curUser);
 
     public List<Region> getRegionList(CustomUserDetails curUser);
@@ -27,4 +24,6 @@ public interface RegionService {
     public Region getRegionById(int regionId, CustomUserDetails curUser);
 
     public List<Region> getRegionListByRealmCountryId(int realmCountryId, CustomUserDetails curUser);
+    
+    public List<Region> getRegionListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

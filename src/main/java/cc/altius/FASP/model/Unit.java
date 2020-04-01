@@ -16,7 +16,7 @@ public class Unit extends BaseModel implements Serializable {
     private int unitId;
     private Label label;
     private String unitCode;
-    private UnitType unitType;
+    private Dimension dimension;
 
     public Unit() {
     }
@@ -27,11 +27,11 @@ public class Unit extends BaseModel implements Serializable {
         this.unitCode = unitCode;
     }
 
-    public Unit(int unitId, Label label, String unitCode, UnitType unitType) {
+    public Unit(int unitId, Label label, String unitCode, Dimension dimension) {
         this.unitId = unitId;
         this.label = label;
         this.unitCode = unitCode;
-        this.unitType = unitType;
+        this.dimension = dimension;
     }
 
     public int getUnitId() {
@@ -58,12 +58,12 @@ public class Unit extends BaseModel implements Serializable {
         this.unitCode = unitCode;
     }
 
-    public UnitType getUnitType() {
-        return unitType;
+    public Dimension getDimension() {
+        return dimension;
     }
 
-    public void setUnitType(UnitType unitType) {
-        this.unitType = unitType;
+    public void setDimension(Dimension dimension) {
+        this.dimension = dimension;
     }
 
     @Override
@@ -93,7 +93,7 @@ public class Unit extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "Unit{" + "unitId=" + unitId + ", label=" + label + ", unitCode=" + unitCode + ", unitType=" + unitType + '}';
+        return "Unit{" + "unitId=" + unitId + ", label=" + label + ", unitCode=" + unitCode + ", dimension=" + dimension + '}';
     }
     
     

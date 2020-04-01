@@ -16,8 +16,6 @@ import java.util.List;
  */
 public interface HealthAreaDao {
 
-    public List<PrgHealthAreaDTO> getHealthAreaListForSync(String lastSyncDate,int realmId);
-
     public int addHealthArea(HealthArea h, CustomUserDetails curUser);
 
     public int updateHealthArea(HealthArea h, CustomUserDetails CurUser);
@@ -27,4 +25,6 @@ public interface HealthAreaDao {
     public List<HealthArea> getHealthAreaListByRealmId(int realmId, CustomUserDetails curUser);
 
     public HealthArea getHealthAreaById(int healthAreaId, CustomUserDetails curUser);
+    
+    public List<HealthArea> getHealthAreaListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

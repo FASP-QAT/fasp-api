@@ -5,7 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
-import cc.altius.FASP.model.UnitType;
+import cc.altius.FASP.model.Dimension;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -14,22 +14,22 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author palash
  */
-public class UnitTypeRowMapper implements RowMapper<UnitType> {
+public class DimensionRowMapper implements RowMapper<Dimension> {
 
     private String prefix;
 
-    public UnitTypeRowMapper() {
+    public DimensionRowMapper() {
         this.prefix = "";
     }
 
-    public UnitTypeRowMapper(String prefix) {
+    public DimensionRowMapper(String prefix) {
         this.prefix = prefix;
     }
 
     @Override
-    public UnitType mapRow(ResultSet rs, int i) throws SQLException {
-        UnitType ut = new UnitType();
-        ut.setUnitTypeId(rs.getInt("UNIT_TYPE_ID"));
+    public Dimension mapRow(ResultSet rs, int i) throws SQLException {
+        Dimension ut = new Dimension();
+        ut.setDimensionId(rs.getInt("DIMENSION_ID"));
         ut.setLabel(new LabelRowMapper(prefix).mapRow(rs, i));
         ut.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return ut;

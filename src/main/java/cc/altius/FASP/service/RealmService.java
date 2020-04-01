@@ -17,13 +17,11 @@ public interface RealmService {
 
     public List<Realm> getRealmList(boolean active, CustomUserDetails curUser);
 
-//    public List<RealmCountry> getRealmCountryList(boolean active);
-
-//    public List<RealmCountry> getRealmCountryListByRealmId(int realmId);
-
     public int addRealm(Realm realm, CustomUserDetails curUser);
 
     public int updateRealm(Realm realm, CustomUserDetails curUser);
 
     public Realm getRealmById(int realmId, CustomUserDetails curUser);
+
+    public List<Realm> getRealmListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

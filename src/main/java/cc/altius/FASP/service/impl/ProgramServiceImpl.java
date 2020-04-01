@@ -126,4 +126,9 @@ public class ProgramServiceImpl implements ProgramService {
         }
     }
 
+    @Override
+    public List<Program> getProgramListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.programDao.getProgramListForSync(lastSyncDate, curUser);
+    }
+
 }

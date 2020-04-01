@@ -6,7 +6,6 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgLanguageDTO;
 import cc.altius.FASP.model.Language;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +24,7 @@ public interface LanguageService {
 
     public Language getLanguageById(int languageId, CustomUserDetails curUser);
 
-    public List<PrgLanguageDTO> getLanguageListForSync(String lastSyncDate);
+    public List<Language> getLanguageListForSync(String lastSyncDate);
 
     public Map<String, String> getLanguageJsonForStaticLabels(String language);
 }

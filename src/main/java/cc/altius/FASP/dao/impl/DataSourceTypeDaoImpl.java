@@ -152,16 +152,25 @@ public class DataSourceTypeDaoImpl implements DataSourceTypeDao {
     }
 
     @Override
-    public List<PrgDataSourceTypeDTO> getDataSourceTypeListForSync(String lastSyncDate) {
-        String sql = "SELECT dst.`ACTIVE`,dst.`DATA_SOURCE_TYPE_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP` "
+    public List<DataSourceType> getDataSourceTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        String sqlString = "SELECT dst.DATA_SOURCE_TYPE_ID,  "
+                + "	dstl.LABEL_ID, dstl.LABEL_EN, dstl.LABEL_FR, dstl.LABEL_PR, dstl.LABEL_SP, "
+                + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
+                + "	cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, dst.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, dst.LAST_MODIFIED_DATE, dst.ACTIVE  "
                 + "FROM rm_data_source_type dst  "
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=dst.`LABEL_ID`";
+                + "LEFT JOIN ap_label dstl ON dst.LABEL_ID=dstl.LABEL_ID "
+                + "LEFT JOIN rm_realm r ON dst.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON dst.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON dst.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE dst.LAST_MODIFIED_DATE>:lastSyncDate ";
         Map<String, Object> params = new HashMap<>();
-        if (!lastSyncDate.equals("null")) {
-            sql += " WHERE dst.`LAST_MODIFIED_DATE`>:lastSyncDate;";
-            params.put("lastSyncDate", lastSyncDate);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += " AND dst.REALM_ID=:userRealmId ";
+            params.put("userRealmId", curUser.getRealm().getRealmId());
         }
-        return this.namedParameterJdbcTemplate.query(sql, params, new PrgDataSourceTypeDTORowMapper());
+        params.put("lastSyncDate", lastSyncDate);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new DataSourceTypeRowMapper());
     }
 
 }

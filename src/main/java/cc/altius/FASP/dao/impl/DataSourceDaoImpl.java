@@ -194,16 +194,28 @@ public class DataSourceDaoImpl implements DataSourceDao {
     }
 
     @Override
-    public List<PrgDataSourceDTO> getDataSourceListForSync(String lastSyncDate) {
-        String sql = "SELECT ds.`ACTIVE`,ds.`DATA_SOURCE_ID`,ds.`DATA_SOURCE_TYPE_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP` "
-                + "FROM rm_data_source ds "
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=ds.`LABEL_ID`";
+    public List<DataSource> getDataSourceListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        String sqlString = "SELECT ds.DATA_SOURCE_ID,  "
+                + "	dsl.LABEL_ID, dsl.LABEL_EN, dsl.LABEL_FR, dsl.LABEL_PR, dsl.LABEL_SP, "
+                + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
+                + "	dst.DATA_SOURCE_TYPE_ID, dstl.LABEL_ID `DATA_SOURCE_TYPE_LABEL_ID`, dstl.LABEL_EN `DATA_SOURCE_TYPE_LABEL_EN`, dstl.LABEL_FR `DATA_SOURCE_TYPE_LABEL_FR`, dstl.LABEL_PR `DATA_SOURCE_TYPE_LABEL_PR`, dstl.LABEL_SP `DATA_SOURCE_TYPE_LABEL_SP`, "
+                + "	cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ds.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ds.LAST_MODIFIED_DATE, ds.ACTIVE  "
+                + "FROM rm_data_source ds  "
+                + "LEFT JOIN ap_label dsl ON ds.LABEL_ID=dsl.LABEL_ID "
+                + "LEFT JOIN rm_realm r ON ds.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+                + "LEFT JOIN rm_data_source_type dst ON ds.DATA_SOURCE_TYPE_ID=dst.DATA_SOURCE_TYPE_ID "
+                + "LEFT JOIN ap_label dstl ON dst.LABEL_ID=dstl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON ds.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON ds.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE ds.LAST_MODIFIED_DATE>:lastSyncDate ";
         Map<String, Object> params = new HashMap<>();
-        if (!lastSyncDate.equals("null")) {
-            sql += " WHERE ds.`LAST_MODIFIED_DATE`>:lastSyncDate;";
-            params.put("lastSyncDate", lastSyncDate);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += " AND ds.REALM_ID=:userRealmId ";
+            params.put("userRealmId", curUser.getRealm().getRealmId());
         }
-        return this.namedParameterJdbcTemplate.query(sql, params, new PrgDataSourceDTORowMapper());
-    }
 
+        params.put("lastSyncDate", lastSyncDate);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new DataSourceRowMapper());
+    }
 }

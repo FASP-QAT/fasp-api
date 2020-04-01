@@ -82,8 +82,8 @@ public class DataSourceTypeServiceImpl implements DataSourceTypeService {
     }
 
     @Override
-    public List<PrgDataSourceTypeDTO> getDataSourceTypeListForSync(String lastSyncDate) {
-        return this.dataSourceTypeDao.getDataSourceTypeListForSync(lastSyncDate);
+    public List<DataSourceType> getDataSourceTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.dataSourceTypeDao.getDataSourceTypeListForSync(lastSyncDate, curUser);
     }
 
 }

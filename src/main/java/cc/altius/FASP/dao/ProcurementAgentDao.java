@@ -24,4 +24,6 @@ public interface ProcurementAgentDao {
     public int updateProcurementAgent(ProcurementAgent procurementAgent, CustomUserDetails curUser);
 
     public ProcurementAgent getProcurementAgentById(int procurementAgentId, CustomUserDetails curUser);
+    
+    public List<ProcurementAgent> getProcurementAgentListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

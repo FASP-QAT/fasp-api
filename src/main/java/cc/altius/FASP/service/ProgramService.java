@@ -33,4 +33,5 @@ public interface ProgramService {
     
     public int saveProgramProduct(ProgramProduct pp, CustomUserDetails curUser);
 
+    public List<Program> getProgramListForSync(String lastSyncDate, CustomUserDetails curUser);
 }
