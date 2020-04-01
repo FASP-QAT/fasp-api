@@ -118,7 +118,7 @@ public class ManufacturerDaoImpl implements ManufacturerDao {
         }
         return this.namedParameterJdbcTemplate.query(sqlString, params, new ManufacturerRowMapper());
     }
-    
+
     @Override
     public List<Manufacturer> getManufacturerListForRealm(int realmId, boolean active, CustomUserDetails curUser) {
         String sqlString = "SELECT  "
