@@ -35,7 +35,6 @@ public class LabelController {
     @RequestMapping(value = "/getDatabaseLabelsListAll")
     public ResponseEntity getDatabaseLabelsList(Authentication auth) {
         try {
-            System.out.println("in method");
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.labelService.getDatabaseLabelsList(curUser.getRealm().getRealmId()), HttpStatus.OK);
         } catch (Exception e) {
@@ -58,10 +57,8 @@ public class LabelController {
     public ResponseEntity putDatabaseLabels(@RequestBody String json, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            System.out.println("jsonn======================"+json);
             Gson gson = new Gson(); 
             List<String> labelArray = gson.fromJson(json, LinkedList.class);  
-            System.out.println("Label array"+labelArray);
             this.labelService.saveDatabaseLabels(labelArray, curUser);
             return new ResponseEntity(new ResponseCode("static.label.labelSuccess"), HttpStatus.OK);
         } catch (Exception e) {
@@ -73,10 +70,8 @@ public class LabelController {
     public ResponseEntity putStaticLabels(@RequestBody String json, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            System.out.println("jsonn======================"+json);
             Gson gson = new Gson(); 
             List<String> labelArray = gson.fromJson(json, LinkedList.class);  
-            System.out.println("Label array"+labelArray);
             this.labelService.saveStaticLabels(labelArray, curUser);
             return new ResponseEntity(new ResponseCode("static.label.labelSuccess"), HttpStatus.OK);
         } catch (Exception e) {
