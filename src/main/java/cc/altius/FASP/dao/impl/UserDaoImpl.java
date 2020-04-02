@@ -244,24 +244,6 @@ public class UserDaoImpl implements UserDao {
             x++;
         }
         this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray);
-        if (user.getUserAcls() != null && user.getUserAcls().length > 0) {
-            sqlString = "INSERT INTO us_user_acl (USER_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
-            paramArray = new HashMap[user.getUserAcls().length];
-            x = 0;
-            for (UserAcl userAcl : user.getUserAcls()) {
-                params = new HashMap<>();
-                params.put("userId", userId);
-                params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-                params.put("healthAreaId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-                params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
-                params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
-                params.put("curUser", curUser);
-                params.put("curDate", curDate);
-                paramArray[x] = params;
-                x++;
-            }
-            this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray);
-        }
         return userId;
     }
 
@@ -274,6 +256,7 @@ public class UserDaoImpl implements UserDao {
                 + "    lang.`LANGUAGE_ID`, lang.`LANGUAGE_NAME`, lang.`LANGUAGE_CODE`, "
                 + "    `user`.`CREATED_DATE`, cb.`USER_ID` `CB_USER_ID`, cb.`USERNAME` `CB_USERNAME`, `user`.`LAST_MODIFIED_DATE`, lmb.`USER_ID` `LMB_USER_ID`, lmb.`USERNAME` `LMB_USERNAME`, `user`.`ACTIVE`, "
                 + "    role.`ROLE_ID`, role_lb.`LABEL_ID` `ROLE_LABEL_ID`, role_lb.`LABEL_EN` `ROLE_LABEL_EN`, role_lb.`LABEL_FR` `ROLE_LABEL_FR`, role_lb.`LABEL_SP` `ROLE_LABEL_SP`, role_lb.`LABEL_PR` `ROLE_LABEL_PR`, "
+                + "    acl.USER_ACL_ID, "
                 + "    acl.`REALM_COUNTRY_ID` `ACL_REALM_COUNTRY_ID`, acl_country_lb.`LABEL_ID` `ACL_REALM_LABEL_ID`, acl_country_lb.`LABEL_EN` `ACL_REALM_LABEL_EN`, acl_country_lb.`LABEL_FR` `ACL_REALM_LABEL_FR`, acl_country_lb.`LABEL_SP` `ACL_REALM_LABEL_SP`, acl_country_lb.`LABEL_PR` `ACL_REALM_LABEL_PR`, "
                 + "    acl.`HEALTH_AREA_ID` `ACL_HEALTH_AREA_ID`, acl_health_area_lb.`LABEL_ID` `ACL_HEALTH_AREA_LABEL_ID`, acl_health_area_lb.`LABEL_EN` `ACL_HEALTH_AREA_LABEL_EN`, acl_health_area_lb.`LABEL_FR` `ACL_HEALTH_AREA_LABEL_FR`, acl_health_area_lb.`LABEL_SP` `ACL_HEALTH_AREA_LABEL_SP`, acl_health_area_lb.`LABEL_PR` `ACL_HEALTH_AREA_LABEL_PR`, "
                 + "    acl.`ORGANISATION_ID` `ACL_ORGANISATION_ID`, acl_organisation_lb.`LABEL_ID` `ACL_ORGANISATION_LABEL_ID`, acl_organisation_lb.`LABEL_EN` `ACL_ORGANISATION_LABEL_EN`, acl_organisation_lb.`LABEL_FR` `ACL_ORGANISATION_LABEL_FR`, acl_organisation_lb.`LABEL_SP` `ACL_ORGANISATION_LABEL_SP`, acl_organisation_lb.`LABEL_PR` `ACL_ORGANISATION_LABEL_PR`, "
@@ -310,6 +293,7 @@ public class UserDaoImpl implements UserDao {
                 + "    lang.`LANGUAGE_ID`, lang.`LANGUAGE_NAME`, lang.`LANGUAGE_CODE`, "
                 + "    `user`.`CREATED_DATE`, cb.`USER_ID` `CB_USER_ID`, cb.`USERNAME` `CB_USERNAME`, `user`.`LAST_MODIFIED_DATE`, lmb.`USER_ID` `LMB_USER_ID`, lmb.`USERNAME` `LMB_USERNAME`, `user`.`ACTIVE`, "
                 + "    role.`ROLE_ID`, role_lb.`LABEL_ID` `ROLE_LABEL_ID`, role_lb.`LABEL_EN` `ROLE_LABEL_EN`, role_lb.`LABEL_FR` `ROLE_LABEL_FR`, role_lb.`LABEL_SP` `ROLE_LABEL_SP`, role_lb.`LABEL_PR` `ROLE_LABEL_PR`, "
+                + "    acl.USER_ACL_ID, "
                 + "    acl.`REALM_COUNTRY_ID` `ACL_REALM_COUNTRY_ID`, acl_country_lb.`LABEL_ID` `ACL_REALM_LABEL_ID`, acl_country_lb.`LABEL_EN` `ACL_REALM_LABEL_EN`, acl_country_lb.`LABEL_FR` `ACL_REALM_LABEL_FR`, acl_country_lb.`LABEL_SP` `ACL_REALM_LABEL_SP`, acl_country_lb.`LABEL_PR` `ACL_REALM_LABEL_PR`, "
                 + "    acl.`HEALTH_AREA_ID` `ACL_HEALTH_AREA_ID`, acl_health_area_lb.`LABEL_ID` `ACL_HEALTH_AREA_LABEL_ID`, acl_health_area_lb.`LABEL_EN` `ACL_HEALTH_AREA_LABEL_EN`, acl_health_area_lb.`LABEL_FR` `ACL_HEALTH_AREA_LABEL_FR`, acl_health_area_lb.`LABEL_SP` `ACL_HEALTH_AREA_LABEL_SP`, acl_health_area_lb.`LABEL_PR` `ACL_HEALTH_AREA_LABEL_PR`, "
                 + "    acl.`ORGANISATION_ID` `ACL_ORGANISATION_ID`, acl_organisation_lb.`LABEL_ID` `ACL_ORGANISATION_LABEL_ID`, acl_organisation_lb.`LABEL_EN` `ACL_ORGANISATION_LABEL_EN`, acl_organisation_lb.`LABEL_FR` `ACL_ORGANISATION_LABEL_FR`, acl_organisation_lb.`LABEL_SP` `ACL_ORGANISATION_LABEL_SP`, acl_organisation_lb.`LABEL_PR` `ACL_ORGANISATION_LABEL_PR`, "
@@ -354,6 +338,7 @@ public class UserDaoImpl implements UserDao {
                 + "    lang.`LANGUAGE_ID`, lang.`LANGUAGE_NAME`, lang.`LANGUAGE_CODE`, "
                 + "    `user`.`CREATED_DATE`, cb.`USER_ID` `CB_USER_ID`, cb.`USERNAME` `CB_USERNAME`, `user`.`LAST_MODIFIED_DATE`, lmb.`USER_ID` `LMB_USER_ID`, lmb.`USERNAME` `LMB_USERNAME`, `user`.`ACTIVE`, "
                 + "    role.`ROLE_ID`, role_lb.`LABEL_ID` `ROLE_LABEL_ID`, role_lb.`LABEL_EN` `ROLE_LABEL_EN`, role_lb.`LABEL_FR` `ROLE_LABEL_FR`, role_lb.`LABEL_SP` `ROLE_LABEL_SP`, role_lb.`LABEL_PR` `ROLE_LABEL_PR`, "
+                + "    acl.USER_ACL_ID, "
                 + "    acl.`REALM_COUNTRY_ID` `ACL_REALM_COUNTRY_ID`, acl_country_lb.`LABEL_ID` `ACL_REALM_LABEL_ID`, acl_country_lb.`LABEL_EN` `ACL_REALM_LABEL_EN`, acl_country_lb.`LABEL_FR` `ACL_REALM_LABEL_FR`, acl_country_lb.`LABEL_SP` `ACL_REALM_LABEL_SP`, acl_country_lb.`LABEL_PR` `ACL_REALM_LABEL_PR`, "
                 + "    acl.`HEALTH_AREA_ID` `ACL_HEALTH_AREA_ID`, acl_health_area_lb.`LABEL_ID` `ACL_HEALTH_AREA_LABEL_ID`, acl_health_area_lb.`LABEL_EN` `ACL_HEALTH_AREA_LABEL_EN`, acl_health_area_lb.`LABEL_FR` `ACL_HEALTH_AREA_LABEL_FR`, acl_health_area_lb.`LABEL_SP` `ACL_HEALTH_AREA_LABEL_SP`, acl_health_area_lb.`LABEL_PR` `ACL_HEALTH_AREA_LABEL_PR`, "
                 + "    acl.`ORGANISATION_ID` `ACL_ORGANISATION_ID`, acl_organisation_lb.`LABEL_ID` `ACL_ORGANISATION_LABEL_ID`, acl_organisation_lb.`LABEL_EN` `ACL_ORGANISATION_LABEL_EN`, acl_organisation_lb.`LABEL_FR` `ACL_ORGANISATION_LABEL_FR`, acl_organisation_lb.`LABEL_SP` `ACL_ORGANISATION_LABEL_SP`, acl_organisation_lb.`LABEL_PR` `ACL_ORGANISATION_LABEL_PR`, "
@@ -431,28 +416,6 @@ public class UserDaoImpl implements UserDao {
             x++;
         }
         this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray);
-        params.clear();
-        if (user.getUserAcls() != null && user.getUserAcls().length > 0) {
-            sqlString = "DELETE FROM us_user_acl WHERE  USER_ID=:userId";
-            params.put("userId", user.getUserId());
-            this.namedParameterJdbcTemplate.update(sqlString, params);
-            sqlString = "INSERT INTO us_user_acl (USER_ID, REALM_COUNTRY_ID, HEALTH_AREA_ID, ORGANISATION_ID, PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:userId, :realmCountryId, :healthAreaId, :organisationId, :programId, :curUser, :curDate, :curUser, :curDate)";
-            paramArray = new HashMap[user.getUserAcls().length];
-            x = 0;
-            for (UserAcl userAcl : user.getUserAcls()) {
-                params = new HashMap<>();
-                params.put("userId", user.getUserId());
-                params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-                params.put("healthAreaId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-                params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
-                params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
-                params.put("curUser", curUser);
-                params.put("curDate", curDate);
-                paramArray[x] = params;
-                x++;
-            }
-            this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray);
-        }
         return row;
     }
 
@@ -730,7 +693,7 @@ public class UserDaoImpl implements UserDao {
                 params = new HashMap<>();
                 params.put("userId", user.getUserId());
                 params.put("realmCountryId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
-                params.put("healthAreaId", (userAcl.getRealmCountryId() == -1 ? null : userAcl.getRealmCountryId()));
+                params.put("healthAreaId", (userAcl.getHealthAreaId() == -1 ? null : userAcl.getHealthAreaId()));
                 params.put("organisationId", (userAcl.getOrganisationId() == -1 ? null : userAcl.getOrganisationId()));
                 params.put("programId", (userAcl.getProgramId() == -1 ? null : userAcl.getProgramId()));
                 params.put("curUser", curUser.getUserId());
