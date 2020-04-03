@@ -10,7 +10,7 @@ import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.Program;
-import cc.altius.FASP.model.ProgramProduct;
+import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
@@ -109,18 +109,18 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public ProgramProduct getProgramProductListForProgramId(int programId, CustomUserDetails curUser) {
+    public ProgramPlanningUnit getPlanningUnitListForProgramId(int programId, CustomUserDetails curUser) {
         if (this.aclService.checkProgramAccessForUser(curUser, programId)) {
-            return this.programDao.getProgramProductListForProgramId(programId, curUser);
+            return this.programDao.getPlanningUnitListForProgramId(programId, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
     }
 
     @Override
-    public int saveProgramProduct(ProgramProduct pp, CustomUserDetails curUser) {
-        if (this.aclService.checkProgramAccessForUser(curUser, pp.getProgramId())) {
-            return this.programDao.saveProgramProduct(pp, curUser);
+    public int saveProgramPlanningUnit(ProgramPlanningUnit ppu, CustomUserDetails curUser) {
+        if (this.aclService.checkProgramAccessForUser(curUser, ppu.getProgramId())) {
+            return this.programDao.saveProgramPlanningUnit(ppu, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }

@@ -48,6 +48,8 @@ public class RegionDaoImpl implements RegionDao {
         int labelId = this.labelDao.addLabel(region.getLabel(), curUser.getUserId());
         params.put("REALM_COUNTRY_ID", region.getRealmCountry().getRealmCountryId());
         params.put("LABEL_ID", labelId);
+        params.put("GLN", region.getGln());
+        params.put("CAPACITY_CBM", region.getCapacityCbm());
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
@@ -62,14 +64,18 @@ public class RegionDaoImpl implements RegionDao {
         String sql = "UPDATE rm_region re LEFT JOIN ap_label rel ON re.`LABEL_ID`=rel.`LABEL_ID` "
                 + "SET "
                 + "re.`ACTIVE`=:active, "
-                + "re.`LAST_MODIFIED_BY`=IF(re.`ACTIVE`!=:active, :curUser, re.LAST_MODIFIED_BY), "
-                + "re.`LAST_MODIFIED_DATE`=IF(re.`ACTIVE`!=:active, :curDate, re.LAST_MODIFIED_DATE), "
+                + "re.`GLN`=:gln, "
+                + "re.`CAPACITY_CBM`=:capacityCbm, "
+                + "re.`LAST_MODIFIED_BY`=IF(re.`ACTIVE`!=:active OR re.`GLN`!=:gln OR re.`CAPACITY_CBM`!=:capacityCbm, :curUser, re.LAST_MODIFIED_BY), "
+                + "re.`LAST_MODIFIED_DATE`=IF(re.`ACTIVE`!=:active OR re.`GLN`!=:gln OR re.`CAPACITY_CBM`!=:capacityCbm, :curDate, re.LAST_MODIFIED_DATE), "
                 + "rel.LABEL_EN=:labelEn, "
                 + "rel.`LAST_MODIFIED_BY`=IF(rel.LABEL_EN!=:labelEn, :curUser, rel.LAST_MODIFIED_BY), "
                 + "rel.`LAST_MODIFIED_DATE`=IF(rel.LABEL_EN!=:labelEn, :curDate, rel.LAST_MODIFIED_DATE) "
                 + "WHERE re.`REGION_ID`=:regionId;";
         Map<String, Object> map = new HashMap<>();
         map.put("labelEn", region.getLabel().getLabel_en());
+        map.put("gln", region.getGln());
+        map.put("capacityCbm", region.getCapacityCbm());
         map.put("curUser", curUser.getUserId());
         map.put("curDate", curDate);
         map.put("active", region.isActive());
@@ -80,7 +86,7 @@ public class RegionDaoImpl implements RegionDao {
     @Override
     public List<Region> getRegionList(CustomUserDetails curUser) {
         String sqlString = "SELECT "
-                + "    re.REGION_ID, rc.REALM_COUNTRY_ID, "
+                + "    re.REGION_ID, rc.REALM_COUNTRY_ID, re.GLN, re.CAPACITY_CBM, "
                 + "    rel.LABEL_ID, rel.LABEL_EN, rel.LABEL_FR, rel.LABEL_SP, rel.LABEL_PR, "
                 + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
                 + "    c.COUNTRY_ID, cl.`LABEL_ID` `COUNTRY_LABEL_ID`, cl.`LABEL_EN` `COUNTRY_LABEL_EN` , cl.`LABEL_FR` `COUNTRY_LABEL_FR`, cl.`LABEL_PR` `COUNTRY_LABEL_PR`, cl.`LABEL_SP` `COUNTRY_LABEL_SP`, c.COUNTRY_CODE, "
@@ -106,7 +112,7 @@ public class RegionDaoImpl implements RegionDao {
     @Override
     public List<Region> getRegionListByRealmCountryId(int realmCountryId, CustomUserDetails curUser) {
         String sqlString = "SELECT "
-                + "    re.REGION_ID, rc.REALM_COUNTRY_ID, "
+                + "    re.REGION_ID, rc.REALM_COUNTRY_ID, re.GLN, re.CAPACITY_CBM, "
                 + "    rel.LABEL_ID, rel.LABEL_EN, rel.LABEL_FR, rel.LABEL_SP, rel.LABEL_PR, "
                 + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
                 + "    c.COUNTRY_ID, cl.`LABEL_ID` `COUNTRY_LABEL_ID`, cl.`LABEL_EN` `COUNTRY_LABEL_EN` , cl.`LABEL_FR` `COUNTRY_LABEL_FR`, cl.`LABEL_PR` `COUNTRY_LABEL_PR`, cl.`LABEL_SP` `COUNTRY_LABEL_SP`, c.COUNTRY_CODE, "
@@ -133,7 +139,7 @@ public class RegionDaoImpl implements RegionDao {
     @Override
     public Region getRegionById(int regionId, CustomUserDetails curUser) {
         String sqlString = "SELECT "
-                + "    re.REGION_ID, rc.REALM_COUNTRY_ID, "
+                + "    re.REGION_ID, rc.REALM_COUNTRY_ID, re.GLN, re.CAPACITY_CBM, "
                 + "    rel.LABEL_ID, rel.LABEL_EN, rel.LABEL_FR, rel.LABEL_SP, rel.LABEL_PR, "
                 + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
                 + "    c.COUNTRY_ID, cl.`LABEL_ID` `COUNTRY_LABEL_ID`, cl.`LABEL_EN` `COUNTRY_LABEL_EN` , cl.`LABEL_FR` `COUNTRY_LABEL_FR`, cl.`LABEL_PR` `COUNTRY_LABEL_PR`, cl.`LABEL_SP` `COUNTRY_LABEL_SP`, c.COUNTRY_CODE, "
@@ -160,7 +166,7 @@ public class RegionDaoImpl implements RegionDao {
     @Override
     public List<Region> getRegionListForSync(String lastSyncDate, CustomUserDetails curUser) {
         String sqlString = "SELECT "
-                + "    re.REGION_ID, rc.REALM_COUNTRY_ID, "
+                + "    re.REGION_ID, rc.REALM_COUNTRY_ID, re.GLN, re.CAPACITY_CBM, "
                 + "    rel.LABEL_ID, rel.LABEL_EN, rel.LABEL_FR, rel.LABEL_SP, rel.LABEL_PR, "
                 + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
                 + "    c.COUNTRY_ID, cl.`LABEL_ID` `COUNTRY_LABEL_ID`, cl.`LABEL_EN` `COUNTRY_LABEL_EN` , cl.`LABEL_FR` `COUNTRY_LABEL_FR`, cl.`LABEL_PR` `COUNTRY_LABEL_PR`, cl.`LABEL_SP` `COUNTRY_LABEL_SP`, c.COUNTRY_CODE, "

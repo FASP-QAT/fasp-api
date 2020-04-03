@@ -7,7 +7,7 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
-import cc.altius.FASP.model.ProgramProduct;
+import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
@@ -88,34 +88,34 @@ public class ProgramRestController {
         }
     }
 
-    @GetMapping("/programProduct/{programId}")
-    public ResponseEntity getProgramProductForProgram(@PathVariable("programId") int programId, Authentication auth) {
+    @GetMapping("/program/{programId}/planningUnit")
+    public ResponseEntity getPlanningUnitForProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            return new ResponseEntity(this.programService.getProgramProductListForProgramId(programId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getPlanningUnitListForProgramId(programId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list ProgramProduct", e);
+            logger.error("Error while trying to list PlanningUnit for Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
-            logger.error("Error while trying to list ProgramProduct", e);
+            logger.error("Error while trying to list PlanningUnit for Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            logger.error("Error while trying to list ProgramProduct", e);
+            logger.error("Error while trying to list PlanningUnit for Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @PutMapping("/programProduct")
-    public ResponseEntity saveProgramProductForProgram(@RequestBody ProgramProduct pp, Authentication auth) {
+    @PutMapping("/program/planningingUnit")
+    public ResponseEntity savePlanningUnitForProgram(@RequestBody ProgramPlanningUnit ppu, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            this.programService.saveProgramProduct(pp, curUser);
+            this.programService.saveProgramPlanningUnit(ppu, curUser);
             return new ResponseEntity("static.message.addSuccess", HttpStatus.OK);
         } catch (AccessDeniedException e) {
-            logger.error("Error while trying to update ProgramProduct", e);
+            logger.error("Error while trying to update PlanningUnit for Program", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.UNAUTHORIZED);
         } catch (Exception e) {
-            logger.error("Error while trying to update ProgramProduct", e);
+            logger.error("Error while trying to update PlanningUnit for Program", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

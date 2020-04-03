@@ -11,41 +11,41 @@ import java.io.Serializable;
  *
  * @author altius
  */
-public class Product extends BaseModel implements Serializable {
+public class ForecastingUnit extends BaseModel implements Serializable {
 
-    private int productId;
+    private int forecastingUnitId;
     private Realm realm;
     private Label genericLabel;
     private Label label;
     private ProductCategory productCategory;
-    private Unit forecastingUnit;
+    private TracerCategory tracerCategory;
 
-    public Product() {
+    public ForecastingUnit() {
     }
 
-    public Product(int productId, Label genericLabel, Label label) {
-        this.productId = productId;
+    public ForecastingUnit(int productId, Label genericLabel, Label label) {
+        this.forecastingUnitId = productId;
         this.genericLabel = genericLabel;
         this.label = label;
     }
 
-    public Product(int productId, Realm realm, Label genericLabel, Label label, ProductCategory productCategory, Unit forecastingUnit) {
-        this.productId = productId;
+    public ForecastingUnit(int productId, Realm realm, Label genericLabel, Label label, ProductCategory productCategory, TracerCategory tracerCategory) {
+        this.forecastingUnitId = productId;
         this.realm = realm;
         this.genericLabel = genericLabel;
         this.label = label;
         this.productCategory = productCategory;
-        this.forecastingUnit = forecastingUnit;
+        this.tracerCategory = tracerCategory;
+    }
+
+    public int getForecastingUnitId() {
+        return forecastingUnitId;
+    }
+
+    public void setForecastingUnitId(int forecastingUnitId) {
+        this.forecastingUnitId = forecastingUnitId;
     }
     
-    public int getProductId() {
-        return productId;
-    }
-
-    public void setProductId(int productId) {
-        this.productId = productId;
-    }
-
     public Realm getRealm() {
         return realm;
     }
@@ -78,18 +78,18 @@ public class Product extends BaseModel implements Serializable {
         this.productCategory = productCategory;
     }
 
-    public Unit getForecastingUnit() {
-        return forecastingUnit;
+    public TracerCategory getTracerCategory() {
+        return tracerCategory;
     }
 
-    public void setForecastingUnit(Unit forecastingUnit) {
-        this.forecastingUnit = forecastingUnit;
+    public void setTracerCategory(TracerCategory tracerCategory) {
+        this.tracerCategory = tracerCategory;
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 71 * hash + this.productId;
+        hash = 71 * hash + this.forecastingUnitId;
         return hash;
     }
 
@@ -104,8 +104,8 @@ public class Product extends BaseModel implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final Product other = (Product) obj;
-        if (this.productId != other.productId) {
+        final ForecastingUnit other = (ForecastingUnit) obj;
+        if (this.forecastingUnitId != other.forecastingUnitId) {
             return false;
         }
         return true;
@@ -113,6 +113,6 @@ public class Product extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "Product{" + "productId=" + productId + ", genericLabel=" + genericLabel + ", label=" + label + '}';
+        return "Product{" + "productId=" + forecastingUnitId + ", genericLabel=" + genericLabel + ", label=" + label + '}';
     }
 }

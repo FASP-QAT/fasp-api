@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.model.rowMapper;
+package cc.altius.FASP.model;
 
 import cc.altius.FASP.model.Label;
 import java.io.Serializable;
@@ -12,19 +12,18 @@ import java.io.Serializable;
  *
  * @author akil
  */
-public class SimpleProduct implements Serializable {
+public class SimplePlanningUnit implements Serializable {
 
-    private int productId;
+    private int planningUnitId;
     private Label label;
-    private int minMonth;
-    private int maxMonth;
+    private int reorderFrequencyInMonths;
 
-    public int getProductId() {
-        return productId;
+    public int getPlanningUnitId() {
+        return planningUnitId;
     }
 
-    public void setProductId(int productId) {
-        this.productId = productId;
+    public void setPlanningUnitId(int planningUnitId) {
+        this.planningUnitId = planningUnitId;
     }
 
     public Label getLabel() {
@@ -35,26 +34,18 @@ public class SimpleProduct implements Serializable {
         this.label = label;
     }
 
-    public int getMinMonth() {
-        return minMonth;
+    public int getReorderFrequencyInMonths() {
+        return reorderFrequencyInMonths;
     }
 
-    public void setMinMonth(int minMonth) {
-        this.minMonth = minMonth;
-    }
-
-    public int getMaxMonth() {
-        return maxMonth;
-    }
-
-    public void setMaxMonth(int maxMonth) {
-        this.maxMonth = maxMonth;
+    public void setReorderFrequencyInMonths(int reorderFrequencyInMonths) {
+        this.reorderFrequencyInMonths = reorderFrequencyInMonths;
     }
 
     @Override
     public int hashCode() {
         int hash = 7;
-        hash = 41 * hash + this.productId;
+        hash = 41 * hash + this.planningUnitId;
         return hash;
     }
 
@@ -69,8 +60,8 @@ public class SimpleProduct implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final SimpleProduct other = (SimpleProduct) obj;
-        if (this.productId != other.productId) {
+        final SimplePlanningUnit other = (SimplePlanningUnit) obj;
+        if (this.planningUnitId != other.planningUnitId) {
             return false;
         }
         return true;

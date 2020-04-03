@@ -30,6 +30,8 @@ public class RegionRowMapper implements RowMapper<Region> {
                         new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i), rs.getString("REALM_CODE"))
                 )
         );
+        r.setGln(rs.getString("GLN"));
+        r.setCapacityCbm(rs.getDouble("CAPACITY_CBM"));
         r.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return r;
     }

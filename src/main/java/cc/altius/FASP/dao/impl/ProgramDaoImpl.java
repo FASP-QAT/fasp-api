@@ -11,12 +11,12 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
 import cc.altius.FASP.model.Program;
-import cc.altius.FASP.model.ProgramProduct;
+import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.rowMapper.ProgramListResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.ProgramProductResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.SimpleProduct;
+import cc.altius.FASP.model.SimplePlanningUnit;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,6 +49,48 @@ public class ProgramDaoImpl implements ProgramDao {
         this.dataSource = dataSource;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
+
+    public String sqlListString = "SELECT  "
+            + "	p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_DRAFT_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME,  "
+            + "	p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.DELIVERED_TO_RECEIVED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
+            + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
+            + "     pl.LABEL_ID, pl.LABEL_EN, pl.LABEL_FR, pl.LABEL_PR, pl.LABEL_SP, "
+            + "	rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`, rc.SHIPPED_TO_ARRIVED_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_AIR_LEAD_TIME`, rc.SHIPPED_TO_ARRIVED_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_SEA_LEAD_TIME`, rc.ARRIVED_TO_DELIVERED_LEAD_TIME `REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME`, "
+            + "     rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
+            + "     c.COUNTRY_ID, c.COUNTRY_CODE,  "
+            + "     cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_PR `COUNTRY_LABEL_PR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, "
+            + "     cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD,  "
+            + "     cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
+            + "     o.ORGANISATION_ID, o.ORGANISATION_CODE, "
+            + "     ol.LABEL_ID `ORGANISATION_LABEL_ID`, ol.LABEL_EN `ORGANISATION_LABEL_EN`, ol.LABEL_FR `ORGANISATION_LABEL_FR`, ol.LABEL_PR `ORGANISATION_LABEL_PR`, ol.LABEL_SP `ORGANISATION_LABEL_SP`, "
+            + "     ha.HEALTH_AREA_ID, "
+            + "     hal.LABEL_ID `HEALTH_AREA_LABEL_ID`, hal.LABEL_EN `HEALTH_AREA_LABEL_EN`, hal.LABEL_FR `HEALTH_AREA_LABEL_FR`, hal.LABEL_PR `HEALTH_AREA_LABEL_PR`, hal.LABEL_SP `HEALTH_AREA_LABEL_SP`, "
+            + "     re.REGION_ID, "
+            + "     rel.LABEL_ID `REGION_LABEL_ID`, rel.LABEL_EN `REGION_LABEL_EN`, rel.LABEL_FR `REGION_LABEL_FR`, rel.LABEL_PR `REGION_LABEL_PR`, rel.LABEL_SP `REGION_LABEL_SP`, "
+            + "     u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `UNIT_LABEL_ID`, ul.LABEL_EN `UNIT_LABEL_EN`, ul.LABEL_FR `UNIT_LABEL_FR`, ul.LABEL_PR `UNIT_LABEL_PR`, ul.LABEL_SP `UNIT_LABEL_SP`, "
+            + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE "
+            + "FROM rm_program p  "
+            + "LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
+            + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+            + "LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
+            + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+            + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+            + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+            + "LEFT JOIN ap_currency cu ON rc.DEFAULT_CURRENCY_ID=cu.CURRENCY_ID "
+            + "LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
+            + "LEFT JOIN rm_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
+            + "LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
+            + "LEFT JOIN rm_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
+            + "LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
+            + "LEFT JOIN us_user pm ON p.PROGRAM_MANAGER_USER_ID=pm.USER_ID "
+            + "LEFT JOIN rm_program_region pr ON p.PROGRAM_ID=pr.PROGRAM_ID "
+            + "LEFT JOIN rm_region re ON pr.REGION_ID=re.REGION_ID "
+            + "LEFT JOIN ap_label rel ON re.LABEL_ID=rel.LABEL_ID "
+            + "LEFT JOIN ap_unit u ON rc.PALLET_UNIT_ID=u.UNIT_ID "
+            + "LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
+            + "LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID "
+            + "LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "WHERE TRUE ";
 
     @Override
     public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser) {
@@ -205,53 +247,12 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<Program> getProgramList(CustomUserDetails curUser) {
-        String sqlString = "SELECT  "
-                + "	p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_DRAFT_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME,  "
-                + "	p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.DELIVERED_TO_RECEIVED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
-                + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
-                + "     pl.LABEL_ID, pl.LABEL_EN, pl.LABEL_FR, pl.LABEL_PR, pl.LABEL_SP, "
-                + "	rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`, rc.SHIPPED_TO_ARRIVED_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_AIR_LEAD_TIME`, rc.SHIPPED_TO_ARRIVED_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_SEA_LEAD_TIME`, rc.ARRIVED_TO_DELIVERED_LEAD_TIME `REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME`, "
-                + "     rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
-                + "     c.COUNTRY_ID, c.COUNTRY_CODE,  "
-                + "     cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_PR `COUNTRY_LABEL_PR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, "
-                + "     cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD,  "
-                + "     cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
-                + "     o.ORGANISATION_ID, o.ORGANISATION_CODE, "
-                + "     ol.LABEL_ID `ORGANISATION_LABEL_ID`, ol.LABEL_EN `ORGANISATION_LABEL_EN`, ol.LABEL_FR `ORGANISATION_LABEL_FR`, ol.LABEL_PR `ORGANISATION_LABEL_PR`, ol.LABEL_SP `ORGANISATION_LABEL_SP`, "
-                + "     ha.HEALTH_AREA_ID, "
-                + "     hal.LABEL_ID `HEALTH_AREA_LABEL_ID`, hal.LABEL_EN `HEALTH_AREA_LABEL_EN`, hal.LABEL_FR `HEALTH_AREA_LABEL_FR`, hal.LABEL_PR `HEALTH_AREA_LABEL_PR`, hal.LABEL_SP `HEALTH_AREA_LABEL_SP`, "
-                + "     re.REGION_ID, "
-                + "     rel.LABEL_ID `REGION_LABEL_ID`, rel.LABEL_EN `REGION_LABEL_EN`, rel.LABEL_FR `REGION_LABEL_FR`, rel.LABEL_PR `REGION_LABEL_PR`, rel.LABEL_SP `REGION_LABEL_SP`, "
-                + "     u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `UNIT_LABEL_ID`, ul.LABEL_EN `UNIT_LABEL_EN`, ul.LABEL_FR `UNIT_LABEL_FR`, ul.LABEL_PR `UNIT_LABEL_PR`, ul.LABEL_SP `UNIT_LABEL_SP`, "
-                + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE "
-                + "FROM rm_program p  "
-                + "LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
-                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-                + "LEFT JOIN ap_currency cu ON rc.DEFAULT_CURRENCY_ID=cu.CURRENCY_ID "
-                + "LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
-                + "LEFT JOIN rm_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
-                + "LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
-                + "LEFT JOIN rm_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
-                + "LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
-                + "LEFT JOIN us_user pm ON p.PROGRAM_MANAGER_USER_ID=pm.USER_ID "
-                + "LEFT JOIN rm_program_region pr ON p.PROGRAM_ID=pr.PROGRAM_ID "
-                + "LEFT JOIN rm_region re ON pr.REGION_ID=re.REGION_ID "
-                + "LEFT JOIN ap_label rel ON re.LABEL_ID=rel.LABEL_ID "
-                + "LEFT JOIN ap_unit u ON rc.PALLET_UNIT_ID=u.UNIT_ID "
-                + "LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
-                + "LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE TRUE ";
+        String sqlString = this.sqlListString;
         Map<String, Object> params = new HashMap<>();
         if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND rc.REALM_ID=:userRealmId ";
+            sqlString += " AND rc.REALM_ID=:userRealmId ";
             params.put("userRealmId", curUser.getRealm().getRealmId());
         }
-
         int count = 1;
         for (UserAcl acl : curUser.getAclList()) {
             sqlString += "AND ("
@@ -271,47 +272,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<Program> getProgramList(int realmId, CustomUserDetails curUser) {
-        String sqlString = "SELECT  "
-                + "	p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_DRAFT_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME,  "
-                + "	p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.DELIVERED_TO_RECEIVED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
-                + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
-                + "     pl.LABEL_ID, pl.LABEL_EN, pl.LABEL_FR, pl.LABEL_PR, pl.LABEL_SP, "
-                + "	rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`, rc.SHIPPED_TO_ARRIVED_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_AIR_LEAD_TIME`, rc.SHIPPED_TO_ARRIVED_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_SEA_LEAD_TIME`, rc.ARRIVED_TO_DELIVERED_LEAD_TIME `REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME`, "
-                + "     rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
-                + "     c.COUNTRY_ID, c.COUNTRY_CODE,  "
-                + "     cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_PR `COUNTRY_LABEL_PR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, "
-                + "     cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD,  "
-                + "     cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
-                + "     o.ORGANISATION_ID, o.ORGANISATION_CODE, "
-                + "     ol.LABEL_ID `ORGANISATION_LABEL_ID`, ol.LABEL_EN `ORGANISATION_LABEL_EN`, ol.LABEL_FR `ORGANISATION_LABEL_FR`, ol.LABEL_PR `ORGANISATION_LABEL_PR`, ol.LABEL_SP `ORGANISATION_LABEL_SP`, "
-                + "     ha.HEALTH_AREA_ID, "
-                + "     hal.LABEL_ID `HEALTH_AREA_LABEL_ID`, hal.LABEL_EN `HEALTH_AREA_LABEL_EN`, hal.LABEL_FR `HEALTH_AREA_LABEL_FR`, hal.LABEL_PR `HEALTH_AREA_LABEL_PR`, hal.LABEL_SP `HEALTH_AREA_LABEL_SP`, "
-                + "     re.REGION_ID, "
-                + "     rel.LABEL_ID `REGION_LABEL_ID`, rel.LABEL_EN `REGION_LABEL_EN`, rel.LABEL_FR `REGION_LABEL_FR`, rel.LABEL_PR `REGION_LABEL_PR`, rel.LABEL_SP `REGION_LABEL_SP`, "
-                + "     u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `UNIT_LABEL_ID`, ul.LABEL_EN `UNIT_LABEL_EN`, ul.LABEL_FR `UNIT_LABEL_FR`, ul.LABEL_PR `UNIT_LABEL_PR`, ul.LABEL_SP `UNIT_LABEL_SP`, "
-                + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE "
-                + "FROM rm_program p  "
-                + "LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
-                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-                + "LEFT JOIN ap_currency cu ON rc.DEFAULT_CURRENCY_ID=cu.CURRENCY_ID "
-                + "LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
-                + "LEFT JOIN rm_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
-                + "LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
-                + "LEFT JOIN rm_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
-                + "LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
-                + "LEFT JOIN us_user pm ON p.PROGRAM_MANAGER_USER_ID=pm.USER_ID "
-                + "LEFT JOIN rm_program_region pr ON p.PROGRAM_ID=pr.PROGRAM_ID "
-                + "LEFT JOIN rm_region re ON pr.REGION_ID=re.REGION_ID "
-                + "LEFT JOIN ap_label rel ON re.LABEL_ID=rel.LABEL_ID "
-                + "LEFT JOIN ap_unit u ON rc.PALLET_UNIT_ID=u.UNIT_ID "
-                + "LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
-                + "LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE TRUE AND rc.REALM_ID=:realmId ";
+        String sqlString = this.sqlListString + " AND rc.REALM_ID=:realmId ";
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         if (curUser.getRealm().getRealmId() != -1) {
@@ -335,47 +296,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public Program getProgramById(int programId, CustomUserDetails curUser) {
-        String sqlString = "SELECT  "
-                + "	p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_DRAFT_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME,  "
-                + "	p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.DELIVERED_TO_RECEIVED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
-                + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
-                + "     pl.LABEL_ID, pl.LABEL_EN, pl.LABEL_FR, pl.LABEL_PR, pl.LABEL_SP, "
-                + "	rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`, rc.SHIPPED_TO_ARRIVED_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_AIR_LEAD_TIME`, rc.SHIPPED_TO_ARRIVED_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_SEA_LEAD_TIME`, rc.ARRIVED_TO_DELIVERED_LEAD_TIME `REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME`, "
-                + "     rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
-                + "     c.COUNTRY_ID, c.COUNTRY_CODE,  "
-                + "     cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_PR `COUNTRY_LABEL_PR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, "
-                + "     cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD,  "
-                + "     cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
-                + "     o.ORGANISATION_ID, o.ORGANISATION_CODE, "
-                + "     ol.LABEL_ID `ORGANISATION_LABEL_ID`, ol.LABEL_EN `ORGANISATION_LABEL_EN`, ol.LABEL_FR `ORGANISATION_LABEL_FR`, ol.LABEL_PR `ORGANISATION_LABEL_PR`, ol.LABEL_SP `ORGANISATION_LABEL_SP`, "
-                + "     ha.HEALTH_AREA_ID, "
-                + "     hal.LABEL_ID `HEALTH_AREA_LABEL_ID`, hal.LABEL_EN `HEALTH_AREA_LABEL_EN`, hal.LABEL_FR `HEALTH_AREA_LABEL_FR`, hal.LABEL_PR `HEALTH_AREA_LABEL_PR`, hal.LABEL_SP `HEALTH_AREA_LABEL_SP`, "
-                + "     re.REGION_ID, "
-                + "     rel.LABEL_ID `REGION_LABEL_ID`, rel.LABEL_EN `REGION_LABEL_EN`, rel.LABEL_FR `REGION_LABEL_FR`, rel.LABEL_PR `REGION_LABEL_PR`, rel.LABEL_SP `REGION_LABEL_SP`, "
-                + "     u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `UNIT_LABEL_ID`, ul.LABEL_EN `UNIT_LABEL_EN`, ul.LABEL_FR `UNIT_LABEL_FR`, ul.LABEL_PR `UNIT_LABEL_PR`, ul.LABEL_SP `UNIT_LABEL_SP`, "
-                + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE "
-                + "FROM rm_program p  "
-                + "LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
-                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-                + "LEFT JOIN ap_currency cu ON rc.DEFAULT_CURRENCY_ID=cu.CURRENCY_ID "
-                + "LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
-                + "LEFT JOIN rm_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
-                + "LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
-                + "LEFT JOIN rm_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
-                + "LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
-                + "LEFT JOIN us_user pm ON p.PROGRAM_MANAGER_USER_ID=pm.USER_ID "
-                + "LEFT JOIN rm_program_region pr ON p.PROGRAM_ID=pr.PROGRAM_ID "
-                + "LEFT JOIN rm_region re ON pr.REGION_ID=re.REGION_ID "
-                + "LEFT JOIN ap_label rel ON re.LABEL_ID=rel.LABEL_ID "
-                + "LEFT JOIN ap_unit u ON rc.PALLET_UNIT_ID=u.UNIT_ID "
-                + "LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
-                + "LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE TRUE AND p.PROGRAM_ID=:programId ";
+        String sqlString = this.sqlListString + " AND p.PROGRAM_ID=:programId ";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         if (curUser.getRealm().getRealmId() != -1) {
@@ -398,38 +319,37 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public ProgramProduct getProgramProductListForProgramId(int programId, CustomUserDetails curUser) {
-        String sqlString = "SELECT pp.PROGRAM_PRODUCT_ID,  "
+    public ProgramPlanningUnit getPlanningUnitListForProgramId(int programId, CustomUserDetails curUser) {
+        String sqlString = "SELECT ppu.PROGRAM_PLANNING_UNIT_ID,  "
                 + "pg.PROGRAM_ID, pgl.LABEL_ID, pgl.LABEL_EN, pgl.LABEL_FR, pgl.LABEL_PR, pgl.LABEL_SP, "
-                + "pr.PRODUCT_ID, prl.LABEL_ID `PRODUCT_LABEL_ID`, prl.LABEL_EN `PRODUCT_LABEL_EN`, prl.LABEL_FR `PRODUCT_LABEL_FR`, prl.LABEL_PR `PRODUCT_LABEL_PR`, prl.LABEL_SP `PRODUCT_LABEL_SP`, "
-                + "pp.MAX_MONTHS, pp.MIN_MONTHS "
+                + "pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
+                + "ppu.REORDER_FREQUENCY_IN_MONTHS "
                 + "FROM rm_program pg  "
-                + "LEFT JOIN  rm_program_product pp  ON pp.PROGRAM_ID=pg.PROGRAM_ID "
                 + "LEFT JOIN ap_label pgl ON pgl.LABEL_ID=pg.LABEL_ID "
-                + "LEFT JOIN rm_product pr ON pp.PRODUCT_ID=pr.PRODUCT_ID "
-                + "LEFT JOIN ap_label prl ON pr.LABEL_ID=prl.LABEL_ID "
+                + "LEFT JOIN rm_program_planning_unit ppu  ON pg.PROGRAM_ID=ppu.PROGRAM_ID "
+                + "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
                 + "WHERE pg.PROGRAM_ID=:programId";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramProductResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramPlanningUnitResultSetExtractor());
     }
 
     @Override
-    public int saveProgramProduct(ProgramProduct pp, CustomUserDetails curUser) {
-        String sqlString = "DELETE pp.* FROM rm_program_product pp WHERE pp.PROGRAM_ID=:programId";
+    public int saveProgramPlanningUnit(ProgramPlanningUnit ppu, CustomUserDetails curUser) {
+        String sqlString = "DELETE ppu.* FROM rm_program_planning_unit ppu WHERE ppu.PROGRAM_ID=:programId";
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("programId", pp.getProgramId());
+        params.put("programId", ppu.getProgramId());
         this.namedParameterJdbcTemplate.update(sqlString, params);
-        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_product");
-        Map<String, Object>[] paramArray = new HashMap[pp.getProdcuts().length];
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_planning_unit");
+        Map<String, Object>[] paramArray = new HashMap[ppu.getPlanningUnits().length];
         int x = 0;
-        for (SimpleProduct sp : pp.getProdcuts()) {
+        for (SimplePlanningUnit sp : ppu.getPlanningUnits()) {
             params = new HashMap<>();
-            params.put("PROGRAM_ID", pp.getProgramId());
-            params.put("PRODUCT_ID", sp.getProductId());
-            params.put("MIN_MONTHS", sp.getMinMonth());
-            params.put("MAX_MONTHS", sp.getMaxMonth());
+            params.put("PROGRAM_ID", ppu.getProgramId());
+            params.put("PLANNING_UNIT_ID", sp.getPlanningUnitId());
+            params.put("REORDER_FREQUENCY_IN_MONTHS", sp.getReorderFrequencyInMonths());
             params.put("ACTIVE", true);
             params.put("CREATED_DATE", curDate);
             params.put("CREATED_BY", curUser.getUserId());
@@ -443,54 +363,13 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<Program> getProgramListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        String sqlString = "SELECT  "
-                + "	p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_DRAFT_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME,  "
-                + "	p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.DELIVERED_TO_RECEIVED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
-                + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
-                + "     pl.LABEL_ID, pl.LABEL_EN, pl.LABEL_FR, pl.LABEL_PR, pl.LABEL_SP, "
-                + "	rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`, rc.SHIPPED_TO_ARRIVED_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_AIR_LEAD_TIME`, rc.SHIPPED_TO_ARRIVED_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_SEA_LEAD_TIME`, rc.ARRIVED_TO_DELIVERED_LEAD_TIME `REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME`, "
-                + "     rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
-                + "     c.COUNTRY_ID, c.COUNTRY_CODE,  "
-                + "     cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_PR `COUNTRY_LABEL_PR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, "
-                + "     cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD,  "
-                + "     cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
-                + "     o.ORGANISATION_ID, o.ORGANISATION_CODE, "
-                + "     ol.LABEL_ID `ORGANISATION_LABEL_ID`, ol.LABEL_EN `ORGANISATION_LABEL_EN`, ol.LABEL_FR `ORGANISATION_LABEL_FR`, ol.LABEL_PR `ORGANISATION_LABEL_PR`, ol.LABEL_SP `ORGANISATION_LABEL_SP`, "
-                + "     ha.HEALTH_AREA_ID, "
-                + "     hal.LABEL_ID `HEALTH_AREA_LABEL_ID`, hal.LABEL_EN `HEALTH_AREA_LABEL_EN`, hal.LABEL_FR `HEALTH_AREA_LABEL_FR`, hal.LABEL_PR `HEALTH_AREA_LABEL_PR`, hal.LABEL_SP `HEALTH_AREA_LABEL_SP`, "
-                + "     re.REGION_ID, "
-                + "     rel.LABEL_ID `REGION_LABEL_ID`, rel.LABEL_EN `REGION_LABEL_EN`, rel.LABEL_FR `REGION_LABEL_FR`, rel.LABEL_PR `REGION_LABEL_PR`, rel.LABEL_SP `REGION_LABEL_SP`, "
-                + "     u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `UNIT_LABEL_ID`, ul.LABEL_EN `UNIT_LABEL_EN`, ul.LABEL_FR `UNIT_LABEL_FR`, ul.LABEL_PR `UNIT_LABEL_PR`, ul.LABEL_SP `UNIT_LABEL_SP`, "
-                + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE "
-                + "FROM rm_program p  "
-                + "LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
-                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-                + "LEFT JOIN ap_currency cu ON rc.DEFAULT_CURRENCY_ID=cu.CURRENCY_ID "
-                + "LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
-                + "LEFT JOIN rm_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
-                + "LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
-                + "LEFT JOIN rm_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
-                + "LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
-                + "LEFT JOIN us_user pm ON p.PROGRAM_MANAGER_USER_ID=pm.USER_ID "
-                + "LEFT JOIN rm_program_region pr ON p.PROGRAM_ID=pr.PROGRAM_ID "
-                + "LEFT JOIN rm_region re ON pr.REGION_ID=re.REGION_ID "
-                + "LEFT JOIN ap_label rel ON re.LABEL_ID=rel.LABEL_ID "
-                + "LEFT JOIN ap_unit u ON rc.PALLET_UNIT_ID=u.UNIT_ID "
-                + "LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
-                + "LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE p.LAST_MODIFIED_DATE>:lastSyncDate ";
+        String sqlString = this.sqlListString + " AND p.LAST_MODIFIED_DATE>:lastSyncDate ";
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         if (curUser.getRealm().getRealmId() != -1) {
             sqlString += "AND rc.REALM_ID=:userRealmId ";
             params.put("userRealmId", curUser.getRealm().getRealmId());
         }
-
         int count = 1;
         for (UserAcl acl : curUser.getAclList()) {
             sqlString += "AND ("
@@ -505,7 +384,5 @@ public class ProgramDaoImpl implements ProgramDao {
         }
         return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramListResultSetExtractor());
     }
-    
-    
 
 }

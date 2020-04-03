@@ -607,6 +607,7 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_region` (
   `REALM_COUNTRY_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key to indicate which Realm and Country this Level belongs to',
   `LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',
   `CAPACITY_CBM` DECIMAL(14,4) NULL COMMENT 'Cuibic meters of Warehouse capacity, not a compulsory field',
+  `GLN` VARCHAR(45) NULL,
   `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1 COMMENT 'If True indicates this Level is Active. False indicates this Level has been De-activated',
   `CREATED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Created by',
   `CREATED_DATE` DATETIME NULL COMMENT 'Created date',
@@ -2028,9 +2029,8 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_inventory` (
   `INVENTORY_DATE` DATE NOT NULL COMMENT 'Date this Inventory record is for',
   `PROGRAM_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that indicates which Program this record is for',
   `REGION_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that indicates the Region that this record is for',
-  `LOGISTICS_UNIT_ID` INT(10) UNSIGNED NULL COMMENT 'Foreign key that indicates which Logistics Id the Inventory is for',
+  `SKU_CODE` VARCHAR(50) NULL COMMENT 'Foreign key that indicates which Logistics Id the Inventory is for',
   `PLANNING_UNIT_ID` INT(10) UNSIGNED NULL COMMENT 'Foreign key that indicates which Planning Id this Inventory maps to',
-  `PACK_SIZE` DECIMAL(12,2) UNSIGNED NULL COMMENT 'Quantity of items in this unit versus the Forecasting Unit Id',
   `ACTUAL_QTY` DECIMAL(12,2) UNSIGNED NULL COMMENT 'Inventory could be in two ways actual count or adjustment to running balance. If Actual Qty is provided use that or else do a running balance on Adjustment Qty',
   `ADJUSTMENT_QTY` DECIMAL(12,2) NULL COMMENT 'Inventory could be in two ways actual count or adjustment to running balance. If Actual Qty is provided use that or else do a running balance on Adjustment Qty',
   `BATCH_NO` VARCHAR(25) NULL COMMENT 'Batch no of the record that the data is for, can only be provided when a full stock count is being taken',
@@ -2049,11 +2049,6 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_inventory` (
   CONSTRAINT `fk_inventory_regionId`
     FOREIGN KEY (`REGION_ID`)
     REFERENCES `fasp`.`rm_region` (`REGION_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_inventory_logisticsUnitId`
-    FOREIGN KEY (`LOGISTICS_UNIT_ID`)
-    REFERENCES `fasp`.`rm_procurement_unit` (`PROCUREMENT_UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_inventory_planningUnitId`
@@ -2083,8 +2078,6 @@ CREATE INDEX `fk_inventory_programId_idx` ON `fasp`.`rm_inventory` (`PROGRAM_ID`
 
 CREATE INDEX `fk_inventory_regionId_idx` ON `fasp`.`rm_inventory` (`REGION_ID` ASC);
 
-CREATE INDEX `fk_inventory_logisticsUnitId_idx` ON `fasp`.`rm_inventory` (`LOGISTICS_UNIT_ID` ASC);
-
 CREATE INDEX `fk_inventory_planningUnitId_idx` ON `fasp`.`rm_inventory` (`PLANNING_UNIT_ID` ASC);
 
 CREATE INDEX `fk_inventory_dataSourceId_idx` ON `fasp`.`rm_inventory` (`DATA_SOURCE_ID` ASC);
@@ -2103,12 +2096,12 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_consumption` (
   `CONSUMPTION_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each Consumption that is entered',
   `PROGRAM_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that indicates which Program this record is for',
   `REGION_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that indicates the Region that this record is for',
-  `LOGISTICS_UNIT_ID` INT(10) UNSIGNED NULL COMMENT 'Foreign key that indicates which Logistics Id the Inventory is for',
+  `SKU_CODE` VARCHAR(50) NULL COMMENT 'Foreign key that indicates which Logistics Id the Inventory is for',
   `PLANNING_UNIT_ID` INT(10) UNSIGNED NULL COMMENT 'Foreign key that indicates which Planning Id this Consumption maps to',
-  `PACK_SIZE` DECIMAL(12,2) NULL COMMENT 'Quantity of items in this unit versus the Forecasting Unit Id',
   `CONSUMPTION_QTY` DECIMAL(12,2) NOT NULL COMMENT 'Consumption qty',
   `START_DATE` DATE NOT NULL COMMENT 'Consumption start date',
   `STOP_DATE` DATE NOT NULL COMMENT 'Consumption stop date',
+  `ACTUAL_FLAG` TINYINT(1) UNSIGNED NOT NULL,
   `DAYS_OF_STOCK_OUT` INT(10) UNSIGNED NOT NULL DEFAULT 0 COMMENT 'Days that we were out of stock in the particular Region for this Product',
   `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Source of the Consumption, Could be Forecasted or Actual',
   `CREATED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Created by',
@@ -2129,11 +2122,6 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_consumption` (
   CONSTRAINT `fk_consumption_planningUnitId`
     FOREIGN KEY (`PLANNING_UNIT_ID`)
     REFERENCES `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_consumption_logisticsUnitId`
-    FOREIGN KEY (`LOGISTICS_UNIT_ID`)
-    REFERENCES `fasp`.`rm_procurement_unit` (`PROCUREMENT_UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_consumption_dataSourceId`
@@ -2160,8 +2148,6 @@ CREATE INDEX `fk_consumption_regionId_idx` ON `fasp`.`rm_consumption` (`REGION_I
 
 CREATE INDEX `fk_consumption_planningUnitId_idx` ON `fasp`.`rm_consumption` (`PLANNING_UNIT_ID` ASC);
 
-CREATE INDEX `fk_consumption_logisticsUnitId_idx` ON `fasp`.`rm_consumption` (`LOGISTICS_UNIT_ID` ASC);
-
 CREATE INDEX `fk_consumption_dataSourceId_idx` ON `fasp`.`rm_consumption` (`DATA_SOURCE_ID` ASC);
 
 CREATE INDEX `fk_consumption_createdBy_idx` ON `fasp`.`rm_consumption` (`CREATED_BY` ASC);
@@ -2178,12 +2164,13 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_shipment` (
   `SHIPMENT_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Shipment Id for each Shipment',
   `PROGRAM_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that indicates which Program this record is for',
   `REGION_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that indicates the Region that this record is for',
-  `PRODUCT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that indicates which Product this record is for',
-  `SUGGESTED_PLANNED_DATE` DATE NOT NULL COMMENT 'Date that the System is suggesting we need to Plan the shipment based on Lead times',
+  `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key that indicates which Product this record is for',
+  `EXPECTED_DELIVERY_DATE` DATE NOT NULL COMMENT 'Date that the System is suggesting we need to Plan the shipment based on Lead times',
   `SUGGESTED_QTY` DECIMAL(12,2) UNSIGNED NOT NULL COMMENT 'Suggested qty for this Shipment, in terms of Forecasting unit',
-  `LOGISTICS_UNIT_ID` INT(10) UNSIGNED NULL COMMENT 'Foreign key that indicates which Logistics Id the shipment is for. This will be filled out once we have concluded on the order',
-  `QTY` DECIMAL(12,2) UNSIGNED NULL COMMENT 'Qty of Logistics Unit in the Shipment',
   `PROCUREMENT_AGENT_ID` INT(10) UNSIGNED NULL COMMENT 'Foreign key that indicates which Procurement Agent this shipment belongs to',
+  `PROCUREMENT_UNIT_ID` INT(10) UNSIGNED NULL COMMENT 'Foreign key that indicates which Logistics Id the shipment is for. This will be filled out once we have concluded on the order',
+  `SUPPLIER_ID` INT(10) NULL,
+  `QTY` DECIMAL(12,2) UNSIGNED NULL COMMENT 'Qty of Logistics Unit in the Shipment',
   `PO_RO_NUMBER` VARCHAR(50) NULL COMMENT 'PO / RO number for the shipment',
   `SHIPMENT_PRICE` DECIMAL(12,2) UNSIGNED NULL COMMENT 'Final price of the Shipment for the Goods',
   `FREIGHT_PRICE` DECIMAL(12,2) UNSIGNED NULL COMMENT 'Cost of Freight for the Shipment',
@@ -2194,6 +2181,8 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_shipment` (
   `SHIPMENT_STATUS_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Shipment Status Id',
   `NOTES` TEXT(255) NOT NULL COMMENT 'Notes for this Shipment',
   `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Source of the Inventory',
+  `ACCOUNT_FLAG` TINYINT(1) UNSIGNED NOT NULL,
+  `ERP_FLAG` TINYINT(1) UNSIGNED NOT NULL,
   `CREATED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Created by',
   `CREATED_DATE` DATETIME NOT NULL COMMENT 'Created date',
   `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL COMMENT 'Last Modified by',
@@ -2207,11 +2196,6 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_shipment` (
   CONSTRAINT `fk_shipment_regionId`
     FOREIGN KEY (`REGION_ID`)
     REFERENCES `fasp`.`rm_region` (`REGION_ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_shipment_logisticsUnitId`
-    FOREIGN KEY (`LOGISTICS_UNIT_ID`)
-    REFERENCES `fasp`.`rm_procurement_unit` (`PROCUREMENT_UNIT_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_shipment_dataSourceId`
@@ -2245,8 +2229,6 @@ COMMENT = 'Table used to list all the Shipments\nNote: Complete Shipment dump, d
 CREATE INDEX `fk_shipment_programId_idx` ON `fasp`.`rm_shipment` (`PROGRAM_ID` ASC);
 
 CREATE INDEX `fk_shipment_regionId_idx` ON `fasp`.`rm_shipment` (`REGION_ID` ASC);
-
-CREATE INDEX `fk_shipment_logisticsUnitId_idx` ON `fasp`.`rm_shipment` (`LOGISTICS_UNIT_ID` ASC);
 
 CREATE INDEX `fk_shipment_dataSourceId_idx` ON `fasp`.`rm_shipment` (`DATA_SOURCE_ID` ASC);
 
@@ -3082,9 +3064,9 @@ COMMIT;
 -- -----------------------------------------------------
 START TRANSACTION;
 USE `fasp`;
-INSERT INTO `fasp`.`rm_region` (`REGION_ID`, `REALM_COUNTRY_ID`, `LABEL_ID`, `CAPACITY_CBM`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 41, 40000, 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
-INSERT INTO `fasp`.`rm_region` (`REGION_ID`, `REALM_COUNTRY_ID`, `LABEL_ID`, `CAPACITY_CBM`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 2, 42, 18000, 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
-INSERT INTO `fasp`.`rm_region` (`REGION_ID`, `REALM_COUNTRY_ID`, `LABEL_ID`, `CAPACITY_CBM`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 2, 43, 13500, 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
+INSERT INTO `fasp`.`rm_region` (`REGION_ID`, `REALM_COUNTRY_ID`, `LABEL_ID`, `CAPACITY_CBM`, `GLN`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, 1, 41, 40000, NULL, 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
+INSERT INTO `fasp`.`rm_region` (`REGION_ID`, `REALM_COUNTRY_ID`, `LABEL_ID`, `CAPACITY_CBM`, `GLN`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (2, 2, 42, 18000, NULL, 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
+INSERT INTO `fasp`.`rm_region` (`REGION_ID`, `REALM_COUNTRY_ID`, `LABEL_ID`, `CAPACITY_CBM`, `GLN`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (3, 2, 43, 13500, NULL, 1, 1, '2020-02-20 12:00:00', 1, '2020-02-20 12:00:00');
 
 COMMIT;
 

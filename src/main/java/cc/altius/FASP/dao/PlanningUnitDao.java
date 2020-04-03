@@ -5,7 +5,8 @@
  */
 package cc.altius.FASP.dao;
 
-import cc.altius.FASP.model.DTO.PrgPlanningUnitDTO;
+import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.PlanningUnit;
 import java.util.List;
 
 /**
@@ -14,6 +15,18 @@ import java.util.List;
  */
 public interface PlanningUnitDao {
     
-    public List<PrgPlanningUnitDTO> getPlanningUnitListForSync(String lastSyncDate,int realmId);
+    public List<PlanningUnit> getPlanningUnitList(boolean active, CustomUserDetails curUser);
+
+    public List<PlanningUnit> getPlanningUnitList(int realmId, boolean active, CustomUserDetails curUser);
+    
+    public List<PlanningUnit> getPlanningUnitListByForecastingUnit(int forecastingUnitId, boolean active, CustomUserDetails curUser);
+
+    public int addPlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser);
+
+    public int updatePlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser);
+
+    public PlanningUnit getPlanningUnitById(int planningUnitId, CustomUserDetails curUser);
+
+    public List<PlanningUnit> getPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
     
 }

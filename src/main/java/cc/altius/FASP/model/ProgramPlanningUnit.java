@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.model.rowMapper.SimpleProduct;
 import java.io.Serializable;
 import java.util.List;
 
@@ -13,12 +12,12 @@ import java.util.List;
  *
  * @author akil
  */
-public class ProgramProduct implements Serializable {
+public class ProgramPlanningUnit implements Serializable {
 
     private int programId;
     private Label label;
-    private SimpleProduct[] prodcuts;
-    private List<SimpleProduct> productList;
+    private SimplePlanningUnit[] planningUnits;
+    private List<SimplePlanningUnit> planningUnitList;
 
     public int getProgramId() {
         return programId;
@@ -36,20 +35,20 @@ public class ProgramProduct implements Serializable {
         this.label = label;
     }
 
-    public SimpleProduct[] getProdcuts() {
-        return prodcuts;
+    public SimplePlanningUnit[] getPlanningUnits() {
+        return planningUnits;
     }
 
-    public void setProdcuts(SimpleProduct[] prodcuts) {
-        this.prodcuts = prodcuts;
+    public void setPlanningUnits(SimplePlanningUnit[] planningUnits) {
+        this.planningUnits = planningUnits;
     }
 
-    public List<SimpleProduct> getProductList() {
-        return productList;
+    public List<SimplePlanningUnit> getPlanningUnitList() {
+        return planningUnitList;
     }
 
-    public void setProductList(List<SimpleProduct> productList) {
-        this.productList = productList;
+    public void setPlanningUnitList(List<SimplePlanningUnit> planningUnitList) {
+        this.planningUnitList = planningUnitList;
     }
     
 }

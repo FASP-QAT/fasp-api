@@ -6,7 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.Product;
+import cc.altius.FASP.model.ForecastingUnit;
 import java.util.List;
 
 /**
@@ -15,11 +15,11 @@ import java.util.List;
  */
 public interface ProductInterface {
 
-    public List<Product> getProductList(boolean active, CustomUserDetails curUser);
+    public List<ForecastingUnit> getProductList(boolean active, CustomUserDetails curUser);
 
-    public int addProduct(Product product, CustomUserDetails curUser);
+    public int addProduct(ForecastingUnit product, CustomUserDetails curUser);
 
-    public int updateProduct(Product product, CustomUserDetails curUser);
+    public int updateProduct(ForecastingUnit product, CustomUserDetails curUser);
 
-    public Product getProductById(int productId, CustomUserDetails curUser);
+    public ForecastingUnit getProductById(int productId, CustomUserDetails curUser);
 }

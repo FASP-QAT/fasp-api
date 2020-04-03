@@ -14,6 +14,8 @@ public class Region extends BaseModel {
     private int regionId;
     private Label label;
     private RealmCountry realmCountry;
+    private String gln;
+    private Double capacityCbm;
 
     public Region() {
     }
@@ -51,6 +53,22 @@ public class Region extends BaseModel {
 
     public void setRealmCountry(RealmCountry realmCountry) {
         this.realmCountry = realmCountry;
+    }
+
+    public String getGln() {
+        return gln;
+    }
+
+    public void setGln(String gln) {
+        this.gln = gln;
+    }
+
+    public Double getCapacityCbm() {
+        return capacityCbm;
+    }
+
+    public void setCapacityCbm(Double capacityCbm) {
+        this.capacityCbm = capacityCbm;
     }
 
     @Override
