@@ -380,7 +380,7 @@ public class UserDaoImpl implements UserDao {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sqlString = "";
         sqlString = "UPDATE us_user u "
-                + "SET u.`REALM_ID`=:realmId, "
+                + "SET "
                 + "u.`USERNAME`=:userName, "
                 + "u.`EMAIL_ID`=:emailId, "
                 + "u.`PHONE`=:phoneNo, "
@@ -390,7 +390,6 @@ public class UserDaoImpl implements UserDao {
                 + "u.`LAST_MODIFIED_DATE`=:lastModifiedDate "
                 + "WHERE  u.`USER_ID`=:userId;";
         Map<String, Object> params = new HashMap<>();
-        params.put("realmId", user.getRealm().getRealmId());
         params.put("userName", user.getUsername());
         params.put("emailId", user.getEmailId());
         params.put("phoneNo", user.getPhoneNumber());

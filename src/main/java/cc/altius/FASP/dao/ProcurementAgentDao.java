@@ -7,6 +7,7 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementAgent;
+import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
 import java.util.List;
 
 /**
@@ -24,6 +25,10 @@ public interface ProcurementAgentDao {
     public int updateProcurementAgent(ProcurementAgent procurementAgent, CustomUserDetails curUser);
 
     public ProcurementAgent getProcurementAgentById(int procurementAgentId, CustomUserDetails curUser);
+    
+    public ProcurementAgentPlanningUnit getProcurementAgentPlanningUnitList(int procurementAgentId, CustomUserDetails curUser);
+    
+    public int saveProcurementAgentPlanningUnit(ProcurementAgentPlanningUnit papu, CustomUserDetails curUser);
     
     public List<ProcurementAgent> getProcurementAgentListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

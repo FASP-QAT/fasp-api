@@ -14,9 +14,9 @@ import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.rowMapper.ProgramListResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.PlanningUnitForProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
-import cc.altius.FASP.model.SimplePlanningUnit;
+import cc.altius.FASP.model.PlanningUnitForProgramMapping;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -332,7 +332,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "WHERE pg.PROGRAM_ID=:programId";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramPlanningUnitResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new PlanningUnitForProgramResultSetExtractor());
     }
 
     @Override
@@ -345,7 +345,7 @@ public class ProgramDaoImpl implements ProgramDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_planning_unit");
         Map<String, Object>[] paramArray = new HashMap[ppu.getPlanningUnits().length];
         int x = 0;
-        for (SimplePlanningUnit sp : ppu.getPlanningUnits()) {
+        for (PlanningUnitForProgramMapping sp : ppu.getPlanningUnits()) {
             params = new HashMap<>();
             params.put("PROGRAM_ID", ppu.getProgramId());
             params.put("PLANNING_UNIT_ID", sp.getPlanningUnitId());

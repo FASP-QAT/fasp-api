@@ -16,8 +16,8 @@ public class ProgramPlanningUnit implements Serializable {
 
     private int programId;
     private Label label;
-    private SimplePlanningUnit[] planningUnits;
-    private List<SimplePlanningUnit> planningUnitList;
+    private PlanningUnitForProgramMapping[] planningUnits;
+    private List<PlanningUnitForProgramMapping> planningUnitList;
 
     public int getProgramId() {
         return programId;
@@ -35,19 +35,19 @@ public class ProgramPlanningUnit implements Serializable {
         this.label = label;
     }
 
-    public SimplePlanningUnit[] getPlanningUnits() {
+    public PlanningUnitForProgramMapping[] getPlanningUnits() {
         return planningUnits;
     }
 
-    public void setPlanningUnits(SimplePlanningUnit[] planningUnits) {
+    public void setPlanningUnits(PlanningUnitForProgramMapping[] planningUnits) {
         this.planningUnits = planningUnits;
     }
 
-    public List<SimplePlanningUnit> getPlanningUnitList() {
+    public List<PlanningUnitForProgramMapping> getPlanningUnitList() {
         return planningUnitList;
     }
 
-    public void setPlanningUnitList(List<SimplePlanningUnit> planningUnitList) {
+    public void setPlanningUnitList(List<PlanningUnitForProgramMapping> planningUnitList) {
         this.planningUnitList = planningUnitList;
     }
     

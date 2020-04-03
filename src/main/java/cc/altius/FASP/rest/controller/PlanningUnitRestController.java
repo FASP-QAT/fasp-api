@@ -34,8 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class PlanningUnitRestController {
-    
-private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
     private PlanningUnitService planningUnitService;
@@ -123,6 +123,6 @@ private final Logger logger = LoggerFactory.getLogger(this.getClass());
             logger.error("Error while listing planningUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }    
-    
+    }
+
 }
