@@ -141,7 +141,7 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
     @Override
     public ForecastingUnit getForecastingUnitById(int forecastingUnitId, CustomUserDetails curUser) {
         String sqlString = sqlListString;
-        sqlListString += " AND fu.FORECASTING_UNIT_ID=:forecastingUnitId ";
+        sqlString += " AND fu.FORECASTING_UNIT_ID=:forecastingUnitId ";
         Map<String, Object> params = new HashMap<>();
         params.put("forecastingUnitId", forecastingUnitId);
         if (curUser.getRealm().getRealmId() != -1) {
