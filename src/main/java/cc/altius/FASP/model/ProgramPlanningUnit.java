@@ -15,7 +15,7 @@ import java.util.List;
 public class ProgramPlanningUnit implements Serializable {
 
     private int programId;
-    private Label label;
+    private Label label; // name of Program
     private PlanningUnitForProgramMapping[] planningUnits;
     private List<PlanningUnitForProgramMapping> planningUnitList;
 

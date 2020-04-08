@@ -15,7 +15,7 @@ import java.util.List;
 public class ProcurementAgentPlanningUnit implements Serializable {
     
     private int procurementAgentId;
-    private Label label;
+    private Label label; // name of ProcurementAgent
     private PlanningUnitForProcurementAgentMapping[] planningUnits;
     private List<PlanningUnitForProcurementAgentMapping> planningUnitList;
 
