@@ -13,8 +13,6 @@ import cc.altius.FASP.model.rowMapper.OrganisationResultSetExtractor;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import cc.altius.FASP.dao.OrganisationDao;
-import cc.altius.FASP.model.DTO.PrgOrganisationDTO;
-import cc.altius.FASP.model.DTO.rowMapper.PrgOrganisationDTORowMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

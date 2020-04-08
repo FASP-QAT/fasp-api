@@ -7,6 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
@@ -107,6 +108,16 @@ public class RealmCountryServiceImpl implements RealmCountryService {
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    public RealmCountryPlanningUnit getPlanningUnitListForRealmCountryId(int realmCountryId, boolean active, CustomUserDetails curUser) {
+        return this.realmCountryDao.getPlanningUnitListForRealmCountryId(realmCountryId, active, curUser);
+    }
+
+    @Override
+    public int savePlanningUnitForCountry(RealmCountryPlanningUnit cpu, CustomUserDetails curUser) {
+        return this.realmCountryDao.savePlanningUnitForCountry(cpu, curUser);
     }
 
     @Override
