@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -20,9 +19,9 @@ public class Budget extends BaseModel implements Serializable {
     private SubFundingSource subFundingSource;
     private Label label;
     private int budgetAmt;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+//    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date startDate;
-    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+//    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private Date stopDate;
 
     public Budget() {

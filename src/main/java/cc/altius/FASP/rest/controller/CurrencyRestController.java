@@ -48,13 +48,13 @@ public class CurrencyRestController {
             System.out.println("From the mapping="+currency.getCurrencySymbol());
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.currencyService.addCurrency(currency, curUser);
-            return new ResponseEntity("static.message.addSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException e) {
             logger.error("Error while trying to add Currency", e);
-            return new ResponseEntity("static.message.addFailed", HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to add Currency", e);
-            return new ResponseEntity("static.message.addFailed", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

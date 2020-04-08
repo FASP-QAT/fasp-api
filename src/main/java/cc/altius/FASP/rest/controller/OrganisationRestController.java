@@ -46,7 +46,7 @@ public class OrganisationRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.organisationService.addOrganisation(organisation, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSucccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Organisation", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.UNAUTHORIZED);
@@ -64,7 +64,7 @@ public class OrganisationRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.organisationService.updateOrganisation(organisation, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.updateSucccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update Organisation", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.UNAUTHORIZED);
