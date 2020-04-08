@@ -59,7 +59,7 @@
      
     <!-- LOG everything at INFO level -->
     <root level="info">
-        <appender-ref ref="RootConsole" />
+        <!--<appender-ref ref="RootConsole" />-->
         <appender-ref ref="SpringBootFile" />
     </root>
    
@@ -82,6 +82,7 @@
     <logger name="cc.altius.FASP.web.controller.UserController" level="info" additivity="false">
         <appender-ref ref="SpringBootDb" />
         <appender-ref ref="SpringBootFile" />
+        <!--<appender-ref ref="RootConsole" />-->
     </logger>
  
 </configuration>

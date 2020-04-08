@@ -81,6 +81,17 @@ public class PlanningUnitRestController {
         }
     }
 
+    @GetMapping("/planningUnit/all")
+    public ResponseEntity getPlanningUnitAll(Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.planningUnitService.getPlanningUnitList(false, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list PlanningUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/planningUnit/realm/{realmId}")
     public ResponseEntity getPlanningUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
