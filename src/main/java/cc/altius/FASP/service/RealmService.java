@@ -22,6 +22,6 @@ public interface RealmService {
     public int updateRealm(Realm realm, CustomUserDetails curUser);
 
     public Realm getRealmById(int realmId, CustomUserDetails curUser);
-
+    
     public List<Realm> getRealmListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

@@ -105,7 +105,7 @@ public class ProgramRestController {
         }
     }
 
-    @PutMapping("/program/planningingUnit")
+    @PutMapping("/program/planningUnit")
     public ResponseEntity savePlanningUnitForProgram(@RequestBody ProgramPlanningUnit ppu, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());

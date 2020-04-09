@@ -142,7 +142,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
                 + "    pu.UNIT_ID=:unitId, "
                 + "    pu.ACTIVE=:active, "
                 + "    pu.LAST_MODIFIED_BY=IF(pu.MULTIPLIER!=:multiplier OR pu.UNIT_ID!=:unitId OR pu.ACTIVE!=:active,:curUser, pu.LAST_MODIFIED_BY), "
-                + "    pu.LAST_MODIFIED_DATE=IF(pu.MULTIPLIER!=:multiplier OR pu.UNIT_ID!=:unitId OR pu.ACTIVE!=:active,:curDate, fu.LAST_MODIFIED_DATE), "
+                + "    pu.LAST_MODIFIED_DATE=IF(pu.MULTIPLIER!=:multiplier OR pu.UNIT_ID!=:unitId OR pu.ACTIVE!=:active,:curDate, pu.LAST_MODIFIED_DATE), "
                 + "    pul.LABEL_EN=:labelEn, "
                 + "    pul.LAST_MODIFIED_BY=IF(pul.LABEL_EN=:labelEn,:curUser, pul.LAST_MODIFIED_BY), "
                 + "    pul.LAST_MODIFIED_DATE=IF(pul.LABEL_EN=:labelEn,:curDate, pul.LAST_MODIFIED_DATE) "
@@ -154,6 +154,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
         params.put("labelEn", planningUnit.getLabel().getLabel_en());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
+        params.put("multiplier", planningUnit.getMultiplier());
         return this.namedParameterJdbcTemplate.update(sqlString, params);
     }
 
