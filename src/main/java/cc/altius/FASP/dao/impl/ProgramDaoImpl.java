@@ -319,17 +319,23 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public ProgramPlanningUnit getPlanningUnitListForProgramId(int programId, CustomUserDetails curUser) {
+    public ProgramPlanningUnit getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
         String sqlString = "SELECT ppu.PROGRAM_PLANNING_UNIT_ID,  "
                 + "pg.PROGRAM_ID, pgl.LABEL_ID, pgl.LABEL_EN, pgl.LABEL_FR, pgl.LABEL_PR, pgl.LABEL_SP, "
                 + "pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
                 + "ppu.REORDER_FREQUENCY_IN_MONTHS "
+                + "ppu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ppu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppu.LAST_MODIFIED_DATE "
                 + "FROM rm_program pg  "
                 + "LEFT JOIN ap_label pgl ON pgl.LABEL_ID=pg.LABEL_ID "
                 + "LEFT JOIN rm_program_planning_unit ppu  ON pg.PROGRAM_ID=ppu.PROGRAM_ID "
                 + "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
+                + "LEFT JOIN us_user cb ON ppu.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON ppu.LAST_MODIFIED_BY=lmb.USER_ID "
                 + "WHERE pg.PROGRAM_ID=:programId";
+        if (active) {
+            sqlString += " AND ppu.ACTIVE ";
+        }
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new PlanningUnitForProgramResultSetExtractor());

@@ -216,7 +216,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sqlString = "DROP TABLE IF EXISTS tmp_realm_country_planning_unit";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-        sqlString = "CREATE TABLE tmp_realm_country_planning_unit (REALM_COUNTRY_ID INT(10) NOT NULL, PLANNING_UNIT_ID INT(10) NOT NULL, SKU_CODE VARCHAR(50) NULL, LABEL_EN VARCHAR(255) NOT NULL, MULTIPLIER DECIMAL(10,4) NOT NULL, GTIN VARCHAR(45) NULL, UNIT_ID INT(10) NOT NULL, STATUS_ID INT(10) NOT NULL, INDEX(REALM_COUNTRY_ID, PLANNING_UNIT_ID))";
+        sqlString = "CREATE TEMPORARY TABLE tmp_realm_country_planning_unit (REALM_COUNTRY_ID INT(10) NOT NULL, PLANNING_UNIT_ID INT(10) NOT NULL, SKU_CODE VARCHAR(50) NULL, LABEL_EN VARCHAR(255) NOT NULL, MULTIPLIER DECIMAL(10,4) NOT NULL, GTIN VARCHAR(45) NULL, UNIT_ID INT(10) NOT NULL, STATUS_ID INT(10) NOT NULL, INDEX(REALM_COUNTRY_ID, PLANNING_UNIT_ID))";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         Map<String, Object>[] paramArray = new HashMap[rcpu.getPlanningUnits().length];
         int x = 0;

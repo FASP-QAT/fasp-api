@@ -29,7 +29,7 @@ public interface ProgramService {
 
     public Program getProgramById(int programId, CustomUserDetails curUser);
     
-    public ProgramPlanningUnit getPlanningUnitListForProgramId(int programId, CustomUserDetails curUser);
+    public ProgramPlanningUnit getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
     
     public int saveProgramPlanningUnit(ProgramPlanningUnit pp, CustomUserDetails curUser);
 

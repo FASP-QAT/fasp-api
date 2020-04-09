@@ -109,9 +109,9 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public ProgramPlanningUnit getPlanningUnitListForProgramId(int programId, CustomUserDetails curUser) {
+    public ProgramPlanningUnit getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
         if (this.aclService.checkProgramAccessForUser(curUser, programId)) {
-            return this.programDao.getPlanningUnitListForProgramId(programId, curUser);
+            return this.programDao.getPlanningUnitListForProgramId(programId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }

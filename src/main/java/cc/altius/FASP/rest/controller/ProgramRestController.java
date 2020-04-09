@@ -92,7 +92,24 @@ public class ProgramRestController {
     public ResponseEntity getPlanningUnitForProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            return new ResponseEntity(this.programService.getPlanningUnitListForProgramId(programId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getPlanningUnitListForProgramId(programId, true, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/program/{programId}/planningUnit/all")
+    public ResponseEntity getPlanningUnitForProgramAll(@PathVariable("programId") int programId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseEntity(this.programService.getPlanningUnitListForProgramId(programId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit for Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
