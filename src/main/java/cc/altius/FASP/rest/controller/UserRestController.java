@@ -370,7 +370,7 @@ public class UserRestController {
                 }
             } else {
                 auditLogger.info("User does not exists with this Username " + username);
-                return new ResponseEntity(new ResponseCode("static.message.notExist"), HttpStatus.NOT_FOUND);
+                return new ResponseEntity(new ResponseCode("static.message.user.forgotPasswordSuccess"), HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
             auditLogger.info("Error while generating Token for forgot password", e);

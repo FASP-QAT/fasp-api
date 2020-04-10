@@ -12,11 +12,9 @@ import cc.altius.FASP.model.DTO.StaticLabelDTO;
 import cc.altius.FASP.model.DTO.rowMapper.DatabaseTranslationsDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.StaticLabelDTORowMapper;
 import cc.altius.FASP.model.Label;
-import cc.altius.FASP.model.rowMapper.LabelRowMapper;
 import cc.altius.utils.DateUtils;
 import com.google.gson.Gson;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -135,12 +133,6 @@ public class LabelDaoImpl implements LabelDao {
                 + "                left join ap_label l on l.LABEL_ID=c.LABEL_ID\n"
                 + "                union\n"
                 + "                SELECT l.LABEL_ID,l.LABEL_EN,l.LABEL_FR,l.LABEL_PR,l.LABEL_SP, \n"
-                + "                f.`REALM_ID` as `REALM_ID`,'static.planningUnitCountry.planningUnitCountryName' as `LABEL_FOR` \n"
-                + "                FROM fasp.rm_planning_unit_country c \n"
-                + "                left join fasp.rm_realm_country f on f.REALM_COUNTRY_ID=c.REALM_COUNTRY_ID\n"
-                + "                left join ap_label l on l.LABEL_ID=c.LABEL_ID\n"
-                + "                union \n"
-                + "                SELECT l.LABEL_ID,l.LABEL_EN,l.LABEL_FR,l.LABEL_PR,l.LABEL_SP, \n"
                 + "                c.`REALM_ID` as `REALM_ID`,'static.procurementAgent.procurementAgentName' as `LABEL_FOR` \n"
                 + "                FROM fasp.rm_procurement_agent c \n"
                 + "                left join ap_label l on l.LABEL_ID=c.LABEL_ID\n"
@@ -205,6 +197,7 @@ public class LabelDaoImpl implements LabelDao {
                 + "                FROM fasp.us_role c \n"
                 + "                left join ap_label l on l.LABEL_ID=c.LABEL_ID\n"
                 + "                ) label where label.REALM_ID=-1 OR (label.`REALM_ID`=? OR ?=-1) group by label.`LABEL_ID` order by label.`LABEL_ID`,label.`LABEL_FOR`";
+
         return this.jdbcTemplate.query(sql, new DatabaseTranslationsDTORowMapper(), realmId, realmId);
     }
 

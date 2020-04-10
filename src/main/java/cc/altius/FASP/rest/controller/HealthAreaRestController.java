@@ -45,7 +45,7 @@ public class HealthAreaRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.healthAreaService.addHealthArea(healthArea, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSucccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Health Area", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
@@ -60,7 +60,7 @@ public class HealthAreaRestController {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
             this.healthAreaService.updateHealthArea(healthArea, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.updateSucccess"), HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update Health Area", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
