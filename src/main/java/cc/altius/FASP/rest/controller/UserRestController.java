@@ -177,7 +177,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
             logger.error("Could not get User list for RealmId=" + realmId, e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             logger.error("Could not get User list for RealmId=" + realmId, e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -190,7 +190,7 @@ public class UserRestController {
             return new ResponseEntity(this.userService.getUserByUserId(userId), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error(("Could not get User list for UserId=" + userId));
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (EmptyResultDataAccessException e) {
             logger.error(("Could not get User list for UserId=" + userId));
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -302,7 +302,7 @@ public class UserRestController {
                 return new ResponseEntity(new ResponseCode("static.message.passwordSame"), HttpStatus.PRECONDITION_FAILED);
             }
             if (!this.userService.confirmPassword(password.getUsername(), password.getOldPassword().trim())) {
-                return new ResponseEntity(new ResponseCode("static.message.incorrectPassword"), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity(new ResponseCode("static.message.incorrectPassword"), HttpStatus.FORBIDDEN);
             } else {
                 final CustomUserDetails userDetails = this.customUserDetailsService.loadUserByUsername(password.getUsername());
                 PasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -328,7 +328,7 @@ public class UserRestController {
         try {
             User user = this.userService.getUserByUserId(password.getUserId());
             if (!this.userService.confirmPassword(user.getUsername(), password.getOldPassword().trim())) {
-                return new ResponseEntity(new ResponseCode("static.message.incorrectPassword"), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity(new ResponseCode("static.message.incorrectPassword"), HttpStatus.FORBIDDEN);
             } else {
                 PasswordEncoder encoder = new BCryptPasswordEncoder();
                 String hashPass = encoder.encode(password.getNewPassword());
@@ -366,7 +366,7 @@ public class UserRestController {
                     }
                 } else {
                     auditLogger.info("User is disabled Username: " + username);
-                    return new ResponseEntity(new ResponseCode("static.message.disabled"), HttpStatus.UNAUTHORIZED);
+                    return new ResponseEntity(new ResponseCode("static.message.disabled"), HttpStatus.FORBIDDEN);
                 }
             } else {
                 auditLogger.info("User does not exists with this Username " + username);
@@ -390,7 +390,7 @@ public class UserRestController {
             } else {
                 this.userService.updateCompletionDateForForgotPasswordToken(user.getUsername(), user.getToken());
                 auditLogger.info("Token is not valid or has expired");
-                return new ResponseEntity(new ResponseCode(fpt.inValidReasonForTriggering()), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity(new ResponseCode(fpt.inValidReasonForTriggering()), HttpStatus.FORBIDDEN);
             }
         } catch (Exception e) {
             auditLogger.info("Could not confirm Token", e);
@@ -417,7 +417,7 @@ public class UserRestController {
                 }
             } else {
                 auditLogger.info("Failed to reset the password invlaid Token");
-                return new ResponseEntity(new ResponseCode(fpt.inValidReasonForCompletion()), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity(new ResponseCode(fpt.inValidReasonForCompletion()), HttpStatus.FORBIDDEN);
             }
         } catch (Exception e) {
             auditLogger.info("Could not update password", e);
@@ -439,7 +439,7 @@ public class UserRestController {
                 return new ResponseEntity(HttpStatus.OK);
             } else {
                 auditLogger.info("Could not logout Invalid Token Username: " + curUser.getUsername());
-                return new ResponseEntity(new ResponseCode("static.message.logoutFailed"), HttpStatus.UNAUTHORIZED);
+                return new ResponseEntity(new ResponseCode("static.message.logoutFailed"), HttpStatus.FORBIDDEN);
             }
         } catch (Exception e) {
             auditLogger.info("Error while trying to logout Username: " + curUser.getUsername(), e);

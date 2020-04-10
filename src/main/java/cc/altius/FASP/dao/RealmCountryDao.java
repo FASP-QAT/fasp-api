@@ -25,13 +25,13 @@ public interface RealmCountryDao {
     public RealmCountry getRealmCountryById(int realmCountryId, CustomUserDetails curUser);
 
     public RealmCountry getRealmCountryByRealmAndCountry(int realmId, int countryId, CustomUserDetails curUser);
-    
+
     public List<RealmCountry> getRealmCountryListByRealmId(int realmId, CustomUserDetails curUser);
-    
-    public RealmCountryPlanningUnit getPlanningUnitListForRealmCountryId(int realmCountryId, boolean active, CustomUserDetails curUser);
-    
-    public int savePlanningUnitForCountry(RealmCountryPlanningUnit cpu, CustomUserDetails curUser);
-    
+
+    public List<RealmCountryPlanningUnit> getPlanningUnitListForRealmCountryId(int realmCountryId, boolean active, CustomUserDetails curUser);
+
+    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser);
+
     public List<RealmCountry> getRealmCountryListForSync(String lastSyncDate, CustomUserDetails curUser);
 
 }

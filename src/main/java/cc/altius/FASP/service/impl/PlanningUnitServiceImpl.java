@@ -11,9 +11,13 @@ import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.PlanningUnit;
+import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.PlanningUnitService;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -95,6 +99,47 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    public List<PlanningUnitCapacity> getPlanningUnitCapacityForRealm(int realmId, Date dtStartDate, Date dtStopDate, CustomUserDetails curUser) throws ParseException {
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            if ((dtStartDate != null && dtStopDate == null) || (dtStopDate != null && dtStartDate == null)) {
+                throw new ParseException("One date cannot be null", 1);
+            }
+            return this.planningUnitDao.getPlanningUnitCapacityForRealm(realmId, dtStartDate, dtStopDate, curUser);
+
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public List<PlanningUnitCapacity> getPlanningUnitCapacityForId(int planningUnitId, Date dtStartDate, Date dtStopDate, CustomUserDetails curUser) throws ParseException {
+        PlanningUnit pu = this.planningUnitDao.getPlanningUnitById(planningUnitId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, pu.getForeacastingUnit().getRealm().getRealmId())) {
+            if ((dtStartDate != null && dtStopDate == null) || (dtStopDate != null && dtStartDate == null)) {
+                throw new ParseException("One date cannot be null", 1);
+            }
+            return this.planningUnitDao.getPlanningUnitCapacityForId(planningUnitId, dtStartDate, dtStopDate, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public int savePlanningUnitCapacity(PlanningUnitCapacity[] planningUnitCapacitys, CustomUserDetails curUser) throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for (PlanningUnitCapacity puc : planningUnitCapacitys) {
+            PlanningUnit pu = this.planningUnitDao.getPlanningUnitById(puc.getPlanningUnit().getId(), curUser);
+            if (!this.aclService.checkRealmAccessForUser(curUser, pu.getForeacastingUnit().getRealm().getRealmId())) {
+                throw new AccessDeniedException("Access denied");
+            }
+            sdf.parse(puc.getStartDate());
+            sdf.parse(puc.getStopDate());
+        }
+        return this.planningUnitDao.savePlanningUnitCapacity(planningUnitCapacitys, curUser);
     }
 
     @Override

@@ -29,9 +29,9 @@ public interface ProgramService {
 
     public Program getProgramById(int programId, CustomUserDetails curUser);
     
-    public ProgramPlanningUnit getPlanningUnitListForProgramId(int programId, CustomUserDetails curUser);
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
     
-    public int saveProgramPlanningUnit(ProgramPlanningUnit pp, CustomUserDetails curUser);
+    public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser);
 
     public List<Program> getProgramListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

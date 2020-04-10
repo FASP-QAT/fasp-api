@@ -77,23 +77,24 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     }
 
     @Override
-    public ProcurementAgentPlanningUnit getProcurementAgentPlanningUnitList(int procurementAgentId, CustomUserDetails curUser) {
+    public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser) {
         ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(procurementAgentId, curUser);
         if (pa != null && this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getRealmId())) {
-            return this.procurementAgentDao.getProcurementAgentPlanningUnitList(procurementAgentId, curUser);
+            return this.procurementAgentDao.getProcurementAgentPlanningUnitList(procurementAgentId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
     }
 
     @Override
-    public int saveProcurementAgentPlanningUnit(ProcurementAgentPlanningUnit papu, CustomUserDetails curUser) {
-        ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(papu.getProcurementAgentId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getRealmId())) {
-            return this.procurementAgentDao.saveProcurementAgentPlanningUnit(papu, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
+    public int saveProcurementAgentPlanningUnit(ProcurementAgentPlanningUnit[] procurementAgentPlanningUnits, CustomUserDetails curUser) {
+        for (ProcurementAgentPlanningUnit papu : procurementAgentPlanningUnits) {
+            ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(papu.getProcurementAgent().getId(), curUser);
+            if (!this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getRealmId())) {
+                throw new AccessDeniedException("Access denied");
+            }
         }
+        return this.procurementAgentDao.saveProcurementAgentPlanningUnit(procurementAgentPlanningUnits, curUser);
     }
 
     @Override

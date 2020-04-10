@@ -14,10 +14,10 @@ import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.rowMapper.ProgramListResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.PlanningUnitForProgramResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
-import cc.altius.FASP.model.PlanningUnitForProgramMapping;
 import cc.altius.utils.DateUtils;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -319,46 +319,74 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public ProgramPlanningUnit getPlanningUnitListForProgramId(int programId, CustomUserDetails curUser) {
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
         String sqlString = "SELECT ppu.PROGRAM_PLANNING_UNIT_ID,  "
-                + "pg.PROGRAM_ID, pgl.LABEL_ID, pgl.LABEL_EN, pgl.LABEL_FR, pgl.LABEL_PR, pgl.LABEL_SP, "
+                + "pg.PROGRAM_ID, pgl.LABEL_ID `PROGRAM_LABEL_ID`, pgl.LABEL_EN `PROGRAM_LABEL_EN`, pgl.LABEL_FR `PROGRAM_LABEL_FR`, pgl.LABEL_PR `PROGRAM_LABEL_PR`, pgl.LABEL_SP `PROGRAM_LABEL_SP`, "
                 + "pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
                 + "ppu.REORDER_FREQUENCY_IN_MONTHS "
+                + "ppu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ppu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppu.LAST_MODIFIED_DATE "
                 + "FROM rm_program pg  "
                 + "LEFT JOIN ap_label pgl ON pgl.LABEL_ID=pg.LABEL_ID "
                 + "LEFT JOIN rm_program_planning_unit ppu  ON pg.PROGRAM_ID=ppu.PROGRAM_ID "
                 + "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
+                + "LEFT JOIN us_user cb ON ppu.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON ppu.LAST_MODIFIED_BY=lmb.USER_ID "
                 + "WHERE pg.PROGRAM_ID=:programId";
+        if (active) {
+            sqlString += " AND ppu.ACTIVE ";
+        }
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new PlanningUnitForProgramResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramPlanningUnitRowMapper());
     }
 
     @Override
-    public int saveProgramPlanningUnit(ProgramPlanningUnit ppu, CustomUserDetails curUser) {
-        String sqlString = "DELETE ppu.* FROM rm_program_planning_unit ppu WHERE ppu.PROGRAM_ID=:programId";
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        Map<String, Object> params = new HashMap<>();
-        params.put("programId", ppu.getProgramId());
-        this.namedParameterJdbcTemplate.update(sqlString, params);
+    public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_planning_unit");
-        Map<String, Object>[] paramArray = new HashMap[ppu.getPlanningUnits().length];
-        int x = 0;
-        for (PlanningUnitForProgramMapping sp : ppu.getPlanningUnits()) {
-            params = new HashMap<>();
-            params.put("PROGRAM_ID", ppu.getProgramId());
-            params.put("PLANNING_UNIT_ID", sp.getPlanningUnitId());
-            params.put("REORDER_FREQUENCY_IN_MONTHS", sp.getReorderFrequencyInMonths());
-            params.put("ACTIVE", true);
-            params.put("CREATED_DATE", curDate);
-            params.put("CREATED_BY", curUser.getUserId());
-            params.put("LAST_MODIFIED_DATE", curDate);
-            params.put("LAST_MODIFIED_BY", curUser.getUserId());
-            paramArray[x] = params;
-            x++;
+        List<SqlParameterSource> insertList = new ArrayList<>();
+        List<SqlParameterSource> updateList = new ArrayList<>();
+        int rowsEffected = 0;
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params;
+        for (ProgramPlanningUnit ppu : programPlanningUnits) {
+            if (ppu.getProgramPlanningUnitId() == 0) {
+                // Insert
+                params = new HashMap<>();
+                params.put("PLANNING_UNIT_ID", ppu.getPlanningUnit().getId());
+                params.put("PROGRAM_ID", ppu.getProgram().getId());
+                params.put("REORDER_FREQUENCY_IN_MONTHS", ppu.getReorderFrequencyInMonths());
+                params.put("CREATED_DATE", curDate);
+                params.put("CREATED_BY", curUser.getUserId());
+                params.put("LAST_MODIFIED_DATE", curDate);
+                params.put("LAST_MODIFIED_BY", curUser.getUserId());
+                params.put("ACTIVE", true);
+                insertList.add(new MapSqlParameterSource(params));
+            } else {
+                // Update
+                params = new HashMap<>();
+                params.put("programPlanningUnitId", ppu.getProgramPlanningUnitId());
+                params.put("reorderFrequencyInMonths", ppu.getReorderFrequencyInMonths());
+                params.put("curDate", curDate);
+                params.put("curUser", curUser.getUserId());
+                params.put("active", ppu.isActive());
+                updateList.add(new MapSqlParameterSource(params));
+            }
         }
-        return si.executeBatch(paramArray).length;
+        if (insertList.size() > 0) {
+            SqlParameterSource[] insertParams = new SqlParameterSource[insertList.size()];
+            rowsEffected += si.executeBatch(insertList.toArray(insertParams)).length;
+        }
+        if (updateList.size() > 0) {
+            SqlParameterSource[] updateParams = new SqlParameterSource[updateList.size()];
+            String sqlString = "UPDATE "
+                    + "rm_program_planning_unit ppu SET ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.ACTIVE=:active, "
+                    + "ppu.LAST_MODIFIED_DATE=IF(ppu.ACTIVE!=:active OR ppu.REORDER_FREQUENCY_IN_MONTHS!=:reorderFrequencyInMonths, :curDate, ppu.LAST_MODIFIED_DATE), "
+                    + "ppu.LAST_MODIFIED_BY=IF(ppu.ACTIVE!=:active OR ppu.REORDER_FREQUENCY_IN_MONTHS!=:reorderFrequencyInMonths, :curUser, ppu.LAST_MODIFIED_BY) "
+                    + "WHERE ppu.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId";
+            rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
+        }
+        return rowsEffected;
     }
 
     @Override
