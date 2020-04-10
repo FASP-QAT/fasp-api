@@ -14,9 +14,8 @@ import java.io.Serializable;
 public class PlanningUnitCapacity extends BaseModel implements Serializable {
 
     private int planningUnitCapacityId;
-    private int planningUnitId;
-    private Label label;
-    private Supplier supplier;
+    private SimpleObject planningUnit;
+    private SimpleObject supplier;
     private String startDate;
     private String stopDate;
     private double capacity;
@@ -24,10 +23,9 @@ public class PlanningUnitCapacity extends BaseModel implements Serializable {
     public PlanningUnitCapacity() {
     }
 
-    public PlanningUnitCapacity(int planningUnitCapacityId, int planningUnitId, Label label, Supplier supplier, String startDate, String stopDate, double capacity) {
+    public PlanningUnitCapacity(int planningUnitCapacityId, SimpleObject planningUnit, SimpleObject supplier, String startDate, String stopDate, double capacity) {
         this.planningUnitCapacityId = planningUnitCapacityId;
-        this.planningUnitId = planningUnitId;
-        this.label = label;
+        this.planningUnit = planningUnit;
         this.supplier = supplier;
         this.startDate = startDate;
         this.stopDate = stopDate;
@@ -42,27 +40,19 @@ public class PlanningUnitCapacity extends BaseModel implements Serializable {
         this.planningUnitCapacityId = planningUnitCapacityId;
     }
 
-    public int getPlanningUnitId() {
-        return planningUnitId;
+    public SimpleObject getPlanningUnit() {
+        return planningUnit;
     }
 
-    public void setPlanningUnitId(int planningUnitId) {
-        this.planningUnitId = planningUnitId;
+    public void setPlanningUnit(SimpleObject planningUnit) {
+        this.planningUnit = planningUnit;
     }
 
-    public Label getLabel() {
-        return label;
-    }
-
-    public void setLabel(Label label) {
-        this.label = label;
-    }
-
-    public Supplier getSupplier() {
+    public SimpleObject getSupplier() {
         return supplier;
     }
 
-    public void setSupplier(Supplier supplier) {
+    public void setSupplier(SimpleObject supplier) {
         this.supplier = supplier;
     }
 
@@ -89,5 +79,6 @@ public class PlanningUnitCapacity extends BaseModel implements Serializable {
     public void setCapacity(double capacity) {
         this.capacity = capacity;
     }
+
 
 }

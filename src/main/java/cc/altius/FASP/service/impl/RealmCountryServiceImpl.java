@@ -111,13 +111,13 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     }
 
     @Override
-    public RealmCountryPlanningUnit getPlanningUnitListForRealmCountryId(int realmCountryId, boolean active, CustomUserDetails curUser) {
+    public List<RealmCountryPlanningUnit> getPlanningUnitListForRealmCountryId(int realmCountryId, boolean active, CustomUserDetails curUser) {
         return this.realmCountryDao.getPlanningUnitListForRealmCountryId(realmCountryId, active, curUser);
     }
 
     @Override
-    public int savePlanningUnitForCountry(RealmCountryPlanningUnit cpu, CustomUserDetails curUser) {
-        return this.realmCountryDao.savePlanningUnitForCountry(cpu, curUser);
+    public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) {
+        return this.realmCountryDao.savePlanningUnitForCountry(realmCountryPlanningUnits, curUser);
     }
 
     @Override

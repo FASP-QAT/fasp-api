@@ -233,8 +233,8 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
             if (puc.getPlanningUnitCapacityId() == 0) {
                 // Insert
                 params = new HashMap<>();
-                params.put("PLANNING_UNIT_ID", puc.getPlanningUnitId());
-                params.put("SUPPLIER_ID", puc.getSupplier().getSupplierId());
+                params.put("PLANNING_UNIT_ID", puc.getPlanningUnit().getId());
+                params.put("SUPPLIER_ID", puc.getSupplier().getId());
                 params.put("START_DATE", puc.getStartDate());
                 params.put("STOP_DATE", puc.getStopDate());
                 params.put("CAPACITY", puc.getCapacity());

@@ -9,7 +9,6 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -39,8 +38,6 @@ public class ProgramRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private ProgramDataService programDataService;
     @Autowired
     private ProgramService programService;
 
@@ -123,7 +120,7 @@ public class ProgramRestController {
     }
 
     @PutMapping("/program/planningUnit")
-    public ResponseEntity savePlanningUnitForProgram(@RequestBody ProgramPlanningUnit ppu, Authentication auth) {
+    public ResponseEntity savePlanningUnitForProgram(@RequestBody ProgramPlanningUnit[] ppu, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
             this.programService.saveProgramPlanningUnit(ppu, curUser);

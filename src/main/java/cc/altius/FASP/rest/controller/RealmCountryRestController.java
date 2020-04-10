@@ -154,10 +154,10 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     }
 
     @PutMapping("/realmCountry/planningUnit")
-    public ResponseEntity savePlanningUnitForCountry(@RequestBody RealmCountryPlanningUnit cpu, Authentication auth) {
+    public ResponseEntity savePlanningUnitForCountry(@RequestBody RealmCountryPlanningUnit[] realmCountryPlanningUnits, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            this.realmCountryService.savePlanningUnitForCountry(cpu, curUser);
+            this.realmCountryService.savePlanningUnitForCountry(realmCountryPlanningUnits, curUser);
             return new ResponseEntity("static.message.addSuccess", HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update PlanningUnit for Country", e);

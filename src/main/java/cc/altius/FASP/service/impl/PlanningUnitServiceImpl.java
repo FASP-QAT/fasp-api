@@ -132,7 +132,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     public int savePlanningUnitCapacity(PlanningUnitCapacity[] planningUnitCapacitys, CustomUserDetails curUser) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (PlanningUnitCapacity puc : planningUnitCapacitys) {
-            PlanningUnit pu = this.planningUnitDao.getPlanningUnitById(puc.getPlanningUnitId(), curUser);
+            PlanningUnit pu = this.planningUnitDao.getPlanningUnitById(puc.getPlanningUnit().getId(), curUser);
             if (!this.aclService.checkRealmAccessForUser(curUser, pu.getForeacastingUnit().getRealm().getRealmId())) {
                 throw new AccessDeniedException("Access denied");
             }

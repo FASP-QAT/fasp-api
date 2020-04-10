@@ -6,7 +6,7 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.PlanningUnitCapacity;
-import cc.altius.FASP.model.Supplier;
+import cc.altius.FASP.model.SimpleObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -19,9 +19,16 @@ public class PlanningUnitCapacityRowMapper implements RowMapper<PlanningUnitCapa
 
     @Override
     public PlanningUnitCapacity mapRow(ResultSet rs, int rowNum) throws SQLException {
-        PlanningUnitCapacity puc = new PlanningUnitCapacity(rs.getInt("PLANNING_UNIT_CAPACITY_ID"), rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper().mapRow(rs, rowNum), new Supplier(rs.getInt("SUPPLIER_ID"), new LabelRowMapper("SUPPLIER_").mapRow(rs, rowNum)), rs.getString("START_DATE"), rs.getString("STOP_DATE"), rs.getDouble("CAPACITY"));
+        PlanningUnitCapacity puc = new PlanningUnitCapacity(
+                rs.getInt("PLANNING_UNIT_CAPACITY_ID"),
+                new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, rowNum)),
+                new SimpleObject(rs.getInt("SUPPLIER_ID"), new LabelRowMapper("SUPPLIER_").mapRow(rs, rowNum)),
+                rs.getString("START_DATE"),
+                rs.getString("STOP_DATE"),
+                rs.getDouble("CAPACITY")
+        );
         puc.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return puc;
     }
-    
+
 }

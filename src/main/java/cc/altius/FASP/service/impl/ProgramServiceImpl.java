@@ -109,7 +109,7 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public ProgramPlanningUnit getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
         if (this.aclService.checkProgramAccessForUser(curUser, programId)) {
             return this.programDao.getPlanningUnitListForProgramId(programId, active, curUser);
         } else {
@@ -118,12 +118,13 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int saveProgramPlanningUnit(ProgramPlanningUnit ppu, CustomUserDetails curUser) {
-        if (this.aclService.checkProgramAccessForUser(curUser, ppu.getProgramId())) {
-            return this.programDao.saveProgramPlanningUnit(ppu, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
+    public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) {
+        for (ProgramPlanningUnit ppu : programPlanningUnits) {
+            if (!this.aclService.checkProgramAccessForUser(curUser, ppu.getProgram().getId())) {
+                throw new AccessDeniedException("Access denied");
+            }
         }
+        return this.programDao.saveProgramPlanningUnit(programPlanningUnits, curUser);
     }
 
     @Override
