@@ -6,6 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.Country;
+import cc.altius.FASP.model.CustomUserDetails;
 import java.util.List;
 
 /**
@@ -14,6 +15,14 @@ import java.util.List;
  */
 public interface CountryService {
 
-    public List<Country> getCountryList();
+    public List<Country> getCountryList(boolean active, CustomUserDetails curUser);
+    
+    public Country getCountryById(int countryId, CustomUserDetails curUser);
+
+    public int addCountry(Country country, CustomUserDetails curUser);
+
+    public int updateCountry(Country country, CustomUserDetails curUser);
+
+    public List<Country> getCountryListForSync(String dtLastSyncDate);
 
 }

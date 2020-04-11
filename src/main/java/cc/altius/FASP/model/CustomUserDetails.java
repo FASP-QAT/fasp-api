@@ -25,14 +25,32 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private String username;
     private String password;
     private boolean active;
-    private boolean expired;
     private int failedAttempts;
-    private boolean outsideAccess;
     private Date expiresOn;
     private Date lastLoginDate;
-    private List<Role> roleList;
+    private Realm realm;
+    private List<Role> roles;
+    private List<UserAcl> aclList;
     private List<SimpleGrantedAuthority> businessFunction;
     private String emailId;
+    private int sessionExpiresOn;
+    private Language language;
+
+    public Realm getRealm() {
+        return realm;
+    }
+
+    public void setRealm(Realm realm) {
+        this.realm = realm;
+    }
+
+    public List<UserAcl> getAclList() {
+        return aclList;
+    }
+
+    public void setAclList(List<UserAcl> aclList) {
+        this.aclList = aclList;
+    }
 
     public String getEmailId() {
         return emailId;
@@ -43,27 +61,29 @@ public class CustomUserDetails implements UserDetails, Serializable {
     }
 
     public CustomUserDetails() {
-        this.roleList = new LinkedList<Role>();
+        this.roles = new LinkedList<>();
+        this.aclList = new LinkedList<>();
+        this.businessFunction = new LinkedList<>();
     }
 
     public List<SimpleGrantedAuthority> getBusinessFunction() {
         return businessFunction;
     }
 
-    public void setBusinessFunction(List<String> businessFunction) {
-        List<SimpleGrantedAuthority> finalBusinessFunction = new ArrayList<SimpleGrantedAuthority>();
-        for (String bf : businessFunction) {
-            finalBusinessFunction.add((new SimpleGrantedAuthority(bf)));
-        }
-        this.businessFunction = finalBusinessFunction;
+    public void setBusinessFunction(List<String> bfList) {
+        List<SimpleGrantedAuthority> finalBfList = new ArrayList<>();
+        bfList.forEach((bf) -> {
+            finalBfList.add((new SimpleGrantedAuthority(bf)));
+        });
+        this.businessFunction = finalBfList;
     }
 
-    public List<Role> getRoleList() {
-        return roleList;
+    public List<Role> getRoles() {
+        return roles;
     }
 
-    public void setRoleList(List<Role> roleList) {
-        this.roleList = roleList;
+    public void setRoles(List<Role> roles) {
+        this.roles = roles;
     }
 
     public int getUserId() {
@@ -94,28 +114,12 @@ public class CustomUserDetails implements UserDetails, Serializable {
         this.active = active;
     }
 
-    public boolean isExpired() {
-        return expired;
-    }
-
-    public void setExpired(boolean expired) {
-        this.expired = expired;
-    }
-
     public int getFailedAttempts() {
         return failedAttempts;
     }
 
     public void setFailedAttempts(int failedAttempts) {
         this.failedAttempts = failedAttempts;
-    }
-
-    public boolean isOutsideAccess() {
-        return outsideAccess;
-    }
-
-    public void setOutsideAccess(boolean outsideAccess) {
-        this.outsideAccess = outsideAccess;
     }
 
     public Date getExpiresOn() {
@@ -134,9 +138,25 @@ public class CustomUserDetails implements UserDetails, Serializable {
         this.lastLoginDate = lastLoginDate;
     }
 
+    public int getSessionExpiresOn() {
+        return sessionExpiresOn;
+    }
+
+    public void setSessionExpiresOn(int sessionExpiresOn) {
+        this.sessionExpiresOn = sessionExpiresOn;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return businessFunction;
+    }
+
+    public Language getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(Language language) {
+        this.language = language;
     }
 
     @Override
@@ -146,11 +166,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     @Override
     public boolean isAccountNonExpired() {
-        if (isExpired()) {
-            return false;
-        } else {
-            return true;
-        }
+        return this.active;
     }
 
     @Override
@@ -164,21 +180,21 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        if (isActive()) {
+        String curDate = DateUtils.getCurrentDateString(DateUtils.IST, DateUtils.YMD);
+        if (DateUtils.compareDates(DateUtils.formatDate(this.expiresOn, DateUtils.YMD), curDate) > 0) {
             return true;
         } else {
             return false;
         }
     }
 
-    public boolean isPasswordExpired() {
-        String curDate = DateUtils.getCurrentDateString(DateUtils.IST, DateUtils.YMD);
-        if (DateUtils.compareDates(DateUtils.formatDate(this.expiresOn, DateUtils.YMD), curDate) > 0) {
+    @Override
+    public boolean isEnabled() {
+        return this.active;
+    }
+
+    public boolean isPresent() {
+        if (this.userId == 0) {
             return false;
         } else {
             return true;
@@ -209,6 +225,6 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     @Override
     public String toString() {
-        return "CustomUserDetails{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", active=" + active + ", expired=" + expired + ", failedAttempts=" + failedAttempts + ", outsideAccess=" + outsideAccess + ", expiresOn=" + expiresOn + ", lastLoginDate=" + lastLoginDate + ", roleList=" + roleList + ", businessFunction=" + businessFunction + '}';
+        return "CustomUserDetails{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", active=" + active + ", failedAttempts=" + failedAttempts + ", expiresOn=" + expiresOn + ", lastLoginDate=" + lastLoginDate + ", roles=" + roles + ", businessFunction=" + businessFunction + '}';
     }
 }

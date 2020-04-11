@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.RegistrationDao;
 import cc.altius.FASP.model.Registration;
 import cc.altius.FASP.service.RegistrationService;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -23,12 +24,17 @@ public class RegistrationServiceImpl implements RegistrationService {
 
     @Override
     public int saveRegistration(Registration registration) {
-        try{
         return this.registrationDao.saveRegistration(registration);
-        }catch(Exception e){
-            e.printStackTrace();
-            return 0;
-        }
+    }
+
+    @Override
+    public List<Registration> getUserApprovalList() {
+        return this.registrationDao.getUserApprovalList();
+    }
+
+    @Override
+    public int updateRegistration(Registration registration) {
+        return this.registrationDao.updateRegistration(registration);
     }
 
 }

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property resource="application.properties" />
+    <property name="LOGS" value="${fasp.filestorepath}" />
+    <property name="jdbcUrl" value="${spring.datasource.url}"/>
+    <property name="jdbcUsername" value="${spring.datasource.username}"/>
+    <property name="jdbcPassword" value="${spring.datasource.password}"/>
+ 
+    <appender name="RootConsole" class="ch.qos.logback.core.ConsoleAppender">
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <Pattern>
+                %black(%d{ISO8601}) %highlight(%-5level) [%blue(%t)] %yellow(%C{1.}): %msg%n%throwable
+            </Pattern>
+        </layout>
+    </appender>
+ 
+    <appender name="RootFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/rootLogger.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d{ISO8601} %p %c{2} [%t] %msg%n</Pattern>
+        </encoder>
+ 
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily and when the file reaches 10 MegaBytes -->
+            <fileNamePattern>${LOGS}/archived/rootLogger-%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>5MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+   
+    <appender name="SpringBootFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/faspLogger.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d{ISO8601} %p [%t] %c{2}\(%line\) %msg%n</Pattern>
+        </encoder>
+ 
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily and when the file reaches 10 MegaBytes -->
+            <fileNamePattern>${LOGS}/archived/wrapchiseLogger-%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>5MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+    
+    <appender name="SpringBootDb" class="ch.qos.logback.classic.db.DBAppender">
+        <connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">
+            <dataSource class="com.zaxxer.hikari.HikariDataSource">
+                <driverClassName>com.mysql.cj.jdbc.Driver</driverClassName>
+                <jdbcUrl>${jdbcUrl}</jdbcUrl>
+                <username>${jdbcUsername}</username>
+                <password>${jdbcPassword}</password>
+            </dataSource>
+        </connectionSource>
+    </appender>
+     
+    <!-- LOG everything at INFO level -->
+    <root level="info">
+        <appender-ref ref="RootConsole" />
+        <!--<appender-ref ref="SpringBootFile" />-->
+    </root>
+   
+    <logger name="com.zaxxer.hikari" level="error" additivity="false">
+        <appender-ref ref="RootConsole" />
+    </logger>
+    
+    <logger name="org.springframework" level="info" additivity="false">
+        <appender-ref ref="RootConsole" />
+        <!--<appender-ref ref="SpringBootFile" />-->
+    </logger>
+ 
+    <!-- LOG "cc.altius.sb*" at INFO level -->
+    <logger name="cc.altius.FASP" level="debug" additivity="false">
+        <appender-ref ref="RootConsole" />
+        <!--<appender-ref ref="SpringBootFile" />-->
+    </logger>
+    
+    <!-- LOG "cc.altius.FASP.web.controller.UserController" at INFO level -->
+    <logger name="cc.altius.FASP.web.controller.UserController" level="info" additivity="false">
+        <!--<appender-ref ref="SpringBootDb" />-->
+        <!--<appender-ref ref="SpringBootFile" />-->
+        <appender-ref ref="RootConsole" />
+    </logger>
+ 
+</configuration>

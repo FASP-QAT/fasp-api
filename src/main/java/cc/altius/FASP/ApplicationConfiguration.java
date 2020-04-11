@@ -3,17 +3,12 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.TigerCTIWebServices;
-
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+package cc.altius.FASP;
 
 /**
  *
  * @author altius
  */
-@Configuration
-@ComponentScan(basePackages = {"cc.altius.FASP"})
 public class ApplicationConfiguration {
-    
+
 }

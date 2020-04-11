@@ -7,32 +7,52 @@ package cc.altius.FASP.model;
 
 /**
  *
- * @author Nikhil Pande
+ * @author Akil Mahimwala
  */
 public class ResponseFormat {
 
-    private String status;
-    private String message;
+    private String messageCode; // Code that you want to show, will be converted to actual text by i18
+    private Object data; // Actual payload if you are returning some data
 
-    public String getStatus() {
-        return status;
+    public ResponseFormat() {
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public ResponseFormat(String messageCode) {
+        this.messageCode = messageCode;
     }
 
-    public String getMessage() {
-        return message;
+    public ResponseFormat(String messageCode, Object data) {
+        this.messageCode = messageCode;
+        this.data = data;
+    }
+
+    public ResponseFormat(String messageCode, String temp, Object data) {
+        this.messageCode = messageCode;
+        this.data = data;
+    }
+
+    public String getMessageCode() {
+        return messageCode;
     }
 
     public void setMessage(String message) {
-        this.message = message;
+        this.messageCode = message;
+    }
+    
+    public void setStatus(String status) {
+        
     }
 
-    @Override
-    public String toString() {
-        return "ResponseFormat{" + "status=" + status + ", message=" + message + '}';
+    public void setMessageCode(String messageCode) {
+        this.messageCode = messageCode;
+    }
+
+    public Object getData() {
+        return data;
+    }
+
+    public void setData(Object data) {
+        this.data = data;
     }
 
 }
