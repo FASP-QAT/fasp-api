@@ -156,11 +156,8 @@ public class PlanningUnitRestController {
     @GetMapping(value = "/planningUnit/realmId/{realmId}/capacity/{startDate}/{stopDate}")
     public ResponseEntity getPlanningUnitCapacityForRealmId(@PathVariable("realmId") int realmId, @PathVariable("startDate") String startDate, @PathVariable("stopDate") String stopDate, Authentication auth) {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Date dtStartDate = sdf.parse(startDate);
-            Date dtStopDate = sdf.parse(startDate);
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.planningUnitService.getPlanningUnitCapacityForRealm(realmId, dtStartDate, dtStopDate, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.planningUnitService.getPlanningUnitCapacityForRealm(realmId, startDate, stopDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing planningUnitCapacity", p);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
@@ -200,7 +197,7 @@ public class PlanningUnitRestController {
             Date dtStartDate = sdf.parse(startDate);
             Date dtStopDate = sdf.parse(startDate);
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.planningUnitService.getPlanningUnitCapacityForId(planningUnitId, dtStartDate, dtStopDate, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.planningUnitService.getPlanningUnitCapacityForId(planningUnitId, startDate, stopDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing planningUnitCapacity", p);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);

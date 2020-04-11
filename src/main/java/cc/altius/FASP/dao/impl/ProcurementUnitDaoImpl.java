@@ -43,7 +43,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
     private final String sqlListString = "SELECT"
             + "    pru.PROCUREMENT_UNIT_ID, prul.LABEL_ID, prul.LABEL_EN, prul.LABEL_FR, prul.LABEL_SP, prul.LABEL_PR,"
             + "    s.SUPPLIER_ID, sl.LABEL_ID `SUPPLIER_LABEL_ID`, sl.LABEL_EN `SUPPLIER_LABEL_EN`, sl.LABEL_FR `SUPPLIER_LABEL_FR`, sl.LABEL_SP `SUPPLIER_LABEL_SP`, sl.LABEL_PR `SUPPLIER_LABEL_PR`,"
-            + "    u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID, ul.LABEL_EN, ul.LABEL_FR, ul.LABEL_SP, ul.LABEL_PR,"
+            + "    u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `UNIT_LABEL_ID`, ul.LABEL_EN `UNIT_LABEL_EN`, ul.LABEL_FR `UNIT_LABEL_FR`, ul.LABEL_SP `UNIT_LABEL_SP`, ul.LABEL_PR `UNIT_LABEL_PR`,"
             + "    pu.PLANNING_UNIT_ID, pu.MULTIPLIER `PLANNING_UNIT_MULTIPLIER`, fu.FORECASTING_UNIT_ID, "
             + "    pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
             + "    ful.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, ful.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, ful.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, ful.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, ful.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, "
@@ -51,12 +51,12 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
             + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
             + "    pc.PRODUCT_CATEGORY_ID, pcl.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pcl.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pcl.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pcl.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pcl.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, "
             + "    tc.TRACER_CATEGORY_ID, tcl.LABEL_ID `TRACER_CATEGORY_LABEL_ID`, tcl.LABEL_EN `TRACER_CATEGORY_LABEL_EN`, tcl.LABEL_FR `TRACER_CATEGORY_LABEL_FR`, tcl.LABEL_PR `TRACER_CATEGORY_LABEL_PR`, tcl.LABEL_SP `TRACER_CATEGORY_LABEL_SP`, "
-            + "    puu.UNIT_ID, puu.UNIT_CODE, puul.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puul.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puul.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puul.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puul.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`, "
-            + "    pru.HEIGHT_QTY, pru.WIDTH_QTY, pru.LENGTH_QTY, pru.WIDTH_QTY, pru.LABELING, pru.MULTIPLIER, pru.UNITS_PER_CONTAINER,"
-            + "    hu.UNIT_ID, hu.UNIT_CODE, hul.LABEL_ID `HEIGHT_UNIT_LABEL_ID`, hul.LABEL_EN `HEIGHT_UNIT_LABEL_EN`, puul.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puul.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puul.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`, "
-            + "    puu.UNIT_ID, puu.UNIT_CODE, puul.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puul.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puul.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puul.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puul.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`, "
-            + "    puu.UNIT_ID, puu.UNIT_CODE, puul.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puul.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puul.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puul.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puul.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`, "
-            + "    puu.UNIT_ID, puu.UNIT_CODE, puul.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puul.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puul.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puul.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puul.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`,"
+            + "    puu.UNIT_ID `PLANNING_UNIT_UNIT_ID`, puu.UNIT_CODE `PLANNING_UNIT_UNIT_CODE`, puul.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puul.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puul.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puul.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puul.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`, "
+            + "    pru.HEIGHT_QTY, pru.WIDTH_QTY, pru.LENGTH_QTY, pru.WEIGHT_QTY, pru.LABELING, pru.MULTIPLIER, pru.UNITS_PER_CONTAINER, pru.LABELING,"
+            + "    hu.UNIT_ID  `HEIGHT_UNIT_ID`, hu.UNIT_CODE  `HEIGHT_UNIT_CODE`, hul.LABEL_ID  `HEIGHT_UNIT_LABEL_ID`, hul.LABEL_EN  `HEIGHT_UNIT_LABEL_EN`, hul.LABEL_FR  `HEIGHT_UNIT_LABEL_FR`, hul.LABEL_PR  `HEIGHT_UNIT_LABEL_PR`, hul.LABEL_SP  `HEIGHT_UNIT_LABEL_SP`, "
+            + "    lu.UNIT_ID  `LENGTH_UNIT_ID`, lu.UNIT_CODE  `LENGTH_UNIT_CODE`, lul.LABEL_ID  `LENGTH_UNIT_LABEL_ID`, lul.LABEL_EN  `LENGTH_UNIT_LABEL_EN`, lul.LABEL_FR  `LENGTH_UNIT_LABEL_FR`, lul.LABEL_PR  `LENGTH_UNIT_LABEL_PR`, lul.LABEL_SP  `LENGTH_UNIT_LABEL_SP`, "
+            + "    wu.UNIT_ID   `WIDTH_UNIT_ID`, wu.UNIT_CODE   `WIDTH_UNIT_CODE`, wul.LABEL_ID   `WIDTH_UNIT_LABEL_ID`, wul.LABEL_EN   `WIDTH_UNIT_LABEL_EN`, wul.LABEL_FR   `WIDTH_UNIT_LABEL_FR`, wul.LABEL_PR   `WIDTH_UNIT_LABEL_PR`, wul.LABEL_SP   `WIDTH_UNIT_LABEL_SP`, "
+            + "    weu.UNIT_ID `WEIGHT_UNIT_ID`, weu.UNIT_CODE `WEIGHT_UNIT_CODE`, weul.LABEL_ID `WEIGHT_UNIT_LABEL_ID`, weul.LABEL_EN `WEIGHT_UNIT_LABEL_EN`, weul.LABEL_FR `WEIGHT_UNIT_LABEL_FR`, weul.LABEL_PR `WEIGHT_UNIT_LABEL_PR`, weul.LABEL_SP `WEIGHT_UNIT_LABEL_SP`,"
             + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pru.ACTIVE, pru.CREATED_DATE, pru.LAST_MODIFIED_DATE  "
             + " FROM rm_procurement_unit pru"
             + " LEFT JOIN ap_label prul ON pru.LABEL_ID=prul.LABEL_ID"
@@ -154,7 +154,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit()==null || procurementUnit.getLengthUnit().getUnitId()==0? null : procurementUnit.getLengthUnit()));
         params.put("WEIGHT_QTY", procurementUnit.getWeightQty());
         params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit()==null || procurementUnit.getWeightUnit().getUnitId()==0? null : procurementUnit.getWeightUnit()));
-        params.put("LABELLING", procurementUnit.getLabelling());
+        params.put("LABELING", procurementUnit.getLabeling());
         params.put("UNITS_PER_CONTAINER", procurementUnit.getUnitsPerContainer());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
@@ -180,7 +180,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
                 + "    pru.WEIGHT_QTY=:weightQty, "
                 + "    pru.WEIGHT_UNIT_ID=:weightUnitId, "
                 + "    pru.UNITS_PER_CONTAINER=:unitsPerContainer, "
-                + "    pru.LABELLING=:labelling, "
+                + "    pru.LABELING=:labeling, "
                 + "    pru.ACTIVE=:active, "
                 + "    pru.LAST_MODIFIED_BY=IF(pru.MULTIPLIER!=:multiplier OR pru.UNIT_ID!=:unitId "
                 + "         OR pru.HEIGHT_QTY!=:heightQty OR pru.HEIGHT_UNIT_ID!=:heightUnitId "
@@ -213,7 +213,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("weightQty", procurementUnit.getWeightQty());
         params.put("weightUnitId", procurementUnit.getWeightUnit().getUnitId());
         params.put("unitsPerContainer", procurementUnit.getUnitsPerContainer());
-        params.put("labelling", procurementUnit.getLabelling());
+        params.put("labeling", procurementUnit.getLabeling());
         params.put("active", procurementUnit.isActive());
         params.put("labelEn", procurementUnit.getLabel().getLabel_en());
         params.put("curUser", curUser.getUserId());

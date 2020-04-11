@@ -52,7 +52,7 @@ public class ProcurementUnitRowMapper implements RowMapper<ProcurementUnit> {
         pu.setWeightQty(rs.getDouble("WEIGHT_QTY"));
         pu.setWeightUnit(new Unit(rs.getInt("WEIGHT_UNIT_ID"), new LabelRowMapper("WEIGHT_UNIT_").mapRow(rs, rowNum), rs.getString("WEIGHT_UNIT_CODE")));
         pu.setUnitsPerContainer(rs.getDouble("UNITS_PER_CONTAINER"));
-        pu.setLabelling(rs.getString("LABELLING"));
+        pu.setLabeling(rs.getString("LABELING"));
         pu.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return pu;
     }

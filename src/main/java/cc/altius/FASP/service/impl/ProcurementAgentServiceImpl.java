@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
+import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProcurementAgentService;
@@ -95,6 +96,27 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
             }
         }
         return this.procurementAgentDao.saveProcurementAgentPlanningUnit(procurementAgentPlanningUnits, curUser);
+    }
+    
+    
+    public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser) {
+        ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(procurementAgentId, curUser);
+        if (pa != null && this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getRealmId())) {
+            return this.procurementAgentDao.getProcurementAgentProcurementUnitList(procurementAgentId, active, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public int saveProcurementAgentProcurementUnit(ProcurementAgentProcurementUnit[] procurementAgentProcurementUnits, CustomUserDetails curUser) {
+        for (ProcurementAgentProcurementUnit papu : procurementAgentProcurementUnits) {
+            ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(papu.getProcurementAgent().getId(), curUser);
+            if (!this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getRealmId())) {
+                throw new AccessDeniedException("Access denied");
+            }
+        }
+        return this.procurementAgentDao.saveProcurementAgentProcurementUnit(procurementAgentProcurementUnits, curUser);
     }
 
     @Override

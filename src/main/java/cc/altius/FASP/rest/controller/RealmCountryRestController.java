@@ -158,7 +158,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
             this.realmCountryService.savePlanningUnitForCountry(realmCountryPlanningUnits, curUser);
-            return new ResponseEntity("static.message.addSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update PlanningUnit for Country", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);

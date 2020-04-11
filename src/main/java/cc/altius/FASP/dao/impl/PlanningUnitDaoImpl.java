@@ -67,7 +67,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
 
     private final String sqlPlanningUnitCapacityListString = "SELECT  "
             + "     puc.PLANNING_UNIT_CAPACITY_ID, puc.START_DATE, puc.STOP_DATE, puc.CAPACITY, "
-            + "     pu.PLANNING_UNIT_ID, pul.LABEL_ID, pul.LABEL_EN, pul.LABEL_FR, pul.LABEL_SP, pul.LABEL_PR, "
+            + "     pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, "
             + "     s.SUPPLIER_ID, sl.LABEL_ID `SUPPLIER_LABEL_ID`, sl.LABEL_EN `SUPPLIER_LABEL_EN`, sl.LABEL_FR `SUPPLIER_LABEL_FR`, sl.LABEL_SP `SUPPLIER_LABEL_SP`, sl.LABEL_PR `SUPPLIER_LABEL_PR`, "
             + "     puc.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, puc.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, puc.LAST_MODIFIED_DATE "
             + " FROM rm_planning_unit_capacity puc  "
@@ -142,7 +142,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
         Map<String, Object> params = new HashMap<>();
         int labelId = this.labelDao.addLabel(planningUnit.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
-        params.put("FORECASTING_UNIT_ID", planningUnit.getForeacastingUnit().getForecastingUnitId());
+        params.put("FORECASTING_UNIT_ID", planningUnit.getForecastingUnit().getForecastingUnitId());
         params.put("UNIT_ID", planningUnit.getUnit().getUnitId());
         params.put("MULTIPLIER", planningUnit.getMultiplier());
         params.put("ACTIVE", true);
@@ -192,27 +192,29 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     }
 
     @Override
-    public List<PlanningUnitCapacity> getPlanningUnitCapacityForRealm(int realmId, Date dtStartDate, Date dtStopDate, CustomUserDetails curUser) {
+    public List<PlanningUnitCapacity> getPlanningUnitCapacityForRealm(int realmId, String startDate, String stopDate, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         String sqlString = sqlPlanningUnitCapacityListString + " AND fu.REALM_ID=:realmId";
-        if (dtStartDate != null && dtStopDate != null) {
+        if (startDate != null && stopDate != null) {
             sqlString += " AND puc.START_DATE BETWEEN :startDate AND :stopDate AND puc.STOP_DATE BETWEEN :startDate AND :stopDate";
-            params.put("startDate", dtStartDate);
-            params.put("stopDate", dtStopDate);
+            params.put("startDate", startDate);
+            params.put("stopDate", stopDate);
         }
+        System.out.println(sqlString);
+        System.out.println(params);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new PlanningUnitCapacityRowMapper());
     }
 
     @Override
-    public List<PlanningUnitCapacity> getPlanningUnitCapacityForId(int planningUnitId, Date dtStartDate, Date dtStopDate, CustomUserDetails curUser) {
+    public List<PlanningUnitCapacity> getPlanningUnitCapacityForId(int planningUnitId, String startDate, String stopDate, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         params.put("planningUnitId", planningUnitId);
         String sqlString = sqlPlanningUnitCapacityListString + " AND puc.PLANNING_UNIT_ID=:planningUnitId";
-        if (dtStartDate != null && dtStopDate != null) {
+        if (startDate != null && stopDate != null) {
             sqlString += " AND puc.START_DATE BETWEEN :startDate AND :stopDate AND puc.STOP_DATE BETWEEN :startDate AND :stopDate";
-            params.put("startDate", dtStartDate);
-            params.put("stopDate", dtStopDate);
+            params.put("startDate", startDate);
+            params.put("stopDate", stopDate);
         }
         if (curUser.getRealm().getRealmId() != -1) {
             params.put("realmId", curUser.getRealm().getRealmId());

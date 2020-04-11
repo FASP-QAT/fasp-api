@@ -162,6 +162,7 @@ public class ProcurementUnitRestController {
         }
     }
 
+    
     @GetMapping(value = "/sync/procurementUnit/{lastSyncDate}")
     public ResponseEntity getProcurementUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {

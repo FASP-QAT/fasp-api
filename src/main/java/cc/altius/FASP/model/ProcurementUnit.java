@@ -28,7 +28,7 @@ public class ProcurementUnit extends BaseModel implements Serializable {
     private Double weightQty;
     private Unit weightUnit;
     private Double unitsPerContainer;
-    private String labelling;
+    private String labeling;
 
     public ProcurementUnit() {
     }
@@ -166,12 +166,12 @@ public class ProcurementUnit extends BaseModel implements Serializable {
         this.unitsPerContainer = unitsPerContainer;
     }
 
-    public String getLabelling() {
-        return labelling;
+    public String getLabeling() {
+        return labeling;
     }
 
-    public void setLabelling(String labelling) {
-        this.labelling = labelling;
+    public void setLabeling(String labeling) {
+        this.labeling = labeling;
     }
 
     @Override
