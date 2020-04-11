@@ -9,6 +9,7 @@ import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.BudgetService;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -101,6 +102,9 @@ public class BudgetRestController {
     }
     
     @GetMapping(value = "/sync/budget/{lastSyncDate}")
+    @ApiResponse(responseCode = "HttpStatus.OK", description = "All okay")
+    @ApiResponse(responseCode = "HttpStatus.PRECONDITION_FAILED", description = "Most probably the lastSyncDate was not in the required format of yyyy-MM-dd HH:mm:ss")
+    @ApiResponse(responseCode = "HttpStatus.INTERNAL_SERVER_ERROR", description = "An unkown error occurred")
     public ResponseEntity getBudgetListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
