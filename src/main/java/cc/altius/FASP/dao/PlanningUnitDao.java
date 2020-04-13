@@ -8,7 +8,6 @@ package cc.altius.FASP.dao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,9 +28,9 @@ public interface PlanningUnitDao {
 
     public PlanningUnit getPlanningUnitById(int planningUnitId, CustomUserDetails curUser);
 
-    public List<PlanningUnitCapacity> getPlanningUnitCapacityForRealm(int realmId, Date dtStartDate, Date dtStopDate, CustomUserDetails curUser);
+    public List<PlanningUnitCapacity> getPlanningUnitCapacityForRealm(int realmId, String startDate, String stopDate, CustomUserDetails curUser);
 
-    public List<PlanningUnitCapacity> getPlanningUnitCapacityForId(int planningUnitId, Date dtStartDate, Date dtStopDate, CustomUserDetails curUser);
+    public List<PlanningUnitCapacity> getPlanningUnitCapacityForId(int planningUnitId, String startDate, String stopDate, CustomUserDetails curUser);
 
     public int savePlanningUnitCapacity(PlanningUnitCapacity[] planningUnitCapacitys, CustomUserDetails curUser);
 

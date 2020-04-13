@@ -323,7 +323,7 @@ public class ProgramDaoImpl implements ProgramDao {
         String sqlString = "SELECT ppu.PROGRAM_PLANNING_UNIT_ID,  "
                 + "pg.PROGRAM_ID, pgl.LABEL_ID `PROGRAM_LABEL_ID`, pgl.LABEL_EN `PROGRAM_LABEL_EN`, pgl.LABEL_FR `PROGRAM_LABEL_FR`, pgl.LABEL_PR `PROGRAM_LABEL_PR`, pgl.LABEL_SP `PROGRAM_LABEL_SP`, "
                 + "pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
-                + "ppu.REORDER_FREQUENCY_IN_MONTHS "
+                + "ppu.REORDER_FREQUENCY_IN_MONTHS, "
                 + "ppu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ppu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppu.LAST_MODIFIED_DATE "
                 + "FROM rm_program pg  "
                 + "LEFT JOIN ap_label pgl ON pgl.LABEL_ID=pg.LABEL_ID "

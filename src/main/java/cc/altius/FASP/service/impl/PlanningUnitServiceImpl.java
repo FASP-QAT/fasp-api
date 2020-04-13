@@ -73,7 +73,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
 
     @Override
     public int addPlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) {
-        ForecastingUnit fu = this.forecastingUnitDao.getForecastingUnitById(planningUnit.getForeacastingUnit().getForecastingUnitId(), curUser);
+        ForecastingUnit fu = this.forecastingUnitDao.getForecastingUnitById(planningUnit.getForecastingUnit().getForecastingUnitId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, fu.getRealm().getRealmId())) {
             return this.planningUnitDao.addPlanningUnit(planningUnit, curUser);
         } else {
@@ -84,7 +84,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     @Override
     public int updatePlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) {
         PlanningUnit pr = this.getPlanningUnitById(planningUnit.getPlanningUnitId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, pr.getForeacastingUnit().getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, pr.getForecastingUnit().getRealm().getRealmId())) {
             return this.planningUnitDao.updatePlanningUnit(planningUnit, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -94,7 +94,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     @Override
     public PlanningUnit getPlanningUnitById(int planningUnitId, CustomUserDetails curUser) {
         PlanningUnit pr = this.planningUnitDao.getPlanningUnitById(planningUnitId, curUser);
-        if (this.aclService.checkAccessForUser(curUser, pr.getForeacastingUnit().getRealm().getRealmId(), 0, 0, 0, pr.getPlanningUnitId())) {
+        if (this.aclService.checkAccessForUser(curUser, pr.getForecastingUnit().getRealm().getRealmId(), 0, 0, 0, pr.getPlanningUnitId())) {
             return pr;
         } else {
             throw new AccessDeniedException("Access denied");
@@ -102,13 +102,16 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public List<PlanningUnitCapacity> getPlanningUnitCapacityForRealm(int realmId, Date dtStartDate, Date dtStopDate, CustomUserDetails curUser) throws ParseException {
+    public List<PlanningUnitCapacity> getPlanningUnitCapacityForRealm(int realmId, String startDate, String stopDate, CustomUserDetails curUser) throws ParseException {
         Realm r = this.realmDao.getRealmById(realmId, curUser);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date dtStartDate = sdf.parse(startDate);
+        Date dtStopDate = sdf.parse(startDate);
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
             if ((dtStartDate != null && dtStopDate == null) || (dtStopDate != null && dtStartDate == null)) {
                 throw new ParseException("One date cannot be null", 1);
             }
-            return this.planningUnitDao.getPlanningUnitCapacityForRealm(realmId, dtStartDate, dtStopDate, curUser);
+            return this.planningUnitDao.getPlanningUnitCapacityForRealm(realmId, startDate, stopDate, curUser);
 
         } else {
             throw new AccessDeniedException("Access denied");
@@ -116,13 +119,16 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public List<PlanningUnitCapacity> getPlanningUnitCapacityForId(int planningUnitId, Date dtStartDate, Date dtStopDate, CustomUserDetails curUser) throws ParseException {
+    public List<PlanningUnitCapacity> getPlanningUnitCapacityForId(int planningUnitId, String startDate, String stopDate, CustomUserDetails curUser) throws ParseException {
         PlanningUnit pu = this.planningUnitDao.getPlanningUnitById(planningUnitId, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, pu.getForeacastingUnit().getRealm().getRealmId())) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        Date dtStartDate = (startDate != null ? sdf.parse(startDate) : null);
+        Date dtStopDate = (stopDate != null ? sdf.parse(stopDate) : null);
+        if (this.aclService.checkRealmAccessForUser(curUser, pu.getForecastingUnit().getRealm().getRealmId())) {
             if ((dtStartDate != null && dtStopDate == null) || (dtStopDate != null && dtStartDate == null)) {
                 throw new ParseException("One date cannot be null", 1);
             }
-            return this.planningUnitDao.getPlanningUnitCapacityForId(planningUnitId, dtStartDate, dtStopDate, curUser);
+            return this.planningUnitDao.getPlanningUnitCapacityForId(planningUnitId, startDate, stopDate, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -132,9 +138,13 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     public int savePlanningUnitCapacity(PlanningUnitCapacity[] planningUnitCapacitys, CustomUserDetails curUser) throws ParseException {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         for (PlanningUnitCapacity puc : planningUnitCapacitys) {
-            PlanningUnit pu = this.planningUnitDao.getPlanningUnitById(puc.getPlanningUnit().getId(), curUser);
-            if (!this.aclService.checkRealmAccessForUser(curUser, pu.getForeacastingUnit().getRealm().getRealmId())) {
-                throw new AccessDeniedException("Access denied");
+            try {
+                PlanningUnit pu = this.planningUnitDao.getPlanningUnitById(puc.getPlanningUnit().getId(), curUser);
+                if (!this.aclService.checkRealmAccessForUser(curUser, pu.getForecastingUnit().getRealm().getRealmId())) {
+                    throw new AccessDeniedException("Access denied");
+                }
+            } catch (Exception e) {
+                throw new EmptyResultDataAccessException(1);
             }
             sdf.parse(puc.getStartDate());
             sdf.parse(puc.getStopDate());
