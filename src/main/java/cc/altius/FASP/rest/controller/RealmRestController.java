@@ -64,7 +64,7 @@ public class RealmRestController {
             return new ResponseEntity("static.message.updateSuccess", HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Realm", ae);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
         } catch (DuplicateKeyException ae) {
             logger.error("Error while trying to add Realm", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
@@ -92,7 +92,7 @@ public class RealmRestController {
             return new ResponseEntity(this.realmService.getRealmById(realmId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to list Realm", ae);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to list Realm", ae);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);

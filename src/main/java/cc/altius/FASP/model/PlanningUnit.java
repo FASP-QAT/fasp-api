@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class PlanningUnit extends BaseModel implements Serializable {
 
     private int planningUnitId;
-    private ForecastingUnit foreacastingUnit;
+    private ForecastingUnit forecastingUnit;
     private Label label;
     private Unit unit;
     private double multiplier;
@@ -27,9 +27,9 @@ public class PlanningUnit extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public PlanningUnit(int planningUnitId, ForecastingUnit foreacastingUnit, Label label, Unit unit, double multiplier) {
+    public PlanningUnit(int planningUnitId, ForecastingUnit forecastingUnit, Label label, Unit unit, double multiplier) {
         this.planningUnitId = planningUnitId;
-        this.foreacastingUnit = foreacastingUnit;
+        this.forecastingUnit = forecastingUnit;
         this.label = label;
         this.unit = unit;
         this.multiplier = multiplier;
@@ -43,12 +43,12 @@ public class PlanningUnit extends BaseModel implements Serializable {
         this.planningUnitId = planningUnitId;
     }
 
-    public ForecastingUnit getForeacastingUnit() {
-        return foreacastingUnit;
+    public ForecastingUnit getForecastingUnit() {
+        return forecastingUnit;
     }
 
-    public void setForeacastingUnit(ForecastingUnit foreacastingUnit) {
-        this.foreacastingUnit = foreacastingUnit;
+    public void setForecastingUnit(ForecastingUnit forecastingUnit) {
+        this.forecastingUnit = forecastingUnit;
     }
 
     public Label getLabel() {

@@ -26,6 +26,11 @@ public class Supplier extends BaseModel implements Serializable {
     public Supplier() {
     }
 
+    public Supplier(int supplierId, Label label) {
+        this.supplierId = supplierId;
+        this.label = label;
+    }
+
     public int getSupplierId() {
         return supplierId;
     }

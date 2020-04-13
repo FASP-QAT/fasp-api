@@ -6,49 +6,83 @@
 package cc.altius.FASP.model;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  *
  * @author akil
  */
-public class ProgramPlanningUnit implements Serializable {
+public class ProgramPlanningUnit extends BaseModel implements Serializable {
 
-    private int programId;
-    private Label label; // name of Program
-    private PlanningUnitForProgramMapping[] planningUnits;
-    private List<PlanningUnitForProgramMapping> planningUnitList;
+    private int programPlanningUnitId;
+    private SimpleObject program;
+    private SimpleObject planningUnit;
+    private int reorderFrequencyInMonths;
 
-    public int getProgramId() {
-        return programId;
+    public ProgramPlanningUnit() {
     }
 
-    public void setProgramId(int programId) {
-        this.programId = programId;
+    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, int reorderFrequencyInMonths) {
+        this.programPlanningUnitId = programPlanningUnitId;
+        this.program = program;
+        this.planningUnit = planningUnit;
+        this.reorderFrequencyInMonths = reorderFrequencyInMonths;
     }
 
-    public Label getLabel() {
-        return label;
+    public int getProgramPlanningUnitId() {
+        return programPlanningUnitId;
     }
 
-    public void setLabel(Label label) {
-        this.label = label;
+    public void setProgramPlanningUnitId(int programPlanningUnitId) {
+        this.programPlanningUnitId = programPlanningUnitId;
     }
 
-    public PlanningUnitForProgramMapping[] getPlanningUnits() {
-        return planningUnits;
+    public SimpleObject getProgram() {
+        return program;
     }
 
-    public void setPlanningUnits(PlanningUnitForProgramMapping[] planningUnits) {
-        this.planningUnits = planningUnits;
+    public void setProgram(SimpleObject program) {
+        this.program = program;
     }
 
-    public List<PlanningUnitForProgramMapping> getPlanningUnitList() {
-        return planningUnitList;
+    public SimpleObject getPlanningUnit() {
+        return planningUnit;
     }
 
-    public void setPlanningUnitList(List<PlanningUnitForProgramMapping> planningUnitList) {
-        this.planningUnitList = planningUnitList;
+    public void setPlanningUnit(SimpleObject planningUnit) {
+        this.planningUnit = planningUnit;
     }
-    
+
+    public int getReorderFrequencyInMonths() {
+        return reorderFrequencyInMonths;
+    }
+
+    public void setReorderFrequencyInMonths(int reorderFrequencyInMonths) {
+        this.reorderFrequencyInMonths = reorderFrequencyInMonths;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 29 * hash + this.programPlanningUnitId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ProgramPlanningUnit other = (ProgramPlanningUnit) obj;
+        if (this.programPlanningUnitId != other.programPlanningUnitId) {
+            return false;
+        }
+        return true;
+    }
+
 }
