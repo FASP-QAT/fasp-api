@@ -8,7 +8,6 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.DataSourceTypeDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgDataSourceTypeDTO;
 import cc.altius.FASP.model.DataSourceType;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
@@ -35,9 +34,18 @@ public class DataSourceTypeServiceImpl implements DataSourceTypeService {
 
     @Override
     public int addDataSourceType(DataSourceType dataSourceType, CustomUserDetails curUser) {
-        System.out.println("dataSourceType"+dataSourceType);
-        if (this.aclService.checkRealmAccessForUser(curUser, dataSourceType.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, dataSourceType.getRealm().getId())) {
             return this.dataSourceTypeDao.addDataSourceType(dataSourceType, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public int updateDataSourceType(DataSourceType dataSourceType, CustomUserDetails curUser) {
+        DataSourceType ds = this.dataSourceTypeDao.getDataSourceTypeById(dataSourceType.getDataSourceTypeId(), curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, ds.getRealm().getId())) {
+            return this.dataSourceTypeDao.updateDataSourceType(dataSourceType, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -46,13 +54,13 @@ public class DataSourceTypeServiceImpl implements DataSourceTypeService {
     @Override
     public DataSourceType getDataSourceTypeById(int dataSourceTypeId, CustomUserDetails curUser) {
         DataSourceType ds = this.dataSourceTypeDao.getDataSourceTypeById(dataSourceTypeId, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, ds.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, ds.getRealm().getId())) {
             return ds;
         } else {
             throw new AccessDeniedException("Access denied");
         }
     }
-    
+
     @Override
     public List<DataSourceType> getDataSourceTypeList(boolean active, CustomUserDetails curUser) {
         return this.dataSourceTypeDao.getDataSourceTypeList(active, curUser);
@@ -66,16 +74,6 @@ public class DataSourceTypeServiceImpl implements DataSourceTypeService {
         }
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
             return this.dataSourceTypeDao.getDataSourceTypeForRealm(realmId, active, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
-    }
-
-    @Override
-    public int updateDataSourceType(DataSourceType dataSourceType, CustomUserDetails curUser) {
-        DataSourceType ds = this.dataSourceTypeDao.getDataSourceTypeById(dataSourceType.getDataSourceTypeId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, ds.getRealm().getRealmId())) {
-            return this.dataSourceTypeDao.updateDataSourceType(dataSourceType, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }

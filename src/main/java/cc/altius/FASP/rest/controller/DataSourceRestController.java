@@ -98,11 +98,11 @@ public class DataSourceRestController {
         }
     }
 
-    @GetMapping(value = "/dataSource/realmId/{realmId}")
-    public ResponseEntity getDataSourceListForRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
+    @GetMapping(value = "/dataSource/realmId/{realmId}/programId/{programId}")
+    public ResponseEntity getDataSourceListForRealmIdProgramId(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.dataSourceService.getDataSourceForRealm(realmId, true, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.dataSourceService.getDataSourceForRealmAndProgram(realmId, programId, true, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get DataSource list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
