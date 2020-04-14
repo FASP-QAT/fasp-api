@@ -53,6 +53,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public CustomUserDetails getCustomUserByEmailId(String emailId) {
+        return this.userDao.getCustomUserByEmailId(emailId);
+    }
+
+    @Override
     public Map<String, Object> checkIfUserExists(String username, String password) {
         return this.userDao.checkIfUserExists(username, password);
     }

@@ -347,29 +347,29 @@ public class UserRestController {
         }
     }
 
-    @GetMapping(value = "/forgotPassword/{username}")
-    public ResponseEntity forgotPassword(@PathVariable String username, HttpServletRequest request) {
-        auditLogger.info("Forgot password action triggered for Username:" + username, request.getRemoteAddr());
+    @PostMapping(value = "/forgotPassword")
+    public ResponseEntity forgotPassword(@RequestBody EmailUser user, HttpServletRequest request) {
+        auditLogger.info("Forgot password action triggered for Email Id:" + user.getEmailId(), request.getRemoteAddr());
         try {
-            CustomUserDetails customUser = this.userService.getCustomUserByUsername(username);
+            CustomUserDetails customUser = this.userService.getCustomUserByEmailId(user.getEmailId());
             if (customUser != null) {
                 if (customUser.isActive()) {
-                    String token = this.userService.generateTokenForUsername(username, 1);
+                    String token = this.userService.generateTokenForUsername(customUser.getUsername(), 1);
                     if (token == null || token.isEmpty()) {
                         auditLogger.info("Could not process request as Token could not be generated");
                         return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
                     } else {
-                        auditLogger.info("Forgot password request processed for Username: " + username + " email with password reset link sent");
+                        auditLogger.info("Forgot password request processed for Email Id: " + user.getEmailId() + " email with password reset link sent");
                         Map<String, String> params = new HashMap<>();
                         params.put("token", token);
                         return new ResponseEntity(params, HttpStatus.OK);
                     }
                 } else {
-                    auditLogger.info("User is disabled Username: " + username);
-                    return new ResponseEntity(new ResponseCode("static.message.disabled"), HttpStatus.FORBIDDEN);
+                    auditLogger.info("User is disabled Email Id: " + user.getEmailId());
+                    return new ResponseEntity(new ResponseCode("static.message.user.disabled"), HttpStatus.FORBIDDEN);
                 }
             } else {
-                auditLogger.info("User does not exists with this Username " + username);
+                auditLogger.info("User does not exists with this Email Id " + user.getEmailId());
                 return new ResponseEntity(new ResponseCode("static.message.user.forgotPasswordSuccess"), HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
@@ -480,6 +480,9 @@ public class UserRestController {
                 auditLogger.error("Could not updated " + user + " 0 rows updated");
                 return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
+        } catch (DuplicateKeyException e) {
+            auditLogger.error("Duplicate Access Controls", e);
+            return new ResponseEntity(new ResponseCode("static.message.user.duplicateacl"), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             auditLogger.error("Error while trying to Add Access Controls", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
