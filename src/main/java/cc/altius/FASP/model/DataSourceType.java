@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class DataSourceType extends BaseModel implements Serializable {
 
     private int dataSourceTypeId;
-    private Realm realm;
+    private SimpleCodeObject realm;
     private Label label;
 
     public DataSourceType() {
@@ -25,7 +25,7 @@ public class DataSourceType extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public DataSourceType(int dataSourceTypeId, Label label, Realm realm) {
+    public DataSourceType(int dataSourceTypeId, Label label, SimpleCodeObject realm) {
         this.dataSourceTypeId = dataSourceTypeId;
         this.label = label;
         this.realm = realm;
@@ -39,11 +39,11 @@ public class DataSourceType extends BaseModel implements Serializable {
         this.dataSourceTypeId = dataSourceTypeId;
     }
 
-    public Realm getRealm() {
+    public SimpleCodeObject getRealm() {
         return realm;
     }
 
-    public void setRealm(Realm realm) {
+    public void setRealm(SimpleCodeObject realm) {
         this.realm = realm;
     }
 

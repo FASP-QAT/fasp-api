@@ -71,6 +71,11 @@
         <appender-ref ref="RootConsole" />
         <!--<appender-ref ref="SpringBootFile" />-->
     </logger>
+    
+    <logger name="springfox.*" level="info" additivity="false">
+        <appender-ref ref="RootConsole" />
+        <!--<appender-ref ref="SpringBootFile" />-->
+    </logger>
  
     <!-- LOG "cc.altius.sb*" at INFO level -->
     <logger name="cc.altius.FASP" level="debug" additivity="false">

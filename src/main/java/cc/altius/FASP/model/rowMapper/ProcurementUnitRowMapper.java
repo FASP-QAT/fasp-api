@@ -10,6 +10,7 @@ import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.ProcurementUnit;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.Supplier;
 import cc.altius.FASP.model.TracerCategory;
 import cc.altius.FASP.model.Unit;
 import java.sql.ResultSet;
@@ -40,7 +41,7 @@ public class ProcurementUnitRowMapper implements RowMapper<ProcurementUnit> {
                     new Unit(rs.getInt("PLANNING_UNIT_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_UNIT_").mapRow(rs, rowNum), rs.getString("PLANNING_UNIT_UNIT_CODE")),
                     rs.getDouble("PLANNING_UNIT_MULTIPLIER")
                 ), 
-                new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, rowNum),
+                new LabelRowMapper().mapRow(rs, rowNum),
                 new Unit(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, rowNum), rs.getString("UNIT_CODE")),
                 rs.getDouble("MULTIPLIER"));
         pu.setHeightQty(rs.getDouble("HEIGHT_QTY"));
@@ -53,6 +54,7 @@ public class ProcurementUnitRowMapper implements RowMapper<ProcurementUnit> {
         pu.setWeightUnit(new Unit(rs.getInt("WEIGHT_UNIT_ID"), new LabelRowMapper("WEIGHT_UNIT_").mapRow(rs, rowNum), rs.getString("WEIGHT_UNIT_CODE")));
         pu.setUnitsPerContainer(rs.getDouble("UNITS_PER_CONTAINER"));
         pu.setLabeling(rs.getString("LABELING"));
+        pu.setSupplier(new Supplier(rs.getInt("SUPPLIER_ID"), new LabelRowMapper("SUPPLIER_").mapRow(rs, rowNum)));
         pu.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return pu;
     }

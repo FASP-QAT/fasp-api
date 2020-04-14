@@ -6,7 +6,7 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.DataSourceType;
-import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleCodeObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -19,7 +19,7 @@ public class DataSourceTypeRowMapper implements RowMapper<DataSourceType> {
 
     @Override
     public DataSourceType mapRow(ResultSet rs, int i) throws SQLException {
-        DataSourceType dst = new DataSourceType(rs.getInt("DATA_SOURCE_TYPE_ID"), new LabelRowMapper().mapRow(rs, i), new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i), rs.getString("REALM_CODE")));
+        DataSourceType dst = new DataSourceType(rs.getInt("DATA_SOURCE_TYPE_ID"), new LabelRowMapper().mapRow(rs, i), new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i), rs.getString("REALM_CODE")));
         dst.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return dst;
     }
