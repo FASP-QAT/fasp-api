@@ -21,7 +21,7 @@ public interface DataSourceService {
     
     public DataSource getDataSourceById(int dataSourceId, CustomUserDetails curUser);
     
-    public List<DataSource> getDataSourceForRealm(int realmId, boolean active, CustomUserDetails curUser);
+    public List<DataSource> getDataSourceForRealmAndProgram(int realmId, int programId, boolean active, CustomUserDetails curUser);
     
     public List<DataSource> getDataSourceForDataSourceType(int dataSourceTypeId, boolean active, CustomUserDetails curUser);
     

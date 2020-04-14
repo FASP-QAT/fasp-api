@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DataSource;
 import cc.altius.FASP.model.rowMapper.DataSourceRowMapper;
+import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.HashMap;
 import java.util.List;
@@ -33,12 +34,32 @@ public class DataSourceDaoImpl implements DataSourceDao {
 
     @Autowired
     private LabelDao labelDao;
+    @Autowired
+    private AclService aclService;
 
     @Autowired
     public void setDataSource(javax.sql.DataSource dataSource) {
         this.dataSource = dataSource;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
+
+    private final String sqlListString = "SELECT ds.DATA_SOURCE_ID,  "
+            + "	dsl.LABEL_ID, dsl.LABEL_EN, dsl.LABEL_FR, dsl.LABEL_PR, dsl.LABEL_SP, "
+            + " r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
+            + " pr.PROGRAM_ID, prl.LABEL_ID `PROGRAM_LABEL_ID`, prl.LABEL_EN `PROGRAM_LABEL_EN`, prl.LABEL_FR `PROGRAM_LABEL_FR`, prl.LABEL_PR `PROGRAM_LABEL_PR`, prl.LABEL_SP `PROGRAM_LABEL_SP`, "
+            + "	dst.DATA_SOURCE_TYPE_ID, dstl.LABEL_ID `DATA_SOURCE_TYPE_LABEL_ID`, dstl.LABEL_EN `DATA_SOURCE_TYPE_LABEL_EN`, dstl.LABEL_FR `DATA_SOURCE_TYPE_LABEL_FR`, dstl.LABEL_PR `DATA_SOURCE_TYPE_LABEL_PR`, dstl.LABEL_SP `DATA_SOURCE_TYPE_LABEL_SP`, "
+            + "	cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ds.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ds.LAST_MODIFIED_DATE, ds.ACTIVE  "
+            + "FROM rm_data_source ds  "
+            + "LEFT JOIN ap_label dsl ON ds.LABEL_ID=dsl.LABEL_ID "
+            + "LEFT JOIN rm_realm r ON ds.REALM_ID=r.REALM_ID "
+            + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+            + "LEFT JOIN rm_program pr ON ds.PROGRAM_ID=pr.PROGRAM_ID "
+            + "LEFT JOIN ap_label prl ON pr.LABEL_ID=prl.LABEL_ID "
+            + "LEFT JOIN rm_data_source_type dst ON ds.DATA_SOURCE_TYPE_ID=dst.DATA_SOURCE_TYPE_ID "
+            + "LEFT JOIN ap_label dstl ON dst.LABEL_ID=dstl.LABEL_ID "
+            + "LEFT JOIN us_user cb ON ds.CREATED_BY=cb.USER_ID "
+            + "LEFT JOIN us_user lmb ON ds.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "WHERE TRUE ";
 
     @Transactional
     @Override
@@ -47,8 +68,9 @@ public class DataSourceDaoImpl implements DataSourceDao {
         int insertedLabelRowId = this.labelDao.addLabel(dataSource.getLabel(), curUser.getUserId());
         SimpleJdbcInsert insert = new SimpleJdbcInsert(this.dataSource).withTableName("rm_data_source").usingGeneratedKeyColumns("DATA_SOURCE_ID");
         Map<String, Object> map = new HashedMap<>();
-        map.put("DATA_SOURCE_TYPE_ID", dataSource.getDataSourceType().getDataSourceTypeId());
-        map.put("REALM_ID", dataSource.getRealm().getRealmId());
+        map.put("DATA_SOURCE_TYPE_ID", dataSource.getDataSourceType().getId());
+        map.put("REALM_ID", dataSource.getRealm().getId());
+        map.put("PROGRAM_ID", (dataSource.getProgram().getId() == 0 ? null : dataSource.getProgram().getId()));
         map.put("LABEL_ID", insertedLabelRowId);
         map.put("ACTIVE", 1);
         map.put("CREATED_BY", curUser.getUserId());
@@ -58,129 +80,18 @@ public class DataSourceDaoImpl implements DataSourceDao {
         int dataSourceId = insert.executeAndReturnKey(map).intValue();
         return dataSourceId;
     }
-
-    @Override
-    public List<DataSource> getDataSourceList(boolean active, CustomUserDetails curUser) {
-        String sqlString = "SELECT ds.DATA_SOURCE_ID,  "
-                + "	dsl.LABEL_ID, dsl.LABEL_EN, dsl.LABEL_FR, dsl.LABEL_PR, dsl.LABEL_SP, "
-                + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
-                + "	dst.DATA_SOURCE_TYPE_ID, dstl.LABEL_ID `DATA_SOURCE_TYPE_LABEL_ID`, dstl.LABEL_EN `DATA_SOURCE_TYPE_LABEL_EN`, dstl.LABEL_FR `DATA_SOURCE_TYPE_LABEL_FR`, dstl.LABEL_PR `DATA_SOURCE_TYPE_LABEL_PR`, dstl.LABEL_SP `DATA_SOURCE_TYPE_LABEL_SP`, "
-                + "	cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ds.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ds.LAST_MODIFIED_DATE, ds.ACTIVE  "
-                + "FROM rm_data_source ds  "
-                + "LEFT JOIN ap_label dsl ON ds.LABEL_ID=dsl.LABEL_ID "
-                + "LEFT JOIN rm_realm r ON ds.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "LEFT JOIN rm_data_source_type dst ON ds.DATA_SOURCE_TYPE_ID=dst.DATA_SOURCE_TYPE_ID "
-                + "LEFT JOIN ap_label dstl ON dst.LABEL_ID=dstl.LABEL_ID "
-                + "LEFT JOIN us_user cb ON ds.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON ds.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE TRUE ";
-        Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += " AND ds.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
-        if (active) {
-            sqlString += " AND ds.ACTIVE ";
-        }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new DataSourceRowMapper());
-    }
-
-    @Override
-    public DataSource getDataSourceById(int dataSourceId, CustomUserDetails curUser) {
-        String sqlString = "SELECT ds.DATA_SOURCE_ID,  "
-                + "	dsl.LABEL_ID, dsl.LABEL_EN, dsl.LABEL_FR, dsl.LABEL_PR, dsl.LABEL_SP, "
-                + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
-                + "	dst.DATA_SOURCE_TYPE_ID, dstl.LABEL_ID `DATA_SOURCE_TYPE_LABEL_ID`, dstl.LABEL_EN `DATA_SOURCE_TYPE_LABEL_EN`, dstl.LABEL_FR `DATA_SOURCE_TYPE_LABEL_FR`, dstl.LABEL_PR `DATA_SOURCE_TYPE_LABEL_PR`, dstl.LABEL_SP `DATA_SOURCE_TYPE_LABEL_SP`, "
-                + "	cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ds.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ds.LAST_MODIFIED_DATE, ds.ACTIVE  "
-                + "FROM rm_data_source ds  "
-                + "LEFT JOIN ap_label dsl ON ds.LABEL_ID=dsl.LABEL_ID "
-                + "LEFT JOIN rm_realm r ON ds.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "LEFT JOIN rm_data_source_type dst ON ds.DATA_SOURCE_TYPE_ID=dst.DATA_SOURCE_TYPE_ID "
-                + "LEFT JOIN ap_label dstl ON dst.LABEL_ID=dstl.LABEL_ID "
-                + "LEFT JOIN us_user cb ON ds.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON ds.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE TRUE ";
-        Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += " AND ds.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
-        sqlString += " AND ds.DATA_SOURCE_ID=:dataSourceId ";
-        params.put("dataSourceId", dataSourceId);
-        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DataSourceRowMapper());
-    }
-
-    @Override
-    public List<DataSource> getDataSourceForRealm(int realmId, boolean active, CustomUserDetails curUser) {
-        String sqlString = "SELECT ds.DATA_SOURCE_ID,  "
-                + "	dsl.LABEL_ID, dsl.LABEL_EN, dsl.LABEL_FR, dsl.LABEL_PR, dsl.LABEL_SP, "
-                + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
-                + "	dst.DATA_SOURCE_TYPE_ID, dstl.LABEL_ID `DATA_SOURCE_TYPE_LABEL_ID`, dstl.LABEL_EN `DATA_SOURCE_TYPE_LABEL_EN`, dstl.LABEL_FR `DATA_SOURCE_TYPE_LABEL_FR`, dstl.LABEL_PR `DATA_SOURCE_TYPE_LABEL_PR`, dstl.LABEL_SP `DATA_SOURCE_TYPE_LABEL_SP`, "
-                + "	cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ds.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ds.LAST_MODIFIED_DATE, ds.ACTIVE  "
-                + "FROM rm_data_source ds  "
-                + "LEFT JOIN ap_label dsl ON ds.LABEL_ID=dsl.LABEL_ID "
-                + "LEFT JOIN rm_realm r ON ds.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "LEFT JOIN rm_data_source_type dst ON ds.DATA_SOURCE_TYPE_ID=dst.DATA_SOURCE_TYPE_ID "
-                + "LEFT JOIN ap_label dstl ON dst.LABEL_ID=dstl.LABEL_ID "
-                + "LEFT JOIN us_user cb ON ds.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON ds.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE TRUE ";
-        Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += " AND ds.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
-        sqlString += " AND ds.REALM_ID=:realmId ";
-        params.put("realmId", realmId);
-        if (active) {
-            sqlString += " AND ds.ACTIVE ";
-        }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new DataSourceRowMapper());
-    }
-
-    @Override
-    public List<DataSource> getDataSourceForDataSourceType(int dataSourceTypeId, boolean active, CustomUserDetails curUser) {
-        String sqlString = "SELECT ds.DATA_SOURCE_ID,  "
-                + "	dsl.LABEL_ID, dsl.LABEL_EN, dsl.LABEL_FR, dsl.LABEL_PR, dsl.LABEL_SP, "
-                + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
-                + "	dst.DATA_SOURCE_TYPE_ID, dstl.LABEL_ID `DATA_SOURCE_TYPE_LABEL_ID`, dstl.LABEL_EN `DATA_SOURCE_TYPE_LABEL_EN`, dstl.LABEL_FR `DATA_SOURCE_TYPE_LABEL_FR`, dstl.LABEL_PR `DATA_SOURCE_TYPE_LABEL_PR`, dstl.LABEL_SP `DATA_SOURCE_TYPE_LABEL_SP`, "
-                + "	cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ds.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ds.LAST_MODIFIED_DATE, ds.ACTIVE  "
-                + "FROM rm_data_source ds  "
-                + "LEFT JOIN ap_label dsl ON ds.LABEL_ID=dsl.LABEL_ID "
-                + "LEFT JOIN rm_realm r ON ds.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "LEFT JOIN rm_data_source_type dst ON ds.DATA_SOURCE_TYPE_ID=dst.DATA_SOURCE_TYPE_ID "
-                + "LEFT JOIN ap_label dstl ON dst.LABEL_ID=dstl.LABEL_ID "
-                + "LEFT JOIN us_user cb ON ds.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON ds.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE TRUE ";
-        Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += " AND ds.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
-        sqlString += " AND ds.DATA_SOURCE_TYPE_ID=:dataSourceTypeId ";
-        params.put("dataSourceTypeId", dataSourceTypeId);
-        if (active) {
-            sqlString += " AND ds.ACTIVE ";
-        }
-        System.out.println(sqlString);
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new DataSourceRowMapper());
-    }
-
+    
+    @Transactional
     @Override
     public int updateDataSource(DataSource dataSource, CustomUserDetails curUser) {
         String sqlString = "UPDATE rm_data_source ds LEFT JOIN ap_label dsl ON ds.LABEL_ID=dsl.LABEL_ID "
                 + "SET  "
-                + "	ds.ACTIVE=:active, "
-                + "	ds.LAST_MODIFIED_BY = IF(ds.ACTIVE!=:active, :curUser, ds.LAST_MODIFIED_BY), "
-                + "    ds.LAST_MODIFIED_DATE = IF(ds.ACTIVE!=:active, :curDate, ds.LAST_MODIFIED_DATE), "
-                + "    dsl.LABEL_EN=:label_en,  "
-                + "    dsl.LAST_MODIFIED_BY = IF(dsl.LABEL_EN!=:label_en, :curUser, dsl.LAST_MODIFIED_BY), "
-                + "    dsl.LAST_MODIFIED_DATE = IF(dsl.LABEL_EN!=:label_en, :curDate, dsl.LAST_MODIFIED_DATE) "
+                + "  ds.ACTIVE=:active, "
+                + "  ds.LAST_MODIFIED_BY = IF(ds.ACTIVE!=:active, :curUser, ds.LAST_MODIFIED_BY), "
+                + "  ds.LAST_MODIFIED_DATE = IF(ds.ACTIVE!=:active, :curDate, ds.LAST_MODIFIED_DATE), "
+                + "  dsl.LABEL_EN=:label_en,  "
+                + "  dsl.LAST_MODIFIED_BY = IF(dsl.LABEL_EN!=:label_en, :curUser, dsl.LAST_MODIFIED_BY), "
+                + "  dsl.LAST_MODIFIED_DATE = IF(dsl.LABEL_EN!=:label_en, :curDate, dsl.LAST_MODIFIED_DATE) "
                 + "WHERE ds.DATA_SOURCE_ID=:dataSourceId";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("active", dataSource.isActive());
@@ -192,28 +103,62 @@ public class DataSourceDaoImpl implements DataSourceDao {
     }
 
     @Override
-    public List<DataSource> getDataSourceListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        String sqlString = "SELECT ds.DATA_SOURCE_ID,  "
-                + "	dsl.LABEL_ID, dsl.LABEL_EN, dsl.LABEL_FR, dsl.LABEL_PR, dsl.LABEL_SP, "
-                + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
-                + "	dst.DATA_SOURCE_TYPE_ID, dstl.LABEL_ID `DATA_SOURCE_TYPE_LABEL_ID`, dstl.LABEL_EN `DATA_SOURCE_TYPE_LABEL_EN`, dstl.LABEL_FR `DATA_SOURCE_TYPE_LABEL_FR`, dstl.LABEL_PR `DATA_SOURCE_TYPE_LABEL_PR`, dstl.LABEL_SP `DATA_SOURCE_TYPE_LABEL_SP`, "
-                + "	cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ds.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ds.LAST_MODIFIED_DATE, ds.ACTIVE  "
-                + "FROM rm_data_source ds  "
-                + "LEFT JOIN ap_label dsl ON ds.LABEL_ID=dsl.LABEL_ID "
-                + "LEFT JOIN rm_realm r ON ds.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "LEFT JOIN rm_data_source_type dst ON ds.DATA_SOURCE_TYPE_ID=dst.DATA_SOURCE_TYPE_ID "
-                + "LEFT JOIN ap_label dstl ON dst.LABEL_ID=dstl.LABEL_ID "
-                + "LEFT JOIN us_user cb ON ds.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON ds.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE ds.LAST_MODIFIED_DATE>:lastSyncDate ";
+    public List<DataSource> getDataSourceList(boolean active, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += " AND ds.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ds", curUser);
+        this.aclService.addUserAclForProgram(sqlStringBuilder, params, "pr", curUser);
+        if (active) {
+            sqlStringBuilder.append(" AND ds.ACTIVE ");
         }
+        System.out.println(sqlStringBuilder.toString());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new DataSourceRowMapper());
+    }
 
+    @Override
+    public DataSource getDataSourceById(int dataSourceId, CustomUserDetails curUser) {
+        String sqlString = this.sqlListString;
+        Map<String, Object> params = new HashMap<>();
+        sqlString = this.aclService.addUserAclForRealm(sqlString, params, "ds", curUser);
+        sqlString += " AND ds.DATA_SOURCE_ID=:dataSourceId ";
+        params.put("dataSourceId", dataSourceId);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DataSourceRowMapper());
+    }
+
+    @Override
+    public List<DataSource> getDataSourceForRealmAndProgram(int realmId, int programId, boolean active, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ds", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ds", realmId, curUser);
+        this.aclService.addUserAclForProgram(sqlStringBuilder, params, "pr", curUser);
+        if (active) {
+            sqlStringBuilder.append(" AND ds.ACTIVE ");
+        }
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new DataSourceRowMapper());
+    }
+
+    @Override
+    public List<DataSource> getDataSourceForDataSourceType(int dataSourceTypeId, boolean active, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ds", curUser);
+        this.aclService.addUserAclForProgram(sqlStringBuilder, params, "pr", curUser);
+        sqlStringBuilder.append(" AND ds.DATA_SOURCE_TYPE_ID=:dataSourceTypeId ");
+        params.put("dataSourceTypeId", dataSourceTypeId);
+        if (active) {
+            sqlStringBuilder.append(" AND ds.ACTIVE ");
+        }
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new DataSourceRowMapper());
+    }
+
+    @Override
+    public List<DataSource> getDataSourceListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND ds.LAST_MODIFIED_DATE>:lastSyncDate ");
         params.put("lastSyncDate", lastSyncDate);
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new DataSourceRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ds", curUser);
+        this.aclService.addUserAclForProgram(sqlStringBuilder, params, "pr", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new DataSourceRowMapper());
     }
 }

@@ -89,7 +89,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
             + " LEFT JOIN us_user lmb ON pru.LAST_MODIFIED_BY=lmb.USER_ID"
             + " WHERE TRUE ";
 
-    @Override
+@Override
     public List<ProcurementUnit> getProcurementUnitList(boolean active, CustomUserDetails curUser) {
         String sqlString = sqlListString;
         Map<String, Object> params = new HashMap<>();
@@ -147,13 +147,13 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("MULTIPLIER", procurementUnit.getMultiplier());
         params.put("SUPPLIER_ID", procurementUnit.getSupplier().getSupplierId());
         params.put("HEIGHT_QTY", procurementUnit.getHeightQty());
-        params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit()==null || procurementUnit.getHeightUnit().getUnitId()==0? null : procurementUnit.getHeightUnit()));
+        params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit()==null || procurementUnit.getHeightUnit().getUnitId()==0? null : procurementUnit.getHeightUnit().getUnitId()));
         params.put("WIDTH_QTY", procurementUnit.getWidthQty());
-        params.put("WIDTH_UNIT_ID", (procurementUnit.getWidthUnit()==null || procurementUnit.getWidthUnit().getUnitId()==0? null : procurementUnit.getWidthUnit()));
+        params.put("WIDTH_UNIT_ID", (procurementUnit.getWidthUnit()==null || procurementUnit.getWidthUnit().getUnitId()==0? null : procurementUnit.getWidthUnit().getUnitId()));
         params.put("LENGTH_QTY", procurementUnit.getLengthQty());
-        params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit()==null || procurementUnit.getLengthUnit().getUnitId()==0? null : procurementUnit.getLengthUnit()));
+        params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit()==null || procurementUnit.getLengthUnit().getUnitId()==0? null : procurementUnit.getLengthUnit().getUnitId()));
         params.put("WEIGHT_QTY", procurementUnit.getWeightQty());
-        params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit()==null || procurementUnit.getWeightUnit().getUnitId()==0? null : procurementUnit.getWeightUnit()));
+        params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit()==null || procurementUnit.getWeightUnit().getUnitId()==0? null : procurementUnit.getWeightUnit().getUnitId()));
         params.put("LABELING", procurementUnit.getLabeling());
         params.put("UNITS_PER_CONTAINER", procurementUnit.getUnitsPerContainer());
         params.put("ACTIVE", true);
@@ -187,19 +187,19 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
                 + "         OR pru.LENGTH_QTY!=:lengthQty OR pru.LENGTH_UNIT_ID!=:lengthUnitId "
                 + "         OR pru.WIDTH_QTY!=:widthQty OR pru.WIDTH_UNIT_ID!=:widthUnitId "
                 + "         OR pru.WEIGHT_QTY!=:weightQty OR pru.WEIGHT_UNIT_ID!=:weightUnitId "
-                + "         OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELLING!=:labelling "
+                + "         OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELING!=:labeling "
                 + "         OR pru.ACTIVE!=:active,:curUser, pru.LAST_MODIFIED_BY), "
-                + "    pu.LAST_MODIFIED_DATE=IF(pru.MULTIPLIER!=:multiplier OR pru.UNIT_ID!=:unitId "
+                + "    pru.LAST_MODIFIED_DATE=IF(pru.MULTIPLIER!=:multiplier OR pru.UNIT_ID!=:unitId "
                 + "         OR pru.HEIGHT_QTY!=:heightQty OR pru.HEIGHT_UNIT_ID!=:heightUnitId "
                 + "         OR pru.LENGTH_QTY!=:lengthQty OR pru.LENGTH_UNIT_ID!=:lengthUnitId "
                 + "         OR pru.WIDTH_QTY!=:widthQty OR pru.WIDTH_UNIT_ID!=:widthUnitId "
                 + "         OR pru.WEIGHT_QTY!=:weightQty OR pru.WEIGHT_UNIT_ID!=:weightUnitId "
-                + "         OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELLING!=:labelling "
+                + "         OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELING!=:labeling "
                 + "         OR pru.ACTIVE!=:active,:curDate, pru.LAST_MODIFIED_DATE), "
                 + "    prul.LABEL_EN=:labelEn, "
                 + "    prul.LAST_MODIFIED_BY=IF(prul.LABEL_EN=:labelEn,:curUser, prul.LAST_MODIFIED_BY), "
                 + "    prul.LAST_MODIFIED_DATE=IF(prul.LABEL_EN=:labelEn,:curDate, prul.LAST_MODIFIED_DATE) "
-                + "WHERE pu.PLANNING_UNIT_ID=:planningUnitId";
+                + "WHERE pru.PROCUREMENT_UNIT_ID=:procurementUnitId";
         Map<String, Object> params = new HashMap<>();
         params.put("procurementUnitId", procurementUnit.getProcurementUnitId());
         params.put("multiplier", procurementUnit.getMultiplier());
