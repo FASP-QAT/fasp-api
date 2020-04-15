@@ -486,22 +486,44 @@ public class UserDaoImpl implements UserDao {
     ) {
         String message = "", sql, username = user.getUsername(), phoneNo = user.getPhoneNumber();
         int userId = 0;
+        int result1 = 0, result2 = 0;
         Map<String, Object> params = new HashMap<>();
         params.put("username", user.getUsername());
+        params.put("emailId", user.getEmailId());
         if (page == 1) {
             sql = "SELECT COUNT(*) FROM us_user u WHERE u.`USERNAME`=:username";
-            if ((this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class) > 0 ? true : false)) {
-                message += "User already exists.";
+            result1 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+            if (result1 > 0) {
+                message = "static.message.user.usernameExists";
+            }
+            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`EMAIL_ID`=:emailId";
+            result2 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+            if (result2 > 0) {
+                message = "static.message.user.emailIdExists";
+            }
+
+            if (result1 > 0 && result2 > 0) {
+                message = "static.message.user.usernameemailIdExists";
             }
         } else if (page == 2) {
             sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`USERNAME`=:username";
             try {
-                userId = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+                result1 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
             } catch (EmptyResultDataAccessException e) {
-                userId = 0;
             }
-            if (userId > 0 && userId != user.getUserId() ? true : false) {
-                message += "User already exists.";
+            if (result1 > 0 && result1 != user.getUserId()) {
+                message = "static.message.user.usernameExists";
+            }
+            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`EMAIL_ID`=:emailId";
+            try {
+                result2 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+            } catch (EmptyResultDataAccessException e) {
+            }
+            if (result2 > 0 && result2 != user.getUserId()) {
+                message = "static.message.user.emailIdExists";
+            }
+            if ((result1 > 0 && result1 != user.getUserId()) && (result2 > 0 && result2 != user.getUserId())) {
+                message = "static.message.user.usernameemailIdExists";
             }
         }
         return message;

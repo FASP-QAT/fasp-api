@@ -226,13 +226,9 @@ public class UserRestController {
                     return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             } else {
-                auditLogger.info("Failed to add the User beacuse the Username already exists");
-                return new ResponseEntity(new ResponseCode("static.message.alreadyExists"), HttpStatus.PRECONDITION_FAILED);
+                auditLogger.info("Failed to add the User beacuse the Username or email id already exists");
+                return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED);
             }
-        } catch (DuplicateKeyException e) {
-            auditLogger.error("Error", e);
-            auditLogger.info("Failed to add the User");
-            return new ResponseEntity(new ResponseCode("static.message.alreadyExists"), HttpStatus.PRECONDITION_FAILED);
         } catch (Exception e) {
             auditLogger.error("Error", e);
             auditLogger.info("Failed to add the User");
@@ -245,17 +241,20 @@ public class UserRestController {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
         auditLogger.info("Going to update User " + user.toString(), request.getRemoteAddr(), curUser.getUsername());
         try {
-            int row = this.userService.updateUser(user, curUser.getUserId());
-            if (row > 0) {
-                auditLogger.info("User updated successfully");
-                return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+            String msg = this.userService.checkIfUserExistsByEmailIdAndPhoneNumber(user, 2);
+            if (msg.isEmpty()) {
+                int row = this.userService.updateUser(user, curUser.getUserId());
+                if (row > 0) {
+                    auditLogger.info("User updated successfully");
+                    return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+                } else {
+                    auditLogger.info("User could not be updated");
+                    return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+                }
             } else {
-                auditLogger.info("User could not be updated");
-                return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+                auditLogger.info("Failed to add the User beacuse the Username or email id already exists");
+                return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED);
             }
-        } catch (DuplicateKeyException e) {
-            auditLogger.info("User could not be updated, Username already exists");
-            return new ResponseEntity(new ResponseCode("static.message.alreadyExists"), HttpStatus.PRECONDITION_FAILED);
         } catch (Exception e) {
             auditLogger.info("User could not be updated", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -481,6 +480,7 @@ public class UserRestController {
                 return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (DuplicateKeyException e) {
+            System.out.println("Duplicate Access Controls");
             auditLogger.error("Duplicate Access Controls", e);
             return new ResponseEntity(new ResponseCode("static.message.user.duplicateacl"), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
