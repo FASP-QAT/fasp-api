@@ -408,7 +408,7 @@ public class UserRestController {
                 BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
                 if (bcrypt.matches(user.getPassword(), curUser.getPassword())) {
                     auditLogger.info("Failed to reset the password because New password is same as current password");
-                    return new ResponseEntity(new ResponseCode("static.message.passwordSame"), HttpStatus.PRECONDITION_FAILED);
+                    return new ResponseEntity(new ResponseCode("static.message.user.previousPasswordSame"), HttpStatus.PRECONDITION_FAILED);
                 } else {
                     this.userService.updatePassword(user.getUsername(), user.getToken(), user.getHashPassword(), 90);
                     auditLogger.info("Password has now been updated successfully for Username: " + user.getUsername());
@@ -420,7 +420,7 @@ public class UserRestController {
             }
         } catch (Exception e) {
             auditLogger.info("Could not update password", e);
-            return new ResponseEntity(new ResponseCode("static.message.forgotPasswordTokenError"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.user.forgotPasswordTokenError"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -480,7 +480,7 @@ public class UserRestController {
                 return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (DuplicateKeyException e) {
-            System.out.println("Duplicate Access Controls");
+//            System.out.println("Duplicate Access Controls");
             auditLogger.error("Duplicate Access Controls", e);
             return new ResponseEntity(new ResponseCode("static.message.user.duplicateacl"), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
