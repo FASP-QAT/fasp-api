@@ -7,9 +7,12 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.BaseModel;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.ExtendedProductCategory;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.ProductCategoryService;
+import cc.altius.utils.TreeUtils.Node;
+import cc.altius.utils.TreeUtils.Tree;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -18,7 +21,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -44,7 +46,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
     private ProductCategoryService productCategoryService;
 
     @PutMapping(path = "/productCategory")
-    public ResponseEntity putProductCategory(@RequestBody List<ProductCategory> productCategoryList, Authentication auth) {
+    public ResponseEntity putProductCategory(@RequestBody List<Node<ProductCategory>> productCategoryList, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.productCategoryService.saveProductCategoryList(productCategoryList, curUser);
@@ -58,11 +60,12 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         }
     }
 
-    @GetMapping("/productCategory")
-    public ResponseEntity getProductCategory(Authentication auth) {
+    @GetMapping("/productCategory/realmId/{realmId}")
+    public ResponseEntity getProductCategory(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.productCategoryService.getProductCategoryList(curUser), HttpStatus.OK);
+            Tree<ExtendedProductCategory> productCategoryTree = this.productCategoryService.getProductCategoryListForRealm(curUser, realmId);
+            return new ResponseEntity(productCategoryTree.getTreeList(), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Product Category", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -88,39 +91,19 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         }
     }
 
-    @GetMapping("/productCategory/list/{productCategoryId}/{includeCurrentLevel}/{includeAllChildren}")
-    public ResponseEntity getProductCategory(@PathVariable(value = "productCategoryId", required = true) int productCategoryId, @PathVariable(value = "includeCurrentLevel", required = false) Optional<Boolean> includeCurrentLevel, @PathVariable("includeAllChildren") Optional<Boolean> includeAllChildren, Authentication auth) {
-        boolean bolIncludeCurrentLevel = true;
-        boolean bolIncludeAllChildren = false;
-        if (includeCurrentLevel.isPresent()) {
-            bolIncludeCurrentLevel = includeCurrentLevel.get();
-        }
-        if (includeAllChildren.isPresent()) {
-            bolIncludeAllChildren = includeAllChildren.get();
-        }
-
-        try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.productCategoryService.getProductCategoryList(curUser, productCategoryId, bolIncludeCurrentLevel, bolIncludeAllChildren), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Product Category", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/productCategory/{productCategoryId}")
-    public ResponseEntity getProductCategory(@PathVariable("productCategoryId") int productCategoryId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.productCategoryService.getProductCategoryById(productCategoryId, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException er) {
-            logger.error("Error while trying to get Product Category Id=" + productCategoryId, er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logger.error("Error while trying to get Product Category Id=" + productCategoryId, e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @GetMapping("/productCategory/{productCategoryId}")
+//    public ResponseEntity getProductCategoryById(@PathVariable("productCategoryId") int productCategoryId, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+//            return new ResponseEntity(this.productCategoryService.getProductCategoryById(productCategoryId, curUser), HttpStatus.OK);
+//        } catch (EmptyResultDataAccessException er) {
+//            logger.error("Error while trying to get Product Category Id=" + productCategoryId, er);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to get Product Category Id=" + productCategoryId, e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     @GetMapping(value = "/sync/productCategory/{lastSyncDate}")
     public ResponseEntity getProductCategoryListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
