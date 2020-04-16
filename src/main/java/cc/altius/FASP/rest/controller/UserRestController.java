@@ -226,13 +226,9 @@ public class UserRestController {
                     return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
                 }
             } else {
-                auditLogger.info("Failed to add the User beacuse the Username already exists");
-                return new ResponseEntity(new ResponseCode("static.message.alreadyExists"), HttpStatus.PRECONDITION_FAILED);
+                auditLogger.info("Failed to add the User beacuse the Username or email id already exists");
+                return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED);
             }
-        } catch (DuplicateKeyException e) {
-            auditLogger.error("Error", e);
-            auditLogger.info("Failed to add the User");
-            return new ResponseEntity(new ResponseCode("static.message.alreadyExists"), HttpStatus.PRECONDITION_FAILED);
         } catch (Exception e) {
             auditLogger.error("Error", e);
             auditLogger.info("Failed to add the User");
@@ -245,17 +241,20 @@ public class UserRestController {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
         auditLogger.info("Going to update User " + user.toString(), request.getRemoteAddr(), curUser.getUsername());
         try {
-            int row = this.userService.updateUser(user, curUser.getUserId());
-            if (row > 0) {
-                auditLogger.info("User updated successfully");
-                return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+            String msg = this.userService.checkIfUserExistsByEmailIdAndPhoneNumber(user, 2);
+            if (msg.isEmpty()) {
+                int row = this.userService.updateUser(user, curUser.getUserId());
+                if (row > 0) {
+                    auditLogger.info("User updated successfully");
+                    return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+                } else {
+                    auditLogger.info("User could not be updated");
+                    return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+                }
             } else {
-                auditLogger.info("User could not be updated");
-                return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+                auditLogger.info("Failed to add the User beacuse the Username or email id already exists");
+                return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED);
             }
-        } catch (DuplicateKeyException e) {
-            auditLogger.info("User could not be updated, Username already exists");
-            return new ResponseEntity(new ResponseCode("static.message.alreadyExists"), HttpStatus.PRECONDITION_FAILED);
         } catch (Exception e) {
             auditLogger.info("User could not be updated", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -347,29 +346,29 @@ public class UserRestController {
         }
     }
 
-    @GetMapping(value = "/forgotPassword/{username}")
-    public ResponseEntity forgotPassword(@PathVariable String username, HttpServletRequest request) {
-        auditLogger.info("Forgot password action triggered for Username:" + username, request.getRemoteAddr());
+    @PostMapping(value = "/forgotPassword")
+    public ResponseEntity forgotPassword(@RequestBody EmailUser user, HttpServletRequest request) {
+        auditLogger.info("Forgot password action triggered for Email Id:" + user.getEmailId(), request.getRemoteAddr());
         try {
-            CustomUserDetails customUser = this.userService.getCustomUserByUsername(username);
+            CustomUserDetails customUser = this.userService.getCustomUserByEmailId(user.getEmailId());
             if (customUser != null) {
                 if (customUser.isActive()) {
-                    String token = this.userService.generateTokenForUsername(username, 1);
+                    String token = this.userService.generateTokenForUsername(customUser.getUsername(), 1);
                     if (token == null || token.isEmpty()) {
                         auditLogger.info("Could not process request as Token could not be generated");
                         return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
                     } else {
-                        auditLogger.info("Forgot password request processed for Username: " + username + " email with password reset link sent");
+                        auditLogger.info("Forgot password request processed for Email Id: " + user.getEmailId() + " email with password reset link sent");
                         Map<String, String> params = new HashMap<>();
                         params.put("token", token);
                         return new ResponseEntity(params, HttpStatus.OK);
                     }
                 } else {
-                    auditLogger.info("User is disabled Username: " + username);
-                    return new ResponseEntity(new ResponseCode("static.message.disabled"), HttpStatus.FORBIDDEN);
+                    auditLogger.info("User is disabled Email Id: " + user.getEmailId());
+                    return new ResponseEntity(new ResponseCode("static.message.user.disabled"), HttpStatus.FORBIDDEN);
                 }
             } else {
-                auditLogger.info("User does not exists with this Username " + username);
+                auditLogger.info("User does not exists with this Email Id " + user.getEmailId());
                 return new ResponseEntity(new ResponseCode("static.message.user.forgotPasswordSuccess"), HttpStatus.NOT_FOUND);
             }
         } catch (Exception e) {
@@ -409,7 +408,7 @@ public class UserRestController {
                 BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
                 if (bcrypt.matches(user.getPassword(), curUser.getPassword())) {
                     auditLogger.info("Failed to reset the password because New password is same as current password");
-                    return new ResponseEntity(new ResponseCode("static.message.passwordSame"), HttpStatus.PRECONDITION_FAILED);
+                    return new ResponseEntity(new ResponseCode("static.message.user.previousPasswordSame"), HttpStatus.PRECONDITION_FAILED);
                 } else {
                     this.userService.updatePassword(user.getUsername(), user.getToken(), user.getHashPassword(), 90);
                     auditLogger.info("Password has now been updated successfully for Username: " + user.getUsername());
@@ -421,7 +420,7 @@ public class UserRestController {
             }
         } catch (Exception e) {
             auditLogger.info("Could not update password", e);
-            return new ResponseEntity(new ResponseCode("static.message.forgotPasswordTokenError"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.user.forgotPasswordTokenError"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -480,6 +479,10 @@ public class UserRestController {
                 auditLogger.error("Could not updated " + user + " 0 rows updated");
                 return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
+        } catch (DuplicateKeyException e) {
+//            System.out.println("Duplicate Access Controls");
+            auditLogger.error("Duplicate Access Controls", e);
+            return new ResponseEntity(new ResponseCode("static.message.user.duplicateacl"), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             auditLogger.error("Error while trying to Add Access Controls", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
