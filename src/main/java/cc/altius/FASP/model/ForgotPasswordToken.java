@@ -82,7 +82,7 @@ public class ForgotPasswordToken implements Serializable {
         logger.error("tokenTriggeredDate----" + tokenTriggeredDate);
         logger.error("tokenCompletionDate---" + tokenCompletionDate);
         if (this.tokenTriggeredDate != null || this.tokenCompletionDate != null) {
-            return "static.message.user.forgotPasswordTokenExpired";
+            return "static.message.user.forgotPasswordTokenUsed";
         }
         Calendar allowedTriggerDate = Calendar.getInstance();
         allowedTriggerDate.setTime(this.tokenGenerationDate);
@@ -95,7 +95,7 @@ public class ForgotPasswordToken implements Serializable {
         if (DateUtils.compareDate(allowedTriggerDate.getTime(), curDate.getTime()) == 1) {
             return "";
         } else {
-            return "static.message.user.forgotPasswordTokenExpired";
+            return "static.message.user.forgotPasswordTokenUsed";
         }
     }
 
@@ -105,19 +105,19 @@ public class ForgotPasswordToken implements Serializable {
 
     public String inValidReasonForCompletion() {
         if (this.tokenTriggeredDate == null) {
-            return "Invalid Token";
+            return "static.message.user.invalidToken";
         } else if (this.tokenCompletionDate != null) {
-            return "Token already used";
+            return "static.message.user.forgotPasswordTokenUsed";
         }
         Calendar allowedCompletionDate = Calendar.getInstance();
         allowedCompletionDate.setTime(this.tokenTriggeredDate);
-        allowedCompletionDate.add(Calendar.MINUTE, 15);
+        allowedCompletionDate.add(Calendar.MINUTE, 3);
         Calendar curDate = Calendar.getInstance();
         curDate.setTime(DateUtils.getCurrentDateObject(DateUtils.EST));
         if (DateUtils.compareDate(allowedCompletionDate.getTime(), curDate.getTime()) == 1) {
             return "";
         } else {
-            return "Token expired";
+            return "static.message.user.TokenExpired";
         }
     }
 }

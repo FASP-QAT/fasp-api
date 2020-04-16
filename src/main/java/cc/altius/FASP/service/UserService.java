@@ -21,6 +21,8 @@ public interface UserService {
 
     public CustomUserDetails getCustomUserByUsername(String username);
 
+    public CustomUserDetails getCustomUserByEmailId(String emailId);
+
     public Map<String, Object> checkIfUserExists(String username, String password);
 
     public int resetFailedAttemptsByUsername(String username);

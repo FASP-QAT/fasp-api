@@ -89,7 +89,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
             + " LEFT JOIN us_user lmb ON pru.LAST_MODIFIED_BY=lmb.USER_ID"
             + " WHERE TRUE ";
 
-@Override
+    @Override
     public List<ProcurementUnit> getProcurementUnitList(boolean active, CustomUserDetails curUser) {
         String sqlString = sqlListString;
         Map<String, Object> params = new HashMap<>();
@@ -114,8 +114,8 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
             sqlString += "AND fu.REALM_ID=:realmId ";
             params.put("realmId", curUser.getRealm().getRealmId());
         }
-            sqlString += "AND fu.REALM_ID=:userRealmId ";
-            params.put("userRealmId", realmId);
+        sqlString += "AND fu.REALM_ID=:userRealmId ";
+        params.put("userRealmId", realmId);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
     }
 
@@ -130,8 +130,8 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
             sqlString += "AND fu.REALM_ID=:realmId ";
             params.put("realmId", curUser.getRealm().getRealmId());
         }
-            sqlString += "AND pru.PLANNING_UNIT_ID=:planningUnitId ";
-            params.put("planningUnitId", planningUnitId);
+        sqlString += "AND pru.PLANNING_UNIT_ID=:planningUnitId ";
+        params.put("planningUnitId", planningUnitId);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
     }
 
@@ -147,13 +147,13 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("MULTIPLIER", procurementUnit.getMultiplier());
         params.put("SUPPLIER_ID", procurementUnit.getSupplier().getSupplierId());
         params.put("HEIGHT_QTY", procurementUnit.getHeightQty());
-        params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit()==null || procurementUnit.getHeightUnit().getUnitId()==0? null : procurementUnit.getHeightUnit().getUnitId()));
+        params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getUnitId() == 0 ? null : procurementUnit.getHeightUnit().getUnitId()));
         params.put("WIDTH_QTY", procurementUnit.getWidthQty());
-        params.put("WIDTH_UNIT_ID", (procurementUnit.getWidthUnit()==null || procurementUnit.getWidthUnit().getUnitId()==0? null : procurementUnit.getWidthUnit().getUnitId()));
+        params.put("WIDTH_UNIT_ID", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getUnitId() == 0 ? null : procurementUnit.getWidthUnit().getUnitId()));
         params.put("LENGTH_QTY", procurementUnit.getLengthQty());
-        params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit()==null || procurementUnit.getLengthUnit().getUnitId()==0? null : procurementUnit.getLengthUnit().getUnitId()));
+        params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit() == null || procurementUnit.getLengthUnit().getUnitId() == 0 ? null : procurementUnit.getLengthUnit().getUnitId()));
         params.put("WEIGHT_QTY", procurementUnit.getWeightQty());
-        params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit()==null || procurementUnit.getWeightUnit().getUnitId()==0? null : procurementUnit.getWeightUnit().getUnitId()));
+        params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit() == null || procurementUnit.getWeightUnit().getUnitId() == 0 ? null : procurementUnit.getWeightUnit().getUnitId()));
         params.put("LABELING", procurementUnit.getLabeling());
         params.put("UNITS_PER_CONTAINER", procurementUnit.getUnitsPerContainer());
         params.put("ACTIVE", true);
@@ -205,13 +205,13 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("multiplier", procurementUnit.getMultiplier());
         params.put("unitId", procurementUnit.getUnit().getUnitId());
         params.put("heightQty", procurementUnit.getHeightQty());
-        params.put("heightUnitId", procurementUnit.getHeightUnit().getUnitId());
+        params.put("heightUnitId", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getUnitId() == 0 ? null : procurementUnit.getHeightUnit().getUnitId()));
         params.put("lengthQty", procurementUnit.getLengthQty());
-        params.put("lengthUnitId", procurementUnit.getLengthUnit().getUnitId());
+        params.put("lengthUnitId", (procurementUnit.getLengthUnit() == null || procurementUnit.getLengthUnit().getUnitId() == 0 ? null : procurementUnit.getLengthUnit().getUnitId()));
         params.put("widthQty", procurementUnit.getWidthQty());
-        params.put("widthUnitId", procurementUnit.getWidthUnit().getUnitId());
+        params.put("widthUnitId", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getUnitId() == 0 ? null : procurementUnit.getWidthUnit().getUnitId()));
         params.put("weightQty", procurementUnit.getWeightQty());
-        params.put("weightUnitId", procurementUnit.getWeightUnit().getUnitId());
+        params.put("weightUnitId", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getUnitId() == 0 ? null : procurementUnit.getWidthUnit().getUnitId()));
         params.put("unitsPerContainer", procurementUnit.getUnitsPerContainer());
         params.put("labeling", procurementUnit.getLabeling());
         params.put("active", procurementUnit.isActive());
@@ -229,8 +229,8 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
             sqlString += "AND fu.REALM_ID=:realmId ";
             params.put("realmId", curUser.getRealm().getRealmId());
         }
-            sqlString += "AND pru.PROCUREMENT_UNIT_ID=:procurementUnitId ";
-            params.put("procurementUnitId", procurementUnitId);
+        sqlString += "AND pru.PROCUREMENT_UNIT_ID=:procurementUnitId ";
+        params.put("procurementUnitId", procurementUnitId);
         return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new ProcurementUnitRowMapper());
     }
 
