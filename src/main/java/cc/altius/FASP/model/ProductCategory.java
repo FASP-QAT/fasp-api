@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 
 /**
@@ -14,10 +15,12 @@ import java.io.Serializable;
 public class ProductCategory extends BaseModel implements Serializable {
 
     private int productCategoryId;
-    private Realm realm;
+    private SimpleCodeObject realm;
     private Label label;
+    @JsonIgnore
+    private Integer parentProductCategoryId; // Only Root parent can be null
+    @JsonIgnore
     private String sortOrder;
-    private int level; // indicates the level that the Product Category is on. Root starts from 1
 
     public ProductCategory() {
     }
@@ -27,11 +30,11 @@ public class ProductCategory extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public ProductCategory(int productCategoryId, Realm realm, Label label, int level, String sortOrder) {
+    public ProductCategory(int productCategoryId, SimpleCodeObject realm, Label label, Integer parentProductCategoryId, String sortOrder) {
         this.productCategoryId = productCategoryId;
         this.realm = realm;
         this.label = label;
-        this.level = level;
+        this.parentProductCategoryId = parentProductCategoryId;
         this.sortOrder = sortOrder;
     }
 
@@ -43,11 +46,11 @@ public class ProductCategory extends BaseModel implements Serializable {
         this.productCategoryId = productCategoryId;
     }
 
-    public Realm getRealm() {
+    public SimpleCodeObject getRealm() {
         return realm;
     }
 
-    public void setRealm(Realm realm) {
+    public void setRealm(SimpleCodeObject realm) {
         this.realm = realm;
     }
 
@@ -59,12 +62,12 @@ public class ProductCategory extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public int getLevel() {
-        return level;
+    public Integer getParentProductCategoryId() {
+        return parentProductCategoryId;
     }
 
-    public void setLevel(int level) {
-        this.level = level;
+    public void setParentProductCategoryId(Integer parentProductCategoryId) {
+        this.parentProductCategoryId = parentProductCategoryId;
     }
 
     public String getSortOrder() {
@@ -102,7 +105,7 @@ public class ProductCategory extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "ProductCategory{" + "productCategoryId=" + productCategoryId + ", label=" + label + ", sortOrder=" + sortOrder + ", level=" + level + '}';
+        return label.getLabel_en();
     }
 
 }
