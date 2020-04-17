@@ -7,6 +7,7 @@ package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.TracerCategory;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleCodeObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -31,7 +32,7 @@ public class TracerCategoryRowMapper implements RowMapper<TracerCategory> {
     public TracerCategory mapRow(ResultSet rs, int rowNum) throws SQLException {
         TracerCategory pc = new TracerCategory(
                 rs.getInt(this.prefix + "TRACER_CATEGORY_ID"),
-                new Realm(rs.getInt(prefix + "REALM_ID"), new LabelRowMapper(this.prefix + "REALM_").mapRow(rs, rowNum), rs.getString(prefix + "REALM_CODE")),
+                new SimpleCodeObject(rs.getInt(prefix + "REALM_ID"), new LabelRowMapper(this.prefix + "REALM_").mapRow(rs, rowNum), rs.getString(prefix + "REALM_CODE")),
                 new LabelRowMapper(prefix).mapRow(rs, rowNum)
         );
         pc.setBaseModel(new BaseModelRowMapper(this.prefix).mapRow(rs, rowNum));

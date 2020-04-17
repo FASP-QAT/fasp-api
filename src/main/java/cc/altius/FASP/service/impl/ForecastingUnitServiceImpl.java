@@ -53,7 +53,7 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
 
     @Override
     public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, forecastingUnit.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, forecastingUnit.getRealm().getId())) {
             return this.forecastingUnitDao.addForecastingUnit(forecastingUnit, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -63,7 +63,7 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     @Override
     public int updateForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) {
         ForecastingUnit pr = this.getForecastingUnitById(forecastingUnit.getForecastingUnitId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, pr.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, pr.getRealm().getId())) {
             return this.forecastingUnitDao.updateForecastingUnit(forecastingUnit, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -73,7 +73,7 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     @Override
     public ForecastingUnit getForecastingUnitById(int forecastingUnitId, CustomUserDetails curUser) {
         ForecastingUnit pr = this.forecastingUnitDao.getForecastingUnitById(forecastingUnitId, curUser);
-        if (this.aclService.checkAccessForUser(curUser, pr.getRealm().getRealmId(), 0, 0, 0, pr.getForecastingUnitId())) {
+        if (this.aclService.checkAccessForUser(curUser, pr.getRealm().getId(), 0, 0, 0, pr.getForecastingUnitId())) {
             return pr;
         } else {
             throw new AccessDeniedException("Access denied");

@@ -34,7 +34,7 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     public int addBudget(Budget b, CustomUserDetails curUser) {
         SubFundingSource sfs = this.subFundingSourceDao.getSubFundingSourceById(b.getSubFundingSource().getSubFundingSourceId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, sfs.getFundingSource().getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, sfs.getFundingSource().getRealm().getId())) {
             return this.budgetDao.addBudget(b, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -44,7 +44,7 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     public int updateBudget(Budget b, CustomUserDetails curUser) {
         Budget bt = this.budgetDao.getBudgetById(b.getBudgetId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, bt.getSubFundingSource().getFundingSource().getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, bt.getSubFundingSource().getFundingSource().getRealm().getId())) {
             return this.budgetDao.updateBudget(b, curUser);
         } else {
             throw new AccessDeniedException("Access denied");

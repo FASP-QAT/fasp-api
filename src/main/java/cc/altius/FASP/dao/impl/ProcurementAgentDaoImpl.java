@@ -68,7 +68,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("PROCUREMENT_AGENT_CODE", p.getProcurementAgentCode());
-        params.put("REALM_ID", p.getRealm().getRealmId());
+        params.put("REALM_ID", p.getRealm().getId());
         int labelId = this.labelDao.addLabel(p.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());

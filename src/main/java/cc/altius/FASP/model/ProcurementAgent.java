@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class ProcurementAgent extends BaseModel implements Serializable {
 
     private int procurementAgentId;
-    private Realm realm;
+    private SimpleCodeObject realm;
     private Label label;
     private String procurementAgentCode;
     private int submittedToApprovedLeadTime;
@@ -28,7 +28,7 @@ public class ProcurementAgent extends BaseModel implements Serializable {
         this.procurementAgentCode = procurementAgentCode;
     }
 
-    public ProcurementAgent(int procurementAgentId, Realm realm, Label label, String procurementAgentCode, int submittedToApprovedLeadTime) {
+    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, Label label, String procurementAgentCode, int submittedToApprovedLeadTime) {
         this.procurementAgentId = procurementAgentId;
         this.realm = realm;
         this.label = label;
@@ -44,11 +44,11 @@ public class ProcurementAgent extends BaseModel implements Serializable {
         this.procurementAgentId = procurementAgentId;
     }
 
-    public Realm getRealm() {
+    public SimpleCodeObject getRealm() {
         return realm;
     }
 
-    public void setRealm(Realm realm) {
+    public void setRealm(SimpleCodeObject realm) {
         this.realm = realm;
     }
 

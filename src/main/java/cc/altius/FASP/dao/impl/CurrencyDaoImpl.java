@@ -39,6 +39,16 @@ public class CurrencyDaoImpl implements CurrencyDao {
 
     @Autowired
     private LabelDao labelDao;
+    
+    private final String sqlListString = "SELECT  "
+                + "	cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD, "
+                + "    cul.`LABEL_ID`, cul.`LABEL_EN`, cul.`LABEL_FR`, cul.`LABEL_SP`, cul.`LABEL_PR`, "
+                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, cu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, cu.LAST_MODIFIED_DATE, cu.ACTIVE  "
+                + "FROM ap_currency cu   "
+                + "LEFT JOIN ap_label cul ON cu.`LABEL_ID`=cul.`LABEL_ID` "
+                + "LEFT JOIN us_user cb ON cu.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON cu.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE TRUE ";
 
     @Transactional
     @Override
@@ -46,7 +56,7 @@ public class CurrencyDaoImpl implements CurrencyDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         int insertedLabelRowId = this.labelDao.addLabel(currency.getLabel(), curUser.getUserId());
         SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("ap_currency").usingGeneratedKeyColumns("CURRENCY_ID");
-        System.out.println("Before Inserting="+currency.getCurrencySymbol());
+        System.out.println("Before Inserting=" + currency.getCurrencySymbol());
         Map<String, Object> map = new HashMap<>();
         map.put("CURRENCY_CODE", currency.getCurrencyCode());
         map.put("CURRENCY_SYMBOL", currency.getCurrencySymbol());
@@ -58,41 +68,6 @@ public class CurrencyDaoImpl implements CurrencyDao {
         map.put("LAST_MODIFIED_BY", curUser.getUserId());
         map.put("LAST_MODIFIED_DATE", curDate);
         return insert.executeAndReturnKey(map).intValue();
-    }
-
-    @Override
-    public List<Currency> getCurrencyList(boolean active, CustomUserDetails curUser) {
-        String sqlString = "SELECT  "
-                + "	cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD, "
-                + "    cul.`LABEL_ID`, cul.`LABEL_EN`, cul.`LABEL_FR`, cul.`LABEL_SP`, cul.`LABEL_PR`, "
-                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, cu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, cu.LAST_MODIFIED_DATE, cu.ACTIVE  "
-                + "FROM ap_currency cu   "
-                + "LEFT JOIN ap_label cul ON cu.`LABEL_ID`=cul.`LABEL_ID` "
-                + "LEFT JOIN us_user cb ON cu.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON cu.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE TRUE ";
-        Map<String, Object> params = new HashMap<>();
-        params.put("active", active);
-        if (active) {
-            sqlString += " AND cu.ACTIVE=TRUE ";
-        }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new CurrencyRowMapper());
-    }
-    
-    @Override
-    public Currency getCurrencyById(int currencyId, CustomUserDetails curUser) {
-        String sqlString = "SELECT  "
-                + "	cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD, "
-                + "    cul.`LABEL_ID`, cul.`LABEL_EN`, cul.`LABEL_FR`, cul.`LABEL_SP`, cul.`LABEL_PR`, "
-                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, cu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, cu.LAST_MODIFIED_DATE, cu.ACTIVE  "
-                + "FROM ap_currency cu   "
-                + "LEFT JOIN ap_label cul ON cu.`LABEL_ID`=cul.`LABEL_ID` "
-                + "LEFT JOIN us_user cb ON cu.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON cu.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE cu.CURRENCY_ID=:currencyId ";
-        Map<String, Object> params = new HashMap<>();
-        params.put("currencyId", currencyId);
-        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new CurrencyRowMapper());
     }
 
     @Transactional
@@ -121,6 +96,34 @@ public class CurrencyDaoImpl implements CurrencyDao {
     }
 
     @Override
+    public List<Currency> getCurrencyListForSync(String lastSyncDate) {
+        String sqlString = this.sqlListString + " AND cu.LAST_MODIFIED_DATE>=:lastSyncDate ";
+        
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new CurrencyRowMapper());
+    }
+
+    @Override
+    public List<Currency> getCurrencyList(boolean active, CustomUserDetails curUser) {
+        String sqlString = this.sqlListString;
+        Map<String, Object> params = new HashMap<>();
+        params.put("active", active);
+        if (active) {
+            sqlString += " AND cu.ACTIVE=TRUE ";
+        }
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new CurrencyRowMapper());
+    }
+
+    @Override
+    public Currency getCurrencyById(int currencyId, CustomUserDetails curUser) {
+        String sqlString = this.sqlListString + " AND cu.CURRENCY_ID=:currencyId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("currencyId", currencyId);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new CurrencyRowMapper());
+    }
+
+    @Override
     public String getAllCurrencyCode() {
         String sql = "SELECT GROUP_CONCAT(ac.`CURRENCY_CODE`) FROM `ap_currency` ac ";
         Map<String, Object> params = new HashMap<>();
@@ -138,22 +141,6 @@ public class CurrencyDaoImpl implements CurrencyDao {
             String sql = "UPDATE ap_currency SET CONVERSION_RATE_TO_USD=:conversionRate ,LAST_MODIFIED_DATE=:curDate, LAST_MODIFIED_BY=1 where CURRENCY_CODE =:currencyCode";
             this.namedParameterJdbcTemplate.update(sql, params);
         }
-    }
-
-    @Override
-    public List<Currency> getCurrencyListForSync(String lastSyncDate) {
-        String sqlString = "SELECT  "
-                + "	cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD, "
-                + "    cul.`LABEL_ID`, cul.`LABEL_EN`, cul.`LABEL_FR`, cul.`LABEL_SP`, cul.`LABEL_PR`, "
-                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, cu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, cu.LAST_MODIFIED_DATE, cu.ACTIVE  "
-                + "FROM ap_currency cu   "
-                + "LEFT JOIN ap_label cul ON cu.`LABEL_ID`=cul.`LABEL_ID` "
-                + "LEFT JOIN us_user cb ON cu.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON cu.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE cu.LAST_MODIFIED_DATE>=:lastSyncDate";
-        Map<String, Object> params = new HashMap<>();
-        params.put("lastSyncDate", lastSyncDate);
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new CurrencyRowMapper());
     }
 
 }

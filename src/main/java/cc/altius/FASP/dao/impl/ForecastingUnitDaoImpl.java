@@ -61,35 +61,6 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
             + "WHERE TRUE ";
 
     @Override
-    public List<ForecastingUnit> getForecastingUnitList(boolean active, CustomUserDetails curUser) {
-        String sqlString = this.sqlListString;
-        Map<String, Object> params = new HashMap<>();
-        if (active) {
-            sqlString += " AND fu.ACTIVE=:active ";
-            params.put("active", active);
-        }
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND fu.REALM_ID=:realmId ";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ForecastingUnitRowMapper());
-    }
-
-    @Override
-    public List<ForecastingUnit> getForecastingUnitList(int realmId, boolean active, CustomUserDetails curUser) {
-        String sqlString = this.sqlListString;
-        sqlString += " AND fu.ACTIVE=:active AND fu.REALM_ID=:userRealmId ";
-        Map<String, Object> params = new HashMap<>();
-        params.put("active", active);
-        params.put("userRealmId", realmId);
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND fu.REALM_ID=:realmId ";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ForecastingUnitRowMapper());
-    }
-
-    @Override
     public int addForecastingUnit(ForecastingUnit forecastingUnit, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_forecasting_unit").usingGeneratedKeyColumns("FORECASTING_UNIT_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
@@ -98,9 +69,9 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
         params.put("LABEL_ID", labelId);
         int genericLabelId = this.labelDao.addLabel(forecastingUnit.getGenericLabel(), curUser.getUserId());
         params.put("GENERIC_LABEL_ID", genericLabelId);
-        params.put("REALM_ID", forecastingUnit.getRealm().getRealmId());
-        params.put("PRODUCT_CATEGORY_ID", forecastingUnit.getProductCategory().getProductCategoryId());
-        params.put("TRACER_CATEGORY_ID", forecastingUnit.getTracerCategory().getTracerCategoryId());
+        params.put("REALM_ID", forecastingUnit.getRealm().getId());
+        params.put("PRODUCT_CATEGORY_ID", forecastingUnit.getProductCategory().getId());
+        params.put("TRACER_CATEGORY_ID", forecastingUnit.getTracerCategory().getId());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
@@ -128,14 +99,43 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
                 + "WHERE fu.FORECASTING_UNIT_ID=:forecastingUnitId";
         Map<String, Object> params = new HashMap<>();
         params.put("forecastingUnitId", forecastingUnit.getForecastingUnitId());
-        params.put("productCategoryId", forecastingUnit.getProductCategory().getProductCategoryId());
-        params.put("tracerCategoryId", forecastingUnit.getTracerCategory().getTracerCategoryId());
+        params.put("productCategoryId", forecastingUnit.getProductCategory().getId());
+        params.put("tracerCategoryId", forecastingUnit.getTracerCategory().getId());
         params.put("active", forecastingUnit.isActive());
         params.put("labelEn", forecastingUnit.getLabel().getLabel_en());
         params.put("genericLabelEn", forecastingUnit.getGenericLabel().getLabel_en());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         return this.namedParameterJdbcTemplate.update(sqlString, params);
+    }
+
+    @Override
+    public List<ForecastingUnit> getForecastingUnitList(boolean active, CustomUserDetails curUser) {
+        String sqlString = this.sqlListString;
+        Map<String, Object> params = new HashMap<>();
+        if (active) {
+            sqlString += " AND fu.ACTIVE=:active ";
+            params.put("active", active);
+        }
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND fu.REALM_ID=:realmId ";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new ForecastingUnitRowMapper());
+    }
+
+    @Override
+    public List<ForecastingUnit> getForecastingUnitList(int realmId, boolean active, CustomUserDetails curUser) {
+        String sqlString = this.sqlListString;
+        sqlString += " AND fu.ACTIVE=:active AND fu.REALM_ID=:userRealmId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("active", active);
+        params.put("userRealmId", realmId);
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += "AND fu.REALM_ID=:realmId ";
+            params.put("realmId", curUser.getRealm().getRealmId());
+        }
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new ForecastingUnitRowMapper());
     }
 
     @Override

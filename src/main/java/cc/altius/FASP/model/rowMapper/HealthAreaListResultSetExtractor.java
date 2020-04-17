@@ -9,6 +9,7 @@ import cc.altius.FASP.model.Country;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
+import cc.altius.FASP.model.SimpleCodeObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -41,7 +42,7 @@ public class HealthAreaListResultSetExtractor implements ResultSetExtractor<List
                 }
                 ha = new HealthArea();
                 ha.setHealthAreaId(rs.getInt("HEALTH_AREA_ID"));
-                ha.setRealm(new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")));
+                ha.setRealm(new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")));
                 ha.setLabel(new LabelRowMapper().mapRow(rs, 1));
                 ha.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 ha.setRealmCountryList(new LinkedList<>());

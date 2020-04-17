@@ -15,12 +15,12 @@ public class FundingSource extends BaseModel implements Serializable {
 
     private int fundingSourceId;
     private Label label;
-    private Realm realm;
+    private SimpleCodeObject realm;
 
     public FundingSource() {
     }
 
-    public FundingSource(int fundingSourceId, Label label, Realm realm) {
+    public FundingSource(int fundingSourceId, Label label, SimpleCodeObject realm) {
         this.fundingSourceId = fundingSourceId;
         this.label = label;
         this.realm = realm;
@@ -42,11 +42,11 @@ public class FundingSource extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public Realm getRealm() {
+    public SimpleCodeObject getRealm() {
         return realm;
     }
 
-    public void setRealm(Realm realm) {
+    public void setRealm(SimpleCodeObject realm) {
         this.realm = realm;
     }
 

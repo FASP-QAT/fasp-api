@@ -9,6 +9,7 @@ import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SubFundingSource;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,7 +32,7 @@ public class BudgetRowMapper implements RowMapper<Budget> {
                         new FundingSource(
                                 rs.getInt("FUNDING_SOURCE_ID"), 
                                 new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, rowNum), 
-                                new Realm(
+                                new SimpleCodeObject(
                                         rs.getInt("REALM_ID"),
                                         new LabelRowMapper("REALM_").mapRow(rs, rowNum),
                                         rs.getString("REALM_CODE")

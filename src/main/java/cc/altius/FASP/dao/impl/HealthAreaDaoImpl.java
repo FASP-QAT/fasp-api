@@ -46,13 +46,30 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
     @Autowired
     LabelDao labelDao;
 
+    private final String sqlListString = "SELECT "
+            + "	ha.HEALTH_AREA_ID, hal.LABEL_ID, hal.LABEL_EN, hal.LABEL_FR, hal.LABEL_SP, hal.LABEL_PR, "
+            + "     r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
+            + "	ha.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ha.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ha.LAST_MODIFIED_DATE, "
+            + "     rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
+            + "FROM rm_health_area ha "
+            + "LEFT JOIN rm_realm r ON ha.REALM_ID=r.REALM_ID "
+            + "LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
+            + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+            + "LEFT JOIN us_user cb ON ha.CREATED_BY=cb.USER_ID "
+            + "LEFT JOIN us_user lmb ON ha.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "LEFT JOIN rm_health_area_country hac ON ha.HEALTH_AREA_ID=hac.HEALTH_AREA_ID "
+            + "LEFT JOIN rm_realm_country rc ON hac.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+            + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+            + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+            + "WHERE TRUE ";
+
     @Override
     @Transactional
     public int addHealthArea(HealthArea h, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_health_area").usingGeneratedKeyColumns("HEALTH_AREA_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("REALM_ID", h.getRealm().getRealmId());
+        params.put("REALM_ID", h.getRealm().getId());
         int labelId = this.labelDao.addLabel(h.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);
@@ -113,25 +130,10 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
 
     @Override
     public List<HealthArea> getHealthAreaList(CustomUserDetails curUser) {
-        String sqlString = "SELECT "
-                + "	ha.HEALTH_AREA_ID, hal.LABEL_ID, hal.LABEL_EN, hal.LABEL_FR, hal.LABEL_SP, hal.LABEL_PR, "
-                + "     r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
-                + "	ha.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ha.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ha.LAST_MODIFIED_DATE, "
-                + "     rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
-                + "FROM rm_health_area ha "
-                + "LEFT JOIN rm_realm r ON ha.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
-                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "LEFT JOIN us_user cb ON ha.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON ha.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "LEFT JOIN rm_health_area_country hac ON ha.HEALTH_AREA_ID=hac.HEALTH_AREA_ID "
-                + "LEFT JOIN rm_realm_country rc ON hac.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-                + "WHERE TRUE ";
+        String sqlString = this.sqlListString;
         Map<String, Object> params = new HashMap<>();
         if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND ha.REALM_ID=:realmId ";
+            sqlString += " AND ha.REALM_ID=:realmId ";
             params.put("realmId", curUser.getRealm().getRealmId());
         }
 //        for (UserAcl acl : curUser.getAclList()) {
@@ -155,22 +157,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
 
     @Override
     public List<HealthArea> getHealthAreaListByRealmId(int realmId, CustomUserDetails curUser) {
-        String sqlString = "SELECT "
-                + "	ha.HEALTH_AREA_ID, hal.LABEL_ID, hal.LABEL_EN, hal.LABEL_FR, hal.LABEL_SP, hal.LABEL_PR, "
-                + "     r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
-                + "	ha.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ha.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ha.LAST_MODIFIED_DATE, "
-                + "     rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
-                + "FROM rm_health_area ha "
-                + "LEFT JOIN rm_realm r ON ha.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
-                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "LEFT JOIN us_user cb ON ha.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON ha.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "LEFT JOIN rm_health_area_country hac ON ha.HEALTH_AREA_ID=hac.HEALTH_AREA_ID "
-                + "LEFT JOIN rm_realm_country rc ON hac.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-                + "WHERE ha.REALM_ID=:realmId ";
+        String sqlString = this.sqlListString + " AND ha.REALM_ID=:realmId ";
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         if (curUser.getRealm().getRealmId() != -1) {
@@ -225,22 +212,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
 
     @Override
     public List<HealthArea> getHealthAreaListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        String sqlString = "SELECT "
-                + "	ha.HEALTH_AREA_ID, hal.LABEL_ID, hal.LABEL_EN, hal.LABEL_FR, hal.LABEL_SP, hal.LABEL_PR, "
-                + "     r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
-                + "	ha.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ha.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ha.LAST_MODIFIED_DATE, "
-                + "     rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
-                + "FROM rm_health_area ha "
-                + "LEFT JOIN rm_realm r ON ha.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
-                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "LEFT JOIN us_user cb ON ha.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON ha.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "LEFT JOIN rm_health_area_country hac ON ha.HEALTH_AREA_ID=hac.HEALTH_AREA_ID "
-                + "LEFT JOIN rm_realm_country rc ON hac.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-                + "WHERE ha.LAST_MODIFIED_DATE>:lastSyncDate ";
+        String sqlString = this.sqlListString + "AND ha.LAST_MODIFIED_DATE>:lastSyncDate ";
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         if (curUser.getRealm().getRealmId() != -1) {

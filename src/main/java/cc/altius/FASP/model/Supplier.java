@@ -15,9 +15,9 @@ public class Supplier extends BaseModel implements Serializable {
 
     private int supplierId;
     private Label label;
-    private Realm realm;
+    private SimpleCodeObject realm;
 
-    public Supplier(int supplierId, Label label, Realm realm) {
+    public Supplier(int supplierId, Label label, SimpleCodeObject realm) {
         this.supplierId = supplierId;
         this.label = label;
         this.realm = realm;
@@ -47,11 +47,11 @@ public class Supplier extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public Realm getRealm() {
+    public SimpleCodeObject getRealm() {
         return realm;
     }
 
-    public void setRealm(Realm realm) {
+    public void setRealm(SimpleCodeObject realm) {
         this.realm = realm;
     }
 

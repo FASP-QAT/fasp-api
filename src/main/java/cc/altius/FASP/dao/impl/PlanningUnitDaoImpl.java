@@ -87,6 +87,49 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     }
 
     @Override
+    public int addPlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) {
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_planning_unit").usingGeneratedKeyColumns("PLANNING_UNIT_ID");
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params = new HashMap<>();
+        int labelId = this.labelDao.addLabel(planningUnit.getLabel(), curUser.getUserId());
+        params.put("LABEL_ID", labelId);
+        params.put("FORECASTING_UNIT_ID", planningUnit.getForecastingUnit().getForecastingUnitId());
+        params.put("UNIT_ID", planningUnit.getUnit().getId());
+        params.put("MULTIPLIER", planningUnit.getMultiplier());
+        params.put("ACTIVE", true);
+        params.put("CREATED_BY", curUser.getUserId());
+        params.put("CREATED_DATE", curDate);
+        params.put("LAST_MODIFIED_BY", curUser.getUserId());
+        params.put("LAST_MODIFIED_DATE", curDate);
+        return si.executeAndReturnKey(params).intValue();
+    }
+
+    @Override
+    public int updatePlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        String sqlString = "UPDATE rm_planning_unit pu LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
+                + "SET  "
+                + "    pu.MULTIPLIER=:multiplier, "
+                + "    pu.UNIT_ID=:unitId, "
+                + "    pu.ACTIVE=:active, "
+                + "    pu.LAST_MODIFIED_BY=IF(pu.MULTIPLIER!=:multiplier OR pu.UNIT_ID!=:unitId OR pu.ACTIVE!=:active,:curUser, pu.LAST_MODIFIED_BY), "
+                + "    pu.LAST_MODIFIED_DATE=IF(pu.MULTIPLIER!=:multiplier OR pu.UNIT_ID!=:unitId OR pu.ACTIVE!=:active,:curDate, pu.LAST_MODIFIED_DATE), "
+                + "    pul.LABEL_EN=:labelEn, "
+                + "    pul.LAST_MODIFIED_BY=IF(pul.LABEL_EN=:labelEn,:curUser, pul.LAST_MODIFIED_BY), "
+                + "    pul.LAST_MODIFIED_DATE=IF(pul.LABEL_EN=:labelEn,:curDate, pul.LAST_MODIFIED_DATE) "
+                + "WHERE pu.PLANNING_UNIT_ID=:planningUnitId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("planningUnitId", planningUnit.getPlanningUnitId());
+        params.put("unitId", planningUnit.getUnit().getId());
+        params.put("active", planningUnit.isActive());
+        params.put("labelEn", planningUnit.getLabel().getLabel_en());
+        params.put("curUser", curUser.getUserId());
+        params.put("curDate", curDate);
+        params.put("multiplier", planningUnit.getMultiplier());
+        return this.namedParameterJdbcTemplate.update(sqlString, params);
+    }
+
+    @Override
     public List<PlanningUnit> getPlanningUnitList(boolean active, CustomUserDetails curUser) {
         String sqlString = this.sqlListString;
         Map<String, Object> params = new HashMap<>();
@@ -133,49 +176,6 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
             params.put("realmId", curUser.getRealm().getRealmId());
         }
         return this.namedParameterJdbcTemplate.query(sqlString, params, new PlanningUnitRowMapper());
-    }
-
-    @Override
-    public int addPlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_planning_unit").usingGeneratedKeyColumns("PLANNING_UNIT_ID");
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        Map<String, Object> params = new HashMap<>();
-        int labelId = this.labelDao.addLabel(planningUnit.getLabel(), curUser.getUserId());
-        params.put("LABEL_ID", labelId);
-        params.put("FORECASTING_UNIT_ID", planningUnit.getForecastingUnit().getForecastingUnitId());
-        params.put("UNIT_ID", planningUnit.getUnit().getUnitId());
-        params.put("MULTIPLIER", planningUnit.getMultiplier());
-        params.put("ACTIVE", true);
-        params.put("CREATED_BY", curUser.getUserId());
-        params.put("CREATED_DATE", curDate);
-        params.put("LAST_MODIFIED_BY", curUser.getUserId());
-        params.put("LAST_MODIFIED_DATE", curDate);
-        return si.executeAndReturnKey(params).intValue();
-    }
-
-    @Override
-    public int updatePlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) {
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        String sqlString = "UPDATE rm_planning_unit pu LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
-                + "SET  "
-                + "    pu.MULTIPLIER=:multiplier, "
-                + "    pu.UNIT_ID=:unitId, "
-                + "    pu.ACTIVE=:active, "
-                + "    pu.LAST_MODIFIED_BY=IF(pu.MULTIPLIER!=:multiplier OR pu.UNIT_ID!=:unitId OR pu.ACTIVE!=:active,:curUser, pu.LAST_MODIFIED_BY), "
-                + "    pu.LAST_MODIFIED_DATE=IF(pu.MULTIPLIER!=:multiplier OR pu.UNIT_ID!=:unitId OR pu.ACTIVE!=:active,:curDate, pu.LAST_MODIFIED_DATE), "
-                + "    pul.LABEL_EN=:labelEn, "
-                + "    pul.LAST_MODIFIED_BY=IF(pul.LABEL_EN=:labelEn,:curUser, pul.LAST_MODIFIED_BY), "
-                + "    pul.LAST_MODIFIED_DATE=IF(pul.LABEL_EN=:labelEn,:curDate, pul.LAST_MODIFIED_DATE) "
-                + "WHERE pu.PLANNING_UNIT_ID=:planningUnitId";
-        Map<String, Object> params = new HashMap<>();
-        params.put("planningUnitId", planningUnit.getPlanningUnitId());
-        params.put("unitId", planningUnit.getUnit().getUnitId());
-        params.put("active", planningUnit.isActive());
-        params.put("labelEn", planningUnit.getLabel().getLabel_en());
-        params.put("curUser", curUser.getUserId());
-        params.put("curDate", curDate);
-        params.put("multiplier", planningUnit.getMultiplier());
-        return this.namedParameterJdbcTemplate.update(sqlString, params);
     }
 
     @Override

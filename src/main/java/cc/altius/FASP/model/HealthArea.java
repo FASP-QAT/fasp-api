@@ -16,7 +16,7 @@ import java.util.List;
 public class HealthArea extends BaseModel implements Serializable {
 
     private int healthAreaId;
-    private Realm realm;
+    private SimpleCodeObject realm;
     private Label label;
     @JsonIgnore
     List<RealmCountry> realmCountryList;
@@ -30,7 +30,7 @@ public class HealthArea extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public HealthArea(int healthAreaId, Realm realm, Label label) {
+    public HealthArea(int healthAreaId, SimpleCodeObject realm, Label label) {
         this.healthAreaId = healthAreaId;
         this.realm = realm;
         this.label = label;
@@ -44,11 +44,11 @@ public class HealthArea extends BaseModel implements Serializable {
         this.healthAreaId = healthAreaId;
     }
 
-    public Realm getRealm() {
+    public SimpleCodeObject getRealm() {
         return realm;
     }
 
-    public void setRealm(Realm realm) {
+    public void setRealm(SimpleCodeObject realm) {
         this.realm = realm;
     }
 

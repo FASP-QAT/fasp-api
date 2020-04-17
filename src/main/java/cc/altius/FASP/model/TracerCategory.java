@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class TracerCategory extends BaseModel implements Serializable {
 
     private int tracerCategoryId;
-    private Realm realm;
+    private SimpleCodeObject realm;
     private Label label;
 
     public TracerCategory() {
@@ -25,7 +25,7 @@ public class TracerCategory extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public TracerCategory(int tracerCategoryId, Realm realm, Label label) {
+    public TracerCategory(int tracerCategoryId, SimpleCodeObject realm, Label label) {
         this.tracerCategoryId = tracerCategoryId;
         this.realm = realm;
         this.label = label;
@@ -39,11 +39,11 @@ public class TracerCategory extends BaseModel implements Serializable {
         this.tracerCategoryId = tracerCategoryId;
     }
 
-    public Realm getRealm() {
+    public SimpleCodeObject getRealm() {
         return realm;
     }
 
-    public void setRealm(Realm realm) {
+    public void setRealm(SimpleCodeObject realm) {
         this.realm = realm;
     }
 
