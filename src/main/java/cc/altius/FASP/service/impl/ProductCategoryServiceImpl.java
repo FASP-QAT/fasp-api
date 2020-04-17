@@ -37,11 +37,11 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     @Transactional
-    public int saveProductCategoryList(List<Node<ProductCategory>> productCategoryList, CustomUserDetails curUser) throws Exception {
+    public int saveProductCategoryList(Node<ProductCategory>[] productCategorys, CustomUserDetails curUser) throws Exception {
         int rows = 0;
         boolean isFirst = true;
         Tree<ProductCategory> productCategoryTree = null;
-        for (Node<ProductCategory> node : productCategoryList) {
+        for (Node<ProductCategory> node : productCategorys) {
             node.setPayloadId(node.getPayload().getProductCategoryId());
             if (isFirst) {
 
@@ -72,7 +72,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
             }
         }
 
-        for (Node<ProductCategory> productCategory : productCategoryList) {
+        for (Node<ProductCategory> productCategory : productCategorys) {
             if (productCategory.getPayload().getProductCategoryId() != 0) {
                 // Update 
                 if (this.aclService.checkRealmAccessForUser(curUser, productCategory.getPayload().getRealm().getId())) {

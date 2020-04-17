@@ -16,7 +16,6 @@ import cc.altius.utils.TreeUtils.Tree;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,10 +45,10 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
     private ProductCategoryService productCategoryService;
 
     @PutMapping(path = "/productCategory")
-    public ResponseEntity putProductCategory(@RequestBody List<Node<ProductCategory>> productCategoryList, Authentication auth) {
+    public ResponseEntity putProductCategory(@RequestBody Node<ProductCategory>[] productCategories, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            this.productCategoryService.saveProductCategoryList(productCategoryList, curUser);
+            this.productCategoryService.saveProductCategoryList(productCategories, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update Product Category", e);
