@@ -42,29 +42,29 @@ public class RegionRestController {
     @Autowired
     RegionService regionService;
 
-    @PostMapping(value = "/region")
-    public ResponseEntity addRegion(@RequestBody Region region, Authentication auth) {
-        try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            this.regionService.addRegion(region, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to add Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
-        } catch (DuplicateKeyException e) {
-            logger.error("Error while trying to add Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
-        } catch (Exception e) {
-            logger.error("Error while trying to add Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @PostMapping(value = "/region")
+//    public ResponseEntity addRegion(@RequestBody Region region, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+//            this.regionService.addRegion(region, curUser);
+//            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+//        } catch (AccessDeniedException e) {
+//            logger.error("Error while trying to add Region", e);
+//            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+//        } catch (DuplicateKeyException e) {
+//            logger.error("Error while trying to add Region", e);
+//            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to add Region", e);
+//            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     @PutMapping(path = "/region")
-    public ResponseEntity putRegion(@RequestBody Region region, Authentication auth) {
+    public ResponseEntity putRegion(@RequestBody Region[] regions, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            this.regionService.updateRegion(region, curUser);
+            this.regionService.saveRegions(regions, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update Region", e);

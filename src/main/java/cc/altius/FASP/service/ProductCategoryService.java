@@ -10,7 +10,6 @@ import cc.altius.FASP.model.ExtendedProductCategory;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.utils.TreeUtils.Node;
 import cc.altius.utils.TreeUtils.Tree;
-import java.util.List;
 
 /**
  *
@@ -18,7 +17,7 @@ import java.util.List;
  */
 public interface ProductCategoryService {
 
-    public int saveProductCategoryList(List<Node<ProductCategory>> productCategoryList, CustomUserDetails curUser) throws Exception;
+    public int saveProductCategoryList(Node<ProductCategory>[] productCategorys, CustomUserDetails curUser) throws Exception;
 
     public Tree<ExtendedProductCategory> getProductCategoryListForRealm(CustomUserDetails curUser, int realmId);
 

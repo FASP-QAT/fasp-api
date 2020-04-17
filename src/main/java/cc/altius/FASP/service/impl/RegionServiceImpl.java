@@ -7,7 +7,6 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.RegionDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgRegionDTO;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.service.AclService;
@@ -34,26 +33,28 @@ public class RegionServiceImpl implements RegionService {
     private AclService aclService;
 
     @Override
-    public int addRegion(Region r, CustomUserDetails curUser) {
-        RealmCountry rc = this.realmCountryService.getRealmCountryById(r.getRealmCountry().getRealmCountryId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, rc.getRealm().getRealmId())) {
-            return this.regionDao.addRegion(r, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
+    public int saveRegions(Region[] regions, CustomUserDetails curUser) {
+        int rowsUpdated = 0;
+        for (Region r : regions) {
+            if (r.getRegionId() == 0) {
+                RealmCountry rc = this.realmCountryService.getRealmCountryById(r.getRealmCountry().getRealmCountryId(), curUser);
+                if (this.aclService.checkRealmAccessForUser(curUser, rc.getRealm().getRealmId())) {
+                    this.regionDao.addRegion(r, curUser);
+                    rowsUpdated++;
+                } else {
+                    throw new AccessDeniedException("Access denied");
+                }
+            } else {
+                Region region = this.getRegionById(r.getRegionId(), curUser);
+                if (this.aclService.checkRealmAccessForUser(curUser, region.getRealmCountry().getRealm().getRealmId())) {
+                    this.regionDao.updateRegion(r, curUser);
+                    rowsUpdated++;
+                } else {
+                    throw new AccessDeniedException("Access denied");
+                }
+            }
         }
-    }
-
-    @Override
-    public int updateRegion(Region m, CustomUserDetails curUser) {
-        Region region = this.getRegionById(m.getRegionId(), curUser);
-        if (region==null) {
-            throw new EmptyResultDataAccessException(1);
-        }
-        if (this.aclService.checkRealmAccessForUser(curUser, region.getRealmCountry().getRealm().getRealmId())) {
-            return this.regionDao.updateRegion(m, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+        return rowsUpdated;
     }
 
     @Override
@@ -83,7 +84,5 @@ public class RegionServiceImpl implements RegionService {
     public List<Region> getRegionListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.regionDao.getRegionListForSync(lastSyncDate, curUser);
     }
-    
-    
 
 }
