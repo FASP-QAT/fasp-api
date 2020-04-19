@@ -49,8 +49,8 @@ public class ProgramServiceImpl implements ProgramService {
                 curUser,
                 p.getRealmCountry().getRealm().getRealmId(),
                 p.getRealmCountry().getRealmCountryId(),
-                p.getHealthArea().getHealthAreaId(),
-                p.getOrganisation().getOrganisationId(),
+                p.getHealthArea().getId(),
+                p.getOrganisation().getId(),
                 0)) {
             return this.programDao.addProgram(p, curUser);
         } else {
@@ -68,8 +68,8 @@ public class ProgramServiceImpl implements ProgramService {
                 curUser,
                 curProg.getRealmCountry().getRealm().getRealmId(),
                 curProg.getRealmCountry().getRealmCountryId(),
-                curProg.getHealthArea().getHealthAreaId(),
-                curProg.getOrganisation().getOrganisationId(),
+                curProg.getHealthArea().getId(),
+                curProg.getOrganisation().getId(),
                 curProg.getProgramId())) {
             return this.programDao.updateProgram(p, curUser);
         } else {

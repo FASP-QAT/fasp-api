@@ -34,7 +34,7 @@ public class TracerCategoryServiceImpl implements TracerCategoryService {
 
     @Override
     public int addTracerCategory(TracerCategory m, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, m.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, m.getRealm().getId())) {
             return this.tracerCategoryDao.addTracerCategory(m, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -44,7 +44,7 @@ public class TracerCategoryServiceImpl implements TracerCategoryService {
     @Override
     public int updateTracerCategory(TracerCategory m, CustomUserDetails curUser) {
         TracerCategory tracerCategory = this.tracerCategoryDao.getTracerCategoryById(m.getTracerCategoryId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, tracerCategory.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, tracerCategory.getRealm().getId())) {
             return this.tracerCategoryDao.updateTracerCategory(m, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -72,7 +72,7 @@ public class TracerCategoryServiceImpl implements TracerCategoryService {
     @Override
     public TracerCategory getTracerCategoryById(int tracerCategoryId, CustomUserDetails curUser) {
         TracerCategory tracerCategory = this.tracerCategoryDao.getTracerCategoryById(tracerCategoryId, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, tracerCategory.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, tracerCategory.getRealm().getId())) {
             return this.tracerCategoryDao.getTracerCategoryById(tracerCategoryId, curUser);
         } else {
             throw new AccessDeniedException("Access denied");

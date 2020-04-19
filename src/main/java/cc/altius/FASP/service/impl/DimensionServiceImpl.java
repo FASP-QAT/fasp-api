@@ -39,8 +39,8 @@ public class DimensionServiceImpl implements DimensionService {
     }
 
     @Override
-    public List<Dimension> getDimensionList() {
-        return this.dimensionDao.getDimensionList();
+    public List<Dimension> getDimensionList(boolean active) {
+        return this.dimensionDao.getDimensionList(active);
     }
 
     @Override

@@ -109,8 +109,8 @@ public class AclServiceImpl implements AclService {
         } else {
             logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " Realm check passed");
             for (UserAcl ua : curUser.getAclList()) {
-                if ((ua.getHealthAreaId() == -1 || ua.getHealthAreaId() == p.getHealthArea().getHealthAreaId())
-                        && (ua.getOrganisationId() == -1 || ua.getOrganisationId() == p.getOrganisation().getOrganisationId())
+                if ((ua.getHealthAreaId() == -1 || ua.getHealthAreaId() == p.getHealthArea().getId())
+                        && (ua.getOrganisationId() == -1 || ua.getOrganisationId() == p.getOrganisation().getId())
                         && (ua.getProgramId() == -1 || ua.getProgramId() == p.getProgramId())) {
                     logger.info("Access allowed since he has access to " + ua);
                     return true;

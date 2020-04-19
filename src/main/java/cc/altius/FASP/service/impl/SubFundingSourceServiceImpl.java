@@ -40,7 +40,7 @@ public class SubFundingSourceServiceImpl implements SubFundingSourceService {
     @Override
     public SubFundingSource getSubFundingSourceById(int subFundingSourceId, CustomUserDetails curUser) {
         SubFundingSource sf = this.subFundingSourceDao.getSubFundingSourceById(subFundingSourceId, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, sf.getFundingSource().getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, sf.getFundingSource().getRealm().getId())) {
             return sf;
         } else {
             throw new AccessDeniedException("Access denied");
@@ -58,7 +58,7 @@ public class SubFundingSourceServiceImpl implements SubFundingSourceService {
         if (fs == null) {
             throw new EmptyResultDataAccessException(1);
         }
-        if (this.aclService.checkRealmAccessForUser(curUser, fs.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, fs.getRealm().getId())) {
             return this.subFundingSourceDao.getSubFundingSourceListByFundingSource(fundingSourceId, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -84,7 +84,7 @@ public class SubFundingSourceServiceImpl implements SubFundingSourceService {
         if (sfs == null) {
             throw new EmptyResultDataAccessException(1);
         }
-        if (this.aclService.checkRealmAccessForUser(curUser, sfs.getFundingSource().getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, sfs.getFundingSource().getRealm().getId())) {
             return this.subFundingSourceDao.updateSubFundingSource(subFundingSource, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -95,7 +95,7 @@ public class SubFundingSourceServiceImpl implements SubFundingSourceService {
     @Override
     public int addSubFundingSource(SubFundingSource subFundingSource, CustomUserDetails curUser) {
         FundingSource fs = this.fundingSourceDao.getFundingSourceById(subFundingSource.getFundingSource().getFundingSourceId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, fs.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, fs.getRealm().getId())) {
             return this.subFundingSourceDao.addSubFundingSource(subFundingSource, curUser);
         } else {
             throw new AccessDeniedException("Access denied");

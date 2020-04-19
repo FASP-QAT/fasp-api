@@ -41,31 +41,12 @@ public class LanguageDaoImpl implements LanguageDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    @Override
-    public List<Language> getLanguageList(boolean active, CustomUserDetails curUser) {
-        String sqlString = "SELECT la.LANGUAGE_ID, la.LANGUAGE_CODE, la.LANGUAGE_NAME, "
-                + "cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, la.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, la.LAST_MODIFIED_DATE, la.ACTIVE  "
-                + "FROM ap_language la  "
-                + "LEFT JOIN us_user cb ON la.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON la.LAST_MODIFIED_BY=lmb.USER_ID ";
-        if (active) {
-            sqlString += " WHERE la.`ACTIVE` ";
-        }
-        return this.namedParameterJdbcTemplate.query(sqlString, new LanguageRowMapper());
-    }
-
-    @Override
-    public Language getLanguageById(int languageId, CustomUserDetails curUser) {
-        String sqlString = "SELECT la.LANGUAGE_ID, la.LANGUAGE_CODE, la.LANGUAGE_NAME, "
-                + "cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, la.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, la.LAST_MODIFIED_DATE, la.ACTIVE  "
-                + "FROM ap_language la  "
-                + "LEFT JOIN us_user cb ON la.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON la.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE la.LANGUAGE_ID=:languageId ";
-        Map<String, Object> params = new HashMap<>();
-        params.put("languageId", languageId);
-        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new LanguageRowMapper());
-    }
+    private final String sqlListString = "SELECT la.LANGUAGE_ID, la.LANGUAGE_CODE, la.LANGUAGE_NAME, "
+            + "cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, la.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, la.LAST_MODIFIED_DATE, la.ACTIVE  "
+            + "FROM ap_language la  "
+            + "LEFT JOIN us_user cb ON la.CREATED_BY=cb.USER_ID "
+            + "LEFT JOIN us_user lmb ON la.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "WHERE TRUE ";
 
     @Override
     public int addLanguage(Language language, CustomUserDetails curUser) {
@@ -101,16 +82,28 @@ public class LanguageDaoImpl implements LanguageDao {
     }
 
     @Override
+    public List<Language> getLanguageList(boolean active, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        if (active) {
+            sqlStringBuilder.append(" AND la.`ACTIVE` ");
+        }
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), new LanguageRowMapper());
+    }
+
+    @Override
+    public Language getLanguageById(int languageId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND la.LANGUAGE_ID=:languageId ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("languageId", languageId);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new LanguageRowMapper());
+    }
+
+    @Override
     public List<Language> getLanguageListForSync(String lastSyncDate) {
-        String sqlString = "SELECT la.LANGUAGE_ID, la.LANGUAGE_CODE, la.LANGUAGE_NAME, "
-                + "cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, la.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, la.LAST_MODIFIED_DATE, la.ACTIVE  "
-                + "FROM ap_language la  "
-                + "LEFT JOIN us_user cb ON la.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON la.LAST_MODIFIED_BY=lmb.USER_ID "
-                + " WHERE la.LAST_MODIFIED_DATE>=:lastSyncDate";
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND la.LAST_MODIFIED_DATE>=:lastSyncDate ");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new LanguageRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new LanguageRowMapper());
     }
 
     @Override
@@ -130,7 +123,6 @@ public class LanguageDaoImpl implements LanguageDao {
             }
         });
         Map<String, String> result1 = result.stream().collect(Collectors.toMap(LabelJson::getLabelCode, LabelJson::getLabelText));
-        System.out.println("result"+result1);
         return result1;
     }
 

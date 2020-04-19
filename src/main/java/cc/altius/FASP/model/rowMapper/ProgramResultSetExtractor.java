@@ -14,6 +14,7 @@ import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.Region;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Unit;
 import cc.altius.FASP.model.Version;
 import java.sql.ResultSet;
@@ -50,8 +51,8 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
                 p.getRealmCountry().setArrivedToDeliveredLeadTime(rs.getInt("REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME"));
                 p.getRealmCountry().setPalletUnit(new Unit(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, 1), rs.getString("UNIT_CODE")));
                 p.setLabel(new LabelRowMapper().mapRow(rs, 1));
-                p.setOrganisation(new Organisation(rs.getInt("ORGANISATION_ID"), rs.getString("ORGANISATION_CODE"), new LabelRowMapper("ORGANISATION_").mapRow(rs, 1)));
-                p.setHealthArea(new HealthArea(rs.getInt("HEALTH_AREA_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1)));
+                p.setOrganisation(new SimpleObject(rs.getInt("ORGANISATION_ID"), new LabelRowMapper("ORGANISATION_").mapRow(rs, 1)));
+                p.setHealthArea(new SimpleObject(rs.getInt("HEALTH_AREA_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1)));
                 p.setProgramManager(new BasicUser(rs.getInt("PROGRAM_MANAGER_USER_ID"), rs.getString("PROGRAM_MANAGER_USERNAME")));
                 p.setProgramNotes(rs.getString("PROGRAM_NOTES"));
                 p.setAirFreightPerc(rs.getDouble("AIR_FREIGHT_PERC"));

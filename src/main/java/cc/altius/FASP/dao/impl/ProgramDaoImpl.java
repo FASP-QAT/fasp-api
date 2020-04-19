@@ -102,22 +102,6 @@ public class ProgramDaoImpl implements ProgramDao {
     private final String sqlOrderBy = "";
 //            " ORDER BY p.PROGRAM_ID, pv.VERSION_ID, pr.REGION_ID ";
     @Override
-    public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser) {
-        Map<String, Object> params = new HashMap<>();
-        String sql = "SELECT r.`PROGRAM_ID`,label.`LABEL_ID`,label.`LABEL_EN`,label.`LABEL_FR`,label.`LABEL_PR`,label.`LABEL_SP` "
-                + "FROM rm_program r  "
-                + "LEFT JOIN ap_label label ON label.`LABEL_ID`=r.`LABEL_ID` WHERE 1 ";
-        int count = 1;
-        for (UserAcl acl : curUser.getAclList()) {
-            sql += "AND ("
-                    + "(r.PROGRAM_ID=:programId" + count + " OR :programId" + count + "=-1)) ";
-            params.put("programId" + count, acl.getProgramId());
-            count++;
-        }
-        return this.namedParameterJdbcTemplate.query(sql, params, new ProgramDTORowMapper());
-    }
-
-    @Override
     @Transactional
     public int addProgram(Program p, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
@@ -125,8 +109,8 @@ public class ProgramDaoImpl implements ProgramDao {
         int labelId = this.labelDao.addLabel(p.getLabel(), curUser.getUserId());
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program").usingGeneratedKeyColumns("PROGRAM_ID");
         params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
-        params.put("ORGANISATION_ID", p.getOrganisation().getOrganisationId());
-        params.put("HEALTH_AREA_ID", p.getHealthArea().getHealthAreaId());
+        params.put("ORGANISATION_ID", p.getOrganisation().getId());
+        params.put("HEALTH_AREA_ID", p.getHealthArea().getId());
         params.put("LABEL_ID", labelId);
         params.put("PROGRAM_MANAGER_USER_ID", p.getProgramManager().getUserId());
         params.put("PROGRAM_NOTES", p.getProgramNotes());
@@ -260,6 +244,22 @@ public class ProgramDaoImpl implements ProgramDao {
         }
         si.executeBatch(paramList);
         return rows;
+    }
+
+    @Override
+    public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        String sql = "SELECT r.`PROGRAM_ID`,label.`LABEL_ID`,label.`LABEL_EN`,label.`LABEL_FR`,label.`LABEL_PR`,label.`LABEL_SP` "
+                + "FROM rm_program r  "
+                + "LEFT JOIN ap_label label ON label.`LABEL_ID`=r.`LABEL_ID` WHERE 1 ";
+        int count = 1;
+        for (UserAcl acl : curUser.getAclList()) {
+            sql += "AND ("
+                    + "(r.PROGRAM_ID=:programId" + count + " OR :programId" + count + "=-1)) ";
+            params.put("programId" + count, acl.getProgramId());
+            count++;
+        }
+        return this.namedParameterJdbcTemplate.query(sql, params, new ProgramDTORowMapper());
     }
 
     @Override

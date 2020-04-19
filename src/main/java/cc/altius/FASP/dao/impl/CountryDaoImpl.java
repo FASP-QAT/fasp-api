@@ -41,47 +41,20 @@ public class CountryDaoImpl implements CountryDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    @Override
-    public List<Country> getCountryList(boolean active, CustomUserDetails curUser) {
-        String sqlString = "SELECT c.COUNTRY_ID, c.COUNTRY_CODE, "
-                + "	cl.LABEL_ID, cl.LABEL_EN, cl.LABEL_FR, cl.LABEL_PR, cl.LABEL_SP, "
-                + "    la.LANGUAGE_ID, la.LANGUAGE_CODE, la.LANGUAGE_NAME, "
-                + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD, "
-                + "    cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
-                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, c.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, c.LAST_MODIFIED_DATE, c.ACTIVE  "
-                + "FROM ap_country c  "
-                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-                + "LEFT JOIN ap_language la ON c.LANGUAGE_ID=la.LANGUAGE_ID "
-                + "LEFT JOIN ap_currency cu ON c.CURRENCY_ID=cu.CURRENCY_ID "
-                + "LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
-                + "LEFT JOIN us_user cb ON c.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON c.LAST_MODIFIED_BY=lmb.USER_ID ";
-        if (active) {
-            sqlString += " WHERE c.ACTIVE";
-        }
-        return this.namedParameterJdbcTemplate.query(sqlString, new CountryRowMapper());
-    }
-
-    @Override
-    public Country getCountryById(int countryId, CustomUserDetails curUser) {
-        String sqlString = "SELECT c.COUNTRY_ID, c.COUNTRY_CODE, "
-                + "	cl.LABEL_ID, cl.LABEL_EN, cl.LABEL_FR, cl.LABEL_PR, cl.LABEL_SP, "
-                + "    la.LANGUAGE_ID, la.LANGUAGE_CODE, la.LANGUAGE_NAME, "
-                + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD, "
-                + "    cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
-                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, c.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, c.LAST_MODIFIED_DATE, c.ACTIVE  "
-                + "FROM ap_country c  "
-                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-                + "LEFT JOIN ap_language la ON c.LANGUAGE_ID=la.LANGUAGE_ID "
-                + "LEFT JOIN ap_currency cu ON c.CURRENCY_ID=cu.CURRENCY_ID "
-                + "LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
-                + "LEFT JOIN us_user cb ON c.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON c.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE c.COUNTRY_ID=:countryId";
-        Map<String, Object> params = new HashMap<>();
-        params.put("countryId", countryId);
-        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new CountryRowMapper());
-    }
+    private final String sqlListString = "SELECT c.COUNTRY_ID, c.COUNTRY_CODE, "
+            + "	cl.LABEL_ID, cl.LABEL_EN, cl.LABEL_FR, cl.LABEL_PR, cl.LABEL_SP, "
+            + "    la.LANGUAGE_ID, la.LANGUAGE_CODE, la.LANGUAGE_NAME, "
+            + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD, "
+            + "    cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
+            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, c.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, c.LAST_MODIFIED_DATE, c.ACTIVE  "
+            + "FROM ap_country c  "
+            + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+            + "LEFT JOIN ap_language la ON c.LANGUAGE_ID=la.LANGUAGE_ID "
+            + "LEFT JOIN ap_currency cu ON c.CURRENCY_ID=cu.CURRENCY_ID "
+            + "LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
+            + "LEFT JOIN us_user cb ON c.CREATED_BY=cb.USER_ID "
+            + "LEFT JOIN us_user lmb ON c.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "WHERE TRUE ";
 
     @Transactional
     @Override
@@ -90,7 +63,7 @@ public class CountryDaoImpl implements CountryDao {
         int insertedLabelRowId = this.labelDao.addLabel(country.getLabel(), curUser.getUserId());
         SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("ap_country").usingGeneratedKeyColumns("COUNTRY_ID");
         Map<String, Object> map = new HashMap<>();
-        map.put("CURRENCY_ID", country.getCurrency().getCurrencyId());
+        map.put("CURRENCY_ID", country.getCurrency().getId());
         map.put("COUNTRY_CODE", country.getCountryCode());
         map.put("LANGUAGE_ID", country.getLanguage().getLanguageId());
         map.put("LABEL_ID", insertedLabelRowId);
@@ -117,7 +90,7 @@ public class CountryDaoImpl implements CountryDao {
         Map<String, Object> params = new HashMap<>();
         params.put("countryId", country.getCountryId());
         params.put("countryCode", country.getCountryCode());
-        params.put("currencyId", country.getCurrency().getCurrencyId());
+        params.put("currencyId", country.getCurrency().getId());
         params.put("languageId", country.getLanguage().getLanguageId());
         params.put("label_en", country.getLabel().getLabel_en());
         params.put("active", country.isActive());
@@ -127,24 +100,28 @@ public class CountryDaoImpl implements CountryDao {
     }
 
     @Override
+    public List<Country> getCountryList(boolean active, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        if (active) {
+            sqlStringBuilder.append(" AND c.ACTIVE");
+        }
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), new CountryRowMapper());
+    }
+
+    @Override
+    public Country getCountryById(int countryId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND c.COUNTRY_ID=:countryId");
+        Map<String, Object> params = new HashMap<>();
+        params.put("countryId", countryId);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new CountryRowMapper());
+    }
+    
+    @Override
     public List<Country> getCountryListForSync(String lastSyncDate) {
-        String sqlString = "SELECT c.COUNTRY_ID, c.COUNTRY_CODE, "
-                + "	cl.LABEL_ID, cl.LABEL_EN, cl.LABEL_FR, cl.LABEL_PR, cl.LABEL_SP, "
-                + "    la.LANGUAGE_ID, la.LANGUAGE_CODE, la.LANGUAGE_NAME, "
-                + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD, "
-                + "    cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
-                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, c.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, c.LAST_MODIFIED_DATE, c.ACTIVE  "
-                + "FROM ap_country c  "
-                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-                + "LEFT JOIN ap_language la ON c.LANGUAGE_ID=la.LANGUAGE_ID "
-                + "LEFT JOIN ap_currency cu ON c.CURRENCY_ID=cu.CURRENCY_ID "
-                + "LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
-                + "LEFT JOIN us_user cb ON c.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON c.LAST_MODIFIED_BY=lmb.USER_ID "
-                + " WHERE c.LAST_MODIFIED_DATE>=:lastSyncDate";
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND c.LAST_MODIFIED_DATE>=:lastSyncDate");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new CountryRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new CountryRowMapper());
     }
 
 }

@@ -125,21 +125,20 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
 //        this.aclService.addUserAclForRealm(sqlListString, params, "r", curUser);
 //        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor());
 //    }
-
     @Override
     public Tree<ExtendedProductCategory> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeMainBranch, boolean includeAllChildren) {
         String sqlString = "SELECT pc.SORT_ORDER from rm_product_category pc where pc.PRODUCT_CATEGORY_ID=:productCategoryId";
         Map<String, Object> params = new HashMap<>();
         params.put("productCategoryId", productCategoryId);
-        
+
         String sortOrder = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, String.class);
-        params.put("sortOrder", sortOrder);        
+        params.put("sortOrder", sortOrder);
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         this.aclService.addUserAclForRealm(sqlString, params, "r", curUser);
         if (!includeAllChildren) {
             sqlStringBuilder.append(" AND pc.`SORT_ORDER` = :sortOrder ");
         }
-        if (!includeMainBranch) { 
+        if (!includeMainBranch) {
             sqlStringBuilder.append(" AND pc.`SORT_ORDER` != :sortOrder ");
         }
         sqlStringBuilder.append(" AND pc.`SORT_ORDER` LIKE CONCAT(:sortOrder, '%') ORDER BY pc.SORT_ORDER");

@@ -92,11 +92,14 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @GetMapping("/forecastingUnit/realm/{realmId}")
+    @GetMapping("/forecastingUnit/realmId/{realmId}")
     public ResponseEntity getForecastingUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.forecastingUnitService.getForecastingUnitList(realmId, true, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list ForecastingUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list ForecastingUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);

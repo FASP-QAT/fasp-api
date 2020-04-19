@@ -8,6 +8,8 @@ package cc.altius.FASP.model.rowMapper;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.TracerCategory;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,11 +25,11 @@ public class ForecastingUnitRowMapper implements RowMapper<ForecastingUnit> {
     public ForecastingUnit mapRow(ResultSet rs, int rowNum) throws SQLException {
         ForecastingUnit p = new ForecastingUnit(
                 rs.getInt("FORECASTING_UNIT_ID"),
-                new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, rowNum), rs.getString("REALM_CODE")),
+                new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, rowNum), rs.getString("REALM_CODE")),
                 new LabelRowMapper("GENERIC_").mapRow(rs, rowNum),
                 new LabelRowMapper().mapRow(rs, rowNum),
-                new ProductCategory(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, rowNum)),
-                new TracerCategory(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TRACER_CATEGORY_").mapRow(rs, rowNum))
+                new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, rowNum)),
+                new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TRACER_CATEGORY_").mapRow(rs, rowNum))
         );
         p.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return p;

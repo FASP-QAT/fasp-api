@@ -20,6 +20,8 @@ public interface BudgetDao {
     public int updateBudget(Budget b, CustomUserDetails curUser);
 
     public List<Budget> getBudgetList(CustomUserDetails curUser);
+    
+    public List<Budget> getBudgetListForRealm(int realmId, CustomUserDetails curUser);
 
     public Budget getBudgetById(int BudgetId, CustomUserDetails curUser);
     

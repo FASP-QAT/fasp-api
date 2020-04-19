@@ -60,7 +60,7 @@ public class ProcurementUnitServiceImpl implements ProcurementUnitService {
         if (pu == null) {
             throw new EmptyResultDataAccessException(1);
         }
-        if (this.aclService.checkRealmAccessForUser(curUser, pu.getForecastingUnit().getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, pu.getForecastingUnit().getRealm().getId())) {
             return this.procurementUnitDao.getProcurementUnitListByPlanningUnit(planningUnitId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -73,7 +73,7 @@ public class ProcurementUnitServiceImpl implements ProcurementUnitService {
         if (pu == null) {
             throw new EmptyResultDataAccessException(1);
         }
-        if (this.aclService.checkRealmAccessForUser(curUser, pu.getForecastingUnit().getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, pu.getForecastingUnit().getRealm().getId())) {
             return this.procurementUnitDao.addProcurementUnit(procurementUnit, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -83,7 +83,7 @@ public class ProcurementUnitServiceImpl implements ProcurementUnitService {
     @Override
     public int updateProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser) {
         ProcurementUnit pr = this.procurementUnitDao.getProcurementUnitById(procurementUnit.getProcurementUnitId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, pr.getPlanningUnit().getForecastingUnit().getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, pr.getPlanningUnit().getForecastingUnit().getRealm().getId())) {
             return this.procurementUnitDao.updateProcurementUnit(procurementUnit, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -93,7 +93,7 @@ public class ProcurementUnitServiceImpl implements ProcurementUnitService {
     @Override
     public ProcurementUnit getProcurementUnitById(int procurementUnitId, CustomUserDetails curUser) {
         ProcurementUnit pr = this.procurementUnitDao.getProcurementUnitById(procurementUnitId, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, pr.getPlanningUnit().getForecastingUnit().getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, pr.getPlanningUnit().getForecastingUnit().getRealm().getId())) {
             return pr;
         } else {
             throw new AccessDeniedException("Access denied");

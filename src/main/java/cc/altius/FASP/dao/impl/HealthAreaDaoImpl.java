@@ -50,7 +50,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
     private final String sqlListString = "SELECT "
             + "	ha.HEALTH_AREA_ID, hal.LABEL_ID, hal.LABEL_EN, hal.LABEL_FR, hal.LABEL_SP, hal.LABEL_PR, "
             + "     r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
-            + "	ha.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ha.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ha.LAST_MODIFIED_DATE, "
+            + "     ha.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ha.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ha.LAST_MODIFIED_DATE, "
             + "     rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
             + "FROM rm_health_area ha "
             + "LEFT JOIN rm_realm r ON ha.REALM_ID=r.REALM_ID "
@@ -63,14 +63,14 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
             + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
             + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
             + "WHERE TRUE ";
-
+    
     @Override
     @Transactional
     public int addHealthArea(HealthArea h, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_health_area").usingGeneratedKeyColumns("HEALTH_AREA_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("REALM_ID", h.getRealm().getRealmId());
+        params.put("REALM_ID", h.getRealm().getId());
         int labelId = this.labelDao.addLabel(h.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);
@@ -135,22 +135,6 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new HealthAreaListResultSetExtractor());
-    }
-
-    @Override
-    public List<HealthArea> getHealthAreaListByRealmId(int realmId, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
-        Map<String, Object> params = new HashMap<>();
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new HealthAreaListResultSetExtractor());
-    }
-
-    @Override
-    public HealthArea getHealthAreaById(int healthAreaId, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND ha.HEALTH_AREA_ID=:haId ");
-        Map<String, Object> params = new HashMap<>();
-        params.put("haId", healthAreaId);
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
 //        for (UserAcl acl : curUser.getAclList()) {
 //            if (acl.getRealmCountryId() != -1) {
 //                sqlString += "AND hac.REALM_COUNTRY_ID=:realmCountryId";
@@ -167,6 +151,23 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
 //
 //            }
 //        }
+    }
+
+    @Override
+    public List<HealthArea> getHealthAreaListByRealmId(int realmId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new HealthAreaListResultSetExtractor());
+    }
+
+    @Override
+    public HealthArea getHealthAreaById(int healthAreaId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND ha.HEALTH_AREA_ID=:haId ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("haId", healthAreaId);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new HealthAreaResultSetExtractor());
     }
 
@@ -175,6 +176,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
         sqlStringBuilder.append(" AND ha.HEALTH_AREA_ID IN (SELECT p.HEALTH_AREA_ID FROM rm_program p WHERE p.ACTIVE) ");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new HealthAreaListResultSetExtractor());
     }

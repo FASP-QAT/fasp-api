@@ -42,7 +42,7 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     @Override
     public int updateProcurementAgent(ProcurementAgent procurementAgent, CustomUserDetails curUser) {
         ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(procurementAgent.getProcurementAgentId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
             return this.procurementAgentDao.updateProcurementAgent(procurementAgent, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -57,7 +57,7 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     @Override
     public ProcurementAgent getProcurementAgentById(int procurementAgentId, CustomUserDetails curUser) {
         ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(procurementAgentId, curUser);
-        if (pa != null && this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getRealmId())) {
+        if (pa != null && this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
             return pa;
         } else {
             throw new AccessDeniedException("Access denied");
@@ -80,7 +80,7 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     @Override
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser) {
         ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(procurementAgentId, curUser);
-        if (pa != null && this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getRealmId())) {
+        if (pa != null && this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
             return this.procurementAgentDao.getProcurementAgentPlanningUnitList(procurementAgentId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -91,7 +91,7 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     public int saveProcurementAgentPlanningUnit(ProcurementAgentPlanningUnit[] procurementAgentPlanningUnits, CustomUserDetails curUser) {
         for (ProcurementAgentPlanningUnit papu : procurementAgentPlanningUnits) {
             ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(papu.getProcurementAgent().getId(), curUser);
-            if (!this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getRealmId())) {
+            if (!this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
                 throw new AccessDeniedException("Access denied");
             }
         }
@@ -101,7 +101,7 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser) {
         ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(procurementAgentId, curUser);
-        if (pa != null && this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getRealmId())) {
+        if (pa != null && this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
             return this.procurementAgentDao.getProcurementAgentProcurementUnitList(procurementAgentId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -112,7 +112,7 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     public int saveProcurementAgentProcurementUnit(ProcurementAgentProcurementUnit[] procurementAgentProcurementUnits, CustomUserDetails curUser) {
         for (ProcurementAgentProcurementUnit papu : procurementAgentProcurementUnits) {
             ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(papu.getProcurementAgent().getId(), curUser);
-            if (!this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getRealmId())) {
+            if (!this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
                 throw new AccessDeniedException("Access denied");
             }
         }

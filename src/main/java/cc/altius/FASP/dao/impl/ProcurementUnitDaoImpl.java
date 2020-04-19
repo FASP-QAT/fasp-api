@@ -89,6 +89,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
             + " LEFT JOIN us_user lmb ON pru.LAST_MODIFIED_BY=lmb.USER_ID"
             + " WHERE TRUE ";
 
+
     @Override
     public List<ProcurementUnit> getProcurementUnitList(boolean active, CustomUserDetails curUser) {
         String sqlString = sqlListString;
@@ -143,17 +144,27 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         int labelId = this.labelDao.addLabel(procurementUnit.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("PLANNING_UNIT_ID", procurementUnit.getPlanningUnit().getPlanningUnitId());
-        params.put("UNIT_ID", procurementUnit.getUnit().getUnitId());
+        params.put("UNIT_ID", procurementUnit.getUnit().getId());
         params.put("MULTIPLIER", procurementUnit.getMultiplier());
-        params.put("SUPPLIER_ID", procurementUnit.getSupplier().getSupplierId());
+        params.put("SUPPLIER_ID", procurementUnit.getSupplier().getId());
         params.put("HEIGHT_QTY", procurementUnit.getHeightQty());
-        params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getUnitId() == 0 ? null : procurementUnit.getHeightUnit().getUnitId()));
+//<<<<<<< HEAD
+//        params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getId() == 0 ? null : procurementUnit.getHeightUnit().getId()));
+//        params.put("WIDTH_QTY", procurementUnit.getWidthQty());
+//        params.put("WIDTH_UNIT_ID", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
+//        params.put("LENGTH_QTY", procurementUnit.getLengthQty());
+//        params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
+//        params.put("WEIGHT_QTY", procurementUnit.getWeightQty());
+//        params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit() == null || procurementUnit.getWeightUnit().getId() == 0 ? null : procurementUnit.getWeightUnit().getId()));
+//=======
+        params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getId() == 0 ? null : procurementUnit.getHeightUnit().getId()));
         params.put("WIDTH_QTY", procurementUnit.getWidthQty());
-        params.put("WIDTH_UNIT_ID", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getUnitId() == 0 ? null : procurementUnit.getWidthUnit().getUnitId()));
+        params.put("WIDTH_UNIT_ID", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
         params.put("LENGTH_QTY", procurementUnit.getLengthQty());
-        params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit() == null || procurementUnit.getLengthUnit().getUnitId() == 0 ? null : procurementUnit.getLengthUnit().getUnitId()));
+        params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
         params.put("WEIGHT_QTY", procurementUnit.getWeightQty());
-        params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit() == null || procurementUnit.getWeightUnit().getUnitId() == 0 ? null : procurementUnit.getWeightUnit().getUnitId()));
+        params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit() == null || procurementUnit.getWeightUnit().getId() == 0 ? null : procurementUnit.getWeightUnit().getId()));
+//>>>>>>> dev
         params.put("LABELING", procurementUnit.getLabeling());
         params.put("UNITS_PER_CONTAINER", procurementUnit.getUnitsPerContainer());
         params.put("ACTIVE", true);
@@ -203,15 +214,25 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         Map<String, Object> params = new HashMap<>();
         params.put("procurementUnitId", procurementUnit.getProcurementUnitId());
         params.put("multiplier", procurementUnit.getMultiplier());
-        params.put("unitId", procurementUnit.getUnit().getUnitId());
+        params.put("unitId", procurementUnit.getUnit().getId());
         params.put("heightQty", procurementUnit.getHeightQty());
-        params.put("heightUnitId", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getUnitId() == 0 ? null : procurementUnit.getHeightUnit().getUnitId()));
+//<<<<<<< HEAD
+//        params.put("heightUnitId", procurementUnit.getHeightUnit().getId());
+//        params.put("lengthQty", procurementUnit.getLengthQty());
+//        params.put("lengthUnitId", procurementUnit.getLengthUnit().getId());
+//        params.put("widthQty", procurementUnit.getWidthQty());
+//        params.put("widthUnitId", procurementUnit.getWidthUnit().getId());
+//        params.put("weightQty", procurementUnit.getWeightQty());
+//        params.put("weightUnitId", procurementUnit.getWeightUnit().getId());
+//=======
+        params.put("heightUnitId", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getId() == 0 ? null : procurementUnit.getHeightUnit().getId()));
         params.put("lengthQty", procurementUnit.getLengthQty());
-        params.put("lengthUnitId", (procurementUnit.getLengthUnit() == null || procurementUnit.getLengthUnit().getUnitId() == 0 ? null : procurementUnit.getLengthUnit().getUnitId()));
+        params.put("lengthUnitId", (procurementUnit.getLengthUnit() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
         params.put("widthQty", procurementUnit.getWidthQty());
-        params.put("widthUnitId", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getUnitId() == 0 ? null : procurementUnit.getWidthUnit().getUnitId()));
+        params.put("widthUnitId", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
         params.put("weightQty", procurementUnit.getWeightQty());
-        params.put("weightUnitId", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getUnitId() == 0 ? null : procurementUnit.getWidthUnit().getUnitId()));
+        params.put("weightUnitId", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
+//>>>>>>> dev
         params.put("unitsPerContainer", procurementUnit.getUnitsPerContainer());
         params.put("labeling", procurementUnit.getLabeling());
         params.put("active", procurementUnit.isActive());
@@ -220,6 +241,52 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("curDate", curDate);
         return this.namedParameterJdbcTemplate.update(sqlString, params);
     }
+
+//    @Override
+//    public List<ProcurementUnit> getProcurementUnitList(boolean active, CustomUserDetails curUser) {
+//        String sqlString = sqlListString;
+//        Map<String, Object> params = new HashMap<>();
+//        if (active) {
+//            sqlString += " AND pru.ACTIVE ";
+//        }
+//        if (curUser.getRealm().getRealmId() != -1) {
+//            sqlString += "AND fu.REALM_ID=:realmId ";
+//            params.put("realmId", curUser.getRealm().getRealmId());
+//        }
+//        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
+//    }
+//
+//    @Override
+//    public List<ProcurementUnit> getProcurementUnitListForRealm(int realmId, boolean active, CustomUserDetails curUser) {
+//        String sqlString = sqlListString;
+//        Map<String, Object> params = new HashMap<>();
+//        if (active) {
+//            sqlString += " AND pru.ACTIVE ";
+//        }
+//        if (curUser.getRealm().getRealmId() != -1) {
+//            sqlString += "AND fu.REALM_ID=:realmId ";
+//            params.put("realmId", curUser.getRealm().getRealmId());
+//        }
+//        sqlString += "AND fu.REALM_ID=:userRealmId ";
+//        params.put("userRealmId", realmId);
+//        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
+//    }
+
+//    @Override
+//    public List<ProcurementUnit> getProcurementUnitListByPlanningUnit(int planningUnitId, boolean active, CustomUserDetails curUser) {
+//        String sqlString = sqlListString;
+//        Map<String, Object> params = new HashMap<>();
+//        if (active) {
+//            sqlString += " AND pru.ACTIVE ";
+//        }
+//        if (curUser.getRealm().getRealmId() != -1) {
+//            sqlString += "AND fu.REALM_ID=:realmId ";
+//            params.put("realmId", curUser.getRealm().getRealmId());
+//        }
+//        sqlString += "AND pru.PLANNING_UNIT_ID=:planningUnitId ";
+//        params.put("planningUnitId", planningUnitId);
+//        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
+//    }
 
     @Override
     public ProcurementUnit getProcurementUnitById(int procurementUnitId, CustomUserDetails curUser) {

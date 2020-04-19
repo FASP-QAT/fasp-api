@@ -46,7 +46,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_tracer_category").usingGeneratedKeyColumns("TRACER_CATEGORY_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("REALM_ID", m.getRealm().getRealmId());
+        params.put("REALM_ID", m.getRealm().getId());
         int labelId = this.labelDao.addLabel(m.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);

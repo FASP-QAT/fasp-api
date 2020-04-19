@@ -100,6 +100,23 @@ public class BudgetRestController {
         }
     }
 
+    @GetMapping("/budget/realmId/{realmId}")
+    public ResponseEntity getBudgetForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.budgetService.getBudgetListForRealm(realmId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException erda) {
+            logger.error("Error while trying to get Budget list", erda);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to get Budget list", ae);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get Budget list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping(value = "/sync/budget/{lastSyncDate}")
 //    @Operation(
 //            summary = "Used to Sync the Budgets with users machines for Offline use",

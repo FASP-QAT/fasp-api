@@ -76,7 +76,17 @@ public class DimensionRestController {
     @GetMapping("/dimension")
     public ResponseEntity getDimension(Authentication auth) {
         try {
-            return new ResponseEntity(this.dimensionService.getDimensionList(), HttpStatus.OK);
+            return new ResponseEntity(this.dimensionService.getDimensionList(false), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Dimension", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/dimension/all")
+    public ResponseEntity getDimensionAll(Authentication auth) {
+        try {
+            return new ResponseEntity(this.dimensionService.getDimensionList(true), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Dimension", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

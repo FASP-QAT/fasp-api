@@ -16,7 +16,7 @@ public class Country extends BaseModel implements Serializable {
     private int countryId;
     private String countryCode;
     private Label label;
-    private Currency currency;
+    private SimpleObject currency;
     private Language language;
 
     public Country() {
@@ -32,7 +32,7 @@ public class Country extends BaseModel implements Serializable {
         this.countryCode = countryCode;
         this.label = label;
     }
-    
+
     public String getCountryCode() {
         return countryCode;
     }
@@ -40,8 +40,6 @@ public class Country extends BaseModel implements Serializable {
     public void setCountryCode(String countryCode) {
         this.countryCode = countryCode;
     }
-
-    
 
     public Label getLabel() {
         return label;
@@ -51,11 +49,11 @@ public class Country extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public Currency getCurrency() {
+    public SimpleObject getCurrency() {
         return currency;
     }
 
-    public void setCurrency(Currency currency) {
+    public void setCurrency(SimpleObject currency) {
         this.currency = currency;
     }
 
@@ -67,7 +65,6 @@ public class Country extends BaseModel implements Serializable {
         this.language = language;
     }
 
-
 //    public boolean isActive() {
 //        return active;
 //    }
@@ -75,7 +72,6 @@ public class Country extends BaseModel implements Serializable {
 //    public void setActive(boolean active) {
 //        this.active = active;
 //    }
-
     public int getCountryId() {
         return countryId;
     }

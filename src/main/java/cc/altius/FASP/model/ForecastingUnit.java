@@ -14,11 +14,11 @@ import java.io.Serializable;
 public class ForecastingUnit extends BaseModel implements Serializable {
 
     private int forecastingUnitId;
-    private Realm realm;
+    private SimpleCodeObject realm;
     private Label genericLabel;
     private Label label;
-    private ProductCategory productCategory;
-    private TracerCategory tracerCategory;
+    private SimpleObject productCategory;
+    private SimpleObject tracerCategory;
 
     public ForecastingUnit() {
     }
@@ -29,7 +29,7 @@ public class ForecastingUnit extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public ForecastingUnit(int productId, Realm realm, Label genericLabel, Label label, ProductCategory productCategory, TracerCategory tracerCategory) {
+    public ForecastingUnit(int productId, SimpleCodeObject realm, Label genericLabel, Label label, SimpleObject productCategory, SimpleObject tracerCategory) {
         this.forecastingUnitId = productId;
         this.realm = realm;
         this.genericLabel = genericLabel;
@@ -45,13 +45,29 @@ public class ForecastingUnit extends BaseModel implements Serializable {
     public void setForecastingUnitId(int forecastingUnitId) {
         this.forecastingUnitId = forecastingUnitId;
     }
-    
-    public Realm getRealm() {
+
+    public SimpleCodeObject getRealm() {
         return realm;
     }
 
-    public void setRealm(Realm realm) {
+    public void setRealm(SimpleCodeObject realm) {
         this.realm = realm;
+    }
+
+    public SimpleObject getProductCategory() {
+        return productCategory;
+    }
+
+    public void setProductCategory(SimpleObject productCategory) {
+        this.productCategory = productCategory;
+    }
+
+    public SimpleObject getTracerCategory() {
+        return tracerCategory;
+    }
+
+    public void setTracerCategory(SimpleObject tracerCategory) {
+        this.tracerCategory = tracerCategory;
     }
 
     public Label getGenericLabel() {
@@ -68,22 +84,6 @@ public class ForecastingUnit extends BaseModel implements Serializable {
 
     public void setLabel(Label label) {
         this.label = label;
-    }
-
-    public ProductCategory getProductCategory() {
-        return productCategory;
-    }
-
-    public void setProductCategory(ProductCategory productCategory) {
-        this.productCategory = productCategory;
-    }
-
-    public TracerCategory getTracerCategory() {
-        return tracerCategory;
-    }
-
-    public void setTracerCategory(TracerCategory tracerCategory) {
-        this.tracerCategory = tracerCategory;
     }
 
     @Override
