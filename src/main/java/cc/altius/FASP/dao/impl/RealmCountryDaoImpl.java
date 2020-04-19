@@ -12,6 +12,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.rowMapper.RealmCountryPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.RealmCountryRowMapper;
+import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,6 +40,8 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     @Autowired
     private LabelDao labelDao;
+    @Autowired
+    private AclService aclService;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -53,18 +56,18 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
             + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD, cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
             + "    un.UNIT_ID, un.UNIT_CODE, unl.LABEL_ID `UNIT_LABEL_ID`, unl.LABEL_EN `UNIT_LABEL_EN`, unl.LABEL_FR `UNIT_LABEL_FR`, unl.LABEL_PR `UNIT_LABEL_PR`, unl.LABEL_SP `UNIT_LABEL_SP`, "
             + "    rc.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, rc.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, rc.LAST_MODIFIED_DATE "
-            + "FROM rm_realm_country rc "
-            + "LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
-            + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-            + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-            + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-            + "LEFT JOIN ap_currency cu ON rc.DEFAULT_CURRENCY_ID=cu.CURRENCY_ID "
-            + "LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
-            + "LEFT JOIN ap_unit un ON rc.PALLET_UNIT_ID=un.UNIT_ID "
-            + "LEFT JOIN ap_label unl ON un.LABEL_ID=unl.LABEL_ID "
-            + "LEFT JOIN us_user cb ON rc.CREATED_BY=cb.USER_ID "
-            + "LEFT JOIN us_user lmb ON rc.LAST_MODIFIED_BY=lmb.USER_ID "
-            + "WHERE TRUE ";
+            + "  FROM rm_realm_country rc "
+            + " LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
+            + " LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+            + " LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+            + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+            + " LEFT JOIN ap_currency cu ON rc.DEFAULT_CURRENCY_ID=cu.CURRENCY_ID "
+            + " LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
+            + " LEFT JOIN ap_unit un ON rc.PALLET_UNIT_ID=un.UNIT_ID "
+            + " LEFT JOIN ap_label unl ON un.LABEL_ID=unl.LABEL_ID "
+            + " LEFT JOIN us_user cb ON rc.CREATED_BY=cb.USER_ID "
+            + " LEFT JOIN us_user lmb ON rc.LAST_MODIFIED_BY=lmb.USER_ID "
+            + " WHERE TRUE ";
 
     @Override
     @Transactional(propagation = Propagation.NESTED)
@@ -133,47 +136,37 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
 
     @Override
     public List<RealmCountry> getRealmCountryList(CustomUserDetails curUser) {
-        String sqlString = this.sqlListString;
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        params.put("realmId", curUser.getRealm().getRealmId());
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND rc.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new RealmCountryRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
     }
 
     @Override
     public RealmCountry getRealmCountryById(int realmCountryId, CustomUserDetails curUser) {
-        String sqlString = this.sqlListString + " AND rc.REALM_COUNTRY_ID=:realmCountryId ";
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND rc.REALM_COUNTRY_ID=:realmCountryId ");
         Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND rc.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
         params.put("realmCountryId", realmCountryId);
-        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new RealmCountryRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
     }
 
     @Override
     public RealmCountry getRealmCountryByRealmAndCountry(int realmId, int countryId, CustomUserDetails curUser) {
-        String sqlString = this.sqlListString + " AND rc.REALM_ID=:realmId AND rc.COUNTRY_ID=:countryId ";
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND rc.COUNTRY_ID=:countryId ");
         Map<String, Object> params = new HashMap<>();
-        params.put("realmId", realmId);
         params.put("countryId", countryId);
-        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new RealmCountryRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", realmId, curUser);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
     }
 
     @Override
     public List<RealmCountry> getRealmCountryListByRealmId(int realmId, CustomUserDetails curUser) {
-        String sqlString = this.sqlListString + " AND rc.REALM_ID=:realmId ";
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        params.put("realmId", realmId);
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND rc.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new RealmCountryRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", realmId, curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
     }
 
     @Override
@@ -204,6 +197,16 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
 
         params.put("realmCountryId", realmCountryId);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new RealmCountryPlanningUnitRowMapper());
+    }
+
+    @Override
+    public List<RealmCountry> getRealmCountryListByRealmIdForActivePrograms(int realmId, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", realmId, curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        sqlStringBuilder.append(" AND rc.REALM_COUNTRY_ID IN (SELECT p.REALM_COUNTRY_ID FROM rm_program p WHERE p.ACTIVE) ");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
     }
 
     @Override
@@ -276,13 +279,10 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
 
     @Override
     public List<RealmCountry> getRealmCountryListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        String sqlString = this.sqlListString;
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND rc.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new RealmCountryRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
     }
 
 }

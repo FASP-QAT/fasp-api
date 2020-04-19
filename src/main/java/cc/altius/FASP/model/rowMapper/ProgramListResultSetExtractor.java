@@ -15,6 +15,7 @@ import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.Unit;
+import cc.altius.FASP.model.Version;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -31,23 +32,23 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
     @Override
     public List<Program> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<Program> pList = new LinkedList<Program>();
-        int oldProgramId = 0, newProgramId;
+//        int oldProgramId = 0, newProgramId;
+        boolean isFirst = true;
         Program p = new Program();
         while (rs.next()) {
-            newProgramId = rs.getInt("PROGRAM_ID");
-            if (oldProgramId != newProgramId) {
-                if (oldProgramId != 0) {
-                    p.setRegionArray(new String[p.getRegionList().size()]);
-                    int x = 0;
-                    for (Region r : p.getRegionList()) {
-                        p.getRegionArray()[x] = Integer.toString(r.getRegionId());
-                        x++;
-                    }
-                    pList.add(p);
-
+            int programId = rs.getInt("PROGRAM_ID");
+            Program tmpProg = new Program(programId, null);
+            if (pList.indexOf(tmpProg) == -1) {
+                if (!isFirst) {
+//                    p.setRegionArray(new String[p.getRegionList().size()]);
+//                    int x = 0;
+//                    for (Region r : p.getRegionList()) {
+//                        p.getRegionArray()[x] = Integer.toString(r.getRegionId());
+//                        x++;
+//                    }
                     p = new Program();
-
                 }
+                pList.add(p);
                 p.setProgramId(rs.getInt("PROGRAM_ID"));
                 p.setRealmCountry(
                         new RealmCountry(
@@ -77,24 +78,31 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
                 p.setDeliveredToReceivedLeadTime(rs.getInt("DELIVERED_TO_RECEIVED_LEAD_TIME"));
                 p.setMonthsInPastForAmc(rs.getInt("MONTHS_IN_PAST_FOR_AMC"));
                 p.setMonthsInFutureForAmc(rs.getInt("MONTHS_IN_FUTURE_FOR_AMC"));
+                p.setCurrentVersion(new Version(rs.getInt("CURRENT_VERSION_ID"), new BasicUser(rs.getInt("CV_CMB_USER_ID"), rs.getString("CV_CMB_USERNAME")), rs.getTimestamp("CV_CREATED_DATE")));
                 p.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 p.setRegionList(new LinkedList<Region>());
+                p.setVersionList(new LinkedList<Version>());
+            } else {
+                p = pList.get(pList.indexOf(tmpProg));
             }
             Region r = new Region(rs.getInt("REGION_ID"), new LabelRowMapper("REGION_").mapRow(rs, 0));
             if (p.getRegionList().indexOf(r) == -1) {
                 p.getRegionList().add(r);
             }
-            oldProgramId = newProgramId;
-        }
-        if (p.getProgramId() != 0) {
-            p.setRegionArray(new String[p.getRegionList().size()]);
-            int x = 0;
-            for (Region r : p.getRegionList()) {
-                p.getRegionArray()[x] = Integer.toString(r.getRegionId());
-                x++;
+            Version v = new Version(rs.getInt("VERSION_ID"), new BasicUser(rs.getInt("VERSION_USER_ID"), rs.getString("VERSION_USERNAME")), rs.getTimestamp("VERSION_CREATED_DATE"));
+            if (p.getVersionList().indexOf(v) == -1) {
+                p.getVersionList().add(v);
             }
-            pList.add(p);
+            isFirst = false;
         }
+//        if (p.getProgramId() != 0) {
+//            p.setRegionArray(new String[p.getRegionList().size()]);
+//            int x = 0;
+//            for (Region r : p.getRegionList()) {
+//                p.getRegionArray()[x] = Integer.toString(r.getRegionId());
+//                x++;
+//            }
+//        }
         return pList;
     }
 }

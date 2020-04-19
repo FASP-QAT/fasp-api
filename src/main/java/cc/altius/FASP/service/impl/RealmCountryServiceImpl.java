@@ -121,6 +121,19 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     }
 
     @Override
+    public List<RealmCountry> getRealmCountryListByRealmIdForActivePrograms(int realmId, CustomUserDetails curUser) {
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (r == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            return this.realmCountryDao.getRealmCountryListByRealmIdForActivePrograms(realmId, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
     public List<RealmCountry> getRealmCountryListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.realmCountryDao.getRealmCountryListForSync(lastSyncDate, curUser);
     }

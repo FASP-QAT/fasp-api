@@ -8,7 +8,6 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.HealthAreaDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgHealthAreaDTO;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
@@ -77,6 +76,19 @@ public class HealthAreaServiceImpl implements HealthAreaService {
             return ha;
         } else {
             throw new EmptyResultDataAccessException(1);
+        }
+    }
+
+    @Override
+    public List<HealthArea> getHealthAreaListForProgramByRealmId(int realmId, CustomUserDetails curUser) {
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (r == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            return this.healthAreaDao.getHealthAreaListForProgramByRealmId(realmId, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
         }
     }
 

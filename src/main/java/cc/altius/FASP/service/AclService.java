@@ -32,5 +32,5 @@ public interface AclService {
 
     public void addUserAclForRealm(StringBuilder sb, Map<String, Object> params, String realmAlias, CustomUserDetails curUser);
 
-    public void addUserAclForProgram(StringBuilder sb, Map<String, Object> params, String programAlias, CustomUserDetails curUser);
+    public void addFullAclForProgram(StringBuilder sb, Map<String, Object> params, String programAlias, CustomUserDetails curUser);
 }

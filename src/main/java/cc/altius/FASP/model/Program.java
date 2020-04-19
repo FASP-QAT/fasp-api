@@ -34,6 +34,8 @@ public class Program extends BaseModel implements Serializable {
     @JsonIgnore
     private List<Region> regionList;
     String[] regionArray;
+    private Version currentVersion;
+    private List<Version> versionList;
 
     public Program() {
     }
@@ -185,6 +187,22 @@ public class Program extends BaseModel implements Serializable {
 
     public void setRegionArray(String[] regionArray) {
         this.regionArray = regionArray;
+    }
+
+    public Version getCurrentVersion() {
+        return currentVersion;
+    }
+
+    public void setCurrentVersion(Version currentVersion) {
+        this.currentVersion                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     = currentVersion;
+    }
+
+    public List<Version> getVersionList() {
+        return versionList;
+    }
+
+    public void setVersionList(List<Version> versionList) {
+        this.versionList = versionList;
     }
 
     @Override

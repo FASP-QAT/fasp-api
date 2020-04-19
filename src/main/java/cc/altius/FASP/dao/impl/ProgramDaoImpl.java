@@ -16,6 +16,7 @@ import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.rowMapper.ProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
+import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,6 +41,8 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Autowired
     private LabelDao labelDao;
+    @Autowired
+    private AclService aclService;
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
@@ -51,11 +54,11 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     public String sqlListString = "SELECT  "
-            + "	p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_DRAFT_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME,  "
-            + "	p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.DELIVERED_TO_RECEIVED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
+            + "     p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_DRAFT_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME, p.CURRENT_VERSION_ID, cpv.CREATED_DATE `CV_CREATED_DATE`, cpvcb.USER_ID `CV_CMB_USER_ID`, cpvcb.USERNAME `CV_CMB_USERNAME`, "
+            + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.DELIVERED_TO_RECEIVED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
             + "     pl.LABEL_ID, pl.LABEL_EN, pl.LABEL_FR, pl.LABEL_PR, pl.LABEL_SP, "
-            + "	rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`, rc.SHIPPED_TO_ARRIVED_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_AIR_LEAD_TIME`, rc.SHIPPED_TO_ARRIVED_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_SEA_LEAD_TIME`, rc.ARRIVED_TO_DELIVERED_LEAD_TIME `REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME`, "
+            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`, rc.SHIPPED_TO_ARRIVED_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_AIR_LEAD_TIME`, rc.SHIPPED_TO_ARRIVED_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_SEA_LEAD_TIME`, rc.ARRIVED_TO_DELIVERED_LEAD_TIME `REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME`, "
             + "     rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
             + "     c.COUNTRY_ID, c.COUNTRY_CODE,  "
             + "     cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_PR `COUNTRY_LABEL_PR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, "
@@ -68,30 +71,36 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     re.REGION_ID, "
             + "     rel.LABEL_ID `REGION_LABEL_ID`, rel.LABEL_EN `REGION_LABEL_EN`, rel.LABEL_FR `REGION_LABEL_FR`, rel.LABEL_PR `REGION_LABEL_PR`, rel.LABEL_SP `REGION_LABEL_SP`, "
             + "     u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `UNIT_LABEL_ID`, ul.LABEL_EN `UNIT_LABEL_EN`, ul.LABEL_FR `UNIT_LABEL_FR`, ul.LABEL_PR `UNIT_LABEL_PR`, ul.LABEL_SP `UNIT_LABEL_SP`, "
+            + "     pv.VERSION_ID, pv.CREATED_DATE `VERSION_CREATED_DATE`, pvcmb.USER_ID `VERSION_USER_ID`, pvcmb.USERNAME `VERSION_USERNAME`, "
             + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE "
-            + "FROM rm_program p  "
-            + "LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
-            + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-            + "LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
-            + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-            + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-            + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-            + "LEFT JOIN ap_currency cu ON rc.DEFAULT_CURRENCY_ID=cu.CURRENCY_ID "
-            + "LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
-            + "LEFT JOIN rm_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
-            + "LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
-            + "LEFT JOIN rm_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
-            + "LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
-            + "LEFT JOIN us_user pm ON p.PROGRAM_MANAGER_USER_ID=pm.USER_ID "
-            + "LEFT JOIN rm_program_region pr ON p.PROGRAM_ID=pr.PROGRAM_ID "
-            + "LEFT JOIN rm_region re ON pr.REGION_ID=re.REGION_ID "
-            + "LEFT JOIN ap_label rel ON re.LABEL_ID=rel.LABEL_ID "
-            + "LEFT JOIN ap_unit u ON rc.PALLET_UNIT_ID=u.UNIT_ID "
-            + "LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
-            + "LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID "
-            + "LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID "
-            + "WHERE TRUE ";
-
+            + " FROM rm_program p  "
+            + " LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
+            + " LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+            + " LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
+            + " LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+            + " LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+            + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+            + " LEFT JOIN ap_currency cu ON rc.DEFAULT_CURRENCY_ID=cu.CURRENCY_ID "
+            + " LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
+            + " LEFT JOIN rm_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
+            + " LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
+            + " LEFT JOIN rm_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
+            + " LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
+            + " LEFT JOIN us_user pm ON p.PROGRAM_MANAGER_USER_ID=pm.USER_ID "
+            + " LEFT JOIN rm_program_region pr ON p.PROGRAM_ID=pr.PROGRAM_ID "
+            + " LEFT JOIN rm_region re ON pr.REGION_ID=re.REGION_ID "
+            + " LEFT JOIN ap_label rel ON re.LABEL_ID=rel.LABEL_ID "
+            + " LEFT JOIN ap_unit u ON rc.PALLET_UNIT_ID=u.UNIT_ID "
+            + " LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
+            + " LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID "
+            + " LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID "
+            + " LEFT JOIN rm_program_version cpv ON p.PROGRAM_ID=cpv.PROGRAM_ID AND p.CURRENT_VERSION_ID=cpv.VERSION_ID "
+            + " LEFT JOIN us_user cpvcb ON cpv.CREATED_BY=cpvcb.USER_ID "
+            + " LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID "
+            + " LEFT JOIN us_user pvcmb ON pv.CREATED_BY=pvcmb.USER_ID "
+            + " WHERE TRUE ";
+    private final String sqlOrderBy = "";
+//            " ORDER BY p.PROGRAM_ID, pv.VERSION_ID, pr.REGION_ID ";
     @Override
     public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
@@ -130,6 +139,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("DELIVERED_TO_RECEIVED_LEAD_TIME", p.getDeliveredToReceivedLeadTime());
         params.put("MONTHS_IN_PAST_FOR_AMC", p.getMonthsInPastForAmc());
         params.put("MONTHS_IN_FUTURE_FOR_AMC", p.getMonthsInFutureForAmc());
+        params.put("CURRENT_VERSION_ID", null);
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
@@ -152,6 +162,13 @@ public class ProgramDaoImpl implements ProgramDao {
             i++;
         }
         si.executeBatch(paramList);
+        params.clear();
+        params.put("curUser", curUser.getUserId());
+        params.put("curDate", curDate);
+        params.put("programId", programId);
+        int versionId = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId, :curUser, :curDate)", params, Integer.class);
+        params.put("versionId", versionId);
+        this.namedParameterJdbcTemplate.update("UPDATE rm_program SET CURRENT_VERSION_ID=:versionId WHERE PROGRAM_ID=:programId", params);
         return programId;
     }
 
@@ -247,75 +264,34 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<Program> getProgramList(CustomUserDetails curUser) {
-        String sqlString = this.sqlListString;
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += " AND rc.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
-        int count = 1;
-        for (UserAcl acl : curUser.getAclList()) {
-            sqlString += "AND ("
-                    + "(p.PROGRAM_ID=:programId" + count + " OR :programId" + count + "=-1) AND "
-                    + "(p.REALM_COUNTRY_ID=:realmCountryId" + count + " OR :realmCountryId" + count + "=-1) AND "
-                    + "(p.ORGANISATION_ID=:organisationId" + count + " OR :organisationId" + count + "=-1) AND "
-                    + "(p.HEALTH_AREA_ID=:healthAreaId" + count + " OR :healthAreaId" + count + "=-1)) ";
-            params.put("programId" + count, acl.getProgramId());
-            params.put("realmCountryId" + count, acl.getRealmCountryId());
-            params.put("organisationId" + count, acl.getOrganisationId());
-            params.put("healthAreaId" + count, acl.getHealthAreaId());
-//            count++;
-        }
-
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramListResultSetExtractor());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(this.sqlOrderBy);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramListResultSetExtractor());
     }
 
     @Override
     public List<Program> getProgramList(int realmId, CustomUserDetails curUser) {
-        String sqlString = this.sqlListString + " AND rc.REALM_ID=:realmId ";
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        params.put("realmId", realmId);
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND rc.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
-        int count = 1;
-        for (UserAcl acl : curUser.getAclList()) {
-            sqlString += "AND ("
-                    + "(p.PROGRAM_ID=:programId" + count + " OR :programId" + count + "=-1) AND "
-                    + "(p.REALM_COUNTRY_ID=:realmCountryId" + count + " OR :realmCountryId" + count + "=-1) AND "
-                    + "(p.ORGANISATION_ID=:organisationId" + count + " OR :organisationId" + count + "=-1) AND "
-                    + "(p.HEALTH_AREA_ID=:healthAreaId" + count + " OR :healthAreaId" + count + "=-1)) ";
-            params.put("programId" + count, acl.getProgramId());
-            params.put("realmCountryId" + count, acl.getRealmCountryId());
-            params.put("organisationId" + count, acl.getOrganisationId());
-            params.put("healthAreaId" + count, acl.getHealthAreaId());
-        }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramListResultSetExtractor());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(this.sqlOrderBy);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramListResultSetExtractor());
     }
 
     @Override
     public Program getProgramById(int programId, CustomUserDetails curUser) {
-        String sqlString = this.sqlListString + " AND p.PROGRAM_ID=:programId ";
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND p.PROGRAM_ID=:programId");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND rc.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
-        int count = 1;
-        for (UserAcl acl : curUser.getAclList()) {
-            sqlString += "AND ("
-                    + "(p.PROGRAM_ID=:programId" + count + " OR :programId" + count + "=-1) AND "
-                    + "(p.REALM_COUNTRY_ID=:realmCountryId" + count + " OR :realmCountryId" + count + "=-1) AND "
-                    + "(p.ORGANISATION_ID=:organisationId" + count + " OR :organisationId" + count + "=-1) AND "
-                    + "(p.HEALTH_AREA_ID=:healthAreaId" + count + " OR :healthAreaId" + count + "=-1)) ";
-            params.put("programId" + count, acl.getProgramId());
-            params.put("realmCountryId" + count, acl.getRealmCountryId());
-            params.put("organisationId" + count, acl.getOrganisationId());
-            params.put("healthAreaId" + count, acl.getHealthAreaId());
-        }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramResultSetExtractor());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(this.sqlOrderBy);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramResultSetExtractor());
     }
 
     @Override
@@ -391,26 +367,13 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<Program> getProgramListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        String sqlString = this.sqlListString + " AND p.LAST_MODIFIED_DATE>:lastSyncDate ";
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND p.LAST_MODIFIED_DATE>:lastSyncDate ");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND rc.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
-        int count = 1;
-        for (UserAcl acl : curUser.getAclList()) {
-            sqlString += "AND ("
-                    + "(p.PROGRAM_ID=:programId" + count + " OR :programId" + count + "=-1) AND "
-                    + "(p.REALM_COUNTRY_ID=:realmCountryId" + count + " OR :realmCountryId" + count + "=-1) AND "
-                    + "(p.ORGANISATION_ID=:organisationId" + count + " OR :organisationId" + count + "=-1) AND "
-                    + "(p.HEALTH_AREA_ID=:healthAreaId" + count + " OR :healthAreaId" + count + "=-1)) ";
-            params.put("programId" + count, acl.getProgramId());
-            params.put("realmCountryId" + count, acl.getRealmCountryId());
-            params.put("organisationId" + count, acl.getOrganisationId());
-            params.put("healthAreaId" + count, acl.getHealthAreaId());
-        }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramListResultSetExtractor());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(this.sqlOrderBy);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramListResultSetExtractor());
     }
 
 }

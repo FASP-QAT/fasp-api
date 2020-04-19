@@ -154,7 +154,7 @@ public class AclServiceImpl implements AclService {
         }
     }
 
-    public void addUserAclForProgram(StringBuilder sb, Map<String, Object> params, String programAlias, CustomUserDetails curUser) {
+    public void addFullAclForProgram(StringBuilder sb, Map<String, Object> params, String programAlias, CustomUserDetails curUser) {
         int count = 1;
         for (UserAcl userAcl : curUser.getAclList()) {
             sb.append(" AND (")

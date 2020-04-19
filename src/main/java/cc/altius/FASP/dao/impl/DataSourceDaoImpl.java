@@ -107,7 +107,7 @@ public class DataSourceDaoImpl implements DataSourceDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ds", curUser);
-        this.aclService.addUserAclForProgram(sqlStringBuilder, params, "pr", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "pr", curUser);
         if (active) {
             sqlStringBuilder.append(" AND ds.ACTIVE ");
         }
@@ -131,7 +131,7 @@ public class DataSourceDaoImpl implements DataSourceDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ds", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ds", realmId, curUser);
-        this.aclService.addUserAclForProgram(sqlStringBuilder, params, "pr", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "pr", curUser);
         if (active) {
             sqlStringBuilder.append(" AND ds.ACTIVE ");
         }
@@ -143,7 +143,7 @@ public class DataSourceDaoImpl implements DataSourceDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ds", curUser);
-        this.aclService.addUserAclForProgram(sqlStringBuilder, params, "pr", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "pr", curUser);
         sqlStringBuilder.append(" AND ds.DATA_SOURCE_TYPE_ID=:dataSourceTypeId ");
         params.put("dataSourceTypeId", dataSourceTypeId);
         if (active) {
@@ -158,7 +158,7 @@ public class DataSourceDaoImpl implements DataSourceDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND ds.LAST_MODIFIED_DATE>:lastSyncDate ");
         params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ds", curUser);
-        this.aclService.addUserAclForProgram(sqlStringBuilder, params, "pr", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "pr", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new DataSourceRowMapper());
     }
 }

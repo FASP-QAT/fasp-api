@@ -15,6 +15,7 @@ import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.Unit;
+import cc.altius.FASP.model.Version;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -62,22 +63,28 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
                 p.setDeliveredToReceivedLeadTime(rs.getInt("DELIVERED_TO_RECEIVED_LEAD_TIME"));
                 p.setMonthsInPastForAmc(rs.getInt("MONTHS_IN_PAST_FOR_AMC"));
                 p.setMonthsInFutureForAmc(rs.getInt("MONTHS_IN_FUTURE_FOR_AMC"));
+                p.setCurrentVersion(new Version(rs.getInt("CURRENT_VERSION_ID"), new BasicUser(rs.getInt("CV_CMB_USER_ID"), rs.getString("CV_CMB_USERNAME")), rs.getTimestamp("CV_CREATED_DATE")));
                 p.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 p.setRegionList(new LinkedList<>());
+                p.setVersionList(new LinkedList<>());
             }
             Region r = new Region(rs.getInt("REGION_ID"), new LabelRowMapper("REGION_").mapRow(rs, 0));
             if (p.getRegionList().indexOf(r) == -1) {
                 p.getRegionList().add(r);
             }
+            Version v = new Version(rs.getInt("VERSION_ID"), new BasicUser(rs.getInt("VERSION_USER_ID"), rs.getString("VERSION_USERNAME")), rs.getTimestamp("VERSION_CREATED_DATE"));
+            if (p.getVersionList().indexOf(v) == -1) {
+                p.getVersionList().add(v);
+            }
             isFirst = false;
         }
         if (!isFirst) {
-            p.setRegionArray(new String[p.getRegionList().size()]);
-            int x = 0;
-            for (Region r : p.getRegionList()) {
-                p.getRegionArray()[x] = Integer.toString(r.getRegionId());
-                x++;
-            }
+//            p.setRegionArray(new String[p.getRegionList().size()]);
+//            int x = 0;
+//            for (Region r : p.getRegionList()) {
+//                p.getRegionArray()[x] = Integer.toString(r.getRegionId());
+//                x++;
+//            }
             return p;
         } else {
             return null;

@@ -25,5 +25,7 @@ public interface HealthAreaService {
 
     public HealthArea getHealthAreaById(int healthAreaId, CustomUserDetails curUser);
 
+    public List<HealthArea> getHealthAreaListForProgramByRealmId(int realmId, CustomUserDetails curUser);
+
     public List<HealthArea> getHealthAreaListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

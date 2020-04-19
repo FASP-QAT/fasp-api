@@ -31,6 +31,8 @@ public interface RealmCountryDao {
     public List<RealmCountryPlanningUnit> getPlanningUnitListForRealmCountryId(int realmCountryId, boolean active, CustomUserDetails curUser);
 
     public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser);
+    
+    public List<RealmCountry> getRealmCountryListByRealmIdForActivePrograms(int realmId, CustomUserDetails curUser);
 
     public List<RealmCountry> getRealmCountryListForSync(String lastSyncDate, CustomUserDetails curUser);
 
