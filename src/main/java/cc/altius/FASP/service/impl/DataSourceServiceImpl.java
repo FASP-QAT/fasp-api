@@ -7,10 +7,12 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.DataSourceDao;
 import cc.altius.FASP.dao.DataSourceTypeDao;
+import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DataSource;
 import cc.altius.FASP.model.DataSourceType;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.DataSourceService;
@@ -33,6 +35,8 @@ public class DataSourceServiceImpl implements DataSourceService {
     private DataSourceTypeDao dataSourceTypeDao;
     @Autowired
     private RealmDao realmDao;
+    @Autowired 
+    private ProgramDao programDao;
     @Autowired
     private AclService aclService;
 
@@ -81,7 +85,8 @@ public class DataSourceServiceImpl implements DataSourceService {
         if (r == null) {
             throw new EmptyResultDataAccessException(1);
         }
-        if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkProgramAccessForUser(curUser, programId)) {
+        Program p = this.programDao.getProgramById(programId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkProgramAccessForUser(curUser, realmId, programId, p.getHealthArea().getId(), p.getOrganisation().getId())) {
             return this.dataSourceDao.getDataSourceForRealmAndProgram(realmId, programId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");

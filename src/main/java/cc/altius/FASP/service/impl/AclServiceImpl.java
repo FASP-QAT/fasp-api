@@ -6,14 +6,11 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.service.ProgramService;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -24,8 +21,8 @@ import org.springframework.stereotype.Service;
 public class AclServiceImpl implements AclService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @Autowired
-    private ProgramService programService;
+//    @Autowired
+//    private ProgramService programService;
 
     @Override
     public boolean checkAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, int healthAreaId, int organisationId, int programId) {
@@ -99,19 +96,19 @@ public class AclServiceImpl implements AclService {
     }
 
     @Override
-    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int programId) {
+    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int realmId, int programId, int healthAreaId, int organisationId) {
         logger.info("Going to check if userId:" + curUser.getUserId() + " has access to ProgramId:" + programId);
-        Program p = this.programService.getProgramById(programId, curUser);
-        if (curUser.getRealm().getRealmId() != -1 && curUser.getRealm().getRealmId() != p.getRealmCountry().getRealm().getRealmId()) {
+//        Program p = this.programService.getProgramById(programId, curUser);
+        if (curUser.getRealm().getRealmId() != -1 && curUser.getRealm().getRealmId() != realmId) {
             // Is not an Application level user and also does not have access to this Realm
             logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " so cannot get access");
             return false;
         } else {
             logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " Realm check passed");
             for (UserAcl ua : curUser.getAclList()) {
-                if ((ua.getHealthAreaId() == -1 || ua.getHealthAreaId() == p.getHealthArea().getId())
-                        && (ua.getOrganisationId() == -1 || ua.getOrganisationId() == p.getOrganisation().getId())
-                        && (ua.getProgramId() == -1 || ua.getProgramId() == p.getProgramId())) {
+                if ((ua.getHealthAreaId() == -1 || ua.getHealthAreaId() == healthAreaId)
+                        && (ua.getOrganisationId() == -1 || ua.getOrganisationId() == organisationId)
+                        && (ua.getProgramId() == -1 || ua.getProgramId() == programId)) {
                     logger.info("Access allowed since he has access to " + ua);
                     return true;
                 }
