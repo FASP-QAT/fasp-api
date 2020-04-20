@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.ProcurementUnitDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementUnit;
 import cc.altius.FASP.model.rowMapper.ProcurementUnitRowMapper;
+import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,6 +40,8 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
 
     @Autowired
     private LabelDao labelDao;
+    @Autowired
+    private AclService aclService;
 
     private final String sqlListString = "SELECT"
             + "    pru.PROCUREMENT_UNIT_ID, prul.LABEL_ID, prul.LABEL_EN, prul.LABEL_FR, prul.LABEL_SP, prul.LABEL_PR,"
@@ -89,51 +92,44 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
             + " LEFT JOIN us_user lmb ON pru.LAST_MODIFIED_BY=lmb.USER_ID"
             + " WHERE TRUE ";
 
-
     @Override
     public List<ProcurementUnit> getProcurementUnitList(boolean active, CustomUserDetails curUser) {
-        String sqlString = sqlListString;
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         if (active) {
-            sqlString += " AND pru.ACTIVE ";
+            sqlStringBuilder.append(" AND pru.ACTIVE ");
         }
         if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND fu.REALM_ID=:realmId ";
+            sqlStringBuilder.append(" AND fu.REALM_ID=:realmId ");
             params.put("realmId", curUser.getRealm().getRealmId());
         }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementUnitRowMapper());
     }
 
     @Override
     public List<ProcurementUnit> getProcurementUnitListForRealm(int realmId, boolean active, CustomUserDetails curUser) {
-        String sqlString = sqlListString;
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         if (active) {
-            sqlString += " AND pru.ACTIVE ";
+            sqlStringBuilder.append(" AND pru.ACTIVE ");
         }
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND fu.REALM_ID=:realmId ";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-        sqlString += "AND fu.REALM_ID=:userRealmId ";
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", realmId, curUser);
         params.put("userRealmId", realmId);
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementUnitRowMapper());
     }
 
     @Override
     public List<ProcurementUnit> getProcurementUnitListByPlanningUnit(int planningUnitId, boolean active, CustomUserDetails curUser) {
-        String sqlString = sqlListString;
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         if (active) {
-            sqlString += " AND pru.ACTIVE ";
+            sqlStringBuilder.append(" AND pru.ACTIVE ");
         }
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND fu.REALM_ID=:realmId ";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-        sqlString += "AND pru.PLANNING_UNIT_ID=:planningUnitId ";
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
+        sqlStringBuilder.append(" AND pru.PLANNING_UNIT_ID=:planningUnitId ");
         params.put("planningUnitId", planningUnitId);
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementUnitRowMapper());
     }
 
     @Override
@@ -148,15 +144,6 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("MULTIPLIER", procurementUnit.getMultiplier());
         params.put("SUPPLIER_ID", procurementUnit.getSupplier().getId());
         params.put("HEIGHT_QTY", procurementUnit.getHeightQty());
-//<<<<<<< HEAD
-//        params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getId() == 0 ? null : procurementUnit.getHeightUnit().getId()));
-//        params.put("WIDTH_QTY", procurementUnit.getWidthQty());
-//        params.put("WIDTH_UNIT_ID", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
-//        params.put("LENGTH_QTY", procurementUnit.getLengthQty());
-//        params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
-//        params.put("WEIGHT_QTY", procurementUnit.getWeightQty());
-//        params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit() == null || procurementUnit.getWeightUnit().getId() == 0 ? null : procurementUnit.getWeightUnit().getId()));
-//=======
         params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getId() == 0 ? null : procurementUnit.getHeightUnit().getId()));
         params.put("WIDTH_QTY", procurementUnit.getWidthQty());
         params.put("WIDTH_UNIT_ID", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
@@ -164,7 +151,6 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
         params.put("WEIGHT_QTY", procurementUnit.getWeightQty());
         params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit() == null || procurementUnit.getWeightUnit().getId() == 0 ? null : procurementUnit.getWeightUnit().getId()));
-//>>>>>>> dev
         params.put("LABELING", procurementUnit.getLabeling());
         params.put("UNITS_PER_CONTAINER", procurementUnit.getUnitsPerContainer());
         params.put("ACTIVE", true);
@@ -216,15 +202,6 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("multiplier", procurementUnit.getMultiplier());
         params.put("unitId", procurementUnit.getUnit().getId());
         params.put("heightQty", procurementUnit.getHeightQty());
-//<<<<<<< HEAD
-//        params.put("heightUnitId", procurementUnit.getHeightUnit().getId());
-//        params.put("lengthQty", procurementUnit.getLengthQty());
-//        params.put("lengthUnitId", procurementUnit.getLengthUnit().getId());
-//        params.put("widthQty", procurementUnit.getWidthQty());
-//        params.put("widthUnitId", procurementUnit.getWidthUnit().getId());
-//        params.put("weightQty", procurementUnit.getWeightQty());
-//        params.put("weightUnitId", procurementUnit.getWeightUnit().getId());
-//=======
         params.put("heightUnitId", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getId() == 0 ? null : procurementUnit.getHeightUnit().getId()));
         params.put("lengthQty", procurementUnit.getLengthQty());
         params.put("lengthUnitId", (procurementUnit.getLengthUnit() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
@@ -232,7 +209,6 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("widthUnitId", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
         params.put("weightQty", procurementUnit.getWeightQty());
         params.put("weightUnitId", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
-//>>>>>>> dev
         params.put("unitsPerContainer", procurementUnit.getUnitsPerContainer());
         params.put("labeling", procurementUnit.getLabeling());
         params.put("active", procurementUnit.isActive());
@@ -242,76 +218,24 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         return this.namedParameterJdbcTemplate.update(sqlString, params);
     }
 
-//    @Override
-//    public List<ProcurementUnit> getProcurementUnitList(boolean active, CustomUserDetails curUser) {
-//        String sqlString = sqlListString;
-//        Map<String, Object> params = new HashMap<>();
-//        if (active) {
-//            sqlString += " AND pru.ACTIVE ";
-//        }
-//        if (curUser.getRealm().getRealmId() != -1) {
-//            sqlString += "AND fu.REALM_ID=:realmId ";
-//            params.put("realmId", curUser.getRealm().getRealmId());
-//        }
-//        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
-//    }
-//
-//    @Override
-//    public List<ProcurementUnit> getProcurementUnitListForRealm(int realmId, boolean active, CustomUserDetails curUser) {
-//        String sqlString = sqlListString;
-//        Map<String, Object> params = new HashMap<>();
-//        if (active) {
-//            sqlString += " AND pru.ACTIVE ";
-//        }
-//        if (curUser.getRealm().getRealmId() != -1) {
-//            sqlString += "AND fu.REALM_ID=:realmId ";
-//            params.put("realmId", curUser.getRealm().getRealmId());
-//        }
-//        sqlString += "AND fu.REALM_ID=:userRealmId ";
-//        params.put("userRealmId", realmId);
-//        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
-//    }
-
-//    @Override
-//    public List<ProcurementUnit> getProcurementUnitListByPlanningUnit(int planningUnitId, boolean active, CustomUserDetails curUser) {
-//        String sqlString = sqlListString;
-//        Map<String, Object> params = new HashMap<>();
-//        if (active) {
-//            sqlString += " AND pru.ACTIVE ";
-//        }
-//        if (curUser.getRealm().getRealmId() != -1) {
-//            sqlString += "AND fu.REALM_ID=:realmId ";
-//            params.put("realmId", curUser.getRealm().getRealmId());
-//        }
-//        sqlString += "AND pru.PLANNING_UNIT_ID=:planningUnitId ";
-//        params.put("planningUnitId", planningUnitId);
-//        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
-//    }
-
     @Override
     public ProcurementUnit getProcurementUnitById(int procurementUnitId, CustomUserDetails curUser) {
-        String sqlString = sqlListString;
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND fu.REALM_ID=:realmId ";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-        sqlString += "AND pru.PROCUREMENT_UNIT_ID=:procurementUnitId ";
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
+        sqlStringBuilder.append(" AND pru.PROCUREMENT_UNIT_ID=:procurementUnitId ");
         params.put("procurementUnitId", procurementUnitId);
-        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new ProcurementUnitRowMapper());
+        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new ProcurementUnitRowMapper());
     }
 
     @Override
     public List<ProcurementUnit> getProcurementUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        String sqlString = this.sqlListString;
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        sqlString += " AND pru.LAST_MODIFIED_DATE>:lastSyncDate ";
+        sqlStringBuilder.append(" AND pru.LAST_MODIFIED_DATE>:lastSyncDate ");
         params.put("lastSyncDate", lastSyncDate);
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND fu.REALM_ID=:realmId ";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementUnitRowMapper());
     }
 
 }

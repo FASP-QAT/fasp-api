@@ -26,6 +26,7 @@ public interface ProductCategoryDao {
     public Tree<ExtendedProductCategory> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren);
 
 //    public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser);
+
     public Tree<ExtendedProductCategory> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser);
 
 }

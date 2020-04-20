@@ -15,7 +15,6 @@ import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProductCategoryService;
 import cc.altius.utils.TreeUtils.Node;
 import cc.altius.utils.TreeUtils.Tree;
-import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -51,11 +50,6 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
             }
             isFirst = false;
         }
-//        for (Node<ProductCategory> p1 : productCategoryList) {
-//            if (p1.getParentId() != null && p1.getParentId() == productCategory.getId()) {
-//                p1.getPayload().setParentProductCategoryId(productCategoryId);
-//            }
-//        }
         for (Node<ProductCategory> productCategory : productCategoryTree.getTreeList()) {
             if (productCategory.getPayloadId() == 0) {
                 // Add the row
@@ -90,8 +84,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Override
-    public Tree<ExtendedProductCategory> getProductCategoryListForRealm(CustomUserDetails curUser, int realmId
-    ) {
+    public Tree<ExtendedProductCategory> getProductCategoryListForRealm(CustomUserDetails curUser, int realmId) {
         Realm r = this.realmDao.getRealmById(realmId, curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
             return this.productCategoryDao.getProductCategoryListForRealm(curUser, realmId);
@@ -102,13 +95,8 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Override
-    public Tree<ExtendedProductCategory> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren
-    ) {
+    public Tree<ExtendedProductCategory> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren) {
         Realm r = this.realmDao.getRealmById(realmId, curUser);
-//        ProductCategory pc = getProductCategoryById(productCategoryId, curUser);
-//        if (r == null || pc == null) {
-//            throw new EmptyResultDataAccessException(1);
-//        }
         return this.productCategoryDao.getProductCategoryList(curUser, realmId, productCategoryId, includeCurrentLevel, includeAllChildren);
     }
 
@@ -116,6 +104,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 //    public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser) {
 //        return this.productCategoryDao.getProductCategoryById(productCategoryId, curUser);
 //    }
+    
     @Override
     public Tree<ExtendedProductCategory> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser
     ) {

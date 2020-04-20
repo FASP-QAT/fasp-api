@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.rowMapper.RealmRowMapper;
+import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,11 +41,13 @@ public class RealmDaoImpl implements RealmDao {
 
     @Autowired
     private LabelDao labelDao;
+    @Autowired
+    private AclService aclService;
 
-    private final String sqlListString = " SELECT r.REALM_ID, r.REALM_CODE, r.MONTHS_IN_PAST_FOR_AMC, r.MONTHS_IN_FUTURE_FOR_AMC, r.ORDER_FREQUENCY, r.DEFAULT_REALM, "
-            + "rl.`LABEL_ID` ,rl.`LABEL_EN`, rl.`LABEL_FR`, rl.`LABEL_PR`, rl.`LABEL_SP`,"
-            + "cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, r.ACTIVE, r.CREATED_DATE, r.LAST_MODIFIED_DATE "
-            + "FROM rm_realm r "
+    private final String sqlListString = "SELECT r.REALM_ID, r.REALM_CODE, r.MONTHS_IN_PAST_FOR_AMC, r.MONTHS_IN_FUTURE_FOR_AMC, r.ORDER_FREQUENCY, r.DEFAULT_REALM, "
+            + " rl.`LABEL_ID` ,rl.`LABEL_EN`, rl.`LABEL_FR`, rl.`LABEL_PR`, rl.`LABEL_SP`,"
+            + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, r.ACTIVE, r.CREATED_DATE, r.LAST_MODIFIED_DATE "
+            + " FROM rm_realm r "
             + " LEFT JOIN ap_label rl ON r.`LABEL_ID`=rl.`LABEL_ID` "
             + " LEFT JOIN us_user cb ON r.CREATED_BY=cb.USER_ID "
             + " LEFT JOIN us_user lmb ON r.LAST_MODIFIED_BY=lmb.USER_ID "
@@ -122,34 +125,28 @@ public class RealmDaoImpl implements RealmDao {
     }
 
     @Override
-    public List<Realm> getRealmListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        String sql = this.sqlListString + " AND r.LAST_MODIFIED_DATE>:lastSyncDate";
-        Map<String, Object> params = new HashMap<>();
-        params.put("lastSyncDate", lastSyncDate);
-        if (curUser.getRealm().getRealmId() != -1) {
-            sql += " AND r.REALM_ID=:realmId";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-        return this.namedParameterJdbcTemplate.query(sql, params, new RealmRowMapper());
-    }
-
-    @Override
     public List<Realm> getRealmList(boolean active, CustomUserDetails curUser) {
-        String sql = this.sqlListString;
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sql += " AND r.REALM_ID=:realmId";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-        return this.namedParameterJdbcTemplate.query(sql, params, new RealmRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmRowMapper());
     }
 
     @Override
     public Realm getRealmById(int realmId, CustomUserDetails curUser) {
-        String sql = this.sqlListString + " AND r.REALM_ID=:realmId";
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        params.put("realmId", realmId);
-        return this.namedParameterJdbcTemplate.queryForObject(sql, params, new RealmRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new RealmRowMapper());
     }
 
+    @Override
+    public List<Realm> getRealmListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND r.LAST_MODIFIED_DATE>:lastSyncDate");
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmRowMapper());
+    }
 }

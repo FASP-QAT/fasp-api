@@ -53,12 +53,12 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
             + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`,"
             + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pc.ACTIVE, pc.CREATED_DATE, pc.LAST_MODIFIED_DATE "
             + "	FROM rm_product_category pc  "
-            + "LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID "
-            + "LEFT JOIN rm_realm r ON pc.REALM_ID=r.REALM_ID "
-            + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-            + "LEFT JOIN us_user cb ON pc.CREATED_BY=cb.USER_ID "
-            + "LEFT JOIN us_user lmb ON pc.LAST_MODIFIED_BY=lmb.USER_ID "
-            + "WHERE TRUE ";
+            + " LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID "
+            + " LEFT JOIN rm_realm r ON pc.REALM_ID=r.REALM_ID "
+            + " LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+            + " LEFT JOIN us_user cb ON pc.CREATED_BY=cb.USER_ID "
+            + " LEFT JOIN us_user lmb ON pc.LAST_MODIFIED_BY=lmb.USER_ID "
+            + " WHERE TRUE ";
 
     @Override
     @Transactional(propagation = Propagation.NESTED)
@@ -125,6 +125,7 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
 //        this.aclService.addUserAclForRealm(sqlListString, params, "r", curUser);
 //        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor());
 //    }
+
     @Override
     public Tree<ExtendedProductCategory> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeMainBranch, boolean includeAllChildren) {
         String sqlString = "SELECT pc.SORT_ORDER from rm_product_category pc where pc.PRODUCT_CATEGORY_ID=:productCategoryId";
@@ -147,27 +148,12 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
 
     @Override
     public Tree<ExtendedProductCategory> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        String sqlString = "SELECT  "
-                + "    pc.PRODUCT_CATEGORY_ID, pc.SORT_ORDER, pc.LEVEL, pc.SORT_ORDER,  "
-                + "    pcl.LABEL_ID, pcl.LABEL_EN, pcl.LABEL_FR, pcl.LABEL_PR, pcl.LABEL_SP, "
-                + "    r.REALM_ID, r.REALM_CODE,  "
-                + "    rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`,"
-                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pc.ACTIVE, pc.CREATED_DATE, pc.LAST_MODIFIED_DATE "
-                + "	FROM rm_product_category pc  "
-                + "LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID "
-                + "LEFT JOIN rm_realm r ON pc.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-                + "LEFT JOIN us_user cb ON pc.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON pc.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE pc.LAST_MODIFIED_DATE>:lastSyncDate ";
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND pc.LAST_MODIFIED_DATE>:lastSyncDate ");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND pc.REALM_ID=:realmId ";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-        sqlString += "ORDER BY pc.SORT_ORDER";
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new TreeExtendedProductCategoryResultSetExtractor());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pc", curUser);
+        sqlStringBuilder.append(" ORDER BY pc.SORT_ORDER");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor());
     }
 
 }

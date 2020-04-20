@@ -8,10 +8,9 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.SubFundingSourceDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgSubFundingSourceDTO;
-import cc.altius.FASP.model.DTO.rowMapper.PrgSubFundingSourceDTORowMapper;
 import cc.altius.FASP.model.SubFundingSource;
 import cc.altius.FASP.model.rowMapper.SubFundingSourceRowMapper;
+import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -42,20 +41,22 @@ public class SubFundingSourceDaoImpl implements SubFundingSourceDao {
 
     @Autowired
     private LabelDao labelDao;
+    @Autowired
+    private AclService aclService;
 
     private final String sqlListString = "SELECT sfs.SUB_FUNDING_SOURCE_ID, sfsl.`LABEL_ID`, sfsl.`LABEL_EN` , sfsl.`LABEL_FR`, sfsl.`LABEL_PR`, sfsl.`LABEL_SP`, "
             + "     fs.FUNDING_SOURCE_ID, fsl.`LABEL_ID` `FUNDING_SOURCE_LABEL_ID`, fsl.`LABEL_EN` `FUNDING_SOURCE_LABEL_EN` , fsl.`LABEL_FR` `FUNDING_SOURCE_LABEL_FR`, fsl.`LABEL_PR` `FUNDING_SOURCE_LABEL_PR`, fsl.`LABEL_SP` `FUNDING_SOURCE_LABEL_SP`, "
             + "     r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
-            + "	sfs.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, sfs.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, sfs.LAST_MODIFIED_DATE "
-            + "FROM rm_sub_funding_source sfs "
-            + "LEFT JOIN ap_label sfsl ON sfs.LABEL_ID=sfsl.LABEL_ID "
-            + "LEFT JOIN rm_funding_source fs on sfs.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID "
-            + "LEFT JOIN ap_label fsl ON fs.LABEL_ID=fsl.LABEL_ID "
-            + "LEFT JOIN rm_realm r on fs.REALM_ID=r.REALM_ID "
-            + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-            + "LEFT JOIN us_user cb ON sfs.CREATED_BY=cb.USER_ID "
-            + "LEFT JOIN us_user lmb ON sfs.LAST_MODIFIED_BY=lmb.USER_ID "
-            + "WHERE TRUE ";
+            + "     sfs.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, sfs.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, sfs.LAST_MODIFIED_DATE "
+            + " FROM rm_sub_funding_source sfs "
+            + " LEFT JOIN ap_label sfsl ON sfs.LABEL_ID=sfsl.LABEL_ID "
+            + " LEFT JOIN rm_funding_source fs on sfs.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID "
+            + " LEFT JOIN ap_label fsl ON fs.LABEL_ID=fsl.LABEL_ID "
+            + " LEFT JOIN rm_realm r on fs.REALM_ID=r.REALM_ID "
+            + " LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+            + " LEFT JOIN us_user cb ON sfs.CREATED_BY=cb.USER_ID "
+            + " LEFT JOIN us_user lmb ON sfs.LAST_MODIFIED_BY=lmb.USER_ID "
+            + " WHERE TRUE "; 
 
     @Override
     @Transactional
@@ -90,57 +91,47 @@ public class SubFundingSourceDaoImpl implements SubFundingSourceDao {
 
     @Override
     public SubFundingSource getSubFundingSourceById(int subFundingSourceId, CustomUserDetails curUser) {
-        String sql = this.sqlListString + " AND sfs.SUB_FUNDING_SOURCE_ID=:subFundingSourceId";
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND sfs.SUB_FUNDING_SOURCE_ID=:subFundingSourceId");
         Map<String, Object> params = new HashMap<>();
         params.put("subFundingSourceId", subFundingSourceId);
-        return this.namedParameterJdbcTemplate.queryForObject(sql, params, new SubFundingSourceRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new SubFundingSourceRowMapper());
     }
 
     @Override
     public List<SubFundingSource> getSubFundingSourceList(CustomUserDetails curUser) {
-        String sql = this.sqlListString;
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sql += " AND fs.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
-        return this.namedParameterJdbcTemplate.query(sql, params, new SubFundingSourceRowMapper());
-    }
-
-    @Override
-    public List<SubFundingSource> getSubFundingSourceListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        String sql = this.sqlListString + " AND sfs.LAST_MODIFIED_DATE>:lastSyncDate";
-        Map<String, Object> params = new HashMap<>();
-        params.put("lastSyncDate", lastSyncDate);
-        if (curUser.getRealm().getRealmId() != -1) {
-            sql += " AND fs.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
-        return this.namedParameterJdbcTemplate.query(sql, params, new SubFundingSourceRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SubFundingSourceRowMapper());
     }
 
     @Override
     public List<SubFundingSource> getSubFundingSourceListByFundingSource(int fundingSourceId, CustomUserDetails curUser) {
-        String sql = this.sqlListString + " AND sfs.FUNDING_SOURCE_ID=:fundingSourceId";
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND sfs.FUNDING_SOURCE_ID=:fundingSourceId");
         Map<String, Object> params = new HashMap<>();
         params.put("fundingSourceId", fundingSourceId);
-        if (curUser.getRealm().getRealmId() != -1) {
-            sql += " fs.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
-        return this.namedParameterJdbcTemplate.query(sql, params, new SubFundingSourceRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SubFundingSourceRowMapper());
     }
 
     @Override
     public List<SubFundingSource> getSubFundingSourceListByRealm(int realmId, CustomUserDetails curUser) {
-        String sql = this.sqlListString + " AND fs.REALM_ID=:realmId";
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sql += " fs.REALM_ID=:userRealmId ";
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-        }
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
         params.put("realmId", realmId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new SubFundingSourceRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SubFundingSourceRowMapper());
+    }
+    
+    @Override
+    public List<SubFundingSource> getSubFundingSourceListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND sfs.LAST_MODIFIED_DATE>:lastSyncDate");
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SubFundingSourceRowMapper());
     }
 
 }
