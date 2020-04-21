@@ -6,18 +6,14 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ProgramDataDao;
-import cc.altius.FASP.model.DTO.PrgBudgetDTO;
-import cc.altius.FASP.model.DTO.PrgConsumptionDTO;
-import cc.altius.FASP.model.DTO.PrgInventoryDTO;
-import cc.altius.FASP.model.DTO.PrgProgramDataDTO;
-import cc.altius.FASP.model.DTO.PrgProgramProductDTO;
-import cc.altius.FASP.model.DTO.PrgRegionDTO;
-import cc.altius.FASP.model.DTO.PrgShipmentDTO;
-import java.util.List;
+import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.service.AclService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ProgramDataService;
-import java.util.LinkedList;
+import cc.altius.FASP.service.ProgramService;
+import org.springframework.dao.EmptyResultDataAccessException;
 
 /**
  *
@@ -27,54 +23,50 @@ import java.util.LinkedList;
 public class ProgramDataServiceImpl implements ProgramDataService {
 
     @Autowired
-    ProgramDataDao programDao;
+    private ProgramDataDao programDataDao;
+    @Autowired
+    private ProgramService programService;
+    @Autowired
+    private AclService aclService;
 
     @Override
-    public List<PrgProgramDataDTO> getProgramData(String programId) {
-        List<PrgProgramDataDTO> programList = new LinkedList<>();
-        programList = this.programDao.getProgramData(programId);
-        for (PrgProgramDataDTO program : programList) {
-            List<PrgProgramProductDTO> programProductList = this.getProgramProductListByProgramId(program.getProgramId());
-            program.setProgramProductList(programProductList);
-            for (PrgProgramProductDTO programProduct : programProductList) {
-                programProduct.getProduct().setInventoryData(this.getInventoryListByProductId(programProduct.getProduct().getProductId()));
-                programProduct.getProduct().setConsumptionData(this.getConsumptionListByProductId(programProduct.getProduct().getProductId()));
-                programProduct.getProduct().setShipmentData(this.getShipmentListByProductId(programProduct.getProduct().getProductId()));
-            }
-            program.setRegionList(this.getRegionListByProgramId(program.getProgramId()));
-            program.setBudgetData(this.getBudgetListByProgramId(program.getProgramId()));
+    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser) {
+        ProgramData pd = new ProgramData(this.programService.getProgramById(programId, curUser));
+        if (pd.getCurrentVersion().getVersionId() < versionId) {
+            throw new EmptyResultDataAccessException("Incorrect VersionId requested", versionId);
         }
-        return programList;
+        pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId));
+        pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId));
+        return pd;
     }
 
-    @Override
-    public List<PrgProgramProductDTO> getProgramProductListByProgramId(int programId) {
-        return this.programDao.getProgramProductListByProgramId(programId);
-    }
-
-    @Override
-    public List<PrgInventoryDTO> getInventoryListByProductId(int productId) {
-        return this.programDao.getInventoryListByProductId(productId);
-    }
-
-    @Override
-    public List<PrgConsumptionDTO> getConsumptionListByProductId(int productId) {
-        return this.programDao.getConsumptionListByProductId(productId);
-    }
-
-    @Override
-    public List<PrgShipmentDTO> getShipmentListByProductId(int productId) {
-        return this.programDao.getShipmentListByProductId(productId);
-    }
-
-    @Override
-    public List<PrgRegionDTO> getRegionListByProgramId(int programId) {
-        return this.programDao.getRegionListByProgramId(programId);
-    }
-
-    @Override
-    public List<PrgBudgetDTO> getBudgetListByProgramId(int programId) {
-        return this.programDao.getBudgetListByProgramId(programId);
-    }
-
+//    @Override
+//    public List<PrgProgramProductDTO> getProgramProductListByProgramId(int programId) {
+//        return this.programDao.getProgramProductListByProgramId(programId);
+//    }
+//
+//    @Override
+//    public List<PrgInventoryDTO> getInventoryListByProductId(int productId) {
+//        return this.programDao.getInventoryListByProductId(productId);
+//    }
+//
+//    @Override
+//    public List<PrgConsumptionDTO> getConsumptionListByProductId(int productId) {
+//        return this.programDao.getConsumptionListByProductId(productId);
+//    }
+//
+//    @Override
+//    public List<PrgShipmentDTO> getShipmentListByProductId(int productId) {
+//        return this.programDao.getShipmentListByProductId(productId);
+//    }
+//
+//    @Override
+//    public List<PrgRegionDTO> getRegionListByProgramId(int programId) {
+//        return this.programDao.getRegionListByProgramId(programId);
+//    }
+//
+//    @Override
+//    public List<PrgBudgetDTO> getBudgetListByProgramId(int programId) {
+//        return this.programDao.getBudgetListByProgramId(programId);
+//    }
 }
