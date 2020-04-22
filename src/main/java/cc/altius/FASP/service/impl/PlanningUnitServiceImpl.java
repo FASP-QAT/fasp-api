@@ -153,7 +153,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
 
     @Override
     public List<PlanningUnit> getPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        return this.getPlanningUnitListForSync(lastSyncDate, curUser);
+        return this.planningUnitDao.getPlanningUnitListForSync(lastSyncDate, curUser);
     }
 
 }
