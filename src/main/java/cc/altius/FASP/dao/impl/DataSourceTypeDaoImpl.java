@@ -128,7 +128,7 @@ public class DataSourceTypeDaoImpl implements DataSourceTypeDao {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
-        sqlStringBuilder.append(" AND dst.LAST_MODIFIED_DATE=:lastModifiedDate");
+        sqlStringBuilder.append(" AND dst.LAST_MODIFIED_DATE>:lastModifiedDate");
         params.put("lastModifiedDate", lastSyncDate);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new DataSourceTypeRowMapper());
     }
