@@ -107,7 +107,7 @@ public class DimensionDaoImpl implements DimensionDao {
 
     @Override
     public List<Dimension> getDimensionListForSync(String lastSyncDate) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" d.LAST_MODIFIED_DATE>=:lastSyncDate ");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append("AND d.LAST_MODIFIED_DATE>=:lastSyncDate ");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new DimensionRowMapper());

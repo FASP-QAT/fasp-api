@@ -17,15 +17,17 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
     private SimpleObject program;
     private SimpleObject planningUnit;
     private int reorderFrequencyInMonths;
+    private int minMonthsOfStock;
 
     public ProgramPlanningUnit() {
     }
 
-    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, int reorderFrequencyInMonths) {
+    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, int reorderFrequencyInMonths, int minMonthsOfStock) {
         this.programPlanningUnitId = programPlanningUnitId;
         this.program = program;
         this.planningUnit = planningUnit;
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
+        this.minMonthsOfStock = minMonthsOfStock;
     }
 
     public int getProgramPlanningUnitId() {
@@ -58,6 +60,14 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
 
     public void setReorderFrequencyInMonths(int reorderFrequencyInMonths) {
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
+    }
+
+    public int getMinMonthsOfStock() {
+        return minMonthsOfStock;
+    }
+
+    public void setMinMonthsOfStock(int minMonthsOfStock) {
+        this.minMonthsOfStock = minMonthsOfStock;
     }
 
     @Override

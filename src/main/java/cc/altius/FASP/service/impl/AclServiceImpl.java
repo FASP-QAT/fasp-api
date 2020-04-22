@@ -137,7 +137,7 @@ public class AclServiceImpl implements AclService {
     
     @Override
     public void addUserAclForRealm(StringBuilder sb, Map<String, Object> params, String realmAlias, int realmId, CustomUserDetails curUser) {
-        if (curUser.getRealm().getRealmId() != -1) {
+        if (realmId != -1) {
             sb.append(" AND ").append(realmAlias).append(".REALM_ID=:aclRealmId0 ");
             params.put("aclRealmId0", realmId);
         }

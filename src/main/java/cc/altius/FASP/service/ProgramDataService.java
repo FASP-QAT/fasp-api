@@ -5,14 +5,8 @@
  */
 package cc.altius.FASP.service;
 
-import cc.altius.FASP.model.DTO.PrgBudgetDTO;
-import cc.altius.FASP.model.DTO.PrgConsumptionDTO;
-import cc.altius.FASP.model.DTO.PrgInventoryDTO;
-import cc.altius.FASP.model.DTO.PrgProgramDataDTO;
-import cc.altius.FASP.model.DTO.PrgProgramProductDTO;
-import cc.altius.FASP.model.DTO.PrgRegionDTO;
-import cc.altius.FASP.model.DTO.PrgShipmentDTO;
-import java.util.List;
+import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.ProgramData;
 
 /**
  *
@@ -20,18 +14,6 @@ import java.util.List;
  */
 public interface ProgramDataService {
 
-    public List<PrgProgramDataDTO> getProgramData(String programId);
-
-    public List<PrgProgramProductDTO> getProgramProductListByProgramId(int programId);
-
-    public List<PrgInventoryDTO> getInventoryListByProductId(int productId);
-
-    public List<PrgConsumptionDTO> getConsumptionListByProductId(int productId);
-
-    public List<PrgShipmentDTO> getShipmentListByProductId(int productId);
-
-    public List<PrgRegionDTO> getRegionListByProgramId(int programId);
-
-    public List<PrgBudgetDTO> getBudgetListByProgramId(int programId);
+    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser);
 
 }
