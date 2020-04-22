@@ -63,7 +63,7 @@ public class TreeTest {
         flatList.add(new Node<>(36, 32, new ProductCategory(31, new Label(0, "Others", null, null, null)), 31));
         flatList.add(new Node<>(37, 32, new ProductCategory(30, new Label(0, "Vehicles", null, null, null)), 30));
         flatList.add(new Node<>(38, 32, new ProductCategory(27, new Label(0, "Warehouse Equipment", null, null, null)), 27));
-        
+
 //        flatList.add(new Node<>(4, null, new ProductCategory(4, new Label(0, "Root", null, null, null)), 4));
 //        flatList.add(new Node<>(1, 4, new ProductCategory(1, new Label(0, "CC 1: HIV / AIDS Pharmaceuticals", null, null, null)), 1));
 //        flatList.add(new Node<>(2, 1, new ProductCategory(2, new Label(0, "HIV/AIDS Pharmaceuticals", null, null, null)), 2));
@@ -102,7 +102,6 @@ public class TreeTest {
 //        flatList.add(new Node<>(31, 24, new ProductCategory(31, new Label(0, "Others", null, null, null)), 31));
 //        flatList.add(new Node<>(30, 24, new ProductCategory(30, new Label(0, "Vehicles", null, null, null)), 30));
 //        flatList.add(new Node<>(27, 24, new ProductCategory(27, new Label(0, "Warehouse Equipment", null, null, null)), 27));
-
     }
 
     public static void main(String[] args) {
@@ -134,7 +133,7 @@ public class TreeTest {
         System.out.println("");
         System.out.println("");
         Node n = t.findNodeByPayloadId(35);
-        
+
         System.out.println(n);
         System.out.println("");
         System.out.println("");
