@@ -332,7 +332,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("PLANNING_UNIT_ID", ppu.getPlanningUnit().getId());
                 params.put("PROGRAM_ID", ppu.getProgram().getId());
                 params.put("REORDER_FREQUENCY_IN_MONTHS", ppu.getReorderFrequencyInMonths());
-                params.put("MIN_MONTHS_OF_STOCK", ppu.getReorderFrequencyInMonths());
+                params.put("MIN_MONTHS_OF_STOCK", ppu.getMinMonthsOfStock());
                 params.put("CREATED_DATE", curDate);
                 params.put("CREATED_BY", curUser.getUserId());
                 params.put("LAST_MODIFIED_DATE", curDate);
@@ -344,6 +344,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 params = new HashMap<>();
                 params.put("programPlanningUnitId", ppu.getProgramPlanningUnitId());
                 params.put("reorderFrequencyInMonths", ppu.getReorderFrequencyInMonths());
+                params.put("minMonthsOfStock", ppu.getMinMonthsOfStock());
                 params.put("curDate", curDate);
                 params.put("curUser", curUser.getUserId());
                 params.put("active", ppu.isActive());
@@ -357,7 +358,7 @@ public class ProgramDaoImpl implements ProgramDao {
         if (updateList.size() > 0) {
             SqlParameterSource[] updateParams = new SqlParameterSource[updateList.size()];
             String sqlString = "UPDATE "
-                    + "rm_program_planning_unit ppu SET ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.ACTIVE=:active, "
+                    + "rm_program_planning_unit ppu SET ppu.MIN_MONTHS_OF_STOCK=:minMonthsOfStock,ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.ACTIVE=:active, "
                     + "ppu.LAST_MODIFIED_DATE=IF(ppu.ACTIVE!=:active OR ppu.REORDER_FREQUENCY_IN_MONTHS!=:reorderFrequencyInMonths, :curDate, ppu.LAST_MODIFIED_DATE), "
                     + "ppu.LAST_MODIFIED_BY=IF(ppu.ACTIVE!=:active OR ppu.REORDER_FREQUENCY_IN_MONTHS!=:reorderFrequencyInMonths, :curUser, ppu.LAST_MODIFIED_BY) "
                     + "WHERE ppu.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId";
