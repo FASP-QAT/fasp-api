@@ -13,7 +13,7 @@ import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentProcurementUnitRowMapper;
-import cc.altius .FASP.model.rowMapper.ProcurementAgentRowMapper;
+import cc.altius.FASP.model.rowMapper.ProcurementAgentRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -179,6 +179,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                 params.put("PROCUREMENT_AGENT_ID", papu.getProcurementAgent().getId());
                 params.put("MOQ", papu.getMoq());
                 params.put("SKU_CODE", papu.getSkuCode());
+                params.put("CATALOG_PRICE", papu.getCatalogPrice());
                 params.put("UNITS_PER_PALLET", papu.getUnitsPerPallet());
                 params.put("UNITS_PER_CONTAINER", papu.getUnitsPerContainer());
                 params.put("VOLUME", papu.getVolume());
@@ -195,6 +196,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                 params.put("procurementAgentPlanningUnitId", papu.getProcurementAgentPlanningUnitId());
                 params.put("moq", papu.getMoq());
                 params.put("skuCode", papu.getSkuCode());
+                params.put("catalogPrice", papu.getCatalogPrice());
                 params.put("unitsPerContainer", papu.getUnitsPerContainer());
                 params.put("unitsPerPallet", papu.getUnitsPerPallet());
                 params.put("volume", papu.getVolume());
@@ -220,6 +222,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                     + "papu.UNITS_PER_PALLET=:unitsPerPallet, "
                     + "papu.VOLUME=:volume, "
                     + "papu.WEIGHT=:weight, "
+                    + "papu.CATALOG_PRICE=:catalogPrice, "
                     + " papu.ACTIVE=:active, "
                     + "papu.LAST_MODIFIED_DATE=IF(papu.ACTIVE!=:active OR papu.MOQ!=:moq OR papu.SKU_CODE!=:skuCode OR papu.UNITS_PER_CONTAINER!=:unitsPerContainer OR papu.UNITS_PER_PALLET!=:unitsPerPallet OR papu.VOLUME!=:volume OR papu.WEIGHT!=:weight, :curDate, papu.LAST_MODIFIED_DATE), "
                     + "papu.LAST_MODIFIED_BY=IF(papu.ACTIVE!=:active OR papu.MOQ!=:moq OR papu.SKU_CODE!=:skuCode OR papu.UNITS_PER_CONTAINER!=:unitsPerContainer OR papu.UNITS_PER_PALLET!=:unitsPerPallet OR papu.VOLUME!=:volume OR papu.WEIGHT!=:weight, :curUser, papu.LAST_MODIFIED_BY) "

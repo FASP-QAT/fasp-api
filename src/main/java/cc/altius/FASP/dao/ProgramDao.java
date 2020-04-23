@@ -34,4 +34,6 @@ public interface ProgramDao {
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser);
 
     public List<Program> getProgramListForSync(String lastSyncDate, CustomUserDetails curUser);
+    
+    public List<ProgramPlanningUnit> getProgramPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
 }
