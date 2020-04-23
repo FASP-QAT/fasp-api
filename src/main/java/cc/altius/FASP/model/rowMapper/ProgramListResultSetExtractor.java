@@ -8,8 +8,6 @@ package cc.altius.FASP.model.rowMapper;
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.Country;
 import cc.altius.FASP.model.Currency;
-import cc.altius.FASP.model.HealthArea;
-import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
@@ -58,7 +56,7 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
                                 new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE"))
                         )
                 );
-                p.getRealmCountry().setDefaultCurrency(new Currency(rs.getInt("CURRENCY_ID"), rs.getString("CURRENCY_CODE"), rs.getString("CURRENCY_SYMBOL"), new LabelRowMapper("CURRENCY_").mapRow(rs, 1), rs.getDouble("CONVERSION_RATE_TO_USD")));
+                p.getRealmCountry().setDefaultCurrency(new Currency(rs.getInt("CURRENCY_ID"), rs.getString("CURRENCY_CODE"), new LabelRowMapper("CURRENCY_").mapRow(rs, 1), rs.getDouble("CONVERSION_RATE_TO_USD")));
                 p.getRealmCountry().setAirFreightPercentage(rs.getDouble("REALM_COUNTRY_AIR_FREIGHT_PERC"));
                 p.getRealmCountry().setSeaFreightPercentage(rs.getDouble("REALM_COUNTRY_SEA_FREIGHT_PERC"));
                 p.getRealmCountry().setShippedToArrivedSeaLeadTime(rs.getInt("REALM_COUNTRY_SHIPPED_TO_ARRIVED_SEA_LEAD_TIME"));

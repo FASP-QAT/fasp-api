@@ -45,7 +45,6 @@ public class CurrencyRestController {
     @PostMapping(value = "/currency")
     public ResponseEntity addCurrency(@RequestBody Currency currency, Authentication auth, HttpServletRequest request) {
         try {
-            System.out.println("From the mapping="+currency.getCurrencySymbol());
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.currencyService.addCurrency(currency, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
