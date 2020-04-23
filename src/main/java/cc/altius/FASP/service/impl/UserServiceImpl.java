@@ -19,7 +19,6 @@ import cc.altius.FASP.model.User;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -161,11 +160,11 @@ public class UserServiceImpl implements UserService {
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(emailTemplateId);
             String[] subjectParam = new String[]{};
             String[] bodyParam = null;
-            if (emailTemplateId == 1) {
-                bodyParam = new String[]{HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
-            } else if (emailTemplateId == 2) {
+//            if (emailTemplateId == 1) {
+//                bodyParam = new String[]{HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
+//            } else if (emailTemplateId == 2) {
                 bodyParam = new String[]{user.getUsername(), HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
-            }
+//            }
             Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
