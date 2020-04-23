@@ -41,7 +41,7 @@ public class CurrencyDaoImpl implements CurrencyDao {
     private LabelDao labelDao;
 
     private final String sqlListString = "SELECT  "
-            + "	cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CURRENCY_SYMBOL, cu.CONVERSION_RATE_TO_USD, "
+            + "	cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CONVERSION_RATE_TO_USD, "
             + "    cul.`LABEL_ID`, cul.`LABEL_EN`, cul.`LABEL_FR`, cul.`LABEL_SP`, cul.`LABEL_PR`, "
             + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, cu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, cu.LAST_MODIFIED_DATE, cu.ACTIVE ,cu.IS_SYNC "
             + "FROM ap_currency cu   "
@@ -58,7 +58,6 @@ public class CurrencyDaoImpl implements CurrencyDao {
         SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("ap_currency").usingGeneratedKeyColumns("CURRENCY_ID");
         Map<String, Object> map = new HashMap<>();
         map.put("CURRENCY_CODE", currency.getCurrencyCode());
-        map.put("CURRENCY_SYMBOL", currency.getCurrencySymbol());
         map.put("LABEL_ID", insertedLabelRowId);
         map.put("CONVERSION_RATE_TO_USD", currency.getConversionRateToUsd());
         map.put("IS_Sync", currency.isIsSync());
@@ -76,9 +75,9 @@ public class CurrencyDaoImpl implements CurrencyDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sqlString = "UPDATE ap_currency cu LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
                 + "SET  "
-                + "	cu.CURRENCY_CODE=:currencyCode, cu.CURRENCY_SYMBOL=:currencySymbol, cu.CONVERSION_RATE_TO_USD=:conversionRateToUsd, cu.ACTIVE=:active,cu.IS_SYNC=:isSync, "
-                + "	cu.LAST_MODIFIED_BY = IF(cu.CURRENCY_CODE!=:currencyCode OR cu.CURRENCY_SYMBOL!=:currencySymbol OR cu.CONVERSION_RATE_TO_USD!=:conversionRateToUsd OR cu.ACTIVE!=:active OR cu.IS_SYNC=:isSync, :curUser, cu.LAST_MODIFIED_BY), "
-                + "    cu.LAST_MODIFIED_DATE = IF(cu.CURRENCY_CODE!=:currencyCode OR cu.CURRENCY_SYMBOL!=:currencySymbol OR cu.CONVERSION_RATE_TO_USD!=:conversionRateToUsd OR cu.ACTIVE!=:active OR cu.IS_SYNC=:isSync, :curDate, cu.LAST_MODIFIED_DATE), "
+                + "	cu.CURRENCY_CODE=:currencyCode, cu.CONVERSION_RATE_TO_USD=:conversionRateToUsd, cu.ACTIVE=:active,cu.IS_SYNC=:isSync, "
+                + "	cu.LAST_MODIFIED_BY = IF(cu.CURRENCY_CODE!=:currencyCode OR cu.CONVERSION_RATE_TO_USD!=:conversionRateToUsd OR cu.ACTIVE!=:active OR cu.IS_SYNC=:isSync, :curUser, cu.LAST_MODIFIED_BY), "
+                + "    cu.LAST_MODIFIED_DATE = IF(cu.CURRENCY_CODE!=:currencyCode OR cu.CONVERSION_RATE_TO_USD!=:conversionRateToUsd OR cu.ACTIVE!=:active OR cu.IS_SYNC=:isSync, :curDate, cu.LAST_MODIFIED_DATE), "
                 + "    cul.LABEL_EN=:label_en,  "
                 + "    cu.LAST_MODIFIED_BY = IF(cul.LABEL_EN!=:label_en, :curUser, cu.LAST_MODIFIED_BY), "
                 + "    cu.LAST_MODIFIED_DATE = IF(cul.LABEL_EN!=:label_en, :curDate, cu.LAST_MODIFIED_DATE) "
@@ -87,7 +86,6 @@ public class CurrencyDaoImpl implements CurrencyDao {
         params.put("isSync", currency.isIsSync());
         params.put("active", currency.isActive());
         params.put("currencyCode", currency.getCurrencyCode());
-        params.put("currencySymbol", currency.getCurrencySymbol());
         params.put("conversionRateToUsd", currency.getConversionRateToUsd());
         params.put("label_en", currency.getLabel().getLabel_en());
         params.put("curUser", curUser.getUserId());

@@ -24,14 +24,17 @@ public class Inventory extends BaseModel implements Serializable {
     private double multiplier;
     private Double actualQty;
     private double adjustmentQty;
+    private double expectedBal;
     private SimpleCodeObject unit;
     private SimpleObject dataSource;
+    private String batchNo;
+    private Date expiryDate;
     private int versionId;
 
     public Inventory() {
     }
 
-    public Inventory(int inventoryId, Date inventoryDate, SimpleObject region, SimpleObject realmCountryPlanningUnit, SimpleObject planningUnit, double multiplier, double adjustmentQty, SimpleCodeObject unit, SimpleObject dataSource, int versionId) {
+    public Inventory(int inventoryId, Date inventoryDate, SimpleObject region, SimpleObject realmCountryPlanningUnit, SimpleObject planningUnit, double multiplier, double adjustmentQty, double expectedBal, SimpleCodeObject unit, SimpleObject dataSource, int versionId) {
         this.inventoryId = inventoryId;
         this.inventoryDate = inventoryDate;
         this.region = region;
@@ -39,6 +42,7 @@ public class Inventory extends BaseModel implements Serializable {
         this.planningUnit = planningUnit;
         this.multiplier = multiplier;
         this.adjustmentQty = adjustmentQty;
+        this.expectedBal = expectedBal;
         this.unit = unit;
         this.dataSource = dataSource;
         this.versionId = versionId;
@@ -108,6 +112,14 @@ public class Inventory extends BaseModel implements Serializable {
         this.adjustmentQty = adjustmentQty;
     }
 
+    public double getExpectedBal() {
+        return expectedBal;
+    }
+
+    public void setExpectedBal(double expectedBal) {
+        this.expectedBal = expectedBal;
+    }
+
     public SimpleCodeObject getUnit() {
         return unit;
     }
@@ -122,6 +134,22 @@ public class Inventory extends BaseModel implements Serializable {
 
     public void setDataSource(SimpleObject dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public String getBatchNo() {
+        return batchNo;
+    }
+
+    public void setBatchNo(String batchNo) {
+        this.batchNo = batchNo;
+    }
+
+    public Date getExpiryDate() {
+        return expiryDate;
+    }
+
+    public void setExpiryDate(Date expiryDate) {
+        this.expiryDate = expiryDate;
     }
 
     public int getVersionId() {
