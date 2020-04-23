@@ -28,6 +28,7 @@ public class InventoryRowMapper implements RowMapper<Inventory> {
                 new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)),
                 rs.getDouble("MULTIPLIER"),
                 rs.getDouble("ADJUSTMENT_QTY"),
+                rs.getDouble("EXPECTED_BAL"),
                 new SimpleCodeObject(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, i), rs.getString("UNIT_CODE")),
                 new SimpleObject(rs.getInt("DATA_SOURCE_ID"), new LabelRowMapper("DATA_SOURCE_").mapRow(rs, i)),
                 rs.getInt("VERSION_ID")
@@ -38,6 +39,8 @@ public class InventoryRowMapper implements RowMapper<Inventory> {
         } else {
             inv.setActualQty(actualQty);
         }
+        inv.setBatchNo(rs.getString("BATCH_NO"));
+        inv.setExpiryDate(rs.getDate("EXPIRY_DATE"));
         inv.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return inv;
     }

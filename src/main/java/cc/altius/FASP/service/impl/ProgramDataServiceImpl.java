@@ -32,6 +32,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser) {
         ProgramData pd = new ProgramData(this.programService.getProgramById(programId, curUser));
+        pd.setRequestedProgramVersion(versionId);
         if (pd.getCurrentVersion().getVersionId() < versionId) {
             throw new EmptyResultDataAccessException("Incorrect VersionId requested", versionId);
         }

@@ -78,7 +78,7 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
 
     @Override
     public List<ForecastingUnit> getForecastingUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        return this.getForecastingUnitListForSync(lastSyncDate, curUser);
+        return this.forecastingUnitDao.getForecastingUnitListForSync(lastSyncDate, curUser);
     }
     
 }

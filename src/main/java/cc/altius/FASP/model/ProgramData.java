@@ -35,6 +35,15 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<Version> versionList;
     private List<Consumption> consumptionList;
     private List<Inventory> inventoryList;
+    private int requestedProgramVersion;
+
+    public int getRequestedProgramVersion() {
+        return requestedProgramVersion;
+    }
+
+    public void setRequestedProgramVersion(int requestedProgramVersion) {
+        this.requestedProgramVersion = requestedProgramVersion;
+    }
 
     public ProgramData() {
     }
@@ -226,6 +235,11 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setInventoryList(List<Inventory> inventoryList) {
         this.inventoryList = inventoryList;
+    }
+
+    @Override
+    public String toString() {
+        return "ProgramData{" + "programId=" + programId + ", realmCountry=" + realmCountry + ", organisation=" + organisation + ", healthArea=" + healthArea + ", label=" + label + ", programManager=" + programManager + ", programNotes=" + programNotes + ", airFreightPerc=" + airFreightPerc + ", seaFreightPerc=" + seaFreightPerc + ", plannedToDraftLeadTime=" + plannedToDraftLeadTime + ", draftToSubmittedLeadTime=" + draftToSubmittedLeadTime + ", submittedToApprovedLeadTime=" + submittedToApprovedLeadTime + ", approvedToShippedLeadTime=" + approvedToShippedLeadTime + ", deliveredToReceivedLeadTime=" + deliveredToReceivedLeadTime + ", monthsInPastForAmc=" + monthsInPastForAmc + ", monthsInFutureForAmc=" + monthsInFutureForAmc + ", regionList=" + regionList + ", currentVersion=" + currentVersion + ", versionList=" + versionList + ", consumptionList=" + consumptionList + ", inventoryList=" + inventoryList + '}';
     }
 
 }

@@ -32,7 +32,7 @@ public class RealmCountryRowMapper implements RowMapper<RealmCountry> {
         rc.setShippedToArrivedSeaLeadTime(rs.getInt("SHIPPED_TO_ARRIVED_SEA_LEAD_TIME"));
         rc.setArrivedToDeliveredLeadTime(rs.getInt("ARRIVED_TO_DELIVERED_LEAD_TIME"));
         rc.setPalletUnit(new Unit(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, i), rs.getString("UNIT_CODE")));
-        rc.setDefaultCurrency(new Currency(rs.getInt("CURRENCY_ID"), rs.getString("CURRENCY_CODE"), rs.getString("CURRENCY_SYMBOL"), new LabelRowMapper("CURRENCY_").mapRow(rs, i), rs.getDouble("CONVERSION_RATE_TO_USD")));
+        rc.setDefaultCurrency(new Currency(rs.getInt("CURRENCY_ID"), rs.getString("CURRENCY_CODE"), new LabelRowMapper("CURRENCY_").mapRow(rs, i), rs.getDouble("CONVERSION_RATE_TO_USD")));
         rc.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return rc;
     }

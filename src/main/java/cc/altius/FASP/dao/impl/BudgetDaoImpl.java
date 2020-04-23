@@ -138,7 +138,7 @@ public class BudgetDaoImpl implements BudgetDao {
 
     @Override
     public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" b.LAST_MODIFIED_DATE>:lastSyncDate");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append("AND b.LAST_MODIFIED_DATE>:lastSyncDate");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fs", curUser);
