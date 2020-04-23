@@ -24,6 +24,7 @@ public class CurrencyRowMapper  implements RowMapper<Currency>{
         c.setCurrencySymbol(rs.getString("CURRENCY_SYMBOL"));
         c.setConversionRateToUsd(rs.getDouble("CONVERSION_RATE_TO_USD"));
         c.setCurrencyId(rs.getInt("CURRENCY_ID"));
+         c.setIsSync(rs.getBoolean("IS_SYNC"));
         c.setLabel(new Label(rs.getInt("LABEL_ID"), rs.getString("LABEL_EN"), rs.getString("LABEL_SP"), rs.getString("LABEL_FR"), rs.getString("LABEL_PR")));
         c.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         System.out.println("Currency Symbol from resultSet="+rs.getString("CURRENCY_SYMBOL"));
