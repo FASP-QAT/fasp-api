@@ -16,6 +16,7 @@ public class Currency extends BaseModel {
     private String currencySymbol;
     private Label label;
     private double conversionRateToUsd;
+    private boolean isSync;
 
     public Currency() {
     }
@@ -26,6 +27,7 @@ public class Currency extends BaseModel {
         this.currencySymbol = currencySymbol;
         this.label = label;
         this.conversionRateToUsd = conversionRateToUsd;
+        this.isSync = true;
     }
 
     public int getCurrencyId() {
@@ -68,6 +70,15 @@ public class Currency extends BaseModel {
         this.conversionRateToUsd = conversionRateToUsd;
     }
 
+    public boolean isIsSync() {
+        return isSync;
+    }
+
+    public void setIsSync(boolean isSync) {
+        this.isSync = isSync;
+    }
+
+    
     @Override
     public String toString() {
         return "Currency{" + "currencyId=" + currencyId + ", currencyCode=" + currencyCode + ", currencySymbol=" + currencySymbol + ", label=" + label + ", conversionRateToUsd=" + conversionRateToUsd + '}';
