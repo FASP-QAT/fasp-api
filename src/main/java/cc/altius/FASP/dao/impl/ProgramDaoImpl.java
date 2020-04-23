@@ -101,6 +101,22 @@ public class ProgramDaoImpl implements ProgramDao {
             + " WHERE TRUE ";
     private final String sqlOrderBy = "";
 //            " ORDER BY p.PROGRAM_ID, pv.VERSION_ID, pr.REGION_ID ";
+
+    public String sqlListStringForProgramPlanningUnit = " SELECT ppu.PROGRAM_PLANNING_UNIT_ID,  "
+            + " pg.PROGRAM_ID, pgl.LABEL_ID `PROGRAM_LABEL_ID`, pgl.LABEL_EN `PROGRAM_LABEL_EN`, pgl.LABEL_FR `PROGRAM_LABEL_FR`, pgl.LABEL_PR `PROGRAM_LABEL_PR`, pgl.LABEL_SP `PROGRAM_LABEL_SP`, "
+            + " pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
+            + " ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.MIN_MONTHS_OF_STOCK, "
+            + " ppu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ppu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppu.LAST_MODIFIED_DATE "
+            + " FROM  rm_program_planning_unit ppu  "
+            + " LEFT JOIN rm_program pg ON pg.PROGRAM_ID=ppu.PROGRAM_ID "
+            + " LEFT JOIN rm_realm_country rc ON pg.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+            + " LEFT JOIN ap_label pgl ON pgl.LABEL_ID=pg.LABEL_ID "
+            + " LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+            + " LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
+            + " LEFT JOIN us_user cb ON ppu.CREATED_BY=cb.USER_ID "
+            + " LEFT JOIN us_user lmb ON ppu.LAST_MODIFIED_BY=lmb.USER_ID "
+            + " WHERE TRUE ";
+
     @Override
     @Transactional
     public int addProgram(Program p, CustomUserDetails curUser) {
@@ -296,25 +312,14 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
-        String sqlString = "SELECT ppu.PROGRAM_PLANNING_UNIT_ID,  "
-                + "pg.PROGRAM_ID, pgl.LABEL_ID `PROGRAM_LABEL_ID`, pgl.LABEL_EN `PROGRAM_LABEL_EN`, pgl.LABEL_FR `PROGRAM_LABEL_FR`, pgl.LABEL_PR `PROGRAM_LABEL_PR`, pgl.LABEL_SP `PROGRAM_LABEL_SP`, "
-                + "pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
-                + "ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.MIN_MONTHS_OF_STOCK, "
-                + "ppu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ppu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppu.LAST_MODIFIED_DATE "
-                + "FROM  rm_program_planning_unit ppu  "
-                + "LEFT JOIN rm_program pg ON pg.PROGRAM_ID=ppu.PROGRAM_ID "
-                + "LEFT JOIN ap_label pgl ON pgl.LABEL_ID=pg.LABEL_ID "
-                + "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
-                + "LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
-                + "LEFT JOIN us_user cb ON ppu.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON ppu.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE pg.PROGRAM_ID=:programId";
+
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForProgramPlanningUnit).append(" AND pg.PROGRAM_ID=:programId");
         if (active) {
-            sqlString += " AND ppu.ACTIVE ";
+            sqlStringBuilder = sqlStringBuilder.append(" AND ppu.ACTIVE ");
         }
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProgramPlanningUnitRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramPlanningUnitRowMapper());
     }
 
     @Override
@@ -375,6 +380,16 @@ public class ProgramDaoImpl implements ProgramDao {
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(this.sqlOrderBy);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramListResultSetExtractor());
+    }
+
+    @Override
+    public List<ProgramPlanningUnit> getProgramPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForProgramPlanningUnit).append(" AND ppu.LAST_MODIFIED_DATE>:lastSyncDate ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "pg", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramPlanningUnitRowMapper());
     }
 
 }

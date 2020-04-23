@@ -69,6 +69,26 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
             + " LEFT JOIN us_user lmb ON rc.LAST_MODIFIED_BY=lmb.USER_ID "
             + " WHERE TRUE ";
 
+    private final String sqlListStringForRealmCountryPlanningUnit = " SELECT rcpu.REALM_COUNTRY_PLANNING_UNIT_ID,   "
+            + "      rc.REALM_COUNTRY_ID, cl.LABEL_ID `REALM_COUNTRY_LABEL_ID`, cl.LABEL_EN `REALM_COUNTRY_LABEL_EN`, cl.LABEL_FR `REALM_COUNTRY_LABEL_FR`, cl.LABEL_PR `REALM_COUNTRY_LABEL_PR`, cl.LABEL_SP `REALM_COUNTRY_LABEL_SP`,  "
+            + "      pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`,  "
+            + "      rcpu.SKU_CODE, rcpu.MULTIPLIER, rcpu.GTIN,  "
+            + "      rcpul.LABEL_ID, rcpul.LABEL_EN, rcpul.LABEL_FR, rcpul.LABEL_SP, rcpul.LABEL_PR, "
+            + "      u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `UNIT_LABEL_ID`, ul.LABEL_EN `UNIT_LABEL_EN`, ul.LABEL_FR `UNIT_LABEL_FR`, ul.LABEL_SP  `UNIT_LABEL_SP`, ul.LABEL_PR  `UNIT_LABEL_PR`, "
+            + "      rcpu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, rcpu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, rcpu.LAST_MODIFIED_DATE "
+            + "      FROM rm_realm_country_planning_unit rcpu "
+            + "      LEFT JOIN rm_realm_country rc  ON rc.REALM_COUNTRY_ID=rcpu.REALM_COUNTRY_ID "
+            + "      LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+            + "      LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID  "
+            + "      LEFT JOIN ap_label rcpul ON rcpu.LABEL_ID=rcpul.LABEL_ID  "
+            + "      LEFT JOIN rm_planning_unit pu ON rcpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID  "
+            + "      LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID  "
+            + "      LEFT JOIN ap_unit u ON rcpu.UNIT_ID=u.UNIT_ID "
+            + "      LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
+            + "      LEFT JOIN us_user cb ON rcpu.CREATED_BY=cb.USER_ID "
+            + "      LEFT JOIN us_user lmb ON rcpu.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "      WHERE TRUE ";
+
     @Override
     @Transactional(propagation = Propagation.NESTED)
     public int addRealmCountry(RealmCountry realmCountry, CustomUserDetails curUser) {
@@ -171,32 +191,14 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
 
     @Override
     public List<RealmCountryPlanningUnit> getPlanningUnitListForRealmCountryId(int realmCountryId, boolean active, CustomUserDetails curUser) {
-        String sqlString = "SELECT rcpu.REALM_COUNTRY_PLANNING_UNIT_ID,   "
-                + "      rc.REALM_COUNTRY_ID, cl.LABEL_ID `REALM_COUNTRY_LABEL_ID`, cl.LABEL_EN `REALM_COUNTRY_LABEL_EN`, cl.LABEL_FR `REALM_COUNTRY_LABEL_FR`, cl.LABEL_PR `REALM_COUNTRY_LABEL_PR`, cl.LABEL_SP `REALM_COUNTRY_LABEL_SP`,  "
-                + "      pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`,  "
-                + "      rcpu.SKU_CODE, rcpu.MULTIPLIER, rcpu.GTIN,  "
-                + "      rcpul.LABEL_ID, rcpul.LABEL_EN, rcpul.LABEL_FR, rcpul.LABEL_SP, rcpul.LABEL_PR, "
-                + "      u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `UNIT_LABEL_ID`, ul.LABEL_EN `UNIT_LABEL_EN`, ul.LABEL_FR `UNIT_LABEL_FR`, ul.LABEL_SP  `UNIT_LABEL_SP`, ul.LABEL_PR  `UNIT_LABEL_PR`, "
-                + "      rcpu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, rcpu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, rcpu.LAST_MODIFIED_DATE "
-                + "      FROM rm_realm_country_planning_unit rcpu "
-                + "      LEFT JOIN rm_realm_country rc  ON rc.REALM_COUNTRY_ID=rcpu.REALM_COUNTRY_ID "
-                + "      LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + "      LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID  "
-                + "      LEFT JOIN ap_label rcpul ON rcpu.LABEL_ID=rcpul.LABEL_ID  "
-                + "      LEFT JOIN rm_planning_unit pu ON rcpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID  "
-                + "      LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID  "
-                + "      LEFT JOIN ap_unit u ON rcpu.UNIT_ID=u.UNIT_ID "
-                + "      LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
-                + "      LEFT JOIN us_user cb ON rcpu.CREATED_BY=cb.USER_ID "
-                + "      LEFT JOIN us_user lmb ON rcpu.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "      WHERE rcpu.REALM_COUNTRY_ID=:realmCountryId ";
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForRealmCountryPlanningUnit).append("    AND rcpu.REALM_COUNTRY_ID=:realmCountryId ");
         Map<String, Object> params = new HashMap<>();
         if (active) {
-            sqlString += " AND rcpu.ACTIVE ";
+            sqlStringBuilder = sqlStringBuilder.append(" AND rcpu.ACTIVE ");
         }
 
         params.put("realmCountryId", realmCountryId);
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new RealmCountryPlanningUnitRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryPlanningUnitRowMapper());
     }
 
     @Override
@@ -279,10 +281,20 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
 
     @Override
     public List<RealmCountry> getRealmCountryListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND rc.LAST_MODIFIED_DATE>:lastSyncDate ");
         Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
+    }
+
+    @Override
+    public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForRealmCountryPlanningUnit).append(" AND rc.LAST_MODIFIED_DATE>:lastSyncDate ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryPlanningUnitRowMapper());
     }
 
 }
