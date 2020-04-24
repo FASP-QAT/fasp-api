@@ -46,7 +46,7 @@ public class ReportDaoImpl implements ReportDao {
                 + "	LEFT JOIN us_user lmb ON cons.LAST_MODIFIED_BY=lmb.USER_ID\n"
                 + "	WHERE rc.`REALM_ID`=:realmId\n";
         params.put("realmId", realmId);
-        if (productcategoryId != 0) {
+        if (productcategoryId > 1) {
             sql += "	AND fu.`PRODUCT_CATEGORY_ID`=:productcategoryId";
             params.put("productcategoryId", productcategoryId);
         }
@@ -54,7 +54,7 @@ public class ReportDaoImpl implements ReportDao {
             sql += "	AND pu.`PLANNING_UNIT_ID`=:planningUnitId";
             params.put("planningUnitId", planningUnitId);
         }
-        sql += "	GROUP BY DATE_FORMAT(cons.`START_DATE`,'%m-%Y')\n"
+        sql += "	GROUP BY DATE_FORMAT(cons.`START_DATE`,'%m-%Y') \n"
                 + "    ORDER BY DATE_FORMAT(cons.`START_DATE`,'%m-%Y')";
         return this.namedParameterJdbcTemplate.queryForList(sql, params);
     }
@@ -90,15 +90,15 @@ public class ReportDaoImpl implements ReportDao {
                     + "	LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`\n"
                     + " LEFT JOIN ap_label irpu_label ON irpu_label.`LABEL_ID`=pu.`LABEL_ID` where rc.REALM_ID=:realmId ");
             if (planningUnitId > 0) {
-                sb.append(" and pu.PLANNING_UNIT_ID=:planningUnitId");
+                sb.append(" and pu.PLANNING_UNIT_ID=:planningUnitId ");
                  params.put("planningUnitId", planningUnitId);
             }
-            if (productcategoryId > 0) {
-                sb.append(" and fu.PRODUCT_CATEGORY_ID=:productcategoryId");
+            if (productcategoryId > 1) {
+                sb.append(" and fu.PRODUCT_CATEGORY_ID=:productcategoryId ");
                  params.put("productcategoryId", productcategoryId);
             }
 
-            sb.append("GROUP BY MONTH(i.`INVENTORY_DATE`),YEAR(i.`INVENTORY_DATE`) )a GROUP BY a.year;");
+            sb.append(" GROUP BY MONTH(i.`INVENTORY_DATE`),YEAR(i.`INVENTORY_DATE`),pu.`PLANNING_UNIT_ID` )a GROUP BY a.year,a.PLANNING_UNIT_ID;");
         } else {
             sb.append("SELECT a.* ,\n"
                     + "\n"
@@ -117,15 +117,15 @@ public class ReportDaoImpl implements ReportDao {
                     + "	LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`\n"
                     + " LEFT JOIN ap_label irpu_label ON irpu_label.`LABEL_ID`=pu.`LABEL_ID`  where rc.REALM_ID=:realmId ");
             if (planningUnitId > 0) {
-                sb.append(" and pu.PLANNING_UNIT_ID=:planningUnitId");
+                sb.append(" and pu.PLANNING_UNIT_ID=:planningUnitId ");
                  params.put("planningUnitId", planningUnitId);
             }
-            if (productcategoryId > 0) {
-                sb.append(" and fu.PRODUCT_CATEGORY_ID=:productcategoryId");
+            if (productcategoryId > 1) {
+                sb.append(" and fu.PRODUCT_CATEGORY_ID=:productcategoryId ");
                  params.put("productcategoryId", productcategoryId);
             }
 
-            sb.append("GROUP BY QUARTER(i.`INVENTORY_DATE`),YEAR(i.`INVENTORY_DATE`) )a GROUP BY a.year");
+            sb.append(" GROUP BY QUARTER(i.`INVENTORY_DATE`),YEAR(i.`INVENTORY_DATE`),pu.`PLANNING_UNIT_ID` )a GROUP BY a.year,a.PLANNING_UNIT_ID");
         }
         System.out.println("param"+params);
         return this.namedParameterJdbcTemplate.queryForList(sb.toString(), params);
