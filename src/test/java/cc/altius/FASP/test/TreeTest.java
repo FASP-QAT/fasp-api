@@ -25,7 +25,7 @@ public class TreeTest {
 
     public TreeTest() {
         this.flatList = new LinkedList<>();
-        flatList.add(new Node<>(1, null, new ProductCategory(4, new Label(0, "Root", null, null, null)), 4));
+        flatList.add(new Node<>(1, null, new ProductCategory(4, new Label(0, "All Categories", null, null, null)), 4));
         flatList.add(new Node<>(2, 1, new ProductCategory(1, new Label(0, "CC 1: HIV / AIDS Pharmaceuticals", null, null, null)), 1));
         flatList.add(new Node<>(3, 2, new ProductCategory(2, new Label(0, "HIV/AIDS Pharmaceuticals", null, null, null)), 2));
         flatList.add(new Node<>(4, 1, new ProductCategory(5, new Label(0, "CC 2: Laboratory Commodities, VMMC", null, null, null)), 5));
