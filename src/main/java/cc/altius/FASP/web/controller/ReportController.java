@@ -37,4 +37,16 @@ public class ReportController {
 
     }
     
+     @RequestMapping(value = "/stockmatrix/{realmId}/{productCategoryId}/{planningUnitId}/{view}")
+    public ResponseEntity getStockStatusMatrix(@PathVariable("realmId") int realmId,@PathVariable("productCategoryId") int productcategoryId,@PathVariable("planningUnitId") int planningUnitId,@PathVariable("view") int view,Authentication auth)  {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.reportService.getStockStatusMatrix(realmId,productcategoryId,planningUnitId,view), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
+    
 }

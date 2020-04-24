@@ -24,5 +24,11 @@ ReportDao reportDao;
     public List<Map<String, Object>> getConsumptionData(int realmId, int productcategoryId, int planningUnitId) {
     return this.reportDao.getConsumptionData(realmId, productcategoryId, planningUnitId);
     }
+
+    @Override
+    public List<Map<String,Object>> getStockStatusMatrix(int realmId, int productcategoryId, int planningUnitId, int view) {
+       return this.reportDao.getStockStatusMatrix(realmId, productcategoryId, planningUnitId, view);
+    }
+    
     
 }
