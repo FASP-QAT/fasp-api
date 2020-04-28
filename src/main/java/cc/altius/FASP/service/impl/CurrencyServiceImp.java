@@ -8,7 +8,6 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.CurrencyDao;
 import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgCurrencyDTO;
 import cc.altius.FASP.service.CurrencyService;
 import java.util.List;
 import java.util.Map;

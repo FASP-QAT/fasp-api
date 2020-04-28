@@ -6,11 +6,11 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.BudgetDao;
-import cc.altius.FASP.dao.SubFundingSourceDao;
+import cc.altius.FASP.dao.FundingSourceDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Budget;
+import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.Realm;
-import cc.altius.FASP.model.SubFundingSource;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.BudgetService;
 import cc.altius.FASP.service.RealmService;
@@ -29,7 +29,7 @@ public class BudgetServiceImpl implements BudgetService {
     @Autowired
     private BudgetDao budgetDao;
     @Autowired
-    private SubFundingSourceDao subFundingSourceDao;
+    private FundingSourceDao fundingSourceDao;
     @Autowired
     private RealmService realmService;
     @Autowired
@@ -37,8 +37,8 @@ public class BudgetServiceImpl implements BudgetService {
 
     @Override
     public int addBudget(Budget b, CustomUserDetails curUser) {
-        SubFundingSource sfs = this.subFundingSourceDao.getSubFundingSourceById(b.getSubFundingSource().getSubFundingSourceId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, sfs.getFundingSource().getRealm().getId())) {
+        FundingSource fs = this.fundingSourceDao.getFundingSourceById(b.getFundingSource().getFundingSourceId(), curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, fs.getRealm().getId())) {
             return this.budgetDao.addBudget(b, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -48,7 +48,7 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     public int updateBudget(Budget b, CustomUserDetails curUser) {
         Budget bt = this.budgetDao.getBudgetById(b.getBudgetId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, bt.getSubFundingSource().getFundingSource().getRealm().getId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, bt.getFundingSource().getRealm().getId())) {
             return this.budgetDao.updateBudget(b, curUser);
         } else {
             throw new AccessDeniedException("Access denied");

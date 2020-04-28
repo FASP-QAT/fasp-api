@@ -8,7 +8,6 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.dao.SupplierDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgSupplierDTO;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.Supplier;
 import cc.altius.FASP.service.AclService;
