@@ -46,7 +46,7 @@ public class BudgetDaoImpl implements BudgetDao {
 
     private final String sqlListString = "SELECT "
             + "     b.BUDGET_ID, bl.LABEL_ID, bl.LABEL_EN, bl.LABEL_FR, bl.LABEL_SP, bl.LABEL_PR, "
-            + "     b.BUDGET_AMT, b.START_DATE, b.STOP_DATE, "
+            + "     b.BUDGET_AMT, b.START_DATE, b.STOP_DATE, b.NOTES, "
             + "     p.PROGRAM_ID, pl.LABEL_ID `PROGRAM_LABEL_ID`, pl.LABEL_EN `PROGRAM_LABEL_EN`, pl.LABEL_FR `PROGRAM_LABEL_FR`, pl.LABEL_SP `PROGRAM_LABEL_SP`, pl.LABEL_PR `PROGRAM_LABEL_PR`, "
             + "     fs.FUNDING_SOURCE_ID, fsl.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fsl.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fsl.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fsl.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fsl.LABEL_PR `FUNDING_SOURCE_LABEL_PR`, "
             + "     r.REALM_ID, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, r.`REALM_CODE`, "
@@ -75,6 +75,7 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("BUDGET_AMT", b.getBudgetAmt());
         params.put("START_DATE", b.getStartDate());
         params.put("STOP_DATE", b.getStopDate());
+        params.put("NOTES", b.getNotes());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
@@ -101,9 +102,9 @@ public class BudgetDaoImpl implements BudgetDao {
                 + "bl.`LABEL_EN`=:labelEn, "
                 + "bl.`LAST_MODIFIED_BY`=IF(bl.`LABEL_EN`!=:labelEn, :curUser, bl.LAST_MODIFIED_BY), "
                 + "bl.`LAST_MODIFIED_DATE`=IF(bl.`LABEL_EN`!=:labelEn, :curDate, bl.LAST_MODIFIED_DATE), "
-                + "b.BUDGET_AMT=:budgetAmt, b.START_DATE=:startDate, b.STOP_DATE=:stopDate, b.ACTIVE=:active, "
-                + "b.LAST_MODIFIED_BY=IF(b.BUDGET_AMT!=:budgetAmt OR b.START_DATE!=:startDate OR b.STOP_DATE!=:stopDate OR b.ACTIVE!=:active, :curUser, b.LAST_MODIFIED_BY), "
-                + "b.LAST_MODIFIED_DATE=IF(b.BUDGET_AMT!=:budgetAmt OR b.START_DATE!=:startDate OR b.STOP_DATE!=:stopDate OR b.ACTIVE!=:active, :curDate, b.LAST_MODIFIED_DATE) "
+                + "b.BUDGET_AMT=:budgetAmt, b.START_DATE=:startDate, b.STOP_DATE=:stopDate, b.ACTIVE=:active, b.NOTES=:notes, "
+                + "b.LAST_MODIFIED_BY=IF(b.BUDGET_AMT!=:budgetAmt OR b.NOTES!=:notes OR b.START_DATE!=:startDate OR b.STOP_DATE!=:stopDate OR b.ACTIVE!=:active, :curUser, b.LAST_MODIFIED_BY), "
+                + "b.LAST_MODIFIED_DATE=IF(b.BUDGET_AMT!=:budgetAmt OR b.NOTES!=:notes  OR b.START_DATE!=:startDate OR b.STOP_DATE!=:stopDate OR b.ACTIVE!=:active, :curDate, b.LAST_MODIFIED_DATE) "
                 + "WHERE b.BUDGET_ID=:budgetId", params);
     }
 

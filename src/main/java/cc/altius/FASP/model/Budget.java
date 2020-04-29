@@ -21,6 +21,7 @@ public class Budget extends BaseModel implements Serializable {
     private int budgetAmt;
     private Date startDate;
     private Date stopDate;
+    private String notes;
 
     public Budget() {
     }
@@ -84,6 +85,14 @@ public class Budget extends BaseModel implements Serializable {
 
     public void setStopDate(Date stopDate) {
         this.stopDate = stopDate;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     @Override

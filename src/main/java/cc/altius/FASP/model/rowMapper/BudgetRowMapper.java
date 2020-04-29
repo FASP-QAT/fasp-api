@@ -37,6 +37,7 @@ public class BudgetRowMapper implements RowMapper<Budget> {
         b.setBudgetAmt(rs.getInt("BUDGET_AMT"));
         b.setStartDate(rs.getDate("START_DATE"));
         b.setStopDate(rs.getDate("STOP_DATE"));
+        b.setNotes(rs.getString("NOTES"));
         b.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return b;
     }
