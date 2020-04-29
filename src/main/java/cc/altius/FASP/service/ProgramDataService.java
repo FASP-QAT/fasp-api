@@ -7,6 +7,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.model.Version;
 
 /**
  *
@@ -15,5 +16,7 @@ import cc.altius.FASP.model.ProgramData;
 public interface ProgramDataService {
 
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser);
+    
+    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser);
 
 }

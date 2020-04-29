@@ -16,11 +16,12 @@ public class Budget extends BaseModel implements Serializable {
 
     private int budgetId;
     private Program program;
-    private SubFundingSource subFundingSource;
+    private FundingSource fundingSource;
     private Label label;
     private int budgetAmt;
     private Date startDate;
     private Date stopDate;
+    private String notes;
 
     public Budget() {
     }
@@ -46,12 +47,12 @@ public class Budget extends BaseModel implements Serializable {
         this.program = program;
     }
 
-    public SubFundingSource getSubFundingSource() {
-        return subFundingSource;
+    public FundingSource getFundingSource() {
+        return fundingSource;
     }
 
-    public void setSubFundingSource(SubFundingSource subFundingSource) {
-        this.subFundingSource = subFundingSource;
+    public void setFundingSource(FundingSource fundingSource) {
+        this.fundingSource = fundingSource;
     }
 
     public Label getLabel() {
@@ -84,6 +85,14 @@ public class Budget extends BaseModel implements Serializable {
 
     public void setStopDate(Date stopDate) {
         this.stopDate = stopDate;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     @Override

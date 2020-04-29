@@ -9,7 +9,6 @@ import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.dao.RealmDao;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgOrganisationDTO;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;

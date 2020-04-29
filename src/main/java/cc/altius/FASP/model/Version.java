@@ -26,6 +26,12 @@ public class Version implements Serializable {
         this.createdBy = createdBy;
         this.createdDate = createdDate;
     }
+    
+    public Version(int versionId, int createdByUserId, Date createdDate) {
+        this.versionId = versionId;
+        this.createdBy = new BasicUser(createdByUserId, "");
+        this.createdDate = createdDate;
+    }
 
     public int getVersionId() {
         return versionId;

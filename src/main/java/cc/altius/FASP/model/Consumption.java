@@ -6,6 +6,7 @@
 package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -27,6 +28,8 @@ public class Consumption extends BaseModel implements Serializable {
     private int dayOfStockOut;
     private SimpleObject dataSource;
     private int versionId;
+    @JsonIgnore
+    private boolean changed;
 
     public Consumption() {
     }
@@ -122,6 +125,19 @@ public class Consumption extends BaseModel implements Serializable {
 
     public void setVersionId(int versionId) {
         this.versionId = versionId;
+    }
+
+    public boolean isChanged() {
+        return changed;
+    }
+
+    public void setChanged(boolean changed) {
+        this.changed = changed;
+    }
+
+    @Override
+    public String toString() {
+        return "Consumption{" + "consumptionId=" + consumptionId + ", region=" + region.getId() + ", planningUnit=" + planningUnit.getId() + ", dataSource=" + dataSource.getId() + ", startDate=" + startDate + ", stopDate=" + stopDate + ", actualFlag=" + actualFlag + ", consumptionQty=" + consumptionQty + ", dayOfStockOut=" + dayOfStockOut + ", versionId=" + versionId + '}';
     }
 
 }

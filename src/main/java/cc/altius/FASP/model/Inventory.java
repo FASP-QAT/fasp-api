@@ -160,4 +160,9 @@ public class Inventory extends BaseModel implements Serializable {
         this.versionId = versionId;
     }
 
+    @Override
+    public String toString() {
+        return "Inventory{" + "inventoryId=" + inventoryId + ", inventoryDate=" + inventoryDate + ", region=" + region.getId() + ", realmCountryPlanningUnit=" + realmCountryPlanningUnit.getId() + ", actualQty=" + actualQty + ", adjustmentQty=" + adjustmentQty + ", dataSource=" + dataSource.getId() + ", batchNo=" + batchNo + ", expiryDate=" + expiryDate + ", versionId=" + versionId + '}';
+    }
+
 }

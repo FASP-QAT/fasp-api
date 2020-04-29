@@ -6,7 +6,9 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.Consumption;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Inventory;
+import cc.altius.FASP.model.ProgramData;
 import java.util.List;
 
 /**
@@ -32,5 +34,7 @@ public interface ProgramDataDao {
     public List<Consumption> getConsumptionList(int programId, int versionId);
     
     public List<Inventory> getInventoryList(int programId, int versionId);
+    
+    public int saveProgramData(ProgramData programData, CustomUserDetails curUser);
 
 }
