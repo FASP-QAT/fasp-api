@@ -57,7 +57,6 @@ public class ProgramDataRestController {
 
     @PutMapping("/programData")
     public ResponseEntity putProgramData(@RequestBody ProgramData programData, Authentication auth) {
-        System.out.println(programData.getProgramId());
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
             return new ResponseEntity(this.programDataService.saveProgramData(programData, curUser), HttpStatus.OK);

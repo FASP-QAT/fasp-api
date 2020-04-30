@@ -20,7 +20,6 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -65,7 +64,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             Tree<ExtendedProductCategory> productCategoryTree = this.productCategoryService.getProductCategoryListForRealm(curUser, realmId);
-            return new ResponseEntity(productCategoryTree.getTreeList(), HttpStatus.OK);
+            return new ResponseEntity(productCategoryTree.getTreeFullList(), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Product Category", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

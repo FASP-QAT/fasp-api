@@ -126,7 +126,7 @@ public class TreeTest {
         }
         System.out.println("");
         System.out.println("");
-        t.getTreeList().forEach((node) -> {
+        t.getFlatList().forEach((node) -> {
             System.out.println(pad(node.getLevel() * 4) + node);
         });
 
@@ -137,10 +137,10 @@ public class TreeTest {
         System.out.println(n);
         System.out.println("");
         System.out.println("");
-        t.getPayloadSubList(26).forEach((pc) -> {
+        t.getPayloadSubList(26, true, -1).forEach((pc) -> {
             System.out.println(pc);
         });
-        t.getTreeSubList(26).forEach((node) -> {
+        t.getTreeSubList(26, true, -1).forEach((node) -> {
             System.out.println(pad(node.getLevel() * 4) + node);
         });
 
