@@ -31,7 +31,7 @@ public class ReportDaoImpl implements ReportDao {
     }
 
     @Override
-    public List<Map<String, Object>> getConsumptionData(int realmId, int productcategoryId, int planningUnitId) {
+    public List<Map<String, Object>> getConsumptionData(int realmId, int programId, int planningUnitId,String startDate,String endDate) {
         Map<String, Object> params = new HashMap<>();
 
         String sql = "	SELECT \n"
@@ -46,16 +46,18 @@ public class ReportDaoImpl implements ReportDao {
                 + "	LEFT JOIN us_user lmb ON cons.LAST_MODIFIED_BY=lmb.USER_ID\n"
                 + "	WHERE rc.`REALM_ID`=:realmId\n";
         params.put("realmId", realmId);
-        if (productcategoryId > 1) {
-            sql += "	AND fu.`PRODUCT_CATEGORY_ID`=:productcategoryId";
-            params.put("productcategoryId", productcategoryId);
-        }
-        if (planningUnitId != 0) {
+       /* if (programId > 0) {
+            sql += "	AND cons.`PROGRAM_ID`=:programId";
+            params.put("programId", programId);
+        }*/
+       // if (planningUnitId != 0) {
             sql += "	AND pu.`PLANNING_UNIT_ID`=:planningUnitId";
             params.put("planningUnitId", planningUnitId);
-        }
-        sql += "	GROUP BY DATE_FORMAT(cons.`START_DATE`,'%m-%Y') \n"
+       // }
+        sql += " And cons.`START_DATE`between :startDate and :endDate	GROUP BY DATE_FORMAT(cons.`START_DATE`,'%m-%Y') \n"
                 + "    ORDER BY DATE_FORMAT(cons.`START_DATE`,'%m-%Y')";
+         params.put("startDate", startDate);
+          params.put("endDate", endDate);
         return this.namedParameterJdbcTemplate.queryForList(sql, params);
     }
 

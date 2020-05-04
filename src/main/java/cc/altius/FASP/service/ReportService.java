@@ -14,7 +14,7 @@ import java.util.Map;
  */
 public interface ReportService {
 
-    public List<Map<String,Object>> getConsumptionData(int realmId, int productcategoryId, int planningUnitId);
+    public List<Map<String,Object>> getConsumptionData(int realmId, int productcategoryId, int planningUnitId,String StartDate,String endDate);
 
     public Object getStockStatusMatrix(int realmId, int productcategoryId, int planningUnitId, int view);
     

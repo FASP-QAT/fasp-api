@@ -312,7 +312,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
-
+        System.out.println("In");
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForProgramPlanningUnit).append(" AND pg.PROGRAM_ID=:programId");
         if (active) {
             sqlStringBuilder = sqlStringBuilder.append(" AND ppu.ACTIVE ");
