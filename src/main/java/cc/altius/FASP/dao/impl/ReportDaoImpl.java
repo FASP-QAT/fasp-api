@@ -50,14 +50,14 @@ public class ReportDaoImpl implements ReportDao {
             sql += "	AND cons.`PROGRAM_ID`=:programId";
             params.put("programId", programId);
         }
-        if (planningUnitId != 0) {
-            sql += "	AND pu.`PLANNING_UNIT_ID`=:planningUnitId";
-            params.put("planningUnitId", planningUnitId);
-        }
-        sql += " And cons.`START_DATE`between :startDate and :endDate	GROUP BY DATE_FORMAT(cons.`START_DATE`,'%m-%Y') \n"
+//        if (planningUnitId != 0) {
+//            sql += "	AND pu.`PLANNING_UNIT_ID`=:planningUnitId";
+//        }
+        sql += " AND pu.`PLANNING_UNIT_ID`=:planningUnitId And cons.`START_DATE`between :startDate and :endDate	GROUP BY DATE_FORMAT(cons.`START_DATE`,'%m-%Y') \n"
                 + "    ORDER BY DATE_FORMAT(cons.`START_DATE`,'%m-%Y')";
          params.put("startDate", startDate);
           params.put("endDate", endDate);
+            params.put("planningUnitId", planningUnitId);
         return this.namedParameterJdbcTemplate.queryForList(sql, params);
     }
 
