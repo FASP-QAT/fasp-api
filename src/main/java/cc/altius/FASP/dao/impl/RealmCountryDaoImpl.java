@@ -95,7 +95,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sqlString = "UPDATE rm_realm_country rc SET "
                 + "DEFAULT_CURRENCY_ID=:defaultCurrencyId, "
-                + "PALLET_UNIT_ID=:palletUnitId, "
+//                + "PALLET_UNIT_ID=:palletUnitId, "
                 + "AIR_FREIGHT_PERC=:airFreightPerc, "
                 + "SEA_FREIGHT_PERC=:seaFreightPerc, "
                 + "ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, "
@@ -107,7 +107,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                 + "WHERE REALM_COUNTRY_ID=:realmCountryId "
                 + "AND ("
                 + "DEFAULT_CURRENCY_ID!=:defaultCurrencyId OR "
-                + "PALLET_UNIT_ID!=:palletUnitId OR "
+//                + "PALLET_UNIT_ID!=:palletUnitId OR "
                 + "AIR_FREIGHT_PERC!=:airFreightPerc OR "
                 + "SEA_FREIGHT_PERC!=:seaFreightPerc OR "
                 + "ARRIVED_TO_DELIVERED_LEAD_TIME!=:arrivedToDeliveredLeadTime OR "
@@ -117,7 +117,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Map<String, Object> params = new HashMap<>();
         params.put("realmCountryId", realmCountry.getRealmCountryId());
         params.put("defaultCurrencyId", realmCountry.getDefaultCurrency().getCurrencyId());
-        params.put("palletUnitId", realmCountry.getPalletUnit().getUnitId());
+//        params.put("palletUnitId", realmCountry.getPalletUnit().getUnitId());
         params.put("airFreightPerc", realmCountry.getAirFreightPercentage());
         params.put("seaFreightPerc", realmCountry.getSeaFreightPercentage());
         params.put("arrivedToDeliveredLeadTime", realmCountry.getArrivedToDeliveredLeadTime());
