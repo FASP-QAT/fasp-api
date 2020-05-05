@@ -36,4 +36,6 @@ public interface ProgramDao {
     public List<Program> getProgramListForSync(String lastSyncDate, CustomUserDetails curUser);
     
     public List<ProgramPlanningUnit> getProgramPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
+    
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId,int productCategory, boolean active, CustomUserDetails curUser);
 }

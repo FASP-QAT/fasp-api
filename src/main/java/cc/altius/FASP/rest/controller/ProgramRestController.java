@@ -199,4 +199,22 @@ public class ProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+     @GetMapping("/program/{programId}/{productCategory}/planningUnit/all")
+    public ResponseEntity getPlanningUnitForProgramAndProductCategory(@PathVariable("programId") int programId,@PathVariable("productCategory") int productCategoryId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseEntity(this.programService.getPlanningUnitListForProgramAndCategoryId(programId,productCategoryId, false, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

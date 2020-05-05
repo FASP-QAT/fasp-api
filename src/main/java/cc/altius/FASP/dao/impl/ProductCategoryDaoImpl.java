@@ -155,5 +155,25 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
         sqlStringBuilder.append(" ORDER BY pc.SORT_ORDER");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor());
     }
+    
+      @Override
+    public Tree<ExtendedProductCategory> getProductCategoryListForProgram(CustomUserDetails curUser, int programId) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT  \n" +
+"                pc.PRODUCT_CATEGORY_ID, pc.SORT_ORDER, pc.PARENT_PRODUCT_CATEGORY_ID, \n" +
+"                pcl.LABEL_ID, pcl.LABEL_EN, pcl.LABEL_FR, pcl.LABEL_PR, pcl.LABEL_SP, \n" +
+"                r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`,\n" +
+"                cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pc.ACTIVE, pc.CREATED_DATE, pc.LAST_MODIFIED_DATE \n" +
+"            	FROM rm_product_category pc  \n" +
+"             LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID \n" +
+"             LEFT JOIN rm_realm r ON pc.REALM_ID=r.REALM_ID \n" +
+"             LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID \n" +
+"             LEFT JOIN us_user cb ON pc.CREATED_BY=cb.USER_ID \n" +
+"             LEFT JOIN us_user lmb ON pc.LAST_MODIFIED_BY=lmb.USER_ID \n" +
+"             WHERE  pc.`PRODUCT_CATEGORY_ID` IN (SELECT fu.`PRODUCT_CATEGORY_ID` FROM rm_program_planning_unit  ppu LEFT JOIN rm_program pg ON pg.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.FORECASTING_UNIT_ID WHERE ppu.`PROGRAM_ID` =:programId GROUP BY fu.`PRODUCT_CATEGORY_ID`)");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+         sqlStringBuilder.append(" ORDER BY pc.SORT_ORDER");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor());
+    }
 
 }
