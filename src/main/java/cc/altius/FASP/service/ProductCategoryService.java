@@ -26,5 +26,7 @@ public interface ProductCategoryService {
 //    public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser);
 
     public Tree<ExtendedProductCategory> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser);
+    
+     public Tree<ExtendedProductCategory> getProductCategoryListForProgram(CustomUserDetails curUser, int programId);
 
 }
