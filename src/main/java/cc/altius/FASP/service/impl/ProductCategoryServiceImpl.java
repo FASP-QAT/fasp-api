@@ -54,7 +54,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
             }
             isFirst = false;
         }
-        for (Node<ProductCategory> productCategory : productCategoryTree.getTreeList()) {
+        for (Node<ProductCategory> productCategory : productCategoryTree.getTreeFullList()) {
             if (productCategory.getPayloadId() == 0) {
                 // Add the row
                 if (this.aclService.checkRealmAccessForUser(curUser, productCategory.getPayload().getRealm().getId())) {
