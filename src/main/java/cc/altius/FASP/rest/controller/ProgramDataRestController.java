@@ -41,7 +41,6 @@ public class ProgramDataRestController {
     public ResponseEntity getProgramData(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            System.out.println("this.programDataService.getProgramData(programId, versionId, curUser)" + this.programDataService.getProgramData(programId, versionId, curUser));
             return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get ProgramData", e);

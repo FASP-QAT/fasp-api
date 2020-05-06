@@ -124,7 +124,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             Tree<ExtendedProductCategory> productCategoryTree = this.productCategoryService.getProductCategoryListForProgram(curUser, programId);
-            return new ResponseEntity(productCategoryTree.getTreeList(), HttpStatus.OK);
+            return new ResponseEntity(productCategoryTree.getTreeFullList(), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Product Category", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
