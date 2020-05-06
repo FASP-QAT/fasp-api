@@ -6,6 +6,7 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.Budget;
+import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.SimpleCodeObject;
@@ -35,6 +36,8 @@ public class BudgetRowMapper implements RowMapper<Budget> {
                 )
         );
         b.setBudgetAmt(rs.getInt("BUDGET_AMT"));
+        b.setUsedAmt(rs.getInt("USED_AMT"));
+        b.setCurrency(new Currency(rs.getInt("CURRENCY_ID"), rs.getString("CURRENCY_CODE"), new LabelRowMapper("CURRENCY_").mapRow(rs, rowNum), rs.getDouble("CONVERSION_RATE_TO_USD")));
         b.setStartDate(rs.getDate("START_DATE"));
         b.setStopDate(rs.getDate("STOP_DATE"));
         b.setNotes(rs.getString("NOTES"));

@@ -22,7 +22,9 @@ public class Budget extends BaseModel implements Serializable {
     private Program program;
     private FundingSource fundingSource;
     private Label label;
+    private Currency currency;
     private int budgetAmt;
+    private int usedAmt;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
@@ -77,6 +79,22 @@ public class Budget extends BaseModel implements Serializable {
 
     public void setBudgetAmt(int budgetAmt) {
         this.budgetAmt = budgetAmt;
+    }
+
+    public int getUsedAmt() {
+        return usedAmt;
+    }
+
+    public void setUsedAmt(int usedAmt) {
+        this.usedAmt = usedAmt;
+    }
+
+    public Currency getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
     }
 
     public Date getStartDate() {

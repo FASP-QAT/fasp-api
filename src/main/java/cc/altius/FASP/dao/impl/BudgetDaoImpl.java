@@ -46,10 +46,11 @@ public class BudgetDaoImpl implements BudgetDao {
 
     private final String sqlListString = "SELECT "
             + "     b.BUDGET_ID, bl.LABEL_ID, bl.LABEL_EN, bl.LABEL_FR, bl.LABEL_SP, bl.LABEL_PR, "
-            + "     b.BUDGET_AMT, b.START_DATE, b.STOP_DATE, b.NOTES, "
+            + "     b.BUDGET_AMT, IFNULL(ua.USED_AMT,0) `USED_AMT`, b.START_DATE, b.STOP_DATE, b.NOTES, "
             + "     p.PROGRAM_ID, pl.LABEL_ID `PROGRAM_LABEL_ID`, pl.LABEL_EN `PROGRAM_LABEL_EN`, pl.LABEL_FR `PROGRAM_LABEL_FR`, pl.LABEL_SP `PROGRAM_LABEL_SP`, pl.LABEL_PR `PROGRAM_LABEL_PR`, "
             + "     fs.FUNDING_SOURCE_ID, fsl.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fsl.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fsl.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fsl.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fsl.LABEL_PR `FUNDING_SOURCE_LABEL_PR`, "
             + "     r.REALM_ID, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, r.`REALM_CODE`, "
+            + "     c.CURRENCY_ID, c.CURRENCY_CODE, b.CONVERSION_RATE_TO_USD, cl.LABEL_ID `CURRENCY_LABEL_ID`, cl.LABEL_EN `CURRENCY_LABEL_EN`, cl.LABEL_FR `CURRENCY_LABEL_FR`, cl.LABEL_SP `CURRENCY_LABEL_SP`, cl.LABEL_PR `CURRENCY_LABEL_PR`, "
             + "	b.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, b.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, b.LAST_MODIFIED_DATE "
             + "FROM rm_budget b "
             + "LEFT JOIN ap_label bl ON b.LABEL_ID=bl.LABEL_ID "
@@ -59,8 +60,11 @@ public class BudgetDaoImpl implements BudgetDao {
             + "LEFT JOIN ap_label fsl ON fs.LABEL_ID=fsl.LABEL_ID "
             + "LEFT JOIN rm_realm r ON fs.REALM_ID=r.REALM_ID "
             + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+            + "LEFT JOIN ap_currency c ON b.CURRENCY_ID=c.CURRENCY_ID "
+            + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
             + "LEFT JOIN us_user cb ON b.CREATED_BY=cb.USER_ID "
             + "LEFT JOIN us_user lmb ON b.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "LEFT JOIN (SELECT sb.BUDGET_ID, SUM(IFNULL(sb.BUDGET_AMT,0)) `USED_AMT` FROM rm_shipment_budget sb WHERE sb.ACTIVE GROUP BY sb.BUDGET_ID) as ua ON ua.BUDGET_ID=b.BUDGET_ID "
             + "WHERE TRUE ";
 
     @Override
@@ -73,6 +77,7 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("FUNDING_SOURCE_ID", b.getFundingSource().getFundingSourceId());
         int labelId = this.labelDao.addLabel(b.getLabel(), curUser.getUserId());
         params.put("BUDGET_AMT", b.getBudgetAmt());
+        params.put("CURRENCY_ID", b.getCurrency().getCurrencyId());
         params.put("START_DATE", b.getStartDate());
         params.put("STOP_DATE", b.getStopDate());
         params.put("NOTES", b.getNotes());
