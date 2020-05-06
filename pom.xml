@@ -10,7 +10,8 @@
     </parent>
     <groupId>cc.altius.FASP.rest.webservice</groupId>
     <artifactId>FASP</artifactId>
-    <version>DEV.0.0401</version>
+    <version>DEV.0.0417</version>
+
     <name>QAT</name>
     <description>Quantification Analytics Tool</description>
     <packaging>jar</packaging>
@@ -60,7 +61,7 @@
         <dependency>
             <groupId>cc.altius</groupId>
             <artifactId>altiusUtilsMaven</artifactId>
-            <version>1.34</version>
+            <version>1.35</version>
         </dependency>
         <dependency>
             <groupId>io.jsonwebtoken</groupId>

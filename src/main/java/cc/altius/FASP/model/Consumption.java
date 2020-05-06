@@ -5,8 +5,11 @@
  */
 package cc.altius.FASP.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -19,14 +22,17 @@ public class Consumption extends BaseModel implements Serializable {
     private int consumptionId;
     private SimpleObject region;
     private SimpleObject planningUnit;
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
     private boolean actualFlag;
     private double consumptionQty;
     private int dayOfStockOut;
     private SimpleObject dataSource;
+    private String notes;
     private int versionId;
     @JsonIgnore
     private boolean changed;
@@ -34,7 +40,7 @@ public class Consumption extends BaseModel implements Serializable {
     public Consumption() {
     }
 
-    public Consumption(int consumptionId, SimpleObject region, SimpleObject planningUnit, Date startDate, Date stopDate, boolean actualFlag, double consumptionQty, int dayOfStockOut, SimpleObject dataSource, int versionId) {
+    public Consumption(int consumptionId, SimpleObject region, SimpleObject planningUnit, Date startDate, Date stopDate, boolean actualFlag, double consumptionQty, int dayOfStockOut, SimpleObject dataSource, String notes, int versionId) {
         this.consumptionId = consumptionId;
         this.region = region;
         this.planningUnit = planningUnit;
@@ -44,6 +50,7 @@ public class Consumption extends BaseModel implements Serializable {
         this.consumptionQty = consumptionQty;
         this.dayOfStockOut = dayOfStockOut;
         this.dataSource = dataSource;
+        this.notes = notes;
         this.versionId = versionId;
     }
 
@@ -117,6 +124,14 @@ public class Consumption extends BaseModel implements Serializable {
 
     public void setDataSource(SimpleObject dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public int getVersionId() {

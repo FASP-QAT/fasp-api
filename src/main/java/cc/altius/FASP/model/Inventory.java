@@ -5,7 +5,10 @@
  */
 package cc.altius.FASP.model;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -16,7 +19,8 @@ import java.util.Date;
 public class Inventory extends BaseModel implements Serializable {
 
     private int inventoryId;
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
     private Date inventoryDate;
     private SimpleObject region;
     private SimpleObject realmCountryPlanningUnit;
@@ -28,13 +32,16 @@ public class Inventory extends BaseModel implements Serializable {
     private SimpleCodeObject unit;
     private SimpleObject dataSource;
     private String batchNo;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
     private Date expiryDate;
+    private String notes;
     private int versionId;
 
     public Inventory() {
     }
 
-    public Inventory(int inventoryId, Date inventoryDate, SimpleObject region, SimpleObject realmCountryPlanningUnit, SimpleObject planningUnit, double multiplier, double adjustmentQty, double expectedBal, SimpleCodeObject unit, SimpleObject dataSource, int versionId) {
+    public Inventory(int inventoryId, Date inventoryDate, SimpleObject region, SimpleObject realmCountryPlanningUnit, SimpleObject planningUnit, double multiplier, double adjustmentQty, double expectedBal, SimpleCodeObject unit, SimpleObject dataSource, String notes, int versionId) {
         this.inventoryId = inventoryId;
         this.inventoryDate = inventoryDate;
         this.region = region;
@@ -45,6 +52,7 @@ public class Inventory extends BaseModel implements Serializable {
         this.expectedBal = expectedBal;
         this.unit = unit;
         this.dataSource = dataSource;
+        this.notes = notes;
         this.versionId = versionId;
     }
 
@@ -150,6 +158,14 @@ public class Inventory extends BaseModel implements Serializable {
 
     public void setExpiryDate(Date expiryDate) {
         this.expiryDate = expiryDate;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public int getVersionId() {

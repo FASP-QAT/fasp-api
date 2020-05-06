@@ -124,4 +124,14 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
         return this.procurementAgentDao.getProcurementAgentListForSync(lastSyncDate, curUser);
     }
 
+    @Override
+    public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.procurementAgentDao.getProcurementAgentPlanningUnitListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
+    public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.procurementAgentDao.getProcurementAgentProcurementUnitListForSync(lastSyncDate, curUser);
+    }
+
 }
