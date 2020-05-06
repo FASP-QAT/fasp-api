@@ -50,10 +50,10 @@ public class ReportDaoImpl implements ReportDao {
             sql += "	AND cons.`PROGRAM_ID`=:programId";
             params.put("programId", programId);
         }
-        if (planningUnitId != 0) {
+       // if (planningUnitId != 0) {
             sql += "	AND pu.`PLANNING_UNIT_ID`=:planningUnitId";
             params.put("planningUnitId", planningUnitId);
-        }
+       // }
         sql += " And cons.`START_DATE`between :startDate and :endDate	GROUP BY DATE_FORMAT(cons.`START_DATE`,'%m-%Y') \n"
                 + "    ORDER BY DATE_FORMAT(cons.`START_DATE`,'%Y-%m')";
          params.put("startDate", startDate);
@@ -118,10 +118,10 @@ public class ReportDaoImpl implements ReportDao {
                    + "LEFT JOIN rm_planning_unit pu ON pu.PLANNING_UNIT_ID=rcpu.PLANNING_UNIT_ID\n"
                     + "	LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`\n"
                     + " LEFT JOIN ap_label irpu_label ON irpu_label.`LABEL_ID`=pu.`LABEL_ID`  where rc.REALM_ID=:realmId ");
-       //     if (planningUnitId > 0) {
+            if (planningUnitId > 0) {
                 sb.append(" and pu.PLANNING_UNIT_ID=:planningUnitId ");
                  params.put("planningUnitId", planningUnitId);
-         //   }
+            }
             if (productcategoryId > 1) {
                 sb.append(" and fu.PRODUCT_CATEGORY_ID=:productcategoryId ");
                  params.put("productcategoryId", productcategoryId);
