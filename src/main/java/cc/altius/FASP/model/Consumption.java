@@ -21,7 +21,7 @@ public class Consumption extends BaseModel implements Serializable {
 
     private int consumptionId;
     private SimpleObject region;
-    private SimpleObject planningUnit;
+    private SimplePlanningUnitObject planningUnit;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
@@ -40,7 +40,7 @@ public class Consumption extends BaseModel implements Serializable {
     public Consumption() {
     }
 
-    public Consumption(int consumptionId, SimpleObject region, SimpleObject planningUnit, Date startDate, Date stopDate, boolean actualFlag, double consumptionQty, int dayOfStockOut, SimpleObject dataSource, String notes, int versionId) {
+    public Consumption(int consumptionId, SimpleObject region, SimplePlanningUnitObject planningUnit, Date startDate, Date stopDate, boolean actualFlag, double consumptionQty, int dayOfStockOut, SimpleObject dataSource, String notes, int versionId) {
         this.consumptionId = consumptionId;
         this.region = region;
         this.planningUnit = planningUnit;
@@ -70,11 +70,11 @@ public class Consumption extends BaseModel implements Serializable {
         this.region = region;
     }
 
-    public SimpleObject getPlanningUnit() {
+    public SimplePlanningUnitObject getPlanningUnit() {
         return planningUnit;
     }
 
-    public void setPlanningUnit(SimpleObject planningUnit) {
+    public void setPlanningUnit(SimplePlanningUnitObject planningUnit) {
         this.planningUnit = planningUnit;
     }
 
