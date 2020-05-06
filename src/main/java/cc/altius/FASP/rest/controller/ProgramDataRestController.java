@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ResponseCode;
@@ -59,14 +60,17 @@ public class ProgramDataRestController {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
             return new ResponseEntity(this.programDataService.saveProgramData(programData, curUser), HttpStatus.OK);
+        } catch (CouldNotSaveException e) {
+            logger.error("Error while trying to update ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NO_CONTENT);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
-            logger.error("Error while trying to get ProgramData", e);
+            logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            logger.error("Error while trying to get ProgramData", e);
+            logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
         

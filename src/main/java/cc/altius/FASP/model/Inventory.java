@@ -32,6 +32,8 @@ public class Inventory extends BaseModel implements Serializable {
     private SimpleCodeObject unit;
     private SimpleObject dataSource;
     private String batchNo;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
     private Date expiryDate;
     private String notes;
     private int versionId;
