@@ -119,7 +119,7 @@ public class ProcurementAgentRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PutMapping("/procurementAgent/planningingUnit")
     public ResponseEntity savePlanningUnitForProcurementAgent(@RequestBody ProcurementAgentPlanningUnit[] procurementAgentPlanningUnits, Authentication auth) {
         try {
@@ -134,7 +134,7 @@ public class ProcurementAgentRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/procurementAgent/{procurementAgentId}/planningUnit")
     public ResponseEntity getProcurementAgentPlanningUnitList(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
@@ -148,7 +148,7 @@ public class ProcurementAgentRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/procurementAgent/{procurementAgentId}/planningUnit/all")
     public ResponseEntity getProcurementAgentPlanningUnitListAll(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
@@ -177,7 +177,7 @@ public class ProcurementAgentRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/procurementAgent/{procurementAgentId}/procurementUnit")
     public ResponseEntity getProcurementAgentProcurementUnitList(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
@@ -191,7 +191,7 @@ public class ProcurementAgentRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/procurementAgent/{procurementAgentId}/procurementUnit/all")
     public ResponseEntity getProcurementAgentProcurementUnitListAll(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
@@ -205,7 +205,39 @@ public class ProcurementAgentRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping(value = "/sync/procurementAgent/planningUnit/{lastSyncDate}")
+    public ResponseEntity getProcurementAgentPlanningUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.parse(lastSyncDate);
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
+        } catch (ParseException p) {
+            logger.error("Error while listing procurementAgent", p);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (Exception e) {
+            logger.error("Error while listing procurementAgent", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     
+    @GetMapping(value = "/sync/procurementAgent/procurementUnit/{lastSyncDate}")
+    public ResponseEntity getProcurementAgentProcurementUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.parse(lastSyncDate);
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.procurementAgentService.getProcurementAgentProcurementUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
+        } catch (ParseException p) {
+            logger.error("Error while listing procurementAgent", p);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (Exception e) {
+            logger.error("Error while listing procurementAgent", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping(value = "/sync/procurementAgent/{lastSyncDate}")
     public ResponseEntity getProcurementAgentListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {

@@ -62,7 +62,7 @@ public class ProgramDataRestController {
             return new ResponseEntity(this.programDataService.saveProgramData(programData, curUser), HttpStatus.OK);
         } catch (CouldNotSaveException e) {
             logger.error("Error while trying to update ProgramData", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NO_CONTENT);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
