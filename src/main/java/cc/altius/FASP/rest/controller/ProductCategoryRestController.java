@@ -90,20 +90,6 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         }
     }
 
-//    @GetMapping("/productCategory/{productCategoryId}")
-//    public ResponseEntity getProductCategoryById(@PathVariable("productCategoryId") int productCategoryId, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-//            return new ResponseEntity(this.productCategoryService.getProductCategoryById(productCategoryId, curUser), HttpStatus.OK);
-//        } catch (EmptyResultDataAccessException er) {
-//            logger.error("Error while trying to get Product Category Id=" + productCategoryId, er);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to get Product Category Id=" + productCategoryId, e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-
     @GetMapping(value = "/sync/productCategory/{lastSyncDate}")
     public ResponseEntity getProductCategoryListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
@@ -119,6 +105,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @GetMapping("/productCategory/programId/{programId}")
     public ResponseEntity getProductCategoryForProgram(@PathVariable(value = "programId", required = true) int programId, Authentication auth) {
         try {
@@ -130,6 +117,4 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-
 }

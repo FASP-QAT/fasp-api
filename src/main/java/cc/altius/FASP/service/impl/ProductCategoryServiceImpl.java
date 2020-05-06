@@ -58,7 +58,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
             if (productCategory.getPayloadId() == 0) {
                 // Add the row
                 if (this.aclService.checkRealmAccessForUser(curUser, productCategory.getPayload().getRealm().getId())) {
-                    if (productCategory.getParentId()!=null && productCategory.getParentId()!=0) {
+                    if (productCategory.getParentId() != null && productCategory.getParentId() != 0) {
                         Node<ProductCategory> parent = productCategoryTree.findNode(productCategory.getParentId());
                         productCategory.getPayload().setParentProductCategoryId(parent.getPayloadId());
                     }
@@ -74,7 +74,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
             if (productCategory.getPayload().getProductCategoryId() != 0) {
                 // Update 
                 if (this.aclService.checkRealmAccessForUser(curUser, productCategory.getPayload().getRealm().getId())) {
-                    if (productCategory.getParentId() != null && productCategory.getParentId()!=0) {
+                    if (productCategory.getParentId() != null && productCategory.getParentId() != 0) {
                         Node<ProductCategory> parent = productCategoryTree.findNode(productCategory.getParentId());
                         productCategory.getPayload().setParentProductCategoryId(parent.getPayloadId());
                     }
@@ -104,21 +104,16 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         return this.productCategoryDao.getProductCategoryList(curUser, realmId, productCategoryId, includeCurrentLevel, includeAllChildren);
     }
 
-//    @Override
-//    public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser) {
-//        return this.productCategoryDao.getProductCategoryById(productCategoryId, curUser);
-//    }
-    
     @Override
     public Tree<ExtendedProductCategory> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser
     ) {
         return this.productCategoryDao.getProductCategoryListForSync(lastSyncDate, curUser);
     }
-    
-     @Override
+
+    @Override
     public Tree<ExtendedProductCategory> getProductCategoryListForProgram(CustomUserDetails curUser, int programId) {
-         Program r = this.programDao.getProgramById(programId, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, r.getRealmCountry().getRealm().getRealmId(), programId,r.getHealthArea().getId(),r.getOrganisation().getId())) {
+        Program r = this.programDao.getProgramById(programId, curUser);
+        if (this.aclService.checkProgramAccessForUser(curUser, r.getRealmCountry().getRealm().getRealmId(), programId, r.getHealthArea().getId(), r.getOrganisation().getId())) {
             return this.productCategoryDao.getProductCategoryListForProgram(curUser, programId);
         } else {
             throw new AccessDeniedException("Access denied");
