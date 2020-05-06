@@ -18,18 +18,18 @@ public class ShipmentStatus {
     private Label label;
     private boolean  active;
     private String [] nextShipmentStatusAllowed;
-    private List<NextShipmentStatusAllowed> nextShipmentStatusAllowedList;
+    private List<Integer> nextShipmentStatusAllowedList;
     
      public ShipmentStatus() {
-        this.nextShipmentStatusAllowedList = new LinkedList<NextShipmentStatusAllowed>();
+        this.nextShipmentStatusAllowedList = new LinkedList<Integer>();
        
     }
 
-    public List<NextShipmentStatusAllowed> getNextShipmentStatusAllowedList() {
+    public List<Integer> getNextShipmentStatusAllowedList() {
         return nextShipmentStatusAllowedList;
     }
 
-    public void setNextShipmentStatusAllowedList(List<NextShipmentStatusAllowed> nextShipmentStatusAllowedList) {
+    public void setNextShipmentStatusAllowedList(List<Integer> nextShipmentStatusAllowedList) {
         this.nextShipmentStatusAllowedList = nextShipmentStatusAllowedList;
     }
 
