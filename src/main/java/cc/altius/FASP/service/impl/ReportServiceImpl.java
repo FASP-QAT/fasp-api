@@ -21,13 +21,13 @@ public class ReportServiceImpl implements ReportService{
 @Autowired
 ReportDao reportDao;
     @Override
-    public List<Map<String, Object>> getConsumptionData(int realmId, int productcategoryId, int planningUnitId) {
-    return this.reportDao.getConsumptionData(realmId, productcategoryId, planningUnitId);
+    public List<Map<String, Object>> getConsumptionData(int realmId, int productcategoryId, int planningUnitId,String StartDate,String endDate) {
+    return this.reportDao.getConsumptionData(realmId, productcategoryId, planningUnitId,StartDate,endDate);
     }
 
     @Override
-    public List<Map<String,Object>> getStockStatusMatrix(int realmId, int productcategoryId, int planningUnitId, int view) {
-       return this.reportDao.getStockStatusMatrix(realmId, productcategoryId, planningUnitId, view);
+    public List<Map<String,Object>> getStockStatusMatrix(int realmId, int productcategoryId, int planningUnitId, int view,String startDate,String endDate) {
+       return this.reportDao.getStockStatusMatrix(realmId, productcategoryId, planningUnitId, view,startDate,endDate);
     }
     
     

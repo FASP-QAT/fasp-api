@@ -6,10 +6,12 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ProductCategoryDao;
+import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ExtendedProductCategory;
 import cc.altius.FASP.model.ProductCategory;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProductCategoryService;
@@ -33,6 +35,8 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     private RealmDao realmDao;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private ProgramDao programDao;
 
     @Override
     @Transactional
@@ -109,6 +113,17 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     public Tree<ExtendedProductCategory> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser
     ) {
         return this.productCategoryDao.getProductCategoryListForSync(lastSyncDate, curUser);
+    }
+    
+     @Override
+    public Tree<ExtendedProductCategory> getProductCategoryListForProgram(CustomUserDetails curUser, int programId) {
+         Program r = this.programDao.getProgramById(programId, curUser);
+        if (this.aclService.checkProgramAccessForUser(curUser, r.getRealmCountry().getRealm().getRealmId(), programId,r.getHealthArea().getId(),r.getOrganisation().getId())) {
+            return this.productCategoryDao.getProductCategoryListForProgram(curUser, programId);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+
     }
 
 }

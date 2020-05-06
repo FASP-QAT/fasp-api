@@ -25,11 +25,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReportController {
         @Autowired
     private ReportService reportService;
-     @RequestMapping(value = "/consumption/{realmId}/{productCategoryId}/{planningUnitId}")
-    public ResponseEntity getConsumptionData(@PathVariable("realmId") int realmId,@PathVariable("productCategoryId") int productcategoryId,@PathVariable("planningUnitId") int planningUnitId,Authentication auth)  {
+     @RequestMapping(value = "/consumption/{realmId}/{programId}/{planningUnitId}/{startDate}/{endDate}")
+    public ResponseEntity getConsumptionData(@PathVariable("realmId") int realmId,@PathVariable("programId") int programId,@PathVariable("planningUnitId") int planningUnitId,@PathVariable("startDate") String startDate,@PathVariable("endDate") String endDate,Authentication auth)  {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.reportService.getConsumptionData(realmId,productcategoryId,planningUnitId), HttpStatus.OK);
+            return new ResponseEntity(this.reportService.getConsumptionData(realmId,programId,planningUnitId,startDate,endDate), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -37,11 +37,11 @@ public class ReportController {
 
     }
     
-     @RequestMapping(value = "/stockmatrix/{realmId}/{productCategoryId}/{planningUnitId}/{view}")
-    public ResponseEntity getStockStatusMatrix(@PathVariable("realmId") int realmId,@PathVariable("productCategoryId") int productcategoryId,@PathVariable("planningUnitId") int planningUnitId,@PathVariable("view") int view,Authentication auth)  {
+     @RequestMapping(value = "/stockmatrix/{realmId}/{productCategoryId}/{planningUnitId}/{view}/{startDate}/{endDate}")
+    public ResponseEntity getStockStatusMatrix(@PathVariable("realmId") int realmId,@PathVariable("productCategoryId") int productcategoryId,@PathVariable("planningUnitId") int planningUnitId,@PathVariable("view") int view,@PathVariable("startDate") String startDate,@PathVariable("endDate") String endDate,Authentication auth)  {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.reportService.getStockStatusMatrix(realmId,productcategoryId,planningUnitId,view), HttpStatus.OK);
+            return new ResponseEntity(this.reportService.getStockStatusMatrix(realmId,productcategoryId,planningUnitId,view,startDate,endDate), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
