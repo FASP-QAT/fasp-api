@@ -29,6 +29,7 @@ public class ConsumptionRowMapper implements  RowMapper<Consumption>{
                 rs.getDouble("CONSUMPTION_QTY"),
                 rs.getInt("DAYS_OF_STOCK_OUT"),
                 new SimpleObject(rs.getInt("DATA_SOURCE_ID"), new LabelRowMapper("DATA_SOURCE_").mapRow(rs, i)),
+                rs.getString("NOTES"),
                 rs.getInt("VERSION_ID")
         );
         c.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));

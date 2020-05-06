@@ -32,6 +32,7 @@ public class Consumption extends BaseModel implements Serializable {
     private double consumptionQty;
     private int dayOfStockOut;
     private SimpleObject dataSource;
+    private String notes;
     private int versionId;
     @JsonIgnore
     private boolean changed;
@@ -39,7 +40,7 @@ public class Consumption extends BaseModel implements Serializable {
     public Consumption() {
     }
 
-    public Consumption(int consumptionId, SimpleObject region, SimpleObject planningUnit, Date startDate, Date stopDate, boolean actualFlag, double consumptionQty, int dayOfStockOut, SimpleObject dataSource, int versionId) {
+    public Consumption(int consumptionId, SimpleObject region, SimpleObject planningUnit, Date startDate, Date stopDate, boolean actualFlag, double consumptionQty, int dayOfStockOut, SimpleObject dataSource, String notes, int versionId) {
         this.consumptionId = consumptionId;
         this.region = region;
         this.planningUnit = planningUnit;
@@ -49,6 +50,7 @@ public class Consumption extends BaseModel implements Serializable {
         this.consumptionQty = consumptionQty;
         this.dayOfStockOut = dayOfStockOut;
         this.dataSource = dataSource;
+        this.notes = notes;
         this.versionId = versionId;
     }
 
@@ -122,6 +124,14 @@ public class Consumption extends BaseModel implements Serializable {
 
     public void setDataSource(SimpleObject dataSource) {
         this.dataSource = dataSource;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public int getVersionId() {

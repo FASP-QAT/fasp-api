@@ -33,12 +33,13 @@ public class Inventory extends BaseModel implements Serializable {
     private SimpleObject dataSource;
     private String batchNo;
     private Date expiryDate;
+    private String notes;
     private int versionId;
 
     public Inventory() {
     }
 
-    public Inventory(int inventoryId, Date inventoryDate, SimpleObject region, SimpleObject realmCountryPlanningUnit, SimpleObject planningUnit, double multiplier, double adjustmentQty, double expectedBal, SimpleCodeObject unit, SimpleObject dataSource, int versionId) {
+    public Inventory(int inventoryId, Date inventoryDate, SimpleObject region, SimpleObject realmCountryPlanningUnit, SimpleObject planningUnit, double multiplier, double adjustmentQty, double expectedBal, SimpleCodeObject unit, SimpleObject dataSource, String notes, int versionId) {
         this.inventoryId = inventoryId;
         this.inventoryDate = inventoryDate;
         this.region = region;
@@ -49,6 +50,7 @@ public class Inventory extends BaseModel implements Serializable {
         this.expectedBal = expectedBal;
         this.unit = unit;
         this.dataSource = dataSource;
+        this.notes = notes;
         this.versionId = versionId;
     }
 
@@ -154,6 +156,14 @@ public class Inventory extends BaseModel implements Serializable {
 
     public void setExpiryDate(Date expiryDate) {
         this.expiryDate = expiryDate;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public int getVersionId() {

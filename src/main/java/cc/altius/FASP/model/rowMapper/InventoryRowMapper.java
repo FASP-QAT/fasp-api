@@ -31,6 +31,7 @@ public class InventoryRowMapper implements RowMapper<Inventory> {
                 rs.getDouble("EXPECTED_BAL"),
                 new SimpleCodeObject(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, i), rs.getString("UNIT_CODE")),
                 new SimpleObject(rs.getInt("DATA_SOURCE_ID"), new LabelRowMapper("DATA_SOURCE_").mapRow(rs, i)),
+                rs.getString("NOTES"),
                 rs.getInt("VERSION_ID")
         );
         Double actualQty = rs.getDouble("ACTUAL_QTY");
