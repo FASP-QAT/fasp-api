@@ -5,6 +5,10 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.framework.JsonDateTimeDeserializer;
+import cc.altius.FASP.framework.JsonDateTimeSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -16,6 +20,8 @@ public class Version implements Serializable {
 
     private int versionId;
     private BasicUser createdBy;
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
     private Date createdDate;
 
     public Version() {

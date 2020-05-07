@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Inventory;
@@ -35,6 +36,6 @@ public interface ProgramDataDao {
     
     public List<Inventory> getInventoryList(int programId, int versionId);
     
-    public int saveProgramData(ProgramData programData, CustomUserDetails curUser);
+    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
 }

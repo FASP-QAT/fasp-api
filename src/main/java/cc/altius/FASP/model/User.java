@@ -5,6 +5,10 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.framework.JsonDateTimeDeserializer;
+import cc.altius.FASP.framework.JsonDateTimeSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.LinkedList;
@@ -26,6 +30,8 @@ public class User extends BaseModel implements Serializable {
     private String[] roles;
     private Language language;
     private int faildAttempts;
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
     private Date lastLoginDate;
     private List<UserAcl> userAclList;
     private UserAcl[] userAcls;

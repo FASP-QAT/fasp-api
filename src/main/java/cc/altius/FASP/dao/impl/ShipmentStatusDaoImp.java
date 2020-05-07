@@ -6,8 +6,10 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.ShipmentStatusDao;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ShipmentStatus;
-import cc.altius.FASP.model.rowMapper.ShipmentStatusRowMapper;
+import cc.altius.FASP.model.rowMapper.ShipmentStatusResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.SupplierRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,7 +53,6 @@ public class ShipmentStatusDaoImp implements ShipmentStatusDao {
 //        params.put("LABEL_FR", shipmentStatus.getLabel().getFreLabel());
 //        params.put("LABEL_SP", shipmentStatus.getLabel().getSpaLabel());//alreday scanned
 //        params.put("LABEL_PR", shipmentStatus.getLabel().getPorLabel());
-
         params.put("LABEL_EN", shipmentStatus.getLabel().getLabel_en());
 //        params.put("LABEL_FR", shipmentStatus.getLabel().getLabel_fr());
 //        params.put("LABEL_SP", shipmentStatus.getLabel().getLabel_sp());//alreday scanned
@@ -98,14 +99,14 @@ public class ShipmentStatusDaoImp implements ShipmentStatusDao {
     @Override
     public List<ShipmentStatus> getShipmentStatusList(boolean active) {
         StringBuilder sb = new StringBuilder();
-        sb.append("SELECT ss.* ,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_SP`,l.`LABEL_PR`,l.`LABEL_ID` ,sa.`NEXT_SHIPMENT_STATUS_ID`,sa.`SHIPMENT_STATUS_ALLOWED_ID`FROM ap_shipment_status ss \n"
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=ss.`LABEL_ID`\n"
+        sb.append("SELECT ss.* ,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_SP`,l.`LABEL_PR`,l.`LABEL_ID` ,sa.`NEXT_SHIPMENT_STATUS_ID`,sa.`SHIPMENT_STATUS_ALLOWED_ID`FROM ap_shipment_status ss  "
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=ss.`LABEL_ID` "
                 + "LEFT JOIN ap_shipment_status_allowed sa ON sa.`SHIPMENT_STATUS_ID`=ss.`SHIPMENT_STATUS_ID` ");
         if (active) {
             sb.append(" WHERE ss.`ACTIVE` ");
         }
         sb.append("ORDER BY ss.`SHIPMENT_STATUS_ID`");
-        return this.jdbcTemplate.query(sb.toString(), new ShipmentStatusRowMapper());
+        return this.jdbcTemplate.query(sb.toString(), new ShipmentStatusResultSetExtractor());
     }
 
     @Override
@@ -120,8 +121,6 @@ public class ShipmentStatusDaoImp implements ShipmentStatusDao {
 //                + "al.`LABEL_PR`=?,al.`LABEL_SP`=?,al.`LAST_MODIFIED_BY`=?,al.`LAST_MODIFIED_DATE`=? WHERE al.`LABEL_ID`=?";
 //        this.jdbcTemplate.update(sqlOne, shipmentStatus.getLabel().getLabel_en(), shipmentStatus.getLabel().getLabel_fr(),
 //                shipmentStatus.getLabel().getLabel_pr(), shipmentStatus.getLabel().getLabel_sp(), 1, curDt, shipmentStatus.getLabel().getLabelId());
-
-
         String sqlTwo = "UPDATE ap_shipment_status dt SET  dt.`ACTIVE`=?,dt.`LAST_MODIFIED_BY`=?,dt.`LAST_MODIFIED_DATE`=?"
                 + " WHERE dt.`SHIPMENT_STATUS_ID`=?;";
 
@@ -148,8 +147,8 @@ public class ShipmentStatusDaoImp implements ShipmentStatusDao {
 
 //    @Override
 //    public List<PrgShipmentStatusDTO> getShipmentStatusListForSync(String lastSyncDate) {
-//        String sql = "SELECT  ss.`ACTIVE`,ss.`SHIPMENT_STATUS_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`\n"
-//                + "FROM ap_shipment_status ss \n"
+//        String sql = "SELECT  ss.`ACTIVE`,ss.`SHIPMENT_STATUS_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP` "
+//                + "FROM ap_shipment_status ss  "
 //                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=ss.`LABEL_ID`";
 //        Map<String, Object> params = new HashMap<>();
 //        if (!lastSyncDate.equals("null")) {
@@ -162,7 +161,7 @@ public class ShipmentStatusDaoImp implements ShipmentStatusDao {
 //
 //    @Override
 //    public List<PrgShipmentStatusAllowedDTO> getShipmentStatusAllowedListForSync(String lastSyncDate) {
-//        String sql = "SELECT ssa.`NEXT_SHIPMENT_STATUS_ID`,ssa.`SHIPMENT_STATUS_ALLOWED_ID`,ssa.`SHIPMENT_STATUS_ID`\n"
+//        String sql = "SELECT ssa.`NEXT_SHIPMENT_STATUS_ID`,ssa.`SHIPMENT_STATUS_ALLOWED_ID`,ssa.`SHIPMENT_STATUS_ID` "
 //                + "FROM ap_shipment_status_allowed ssa";
 //        Map<String, Object> params = new HashMap<>();
 //        if (!lastSyncDate.equals("null")) {
@@ -172,5 +171,20 @@ public class ShipmentStatusDaoImp implements ShipmentStatusDao {
 //        NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(jdbcTemplate);
 //        return nm.query(sql, params, new PrgShipmentStatusAllowedDTORowMapper());
 //    }
+    @Override
+    public List<ShipmentStatus> getShipmentStatusListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        String sqlString = "SELECT s.SHIPMENT_STATUS_ID, sl.LABEL_ID, sl.LABEL_EN, sl.LABEL_FR, sl.LABEL_SP, sl.LABEL_PR, ssa.NEXT_SHIPMENT_STATUS_ID, "
+                + "	cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, s.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, s.LAST_MODIFIED_DATE, s.ACTIVE "
+                + " FROM ap_shipment_status s  "
+                + " LEFT JOIN ap_label sl ON s.LABEL_ID=sl.LABEL_ID  "
+                + " LEFT JOIN ap_shipment_status_allowed ssa ON s.SHIPMENT_STATUS_ID=ssa.SHIPMENT_STATUS_ID "
+                + " LEFT JOIN us_user cb ON s.CREATED_BY=cb.USER_ID "
+                + " LEFT JOIN us_user lmb ON s.LAST_MODIFIED_BY=lmb.USER_ID "
+                + " WHERE TRUE AND s.LAST_MODIFIED_DATE>:lastSyncDate ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new ShipmentStatusResultSetExtractor());
+
+    }
 
 }

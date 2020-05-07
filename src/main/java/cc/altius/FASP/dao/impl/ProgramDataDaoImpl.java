@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Inventory;
@@ -60,7 +61,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     @Transactional
-    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) {
+    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         // Check which records have changed
         Map<String, Object> params = new HashMap<>();
@@ -77,6 +78,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `QTY` DECIMAL(12,2) UNSIGNED NOT NULL, "
                 + "  `DAYS_OF_STOCK_OUT` INT UNSIGNED NOT NULL, "
                 + "  `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `NOTES` TEXT NULL, "
                 + "  `ACTIVE` TINYINT UNSIGNED NOT NULL DEFAULT 1, "
                 + "  PRIMARY KEY (`ID`), "
                 + "  INDEX `fk_tmp_consumption_1_idx` (`CONSUMPTION_ID` ASC), "
@@ -97,12 +99,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("QTY", c.getConsumptionQty());
             tp.put("DAYS_OF_STOCK_OUT", c.getDayOfStockOut());
             tp.put("DATA_SOURCE_ID", c.getDataSource().getId());
+            tp.put("NOTES", c.getNotes());
             tp.put("ACTIVE", c.isActive());
             insertList.add(new MapSqlParameterSource(tp));
         });
         SqlParameterSource[] insertConsumption = new SqlParameterSource[insertList.size()];
 //        si.executeBatch(insertList.toArray(insertConsumption));
-        sqlString = " INSERT INTO tmp_consumption (CONSUMPTION_ID, REGION_ID, PLANNING_UNIT_ID, START_DATE, STOP_DATE, ACTUAL_FLAG, QTY, DAYS_OF_STOCK_OUT, DATA_SOURCE_ID, ACTIVE) VALUES (:CONSUMPTION_ID, :REGION_ID, :PLANNING_UNIT_ID, :START_DATE, :STOP_DATE, :ACTUAL_FLAG, :QTY, :DAYS_OF_STOCK_OUT, :DATA_SOURCE_ID, :ACTIVE)";
+        sqlString = " INSERT INTO tmp_consumption (CONSUMPTION_ID, REGION_ID, PLANNING_UNIT_ID, START_DATE, STOP_DATE, ACTUAL_FLAG, QTY, DAYS_OF_STOCK_OUT, DATA_SOURCE_ID, NOTES, ACTIVE) VALUES (:CONSUMPTION_ID, :REGION_ID, :PLANNING_UNIT_ID, :START_DATE, :STOP_DATE, :ACTUAL_FLAG, :QTY, :DAYS_OF_STOCK_OUT, :DATA_SOURCE_ID, :NOTES, :ACTIVE)";
         this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertConsumption));
 
         // Check if there are any rows that need to be added
@@ -116,7 +119,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             sqlString = "CALL getVersionId(:programId, :curUser, :curDate)";
             versionId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
             params.put("versionId", versionId);
-            sqlString = "INSERT INTO rm_consumption SELECT null, :programId, tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.START_DATE, tc.STOP_DATE, tc.ACTUAL_FLAG, tc.QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.ACTIVE, :curUser, :curDate, :curUser, :curDate, :versionId"
+            sqlString = "INSERT INTO rm_consumption SELECT null, :programId, tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.START_DATE, tc.STOP_DATE, tc.ACTUAL_FLAG, tc.QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, :curUser, :curDate, :curUser, :curDate, :versionId"
                     + " FROM fasp.tmp_consumption tc  "
                     + " LEFT JOIN rm_consumption c ON tc.CONSUMPTION_ID=c.CONSUMPTION_ID  "
                     + " WHERE "
@@ -147,6 +150,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `BATCH_NO` VARCHAR(25) NULL, "
                 + "  `EXPIRY_DATE` DATE NULL, "
                 + "  `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `NOTES` TEXT NULL, "
                 + "  `ACTIVE` TINYINT UNSIGNED NOT NULL DEFAULT 1, "
                 + "  PRIMARY KEY (`ID`), "
                 + "  INDEX `fk_tmp_inventory_1_idx` (`INVENTORY_ID` ASC), "
@@ -167,12 +171,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("BATCH_NO", i.getBatchNo());
             tp.put("EXPIRY_DATE", i.getExpiryDate());
             tp.put("DATA_SOURCE_ID", i.getDataSource().getId());
+            tp.put("NOTES", i.getNotes());
             tp.put("ACTIVE", i.isActive());
             insertList.add(new MapSqlParameterSource(tp));
         });
         SqlParameterSource[] insertInventory = new SqlParameterSource[insertList.size()];
 //        si.executeBatch(insertList.toArray(insertInventory));
-        sqlString = "INSERT INTO tmp_inventory (INVENTORY_ID, INVENTORY_DATE, REGION_ID, REALM_COUNTRY_PLANNING_UNIT_ID, ACTUAL_QTY, ADJUSTMENT_QTY, BATCH_NO, EXPIRY_DATE, DATA_SOURCE_ID, ACTIVE) VALUES (:INVENTORY_ID, :INVENTORY_DATE, :REGION_ID, :REALM_COUNTRY_PLANNING_UNIT_ID, :ACTUAL_QTY, :ADJUSTMENT_QTY, :BATCH_NO, :EXPIRY_DATE, :DATA_SOURCE_ID, :ACTIVE)";
+        sqlString = "INSERT INTO tmp_inventory (INVENTORY_ID, INVENTORY_DATE, REGION_ID, REALM_COUNTRY_PLANNING_UNIT_ID, ACTUAL_QTY, ADJUSTMENT_QTY, BATCH_NO, EXPIRY_DATE, DATA_SOURCE_ID, NOTES, ACTIVE) VALUES (:INVENTORY_ID, :INVENTORY_DATE, :REGION_ID, :REALM_COUNTRY_PLANNING_UNIT_ID, :ACTUAL_QTY, :ADJUSTMENT_QTY, :BATCH_NO, :EXPIRY_DATE, :DATA_SOURCE_ID, :NOTES, :ACTIVE)";
         this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertInventory));
         // Check if there are any rows that need to be added
         sqlString = "SELECT COUNT(*) FROM tmp_inventory tc LEFT JOIN rm_inventory c ON tc.INVENTORY_ID=c.INVENTORY_ID WHERE tc.INVENTORY_DATE!=c.INVENTORY_DATE OR tc.REGION_ID!=c.REGION_ID OR tc.REALM_COUNTRY_PLANNING_UNIT_ID!=c.REALM_COUNTRY_PLANNING_UNIT_ID OR tc.ACTUAL_QTY!=c.ACTUAL_QTY OR tc.ADJUSTMENT_QTY!=c.ADJUSTMENT_QTY OR tc.BATCH_NO!=c.BATCH_NO OR tc.EXPIRY_DATE!=c.EXPIRY_DATE OR tc.DATA_SOURCE_ID!=c.DATA_SOURCE_ID OR tc.ACTIVE!=c.ACTIVE OR tc.INVENTORY_ID IS NULL";
@@ -191,7 +196,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("curUser", curUser.getUserId());
             params.put("curDate", curDate);
             params.put("versionId", versionId);
-            sqlString = "INSERT INTO rm_inventory SELECT null, :programId, c.INVENTORY_DATE, tc.REGION_ID, tc.REALM_COUNTRY_PLANNING_UNIT_ID, tc.ACTUAL_QTY, tc.ADJUSTMENT_QTY, tc.BATCH_NO, tc.EXPIRY_DATE, tc.DATA_SOURCE_ID, tc.ACTIVE, :curUser, :curDate, :curUser, :curDate, :versionId"
+            sqlString = "INSERT INTO rm_inventory SELECT null, :programId, c.INVENTORY_DATE, tc.REGION_ID, tc.REALM_COUNTRY_PLANNING_UNIT_ID, tc.ACTUAL_QTY, tc.ADJUSTMENT_QTY, tc.BATCH_NO, tc.EXPIRY_DATE, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, :curUser, :curDate, :curUser, :curDate, :versionId"
                     + " FROM tmp_inventory tc "
                     + " LEFT JOIN rm_inventory c ON tc.INVENTORY_ID=c.INVENTORY_ID "
                     + " WHERE "
@@ -207,9 +212,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "     OR tc.INVENTORY_ID IS NULL";
             this.namedParameterJdbcTemplate.update(sqlString, params);
         }
-        versionId = 0;
         if (versionId == 0) {
-            throw new NumberFormatException("Nothing to update");
+            throw new CouldNotSaveException("No new data to update");
         }
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
         this.namedParameterJdbcTemplate.update(sqlString, params);

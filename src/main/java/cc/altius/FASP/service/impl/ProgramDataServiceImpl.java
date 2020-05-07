@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
@@ -38,16 +39,16 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser) {
         ProgramData pd = new ProgramData(this.programService.getProgramById(programId, curUser));
         pd.setRequestedProgramVersion(versionId);
-        if (pd.getCurrentVersion().getVersionId() < versionId) {
-            throw new EmptyResultDataAccessException("Incorrect VersionId requested", versionId);
-        }
+//        if (pd.getCurrentVersion().getVersionId() < versionId) {
+//            throw new EmptyResultDataAccessException("Incorrect VersionId requested", versionId);
+//        }
         pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId));
         pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId));
         return pd;
     }
 
     @Override
-    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) {
+    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
         Program p = this.programService.getProgramById(programData.getProgramId(), curUser);
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {

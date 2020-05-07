@@ -7,7 +7,9 @@ package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleForecastingUnitObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -25,7 +27,16 @@ public class InventoryRowMapper implements RowMapper<Inventory> {
                 rs.getDate("INVENTORY_DATE"),
                 new SimpleObject(rs.getInt("REGION_ID"), new LabelRowMapper("REGION_").mapRow(rs, i)),
                 new SimpleObject(rs.getInt("REALM_COUNTRY_PLANNING_UNIT_ID"), new LabelRowMapper("REALM_COUNTRY_PLANNING_UNIT_").mapRow(rs, i)),
-                new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)),
+                new SimplePlanningUnitObject(
+                        rs.getInt("PLANNING_UNIT_ID"),
+                        new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i),
+                        new SimpleForecastingUnitObject(
+                                rs.getInt("FORECASTING_UNIT_ID"),
+                                new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, i),
+                                new SimpleObject(
+                                        rs.getInt("PRODUCT_CATEGORY_ID"),
+                                        new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, i))
+                        )),
                 rs.getDouble("MULTIPLIER"),
                 rs.getDouble("ADJUSTMENT_QTY"),
                 rs.getDouble("EXPECTED_BAL"),
