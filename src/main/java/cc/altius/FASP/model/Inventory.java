@@ -31,10 +31,6 @@ public class Inventory extends BaseModel implements Serializable {
     private double expectedBal;
     private SimpleCodeObject unit;
     private SimpleObject dataSource;
-    private String batchNo;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date expiryDate;
     private String notes;
     private int versionId;
 
@@ -144,22 +140,6 @@ public class Inventory extends BaseModel implements Serializable {
         this.dataSource = dataSource;
     }
 
-    public String getBatchNo() {
-        return batchNo;
-    }
-
-    public void setBatchNo(String batchNo) {
-        this.batchNo = batchNo;
-    }
-
-    public Date getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-
     public String getNotes() {
         return notes;
     }
@@ -178,7 +158,7 @@ public class Inventory extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "Inventory{" + "inventoryId=" + inventoryId + ", inventoryDate=" + inventoryDate + ", region=" + region.getId() + ", realmCountryPlanningUnit=" + realmCountryPlanningUnit.getId() + ", actualQty=" + actualQty + ", adjustmentQty=" + adjustmentQty + ", dataSource=" + dataSource.getId() + ", batchNo=" + batchNo + ", expiryDate=" + expiryDate + ", versionId=" + versionId + '}';
+        return "Inventory{" + "inventoryId=" + inventoryId + ", inventoryDate=" + inventoryDate + ", region=" + region.getId() + ", realmCountryPlanningUnit=" + realmCountryPlanningUnit.getId() + ", actualQty=" + actualQty + ", adjustmentQty=" + adjustmentQty + ", dataSource=" + dataSource.getId() + ", versionId=" + versionId + '}';
     }
 
 }
