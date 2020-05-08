@@ -1,0 +1,33 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package cc.altius.FASP.model;
+
+/**
+ *
+ * @author akil
+ */
+public class SimplePlanningUnitObject extends SimpleObject {
+
+    private SimpleForecastingUnitObject forecastingUnit;
+
+    public SimplePlanningUnitObject() {
+        super();
+    }
+
+    public SimplePlanningUnitObject(int id, Label label, SimpleForecastingUnitObject forecastingUnit) {
+        super(id, label);
+        this.forecastingUnit = forecastingUnit;
+    }
+
+    public SimpleForecastingUnitObject getForecastingUnit() {
+        return forecastingUnit;
+    }
+
+    public void setForecastingUnit(SimpleForecastingUnitObject forecastingUnit) {
+        this.forecastingUnit = forecastingUnit;
+    }
+    
+}

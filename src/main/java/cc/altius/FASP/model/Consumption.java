@@ -21,13 +21,10 @@ public class Consumption extends BaseModel implements Serializable {
 
     private int consumptionId;
     private SimpleObject region;
-    private SimpleObject planningUnit;
+    private SimplePlanningUnitObject planningUnit;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    private Date startDate;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date stopDate;
+    private Date consumptionDate;
     private boolean actualFlag;
     private double consumptionQty;
     private int dayOfStockOut;
@@ -40,12 +37,11 @@ public class Consumption extends BaseModel implements Serializable {
     public Consumption() {
     }
 
-    public Consumption(int consumptionId, SimpleObject region, SimpleObject planningUnit, Date startDate, Date stopDate, boolean actualFlag, double consumptionQty, int dayOfStockOut, SimpleObject dataSource, String notes, int versionId) {
+    public Consumption(int consumptionId, SimpleObject region, SimplePlanningUnitObject planningUnit, Date consumptionDate, boolean actualFlag, double consumptionQty, int dayOfStockOut, SimpleObject dataSource, String notes, int versionId) {
         this.consumptionId = consumptionId;
         this.region = region;
         this.planningUnit = planningUnit;
-        this.startDate = startDate;
-        this.stopDate = stopDate;
+        this.consumptionDate = consumptionDate;
         this.actualFlag = actualFlag;
         this.consumptionQty = consumptionQty;
         this.dayOfStockOut = dayOfStockOut;
@@ -70,28 +66,20 @@ public class Consumption extends BaseModel implements Serializable {
         this.region = region;
     }
 
-    public SimpleObject getPlanningUnit() {
+    public SimplePlanningUnitObject getPlanningUnit() {
         return planningUnit;
     }
 
-    public void setPlanningUnit(SimpleObject planningUnit) {
+    public void setPlanningUnit(SimplePlanningUnitObject planningUnit) {
         this.planningUnit = planningUnit;
     }
 
-    public Date getStartDate() {
-        return startDate;
+    public Date getConsumptionDate() {
+        return consumptionDate;
     }
 
-    public void setStartDate(Date startDate) {
-        this.startDate = startDate;
-    }
-
-    public Date getStopDate() {
-        return stopDate;
-    }
-
-    public void setStopDate(Date stopDate) {
-        this.stopDate = stopDate;
+    public void setConsumptionDate(Date consumptionDate) {
+        this.consumptionDate = consumptionDate;
     }
 
     public boolean isActualFlag() {
@@ -152,7 +140,7 @@ public class Consumption extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "Consumption{" + "consumptionId=" + consumptionId + ", region=" + region.getId() + ", planningUnit=" + planningUnit.getId() + ", dataSource=" + dataSource.getId() + ", startDate=" + startDate + ", stopDate=" + stopDate + ", actualFlag=" + actualFlag + ", consumptionQty=" + consumptionQty + ", dayOfStockOut=" + dayOfStockOut + ", versionId=" + versionId + '}';
+        return "Consumption{" + "consumptionId=" + consumptionId + ", region=" + region.getId() + ", planningUnit=" + planningUnit.getId() + ", dataSource=" + dataSource.getId() + ", consumptionDate=" + consumptionDate + ", actualFlag=" + actualFlag + ", consumptionQty=" + consumptionQty + ", dayOfStockOut=" + dayOfStockOut + ", versionId=" + versionId + '}';
     }
 
 }

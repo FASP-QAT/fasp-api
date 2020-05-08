@@ -66,25 +66,28 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         // Check which records have changed
         Map<String, Object> params = new HashMap<>();
         String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
+//        String sqlString = "DROP TABLE IF EXISTS `tmp_consumption`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_consumption` ( "
+//        sqlString = "CREATE TABLE `tmp_consumption` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `CONSUMPTION_ID` INT UNSIGNED NULL, "
                 + "  `REGION_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
-                + "  `START_DATE` DATE NOT NULL, "
-                + "  `STOP_DATE` DATE NOT NULL, "
+                + "  `CONSUMPTION_DATE` DATE NOT NULL, "
                 + "  `ACTUAL_FLAG` TINYINT UNSIGNED NOT NULL, "
                 + "  `QTY` DECIMAL(12,2) UNSIGNED NOT NULL, "
                 + "  `DAYS_OF_STOCK_OUT` INT UNSIGNED NOT NULL, "
                 + "  `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `NOTES` TEXT NULL, "
                 + "  `ACTIVE` TINYINT UNSIGNED NOT NULL DEFAULT 1, "
+                + "  `VERSION_ID` INT(10) NULL, "
                 + "  PRIMARY KEY (`ID`), "
                 + "  INDEX `fk_tmp_consumption_1_idx` (`CONSUMPTION_ID` ASC), "
                 + "  INDEX `fk_tmp_consumption_2_idx` (`REGION_ID` ASC), "
                 + "  INDEX `fk_tmp_consumption_3_idx` (`PLANNING_UNIT_ID` ASC), "
-                + "  INDEX `fk_tmp_consumption_4_idx` (`DATA_SOURCE_ID` ASC))";
+                + "  INDEX `fk_tmp_consumption_4_idx` (`DATA_SOURCE_ID` ASC),"
+                + "  INDEX `fk_tmp_consumption_5_idx` (`VERSION_ID` ASC))";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         final List<SqlParameterSource> insertList = new ArrayList<>();
 //        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("tmp_consumption");
@@ -93,8 +96,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("CONSUMPTION_ID", (c.getConsumptionId() == 0 ? null : c.getConsumptionId()));
             tp.put("REGION_ID", c.getRegion().getId());
             tp.put("PLANNING_UNIT_ID", c.getPlanningUnit().getId());
-            tp.put("START_DATE", c.getStartDate());
-            tp.put("STOP_DATE", c.getStopDate());
+            tp.put("CONSUMPTION_DATE", c.getConsumptionDate());
             tp.put("ACTUAL_FLAG", c.isActualFlag());
             tp.put("QTY", c.getConsumptionQty());
             tp.put("DAYS_OF_STOCK_OUT", c.getDayOfStockOut());
@@ -105,11 +107,18 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         });
         SqlParameterSource[] insertConsumption = new SqlParameterSource[insertList.size()];
 //        si.executeBatch(insertList.toArray(insertConsumption));
-        sqlString = " INSERT INTO tmp_consumption (CONSUMPTION_ID, REGION_ID, PLANNING_UNIT_ID, START_DATE, STOP_DATE, ACTUAL_FLAG, QTY, DAYS_OF_STOCK_OUT, DATA_SOURCE_ID, NOTES, ACTIVE) VALUES (:CONSUMPTION_ID, :REGION_ID, :PLANNING_UNIT_ID, :START_DATE, :STOP_DATE, :ACTUAL_FLAG, :QTY, :DAYS_OF_STOCK_OUT, :DATA_SOURCE_ID, :NOTES, :ACTIVE)";
+        sqlString = " INSERT INTO tmp_consumption (CONSUMPTION_ID, REGION_ID, PLANNING_UNIT_ID, CONSUMPTION_DATE, ACTUAL_FLAG, QTY, DAYS_OF_STOCK_OUT, DATA_SOURCE_ID, NOTES, ACTIVE) VALUES (:CONSUMPTION_ID, :REGION_ID, :PLANNING_UNIT_ID, :CONSUMPTION_DATE, :ACTUAL_FLAG, :QTY, :DAYS_OF_STOCK_OUT, :DATA_SOURCE_ID, :NOTES, :ACTIVE)";
         this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertConsumption));
 
+        params.clear();
+        params.put("versionId", programData.getRequestedProgramVersion());
+        // Update the VersionId's in tmp_consumption with the ones from consumption_trans based on VersionId
+        sqlString = "UPDATE tmp_consumption tc LEFT JOIN (SELECT ct.CONSUMPTION_ID, MAX(ct.VERSION_ID) MAX_VERSION_ID FROM rm_consumption_trans ct WHERE (ct.VERSION_ID>=:versionId OR :versionId=-1) GROUP BY ct.CONSUMPTION_ID) AS mc ON tc.CONSUMPTION_ID=mc.CONSUMPTION_ID SET tc.VERSION_ID=mc.MAX_VERSION_ID WHERE mc.CONSUMPTION_ID IS NOT NULL";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+
         // Check if there are any rows that need to be added
-        sqlString = "SELECT COUNT(*) FROM tmp_consumption tc LEFT JOIN rm_consumption c ON tc.CONSUMPTION_ID=c.CONSUMPTION_ID WHERE tc.REGION_ID!=c.REGION_ID OR tc.PLANNING_UNIT_ID!=c.PLANNING_UNIT_ID OR tc.START_DATE!=c.START_DATE OR tc.STOP_DATE!=c.STOP_DATE OR tc.ACTUAL_FLAG!=c.ACTUAL_FLAG OR tc.QTY!=c.CONSUMPTION_QTY OR tc.DAYS_OF_STOCK_OUT!=c.DAYS_OF_STOCK_OUT OR tc.DATA_SOURCE_ID!=c.DATA_SOURCE_ID OR tc.ACTIVE!=c.ACTIVE OR tc.CONSUMPTION_ID IS NULL";
+        params.clear();
+        sqlString = "SELECT COUNT(*) FROM tmp_consumption tc LEFT JOIN rm_consumption c ON tc.CONSUMPTION_ID=c.CONSUMPTION_ID LEFT JOIN rm_consumption_trans ct ON tc.CONSUMPTION_ID=ct.CONSUMPTION_ID AND tc.VERSION_ID=ct.VERSION_ID WHERE tc.REGION_ID!=ct.REGION_ID OR tc.PLANNING_UNIT_ID!=ct.PLANNING_UNIT_ID OR tc.CONSUMPTION_DATE!=ct.CONSUMPTION_DATE OR tc.ACTUAL_FLAG!=ct.ACTUAL_FLAG OR tc.QTY!=ct.CONSUMPTION_QTY OR tc.DAYS_OF_STOCK_OUT!=ct.DAYS_OF_STOCK_OUT OR tc.DATA_SOURCE_ID!=ct.DATA_SOURCE_ID OR tc.NOTES!=ct.NOTES OR tc.ACTIVE!=ct.ACTIVE OR tc.CONSUMPTION_ID IS NULL";
         int consumptionRows = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
         int versionId = 0;
         if (consumptionRows > 0) {
@@ -119,27 +128,40 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             sqlString = "CALL getVersionId(:programId, :curUser, :curDate)";
             versionId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
             params.put("versionId", versionId);
-            sqlString = "INSERT INTO rm_consumption SELECT null, :programId, tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.START_DATE, tc.STOP_DATE, tc.ACTUAL_FLAG, tc.QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, :curUser, :curDate, :curUser, :curDate, :versionId"
-                    + " FROM fasp.tmp_consumption tc  "
-                    + " LEFT JOIN rm_consumption c ON tc.CONSUMPTION_ID=c.CONSUMPTION_ID  "
+            // Insert the rows where Consumption Id is not null
+            sqlString = "INSERT INTO rm_consumption_trans SELECT null, tc.CONSUMPTION_ID, tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.CONSUMPTION_DATE, tc.ACTUAL_FLAG, tc.QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, :curUser, :curDate, :versionId"
+                    + " FROM fasp.tmp_consumption tc "
+                    + " LEFT JOIN rm_consumption_trans ct ON tc.CONSUMPTION_ID=ct.CONSUMPTION_ID AND tc.VERSION_ID=ct.VERSION_ID "
                     + " WHERE "
-                    + "    tc.REGION_ID!=c.REGION_ID "
-                    + "    OR tc.PLANNING_UNIT_ID!=c.PLANNING_UNIT_ID "
-                    + "    OR tc.START_DATE!=c.START_DATE "
-                    + "    OR tc.STOP_DATE!=c.STOP_DATE "
-                    + "    OR tc.ACTUAL_FLAG!=c.ACTUAL_FLAG "
-                    + "    OR tc.QTY!=c.CONSUMPTION_QTY "
-                    + "    OR tc.DAYS_OF_STOCK_OUT!=c.DAYS_OF_STOCK_OUT "
-                    + "    OR tc.DATA_SOURCE_ID!=c.DATA_SOURCE_ID "
-                    + "    OR tc.ACTIVE!=c.ACTIVE"
-                    + "    OR tc.CONSUMPTION_ID IS NULL";
+                    + "    (tc.REGION_ID!=ct.REGION_ID "
+                    + "    OR tc.PLANNING_UNIT_ID!=ct.PLANNING_UNIT_ID "
+                    + "    OR tc.CONSUMPTION_DATE!=ct.CONSUMPTION_DATE "
+                    + "    OR tc.ACTUAL_FLAG!=ct.ACTUAL_FLAG "
+                    + "    OR tc.QTY!=ct.CONSUMPTION_QTY "
+                    + "    OR tc.DAYS_OF_STOCK_OUT!=ct.DAYS_OF_STOCK_OUT "
+                    + "    OR tc.DATA_SOURCE_ID!=ct.DATA_SOURCE_ID "
+                    + "    OR tc.NOTES!=ct.NOTES "
+                    + "    OR tc.ACTIVE!=ct.ACTIVE) "
+                    + "    AND tc.CONSUMPTION_ID IS NOT NULL AND tc.CONSUMPTION_ID!=0";
             consumptionRows = this.namedParameterJdbcTemplate.update(sqlString, params);
-        }
 
+            sqlString = "SELECT tc.ID FROM tmp_consumption tc WHERE tc.CONSUMPTION_ID IS NULL OR tc.CONSUMPTION_ID=0";
+            List<Integer> idListForInsert = this.namedParameterJdbcTemplate.queryForList(sqlString, params, Integer.class);
+            params.put("id", 0);
+            for (Integer id : idListForInsert) {
+                sqlString = "INSERT INTO rm_consumption (PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:programId, :curUser, :curDate, :curUser, :curDate)";
+                consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+                params.replace("id", id);
+                sqlString = "INSERT INTO rm_consumption_trans SELECT null, LAST_INSERT_ID(), tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.CONSUMPTION_DATE, tc.ACTUAL_FLAG, tc.QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, :curUser, :curDate, :versionId FROM tmp_consumption tc WHERE tc.ID=:id";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+            }
+        }
         params.clear();
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_inventory`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_inventory`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_inventory` ( "
+//        sqlString = "CREATE TABLE `tmp_inventory` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `INVENTORY_ID` INT UNSIGNED NULL, "
                 + "  `INVENTORY_DATE` DATE NOT NULL, "
@@ -147,16 +169,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `REALM_COUNTRY_PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `ACTUAL_QTY` DECIMAL(12,2) UNSIGNED NULL, "
                 + "  `ADJUSTMENT_QTY` DECIMAL(12,2) NOT NULL, "
-                + "  `BATCH_NO` VARCHAR(25) NULL, "
-                + "  `EXPIRY_DATE` DATE NULL, "
                 + "  `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `NOTES` TEXT NULL, "
                 + "  `ACTIVE` TINYINT UNSIGNED NOT NULL DEFAULT 1, "
+                + "  `VERSION_ID` INT(10) NULL, "
                 + "  PRIMARY KEY (`ID`), "
                 + "  INDEX `fk_tmp_inventory_1_idx` (`INVENTORY_ID` ASC), "
                 + "  INDEX `fk_tmp_inventory_2_idx` (`REGION_ID` ASC), "
                 + "  INDEX `fk_tmp_inventory_3_idx` (`REALM_COUNTRY_PLANNING_UNIT_ID` ASC), "
-                + "  INDEX `fk_tmp_inventory_4_idx` (`DATA_SOURCE_ID` ASC))";
+                + "  INDEX `fk_tmp_inventory_4_idx` (`DATA_SOURCE_ID` ASC), "
+                + "  INDEX `fk_tmp_inventory_5_idx` (`VERSION_ID` ASC))";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         insertList.clear();
 //        si = new SimpleJdbcInsert(dataSource).withTableName("tmp_inventory");
@@ -168,8 +190,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("REALM_COUNTRY_PLANNING_UNIT_ID", i.getRealmCountryPlanningUnit().getId());
             tp.put("ACTUAL_QTY", i.getActualQty());
             tp.put("ADJUSTMENT_QTY", i.getAdjustmentQty());
-            tp.put("BATCH_NO", i.getBatchNo());
-            tp.put("EXPIRY_DATE", i.getExpiryDate());
             tp.put("DATA_SOURCE_ID", i.getDataSource().getId());
             tp.put("NOTES", i.getNotes());
             tp.put("ACTIVE", i.isActive());
@@ -177,10 +197,17 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         });
         SqlParameterSource[] insertInventory = new SqlParameterSource[insertList.size()];
 //        si.executeBatch(insertList.toArray(insertInventory));
-        sqlString = "INSERT INTO tmp_inventory (INVENTORY_ID, INVENTORY_DATE, REGION_ID, REALM_COUNTRY_PLANNING_UNIT_ID, ACTUAL_QTY, ADJUSTMENT_QTY, BATCH_NO, EXPIRY_DATE, DATA_SOURCE_ID, NOTES, ACTIVE) VALUES (:INVENTORY_ID, :INVENTORY_DATE, :REGION_ID, :REALM_COUNTRY_PLANNING_UNIT_ID, :ACTUAL_QTY, :ADJUSTMENT_QTY, :BATCH_NO, :EXPIRY_DATE, :DATA_SOURCE_ID, :NOTES, :ACTIVE)";
+        sqlString = "INSERT INTO tmp_inventory (INVENTORY_ID, INVENTORY_DATE, REGION_ID, REALM_COUNTRY_PLANNING_UNIT_ID, ACTUAL_QTY, ADJUSTMENT_QTY, DATA_SOURCE_ID, NOTES, ACTIVE) VALUES (:INVENTORY_ID, :INVENTORY_DATE, :REGION_ID, :REALM_COUNTRY_PLANNING_UNIT_ID, :ACTUAL_QTY, :ADJUSTMENT_QTY, :DATA_SOURCE_ID, :NOTES, :ACTIVE)";
         this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertInventory));
+
+        params.clear();
+        params.put("versionId", programData.getRequestedProgramVersion());
+        // Update the VersionId's in tmp_inventory with the ones from inventory_trans based on VersionId
+        sqlString = "UPDATE tmp_inventory ti LEFT JOIN (SELECT it.INVENTORY_ID, MAX(it.VERSION_ID) MAX_VERSION_ID FROM rm_inventory_trans it WHERE (it.VERSION_ID>=:versionId OR :versionId=-1) GROUP BY it.INVENTORY_ID) AS mi ON ti.INVENTORY_ID=mi.INVENTORY_ID SET ti.VERSION_ID=mi.MAX_VERSION_ID WHERE mi.INVENTORY_ID IS NOT NULL";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+
         // Check if there are any rows that need to be added
-        sqlString = "SELECT COUNT(*) FROM tmp_inventory tc LEFT JOIN rm_inventory c ON tc.INVENTORY_ID=c.INVENTORY_ID WHERE tc.INVENTORY_DATE!=c.INVENTORY_DATE OR tc.REGION_ID!=c.REGION_ID OR tc.REALM_COUNTRY_PLANNING_UNIT_ID!=c.REALM_COUNTRY_PLANNING_UNIT_ID OR tc.ACTUAL_QTY!=c.ACTUAL_QTY OR tc.ADJUSTMENT_QTY!=c.ADJUSTMENT_QTY OR tc.BATCH_NO!=c.BATCH_NO OR tc.EXPIRY_DATE!=c.EXPIRY_DATE OR tc.DATA_SOURCE_ID!=c.DATA_SOURCE_ID OR tc.ACTIVE!=c.ACTIVE OR tc.INVENTORY_ID IS NULL";
+        sqlString = "SELECT COUNT(*) FROM tmp_inventory ti LEFT JOIN rm_inventory i ON ti.INVENTORY_ID=i.INVENTORY_ID LEFT JOIN rm_inventory_trans it ON ti.INVENTORY_ID=it.INVENTORY_ID AND ti.VERSION_ID=it.VERSION_ID WHERE ti.INVENTORY_DATE!=it.INVENTORY_DATE OR ti.REGION_ID!=it.REGION_ID OR ti.REALM_COUNTRY_PLANNING_UNIT_ID!=it.REALM_COUNTRY_PLANNING_UNIT_ID OR ti.ACTUAL_QTY!=it.ACTUAL_QTY OR ti.ADJUSTMENT_QTY!=it.ADJUSTMENT_QTY OR ti.DATA_SOURCE_ID!=it.DATA_SOURCE_ID OR ti.NOTES!=it.NOTES OR ti.ACTIVE!=it.ACTIVE OR ti.INVENTORY_ID IS NULL";
         int inventoryRows = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
         if (inventoryRows > 0) {
             params.put("programId", programData.getProgramId());
@@ -196,29 +223,41 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("curUser", curUser.getUserId());
             params.put("curDate", curDate);
             params.put("versionId", versionId);
-            sqlString = "INSERT INTO rm_inventory SELECT null, :programId, c.INVENTORY_DATE, tc.REGION_ID, tc.REALM_COUNTRY_PLANNING_UNIT_ID, tc.ACTUAL_QTY, tc.ADJUSTMENT_QTY, tc.BATCH_NO, tc.EXPIRY_DATE, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, :curUser, :curDate, :curUser, :curDate, :versionId"
-                    + " FROM tmp_inventory tc "
-                    + " LEFT JOIN rm_inventory c ON tc.INVENTORY_ID=c.INVENTORY_ID "
+
+            // Insert the rows where Inventory Id is not null
+            sqlString = "INSERT INTO rm_inventory_trans SELECT null, ti.INVENTORY_ID, ti.INVENTORY_DATE, ti.REGION_ID, ti.REALM_COUNTRY_PLANNING_UNIT_ID, ti.ACTUAL_QTY, ti.ADJUSTMENT_QTY, ti.DATA_SOURCE_ID, ti.NOTES, ti.ACTIVE, :curUser, :curDate, :versionId"
+                    + " FROM tmp_inventory ti "
+                    + " LEFT JOIN rm_inventory_trans it ON ti.INVENTORY_ID=it.INVENTORY_ID AND ti.VERSION_ID=it.VERSION_ID "
                     + " WHERE "
-                    + "     tc.INVENTORY_DATE!=c.INVENTORY_DATE"
-                    + "     OR tc.REGION_ID!=c.REGION_ID "
-                    + "     OR tc.REALM_COUNTRY_PLANNING_UNIT_ID!=c.REALM_COUNTRY_PLANNING_UNIT_ID "
-                    + "     OR tc.ACTUAL_QTY!=c.ACTUAL_QTY "
-                    + "     OR tc.ADJUSTMENT_QTY!=c.ADJUSTMENT_QTY "
-                    + "     OR tc.BATCH_NO!=c.BATCH_NO "
-                    + "     OR tc.EXPIRY_DATE!=c.EXPIRY_DATE "
-                    + "     OR tc.DATA_SOURCE_ID!=c.DATA_SOURCE_ID "
-                    + "     OR tc.ACTIVE!=c.ACTIVE "
-                    + "     OR tc.INVENTORY_ID IS NULL";
+                    + "     (ti.INVENTORY_DATE!=it.INVENTORY_DATE"
+                    + "     OR ti.REGION_ID!=it.REGION_ID "
+                    + "     OR ti.REALM_COUNTRY_PLANNING_UNIT_ID!=it.REALM_COUNTRY_PLANNING_UNIT_ID "
+                    + "     OR ti.ACTUAL_QTY!=it.ACTUAL_QTY "
+                    + "     OR ti.ADJUSTMENT_QTY!=it.ADJUSTMENT_QTY "
+                    + "     OR ti.DATA_SOURCE_ID!=it.DATA_SOURCE_ID "
+                    + "     OR ti.NOTES!=it.NOTES "
+                    + "     OR ti.ACTIVE!=it.ACTIVE) "
+                    + "     AND ti.INVENTORY_ID IS NOT NULL AND ti.INVENTORY_ID !=0";
             this.namedParameterJdbcTemplate.update(sqlString, params);
-        }
-        if (versionId == 0) {
-            throw new CouldNotSaveException("No new data to update");
+            sqlString = "SELECT ti.ID FROM tmp_inventory ti WHERE ti.INVENTORY_ID IS NULL OR ti.INVENTORY_ID=0";
+            List<Integer> idListForInsert = this.namedParameterJdbcTemplate.queryForList(sqlString, params, Integer.class);
+            params.put("id", 0);
+            for (Integer id : idListForInsert) {
+                sqlString = "INSERT INTO rm_inventory (PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE) VALUES (:programId, :curUser, :curDate, :curUser, :curDate)";
+                consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+                params.replace("id", id);
+                sqlString = "INSERT INTO rm_inventory_trans SELECT null, LAST_INSERT_ID(), ti.INVENTORY_DATE, ti.REGION_ID, ti.REALM_COUNTRY_PLANNING_UNIT_ID, ti.ACTUAL_QTY, ti.ADJUSTMENT_QTY, ti.DATA_SOURCE_ID, ti.NOTES, ti.ACTIVE, :curUser, :curDate, :versionId FROM tmp_inventory ti WHERE ti.ID=:id";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+            }
+
         }
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_inventory`";
+        sqlString = "DROP TABLE IF EXISTS `tmp_inventory`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
+        if (versionId == 0) {
+            throw new CouldNotSaveException("No new data to update");
+        }
         return versionId;
     }
 

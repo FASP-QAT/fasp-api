@@ -24,24 +24,20 @@ public class Inventory extends BaseModel implements Serializable {
     private Date inventoryDate;
     private SimpleObject region;
     private SimpleObject realmCountryPlanningUnit;
-    private SimpleObject planningUnit;
+    private SimplePlanningUnitObject planningUnit;
     private double multiplier;
     private Double actualQty;
     private double adjustmentQty;
     private double expectedBal;
     private SimpleCodeObject unit;
     private SimpleObject dataSource;
-    private String batchNo;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date expiryDate;
     private String notes;
     private int versionId;
 
     public Inventory() {
     }
 
-    public Inventory(int inventoryId, Date inventoryDate, SimpleObject region, SimpleObject realmCountryPlanningUnit, SimpleObject planningUnit, double multiplier, double adjustmentQty, double expectedBal, SimpleCodeObject unit, SimpleObject dataSource, String notes, int versionId) {
+    public Inventory(int inventoryId, Date inventoryDate, SimpleObject region, SimpleObject realmCountryPlanningUnit, SimplePlanningUnitObject planningUnit, double multiplier, double adjustmentQty, double expectedBal, SimpleCodeObject unit, SimpleObject dataSource, String notes, int versionId) {
         this.inventoryId = inventoryId;
         this.inventoryDate = inventoryDate;
         this.region = region;
@@ -88,11 +84,11 @@ public class Inventory extends BaseModel implements Serializable {
         this.realmCountryPlanningUnit = realmCountryPlanningUnit;
     }
 
-    public SimpleObject getPlanningUnit() {
+    public SimplePlanningUnitObject getPlanningUnit() {
         return planningUnit;
     }
 
-    public void setPlanningUnit(SimpleObject planningUnit) {
+    public void setPlanningUnit(SimplePlanningUnitObject planningUnit) {
         this.planningUnit = planningUnit;
     }
 
@@ -144,22 +140,6 @@ public class Inventory extends BaseModel implements Serializable {
         this.dataSource = dataSource;
     }
 
-    public String getBatchNo() {
-        return batchNo;
-    }
-
-    public void setBatchNo(String batchNo) {
-        this.batchNo = batchNo;
-    }
-
-    public Date getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-
     public String getNotes() {
         return notes;
     }
@@ -178,7 +158,7 @@ public class Inventory extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "Inventory{" + "inventoryId=" + inventoryId + ", inventoryDate=" + inventoryDate + ", region=" + region.getId() + ", realmCountryPlanningUnit=" + realmCountryPlanningUnit.getId() + ", actualQty=" + actualQty + ", adjustmentQty=" + adjustmentQty + ", dataSource=" + dataSource.getId() + ", batchNo=" + batchNo + ", expiryDate=" + expiryDate + ", versionId=" + versionId + '}';
+        return "Inventory{" + "inventoryId=" + inventoryId + ", inventoryDate=" + inventoryDate + ", region=" + region.getId() + ", realmCountryPlanningUnit=" + realmCountryPlanningUnit.getId() + ", actualQty=" + actualQty + ", adjustmentQty=" + adjustmentQty + ", dataSource=" + dataSource.getId() + ", versionId=" + versionId + '}';
     }
 
 }

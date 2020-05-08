@@ -6,7 +6,9 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.Consumption;
+import cc.altius.FASP.model.SimpleForecastingUnitObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -15,16 +17,21 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author akil
  */
-public class ConsumptionRowMapper implements  RowMapper<Consumption>{
+public class ConsumptionRowMapper implements RowMapper<Consumption> {
 
     @Override
     public Consumption mapRow(ResultSet rs, int i) throws SQLException {
         Consumption c = new Consumption(
                 rs.getInt("CONSUMPTION_ID"),
                 new SimpleObject(rs.getInt("REGION_ID"), new LabelRowMapper("REGION_").mapRow(rs, i)),
-                new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)),
-                rs.getDate("START_DATE"),
-                rs.getDate("STOP_DATE"),
+                new SimplePlanningUnitObject(
+                        rs.getInt("PLANNING_UNIT_ID"),
+                        new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i),
+                        new SimpleForecastingUnitObject(
+                                rs.getInt("FORECASTING_UNIT_ID"),
+                                new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, i),
+                                new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, i)))),
+                rs.getDate("CONSUMPTION_DATE"),
                 rs.getBoolean("ACTUAL_FLAG"),
                 rs.getDouble("CONSUMPTION_QTY"),
                 rs.getInt("DAYS_OF_STOCK_OUT"),
@@ -35,5 +42,5 @@ public class ConsumptionRowMapper implements  RowMapper<Consumption>{
         c.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return c;
     }
-    
+
 }
