@@ -51,8 +51,6 @@ public class InventoryRowMapper implements RowMapper<Inventory> {
         } else {
             inv.setActualQty(actualQty);
         }
-        inv.setBatchNo(rs.getString("BATCH_NO"));
-        inv.setExpiryDate(rs.getDate("EXPIRY_DATE"));
         inv.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return inv;
     }

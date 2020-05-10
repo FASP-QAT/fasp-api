@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -147,6 +149,17 @@ public class ProgramServiceImpl implements ProgramService {
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    @Transactional
+    public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) {
+        int programId = this.programDao.addProgram(program, curUser);
+        for (ProgramPlanningUnit ppu : program.getProgramPlanningUnits()) {
+            ppu.getProgram().setId(programId);
+        }
+        this.programDao.saveProgramPlanningUnit(program.getProgramPlanningUnits(), curUser);
+        return programId;
     }
 
 

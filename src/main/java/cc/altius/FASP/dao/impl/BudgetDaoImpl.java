@@ -78,6 +78,7 @@ public class BudgetDaoImpl implements BudgetDao {
         int labelId = this.labelDao.addLabel(b.getLabel(), curUser.getUserId());
         params.put("BUDGET_AMT", b.getBudgetAmt());
         params.put("CURRENCY_ID", b.getCurrency().getCurrencyId());
+        params.put("CONVERSION_RATE_TO_USD",b.getCurrency().getConversionRateToUsd());
         params.put("START_DATE", b.getStartDate());
         params.put("STOP_DATE", b.getStopDate());
         params.put("NOTES", b.getNotes());
@@ -102,6 +103,7 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         params.put("labelEn", b.getLabel().getLabel_en());
+        params.put("notes",b.getNotes());
         return this.namedParameterJdbcTemplate.update("UPDATE rm_budget b "
                 + "LEFT JOIN ap_label bl ON b.LABEL_ID=bl.LABEL_ID SET "
                 + "bl.`LABEL_EN`=:labelEn, "
