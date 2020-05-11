@@ -35,15 +35,14 @@ public class ReportDaoImpl implements ReportDao {
         Map<String, Object> params = new HashMap<>();
 
         String sql = "	SELECT \n"
-                + "		DATE_FORMAT(cons.`START_DATE`,'%m-%Y') consumption_date,SUM(IF(cons.`ACTUAL_FLAG`=1,cons.`CONSUMPTION_QTY`,0)) Actual,SUM(IF(cons.`ACTUAL_FLAG`=0,cons.`CONSUMPTION_QTY`,0)) forcast	FROM  rm_consumption cons \n"
-                + "	LEFT JOIN rm_program p ON cons.PROGRAM_ID=p.PROGRAM_ID\n"
+                + "		DATE_FORMAT(cons.`CONSUMPTION_DATE`,'%m-%Y') consumption_date,SUM(IF(cons.`ACTUAL_FLAG`=1,cons.`CONSUMPTION_QTY`,0)) Actual,SUM(IF(cons.`ACTUAL_FLAG`=0,cons.`CONSUMPTION_QTY`,0)) forcast	FROM  rm_consumption_trans cons \n"
+                   + "	LEFT JOIN rm_consumption con  ON con.CONSUMPTION_ID=cons.CONSUMPTION_ID\n"
+                + "	LEFT JOIN rm_program p ON con.PROGRAM_ID=p.PROGRAM_ID\n"
                 + "	LEFT JOIN rm_realm_country rc ON rc.`REALM_COUNTRY_ID`=p.`REALM_COUNTRY_ID`\n"
                 + "	LEFT JOIN rm_region r ON cons.REGION_ID=r.REGION_ID\n"
                 + "	LEFT JOIN rm_planning_unit pu ON cons.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID\n"
                 + "	LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`\n"
                 + "	LEFT JOIN rm_data_source ds ON cons.DATA_SOURCE_ID=ds.DATA_SOURCE_ID\n"
-                + "	LEFT JOIN us_user cb ON cons.CREATED_BY=cb.USER_ID\n"
-                + "	LEFT JOIN us_user lmb ON cons.LAST_MODIFIED_BY=lmb.USER_ID\n"
                 + "	WHERE rc.`REALM_ID`=:realmId\n";
         params.put("realmId", realmId);
         if (programId > 1) {
@@ -54,15 +53,15 @@ public class ReportDaoImpl implements ReportDao {
             sql += "	AND pu.`PLANNING_UNIT_ID`=:planningUnitId";
             params.put("planningUnitId", planningUnitId);
        // }
-        sql += " And cons.`START_DATE`between :startDate and :endDate	GROUP BY DATE_FORMAT(cons.`START_DATE`,'%m-%Y') \n"
-                + "    ORDER BY DATE_FORMAT(cons.`START_DATE`,'%Y-%m')";
+        sql += " And cons.`CONSUMPTION_DATE`between :startDate and :endDate	GROUP BY DATE_FORMAT(cons.`CONSUMPTION_DATE`,'%m-%Y') \n"
+                + "    ORDER BY DATE_FORMAT(cons.`CONSUMPTION_DATE`,'%Y-%m')";
          params.put("startDate", startDate);
           params.put("endDate", endDate);
         return this.namedParameterJdbcTemplate.queryForList(sql, params);
     }
 
     @Override
-    public List<Map<String, Object>> getStockStatusMatrix(int realmId, int productcategoryId, int planningUnitId, int view,String startDate,String endDate) {
+    public List<Map<String, Object>> getStockStatusMatrix(int realmId, int programId, int planningUnitId, int view,String startDate,String endDate) {
         StringBuilder sb = new StringBuilder();
         Map<String, Object> params = new HashMap<>();
            params.put("realmId", realmId);
@@ -86,8 +85,10 @@ public class ReportDaoImpl implements ReportDao {
                     + "(SELECT SUM(i.`ACTUAL_QTY`)  qty, MONTH(i.`INVENTORY_DATE`) MONTH,YEAR(i.`INVENTORY_DATE`) YEAR,irpu_label.`LABEL_EN` AS PLANNING_UNIT_LABEL_EN\n"
                     + "                                ,irpu_label.`LABEL_FR` AS PLANNING_UNIT_LABEL_FR,irpu_label.`LABEL_PR` AS PLANNING_UNIT_LABEL_PR\n"
                     + "                                ,irpu_label.`LABEL_SP` AS PLANNING_UNIT_LABEL_SP,pu.`PLANNING_UNIT_ID` AS `PLANNING_UNIT_ID`\n"
-                    + "FROM rm_inventory i LEFT JOIN rm_realm_country_planning_unit rcpu ON rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=i.REALM_COUNTRY_PLANNING_UNIT_ID\n"
-                       + "	LEFT JOIN rm_realm_country rc ON rcpu.`REALM_COUNTRY_ID`=rcpu.`REALM_COUNTRY_ID`\n"
+                    + "FROM rm_inventory_trans i LEFT JOIN rm_realm_country_planning_unit rcpu ON rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=i.REALM_COUNTRY_PLANNING_UNIT_ID\n"
+                       + "	LEFT JOIN rm_inventory inv  ON inv.INVENTORY_ID=i.INVENTORY_ID\n"   
+                        + "	LEFT JOIN rm_program p ON inv.PROGRAM_ID=p.PROGRAM_ID\n"
+                    + "	LEFT JOIN rm_realm_country rc ON rcpu.`REALM_COUNTRY_ID`=rcpu.`REALM_COUNTRY_ID`\n"
                     + "LEFT JOIN rm_planning_unit pu ON pu.PLANNING_UNIT_ID=rcpu.PLANNING_UNIT_ID\n"
                     + "	LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`\n"
                     + " LEFT JOIN ap_label irpu_label ON irpu_label.`LABEL_ID`=pu.`LABEL_ID` where rc.REALM_ID=:realmId ");
@@ -95,10 +96,10 @@ public class ReportDaoImpl implements ReportDao {
                 sb.append(" and pu.PLANNING_UNIT_ID=:planningUnitId ");
                  params.put("planningUnitId", planningUnitId);
             //}
-            if (productcategoryId > 1) {
-                sb.append(" and fu.PRODUCT_CATEGORY_ID=:productcategoryId ");
-                 params.put("productcategoryId", productcategoryId);
-            }
+           
+                sb.append(" and p.PROGRAM_ID=:programId ");
+                 params.put("programId", programId);
+          
 
             sb.append(" And i.`INVENTORY_DATE`between :startDate and :endDate GROUP BY MONTH(i.`INVENTORY_DATE`),YEAR(i.`INVENTORY_DATE`),pu.`PLANNING_UNIT_ID` )a GROUP BY a.year,a.PLANNING_UNIT_ID;");
         } else {
@@ -113,19 +114,21 @@ public class ReportDaoImpl implements ReportDao {
                     + "(SELECT SUM(i.`ACTUAL_QTY`) SUM, QUARTER(i.`INVENTORY_DATE`) QUARTER,YEAR(i.`INVENTORY_DATE`) YEAR,irpu_label.`LABEL_EN` AS PLANNING_UNIT_LABEL_EN\n"
                     + "                                ,irpu_label.`LABEL_FR` AS PLANNING_UNIT_LABEL_FR,irpu_label.`LABEL_PR` AS PLANNING_UNIT_LABEL_PR\n"
                     + "                                ,irpu_label.`LABEL_SP` AS PLANNING_UNIT_LABEL_SP,pu.`PLANNING_UNIT_ID` AS `PLANNING_UNIT_ID`\n"
-                    + "FROM rm_inventory i LEFT JOIN rm_realm_country_planning_unit rcpu ON rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=i.REALM_COUNTRY_PLANNING_UNIT_ID\n"
-                     + "	LEFT JOIN rm_realm_country rc ON rcpu.`REALM_COUNTRY_ID`=rcpu.`REALM_COUNTRY_ID`\n"
+                    + "FROM rm_inventory_trans i LEFT JOIN rm_realm_country_planning_unit rcpu ON rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=i.REALM_COUNTRY_PLANNING_UNIT_ID\n"
+                      + "	LEFT JOIN rm_inventory inv  ON inv.INVENTORY_ID=i.INVENTORY_ID\n"   
+                        + "	LEFT JOIN rm_program p ON inv.PROGRAM_ID=p.PROGRAM_ID \n"
+                  + "	LEFT JOIN rm_realm_country rc ON rcpu.`REALM_COUNTRY_ID`=rcpu.`REALM_COUNTRY_ID`\n"
                    + "LEFT JOIN rm_planning_unit pu ON pu.PLANNING_UNIT_ID=rcpu.PLANNING_UNIT_ID\n"
                     + "	LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`\n"
                     + " LEFT JOIN ap_label irpu_label ON irpu_label.`LABEL_ID`=pu.`LABEL_ID`  where rc.REALM_ID=:realmId ");
-            if (planningUnitId > 0) {
+          //  if (planningUnitId > 0) {
                 sb.append(" and pu.PLANNING_UNIT_ID=:planningUnitId ");
                  params.put("planningUnitId", planningUnitId);
-            }
-            if (productcategoryId > 1) {
-                sb.append(" and fu.PRODUCT_CATEGORY_ID=:productcategoryId ");
-                 params.put("productcategoryId", productcategoryId);
-            }
+            //}
+         
+                sb.append(" and p.PROGRAM_ID=:programId ");
+                 params.put("programId", programId);
+         
 
             sb.append(" And i.`INVENTORY_DATE`between :startDate and :endDate GROUP BY QUARTER(i.`INVENTORY_DATE`),YEAR(i.`INVENTORY_DATE`),pu.`PLANNING_UNIT_ID` )a GROUP BY a.year,a.PLANNING_UNIT_ID");
         }
