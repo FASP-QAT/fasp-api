@@ -17,7 +17,7 @@ public class ProcurementAgent extends BaseModel implements Serializable {
     private SimpleCodeObject realm;
     private Label label;
     private String procurementAgentCode;
-    private int submittedToApprovedLeadTime;
+    private double submittedToApprovedLeadTime;
 
     public ProcurementAgent() {
     }
@@ -28,7 +28,7 @@ public class ProcurementAgent extends BaseModel implements Serializable {
         this.procurementAgentCode = procurementAgentCode;
     }
 
-    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, Label label, String procurementAgentCode, int submittedToApprovedLeadTime) {
+    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, Label label, String procurementAgentCode, double submittedToApprovedLeadTime) {
         this.procurementAgentId = procurementAgentId;
         this.realm = realm;
         this.label = label;
@@ -68,11 +68,11 @@ public class ProcurementAgent extends BaseModel implements Serializable {
         this.procurementAgentCode = procurementAgentCode;
     }
 
-    public int getSubmittedToApprovedLeadTime() {
+    public double getSubmittedToApprovedLeadTime() {
         return submittedToApprovedLeadTime;
     }
 
-    public void setSubmittedToApprovedLeadTime(int submittedToApprovedLeadTime) {
+    public void setSubmittedToApprovedLeadTime(double submittedToApprovedLeadTime) {
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
     }
 

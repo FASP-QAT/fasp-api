@@ -18,13 +18,13 @@ public class ProcurementAgentProcurementUnit extends BaseModel implements Serial
     private SimpleObject procurementUnit;
     private String skuCode;
     private Double vendorPrice;
-    private Integer approvedToShippedLeadTime;
+    private Double approvedToShippedLeadTime;
     private String gtin;
 
     public ProcurementAgentProcurementUnit() {
     }
 
-    public ProcurementAgentProcurementUnit(int procurementAgentProcurementUnitId, SimpleObject procurementAgent, SimpleObject procurementUnit, String skuCode, Double vendorPrice, Integer approvedToShippedLeadTime, String gtin) {
+    public ProcurementAgentProcurementUnit(int procurementAgentProcurementUnitId, SimpleObject procurementAgent, SimpleObject procurementUnit, String skuCode, Double vendorPrice, Double approvedToShippedLeadTime, String gtin) {
         this.procurementAgentProcurementUnitId = procurementAgentProcurementUnitId;
         this.procurementAgent = procurementAgent;
         this.procurementUnit = procurementUnit;
@@ -74,11 +74,11 @@ public class ProcurementAgentProcurementUnit extends BaseModel implements Serial
         this.vendorPrice = vendorPrice;
     }
 
-    public Integer getApprovedToShippedLeadTime() {
+    public Double getApprovedToShippedLeadTime() {
         return approvedToShippedLeadTime;
     }
 
-    public void setApprovedToShippedLeadTime(Integer approvedToShippedLeadTime) {
+    public void setApprovedToShippedLeadTime(Double approvedToShippedLeadTime) {
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
     }
 

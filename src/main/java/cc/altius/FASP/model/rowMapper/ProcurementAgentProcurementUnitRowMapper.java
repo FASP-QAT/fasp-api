@@ -25,7 +25,7 @@ public class ProcurementAgentProcurementUnitRowMapper implements RowMapper<Procu
                 new SimpleObject(rs.getInt("PROCUREMENT_UNIT_ID"), new LabelRowMapper("PROCUREMENT_UNIT_").mapRow(rs, rowNum)),
                 rs.getString("SKU_CODE"),
                 rs.getDouble("VENDOR_PRICE"),
-                rs.getInt("APPROVED_TO_SHIPPED_LEAD_TIME"),
+                rs.getDouble("APPROVED_TO_SHIPPED_LEAD_TIME"),
                 rs.getString("GTIN"));
         papu.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return papu;

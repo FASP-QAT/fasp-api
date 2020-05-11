@@ -37,11 +37,11 @@ public class ReportController {
 
     }
     
-     @RequestMapping(value = "/stockmatrix/{realmId}/{productCategoryId}/{planningUnitId}/{view}/{startDate}/{endDate}")
-    public ResponseEntity getStockStatusMatrix(@PathVariable("realmId") int realmId,@PathVariable("productCategoryId") int productcategoryId,@PathVariable("planningUnitId") int planningUnitId,@PathVariable("view") int view,@PathVariable("startDate") String startDate,@PathVariable("endDate") String endDate,Authentication auth)  {
+     @RequestMapping(value = "/stockmatrix/{realmId}/{programId}/{planningUnitId}/{view}/{startDate}/{endDate}")
+    public ResponseEntity getStockStatusMatrix(@PathVariable("realmId") int realmId,@PathVariable("programId") int programId,@PathVariable("planningUnitId") int planningUnitId,@PathVariable("view") int view,@PathVariable("startDate") String startDate,@PathVariable("endDate") String endDate,Authentication auth)  {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.reportService.getStockStatusMatrix(realmId,productcategoryId,planningUnitId,view,startDate,endDate), HttpStatus.OK);
+            return new ResponseEntity(this.reportService.getStockStatusMatrix(realmId,programId,planningUnitId,view,startDate,endDate), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
