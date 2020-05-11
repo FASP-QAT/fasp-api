@@ -21,9 +21,6 @@ public class RealmRowMapper implements RowMapper<Realm> {
         Realm r = new Realm();
         r.setRealmId(rs.getInt("REALM_ID"));
         r.setRealmCode(rs.getString("REALM_CODE"));
-        r.setMonthInPastForAmc(rs.getInt("MONTHS_IN_PAST_FOR_AMC"));
-        r.setMonthInFutureForAmc(rs.getInt("MONTHS_IN_FUTURE_FOR_AMC"));
-        r.setOrderFrequency(rs.getInt("ORDER_FREQUENCY"));
         r.setDefaultRealm(rs.getBoolean("DEFAULT_REALM"));
         r.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
         r.setLabel(new LabelRowMapper().mapRow(rs, i));

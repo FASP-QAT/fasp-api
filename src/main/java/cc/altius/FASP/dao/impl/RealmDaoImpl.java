@@ -44,7 +44,7 @@ public class RealmDaoImpl implements RealmDao {
     @Autowired
     private AclService aclService;
 
-    private final String sqlListString = "SELECT r.REALM_ID, r.REALM_CODE, r.MONTHS_IN_PAST_FOR_AMC, r.MONTHS_IN_FUTURE_FOR_AMC, r.ORDER_FREQUENCY, r.DEFAULT_REALM, "
+    private final String sqlListString = "SELECT r.REALM_ID, r.REALM_CODE, r.DEFAULT_REALM, "
             + " rl.`LABEL_ID` ,rl.`LABEL_EN`, rl.`LABEL_FR`, rl.`LABEL_PR`, rl.`LABEL_SP`,"
             + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, r.ACTIVE, r.CREATED_DATE, r.LAST_MODIFIED_DATE "
             + " FROM rm_realm r "
@@ -62,9 +62,6 @@ public class RealmDaoImpl implements RealmDao {
         params.put("REALM_CODE", r.getRealmCode());
         int labelId = this.labelDao.addLabel(r.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
-        params.put("MONTHS_IN_PAST_FOR_AMC", r.getMonthInPastForAmc());
-        params.put("MONTHS_IN_FUTURE_FOR_AMC", r.getMonthInFutureForAmc());
-        params.put("ORDER_FREQUENCY", r.getOrderFrequency());
         params.put("DEFAULT_REALM", r.isDefaultRealm());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
@@ -88,31 +85,19 @@ public class RealmDaoImpl implements RealmDao {
         params.put("realmId", r.getRealmId());
         params.put("labelEn", r.getLabel().getLabel_en());
         params.put("realmCode", r.getRealmCode());
-        params.put("monthInPastForAmc", r.getMonthInPastForAmc());
-        params.put("monthInFutureForAmc", r.getMonthInFutureForAmc());
-        params.put("orgerFrequency", r.getOrderFrequency());
         params.put("default", r.isDefaultRealm());
         params.put("active", r.isActive());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         int rows = this.namedParameterJdbcTemplate.update("UPDATE rm_realm r LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID SET "
                 + "r.REALM_CODE=:realmCode, "
-                + "r.MONTHS_IN_PAST_FOR_AMC=:monthInPastForAmc, "
-                + "r.MONTHS_IN_FUTURE_FOR_AMC=:monthInFutureForAmc, "
-                + "r.ORDER_FREQUENCY=:orgerFrequency, "
                 + "r.DEFAULT_REALM=:default,"
                 + "r.ACTIVE=:active, "
                 + "r.LAST_MODIFIED_BY=IF("
                 + "     r.REALM_CODE!=:realmCode OR "
-                + "     r.MONTHS_IN_PAST_FOR_AMC=:monthInPastForAmc OR "
-                + "     r.MONTHS_IN_FUTURE_FOR_AMC=:monthInFutureForAmc OR "
-                + "     r.ORDER_FREQUENCY=:orgerFrequency OR "
                 + "     r.ACTIVE=:active, :curUser, r.LAST_MODIFIED_BY), "
                 + "r.LAST_MODIFIED_DATE=IF("
                 + "     r.REALM_CODE!=:realmCode OR "
-                + "     r.MONTHS_IN_PAST_FOR_AMC=:monthInPastForAmc OR "
-                + "     r.MONTHS_IN_FUTURE_FOR_AMC=:monthInFutureForAmc OR "
-                + "     r.ORDER_FREQUENCY=:orgerFrequency OR "
                 + "     r.ACTIVE=:active, :curDate, r.LAST_MODIFIED_DATE), "
                 + "rl.LABEL_EN=:labelEn, "
                 + "rl.LAST_MODIFIED_BY=IF(rl.LABEL_EN!=:labelEn, :curUser, rl.LAST_MODIFIED_BY), "
