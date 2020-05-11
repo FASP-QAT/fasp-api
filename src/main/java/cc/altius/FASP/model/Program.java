@@ -24,11 +24,11 @@ public class Program extends BaseModel implements Serializable {
     private String programNotes;
     private double airFreightPerc;
     private double seaFreightPerc;
-    private int plannedToDraftLeadTime;
-    private int draftToSubmittedLeadTime;
-    private int submittedToApprovedLeadTime;
-    private int approvedToShippedLeadTime;
-    private int deliveredToReceivedLeadTime;
+    private double plannedToDraftLeadTime;
+    private double draftToSubmittedLeadTime;
+    private double submittedToApprovedLeadTime;
+    private double approvedToShippedLeadTime;
+    private double deliveredToReceivedLeadTime;
     private int monthsInPastForAmc;
     private int monthsInFutureForAmc;
     @JsonIgnore
@@ -117,43 +117,43 @@ public class Program extends BaseModel implements Serializable {
         this.seaFreightPerc = seaFreightPerc;
     }
 
-    public int getPlannedToDraftLeadTime() {
+    public double getPlannedToDraftLeadTime() {
         return plannedToDraftLeadTime;
     }
 
-    public void setPlannedToDraftLeadTime(int plannedToDraftLeadTime) {
+    public void setPlannedToDraftLeadTime(double plannedToDraftLeadTime) {
         this.plannedToDraftLeadTime = plannedToDraftLeadTime;
     }
 
-    public int getDraftToSubmittedLeadTime() {
+    public double getDraftToSubmittedLeadTime() {
         return draftToSubmittedLeadTime;
     }
 
-    public void setDraftToSubmittedLeadTime(int draftToSubmittedLeadTime) {
+    public void setDraftToSubmittedLeadTime(double draftToSubmittedLeadTime) {
         this.draftToSubmittedLeadTime = draftToSubmittedLeadTime;
     }
 
-    public int getSubmittedToApprovedLeadTime() {
+    public double getSubmittedToApprovedLeadTime() {
         return submittedToApprovedLeadTime;
     }
 
-    public void setSubmittedToApprovedLeadTime(int submittedToApprovedLeadTime) {
+    public void setSubmittedToApprovedLeadTime(double submittedToApprovedLeadTime) {
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
     }
 
-    public int getApprovedToShippedLeadTime() {
+    public double getApprovedToShippedLeadTime() {
         return approvedToShippedLeadTime;
     }
 
-    public void setApprovedToShippedLeadTime(int approvedToShippedLeadTime) {
+    public void setApprovedToShippedLeadTime(double approvedToShippedLeadTime) {
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
     }
 
-    public int getDeliveredToReceivedLeadTime() {
+    public double getDeliveredToReceivedLeadTime() {
         return deliveredToReceivedLeadTime;
     }
 
-    public void setDeliveredToReceivedLeadTime(int deliveredToReceivedLeadTime) {
+    public void setDeliveredToReceivedLeadTime(double deliveredToReceivedLeadTime) {
         this.deliveredToReceivedLeadTime = deliveredToReceivedLeadTime;
     }
 

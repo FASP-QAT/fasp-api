@@ -6,7 +6,6 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.ProcurementAgent;
-import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleCodeObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,7 +25,7 @@ public class ProcurementAgentRowMapper implements RowMapper<ProcurementAgent> {
                 new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, rowNum), rs.getString("REALM_CODE")),
                 new LabelRowMapper().mapRow(rs, rowNum),
                 rs.getString("PROCUREMENT_AGENT_CODE"),
-                rs.getInt("SUBMITTED_TO_APPROVED_LEAD_TIME")
+                rs.getDouble("SUBMITTED_TO_APPROVED_LEAD_TIME")
         );
         pa.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return pa;
