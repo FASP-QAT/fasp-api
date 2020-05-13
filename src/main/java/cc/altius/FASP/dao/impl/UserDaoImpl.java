@@ -31,6 +31,7 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -57,6 +58,9 @@ public class UserDaoImpl implements UserDao {
 
     @Autowired
     private LabelDao labelDao;
+    
+    @Value("${syncExpiresOn}")
+    private int syncExpiresOn;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -283,7 +287,7 @@ public class UserDaoImpl implements UserDao {
         map.put("EXPIRED", false);
         map.put("FAILED_ATTEMPTS", 0);
         map.put("EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
-        map.put("SYNC_EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, 10));
+        map.put("SYNC_EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, syncExpiresOn));
         map.put("LAST_LOGIN_DATE", null);
         map.put("CREATED_BY", curUser);
         map.put("CREATED_DATE", curDate);
