@@ -811,4 +811,12 @@ public class UserDaoImpl implements UserDao {
         return row;
     }
 
+    @Override
+    public int updateSuncExpiresOn(String username) {
+         Map<String, Object> params = new HashMap<>();
+        params.put("username", username);
+        params.put("syncexpiresOn", DateUtils.getCurrentDateObject(DateUtils.EST));
+        return this.namedParameterJdbcTemplate.update("update us_user u set u.SYNC_EXPIRES_ON=:syncexpiresOn where u.USERNAME=:username;", params); 
+    }
+
 }

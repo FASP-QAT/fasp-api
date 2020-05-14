@@ -312,6 +312,7 @@ public class UserRestController {
                     userDetails.setSessionExpiresOn(sessionExpiryTime);
                     userDetails.setPassword(hashPass);
                     final String token = jwtTokenUtil.generateToken(userDetails);
+                    this.userService.updateSuncExpiresOn(password.getUsername());
                     return ResponseEntity.ok(new JwtTokenResponse(token));
                 } else {
                     return new ResponseEntity(new ResponseCode("static.message.failedPasswordUpdate"), HttpStatus.PRECONDITION_FAILED);

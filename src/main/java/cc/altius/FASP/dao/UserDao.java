@@ -21,7 +21,7 @@ import java.util.Map;
 public interface UserDao {
 
     public CustomUserDetails getCustomUserByUsername(String username);
-    
+
     public CustomUserDetails getCustomUserByEmailId(String emailId);
 
     public Map<String, Object> checkIfUserExists(String username, String password);
@@ -75,4 +75,6 @@ public interface UserDao {
     public void addTokenToLogout(String token);
 
     public int mapAccessControls(User user, CustomUserDetails curUser);
+
+    public int updateSuncExpiresOn(String username);
 }
