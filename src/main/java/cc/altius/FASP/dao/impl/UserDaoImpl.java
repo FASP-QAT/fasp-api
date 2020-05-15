@@ -31,6 +31,7 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -57,6 +58,9 @@ public class UserDaoImpl implements UserDao {
 
     @Autowired
     private LabelDao labelDao;
+    
+    @Value("${syncExpiresOn}")
+    private int syncExpiresOn;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -75,7 +79,7 @@ public class UserDaoImpl implements UserDao {
     public CustomUserDetails getCustomUserByUsername(String username) {
         logger.info("Inside the getCustomerUserByUsername method - " + username);
         String sqlString = "SELECT "
-                + "      `user`.`USER_ID`, `user`.`USERNAME`, `user`.`PASSWORD`, "
+                + "      `user`.`USER_ID`, `user`.`USERNAME`, `user`.`PASSWORD`,`user`.`SYNC_EXPIRES_ON`, "
                 + "      `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, "
                 + "      realm.`REALM_ID`, realm.`REALM_CODE`, realm_lb.`LABEL_ID` `REALM_LABEL_ID`, realm_lb.`LABEL_EN` `REALM_LABEL_EN`, realm_lb.`LABEL_FR` `REALM_LABEL_FR`, realm_lb.`LABEL_SP` `REALM_LABEL_SP`, realm_lb.`LABEL_PR` `REALM_LABEL_PR`, "
                 + "      lang.`LANGUAGE_ID`, lang.`LANGUAGE_NAME`, lang.`LANGUAGE_CODE`, "
@@ -126,7 +130,7 @@ public class UserDaoImpl implements UserDao {
     public CustomUserDetails getCustomUserByEmailId(String emailId) {
         logger.info("Inside the getCustomUserByEmailId method - " + emailId);
         String sqlString = "SELECT "
-                + "      `user`.`USER_ID`, `user`.`USERNAME`, `user`.`PASSWORD`, "
+                + "      `user`.`USER_ID`, `user`.`USERNAME`, `user`.`PASSWORD`,`user`.`SYNC_EXPIRES_ON`, "
                 + "      `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, "
                 + "      realm.`REALM_ID`, realm.`REALM_CODE`, realm_lb.`LABEL_ID` `REALM_LABEL_ID`, realm_lb.`LABEL_EN` `REALM_LABEL_EN`, realm_lb.`LABEL_FR` `REALM_LABEL_FR`, realm_lb.`LABEL_SP` `REALM_LABEL_SP`, realm_lb.`LABEL_PR` `REALM_LABEL_PR`, "
                 + "      lang.`LANGUAGE_ID`, lang.`LANGUAGE_NAME`, lang.`LANGUAGE_CODE`, "
@@ -283,7 +287,7 @@ public class UserDaoImpl implements UserDao {
         map.put("EXPIRED", false);
         map.put("FAILED_ATTEMPTS", 0);
         map.put("EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
-        map.put("SYNC_EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
+        map.put("SYNC_EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, syncExpiresOn));
         map.put("LAST_LOGIN_DATE", null);
         map.put("CREATED_BY", curUser);
         map.put("CREATED_DATE", curDate);
@@ -805,6 +809,14 @@ public class UserDaoImpl implements UserDao {
             row = this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray).length;
         }
         return row;
+    }
+
+    @Override
+    public int updateSuncExpiresOn(String username) {
+         Map<String, Object> params = new HashMap<>();
+        params.put("username", username);
+        params.put("syncexpiresOn", DateUtils.getCurrentDateObject(DateUtils.EST));
+        return this.namedParameterJdbcTemplate.update("update us_user u set u.SYNC_EXPIRES_ON=:syncexpiresOn where u.USERNAME=:username;", params); 
     }
 
 }

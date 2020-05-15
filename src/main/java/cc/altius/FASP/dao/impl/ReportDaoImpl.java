@@ -57,6 +57,7 @@ public class ReportDaoImpl implements ReportDao {
                 + "    ORDER BY DATE_FORMAT(cons.`CONSUMPTION_DATE`,'%Y-%m')";
          params.put("startDate", startDate);
           params.put("endDate", endDate);
+            params.put("planningUnitId", planningUnitId);
         return this.namedParameterJdbcTemplate.queryForList(sql, params);
     }
 

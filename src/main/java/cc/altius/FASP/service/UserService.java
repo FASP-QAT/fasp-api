@@ -71,4 +71,6 @@ public interface UserService {
 
     public int mapAccessControls(User user, CustomUserDetails curUser);
 
+    public int updateSuncExpiresOn(String username);
+
 }
