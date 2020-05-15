@@ -8,13 +8,8 @@ package cc.altius.FASP.model.rowMapper;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.ProcurementUnit;
-import cc.altius.FASP.model.ProductCategory;
-import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.Supplier;
-import cc.altius.FASP.model.TracerCategory;
-import cc.altius.FASP.model.Unit;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -39,6 +34,7 @@ public class ProcurementUnitRowMapper implements RowMapper<ProcurementUnit> {
                         new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, rowNum)),
                         new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TRACER_CATEGORY_").mapRow(rs, rowNum))
                     ),
+                    rs.getString("SKU_CODE"),
                     new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, rowNum),
                     new SimpleObject(rs.getInt("PLANNING_UNIT_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_UNIT_").mapRow(rs, rowNum)),
                     rs.getDouble("PLANNING_UNIT_MULTIPLIER")
