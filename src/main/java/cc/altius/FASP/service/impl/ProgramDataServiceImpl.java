@@ -43,6 +43,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 //        }
         pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId));
         pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId));
+        pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId));
         return pd;
     }
 

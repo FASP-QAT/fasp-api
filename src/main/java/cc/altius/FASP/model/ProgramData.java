@@ -35,6 +35,7 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<Version> versionList;
     private List<Consumption> consumptionList;
     private List<Inventory> inventoryList;
+    private List<Shipment> shipmentList;
     private int requestedProgramVersion;
 
     public int getRequestedProgramVersion() {
@@ -227,6 +228,14 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setInventoryList(List<Inventory> inventoryList) {
         this.inventoryList = inventoryList;
+    }
+
+    public List<Shipment> getShipmentList() {
+        return shipmentList;
+    }
+
+    public void setShipmentList(List<Shipment> shipmentList) {
+        this.shipmentList = shipmentList;
     }
 
     @Override
