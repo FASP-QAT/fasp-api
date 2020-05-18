@@ -17,6 +17,7 @@ import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProductCategoryService;
 import cc.altius.utils.TreeUtils.Node;
 import cc.altius.utils.TreeUtils.Tree;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -111,7 +112,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Override
-    public Tree<ExtendedProductCategory> getProductCategoryListForProgram(CustomUserDetails curUser, int programId) {
+    public List<ProductCategory> getProductCategoryListForProgram(CustomUserDetails curUser, int programId) {
         Program r = this.programDao.getProgramById(programId, curUser);
         if (this.aclService.checkProgramAccessForUser(curUser, r.getRealmCountry().getRealm().getRealmId(), programId, r.getHealthArea().getId(), r.getOrganisation().getId())) {
             return this.productCategoryDao.getProductCategoryListForProgram(curUser, programId);

@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.ProductCategoryDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ExtendedProductCategory;
 import cc.altius.FASP.model.ProductCategory;
+import cc.altius.FASP.model.rowMapper.ProductCategoryRowMapper;
 import cc.altius.FASP.model.rowMapper.TreeExtendedProductCategoryResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
@@ -17,6 +18,7 @@ import cc.altius.utils.TreeUtils.Node;
 import cc.altius.utils.TreeUtils.Tree;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,14 +158,15 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
     }
 
     @Override
-    public Tree<ExtendedProductCategory> getProductCategoryListForProgram(CustomUserDetails curUser, int programId) {
+    public List<ProductCategory> getProductCategoryListForProgram(CustomUserDetails curUser, int programId) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         sqlStringBuilder.append(" AND pc.PRODUCT_CATEGORY_ID in (SELECT fu.PRODUCT_CATEGORY_ID FROM rm_program_planning_unit ppu LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID WHERE ppu.PROGRAM_ID=:programId) ");
         params.put("programId", programId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pc", curUser);
         sqlStringBuilder.append(" ORDER BY pc.SORT_ORDER");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor());
+        System.out.println(sqlStringBuilder);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProductCategoryRowMapper());
     }
 
 }
