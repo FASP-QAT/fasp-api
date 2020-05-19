@@ -66,6 +66,7 @@ public class JwtAuthenticationRestController {
             authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
             logger.info("JWT Token generated successfully for Username: " + authenticationRequest.getUsername());
             this.userService.resetFailedAttemptsByUsername(authenticationRequest.getUsername());
+            this.userService.updateSuncExpiresOn(authenticationRequest.getUsername());
         } catch (BadCredentialsException e) {
             this.userService.updateFailedAttemptsByUserId(authenticationRequest.getUsername());
             logger.info("JWT Token generation failed because of BadCredentials for Username: " + authenticationRequest.getUsername());

@@ -12,6 +12,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
+import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.PlanningUnitService;
@@ -39,6 +40,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     private RealmDao realmDao;
     @Autowired
     private AclService aclService;
+    
 
     @Override
     public List<PlanningUnit> getPlanningUnitList(boolean active, CustomUserDetails curUser) {
@@ -154,6 +156,12 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     @Override
     public List<PlanningUnit> getPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.planningUnitDao.getPlanningUnitListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
+    public List<PlanningUnit> getPlanningUnitListForProductCategory(int productCategoryId, boolean active, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListForProductCategory(productCategoryId, active, curUser);
+        
     }
 
 }

@@ -10,6 +10,7 @@ import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.model.Shipment;
 import java.util.List;
 
 /**
@@ -18,24 +19,12 @@ import java.util.List;
  */
 public interface ProgramDataDao {
 
-//    public List<PrgProgramDataDTO> getProgramData(String programId);
-//
-//    public List<PrgProgramProductDTO> getProgramProductListByProgramId(int programId);
-//
-//    public List<PrgInventoryDTO> getInventoryListByProductId(int productId);
-//
-//    public List<PrgConsumptionDTO> getConsumptionListByProductId(int productId);
-//
-//    public List<PrgShipmentDTO> getShipmentListByProductId(int productId);
-//
-//    public List<PrgRegionDTO> getRegionListByProgramId(int programId);
-//
-//    public List<PrgBudgetDTO> getBudgetListByProgramId(int programId);
-    
     public List<Consumption> getConsumptionList(int programId, int versionId);
-    
+
     public List<Inventory> getInventoryList(int programId, int versionId);
     
+    public List<Shipment> getShipmentList(int programId, int versionId);
+
     public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
 }

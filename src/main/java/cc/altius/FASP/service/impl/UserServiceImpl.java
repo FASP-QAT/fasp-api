@@ -163,7 +163,7 @@ public class UserServiceImpl implements UserService {
 //            if (emailTemplateId == 1) {
 //                bodyParam = new String[]{HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
 //            } else if (emailTemplateId == 2) {
-                bodyParam = new String[]{user.getUsername(), HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
+            bodyParam = new String[]{user.getUsername(), HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
 //            }
             Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
@@ -201,6 +201,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public int mapAccessControls(User user, CustomUserDetails curUser) {
         return this.userDao.mapAccessControls(user, curUser);
+    }
+
+    @Override
+    public int updateSuncExpiresOn(String username) {
+        return this.userDao.updateSuncExpiresOn(username);
     }
 
 }

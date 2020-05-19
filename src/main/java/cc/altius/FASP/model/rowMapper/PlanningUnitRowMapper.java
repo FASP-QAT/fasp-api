@@ -7,12 +7,8 @@ package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.PlanningUnit;
-import cc.altius.FASP.model.ProductCategory;
-import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.TracerCategory;
-import cc.altius.FASP.model.Unit;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;

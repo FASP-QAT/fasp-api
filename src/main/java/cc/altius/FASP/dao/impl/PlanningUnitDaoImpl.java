@@ -268,4 +268,19 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new PlanningUnitRowMapper());
     }
 
+    @Override
+    public List<PlanningUnit> getPlanningUnitListForProductCategory(int productCategoryId, boolean active, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        Map<String, Object> params = new HashMap<>();
+         sqlStringBuilder.append(" AND pc.PRODUCT_CATEGORY_ID=:productCategoryId ");
+            params.put("productCategoryId", productCategoryId);
+        if (active) {
+            sqlStringBuilder.append(" AND pu.ACTIVE=:active ");
+            params.put("active", active);
+        }
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new PlanningUnitRowMapper());
+    }
+    
+    
+
 }

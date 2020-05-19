@@ -10,6 +10,7 @@ import cc.altius.FASP.model.ExtendedProductCategory;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.utils.TreeUtils.Node;
 import cc.altius.utils.TreeUtils.Tree;
+import java.util.List;
 
 /**
  *
@@ -24,9 +25,8 @@ public interface ProductCategoryService {
     public Tree<ExtendedProductCategory> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren);
 
 //    public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser);
-
     public Tree<ExtendedProductCategory> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser);
-    
-     public Tree<ExtendedProductCategory> getProductCategoryListForProgram(CustomUserDetails curUser, int programId);
+
+    public List<ProductCategory> getProductCategoryListForProgram(CustomUserDetails curUser, int programId);
 
 }
