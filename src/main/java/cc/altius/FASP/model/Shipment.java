@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -46,9 +48,13 @@ public class Shipment extends BaseModel implements Serializable {
     private SimpleObject dataSource;
     private boolean accountFlag;
     private boolean erpFlag;
+    private String orderNo;
+    private String primeLineNo;
     private int versionId;
+    private List<ShipmentBudget> shipmentBudgetList;
 
     public Shipment() {
+        this.shipmentBudgetList = new LinkedList<>();
     }
 
     public Shipment(int shipmentId, SimplePlanningUnitObject planningUnit, Date expectedDeliveryDate, double suggestedQty, SimpleCodeObject procurementAgent, SimpleObject procurementUnit, SimpleObject supplier, double quantity, double rate, double productCost, String shipmentMode, double freightCost, Date orderedDate, Date shippedDate, Date receivedDate, SimpleObject shipmentStatus, String notes, SimpleObject dataSource, boolean accountFlag, boolean erpFlag, int versionId) {
@@ -81,6 +87,7 @@ public class Shipment extends BaseModel implements Serializable {
         this.accountFlag = accountFlag;
         this.erpFlag = erpFlag;
         this.versionId = versionId;
+        this.shipmentBudgetList = new LinkedList<>();
     }
 
     public int getShipmentId() {
@@ -243,12 +250,61 @@ public class Shipment extends BaseModel implements Serializable {
         this.erpFlag = erpFlag;
     }
 
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public String getPrimeLineNo() {
+        return primeLineNo;
+    }
+
+    public void setPrimeLineNo(String primeLineNo) {
+        this.primeLineNo = primeLineNo;
+    }
+
     public int getVersionId() {
         return versionId;
     }
 
     public void setVersionId(int versionId) {
         this.versionId = versionId;
+    }
+
+    public List<ShipmentBudget> getShipmentBudgetList() {
+        return shipmentBudgetList;
+    }
+
+    public void setShipmentBudgetList(List<ShipmentBudget> shipmentBudgetList) {
+        this.shipmentBudgetList = shipmentBudgetList;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 59 * hash + this.shipmentId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Shipment other = (Shipment) obj;
+        if (this.shipmentId != other.shipmentId) {
+            return false;
+        }
+        return true;
     }
 
 }
