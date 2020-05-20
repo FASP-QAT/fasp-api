@@ -145,6 +145,15 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
     }
 
     @Override
+    public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND pc.PRODUCT_CATEGORY_ID=:productCategoryId ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pc", curUser);
+        params.put("productCategoryId", productCategoryId);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new ProductCategoryRowMapper());
+    }
+
+    @Override
     public List<Node<ExtendedProductCategory>> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND pc.LAST_MODIFIED_DATE>:lastSyncDate ");
         Map<String, Object> params = new HashMap<>();
@@ -166,19 +175,9 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
                 .append(sqlListStringPart3);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         sqlStringBuilder.append(" AND pc.`SORT_ORDER` LIKE CONCAT(:sortOrder, '%') ORDER BY pc.SORT_ORDER");
-        System.out.println(sqlStringBuilder.toString());
         List<Node<ExtendedProductCategory>> pcList = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor()).getTreeFullList();
         pcList.remove(0);
         return pcList;
-//        List<Node<ExtendedProductCategory>> pcList = this.getProductCategoryList(curUser, realmId, 0, false, true);
-//        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
-//        Map<String, Object> params = new HashMap<>();
-//        sqlStringBuilder.append(" AND pc.PRODUCT_CATEGORY_ID in (SELECT fu.PRODUCT_CATEGORY_ID FROM rm_program_planning_unit ppu LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID WHERE ppu.PROGRAM_ID=:programId) ");
-//        params.put("programId", programId);
-//        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pc", curUser);
-//        sqlStringBuilder.append(" ORDER BY pc.SORT_ORDER");
-//        System.out.println(sqlStringBuilder);
-//        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProductCategoryRowMapper());
     }
 
 }

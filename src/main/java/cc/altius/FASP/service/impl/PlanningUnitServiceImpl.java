@@ -7,6 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.dao.PlanningUnitDao;
+import cc.altius.FASP.dao.ProductCategoryDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ForecastingUnit;
@@ -40,6 +41,8 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     private RealmDao realmDao;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private ProductCategoryDao productCategoryDao;
     
 
     @Override
@@ -160,8 +163,8 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
 
     @Override
     public List<PlanningUnit> getPlanningUnitListForProductCategory(int productCategoryId, boolean active, CustomUserDetails curUser) {
-        return this.planningUnitDao.getPlanningUnitListForProductCategory(productCategoryId, active, curUser);
-        
+        ProductCategory pc = this.productCategoryDao.getProductCategoryById(productCategoryId, curUser);
+        return this.planningUnitDao.getPlanningUnitListForProductCategory(pc.getSortOrder(), active, curUser);
     }
 
 }

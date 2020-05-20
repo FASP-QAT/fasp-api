@@ -20,6 +20,8 @@ public interface ProductCategoryDao {
     public int addProductCategory(Node<ProductCategory> productCategory, CustomUserDetails curUser);
 
     public int updateProductCategory(Node<ProductCategory> productCategory, CustomUserDetails curUser);
+    
+    public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser);
 
     public List<Node<ExtendedProductCategory>> getProductCategoryListForRealm(CustomUserDetails curUser, int realmId);
 
