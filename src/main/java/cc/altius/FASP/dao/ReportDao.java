@@ -17,5 +17,5 @@ public interface ReportDao {
     
     public List<Map<String,Object>> getStockStatusMatrix(int realmId, int productcategoryId, int planningUnitId, int view,String startDate,String endDate);
     
-    
+    public List<Map<String, Object>> getForecastMatricsOverTime(String startDate,String stopDate,int realmCountryId,int planningUnitId);
 }

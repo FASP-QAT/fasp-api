@@ -31,12 +31,12 @@ public class ReportDaoImpl implements ReportDao {
     }
 
     @Override
-    public List<Map<String, Object>> getConsumptionData(int realmId, int programId, int planningUnitId,String startDate,String endDate) {
+    public List<Map<String, Object>> getConsumptionData(int realmId, int programId, int planningUnitId, String startDate, String endDate) {
         Map<String, Object> params = new HashMap<>();
 
         String sql = "	SELECT \n"
                 + "		DATE_FORMAT(cons.`CONSUMPTION_DATE`,'%m-%Y') consumption_date,SUM(IF(cons.`ACTUAL_FLAG`=1,cons.`CONSUMPTION_QTY`,0)) Actual,SUM(IF(cons.`ACTUAL_FLAG`=0,cons.`CONSUMPTION_QTY`,0)) forcast	FROM  rm_consumption_trans cons \n"
-                   + "	LEFT JOIN rm_consumption con  ON con.CONSUMPTION_ID=cons.CONSUMPTION_ID\n"
+                + "	LEFT JOIN rm_consumption con  ON con.CONSUMPTION_ID=cons.CONSUMPTION_ID\n"
                 + "	LEFT JOIN rm_program p ON con.PROGRAM_ID=p.PROGRAM_ID\n"
                 + "	LEFT JOIN rm_realm_country rc ON rc.`REALM_COUNTRY_ID`=p.`REALM_COUNTRY_ID`\n"
                 + "	LEFT JOIN rm_region r ON cons.REGION_ID=r.REGION_ID\n"
@@ -49,23 +49,23 @@ public class ReportDaoImpl implements ReportDao {
             sql += "	AND cons.`PROGRAM_ID`=:programId";
             params.put("programId", programId);
         }
-       // if (planningUnitId != 0) {
-            sql += "	AND pu.`PLANNING_UNIT_ID`=:planningUnitId";
-            params.put("planningUnitId", planningUnitId);
-       // }
+        // if (planningUnitId != 0) {
+        sql += "	AND pu.`PLANNING_UNIT_ID`=:planningUnitId";
+        params.put("planningUnitId", planningUnitId);
+        // }
         sql += " And cons.`CONSUMPTION_DATE`between :startDate and :endDate	GROUP BY DATE_FORMAT(cons.`CONSUMPTION_DATE`,'%m-%Y') \n"
                 + "    ORDER BY DATE_FORMAT(cons.`CONSUMPTION_DATE`,'%Y-%m')";
-         params.put("startDate", startDate);
-          params.put("endDate", endDate);
-            params.put("planningUnitId", planningUnitId);
+        params.put("startDate", startDate);
+        params.put("endDate", endDate);
+        params.put("planningUnitId", planningUnitId);
         return this.namedParameterJdbcTemplate.queryForList(sql, params);
     }
 
     @Override
-    public List<Map<String, Object>> getStockStatusMatrix(int realmId, int programId, int planningUnitId, int view,String startDate,String endDate) {
+    public List<Map<String, Object>> getStockStatusMatrix(int realmId, int programId, int planningUnitId, int view, String startDate, String endDate) {
         StringBuilder sb = new StringBuilder();
         Map<String, Object> params = new HashMap<>();
-           params.put("realmId", realmId);
+        params.put("realmId", realmId);
         if (view == 1) {
             sb.append("SELECT a.* ,\n"
                     + "\n"
@@ -87,20 +87,19 @@ public class ReportDaoImpl implements ReportDao {
                     + "                                ,irpu_label.`LABEL_FR` AS PLANNING_UNIT_LABEL_FR,irpu_label.`LABEL_PR` AS PLANNING_UNIT_LABEL_PR\n"
                     + "                                ,irpu_label.`LABEL_SP` AS PLANNING_UNIT_LABEL_SP,pu.`PLANNING_UNIT_ID` AS `PLANNING_UNIT_ID`\n"
                     + "FROM rm_inventory_trans i LEFT JOIN rm_realm_country_planning_unit rcpu ON rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=i.REALM_COUNTRY_PLANNING_UNIT_ID\n"
-                       + "	LEFT JOIN rm_inventory inv  ON inv.INVENTORY_ID=i.INVENTORY_ID\n"   
-                        + "	LEFT JOIN rm_program p ON inv.PROGRAM_ID=p.PROGRAM_ID\n"
+                    + "	LEFT JOIN rm_inventory inv  ON inv.INVENTORY_ID=i.INVENTORY_ID\n"
+                    + "	LEFT JOIN rm_program p ON inv.PROGRAM_ID=p.PROGRAM_ID\n"
                     + "	LEFT JOIN rm_realm_country rc ON rcpu.`REALM_COUNTRY_ID`=rcpu.`REALM_COUNTRY_ID`\n"
                     + "LEFT JOIN rm_planning_unit pu ON pu.PLANNING_UNIT_ID=rcpu.PLANNING_UNIT_ID\n"
                     + "	LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`\n"
                     + " LEFT JOIN ap_label irpu_label ON irpu_label.`LABEL_ID`=pu.`LABEL_ID` where rc.REALM_ID=:realmId ");
-          //  if (planningUnitId > 0) {
-                sb.append(" and pu.PLANNING_UNIT_ID=:planningUnitId ");
-                 params.put("planningUnitId", planningUnitId);
+            //  if (planningUnitId > 0) {
+            sb.append(" and pu.PLANNING_UNIT_ID=:planningUnitId ");
+            params.put("planningUnitId", planningUnitId);
             //}
-           
-                sb.append(" and p.PROGRAM_ID=:programId ");
-                 params.put("programId", programId);
-          
+
+            sb.append(" and p.PROGRAM_ID=:programId ");
+            params.put("programId", programId);
 
             sb.append(" And i.`INVENTORY_DATE`between :startDate and :endDate GROUP BY MONTH(i.`INVENTORY_DATE`),YEAR(i.`INVENTORY_DATE`),pu.`PLANNING_UNIT_ID` )a GROUP BY a.year,a.PLANNING_UNIT_ID;");
         } else {
@@ -116,26 +115,25 @@ public class ReportDaoImpl implements ReportDao {
                     + "                                ,irpu_label.`LABEL_FR` AS PLANNING_UNIT_LABEL_FR,irpu_label.`LABEL_PR` AS PLANNING_UNIT_LABEL_PR\n"
                     + "                                ,irpu_label.`LABEL_SP` AS PLANNING_UNIT_LABEL_SP,pu.`PLANNING_UNIT_ID` AS `PLANNING_UNIT_ID`\n"
                     + "FROM rm_inventory_trans i LEFT JOIN rm_realm_country_planning_unit rcpu ON rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=i.REALM_COUNTRY_PLANNING_UNIT_ID\n"
-                      + "	LEFT JOIN rm_inventory inv  ON inv.INVENTORY_ID=i.INVENTORY_ID\n"   
-                        + "	LEFT JOIN rm_program p ON inv.PROGRAM_ID=p.PROGRAM_ID \n"
-                  + "	LEFT JOIN rm_realm_country rc ON rcpu.`REALM_COUNTRY_ID`=rcpu.`REALM_COUNTRY_ID`\n"
-                   + "LEFT JOIN rm_planning_unit pu ON pu.PLANNING_UNIT_ID=rcpu.PLANNING_UNIT_ID\n"
+                    + "	LEFT JOIN rm_inventory inv  ON inv.INVENTORY_ID=i.INVENTORY_ID\n"
+                    + "	LEFT JOIN rm_program p ON inv.PROGRAM_ID=p.PROGRAM_ID \n"
+                    + "	LEFT JOIN rm_realm_country rc ON rcpu.`REALM_COUNTRY_ID`=rcpu.`REALM_COUNTRY_ID`\n"
+                    + "LEFT JOIN rm_planning_unit pu ON pu.PLANNING_UNIT_ID=rcpu.PLANNING_UNIT_ID\n"
                     + "	LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`\n"
                     + " LEFT JOIN ap_label irpu_label ON irpu_label.`LABEL_ID`=pu.`LABEL_ID`  where rc.REALM_ID=:realmId ");
-          //  if (planningUnitId > 0) {
-                sb.append(" and pu.PLANNING_UNIT_ID=:planningUnitId ");
-                 params.put("planningUnitId", planningUnitId);
+            //  if (planningUnitId > 0) {
+            sb.append(" and pu.PLANNING_UNIT_ID=:planningUnitId ");
+            params.put("planningUnitId", planningUnitId);
             //}
-         
-                sb.append(" and p.PROGRAM_ID=:programId ");
-                 params.put("programId", programId);
-         
+
+            sb.append(" and p.PROGRAM_ID=:programId ");
+            params.put("programId", programId);
 
             sb.append(" And i.`INVENTORY_DATE`between :startDate and :endDate GROUP BY QUARTER(i.`INVENTORY_DATE`),YEAR(i.`INVENTORY_DATE`),pu.`PLANNING_UNIT_ID` )a GROUP BY a.year,a.PLANNING_UNIT_ID");
         }
-         params.put("startDate", startDate);
-          params.put("endDate", endDate);
-        System.out.println("param"+params);
+        params.put("startDate", startDate);
+        params.put("endDate", endDate);
+        System.out.println("param" + params);
         return this.namedParameterJdbcTemplate.queryForList(sb.toString(), params);/*
            
              sb.append("SELECT b.PLANNING_UNIT_LABEL_EN,b.PLANNING_UNIT_LABEL_FR,b.PLANNING_UNIT_LABEL_PR,b.PLANNING_UNIT_LABEL_SP, b.PLANNING_UNIT_ID ,\n" +
@@ -169,7 +167,18 @@ public class ReportDaoImpl implements ReportDao {
         }
         System.out.println("param"+params);
         return this.namedParameterJdbcTemplate.queryForList(sb.toString(), params);
-    */
+         */
+    }
+
+    @Override
+    public List<Map<String, Object>> getForecastMatricsOverTime(String startDate, String stopDate, int realmCountryId, int planningUnitId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", startDate);
+        params.put("stopDate", stopDate);
+        params.put("realmCountryId", realmCountryId);
+        params.put("planningUnitId", planningUnitId);
+        return this.namedParameterJdbcTemplate.queryForList("CALL forecastErrorForPlanningUnit(:realmCountryId, :planningUnitId,:startDate,:stopDate,5)", params);
+
     }
 
 }
