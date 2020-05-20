@@ -15,8 +15,10 @@ import cc.altius.FASP.model.rowMapper.TreeExtendedProductCategoryResultSetExtrac
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import cc.altius.utils.TreeUtils.Node;
+import cc.altius.utils.TreeUtils.Tree;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -160,7 +162,12 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
         params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pc", curUser);
         sqlStringBuilder.append(" ORDER BY pc.SORT_ORDER");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor()).getTreeFullList();
+        Tree<ExtendedProductCategory> t = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor());
+        if (t == null) {
+            return new LinkedList<Node<ExtendedProductCategory>>();
+        } else {
+            return t.getTreeFullList();
+        }
     }
 
     @Override
