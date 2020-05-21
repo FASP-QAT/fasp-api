@@ -49,4 +49,16 @@ public class ReportController {
 
     }
     
+    
+          @RequestMapping(value = "/forecastmatrics/{startDate}/{endDate}/{realmCountryId}/{planningUnitId}")
+    public ResponseEntity getforecastMatrix(@PathVariable("realmCountryId") int realmCountryId,@PathVariable("planningUnitId") int planningUnitId,@PathVariable("startDate") String startDate,@PathVariable("endDate") String endDate,Authentication auth)  {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.reportService.getForecastMatricsOverTime(startDate,endDate ,realmCountryId,planningUnitId), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
 }
