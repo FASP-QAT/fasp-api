@@ -25,12 +25,12 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
     @Transactional
     public void importProductCatalogue(String filePath) {
         this.importProductCatalogueDao.importProductCatalogue(filePath);
-//        this.importProductCatalogueDao.pullUnitTable();
-//        this.importProductCatalogueDao.pullTracerCategoryFromTmpTables();
-//        this.importProductCatalogueDao.pullForecastingUnitFromTmpTables();
-//        this.importProductCatalogueDao.pullPlanningUnitFromTmpTables();
-//        this.importProductCatalogueDao.pullSupplierFromTmpTables();
-//        this.importProductCatalogueDao.pullProcurementUnitFromTmpTables();
+        this.importProductCatalogueDao.pullUnitTable();
+        this.importProductCatalogueDao.pullTracerCategoryFromTmpTables();
+        this.importProductCatalogueDao.pullForecastingUnitFromTmpTables();
+        this.importProductCatalogueDao.pullPlanningUnitFromTmpTables();
+        this.importProductCatalogueDao.pullSupplierFromTmpTables();
+        this.importProductCatalogueDao.pullProcurementUnitFromTmpTables();
     }
 
 }
