@@ -7,6 +7,9 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.pipeline.Pipeline;
+import cc.altius.FASP.model.pipeline.PplPrograminfo;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -15,4 +18,8 @@ import cc.altius.FASP.model.pipeline.Pipeline;
 public interface PipelineDbService {
 
     public int savePipelineDbData(Pipeline pipeline, CustomUserDetails curUser);
+
+    public List<Map<String, Object>> getPipelineProgramList(CustomUserDetails curUser);
+
+    public PplPrograminfo getPipelineProgramInfoById(int pipelineId, CustomUserDetails curUser);
 }

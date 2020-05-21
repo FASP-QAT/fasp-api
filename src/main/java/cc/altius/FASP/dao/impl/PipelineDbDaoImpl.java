@@ -8,6 +8,8 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.PipelineDbDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.pipeline.Pipeline;
+import cc.altius.FASP.model.pipeline.PplPrograminfo;
+import cc.altius.FASP.model.pipeline.rowMapper.PplPrograminfoRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;
@@ -448,6 +450,42 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             si.executeBatch(batchParams.toArray(batchSqlSource));
         }
         return pipelineId;
+    }
+
+    @Override
+    public List<Map<String, Object>> getPipelineProgramList(CustomUserDetails curUser) {
+        String sql = "select ap.*,u.USERNAME from adb_pipeline ap \n"
+                + "left join us_user u on u.USER_ID=ap.CREATED_BY\n"
+                + "where ap.CREATED_BY=:userId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", curUser.getUserId());
+        return this.namedParameterJdbcTemplate.queryForList(sql, params);
+    }
+
+    @Override
+    public PplPrograminfo getPipelineProgramInfoById(int pipelineId, CustomUserDetails curUser) {
+//        String sql = "SELECT If(rc.COUNTRY_ID IS NULL,ap.CountryName,rc.COUNTRY_ID) as CountryName,ap.Note,ap.ProgramName \n"
+//                + "FROM fasp.adb_programinfo ap\n"
+//                + "left join ap_label al on upper(al.LABEL_EN)=upper(ap.CountryName) \n"
+//                + "OR upper(al.LABEL_FR)=upper(ap.CountryName) OR upper(al.LABEL_SP)=upper(ap.CountryName) \n"
+//                + "OR upper(al.LABEL_PR)=upper(ap.CountryName)\n"
+//                + "left join ap_country ac on ac.LABEL_ID=al.LABEL_ID\n"
+//                + "left join rm_realm_country rc on rc.COUNTRY_ID=ac.COUNTRY_ID \n"
+//                + "AND rc.REALM_ID=:realmId AND rc.COUNTRY_ID IS NOT NULL\n"
+//                + "where ap.PIPELINE_ID=:pipelineId ;";
+        String sql = "SELECT If(rc.REALM_COUNTRY_ID IS NULL,ap.CountryName,rc.REALM_COUNTRY_ID) as CountryName,ap.Note,ap.ProgramName \n"
+                + "FROM fasp.adb_programinfo ap\n"
+                + "left join ap_label al on upper(al.LABEL_EN)=upper(ap.CountryName) \n"
+                + "OR upper(al.LABEL_FR)=upper(ap.CountryName) OR upper(al.LABEL_SP)=upper(ap.CountryName) \n"
+                + "OR upper(al.LABEL_PR)=upper(ap.CountryName)\n"
+                + "left join ap_country ac on ac.LABEL_ID=al.LABEL_ID\n"
+                + "left join rm_realm_country rc on rc.COUNTRY_ID=ac.COUNTRY_ID \n"
+                + "AND rc.REALM_ID=:realmId AND rc.COUNTRY_ID IS NOT NULL\n"
+                + "where ap.PIPELINE_ID=:pipelineId ;";
+        Map<String, Object> params = new HashMap<>();
+        params.put("pipelineId", pipelineId);
+        params.put("realmId", curUser.getRealm().getRealmId());
+        return this.namedParameterJdbcTemplate.queryForObject(sql, params, new PplPrograminfoRowMapper());
     }
 
 }

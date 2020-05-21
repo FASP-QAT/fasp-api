@@ -8,7 +8,10 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.PipelineDbDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.pipeline.Pipeline;
+import cc.altius.FASP.model.pipeline.PplPrograminfo;
 import cc.altius.FASP.service.PipelineDbService;
+import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,6 +29,15 @@ public class PipelineDbServiceImpl implements PipelineDbService {
     public int savePipelineDbData(Pipeline pipeline, CustomUserDetails curUser) {
         return this.pipelineDbDao.savePipelineDbData(pipeline, curUser);
     }
-    
-    
+
+    @Override
+    public List<Map<String, Object>> getPipelineProgramList(CustomUserDetails curUser) {
+        return this.pipelineDbDao.getPipelineProgramList(curUser);
+    }
+
+    @Override
+    public PplPrograminfo getPipelineProgramInfoById(int pipelineId, CustomUserDetails curUser) {
+        return this.pipelineDbDao.getPipelineProgramInfoById(pipelineId, curUser);
+    }
+
 }
