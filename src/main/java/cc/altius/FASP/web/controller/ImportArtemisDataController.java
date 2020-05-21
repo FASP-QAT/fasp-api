@@ -1,0 +1,32 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package cc.altius.FASP.web.controller;
+
+import cc.altius.FASP.service.ImportArtemisDataService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+/**
+ *
+ * @author altius
+ */
+@Controller
+public class ImportArtemisDataController {
+
+    @Autowired
+    private ImportArtemisDataService importArtemisDataService;
+
+    @RequestMapping(value = "import")
+//    @Scheduled(cron = "00 */05 * * * *")
+    public void importArtemisData() {
+        System.out.println("inside controller------------------");
+        String orderDataFilePath = "/home/altius/Documents/FASP/ARTEMISDATA/202005121226_orderdata.csv";
+        String shipmentDataFilePath = "/home/altius/Documents/FASP/ARTEMISDATA/202005121409_shipmentdata.csv";
+        this.importArtemisDataService.importOrderAndShipmentData(orderDataFilePath, shipmentDataFilePath);
+
+    }
+}

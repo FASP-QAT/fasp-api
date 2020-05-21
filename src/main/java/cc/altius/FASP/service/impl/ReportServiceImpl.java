@@ -29,6 +29,11 @@ ReportDao reportDao;
     public List<Map<String,Object>> getStockStatusMatrix(int realmId, int productcategoryId, int planningUnitId, int view,String startDate,String endDate) {
        return this.reportDao.getStockStatusMatrix(realmId, productcategoryId, planningUnitId, view,startDate,endDate);
     }
+
+    @Override
+    public List<Map<String, Object>> getForecastMatricsOverTime(String startDate, String stopDate, int realmCountryId, int planningUnitId) {
+        return this.reportDao.getForecastMatricsOverTime(startDate, stopDate, realmCountryId, planningUnitId);
+    }
     
     
 }
