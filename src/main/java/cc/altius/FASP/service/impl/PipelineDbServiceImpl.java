@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.PipelineDbDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.PplPrograminfo;
+import cc.altius.FASP.model.pipeline.PplShipment;
 import cc.altius.FASP.service.PipelineDbService;
 import java.util.List;
 import java.util.Map;
@@ -40,4 +41,10 @@ public class PipelineDbServiceImpl implements PipelineDbService {
         return this.pipelineDbDao.getPipelineProgramInfoById(pipelineId, curUser);
     }
 
+    @Override
+    public List<PplShipment> getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser) {
+         return this.pipelineDbDao.getPipelineShipmentdataById(pipelineId,curUser);
+    }
+
+    
 }
