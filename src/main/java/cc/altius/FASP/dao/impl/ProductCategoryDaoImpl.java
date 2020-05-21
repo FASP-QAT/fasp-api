@@ -10,13 +10,14 @@ import cc.altius.FASP.dao.ProductCategoryDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ExtendedProductCategory;
 import cc.altius.FASP.model.ProductCategory;
+import cc.altius.FASP.model.rowMapper.ProductCategoryRowMapper;
 import cc.altius.FASP.model.rowMapper.TreeExtendedProductCategoryResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import cc.altius.utils.TreeUtils.Node;
-import cc.altius.utils.TreeUtils.Tree;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,18 +48,24 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    private final String sqlListString = "SELECT  "
+    private final String sqlListStringPart1 = "SELECT  "
             + "    pc.PRODUCT_CATEGORY_ID, pc.SORT_ORDER, pc.PARENT_PRODUCT_CATEGORY_ID, "
             + "    pcl.LABEL_ID, pcl.LABEL_EN, pcl.LABEL_FR, pcl.LABEL_PR, pcl.LABEL_SP, "
             + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`,"
-            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pc.ACTIVE, pc.CREATED_DATE, pc.LAST_MODIFIED_DATE "
-            + "	FROM rm_product_category pc  "
+            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pc.ACTIVE, pc.CREATED_DATE, pc.LAST_MODIFIED_DATE ";
+    private final String sqlListStringPart1WithoutActive = "SELECT  "
+            + "    pc.PRODUCT_CATEGORY_ID, pc.SORT_ORDER, pc.PARENT_PRODUCT_CATEGORY_ID, "
+            + "    pcl.LABEL_ID, pcl.LABEL_EN, pcl.LABEL_FR, pcl.LABEL_PR, pcl.LABEL_SP, "
+            + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`,"
+            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pc.CREATED_DATE, pc.LAST_MODIFIED_DATE ";
+    private final String sqlListStringPart2 = "	FROM rm_product_category pc  "
             + " LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID "
             + " LEFT JOIN rm_realm r ON pc.REALM_ID=r.REALM_ID "
             + " LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
             + " LEFT JOIN us_user cb ON pc.CREATED_BY=cb.USER_ID "
-            + " LEFT JOIN us_user lmb ON pc.LAST_MODIFIED_BY=lmb.USER_ID "
-            + " WHERE TRUE ";
+            + " LEFT JOIN us_user lmb ON pc.LAST_MODIFIED_BY=lmb.USER_ID ";
+    private final String sqlListStringPart3 = " WHERE TRUE ";
+    private final String sqlListString = this.sqlListStringPart1 + this.sqlListStringPart2 + this.sqlListStringPart3;
 
     @Override
     @Transactional(propagation = Propagation.NESTED)
@@ -109,61 +116,68 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
     }
 
     @Override
-    public Tree<ExtendedProductCategory> getProductCategoryListForRealm(CustomUserDetails curUser, int realmId) {
+    public List<Node<ExtendedProductCategory>> getProductCategoryListForRealm(CustomUserDetails curUser, int realmId) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
         sqlStringBuilder.append(" ORDER BY pc.SORT_ORDER");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor()).getTreeFullList();
     }
 
-//    @Override
-//    public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser) {
-//        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND pc.PRODUCT_CATEGORY_ID=:productCategoryId ");
-//        Map<String, Object> params = new HashMap<>();
-//        params.put("productCategoryId", productCategoryId);
-//        this.aclService.addUserAclForRealm(sqlListString, params, "r", curUser);
-//        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor());
-//    }
     @Override
-    public Tree<ExtendedProductCategory> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeMainBranch, boolean includeAllChildren) {
-        String sqlString = "SELECT pc.SORT_ORDER from rm_product_category pc where pc.PRODUCT_CATEGORY_ID=:productCategoryId";
+    public List<Node<ExtendedProductCategory>> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeMainBranch, boolean includeAllChildren) {
+        String sqlString = this.sqlListString + " AND pc.PRODUCT_CATEGORY_ID=:productCategoryId";
         Map<String, Object> params = new HashMap<>();
         params.put("productCategoryId", productCategoryId);
-
-        String sortOrder = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, String.class);
-        params.put("sortOrder", sortOrder);
+        ProductCategory rootNode = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new ProductCategoryRowMapper());
+        params.put("sortOrder", rootNode.getSortOrder());
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
-        this.aclService.addUserAclForRealm(sqlString, params, "r", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         if (!includeAllChildren) {
             sqlStringBuilder.append(" AND pc.`SORT_ORDER` = :sortOrder ");
         }
-        if (!includeMainBranch) {
-            sqlStringBuilder.append(" AND pc.`SORT_ORDER` != :sortOrder ");
-        }
         sqlStringBuilder.append(" AND pc.`SORT_ORDER` LIKE CONCAT(:sortOrder, '%') ORDER BY pc.SORT_ORDER");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor());
+        List<Node<ExtendedProductCategory>> pcList = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor()).getTreeFullList();
+        if (!includeMainBranch) {
+            pcList.remove(0);
+        }
+        return pcList;
     }
 
     @Override
-    public Tree<ExtendedProductCategory> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser) {
+    public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND pc.PRODUCT_CATEGORY_ID=:productCategoryId ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pc", curUser);
+        params.put("productCategoryId", productCategoryId);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new ProductCategoryRowMapper());
+    }
+
+    @Override
+    public List<Node<ExtendedProductCategory>> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND pc.LAST_MODIFIED_DATE>:lastSyncDate ");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pc", curUser);
         sqlStringBuilder.append(" ORDER BY pc.SORT_ORDER");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor()).getTreeFullList();
     }
 
     @Override
-    public Tree<ExtendedProductCategory> getProductCategoryListForProgram(CustomUserDetails curUser, int programId) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+    public List<Node<ExtendedProductCategory>> getProductCategoryListForProgram(CustomUserDetails curUser, int realmId, int programId) {
         Map<String, Object> params = new HashMap<>();
-        sqlStringBuilder.append(" AND pc.PRODUCT_CATEGORY_ID in (SELECT fu.PRODUCT_CATEGORY_ID FROM rm_program_planning_unit ppu LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID WHERE ppu.PROGRAM_ID=:programId) ");
         params.put("programId", programId);
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pc", curUser);
-        sqlStringBuilder.append(" ORDER BY pc.SORT_ORDER");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor());
+        params.put("sortOrder", "00");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringPart1WithoutActive)
+                .append(", IF(pc.ACTIVE && pcf.PRODUCT_CATEGORY_ID IS NOT NULL, TRUE, FALSE) `ACTIVE` ")
+                .append(sqlListStringPart2)
+                .append(" LEFT JOIN (SELECT fu.PRODUCT_CATEGORY_ID FROM rm_program_planning_unit ppu LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID WHERE ppu.PROGRAM_ID=:programId GROUP BY fu.PRODUCT_CATEGORY_ID) pcf ON pc.PRODUCT_CATEGORY_ID=pcf.PRODUCT_CATEGORY_ID ")
+                .append(sqlListStringPart3);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        sqlStringBuilder.append(" AND pc.`SORT_ORDER` LIKE CONCAT(:sortOrder, '%') ORDER BY pc.SORT_ORDER");
+        List<Node<ExtendedProductCategory>> pcList = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor()).getTreeFullList();
+        pcList.remove(0);
+        return pcList;
     }
 
 }

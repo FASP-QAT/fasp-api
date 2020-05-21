@@ -41,6 +41,12 @@ public class Budget extends BaseModel implements Serializable {
         this.label = label;
     }
 
+    public Budget(int budgetId, FundingSource fundingSource, Label label) {
+        this.budgetId = budgetId;
+        this.fundingSource = fundingSource;
+        this.label = label;
+    }
+
     public int getBudgetId() {
         return budgetId;
     }

@@ -63,8 +63,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
     public ResponseEntity getProductCategory(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            Tree<ExtendedProductCategory> productCategoryTree = this.productCategoryService.getProductCategoryListForRealm(curUser, realmId);
-            return new ResponseEntity(productCategoryTree.getTreeFullList(), HttpStatus.OK);
+            return new ResponseEntity(this.productCategoryService.getProductCategoryListForRealm(curUser, realmId), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Product Category", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -106,12 +105,11 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         }
     }
 
-    @GetMapping("/productCategory/programId/{programId}")
-    public ResponseEntity getProductCategoryForProgram(@PathVariable(value = "programId", required = true) int programId, Authentication auth) {
+    @GetMapping("/productCategory/realmId/{realmId}/programId/{programId}")
+    public ResponseEntity getProductCategoryForProgram(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programId", required = true) int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            Tree<ExtendedProductCategory> productCategoryTree = this.productCategoryService.getProductCategoryListForProgram(curUser, programId);
-            return new ResponseEntity(productCategoryTree.getTreeFullList(), HttpStatus.OK);
+            return new ResponseEntity(this.productCategoryService.getProductCategoryListForProgram(curUser, realmId, programId), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Product Category", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

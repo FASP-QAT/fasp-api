@@ -7,11 +7,13 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.dao.PlanningUnitDao;
+import cc.altius.FASP.dao.ProductCategoryDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
+import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.PlanningUnitService;
@@ -39,6 +41,9 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     private RealmDao realmDao;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private ProductCategoryDao productCategoryDao;
+    
 
     @Override
     public List<PlanningUnit> getPlanningUnitList(boolean active, CustomUserDetails curUser) {
@@ -154,6 +159,12 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     @Override
     public List<PlanningUnit> getPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.planningUnitDao.getPlanningUnitListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
+    public List<PlanningUnit> getPlanningUnitListForProductCategory(int productCategoryId, boolean active, CustomUserDetails curUser) {
+        ProductCategory pc = this.productCategoryDao.getProductCategoryById(productCategoryId, curUser);
+        return this.planningUnitDao.getPlanningUnitListForProductCategory(pc.getSortOrder(), active, curUser);
     }
 
 }

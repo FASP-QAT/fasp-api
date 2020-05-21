@@ -19,7 +19,7 @@ public class ProductCategory extends BaseModel implements Serializable {
     private Label label;
     @JsonIgnore
     private Integer parentProductCategoryId; // Only Root parent can be null
-    @JsonIgnore
+//    @JsonIgnore
     private String sortOrder;
 
     public ProductCategory() {

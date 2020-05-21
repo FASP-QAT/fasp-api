@@ -14,6 +14,7 @@ import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.rowMapper.ConsumptionRowMapper;
 import cc.altius.FASP.model.rowMapper.InventoryRowMapper;
+import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ShipmentRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -66,7 +67,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
-        return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId)", params, new ShipmentRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId)", params, new ShipmentListResultSetExtractor());
     }
 
     @Override
