@@ -10,6 +10,7 @@ import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.PplProduct;
 import cc.altius.FASP.model.pipeline.PplPrograminfo;
+import cc.altius.FASP.model.pipeline.PplShipment;
 import java.util.List;
 import java.util.Map;
 
@@ -25,9 +26,13 @@ public interface PipelineDbService {
 
     public PplPrograminfo getPipelineProgramInfoById(int pipelineId, CustomUserDetails curUser);
 
+
     public int addQatTempProgram(Program p, CustomUserDetails curUser, int pipelineId);
 
     public Program getQatTempProgram(CustomUserDetails curUser, int pipelineId);
     
     public List<PplProduct> getPipelineProductListById(CustomUserDetails curUser, int pipelineId);
+
+    public List<PplShipment> getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser);
+
 }

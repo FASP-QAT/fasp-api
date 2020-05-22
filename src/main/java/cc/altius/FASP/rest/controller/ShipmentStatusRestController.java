@@ -50,4 +50,15 @@ public class ShipmentStatusRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+      @GetMapping(value = "/shipmentStatus")
+    public ResponseEntity getShipmentStatusList( Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.shipmentStatusService.getShipmentStatusList(true), HttpStatus.OK);
+       } catch (Exception e) {
+            logger.error("Error while listing Shipment status", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

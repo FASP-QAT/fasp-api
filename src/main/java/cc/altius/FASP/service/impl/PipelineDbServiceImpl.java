@@ -11,6 +11,7 @@ import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.PplProduct;
 import cc.altius.FASP.model.pipeline.PplPrograminfo;
+import cc.altius.FASP.model.pipeline.PplShipment;
 import cc.altius.FASP.service.PipelineDbService;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ public class PipelineDbServiceImpl implements PipelineDbService {
     }
 
     @Override
+
     public int addQatTempProgram(Program p, CustomUserDetails curUser, int pipelineId) {
         return this.pipelineDbDao.addQatTempProgram(p, curUser,pipelineId);
     }
@@ -56,5 +58,12 @@ public class PipelineDbServiceImpl implements PipelineDbService {
     public List<PplProduct> getPipelineProductListById(CustomUserDetails curUser, int pipelineId) {
         return this.pipelineDbDao.getPipelineProductListById(curUser,pipelineId);
     }
+
+    @Override
+    public List<PplShipment> getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser) {
+         return this.pipelineDbDao.getPipelineShipmentdataById(pipelineId,curUser);
+    }
+
+    
 
 }

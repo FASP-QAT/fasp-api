@@ -16,6 +16,9 @@ import cc.altius.FASP.model.pipeline.PplPrograminfo;
 import cc.altius.FASP.model.pipeline.rowMapper.PipelineProductRowMapper;
 import cc.altius.FASP.model.pipeline.rowMapper.PplPrograminfoRowMapper;
 import cc.altius.FASP.model.pipeline.rowMapper.QatTempProgramResultSetExtractor;
+import cc.altius.FASP.model.pipeline.PplShipment;
+import cc.altius.FASP.model.pipeline.rowMapper.PplPrograminfoRowMapper;
+import cc.altius.FASP.model.pipeline.rowMapper.PplShipmentRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;
@@ -705,6 +708,20 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "where p.PIPELINE_ID=:pipelineId";
         params.put("pipelineId", pipelineId);
         return this.namedParameterJdbcTemplate.query(sql, params, new PipelineProductRowMapper());
+    }
+
+    @Override
+    public List<PplShipment> getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser) {
+        String sql = "SELECT pu.`PLANNING_UNIT_ID`,ash.`ShipAmount`,ash.`ShipOrderedDate`,ash.`ShipShippedDate`,ash.`ShipReceivedDate`,ash.`ShipNote`,ash.`ShipFreightCost`,ash.`ShipPO` \n"
+                + " FROM adb_shipment ash LEFT JOIN \n"
+                + "adb_product pr ON pr.`ProductID`=ash.`ProductID` \n"
+                + "LEFT JOIN ap_label al ON UPPER(al.LABEL_EN)=UPPER(pr.`ProductName`)  OR UPPER(al.LABEL_FR)=UPPER(pr.`ProductName`) OR UPPER(al.LABEL_SP)=UPPER(pr.`ProductName`) OR UPPER(al.LABEL_PR)=UPPER(pr.`ProductName`)\n"
+                + "LEFT JOIN rm_planning_unit pu ON pu.`LABEL_ID`=al.`LABEL_ID`\n"
+                + " WHERE ash.`PIPELINE_ID`=:pipelineId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("pipelineId", pipelineId);
+        return this.namedParameterJdbcTemplate.query(sql, params, new PplShipmentRowMapper());
+
     }
 
 }
