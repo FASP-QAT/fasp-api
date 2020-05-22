@@ -492,12 +492,18 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
 
     @Override
     public List<PplShipment> getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser) {
-        String sql = "SELECT pu.`PLANNING_UNIT_ID`,ash.`ShipAmount`,ash.`ShipOrderedDate`,ash.`ShipShippedDate`,ash.`ShipReceivedDate`,ash.`ShipNote`,ash.`ShipFreightCost`,ash.`ShipPO` \n"
-                + " FROM adb_shipment ash LEFT JOIN \n"
-                + "adb_product pr ON pr.`ProductID`=ash.`ProductID` \n"
-                + "LEFT JOIN ap_label al ON UPPER(al.LABEL_EN)=UPPER(pr.`ProductName`)  OR UPPER(al.LABEL_FR)=UPPER(pr.`ProductName`) OR UPPER(al.LABEL_SP)=UPPER(pr.`ProductName`) OR UPPER(al.LABEL_PR)=UPPER(pr.`ProductName`)\n"
-                + "LEFT JOIN rm_planning_unit pu ON pu.`LABEL_ID`=al.`LABEL_ID`\n"
-                + " WHERE ash.`PIPELINE_ID`=:pipelineId";
+        String sql = "SELECT COALESCE(pu.`PLANNING_UNIT_ID`,pr.`ProductName`) productId,ash.`ShipAmount`,ash.`ShipOrderedDate`,ash.`ShipShippedDate`,ash.`ShipReceivedDate`,ash.`ShipNote`,ash.`ShipFreightCost`,ash.`ShipPO`,COALESCE(rds.`DATA_SOURCE_ID`,ds.`DataSourceName`) datasourceId,COALESCE(rpa.`PROCUREMENT_AGENT_ID`,ads.`SupplierName`) supplierId \n" +
+" FROM adb_shipment ash LEFT JOIN \n" +
+"adb_product pr ON pr.`ProductID`=ash.`ProductID` \n" +
+"LEFT JOIN ap_label al ON UPPER(al.LABEL_EN)=UPPER(pr.`ProductName`)  OR UPPER(al.LABEL_FR)=UPPER(pr.`ProductName`) OR UPPER(al.LABEL_SP)=UPPER(pr.`ProductName`) OR UPPER(al.LABEL_PR)=UPPER(pr.`ProductName`)\n" +
+"LEFT JOIN rm_planning_unit pu ON pu.`LABEL_ID`=al.`LABEL_ID`\n" +
+"LEFT JOIN adb_datasource ds ON ds.`DataSourceID`=ash.`ShipDataSourceID`\n" +
+"LEFT JOIN ap_label ald ON UPPER(ald.LABEL_EN)=UPPER(ds.`DataSourceName`)  OR UPPER(ald.LABEL_FR)=UPPER(ds.`DataSourceName`) OR UPPER(ald.LABEL_SP)=UPPER(ds.`DataSourceName`) OR UPPER(ald.LABEL_PR)=UPPER(ds.`DataSourceName`)\n" +
+"LEFT JOIN rm_data_source rds ON rds.`LABEL_ID`=ald.`LABEL_ID`\n" +
+"LEFT JOIN adb_source ads ON ads.`SupplierID`=ash.`SupplierID`\n" +
+"LEFT JOIN ap_label alds ON UPPER(ald.LABEL_EN)=UPPER(ads.`SupplierName`)  OR UPPER(alds.LABEL_FR)=UPPER(ads.`SupplierName`) OR UPPER(alds.LABEL_SP)=UPPER(ads.`SupplierName`) OR UPPER(alds.LABEL_PR)=UPPER(ads.`SupplierName`)\n" +
+"LEFT JOIN rm_procurement_agent rpa ON rpa.`LABEL_ID`=alds.`LABEL_ID`\n" +
+" WHERE ash.`PIPELINE_ID`=:pipelineId";
         Map<String, Object> params = new HashMap<>();
         params.put("pipelineId", pipelineId);
         return this.namedParameterJdbcTemplate.query(sql, params, new PplShipmentRowMapper());

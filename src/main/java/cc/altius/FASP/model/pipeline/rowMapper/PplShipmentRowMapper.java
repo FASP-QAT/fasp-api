@@ -26,6 +26,9 @@ public class PplShipmentRowMapper implements RowMapper<PplShipment> {
         pi.setShipreceiveddate(rs.getDate("ShipReceivedDate"));
         pi.setShipfreightcost(rs.getDouble("ShipFreightCost"));
         pi.setShippo(rs.getString("ShipPO"));
+        pi.setProductid(rs.getString("productId"));
+        pi.setShipdatasourceid(rs.getString("datasourceId"));
+        pi.setSupplierid(rs.getString("supplierId"));
 
         return pi;
     }
