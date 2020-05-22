@@ -6,6 +6,7 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.service.PipelineDbService;
@@ -52,13 +53,13 @@ public class PipelineDbRestController {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.pipelineDbService.getPipelineProgramList(curUser), HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Error while trying to get Budget list", e);
+            logger.error("Error while trying to get Program list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/pipeline/programInfo/{pipelineId}")
-    public ResponseEntity getBudget(@PathVariable("pipelineId") int pipelineId, Authentication auth) {
+    public ResponseEntity getProgramInfo(@PathVariable("pipelineId") int pipelineId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.pipelineDbService.getPipelineProgramInfoById(pipelineId, curUser), HttpStatus.OK);
@@ -86,6 +87,46 @@ public class PipelineDbRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             logger.error("Error while trying to get program data Id=" + pipelineId, e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(path = "/qatTemp/program/{pipelineId}")
+    public ResponseEntity postQatTempProgram(@RequestBody Program program, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            this.pipelineDbService.addQatTempProgram(program, curUser, pipelineId);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to add Program", ae);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to add Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(path = "/qatTemp/program/{pipelineId}")
+    public ResponseEntity getQatTempProgram(Authentication auth, @PathVariable("pipelineId") int pipelineId) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.pipelineDbService.getQatTempProgram(curUser, pipelineId), HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to add Program", ae);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to add Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/pipeline/product/{pipelineId}")
+    public ResponseEntity getPlanningUnit(Authentication auth, @PathVariable("pipelineId") int pipelineId) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.pipelineDbService.getPipelineProductListById(curUser, pipelineId), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list PlanningUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

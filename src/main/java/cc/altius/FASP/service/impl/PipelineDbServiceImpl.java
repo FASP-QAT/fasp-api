@@ -7,7 +7,9 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.PipelineDbDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.pipeline.Pipeline;
+import cc.altius.FASP.model.pipeline.PplProduct;
 import cc.altius.FASP.model.pipeline.PplPrograminfo;
 import cc.altius.FASP.model.pipeline.PplShipment;
 import cc.altius.FASP.service.PipelineDbService;
@@ -42,9 +44,26 @@ public class PipelineDbServiceImpl implements PipelineDbService {
     }
 
     @Override
+
+    public int addQatTempProgram(Program p, CustomUserDetails curUser, int pipelineId) {
+        return this.pipelineDbDao.addQatTempProgram(p, curUser,pipelineId);
+    }
+
+    @Override
+    public Program getQatTempProgram(CustomUserDetails curUser, int pipelineId) {
+        return this.pipelineDbDao.getQatTempProgram(curUser,pipelineId);
+    }
+
+    @Override
+    public List<PplProduct> getPipelineProductListById(CustomUserDetails curUser, int pipelineId) {
+        return this.pipelineDbDao.getPipelineProductListById(curUser,pipelineId);
+    }
+
+    @Override
     public List<PplShipment> getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser) {
          return this.pipelineDbDao.getPipelineShipmentdataById(pipelineId,curUser);
     }
 
     
+
 }

@@ -6,7 +6,10 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.Label;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.pipeline.Pipeline;
+import cc.altius.FASP.model.pipeline.PplProduct;
 import cc.altius.FASP.model.pipeline.PplPrograminfo;
 import cc.altius.FASP.model.pipeline.PplShipment;
 import java.util.List;
@@ -23,6 +26,15 @@ public interface PipelineDbDao {
     public List<Map<String, Object>> getPipelineProgramList(CustomUserDetails curUser);
 
     public PplPrograminfo getPipelineProgramInfoById(int pipelineId, CustomUserDetails curUser);
-    
-     public List<PplShipment> getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser);
+
+    public int addQatTempProgram(Program p, CustomUserDetails curUser, int pipelineId);
+
+    public Program getQatTempProgram(CustomUserDetails curUser, int pipelineId);
+
+    public int addQatTempLabel(Label label, int curUser);
+
+    public List<PplProduct> getPipelineProductListById(CustomUserDetails curUser, int pipelineId);
+
+    public List<PplShipment> getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser);
+
 }
