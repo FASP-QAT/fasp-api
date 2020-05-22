@@ -17,23 +17,29 @@ import org.springframework.stereotype.Service;
  * @author ekta
  */
 @Service
-public class ReportServiceImpl implements ReportService{
-@Autowired
-ReportDao reportDao;
+public class ReportServiceImpl implements ReportService {
+
+    @Autowired
+    ReportDao reportDao;
+
     @Override
-    public List<Map<String, Object>> getConsumptionData(int realmId, int productcategoryId, int planningUnitId,String StartDate,String endDate) {
-    return this.reportDao.getConsumptionData(realmId, productcategoryId, planningUnitId,StartDate,endDate);
+    public List<Map<String, Object>> getConsumptionData(int realmId, int productcategoryId, int planningUnitId, String StartDate, String endDate) {
+        return this.reportDao.getConsumptionData(realmId, productcategoryId, planningUnitId, StartDate, endDate);
     }
 
     @Override
-    public List<Map<String,Object>> getStockStatusMatrix(int realmId, int productcategoryId, int planningUnitId, int view,String startDate,String endDate) {
-       return this.reportDao.getStockStatusMatrix(realmId, productcategoryId, planningUnitId, view,startDate,endDate);
+    public List<Map<String, Object>> getStockStatusMatrix(int realmId, int productcategoryId, int planningUnitId, int view, String startDate, String endDate) {
+        return this.reportDao.getStockStatusMatrix(realmId, productcategoryId, planningUnitId, view, startDate, endDate);
     }
 
     @Override
     public List<Map<String, Object>> getForecastMatricsOverTime(String startDate, String stopDate, int realmCountryId, int planningUnitId) {
         return this.reportDao.getForecastMatricsOverTime(startDate, stopDate, realmCountryId, planningUnitId);
     }
-    
-    
+
+    @Override
+    public List<Map<String, Object>> getGlobalConsumption(String startDate, String stopDate, String realmCountryIds, String planningUnitIds, String programIds) {
+        return this.reportDao.getGlobalConsumption(startDate, stopDate, realmCountryIds, planningUnitIds, programIds);
+    }
+
 }

@@ -61,4 +61,15 @@ public class ReportController {
         }
 
     }
+      @RequestMapping(value = "/GlobalConsumption/{startDate}/{endDate}/{realmCountryId}/{planningUnitId}/{programIds}")
+    public ResponseEntity getforecastMatrix(@PathVariable("realmCountryId") String realmCountryId,@PathVariable("planningUnitId") String planningUnitId,@PathVariable("programIds") String programIds,@PathVariable("startDate") String startDate,@PathVariable("endDate") String endDate,Authentication auth)  {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.reportService.getGlobalConsumption(startDate,endDate ,realmCountryId,planningUnitId,programIds), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
 }

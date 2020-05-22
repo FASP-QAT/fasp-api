@@ -14,10 +14,12 @@ import java.util.Map;
  */
 public interface ReportService {
 
-    public List<Map<String,Object>> getConsumptionData(int realmId, int productcategoryId, int planningUnitId,String StartDate,String endDate);
+    public List<Map<String, Object>> getConsumptionData(int realmId, int productcategoryId, int planningUnitId, String StartDate, String endDate);
 
-    public List<Map<String, Object>> getStockStatusMatrix(int realmId, int productcategoryId, int planningUnitId, int view,String StartDate,String endDate);
-    
-    public List<Map<String, Object>> getForecastMatricsOverTime(String startDate,String stopDate,int realmCountryId,int planningUnitId);
-    
+    public List<Map<String, Object>> getStockStatusMatrix(int realmId, int productcategoryId, int planningUnitId, int view, String StartDate, String endDate);
+
+    public List<Map<String, Object>> getForecastMatricsOverTime(String startDate, String stopDate, int realmCountryId, int planningUnitId);
+
+    public List<Map<String, Object>> getGlobalConsumption(String startDate, String stopDate, String realmCountryIds, String planningUnitIds, String programIds);
+
 }

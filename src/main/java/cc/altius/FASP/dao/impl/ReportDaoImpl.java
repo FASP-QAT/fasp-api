@@ -180,5 +180,17 @@ public class ReportDaoImpl implements ReportDao {
         return this.namedParameterJdbcTemplate.queryForList("CALL forecastErrorForPlanningUnit(:realmCountryId, :planningUnitId,:startDate,:stopDate,5)", params);
 
     }
+    
+     @Override
+    public List<Map<String, Object>> getGlobalConsumption(String startDate, String stopDate, String realmCountryIds, String planningUnitIds,String programIds) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", startDate);
+        params.put("stopDate", stopDate);
+        params.put("realmCountryIds", realmCountryIds);
+        params.put("programIds", programIds);
+        params.put("planningUnitIds", planningUnitIds);
+        return this.namedParameterJdbcTemplate.queryForList("CALL globalConsumption(:realmCountryId,:programIds :planningUnitId,:startDate,:stopDate)", params);
+
+    }
 
 }
