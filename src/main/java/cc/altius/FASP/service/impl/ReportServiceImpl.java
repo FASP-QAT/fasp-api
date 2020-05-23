@@ -6,6 +6,11 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ReportDao;
+import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.report.ForecastErrorInput;
+import cc.altius.FASP.model.report.ForecastErrorOutput;
+import cc.altius.FASP.model.report.GlobalConsumptionInput;
+import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.service.ReportService;
 import java.util.List;
 import java.util.Map;
@@ -33,13 +38,15 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<Map<String, Object>> getForecastMatricsOverTime(String startDate, String stopDate, int realmCountryId, int planningUnitId) {
-        return this.reportDao.getForecastMatricsOverTime(startDate, stopDate, realmCountryId, planningUnitId);
+    public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser) {
+        return this.reportDao.getForecastError(fei, curUser);
     }
 
     @Override
-    public List<Map<String, Object>> getGlobalConsumption(String startDate, String stopDate, String realmCountryIds, String planningUnitIds, String programIds) {
-        return this.reportDao.getGlobalConsumption(startDate, stopDate, realmCountryIds, planningUnitIds, programIds);
+    public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser) {
+        return this.reportDao.getGlobalConsumption(gci, curUser);
     }
+
+
 
 }

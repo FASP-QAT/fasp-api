@@ -6,6 +6,13 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.ReportDao;
+import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.report.ForecastErrorInput;
+import cc.altius.FASP.model.report.ForecastErrorOutput;
+import cc.altius.FASP.model.report.ForecastErrorOutputRowMapper;
+import cc.altius.FASP.model.report.GlobalConsumptionInput;
+import cc.altius.FASP.model.report.GlobalConsumptionOutput;
+import cc.altius.FASP.model.report.GlobalConsumptionOutputRowMapper;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,26 +178,25 @@ public class ReportDaoImpl implements ReportDao {
     }
 
     @Override
-    public List<Map<String, Object>> getForecastMatricsOverTime(String startDate, String stopDate, int realmCountryId, int planningUnitId) {
+    public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("startDate", startDate);
-        params.put("stopDate", stopDate);
-        params.put("realmCountryId", realmCountryId);
-        params.put("planningUnitId", planningUnitId);
-        return this.namedParameterJdbcTemplate.queryForList("CALL forecastErrorForPlanningUnit(:realmCountryId, :planningUnitId,:startDate,:stopDate,5)", params);
+        params.put("startDate", fei.getStartDate());
+        params.put("stopDate", fei.getStopDate());
+        params.put("realmCountryId", fei.getRealmCountryId());
+        params.put("planningUnitId", fei.getPlanningUnitId());
+        return this.namedParameterJdbcTemplate.query("CALL forecastErrorForPlanningUnit(:realmCountryId, :planningUnitId,:startDate,:stopDate, 2)", params, new ForecastErrorOutputRowMapper());
 
     }
-    
-     @Override
-    public List<Map<String, Object>> getGlobalConsumption(String startDate, String stopDate, String realmCountryIds, String planningUnitIds,String programIds) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("startDate", startDate);
-        params.put("stopDate", stopDate);
-        params.put("realmCountryIds", realmCountryIds);
-        params.put("programIds", programIds);
-        params.put("planningUnitIds", planningUnitIds);
-        return this.namedParameterJdbcTemplate.queryForList("CALL globalConsumption(:realmCountryId,:programIds :planningUnitId,:startDate,:stopDate)", params);
 
+    @Override
+    public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", gci.getStartDate());
+        params.put("stopDate", gci.getStopDate());
+        params.put("realmCountryIds", gci.getRealmCountryIdString());
+        params.put("programIds", gci.getProgramIdString());
+        params.put("planningUnitIds", gci.getPlanningUnitIdString());
+        return this.namedParameterJdbcTemplate.query("CALL globalConsumption(:realmCountryIds,:programIds,:planningUnitIds,:startDate,:stopDate)", params, new GlobalConsumptionOutputRowMapper());
     }
 
 }
