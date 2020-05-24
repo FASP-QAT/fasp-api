@@ -7,6 +7,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.PplProduct;
 import cc.altius.FASP.model.pipeline.PplPrograminfo;
@@ -33,6 +34,8 @@ public interface PipelineDbService {
     
     public List<PplProduct> getPipelineProductListById(CustomUserDetails curUser, int pipelineId);
 
-    public List<PplShipment> getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser);
+    public String getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser);
+
+    public int saveShipmentData(int pipelineId, Shipment[] shipments, CustomUserDetails curUser);
 
 }

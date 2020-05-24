@@ -8,6 +8,7 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.service.PipelineDbService;
 import java.io.IOException;
@@ -131,4 +132,16 @@ public class PipelineDbRestController {
         }
     }
 
+    
+      @PostMapping(path = "/pipeline/shipment/{pipelineId}")
+    public ResponseEntity saveShipmentData(@PathVariable("pipelineId") int pipelineId,@RequestBody Shipment[]  shipments, Authentication auth) throws IOException {
+        CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+        try {
+            return new ResponseEntity(this.pipelineDbService.saveShipmentData(pipelineId,shipments ,curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("incorrectformat"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
 }

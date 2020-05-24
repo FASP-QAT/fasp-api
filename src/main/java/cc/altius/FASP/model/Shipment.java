@@ -251,4 +251,9 @@ public class Shipment extends BaseModel implements Serializable {
         this.versionId = versionId;
     }
 
+    @Override
+    public String toString() {
+        return "Shipment{" + "shipmentId=" + shipmentId + ", planningUnit=" + planningUnit + ", expectedDeliveryDate=" + expectedDeliveryDate + ", suggestedQty=" + suggestedQty + ", procurementAgent=" + procurementAgent + ", procurementUnit=" + procurementUnit + ", supplier=" + supplier + ", quantity=" + quantity + ", rate=" + rate + ", productCost=" + productCost + ", shipmentMode=" + shipmentMode + ", freightCost=" + freightCost + ", orderedDate=" + orderedDate + ", shippedDate=" + shippedDate + ", receivedDate=" + receivedDate + ", shipmentStatus=" + shipmentStatus + ", notes=" + notes + ", dataSource=" + dataSource + ", accountFlag=" + accountFlag + ", erpFlag=" + erpFlag + ", versionId=" + versionId + '}';
+    }
+
 }
