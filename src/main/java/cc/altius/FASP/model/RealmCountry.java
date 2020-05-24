@@ -27,6 +27,11 @@ public class RealmCountry extends BaseModel implements Serializable {
     public RealmCountry() {
     }
 
+    public RealmCountry(int realmCountryId, Country country) {
+        this.realmCountryId = realmCountryId;
+        this.country = country;
+    }
+    
     public RealmCountry(int realmCountryId, Country country, Realm realm) {
         this.realmCountryId = realmCountryId;
         this.country = country;

@@ -19,6 +19,7 @@ public class ForecastingUnit extends BaseModel implements Serializable {
     private Label label;
     private SimpleObject productCategory;
     private SimpleObject tracerCategory;
+    private SimpleCodeObject unit;
 
     public ForecastingUnit() {
     }
@@ -34,6 +35,16 @@ public class ForecastingUnit extends BaseModel implements Serializable {
         this.realm = realm;
         this.genericLabel = genericLabel;
         this.label = label;
+        this.productCategory = productCategory;
+        this.tracerCategory = tracerCategory;
+    }
+
+    public ForecastingUnit(int productId, SimpleCodeObject realm, Label genericLabel, Label label, SimpleCodeObject unit, SimpleObject productCategory, SimpleObject tracerCategory) {
+        this.forecastingUnitId = productId;
+        this.realm = realm;
+        this.genericLabel = genericLabel;
+        this.label = label;
+        this.unit = unit;
         this.productCategory = productCategory;
         this.tracerCategory = tracerCategory;
     }
@@ -84,6 +95,14 @@ public class ForecastingUnit extends BaseModel implements Serializable {
 
     public void setLabel(Label label) {
         this.label = label;
+    }
+
+    public SimpleCodeObject getUnit() {
+        return unit;
+    }
+
+    public void setUnit(SimpleCodeObject unit) {
+        this.unit = unit;
     }
 
     @Override

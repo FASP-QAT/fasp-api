@@ -47,6 +47,7 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
             + "	ful.LABEL_ID, ful.LABEL_EN, ful.LABEL_FR, ful.LABEL_PR, ful.LABEL_SP, "
             + "    pgl.LABEL_ID `GENERIC_LABEL_ID`, pgl.LABEL_EN `GENERIC_LABEL_EN`, pgl.LABEL_FR `GENERIC_LABEL_FR`, pgl.LABEL_PR `GENERIC_LABEL_PR`, pgl.LABEL_SP `GENERIC_LABEL_SP`, "
             + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
+            + "    u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `UNIT_LABEL_ID`, ul.LABEL_EN `UNIT_LABEL_EN`, ul.LABEL_FR `UNIT_LABEL_FR`, ul.LABEL_PR `UNIT_LABEL_PR`, ul.LABEL_SP `UNIT_LABEL_SP`, "
             + "    pc.PRODUCT_CATEGORY_ID, pcl.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pcl.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pcl.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pcl.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pcl.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, "
             + "    tc.TRACER_CATEGORY_ID, tcl.LABEL_ID `TRACER_CATEGORY_LABEL_ID`, tcl.LABEL_EN `TRACER_CATEGORY_LABEL_EN`, tcl.LABEL_FR `TRACER_CATEGORY_LABEL_FR`, tcl.LABEL_PR `TRACER_CATEGORY_LABEL_PR`, tcl.LABEL_SP `TRACER_CATEGORY_LABEL_SP`, "
             + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, fu.ACTIVE, fu.CREATED_DATE, fu.LAST_MODIFIED_DATE "
@@ -55,6 +56,8 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
             + "LEFT JOIN ap_label pgl ON fu.GENERIC_LABEL_ID=pgl.LABEL_ID "
             + "LEFT JOIN rm_realm r ON fu.REALM_ID=r.REALM_ID "
             + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+            + "LEFT JOIN ap_unit u ON fu.UNIT_ID=u.UNIT_ID "
+            + "LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
             + "LEFT JOIN rm_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
             + "LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID "
             + "LEFT JOIN rm_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID "
@@ -73,6 +76,7 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
         int genericLabelId = this.labelDao.addLabel(forecastingUnit.getGenericLabel(), curUser.getUserId());
         params.put("GENERIC_LABEL_ID", genericLabelId);
         params.put("REALM_ID", forecastingUnit.getRealm().getId());
+        params.put("UNIT_ID", forecastingUnit.getUnit().getId());
         params.put("PRODUCT_CATEGORY_ID", forecastingUnit.getProductCategory().getId());
         params.put("TRACER_CATEGORY_ID", forecastingUnit.getTracerCategory().getId());
         params.put("ACTIVE", true);
