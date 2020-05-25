@@ -28,7 +28,8 @@ public class Program extends BaseModel implements Serializable {
     private double draftToSubmittedLeadTime;
     private double submittedToApprovedLeadTime;
     private double approvedToShippedLeadTime;
-    private double deliveredToReceivedLeadTime;
+    private double shippedToDeliveredByAirLeadTime;
+    private double shippedToDeliveredBySeaLeadTime;
     private int monthsInPastForAmc;
     private int monthsInFutureForAmc;
     @JsonIgnore
@@ -149,12 +150,20 @@ public class Program extends BaseModel implements Serializable {
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
     }
 
-    public double getDeliveredToReceivedLeadTime() {
-        return deliveredToReceivedLeadTime;
+    public double getShippedToDeliveredByAirLeadTime() {
+        return shippedToDeliveredByAirLeadTime;
     }
 
-    public void setDeliveredToReceivedLeadTime(double deliveredToReceivedLeadTime) {
-        this.deliveredToReceivedLeadTime = deliveredToReceivedLeadTime;
+    public void setShippedToDeliveredByAirLeadTime(double shippedToDeliveredByAirLeadTime) {
+        this.shippedToDeliveredByAirLeadTime = shippedToDeliveredByAirLeadTime;
+    }
+
+    public double getShippedToDeliveredBySeaLeadTime() {
+        return shippedToDeliveredBySeaLeadTime;
+    }
+
+    public void setShippedToDeliveredBySeaLeadTime(double shippedToDeliveredBySeaLeadTime) {
+        this.shippedToDeliveredBySeaLeadTime = shippedToDeliveredBySeaLeadTime;
     }
 
     public int getMonthsInPastForAmc() {

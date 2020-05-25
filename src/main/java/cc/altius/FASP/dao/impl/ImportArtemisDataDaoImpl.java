@@ -251,7 +251,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
         sql = "INSERT INTO rm_shipment_trans  "
                 + " SELECT NULL,m.`SHIPMENT_ID`,pu.`PLANNING_UNIT_ID`,o.`CURRENT_ESTIMATED_DELIVERY_DATE`,  "
                 + " pru.`PROCUREMENT_UNIT_ID`,sup.`SUPPLIER_ID`,o.`QTY`,o.`PRICE`,(o.`QTY`*o.`PRICE`),o.`SHIP_BY`,o.`SHIPPING_COST`,o.`ORDERD_DATE`,  "
-                + " es.`ACTUAL_SHIPMENT_DATE`,es.`ACTUAL_DELIVERY_DATE`,sm.`SHIPMENT_STATUS_ID`,NULL,10,o.`ORDER_NO`,o.`PRIME_LINE_NO`,1,?,o.`VERSION_ID`,1  "
+                + " min(es.`ACTUAL_SHIPMENT_DATE`),min(es.`ACTUAL_DELIVERY_DATE`),sm.`SHIPMENT_STATUS_ID`,NULL,10,o.`ORDER_NO`,o.`PRIME_LINE_NO`,1,?,o.`VERSION_ID`,1  "
                 + " FROM rm_erp_order o  "
                 + " LEFT JOIN rm_shipment_trans_erp_order_mapping m ON m.`ERP_ORDER_ID`=o.`ERP_ORDER_ID`  "
                 + " LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=m.`SHIPMENT_ID`  "
