@@ -25,20 +25,22 @@ public interface ProgramService {
     public int updateProgram(Program p, CustomUserDetails curUser);
 
     public List<Program> getProgramList(CustomUserDetails curUser);
-    
+
     public List<Program> getProgramList(int realmId, CustomUserDetails curUser);
 
     public Program getProgramById(int programId, CustomUserDetails curUser);
-    
+
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
-    
+
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser);
 
     public List<Program> getProgramListForSync(String lastSyncDate, CustomUserDetails curUser);
-    
+
     public List<ProgramPlanningUnit> getProgramPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
-    
-    public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId,int productCategory, boolean active, CustomUserDetails curUser);
-    
+
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId, int productCategory, boolean active, CustomUserDetails curUser);
+
     public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser);
+
+    public List<Program> getProgramList(int realmId);
 }

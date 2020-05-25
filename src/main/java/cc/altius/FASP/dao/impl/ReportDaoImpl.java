@@ -10,6 +10,9 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastErrorOutputRowMapper;
+import cc.altius.FASP.model.report.ForecastMetricsInput;
+import cc.altius.FASP.model.report.ForecastMetricsOutput;
+import cc.altius.FASP.model.report.ForecastMetricsOutputRowMapper;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutputRowMapper;
@@ -186,6 +189,17 @@ public class ReportDaoImpl implements ReportDao {
         params.put("planningUnitId", fei.getPlanningUnitId());
         return this.namedParameterJdbcTemplate.query("CALL forecastErrorForPlanningUnit(:realmCountryId, :planningUnitId,:startDate,:stopDate, 2)", params, new ForecastErrorOutputRowMapper());
 
+    }
+
+    @Override
+    public List<ForecastMetricsOutput> getForecastMetrics(ForecastMetricsInput fmi, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", fmi.getStartDate());
+        params.put("previousMonths", fmi.getPreviousMonths());
+        params.put("realmCountryId", fmi.getRealmCountryIdString());
+        params.put("planningUnitId", fmi.getPlanningUnitIdString());
+        params.put("programId", fmi.getProgramIdString());
+        return this.namedParameterJdbcTemplate.query("CALL forecastMetrics(:realmCountryId, :programId, :planningUnitId, :startDate, :previousMonths)", params, new ForecastMetricsOutputRowMapper());
     }
 
     @Override

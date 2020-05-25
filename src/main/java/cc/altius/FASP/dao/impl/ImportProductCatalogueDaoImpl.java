@@ -67,8 +67,82 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
             int x = 0;
             String sql;
 
-            sql = "TRUNCATE TABLE `fasp`.`tmp_product_catalog`";
-            this.jdbcTemplate.update(sql);
+            sql = "DROP TABLE IF EXISTS `tmp_product_catalog`";
+            this.jdbcTemplate.execute(sql);
+
+            sql = "CREATE TABLE `tmp_product_catalog` ( "
+                    + "  `TaskOrder` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `CommodityCouncil` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Subcategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `TracerCategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `ProductActive` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `ProductIDNoPack` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `ProductNameNoPack` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `ProductID` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `ProductName` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `OrderUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `PackSize` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `NoofBaseUnits` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `BaseUnit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `L5DataTrusteeCode` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `UNSPSC` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `INN` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Controlled` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Route` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Form` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `QACategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `QACriteria` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug1Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug1Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug1Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug1Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug1Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug2Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug2Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug2Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug2Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug2Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug3Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug3Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug3Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug3Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug3Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug4Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug4Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug4Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug4Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Drug4Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `USAIDARVTier` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `ProductAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `PlanningUnitMOQ` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `PlanningUnitsperPallet` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `PlanningUnitsperContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `PlanningUnitVolumem3` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `PlanningUnitWeightkg` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `ItemID` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `ItemName` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Supplier` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `WeightUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Weight` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `HeightUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Height` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `LengthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Length` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `WidthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Width` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `GTIN` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `Labeling` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `ItemAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `UnitsperCase` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `UnitsperPallet` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `PalletsPerContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `UnitsperContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  `EstPrice` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                    + "  KEY `idxProductNameNoPack` (`ProductNameNoPack`), "
+                    + "  KEY `idxProductName` (`ProductName`), "
+                    + "  KEY `idxItemName` (`ItemName`) "
+                    + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
+            this.jdbcTemplate.execute(sql);
 
             sql = "INSERT INTO tmp_product_catalog VALUES(:taskOrderLongDescription,:commodityCouncilLongDesc,"
                     + ":commoditySubcatLongDesc,:productTracerCat,"
@@ -170,11 +244,11 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
             namedParameterJdbcTemplate.batchUpdate(sql, batchParams);
 
         } catch (ParserConfigurationException ex) {
-            LOG.error("Error---" + ex);
+            LOG.error("Error occured while reading product catalogue ParserConfigurationException---" + ex);
         } catch (SAXException ex) {
-            LOG.error("Error---" + ex);
+            LOG.error("Error occured while reading product catalogue SAXException---" + ex);
         } catch (IOException ex) {
-            LOG.error("Error---" + ex);
+            LOG.error("Error occured while reading product catalogue IOException---" + ex);
         }
     }
 
