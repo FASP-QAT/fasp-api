@@ -9,6 +9,8 @@ import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
+import cc.altius.FASP.model.report.ForecastMetricsInput;
+import cc.altius.FASP.model.report.ForecastMetricsOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.service.ReportService;
@@ -42,6 +44,12 @@ public class ReportServiceImpl implements ReportService {
         return this.reportDao.getForecastError(fei, curUser);
     }
 
+    @Override
+    public List<ForecastMetricsOutput> getForecastMetrics(ForecastMetricsInput fmi, CustomUserDetails curUser) {
+        return this.reportDao.getForecastMetrics(fmi, curUser);
+    }
+
+    
     @Override
     public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser) {
         return this.reportDao.getGlobalConsumption(gci, curUser);
