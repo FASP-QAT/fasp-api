@@ -21,6 +21,7 @@ public class PipelineProductRowMapper implements RowMapper<PplProduct> {
         PplProduct p = new PplProduct();
         p.setProductname(rs.getString("planningUnitId"));
         p.setProductminmonths(rs.getInt("ProductMinMonths"));
+        p.setProductid(rs.getString("ProductId"));
         return p;
     }
 

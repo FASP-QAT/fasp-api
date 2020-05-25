@@ -28,6 +28,17 @@ public class PplConsumption implements Serializable {
     private Boolean consdisplaynote;
     private Double old_consumption;
     private int pipelineId;
+    private String conDate;
+
+    public String getConDate() {
+        return conDate;
+    }
+
+    public void setConDate(String conDate) {
+        this.conDate = conDate;
+    }
+    
+    
 
     public String getProductid() {
         return productid;
