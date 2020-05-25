@@ -39,5 +39,7 @@ public interface PipelineDbDao {
     public String getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser);
     
      public int saveShipmentData(int pipelineId, Shipment[] shipments, CustomUserDetails curUser);
+     
+      public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser);
 
 }

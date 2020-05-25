@@ -70,6 +70,11 @@ public class PipelineDbServiceImpl implements PipelineDbService {
         return this.pipelineDbDao.saveShipmentData(pipelineId, shipments, curUser);
     }
 
+    @Override
+    public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser) {
+        return this.pipelineDbDao.finalSaveProgramData(pipelineId, curUser);
+    }
+
     
 
 }
