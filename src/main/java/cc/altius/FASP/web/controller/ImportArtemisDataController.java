@@ -24,8 +24,8 @@ public class ImportArtemisDataController {
 //    @Scheduled(cron = "00 */05 * * * *")
     public void importArtemisData() {
         System.out.println("inside controller------------------");
-        String orderDataFilePath = "/home/altius/Documents/FASP/ARTEMISDATA/202005121226_orderdata.csv";
-        String shipmentDataFilePath = "/home/altius/Documents/FASP/ARTEMISDATA/202005121409_shipmentdata.csv";
+        String orderDataFilePath = "/home/akil/Desktop/Data/Software/FHI360/Artmis Data Import/202005121226_orderdata.csv";
+        String shipmentDataFilePath = "/home/akil/Desktop/Data/Software/FHI360/Artmis Data Import/202005121409_shipmentdata.csv";
         this.importArtemisDataService.importOrderAndShipmentData(orderDataFilePath, shipmentDataFilePath);
 
     }
