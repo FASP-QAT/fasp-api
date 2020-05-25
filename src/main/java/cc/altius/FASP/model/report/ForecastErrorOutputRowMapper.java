@@ -18,7 +18,7 @@ public class ForecastErrorOutputRowMapper implements RowMapper<ForecastErrorOutp
     @Override
     public ForecastErrorOutput mapRow(ResultSet rs, int i) throws SQLException {
         return new ForecastErrorOutput(
-                rs.getDate("CONSUMPTION_DATE"),
+                rs.getDate("ACTUAL_DATE"),
                 rs.getDouble("FORECASTED_CONSUMPTION"),
                 rs.getDouble("ACTUAL_CONSUMPTION"),
                 rs.getDouble("FORECAST_ERROR"),
