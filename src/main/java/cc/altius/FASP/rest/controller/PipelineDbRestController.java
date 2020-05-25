@@ -8,6 +8,7 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.QatTempConsumption;
 import cc.altius.FASP.model.pipeline.QatTempProgramPlanningUnit;
@@ -206,6 +207,28 @@ public class PipelineDbRestController {
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(path = "/pipeline/shipment/{pipelineId}")
+    public ResponseEntity saveShipmentData(@PathVariable("pipelineId") int pipelineId, @RequestBody Shipment[] shipments, Authentication auth) throws IOException {
+        CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+        try {
+            return new ResponseEntity(this.pipelineDbService.saveShipmentData(pipelineId, shipments, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("incorrectformat"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(path = "/pipeline/programdata/{pipelineId}")
+    public ResponseEntity finalSaveProgramData(@PathVariable("pipelineId") int pipelineId, Authentication auth) throws IOException {
+        CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+        try {
+            return new ResponseEntity(this.pipelineDbService.finalSaveProgramData(pipelineId, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("incorrectformat"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

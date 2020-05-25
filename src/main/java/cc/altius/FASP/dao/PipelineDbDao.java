@@ -9,11 +9,11 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Region;
+import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.PplConsumption;
 import cc.altius.FASP.model.pipeline.PplProduct;
 import cc.altius.FASP.model.pipeline.PplPrograminfo;
-import cc.altius.FASP.model.pipeline.PplShipment;
 import cc.altius.FASP.model.pipeline.QatTempConsumption;
 import cc.altius.FASP.model.pipeline.QatTempProgramPlanningUnit;
 import java.util.List;
@@ -39,7 +39,11 @@ public interface PipelineDbDao {
 
     public List<PplProduct> getPipelineProductListById(CustomUserDetails curUser, int pipelineId);
 
-    public List<PplShipment> getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser);
+    public String getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser);
+    
+     public int saveShipmentData(int pipelineId, Shipment[] shipments, CustomUserDetails curUser);
+     
+      public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser);
 
     public int saveQatTempProgramPlanningUnit(QatTempProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser, int pipelineId);
 
