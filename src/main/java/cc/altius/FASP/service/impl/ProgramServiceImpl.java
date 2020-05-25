@@ -140,12 +140,12 @@ public class ProgramServiceImpl implements ProgramService {
     public List<ProgramPlanningUnit> getProgramPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.programDao.getProgramPlanningUnitListForSync(lastSyncDate, curUser);
     }
-    
-     @Override
-    public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId,int productCategoryId, boolean active, CustomUserDetails curUser) {
+
+    @Override
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId, int productCategoryId, boolean active, CustomUserDetails curUser) {
         Program p = this.programDao.getProgramById(programId, curUser);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthArea().getId(), p.getOrganisation().getId())) {
-            return this.programDao.getPlanningUnitListForProgramAndCategoryId(programId,productCategoryId, active, curUser);
+            return this.programDao.getPlanningUnitListForProgramAndCategoryId(programId, productCategoryId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -162,5 +162,9 @@ public class ProgramServiceImpl implements ProgramService {
         return programId;
     }
 
+    @Override
+    public List<Program> getProgramList(int realmId) {
+        return this.programDao.getProgramList(realmId);
+    }
 
 }
