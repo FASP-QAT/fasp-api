@@ -15,7 +15,6 @@ import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.rowMapper.ConsumptionRowMapper;
 import cc.altius.FASP.model.rowMapper.InventoryRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.ShipmentRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;

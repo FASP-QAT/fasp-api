@@ -27,7 +27,8 @@ public class ProgramData extends BaseModel implements Serializable {
     private double draftToSubmittedLeadTime;
     private double submittedToApprovedLeadTime;
     private double approvedToShippedLeadTime;
-    private double deliveredToReceivedLeadTime;
+    private double shippedToDeliveredByAirLeadTime;
+    private double shippedToDeliveredBySeaLeadTime;
     private int monthsInPastForAmc;
     private int monthsInFutureForAmc;
     private List<Region> regionList;
@@ -60,9 +61,11 @@ public class ProgramData extends BaseModel implements Serializable {
         this.airFreightPerc = p.getAirFreightPerc();
         this.seaFreightPerc = p.getSeaFreightPerc();
         this.plannedToDraftLeadTime = p.getPlannedToDraftLeadTime();
+        this.draftToSubmittedLeadTime = p.getDraftToSubmittedLeadTime();
         this.submittedToApprovedLeadTime = p.getSubmittedToApprovedLeadTime();
         this.approvedToShippedLeadTime = p.getApprovedToShippedLeadTime();
-        this.deliveredToReceivedLeadTime = p.getDeliveredToReceivedLeadTime();
+        this.shippedToDeliveredBySeaLeadTime = p.getShippedToDeliveredBySeaLeadTime();
+        this.shippedToDeliveredByAirLeadTime = p.getShippedToDeliveredByAirLeadTime();
         this.monthsInFutureForAmc = p.getMonthsInFutureForAmc();
         this.monthsInPastForAmc = p.getMonthsInPastForAmc();
         this.regionList = p.getRegionList();
@@ -174,6 +177,22 @@ public class ProgramData extends BaseModel implements Serializable {
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
     }
 
+    public double getShippedToDeliveredByAirLeadTime() {
+        return shippedToDeliveredByAirLeadTime;
+    }
+
+    public void setShippedToDeliveredByAirLeadTime(double shippedToDeliveredByAirLeadTime) {
+        this.shippedToDeliveredByAirLeadTime = shippedToDeliveredByAirLeadTime;
+    }
+
+    public double getShippedToDeliveredBySeaLeadTime() {
+        return shippedToDeliveredBySeaLeadTime;
+    }
+
+    public void setShippedToDeliveredBySeaLeadTime(double shippedToDeliveredBySeaLeadTime) {
+        this.shippedToDeliveredBySeaLeadTime = shippedToDeliveredBySeaLeadTime;
+    }
+
     public int getMonthsInPastForAmc() {
         return monthsInPastForAmc;
     }
@@ -240,7 +259,7 @@ public class ProgramData extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "ProgramData{" + "programId=" + programId + ", realmCountry=" + realmCountry + ", organisation=" + organisation + ", healthArea=" + healthArea + ", label=" + label + ", programManager=" + programManager + ", programNotes=" + programNotes + ", airFreightPerc=" + airFreightPerc + ", seaFreightPerc=" + seaFreightPerc + ", plannedToDraftLeadTime=" + plannedToDraftLeadTime + ", draftToSubmittedLeadTime=" + draftToSubmittedLeadTime + ", submittedToApprovedLeadTime=" + submittedToApprovedLeadTime + ", approvedToShippedLeadTime=" + approvedToShippedLeadTime + ", deliveredToReceivedLeadTime=" + deliveredToReceivedLeadTime + ", monthsInPastForAmc=" + monthsInPastForAmc + ", monthsInFutureForAmc=" + monthsInFutureForAmc + ", regionList=" + regionList + ", currentVersion=" + currentVersion + ", versionList=" + versionList + ", consumptionList=" + consumptionList + ", inventoryList=" + inventoryList + '}';
+        return "ProgramData{" + "programId=" + programId + ", realmCountry=" + realmCountry + ", organisation=" + organisation + ", healthArea=" + healthArea + ", label=" + label + ", programManager=" + programManager + ", programNotes=" + programNotes + ", airFreightPerc=" + airFreightPerc + ", seaFreightPerc=" + seaFreightPerc + ", plannedToDraftLeadTime=" + plannedToDraftLeadTime + ", draftToSubmittedLeadTime=" + draftToSubmittedLeadTime + ", submittedToApprovedLeadTime=" + submittedToApprovedLeadTime + ", approvedToShippedLeadTime=" + approvedToShippedLeadTime + ", shippedToDeliveredBySeaLeadTime=" + shippedToDeliveredBySeaLeadTime + ", shippedToDeliveredByAirLeadTime=" + shippedToDeliveredByAirLeadTime + ", monthsInPastForAmc=" + monthsInPastForAmc + ", monthsInFutureForAmc=" + monthsInFutureForAmc + ", regionList=" + regionList + ", currentVersion=" + currentVersion + ", versionList=" + versionList + ", consumptionList=" + consumptionList + ", inventoryList=" + inventoryList + '}';
     }
 
 }
