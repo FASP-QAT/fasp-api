@@ -55,10 +55,10 @@ public class ProgramDaoImpl implements ProgramDao {
 
     public String sqlListString = "SELECT  "
             + "     p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_DRAFT_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME, p.CURRENT_VERSION_ID, cpv.CREATED_DATE `CV_CREATED_DATE`, cpvcb.USER_ID `CV_CMB_USER_ID`, cpvcb.USERNAME `CV_CMB_USERNAME`, "
-            + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.DELIVERED_TO_RECEIVED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
+            + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.SHIPPED_TO_DELIVERED_BY_SEA_LEAD_TIME, p.SHIPPED_TO_DELIVERED_BY_AIR_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
             + "     pl.LABEL_ID, pl.LABEL_EN, pl.LABEL_FR, pl.LABEL_PR, pl.LABEL_SP, "
-            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`, rc.SHIPPED_TO_ARRIVED_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_AIR_LEAD_TIME`, rc.SHIPPED_TO_ARRIVED_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_SEA_LEAD_TIME`, rc.ARRIVED_TO_DELIVERED_LEAD_TIME `REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME`, "
+            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`, rc.SHIPPED_TO_DELIVERED_BY_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_DELIVERED_BY_AIR_LEAD_TIME`, rc.SHIPPED_TO_DELIVERED_BY_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_DELIVERED_BY_SEA_LEAD_TIME`, "
             + "     rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
             + "     c.COUNTRY_ID, c.COUNTRY_CODE,  "
             + "     cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_PR `COUNTRY_LABEL_PR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, "
@@ -136,7 +136,8 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("DRAFT_TO_SUBMITTED_LEAD_TIME", p.getDraftToSubmittedLeadTime());
         params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());
         params.put("APPROVED_TO_SHIPPED_LEAD_TIME", p.getApprovedToShippedLeadTime());
-        params.put("DELIVERED_TO_RECEIVED_LEAD_TIME", p.getDeliveredToReceivedLeadTime());
+        params.put("SHIPPED_TO_DELIVERED_BY_SEA_LEAD_TIME", p.getShippedToDeliveredBySeaLeadTime());
+        params.put("SHIPPED_TO_DELIVERED_BY_AIR_LEAD_TIME", p.getShippedToDeliveredByAirLeadTime());
         params.put("MONTHS_IN_PAST_FOR_AMC", p.getMonthsInPastForAmc());
         params.put("MONTHS_IN_FUTURE_FOR_AMC", p.getMonthsInFutureForAmc());
         params.put("CURRENT_VERSION_ID", null);
@@ -186,7 +187,8 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("draftToSubmittedLeadTime", p.getDraftToSubmittedLeadTime());
         params.put("submittedToApprovedLeadTime", p.getSubmittedToApprovedLeadTime());
         params.put("approvedToShippedLeadTime", p.getApprovedToShippedLeadTime());
-        params.put("deliveredToReceivedLeadTime", p.getDeliveredToReceivedLeadTime());
+        params.put("shippedToDeliveredBySeaLeadTime", p.getShippedToDeliveredBySeaLeadTime());
+        params.put("shippedToDeliveredByAirLeadTime", p.getShippedToDeliveredByAirLeadTime());
         params.put("monthsInPastForAmc", p.getMonthsInPastForAmc());
         params.put("monthsInFutureForAmc", p.getMonthsInFutureForAmc());
         params.put("active", p.isActive());
@@ -203,7 +205,8 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "p.DRAFT_TO_SUBMITTED_LEAD_TIME=:draftToSubmittedLeadTime, "
                 + "p.SUBMITTED_TO_APPROVED_LEAD_TIME=:submittedToApprovedLeadTime, "
                 + "p.APPROVED_TO_SHIPPED_LEAD_TIME=:approvedToShippedLeadTime, "
-                + "p.DELIVERED_TO_RECEIVED_LEAD_TIME=:deliveredToReceivedLeadTime, "
+                + "p.SHIPPED_TO_DELIVERED_BY_SEA_LEAD_TIME=:shippedToDeliveredBySeaLeadTime, "
+                + "p.SHIPPED_TO_DELIVERED_BY_AIR_LEAD_TIME=:shippedToDeliveredByAirLeadTime, "
                 + "p.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, "
                 + "p.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, "
                 + "p.ACTIVE=:active,"
@@ -216,7 +219,8 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "     p.DRAFT_TO_SUBMITTED_LEAD_TIME!=:draftToSubmittedLeadTime OR "
                 + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME!=:submittedToApprovedLeadTime OR "
                 + "     p.APPROVED_TO_SHIPPED_LEAD_TIME!=:approvedToShippedLeadTime OR "
-                + "     p.DELIVERED_TO_RECEIVED_LEAD_TIME!=:deliveredToReceivedLeadTime OR "
+                + "     p.SHIPPED_TO_DELIVERED_BY_SEA_LEAD_TIME=:shippedToDeliveredBySeaLeadTime OR "
+                + "     p.SHIPPED_TO_DELIVERED_BY_AIR_LEAD_TIME=:shippedToDeliveredByAirLeadTime OR "
                 + "     p.MONTHS_IN_PAST_FOR_AMC!=:monthsInPastForAmc OR "
                 + "     p.MONTHS_IN_FUTURE_FOR_AMC!=:monthsInFutureForAmc OR "
                 + "     p.ACTIVE!=:active, "
@@ -230,7 +234,8 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "     p.DRAFT_TO_SUBMITTED_LEAD_TIME!=:draftToSubmittedLeadTime OR "
                 + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME!=:submittedToApprovedLeadTime OR "
                 + "     p.APPROVED_TO_SHIPPED_LEAD_TIME!=:approvedToShippedLeadTime OR "
-                + "     p.DELIVERED_TO_RECEIVED_LEAD_TIME!=:deliveredToReceivedLeadTime OR "
+                + "     p.SHIPPED_TO_DELIVERED_BY_SEA_LEAD_TIME=:shippedToDeliveredBySeaLeadTime OR "
+                + "     p.SHIPPED_TO_DELIVERED_BY_AIR_LEAD_TIME=:shippedToDeliveredByAirLeadTime OR "
                 + "     p.MONTHS_IN_PAST_FOR_AMC!=:monthsInPastForAmc OR "
                 + "     p.MONTHS_IN_FUTURE_FOR_AMC!=:monthsInFutureForAmc OR "
                 + "     p.ACTIVE!=:active, "
