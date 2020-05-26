@@ -20,8 +20,9 @@ public class RealmCountry extends BaseModel implements Serializable {
     private Unit palletUnit;
     private double airFreightPercentage;
     private double seaFreightPercentage;
-    private double shippedToDeliveredByAirLeadTime;
-    private double shippedToDeliveredBySeaLeadTime;
+    private double shippedToArrivedByAirLeadTime;
+    private double shippedToArrivedBySeaLeadTime;
+    private double arrivedToDeliveredLeadTime;
 
     public RealmCountry() {
     }
@@ -30,7 +31,7 @@ public class RealmCountry extends BaseModel implements Serializable {
         this.realmCountryId = realmCountryId;
         this.country = country;
     }
-    
+
     public RealmCountry(int realmCountryId, Country country, Realm realm) {
         this.realmCountryId = realmCountryId;
         this.country = country;
@@ -93,20 +94,28 @@ public class RealmCountry extends BaseModel implements Serializable {
         this.seaFreightPercentage = seaFreightPercentage;
     }
 
-    public double getShippedToDeliveredByAirLeadTime() {
-        return shippedToDeliveredByAirLeadTime;
+    public double getShippedToArrivedByAirLeadTime() {
+        return shippedToArrivedByAirLeadTime;
     }
 
-    public void setShippedToDeliveredByAirLeadTime(double shippedToDeliveredByAirLeadTime) {
-        this.shippedToDeliveredByAirLeadTime = shippedToDeliveredByAirLeadTime;
+    public void setShippedToArrivedByAirLeadTime(double shippedToArrivedByAirLeadTime) {
+        this.shippedToArrivedByAirLeadTime = shippedToArrivedByAirLeadTime;
     }
 
-    public double getShippedToDeliveredBySeaLeadTime() {
-        return shippedToDeliveredBySeaLeadTime;
+    public double getShippedToArrivedBySeaLeadTime() {
+        return shippedToArrivedBySeaLeadTime;
     }
 
-    public void setShippedToDeliveredBySeaLeadTime(double shippedToDeliveredBySeaLeadTime) {
-        this.shippedToDeliveredBySeaLeadTime = shippedToDeliveredBySeaLeadTime;
+    public void setShippedToArrivedBySeaLeadTime(double shippedToArrivedBySeaLeadTime) {
+        this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
+    }
+
+    public double getArrivedToDeliveredLeadTime() {
+        return arrivedToDeliveredLeadTime;
+    }
+
+    public void setArrivedToDeliveredLeadTime(double arrivedToDeliveredLeadTime) {
+        this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
     }
 
     @Override
@@ -136,7 +145,7 @@ public class RealmCountry extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "RealmCountry{" + "realmCountryId=" + realmCountryId + ", country=" + country + ", realm=" + realm + ", airFreightPercentage=" + airFreightPercentage + ", seaFreightPercentage=" + seaFreightPercentage + ", shippedToDeliveredByAirLeadTime=" + shippedToDeliveredByAirLeadTime + ", shippedToDeliveredBySeaLeadTime=" + shippedToDeliveredBySeaLeadTime + '}';
+        return "RealmCountry{" + "realmCountryId=" + realmCountryId + ", country=" + country + ", realm=" + realm + ", airFreightPercentage=" + airFreightPercentage + ", seaFreightPercentage=" + seaFreightPercentage + ", shippedToArrivedByAirLeadTime=" + shippedToArrivedByAirLeadTime + ", shippedToArrivedBySeaLeadTime=" + shippedToArrivedBySeaLeadTime + ", arrivedToDeliveredLeadTime=" + arrivedToDeliveredLeadTime + '}';
     }
 
 }
