@@ -44,8 +44,9 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
                 p.getRealmCountry().setDefaultCurrency(new Currency(rs.getInt("CURRENCY_ID"), rs.getString("CURRENCY_CODE"), new LabelRowMapper("CURRENCY_").mapRow(rs, 1), rs.getDouble("CONVERSION_RATE_TO_USD")));
                 p.getRealmCountry().setAirFreightPercentage(rs.getDouble("REALM_COUNTRY_AIR_FREIGHT_PERC"));
                 p.getRealmCountry().setSeaFreightPercentage(rs.getDouble("REALM_COUNTRY_SEA_FREIGHT_PERC"));
-                p.getRealmCountry().setShippedToDeliveredBySeaLeadTime(rs.getDouble("REALM_COUNTRY_SHIPPED_TO_DELIVERED_BY_SEA_LEAD_TIME"));
-                p.getRealmCountry().setShippedToDeliveredByAirLeadTime(rs.getDouble("REALM_COUNTRY_SHIPPED_TO_DELIVERED_BY_AIR_LEAD_TIME"));
+                p.getRealmCountry().setShippedToArrivedBySeaLeadTime(rs.getDouble("REALM_COUNTRY_SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME"));
+                p.getRealmCountry().setShippedToArrivedByAirLeadTime(rs.getDouble("REALM_COUNTRY_SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME"));
+                p.getRealmCountry().setArrivedToDeliveredLeadTime(rs.getDouble("REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME"));
                 p.getRealmCountry().setPalletUnit(new Unit(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, 1), rs.getString("UNIT_CODE")));
                 p.setLabel(new LabelRowMapper().mapRow(rs, 1));
                 p.setOrganisation(new SimpleObject(rs.getInt("ORGANISATION_ID"), new LabelRowMapper("ORGANISATION_").mapRow(rs, 1)));
@@ -58,8 +59,9 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
                 p.setDraftToSubmittedLeadTime(rs.getDouble("DRAFT_TO_SUBMITTED_LEAD_TIME"));
                 p.setSubmittedToApprovedLeadTime(rs.getDouble("SUBMITTED_TO_APPROVED_LEAD_TIME"));
                 p.setApprovedToShippedLeadTime(rs.getDouble("APPROVED_TO_SHIPPED_LEAD_TIME"));
-                p.setShippedToDeliveredBySeaLeadTime(rs.getDouble("SHIPPED_TO_DELIVERED_BY_SEA_LEAD_TIME"));
-                p.setShippedToDeliveredByAirLeadTime(rs.getDouble("SHIPPED_TO_DELIVERED_BY_AIR_LEAD_TIME"));
+                p.setShippedToArrivedBySeaLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME"));
+                p.setShippedToArrivedByAirLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME"));
+                p.setArrivedToDeliveredLeadTime(rs.getDouble("ARRIVED_TO_DELIVERED_LEAD_TIME"));
                 p.setMonthsInPastForAmc(rs.getInt("MONTHS_IN_PAST_FOR_AMC"));
                 p.setMonthsInFutureForAmc(rs.getInt("MONTHS_IN_FUTURE_FOR_AMC"));
                 p.setCurrentVersion(new Version(rs.getInt("CURRENT_VERSION_ID"), new BasicUser(rs.getInt("CV_CMB_USER_ID"), rs.getString("CV_CMB_USERNAME")), rs.getTimestamp("CV_CREATED_DATE")));

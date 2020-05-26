@@ -28,8 +28,9 @@ public class Program extends BaseModel implements Serializable {
     private double draftToSubmittedLeadTime;
     private double submittedToApprovedLeadTime;
     private double approvedToShippedLeadTime;
-    private double shippedToDeliveredByAirLeadTime;
-    private double shippedToDeliveredBySeaLeadTime;
+    private double shippedToArrivedByAirLeadTime;
+    private double shippedToArrivedBySeaLeadTime;
+    private double arrivedToDeliveredLeadTime;
     private int monthsInPastForAmc;
     private int monthsInFutureForAmc;
     @JsonIgnore
@@ -150,20 +151,28 @@ public class Program extends BaseModel implements Serializable {
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
     }
 
-    public double getShippedToDeliveredByAirLeadTime() {
-        return shippedToDeliveredByAirLeadTime;
+    public double getShippedToArrivedByAirLeadTime() {
+        return shippedToArrivedByAirLeadTime;
     }
 
-    public void setShippedToDeliveredByAirLeadTime(double shippedToDeliveredByAirLeadTime) {
-        this.shippedToDeliveredByAirLeadTime = shippedToDeliveredByAirLeadTime;
+    public void setShippedToArrivedByAirLeadTime(double shippedToArrivedByAirLeadTime) {
+        this.shippedToArrivedByAirLeadTime = shippedToArrivedByAirLeadTime;
     }
 
-    public double getShippedToDeliveredBySeaLeadTime() {
-        return shippedToDeliveredBySeaLeadTime;
+    public double getShippedToArrivedBySeaLeadTime() {
+        return shippedToArrivedBySeaLeadTime;
     }
 
-    public void setShippedToDeliveredBySeaLeadTime(double shippedToDeliveredBySeaLeadTime) {
-        this.shippedToDeliveredBySeaLeadTime = shippedToDeliveredBySeaLeadTime;
+    public void setShippedToArrivedBySeaLeadTime(double shippedToArrivedBySeaLeadTime) {
+        this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
+    }
+
+    public double getArrivedToDeliveredLeadTime() {
+        return arrivedToDeliveredLeadTime;
+    }
+
+    public void setArrivedToDeliveredLeadTime(double arrivedToDeliveredLeadTime) {
+        this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
     }
 
     public int getMonthsInPastForAmc() {
