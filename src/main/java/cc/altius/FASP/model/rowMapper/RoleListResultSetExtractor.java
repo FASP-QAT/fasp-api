@@ -20,16 +20,22 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  *
  * @author altius
  */
-public class RoleResultSetExtractor implements ResultSetExtractor<Role> {
+public class RoleListResultSetExtractor implements ResultSetExtractor<List<Role>> {
 
     @Override
-    public Role extractData(ResultSet rs) throws SQLException, DataAccessException {
-        Role role = new Role();
+    public List<Role> extractData(ResultSet rs) throws SQLException, DataAccessException {
+        List<Role> roleList = new LinkedList<>();
+        Role role;
         BusinessFunction businessFunction;
         CanCreateRole canCreateRole;
         while (rs.next()) {
+            role = new Role();
             role.setRoleId(rs.getString("ROLE_ID"));
-            role.setLabel(new Label(rs.getInt("LABEL_ID"), rs.getString("LABEL_EN"), rs.getString("LABEL_SP"), rs.getString("LABEL_FR"), rs.getString("LABEL_PR")));
+            if (roleList.indexOf(role) == -1) {
+                role.setLabel(new Label(rs.getInt("LABEL_ID"), rs.getString("LABEL_EN"), rs.getString("LABEL_SP"), rs.getString("LABEL_FR"), rs.getString("LABEL_PR")));
+                roleList.add(role);
+            }
+            role = roleList.get(roleList.indexOf(role));
             businessFunction = new BusinessFunction();
             businessFunction.setBusinessFunctionId(rs.getString("BUSINESS_FUNCTION_ID"));
             if (role.getBusinessFunctionList().indexOf(businessFunction) == -1) {
@@ -41,6 +47,6 @@ public class RoleResultSetExtractor implements ResultSetExtractor<Role> {
                 role.getCanCreateRoles().add(canCreateRole);
             }
         }
-        return role;
+        return roleList;
     }
 }

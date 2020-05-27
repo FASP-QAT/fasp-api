@@ -29,6 +29,8 @@ public class Role implements Serializable {
 
     public Role(String roleId) {
         this.roleId = roleId;
+        this.businessFunctionList = new LinkedList<BusinessFunction>();
+        this.canCreateRoles = new LinkedList<CanCreateRole>();
     }
 
     public String getRoleId() {
@@ -38,6 +40,8 @@ public class Role implements Serializable {
     public Role(String roleId, Label label) {
         this.roleId = roleId;
         this.label = label;
+        this.businessFunctionList = new LinkedList<BusinessFunction>();
+        this.canCreateRoles = new LinkedList<CanCreateRole>();
     }
 
     public void setRoleId(String roleId) {
@@ -61,7 +65,11 @@ public class Role implements Serializable {
     }
 
     public String[] getBusinessFunctions() {
-        return businessFunctions;
+        if (this.businessFunctionList.isEmpty()) {
+            return new String[0];
+        } else {
+            return this.businessFunctionList.stream().map(BusinessFunction::getBusinessFunctionId).toArray(String[]::new);
+        }
     }
 
     public void setBusinessFunctions(String[] businessFunctions) {
@@ -77,7 +85,11 @@ public class Role implements Serializable {
     }
 
     public String[] getCanCreateRole() {
-        return canCreateRole;
+        if (this.canCreateRoles.isEmpty()) {
+            return new String[0];
+        } else {
+            return this.canCreateRoles.stream().map(CanCreateRole::getRoleId).toArray(String[]::new);
+        }
     }
 
     public void setCanCreateRole(String[] canCreateRole) {
