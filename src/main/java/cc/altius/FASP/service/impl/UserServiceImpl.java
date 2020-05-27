@@ -73,6 +73,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Role getRoleById(String roleId) {
+        return this.userDao.getRoleById(roleId);
+    }
+    
+    @Override
     public List<Role> getRoleList() {
         return this.userDao.getRoleList();
     }

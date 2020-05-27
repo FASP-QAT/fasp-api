@@ -18,6 +18,7 @@ import cc.altius.FASP.model.rowMapper.BusinessFunctionRowMapper;
 import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.EmailUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ForgotPasswordTokenRowMapper;
+import cc.altius.FASP.model.rowMapper.RoleListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RoleResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserResultSetExtractor;
@@ -58,7 +59,7 @@ public class UserDaoImpl implements UserDao {
 
     @Autowired
     private LabelDao labelDao;
-    
+
     @Value("${syncExpiresOn}")
     private int syncExpiresOn;
 
@@ -262,12 +263,24 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public Role getRoleById(String roleId) {
+        String sql = " SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID`,c.`ROLE_ID` AS  CAN_CREATE_ROLE FROM us_role "
+                + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID` "
+                + "LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=us_role.`ROLE_ID` "
+                + "LEFT JOIN us_can_create_role c ON c.`CAN_CREATE_ROLE`=us_role.`ROLE_ID`"
+                + "WHERE us_role.ROLE_ID=:roleId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("roleId", roleId);
+        return this.namedParameterJdbcTemplate.query(sql, params, new RoleResultSetExtractor());
+    }
+
+    @Override
     public List<Role> getRoleList() {
         String sql = " SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID`,c.`ROLE_ID` AS  CAN_CREATE_ROLE FROM us_role "
                 + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID` "
                 + "LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=us_role.`ROLE_ID` "
                 + "LEFT JOIN us_can_create_role c ON c.`CAN_CREATE_ROLE`=us_role.`ROLE_ID`";
-        return this.namedParameterJdbcTemplate.query(sql, new RoleResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query(sql, new RoleListResultSetExtractor());
     }
 
     @Override
@@ -813,10 +826,10 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public int updateSuncExpiresOn(String username) {
-         Map<String, Object> params = new HashMap<>();
+        Map<String, Object> params = new HashMap<>();
         params.put("username", username);
         params.put("syncexpiresOn", DateUtils.getCurrentDateObject(DateUtils.EST));
-        return this.namedParameterJdbcTemplate.update("update us_user u set u.SYNC_EXPIRES_ON=:syncexpiresOn where u.USERNAME=:username;", params); 
+        return this.namedParameterJdbcTemplate.update("update us_user u set u.SYNC_EXPIRES_ON=:syncexpiresOn where u.USERNAME=:username;", params);
     }
 
 }

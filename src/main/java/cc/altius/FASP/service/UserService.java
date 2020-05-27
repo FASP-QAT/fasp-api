@@ -29,6 +29,8 @@ public interface UserService {
 
     public int updateFailedAttemptsByUserId(String username);
 
+    public Role getRoleById(String roleId);
+
     public List<Role> getRoleList();
 
     public int addNewUser(User user, int curUser);
