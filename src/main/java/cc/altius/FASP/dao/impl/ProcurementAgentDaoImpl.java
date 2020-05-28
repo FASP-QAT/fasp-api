@@ -51,7 +51,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
     @Autowired
     private AclService aclService;
 
-    private String sqlListString = " SELECT pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.SUBMITTED_TO_APPROVED_LEAD_TIME, "
+    private String sqlListString = " SELECT pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.SUBMITTED_TO_APPROVED_LEAD_TIME, pa.LOCAL_PROCUREMENT_AGENT, "
             + " r.REALM_ID, r.REALM_CODE, "
             + " pal.`LABEL_ID` ,pal.`LABEL_EN`, pal.`LABEL_FR`, pal.`LABEL_PR`, pal.`LABEL_SP`,"
             + " rl.`LABEL_ID` `REALM_LABEL_ID` ,rl.`LABEL_EN` `REALM_LABEL_EN`, rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`,"
@@ -75,6 +75,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         int labelId = this.labelDao.addLabel(p.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());
+        params.put("LOCAL_PROCUREMENT_AGENT", p.isLocalProcurementAgent());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);

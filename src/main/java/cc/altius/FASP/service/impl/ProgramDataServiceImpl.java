@@ -53,7 +53,15 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
             int versionId = this.programDataDao.saveProgramData(programData, curUser);
-            return new Version(versionId, curUser.getUserId(), curDate);
+            return new Version(
+                    versionId,
+                    programData.getCurrentVersion().getVersionType(),
+                    programData.getCurrentVersion().getVersionStatus(),
+                    programData.getCurrentVersion().getNotes(),
+                    curUser.getUserId(),
+                    curDate,
+                    curUser.getUserId(),
+                    curDate);
         } else {
             throw new AccessDeniedException("Access denied");
         }

@@ -54,7 +54,10 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     public String sqlListString = "SELECT  "
-            + "     p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_DRAFT_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME, p.CURRENT_VERSION_ID, cpv.CREATED_DATE `CV_CREATED_DATE`, cpvcb.USER_ID `CV_CMB_USER_ID`, cpvcb.USERNAME `CV_CMB_USERNAME`, "
+            + "     p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_DRAFT_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME, "
+            + "     cpv.VERSION_ID `CV_VERSION_ID`, cpv.NOTES `CV_VERSION_NOTES`, cpv.CREATED_DATE `CV_CREATED_DATE`, cpvcb.USER_ID `CV_CB_USER_ID`, cpvcb.USERNAME `CV_CB_USERNAME`, cpv.LAST_MODIFIED_DATE `CV_LAST_MODIFIED_DATE`, cpvlmb.USER_ID `CV_LMB_USER_ID`, cpvlmb.USERNAME `CV_LMB_USERNAME`, "
+            + "     vt.VERSION_TYPE_ID `CV_VERSION_TYPE_ID`, vtl.LABEL_ID `CV_VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `CV_VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `CV_VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `CV_VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `CV_VERSION_TYPE_LABEL_PR`, "
+            + "     vs.VERSION_STATUS_ID `CV_VERSION_STATUS_ID`, vsl.LABEL_ID `CV_VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `CV_VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `CV_VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `CV_VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `CV_VERSION_STATUS_LABEL_PR`, "
             + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME, p.ARRIVED_TO_DELIVERED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
             + "     pl.LABEL_ID, pl.LABEL_EN, pl.LABEL_FR, pl.LABEL_PR, pl.LABEL_SP, "
@@ -71,7 +74,9 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     re.REGION_ID, "
             + "     rel.LABEL_ID `REGION_LABEL_ID`, rel.LABEL_EN `REGION_LABEL_EN`, rel.LABEL_FR `REGION_LABEL_FR`, rel.LABEL_PR `REGION_LABEL_PR`, rel.LABEL_SP `REGION_LABEL_SP`, "
             + "     u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `UNIT_LABEL_ID`, ul.LABEL_EN `UNIT_LABEL_EN`, ul.LABEL_FR `UNIT_LABEL_FR`, ul.LABEL_PR `UNIT_LABEL_PR`, ul.LABEL_SP `UNIT_LABEL_SP`, "
-            + "     pv.VERSION_ID, pv.CREATED_DATE `VERSION_CREATED_DATE`, pvcmb.USER_ID `VERSION_USER_ID`, pvcmb.USERNAME `VERSION_USERNAME`, "
+            + "     pv.VERSION_ID `VT_VERSION_ID`, pv.NOTES `VT_VERSION_NOTES`, pv.CREATED_DATE `VT_CREATED_DATE`, pvcb.USER_ID `VT_CB_USER_ID`, pvcb.USERNAME `VT_CB_USERNAME`, pv.LAST_MODIFIED_DATE `VT_LAST_MODIFIED_DATE`, pvlmb.USER_ID `VT_LMB_USER_ID`, pvlmb.USERNAME `VT_LMB_USERNAME`, "
+            + "     pvt.VERSION_TYPE_ID `VT_VERSION_TYPE_ID`, pvtl.LABEL_ID `VT_VERSION_TYPE_LABEL_ID`, pvtl.LABEL_EN `VT_VERSION_TYPE_LABEL_EN`, pvtl.LABEL_FR `VT_VERSION_TYPE_LABEL_FR`, pvtl.LABEL_SP `VT_VERSION_TYPE_LABEL_SP`, pvtl.LABEL_PR `VT_VERSION_TYPE_LABEL_PR`, "
+            + "     pvs.VERSION_STATUS_ID `VT_VERSION_STATUS_ID`, pvsl.LABEL_ID `VT_VERSION_STATUS_LABEL_ID`, pvsl.LABEL_EN `VT_VERSION_STATUS_LABEL_EN`, pvsl.LABEL_FR `VT_VERSION_STATUS_LABEL_FR`, pvsl.LABEL_SP `VT_VERSION_STATUS_LABEL_SP`, pvsl.LABEL_PR `VT_VERSION_STATUS_LABEL_PR`, "
             + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE "
             + " FROM rm_program p  "
             + " LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
@@ -95,9 +100,19 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID "
             + " LEFT JOIN us_user lmb ON p.LAST_MODIFIED_BY=lmb.USER_ID "
             + " LEFT JOIN rm_program_version cpv ON p.PROGRAM_ID=cpv.PROGRAM_ID AND p.CURRENT_VERSION_ID=cpv.VERSION_ID "
+            + " LEFT JOIN ap_version_type vt ON cpv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
+            + " LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID "
+            + " LEFT JOIN ap_version_status vs ON cpv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
+            + " LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID "
             + " LEFT JOIN us_user cpvcb ON cpv.CREATED_BY=cpvcb.USER_ID "
+            + " LEFT JOIN us_user cpvlmb ON cpv.LAST_MODIFIED_BY=cpvlmb.USER_ID "
             + " LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID "
-            + " LEFT JOIN us_user pvcmb ON pv.CREATED_BY=pvcmb.USER_ID "
+            + " LEFT JOIN ap_version_type pvt ON pv.VERSION_TYPE_ID=pvt.VERSION_TYPE_ID "
+            + " LEFT JOIN ap_label pvtl ON pvt.LABEL_ID=pvtl.LABEL_ID "
+            + " LEFT JOIN ap_version_status pvs ON pv.VERSION_STATUS_ID=pvs.VERSION_STATUS_ID "
+            + " LEFT JOIN ap_label pvsl ON pvs.LABEL_ID=pvsl.LABEL_ID "
+            + " LEFT JOIN us_user pvcb ON pv.CREATED_BY=pvcb.USER_ID "
+            + " LEFT JOIN us_user pvlmb ON pv.LAST_MODIFIED_BY=pvlmb.USER_ID "
             + " WHERE TRUE ";
     private final String sqlOrderBy = "";
 //            " ORDER BY p.PROGRAM_ID, pv.VERSION_ID, pr.REGION_ID ";
@@ -105,7 +120,7 @@ public class ProgramDaoImpl implements ProgramDao {
     public String sqlListStringForProgramPlanningUnit = " SELECT ppu.PROGRAM_PLANNING_UNIT_ID,  "
             + " pg.PROGRAM_ID, pgl.LABEL_ID `PROGRAM_LABEL_ID`, pgl.LABEL_EN `PROGRAM_LABEL_EN`, pgl.LABEL_FR `PROGRAM_LABEL_FR`, pgl.LABEL_PR `PROGRAM_LABEL_PR`, pgl.LABEL_SP `PROGRAM_LABEL_SP`, "
             + " pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
-            + " ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.MIN_MONTHS_OF_STOCK, "
+            + " ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.MIN_MONTHS_OF_STOCK, ppu.LOCAL_PROCUREMENT_LEAD_TIME, ppu.BATCH_NO_REQUIRED, "
             + " ppu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ppu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppu.LAST_MODIFIED_DATE "
             + " FROM  rm_program_planning_unit ppu  "
             + " LEFT JOIN rm_program pg ON pg.PROGRAM_ID=ppu.PROGRAM_ID "
@@ -348,6 +363,8 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("PROGRAM_ID", ppu.getProgram().getId());
                 params.put("REORDER_FREQUENCY_IN_MONTHS", ppu.getReorderFrequencyInMonths());
                 params.put("MIN_MONTHS_OF_STOCK", ppu.getMinMonthsOfStock());
+                params.put("LOCAL_PROCUREMENT_LEAD_TIME", ppu.getLocalProcurementLeadTime());
+                params.put("BATCH_NO_REQUIRED", ppu.isBatchNoRequired());
                 params.put("CREATED_DATE", curDate);
                 params.put("CREATED_BY", curUser.getUserId());
                 params.put("LAST_MODIFIED_DATE", curDate);
@@ -360,6 +377,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("programPlanningUnitId", ppu.getProgramPlanningUnitId());
                 params.put("reorderFrequencyInMonths", ppu.getReorderFrequencyInMonths());
                 params.put("minMonthsOfStock", ppu.getMinMonthsOfStock());
+                params.put("localProcurementLeadTime", ppu.getLocalProcurementLeadTime());
                 params.put("curDate", curDate);
                 params.put("curUser", curUser.getUserId());
                 params.put("active", ppu.isActive());
@@ -373,7 +391,7 @@ public class ProgramDaoImpl implements ProgramDao {
         if (updateList.size() > 0) {
             SqlParameterSource[] updateParams = new SqlParameterSource[updateList.size()];
             String sqlString = "UPDATE "
-                    + "rm_program_planning_unit ppu SET ppu.MIN_MONTHS_OF_STOCK=:minMonthsOfStock,ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.ACTIVE=:active, "
+                    + "rm_program_planning_unit ppu SET ppu.MIN_MONTHS_OF_STOCK=:minMonthsOfStock,ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.LOCAL_PROCUREMENT_LEAD_TIME=:localProcurementLeadTime, ppu.ACTIVE=:active, "
                     + "ppu.LAST_MODIFIED_DATE=IF(ppu.ACTIVE!=:active OR ppu.REORDER_FREQUENCY_IN_MONTHS!=:reorderFrequencyInMonths, :curDate, ppu.LAST_MODIFIED_DATE), "
                     + "ppu.LAST_MODIFIED_BY=IF(ppu.ACTIVE!=:active OR ppu.REORDER_FREQUENCY_IN_MONTHS!=:reorderFrequencyInMonths, :curUser, ppu.LAST_MODIFIED_BY) "
                     + "WHERE ppu.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId";

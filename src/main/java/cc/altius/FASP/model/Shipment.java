@@ -25,11 +25,11 @@ public class Shipment extends BaseModel implements Serializable {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date expectedDeliveryDate;
-    private double suggestedQty;
+    private int suggestedQty;
     private SimpleCodeObject procurementAgent;
     private SimpleObject procurementUnit;
     private SimpleObject supplier;
-    private double quantity;
+    private int quantity; //TODO
     private double rate;
     private double productCost;
     private String shipmentMode;
@@ -57,7 +57,7 @@ public class Shipment extends BaseModel implements Serializable {
         this.shipmentBudgetList = new LinkedList<>();
     }
 
-    public Shipment(int shipmentId, SimplePlanningUnitObject planningUnit, Date expectedDeliveryDate, double suggestedQty, SimpleCodeObject procurementAgent, SimpleObject procurementUnit, SimpleObject supplier, double quantity, double rate, double productCost, String shipmentMode, double freightCost, Date orderedDate, Date shippedDate, Date receivedDate, SimpleObject shipmentStatus, String notes, SimpleObject dataSource, boolean accountFlag, boolean erpFlag, int versionId) {
+    public Shipment(int shipmentId, SimplePlanningUnitObject planningUnit, Date expectedDeliveryDate, int suggestedQty, SimpleCodeObject procurementAgent, SimpleObject procurementUnit, SimpleObject supplier, int quantity, double rate, double productCost, String shipmentMode, double freightCost, Date orderedDate, Date shippedDate, Date receivedDate, SimpleObject shipmentStatus, String notes, SimpleObject dataSource, boolean accountFlag, boolean erpFlag, int versionId) {
         this.shipmentId = shipmentId;
         this.planningUnit = planningUnit;
         this.expectedDeliveryDate = expectedDeliveryDate;
@@ -118,7 +118,7 @@ public class Shipment extends BaseModel implements Serializable {
         return suggestedQty;
     }
 
-    public void setSuggestedQty(double suggestedQty) {
+    public void setSuggestedQty(int suggestedQty) {
         this.suggestedQty = suggestedQty;
     }
 
@@ -150,7 +150,7 @@ public class Shipment extends BaseModel implements Serializable {
         return quantity;
     }
 
-    public void setQuantity(double quantity) {
+    public void setQuantity(int quantity) {
         this.quantity = quantity;
     }
 

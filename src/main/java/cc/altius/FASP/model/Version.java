@@ -19,24 +19,41 @@ import java.util.Date;
 public class Version implements Serializable {
 
     private int versionId;
+    private SimpleObject versionType;
+    private SimpleObject versionStatus;
+    private String notes;
     private BasicUser createdBy;
+    private BasicUser lastModifiedBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     private Date createdDate;
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    private Date lastModifiedDate;
 
     public Version() {
     }
 
-    public Version(int versionId, BasicUser createdBy, Date createdDate) {
+    public Version(int versionId, SimpleObject versionType, SimpleObject versionStatus, String notes, BasicUser createdBy, Date createdDate, BasicUser lastModifiedBy, Date lastModifiedDate) {
         this.versionId = versionId;
+        this.versionType = versionType;
+        this.versionStatus = versionStatus;
+        this.notes = notes;
         this.createdBy = createdBy;
         this.createdDate = createdDate;
+        this.lastModifiedBy = lastModifiedBy;
+        this.lastModifiedDate = lastModifiedDate;
     }
-    
-    public Version(int versionId, int createdByUserId, Date createdDate) {
+
+    public Version(int versionId, SimpleObject versionType, SimpleObject versionStatus, String notes, int createdByUserId, Date createdDate, int lastModifiedByUserId, Date lastModifiedDate) {
         this.versionId = versionId;
+        this.versionType = versionType;
+        this.versionStatus = versionStatus;
+        this.notes = notes;
         this.createdBy = new BasicUser(createdByUserId, "");
         this.createdDate = createdDate;
+        this.lastModifiedBy = new BasicUser(lastModifiedByUserId, "");
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     public int getVersionId() {
@@ -47,6 +64,30 @@ public class Version implements Serializable {
         this.versionId = versionId;
     }
 
+    public SimpleObject getVersionType() {
+        return versionType;
+    }
+
+    public void setVersionType(SimpleObject versionType) {
+        this.versionType = versionType;
+    }
+
+    public SimpleObject getVersionStatus() {
+        return versionStatus;
+    }
+
+    public void setVersionStatus(SimpleObject versionStatus) {
+        this.versionStatus = versionStatus;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
     public BasicUser getCreatedBy() {
         return createdBy;
     }
@@ -55,12 +96,28 @@ public class Version implements Serializable {
         this.createdBy = createdBy;
     }
 
+    public BasicUser getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(BasicUser lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
+
     public Date getCreatedDate() {
         return createdDate;
     }
 
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
+    }
+
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     @Override

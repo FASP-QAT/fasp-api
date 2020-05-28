@@ -18,6 +18,7 @@ public class ProcurementAgent extends BaseModel implements Serializable {
     private Label label;
     private String procurementAgentCode;
     private double submittedToApprovedLeadTime;
+    private boolean localProcurementAgent;
 
     public ProcurementAgent() {
     }
@@ -28,12 +29,13 @@ public class ProcurementAgent extends BaseModel implements Serializable {
         this.procurementAgentCode = procurementAgentCode;
     }
 
-    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, Label label, String procurementAgentCode, double submittedToApprovedLeadTime) {
+    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, Label label, String procurementAgentCode, double submittedToApprovedLeadTime, boolean localProcurementAgent) {
         this.procurementAgentId = procurementAgentId;
         this.realm = realm;
         this.label = label;
         this.procurementAgentCode = procurementAgentCode;
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
+        this.localProcurementAgent = localProcurementAgent;
     }
 
     public int getProcurementAgentId() {
@@ -74,6 +76,14 @@ public class ProcurementAgent extends BaseModel implements Serializable {
 
     public void setSubmittedToApprovedLeadTime(double submittedToApprovedLeadTime) {
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
+    }
+
+    public boolean isLocalProcurementAgent() {
+        return localProcurementAgent;
+    }
+
+    public void setLocalProcurementAgent(boolean localProcurementAgent) {
+        this.localProcurementAgent = localProcurementAgent;
     }
 
     @Override
