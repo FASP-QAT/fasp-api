@@ -26,7 +26,7 @@ public class GlobalConsumptionOutput implements Serializable {
     Date consumptionDate;
     Double planningUnitQty;
     Double forecastingUnitQty;
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM-yy");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM-yyyy");
 
     public SimpleCodeObject getRealmCountry() {
         return realmCountry;
