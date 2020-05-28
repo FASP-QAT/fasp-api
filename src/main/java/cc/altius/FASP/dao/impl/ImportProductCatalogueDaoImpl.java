@@ -682,7 +682,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         System.out.println(rows + " rows updated with Generic Label Id");
 
         // Step 16 Now insert all the data into ForecastingUnit
-        sqlString = "INSERT INTO rm_forecasting_unit select null, 1, tfu.PRODUCT_CATEGORY_ID, tfu.TRACER_CATEGORY_ID, tfu.GENERIC_LABEL_ID, tfu.LABEL_ID, 1, 1, now(), 1, now() from tmp_forecasting_unit tfu";
+        sqlString = "INSERT INTO rm_forecasting_unit select null, 1, tfu.PRODUCT_CATEGORY_ID, tfu.TRACER_CATEGORY_ID, tfu.GENERIC_LABEL_ID, tfu.LABEL_ID, tfu.UNIT_ID, 1, 1, now(), 1, now() from tmp_forecasting_unit tfu";
         rows = this.jdbcTemplate.update(sqlString);
         System.out.println(rows + " Inserted into the Forecasting Unit table");
     }
@@ -697,10 +697,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
                 + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,  "
-                + "    `MULTIPLIER` double (12,2) UNSIGNED DEFAULT null, "
+                + "    `MULTIPLIER` double (20,2) UNSIGNED DEFAULT null, "
                 + " 	`UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "	`FORECASTING_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                + "     `SKU_CODE` VARCHAR(50) NULL, "
+                + "     `SKU_CODE` VARCHAR(100) NULL, "
                 + "    PRIMARY KEY (`ID`)  "
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
         this.jdbcTemplate.update(sqlString);
@@ -732,7 +732,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         sqlString = "truncate table tmp_label";
         this.jdbcTemplate.update(sqlString);
 
-        sqlString = "ALTER TABLE `tmp_label` ADD COLUMN `PRODUCT_ID` VARCHAR(50) NOT NULL AFTER `FOUND`, ADD INDEX `idx_tmpLabel_productId` (`PRODUCT_ID` ASC)";
+        sqlString = "ALTER TABLE `tmp_label` ADD COLUMN `PRODUCT_ID` VARCHAR(100) NOT NULL AFTER `FOUND`, ADD INDEX `idx_tmpLabel_productId` (`PRODUCT_ID` ASC)";
         this.jdbcTemplate.update(sqlString);
 
         // Step 1 Insert the PlanningUnit name into the tmpTable
@@ -771,7 +771,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         sqlString = "update tmp_planning_unit tpu  "
                 + "LEFT JOIN tmp_product_catalog tpc ON tpu.LABEL=tpc.ProductName "
                 + "LEFT JOIN (SELECT u.*, ul.LABEL_EN FROM ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID) tud ON tpc.OrderUOM=tud.LABEL_EN "
-                + "set tpu.UNIT_ID=tud.UNIT_ID";
+                + "set tpu.UNIT_ID=tud.UNIT_ID, tpu.MULTIPLIER=IF(tpc.NoofBaseUnits != '',tpc.NoofBaseUnits,0)";
         rows = this.jdbcTemplate.update(sqlString);
         System.out.println(rows + " UnitId's updated in tmpPlanningUnit");
 
@@ -783,7 +783,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         System.out.println(rows + " ForecastingUnits updated in tmpPlanningUnit");
 
         // Step 8 Insert into the main planning Unit
-        sqlString = "insert into rm_planning_unit select null, tpu.FORECASTING_UNIT_ID,tpu.SKU_CODE, tpu.LABEL_ID, tpu.UNIT_ID, tpu.MULTIPLIER, 1, 1, now(), 1, now() from tmp_planning_unit tpu";
+        sqlString = "insert into rm_planning_unit select null, tpu.FORECASTING_UNIT_ID, tpu.LABEL_ID, tpu.UNIT_ID, tpu.MULTIPLIER, 1, 1, now(), 1, now() from tmp_planning_unit tpu";
         rows = this.jdbcTemplate.update(sqlString);
         System.out.println(rows + " inserted into Planning unit");
 
