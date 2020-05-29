@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class ShipmentBudget implements Serializable {
 
     private int shipmentBudgetId;
-    private Budget budget;
+    private SimpleBudgetObject budget;
     private boolean active;
     private double budgetAmt;
     private Currency currency;
@@ -23,7 +23,7 @@ public class ShipmentBudget implements Serializable {
     public ShipmentBudget() {
     }
 
-    public ShipmentBudget(int shipmentBudgetId, Budget budget, boolean active, double budgetAmt, double conversionRateToUsd, Currency currency) {
+    public ShipmentBudget(int shipmentBudgetId, SimpleBudgetObject budget, boolean active, double budgetAmt, double conversionRateToUsd, Currency currency) {
         this.shipmentBudgetId = shipmentBudgetId;
         this.budget = budget;
         this.active = active;
@@ -40,11 +40,11 @@ public class ShipmentBudget implements Serializable {
         this.shipmentBudgetId = shipmentBudgetId;
     }
 
-    public Budget getBudget() {
+    public SimpleBudgetObject getBudget() {
         return budget;
     }
 
-    public void setBudget(Budget budget) {
+    public void setBudget(SimpleBudgetObject budget) {
         this.budget = budget;
     }
 

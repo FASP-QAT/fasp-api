@@ -16,6 +16,13 @@ public class BusinessFunction extends BaseModel {
     private String businessFunctionId;
     private Label label;
 
+    public BusinessFunction() {
+    }
+
+    public BusinessFunction(String businessFunctionId) {
+        this.businessFunctionId = businessFunctionId;
+    }
+
     public String getBusinessFunctionId() {
         return businessFunctionId;
     }

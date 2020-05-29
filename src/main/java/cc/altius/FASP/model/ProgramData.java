@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.List;
 
@@ -34,6 +35,7 @@ public class ProgramData extends BaseModel implements Serializable {
     private int monthsInFutureForAmc;
     private List<Region> regionList;
     private Version currentVersion;
+    @JsonIgnore
     private List<Version> versionList;
     private List<Consumption> consumptionList;
     private List<Inventory> inventoryList;

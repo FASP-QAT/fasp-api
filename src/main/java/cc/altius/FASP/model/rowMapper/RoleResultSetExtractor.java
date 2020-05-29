@@ -11,8 +11,6 @@ import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.Role;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.LinkedList;
-import java.util.List;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
@@ -32,13 +30,13 @@ public class RoleResultSetExtractor implements ResultSetExtractor<Role> {
             role.setLabel(new Label(rs.getInt("LABEL_ID"), rs.getString("LABEL_EN"), rs.getString("LABEL_SP"), rs.getString("LABEL_FR"), rs.getString("LABEL_PR")));
             businessFunction = new BusinessFunction();
             businessFunction.setBusinessFunctionId(rs.getString("BUSINESS_FUNCTION_ID"));
-            if (role.getBusinessFunctionList().indexOf(businessFunction) == -1) {
+            if (businessFunction.getBusinessFunctionId() != null && role.getBusinessFunctionList().indexOf(businessFunction) == -1) {
                 role.getBusinessFunctionList().add(businessFunction);
             }
             canCreateRole = new CanCreateRole();
             canCreateRole.setRoleId(rs.getString("CAN_CREATE_ROLE"));
-            if (role.getCanCreateRoles().indexOf(canCreateRole) == -1) {
-                role.getCanCreateRoles().add(canCreateRole);
+            if (canCreateRole.getRoleId() != null && role.getCanCreateRoleList().indexOf(canCreateRole) == -1) {
+                role.getCanCreateRoleList().add(canCreateRole);
             }
         }
         return role;

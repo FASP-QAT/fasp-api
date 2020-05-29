@@ -181,8 +181,7 @@ public class UserDaoImpl implements UserDao {
      * to
      */
     @Override
-    public List<String> getBusinessFunctionsForUserId(int userId
-    ) {
+    public List<String> getBusinessFunctionsForUserId(int userId) {
         logger.info("Inside the getBusinessFunctionsForUserId method - " + userId);
         String sqlString = "SELECT BUSINESS_FUNCTION_ID FROM us_user_role LEFT JOIN us_role_business_function ON us_user_role.ROLE_ID=us_role_business_function.ROLE_ID WHERE us_user_role.USER_ID=:userId AND BUSINESS_FUNCTION_ID IS NOT NULL";
         Map<String, Object> params = new HashMap<>();
@@ -191,8 +190,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public Map<String, Object> checkIfUserExists(String username, String password
-    ) {
+    public Map<String, Object> checkIfUserExists(String username, String password) {
         CustomUserDetails customUserDetails = null;
         Map<String, Object> responseMap = new HashMap<>();
         String sql = "SELECT user.*, user_role.ROLE_ID, role.ROLE_NAME FROM us_user `user`"
@@ -235,8 +233,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int resetFailedAttemptsByUsername(String username
-    ) {
+    public int resetFailedAttemptsByUsername(String username) {
         try {
             Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
             Map<String, Object> params = new HashMap<>();
@@ -250,8 +247,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int updateFailedAttemptsByUserId(String username
-    ) {
+    public int updateFailedAttemptsByUserId(String username) {
         try {
             String sqlQuery = "UPDATE `us_user` SET FAILED_ATTEMPTS=FAILED_ATTEMPTS+1 WHERE USERNAME=:username";
             Map<String, Object> params = new HashMap<>();
@@ -264,10 +260,10 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public Role getRoleById(String roleId) {
-        String sql = " SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID`,c.`ROLE_ID` AS  CAN_CREATE_ROLE FROM us_role "
+        String sql = "SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID`,c.`CAN_CREATE_ROLE` FROM us_role "
                 + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID` "
                 + "LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=us_role.`ROLE_ID` "
-                + "LEFT JOIN us_can_create_role c ON c.`CAN_CREATE_ROLE`=us_role.`ROLE_ID`"
+                + "LEFT JOIN us_can_create_role c ON c.`ROLE_ID`=us_role.`ROLE_ID`"
                 + "WHERE us_role.ROLE_ID=:roleId";
         Map<String, Object> params = new HashMap<>();
         params.put("roleId", roleId);
@@ -276,17 +272,16 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<Role> getRoleList() {
-        String sql = " SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID`,c.`ROLE_ID` AS  CAN_CREATE_ROLE FROM us_role "
+        String sql = " SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID`,c.`CAN_CREATE_ROLE` FROM us_role "
                 + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID` "
                 + "LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=us_role.`ROLE_ID` "
-                + "LEFT JOIN us_can_create_role c ON c.`CAN_CREATE_ROLE`=us_role.`ROLE_ID`";
+                + "LEFT JOIN us_can_create_role c ON c.`ROLE_ID`=us_role.`ROLE_ID`";
         return this.namedParameterJdbcTemplate.query(sql, new RoleListResultSetExtractor());
     }
 
     @Override
     @Transactional
-    public int addNewUser(User user, int curUser
-    ) {
+    public int addNewUser(User user, int curUser) {
         SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("us_user").usingGeneratedKeyColumns("USER_ID");
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         Map<String, Object> map = new HashedMap<>();
@@ -362,8 +357,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser
-    ) {
+    public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser) {
         String sql = "SELECT "
                 + "    `user`.`USER_ID`, `user`.`USERNAME`, `user`.`EMAIL_ID`, `user`.`PHONE`, `user`.`PASSWORD`, "
                 + "    `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, "
@@ -408,8 +402,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public User getUserByUserId(int userId
-    ) {
+    public User getUserByUserId(int userId) {
         String sql = "SELECT "
                 + "    `user`.`USER_ID`, `user`.`USERNAME`, `user`.`EMAIL_ID`, `user`.`PHONE`, `user`.`PASSWORD`, "
                 + "    `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, "
@@ -455,8 +448,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     @Transactional
-    public int updateUser(User user, int curUser
-    ) {
+    public int updateUser(User user, int curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sqlString = "";
         sqlString = "UPDATE us_user u "
@@ -499,8 +491,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page
-    ) {
+    public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page) {
         String message = "", sql, username = user.getUsername(), phoneNo = user.getPhoneNumber();
         int userId = 0;
         int result1 = 0, result2 = 0;
@@ -547,8 +538,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int unlockAccount(int userId, String password
-    ) {
+    public int unlockAccount(int userId, String password) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sql = "UPDATE us_user u "
                 + "SET "
@@ -584,9 +574,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int updatePassword(int userId, String newPassword,
-            int offset
-    ) {
+    public int updatePassword(int userId, String newPassword, int offset) {
         Date offsetDate = DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, offset);
         String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn,FAILED_ATTEMPTS=0 WHERE us_user.USER_ID=:userId";
         Map<String, Object> params = new HashMap<>();
@@ -597,9 +585,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int updatePassword(String username, String token,
-            String newPassword, int offset
-    ) {
+    public int updatePassword(String username, String token, String newPassword, int offset) {
         Date offsetDate = DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, offset);
         String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn, FAILED_ATTEMPTS=0 WHERE us_user.USERNAME=:username";
         Map<String, Object> params = new HashMap<>();
@@ -610,8 +596,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public boolean confirmPassword(String username, String password
-    ) {
+    public boolean confirmPassword(String username, String password) {
         String sqlString = "SELECT us_user.PASSWORD FROM us_user WHERE us_user.`USERNAME`=:username";
         Map<String, Object> params = new HashMap<>();
         params.put("username", username);
@@ -622,8 +607,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     @Transactional
-    public int addRole(Role role, CustomUserDetails curUser
-    ) {
+    public int addRole(Role role, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("us_role");
         Map<String, Object> params = new HashMap<>();
@@ -657,14 +641,13 @@ public class UserDaoImpl implements UserDao {
         }
         int result[] = si.executeBatch(paramList);
         si = new SimpleJdbcInsert(dataSource).withTableName("us_can_create_role");
-        int noOfCanCreateRoles = (role.getCanCreateRole() == null ? 0 : role.getCanCreateRole().length);
-        if (noOfCanCreateRoles > 0) {
-            paramList = new SqlParameterSource[noOfCanCreateRoles];
+        if (role.getCanCreateRoles().length > 0) {
+            paramList = new SqlParameterSource[role.getCanCreateRoles().length];
             i = 0;
-            for (String r : role.getCanCreateRole()) {
+            for (String r : role.getCanCreateRoles()) {
                 params = new HashMap<>();
-                params.put("ROLE_ID", r);
-                params.put("CAN_CREATE_ROLE", roleId);
+                params.put("ROLE_ID", roleId);
+                params.put("CAN_CREATE_ROLE", r);
                 paramList[i] = new MapSqlParameterSource(params);
                 i++;
             }
@@ -675,8 +658,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     @Transactional
-    public int updateRole(Role role, CustomUserDetails curUser
-    ) {
+    public int updateRole(Role role, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sql = "";
         Map<String, Object> params = new HashMap<>();
@@ -685,7 +667,7 @@ public class UserDaoImpl implements UserDao {
         params.put("lastModifiedBy", curUser.getUserId());
         params.put("lastModifiedDate", curDate);
         this.namedParameterJdbcTemplate.update("DELETE rbf.* FROM us_role_business_function rbf where rbf.ROLE_ID=:roleId", params);
-        this.namedParameterJdbcTemplate.update("DELETE r.* FROM us_can_create_role r WHERE r.CAN_CREATE_ROLE=:roleId", params);
+        this.namedParameterJdbcTemplate.update("DELETE r.* FROM us_can_create_role r WHERE r.ROLE_ID=:roleId", params);
         sql = "UPDATE us_role r "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=r.`LABEL_ID` "
                 + "SET "
@@ -712,14 +694,13 @@ public class UserDaoImpl implements UserDao {
         si.executeBatch(paramList);
         params.clear();
         si = new SimpleJdbcInsert(dataSource).withTableName("us_can_create_role");
-        int noOfCanCreateRoles = (role.getCanCreateRole() == null ? 0 : role.getCanCreateRole().length);
-        if (noOfCanCreateRoles > 0) {
-            paramList = new SqlParameterSource[noOfCanCreateRoles];
+        if (role.getCanCreateRoles().length > 0) {
+            paramList = new SqlParameterSource[role.getCanCreateRoles().length];
             i = 0;
-            for (String r : role.getCanCreateRole()) {
+            for (String canCreateRole : role.getCanCreateRoles()) {
                 params = new HashMap<>();
-                params.put("ROLE_ID", r);
-                params.put("CAN_CREATE_ROLE", role.getRoleId());
+                params.put("ROLE_ID", role.getRoleId());
+                params.put("CAN_CREATE_ROLE", canCreateRole);
                 paramList[i] = new MapSqlParameterSource(params);
                 i++;
             }
@@ -729,8 +710,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public String generateTokenForUserId(int userId
-    ) {
+    public String generateTokenForUserId(int userId) {
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
@@ -738,16 +718,14 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public EmailUser getEmailUserByUsername(String username
-    ) {
+    public EmailUser getEmailUserByUsername(String username) {
         Map<String, Object> params = new HashMap<>();
         params.put("username", username);
         return this.namedParameterJdbcTemplate.queryForObject("SELECT USERNAME, USER_ID, EMAIL_ID FROM us_user WHERE USERNAME=:username", params, new EmailUserRowMapper());
     }
 
     @Override
-    public ForgotPasswordToken getForgotPasswordToken(String username, String token
-    ) {
+    public ForgotPasswordToken getForgotPasswordToken(String username, String token) {
         Map<String, Object> params = new HashMap<>();
         params.put("username", username);
         params.put("token", token);
@@ -755,8 +733,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void updateTriggeredDateForForgotPasswordToken(String username, String token
-    ) {
+    public void updateTriggeredDateForForgotPasswordToken(String username, String token) {
         Map<String, Object> params = new HashMap<>();
         params.put("username", username);
         params.put("token", token);
@@ -765,8 +742,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void updateCompletionDateForForgotPasswordToken(String username, String token
-    ) {
+    public void updateCompletionDateForForgotPasswordToken(String username, String token) {
         Map<String, Object> params = new HashMap<>();
         params.put("username", username);
         params.put("token", token);
@@ -775,8 +751,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public boolean isTokenLogout(String token
-    ) {
+    public boolean isTokenLogout(String token) {
         Map<String, Object> params = new HashMap<>();
         params.put("token", token);
         String sqlString = "SELECT COUNT(*) FROM us_token_logout WHERE TOKEN=:token";
@@ -784,8 +759,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void addTokenToLogout(String token
-    ) {
+    public void addTokenToLogout(String token) {
         String sqlString = "INSERT IGNORE INTO us_token_logout (TOKEN, LOGOUT_DATE) VALUES (:token, :curDate)";
         Map<String, Object> params = new HashMap<>();
         params.put("token", token);
@@ -794,8 +768,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int mapAccessControls(User user, CustomUserDetails curUser
-    ) {
+    public int mapAccessControls(User user, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sqlString = "";
         int row = 0, x = 0;

@@ -18,16 +18,20 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
     private SimpleObject planningUnit;
     private int reorderFrequencyInMonths;
     private int minMonthsOfStock;
+    private double localProcurementLeadTime;
+    private boolean batchNoRequired;
 
     public ProgramPlanningUnit() {
     }
 
-    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, int reorderFrequencyInMonths, int minMonthsOfStock) {
+    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, int reorderFrequencyInMonths, int minMonthsOfStock, double localProcurementLeadTime, boolean batchNoRequired) {
         this.programPlanningUnitId = programPlanningUnitId;
         this.program = program;
         this.planningUnit = planningUnit;
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
         this.minMonthsOfStock = minMonthsOfStock;
+        this.localProcurementLeadTime = localProcurementLeadTime;
+        this.batchNoRequired = batchNoRequired;
     }
 
     public int getProgramPlanningUnitId() {
@@ -68,6 +72,22 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
 
     public void setMinMonthsOfStock(int minMonthsOfStock) {
         this.minMonthsOfStock = minMonthsOfStock;
+    }
+
+    public double getLocalProcurementLeadTime() {
+        return localProcurementLeadTime;
+    }
+
+    public void setLocalProcurementLeadTime(double localProcurementLeadTime) {
+        this.localProcurementLeadTime = localProcurementLeadTime;
+    }
+
+    public boolean isBatchNoRequired() {
+        return batchNoRequired;
+    }
+
+    public void setBatchNoRequired(boolean batchNoRequired) {
+        this.batchNoRequired = batchNoRequired;
     }
 
     @Override
