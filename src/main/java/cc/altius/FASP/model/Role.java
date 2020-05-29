@@ -19,18 +19,18 @@ public class Role implements Serializable {
     private Label label;
     private List<BusinessFunction> businessFunctionList;
     private String[] businessFunctions;
-    private List<CanCreateRole> canCreateRoles;
-    private String[] canCreateRole;
+    private List<CanCreateRole> canCreateRoleList;
+    private String[] canCreateRoles;
 
     public Role() {
         this.businessFunctionList = new LinkedList<BusinessFunction>();
-        this.canCreateRoles = new LinkedList<CanCreateRole>();
+        this.canCreateRoleList = new LinkedList<CanCreateRole>();
     }
 
     public Role(String roleId) {
         this.roleId = roleId;
         this.businessFunctionList = new LinkedList<BusinessFunction>();
-        this.canCreateRoles = new LinkedList<CanCreateRole>();
+        this.canCreateRoleList = new LinkedList<CanCreateRole>();
     }
 
     public String getRoleId() {
@@ -41,7 +41,7 @@ public class Role implements Serializable {
         this.roleId = roleId;
         this.label = label;
         this.businessFunctionList = new LinkedList<BusinessFunction>();
-        this.canCreateRoles = new LinkedList<CanCreateRole>();
+        this.canCreateRoleList = new LinkedList<CanCreateRole>();
     }
 
     public void setRoleId(String roleId) {
@@ -74,26 +74,33 @@ public class Role implements Serializable {
 
     public void setBusinessFunctions(String[] businessFunctions) {
         this.businessFunctions = businessFunctions;
-    }
-
-    public List<CanCreateRole> getCanCreateRoles() {
-        return canCreateRoles;
-    }
-
-    public void setCanCreateRoles(List<CanCreateRole> canCreateRoles) {
-        this.canCreateRoles = canCreateRoles;
-    }
-
-    public String[] getCanCreateRole() {
-        if (this.canCreateRoles.isEmpty()) {
-            return new String[0];
-        } else {
-            return this.canCreateRoles.stream().map(CanCreateRole::getRoleId).toArray(String[]::new);
+        for (String bf : businessFunctions) {
+            this.businessFunctionList.add(new BusinessFunction(bf));
         }
     }
 
-    public void setCanCreateRole(String[] canCreateRole) {
-        this.canCreateRole = canCreateRole;
+    public List<CanCreateRole> getCanCreateRoleList() {
+        return canCreateRoleList;
+    }
+
+    public void setCanCreateRoleList(List<CanCreateRole> canCreateRoleList) {
+        this.canCreateRoleList = canCreateRoleList;
+    }
+
+    public String[] getCanCreateRoles() {
+        if (this.canCreateRoleList.isEmpty()) {
+            return new String[0];
+        } else {
+            return this.canCreateRoleList.stream().map(CanCreateRole::getRoleId).toArray(String[]::new);
+        }
+    }
+
+    public void setCanCreateRoles(String[] canCreateRoles) {
+        this.canCreateRoles = canCreateRoles;
+        this.canCreateRoleList.clear();
+        for (String c: canCreateRoles) {
+            this.canCreateRoleList.add(new CanCreateRole(c));
+        }
     }
 
     @Override
@@ -123,7 +130,7 @@ public class Role implements Serializable {
 
     @Override
     public String toString() {
-        return "Role{" + "roleId=" + roleId + ", label=" + label + ", businessFunctionList=" + businessFunctionList + ", businessFunctions=" + businessFunctions + ", canCreateRoles=" + canCreateRoles + ", canCreateRole=" + canCreateRole + '}';
+        return "Role{" + "roleId=" + roleId + ", label=" + label + ", businessFunctionList=" + businessFunctionList + ", businessFunctions=" + businessFunctions + ", canCreateRoles=" + canCreateRoles + ", canCreateRole=" + canCreateRoleList + '}';
     }
 
 }

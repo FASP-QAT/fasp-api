@@ -55,7 +55,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             s.setProcurementAgent(new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, 1), rs.getString("PROCUREMENT_AGENT_CODE")));
             s.setProcurementUnit(new SimpleObject(rs.getInt("PROCUREMENT_UNIT_ID"), new LabelRowMapper("PROCUREMENT_UNIT_").mapRow(rs, 1)));
             s.setSupplier(new SimpleObject(rs.getInt("SUPPLIER_ID"), new LabelRowMapper("SUPPLIER_").mapRow(rs, 1)));
-            s.setQuantity(rs.getInt("QUANTITY"));
+            s.setShipmentQty(rs.getInt("QUANTITY"));
             s.setRate(rs.getDouble("RATE"));
             s.setProductCost(rs.getDouble("PRODUCT_COST"));
             s.setShipmentMode(rs.getString("SHIPPING_MODE"));
@@ -70,6 +70,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             s.setErpFlag(rs.getBoolean("ERP_FLAG"));
             s.setOrderNo(rs.getString("ORDER_NO"));
             s.setPrimeLineNo(rs.getString("PRIME_LINE_NO"));
+            s.setEmergencyOrder(rs.getBoolean("EMERGENCY_ORDER"));
             s.setVersionId(rs.getInt("VERSION_ID"));
             s.setCurrency(new Currency(
                     rs.getInt("SHIPMENT_CURRENCY_ID"),

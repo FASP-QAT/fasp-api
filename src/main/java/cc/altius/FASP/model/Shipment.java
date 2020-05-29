@@ -29,7 +29,7 @@ public class Shipment extends BaseModel implements Serializable {
     private SimpleCodeObject procurementAgent;
     private SimpleObject procurementUnit;
     private SimpleObject supplier;
-    private int quantity; //TODO
+    private int shipmentQty;
     private double rate;
     private Currency currency;
     private double productCost;
@@ -51,6 +51,7 @@ public class Shipment extends BaseModel implements Serializable {
     private boolean erpFlag;
     private String orderNo;
     private String primeLineNo;
+    private boolean emergencyOrder;
     private int versionId;
     private List<ShipmentBudget> shipmentBudgetList;
     private List<ShipmentBatchInfo> batchInfoList;
@@ -59,40 +60,6 @@ public class Shipment extends BaseModel implements Serializable {
         this.shipmentBudgetList = new LinkedList<>();
         this.batchInfoList = new LinkedList<>();
     }
-
-//    public Shipment(int shipmentId, SimplePlanningUnitObject planningUnit, Date expectedDeliveryDate, int suggestedQty, SimpleCodeObject procurementAgent, SimpleObject procurementUnit, SimpleObject supplier, int quantity, double rate, double productCost, String shipmentMode, double freightCost, Date orderedDate, Date shippedDate, Date receivedDate, SimpleObject shipmentStatus, String notes, SimpleObject dataSource, boolean accountFlag, boolean erpFlag, int versionId) {
-//        this.shipmentId = shipmentId;
-//        this.planningUnit = planningUnit;
-//        this.expectedDeliveryDate = expectedDeliveryDate;
-//        this.suggestedQty = suggestedQty;
-//        this.procurementAgent = procurementAgent;
-//        if (procurementUnit == null || procurementUnit.getId() == 0) {
-//            this.procurementUnit = null;
-//        } else {
-//            this.procurementUnit = procurementUnit;
-//        }
-//        if (supplier == null || supplier.getId() == 0) {
-//            this.supplier = null;
-//        } else {
-//            this.supplier = supplier;
-//        }
-//        this.quantity = quantity;
-//        this.rate = rate;
-//        this.productCost = productCost;
-//        this.shipmentMode = shipmentMode;
-//        this.freightCost = freightCost;
-//        this.orderedDate = orderedDate;
-//        this.shippedDate = shippedDate;
-//        this.receivedDate = receivedDate;
-//        this.shipmentStatus = shipmentStatus;
-//        this.notes = notes;
-//        this.dataSource = dataSource;
-//        this.accountFlag = accountFlag;
-//        this.erpFlag = erpFlag;
-//        this.versionId = versionId;
-//        this.shipmentBudgetList = new LinkedList<>();
-//    }
-
     public int getShipmentId() {
         return shipmentId;
     }
@@ -149,12 +116,12 @@ public class Shipment extends BaseModel implements Serializable {
         this.supplier = supplier;
     }
 
-    public double getQuantity() {
-        return quantity;
+    public double getShipmentQty() {
+        return shipmentQty;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setShipmentQty(int shipmentQty) {
+        this.shipmentQty = shipmentQty;
     }
 
     public double getRate() {
@@ -275,6 +242,14 @@ public class Shipment extends BaseModel implements Serializable {
 
     public void setPrimeLineNo(String primeLineNo) {
         this.primeLineNo = primeLineNo;
+    }
+
+    public boolean isEmergencyOrder() {
+        return emergencyOrder;
+    }
+
+    public void setEmergencyOrder(boolean emergencyOrder) {
+        this.emergencyOrder = emergencyOrder;
     }
 
     public int getVersionId() {
