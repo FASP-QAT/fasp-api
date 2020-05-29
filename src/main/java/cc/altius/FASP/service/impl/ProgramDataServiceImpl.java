@@ -38,9 +38,6 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser) {
         ProgramData pd = new ProgramData(this.programService.getProgramById(programId, curUser));
         pd.setRequestedProgramVersion(versionId);
-//        if (pd.getCurrentVersion().getVersionId() < versionId) {
-//            throw new EmptyResultDataAccessException("Incorrect VersionId requested", versionId);
-//        }
         pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId));
         pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId));
         pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId));
