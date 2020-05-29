@@ -12,6 +12,7 @@ import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.QatTempConsumption;
 import cc.altius.FASP.model.pipeline.QatTempProgramPlanningUnit;
+import cc.altius.FASP.model.pipeline.QatTempShipment;
 import cc.altius.FASP.service.PipelineDbService;
 import java.io.IOException;
 import static jxl.biff.BaseCellFeatures.logger;
@@ -211,7 +212,7 @@ public class PipelineDbRestController {
     }
 
     @PostMapping(path = "/pipeline/shipment/{pipelineId}")
-    public ResponseEntity saveShipmentData(@PathVariable("pipelineId") int pipelineId, @RequestBody Shipment[] shipments, Authentication auth) throws IOException {
+    public ResponseEntity saveShipmentData(@PathVariable("pipelineId") int pipelineId, @RequestBody QatTempShipment[] shipments, Authentication auth) throws IOException {
         CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
         try {
             return new ResponseEntity(this.pipelineDbService.saveShipmentData(pipelineId, shipments, curUser), HttpStatus.OK);

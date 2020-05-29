@@ -12,6 +12,10 @@ import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.Shipment;
+import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleForecastingUnitObject;
+import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.PplConsumption;
 import cc.altius.FASP.model.pipeline.PplProduct;
@@ -21,16 +25,21 @@ import cc.altius.FASP.model.pipeline.rowMapper.QatTempProgramResultSetExtractor;
 import cc.altius.FASP.model.pipeline.PplShipment;
 import cc.altius.FASP.model.pipeline.QatTempConsumption;
 import cc.altius.FASP.model.pipeline.QatTempProgramPlanningUnit;
+import cc.altius.FASP.model.pipeline.QatTempShipment;
 import cc.altius.FASP.model.pipeline.rowMapper.PipelineConsumptionRowMapper;
 import cc.altius.FASP.model.pipeline.rowMapper.PplPrograminfoRowMapper;
 import cc.altius.FASP.model.pipeline.rowMapper.PplShipmentRowMapper;
 import cc.altius.FASP.model.pipeline.rowMapper.QatTemRegionRowMapper;
 import cc.altius.FASP.model.pipeline.rowMapper.QatTempConsumptionRowMapper;
 import cc.altius.FASP.model.pipeline.rowMapper.QatTempPlanningUnitRowMapper;
-import cc.altius.FASP.model.rowMapper.ShipmentRowMapper;
+import cc.altius.FASP.model.rowMapper.BaseModelRowMapper;
+import cc.altius.FASP.model.rowMapper.LabelRowMapper;
+import cc.altius.FASP.model.pipeline.rowMapper.QatTempShipmentRowMapper;
 import cc.altius.utils.DateUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,6 +48,7 @@ import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -722,86 +732,95 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     }
 
     @Override
-    public String getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser) {
-         Map<String, Object> params = new HashMap<>();
-         Gson gson=new  GsonBuilder().serializeNulls().setPrettyPrinting().create();
+    public List<QatTempShipment> getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
         params.put("pipelineId", pipelineId);
-         String sql ="SELECT\n" +
-"		st.SHIPMENT_ID, st.EXPECTED_DELIVERY_DATE, st.ORDERED_DATE, st.SHIPPED_DATE, st.RECEIVED_DATE, st.QUANTITY, st.RATE, st.PRODUCT_COST, st.FREIGHT_COST, st.SHIPPING_MODE, st.SUGGESTED_QTY, '0' ACCOUNT_FLAG, '0'ERP_FLAG, st.NOTES,\n" +
-"		0 VERSION_ID ,\n" +
-"		pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pal.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pal.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pal.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pal.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, pal.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`,\n" +
-"		pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`,\n" +
-"		fu.FORECASTING_UNIT_ID, ful.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, ful.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, ful.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, ful.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, ful.LABEL_PR `FORECASTING_UNIT_LABEL_PR`,\n" +
-"		pc.PRODUCT_CATEGORY_ID, pcl.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pcl.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pcl.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pcl.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, pcl.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`,\n" +
-"		pru.PROCUREMENT_UNIT_ID, prul.LABEL_ID `PROCUREMENT_UNIT_LABEL_ID`, prul.LABEL_EN `PROCUREMENT_UNIT_LABEL_EN`, prul.LABEL_FR `PROCUREMENT_UNIT_LABEL_FR`, prul.LABEL_SP `PROCUREMENT_UNIT_LABEL_SP`, prul.LABEL_PR `PROCUREMENT_UNIT_LABEL_PR`,\n" +
-"        su.SUPPLIER_ID, sul.LABEL_ID `SUPPLIER_LABEL_ID`, sul.LABEL_EN `SUPPLIER_LABEL_EN`, sul.LABEL_FR `SUPPLIER_LABEL_FR`, sul.LABEL_SP `SUPPLIER_LABEL_SP`, sul.LABEL_PR `SUPPLIER_LABEL_PR`,\n" +
-"        shs.SHIPMENT_STATUS_ID, shsl.LABEL_ID `SHIPMENT_STATUS_LABEL_ID`, shsl.LABEL_EN `SHIPMENT_STATUS_LABEL_EN`, shsl.LABEL_FR `SHIPMENT_STATUS_LABEL_FR`, shsl.LABEL_SP `SHIPMENT_STATUS_LABEL_SP`, shsl.LABEL_PR `SHIPMENT_STATUS_LABEL_PR`,\n" +
-"        ds.DATA_SOURCE_ID, dsl.LABEL_ID `DATA_SOURCE_LABEL_ID`, dsl.LABEL_EN `DATA_SOURCE_LABEL_EN`, dsl.LABEL_FR `DATA_SOURCE_LABEL_FR`, dsl.LABEL_SP `DATA_SOURCE_LABEL_SP`, dsl.LABEL_PR `DATA_SOURCE_LABEL_PR`,\n" +
-"		cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, st.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, st.LAST_MODIFIED_DATE, st.ACTIVE\n" +
-"   	FROM  qat_temp_shipment st \n" +
-"	LEFT JOIN rm_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID\n" +
-"	LEFT JOIN ap_label pal ON pa.LABEL_ID=pal.LABEL_ID\n" +
-"	LEFT JOIN rm_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID\n" +
-"	LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID\n" +
-"	LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID\n" +
-"	LEFT JOIN ap_label ful ON fu.LABEL_ID=ful.LABEL_ID\n" +
-"	LEFT JOIN rm_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID\n" +
-"	LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID\n" +
-"    LEFT JOIN rm_procurement_unit pru ON st.PROCUREMENT_UNIT_ID=pru.PROCUREMENT_UNIT_ID\n" +
-"    LEFT JOIN ap_label prul ON pru.LABEL_ID=prul.LABEL_ID\n" +
-"	LEFT JOIN rm_supplier su ON st.SUPPLIER_ID=su.SUPPLIER_ID\n" +
-"    LEFT JOIN ap_label sul ON su.LABEL_ID=sul.LABEL_ID\n" +
-"    LEFT JOIN ap_shipment_status shs ON st.SHIPMENT_STATUS_ID=shs.SHIPMENT_STATUS_ID\n" +
-"    LEFT JOIN ap_label shsl ON shs.LABEL_ID=shsl.LABEL_ID \n" +
-"    LEFT JOIN rm_data_source ds ON st.DATA_SOURCE_ID=ds.DATA_SOURCE_ID\n" +
-"	LEFT JOIN ap_label dsl ON ds.LABEL_ID=dsl.LABEL_ID "
-                 + "LEFT JOIN us_user cb ON st.CREATED_BY=cb.USER_ID\n" +
-"	LEFT JOIN us_user lmb ON st.LAST_MODIFIED_BY=lmb.USER_ID" +
-"	WHERE st.`PIPELINE_ID`=:pipelineId" ;
-         List<Shipment> result= this.namedParameterJdbcTemplate.query(sql, params, new ShipmentRowMapper());
-         if(result.size()==0){
-         sql = "SELECT COALESCE(pu.`PLANNING_UNIT_ID`,pr.`ProductName`) productId,ash.`ShipAmount`,ash.`ShipOrderedDate`,ash.`ShipShippedDate`,ash.`ShipReceivedDate`,ash.`ShipNote`,ash.`ShipFreightCost`,ash.`ShipPO`,COALESCE(rds.`DATA_SOURCE_ID`,ds.`DataSourceName`) datasourceId,COALESCE(rpa.`PROCUREMENT_AGENT_ID`,ads.`SupplierName`) supplierId \n"
-                + " FROM adb_shipment ash LEFT JOIN \n"
-                + "adb_product pr ON pr.`ProductID`=ash.`ProductID` \n"
-                + "LEFT JOIN ap_label al ON UPPER(al.LABEL_EN)=UPPER(pr.`ProductName`)  OR UPPER(al.LABEL_FR)=UPPER(pr.`ProductName`) OR UPPER(al.LABEL_SP)=UPPER(pr.`ProductName`) OR UPPER(al.LABEL_PR)=UPPER(pr.`ProductName`)\n"
-                + "LEFT JOIN rm_planning_unit pu ON pu.`LABEL_ID`=al.`LABEL_ID`\n"
-                + "LEFT JOIN adb_datasource ds ON ds.`DataSourceID`=ash.`ShipDataSourceID`\n"
-                + "LEFT JOIN ap_label ald ON UPPER(ald.LABEL_EN)=UPPER(ds.`DataSourceName`)  OR UPPER(ald.LABEL_FR)=UPPER(ds.`DataSourceName`) OR UPPER(ald.LABEL_SP)=UPPER(ds.`DataSourceName`) OR UPPER(ald.LABEL_PR)=UPPER(ds.`DataSourceName`)\n"
-                + "LEFT JOIN rm_data_source rds ON rds.`LABEL_ID`=ald.`LABEL_ID`\n"
-                + "LEFT JOIN adb_source ads ON ads.`SupplierID`=ash.`SupplierID`\n"
-                + "LEFT JOIN ap_label alds ON UPPER(alds.LABEL_EN)=UPPER(ads.`SupplierName`)  OR UPPER(alds.LABEL_FR)=UPPER(ads.`SupplierName`) OR UPPER(alds.LABEL_SP)=UPPER(ads.`SupplierName`) OR UPPER(alds.LABEL_PR)=UPPER(ads.`SupplierName`)\n"
-                + "LEFT JOIN rm_procurement_agent rpa ON rpa.`LABEL_ID`=alds.`LABEL_ID`\n"
-                + " WHERE ash.`PIPELINE_ID`=:pipelineId";
-       
-        return gson.toJson(this.namedParameterJdbcTemplate.query(sql, params, new PplShipmentRowMapper()));
-         }else{
-            return gson.toJson(result); 
-         }
+        String sql = "SELECT\n"
+                + "		st.SHIPMENT_ID, st.EXPECTED_DELIVERY_DATE, st.ORDERED_DATE, st.SHIPPED_DATE, st.RECEIVED_DATE, st.QUANTITY, st.RATE, st.PRODUCT_COST, st.FREIGHT_COST, st.SHIPPING_MODE, st.SUGGESTED_QTY, '0' ACCOUNT_FLAG, '0'ERP_FLAG, st.NOTES,\n"
+                + "		0 VERSION_ID ,\n"
+                + "		st.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pal.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pal.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pal.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pal.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, pal.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`,\n"
+                + "		st.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`,\n"
+                + "		fu.FORECASTING_UNIT_ID, ful.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, ful.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, ful.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, ful.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, ful.LABEL_PR `FORECASTING_UNIT_LABEL_PR`,\n"
+                + "		pc.PRODUCT_CATEGORY_ID, pcl.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pcl.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pcl.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pcl.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, pcl.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`,\n"
+                + "		st.PROCUREMENT_UNIT_ID, prul.LABEL_ID `PROCUREMENT_UNIT_LABEL_ID`, prul.LABEL_EN `PROCUREMENT_UNIT_LABEL_EN`, prul.LABEL_FR `PROCUREMENT_UNIT_LABEL_FR`, prul.LABEL_SP `PROCUREMENT_UNIT_LABEL_SP`, prul.LABEL_PR `PROCUREMENT_UNIT_LABEL_PR`,\n"
+                + "        st.SUPPLIER_ID, sul.LABEL_ID `SUPPLIER_LABEL_ID`, sul.LABEL_EN `SUPPLIER_LABEL_EN`, sul.LABEL_FR `SUPPLIER_LABEL_FR`, sul.LABEL_SP `SUPPLIER_LABEL_SP`, sul.LABEL_PR `SUPPLIER_LABEL_PR`,\n"
+                + "        st.SHIPMENT_STATUS_ID, shsl.LABEL_ID `SHIPMENT_STATUS_LABEL_ID`, shsl.LABEL_EN `SHIPMENT_STATUS_LABEL_EN`, shsl.LABEL_FR `SHIPMENT_STATUS_LABEL_FR`, shsl.LABEL_SP `SHIPMENT_STATUS_LABEL_SP`, shsl.LABEL_PR `SHIPMENT_STATUS_LABEL_PR`,\n"
+                + "        st.DATA_SOURCE_ID, dsl.LABEL_ID `DATA_SOURCE_LABEL_ID`, dsl.LABEL_EN `DATA_SOURCE_LABEL_EN`, dsl.LABEL_FR `DATA_SOURCE_LABEL_FR`, dsl.LABEL_SP `DATA_SOURCE_LABEL_SP`, dsl.LABEL_PR `DATA_SOURCE_LABEL_PR`,\n"
+                + "        st.FUNDING_SOURCE_ID, fsl.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fsl.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fsl.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fsl.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fsl.LABEL_PR `FUNDING_SOURCE_LABEL_PR`,\n"
+                + "		cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, st.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, st.LAST_MODIFIED_DATE, st.ACTIVE\n"
+                + "   	FROM  qat_temp_shipment st \n"
+                + "	LEFT JOIN rm_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID\n"
+                + "	LEFT JOIN ap_label pal ON pa.LABEL_ID=pal.LABEL_ID\n"
+                + "	LEFT JOIN rm_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID\n"
+                + "	LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID\n"
+                + "	LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID\n"
+                + "	LEFT JOIN ap_label ful ON fu.LABEL_ID=ful.LABEL_ID\n"
+                + "	LEFT JOIN rm_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID\n"
+                + "	LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID\n"
+                + "    LEFT JOIN rm_procurement_unit pru ON st.PROCUREMENT_UNIT_ID=pru.PROCUREMENT_UNIT_ID\n"
+                + "    LEFT JOIN ap_label prul ON pru.LABEL_ID=prul.LABEL_ID\n"
+                + "	LEFT JOIN rm_supplier su ON st.SUPPLIER_ID=su.SUPPLIER_ID\n"
+                + "    LEFT JOIN ap_label sul ON su.LABEL_ID=sul.LABEL_ID\n"
+                + "    LEFT JOIN ap_shipment_status shs ON st.SHIPMENT_STATUS_ID=shs.SHIPMENT_STATUS_ID\n"
+                + "    LEFT JOIN ap_label shsl ON shs.LABEL_ID=shsl.LABEL_ID \n"
+                + "    LEFT JOIN rm_data_source ds ON st.DATA_SOURCE_ID=ds.DATA_SOURCE_ID\n"
+                + "	LEFT JOIN ap_label dsl ON ds.LABEL_ID=dsl.LABEL_ID "
+                + "    LEFT JOIN rm_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID\n"
+                + "	LEFT JOIN ap_label fsl ON fs.LABEL_ID=fsl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON st.CREATED_BY=cb.USER_ID\n"
+                + "	LEFT JOIN us_user lmb ON st.LAST_MODIFIED_BY=lmb.USER_ID"
+                + "	WHERE st.`PIPELINE_ID`=:pipelineId";
+        List<QatTempShipment> result = this.namedParameterJdbcTemplate.query(sql, params, new QatTempShipmentRowMapper());
+
+        if (result.size() == 0) {
+            sql = "SELECT ash.ShipmentID SHIPMENT_ID,qtp.`PLANNING_UNIT_ID`,ash.`ShipAmount`,ash.`ShipReceivedDate` EXPECTED_DELIVERY_DATE,ash.ShipAmount SUGGESTED_QTY,ash.ShipAmount QUANTITY,'0.0' RATE,ShipValue PRODUCT_COST,'' SHIPPING_MODE,ash.`ShipOrderedDate` ORDERED_DATE,\n"
+                    + "                 ash.`ShipShippedDate` SHIPPED_DATE,ash.`ShipReceivedDate` RECEIVED_DATE,ash.ShipStatusCode SHIPMENT_STATUS_ID,ash.`ShipNote` NOTES,ash.`ShipFreightCost` FREIGHT_COST,ash.`ShipPO`,COALESCE(rds.`DATA_SOURCE_ID`,ds.`DataSourceName`) DATA_SOURCE_ID,\n"
+                    + "                 '1'ACCOUNT_FLAG,'1'ERP_FLAG,'0'VERSION_ID ,COALESCE(rpa.`PROCUREMENT_AGENT_ID`,ads.`SupplierName`) PROCUREMENT_AGENT_ID, '' PROCUREMENT_UNIT_ID,'' SUPPLIER_ID ,COALESCE(rfs.`FUNDING_SOURCE_ID`,afs.`FundingSourceName`) FUNDING_SOURCE_ID,'1' ACTIVE \n"
+                    + "                 FROM adb_shipment ash \n"
+                    + "                   LEFT JOIN  qat_temp_program_planning_unit qtp ON qtp.PIPELINE_PRODUCT_ID = ash.ProductID  AND  qtp.`PIPELINE_ID`=:pipelineId\n"
+                    + "                 LEFT JOIN adb_datasource ds ON ds.`DataSourceID`=ash.`ShipDataSourceID`AND ds.`PIPELINE_ID`=:pipelineId\n"
+                    + "                LEFT JOIN ap_label ald ON UPPER(ald.LABEL_EN)=UPPER(ds.`DataSourceName`)  OR UPPER(ald.LABEL_FR)=UPPER(ds.`DataSourceName`) OR UPPER(ald.LABEL_SP)=UPPER(ds.`DataSourceName`) OR UPPER(ald.LABEL_PR)=UPPER(ds.`DataSourceName`)\n"
+                    + "                LEFT JOIN rm_data_source rds ON rds.`LABEL_ID`=ald.`LABEL_ID` \n"
+                    + "                LEFT JOIN adb_source ads ON ads.`SupplierID`=ash.`SupplierID` AND ads.`PIPELINE_ID`=:pipelineId\n"
+                    + "                LEFT JOIN ap_label alds ON UPPER(alds.LABEL_EN)=UPPER(ads.`SupplierName`)  OR UPPER(alds.LABEL_FR)=UPPER(ads.`SupplierName`) OR UPPER(alds.LABEL_SP)=UPPER(ads.`SupplierName`) OR UPPER(alds.LABEL_PR)=UPPER(ads.`SupplierName`)\n"
+                    + "                LEFT JOIN rm_procurement_agent rpa ON rpa.`LABEL_ID`=alds.`LABEL_ID`\n"
+                    + "                LEFT JOIN adb_fundingsource afs ON afs.`FundingSourceID`=ash.`ShipFundingSourceID` AND afs.`PIPELINE_ID`= :pipelineId\n"
+                    + "                LEFT JOIN ap_label alfs ON UPPER(alfs.LABEL_EN)=UPPER(afs.`FundingSourceName`)  OR UPPER(alfs.LABEL_FR)=UPPER(afs.`FundingSourceName`) OR UPPER(alfs.LABEL_SP)=UPPER(afs.`FundingSourceName`) OR UPPER(alfs.LABEL_PR)=UPPER(afs.`FundingSourceName`)\n"
+                    + "                LEFT JOIN rm_funding_source rfs ON rfs.`LABEL_ID`=alfs.`LABEL_ID` \n"
+                    + "                 WHERE ash.`PIPELINE_ID`=:pipelineId AND (ald.`LABEL_ID` IS NULL OR rds.`LABEL_ID`= ald.`LABEL_ID`)  AND (alds.`LABEL_ID` IS NULL OR alds.`LABEL_ID`= rpa.`LABEL_ID`)  AND (alfs.`LABEL_ID` IS NULL OR alfs.`LABEL_ID`= rfs.`LABEL_ID`)";
+
+            result = this.namedParameterJdbcTemplate.query(sql, params, new QatTempShipmentRowMapper());
+        }
+
+        return result;
+
     }
 
     @Override
-    public int saveShipmentData(int pipelineId, Shipment[] shipments, CustomUserDetails curUser) {
+    public int saveShipmentData(int pipelineId, QatTempShipment[] shipments, CustomUserDetails curUser) {
         SqlParameterSource[] paramList = new SqlParameterSource[shipments.length];
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-         Map<String, Object> params1 = new HashMap<>();
-         params1.put("pipelineId", pipelineId);
-        String sql="SELECT COUNT(*) FROM qat_temp_shipment q WHERE q.`PIPELINE_ID`=:pipelineId";
-        int cnt=this.namedParameterJdbcTemplate.queryForObject(sql,params1,Integer.class);
-        if(cnt>0){
-             this.namedParameterJdbcTemplate.update("DELETE FROM qat_temp_shipment WHERE PIPELINE_ID=:pipelineId", params1);
+        Map<String, Object> params1 = new HashMap<>();
+        params1.put("pipelineId", pipelineId);
+            
+          String  sql = "SELECT COUNT(*) FROM qat_temp_shipment q WHERE q.`PIPELINE_ID`=:pipelineId";
+       int cnt = this.namedParameterJdbcTemplate.queryForObject(sql, params1, Integer.class);
+        if (cnt > 0) {
+            this.namedParameterJdbcTemplate.update("DELETE FROM qat_temp_shipment WHERE PIPELINE_ID=:pipelineId", params1);
         }
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("qat_temp_shipment").usingGeneratedKeyColumns("SHIPMENT_ID");
 
         int i = 0;
-        for (Shipment s : shipments) {
+        for (QatTempShipment s : shipments) {
             Map<String, Object> params = new HashMap<>();
 
-            params.put("PLANNING_UNIT_ID", s.getPlanningUnit().getId());
+            params.put("PLANNING_UNIT_ID", s.getPlanningUnit());
             params.put("EXPECTED_DELIVERY_DATE", s.getExpectedDeliveryDate());
             params.put("SUGGESTED_QTY", s.getSuggestedQty());
-            params.put("PROCUREMENT_AGENT_ID", s.getProcurementAgent().getId());
+            params.put("PROCUREMENT_AGENT_ID", s.getProcurementAgent());
             params.put("PROCUREMENT_UNIT_ID", null);
-            params.put("SUPPLIER_ID", s.getSupplier().getId());
+            params.put("SUPPLIER_ID", s.getSupplier());
             params.put("QUANTITY", s.getQuantity());
             params.put("RATE", s.getRate());
             params.put("PRODUCT_COST", s.getProductCost());
@@ -810,23 +829,25 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("ORDERED_DATE", s.getOrderedDate());
             params.put("SHIPPED_DATE", s.getShippedDate());
             params.put("RECEIVED_DATE", s.getReceivedDate());
-            params.put("SHIPMENT_STATUS_ID", s.getShipmentStatus().getId());
-              params.put("DATA_SOURCE_ID", s.getDataSource().getId());
-                 params.put("NOTES", s.getNotes());
-               //     params.put("NOTES", s.getNotes());   params.put("NOTES", s.getNotes());
-                    
+            params.put("SHIPMENT_STATUS_ID", s.getShipmentStatus());
+            params.put("DATA_SOURCE_ID", s.getDataSource());
+            params.put("NOTES", s.getNotes());
+            //     params.put("NOTES", s.getNotes());   params.put("NOTES", s.getNotes());
+
             params.put("ACTIVE", true);
             params.put("CREATED_BY", curUser.getUserId());
             params.put("CREATED_DATE", curDate);
             params.put("LAST_MODIFIED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
             params.put("PIPELINE_ID", pipelineId);
+            params.put("FUNDING_SOURCE_ID", s.getFundingSource());
             paramList[i] = new MapSqlParameterSource(params);
             i++;
         }
-        si.executeBatch(paramList);
-        
-        System.out.println("shipments" + shipments);
+        int[] batchResult = si.executeBatch(paramList);
+        for (int j : batchResult) {
+            System.out.println("shipments" + j);
+        }
         return 1;
     }
 

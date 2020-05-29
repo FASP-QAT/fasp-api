@@ -16,6 +16,7 @@ import cc.altius.FASP.model.pipeline.PplProduct;
 import cc.altius.FASP.model.pipeline.PplPrograminfo;
 import cc.altius.FASP.model.pipeline.QatTempConsumption;
 import cc.altius.FASP.model.pipeline.QatTempProgramPlanningUnit;
+import cc.altius.FASP.model.pipeline.QatTempShipment;
 import java.util.List;
 import java.util.Map;
 
@@ -39,9 +40,9 @@ public interface PipelineDbDao {
 
     public List<PplProduct> getPipelineProductListById(CustomUserDetails curUser, int pipelineId);
 
-    public String getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser);
+    public  List<QatTempShipment> getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser);
     
-     public int saveShipmentData(int pipelineId, Shipment[] shipments, CustomUserDetails curUser);
+     public int saveShipmentData(int pipelineId, QatTempShipment[] shipments, CustomUserDetails curUser);
      
       public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser);
 
