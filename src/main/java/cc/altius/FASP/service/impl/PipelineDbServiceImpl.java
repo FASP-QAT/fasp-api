@@ -15,6 +15,8 @@ import cc.altius.FASP.model.pipeline.PplConsumption;
 import cc.altius.FASP.model.pipeline.PplProduct;
 import cc.altius.FASP.model.pipeline.PplPrograminfo;
 import cc.altius.FASP.model.pipeline.QatTempConsumption;
+import cc.altius.FASP.model.pipeline.QatTempInventory;
+import cc.altius.FASP.model.pipeline.QatTempPlanningUnitInventoryCount;
 import cc.altius.FASP.model.pipeline.QatTempProgramPlanningUnit;
 import cc.altius.FASP.service.PipelineDbService;
 import java.util.List;
@@ -109,6 +111,21 @@ public class PipelineDbServiceImpl implements PipelineDbService {
     @Override
     public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser) {
         return this.pipelineDbDao.finalSaveProgramData(pipelineId, curUser);
+    }
+
+    @Override
+    public String getPipelineInventoryById(CustomUserDetails curUser, int pipelineId) {
+        return this.pipelineDbDao.getPipelineInventoryById(curUser, pipelineId);
+    }
+
+    @Override
+    public int saveQatTempInventory(QatTempInventory[] inventory, CustomUserDetails curUser, int pipelineId) {
+        return this.pipelineDbDao.saveQatTempInventory(inventory, curUser, pipelineId);
+    }
+
+    @Override
+    public List<QatTempPlanningUnitInventoryCount> getQatTempPlanningUnitListInventoryCount(int pipelineId, CustomUserDetails curUser) {
+       return this.pipelineDbDao.getQatTempPlanningUnitListInventoryCount(pipelineId, curUser);
     }
 
     

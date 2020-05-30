@@ -21,18 +21,30 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
     private SimpleObject planningUnit;
     private int reorderFrequencyInMonths;
     private int minMonthsOfStock;
+    private int productCategoryId;
     
     public QatTempProgramPlanningUnit() {
     }
 
-    public QatTempProgramPlanningUnit(String programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, int reorderFrequencyInMonths, int minMonthsOfStock) {
+    public QatTempProgramPlanningUnit(String programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, int reorderFrequencyInMonths, int minMonthsOfStock, int productCategoryId) {
         this.programPlanningUnitId = programPlanningUnitId;
         this.program = program;
         this.planningUnit = planningUnit;
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
         this.minMonthsOfStock = minMonthsOfStock;
+        this.productCategoryId=productCategoryId;
     }
 
+    public int getProductCategoryId() {
+        return productCategoryId;
+    }
+
+    public void setProductCategoryId(int productCategoryId) {
+        this.productCategoryId = productCategoryId;
+    }
+
+    
+    
     public String getProgramPlanningUnitId() {
         return programPlanningUnitId;
     }

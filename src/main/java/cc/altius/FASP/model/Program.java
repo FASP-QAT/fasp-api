@@ -31,6 +31,11 @@ public class Program extends BaseModel implements Serializable {
     private double deliveredToReceivedLeadTime;
     private int monthsInPastForAmc;
     private int monthsInFutureForAmc;
+    
+    private double arrivedToDeliveredLeadTime;
+    private double shippedToArrivedBySeaLeadTime;
+    private double shippedToArrivedByAirLeadTime;
+    
     @JsonIgnore
     private List<Region> regionList;
     String[] regionArray;
@@ -45,6 +50,32 @@ public class Program extends BaseModel implements Serializable {
         this.label = label;
     }
 
+    public double getArrivedToDeliveredLeadTime() {
+        return arrivedToDeliveredLeadTime;
+    }
+
+    public void setArrivedToDeliveredLeadTime(double arrivedToDeliveredLeadTime) {
+        this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
+    }
+
+    public double getShippedToArrivedBySeaLeadTime() {
+        return shippedToArrivedBySeaLeadTime;
+    }
+
+    public void setShippedToArrivedBySeaLeadTime(double shippedToArrivedBySeaLeadTime) {
+        this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
+    }
+
+    public double getShippedToArrivedByAirLeadTime() {
+        return shippedToArrivedByAirLeadTime;
+    }
+
+    public void setShippedToArrivedByAirLeadTime(double shippedToArrivedByAirLeadTime) {
+        this.shippedToArrivedByAirLeadTime = shippedToArrivedByAirLeadTime;
+    }
+
+    
+    
     public int getProgramId() {
         return programId;
     }

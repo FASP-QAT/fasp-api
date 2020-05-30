@@ -119,8 +119,9 @@ public class QatTempConsumption {
         this.notes = notes;
     }
 
-    
-    
-    
+    @Override
+    public String toString() {
+        return "QatTempConsumption{" + "consumptionId=" + consumptionId + ", region=" + region + ", planningUnit=" + planningUnit + ", consumptionDate=" + consumptionDate + ", actualFlag=" + actualFlag + ", consumptionQty=" + consumptionQty + ", dayOfStockOut=" + dayOfStockOut + ", dataSource=" + dataSource + ", notes=" + notes + '}';
+    }
 
 }

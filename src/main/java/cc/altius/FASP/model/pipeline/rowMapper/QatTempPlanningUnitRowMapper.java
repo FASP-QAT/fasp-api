@@ -27,6 +27,7 @@ public class QatTempPlanningUnitRowMapper implements RowMapper<QatTempProgramPla
         p.setMinMonthsOfStock(rs.getInt("MIN_MONTHS_OF_STOCK"));
         p.setReorderFrequencyInMonths(rs.getInt("REORDER_FREQUENCY_IN_MONTHS"));
         p.setProgramPlanningUnitId(rs.getString("PIPELINE_PRODUCT_ID"));
+        p.setProductCategoryId(rs.getInt("PRODUCT_CATEGORY_ID"));
         return p;
     }
 
