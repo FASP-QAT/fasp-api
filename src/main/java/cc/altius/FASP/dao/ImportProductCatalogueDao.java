@@ -5,13 +5,17 @@
  */
 package cc.altius.FASP.dao;
 
+import java.io.IOException;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
+
 /**
  *
  * @author altius
  */
 public interface ImportProductCatalogueDao {
 
-    public void importProductCatalogue(String filePath);
+    public void importProductCatalogue(String filePath) throws ParserConfigurationException, SAXException, IOException;
 
     public void pullUnitTable();
 
