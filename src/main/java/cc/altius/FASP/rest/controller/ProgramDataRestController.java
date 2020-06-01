@@ -73,6 +73,27 @@ public class ProgramDataRestController {
             logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-        
+    }
+    
+    @GetMapping("/versionType")
+    public ResponseEntity getVersionType(Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseEntity(this.programDataService.getVersionTypeList(), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get Version Type", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/versionStatus")
+    public ResponseEntity getVersionStatus(Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseEntity(this.programDataService.getVersionStatusList(), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get Version Status", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -16,11 +16,13 @@ import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentBatchInfo;
 import cc.altius.FASP.model.ShipmentBudget;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.ConsumptionListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;
@@ -471,8 +473,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_budget`";
 //        sqlString = "DROP TABLE IF EXISTS `tmp_shipment_budget`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_shipment_budget` ( "
-        sqlString = "CREATE TABLE `tmp_shipment_budget` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_shipment_budget` ( "
+//        sqlString = "CREATE TABLE `tmp_shipment_budget` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `PARENT_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `SHIPMENT_BUDGET_ID` INT(10) UNSIGNED NULL, "
@@ -736,6 +738,18 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             return version;
         }
 
+    }
+
+    @Override
+    public List<SimpleObject> getVersionTypeList() {
+        String sqlString = "SELECT vt.VERSION_TYPE_ID `ID`, vtl.LABEL_ID, vtl.LABEL_EN, vtl.LABEL_FR, vtl.LABEL_SP, vtl.LABEL_PR  FROM ap_version_type vt LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID";
+        return this.namedParameterJdbcTemplate.query(sqlString, new SimpleObjectRowMapper());
+    }
+
+    @Override
+    public List<SimpleObject> getVersionStatusList() {
+        String sqlString = "SELECT vs.VERSION_STATUS_ID `ID`, vsl.LABEL_ID, vsl.LABEL_EN, vsl.LABEL_FR, vsl.LABEL_SP, vsl.LABEL_PR  FROM ap_version_status vs LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID";
+        return this.namedParameterJdbcTemplate.query(sqlString, new SimpleObjectRowMapper());
     }
 
 }
