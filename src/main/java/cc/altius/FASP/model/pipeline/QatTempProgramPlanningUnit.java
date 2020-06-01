@@ -18,29 +18,41 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
     
     private String programPlanningUnitId;
     private SimpleObject program;
-    private SimpleObject planningUnit;
+    private String planningUnitId;
     private int reorderFrequencyInMonths;
     private int minMonthsOfStock;
     private int productCategoryId;
+    private String pipelineProductName;
+    private String pipelineProductCategoryName;
     
     public QatTempProgramPlanningUnit() {
     }
 
-    public QatTempProgramPlanningUnit(String programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, int reorderFrequencyInMonths, int minMonthsOfStock, int productCategoryId) {
+    public QatTempProgramPlanningUnit(String programPlanningUnitId, SimpleObject program, String planningUnitId, int reorderFrequencyInMonths, int minMonthsOfStock, int productCategoryId,String pipelineProductName,String pipelineProductCategoryName) {
         this.programPlanningUnitId = programPlanningUnitId;
         this.program = program;
-        this.planningUnit = planningUnit;
+        this.planningUnitId = planningUnitId;
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
         this.minMonthsOfStock = minMonthsOfStock;
         this.productCategoryId=productCategoryId;
+        this.pipelineProductCategoryName=pipelineProductCategoryName;
+        this.pipelineProductName=pipelineProductName;
     }
 
-    public int getProductCategoryId() {
-        return productCategoryId;
+    public String getPipelineProductName() {
+        return pipelineProductName;
     }
 
-    public void setProductCategoryId(int productCategoryId) {
-        this.productCategoryId = productCategoryId;
+    public void setPipelineProductName(String pipelineProductName) {
+        this.pipelineProductName = pipelineProductName;
+    }
+
+    public String getPipelineProductCategoryName() {
+        return pipelineProductCategoryName;
+    }
+
+    public void setPipelineProductCategoryName(String pipelineProductCategoryName) {
+        this.pipelineProductCategoryName = pipelineProductCategoryName;
     }
 
     
@@ -61,12 +73,12 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
         this.program = program;
     }
 
-    public SimpleObject getPlanningUnit() {
-        return planningUnit;
+    public String getPlanningUnitId() {
+        return planningUnitId;
     }
 
-    public void setPlanningUnit(SimpleObject planningUnit) {
-        this.planningUnit = planningUnit;
+    public void setPlanningUnitId(String planningUnitId) {
+        this.planningUnitId = planningUnitId;
     }
 
     public int getReorderFrequencyInMonths() {
@@ -85,10 +97,18 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
         this.minMonthsOfStock = minMonthsOfStock;
     }
 
+    public int getProductCategoryId() {
+        return productCategoryId;
+    }
+
+    public void setProductCategoryId(int productCategoryId) {
+        this.productCategoryId = productCategoryId;
+    }
+
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 67 * hash + Objects.hashCode(this.programPlanningUnitId);
+        int hash = 3;
+        hash = 61 * hash + Objects.hashCode(this.programPlanningUnitId);
         return hash;
     }
 
@@ -110,5 +130,4 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
         return true;
     }
 
-    
 }

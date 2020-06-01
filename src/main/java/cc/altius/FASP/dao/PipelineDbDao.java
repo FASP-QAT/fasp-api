@@ -9,16 +9,15 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Region;
-import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.PplConsumption;
-import cc.altius.FASP.model.pipeline.PplInventory;
 import cc.altius.FASP.model.pipeline.PplProduct;
 import cc.altius.FASP.model.pipeline.PplPrograminfo;
 import cc.altius.FASP.model.pipeline.QatTempConsumption;
 import cc.altius.FASP.model.pipeline.QatTempInventory;
 import cc.altius.FASP.model.pipeline.QatTempPlanningUnitInventoryCount;
 import cc.altius.FASP.model.pipeline.QatTempProgramPlanningUnit;
+import cc.altius.FASP.model.pipeline.QatTempShipment;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +27,7 @@ import java.util.Map;
  */
 public interface PipelineDbDao {
 
-    public int savePipelineDbData(Pipeline pipeline, CustomUserDetails curUser);
+    public int savePipelineDbData(Pipeline pipeline, CustomUserDetails curUser, String fileName);
 
     public List<Map<String, Object>> getPipelineProgramList(CustomUserDetails curUser);
 
@@ -42,9 +41,16 @@ public interface PipelineDbDao {
 
     public List<PplProduct> getPipelineProductListById(CustomUserDetails curUser, int pipelineId);
 
-    public String getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser);
+//<<<<<<< HEAD
+//    public String getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser);
+//
+//    public int saveShipmentData(int pipelineId, Shipment[] shipments, CustomUserDetails curUser);
+//
+//    public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser);
+//=======
+    public List<QatTempShipment> getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser);
 
-    public int saveShipmentData(int pipelineId, Shipment[] shipments, CustomUserDetails curUser);
+    public int saveShipmentData(int pipelineId, QatTempShipment[] shipments, CustomUserDetails curUser);
 
     public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser);
 
@@ -63,7 +69,7 @@ public interface PipelineDbDao {
     public String getPipelineInventoryById(CustomUserDetails curUser, int pipelineId);
 
     public int saveQatTempInventory(QatTempInventory[] inventory, CustomUserDetails curUser, int pipelineId);
-    
+
     public List<QatTempPlanningUnitInventoryCount> getQatTempPlanningUnitListInventoryCount(int pipelineId, CustomUserDetails curUser);
 
 }

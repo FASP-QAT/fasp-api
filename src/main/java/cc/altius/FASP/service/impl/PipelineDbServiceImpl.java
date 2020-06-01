@@ -9,7 +9,6 @@ import cc.altius.FASP.dao.PipelineDbDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Region;
-import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.PplConsumption;
 import cc.altius.FASP.model.pipeline.PplProduct;
@@ -18,6 +17,7 @@ import cc.altius.FASP.model.pipeline.QatTempConsumption;
 import cc.altius.FASP.model.pipeline.QatTempInventory;
 import cc.altius.FASP.model.pipeline.QatTempPlanningUnitInventoryCount;
 import cc.altius.FASP.model.pipeline.QatTempProgramPlanningUnit;
+import cc.altius.FASP.model.pipeline.QatTempShipment;
 import cc.altius.FASP.service.PipelineDbService;
 import java.util.List;
 import java.util.Map;
@@ -35,8 +35,8 @@ public class PipelineDbServiceImpl implements PipelineDbService {
     private PipelineDbDao pipelineDbDao;
 
     @Override
-    public int savePipelineDbData(Pipeline pipeline, CustomUserDetails curUser) {
-        return this.pipelineDbDao.savePipelineDbData(pipeline, curUser);
+    public int savePipelineDbData(Pipeline pipeline, CustomUserDetails curUser,String fileName) {
+        return this.pipelineDbDao.savePipelineDbData(pipeline, curUser,fileName);
     }
 
     @Override
@@ -99,12 +99,12 @@ public class PipelineDbServiceImpl implements PipelineDbService {
     public List<QatTempConsumption> getQatTempConsumptionListByPipelienId(int pipelineId, CustomUserDetails curUser) {
         return this.pipelineDbDao.getQatTempConsumptionListByPipelienId(pipelineId, curUser);
     }
-    public String getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser) {
+    public  List<QatTempShipment> getPipelineShipmentdataById(int pipelineId, CustomUserDetails curUser) {
          return this.pipelineDbDao.getPipelineShipmentdataById(pipelineId,curUser);
     }
 
     @Override
-    public int saveShipmentData(int pipelineId, Shipment[] shipments, CustomUserDetails curUser) {
+    public int saveShipmentData(int pipelineId, QatTempShipment[] shipments, CustomUserDetails curUser) {
         return this.pipelineDbDao.saveShipmentData(pipelineId, shipments, curUser);
     }
 

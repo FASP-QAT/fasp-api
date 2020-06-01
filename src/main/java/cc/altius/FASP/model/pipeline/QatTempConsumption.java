@@ -5,13 +5,6 @@
  */
 package cc.altius.FASP.model.pipeline;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
-import cc.altius.FASP.model.SimpleObject;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import java.util.Date;
-
 /**
  *
  * @author altius
@@ -19,33 +12,32 @@ import java.util.Date;
 public class QatTempConsumption {
 
     private int consumptionId;
-    private SimpleObject region;
-    private SimpleObject planningUnit;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date consumptionDate;
+    private String regionId;
+    private String planningUnitId;
+//    @JsonDeserialize(using = JsonDateDeserializer.class)
+//    @JsonSerialize(using = JsonDateSerializer.class)
+    private String consumptionDate;
     private boolean actualFlag;
     private double consumptionQty;
     private int dayOfStockOut;
-    private SimpleObject dataSource;
+    private String dataSourceId;
     private String notes;
     
     
     public QatTempConsumption() {
     }
 
-    public QatTempConsumption(int consumptionId, SimpleObject region, SimpleObject planningUnit, Date consumptionDate, boolean actualFlag, double consumptionQty, int dayOfStockOut, SimpleObject dataSource, String notes) {
+    public QatTempConsumption(int consumptionId, String regionId, String planningUnitId, String consumptionDate, boolean actualFlag, double consumptionQty, int dayOfStockOut, String dataSourceId, String notes) {
         this.consumptionId = consumptionId;
-        this.region = region;
-        this.planningUnit = planningUnit;
+        this.regionId = regionId;
+        this.planningUnitId = planningUnitId;
         this.consumptionDate = consumptionDate;
         this.actualFlag = actualFlag;
         this.consumptionQty = consumptionQty;
         this.dayOfStockOut = dayOfStockOut;
-        this.dataSource = dataSource;
+        this.dataSourceId = dataSourceId;
         this.notes = notes;
     }
-
 
     public int getConsumptionId() {
         return consumptionId;
@@ -55,27 +47,27 @@ public class QatTempConsumption {
         this.consumptionId = consumptionId;
     }
 
-    public SimpleObject getRegion() {
-        return region;
+    public String getRegionId() {
+        return regionId;
     }
 
-    public void setRegion(SimpleObject region) {
-        this.region = region;
+    public void setRegionId(String regionId) {
+        this.regionId = regionId;
     }
 
-    public SimpleObject getPlanningUnit() {
-        return planningUnit;
+    public String getPlanningUnitId() {
+        return planningUnitId;
     }
 
-    public void setPlanningUnit(SimpleObject planningUnit) {
-        this.planningUnit = planningUnit;
+    public void setPlanningUnitId(String planningUnitId) {
+        this.planningUnitId = planningUnitId;
     }
 
-    public Date getConsumptionDate() {
+    public String getConsumptionDate() {
         return consumptionDate;
     }
 
-    public void setConsumptionDate(Date consumptionDate) {
+    public void setConsumptionDate(String consumptionDate) {
         this.consumptionDate = consumptionDate;
     }
 
@@ -103,12 +95,12 @@ public class QatTempConsumption {
         this.dayOfStockOut = dayOfStockOut;
     }
 
-    public SimpleObject getDataSource() {
-        return dataSource;
+    public String getDataSourceId() {
+        return dataSourceId;
     }
 
-    public void setDataSource(SimpleObject dataSource) {
-        this.dataSource = dataSource;
+    public void setDataSourceId(String dataSourceId) {
+        this.dataSourceId = dataSourceId;
     }
 
     public String getNotes() {
@@ -119,9 +111,6 @@ public class QatTempConsumption {
         this.notes = notes;
     }
 
-    @Override
-    public String toString() {
-        return "QatTempConsumption{" + "consumptionId=" + consumptionId + ", region=" + region + ", planningUnit=" + planningUnit + ", consumptionDate=" + consumptionDate + ", actualFlag=" + actualFlag + ", consumptionQty=" + consumptionQty + ", dayOfStockOut=" + dayOfStockOut + ", dataSource=" + dataSource + ", notes=" + notes + '}';
-    }
 
+    
 }
