@@ -15,6 +15,7 @@ import cc.altius.FASP.model.InventoryBatchInfo;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentBatchInfo;
+import cc.altius.FASP.model.ShipmentBudget;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.ConsumptionListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
@@ -106,7 +107,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //        String sqlString = "DROP TABLE IF EXISTS `tmp_consumption`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_consumption` ( "
-//        sqlString = "CREATE TABLE `tmp_consumption` ( "
+                //        sqlString = "CREATE TABLE `tmp_consumption` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `CONSUMPTION_ID` INT UNSIGNED NULL, "
                 + "  `REGION_ID` INT(10) UNSIGNED NOT NULL, "
@@ -132,7 +133,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //        sqlString = "DROP TABLE IF EXISTS `tmp_consumption_batch_info`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_consumption_batch_info` ( "
-//        sqlString = "CREATE TABLE `tmp_consumption_batch_info` ( "
+                //        sqlString = "CREATE TABLE `tmp_consumption_batch_info` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `PARENT_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `CONSUMPTION_TRANS_BATCH_INFO_ID` INT(10) UNSIGNED NULL, "
@@ -255,7 +256,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //        sqlString = "DROP TABLE IF EXISTS `tmp_inventory`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_inventory` ( "
-//        sqlString = "CREATE TABLE `tmp_inventory` ( "
+                //        sqlString = "CREATE TABLE `tmp_inventory` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `INVENTORY_ID` INT UNSIGNED NULL, "
                 + "  `INVENTORY_DATE` DATE NOT NULL, "
@@ -279,7 +280,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //        sqlString = "DROP TABLE IF EXISTS `tmp_inventory_batch_info`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_inventory_batch_info` ( "
-//        sqlString = "CREATE TABLE `tmp_inventory_batch_info` ( "
+                //        sqlString = "CREATE TABLE `tmp_inventory_batch_info` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `PARENT_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `INVENTORY_TRANS_BATCH_INFO_ID` INT(10) UNSIGNED NULL, "
@@ -407,7 +408,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //        sqlString = "DROP TABLE IF EXISTS `tmp_shipment`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_shipment` ( "
-//        sqlString = "CREATE TABLE `tmp_shipment` ( "
+                //        sqlString = "CREATE TABLE `tmp_shipment` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `SHIPMENT_ID` INT(10) UNSIGNED NULL, "
                 + "  `SUGGESTED_QTY` INT(10) UNSIGNED NULL, "
@@ -452,7 +453,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //        sqlString = "DROP TABLE IF EXISTS `tmp_shipment_batch_info`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_shipment_batch_info` ( "
-//        sqlString = "CREATE TABLE `tmp_shipment_batch_info` ( "
+                //        sqlString = "CREATE TABLE `tmp_shipment_batch_info` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `PARENT_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `SHIPMENT_TRANS_BATCH_INFO_ID` INT(10) UNSIGNED NULL, "
@@ -467,9 +468,30 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  INDEX `fk_tmp_consumption_3_idx` (`BATCH_NO` ASC), "
                 + "  INDEX `fk_tmp_consumption_4_idx` (`EXPIRY_DATE` ASC))";
         this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_budget`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_shipment_budget`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+//        sqlString = "CREATE TEMPORARY TABLE `tmp_shipment_budget` ( "
+        sqlString = "CREATE TABLE `tmp_shipment_budget` ( "
+                + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
+                + "  `PARENT_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `SHIPMENT_BUDGET_ID` INT(10) UNSIGNED NULL, "
+                + "  `BUDGET_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `BUDGET_AMT` DECIMAL(14,2) NOT NULL, "
+                + "  `CONVERSION_RATE_TO_USD` DECIMAL(14,4) NOT NULL, "
+                + "  `CURRENCY_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `ACTIVE` TINYINT(1) UNSIGNED NOT NULL, "
+                + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
+                + "  PRIMARY KEY (`ID`), "
+                + "  INDEX `fk_tmp_shipment_budget_1_idx` (`PARENT_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_budget_2_idx` (`SHIPMENT_BUDGET_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_budget_3_idx` (`BUDGET_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_budget_4_idx` (`CURRENCY_ID` ASC))";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
 
         insertList.clear();
         insertBatchList.clear();
+        final List<SqlParameterSource> insertBudgetList = new ArrayList<>();
         id = 1;
         for (Shipment s : programData.getShipmentList()) {
             Map<String, Object> tp = new HashMap<>();
@@ -511,6 +533,17 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 tb.put("BATCH_SHIPMENT_QTY", b.getShipmentQty());
                 insertBatchList.add(new MapSqlParameterSource(tb));
             }
+            for (ShipmentBudget sb : s.getShipmentBudgetList()) {
+                Map<String, Object> tsb = new HashMap<>();
+                tsb.put("PARENT_ID", id);
+                tsb.put("SHIPMENT_BUDGET_ID", (sb.getShipmentBudgetId() == 0 ? null : sb.getShipmentBudgetId()));
+                tsb.put("BUDGET_ID", sb.getBudget().getId());
+                tsb.put("BUDGET_AMT", sb.getBudgetAmt());
+                tsb.put("CONVERSION_RATE_TO_USD", sb.getConversionRateToUsd());
+                tsb.put("CURRENCY_ID", sb.getCurrency().getCurrencyId());
+                tsb.put("ACTIVE", sb.isActive());
+                insertBudgetList.add(new MapSqlParameterSource(tsb));
+            }
             id++;
         }
 
@@ -533,9 +566,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             sqlString = "INSERT INTO tmp_shipment_batch_info (PARENT_ID, SHIPMENT_TRANS_ID, SHIPMENT_TRANS_BATCH_INFO_ID, BATCH_NO, EXPIRY_DATE, BATCH_SHIPMENT_QTY) VALUES (:PARENT_ID, :SHIPMENT_TRANS_ID, :SHIPMENT_TRANS_BATCH_INFO_ID, :BATCH_NO, :EXPIRY_DATE, :BATCH_SHIPMENT_QTY)";
             this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertBatchList.toArray(insertShipmentBatch));
         }
+        if (insertBudgetList.size() > 0) {
+            SqlParameterSource[] insertShipmentBudget = new SqlParameterSource[insertBudgetList.size()];
+            sqlString = "INSERT INTO tmp_shipment_budget (PARENT_ID, SHIPMENT_BUDGET_ID, BUDGET_ID, BUDGET_AMT, CONVERSION_RATE_TO_USD, CURRENCY_ID, ACTIVE) VALUES (:PARENT_ID, :SHIPMENT_BUDGET_ID, :BUDGET_ID, :BUDGET_AMT, :CONVERSION_RATE_TO_USD, :CURRENCY_ID, :ACTIVE)";
+            this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertBudgetList.toArray(insertShipmentBudget));
+        }
         params.clear();
         sqlString = "UPDATE tmp_shipment_batch_info tsbi LEFT JOIN rm_shipment_trans_batch_info stbi ON tsbi.SHIPMENT_TRANS_BATCH_INFO_ID=stbi.SHIPMENT_TRANS_BATCH_INFO_ID SET tsbi.SHIPMENT_TRANS_ID=stbi.SHIPMENT_TRANS_ID WHERE tsbi.SHIPMENT_TRANS_BATCH_INFO_ID IS NOT NULL";
         this.namedParameterJdbcTemplate.update(sqlString, params);
+//        sqlString = "UPDATE tmp_shipment_budget tsb LEFT JOIN rm_shipment_budget sb ON tsb.SHIPMENT_BUDGET_ID=sb.SHIPMENT_BUDGET_ID SET tsb.SHIPMENT_TRANS_ID=sb.SHIPMENT_TRANS_ID WHERE tsb.SHIPMENT_BUDGET_ID IS NOT NULL";
+//        this.namedParameterJdbcTemplate.update(sqlString, params);
         params.clear();
         // Update the VersionId's in tmp_shipment with the ones from shipment_trans based on VersionId
         sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID SET ts.VERSION_ID=s.MAX_VERSION_ID WHERE ts.SHIPMENT_ID IS NOT NULL";
@@ -573,7 +613,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "UPDATE tmp_shipment_batch_info tsbi LEFT JOIN rm_shipment_trans_batch_info stbi ON tsbi.SHIPMENT_TRANS_BATCH_INFO_ID=stbi.SHIPMENT_TRANS_BATCH_INFO_ID SET `CHANGED`=1 WHERE tsbi.SHIPMENT_TRANS_BATCH_INFO_ID IS NULL OR tsbi.BATCH_NO!=stbi.BATCH_NO OR tsbi.EXPIRY_DATE!= stbi.EXPIRY_DATE OR tsbi.BATCH_SHIPMENT_QTY!=stbi.BATCH_SHIPMENT_QTY";
         this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "UPDATE tmp_shipment_budget tsb LEFT JOIN rm_shipment_budget sb ON tsb.SHIPMENT_BUDGET_ID=sb.SHIPMENT_BUDGET_ID SET `CHANGED`=1 WHERE tsb.SHIPMENT_BUDGET_ID IS NULL OR tsb.BUDGET_ID!=sb.BUDGET_ID OR tsb.BUDGET_AMT!= sb.BUDGET_AMT OR tsb.CONVERSION_RATE_TO_USD!=sb.CONVERSION_RATE_TO_USD OR tsb.CURRENCY_ID!=sb.CURRENCY_ID OR tsb.ACTIVE!=sb.ACTIVE";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "UPDATE tmp_shipment ts LEFT JOIN tmp_shipment_batch_info tsbi ON ts.ID = tsbi.PARENT_ID SET ts.CHANGED=1 WHERE tsbi.CHANGED=1";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "UPDATE tmp_shipment ts LEFT JOIN tmp_shipment_budget tsb ON ts.ID = tsb.PARENT_ID SET ts.CHANGED=1 WHERE tsb.CHANGED=1";
         this.namedParameterJdbcTemplate.update(sqlString, params);
 
         // Check if there are any rows that need to be added
@@ -624,6 +668,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             // Insert into rm_shipment_trans_batch_info where the shipment record was already existing but has changed
             sqlString = "INSERT INTO rm_shipment_trans_batch_info SELECT null, st.SHIPMENT_TRANS_ID, tsbi.BATCH_NO, tsbi.EXPIRY_DATE, tsbi.BATCH_SHIPMENT_QTY FROM tmp_shipment ts left join tmp_shipment_batch_info tsbi ON tsbi.PARENT_ID=ts.ID LEFT JOIN rm_shipment_trans st ON ts.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID=:versionId WHERE ts.SHIPMENT_ID IS NOT NULL AND ts.CHANGED=1 AND tsbi.PARENT_ID IS NOT NULL";
             this.namedParameterJdbcTemplate.update(sqlString, params);
+            params.put("curUser", curUser.getUserId());
+            params.put("curDate", curDate);
+            sqlString = "INSERT INTO rm_shipment_budget (SHIPMENT_ID, BUDGET_ID, BUDGET_AMT, CONVERSION_RATE_TO_USD, CURRENCY_ID, ACTIVE, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID) "
+                    + "SELECT ts.SHIPMENT_ID, tsb.BUDGET_ID, tsb.BUDGET_AMT, tsb.CONVERSION_RATE_TO_USD, tsb.CURRENCY_ID, tsb.ACTIVE, :curUser, :curDate, :curUser, :curDate, :versionId "
+                    + "FROM tmp_shipment ts left join tmp_shipment_budget tsb ON tsb.PARENT_ID=ts.ID WHERE ts.SHIPMENT_ID IS NOT NULL AND ts.CHANGED=1 AND tsb.PARENT_ID IS NOT NULL";
+            shipmentRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+            params.clear();
 
             sqlString = "SELECT ts.ID FROM tmp_shipment ts WHERE ts.SHIPMENT_ID IS NULL OR ts.SHIPMENT_ID=0";
             List<Integer> idListForInsert = this.namedParameterJdbcTemplate.queryForList(sqlString, params, Integer.class);
@@ -642,13 +693,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         + ":curDate, :curUser, :curDate, :versionId FROM tmp_shipment ts WHERE ts.ID=:id";
                 params.replace("id", tmpId);
                 consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+                sqlString = "SELECT LAST_INSERT_ID()";
+                int shipmentId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+                params.put("shipmentId", shipmentId);
                 sqlString = "INSERT INTO rm_shipment_trans ("
                         + "SHIPMENT_ID, PLANNING_UNIT_ID, EXPECTED_DELIVERY_DATE, PROCUREMENT_UNIT_ID, SUPPLIER_ID, "
                         + "SHIPMENT_QTY, RATE, PRODUCT_COST, SHIPMENT_MODE, FREIGHT_COST, "
                         + "ORDERED_DATE, SHIPPED_DATE, DELIVERED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, "
                         + "NOTES, ORDER_NO, PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, "
                         + "LAST_MODIFIED_DATE, VERSION_ID) SELECT "
-                        + "LAST_INSERT_ID(), ts.PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, ts.PROCUREMENT_UNIT_ID, ts.SUPPLIER_ID, "
+                        + ":shipmentId, ts.PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, ts.PROCUREMENT_UNIT_ID, ts.SUPPLIER_ID, "
                         + "ts.SHIPMENT_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, "
                         + "ts.ORDERED_DATE, ts.SHIPPED_DATE, ts.DELIVERED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, "
                         + "ts.NOTES, ts.ORDER_NO, ts.PRIME_LINE_NO, ts.ACTIVE, :curUser, "
@@ -656,6 +710,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         + "FROM tmp_shipment ts WHERE ts.ID=:id";
                 this.namedParameterJdbcTemplate.update(sqlString, params);
                 sqlString = "INSERT INTO rm_shipment_trans_batch_info (SHIPMENT_TRANS_ID, BATCH_NO, EXPIRY_DATE, BATCH_SHIPMENT_QTY) SELECT LAST_INSERT_ID(), tsbi.BATCH_NO, tsbi.EXPIRY_DATE, tsbi.BATCH_SHIPMENT_QTY from tmp_shipment_batch_info tsbi WHERE tsbi.PARENT_ID=:id";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+                sqlString = "INSERT INTO rm_shipment_budget (SHIPMENT_ID, BUDGET_ID, BUDGET_AMT, CONVERSION_RATE_TO_USD, CURRENCY_ID, ACTIVE, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID) SELECT :shipmentId , tsb.BUDGET_ID, tsb.BUDGET_AMT, tsb.CONVERSION_RATE_TO_USD, tsb.CURRENCY_ID, tsb.ACTIVE, :curUser, :curDate, :curUser, :curDate, :versionId FROM tmp_shipment ts left join tmp_shipment_budget tsb ON tsb.PARENT_ID=ts.ID WHERE tsb.PARENT_ID=:id";
                 this.namedParameterJdbcTemplate.update(sqlString, params);
             }
         }
@@ -671,6 +727,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_trans_batch_info`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_budget`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         if (version == null) {
             return new Version(0, null, null, null, null, null, null, null);
