@@ -17,7 +17,7 @@ public class SimpleForecastingUnitObject extends SimpleObject {
         super();
     }
 
-    public SimpleForecastingUnitObject(int id, Label label, SimpleObject productCategory) {
+    public SimpleForecastingUnitObject(Integer id, Label label, SimpleObject productCategory) {
         super(id, label);
         this.productCategory = productCategory;
     }

@@ -45,7 +45,7 @@ public class ShipmentRowMapper implements RowMapper<Shipment> {
         s.setFreightCost(rs.getDouble("FREIGHT_COST"));
         s.setOrderedDate(rs.getDate("ORDERED_DATE"));
         s.setShippedDate(rs.getDate("SHIPPED_DATE"));
-        s.setReceivedDate(rs.getDate("RECEIVED_DATE"));
+        s.setDeliveredDate(rs.getDate("RECEIVED_DATE"));
         s.setShipmentStatus(new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, i)));
         s.setNotes(rs.getString("NOTES"));
         s.setDataSource(new SimpleObject(rs.getInt("DATA_SOURCE_ID"), new LabelRowMapper("DATA_SOURCE_").mapRow(rs, i)));

@@ -11,22 +11,22 @@ package cc.altius.FASP.model;
  */
 public class SimpleObject {
 
-    private int id;
+    private Integer id;
     private Label label;
 
     public SimpleObject() {
     }
 
-    public SimpleObject(int id, Label label) {
+    public SimpleObject(Integer id, Label label) {
         this.id = id;
         this.label = label;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
