@@ -13,6 +13,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.InventoryBatchInfo;
 import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentBatchInfo;
 import cc.altius.FASP.model.ShipmentBudget;
@@ -20,9 +21,11 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.ConsumptionListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ProgramVersionRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
+import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,6 +49,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    @Autowired
+    private AclService aclService;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -474,7 +479,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //        sqlString = "DROP TABLE IF EXISTS `tmp_shipment_budget`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_shipment_budget` ( "
-//        sqlString = "CREATE TABLE `tmp_shipment_budget` ( "
+                //        sqlString = "CREATE TABLE `tmp_shipment_budget` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `PARENT_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `SHIPMENT_BUDGET_ID` INT(10) UNSIGNED NULL, "
@@ -750,6 +755,69 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     public List<SimpleObject> getVersionStatusList() {
         String sqlString = "SELECT vs.VERSION_STATUS_ID `ID`, vsl.LABEL_ID, vsl.LABEL_EN, vsl.LABEL_FR, vsl.LABEL_SP, vsl.LABEL_PR  FROM ap_version_status vs LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID";
         return this.namedParameterJdbcTemplate.query(sqlString, new SimpleObjectRowMapper());
+    }
+
+    @Override
+    public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("realmCountryId", realmCountryId);
+        params.put("healthAreaId", healthAreaId);
+        params.put("organisationId", organisationId);
+        params.put("versionId", versionId);
+        params.put("versionTypeId", versionTypeId);
+        params.put("versionStatusId", versionStatusId);
+        params.put("startDate", startDate + " 00:00:00");
+        params.put("stopDate", stopDate + " 23:59:59");
+        StringBuilder sb = new StringBuilder("SELECT  "
+                + "     pv.PROGRAM_VERSION_ID, pv.VERSION_ID, pv.NOTES, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, pv.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pv.LAST_MODIFIED_DATE, "
+                + "     p.PROGRAM_ID, pl.LABEL_ID `PROGRAM_LABEL_ID`, pl.LABEL_EN `PROGRAM_LABEL_EN`, pl.LABEL_FR `PROGRAM_LABEL_FR`, pl.LABEL_SP `PROGRAM_LABEL_SP`, pl.LABEL_PR `PROGRAM_LABEL_PR`, "
+                + "     rc.REALM_COUNTRY_ID, c.COUNTRY_CODE, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR`, "
+                + "     ha.HEALTH_AREA_ID, hal.LABEL_ID `HEALTH_AREA_LABEL_ID`, hal.LABEL_EN `HEALTH_AREA_LABEL_EN`, hal.LABEL_FR `HEALTH_AREA_LABEL_FR`, hal.LABEL_SP `HEALTH_AREA_LABEL_SP`, hal.LABEL_PR `HEALTH_AREA_LABEL_PR`, "
+                + "     o.ORGANISATION_ID, o.ORGANISATION_CODE, ol.LABEL_ID `ORGANISATION_LABEL_ID`, ol.LABEL_EN `ORGANISATION_LABEL_EN`, ol.LABEL_FR `ORGANISATION_LABEL_FR`, ol.LABEL_SP `ORGANISATION_LABEL_SP`, ol.LABEL_PR `ORGANISATION_LABEL_PR`, "
+                + "     vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
+                + "     vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR` "
+                + "FROM rm_program_version pv  "
+                + "LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
+                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+                + "LEFT JOIN rm_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
+                + "LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
+                + "LEFT JOIN rm_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
+                + "LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
+                + "LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON pv.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "LEFT JOIN ap_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
+                + "LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID "
+                + "LEFT JOIN ap_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
+                + "LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID "
+                + "WHERE TRUE "
+                + "AND (:programId = -1 OR p.PROGRAM_ID = :programId ) "
+                + "AND (:versionId = -1 OR pv.VERSION_ID = :versionId ) "
+                + "AND (:realmCountryId = -1 OR p.REALM_COUNTRY_ID= :realmCountryId ) "
+                + "AND (:healthAreaId = -1 OR p.HEALTH_AREA_ID = :healthAreaId ) "
+                + "AND (:organisationId = -1 OR p.ORGANISATION_ID = :organisationId) "
+                + "AND (:versionTypeId = -1 OR pv.VERSION_TYPE_ID = :versionTypeId) "
+                + "AND (:versionStatusId = -1 OR pv.VERSION_STATUS_ID = :versionStatusId) "
+                + "AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate ");
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ProgramVersionRowMapper());
+
+    }
+
+    @Override
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, CustomUserDetails curUser) {
+        String sqlString = "UPDATE rm_program_version pv SET pv.VERSION_STATUS_ID=:versionStatusId, pv.LAST_MODIFIED_DATE=:curDate, pv.LAST_MODIFIED_BY=:curUser WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        params.put("versionStatusId", versionStatusId);
+        params.put("curUser", curUser.getUserId());
+        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        return this.getVersionInfo(programId, versionId);
     }
 
 }

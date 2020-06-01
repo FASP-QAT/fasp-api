@@ -8,6 +8,7 @@ package cc.altius.FASP.service;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Version;
 import java.util.List;
@@ -25,4 +26,8 @@ public interface ProgramDataService {
     public List<SimpleObject> getVersionTypeList();
 
     public List<SimpleObject> getVersionStatusList();
+    
+    public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser);
+    
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, CustomUserDetails curUser);
 }

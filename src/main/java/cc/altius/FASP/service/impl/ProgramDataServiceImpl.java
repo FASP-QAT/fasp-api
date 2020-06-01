@@ -10,6 +10,7 @@ import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.service.AclService;
@@ -65,6 +66,15 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public List<SimpleObject> getVersionStatusList() {
         return this.programDataDao.getVersionStatusList();
+    }
+
+    public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser) {
+        return this.programDataDao.getProgramVersionList(programId, versionId, realmCountryId, healthAreaId, organisationId, versionTypeId, versionStatusId, startDate, stopDate, curUser);
+    }
+
+    @Override
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, CustomUserDetails curUser) {
+        return this.programDataDao.updateProgramVersion(programId, versionId, versionStatusId, curUser);
     }
 
     
