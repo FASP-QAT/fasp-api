@@ -10,6 +10,8 @@ import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.model.ProgramVersion;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.service.AclService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
+import java.util.List;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
@@ -37,7 +40,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser) {
         ProgramData pd = new ProgramData(this.programService.getProgramById(programId, curUser));
-        pd.setRequestedProgramVersion(versionId);
+        this.programDataDao.getVersionInfo(pd.getProgramId(), pd.getCurrentVersion().getVersionId());
         pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId));
         pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId));
         pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId));
@@ -49,48 +52,30 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         Program p = this.programService.getProgramById(programData.getProgramId(), curUser);
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
-            int versionId = this.programDataDao.saveProgramData(programData, curUser);
-            return new Version(
-                    versionId,
-                    programData.getCurrentVersion().getVersionType(),
-                    programData.getCurrentVersion().getVersionStatus(),
-                    programData.getCurrentVersion().getNotes(),
-                    curUser.getUserId(),
-                    curDate,
-                    curUser.getUserId(),
-                    curDate);
+            return this.programDataDao.saveProgramData(programData, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
     }
 
-//    @Override
-//    public List<PrgProgramProductDTO> getProgramProductListByProgramId(int programId) {
-//        return this.programDao.getProgramProductListByProgramId(programId);
-//    }
-//
-//    @Override
-//    public List<PrgInventoryDTO> getInventoryListByProductId(int productId) {
-//        return this.programDao.getInventoryListByProductId(productId);
-//    }
-//
-//    @Override
-//    public List<PrgConsumptionDTO> getConsumptionListByProductId(int productId) {
-//        return this.programDao.getConsumptionListByProductId(productId);
-//    }
-//
-//    @Override
-//    public List<PrgShipmentDTO> getShipmentListByProductId(int productId) {
-//        return this.programDao.getShipmentListByProductId(productId);
-//    }
-//
-//    @Override
-//    public List<PrgRegionDTO> getRegionListByProgramId(int programId) {
-//        return this.programDao.getRegionListByProgramId(programId);
-//    }
-//
-//    @Override
-//    public List<PrgBudgetDTO> getBudgetListByProgramId(int programId) {
-//        return this.programDao.getBudgetListByProgramId(programId);
-//    }
+    @Override
+    public List<SimpleObject> getVersionTypeList() {
+        return this.programDataDao.getVersionTypeList();
+    }
+
+    @Override
+    public List<SimpleObject> getVersionStatusList() {
+        return this.programDataDao.getVersionStatusList();
+    }
+
+    public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser) {
+        return this.programDataDao.getProgramVersionList(programId, versionId, realmCountryId, healthAreaId, organisationId, versionTypeId, versionStatusId, startDate, stopDate, curUser);
+    }
+
+    @Override
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, CustomUserDetails curUser) {
+        return this.programDataDao.updateProgramVersion(programId, versionId, versionStatusId, curUser);
+    }
+
+    
 }

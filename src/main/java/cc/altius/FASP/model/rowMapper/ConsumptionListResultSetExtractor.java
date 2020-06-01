@@ -48,6 +48,7 @@ public class ConsumptionListResultSetExtractor implements ResultSetExtractor<Lis
             c.setConsumptionQty(rs.getDouble("CONSUMPTION_QTY"));
             c.setDayOfStockOut(rs.getInt("DAYS_OF_STOCK_OUT"));
             c.setDataSource(new SimpleObject(rs.getInt("DATA_SOURCE_ID"), new LabelRowMapper("DATA_SOURCE_").mapRow(rs, 1)));
+            c.setNotes(rs.getString("NOTES"));
             c.setVersionId(rs.getInt("VERSION_ID"));
             c.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
             ConsumptionBatchInfo cb = new ConsumptionBatchInfoRowMapper().mapRow(rs, 1);

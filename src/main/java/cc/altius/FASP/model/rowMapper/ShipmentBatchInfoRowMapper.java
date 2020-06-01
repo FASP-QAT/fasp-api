@@ -25,7 +25,7 @@ public class ShipmentBatchInfoRowMapper implements RowMapper<ShipmentBatchInfo> 
         }
         sb.setBatchNo(rs.getString("BATCH_NO"));
         sb.setExpiryDate(rs.getDate("EXPIRY_DATE"));
-        sb.setQuantity(rs.getInt("BATCH_QTY"));
+        sb.setShipmentQty(rs.getInt("BATCH_SHIPMENT_QTY"));
         return sb;
     }
 

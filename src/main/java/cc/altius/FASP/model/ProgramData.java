@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,6 +34,9 @@ public class ProgramData extends BaseModel implements Serializable {
     private double arrivedToDeliveredLeadTime;
     private int monthsInPastForAmc;
     private int monthsInFutureForAmc;
+    private SimpleObject versionType;
+    private SimpleObject versionStatus;
+    private String notes;
     private List<Region> regionList;
     private Version currentVersion;
     @JsonIgnore
@@ -41,6 +45,8 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<Inventory> inventoryList;
     private List<Shipment> shipmentList;
     private int requestedProgramVersion;
+    private Date lastModifiedDate;
+    private BasicUser lastModifiedBy;
 
     public int getRequestedProgramVersion() {
         return requestedProgramVersion;
@@ -267,6 +273,46 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setShipmentList(List<Shipment> shipmentList) {
         this.shipmentList = shipmentList;
+    }
+
+    public SimpleObject getVersionType() {
+        return versionType;
+    }
+
+    public void setVersionType(SimpleObject versionType) {
+        this.versionType = versionType;
+    }
+
+    public SimpleObject getVersionStatus() {
+        return versionStatus;
+    }
+
+    public void setVersionStatus(SimpleObject versionStatus) {
+        this.versionStatus = versionStatus;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public BasicUser getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(BasicUser lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
     }
 
     @Override

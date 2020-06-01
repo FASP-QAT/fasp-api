@@ -11,35 +11,16 @@ import java.io.Serializable;
  *
  * @author akil
  */
-public class SimpleBudgetObject implements Serializable {
+public class SimpleBudgetObject extends SimpleObject implements Serializable {
 
-    private int id;
-    private Label label;
     private SimpleObject fundingSource;
 
     public SimpleBudgetObject() {
     }
 
-    public SimpleBudgetObject(int id, Label label, SimpleObject fundingSource) {
-        this.id = id;
-        this.label = label;
+    public SimpleBudgetObject(Integer id, Label label, SimpleObject fundingSource) {
+        super(id, label);
         this.fundingSource = fundingSource;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public Label getLabel() {
-        return label;
-    }
-
-    public void setLabel(Label label) {
-        this.label = label;
     }
 
     public SimpleObject getFundingSource() {
