@@ -9,13 +9,17 @@ import cc.altius.FASP.dao.ImportArtemisDataDao;
 import cc.altius.FASP.model.TempProgramVersion;
 import cc.altius.FASP.model.rowMapper.TempProgramVersionRowMapper;
 import cc.altius.utils.DateUtils;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import javax.sql.DataSource;
+import javax.xml.parsers.ParserConfigurationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -37,7 +41,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 
     @Override
     @Transactional
-    public int importOrderAndShipmentData(String orderDataFilePath, String shipmentDataFilePath) {
+    public void importOrderAndShipmentData(String orderDataFilePath, String shipmentDataFilePath) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException {
         String sql;
         int rows;
 //        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
@@ -81,6 +85,9 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 
         sql = "LOAD DATA LOCAL INFILE '/home/altius/Documents/FASP/ARTEMISDATA/202005121226_orderdata.csv' INTO TABLE `tmp_erp_order` CHARACTER SET 'latin1' FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\\\"' LINES TERMINATED BY '\\n' IGNORE 1 LINES (`RO_NO`,`RO_PRIME_LINE_NO`,`ORDER_NUMBER`,`PRIME_LINE_NO`,`ORDER_TYPE_IND`,`ORDER_ENTRY_DATE`,`PARENT_RO`,`PARENT_ORDER_ENTRY_DATE`,`ITEM_ID`,`ORDERED_QTY`,`PO_RELEASED_FOR_FULFILLMENT_DATE`,`LATEST_ESTIMATED_DELIVERY_DATE`,`REQ_DELIVERY_DATE`,`REVISED_AGREED_DELIVERY_DATE`,`ITEM_SUPPLIER_NAME`,`WCS_CATALOG_PRICE`,`UNIT_PRICE`,`STATUS_NAME`,`EXTERNAL_STATUS_STAGE`,`SHIPPING_CHARGES`,`FREIGHT_ESTIMATE`,`TOTAL_ACTUAL_FREIGHT_COST`,`CARRIER_SERVICE_CODE`,`RECIPIENT_NAME`,`RECIPIENT_COUNTRY`)";
         this.jdbcTemplate.execute(sql);
+
+        sql = "SELECT COUNT(*) FROM tmp_erp_order;";
+        System.out.println("Total rows inserted in tmp_erp_order---" + this.jdbcTemplate.queryForObject(sql, Integer.class));
 
         sql = "UPDATE tmp_erp_order teo SET teo.LATEST_ESTIMATED_DELIVERY_DATE = NULL WHERE teo.LATEST_ESTIMATED_DELIVERY_DATE='';";
         this.jdbcTemplate.update(sql);
@@ -126,9 +133,14 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
         sql = "LOAD DATA LOCAL INFILE '/home/altius/Documents/FASP/ARTEMISDATA/202005121409_shipmentdata.csv' INTO TABLE `tmp_erp_shipment` CHARACTER SET 'latin1' FIELDS TERMINATED BY ',' OPTIONALLY ENCLOSED BY '\\\"' LINES TERMINATED BY '\\n' IGNORE 1 LINES (`KN_SHIPMENT_NUMBER`,`ORDER_NUMBER`,`PRIME_LINE_NO`,`BATCH_NO`,`ITEM_ID`,`EXPIRATION_DATE`,`SHIPPED_QUANTITY`,`DELIVERED_QUANTITY`,`STATUS_NAME`,`EXTERNAL_STATUS_STAGE`,`ACTUAL_SHIPMENT_DATE`,`ACTUAL_DELIVERY_DATE`);";
         this.jdbcTemplate.execute(sql);
 
+        sql = "SELECT COUNT(*) FROM tmp_erp_shipment;";
+        System.out.println("Total rows inserted in tmp_erp_shipment---" + this.jdbcTemplate.queryForObject(sql, Integer.class));
+
         sql = "UPDATE rm_erp_order o SET o.`FLAG`=0";
         this.jdbcTemplate.update(sql);
-        
+
+        sql = "SELECT COUNT(*) FROM rm_erp_order;";
+        System.out.println("Total rows present in rm_erp_order---" + this.jdbcTemplate.queryForObject(sql, Integer.class));
 
         sql = "UPDATE tmp_erp_order t "
                 + "LEFT JOIN rm_erp_order o ON t.`ORDER_NUMBER`=o.`ORDER_NO` AND t.`PRIME_LINE_NO`=o.`PRIME_LINE_NO` "
@@ -181,7 +193,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 //                + "o.`LAST_MODIFIED_DATE`=?, "
 //                + "o.`FLAG`=1;";
         rows = this.jdbcTemplate.update(sql, curDate);
-        System.out.println("update erp order---" + rows);
+        System.out.println("No of rows updated in rm_erp_order---" + rows);
 
         sql = "INSERT IGNORE INTO rm_erp_order "
                 + " SELECT NULL,RO_NO,RO_PRIME_LINE_NO,ORDER_NUMBER,PRIME_LINE_NO, "
@@ -195,16 +207,19 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                 + " FROM tmp_erp_order t ";
 
         rows = this.jdbcTemplate.update(sql, curDate);
-        System.out.println("insert into erp order---" + rows);
-        
+        System.out.println("No of rows inserted into rm_erp_order---" + rows);
+
         sql = "UPDATE tmp_erp_shipment teo SET teo.EXPIRATION_DATE = NULL WHERE teo.EXPIRATION_DATE='';";
         this.jdbcTemplate.update(sql);
-        
+
         sql = "UPDATE tmp_erp_shipment teo SET teo.ACTUAL_SHIPMENT_DATE = NULL WHERE teo.ACTUAL_SHIPMENT_DATE='';";
         this.jdbcTemplate.update(sql);
-        
+
         sql = "UPDATE tmp_erp_shipment teo SET teo.ACTUAL_DELIVERY_DATE = NULL WHERE teo.ACTUAL_DELIVERY_DATE='';";
         this.jdbcTemplate.update(sql);
+        
+        sql = "SELECT COUNT(*) FROM rm_erp_shipment;";
+        System.out.println("Total rows present in rm_erp_shipment---" + this.jdbcTemplate.queryForObject(sql, Integer.class));
 
         sql = "UPDATE tmp_erp_shipment t "
                 + "LEFT JOIN rm_erp_shipment s ON t.`KN_SHIPMENT_NUMBER`=s.`KN_SHIPMENT_NO` "
@@ -222,21 +237,25 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                 + "s.`STATUS`=t.`EXTERNAL_STATUS_STAGE`;";
 
         rows = this.jdbcTemplate.update(sql, curDate);
-        System.out.println("update erp shipment---" + rows);
+        System.out.println("No of rows updated in  rm_erp_shipment---" + rows);
 
         sql = "INSERT IGNORE INTO rm_erp_shipment "
                 + "SELECT  NULL,NULL,KN_SHIPMENT_NUMBER,ORDER_NUMBER,PRIME_LINE_NO,BATCH_NO,IFNULL(DATE_FORMAT(EXPIRATION_DATE,'%Y-%m-%d %H:%i:%s'),NULL),ITEM_ID,SHIPPED_QUANTITY, "
                 + "DELIVERED_QUANTITY,IFNULL(DATE_FORMAT(ACTUAL_SHIPMENT_DATE,'%Y-%m-%d %H:%i:%s'),NULL),IFNULL(DATE_FORMAT(ACTUAL_DELIVERY_DATE,'%Y-%m-%d %H:%i:%s'),NULL),EXTERNAL_STATUS_STAGE,?,1 "
                 + "FROM  tmp_erp_shipment t;";
         rows = this.jdbcTemplate.update(sql, curDate);
-        System.out.println("insert into erp shipment---" + rows);
+        System.out.println("No of rows inserted into rm_erp_shipment---" + rows);
 
         sql = "UPDATE rm_erp_shipment t "
                 + "LEFT JOIN rm_erp_order o ON o.`ORDER_NO`=t.`ORDER_NO` AND o.`PRIME_LINE_NO`=t.`PRIME_LINE_NO` "
                 + "SET t.`ERP_ORDER_ID`=o.`ERP_ORDER_ID`;";
-
         rows = this.jdbcTemplate.update(sql);
+        
         System.out.println("update erp order id in erp shipment table---" + rows);
+        
+        sql = "SELECT COUNT(*) FROM rm_erp_shipment where erp_order_id is null and flag=1;";
+        System.out.println("Total rows without erp_order_id in rm_erp_shipment---" + this.jdbcTemplate.queryForObject(sql, Integer.class));
+        
         sql = "SELECT s.`PROGRAM_ID`,m.`ERP_ORDER_ID` "
                 + "FROM rm_shipment_trans_erp_order_mapping m "
                 + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=m.`SHIPMENT_ID` "
@@ -266,9 +285,8 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                 + " WHERE m.`SHIPMENT_ID` IS NOT NULL AND o.`FLAG`=1 "
                 + " GROUP BY o.`ERP_ORDER_ID`";
         rows = this.jdbcTemplate.update(sql, curDate);
-        System.out.println("insert into shipment trans---" + rows);
+        System.out.println("Total rows inserted into shipment trans---" + rows);
 
-        return rows;
     }
 
 }

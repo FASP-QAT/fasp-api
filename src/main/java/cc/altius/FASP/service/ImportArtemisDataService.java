@@ -5,11 +5,15 @@
  */
 package cc.altius.FASP.service;
 
+import java.io.IOException;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
+
 /**
  *
  * @author altius
  */
 public interface ImportArtemisDataService {
 
-    public int importOrderAndShipmentData(String orderDataFilePath, String shipmentDataFilePath);
+    public void importOrderAndShipmentData(String orderDataFilePath, String shipmentDataFilePath) throws ParserConfigurationException, SAXException, IOException;
 }
