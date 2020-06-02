@@ -75,7 +75,7 @@ public class ProgramRestController {
         }
     }
 
-    @GetMapping("/program/programIds")
+    @PostMapping("/program/programIds")
     public ResponseEntity getProgram(@RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
