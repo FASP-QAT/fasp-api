@@ -74,6 +74,7 @@ public class Role implements Serializable {
 
     public void setBusinessFunctions(String[] businessFunctions) {
         this.businessFunctions = businessFunctions;
+        this.businessFunctionList.clear();
         for (String bf : businessFunctions) {
             this.businessFunctionList.add(new BusinessFunction(bf));
         }

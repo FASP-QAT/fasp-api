@@ -677,6 +677,10 @@ public class UserDaoImpl implements UserDao {
                 + "WHERE r.`ROLE_ID`=:roleId";
         this.namedParameterJdbcTemplate.update(sql, params);
         params.clear();
+        sql = "DELETE rbf.* FROM us_role_business_function rbf WHERE rbf.ROLE_ID=:roleId";
+        params.put("roleId", role.getRoleId());
+        this.namedParameterJdbcTemplate.update(sql, params);
+        
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("us_role_business_function");
         SqlParameterSource[] paramList = new SqlParameterSource[role.getBusinessFunctions().length];
         int i = 0;
@@ -693,6 +697,11 @@ public class UserDaoImpl implements UserDao {
         }
         si.executeBatch(paramList);
         params.clear();
+        
+        sql = "DELETE ccr.* FROM us_can_create_role ccr WHERE ccr.ROLE_ID=:roleId";
+        params.put("roleId", role.getRoleId());
+        this.namedParameterJdbcTemplate.update(sql, params);
+        
         si = new SimpleJdbcInsert(dataSource).withTableName("us_can_create_role");
         if (role.getCanCreateRoles().length > 0) {
             paramList = new SqlParameterSource[role.getCanCreateRoles().length];

@@ -43,7 +43,7 @@ public class Shipment extends BaseModel implements Serializable {
     private Date shippedDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    private Date receivedDate;
+    private Date deliveredDate;
     private SimpleObject shipmentStatus;
     private String notes;
     private SimpleObject dataSource;
@@ -180,12 +180,12 @@ public class Shipment extends BaseModel implements Serializable {
         this.shippedDate = shippedDate;
     }
 
-    public Date getReceivedDate() {
-        return receivedDate;
+    public Date getDeliveredDate() {
+        return deliveredDate;
     }
 
-    public void setReceivedDate(Date receivedDate) {
-        this.receivedDate = receivedDate;
+    public void setDeliveredDate(Date deliveredDate) {
+        this.deliveredDate = deliveredDate;
     }
 
     public SimpleObject getShipmentStatus() {

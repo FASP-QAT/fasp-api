@@ -8,8 +8,8 @@ package cc.altius.FASP.model.rowMapper;
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.FundingSource;
-import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -23,7 +23,7 @@ public class BudgetRowMapper implements RowMapper<Budget> {
     @Override
     public Budget mapRow(ResultSet rs, int rowNum) throws SQLException {
         Budget b = new Budget(rs.getInt("BUDGET_ID"), new LabelRowMapper().mapRow(rs, rowNum));
-        b.setProgram(new Program(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, rowNum)));
+        b.setProgram(new SimpleObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, rowNum)));
         b.setFundingSource(
                 new FundingSource(
                         rs.getInt("FUNDING_SOURCE_ID"),
@@ -35,8 +35,9 @@ public class BudgetRowMapper implements RowMapper<Budget> {
                         )
                 )
         );
-        b.setBudgetAmt(rs.getInt("BUDGET_AMT"));
-        b.setUsedAmt(rs.getInt("USED_AMT"));
+        b.setBudgetAmt(rs.getDouble("BUDGET_AMT"));
+        b.setBudgetUsdAmt(rs.getDouble("BUDGET_USD_AMT"));
+        b.setUsedUsdAmt(rs.getDouble("USED_USD_AMT"));
         b.setCurrency(new Currency(rs.getInt("CURRENCY_ID"), rs.getString("CURRENCY_CODE"), new LabelRowMapper("CURRENCY_").mapRow(rs, rowNum), rs.getDouble("CONVERSION_RATE_TO_USD")));
         b.setStartDate(rs.getDate("START_DATE"));
         b.setStopDate(rs.getDate("STOP_DATE"));

@@ -5,6 +5,10 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -16,8 +20,10 @@ public class ShipmentBatchInfo implements Serializable {
 
     private int shipmentTransBatchInfoId;
     private String batchNo;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
     private Date expiryDate;
-    private int quantity;
+    private int shipmentQty;
 
     public int getShipmentTransBatchInfoId() {
         return shipmentTransBatchInfoId;
@@ -43,12 +49,12 @@ public class ShipmentBatchInfo implements Serializable {
         this.expiryDate = expiryDate;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public int getShipmentQty() {
+        return shipmentQty;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setShipmentQty(int shipmentQty) {
+        this.shipmentQty = shipmentQty;
     }
 
     @Override

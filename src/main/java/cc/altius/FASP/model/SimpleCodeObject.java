@@ -19,7 +19,7 @@ public class SimpleCodeObject extends SimpleObject {
         super();
     }
 
-    public SimpleCodeObject(int id, Label label, String code) {
+    public SimpleCodeObject(Integer id, Label label, String code) {
         super(id, label);
         this.code = code;
     }
