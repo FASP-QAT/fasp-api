@@ -6,6 +6,8 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.report.AnnualShipmentCostInput;
+import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastMetricsInput;
@@ -30,5 +32,7 @@ public interface ReportService {
     public List<ForecastMetricsOutput> getForecastMetrics(ForecastMetricsInput fmi, CustomUserDetails curUser);
 
     public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser);
+
+    public  List<Map<String, Object>> getAnnualShipmentCost(AnnualShipmentCostInput asci, CustomUserDetails curUser);
 
 }
