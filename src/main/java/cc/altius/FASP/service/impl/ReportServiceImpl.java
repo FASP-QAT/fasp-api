@@ -7,12 +7,16 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.report.AnnualShipmentCostInput;
+import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastMetricsInput;
 import cc.altius.FASP.model.report.ForecastMetricsOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
+import cc.altius.FASP.model.report.StockOverTimeInput;
+import cc.altius.FASP.model.report.StockOverTimeOutput;
 import cc.altius.FASP.service.ReportService;
 import java.util.List;
 import java.util.Map;
@@ -49,12 +53,19 @@ public class ReportServiceImpl implements ReportService {
         return this.reportDao.getForecastMetrics(fmi, curUser);
     }
 
-    
     @Override
     public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser) {
         return this.reportDao.getGlobalConsumption(gci, curUser);
     }
 
+    @Override
+    public List<List<StockOverTimeOutput>> getStockOverTime(StockOverTimeInput soti, CustomUserDetails curUser) {
+        return this.reportDao.getStockOverTime(soti, curUser);
+    }
 
+    @Override
+    public List<Map<String, Object>> getAnnualShipmentCost(AnnualShipmentCostInput asci, CustomUserDetails curUser) {
+        return this.reportDao.getAnnualShipmentCost(asci, curUser);
+    }
 
 }

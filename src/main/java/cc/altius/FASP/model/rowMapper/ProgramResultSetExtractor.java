@@ -98,12 +98,12 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
             isFirst = false;
         }
         if (!isFirst) {
-            p.setRegionArray(new String[p.getRegionList().size()]);
-            int x = 0;
-            for (Region r : p.getRegionList()) {
-                p.getRegionArray()[x] = Integer.toString(r.getRegionId());
-                x++;
-            }
+//            p.setRegionArray(new String[p.getRegionList().size()]);
+//            int x = 0;
+//            for (Region r : p.getRegionList()) {
+//                p.getRegionArray()[x] = Integer.toString(r.getRegionId());
+//                x++;
+//            }
             return p;
         } else {
             return null;

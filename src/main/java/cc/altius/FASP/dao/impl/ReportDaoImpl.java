@@ -7,6 +7,9 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.report.AnnualShipmentCostInput;
+import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
+import cc.altius.FASP.model.report.AnnualShipmentCostOutputRowMapper;
 import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastErrorOutputRowMapper;
@@ -16,7 +19,13 @@ import cc.altius.FASP.model.report.ForecastMetricsOutputRowMapper;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutputRowMapper;
+import cc.altius.FASP.model.report.ProgramAndPlanningUnit;
+import cc.altius.FASP.model.report.StockOverTimeInput;
+import cc.altius.FASP.model.report.StockOverTimeOutput;
+import cc.altius.FASP.model.report.StockOverTimeOutputRowMapper;
+import java.text.SimpleDateFormat;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -211,6 +220,39 @@ public class ReportDaoImpl implements ReportDao {
         params.put("programIds", gci.getProgramIdString());
         params.put("planningUnitIds", gci.getPlanningUnitIdString());
         return this.namedParameterJdbcTemplate.query("CALL globalConsumption(:realmCountryIds,:programIds,:planningUnitIds,:startDate,:stopDate)", params, new GlobalConsumptionOutputRowMapper());
+    }
+
+    @Override
+    public List<List<StockOverTimeOutput>> getStockOverTime(StockOverTimeInput soti, CustomUserDetails curUser) {
+        List<List<StockOverTimeOutput>> sList = new LinkedList<>();
+        Map<String, Object> params = new HashMap<>();
+        String sqlString = "CALL stockOverTime(:programId, :planningUnitId, :startDate, :stopDate, :mosPast, :mosFuture)";
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        for (ProgramAndPlanningUnit pp : soti.getProgramAndPlanningUnitList()) {
+            params.clear();
+            params.put("startDate", sdf.format(soti.getStartDate()));
+            params.put("stopDate", sdf.format(soti.getStopDate()));
+            params.put("mosFuture", soti.getMosFuture());
+            params.put("mosPast", soti.getMosPast());
+            params.put("programId", pp.getProgramId());
+            params.put("planningUnitId", pp.getPlanningUnitId());
+            sList.add(this.namedParameterJdbcTemplate.query(sqlString, params, new StockOverTimeOutputRowMapper()));
+        }
+        return sList;
+    }
+
+    @Override
+    public List<Map<String, Object>> getAnnualShipmentCost(AnnualShipmentCostInput asci, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", asci.getStartDate());
+        params.put("stopDate", asci.getStopDate());
+        params.put("procurementAgentId", asci.getProcurementAgentId());
+        params.put("programId", asci.getProgramId());
+        params.put("planningUnitId", asci.getPlanningUnitId());
+        params.put("fundingSourceId", asci.getFundingSourceId());
+        params.put("shipmentStatusId", asci.getFundingSourceId());
+        params.put("dateFlag", asci.isReportbaseValue());
+        return this.namedParameterJdbcTemplate.queryForList("CALL annualShipmentCost(:programId,:procurementAgentId,:planningUnitId,:fundingSourceId,:shipmentStatusId,:startDate,:stopDate,:dateFlag)", params);
     }
 
 }
