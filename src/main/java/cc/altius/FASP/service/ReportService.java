@@ -12,6 +12,8 @@ import cc.altius.FASP.model.report.ForecastMetricsInput;
 import cc.altius.FASP.model.report.ForecastMetricsOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
+import cc.altius.FASP.model.report.StockOverTimeInput;
+import cc.altius.FASP.model.report.StockOverTimeOutput;
 import java.util.List;
 import java.util.Map;
 
@@ -30,5 +32,7 @@ public interface ReportService {
     public List<ForecastMetricsOutput> getForecastMetrics(ForecastMetricsInput fmi, CustomUserDetails curUser);
 
     public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser);
+    
+    public List<List<StockOverTimeOutput>> getStockOverTime(StockOverTimeInput soti, CustomUserDetails curUser);
 
 }
