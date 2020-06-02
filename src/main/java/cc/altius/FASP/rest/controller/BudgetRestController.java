@@ -72,7 +72,7 @@ public class BudgetRestController {
         }
     }
 
-    @GetMapping("/budget/programIds")
+    @PostMapping("/budget/programIds")
     public ResponseEntity getBudget(@RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
