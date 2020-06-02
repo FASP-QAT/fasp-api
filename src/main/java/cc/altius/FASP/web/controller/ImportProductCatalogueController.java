@@ -6,9 +6,12 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.service.ImportProductCatalogueService;
+import java.io.IOException;
+import javax.xml.parsers.ParserConfigurationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.xml.sax.SAXException;
 
 /**
  *
@@ -22,9 +25,9 @@ public class ImportProductCatalogueController {
 
     @RequestMapping(value = "import1")
 //    @Scheduled(cron = "00 */05 * * * *")
-    public void importProductcatalogue() {
+    public void importProductcatalogue() throws ParserConfigurationException, SAXException, IOException{
         System.out.println("inside controller------------------");
-        String orderDataFilePath = "/home/altius/Documents/FASP/ARTEMISDATA/item_data_202005191039.xml";
+        String orderDataFilePath = "/home/altius/Documents/FASP/ARTEMISDATA/item_data_2020051910399.xml";
         this.importProductCatalogueService.importProductCatalogue(orderDataFilePath);
 
     }

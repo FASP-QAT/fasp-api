@@ -7,6 +7,8 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.report.AnnualShipmentCostInput;
+import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastMetricsInput;
@@ -51,7 +53,6 @@ public class ReportServiceImpl implements ReportService {
         return this.reportDao.getForecastMetrics(fmi, curUser);
     }
 
-    
     @Override
     public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser) {
         return this.reportDao.getGlobalConsumption(gci, curUser);
@@ -60,6 +61,11 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public List<List<StockOverTimeOutput>> getStockOverTime(StockOverTimeInput soti, CustomUserDetails curUser) {
         return this.reportDao.getStockOverTime(soti, curUser);
+    }
+
+    @Override
+    public List<Map<String, Object>> getAnnualShipmentCost(AnnualShipmentCostInput asci, CustomUserDetails curUser) {
+        return this.reportDao.getAnnualShipmentCost(asci, curUser);
     }
 
 }

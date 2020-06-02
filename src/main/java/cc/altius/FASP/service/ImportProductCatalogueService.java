@@ -5,11 +5,15 @@
  */
 package cc.altius.FASP.service;
 
+import java.io.IOException;
+import javax.xml.parsers.ParserConfigurationException;
+import org.xml.sax.SAXException;
+
 /**
  *
  * @author altius
  */
 public interface ImportProductCatalogueService {
 
-    public void importProductCatalogue(String filePath);
+    public void importProductCatalogue(String filePath) throws ParserConfigurationException, SAXException, IOException;
 }
