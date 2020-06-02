@@ -200,11 +200,19 @@ public class Program extends BaseModel implements Serializable {
     }
 
     public String[] getRegionArray() {
-        return regionArray;
+        if (this.regionList.isEmpty()) {
+            return new String[0];
+        } else {
+            return regionList.stream().map(Region::getRegionIdString).toArray(String[]::new);
+        }
     }
 
     public void setRegionArray(String[] regionArray) {
         this.regionArray = regionArray;
+        this.regionList.clear();
+        for (String r : regionArray) {
+            this.regionList.add(new Region(Integer.parseInt(r), null));
+        }
     }
 
     public Version getCurrentVersion() {
@@ -212,7 +220,7 @@ public class Program extends BaseModel implements Serializable {
     }
 
     public void setCurrentVersion(Version currentVersion) {
-        this.currentVersion                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     = currentVersion;
+        this.currentVersion = currentVersion;
     }
 
     public List<Version> getVersionList() {

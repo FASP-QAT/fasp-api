@@ -72,6 +72,17 @@ public class BudgetRestController {
         }
     }
 
+    @GetMapping("/budget/programIds")
+    public ResponseEntity getBudget(@RequestBody String[] programIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.budgetService.getBudgetListForProgramIds(programIds, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get Budget list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/budget")
     public ResponseEntity getBudget(Authentication auth) {
         try {

@@ -24,6 +24,8 @@ public interface ProgramDao {
     public int updateProgram(Program p, CustomUserDetails curUser);
 
     public List<Program> getProgramList(CustomUserDetails curUser);
+    
+    public List<Program> getProgramListForProgramIds(String[] programIds, CustomUserDetails curUser);
 
     public List<Program> getProgramList(int realmId, CustomUserDetails curUser);
 

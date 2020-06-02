@@ -13,6 +13,7 @@ import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.UserAcl;
+import cc.altius.FASP.model.rowMapper.BudgetRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
@@ -301,6 +302,22 @@ public class ProgramDaoImpl implements ProgramDao {
             count++;
         }
         return this.namedParameterJdbcTemplate.query(sql, params, new ProgramDTORowMapper());
+    }
+
+    @Override
+    public List<Program> getProgramListForProgramIds(String[] programIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        StringBuilder paramBuilder = new StringBuilder();
+        for (String pId : programIds) {
+            paramBuilder.append("'").append(pId).append("',");
+        }
+        if (programIds.length>0) {
+            paramBuilder.setLength(paramBuilder.length()-1);
+        }
+        sqlStringBuilder.append(" AND p.PROGRAM_ID IN (").append(paramBuilder).append(") ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramListResultSetExtractor());
     }
 
     @Override

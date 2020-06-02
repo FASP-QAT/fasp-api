@@ -80,6 +80,11 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
+    public List<Program> getProgramListForProgramIds(String[] programIds, CustomUserDetails curUser) {
+        return this.programDao.getProgramListForProgramIds(programIds, curUser);
+    }
+
+    @Override
     public List<Program> getProgramList(CustomUserDetails curUser) {
         return this.programDao.getProgramList(curUser);
     }

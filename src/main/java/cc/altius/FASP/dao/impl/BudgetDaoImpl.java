@@ -46,7 +46,7 @@ public class BudgetDaoImpl implements BudgetDao {
 
     private final String sqlListString = "SELECT "
             + "     b.BUDGET_ID, bl.LABEL_ID, bl.LABEL_EN, bl.LABEL_FR, bl.LABEL_SP, bl.LABEL_PR, "
-            + "     b.BUDGET_AMT, IFNULL(ua.USED_AMT,0) `USED_AMT`, b.START_DATE, b.STOP_DATE, b.NOTES, "
+            + "     b.BUDGET_AMT, (b.BUDGET_AMT * b.CONVERSION_RATE_TO_USD) `BUDGET_USD_AMT`, IFNULL(ua.BUDGET_USD_AMT,0) `USED_USD_AMT`, b.START_DATE, b.STOP_DATE, b.NOTES, "
             + "     p.PROGRAM_ID, pl.LABEL_ID `PROGRAM_LABEL_ID`, pl.LABEL_EN `PROGRAM_LABEL_EN`, pl.LABEL_FR `PROGRAM_LABEL_FR`, pl.LABEL_SP `PROGRAM_LABEL_SP`, pl.LABEL_PR `PROGRAM_LABEL_PR`, "
             + "     fs.FUNDING_SOURCE_ID, fsl.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fsl.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fsl.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fsl.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fsl.LABEL_PR `FUNDING_SOURCE_LABEL_PR`, "
             + "     r.REALM_ID, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, r.`REALM_CODE`, "
@@ -64,7 +64,7 @@ public class BudgetDaoImpl implements BudgetDao {
             + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
             + "LEFT JOIN us_user cb ON b.CREATED_BY=cb.USER_ID "
             + "LEFT JOIN us_user lmb ON b.LAST_MODIFIED_BY=lmb.USER_ID "
-            + "LEFT JOIN (SELECT sb.BUDGET_ID, SUM(IFNULL(sb.BUDGET_AMT,0)) `USED_AMT` FROM rm_shipment_budget sb WHERE sb.ACTIVE GROUP BY sb.BUDGET_ID) as ua ON ua.BUDGET_ID=b.BUDGET_ID "
+            + "LEFT JOIN (SELECT sb.BUDGET_ID, SUM(sb.BUDGET_AMT*sb.CONVERSION_RATE_TO_USD) `BUDGET_USD_AMT` FROM rm_shipment s LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID LEFT JOIN rm_shipment_budget sb ON s.SHIPMENT_ID=sb.SHIPMENT_ID AND s.MAX_VERSION_ID=sb.VERSION_ID WHERE st.ACTIVE AND st.SHIPMENT_STATUS_ID!=8 GROUP BY sb.BUDGET_ID) as ua ON ua.BUDGET_ID=b.BUDGET_ID "
             + "WHERE TRUE ";
 
     @Override
@@ -73,7 +73,7 @@ public class BudgetDaoImpl implements BudgetDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_budget").usingGeneratedKeyColumns("BUDGET_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("PROGRAM_ID", b.getProgram().getProgramId());
+        params.put("PROGRAM_ID", b.getProgram().getId());
         params.put("FUNDING_SOURCE_ID", b.getFundingSource().getFundingSourceId());
         int labelId = this.labelDao.addLabel(b.getLabel(), curUser.getUserId());
         params.put("BUDGET_AMT", b.getBudgetAmt());
@@ -113,6 +113,22 @@ public class BudgetDaoImpl implements BudgetDao {
                 + "b.LAST_MODIFIED_BY=IF(b.BUDGET_AMT!=:budgetAmt OR b.NOTES!=:notes OR b.START_DATE!=:startDate OR b.STOP_DATE!=:stopDate OR b.ACTIVE!=:active, :curUser, b.LAST_MODIFIED_BY), "
                 + "b.LAST_MODIFIED_DATE=IF(b.BUDGET_AMT!=:budgetAmt OR b.NOTES!=:notes  OR b.START_DATE!=:startDate OR b.STOP_DATE!=:stopDate OR b.ACTIVE!=:active, :curDate, b.LAST_MODIFIED_DATE) "
                 + "WHERE b.BUDGET_ID=:budgetId", params);
+    }
+
+    @Override
+    public List<Budget> getBudgetListForProgramIds(String[] programIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        StringBuilder paramBuilder = new StringBuilder();
+        for (String pId : programIds) {
+            paramBuilder.append("'").append(pId).append("',");
+        }
+        if (programIds.length>0) {
+            paramBuilder.setLength(paramBuilder.length()-1);
+        }
+        sqlStringBuilder.append(" AND p.PROGRAM_ID IN (").append(paramBuilder).append(") ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetRowMapper());
     }
 
     @Override
