@@ -40,7 +40,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser) {
         ProgramData pd = new ProgramData(this.programService.getProgramById(programId, curUser));
-        this.programDataDao.getVersionInfo(pd.getProgramId(), pd.getCurrentVersion().getVersionId());
+        pd.setRequestedProgramVersion(versionId);
         pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId));
         pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId));
         pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId));
