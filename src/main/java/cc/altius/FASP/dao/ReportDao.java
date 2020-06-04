@@ -7,7 +7,8 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
-import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
+import cc.altius.FASP.model.report.CostOfInventoryInput;
+import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastMetricsInput;
@@ -38,4 +39,6 @@ public interface ReportDao {
     public List<List<StockOverTimeOutput>> getStockOverTime(StockOverTimeInput soti, CustomUserDetails curUser);
 
     public List<Map<String, Object>> getAnnualShipmentCost(AnnualShipmentCostInput asci, CustomUserDetails curUser);
+    
+    public List<CostOfInventoryOutput> getCostOfInventory(CostOfInventoryInput cii, CustomUserDetails curUser);
 }

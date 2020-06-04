@@ -260,6 +260,7 @@ public class Shipment extends BaseModel implements Serializable {
         this.versionId = versionId;
     }
 
+
     public List<ShipmentBudget> getShipmentBudgetList() {
         return shipmentBudgetList;
     }
@@ -299,6 +300,7 @@ public class Shipment extends BaseModel implements Serializable {
             return false;
         }
         return true;
+
     }
 
 }

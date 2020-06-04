@@ -56,7 +56,7 @@ public class ExportSupplyPlanController {
     private int REALM_ID;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @RequestMapping(value = "export")
+    @RequestMapping(value = "exportSupplyPlan")
 //    @Scheduled(cron = "00 */05 * * * *")
     public void exportSupplyPlan() {
         EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(4);

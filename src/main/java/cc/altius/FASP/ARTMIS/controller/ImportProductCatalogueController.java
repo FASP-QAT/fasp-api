@@ -23,11 +23,11 @@ public class ImportProductCatalogueController {
     @Autowired
     private ImportProductCatalogueService importProductCatalogueService;
 
-    @RequestMapping(value = "import1")
+    @RequestMapping(value = "importProductCatalog")
 //    @Scheduled(cron = "00 */05 * * * *")
     public void importProductcatalogue() throws ParserConfigurationException, SAXException, IOException {
         System.out.println("inside controller------------------");
-        String orderDataFilePath = "/home/altius/Documents/FASP/ARTEMISDATA/item_data_2020051910399.xml";
+        String orderDataFilePath = "/home/akil/Documents/Altius/Software/FHI360/Artmis Data Import";
         this.importProductCatalogueService.importProductCatalogue(orderDataFilePath);
 
     }

@@ -45,8 +45,20 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<Inventory> inventoryList;
     private List<Shipment> shipmentList;
     private int requestedProgramVersion;
-//    private Date lastModifiedDate;
-//    private BasicUser lastModifiedBy;
+    @JsonIgnore
+    private Date lastModifiedDate;
+    @JsonIgnore
+    private BasicUser lastModifiedBy;
+    @JsonIgnore
+    private boolean active;
+    
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public int getRequestedProgramVersion() {
         return requestedProgramVersion;
@@ -299,21 +311,21 @@ public class ProgramData extends BaseModel implements Serializable {
         this.notes = notes;
     }
 
-//    public Date getLastModifiedDate() {
-//        return lastModifiedDate;
-//    }
-//
-//    public void setLastModifiedDate(Date lastModifiedDate) {
-//        this.lastModifiedDate = lastModifiedDate;
-//    }
-//
-//    public BasicUser getLastModifiedBy() {
-//        return lastModifiedBy;
-//    }
-//
-//    public void setLastModifiedBy(BasicUser lastModifiedBy) {
-//        this.lastModifiedBy = lastModifiedBy;
-//    }
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public BasicUser getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(BasicUser lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
 
     @Override
     public String toString() {

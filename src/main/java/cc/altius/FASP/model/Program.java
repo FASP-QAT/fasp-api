@@ -33,6 +33,7 @@ public class Program extends BaseModel implements Serializable {
     private double arrivedToDeliveredLeadTime;
     private int monthsInPastForAmc;
     private int monthsInFutureForAmc;
+    
     @JsonIgnore
     private List<Region> regionList;
     String[] regionArray;
@@ -47,6 +48,32 @@ public class Program extends BaseModel implements Serializable {
         this.label = label;
     }
 
+    public double getArrivedToDeliveredLeadTime() {
+        return arrivedToDeliveredLeadTime;
+    }
+
+    public void setArrivedToDeliveredLeadTime(double arrivedToDeliveredLeadTime) {
+        this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
+    }
+
+    public double getShippedToArrivedBySeaLeadTime() {
+        return shippedToArrivedBySeaLeadTime;
+    }
+
+    public void setShippedToArrivedBySeaLeadTime(double shippedToArrivedBySeaLeadTime) {
+        this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
+    }
+
+    public double getShippedToArrivedByAirLeadTime() {
+        return shippedToArrivedByAirLeadTime;
+    }
+
+    public void setShippedToArrivedByAirLeadTime(double shippedToArrivedByAirLeadTime) {
+        this.shippedToArrivedByAirLeadTime = shippedToArrivedByAirLeadTime;
+    }
+
+    
+    
     public int getProgramId() {
         return programId;
     }
@@ -151,29 +178,7 @@ public class Program extends BaseModel implements Serializable {
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
     }
 
-    public double getShippedToArrivedByAirLeadTime() {
-        return shippedToArrivedByAirLeadTime;
-    }
 
-    public void setShippedToArrivedByAirLeadTime(double shippedToArrivedByAirLeadTime) {
-        this.shippedToArrivedByAirLeadTime = shippedToArrivedByAirLeadTime;
-    }
-
-    public double getShippedToArrivedBySeaLeadTime() {
-        return shippedToArrivedBySeaLeadTime;
-    }
-
-    public void setShippedToArrivedBySeaLeadTime(double shippedToArrivedBySeaLeadTime) {
-        this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
-    }
-
-    public double getArrivedToDeliveredLeadTime() {
-        return arrivedToDeliveredLeadTime;
-    }
-
-    public void setArrivedToDeliveredLeadTime(double arrivedToDeliveredLeadTime) {
-        this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
-    }
 
     public int getMonthsInPastForAmc() {
         return monthsInPastForAmc;

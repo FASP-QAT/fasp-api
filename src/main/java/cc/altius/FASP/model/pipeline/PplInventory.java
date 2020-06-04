@@ -26,6 +26,18 @@ public class PplInventory implements Serializable {
     private Boolean fimported;
     private Double old_inventory;
     private int pipelineId;
+    private String inventoryDate;
+
+    public String getInventoryDate() {
+        return inventoryDate;
+    }
+
+    public void setInventoryDate(String inventoryDate) {
+        this.inventoryDate = inventoryDate;
+    }
+    
+    
+    
 
     public String getProductid() {
         return productid;
