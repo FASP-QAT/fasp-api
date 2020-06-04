@@ -236,7 +236,10 @@ public class ReportDaoImpl implements ReportDao {
             params.put("mosPast", soti.getMosPast());
             params.put("programId", pp.getProgramId());
             params.put("planningUnitId", pp.getPlanningUnitId());
-            sList.add(this.namedParameterJdbcTemplate.query(sqlString, params, new StockOverTimeOutputRowMapper()));
+            List<StockOverTimeOutput> lst = this.namedParameterJdbcTemplate.query(sqlString, params, new StockOverTimeOutputRowMapper());
+            if (lst.size() > 0) {
+                sList.add(lst);
+            }
         }
         return sList;
     }
