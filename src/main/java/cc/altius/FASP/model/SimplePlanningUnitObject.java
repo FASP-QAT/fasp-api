@@ -17,7 +17,7 @@ public class SimplePlanningUnitObject extends SimpleObject {
         super();
     }
 
-    public SimplePlanningUnitObject(int id, Label label, SimpleForecastingUnitObject forecastingUnit) {
+    public SimplePlanningUnitObject(Integer id, Label label, SimpleForecastingUnitObject forecastingUnit) {
         super(id, label);
         this.forecastingUnit = forecastingUnit;
     }

@@ -22,6 +22,7 @@ public class ProductCategoryRowMapper implements RowMapper<ProductCategory>{
         ProductCategory pc = new ProductCategory(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper().mapRow(rs, i));
         pc.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         pc.setRealm(new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i), rs.getString("REALM_CODE")));
+        pc.setSortOrder(rs.getString("SORT_ORDER"));
         return pc;
     }
     

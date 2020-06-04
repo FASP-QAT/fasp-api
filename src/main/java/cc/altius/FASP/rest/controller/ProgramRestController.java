@@ -75,6 +75,17 @@ public class ProgramRestController {
         }
     }
 
+    @PostMapping("/program/programIds")
+    public ResponseEntity getProgram(@RequestBody String[] programIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseEntity(this.programService.getProgramListForProgramIds(programIds, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/program")
     public ResponseEntity getProgram(Authentication auth) {
         try {
@@ -202,10 +213,10 @@ public class ProgramRestController {
     }
 
     @GetMapping("/program/{programId}/{productCategory}/planningUnit/all")
-    public ResponseEntity getPlanningUnitForProgramAndProductCategory(@PathVariable("programId") int programId,@PathVariable("productCategory") int productCategoryId, Authentication auth) {
+    public ResponseEntity getPlanningUnitForProgramAndProductCategory(@PathVariable("programId") int programId, @PathVariable("productCategory") int productCategoryId, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            return new ResponseEntity(this.programService.getPlanningUnitListForProgramAndCategoryId(programId,productCategoryId, false, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getPlanningUnitListForProgramAndCategoryId(programId, productCategoryId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit for Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);

@@ -35,6 +35,10 @@ public class Region extends BaseModel {
         return regionId;
     }
 
+    public String getRegionIdString() {
+        return Integer.toString(regionId);
+    }
+
     public void setRegionId(int regionId) {
         this.regionId = regionId;
     }

@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.utils.DateUtils;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -19,12 +20,13 @@ import java.util.Date;
 public class Budget extends BaseModel implements Serializable {
 
     private int budgetId;
-    private Program program;
+    private SimpleObject program;
     private FundingSource fundingSource;
     private Label label;
     private Currency currency;
-    private int budgetAmt;
-    private int usedAmt;
+    private double budgetAmt;
+    private double budgetUsdAmt;
+    private double usedUsdAmt; // Will always be converted into USD
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
@@ -41,6 +43,12 @@ public class Budget extends BaseModel implements Serializable {
         this.label = label;
     }
 
+    public Budget(int budgetId, FundingSource fundingSource, Label label) {
+        this.budgetId = budgetId;
+        this.fundingSource = fundingSource;
+        this.label = label;
+    }
+
     public int getBudgetId() {
         return budgetId;
     }
@@ -49,11 +57,11 @@ public class Budget extends BaseModel implements Serializable {
         this.budgetId = budgetId;
     }
 
-    public Program getProgram() {
+    public SimpleObject getProgram() {
         return program;
     }
 
-    public void setProgram(Program program) {
+    public void setProgram(SimpleObject program) {
         this.program = program;
     }
 
@@ -73,20 +81,28 @@ public class Budget extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public int getBudgetAmt() {
+    public double getBudgetAmt() {
         return budgetAmt;
     }
 
-    public void setBudgetAmt(int budgetAmt) {
+    public void setBudgetAmt(double budgetAmt) {
         this.budgetAmt = budgetAmt;
     }
 
-    public int getUsedAmt() {
-        return usedAmt;
+    public double getUsedUsdAmt() {
+        return usedUsdAmt;
     }
 
-    public void setUsedAmt(int usedAmt) {
-        this.usedAmt = usedAmt;
+    public void setUsedUsdAmt(double usedUsdAmt) {
+        this.usedUsdAmt = usedUsdAmt;
+    }
+
+    public double getBudgetUsdAmt() {
+        return budgetUsdAmt;
+    }
+
+    public void setBudgetUsdAmt(double budgetUsdAmt) {
+        this.budgetUsdAmt = budgetUsdAmt;
     }
 
     public Currency getCurrency() {
@@ -121,6 +137,15 @@ public class Budget extends BaseModel implements Serializable {
         this.notes = notes;
     }
 
+    public boolean isBudgetUsable() {
+        if (this.budgetUsdAmt > this.usedUsdAmt
+                && DateUtils.compareDate(DateUtils.getCurrentDateObject(DateUtils.EST), this.stopDate) <= 0) {
+            return this.isActive();
+        } else {
+            return false;
+        }
+    }
+
     @Override
     public int hashCode() {
         int hash = 3;
@@ -151,5 +176,4 @@ public class Budget extends BaseModel implements Serializable {
         return "Budget{" + "budgetId=" + budgetId + ", label=" + label + ", budgetAmt=" + budgetAmt + ", startDate=" + startDate + ", stopDate=" + stopDate + '}';
     }
 
-    
 }

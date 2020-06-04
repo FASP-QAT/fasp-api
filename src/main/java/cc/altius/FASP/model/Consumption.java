@@ -7,11 +7,12 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -31,23 +32,10 @@ public class Consumption extends BaseModel implements Serializable {
     private SimpleObject dataSource;
     private String notes;
     private int versionId;
-    @JsonIgnore
-    private boolean changed;
+    private List<ConsumptionBatchInfo> batchInfoList;
 
     public Consumption() {
-    }
-
-    public Consumption(int consumptionId, SimpleObject region, SimplePlanningUnitObject planningUnit, Date consumptionDate, boolean actualFlag, double consumptionQty, int dayOfStockOut, SimpleObject dataSource, String notes, int versionId) {
-        this.consumptionId = consumptionId;
-        this.region = region;
-        this.planningUnit = planningUnit;
-        this.consumptionDate = consumptionDate;
-        this.actualFlag = actualFlag;
-        this.consumptionQty = consumptionQty;
-        this.dayOfStockOut = dayOfStockOut;
-        this.dataSource = dataSource;
-        this.notes = notes;
-        this.versionId = versionId;
+        batchInfoList = new LinkedList<>();
     }
 
     public int getConsumptionId() {
@@ -130,12 +118,37 @@ public class Consumption extends BaseModel implements Serializable {
         this.versionId = versionId;
     }
 
-    public boolean isChanged() {
-        return changed;
+    public List<ConsumptionBatchInfo> getBatchInfoList() {
+        return batchInfoList;
     }
 
-    public void setChanged(boolean changed) {
-        this.changed = changed;
+    public void setBatchInfoList(List<ConsumptionBatchInfo> batchInfoList) {
+        this.batchInfoList = batchInfoList;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 19 * hash + this.consumptionId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Consumption other = (Consumption) obj;
+        if (this.consumptionId != other.consumptionId) {
+            return false;
+        }
+        return true;
     }
 
     @Override

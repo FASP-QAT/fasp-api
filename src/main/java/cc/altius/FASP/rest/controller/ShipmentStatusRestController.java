@@ -7,7 +7,6 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.service.RegionService;
 import cc.altius.FASP.service.ShipmentStatusService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -50,15 +49,15 @@ public class ShipmentStatusRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-      @GetMapping(value = "/shipmentStatus")
-    public ResponseEntity getShipmentStatusList( Authentication auth) {
+
+    @GetMapping(value = "/getShipmentStatusListActive")
+    public ResponseEntity getShipmentStatusListActive(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.shipmentStatusService.getShipmentStatusList(true), HttpStatus.OK);
-       } catch (Exception e) {
+        } catch (Exception e) {
             logger.error("Error while listing Shipment status", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
 }

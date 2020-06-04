@@ -575,7 +575,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("draftToSubmittedLeadTime", p.getDraftToSubmittedLeadTime());
             params.put("submittedToApprovedLeadTime", p.getSubmittedToApprovedLeadTime());
             params.put("approvedToShippedLeadTime", p.getApprovedToShippedLeadTime());
-            params.put("deliveredToReceivedLeadTime", p.getDeliveredToReceivedLeadTime());
+//            params.put("deliveredToReceivedLeadTime", p.getDeliveredToReceivedLeadTime());
             params.put("monthsInPastForAmc", p.getMonthsInPastForAmc());
             params.put("monthsInFutureForAmc", p.getMonthsInFutureForAmc());
 
@@ -650,7 +650,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("DRAFT_TO_SUBMITTED_LEAD_TIME", p.getDraftToSubmittedLeadTime());
             params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());
             params.put("APPROVED_TO_SHIPPED_LEAD_TIME", p.getApprovedToShippedLeadTime());
-            params.put("DELIVERED_TO_RECEIVED_LEAD_TIME", p.getDeliveredToReceivedLeadTime());
+//            params.put("DELIVERED_TO_RECEIVED_LEAD_TIME", p.getDeliveredToReceivedLeadTime());
             params.put("MONTHS_IN_PAST_FOR_AMC", p.getMonthsInPastForAmc());
             params.put("MONTHS_IN_FUTURE_FOR_AMC", p.getMonthsInFutureForAmc());
             params.put("CURRENT_VERSION_ID", null);

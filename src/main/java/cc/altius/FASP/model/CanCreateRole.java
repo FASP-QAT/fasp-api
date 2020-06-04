@@ -16,6 +16,13 @@ public class CanCreateRole {
     private String roleId;
     private Label label;
 
+    public CanCreateRole(String roleId) {
+        this.roleId = roleId;
+    }
+
+    public CanCreateRole() {
+    }
+
     public String getRoleId() {
         return roleId;
     }

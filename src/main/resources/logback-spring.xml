@@ -38,7 +38,7 @@
  
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- rollover daily and when the file reaches 10 MegaBytes -->
-            <fileNamePattern>${LOGS}/archived/wrapchiseLogger-%d{yyyy-MM-dd}.%i.log
+            <fileNamePattern>${LOGS}/archived/faspLogger-%d{yyyy-MM-dd}.%i.log
             </fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>5MB</maxFileSize>
@@ -75,7 +75,7 @@
     <!-- LOG "cc.altius.sb*" at INFO level -->
     <logger name="cc.altius.FASP" level="debug" additivity="false">
         <appender-ref ref="RootConsole" />
-        <!--<appender-ref ref="SpringBootFile" />-->
+        <appender-ref ref="SpringBootFile" />
     </logger>
     
     <!-- LOG "cc.altius.FASP.web.controller.UserController" at INFO level -->

@@ -269,11 +269,11 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     }
 
     @Override
-    public List<PlanningUnit> getPlanningUnitListForProductCategory(int productCategoryId, boolean active, CustomUserDetails curUser) {
+    public List<PlanningUnit> getPlanningUnitListForProductCategory(String productCategorySortOrder, boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-         sqlStringBuilder.append(" AND pc.PRODUCT_CATEGORY_ID=:productCategoryId ");
-            params.put("productCategoryId", productCategoryId);
+         sqlStringBuilder.append(" AND pc.SORT_ORDER LIKE CONCAT(:productCategorySortOrder, '%')");
+            params.put("productCategorySortOrder", productCategorySortOrder);
         if (active) {
             sqlStringBuilder.append(" AND pu.ACTIVE=:active ");
             params.put("active", active);

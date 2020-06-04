@@ -11,6 +11,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -33,23 +35,10 @@ public class Inventory extends BaseModel implements Serializable {
     private SimpleObject dataSource;
     private String notes;
     private int versionId;
+    private List<InventoryBatchInfo> batchInfoList;
 
     public Inventory() {
-    }
-
-    public Inventory(int inventoryId, Date inventoryDate, SimpleObject region, SimpleObject realmCountryPlanningUnit, SimplePlanningUnitObject planningUnit, double multiplier, double adjustmentQty, double expectedBal, SimpleCodeObject unit, SimpleObject dataSource, String notes, int versionId) {
-        this.inventoryId = inventoryId;
-        this.inventoryDate = inventoryDate;
-        this.region = region;
-        this.realmCountryPlanningUnit = realmCountryPlanningUnit;
-        this.planningUnit = planningUnit;
-        this.multiplier = multiplier;
-        this.adjustmentQty = adjustmentQty;
-        this.expectedBal = expectedBal;
-        this.unit = unit;
-        this.dataSource = dataSource;
-        this.notes = notes;
-        this.versionId = versionId;
+        this.batchInfoList = new LinkedList<>();
     }
 
     public int getInventoryId() {
@@ -154,6 +143,39 @@ public class Inventory extends BaseModel implements Serializable {
 
     public void setVersionId(int versionId) {
         this.versionId = versionId;
+    }
+
+    public List<InventoryBatchInfo> getBatchInfoList() {
+        return batchInfoList;
+    }
+
+    public void setBatchInfoList(List<InventoryBatchInfo> batchInfoList) {
+        this.batchInfoList = batchInfoList;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 37 * hash + this.inventoryId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final Inventory other = (Inventory) obj;
+        if (this.inventoryId != other.inventoryId) {
+            return false;
+        }
+        return true;
     }
 
     @Override

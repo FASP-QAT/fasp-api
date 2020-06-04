@@ -10,9 +10,11 @@ import cc.altius.FASP.dao.FundingSourceDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.FundingSource;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.BudgetService;
+import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +34,8 @@ public class BudgetServiceImpl implements BudgetService {
     private FundingSourceDao fundingSourceDao;
     @Autowired
     private RealmService realmService;
+    @Autowired
+    private ProgramService programService;
     @Autowired
     private AclService aclService;
 
@@ -53,6 +57,11 @@ public class BudgetServiceImpl implements BudgetService {
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    public List<Budget> getBudgetListForProgramIds(String[] programIds, CustomUserDetails curUser) {
+        return this.budgetDao.getBudgetListForProgramIds(programIds, curUser);
     }
 
     @Override

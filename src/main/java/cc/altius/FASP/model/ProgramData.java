@@ -5,7 +5,9 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -27,16 +29,36 @@ public class ProgramData extends BaseModel implements Serializable {
     private double draftToSubmittedLeadTime;
     private double submittedToApprovedLeadTime;
     private double approvedToShippedLeadTime;
-    private double deliveredToReceivedLeadTime;
+    private double shippedToArrivedByAirLeadTime;
+    private double shippedToArrivedBySeaLeadTime;
+    private double arrivedToDeliveredLeadTime;
     private int monthsInPastForAmc;
     private int monthsInFutureForAmc;
+    private SimpleObject versionType;
+    private SimpleObject versionStatus;
+    private String notes;
     private List<Region> regionList;
     private Version currentVersion;
+    @JsonIgnore
     private List<Version> versionList;
     private List<Consumption> consumptionList;
     private List<Inventory> inventoryList;
     private List<Shipment> shipmentList;
     private int requestedProgramVersion;
+    @JsonIgnore
+    private Date lastModifiedDate;
+    @JsonIgnore
+    private BasicUser lastModifiedBy;
+    @JsonIgnore
+    private boolean active;
+    
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public int getRequestedProgramVersion() {
         return requestedProgramVersion;
@@ -60,9 +82,12 @@ public class ProgramData extends BaseModel implements Serializable {
         this.airFreightPerc = p.getAirFreightPerc();
         this.seaFreightPerc = p.getSeaFreightPerc();
         this.plannedToDraftLeadTime = p.getPlannedToDraftLeadTime();
+        this.draftToSubmittedLeadTime = p.getDraftToSubmittedLeadTime();
         this.submittedToApprovedLeadTime = p.getSubmittedToApprovedLeadTime();
         this.approvedToShippedLeadTime = p.getApprovedToShippedLeadTime();
-        this.deliveredToReceivedLeadTime = p.getDeliveredToReceivedLeadTime();
+        this.shippedToArrivedBySeaLeadTime = p.getShippedToArrivedBySeaLeadTime();
+        this.shippedToArrivedByAirLeadTime = p.getShippedToArrivedByAirLeadTime();
+        this.arrivedToDeliveredLeadTime = p.getArrivedToDeliveredLeadTime();
         this.monthsInFutureForAmc = p.getMonthsInFutureForAmc();
         this.monthsInPastForAmc = p.getMonthsInPastForAmc();
         this.regionList = p.getRegionList();
@@ -174,6 +199,30 @@ public class ProgramData extends BaseModel implements Serializable {
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
     }
 
+    public double getShippedToArrivedByAirLeadTime() {
+        return shippedToArrivedByAirLeadTime;
+    }
+
+    public void setShippedToArrivedByAirLeadTime(double shippedToArrivedByAirLeadTime) {
+        this.shippedToArrivedByAirLeadTime = shippedToArrivedByAirLeadTime;
+    }
+
+    public double getShippedToArrivedBySeaLeadTime() {
+        return shippedToArrivedBySeaLeadTime;
+    }
+
+    public void setShippedToArrivedBySeaLeadTime(double shippedToArrivedBySeaLeadTime) {
+        this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
+    }
+
+    public double getArrivedToDeliveredLeadTime() {
+        return arrivedToDeliveredLeadTime;
+    }
+
+    public void setArrivedToDeliveredLeadTime(double arrivedToDeliveredLeadTime) {
+        this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
+    }
+
     public int getMonthsInPastForAmc() {
         return monthsInPastForAmc;
     }
@@ -238,9 +287,49 @@ public class ProgramData extends BaseModel implements Serializable {
         this.shipmentList = shipmentList;
     }
 
+    public SimpleObject getVersionType() {
+        return versionType;
+    }
+
+    public void setVersionType(SimpleObject versionType) {
+        this.versionType = versionType;
+    }
+
+    public SimpleObject getVersionStatus() {
+        return versionStatus;
+    }
+
+    public void setVersionStatus(SimpleObject versionStatus) {
+        this.versionStatus = versionStatus;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
+    public BasicUser getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(BasicUser lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
+
     @Override
     public String toString() {
-        return "ProgramData{" + "programId=" + programId + ", realmCountry=" + realmCountry + ", organisation=" + organisation + ", healthArea=" + healthArea + ", label=" + label + ", programManager=" + programManager + ", programNotes=" + programNotes + ", airFreightPerc=" + airFreightPerc + ", seaFreightPerc=" + seaFreightPerc + ", plannedToDraftLeadTime=" + plannedToDraftLeadTime + ", draftToSubmittedLeadTime=" + draftToSubmittedLeadTime + ", submittedToApprovedLeadTime=" + submittedToApprovedLeadTime + ", approvedToShippedLeadTime=" + approvedToShippedLeadTime + ", deliveredToReceivedLeadTime=" + deliveredToReceivedLeadTime + ", monthsInPastForAmc=" + monthsInPastForAmc + ", monthsInFutureForAmc=" + monthsInFutureForAmc + ", regionList=" + regionList + ", currentVersion=" + currentVersion + ", versionList=" + versionList + ", consumptionList=" + consumptionList + ", inventoryList=" + inventoryList + '}';
+        return "ProgramData{" + "programId=" + programId + ", realmCountry=" + realmCountry + ", organisation=" + organisation + ", healthArea=" + healthArea + ", label=" + label + ", programManager=" + programManager + ", programNotes=" + programNotes + ", airFreightPerc=" + airFreightPerc + ", seaFreightPerc=" + seaFreightPerc + ", plannedToDraftLeadTime=" + plannedToDraftLeadTime + ", draftToSubmittedLeadTime=" + draftToSubmittedLeadTime + ", submittedToApprovedLeadTime=" + submittedToApprovedLeadTime + ", approvedToShippedLeadTime=" + approvedToShippedLeadTime + ", shippedToArrivedBySeaLeadTime=" + shippedToArrivedBySeaLeadTime + ", shippedToArrivedByAirLeadTime=" + shippedToArrivedByAirLeadTime + ", monthsInPastForAmc=" + monthsInPastForAmc + ", monthsInFutureForAmc=" + monthsInFutureForAmc + ", regionList=" + regionList + ", currentVersion=" + currentVersion + ", versionList=" + versionList + ", consumptionList=" + consumptionList + ", inventoryList=" + inventoryList + '}';
     }
 
 }

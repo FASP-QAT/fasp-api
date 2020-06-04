@@ -28,13 +28,11 @@ public class Program extends BaseModel implements Serializable {
     private double draftToSubmittedLeadTime;
     private double submittedToApprovedLeadTime;
     private double approvedToShippedLeadTime;
-    private double deliveredToReceivedLeadTime;
+    private double shippedToArrivedByAirLeadTime;
+    private double shippedToArrivedBySeaLeadTime;
+    private double arrivedToDeliveredLeadTime;
     private int monthsInPastForAmc;
     private int monthsInFutureForAmc;
-    
-    private double arrivedToDeliveredLeadTime;
-    private double shippedToArrivedBySeaLeadTime;
-    private double shippedToArrivedByAirLeadTime;
     
     @JsonIgnore
     private List<Region> regionList;
@@ -180,13 +178,7 @@ public class Program extends BaseModel implements Serializable {
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
     }
 
-    public double getDeliveredToReceivedLeadTime() {
-        return deliveredToReceivedLeadTime;
-    }
 
-    public void setDeliveredToReceivedLeadTime(double deliveredToReceivedLeadTime) {
-        this.deliveredToReceivedLeadTime = deliveredToReceivedLeadTime;
-    }
 
     public int getMonthsInPastForAmc() {
         return monthsInPastForAmc;
@@ -213,11 +205,19 @@ public class Program extends BaseModel implements Serializable {
     }
 
     public String[] getRegionArray() {
-        return regionArray;
+        if (this.regionList.isEmpty()) {
+            return new String[0];
+        } else {
+            return regionList.stream().map(Region::getRegionIdString).toArray(String[]::new);
+        }
     }
 
     public void setRegionArray(String[] regionArray) {
         this.regionArray = regionArray;
+        this.regionList.clear();
+        for (String r : regionArray) {
+            this.regionList.add(new Region(Integer.parseInt(r), null));
+        }
     }
 
     public Version getCurrentVersion() {
@@ -225,7 +225,7 @@ public class Program extends BaseModel implements Serializable {
     }
 
     public void setCurrentVersion(Version currentVersion) {
-        this.currentVersion                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     = currentVersion;
+        this.currentVersion = currentVersion;
     }
 
     public List<Version> getVersionList() {

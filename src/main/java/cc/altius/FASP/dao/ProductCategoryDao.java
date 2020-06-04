@@ -9,7 +9,6 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ExtendedProductCategory;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.utils.TreeUtils.Node;
-import cc.altius.utils.TreeUtils.Tree;
 import java.util.List;
 
 /**
@@ -21,14 +20,15 @@ public interface ProductCategoryDao {
     public int addProductCategory(Node<ProductCategory> productCategory, CustomUserDetails curUser);
 
     public int updateProductCategory(Node<ProductCategory> productCategory, CustomUserDetails curUser);
+    
+    public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser);
 
-    public Tree<ExtendedProductCategory> getProductCategoryListForRealm(CustomUserDetails curUser, int realmId);
+    public List<Node<ExtendedProductCategory>> getProductCategoryListForRealm(CustomUserDetails curUser, int realmId);
 
-    public Tree<ExtendedProductCategory> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren);
+    public List<Node<ExtendedProductCategory>> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren);
 
-//    public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser);
-    public Tree<ExtendedProductCategory> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser);
+    public List<Node<ExtendedProductCategory>> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser);
 
-    public List<ProductCategory> getProductCategoryListForProgram(CustomUserDetails curUser, int programId);
+    public List<Node<ExtendedProductCategory>> getProductCategoryListForProgram(CustomUserDetails curUser, int realmId, int programId);
 
 }
