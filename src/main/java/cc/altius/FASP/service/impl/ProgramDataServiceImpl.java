@@ -21,6 +21,7 @@ import cc.altius.FASP.service.ProgramService;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
@@ -77,5 +78,9 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         return this.programDataDao.updateProgramVersion(programId, versionId, versionStatusId, curUser);
     }
 
-    
+    @Override
+    public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId) {
+        return this.programDataDao.checkErpOrder(orderNo, primeLineNo, realmCountryId, planningUnitId);
+    }
+
 }
