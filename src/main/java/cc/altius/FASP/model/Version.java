@@ -22,14 +22,14 @@ public class Version implements Serializable {
     private SimpleObject versionType;
     private SimpleObject versionStatus;
     private String notes;
-    private BasicUser createdBy;
-    private BasicUser lastModifiedBy;
+    private transient BasicUser createdBy;
+    private transient BasicUser lastModifiedBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
-    private Date createdDate;
+    private transient Date createdDate;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
-    private Date lastModifiedDate;
+    private transient Date lastModifiedDate;
 
     public Version() {
     }

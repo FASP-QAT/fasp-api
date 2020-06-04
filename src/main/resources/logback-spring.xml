@@ -46,6 +46,22 @@
         </rollingPolicy>
     </appender>
     
+    <appender name="ARTMISFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOGS}/artmisLogger.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>%d{ISO8601} %p [%t] %c{2}\(%line\) %msg%n</Pattern>
+        </encoder>
+ 
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- rollover daily and when the file reaches 10 MegaBytes -->
+            <fileNamePattern>${LOGS}/archived/artmisLogger-%d{yyyy-MM-dd}.%i.log
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>5MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+        </rollingPolicy>
+    </appender>
+    
     <appender name="SpringBootDb" class="ch.qos.logback.classic.db.DBAppender">
         <connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">
             <dataSource class="com.zaxxer.hikari.HikariDataSource">
@@ -82,6 +98,11 @@
     <logger name="cc.altius.FASP.web.controller.UserController" level="info" additivity="false">
         <!--<appender-ref ref="SpringBootDb" />-->
         <!--<appender-ref ref="SpringBootFile" />-->
+        <appender-ref ref="RootConsole" />
+    </logger>
+    <logger name="cc.altius.FASP.ARTMIS" level="info" additivity="false">
+        <!--<appender-ref ref="SpringBootDb" />-->
+        <appender-ref ref="ARTMISFile" />
         <appender-ref ref="RootConsole" />
     </logger>
  

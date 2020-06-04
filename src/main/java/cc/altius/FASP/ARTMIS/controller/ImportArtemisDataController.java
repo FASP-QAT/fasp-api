@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.web.controller;
+package cc.altius.FASP.ARTMIS.controller;
 
 import cc.altius.FASP.service.ImportArtemisDataService;
 import java.io.IOException;
@@ -27,8 +27,8 @@ public class ImportArtemisDataController {
 //    @Scheduled(cron = "00 */05 * * * *")
     public void importArtemisData() throws ParserConfigurationException, SAXException, IOException {
         System.out.println("inside controller------------------");
-        String orderDataFilePath = "/home/akil/Desktop/Data/Software/FHI360/Artmis Data Import/202005121226_orderdata.csv";
-        String shipmentDataFilePath = "/home/akil/Desktop/Data/Software/FHI360/Artmis Data Import/202005121409_shipmentdata.csv";
+        String orderDataFilePath = "/home/altius/Documents/FASP/New ARTMIS Files/order_data_202005211301.xml";
+        String shipmentDataFilePath = "/home/altius/Documents/FASP/New ARTMIS Files/shipment_data_202005211314.xml";
         this.importArtemisDataService.importOrderAndShipmentData(orderDataFilePath, shipmentDataFilePath);
 
     }

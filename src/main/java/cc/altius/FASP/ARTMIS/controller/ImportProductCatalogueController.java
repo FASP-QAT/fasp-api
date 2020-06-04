@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.web.controller;
+package cc.altius.FASP.ARTMIS.controller;
 
 import cc.altius.FASP.service.ImportProductCatalogueService;
 import java.io.IOException;
@@ -25,7 +25,7 @@ public class ImportProductCatalogueController {
 
     @RequestMapping(value = "import1")
 //    @Scheduled(cron = "00 */05 * * * *")
-    public void importProductcatalogue() throws ParserConfigurationException, SAXException, IOException{
+    public void importProductcatalogue() throws ParserConfigurationException, SAXException, IOException {
         System.out.println("inside controller------------------");
         String orderDataFilePath = "/home/altius/Documents/FASP/ARTEMISDATA/item_data_2020051910399.xml";
         this.importProductCatalogueService.importProductCatalogue(orderDataFilePath);
