@@ -14,19 +14,22 @@ import java.io.Serializable;
 public class DataSource extends BaseModel implements Serializable {
     
     public int dataSourceId;
-    public Realm realm;
+    public SimpleCodeObject realm;
+    public SimpleObject program;
     public Label label;
-    public DataSourceType dataSourceType;
+    public SimpleObject dataSourceType;
 
-    public DataSource(int dataSourceId, Realm realm, Label label) {
+    public DataSource(int dataSourceId, SimpleCodeObject realm, SimpleObject program, Label label) {
         this.dataSourceId = dataSourceId;
         this.realm = realm;
+        this.program = program;
         this.label = label;
     }
 
-    public DataSource(int dataSourceId, Realm realm, Label label, DataSourceType dataSourceType) {
+    public DataSource(int dataSourceId, SimpleCodeObject realm, SimpleObject program, Label label, SimpleObject dataSourceType) {
         this.dataSourceId = dataSourceId;
         this.realm = realm;
+        this.program = program;
         this.label = label;
         this.dataSourceType = dataSourceType;
     }
@@ -42,12 +45,20 @@ public class DataSource extends BaseModel implements Serializable {
         this.dataSourceId = dataSourceId;
     }
 
-    public Realm getRealm() {
+    public SimpleCodeObject getRealm() {
         return realm;
     }
 
-    public void setRealm(Realm realm) {
+    public void setRealm(SimpleCodeObject realm) {
         this.realm = realm;
+    }
+
+    public SimpleObject getProgram() {
+        return program;
+    }
+
+    public void setProgram(SimpleObject program) {
+        this.program = program;
     }
 
     public Label getLabel() {
@@ -58,11 +69,11 @@ public class DataSource extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public DataSourceType getDataSourceType() {
+    public SimpleObject getDataSourceType() {
         return dataSourceType;
     }
 
-    public void setDataSourceType(DataSourceType dataSourceType) {
+    public void setDataSourceType(SimpleObject dataSourceType) {
         this.dataSourceType = dataSourceType;
     }
 

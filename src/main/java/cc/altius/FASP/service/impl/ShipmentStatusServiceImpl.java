@@ -6,8 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ShipmentStatusDao;
-import cc.altius.FASP.model.DTO.PrgShipmentStatusAllowedDTO;
-import cc.altius.FASP.model.DTO.PrgShipmentStatusDTO;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ShipmentStatus;
 import cc.altius.FASP.service.ShipmentStatusService;
 import java.util.List;
@@ -39,14 +38,15 @@ public class ShipmentStatusServiceImpl implements ShipmentStatusService {
         return this.shipmentStatusDao.editShipmentStatus(shipmentStatus);
     }
 
-    @Override
-    public List<PrgShipmentStatusDTO> getShipmentStatusListForSync(String lastSyncDate) {
-        return this.shipmentStatusDao.getShipmentStatusListForSync(lastSyncDate);
-    }
+//
+//    @Override
+//    public List<PrgShipmentStatusAllowedDTO> getShipmentStatusAllowedListForSync(String lastSyncDate) {
+//        return this.shipmentStatusDao.getShipmentStatusAllowedListForSync(lastSyncDate);
+//    }
 
     @Override
-    public List<PrgShipmentStatusAllowedDTO> getShipmentStatusAllowedListForSync(String lastSyncDate) {
-        return this.shipmentStatusDao.getShipmentStatusAllowedListForSync(lastSyncDate);
+    public List<ShipmentStatus> getShipmentStatusListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.shipmentStatusDao.getShipmentStatusListForSync(lastSyncDate, curUser);
     }
 
 }

@@ -103,14 +103,16 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().ignoring().antMatchers("/actuator/**")
                 .and().ignoring().antMatchers("/actuator**")
                 .and().ignoring().antMatchers("/browser**")
-                .and().ignoring().antMatchers("/api-docs/**")
-                .and().ignoring().antMatchers("/swagger-ui.html**")
+//                .and().ignoring().antMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources", "/swagger-resources/configuration/security", "/swagger-ui.html**", "/swagger-resources/configuration/ui")
                 .and().ignoring().antMatchers("/api/locales/*/**")
                 .and().ignoring().antMatchers("/api/forgotPassword/**")
                 .and().ignoring().antMatchers("/api/getForgotPasswordToken/**")
                 .and().ignoring().antMatchers("/api/confirmForgotPasswordToken/**")
                 .and().ignoring().antMatchers("/api/updatePassword/**")
-                .and().ignoring().antMatchers("/api/updateExpiredPassword/**");
+                .and().ignoring().antMatchers("/api/updateExpiredPassword/**")
+                .and().ignoring().antMatchers("/exportSupplyPlan/**")
+                .and().ignoring().antMatchers("/importShipmentData/**")
+                .and().ignoring().antMatchers("/importProductCatalog/**");
     }
     
 //    @EventListener

@@ -6,16 +6,19 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ProductCategoryDao;
+import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgProductCategoryDTO;
+import cc.altius.FASP.model.ExtendedProductCategory;
 import cc.altius.FASP.model.ProductCategory;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProductCategoryService;
+import cc.altius.utils.TreeUtils.Node;
+import cc.altius.utils.TreeUtils.Tree;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,26 +33,53 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     @Autowired
     private ProductCategoryDao productCategoryDao;
     @Autowired
-    private RealmDao realmDao; 
+    private RealmDao realmDao;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private ProgramDao programDao;
 
     @Override
     @Transactional
-    public int saveProductCategoryList(List<ProductCategory> productCategoryList, CustomUserDetails curUser) {
+    public int saveProductCategoryList(Node<ProductCategory>[] productCategorys, CustomUserDetails curUser) throws Exception {
         int rows = 0;
-        for (ProductCategory productCategory : productCategoryList) {
-            if (productCategory.getProductCategoryId() != 0) {
-                // Update 
-                if (this.aclService.checkRealmAccessForUser(curUser, productCategory.getRealm().getRealmId())) {
-                    rows += this.productCategoryDao.updateProductCategory(productCategory, curUser);
+        boolean isFirst = true;
+        Tree<ProductCategory> productCategoryTree = null;
+        for (Node<ProductCategory> node : productCategorys) {
+            node.setPayloadId(node.getPayload().getProductCategoryId());
+            if (isFirst) {
+
+                productCategoryTree = new Tree(node);
+            } else {
+                productCategoryTree.addNode(node);
+            }
+            isFirst = false;
+        }
+        for (Node<ProductCategory> productCategory : productCategoryTree.getTreeFullList()) {
+            if (productCategory.getPayloadId() == 0) {
+                // Add the row
+                if (this.aclService.checkRealmAccessForUser(curUser, productCategory.getPayload().getRealm().getId())) {
+                    if (productCategory.getParentId() != null && productCategory.getParentId() != 0) {
+                        Node<ProductCategory> parent = productCategoryTree.findNode(productCategory.getParentId());
+                        productCategory.getPayload().setParentProductCategoryId(parent.getPayloadId());
+                    }
+                    int productCategoryId = this.productCategoryDao.addProductCategory(productCategory, curUser);
+                    productCategory.setPayloadId(productCategoryId);
                 } else {
                     throw new AccessDeniedException("Access denied");
                 }
-            } else {
-                // Add the row
-                if (this.aclService.checkRealmAccessForUser(curUser, productCategory.getRealm().getRealmId())) {
-                    rows += this.productCategoryDao.addProductCategory(productCategory, curUser);
+            }
+        }
+
+        for (Node<ProductCategory> productCategory : productCategorys) {
+            if (productCategory.getPayload().getProductCategoryId() != 0) {
+                // Update 
+                if (this.aclService.checkRealmAccessForUser(curUser, productCategory.getPayload().getRealm().getId())) {
+                    if (productCategory.getParentId() != null && productCategory.getParentId() != 0) {
+                        Node<ProductCategory> parent = productCategoryTree.findNode(productCategory.getParentId());
+                        productCategory.getPayload().setParentProductCategoryId(parent.getPayloadId());
+                    }
+                    rows += this.productCategoryDao.updateProductCategory(productCategory, curUser);
                 } else {
                     throw new AccessDeniedException("Access denied");
                 }
@@ -59,37 +89,36 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     }
 
     @Override
-    public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser) {
-        return this.productCategoryDao.getProductCategoryList(curUser);
+    public List<Node<ExtendedProductCategory>> getProductCategoryListForRealm(CustomUserDetails curUser, int realmId) {
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
+            return this.productCategoryDao.getProductCategoryListForRealm(curUser, realmId);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+
     }
 
     @Override
-    public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren) {
+    public List<Node<ExtendedProductCategory>> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren) {
         Realm r = this.realmDao.getRealmById(realmId, curUser);
-        ProductCategory pc = getProductCategoryById(productCategoryId, curUser);
-        if (r == null || pc == null) {
-            throw new EmptyResultDataAccessException(1);
-        }
         return this.productCategoryDao.getProductCategoryList(curUser, realmId, productCategoryId, includeCurrentLevel, includeAllChildren);
     }
 
     @Override
-    public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren) {
-        ProductCategory pc = getProductCategoryById(productCategoryId, curUser);
-        if (pc == null) {
-            throw new EmptyResultDataAccessException(1);
-        }
-        return this.productCategoryDao.getProductCategoryList(curUser, productCategoryId, includeCurrentLevel, includeAllChildren);
-    }
-
-    @Override
-    public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser) {
-        return this.productCategoryDao.getProductCategoryById(productCategoryId, curUser);
-    }
-
-    @Override
-    public List<ProductCategory> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser) {
+    public List<Node<ExtendedProductCategory>> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.productCategoryDao.getProductCategoryListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
+    public List<Node<ExtendedProductCategory>> getProductCategoryListForProgram(CustomUserDetails curUser, int realmId, int programId) {
+        Program r = this.programDao.getProgramById(programId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkProgramAccessForUser(curUser, r.getRealmCountry().getRealm().getRealmId(), programId, r.getHealthArea().getId(), r.getOrganisation().getId())) {
+            return this.productCategoryDao.getProductCategoryListForProgram(curUser, realmId, programId);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+
     }
 
 }

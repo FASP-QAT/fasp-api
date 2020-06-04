@@ -17,7 +17,7 @@ public class Organisation extends BaseModel implements Serializable {
 
     private int organisationId;
     private String organisationCode;
-    private Realm realm;
+    private SimpleCodeObject realm;
     private Label label;
     @JsonIgnore
     List<RealmCountry> realmCountryList;
@@ -32,7 +32,7 @@ public class Organisation extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public Organisation(int organisationId, String organisationCode, Realm realm, Label label) {
+    public Organisation(int organisationId, String organisationCode, SimpleCodeObject realm, Label label) {
         this.organisationId = organisationId;
         this.organisationCode = organisationCode;
         this.realm = realm;
@@ -47,11 +47,11 @@ public class Organisation extends BaseModel implements Serializable {
         this.organisationId = organisationId;
     }
 
-    public Realm getRealm() {
+    public SimpleCodeObject getRealm() {
         return realm;
     }
 
-    public void setRealm(Realm realm) {
+    public void setRealm(SimpleCodeObject realm) {
         this.realm = realm;
     }
 

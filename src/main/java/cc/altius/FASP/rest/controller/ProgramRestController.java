@@ -7,6 +7,7 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.ProgramService;
@@ -74,6 +75,17 @@ public class ProgramRestController {
         }
     }
 
+    @PostMapping("/program/programIds")
+    public ResponseEntity getProgram(@RequestBody String[] programIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseEntity(this.programService.getProgramListForProgramIds(programIds, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/program")
     public ResponseEntity getProgram(Authentication auth) {
         try {
@@ -101,7 +113,7 @@ public class ProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/program/{programId}/planningUnit/all")
     public ResponseEntity getPlanningUnitForProgramAll(@PathVariable("programId") int programId, Authentication auth) {
         try {
@@ -124,7 +136,7 @@ public class ProgramRestController {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
             this.programService.saveProgramPlanningUnit(ppu, curUser);
-            return new ResponseEntity("static.message.addSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to update PlanningUnit for Program", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
@@ -167,7 +179,7 @@ public class ProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping(value = "/sync/program/{lastSyncDate}")
     public ResponseEntity getProgramListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
@@ -183,4 +195,53 @@ public class ProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-}
+
+    @GetMapping(value = "/sync/programPlanningUnit/{lastSyncDate}")
+    public ResponseEntity getProgramPlanningUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.parse(lastSyncDate);
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.programService.getProgramPlanningUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
+        } catch (ParseException p) {
+            logger.error("Error while listing program planning unit", p);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (Exception e) {
+            logger.error("Error while listing program planning unit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/program/{programId}/{productCategory}/planningUnit/all")
+    public ResponseEntity getPlanningUnitForProgramAndProductCategory(@PathVariable("programId") int programId, @PathVariable("productCategory") int productCategoryId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            return new ResponseEntity(this.programService.getPlanningUnitListForProgramAndCategoryId(programId, productCategoryId, false, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(path = "/program/initialize")
+    public ResponseEntity postProgramInitialize(@RequestBody ProgramInitialize program, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            this.programService.addProgramInitialize(program, curUser);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to add Program", ae);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to add Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    }

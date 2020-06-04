@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.ProcurementUnitDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementUnit;
 import cc.altius.FASP.model.rowMapper.ProcurementUnitRowMapper;
+import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -39,11 +40,13 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
 
     @Autowired
     private LabelDao labelDao;
+    @Autowired
+    private AclService aclService;
 
     private final String sqlListString = "SELECT"
             + "    pru.PROCUREMENT_UNIT_ID, prul.LABEL_ID, prul.LABEL_EN, prul.LABEL_FR, prul.LABEL_SP, prul.LABEL_PR,"
             + "    s.SUPPLIER_ID, sl.LABEL_ID `SUPPLIER_LABEL_ID`, sl.LABEL_EN `SUPPLIER_LABEL_EN`, sl.LABEL_FR `SUPPLIER_LABEL_FR`, sl.LABEL_SP `SUPPLIER_LABEL_SP`, sl.LABEL_PR `SUPPLIER_LABEL_PR`,"
-            + "    u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID, ul.LABEL_EN, ul.LABEL_FR, ul.LABEL_SP, ul.LABEL_PR,"
+            + "    u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `UNIT_LABEL_ID`, ul.LABEL_EN `UNIT_LABEL_EN`, ul.LABEL_FR `UNIT_LABEL_FR`, ul.LABEL_SP `UNIT_LABEL_SP`, ul.LABEL_PR `UNIT_LABEL_PR`,"
             + "    pu.PLANNING_UNIT_ID, pu.MULTIPLIER `PLANNING_UNIT_MULTIPLIER`, fu.FORECASTING_UNIT_ID, "
             + "    pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
             + "    ful.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, ful.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, ful.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, ful.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, ful.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, "
@@ -51,12 +54,12 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
             + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
             + "    pc.PRODUCT_CATEGORY_ID, pcl.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pcl.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pcl.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pcl.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pcl.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, "
             + "    tc.TRACER_CATEGORY_ID, tcl.LABEL_ID `TRACER_CATEGORY_LABEL_ID`, tcl.LABEL_EN `TRACER_CATEGORY_LABEL_EN`, tcl.LABEL_FR `TRACER_CATEGORY_LABEL_FR`, tcl.LABEL_PR `TRACER_CATEGORY_LABEL_PR`, tcl.LABEL_SP `TRACER_CATEGORY_LABEL_SP`, "
-            + "    puu.UNIT_ID, puu.UNIT_CODE, puul.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puul.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puul.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puul.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puul.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`, "
-            + "    pru.HEIGHT_QTY, pru.WIDTH_QTY, pru.LENGTH_QTY, pru.WIDTH_QTY, pru.LABELING, pru.MULTIPLIER, pru.UNITS_PER_CONTAINER,"
-            + "    hu.UNIT_ID, hu.UNIT_CODE, hul.LABEL_ID `HEIGHT_UNIT_LABEL_ID`, hul.LABEL_EN `HEIGHT_UNIT_LABEL_EN`, puul.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puul.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puul.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`, "
-            + "    puu.UNIT_ID, puu.UNIT_CODE, puul.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puul.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puul.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puul.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puul.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`, "
-            + "    puu.UNIT_ID, puu.UNIT_CODE, puul.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puul.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puul.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puul.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puul.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`, "
-            + "    puu.UNIT_ID, puu.UNIT_CODE, puul.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puul.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puul.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puul.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puul.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`,"
+            + "    puu.UNIT_ID `PLANNING_UNIT_UNIT_ID`, puu.UNIT_CODE `PLANNING_UNIT_UNIT_CODE`, puul.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puul.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puul.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puul.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puul.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`, "
+            + "    pru.HEIGHT_QTY, pru.WIDTH_QTY, pru.LENGTH_QTY, pru.WEIGHT_QTY, pru.LABELING, pru.MULTIPLIER, pru.UNITS_PER_CONTAINER, pru.LABELING,"
+            + "    hu.UNIT_ID  `HEIGHT_UNIT_ID`, hu.UNIT_CODE  `HEIGHT_UNIT_CODE`, hul.LABEL_ID  `HEIGHT_UNIT_LABEL_ID`, hul.LABEL_EN  `HEIGHT_UNIT_LABEL_EN`, hul.LABEL_FR  `HEIGHT_UNIT_LABEL_FR`, hul.LABEL_PR  `HEIGHT_UNIT_LABEL_PR`, hul.LABEL_SP  `HEIGHT_UNIT_LABEL_SP`, "
+            + "    lu.UNIT_ID  `LENGTH_UNIT_ID`, lu.UNIT_CODE  `LENGTH_UNIT_CODE`, lul.LABEL_ID  `LENGTH_UNIT_LABEL_ID`, lul.LABEL_EN  `LENGTH_UNIT_LABEL_EN`, lul.LABEL_FR  `LENGTH_UNIT_LABEL_FR`, lul.LABEL_PR  `LENGTH_UNIT_LABEL_PR`, lul.LABEL_SP  `LENGTH_UNIT_LABEL_SP`, "
+            + "    wu.UNIT_ID   `WIDTH_UNIT_ID`, wu.UNIT_CODE   `WIDTH_UNIT_CODE`, wul.LABEL_ID   `WIDTH_UNIT_LABEL_ID`, wul.LABEL_EN   `WIDTH_UNIT_LABEL_EN`, wul.LABEL_FR   `WIDTH_UNIT_LABEL_FR`, wul.LABEL_PR   `WIDTH_UNIT_LABEL_PR`, wul.LABEL_SP   `WIDTH_UNIT_LABEL_SP`, "
+            + "    weu.UNIT_ID `WEIGHT_UNIT_ID`, weu.UNIT_CODE `WEIGHT_UNIT_CODE`, weul.LABEL_ID `WEIGHT_UNIT_LABEL_ID`, weul.LABEL_EN `WEIGHT_UNIT_LABEL_EN`, weul.LABEL_FR `WEIGHT_UNIT_LABEL_FR`, weul.LABEL_PR `WEIGHT_UNIT_LABEL_PR`, weul.LABEL_SP `WEIGHT_UNIT_LABEL_SP`,"
             + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pru.ACTIVE, pru.CREATED_DATE, pru.LAST_MODIFIED_DATE  "
             + " FROM rm_procurement_unit pru"
             + " LEFT JOIN ap_label prul ON pru.LABEL_ID=prul.LABEL_ID"
@@ -91,48 +94,42 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
 
     @Override
     public List<ProcurementUnit> getProcurementUnitList(boolean active, CustomUserDetails curUser) {
-        String sqlString = sqlListString;
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         if (active) {
-            sqlString += " AND pru.ACTIVE ";
+            sqlStringBuilder.append(" AND pru.ACTIVE ");
         }
         if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND fu.REALM_ID=:realmId ";
+            sqlStringBuilder.append(" AND fu.REALM_ID=:realmId ");
             params.put("realmId", curUser.getRealm().getRealmId());
         }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementUnitRowMapper());
     }
 
     @Override
     public List<ProcurementUnit> getProcurementUnitListForRealm(int realmId, boolean active, CustomUserDetails curUser) {
-        String sqlString = sqlListString;
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         if (active) {
-            sqlString += " AND pru.ACTIVE ";
+            sqlStringBuilder.append(" AND pru.ACTIVE ");
         }
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND fu.REALM_ID=:realmId ";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-            sqlString += "AND fu.REALM_ID=:userRealmId ";
-            params.put("userRealmId", realmId);
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", realmId, curUser);
+        params.put("userRealmId", realmId);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementUnitRowMapper());
     }
 
     @Override
     public List<ProcurementUnit> getProcurementUnitListByPlanningUnit(int planningUnitId, boolean active, CustomUserDetails curUser) {
-        String sqlString = sqlListString;
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         if (active) {
-            sqlString += " AND pru.ACTIVE ";
+            sqlStringBuilder.append(" AND pru.ACTIVE ");
         }
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND fu.REALM_ID=:realmId ";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-            sqlString += "AND pru.PLANNING_UNIT_ID=:planningUnitId ";
-            params.put("planningUnitId", planningUnitId);
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
+        sqlStringBuilder.append(" AND pru.PLANNING_UNIT_ID=:planningUnitId ");
+        params.put("planningUnitId", planningUnitId);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementUnitRowMapper());
     }
 
     @Override
@@ -143,18 +140,18 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         int labelId = this.labelDao.addLabel(procurementUnit.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("PLANNING_UNIT_ID", procurementUnit.getPlanningUnit().getPlanningUnitId());
-        params.put("UNIT_ID", procurementUnit.getUnit().getUnitId());
+        params.put("UNIT_ID", procurementUnit.getUnit().getId());
         params.put("MULTIPLIER", procurementUnit.getMultiplier());
-        params.put("SUPPLIER_ID", procurementUnit.getSupplier().getSupplierId());
+        params.put("SUPPLIER_ID", procurementUnit.getSupplier().getId());
         params.put("HEIGHT_QTY", procurementUnit.getHeightQty());
-        params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit()==null || procurementUnit.getHeightUnit().getUnitId()==0? null : procurementUnit.getHeightUnit()));
+        params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getId() == 0 ? null : procurementUnit.getHeightUnit().getId()));
         params.put("WIDTH_QTY", procurementUnit.getWidthQty());
-        params.put("WIDTH_UNIT_ID", (procurementUnit.getWidthUnit()==null || procurementUnit.getWidthUnit().getUnitId()==0? null : procurementUnit.getWidthUnit()));
+        params.put("WIDTH_UNIT_ID", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
         params.put("LENGTH_QTY", procurementUnit.getLengthQty());
-        params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit()==null || procurementUnit.getLengthUnit().getUnitId()==0? null : procurementUnit.getLengthUnit()));
+        params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
         params.put("WEIGHT_QTY", procurementUnit.getWeightQty());
-        params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit()==null || procurementUnit.getWeightUnit().getUnitId()==0? null : procurementUnit.getWeightUnit()));
-        params.put("LABELLING", procurementUnit.getLabelling());
+        params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit() == null || procurementUnit.getWeightUnit().getId() == 0 ? null : procurementUnit.getWeightUnit().getId()));
+        params.put("LABELING", procurementUnit.getLabeling());
         params.put("UNITS_PER_CONTAINER", procurementUnit.getUnitsPerContainer());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
@@ -180,40 +177,40 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
                 + "    pru.WEIGHT_QTY=:weightQty, "
                 + "    pru.WEIGHT_UNIT_ID=:weightUnitId, "
                 + "    pru.UNITS_PER_CONTAINER=:unitsPerContainer, "
-                + "    pru.LABELLING=:labelling, "
+                + "    pru.LABELING=:labeling, "
                 + "    pru.ACTIVE=:active, "
                 + "    pru.LAST_MODIFIED_BY=IF(pru.MULTIPLIER!=:multiplier OR pru.UNIT_ID!=:unitId "
                 + "         OR pru.HEIGHT_QTY!=:heightQty OR pru.HEIGHT_UNIT_ID!=:heightUnitId "
                 + "         OR pru.LENGTH_QTY!=:lengthQty OR pru.LENGTH_UNIT_ID!=:lengthUnitId "
                 + "         OR pru.WIDTH_QTY!=:widthQty OR pru.WIDTH_UNIT_ID!=:widthUnitId "
                 + "         OR pru.WEIGHT_QTY!=:weightQty OR pru.WEIGHT_UNIT_ID!=:weightUnitId "
-                + "         OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELLING!=:labelling "
+                + "         OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELING!=:labeling "
                 + "         OR pru.ACTIVE!=:active,:curUser, pru.LAST_MODIFIED_BY), "
-                + "    pu.LAST_MODIFIED_DATE=IF(pru.MULTIPLIER!=:multiplier OR pru.UNIT_ID!=:unitId "
+                + "    pru.LAST_MODIFIED_DATE=IF(pru.MULTIPLIER!=:multiplier OR pru.UNIT_ID!=:unitId "
                 + "         OR pru.HEIGHT_QTY!=:heightQty OR pru.HEIGHT_UNIT_ID!=:heightUnitId "
                 + "         OR pru.LENGTH_QTY!=:lengthQty OR pru.LENGTH_UNIT_ID!=:lengthUnitId "
                 + "         OR pru.WIDTH_QTY!=:widthQty OR pru.WIDTH_UNIT_ID!=:widthUnitId "
                 + "         OR pru.WEIGHT_QTY!=:weightQty OR pru.WEIGHT_UNIT_ID!=:weightUnitId "
-                + "         OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELLING!=:labelling "
+                + "         OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELING!=:labeling "
                 + "         OR pru.ACTIVE!=:active,:curDate, pru.LAST_MODIFIED_DATE), "
                 + "    prul.LABEL_EN=:labelEn, "
                 + "    prul.LAST_MODIFIED_BY=IF(prul.LABEL_EN=:labelEn,:curUser, prul.LAST_MODIFIED_BY), "
                 + "    prul.LAST_MODIFIED_DATE=IF(prul.LABEL_EN=:labelEn,:curDate, prul.LAST_MODIFIED_DATE) "
-                + "WHERE pu.PLANNING_UNIT_ID=:planningUnitId";
+                + "WHERE pru.PROCUREMENT_UNIT_ID=:procurementUnitId";
         Map<String, Object> params = new HashMap<>();
         params.put("procurementUnitId", procurementUnit.getProcurementUnitId());
         params.put("multiplier", procurementUnit.getMultiplier());
-        params.put("unitId", procurementUnit.getUnit().getUnitId());
+        params.put("unitId", procurementUnit.getUnit().getId());
         params.put("heightQty", procurementUnit.getHeightQty());
-        params.put("heightUnitId", procurementUnit.getHeightUnit().getUnitId());
+        params.put("heightUnitId", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getId() == 0 ? null : procurementUnit.getHeightUnit().getId()));
         params.put("lengthQty", procurementUnit.getLengthQty());
-        params.put("lengthUnitId", procurementUnit.getLengthUnit().getUnitId());
+        params.put("lengthUnitId", (procurementUnit.getLengthUnit() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
         params.put("widthQty", procurementUnit.getWidthQty());
-        params.put("widthUnitId", procurementUnit.getWidthUnit().getUnitId());
+        params.put("widthUnitId", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
         params.put("weightQty", procurementUnit.getWeightQty());
-        params.put("weightUnitId", procurementUnit.getWeightUnit().getUnitId());
+        params.put("weightUnitId", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
         params.put("unitsPerContainer", procurementUnit.getUnitsPerContainer());
-        params.put("labelling", procurementUnit.getLabelling());
+        params.put("labeling", procurementUnit.getLabeling());
         params.put("active", procurementUnit.isActive());
         params.put("labelEn", procurementUnit.getLabel().getLabel_en());
         params.put("curUser", curUser.getUserId());
@@ -223,28 +220,22 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
 
     @Override
     public ProcurementUnit getProcurementUnitById(int procurementUnitId, CustomUserDetails curUser) {
-        String sqlString = sqlListString;
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND fu.REALM_ID=:realmId ";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-            sqlString += "AND pru.PROCUREMENT_UNIT_ID=:procurementUnitId ";
-            params.put("procurementUnitId", procurementUnitId);
-        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new ProcurementUnitRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
+        sqlStringBuilder.append(" AND pru.PROCUREMENT_UNIT_ID=:procurementUnitId ");
+        params.put("procurementUnitId", procurementUnitId);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new ProcurementUnitRowMapper());
     }
 
     @Override
     public List<ProcurementUnit> getProcurementUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        String sqlString = this.sqlListString;
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        sqlString += " AND pru.LAST_MODIFIED_DATE>:lastSyncDate ";
+        sqlStringBuilder.append(" AND pru.LAST_MODIFIED_DATE>:lastSyncDate ");
         params.put("lastSyncDate", lastSyncDate);
-        if (curUser.getRealm().getRealmId() != -1) {
-            sqlString += "AND fu.REALM_ID=:realmId ";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new ProcurementUnitRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementUnitRowMapper());
     }
 
 }

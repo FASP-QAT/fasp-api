@@ -19,9 +19,13 @@ public interface BudgetService {
 
     public int updateBudget(Budget b, CustomUserDetails curUser);
 
+    public List<Budget> getBudgetListForProgramIds(String[] programIds, CustomUserDetails curUser);
+
     public List<Budget> getBudgetList(CustomUserDetails curUser);
 
-    public Budget getBudgetById(int BudgetId, CustomUserDetails curUser);    
-    
+    public List<Budget> getBudgetListForRealm(int realmId, CustomUserDetails curUser);
+
+    public Budget getBudgetById(int BudgetId, CustomUserDetails curUser);
+
     public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

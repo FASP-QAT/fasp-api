@@ -61,7 +61,7 @@ public class RealmRestController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             this.realmService.updateRealm(realm, curUser);
-            return new ResponseEntity("static.message.updateSuccess", HttpStatus.OK);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Realm", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);

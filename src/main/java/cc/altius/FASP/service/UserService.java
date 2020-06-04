@@ -21,11 +21,15 @@ public interface UserService {
 
     public CustomUserDetails getCustomUserByUsername(String username);
 
+    public CustomUserDetails getCustomUserByEmailId(String emailId);
+
     public Map<String, Object> checkIfUserExists(String username, String password);
 
     public int resetFailedAttemptsByUsername(String username);
 
     public int updateFailedAttemptsByUserId(String username);
+
+    public Role getRoleById(String roleId);
 
     public List<Role> getRoleList();
 
@@ -68,5 +72,7 @@ public interface UserService {
     public void addTokenToLogout(String token);
 
     public int mapAccessControls(User user, CustomUserDetails curUser);
+
+    public int updateSuncExpiresOn(String username);
 
 }

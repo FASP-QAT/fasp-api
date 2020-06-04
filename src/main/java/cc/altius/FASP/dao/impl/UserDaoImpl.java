@@ -18,6 +18,7 @@ import cc.altius.FASP.model.rowMapper.BusinessFunctionRowMapper;
 import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.EmailUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ForgotPasswordTokenRowMapper;
+import cc.altius.FASP.model.rowMapper.RoleListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RoleResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserResultSetExtractor;
@@ -31,8 +32,10 @@ import org.apache.commons.collections4.map.HashedMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -51,14 +54,19 @@ public class UserDaoImpl implements UserDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private DataSource dataSource;
+    private JdbcTemplate jdbcTemplate;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     @Autowired
     private LabelDao labelDao;
 
+    @Value("${syncExpiresOn}")
+    private int syncExpiresOn;
+
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
@@ -72,7 +80,7 @@ public class UserDaoImpl implements UserDao {
     public CustomUserDetails getCustomUserByUsername(String username) {
         logger.info("Inside the getCustomerUserByUsername method - " + username);
         String sqlString = "SELECT "
-                + "      `user`.`USER_ID`, `user`.`USERNAME`, `user`.`PASSWORD`, "
+                + "      `user`.`USER_ID`, `user`.`USERNAME`, `user`.`PASSWORD`,`user`.`SYNC_EXPIRES_ON`, "
                 + "      `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, "
                 + "      realm.`REALM_ID`, realm.`REALM_CODE`, realm_lb.`LABEL_ID` `REALM_LABEL_ID`, realm_lb.`LABEL_EN` `REALM_LABEL_EN`, realm_lb.`LABEL_FR` `REALM_LABEL_FR`, realm_lb.`LABEL_SP` `REALM_LABEL_SP`, realm_lb.`LABEL_PR` `REALM_LABEL_PR`, "
                 + "      lang.`LANGUAGE_ID`, lang.`LANGUAGE_NAME`, lang.`LANGUAGE_CODE`, "
@@ -108,6 +116,58 @@ public class UserDaoImpl implements UserDao {
             Map<String, Object> params = new HashMap<>();
             params.put("username", username);
             return this.namedParameterJdbcTemplate.query(sqlString, params, new CustomUserDetailsResultSetExtractor());
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+//    /**
+//     * Method to get Customer object from email id
+//     *
+//     * @param emailId
+//     * @return Returns the Customer object, null if no object could be found
+//     */
+    @Override
+    public CustomUserDetails getCustomUserByEmailId(String emailId) {
+        logger.info("Inside the getCustomUserByEmailId method - " + emailId);
+        String sqlString = "SELECT "
+                + "      `user`.`USER_ID`, `user`.`USERNAME`, `user`.`PASSWORD`,`user`.`SYNC_EXPIRES_ON`, "
+                + "      `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, "
+                + "      realm.`REALM_ID`, realm.`REALM_CODE`, realm_lb.`LABEL_ID` `REALM_LABEL_ID`, realm_lb.`LABEL_EN` `REALM_LABEL_EN`, realm_lb.`LABEL_FR` `REALM_LABEL_FR`, realm_lb.`LABEL_SP` `REALM_LABEL_SP`, realm_lb.`LABEL_PR` `REALM_LABEL_PR`, "
+                + "      lang.`LANGUAGE_ID`, lang.`LANGUAGE_NAME`, lang.`LANGUAGE_CODE`, "
+                + "      `user`.`ACTIVE`, `user`.`EMAIL_ID`, `user`.`EXPIRES_ON`, "
+                + "      role.`ROLE_ID`, role_lb.`LABEL_ID` `ROLE_LABEL_ID`, role_lb.`LABEL_EN` `ROLE_LABEL_EN`, role_lb.`LABEL_FR` `ROLE_LABEL_FR`, role_lb.`LABEL_SP` `ROLE_LABEL_SP`, role_lb.`LABEL_PR` `ROLE_LABEL_PR`, "
+                + "      bf.`BUSINESS_FUNCTION_ID`, "
+                + "      acl.`REALM_COUNTRY_ID` `ACL_REALM_COUNTRY_ID`, acl_country_lb.`LABEL_ID` `ACL_REALM_LABEL_ID`, acl_country_lb.`LABEL_EN` `ACL_REALM_LABEL_EN`, acl_country_lb.`LABEL_FR` `ACL_REALM_LABEL_FR`, acl_country_lb.`LABEL_SP` `ACL_REALM_LABEL_SP`, acl_country_lb.`LABEL_PR` `ACL_REALM_LABEL_PR`, "
+                + "      acl.`HEALTH_AREA_ID` `ACL_HEALTH_AREA_ID`, acl_health_area_lb.`LABEL_ID` `ACL_HEALTH_AREA_LABEL_ID`, acl_health_area_lb.`LABEL_EN` `ACL_HEALTH_AREA_LABEL_EN`, acl_health_area_lb.`LABEL_FR` `ACL_HEALTH_AREA_LABEL_FR`, acl_health_area_lb.`LABEL_SP` `ACL_HEALTH_AREA_LABEL_SP`, acl_health_area_lb.`LABEL_PR` `ACL_HEALTH_AREA_LABEL_PR`, "
+                + "      acl.`ORGANISATION_ID` `ACL_ORGANISATION_ID`, acl_organisation_lb.`LABEL_ID` `ACL_ORGANISATION_LABEL_ID`, acl_organisation_lb.`LABEL_EN` `ACL_ORGANISATION_LABEL_EN`, acl_organisation_lb.`LABEL_FR` `ACL_ORGANISATION_LABEL_FR`, acl_organisation_lb.`LABEL_SP` `ACL_ORGANISATION_LABEL_SP`, acl_organisation_lb.`LABEL_PR` `ACL_ORGANISATION_LABEL_PR`, "
+                + "      acl.`PROGRAM_ID` `ACL_PROGRAM_ID`, acl_program_lb.`LABEL_ID` `ACL_PROGRAM_LABEL_ID`, acl_program_lb.`LABEL_EN` `ACL_PROGRAM_LABEL_EN`, acl_program_lb.`LABEL_FR` `ACL_PROGRAM_LABEL_FR`, acl_program_lb.`LABEL_SP` `ACL_PROGRAM_LABEL_SP`, acl_program_lb.`LABEL_PR` `ACL_PROGRAM_LABEL_PR` "
+                + "  FROM us_user `user` "
+                + "      LEFT JOIN rm_realm `realm` ON realm.`REALM_ID`=user.`REALM_ID` "
+                + "      LEFT JOIN ap_label `realm_lb` ON realm.`LABEL_ID`=realm_lb.`LABEL_ID` "
+                + "      LEFT JOIN ap_language lang ON lang.`LANGUAGE_ID`=`user`.`LANGUAGE_ID` "
+                + "      LEFT JOIN us_user_role user_role ON user_role.`USER_ID`=`user`.`USER_ID` "
+                + "      LEFT JOIN us_role role ON user_role.`ROLE_ID`=role.`ROLE_ID` "
+                + "      LEFT JOIN ap_label role_lb ON role.`LABEL_ID`=role_lb.`LABEL_ID` "
+                + "      LEFT JOIN us_role_business_function rbf ON role.`ROLE_ID`=rbf.`ROLE_ID` "
+                + "      LEFT JOIN us_business_function bf ON rbf.`BUSINESS_FUNCTION_ID`=bf.`BUSINESS_FUNCTION_ID` "
+                + "      LEFT JOIN us_user_acl acl ON `user`.`USER_ID`=acl.`USER_ID` "
+                + "      LEFT JOIN rm_realm_country acl_realm_country ON acl.`REALM_COUNTRY_ID`=acl_realm_country.`REALM_COUNTRY_ID` "
+                + "      LEFT JOIN ap_country acl_country ON acl_realm_country.`COUNTRY_ID`=acl_country.`COUNTRY_ID` "
+                + "      LEFT JOIN ap_label acl_country_lb ON acl_country.`LABEL_ID`=acl_country_lb.`LABEL_ID` "
+                + "      LEFT JOIN rm_health_area acl_health_area ON acl.`HEALTH_AREA_ID`=acl_health_area.`HEALTH_AREA_ID` "
+                + "      LEFT JOIN ap_label acl_health_area_lb ON acl_health_area.`LABEL_ID`=acl_health_area_lb.`LABEL_ID` "
+                + "      LEFT JOIN rm_organisation acl_organisation ON acl.`ORGANISATION_ID`=acl_organisation.`ORGANISATION_ID` "
+                + "      LEFT JOIN ap_label acl_organisation_lb ON acl_organisation.`LABEL_ID`=acl_organisation_lb.`LABEL_ID` "
+                + "      LEFT JOIN rm_program acl_program ON acl.`PROGRAM_ID`=acl_program.`PROGRAM_ID` "
+                + "      LEFT JOIN ap_label acl_program_lb on acl_program.`LABEL_ID`=acl_program_lb.`LABEL_ID` "
+                + "      WHERE `user`.`EMAIL_ID`=:emailId "
+                + "  ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,bf.`BUSINESS_FUNCTION_ID`,acl.`USER_ACL_ID`";
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("emailId", emailId);
+            CustomUserDetails user = this.namedParameterJdbcTemplate.query(sqlString, params, new CustomUserDetailsResultSetExtractor());
+            return user;
         } catch (Exception e) {
             return null;
         }
@@ -199,12 +259,24 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<Role> getRoleList() {
-        String sql = " SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID`,c.`ROLE_ID` AS  CAN_CREATE_ROLE FROM us_role "
+    public Role getRoleById(String roleId) {
+        String sql = "SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID`,c.`CAN_CREATE_ROLE` FROM us_role "
                 + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID` "
                 + "LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=us_role.`ROLE_ID` "
-                + "LEFT JOIN us_can_create_role c ON c.`CAN_CREATE_ROLE`=us_role.`ROLE_ID`";
-        return this.namedParameterJdbcTemplate.query(sql, new RoleResultSetExtractor());
+                + "LEFT JOIN us_can_create_role c ON c.`ROLE_ID`=us_role.`ROLE_ID`"
+                + "WHERE us_role.ROLE_ID=:roleId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("roleId", roleId);
+        return this.namedParameterJdbcTemplate.query(sql, params, new RoleResultSetExtractor());
+    }
+
+    @Override
+    public List<Role> getRoleList() {
+        String sql = " SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID`,c.`CAN_CREATE_ROLE` FROM us_role "
+                + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID` "
+                + "LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=us_role.`ROLE_ID` "
+                + "LEFT JOIN us_can_create_role c ON c.`ROLE_ID`=us_role.`ROLE_ID`";
+        return this.namedParameterJdbcTemplate.query(sql, new RoleListResultSetExtractor());
     }
 
     @Override
@@ -223,7 +295,7 @@ public class UserDaoImpl implements UserDao {
         map.put("EXPIRED", false);
         map.put("FAILED_ATTEMPTS", 0);
         map.put("EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
-        map.put("SYNC_EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
+        map.put("SYNC_EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, syncExpiresOn));
         map.put("LAST_LOGIN_DATE", null);
         map.put("CREATED_BY", curUser);
         map.put("CREATED_DATE", curDate);
@@ -422,22 +494,44 @@ public class UserDaoImpl implements UserDao {
     public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page) {
         String message = "", sql, username = user.getUsername(), phoneNo = user.getPhoneNumber();
         int userId = 0;
+        int result1 = 0, result2 = 0;
         Map<String, Object> params = new HashMap<>();
         params.put("username", user.getUsername());
+        params.put("emailId", user.getEmailId());
         if (page == 1) {
             sql = "SELECT COUNT(*) FROM us_user u WHERE u.`USERNAME`=:username";
-            if ((this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class) > 0 ? true : false)) {
-                message += "User already exists.";
+            result1 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+            if (result1 > 0) {
+                message = "static.message.user.usernameExists";
+            }
+            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`EMAIL_ID`=:emailId";
+            result2 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+            if (result2 > 0) {
+                message = "static.message.user.emailIdExists";
+            }
+
+            if (result1 > 0 && result2 > 0) {
+                message = "static.message.user.usernameemailIdExists";
             }
         } else if (page == 2) {
             sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`USERNAME`=:username";
             try {
-                userId = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+                result1 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
             } catch (EmptyResultDataAccessException e) {
-                userId = 0;
             }
-            if (userId > 0 && userId != user.getUserId() ? true : false) {
-                message += "User already exists.";
+            if (result1 > 0 && result1 != user.getUserId()) {
+                message = "static.message.user.usernameExists";
+            }
+            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`EMAIL_ID`=:emailId";
+            try {
+                result2 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+            } catch (EmptyResultDataAccessException e) {
+            }
+            if (result2 > 0 && result2 != user.getUserId()) {
+                message = "static.message.user.emailIdExists";
+            }
+            if ((result1 > 0 && result1 != user.getUserId()) && (result2 > 0 && result2 != user.getUserId())) {
+                message = "static.message.user.usernameemailIdExists";
             }
         }
         return message;
@@ -547,14 +641,13 @@ public class UserDaoImpl implements UserDao {
         }
         int result[] = si.executeBatch(paramList);
         si = new SimpleJdbcInsert(dataSource).withTableName("us_can_create_role");
-        int noOfCanCreateRoles = (role.getCanCreateRole() == null ? 0 : role.getCanCreateRole().length);
-        if (noOfCanCreateRoles > 0) {
-            paramList = new SqlParameterSource[noOfCanCreateRoles];
+        if (role.getCanCreateRoles().length > 0) {
+            paramList = new SqlParameterSource[role.getCanCreateRoles().length];
             i = 0;
-            for (String r : role.getCanCreateRole()) {
+            for (String r : role.getCanCreateRoles()) {
                 params = new HashMap<>();
-                params.put("ROLE_ID", r);
-                params.put("CAN_CREATE_ROLE", roleId);
+                params.put("ROLE_ID", roleId);
+                params.put("CAN_CREATE_ROLE", r);
                 paramList[i] = new MapSqlParameterSource(params);
                 i++;
             }
@@ -574,7 +667,7 @@ public class UserDaoImpl implements UserDao {
         params.put("lastModifiedBy", curUser.getUserId());
         params.put("lastModifiedDate", curDate);
         this.namedParameterJdbcTemplate.update("DELETE rbf.* FROM us_role_business_function rbf where rbf.ROLE_ID=:roleId", params);
-        this.namedParameterJdbcTemplate.update("DELETE r.* FROM us_can_create_role r WHERE r.CAN_CREATE_ROLE=:roleId", params);
+        this.namedParameterJdbcTemplate.update("DELETE r.* FROM us_can_create_role r WHERE r.ROLE_ID=:roleId", params);
         sql = "UPDATE us_role r "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=r.`LABEL_ID` "
                 + "SET "
@@ -584,6 +677,10 @@ public class UserDaoImpl implements UserDao {
                 + "WHERE r.`ROLE_ID`=:roleId";
         this.namedParameterJdbcTemplate.update(sql, params);
         params.clear();
+        sql = "DELETE rbf.* FROM us_role_business_function rbf WHERE rbf.ROLE_ID=:roleId";
+        params.put("roleId", role.getRoleId());
+        this.namedParameterJdbcTemplate.update(sql, params);
+        
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("us_role_business_function");
         SqlParameterSource[] paramList = new SqlParameterSource[role.getBusinessFunctions().length];
         int i = 0;
@@ -600,15 +697,19 @@ public class UserDaoImpl implements UserDao {
         }
         si.executeBatch(paramList);
         params.clear();
+        
+        sql = "DELETE ccr.* FROM us_can_create_role ccr WHERE ccr.ROLE_ID=:roleId";
+        params.put("roleId", role.getRoleId());
+        this.namedParameterJdbcTemplate.update(sql, params);
+        
         si = new SimpleJdbcInsert(dataSource).withTableName("us_can_create_role");
-        int noOfCanCreateRoles = (role.getCanCreateRole() == null ? 0 : role.getCanCreateRole().length);
-        if (noOfCanCreateRoles > 0) {
-            paramList = new SqlParameterSource[noOfCanCreateRoles];
+        if (role.getCanCreateRoles().length > 0) {
+            paramList = new SqlParameterSource[role.getCanCreateRoles().length];
             i = 0;
-            for (String r : role.getCanCreateRole()) {
+            for (String canCreateRole : role.getCanCreateRoles()) {
                 params = new HashMap<>();
-                params.put("ROLE_ID", r);
-                params.put("CAN_CREATE_ROLE", role.getRoleId());
+                params.put("ROLE_ID", role.getRoleId());
+                params.put("CAN_CREATE_ROLE", canCreateRole);
                 paramList[i] = new MapSqlParameterSource(params);
                 i++;
             }
@@ -703,6 +804,14 @@ public class UserDaoImpl implements UserDao {
             row = this.namedParameterJdbcTemplate.batchUpdate(sqlString, paramArray).length;
         }
         return row;
+    }
+
+    @Override
+    public int updateSuncExpiresOn(String username) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("username", username);
+        params.put("syncexpiresOn", DateUtils.getCurrentDateObject(DateUtils.EST));
+        return this.namedParameterJdbcTemplate.update("update us_user u set u.SYNC_EXPIRES_ON=:syncexpiresOn where u.USERNAME=:username;", params);
     }
 
 }

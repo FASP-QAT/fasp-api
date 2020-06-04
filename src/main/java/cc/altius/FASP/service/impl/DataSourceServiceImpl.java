@@ -7,10 +7,12 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.DataSourceDao;
 import cc.altius.FASP.dao.DataSourceTypeDao;
+import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DataSource;
 import cc.altius.FASP.model.DataSourceType;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.DataSourceService;
@@ -33,6 +35,8 @@ public class DataSourceServiceImpl implements DataSourceService {
     private DataSourceTypeDao dataSourceTypeDao;
     @Autowired
     private RealmDao realmDao;
+    @Autowired 
+    private ProgramDao programDao;
     @Autowired
     private AclService aclService;
 
@@ -43,46 +47,8 @@ public class DataSourceServiceImpl implements DataSourceService {
 
     @Override
     public int addDataSource(DataSource dataSource, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, dataSource.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, dataSource.getRealm().getId())) {
             return this.dataSourceDao.addDataSource(dataSource, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
-    }
-
-    @Override
-    public DataSource getDataSourceById(int dataSourceId, CustomUserDetails curUser) {
-        DataSource ds = this.dataSourceDao.getDataSourceById(dataSourceId, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, ds.getRealm().getRealmId())) {
-            return ds;
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
-    }
-    
-    @Override
-    public List<DataSource> getDataSourceList(boolean active, CustomUserDetails curUser) {
-        return this.dataSourceDao.getDataSourceList(active, curUser);
-    }
-
-    @Override
-    public List<DataSource> getDataSourceForRealm(int realmId, boolean active, CustomUserDetails curUser) {
-        Realm r = this.realmDao.getRealmById(realmId, curUser);
-        if (r == null) {
-            throw new EmptyResultDataAccessException(1);
-        }
-        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
-            return this.dataSourceDao.getDataSourceForRealm(realmId, active, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
-    }
-
-    @Override
-    public List<DataSource> getDataSourceForDataSourceType(int dataSourceTypeId, boolean active, CustomUserDetails curUser) {
-        DataSourceType dst = this.dataSourceTypeDao.getDataSourceTypeById(dataSourceTypeId, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, dst.getRealm().getRealmId())) {
-            return this.dataSourceDao.getDataSourceForDataSourceType(dataSourceTypeId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -91,8 +57,47 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Override
     public int updateDataSource(DataSource dataSource, CustomUserDetails curUser) {
         DataSource ds = this.dataSourceDao.getDataSourceById(dataSource.getDataSourceId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, ds.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, ds.getRealm().getId())) {
             return this.dataSourceDao.updateDataSource(dataSource, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public DataSource getDataSourceById(int dataSourceId, CustomUserDetails curUser) {
+        DataSource ds = this.dataSourceDao.getDataSourceById(dataSourceId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, ds.getRealm().getId())) {
+            return ds;
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public List<DataSource> getDataSourceList(boolean active, CustomUserDetails curUser) {
+        return this.dataSourceDao.getDataSourceList(active, curUser);
+    }
+
+    @Override
+    public List<DataSource> getDataSourceForRealmAndProgram(int realmId, int programId, boolean active, CustomUserDetails curUser) {
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (r == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
+        Program p = this.programDao.getProgramById(programId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkProgramAccessForUser(curUser, realmId, programId, p.getHealthArea().getId(), p.getOrganisation().getId())) {
+            return this.dataSourceDao.getDataSourceForRealmAndProgram(realmId, programId, active, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public List<DataSource> getDataSourceForDataSourceType(int dataSourceTypeId, boolean active, CustomUserDetails curUser) {
+        DataSourceType dst = this.dataSourceTypeDao.getDataSourceTypeById(dataSourceTypeId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, dst.getRealm().getId())) {
+            return this.dataSourceDao.getDataSourceForDataSourceType(dataSourceTypeId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }

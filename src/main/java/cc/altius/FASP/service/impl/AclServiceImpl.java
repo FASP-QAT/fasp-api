@@ -6,13 +6,11 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.service.ProgramService;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -23,8 +21,8 @@ import org.springframework.stereotype.Service;
 public class AclServiceImpl implements AclService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    @Autowired
-    private ProgramService programService;
+//    @Autowired
+//    private ProgramService programService;
 
     @Override
     public boolean checkAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, int healthAreaId, int organisationId, int programId) {
@@ -98,19 +96,19 @@ public class AclServiceImpl implements AclService {
     }
 
     @Override
-    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int programId) {
+    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int realmId, int programId, int healthAreaId, int organisationId) {
         logger.info("Going to check if userId:" + curUser.getUserId() + " has access to ProgramId:" + programId);
-        Program p = this.programService.getProgramById(programId, curUser);
-        if (curUser.getRealm().getRealmId() != -1 && curUser.getRealm().getRealmId() != p.getRealmCountry().getRealm().getRealmId()) {
+//        Program p = this.programService.getProgramById(programId, curUser);
+        if (curUser.getRealm().getRealmId() != -1 && curUser.getRealm().getRealmId() != realmId) {
             // Is not an Application level user and also does not have access to this Realm
             logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " so cannot get access");
             return false;
         } else {
             logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " Realm check passed");
             for (UserAcl ua : curUser.getAclList()) {
-                if ((ua.getHealthAreaId() == -1 || ua.getHealthAreaId() == p.getHealthArea().getHealthAreaId())
-                        && (ua.getOrganisationId() == -1 || ua.getOrganisationId() == p.getOrganisation().getOrganisationId())
-                        && (ua.getProgramId() == -1 || ua.getProgramId() == p.getProgramId())) {
+                if ((ua.getHealthAreaId() == -1 || ua.getHealthAreaId() == healthAreaId)
+                        && (ua.getOrganisationId() == -1 || ua.getOrganisationId() == organisationId)
+                        && (ua.getProgramId() == -1 || ua.getProgramId() == programId)) {
                     logger.info("Access allowed since he has access to " + ua);
                     return true;
                 }
@@ -119,4 +117,54 @@ public class AclServiceImpl implements AclService {
         return false;
     }
 
+    @Override
+    public String addUserAclForRealm(String sqlString, Map<String, Object> params, String realmAlias, int realmId, CustomUserDetails curUser) {
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += " AND " + realmAlias + ".REALM_ID=:aclRealmId0 ";
+            params.put("aclRealmId0", realmId);
+        }
+        return sqlString;
+    }
+
+    @Override
+    public String addUserAclForRealm(String sqlString, Map<String, Object> params, String realmAlias, CustomUserDetails curUser) {
+        if (curUser.getRealm().getRealmId() != -1) {
+            sqlString += " AND " + realmAlias + ".REALM_ID=:aclRealmId1 ";
+            params.put("aclRealmId1", curUser.getRealm().getRealmId());
+        }
+        return sqlString;
+    }
+    
+    @Override
+    public void addUserAclForRealm(StringBuilder sb, Map<String, Object> params, String realmAlias, int realmId, CustomUserDetails curUser) {
+        if (realmId != -1) {
+            sb.append(" AND ").append(realmAlias).append(".REALM_ID=:aclRealmId0 ");
+            params.put("aclRealmId0", realmId);
+        }
+    }
+
+    @Override
+    public void addUserAclForRealm(StringBuilder sb, Map<String, Object> params, String realmAlias, CustomUserDetails curUser) {
+        if (curUser.getRealm().getRealmId() != -1) {
+            sb.append(" AND ").append(realmAlias).append(".REALM_ID=:aclRealmId1 ");
+            params.put("aclRealmId1", curUser.getRealm().getRealmId());
+        }
+    }
+
+    public void addFullAclForProgram(StringBuilder sb, Map<String, Object> params, String programAlias, CustomUserDetails curUser) {
+        int count = 1;
+        for (UserAcl userAcl : curUser.getAclList()) {
+            sb.append(" AND (")
+                    .append("(").append(programAlias).append(".PROGRAM_ID IS NULL OR :realmCountryId").append(count).append("=-1 OR ").append(programAlias).append(".REALM_COUNTRY_ID=:realmCountryId").append(count).append(")")
+                    .append("AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :healthAreaId").append(count).append("=-1 OR ").append(programAlias).append(".HEALTH_AREA_ID=:healthAreaId").append(count).append(")")
+                    .append("AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :organisationId").append(count).append("=-1 OR ").append(programAlias).append(".ORGANISATION_ID=:organisationId").append(count).append(")")
+                    .append("AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :programId").append(count).append("=-1 OR ").append(programAlias).append(".PROGRAM_ID=:programId").append(count).append(")")
+                    .append(")");
+            params.put("realmCountryId" + count, userAcl.getRealmCountryId());
+            params.put("healthAreaId" + count, userAcl.getHealthAreaId());
+            params.put("organisationId" + count, userAcl.getOrganisationId());
+            params.put("programId" + count, userAcl.getProgramId());
+            count++;
+        }
+    }
 }

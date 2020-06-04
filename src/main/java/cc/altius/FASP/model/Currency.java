@@ -13,19 +13,19 @@ public class Currency extends BaseModel {
     
     private int currencyId;
     private String currencyCode;
-    private String currencySymbol;
     private Label label;
     private double conversionRateToUsd;
+    private boolean isSync;
 
     public Currency() {
     }
 
-    public Currency(int currencyId, String currencyCode, String currencySymbol, Label label, double conversionRateToUsd) {
+    public Currency(int currencyId, String currencyCode, Label label, double conversionRateToUsd) {
         this.currencyId = currencyId;
         this.currencyCode = currencyCode;
-        this.currencySymbol = currencySymbol;
         this.label = label;
         this.conversionRateToUsd = conversionRateToUsd;
+        this.isSync = true;
     }
 
     public int getCurrencyId() {
@@ -44,14 +44,6 @@ public class Currency extends BaseModel {
         this.currencyCode = currencyCode;
     }
 
-    public String getCurrencySymbol() {
-        return currencySymbol;
-    }
-
-    public void setCurrencySymbol(String currencySymbol) {
-        this.currencySymbol = currencySymbol;
-    }
-
     public Label getLabel() {
         return label;
     }
@@ -68,9 +60,18 @@ public class Currency extends BaseModel {
         this.conversionRateToUsd = conversionRateToUsd;
     }
 
+    public boolean isIsSync() {
+        return isSync;
+    }
+
+    public void setIsSync(boolean isSync) {
+        this.isSync = isSync;
+    }
+
+    
     @Override
     public String toString() {
-        return "Currency{" + "currencyId=" + currencyId + ", currencyCode=" + currencyCode + ", currencySymbol=" + currencySymbol + ", label=" + label + ", conversionRateToUsd=" + conversionRateToUsd + '}';
+        return "Currency{" + "currencyId=" + currencyId + ", currencyCode=" + currencyCode + ", label=" + label + ", conversionRateToUsd=" + conversionRateToUsd + '}';
     }
  
 }

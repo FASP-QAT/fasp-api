@@ -22,6 +22,8 @@ public interface UserDao {
 
     public CustomUserDetails getCustomUserByUsername(String username);
 
+    public CustomUserDetails getCustomUserByEmailId(String emailId);
+
     public Map<String, Object> checkIfUserExists(String username, String password);
 
     public List<String> getBusinessFunctionsForUserId(int userId);
@@ -56,6 +58,8 @@ public interface UserDao {
 
     public int updateRole(Role role, CustomUserDetails curUser);
 
+    public Role getRoleById(String roleId);
+    
     public List<Role> getRoleList();
 
     public String generateTokenForUserId(int userId);
@@ -73,4 +77,6 @@ public interface UserDao {
     public void addTokenToLogout(String token);
 
     public int mapAccessControls(User user, CustomUserDetails curUser);
+
+    public int updateSuncExpiresOn(String username);
 }

@@ -6,7 +6,7 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.ProductCategory;
-import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleCodeObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -15,29 +15,15 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author akil
  */
-public class ProductCategoryRowMapper implements RowMapper<ProductCategory> {
-
-    private String prefix;
-
-    public ProductCategoryRowMapper() {
-        this.prefix = "";
-    }
-
-    public ProductCategoryRowMapper(String prefix) {
-        this.prefix = prefix;
-    }
+public class ProductCategoryRowMapper implements RowMapper<ProductCategory>{
 
     @Override
-    public ProductCategory mapRow(ResultSet rs, int rowNum) throws SQLException {
-        ProductCategory pc = new ProductCategory(
-                rs.getInt(this.prefix + "PRODUCT_CATEGORY_ID"),
-                new Realm(rs.getInt(prefix + "REALM_ID"), new LabelRowMapper(this.prefix + "REALM_").mapRow(rs, rowNum), rs.getString(prefix + "REALM_CODE")),
-                new LabelRowMapper(prefix).mapRow(rs, rowNum),
-                rs.getInt(this.prefix + "LEVEL"),
-                rs.getString(this.prefix + "SORT_ORDER")
-        );
-        pc.setBaseModel(new BaseModelRowMapper(this.prefix).mapRow(rs, rowNum));
+    public ProductCategory mapRow(ResultSet rs, int i) throws SQLException {
+        ProductCategory pc = new ProductCategory(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper().mapRow(rs, i));
+        pc.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
+        pc.setRealm(new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i), rs.getString("REALM_CODE")));
+        pc.setSortOrder(rs.getString("SORT_ORDER"));
         return pc;
     }
-
+    
 }

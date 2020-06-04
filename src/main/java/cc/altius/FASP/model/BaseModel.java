@@ -16,14 +16,14 @@ import java.util.Date;
 public class BaseModel implements Serializable {
 
     @JsonIgnore
-    private BasicUser createdBy;
+    private transient BasicUser createdBy;
     @JsonIgnore
-    private Date createdDate;
+    private transient Date createdDate;
     @JsonIgnore
-    private BasicUser lastModifiedBy;
+    private transient BasicUser lastModifiedBy;
     @JsonIgnore
-    private Date lastModifiedDate;
-    private boolean active;
+    private transient Date lastModifiedDate;
+    private transient boolean active;
 
     public BasicUser getCreatedBy() {
         return createdBy;

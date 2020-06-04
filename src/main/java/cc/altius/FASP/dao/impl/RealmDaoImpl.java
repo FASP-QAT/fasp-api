@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.rowMapper.RealmRowMapper;
+import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,24 +41,17 @@ public class RealmDaoImpl implements RealmDao {
 
     @Autowired
     private LabelDao labelDao;
+    @Autowired
+    private AclService aclService;
 
-    @Override
-    public List<Realm> getRealmList(boolean active, CustomUserDetails curUser) {
-        String sql = " SELECT r.REALM_ID, r.REALM_CODE, r.MONTHS_IN_PAST_FOR_AMC, r.MONTHS_IN_FUTURE_FOR_AMC, r.ORDER_FREQUENCY, r.DEFAULT_REALM, "
-                + "rl.`LABEL_ID` ,rl.`LABEL_EN`, rl.`LABEL_FR`, rl.`LABEL_PR`, rl.`LABEL_SP`,"
-                + "cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, r.ACTIVE, r.CREATED_DATE, r.LAST_MODIFIED_DATE "
-                + "FROM rm_realm r "
-                + " LEFT JOIN ap_label rl ON r.`LABEL_ID`=rl.`LABEL_ID` "
-                + " LEFT JOIN us_user cb ON r.CREATED_BY=cb.USER_ID "
-                + " LEFT JOIN us_user lmb ON r.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE TRUE ";
-        Map<String, Object> params = new HashMap<>();
-        if (curUser.getRealm().getRealmId() != -1) {
-            sql += " AND r.REALM_ID=:realmId";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-        return this.namedParameterJdbcTemplate.query(sql, params, new RealmRowMapper());
-    }
+    private final String sqlListString = "SELECT r.REALM_ID, r.REALM_CODE, r.DEFAULT_REALM, "
+            + " rl.`LABEL_ID` ,rl.`LABEL_EN`, rl.`LABEL_FR`, rl.`LABEL_PR`, rl.`LABEL_SP`,"
+            + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, r.ACTIVE, r.CREATED_DATE, r.LAST_MODIFIED_DATE "
+            + " FROM rm_realm r "
+            + " LEFT JOIN ap_label rl ON r.`LABEL_ID`=rl.`LABEL_ID` "
+            + " LEFT JOIN us_user cb ON r.CREATED_BY=cb.USER_ID "
+            + " LEFT JOIN us_user lmb ON r.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "WHERE TRUE ";
 
     @Override
     @Transactional
@@ -68,9 +62,6 @@ public class RealmDaoImpl implements RealmDao {
         params.put("REALM_CODE", r.getRealmCode());
         int labelId = this.labelDao.addLabel(r.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
-        params.put("MONTHS_IN_PAST_FOR_AMC", r.getMonthInPastForAmc());
-        params.put("MONTHS_IN_FUTURE_FOR_AMC", r.getMonthInFutureForAmc());
-        params.put("ORDER_FREQUENCY", r.getOrderFrequency());
         params.put("DEFAULT_REALM", r.isDefaultRealm());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
@@ -94,31 +85,19 @@ public class RealmDaoImpl implements RealmDao {
         params.put("realmId", r.getRealmId());
         params.put("labelEn", r.getLabel().getLabel_en());
         params.put("realmCode", r.getRealmCode());
-        params.put("monthInPastForAmc", r.getMonthInPastForAmc());
-        params.put("monthInFutureForAmc", r.getMonthInFutureForAmc());
-        params.put("orgerFrequency", r.getOrderFrequency());
         params.put("default", r.isDefaultRealm());
         params.put("active", r.isActive());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         int rows = this.namedParameterJdbcTemplate.update("UPDATE rm_realm r LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID SET "
                 + "r.REALM_CODE=:realmCode, "
-                + "r.MONTHS_IN_PAST_FOR_AMC=:monthInPastForAmc, "
-                + "r.MONTHS_IN_FUTURE_FOR_AMC=:monthInFutureForAmc, "
-                + "r.ORDER_FREQUENCY=:orgerFrequency, "
                 + "r.DEFAULT_REALM=:default,"
                 + "r.ACTIVE=:active, "
                 + "r.LAST_MODIFIED_BY=IF("
                 + "     r.REALM_CODE!=:realmCode OR "
-                + "     r.MONTHS_IN_PAST_FOR_AMC=:monthInPastForAmc OR "
-                + "     r.MONTHS_IN_FUTURE_FOR_AMC=:monthInFutureForAmc OR "
-                + "     r.ORDER_FREQUENCY=:orgerFrequency OR "
                 + "     r.ACTIVE=:active, :curUser, r.LAST_MODIFIED_BY), "
                 + "r.LAST_MODIFIED_DATE=IF("
                 + "     r.REALM_CODE!=:realmCode OR "
-                + "     r.MONTHS_IN_PAST_FOR_AMC=:monthInPastForAmc OR "
-                + "     r.MONTHS_IN_FUTURE_FOR_AMC=:monthInFutureForAmc OR "
-                + "     r.ORDER_FREQUENCY=:orgerFrequency OR "
                 + "     r.ACTIVE=:active, :curDate, r.LAST_MODIFIED_DATE), "
                 + "rl.LABEL_EN=:labelEn, "
                 + "rl.LAST_MODIFIED_BY=IF(rl.LABEL_EN!=:labelEn, :curUser, rl.LAST_MODIFIED_BY), "
@@ -131,37 +110,29 @@ public class RealmDaoImpl implements RealmDao {
     }
 
     @Override
-    public Realm getRealmById(int realmId, CustomUserDetails curUser) {
-        String sqlString = " SELECT r.REALM_ID, r.REALM_CODE, r.MONTHS_IN_PAST_FOR_AMC, r.MONTHS_IN_FUTURE_FOR_AMC, r.ORDER_FREQUENCY, r.DEFAULT_REALM, "
-                + "rl.`LABEL_ID` ,rl.`LABEL_EN`, rl.`LABEL_FR`, rl.`LABEL_PR`, rl.`LABEL_SP`,"
-                + "cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, r.ACTIVE, r.CREATED_DATE, r.LAST_MODIFIED_DATE "
-                + "FROM rm_realm r "
-                + " LEFT JOIN ap_label rl ON r.`LABEL_ID`=rl.`LABEL_ID` "
-                + " LEFT JOIN us_user cb ON r.CREATED_BY=cb.USER_ID "
-                + " LEFT JOIN us_user lmb ON r.LAST_MODIFIED_BY=lmb.USER_ID "
-                + " WHERE r.REALM_ID=:realmId";
+    public List<Realm> getRealmList(boolean active, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        params.put("realmId", realmId);
-        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new RealmRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmRowMapper());
+    }
+
+    @Override
+    public Realm getRealmById(int realmId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
+        System.out.println(""+sqlStringBuilder.toString()+ params);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new RealmRowMapper());
     }
 
     @Override
     public List<Realm> getRealmListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        String sql = " SELECT r.REALM_ID, r.REALM_CODE, r.MONTHS_IN_PAST_FOR_AMC, r.MONTHS_IN_FUTURE_FOR_AMC, r.ORDER_FREQUENCY, r.DEFAULT_REALM, "
-                + "rl.`LABEL_ID` ,rl.`LABEL_EN`, rl.`LABEL_FR`, rl.`LABEL_PR`, rl.`LABEL_SP`,"
-                + "cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, r.ACTIVE, r.CREATED_DATE, r.LAST_MODIFIED_DATE "
-                + "FROM rm_realm r "
-                + " LEFT JOIN ap_label rl ON r.`LABEL_ID`=rl.`LABEL_ID` "
-                + " LEFT JOIN us_user cb ON r.CREATED_BY=cb.USER_ID "
-                + " LEFT JOIN us_user lmb ON r.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE r.LAST_MODIFIED_DATE>:lastSyncDate ";
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND r.LAST_MODIFIED_DATE>:lastSyncDate");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
-        if (curUser.getRealm().getRealmId() != -1) {
-            sql += " AND r.REALM_ID=:realmId";
-            params.put("realmId", curUser.getRealm().getRealmId());
-        }
-        return this.namedParameterJdbcTemplate.query(sql, params, new RealmRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmRowMapper());
     }
-
 }

@@ -8,7 +8,6 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.FundingSourceDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgFundingSourceDTO;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
@@ -35,7 +34,7 @@ public class FundingSourceServiceImpl implements FundingSourceService {
 
     @Override
     public int addFundingSource(FundingSource f, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, f.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, f.getRealm().getId())) {
             return this.fundingSourceDao.addFundingSource(f, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -45,7 +44,7 @@ public class FundingSourceServiceImpl implements FundingSourceService {
     @Override
     public int updateFundingSource(FundingSource f, CustomUserDetails curUser) {
         FundingSource fs = this.fundingSourceDao.getFundingSourceById(f.getFundingSourceId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, fs.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, fs.getRealm().getId())) {
             return this.fundingSourceDao.updateFundingSource(f, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -73,7 +72,7 @@ public class FundingSourceServiceImpl implements FundingSourceService {
     @Override
     public FundingSource getFundingSourceById(int fundingSourceId, CustomUserDetails curUser) {
         FundingSource f = this.fundingSourceDao.getFundingSourceById(fundingSourceId, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, f.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, f.getRealm().getId())) {
             return f;
         } else {
             throw new AccessDeniedException("Access denied");

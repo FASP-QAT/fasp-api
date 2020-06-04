@@ -36,6 +36,7 @@ public class CustomUserDetailsResultSetExtractor implements ResultSetExtractor<C
                 user.setLanguage(new Language(rs.getInt("LANGUAGE_ID"), rs.getString("LANGUAGE_NAME"), rs.getString("LANGUAGE_CODE")));
                 user.setFailedAttempts(rs.getInt("FAILED_ATTEMPTS"));
                 user.setLastLoginDate(rs.getTimestamp("LAST_LOGIN_DATE"));
+                user.setSyncExpiresOn(rs.getTimestamp("SYNC_EXPIRES_ON"));
                 user.setActive(rs.getBoolean("ACTIVE"));
                 user.setExpiresOn(rs.getTimestamp("EXPIRES_ON"));
                 user.setRoles(new LinkedList<>());

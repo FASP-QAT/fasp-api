@@ -41,20 +41,14 @@ public class DimensionDaoImpl implements DimensionDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    @Override
-    public List<Dimension> getDimensionListForSync(String lastSyncDate) {
-        String sqlString = "SELECT d.DIMENSION_ID,  "
-                + "	dl.LABEL_ID, dl.LABEL_EN, dl.LABEL_FR, dl.LABEL_PR, dl.LABEL_SP, "
-                + "	cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, d.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, d.LAST_MODIFIED_DATE, d.ACTIVE  "
-                + "FROM ap_dimension d  "
-                + "LEFT JOIN ap_label dl ON d.LABEL_ID=dl.LABEL_ID "
-                + "LEFT JOIN us_user cb ON d.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON d.LAST_MODIFIED_BY=lmb.USER_ID "
-                + " WHERE d.LAST_MODIFIED_DATE>=:lastSyncDate";
-        Map<String, Object> params = new HashMap<>();
-        params.put("lastSyncDate", lastSyncDate);
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new DimensionRowMapper());
-    }
+    private final String sqlListString = "SELECT d.DIMENSION_ID,  "
+            + "	dl.LABEL_ID, dl.LABEL_EN, dl.LABEL_FR, dl.LABEL_PR, dl.LABEL_SP, "
+            + "	cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, d.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, d.LAST_MODIFIED_DATE, d.ACTIVE  "
+            + " FROM ap_dimension d  "
+            + " LEFT JOIN ap_label dl ON d.LABEL_ID=dl.LABEL_ID "
+            + " LEFT JOIN us_user cb ON d.CREATED_BY=cb.USER_ID "
+            + " LEFT JOIN us_user lmb ON d.LAST_MODIFIED_BY=lmb.USER_ID "
+            + " WHERE TRUE ";
 
     @Override
     public int addDimension(Dimension dimension, CustomUserDetails curUser) {
@@ -69,33 +63,6 @@ public class DimensionDaoImpl implements DimensionDao {
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("ACTIVE", 1);
         return si.executeAndReturnKey(params).intValue();
-    }
-
-    @Override
-    public List<Dimension> getDimensionList() {
-        String sqlString = "SELECT d.DIMENSION_ID,  "
-                + "	dl.LABEL_ID, dl.LABEL_EN, dl.LABEL_FR, dl.LABEL_PR, dl.LABEL_SP, "
-                + "	cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, d.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, d.LAST_MODIFIED_DATE, d.ACTIVE  "
-                + "FROM ap_dimension d  "
-                + "LEFT JOIN ap_label dl ON d.LABEL_ID=dl.LABEL_ID "
-                + "LEFT JOIN us_user cb ON d.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON d.LAST_MODIFIED_BY=lmb.USER_ID ";
-        return this.namedParameterJdbcTemplate.query(sqlString, new DimensionRowMapper());
-    }
-
-    @Override
-    public Dimension getDimensionById(int dimensionId) {
-        String sqlString = "SELECT d.DIMENSION_ID,  "
-                + "	dl.LABEL_ID, dl.LABEL_EN, dl.LABEL_FR, dl.LABEL_PR, dl.LABEL_SP, "
-                + "	cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, d.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, d.LAST_MODIFIED_DATE, d.ACTIVE  "
-                + "FROM ap_dimension d  "
-                + "LEFT JOIN ap_label dl ON d.LABEL_ID=dl.LABEL_ID "
-                + "LEFT JOIN us_user cb ON d.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON d.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE d.DIMENSION_ID=:dimensionId";
-        Map<String, Object> params = new HashMap<>();
-        params.put("dimensionId", dimensionId);
-        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DimensionRowMapper());
     }
 
     @Override
@@ -119,4 +86,30 @@ public class DimensionDaoImpl implements DimensionDao {
         return this.namedParameterJdbcTemplate.update(sqlString, params);
     }
 
+    @Override
+    public List<Dimension> getDimensionList(boolean active) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        Map<String, Object> params = new HashMap<>();
+        if(active) {
+            sqlStringBuilder.append(" AND d.ACTIVE");
+            params.put("active", active);
+        }
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new DimensionRowMapper());
+    }
+
+    @Override
+    public Dimension getDimensionById(int dimensionId) {
+        String sqlString = this.sqlListString + " AND d.DIMENSION_ID=:dimensionId ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("dimensionId", dimensionId);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new DimensionRowMapper());
+    }
+
+    @Override
+    public List<Dimension> getDimensionListForSync(String lastSyncDate) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append("AND d.LAST_MODIFIED_DATE>=:lastSyncDate ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new DimensionRowMapper());
+    }
 }

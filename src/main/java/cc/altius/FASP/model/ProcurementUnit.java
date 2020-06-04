@@ -16,19 +16,19 @@ public class ProcurementUnit extends BaseModel implements Serializable {
     private int procurementUnitId;
     private PlanningUnit planningUnit;
     private Label label;
-    private Unit unit;
+    private SimpleObject unit;
     private Double multiplier;
-    private Supplier supplier;
+    private SimpleObject supplier;
     private Double widthQty;
-    private Unit widthUnit;
+    private SimpleObject widthUnit;
     private Double heightQty;
-    private Unit heightUnit;
+    private SimpleObject heightUnit;
     private Double lengthQty;
-    private Unit lengthUnit;
+    private SimpleObject lengthUnit;
     private Double weightQty;
-    private Unit weightUnit;
+    private SimpleObject weightUnit;
     private Double unitsPerContainer;
-    private String labelling;
+    private String labeling;
 
     public ProcurementUnit() {
     }
@@ -38,7 +38,7 @@ public class ProcurementUnit extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public ProcurementUnit(int procurementUnitId, PlanningUnit planningUnit, Label label, Unit unit, double multiplier) {
+    public ProcurementUnit(int procurementUnitId, PlanningUnit planningUnit, Label label, SimpleObject unit, double multiplier) {
         this.procurementUnitId = procurementUnitId;
         this.planningUnit = planningUnit;
         this.label = label;
@@ -62,20 +62,60 @@ public class ProcurementUnit extends BaseModel implements Serializable {
         this.planningUnit = planningUnit;
     }
 
+    public SimpleObject getUnit() {
+        return unit;
+    }
+
+    public void setUnit(SimpleObject unit) {
+        this.unit = unit;
+    }
+
+    public SimpleObject getSupplier() {
+        return supplier;
+    }
+
+    public void setSupplier(SimpleObject supplier) {
+        this.supplier = supplier;
+    }
+
+    public SimpleObject getWidthUnit() {
+        return widthUnit;
+    }
+
+    public void setWidthUnit(SimpleObject widthUnit) {
+        this.widthUnit = widthUnit;
+    }
+
+    public SimpleObject getHeightUnit() {
+        return heightUnit;
+    }
+
+    public void setHeightUnit(SimpleObject heightUnit) {
+        this.heightUnit = heightUnit;
+    }
+
+    public SimpleObject getLengthUnit() {
+        return lengthUnit;
+    }
+
+    public void setLengthUnit(SimpleObject lengthUnit) {
+        this.lengthUnit = lengthUnit;
+    }
+
+    public SimpleObject getWeightUnit() {
+        return weightUnit;
+    }
+
+    public void setWeightUnit(SimpleObject weightUnit) {
+        this.weightUnit = weightUnit;
+    }
+
     public Label getLabel() {
         return label;
     }
 
     public void setLabel(Label label) {
         this.label = label;
-    }
-
-    public Unit getUnit() {
-        return unit;
-    }
-
-    public void setUnit(Unit unit) {
-        this.unit = unit;
     }
 
     public Double getMultiplier() {
@@ -86,28 +126,12 @@ public class ProcurementUnit extends BaseModel implements Serializable {
         this.multiplier = multiplier;
     }
 
-    public Supplier getSupplier() {
-        return supplier;
-    }
-
-    public void setSupplier(Supplier supplier) {
-        this.supplier = supplier;
-    }
-
     public Double getWidthQty() {
         return widthQty;
     }
 
     public void setWidthQty(Double widthQty) {
         this.widthQty = widthQty;
-    }
-
-    public Unit getWidthUnit() {
-        return widthUnit;
-    }
-
-    public void setWidthUnit(Unit widthUnit) {
-        this.widthUnit = widthUnit;
     }
 
     public Double getHeightQty() {
@@ -118,28 +142,12 @@ public class ProcurementUnit extends BaseModel implements Serializable {
         this.heightQty = heightQty;
     }
 
-    public Unit getHeightUnit() {
-        return heightUnit;
-    }
-
-    public void setHeightUnit(Unit heightUnit) {
-        this.heightUnit = heightUnit;
-    }
-
     public Double getLengthQty() {
         return lengthQty;
     }
 
     public void setLengthQty(Double lengthQty) {
         this.lengthQty = lengthQty;
-    }
-
-    public Unit getLengthUnit() {
-        return lengthUnit;
-    }
-
-    public void setLengthUnit(Unit lengthUnit) {
-        this.lengthUnit = lengthUnit;
     }
 
     public Double getWeightQty() {
@@ -150,14 +158,6 @@ public class ProcurementUnit extends BaseModel implements Serializable {
         this.weightQty = weightQty;
     }
 
-    public Unit getWeightUnit() {
-        return weightUnit;
-    }
-
-    public void setWeightUnit(Unit weightUnit) {
-        this.weightUnit = weightUnit;
-    }
-
     public Double getUnitsPerContainer() {
         return unitsPerContainer;
     }
@@ -166,12 +166,12 @@ public class ProcurementUnit extends BaseModel implements Serializable {
         this.unitsPerContainer = unitsPerContainer;
     }
 
-    public String getLabelling() {
-        return labelling;
+    public String getLabeling() {
+        return labeling;
     }
 
-    public void setLabelling(String labelling) {
-        this.labelling = labelling;
+    public void setLabeling(String labeling) {
+        this.labeling = labeling;
     }
 
     @Override

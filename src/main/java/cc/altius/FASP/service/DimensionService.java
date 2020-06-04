@@ -19,7 +19,7 @@ public interface DimensionService {
 
     public int updateDimension(Dimension d, CustomUserDetails curUser);
 
-    public List<Dimension> getDimensionList();
+    public List<Dimension> getDimensionList(boolean active);
 
     public Dimension getDimensionById(int dimensionId);
 

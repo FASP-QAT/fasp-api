@@ -6,6 +6,7 @@
 package cc.altius.FASP;
 
 import org.apache.catalina.connector.Connector;
+import org.apache.coyote.ajp.AbstractAjpProtocol;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.server.WebServerFactoryCustomizer;
@@ -27,6 +28,8 @@ public class TomcatConfiguration implements WebServerFactoryCustomizer<TomcatSer
     public void customize(TomcatServletWebServerFactory factory) {
         Connector ajpConnector = new Connector(PROTOCOL);
         ajpConnector.setPort(ajpPort);
+        ajpConnector.setSecure(false);
+        ((AbstractAjpProtocol) ajpConnector.getProtocolHandler()).setSecretRequired(false);
         factory.addAdditionalTomcatConnectors(ajpConnector);
     }
 }

@@ -5,14 +5,14 @@
  */
 package cc.altius.FASP.service;
 
-import cc.altius.FASP.model.DTO.PrgBudgetDTO;
-import cc.altius.FASP.model.DTO.PrgConsumptionDTO;
-import cc.altius.FASP.model.DTO.PrgInventoryDTO;
-import cc.altius.FASP.model.DTO.PrgProgramDataDTO;
-import cc.altius.FASP.model.DTO.PrgProgramProductDTO;
-import cc.altius.FASP.model.DTO.PrgRegionDTO;
-import cc.altius.FASP.model.DTO.PrgShipmentDTO;
+import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.model.ProgramVersion;
+import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Version;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -20,18 +20,17 @@ import java.util.List;
  */
 public interface ProgramDataService {
 
-    public List<PrgProgramDataDTO> getProgramData(String programId);
+    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser);
 
-    public List<PrgProgramProductDTO> getProgramProductListByProgramId(int programId);
+    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
-    public List<PrgInventoryDTO> getInventoryListByProductId(int productId);
+    public List<SimpleObject> getVersionTypeList();
 
-    public List<PrgConsumptionDTO> getConsumptionListByProductId(int productId);
-
-    public List<PrgShipmentDTO> getShipmentListByProductId(int productId);
-
-    public List<PrgRegionDTO> getRegionListByProgramId(int programId);
-
-    public List<PrgBudgetDTO> getBudgetListByProgramId(int programId);
-
+    public List<SimpleObject> getVersionStatusList();
+    
+    public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser);
+    
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, CustomUserDetails curUser);
+    
+    public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId);
 }

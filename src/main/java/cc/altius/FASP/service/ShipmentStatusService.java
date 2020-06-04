@@ -5,8 +5,7 @@
  */
 package cc.altius.FASP.service;
 
-import cc.altius.FASP.model.DTO.PrgShipmentStatusAllowedDTO;
-import cc.altius.FASP.model.DTO.PrgShipmentStatusDTO;
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ShipmentStatus;
 import java.util.List;
 
@@ -22,7 +21,7 @@ public interface ShipmentStatusService {
 
     public int editShipmentStatus(ShipmentStatus shipmentStatus);
     
-    public List<PrgShipmentStatusDTO> getShipmentStatusListForSync(String lastSyncDate);
-    
-    public List<PrgShipmentStatusAllowedDTO> getShipmentStatusAllowedListForSync(String lastSyncDate);
+    public List<ShipmentStatus> getShipmentStatusListForSync(String lastSyncDate, CustomUserDetails curUser);
+//    
+//    public List<PrgShipmentStatusAllowedDTO> getShipmentStatusAllowedListForSync(String lastSyncDate);
 }

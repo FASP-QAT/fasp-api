@@ -14,10 +14,11 @@ import java.io.Serializable;
 public class ProcurementAgent extends BaseModel implements Serializable {
 
     private int procurementAgentId;
-    private Realm realm;
+    private SimpleCodeObject realm;
     private Label label;
     private String procurementAgentCode;
-    private int submittedToApprovedLeadTime;
+    private double submittedToApprovedLeadTime;
+    private boolean localProcurementAgent;
 
     public ProcurementAgent() {
     }
@@ -28,12 +29,13 @@ public class ProcurementAgent extends BaseModel implements Serializable {
         this.procurementAgentCode = procurementAgentCode;
     }
 
-    public ProcurementAgent(int procurementAgentId, Realm realm, Label label, String procurementAgentCode, int submittedToApprovedLeadTime) {
+    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, Label label, String procurementAgentCode, double submittedToApprovedLeadTime, boolean localProcurementAgent) {
         this.procurementAgentId = procurementAgentId;
         this.realm = realm;
         this.label = label;
         this.procurementAgentCode = procurementAgentCode;
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
+        this.localProcurementAgent = localProcurementAgent;
     }
 
     public int getProcurementAgentId() {
@@ -44,11 +46,11 @@ public class ProcurementAgent extends BaseModel implements Serializable {
         this.procurementAgentId = procurementAgentId;
     }
 
-    public Realm getRealm() {
+    public SimpleCodeObject getRealm() {
         return realm;
     }
 
-    public void setRealm(Realm realm) {
+    public void setRealm(SimpleCodeObject realm) {
         this.realm = realm;
     }
 
@@ -68,12 +70,20 @@ public class ProcurementAgent extends BaseModel implements Serializable {
         this.procurementAgentCode = procurementAgentCode;
     }
 
-    public int getSubmittedToApprovedLeadTime() {
+    public double getSubmittedToApprovedLeadTime() {
         return submittedToApprovedLeadTime;
     }
 
-    public void setSubmittedToApprovedLeadTime(int submittedToApprovedLeadTime) {
+    public void setSubmittedToApprovedLeadTime(double submittedToApprovedLeadTime) {
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
+    }
+
+    public boolean isLocalProcurementAgent() {
+        return localProcurementAgent;
+    }
+
+    public void setLocalProcurementAgent(boolean localProcurementAgent) {
+        this.localProcurementAgent = localProcurementAgent;
     }
 
     @Override

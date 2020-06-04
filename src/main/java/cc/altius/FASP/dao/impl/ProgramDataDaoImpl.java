@@ -6,25 +6,40 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.ProgramDataDao;
-import cc.altius.FASP.model.DTO.PrgBudgetDTO;
-import cc.altius.FASP.model.DTO.PrgConsumptionDTO;
-import cc.altius.FASP.model.DTO.PrgInventoryDTO;
-import cc.altius.FASP.model.DTO.PrgProgramDataDTO;
-import cc.altius.FASP.model.DTO.PrgProgramProductDTO;
-import cc.altius.FASP.model.DTO.PrgRegionDTO;
-import cc.altius.FASP.model.DTO.PrgShipmentDTO;
-import cc.altius.FASP.model.DTO.rowMapper.PrgBudgetDTORowMapper;
-import cc.altius.FASP.model.DTO.rowMapper.PrgConsumptionDTORowMapper;
-import cc.altius.FASP.model.DTO.rowMapper.PrgInventoryDTORowMapper;
-import cc.altius.FASP.model.DTO.rowMapper.PrgProgramDataDTORowMapper;
-import cc.altius.FASP.model.DTO.rowMapper.PrgProgramProductDTORowMapper;
-import cc.altius.FASP.model.DTO.rowMapper.PrgRegionDTORowMapper;
-import cc.altius.FASP.model.DTO.rowMapper.PrgShipmentDTORowMapper;
+import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.model.Consumption;
+import cc.altius.FASP.model.ConsumptionBatchInfo;
+import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.Inventory;
+import cc.altius.FASP.model.InventoryBatchInfo;
+import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.model.ProgramVersion;
+import cc.altius.FASP.model.Shipment;
+import cc.altius.FASP.model.ShipmentBatchInfo;
+import cc.altius.FASP.model.ShipmentBudget;
+import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.rowMapper.ConsumptionListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ProgramVersionRowMapper;
+import cc.altius.FASP.model.rowMapper.VersionRowMapper;
+import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
+import cc.altius.FASP.service.AclService;
+import cc.altius.utils.DateUtils;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -33,514 +48,808 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class ProgramDataDaoImpl implements ProgramDataDao {
 
-    private JdbcTemplate jdbcTemplate;
     private DataSource dataSource;
+    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    @Autowired
+    private AclService aclService;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
+        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Override
-    public List<PrgProgramDataDTO> getProgramData(String programId) {
-        String sql = "SELECT \n"
-                + "p.`PROGRAM_ID`,1 AS `PROGRAM_VERSION`,p.`AIR_FREIGHT_PERC`,p.`APPROVED_TO_SHIPPED_LEAD_TIME`,p.`DELIVERED_TO_RECEIVED_LEAD_TIME`,\n"
-                + "p.`DRAFT_TO_SUBMITTED_LEAD_TIME`,p.`HEALTH_AREA_ID`,ha_label.`LABEL_EN` AS HEALTH_AREA_LABEL_EN,\n"
-                + "ha_label.`LABEL_FR` AS HEALTH_AREA_LABEL_FR,ha_label.`LABEL_PR` AS HEALTH_AREA_LABEL_PR,\n"
-                + "ha_label.`LABEL_SP` AS HEALTH_AREA_LABEL_SP,p_label.`LABEL_EN` AS PROGRAM_LABEL_EN,\n"
-                + "p_label.`LABEL_PR` AS PROGRAM_LABEL_PR,p_label.`LABEL_FR` AS PROGRAM_LABEL_FR\n"
-                + ",p_label.`LABEL_SP` AS PROGRAM_LABEL_SP,p.`LAST_MODIFIED_BY`,lmb_user.`USERNAME` AS LAST_MODIFIED_BY_USERNAME,\n"
-                + "p.`LAST_MODIFIED_DATE`,p.`MONTHS_IN_FUTURE_FOR_AMC`,p.`MONTHS_IN_PAST_FOR_AMC`,\n"
-                + "p.`ORGANISATION_ID`,ro_label.`LABEL_EN` AS ORGANISATION_LABEL_EN,ro_label.`LABEL_PR` AS ORGANISATION_LABEL_PR,\n"
-                + "ro_label.`LABEL_FR` AS ORGANISATION_LABEL_FR,ro_label.`LABEL_SP` AS ORGANISATION_LABEL_SP,\n"
-                + "p.`PLANNED_TO_DRAFT_LEAD_TIME` AS `PLAN_TO_DRAFT_LEAD_TIME`,p.`PROGRAM_MANAGER_USER_ID`\n"
-                + ",prg_manager.`USERNAME` AS `PROGRAM_MANAGER_USERNAME`,p.`PROGRAM_NOTES`,p.`REALM_COUNTRY_ID`,\n"
-                + "rrc.`AIR_FREIGHT_PERC` AS REALM_COUNTRY_AIR_FREIGHT_PERC,rrc.`ARRIVED_TO_DELIVERED_LEAD_TIME`,rrc.`COUNTRY_ID`,\n"
-                + "a_currency.`CONVERSION_RATE_TO_USD`,a_currency.`CURRENCY_CODE`,ac.`CURRENCY_ID`,a_currency.`CURRENCY_SYMBOL`\n"
-                + ",a_currency_label.`LABEL_EN` CURRENCY_LABEL_EN,a_currency_label.`LABEL_FR` CURRENCY_LABEL_FR,\n"
-                + "a_currency_label.`LABEL_PR` CURRENCY_LABEL_PR,a_currency_label.`LABEL_SP` CURRENCY_LABEL_SP,\n"
-                + "ac_label.`LABEL_EN` AS COUNTRY_LABEL_EN,ac_label.`LABEL_PR` AS COUNTRY_LABEL_PR\n"
-                + ",ac_label.`LABEL_FR` AS COUNTRY_LABEL_FR,ac_label.`LABEL_SP` AS COUNTRY_LABEL_SP,\n"
-                + "ac.`LANGUAGE_ID`,al.`LANGUAGE_NAME`,rrc.`DEFAULT_CURRENCY_ID`,\n"
-                + "default_curreny.`CONVERSION_RATE_TO_USD` AS `DEFAULT_CONVERSION_RATE_TO_USD`,\n"
-                + "default_curreny.`CURRENCY_CODE` AS DEFAULT_CURRENCY_CODE,\n"
-                + "default_curreny.`CURRENCY_SYMBOL` AS DEFAULT_CURRENCY_SYMBOL\n"
-                + ",dc_label.`LABEL_EN` AS DEFAULT_CURRENCY_LABEL_EN,dc_label.`LABEL_FR` AS DEFAULT_CURRENCY_LABEL_FR\n"
-                + ",dc_label.`LABEL_PR` AS DEFAULT_CURRENCY_LABEL_PR,dc_label.`LABEL_SP` AS DEFAULT_CURRENCY_LABEL_SP,\n"
-                + "rrc.`PALLET_UNIT_ID`,pu_label.`LABEL_EN` AS PALLET_UNIT_LABEL_EN,pu_label.`LABEL_FR` AS PALLET_UNIT_LABEL_FR,\n"
-                + "pu_label.`LABEL_PR` AS PALLET_UNIT_LABEL_PR,pu_label.`LABEL_SP` AS PALLET_UNIT_LABEL_SP,\n"
-                + "pallet_unit.`UNIT_CODE` AS PALLET_UNIT_CODE,pallet_unit.`UNIT_TYPE_ID` AS PALLET_UNIT_TYPE_ID,\n"
-                + "put_label.`LABEL_EN` AS PALLET_UNIT_TYPE_LABEL_EN,put_label.`LABEL_FR` AS PALLET_UNIT_TYPE_LABEL_FR,\n"
-                + "put_label.`LABEL_PR` AS PALLET_UNIT_TYPE_LABEL_PR,put_label.`LABEL_SP` AS PALLET_UNIT_TYPE_LABEL_SP,\n"
-                + "rrc.`REALM_ID`,rr.`DEFAULT_REALM` AS DEFAULT_REALM,rr_label.`LABEL_EN` AS REALM_LABEL_EN\n"
-                + ",rr_label.`LABEL_FR` AS REALM_LABEL_FR,rr_label.`LABEL_PR` AS REALM_LABEL_PR\n"
-                + ",rr_label.`LABEL_SP` AS REALM_LABEL_SP,rr.`MONTHS_IN_FUTURE_FOR_AMC` AS MONTHS_IN_FUTURE_FOR_AMC_REALM\n"
-                + ",rr.`MONTHS_IN_PAST_FOR_AMC` AS MONTHS_IN_PAST_FOR_AMC_REALM,rr.`ORDER_FREQUENCY`,rr.`REALM_CODE`,\n"
-                + "rrc.`SEA_FREIGHT_PERC` AS REALM_COUNTRY_SEA_FREIGHT_PREC,rrc.`SHIPPED_TO_ARRIVED_AIR_LEAD_TIME`,\n"
-                + "rrc.`SHIPPED_TO_ARRIVED_SEA_LEAD_TIME`,p.`SEA_FREIGHT_PERC`,p.`SUBMITTED_TO_APPROVED_LEAD_TIME`\n"
-                + "FROM rm_program p\n"
-                + "LEFT JOIN rm_health_area ha ON ha.`HEALTH_AREA_ID`=p.`HEALTH_AREA_ID`\n"
-                + "LEFT JOIN ap_label ha_label ON ha_label.`LABEL_ID`=ha.`LABEL_ID`\n"
-                + "LEFT JOIN ap_label p_label ON p_label.`LABEL_ID`=p.`LABEL_ID`\n"
-                + "LEFT JOIN us_user lmb_user ON lmb_user.`USER_ID`=p.`LAST_MODIFIED_BY`\n"
-                + "LEFT JOIN rm_organisation ro ON ro.`ORGANISATION_ID`=p.`ORGANISATION_ID`\n"
-                + "LEFT JOIN ap_label ro_label ON ro_label.`LABEL_ID`=ro.`LABEL_ID`\n"
-                + "LEFT JOIN us_user prg_manager ON prg_manager.`USER_ID`=p.`PROGRAM_MANAGER_USER_ID`\n"
-                + "LEFT JOIN rm_realm_country rrc ON rrc.`REALM_COUNTRY_ID`=p.`REALM_COUNTRY_ID`\n"
-                + "LEFT JOIN ap_country ac ON ac.`COUNTRY_ID`=rrc.`COUNTRY_ID`\n"
-                + "LEFT JOIN ap_currency a_currency ON a_currency.`CURRENCY_ID`=ac.`CURRENCY_ID`\n"
-                + "LEFT JOIN ap_label a_currency_label ON a_currency_label.`LABEL_ID`=a_currency.`LABEL_ID`\n"
-                + "LEFT JOIN ap_label ac_label ON ac_label.`LABEL_ID`=ac.`LABEL_ID`\n"
-                + "LEFT JOIN ap_language al ON al.`LANGUAGE_ID`=ac.`LANGUAGE_ID`\n"
-                + "LEFT JOIN ap_currency default_curreny ON default_curreny.`CURRENCY_ID`=rrc.`DEFAULT_CURRENCY_ID`\n"
-                + "LEFT JOIN ap_label dc_label ON dc_label.`LABEL_ID`=default_curreny.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit pallet_unit ON pallet_unit.`UNIT_ID`=rrc.`PALLET_UNIT_ID`\n"
-                + "LEFT JOIN ap_label pu_label ON pu_label.`LABEL_ID`=pallet_unit.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type pu_type ON pu_type.`UNIT_TYPE_ID`=pallet_unit.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label put_label ON put_label.`LABEL_ID`=pu_type.`LABEL_ID`\n"
-                + "LEFT JOIN rm_realm rr ON rr.`REALM_ID`=rrc.`REALM_ID`\n"
-                + "LEFT JOIN ap_label rr_label ON rr_label.`LABEL_ID`=rr.`LABEL_ID` WHERE p.PROGRAM_ID IN (" + programId + ");";
-        return this.jdbcTemplate.query(sql, new PrgProgramDataDTORowMapper());
-
-//                + "LEFT JOIN ap_label rr_label ON rr_label.`LABEL_ID`=rr.`LABEL_ID` WHERE p.PROGRAM_ID IN (" + programId + ");";
-//        return this.jdbcTemplate.queryForObject(sql, new PrgProgramDataDTORowMapper());
+    public Version getVersionInfo(int programId, int versionId) {
+        String sqlString = "SELECT pv.VERSION_ID, "
+                + "    pv.PROGRAM_ID, pv.NOTES, pv.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pv.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`,  "
+                + "    vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
+                + "    vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR` "
+                + "FROM rm_program_version pv  "
+                + "LEFT JOIN ap_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
+                + "LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID "
+                + "LEFT JOIN ap_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
+                + "LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON pv.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
     }
 
     @Override
-    public List<PrgProgramProductDTO> getProgramProductListByProgramId(int programId) {
-        String sql = "SELECT rpp.`MAX_MONTHS`,rpp.`MIN_MONTHS`,rpp.`PROGRAM_PRODUCT_ID`,rpp.`PRODUCT_ID`,au_label.`LABEL_EN` AS FORECAST_UNIT_LABEL_EN\n"
-                + ",au_label.`LABEL_FR` AS FORECAST_UNIT_LABEL_FR,au_label.`LABEL_PR` AS FORECAST_UNIT_LABEL_PR,au_label.`LABEL_SP` AS FORECAST_UNIT_LABEL_SP,\n"
-                + "au.`UNIT_CODE` AS FORECAST_UNIT_CODE,rp.`FORECASTING_UNIT_ID` AS `FORECAST_UNIT_ID`,aut_label.`LABEL_EN` AS FORECAST_UNIT_TYPE_LABEL_EN\n"
-                + ",aut_label.`LABEL_FR` AS FORECAST_UNIT_TYPE_LABEL_FR,aut_label.`LABEL_PR` AS FORECAST_UNIT_TYPE_LABEL_PR\n"
-                + ",aut_label.`LABEL_SP` AS FORECAST_UNIT_TYPE_LABEL_SP,au.`UNIT_TYPE_ID` AS FORECAST_UNIT_TYPE_ID\n"
-                + ",gl.`LABEL_EN` AS GENERIC_LABEL_EN,gl.`LABEL_FR` AS GENERIC_LABEL_FR,gl.`LABEL_PR` AS GENERIC_LABEL_PR,gl.`LABEL_SP` AS GENERIC_LABEL_SP\n"
-                + ",rp_label.`LABEL_EN` AS PRODUCT_LABEL_EN,rp_label.`LABEL_FR` AS PRODUCT_LABEL_FR,rp_label.`LABEL_PR` AS PRODUCT_LABEL_PR\n"
-                + ",rp_label.`LABEL_SP` AS PRODUCT_LABEL_SP,rpp.`PRODUCT_ID`,rp.`PRODUCT_CATEGORY_ID`\n"
-                + ",rpc_label.`LABEL_EN` AS `PRODUCT_CATEGORY_LABEL_EN`,rpc_label.`LABEL_FR` AS `PRODUCT_CATEGORY_LABEL_FR`\n"
-                + ",rpc_label.`LABEL_PR` AS `PRODUCT_CATEGORY_LABEL_PR`,rpc_label.`LABEL_SP` AS `PRODUCT_CATEGORY_LABEL_SP`\n"
-                + "FROM rm_program_product rpp\n"
-                + "LEFT JOIN rm_product rp ON rp.`PRODUCT_ID`=rpp.`PRODUCT_ID`\n"
-                + "LEFT JOIN ap_unit au ON au.`UNIT_ID`=rp.`FORECASTING_UNIT_ID`\n"
-                + "LEFT JOIN ap_label au_label ON au_label.`LABEL_ID`=au.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type aut ON aut.`UNIT_TYPE_ID`=au.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label aut_label ON aut_label.`LABEL_ID`=aut.`LABEL_ID`\n"
-                + "LEFT JOIN ap_label gl ON gl.`LABEL_ID`=rp.`GENERIC_LABEL_ID`\n"
-                + "LEFT JOIN ap_label rp_label ON rp_label.`LABEL_ID`=rp.`LABEL_ID`\n"
-                + "LEFT JOIN rm_product_category rpc ON rpc.`PRODUCT_CATEGORY_ID`=rp.`PRODUCT_CATEGORY_ID`\n"
-                + "LEFT JOIN ap_label rpc_label ON rpc_label.`LABEL_ID`=rpc.`LABEL_ID`\n"
-                + "WHERE rpp.`PROGRAM_ID`=?;";
-        return this.jdbcTemplate.query(sql, new PrgProgramProductDTORowMapper(), programId);
+    public List<Consumption> getConsumptionList(int programId, int versionId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        return this.namedParameterJdbcTemplate.query("CALL getConsumptionData(:programId, :versionId)", params, new ConsumptionListResultSetExtractor());
     }
 
     @Override
-    public List<PrgInventoryDTO> getInventoryListByProductId(int productId) {
-        String sql = "SELECT \n"
-                + "i.`INVENTORY_ID`,i.`ACTUAL_QTY`\n"
-                + ",i.`ADJUSTMENT_QTY`,i.`BATCH_NO`,i.`DATA_SOURCE_ID`,\n"
-                + "adst_label.`LABEL_EN` AS DATA_SOURCE_TYPE_LABEL_EN\n"
-                + ",adst_label.`LABEL_FR` AS DATA_SOURCE_TYPE_LABEL_FR,adst_label.`LABEL_PR` AS DATA_SOURCE_TYPE_LABEL_PR\n"
-                + ",adst_label.`LABEL_SP` AS DATA_SOURCE_TYPE_LABEL_SP,adst.`DATA_SOURCE_TYPE_ID`,ads_label.`LABEL_EN` AS DATA_SOURCE_LABEL_EN,\n"
-                + "ads_label.`LABEL_FR` AS DATA_SOURCE_LABEL_FR,ads_label.`LABEL_PR` AS DATA_SOURCE_LABEL_PR\n"
-                + ",ads_label.`LABEL_SP` AS DATA_SOURCE_LABEL_SP,i.`EXPIRY_DATE`,ilu.`HEIGHT_QTY` AS HEIGHT_QTY,\n"
-                + "ilu.`HEIGHT_UNIT_ID`,ihu.`UNIT_ID` AS HEIGHT_UNIT_ID,ihu_label.`LABEL_EN` AS HEIGHT_UNIT_LABEL_EN\n"
-                + ",ihu_label.`LABEL_FR` AS HEIGHT_UNIT_LABEL_FR,ihu_label.`LABEL_PR` AS HEIGHT_UNIT_LABEL_PR\n"
-                + ",ihu_label.`LABEL_SP` AS HEIGHT_UNIT_LABEL_SP,ihu.`UNIT_CODE` AS HEIGHT_UNIT_CODE\n"
-                + ",iaut_label.`LABEL_EN` AS HEIGHT_UNIT_TYPE_LABEL_EN,iaut_label.`LABEL_FR` AS HEIGHT_UNIT_TYPE_LABEL_FR\n"
-                + ",iaut_label.`LABEL_PR` AS HEIGHT_UNIT_TYPE_LABEL_PR,iaut_label.`LABEL_SP` AS HEIGHT_UNIT_TYPE_LABEL_SP,\n"
-                + "iaut.`UNIT_TYPE_ID` AS HEIGHT_UNIT_TYPE_ID,ilul.`LABEL_EN` AS LOGISTICS_UNIT_LABEL_EN\n"
-                + ",ilul.`LABEL_FR` AS LOGISTICS_UNIT_LABEL_FR,ilul.`LABEL_PR` AS LOGISTICS_UNIT_LABEL_PR\n"
-                + ",ilul.`LABEL_SP` AS LOGISTICS_UNIT_LABEL_SP,\n"
-                + "ilu.`LENGTH_QTY` AS LENGTH_QTY\n"
-                + ",i_length_unit_label.`LABEL_EN` AS LENGTH_UNIT_LABEL_EN,i_length_unit_label.`LABEL_FR` AS LENGTH_UNIT_LABEL_FR\n"
-                + ",i_length_unit_label.`LABEL_PR` AS LENGTH_UNIT_LABEL_PR,i_length_unit_label.`LABEL_SP` AS LENGTH_UNIT_LABEL_SP,\n"
-                + "i_length_unit.`UNIT_CODE` AS LENGTH_UNIT_CODE,i_length_unit.`UNIT_ID` AS LENGTH_UNIT_ID\n"
-                + ",ilaut_label.`LABEL_EN` AS LENGTH_UNIT_TYPE_LABEL_EN,ilaut_label.`LABEL_FR` AS LENGTH_UNIT_TYPE_LABEL_FR\n"
-                + ",ilaut_label.`LABEL_PR` AS LENGTH_UNIT_TYPE_LABEL_PR,ilaut_label.`LABEL_SP` AS LENGTH_UNIT_TYPE_LABEL_SP\n"
-                + ",ilaut.`UNIT_TYPE_ID` AS LENGTH_UNIT_TYPE_ID,ilu.`LOGISTICS_UNIT_ID` AS LOGISTICS_UNIT_ID\n"
-                + ",rmm.`LABEL_EN` AS MANUFACTURER_LABEL_EN,rmm.`LABEL_FR` AS MANUFACTURER_LABEL_FR\n"
-                + ",rmm.`LABEL_PR` AS MANUFACTURER_LABEL_PR,rmm.`LABEL_SP` AS MANUFACTURER_LABEL_SP,\n"
-                + "ilu.`MANUFACTURER_ID` AS `MANUFACTURER_ID`,irpu_label.`LABEL_EN` AS PLANNING_UNIT_LABEL_EN\n"
-                + ",irpu_label.`LABEL_FR` AS PLANNING_UNIT_LABEL_FR,irpu_label.`LABEL_PR` AS PLANNING_UNIT_LABEL_PR\n"
-                + ",irpu_label.`LABEL_SP` AS PLANNING_UNIT_LABEL_SP,irpu.`PLANNING_UNIT_ID` AS `PLANNING_UNIT_ID`,\n"
-                + "irpu.`PRICE` AS PRICE,irpu.`QTY_OF_FORECASTING_UNITS` AS `QTY_OF_FORECASTING_UNITS`,\n"
-                + "au_pu_label.`LABEL_EN` AS PLANNING_UNIT_UNIT_LABEL_EN,au_pu_label.`LABEL_FR` AS PLANNING_UNIT_UNIT_LABEL_FR,\n"
-                + "au_pu_label.`LABEL_PR` AS PLANNING_UNIT_UNIT_LABEL_PR,au_pu_label.`LABEL_SP` AS PLANNING_UNIT_UNIT_LABEL_SP,\n"
-                + "au_pu.`UNIT_CODE` AS `PLANNING_UNIT_UNIT_CODE`,au_pu.`UNIT_ID` AS `PLANNING_UNIT_UNIT_ID`,\n"
-                + "pu_ut_label.`LABEL_EN` AS PLANNING_UNIT_UNIT_TYPE_LABEL_EN,pu_ut_label.`LABEL_FR` AS PLANNING_UNIT_UNIT_TYPE_LABEL_FR, \n"
-                + "pu_ut_label.`LABEL_PR` AS PLANNING_UNIT_UNIT_TYPE_LABEL_PR,pu_ut_label.`LABEL_SP` AS PLANNING_UNIT_UNIT_TYPE_LABEL_SP,\n"
-                + "pu_ut.`UNIT_TYPE_ID` AS PLANNING_UNIT_UNIT_TYPE_ID,ilu.`QTY_IN_EURO1`,ilu.`QTY_IN_EURO2`,ilu.`QTY_OF_PLANNING_UNITS`\n"
-                + ",lu_unit_label.`LABEL_EN` AS LOGISTICS_UNIT_UNIT_LABEL_EN,lu_unit_label.`LABEL_FR` AS LOGISTICS_UNIT_UNIT_LABEL_FR\n"
-                + ",lu_unit_label.`LABEL_PR` AS LOGISTICS_UNIT_UNIT_LABEL_PR,lu_unit_label.`LABEL_SP` AS LOGISTICS_UNIT_UNIT_LABEL_SP,\n"
-                + "lu_unit.`UNIT_CODE` AS LOGISTICS_UNIT_UNIT_CODE,lu_unit.`UNIT_ID` AS LOGISTICS_UNIT_UNIT_ID,\n"
-                + "lu_ut_label.`LABEL_EN` AS LOGISTICS_UNIT_UNIT_TYPE_LABEL_EN,lu_ut_label.`LABEL_FR` AS LOGISTICS_UNIT_UNIT_TYPE_LABEL_FR,\n"
-                + "lu_ut_label.`LABEL_PR` AS LOGISTICS_UNIT_UNIT_TYPE_LABEL_PR,lu_ut_label.`LABEL_SP` AS LOGISTICS_UNIT_UNIT_TYPE_LABEL_SP,\n"
-                + "lu_ut.`UNIT_TYPE_ID` AS LOGISTICS_UNIT_UNIT_TYPE_ID,ilu.`VARIANT`,ilu.`WEIGHT_QTY`,\n"
-                + "\n"
-                + "weight_unit_label.`LABEL_EN` AS WEIGHT_UNIT_LABEL_EN,weight_unit_label.`LABEL_FR` AS WEIGHT_UNIT_LABEL_FR,weight_unit_label.`LABEL_PR` AS WEIGHT_UNIT_LABEL_PR,\n"
-                + "weight_unit_label.`LABEL_SP` AS WEIGHT_UNIT_LABEL_SP,\n"
-                + "weight_unit.`UNIT_CODE` AS WEIGHT_UNIT_CODE,weight_unit.`UNIT_ID` AS WEIGHT_UNIT_ID,\n"
-                + "weight_unit_type_label.`LABEL_EN` AS WEIGHT_UNIT_TYPE_LABEL_EN,weight_unit_type_label.`LABEL_PR` AS WEIGHT_UNIT_TYPE_LABEL_PR,\n"
-                + "weight_unit_type_label.`LABEL_FR` AS WEIGHT_UNIT_TYPE_LABEL_FR,weight_unit_type_label.`LABEL_SP` AS WEIGHT_UNIT_TYPE_LABEL_SP,\n"
-                + "weight_unit.`UNIT_TYPE_ID` AS WEIGHT_UNIT_TYPE_ID,\n"
-                + "\n"
-                + "ilu.`WIDTH_QTY`,\n"
-                + "\n"
-                + "width_unit_label.`LABEL_EN` AS WIDTH_UNIT_LABEL_EN,width_unit_label.`LABEL_FR` AS WIDTH_UNIT_LABEL_FR,width_unit_label.`LABEL_PR` AS WIDTH_UNIT_LABEL_PR,\n"
-                + "width_unit_label.`LABEL_SP` AS WIDTH_UNIT_LABEL_SP,\n"
-                + "width_unit.`UNIT_CODE` AS WIDTH_UNIT_CODE,width_unit.`UNIT_ID` AS WIDTH_UNIT_ID,\n"
-                + "width_unit_type_label.`LABEL_EN` AS WIDTH_UNIT_TYPE_LABEL_EN,width_unit_type_label.`LABEL_PR` AS WIDTH_UNIT_TYPE_LABEL_PR,\n"
-                + "width_unit_type_label.`LABEL_FR` AS WIDTH_UNIT_TYPE_LABEL_FR,width_unit_type_label.`LABEL_SP` AS WIDTH_UNIT_TYPE_LABEL_SP,\n"
-                + "width_unit.`UNIT_TYPE_ID` AS WIDTH_UNIT_TYPE_ID,i.`PACK_SIZE`,\n"
-                + "\n"
-                + "region.`CAPACITY_CBM` AS REGION_CAPACITY_CBM,i.`REGION_ID`,region_label.`LABEL_EN` AS REGION_LABEL_EN\n"
-                + ",region_label.`LABEL_FR` AS REGION_LABEL_FR,region_label.`LABEL_PR` AS REGION_LABEL_PR,region_label.`LABEL_SP` AS REGION_LABEL_SP,\n"
-                + "\n"
-                + "inventory_unit_label.`LABEL_EN` AS UNIT_LABEL_EN,inventory_unit_label.`LABEL_FR` AS UNIT_LABEL_FR,inventory_unit_label.`LABEL_PR` AS UNIT_LABEL_PR,\n"
-                + "inventory_unit_label.`LABEL_SP` AS UNIT_LABEL_SP,\n"
-                + "inventory_unit.`UNIT_CODE` AS UNIT_CODE,inventory_unit.`UNIT_ID` AS UNIT_ID,\n"
-                + "inventory_unit_type_label.`LABEL_EN` AS UNIT_TYPE_LABEL_EN,inventory_unit_type_label.`LABEL_PR` AS UNIT_TYPE_LABEL_PR,\n"
-                + "inventory_unit_type_label.`LABEL_FR` AS UNIT_TYPE_LABEL_FR,inventory_unit_type_label.`LABEL_SP` AS UNIT_TYPE_LABEL_SP,\n"
-                + "inventory_unit.`UNIT_TYPE_ID` AS UNIT_TYPE_ID\n"
-                + "\n"
-                + "FROM rm_inventory i\n"
-                + "LEFT JOIN ap_data_source ads ON ads.`DATA_SOURCE_ID`=i.`DATA_SOURCE_ID`\n"
-                + "LEFT JOIN ap_data_source_type adst ON adst.`DATA_SOURCE_TYPE_ID`=ads.`DATA_SOURCE_TYPE_ID`\n"
-                + "LEFT JOIN ap_label adst_label ON adst_label.`LABEL_ID`=adst.`LABEL_ID`\n"
-                + "LEFT JOIN ap_label ads_label ON ads_label.`LABEL_ID`=ads.`LABEL_ID`\n"
-                + "LEFT JOIN rm_logistics_unit ilu ON ilu.`LOGISTICS_UNIT_ID`=i.`LOGISTICS_UNIT_ID`\n"
-                + "LEFT JOIN ap_unit ihu ON ihu.`UNIT_ID`=ilu.`UNIT_ID`\n"
-                + "LEFT JOIN ap_label ihu_label ON ihu_label.`LABEL_ID`=ihu.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type iaut ON iaut.`UNIT_TYPE_ID`=ihu.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label iaut_label ON iaut_label.`LABEL_ID`=iaut.`LABEL_ID`\n"
-                + "LEFT JOIN ap_label ilul ON ilul.`LABEL_ID`=ilu.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit i_length_unit ON i_length_unit.`UNIT_ID`=ilu.`LENGTH_UNIT_ID`\n"
-                + "LEFT JOIN ap_label i_length_unit_label ON i_length_unit_label.`LABEL_ID`=i_length_unit.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type ilaut ON ilaut.`UNIT_TYPE_ID`=i_length_unit.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label ilaut_label ON ilaut_label.`LABEL_ID`=ilaut.`LABEL_ID`\n"
-                + "LEFT JOIN rm_manufacturer rm ON rm.`MANUFACTURER_ID`=ilu.`MANUFACTURER_ID`\n"
-                + "LEFT JOIN ap_label rmm ON rmm.`LABEL_ID`=rm.`LABEL_ID`\n"
-                + "LEFT JOIN rm_planning_unit irpu ON irpu.`PLANNING_UNIT_ID`=ilu.`PLANNING_UNIT_ID`\n"
-                + "LEFT JOIN ap_label irpu_label ON irpu_label.`LABEL_ID`=irpu.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit au_pu ON au_pu.`UNIT_ID`=irpu.`UNIT_ID`\n"
-                + "LEFT JOIN ap_label au_pu_label ON au_pu_label.`LABEL_ID`=au_pu.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type pu_ut ON pu_ut.`UNIT_TYPE_ID`=au_pu.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label pu_ut_label ON pu_ut_label.`LABEL_ID`=pu_ut.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit lu_unit ON lu_unit.`UNIT_ID`=ilu.`UNIT_ID`\n"
-                + "LEFT JOIN ap_label lu_unit_label ON lu_unit_label.`LABEL_ID`=lu_unit.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type lu_ut ON lu_ut.`UNIT_TYPE_ID`=lu_unit.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label lu_ut_label ON lu_ut_label.`LABEL_ID`=lu_ut.`LABEL_ID`\n"
-                + "\n"
-                + "LEFT JOIN ap_unit weight_unit ON weight_unit.`UNIT_ID`=ilu.`WEIGHT_UNIT_ID`\n"
-                + "LEFT JOIN ap_label weight_unit_label ON weight_unit_label.`LABEL_ID`=weight_unit.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type weight_unit_type ON weight_unit_type.`UNIT_TYPE_ID`=weight_unit.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label weight_unit_type_label ON weight_unit_type_label.`LABEL_ID`=weight_unit_type.`LABEL_ID`\n"
-                + "\n"
-                + "LEFT JOIN ap_unit width_unit ON width_unit.`UNIT_ID`=ilu.`WIDTH_UNIT_ID`\n"
-                + "LEFT JOIN ap_label width_unit_label ON width_unit_label.`LABEL_ID`=width_unit.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type width_unit_type ON width_unit_type.`UNIT_TYPE_ID`=width_unit.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label width_unit_type_label ON width_unit_type_label.`LABEL_ID`=width_unit_type.`LABEL_ID`\n"
-                + "\n"
-                + "LEFT JOIN rm_region region ON region.`REGION_ID`=i.`REGION_ID`\n"
-                + "LEFT JOIN ap_label region_label ON region_label.`LABEL_ID`=region.`LABEL_ID`\n"
-                + "\n"
-                + "LEFT JOIN ap_unit inventory_unit ON inventory_unit.`UNIT_ID`=ilu.`UNIT_ID`\n"
-                + "LEFT JOIN ap_label inventory_unit_label ON inventory_unit_label.`LABEL_ID`=inventory_unit.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type inventory_unit_type ON inventory_unit_type.`UNIT_TYPE_ID`=inventory_unit.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label inventory_unit_type_label ON inventory_unit_type_label.`LABEL_ID`=inventory_unit_type.`LABEL_ID`\n"
-                + "WHERE irpu.`PRODUCT_ID`=?";
-        return this.jdbcTemplate.query(sql, new PrgInventoryDTORowMapper(), productId);
+    public List<Inventory> getInventoryList(int programId, int versionId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        return this.namedParameterJdbcTemplate.query("CALL getInventoryData(:programId, :versionId)", params, new InventoryListResultSetExtractor());
     }
 
     @Override
-    public List<PrgConsumptionDTO> getConsumptionListByProductId(int productId) {
-        String sql = "SELECT i.`CONSUMPTION_ID`,i.`CONSUMPTION_QTY`,i.`DATA_SOURCE_ID`,adst.`DATA_SOURCE_TYPE_ID`,\n"
-                + "adst_label.`LABEL_EN` AS DATA_SOURCE_TYPE_LABEL_EN\n"
-                + ",adst_label.`LABEL_FR` AS DATA_SOURCE_TYPE_LABEL_FR,adst_label.`LABEL_PR` AS DATA_SOURCE_TYPE_LABEL_PR\n"
-                + ",adst_label.`LABEL_SP` AS DATA_SOURCE_TYPE_LABEL_SP,ads_label.`LABEL_EN` AS DATA_SOURCE_LABEL_EN,\n"
-                + "ads_label.`LABEL_FR` AS DATA_SOURCE_LABEL_FR,ads_label.`LABEL_PR` AS DATA_SOURCE_LABEL_PR\n"
-                + ",ads_label.`LABEL_SP` AS DATA_SOURCE_LABEL_SP,i.`DAYS_OF_STOCK_OUT`,ilu.`HEIGHT_QTY` AS HEIGHT_QTY,\n"
-                + "ilu.`HEIGHT_UNIT_ID`,ihu.`UNIT_ID` AS HEIGHT_UNIT_ID,ihu_label.`LABEL_EN` AS HEIGHT_UNIT_LABEL_EN\n"
-                + ",ihu_label.`LABEL_FR` AS HEIGHT_UNIT_LABEL_FR,ihu_label.`LABEL_PR` AS HEIGHT_UNIT_LABEL_PR\n"
-                + ",ihu_label.`LABEL_SP` AS HEIGHT_UNIT_LABEL_SP,ihu.`UNIT_CODE` AS HEIGHT_UNIT_CODE\n"
-                + ",iaut_label.`LABEL_EN` AS HEIGHT_UNIT_TYPE_LABEL_EN,iaut_label.`LABEL_FR` AS HEIGHT_UNIT_TYPE_LABEL_FR\n"
-                + ",iaut_label.`LABEL_PR` AS HEIGHT_UNIT_TYPE_LABEL_PR,iaut_label.`LABEL_SP` AS HEIGHT_UNIT_TYPE_LABEL_SP,\n"
-                + "iaut.`UNIT_TYPE_ID` AS HEIGHT_UNIT_TYPE_ID,ilul.`LABEL_EN` AS LOGISTICS_UNIT_LABEL_EN\n"
-                + ",ilul.`LABEL_FR` AS LOGISTICS_UNIT_LABEL_FR,ilul.`LABEL_PR` AS LOGISTICS_UNIT_LABEL_PR\n"
-                + ",ilul.`LABEL_SP` AS LOGISTICS_UNIT_LABEL_SP,\n"
-                + "ilu.`LENGTH_QTY` AS LENGTH_QTY\n"
-                + ",i_length_unit_label.`LABEL_EN` AS LENGTH_UNIT_LABEL_EN,i_length_unit_label.`LABEL_FR` AS LENGTH_UNIT_LABEL_FR\n"
-                + ",i_length_unit_label.`LABEL_PR` AS LENGTH_UNIT_LABEL_PR,i_length_unit_label.`LABEL_SP` AS LENGTH_UNIT_LABEL_SP,\n"
-                + "i_length_unit.`UNIT_CODE` AS LENGTH_UNIT_CODE,i_length_unit.`UNIT_ID` AS LENGTH_UNIT_ID\n"
-                + ",ilaut_label.`LABEL_EN` AS LENGTH_UNIT_TYPE_LABEL_EN,ilaut_label.`LABEL_FR` AS LENGTH_UNIT_TYPE_LABEL_FR\n"
-                + ",ilaut_label.`LABEL_PR` AS LENGTH_UNIT_TYPE_LABEL_PR,ilaut_label.`LABEL_SP` AS LENGTH_UNIT_TYPE_LABEL_SP\n"
-                + ",ilaut.`UNIT_TYPE_ID` AS LENGTH_UNIT_TYPE_ID,ilu.`LOGISTICS_UNIT_ID` AS LOGISTICS_UNIT_ID\n"
-                + ",rmm.`LABEL_EN` AS MANUFACTURER_LABEL_EN,rmm.`LABEL_FR` AS MANUFACTURER_LABEL_FR\n"
-                + ",rmm.`LABEL_PR` AS MANUFACTURER_LABEL_PR,rmm.`LABEL_SP` AS MANUFACTURER_LABEL_SP,\n"
-                + "ilu.`MANUFACTURER_ID` AS `MANUFACTURER_ID`,irpu_label.`LABEL_EN` AS PLANNING_UNIT_LABEL_EN\n"
-                + ",irpu_label.`LABEL_FR` AS PLANNING_UNIT_LABEL_FR,irpu_label.`LABEL_PR` AS PLANNING_UNIT_LABEL_PR\n"
-                + ",irpu_label.`LABEL_SP` AS PLANNING_UNIT_LABEL_SP,irpu.`PLANNING_UNIT_ID` AS `PLANNING_UNIT_ID`,\n"
-                + "irpu.`PRICE` AS PRICE,irpu.`QTY_OF_FORECASTING_UNITS` AS `QTY_OF_FORECASTING_UNITS`,\n"
-                + "au_pu_label.`LABEL_EN` AS PLANNING_UNIT_UNIT_LABEL_EN,au_pu_label.`LABEL_FR` AS PLANNING_UNIT_UNIT_LABEL_FR,\n"
-                + "au_pu_label.`LABEL_PR` AS PLANNING_UNIT_UNIT_LABEL_PR,au_pu_label.`LABEL_SP` AS PLANNING_UNIT_UNIT_LABEL_SP,\n"
-                + "au_pu.`UNIT_CODE` AS `PLANNING_UNIT_UNIT_CODE`,au_pu.`UNIT_ID` AS `PLANNING_UNIT_UNIT_ID`,\n"
-                + "pu_ut_label.`LABEL_EN` AS PLANNING_UNIT_UNIT_TYPE_LABEL_EN,pu_ut_label.`LABEL_FR` AS PLANNING_UNIT_UNIT_TYPE_LABEL_FR, \n"
-                + "pu_ut_label.`LABEL_PR` AS PLANNING_UNIT_UNIT_TYPE_LABEL_PR,pu_ut_label.`LABEL_SP` AS PLANNING_UNIT_UNIT_TYPE_LABEL_SP,\n"
-                + "pu_ut.`UNIT_TYPE_ID` AS PLANNING_UNIT_UNIT_TYPE_ID,ilu.`QTY_IN_EURO1`,ilu.`QTY_IN_EURO2`,ilu.`QTY_OF_PLANNING_UNITS`\n"
-                + ",lu_unit_label.`LABEL_EN` AS LOGISTICS_UNIT_UNIT_LABEL_EN,lu_unit_label.`LABEL_FR` AS LOGISTICS_UNIT_UNIT_LABEL_FR\n"
-                + ",lu_unit_label.`LABEL_PR` AS LOGISTICS_UNIT_UNIT_LABEL_PR,lu_unit_label.`LABEL_SP` AS LOGISTICS_UNIT_UNIT_LABEL_SP,\n"
-                + "lu_unit.`UNIT_CODE` AS LOGISTICS_UNIT_UNIT_CODE,lu_unit.`UNIT_ID` AS LOGISTICS_UNIT_UNIT_ID,\n"
-                + "lu_ut_label.`LABEL_EN` AS LOGISTICS_UNIT_UNIT_TYPE_LABEL_EN,lu_ut_label.`LABEL_FR` AS LOGISTICS_UNIT_UNIT_TYPE_LABEL_FR,\n"
-                + "lu_ut_label.`LABEL_PR` AS LOGISTICS_UNIT_UNIT_TYPE_LABEL_PR,lu_ut_label.`LABEL_SP` AS LOGISTICS_UNIT_UNIT_TYPE_LABEL_SP,\n"
-                + "lu_ut.`UNIT_TYPE_ID` AS LOGISTICS_UNIT_UNIT_TYPE_ID,ilu.`VARIANT`,ilu.`WEIGHT_QTY`,                          \n"
-                + "weight_unit_label.`LABEL_EN` AS WEIGHT_UNIT_LABEL_EN,weight_unit_label.`LABEL_FR` AS WEIGHT_UNIT_LABEL_FR,weight_unit_label.`LABEL_PR` AS WEIGHT_UNIT_LABEL_PR,\n"
-                + "weight_unit_label.`LABEL_SP` AS WEIGHT_UNIT_LABEL_SP,\n"
-                + "weight_unit.`UNIT_CODE` AS WEIGHT_UNIT_CODE,weight_unit.`UNIT_ID` AS WEIGHT_UNIT_ID,\n"
-                + "weight_unit_type_label.`LABEL_EN` AS WEIGHT_UNIT_TYPE_LABEL_EN,weight_unit_type_label.`LABEL_PR` AS WEIGHT_UNIT_TYPE_LABEL_PR,\n"
-                + "weight_unit_type_label.`LABEL_FR` AS WEIGHT_UNIT_TYPE_LABEL_FR,weight_unit_type_label.`LABEL_SP` AS WEIGHT_UNIT_TYPE_LABEL_SP,\n"
-                + "weight_unit.`UNIT_TYPE_ID` AS WEIGHT_UNIT_TYPE_ID,ilu.`WIDTH_QTY`,\n"
-                + "width_unit_label.`LABEL_EN` AS WIDTH_UNIT_LABEL_EN,width_unit_label.`LABEL_FR` AS WIDTH_UNIT_LABEL_FR,width_unit_label.`LABEL_PR` AS WIDTH_UNIT_LABEL_PR,\n"
-                + "width_unit_label.`LABEL_SP` AS WIDTH_UNIT_LABEL_SP,\n"
-                + "width_unit.`UNIT_CODE` AS WIDTH_UNIT_CODE,width_unit.`UNIT_ID` AS WIDTH_UNIT_ID,\n"
-                + "width_unit_type_label.`LABEL_EN` AS WIDTH_UNIT_TYPE_LABEL_EN,width_unit_type_label.`LABEL_PR` AS WIDTH_UNIT_TYPE_LABEL_PR,\n"
-                + "width_unit_type_label.`LABEL_FR` AS WIDTH_UNIT_TYPE_LABEL_FR,width_unit_type_label.`LABEL_SP` AS WIDTH_UNIT_TYPE_LABEL_SP,\n"
-                + "width_unit.`UNIT_TYPE_ID` AS WIDTH_UNIT_TYPE_ID,i.`PACK_SIZE`,i.`START_DATE`,i.`STOP_DATE`,\n"
-                + "region.`CAPACITY_CBM` AS REGION_CAPACITY_CBM,i.`REGION_ID`,region_label.`LABEL_EN` AS REGION_LABEL_EN\n"
-                + ",region_label.`LABEL_FR` AS REGION_LABEL_FR,region_label.`LABEL_PR` AS REGION_LABEL_PR,region_label.`LABEL_SP` AS REGION_LABEL_SP,                                \n"
-                + "consumption_unit_label.`LABEL_EN` AS UNIT_LABEL_EN,consumption_unit_label.`LABEL_FR` AS UNIT_LABEL_FR,consumption_unit_label.`LABEL_PR` AS UNIT_LABEL_PR,\n"
-                + "consumption_unit_label.`LABEL_SP` AS UNIT_LABEL_SP,\n"
-                + "consumption_unit.`UNIT_CODE` AS UNIT_CODE,consumption_unit.`UNIT_ID` AS UNIT_ID,\n"
-                + "consumption_unit_type_label.`LABEL_EN` AS UNIT_TYPE_LABEL_EN,consumption_unit_type_label.`LABEL_PR` AS UNIT_TYPE_LABEL_PR,\n"
-                + "consumption_unit_type_label.`LABEL_FR` AS UNIT_TYPE_LABEL_FR,consumption_unit_type_label.`LABEL_SP` AS UNIT_TYPE_LABEL_SP,\n"
-                + "consumption_unit.`UNIT_TYPE_ID` AS UNIT_TYPE_ID,cpul.`LABEL_EN` AS `LU_PLANNING_UNIT_LABEL_EN`,\n"
-                + "cpul.`LABEL_FR` AS `LU_PLANNING_UNIT_LABEL_FR`,cpul.`LABEL_PR` AS `LU_PLANNING_UNIT_LABEL_PR`,\n"
-                + "cpul.`LABEL_SP` AS `LU_PLANNING_UNIT_LABEL_SP`,cpu.`PLANNING_UNIT_ID` AS `LU_PLANNING_UNIT_ID`,cpu.`PRICE` AS `	LU_PRICE`,cpu.`QTY_OF_FORECASTING_UNITS` AS `LU_QTY_OF_FORECASTING_UNITS`,\n"
-                + "cpuu_label.`LABEL_EN` AS `LU_PLANNING_UNIT_UNIT_LABEL_EN`,cpuu_label.`LABEL_FR` AS `LU_PLANNING_UNIT_UNIT_LABEL_FR`,\n"
-                + "cpuu_label.`LABEL_PR` AS `LU_PLANNING_UNIT_UNIT_LABEL_PR`,cpuu_label.`LABEL_SP` AS `LU_PLANNING_UNIT_UNIT_LABEL_SP`\n"
-                + ",cpu_unit.`UNIT_CODE` AS `LU_PLANNING_UNIT_UNIT_CODE`,cpu_unit.`UNIT_ID` AS `LU_PLANNING_UNIT_UNIT_ID`\n"
-                + ",cpuut_label.`LABEL_EN` AS `LU_PLANNING_UNIT_UNIT_TYPE_LABEL_EN`,cpuut_label.`LABEL_FR` AS `LU_PLANNING_UNIT_UNIT_TYPE_LABEL_FR`\n"
-                + ",cpuut_label.`LABEL_SP` AS `LU_PLANNING_UNIT_UNIT_TYPE_LABEL_SP`,cpuut_label.`LABEL_PR` AS `LU_PLANNING_UNIT_UNIT_TYPE_LABEL_PR`,\n"
-                + "cpu_ut.`UNIT_TYPE_ID`  AS `LU_PLANNING_UNIT_UNIT_TYPE_ID` \n"
-                + "FROM rm_consumption i                \n"
-                + "LEFT JOIN ap_data_source ads ON ads.`DATA_SOURCE_ID`=i.`DATA_SOURCE_ID`\n"
-                + "LEFT JOIN ap_data_source_type adst ON adst.`DATA_SOURCE_TYPE_ID`=ads.`DATA_SOURCE_TYPE_ID`\n"
-                + "LEFT JOIN ap_label adst_label ON adst_label.`LABEL_ID`=adst.`LABEL_ID`\n"
-                + "LEFT JOIN ap_label ads_label ON ads_label.`LABEL_ID`=ads.`LABEL_ID`\n"
-                + "LEFT JOIN rm_logistics_unit ilu ON ilu.`LOGISTICS_UNIT_ID`=i.`LOGISTICS_UNIT_ID`\n"
-                + "LEFT JOIN ap_unit ihu ON ihu.`UNIT_ID`=ilu.`UNIT_ID`\n"
-                + "LEFT JOIN ap_label ihu_label ON ihu_label.`LABEL_ID`=ihu.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type iaut ON iaut.`UNIT_TYPE_ID`=ihu.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label iaut_label ON iaut_label.`LABEL_ID`=iaut.`LABEL_ID`\n"
-                + "LEFT JOIN ap_label ilul ON ilul.`LABEL_ID`=ilu.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit i_length_unit ON i_length_unit.`UNIT_ID`=ilu.`LENGTH_UNIT_ID`\n"
-                + "LEFT JOIN ap_label i_length_unit_label ON i_length_unit_label.`LABEL_ID`=i_length_unit.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type ilaut ON ilaut.`UNIT_TYPE_ID`=i_length_unit.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label ilaut_label ON ilaut_label.`LABEL_ID`=ilaut.`LABEL_ID`\n"
-                + "LEFT JOIN rm_manufacturer rm ON rm.`MANUFACTURER_ID`=ilu.`MANUFACTURER_ID`\n"
-                + "LEFT JOIN ap_label rmm ON rmm.`LABEL_ID`=rm.`LABEL_ID`                                \n"
-                + "LEFT JOIN rm_planning_unit irpu ON irpu.`PLANNING_UNIT_ID`=i.`PLANNING_UNIT_ID`\n"
-                + "LEFT JOIN ap_label irpu_label ON irpu_label.`LABEL_ID`=irpu.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit au_pu ON au_pu.`UNIT_ID`=irpu.`UNIT_ID`\n"
-                + "LEFT JOIN ap_label au_pu_label ON au_pu_label.`LABEL_ID`=au_pu.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type pu_ut ON pu_ut.`UNIT_TYPE_ID`=au_pu.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label pu_ut_label ON pu_ut_label.`LABEL_ID`=pu_ut.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit lu_unit ON lu_unit.`UNIT_ID`=ilu.`UNIT_ID`\n"
-                + "LEFT JOIN ap_label lu_unit_label ON lu_unit_label.`LABEL_ID`=lu_unit.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type lu_ut ON lu_ut.`UNIT_TYPE_ID`=lu_unit.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label lu_ut_label ON lu_ut_label.`LABEL_ID`=lu_ut.`LABEL_ID`                                \n"
-                + "LEFT JOIN ap_unit weight_unit ON weight_unit.`UNIT_ID`=ilu.`WEIGHT_UNIT_ID`\n"
-                + "LEFT JOIN ap_label weight_unit_label ON weight_unit_label.`LABEL_ID`=weight_unit.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type weight_unit_type ON weight_unit_type.`UNIT_TYPE_ID`=weight_unit.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label weight_unit_type_label ON weight_unit_type_label.`LABEL_ID`=weight_unit_type.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit width_unit ON width_unit.`UNIT_ID`=ilu.`WIDTH_UNIT_ID`\n"
-                + "LEFT JOIN ap_label width_unit_label ON width_unit_label.`LABEL_ID`=width_unit.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type width_unit_type ON width_unit_type.`UNIT_TYPE_ID`=width_unit.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label width_unit_type_label ON width_unit_type_label.`LABEL_ID`=width_unit_type.`LABEL_ID`                                \n"
-                + "LEFT JOIN rm_region region ON region.`REGION_ID`=i.`REGION_ID`\n"
-                + "LEFT JOIN ap_label region_label ON region_label.`LABEL_ID`=region.`LABEL_ID`                                \n"
-                + "LEFT JOIN ap_unit consumption_unit ON consumption_unit.`UNIT_ID`=ilu.`UNIT_ID`\n"
-                + "LEFT JOIN ap_label consumption_unit_label ON consumption_unit_label.`LABEL_ID`=consumption_unit.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit_type consumption_unit_type ON consumption_unit_type.`UNIT_TYPE_ID`=consumption_unit.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label consumption_unit_type_label ON consumption_unit_type_label.`LABEL_ID`=consumption_unit_type.`LABEL_ID`\n"
-                + "LEFT JOIN rm_planning_unit cpu ON cpu.`PLANNING_UNIT_ID`=ilu.`PLANNING_UNIT_ID`\n"
-                + "LEFT JOIN ap_label cpul ON cpul.`LABEL_ID`=cpu.`LABEL_ID`\n"
-                + "LEFT JOIN ap_unit cpu_unit ON cpu_unit.`UNIT_ID`=ilu.`UNIT_ID`\n"
-                + "LEFT JOIN ap_label cpuu_label ON cpuu_label.`LABEL_ID`=cpu_unit.`UNIT_ID`	\n"
-                + "LEFT JOIN ap_unit_type cpu_ut ON cpu_ut.`UNIT_TYPE_ID`=cpu_unit.`UNIT_TYPE_ID`\n"
-                + "LEFT JOIN ap_label cpuut_label ON cpuut_label.`LABEL_ID`=cpu_ut.`LABEL_ID`\n"
-                + "WHERE (irpu.`PRODUCT_ID`=? OR cpu.`PRODUCT_ID`=?);";
-        return this.jdbcTemplate.query(sql, new PrgConsumptionDTORowMapper(), productId, productId);
+    public List<Shipment> getShipmentList(int programId, int versionId) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId)", params, new ShipmentListResultSetExtractor());
     }
 
     @Override
-    public List<PrgShipmentDTO> getShipmentListByProductId(int productId) {
-        String sql = "SELECT i.`FREIGHT_PRICE`,i.`SHIPMENT_ID`,i.`ARRIVE_DATE`,i.`DATA_SOURCE_ID`,adst.`DATA_SOURCE_TYPE_ID`,\n"
-                + "                adst_label.`LABEL_EN` AS DATA_SOURCE_TYPE_LABEL_EN\n"
-                + "                ,adst_label.`LABEL_FR` AS DATA_SOURCE_TYPE_LABEL_FR,adst_label.`LABEL_PR` AS DATA_SOURCE_TYPE_LABEL_PR\n"
-                + "                ,adst_label.`LABEL_SP` AS DATA_SOURCE_TYPE_LABEL_SP,ads_label.`LABEL_EN` AS DATA_SOURCE_LABEL_EN,\n"
-                + "                ads_label.`LABEL_FR` AS DATA_SOURCE_LABEL_FR,ads_label.`LABEL_PR` AS DATA_SOURCE_LABEL_PR\n"
-                + "                ,ads_label.`LABEL_SP` AS DATA_SOURCE_LABEL_SP,i.`FREIGHT_PRICE`,ilu.`HEIGHT_QTY` AS HEIGHT_QTY,\n"
-                + "                ilu.`HEIGHT_UNIT_ID`,ihu.`UNIT_ID` AS HEIGHT_UNIT_ID,ihu_label.`LABEL_EN` AS HEIGHT_UNIT_LABEL_EN\n"
-                + "                ,ihu_label.`LABEL_FR` AS HEIGHT_UNIT_LABEL_FR,ihu_label.`LABEL_PR` AS HEIGHT_UNIT_LABEL_PR\n"
-                + "                ,ihu_label.`LABEL_SP` AS HEIGHT_UNIT_LABEL_SP,ihu.`UNIT_CODE` AS HEIGHT_UNIT_CODE\n"
-                + "                ,iaut_label.`LABEL_EN` AS HEIGHT_UNIT_TYPE_LABEL_EN,iaut_label.`LABEL_FR` AS HEIGHT_UNIT_TYPE_LABEL_FR\n"
-                + "                ,iaut_label.`LABEL_PR` AS HEIGHT_UNIT_TYPE_LABEL_PR,iaut_label.`LABEL_SP` AS HEIGHT_UNIT_TYPE_LABEL_SP,\n"
-                + "                iaut.`UNIT_TYPE_ID` AS HEIGHT_UNIT_TYPE_ID,ilul.`LABEL_EN` AS LOGISTICS_UNIT_LABEL_EN\n"
-                + "                ,ilul.`LABEL_FR` AS LOGISTICS_UNIT_LABEL_FR,ilul.`LABEL_PR` AS LOGISTICS_UNIT_LABEL_PR\n"
-                + "                ,ilul.`LABEL_SP` AS LOGISTICS_UNIT_LABEL_SP,\n"
-                + "                ilu.`LENGTH_QTY` AS LENGTH_QTY\n"
-                + "                ,i_length_unit_label.`LABEL_EN` AS LENGTH_UNIT_LABEL_EN,i_length_unit_label.`LABEL_FR` AS LENGTH_UNIT_LABEL_FR\n"
-                + "                ,i_length_unit_label.`LABEL_PR` AS LENGTH_UNIT_LABEL_PR,i_length_unit_label.`LABEL_SP` AS LENGTH_UNIT_LABEL_SP,\n"
-                + "                i_length_unit.`UNIT_CODE` AS LENGTH_UNIT_CODE,i_length_unit.`UNIT_ID` AS LENGTH_UNIT_ID\n"
-                + "                ,ilaut_label.`LABEL_EN` AS LENGTH_UNIT_TYPE_LABEL_EN,ilaut_label.`LABEL_FR` AS LENGTH_UNIT_TYPE_LABEL_FR\n"
-                + "                ,ilaut_label.`LABEL_PR` AS LENGTH_UNIT_TYPE_LABEL_PR,ilaut_label.`LABEL_SP` AS LENGTH_UNIT_TYPE_LABEL_SP\n"
-                + "                ,ilaut.`UNIT_TYPE_ID` AS LENGTH_UNIT_TYPE_ID,ilu.`LOGISTICS_UNIT_ID` AS LOGISTICS_UNIT_ID\n"
-                + "                ,rmm.`LABEL_EN` AS MANUFACTURER_LABEL_EN,rmm.`LABEL_FR` AS MANUFACTURER_LABEL_FR\n"
-                + "                ,rmm.`LABEL_PR` AS MANUFACTURER_LABEL_PR,rmm.`LABEL_SP` AS MANUFACTURER_LABEL_SP,\n"
-                + "                ilu.`MANUFACTURER_ID` AS `MANUFACTURER_ID`,irpu_label.`LABEL_EN` AS PLANNING_UNIT_LABEL_EN\n"
-                + "                ,irpu_label.`LABEL_FR` AS PLANNING_UNIT_LABEL_FR,irpu_label.`LABEL_PR` AS PLANNING_UNIT_LABEL_PR\n"
-                + "                ,irpu_label.`LABEL_SP` AS PLANNING_UNIT_LABEL_SP,irpu.`PLANNING_UNIT_ID` AS `PLANNING_UNIT_ID`,\n"
-                + "                irpu.`PRICE` AS PRICE,irpu.`QTY_OF_FORECASTING_UNITS` AS `QTY_OF_FORECASTING_UNITS`,\n"
-                + "                au_pu_label.`LABEL_EN` AS PLANNING_UNIT_UNIT_LABEL_EN,au_pu_label.`LABEL_FR` AS PLANNING_UNIT_UNIT_LABEL_FR,\n"
-                + "                au_pu_label.`LABEL_PR` AS PLANNING_UNIT_UNIT_LABEL_PR,au_pu_label.`LABEL_SP` AS PLANNING_UNIT_UNIT_LABEL_SP,\n"
-                + "                au_pu.`UNIT_CODE` AS `PLANNING_UNIT_UNIT_CODE`,au_pu.`UNIT_ID` AS `PLANNING_UNIT_UNIT_ID`,\n"
-                + "                pu_ut_label.`LABEL_EN` AS PLANNING_UNIT_UNIT_TYPE_LABEL_EN,pu_ut_label.`LABEL_FR` AS PLANNING_UNIT_UNIT_TYPE_LABEL_FR, \n"
-                + "                pu_ut_label.`LABEL_PR` AS PLANNING_UNIT_UNIT_TYPE_LABEL_PR,pu_ut_label.`LABEL_SP` AS PLANNING_UNIT_UNIT_TYPE_LABEL_SP,\n"
-                + "                pu_ut.`UNIT_TYPE_ID` AS PLANNING_UNIT_UNIT_TYPE_ID,ilu.`QTY_IN_EURO1`,ilu.`QTY_IN_EURO2`,ilu.`QTY_OF_PLANNING_UNITS`\n"
-                + "                ,lu_unit_label.`LABEL_EN` AS LOGISTICS_UNIT_UNIT_LABEL_EN,lu_unit_label.`LABEL_FR` AS LOGISTICS_UNIT_UNIT_LABEL_FR\n"
-                + "                ,lu_unit_label.`LABEL_PR` AS LOGISTICS_UNIT_UNIT_LABEL_PR,lu_unit_label.`LABEL_SP` AS LOGISTICS_UNIT_UNIT_LABEL_SP,\n"
-                + "                lu_unit.`UNIT_CODE` AS LOGISTICS_UNIT_UNIT_CODE,lu_unit.`UNIT_ID` AS LOGISTICS_UNIT_UNIT_ID,\n"
-                + "                lu_ut_label.`LABEL_EN` AS LOGISTICS_UNIT_UNIT_TYPE_LABEL_EN,lu_ut_label.`LABEL_FR` AS LOGISTICS_UNIT_UNIT_TYPE_LABEL_FR,\n"
-                + "                lu_ut_label.`LABEL_PR` AS LOGISTICS_UNIT_UNIT_TYPE_LABEL_PR,lu_ut_label.`LABEL_SP` AS LOGISTICS_UNIT_UNIT_TYPE_LABEL_SP,\n"
-                + "                lu_ut.`UNIT_TYPE_ID` AS LOGISTICS_UNIT_UNIT_TYPE_ID,ilu.`VARIANT`,ilu.`WEIGHT_QTY`,\n"
-                + "                \n"
-                + "                weight_unit_label.`LABEL_EN` AS WEIGHT_UNIT_LABEL_EN,weight_unit_label.`LABEL_FR` AS WEIGHT_UNIT_LABEL_FR,weight_unit_label.`LABEL_PR` AS WEIGHT_UNIT_LABEL_PR,\n"
-                + "                weight_unit_label.`LABEL_SP` AS WEIGHT_UNIT_LABEL_SP,\n"
-                + "                weight_unit.`UNIT_CODE` AS WEIGHT_UNIT_CODE,weight_unit.`UNIT_ID` AS WEIGHT_UNIT_ID,\n"
-                + "                weight_unit_type_label.`LABEL_EN` AS WEIGHT_UNIT_TYPE_LABEL_EN,weight_unit_type_label.`LABEL_PR` AS WEIGHT_UNIT_TYPE_LABEL_PR,\n"
-                + "                weight_unit_type_label.`LABEL_FR` AS WEIGHT_UNIT_TYPE_LABEL_FR,weight_unit_type_label.`LABEL_SP` AS WEIGHT_UNIT_TYPE_LABEL_SP,\n"
-                + "                weight_unit.`UNIT_TYPE_ID` AS WEIGHT_UNIT_TYPE_ID,\n"
-                + "                \n"
-                + "                ilu.`WIDTH_QTY`,\n"
-                + "                \n"
-                + "                width_unit_label.`LABEL_EN` AS WIDTH_UNIT_LABEL_EN,width_unit_label.`LABEL_FR` AS WIDTH_UNIT_LABEL_FR,width_unit_label.`LABEL_PR` AS WIDTH_UNIT_LABEL_PR,\n"
-                + "                width_unit_label.`LABEL_SP` AS WIDTH_UNIT_LABEL_SP,\n"
-                + "                width_unit.`UNIT_CODE` AS WIDTH_UNIT_CODE,width_unit.`UNIT_ID` AS WIDTH_UNIT_ID,\n"
-                + "                width_unit_type_label.`LABEL_EN` AS WIDTH_UNIT_TYPE_LABEL_EN,width_unit_type_label.`LABEL_PR` AS WIDTH_UNIT_TYPE_LABEL_PR,\n"
-                + "                width_unit_type_label.`LABEL_FR` AS WIDTH_UNIT_TYPE_LABEL_FR,width_unit_type_label.`LABEL_SP` AS WIDTH_UNIT_TYPE_LABEL_SP,\n"
-                + "                width_unit.`UNIT_TYPE_ID` AS WIDTH_UNIT_TYPE_ID,\n"
-                + "                \n"
-                + "                i.`NOTES`,i.`ORDER_DATE`,i.`PO_RO_NUMBER`,rpa_label.`LABEL_EN` AS PROCURMENT_AGENT_LABEL_EN\n"
-                + "                ,rpa_label.`LABEL_FR` AS PROCURMENT_AGENT_LABEL_FR,rpa_label.`LABEL_PR` AS PROCURMENT_AGENT_LABEL_PR\n"
-                + "                ,rpa_label.`LABEL_SP` AS PROCURMENT_AGENT_LABEL_SP,i.`PROCUREMENT_AGENT_ID`,rpa.`SUBMITTED_TO_APPROVED_LEAD_TIME`,\n"
-                + "pa_lu.`APPROVED_TO_SHIPPED_LEAD_TIME` AS `APPROVED_TO_SHIP_LEAD_TIME`,pa_lu.`PRICE`,pa_lu.`PROCUREMENT_AGENT_SKU_ID`,pa_lu.`SKU_CODE`,i.`QTY`,\n"
-                + "i.`RECEIVE_DATE`,\n"
-                + "\n"
-                + "region.`CAPACITY_CBM` AS REGION_CAPACITY_CBM,i.`REGION_ID`,region_label.`LABEL_EN` AS REGION_LABEL_EN\n"
-                + "                ,region_label.`LABEL_FR` AS REGION_LABEL_FR,region_label.`LABEL_PR` AS REGION_LABEL_PR,region_label.`LABEL_SP` AS REGION_LABEL_SP,\n"
-                + "                               \n"
-                + "               i.`SHIP_DATE`,ship_bud.`BUDGET_AMT` AS `BUD_AMOUNT`,ship_bud.`BUDGET_ID` AS `BUD_BUDGET_ID`\n"
-                + "               ,ship_bud_label.`LABEL_EN` AS BUD_LABEL_EN,ship_bud_label.`LABEL_FR` AS BUD_LABEL_FR\n"
-                + "               ,ship_bud_label.`LABEL_PR` AS BUD_LABEL_PR,ship_bud_label.`LABEL_SP` AS BUD_LABEL_SP,ship_bud.`START_DATE` AS BUD_START_DATE\n"
-                + "               ,ship_bud.`STOP_DATE` AS BUD_STOP_DATE,\n"
-                + "               rsb.`BUDGET_AMT` AS BUDGET_AMOUNT,rsb.`BUDGET_ID`,rsb.`SUB_FUNDING_SOURCE_ID`,\n"
-                + "budget_rsfs.`FUNDING_SOURCE_ID` AS BUDGET_FUNDING_SOURCE_ID,budget_fs_label.`LABEL_EN` AS BUDGET_FUNDING_SOURCE_LABEL_EN               \n"
-                + "               ,budget_fs_label.`LABEL_FR` AS BUDGET_FUNDING_SOURCE_LABEL_FR,budget_fs_label.`LABEL_PR` AS BUDGET_FUNDING_SOURCE_LABEL_PR\n"
-                + "               ,budget_fs_label.`LABEL_SP` AS BUDGET_FUNDING_SOURCE_LABEL_SP,budget_rsfs_label.`LABEL_EN` AS BUDGET_SUB_FUNDING_SOURCE_LABEL_EN\n"
-                + "               ,budget_rsfs_label.`LABEL_PR` AS BUDGET_SUB_FUNDING_SOURCE_LABEL_PR,budget_rsfs_label.`LABEL_FR` AS BUDGET_SUB_FUNDING_SOURCE_LABEL_FR\n"
-                + "               ,budget_rsfs_label.`LABEL_SP` AS BUDGET_SUB_FUNDING_SOURCE_LABEL_SP,budget_rsfs.`SUB_FUNDING_SOURCE_ID` AS `BUDGET_SUB_FUNDING_SOURCE_ID`,\n"
-                + "               i.`SHIPMENT_PRICE`,i.`SUGGESTED_QTY`,i.`SHIPMENT_STATUS_ID` ,ass_label.`LABEL_EN` AS SHIPMENT_STATUS_LABEL_EN\n"
-                + "              ,ass_label.`LABEL_FR` AS SHIPMENT_STATUS_LABEL_FR,ass_label.`LABEL_PR` AS SHIPMENT_STATUS_LABEL_PR\n"
-                + "              ,ass_label.`LABEL_SP` AS SHIPMENT_STATUS_LABEL_SP\n"
-                + "               \n"
-                + "FROM rm_shipment i                \n"
-                + "LEFT JOIN ap_data_source ads ON ads.`DATA_SOURCE_ID`=i.`DATA_SOURCE_ID`\n"
-                + "                LEFT JOIN ap_data_source_type adst ON adst.`DATA_SOURCE_TYPE_ID`=ads.`DATA_SOURCE_TYPE_ID`\n"
-                + "                LEFT JOIN ap_label adst_label ON adst_label.`LABEL_ID`=adst.`LABEL_ID`\n"
-                + "                LEFT JOIN ap_label ads_label ON ads_label.`LABEL_ID`=ads.`LABEL_ID`\n"
-                + "                LEFT JOIN rm_logistics_unit ilu ON ilu.`LOGISTICS_UNIT_ID`=i.`LOGISTICS_UNIT_ID`\n"
-                + "                LEFT JOIN ap_unit ihu ON ihu.`UNIT_ID`=ilu.`UNIT_ID`\n"
-                + "                LEFT JOIN ap_label ihu_label ON ihu_label.`LABEL_ID`=ihu.`LABEL_ID`\n"
-                + "                LEFT JOIN ap_unit_type iaut ON iaut.`UNIT_TYPE_ID`=ihu.`UNIT_TYPE_ID`\n"
-                + "                LEFT JOIN ap_label iaut_label ON iaut_label.`LABEL_ID`=iaut.`LABEL_ID`\n"
-                + "                LEFT JOIN ap_label ilul ON ilul.`LABEL_ID`=ilu.`LABEL_ID`\n"
-                + "                LEFT JOIN ap_unit i_length_unit ON i_length_unit.`UNIT_ID`=ilu.`LENGTH_UNIT_ID`\n"
-                + "                LEFT JOIN ap_label i_length_unit_label ON i_length_unit_label.`LABEL_ID`=i_length_unit.`LABEL_ID`\n"
-                + "                LEFT JOIN ap_unit_type ilaut ON ilaut.`UNIT_TYPE_ID`=i_length_unit.`UNIT_TYPE_ID`\n"
-                + "                LEFT JOIN ap_label ilaut_label ON ilaut_label.`LABEL_ID`=ilaut.`LABEL_ID`\n"
-                + "                LEFT JOIN rm_manufacturer rm ON rm.`MANUFACTURER_ID`=ilu.`MANUFACTURER_ID`\n"
-                + "                LEFT JOIN ap_label rmm ON rmm.`LABEL_ID`=rm.`LABEL_ID`\n"
-                + "                LEFT JOIN rm_planning_unit irpu ON irpu.`PLANNING_UNIT_ID`=ilu.`PLANNING_UNIT_ID`\n"
-                + "                LEFT JOIN ap_label irpu_label ON irpu_label.`LABEL_ID`=irpu.`LABEL_ID`\n"
-                + "                LEFT JOIN ap_unit au_pu ON au_pu.`UNIT_ID`=irpu.`UNIT_ID`\n"
-                + "                LEFT JOIN ap_label au_pu_label ON au_pu_label.`LABEL_ID`=au_pu.`LABEL_ID`\n"
-                + "                LEFT JOIN ap_unit_type pu_ut ON pu_ut.`UNIT_TYPE_ID`=au_pu.`UNIT_TYPE_ID`\n"
-                + "                LEFT JOIN ap_label pu_ut_label ON pu_ut_label.`LABEL_ID`=pu_ut.`LABEL_ID`\n"
-                + "                LEFT JOIN ap_unit lu_unit ON lu_unit.`UNIT_ID`=ilu.`UNIT_ID`\n"
-                + "                LEFT JOIN ap_label lu_unit_label ON lu_unit_label.`LABEL_ID`=lu_unit.`LABEL_ID`\n"
-                + "                LEFT JOIN ap_unit_type lu_ut ON lu_ut.`UNIT_TYPE_ID`=lu_unit.`UNIT_TYPE_ID`\n"
-                + "                LEFT JOIN ap_label lu_ut_label ON lu_ut_label.`LABEL_ID`=lu_ut.`LABEL_ID`\n"
-                + "                \n"
-                + "                LEFT JOIN ap_unit weight_unit ON weight_unit.`UNIT_ID`=ilu.`WEIGHT_UNIT_ID`\n"
-                + "                LEFT JOIN ap_label weight_unit_label ON weight_unit_label.`LABEL_ID`=weight_unit.`LABEL_ID`\n"
-                + "                LEFT JOIN ap_unit_type weight_unit_type ON weight_unit_type.`UNIT_TYPE_ID`=weight_unit.`UNIT_TYPE_ID`\n"
-                + "                LEFT JOIN ap_label weight_unit_type_label ON weight_unit_type_label.`LABEL_ID`=weight_unit_type.`LABEL_ID`\n"
-                + "                \n"
-                + "                LEFT JOIN ap_unit width_unit ON width_unit.`UNIT_ID`=ilu.`WIDTH_UNIT_ID`\n"
-                + "                LEFT JOIN ap_label width_unit_label ON width_unit_label.`LABEL_ID`=width_unit.`LABEL_ID`\n"
-                + "                LEFT JOIN ap_unit_type width_unit_type ON width_unit_type.`UNIT_TYPE_ID`=width_unit.`UNIT_TYPE_ID`\n"
-                + "                LEFT JOIN ap_label width_unit_type_label ON width_unit_type_label.`LABEL_ID`=width_unit_type.`LABEL_ID`\n"
-                + "                LEFT JOIN rm_procurement_agent rpa ON rpa.`PROCUREMENT_AGENT_ID`=i.`PROCUREMENT_AGENT_ID`\n"
-                + "                LEFT JOIN ap_label rpa_label ON rpa_label.`LABEL_ID`=rpa.`LABEL_ID`\n"
-                + "                LEFT JOIN rm_procurement_agent_logistics_unit pa_lu ON pa_lu.`PROCUREMENT_AGENT_ID`=rpa.`PROCUREMENT_AGENT_ID`\n"
-                + "                \n"
-                + "                LEFT JOIN rm_region region ON region.`REGION_ID`=i.`REGION_ID`\n"
-                + "                LEFT JOIN ap_label region_label ON region_label.`LABEL_ID`=region.`LABEL_ID`\n"
-                + "                \n"
-                + "                LEFT JOIN rm_shipment_budget rsb ON rsb.`SHIPMENT_ID`=i.`SHIPMENT_ID`\n"
-                + "		LEFT JOIN rm_budget ship_bud ON ship_bud.`BUDGET_ID`=rsb.`BUDGET_ID`\n"
-                + "		LEFT JOIN ap_label ship_bud_label ON ship_bud_label.`LABEL_ID`=ship_bud.`LABEL_ID`\n"
-                + "		\n"
-                + "		LEFT JOIN rm_sub_funding_source budget_rsfs ON budget_rsfs.`SUB_FUNDING_SOURCE_ID`=rsb.`FUNDING_SOURCE_ID`\n"
-                + "		LEFT JOIN rm_funding_source budget_fs ON budget_fs.`FUNDING_SOURCE_ID`=budget_rsfs.`FUNDING_SOURCE_ID`\n"
-                + "		LEFT JOIN ap_label budget_fs_label ON budget_fs_label.`LABEL_ID`=budget_fs.`LABEL_ID`\n"
-                + "		LEFT JOIN ap_label budget_rsfs_label ON budget_rsfs_label.`LABEL_ID`=budget_rsfs.`LABEL_ID`	\n"
-                + "		LEFT JOIN ap_shipment_status ass ON ass.`SHIPMENT_STATUS_ID`=i.`SHIPMENT_STATUS_ID`\n"
-                + "		LEFT JOIN ap_label ass_label ON ass_label.`LABEL_ID`=ass.`LABEL_ID`\n"
-                + " WHERE irpu.`PRODUCT_ID`=?";
-        return this.jdbcTemplate.query(sql, new PrgShipmentDTORowMapper(), productId);
+    @Transactional
+    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        // Check which records have changed
+        Map<String, Object> params = new HashMap<>();
+
+        // ########################### Consumption ############################################
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
+//        String sqlString = "DROP TABLE IF EXISTS `tmp_consumption`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "CREATE TEMPORARY TABLE `tmp_consumption` ( "
+                //        sqlString = "CREATE TABLE `tmp_consumption` ( "
+                + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
+                + "  `CONSUMPTION_ID` INT UNSIGNED NULL, "
+                + "  `REGION_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `CONSUMPTION_DATE` DATE NOT NULL, "
+                + "  `ACTUAL_FLAG` TINYINT UNSIGNED NOT NULL, "
+                + "  `QTY` INT(10) UNSIGNED NOT NULL, "
+                + "  `DAYS_OF_STOCK_OUT` INT UNSIGNED NOT NULL, "
+                + "  `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `NOTES` TEXT NULL, "
+                + "  `ACTIVE` TINYINT UNSIGNED NOT NULL DEFAULT 1, "
+                + "  `VERSION_ID` INT(10) NULL, "
+                + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
+                + "  PRIMARY KEY (`ID`), "
+                + "  INDEX `fk_tmp_consumption_1_idx` (`CONSUMPTION_ID` ASC), "
+                + "  INDEX `fk_tmp_consumption_2_idx` (`REGION_ID` ASC), "
+                + "  INDEX `fk_tmp_consumption_3_idx` (`PLANNING_UNIT_ID` ASC), "
+                + "  INDEX `fk_tmp_consumption_4_idx` (`DATA_SOURCE_ID` ASC),"
+                + "  INDEX `fk_tmp_consumption_5_idx` (`VERSION_ID` ASC))";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption_batch_info`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_consumption_batch_info`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "CREATE TEMPORARY TABLE `tmp_consumption_batch_info` ( "
+                //        sqlString = "CREATE TABLE `tmp_consumption_batch_info` ( "
+                + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
+                + "  `PARENT_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `CONSUMPTION_TRANS_BATCH_INFO_ID` INT(10) UNSIGNED NULL, "
+                + "  `CONSUMPTION_TRANS_ID` INT(10) UNSIGNED NULL, "
+                + "  `BATCH_NO` VARCHAR(20) NOT NULL, "
+                + "  `EXPIRY_DATE` DATE NOT NULL, "
+                + "  `BATCH_QTY` INT(10) UNSIGNED NOT NULL, "
+                + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
+                + "  PRIMARY KEY (`ID`), "
+                + "  INDEX `fk_tmp_consumption_1_idx` (`CONSUMPTION_TRANS_ID` ASC), "
+                + "  INDEX `fk_tmp_consumption_2_idx` (`CONSUMPTION_TRANS_BATCH_INFO_ID` ASC), "
+                + "  INDEX `fk_tmp_consumption_3_idx` (`BATCH_NO` ASC), "
+                + "  INDEX `fk_tmp_consumption_4_idx` (`EXPIRY_DATE` ASC))";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        final List<SqlParameterSource> insertList = new ArrayList<>();
+        final List<SqlParameterSource> insertBatchList = new ArrayList<>();
+        int id = 1;
+        for (Consumption c : programData.getConsumptionList()) {
+            Map<String, Object> tp = new HashMap<>();
+            tp.put("ID", id);
+            tp.put("CONSUMPTION_ID", (c.getConsumptionId() == 0 ? null : c.getConsumptionId()));
+            tp.put("REGION_ID", c.getRegion().getId());
+            tp.put("PLANNING_UNIT_ID", c.getPlanningUnit().getId());
+            tp.put("CONSUMPTION_DATE", c.getConsumptionDate());
+            tp.put("ACTUAL_FLAG", c.isActualFlag());
+            tp.put("QTY", c.getConsumptionQty());
+            tp.put("DAYS_OF_STOCK_OUT", c.getDayOfStockOut());
+            tp.put("DATA_SOURCE_ID", c.getDataSource().getId());
+            tp.put("NOTES", c.getNotes());
+            tp.put("ACTIVE", c.isActive());
+            insertList.add(new MapSqlParameterSource(tp));
+            for (ConsumptionBatchInfo b : c.getBatchInfoList()) {
+                Map<String, Object> tb = new HashMap<>();
+                tb.put("CONSUMPTION_TRANS_ID", null);
+                tb.put("CONSUMPTION_TRANS_BATCH_INFO_ID", (b.getConsumptionTransBatchInfoId() == 0 ? null : b.getConsumptionTransBatchInfoId()));
+                tb.put("PARENT_ID", id);
+                tb.put("BATCH_NO", b.getBatchNo());
+                tb.put("EXPIRY_DATE", b.getExpiryDate());
+                tb.put("BATCH_QTY", b.getConsumptionQty());
+                insertBatchList.add(new MapSqlParameterSource(tb));
+            }
+            id++;
+        }
+
+        SqlParameterSource[] insertConsumption = new SqlParameterSource[insertList.size()];
+        sqlString = " INSERT INTO tmp_consumption (ID, CONSUMPTION_ID, REGION_ID, PLANNING_UNIT_ID, CONSUMPTION_DATE, ACTUAL_FLAG, QTY, DAYS_OF_STOCK_OUT, DATA_SOURCE_ID, NOTES, ACTIVE) VALUES (:ID, :CONSUMPTION_ID, :REGION_ID, :PLANNING_UNIT_ID, :CONSUMPTION_DATE, :ACTUAL_FLAG, :QTY, :DAYS_OF_STOCK_OUT, :DATA_SOURCE_ID, :NOTES, :ACTIVE)";
+        this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertConsumption));
+        if (insertBatchList.size() > 0) {
+            SqlParameterSource[] insertConsumptionBatch = new SqlParameterSource[insertBatchList.size()];
+            sqlString = "INSERT INTO tmp_consumption_batch_info (PARENT_ID, CONSUMPTION_TRANS_ID, CONSUMPTION_TRANS_BATCH_INFO_ID, BATCH_NO, EXPIRY_DATE, BATCH_QTY) VALUES (:PARENT_ID, :CONSUMPTION_TRANS_ID, :CONSUMPTION_TRANS_BATCH_INFO_ID, :BATCH_NO, :EXPIRY_DATE, :BATCH_QTY)";
+            this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertBatchList.toArray(insertConsumptionBatch));
+        }
+        params.clear();
+        sqlString = "UPDATE tmp_consumption_batch_info tcbi LEFT JOIN rm_consumption_trans_batch_info ctbi ON tcbi.CONSUMPTION_TRANS_BATCH_INFO_ID=ctbi.CONSUMPTION_TRANS_BATCH_INFO_ID SET tcbi.CONSUMPTION_TRANS_ID=ctbi.CONSUMPTION_TRANS_ID WHERE tcbi.CONSUMPTION_TRANS_BATCH_INFO_ID IS NOT NULL";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        params.clear();
+        // Update the VersionId's in tmp_consumption with the ones from consumption_trans based on VersionId
+        sqlString = "UPDATE tmp_consumption tc LEFT JOIN rm_consumption c ON tc.CONSUMPTION_ID=c.CONSUMPTION_ID SET tc.VERSION_ID=c.MAX_VERSION_ID WHERE tc.CONSUMPTION_ID IS NOT NULL";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        // Flag the rows for changed records
+        sqlString = "UPDATE tmp_consumption tc LEFT JOIN rm_consumption c ON tc.CONSUMPTION_ID=c.CONSUMPTION_ID LEFT JOIN rm_consumption_trans ct ON tc.CONSUMPTION_ID=ct.CONSUMPTION_ID AND tc.VERSION_ID=ct.VERSION_ID SET tc.CHANGED=1 WHERE tc.REGION_ID!=ct.REGION_ID OR tc.PLANNING_UNIT_ID!=ct.PLANNING_UNIT_ID OR tc.CONSUMPTION_DATE!=ct.CONSUMPTION_DATE OR tc.ACTUAL_FLAG!=ct.ACTUAL_FLAG OR tc.QTY!=ct.CONSUMPTION_QTY OR tc.DAYS_OF_STOCK_OUT!=ct.DAYS_OF_STOCK_OUT OR tc.DATA_SOURCE_ID!=ct.DATA_SOURCE_ID OR tc.NOTES!=ct.NOTES OR tc.ACTIVE!=ct.ACTIVE OR tc.CONSUMPTION_ID IS NULL";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "UPDATE tmp_consumption_batch_info tcbi LEFT JOIN rm_consumption_trans_batch_info ctbi ON tcbi.CONSUMPTION_TRANS_BATCH_INFO_ID=ctbi.CONSUMPTION_TRANS_BATCH_INFO_ID SET `CHANGED`=1 WHERE tcbi.CONSUMPTION_TRANS_BATCH_INFO_ID IS NULL OR tcbi.BATCH_NO!=ctbi.BATCH_NO OR tcbi.EXPIRY_DATE!= ctbi.EXPIRY_DATE OR tcbi.BATCH_QTY!=ctbi.CONSUMPTION_QTY";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "UPDATE tmp_consumption tc LEFT JOIN tmp_consumption_batch_info tcbi ON tc.ID = tcbi.PARENT_ID SET tc.CHANGED=1 WHERE tcbi.CHANGED=1";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+
+        // Check if there are any rows that need to be added
+        params.clear();
+        sqlString = "SELECT COUNT(*) FROM tmp_consumption tc WHERE tc.CHANGED=1";
+        int consumptionRows = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+
+        Version version = null;
+        if (consumptionRows > 0) {
+            params.put("programId", programData.getProgramId());
+            params.put("curUser", curUser.getUserId());
+            params.put("curDate", curDate);
+            params.put("versionTypeId", programData.getVersionType().getId());
+            params.put("versionStatusId", programData.getVersionStatus().getId());
+            params.put("notes", programData.getNotes());
+            sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
+            version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+            params.put("versionId", version.getVersionId());
+            // Insert the rows where Consumption Id is not null
+            sqlString = "INSERT INTO rm_consumption_trans SELECT null, tc.CONSUMPTION_ID, tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.CONSUMPTION_DATE, tc.ACTUAL_FLAG, tc.QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, :curUser, :curDate, :versionId"
+                    + " FROM fasp.tmp_consumption tc "
+                    + " WHERE tc.CHANGED=1 AND tc.CONSUMPTION_ID!=0";
+            consumptionRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+            params.clear();
+            params.put("versionId", version.getVersionId());
+            // Update the rm_consumption table with the latest versionId
+            sqlString = "UPDATE tmp_consumption tc LEFT JOIN rm_consumption c ON c.CONSUMPTION_ID=tc.CONSUMPTION_ID SET c.MAX_VERSION_ID=:versionId WHERE tc.CONSUMPTION_ID IS NOT NULL AND tc.CHANGED=1";
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+            // Insert into rm_consumption_trans_batch_info where the consumption record was already existing but has changed
+            sqlString = "INSERT INTO rm_consumption_trans_batch_info SELECT null, ct.CONSUMPTION_TRANS_ID, tcbi.BATCH_NO, tcbi.EXPIRY_DATE, tcbi.BATCH_QTY from tmp_consumption tc left join tmp_consumption_batch_info tcbi ON tcbi.PARENT_ID=tc.ID LEFT JOIN rm_consumption_trans ct ON tc.CONSUMPTION_ID=ct.CONSUMPTION_ID AND ct.VERSION_ID=:versionId WHERE tc.CHANGED=1 AND tc.CONSUMPTION_ID IS NOT NULL AND tcbi.PARENT_ID IS NOT NULL";
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+
+            sqlString = "SELECT tc.ID FROM tmp_consumption tc WHERE tc.CONSUMPTION_ID IS NULL OR tc.CONSUMPTION_ID=0";
+            List<Integer> idListForInsert = this.namedParameterJdbcTemplate.queryForList(sqlString, params, Integer.class);
+            params.put("id", 0);
+            params.put("versionId", version.getVersionId());
+            params.put("programId", programData.getProgramId());
+            params.put("curUser", curUser.getUserId());
+            params.put("curDate", curDate);
+            for (Integer tmpId : idListForInsert) {
+                sqlString = "INSERT INTO rm_consumption (PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) VALUES (:programId, :curUser, :curDate, :curUser, :curDate, :versionId)";
+                consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+                params.replace("id", tmpId);
+                sqlString = "INSERT INTO rm_consumption_trans SELECT null, LAST_INSERT_ID(), tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.CONSUMPTION_DATE, tc.ACTUAL_FLAG, tc.QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, :curUser, :curDate, :versionId FROM tmp_consumption tc WHERE tc.ID=:id";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+                sqlString = "INSERT INTO rm_consumption_trans_batch_info SELECT null, LAST_INSERT_ID(), tcbi.BATCH_NO, tcbi.EXPIRY_DATE, tcbi.BATCH_QTY from tmp_consumption_batch_info tcbi WHERE tcbi.PARENT_ID=:id";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+            }
+        }
+        // ########################### Consumption ############################################
+
+        // ###########################  Inventory  ############################################
+        params.clear();
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_inventory`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_inventory`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "CREATE TEMPORARY TABLE `tmp_inventory` ( "
+                //        sqlString = "CREATE TABLE `tmp_inventory` ( "
+                + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
+                + "  `INVENTORY_ID` INT UNSIGNED NULL, "
+                + "  `INVENTORY_DATE` DATE NOT NULL, "
+                + "  `REGION_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `REALM_COUNTRY_PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `ACTUAL_QTY` INT(10) UNSIGNED NULL, "
+                + "  `ADJUSTMENT_QTY` INT(10) NOT NULL, "
+                + "  `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `NOTES` TEXT NULL, "
+                + "  `ACTIVE` TINYINT UNSIGNED NOT NULL DEFAULT 1, "
+                + "  `VERSION_ID` INT(10) NULL, "
+                + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
+                + "  PRIMARY KEY (`ID`), "
+                + "  INDEX `fk_tmp_inventory_1_idx` (`INVENTORY_ID` ASC), "
+                + "  INDEX `fk_tmp_inventory_2_idx` (`REGION_ID` ASC), "
+                + "  INDEX `fk_tmp_inventory_3_idx` (`REALM_COUNTRY_PLANNING_UNIT_ID` ASC), "
+                + "  INDEX `fk_tmp_inventory_4_idx` (`DATA_SOURCE_ID` ASC), "
+                + "  INDEX `fk_tmp_inventory_5_idx` (`VERSION_ID` ASC))";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_inventory_batch_info`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_inventory_batch_info`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "CREATE TEMPORARY TABLE `tmp_inventory_batch_info` ( "
+                //        sqlString = "CREATE TABLE `tmp_inventory_batch_info` ( "
+                + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
+                + "  `PARENT_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `INVENTORY_TRANS_BATCH_INFO_ID` INT(10) UNSIGNED NULL, "
+                + "  `INVENTORY_TRANS_ID` INT(10) UNSIGNED NULL, "
+                + "  `BATCH_NO` VARCHAR(20) NOT NULL, "
+                + "  `EXPIRY_DATE` DATE NOT NULL, "
+                + "  `ACTUAL_QTY` INT(10) UNSIGNED NULL, "
+                + "  `ADJUSTMENT_QTY` INT(10) UNSIGNED NOT NULL, "
+                + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
+                + "  PRIMARY KEY (`ID`), "
+                + "  INDEX `fk_tmp_consumption_1_idx` (`INVENTORY_TRANS_ID` ASC), "
+                + "  INDEX `fk_tmp_consumption_2_idx` (`INVENTORY_TRANS_BATCH_INFO_ID` ASC), "
+                + "  INDEX `fk_tmp_consumption_3_idx` (`BATCH_NO` ASC), "
+                + "  INDEX `fk_tmp_consumption_4_idx` (`EXPIRY_DATE` ASC))";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+
+        insertList.clear();
+        insertBatchList.clear();
+        id = 1;
+        for (Inventory i : programData.getInventoryList()) {
+            Map<String, Object> tp = new HashMap<>();
+            tp.put("ID", id);
+            tp.put("INVENTORY_ID", (i.getInventoryId() == 0 ? null : i.getInventoryId()));
+            tp.put("INVENTORY_DATE", i.getInventoryDate());
+            tp.put("REGION_ID", i.getRegion().getId());
+            tp.put("REALM_COUNTRY_PLANNING_UNIT_ID", i.getRealmCountryPlanningUnit().getId());
+            tp.put("ACTUAL_QTY", i.getActualQty());
+            tp.put("ADJUSTMENT_QTY", i.getAdjustmentQty());
+            tp.put("DATA_SOURCE_ID", i.getDataSource().getId());
+            tp.put("NOTES", i.getNotes());
+            tp.put("ACTIVE", i.isActive());
+            insertList.add(new MapSqlParameterSource(tp));
+            for (InventoryBatchInfo b : i.getBatchInfoList()) {
+                Map<String, Object> tb = new HashMap<>();
+                tb.put("INVENTORY_TRANS_ID", null);
+                tb.put("INVENTORY_TRANS_BATCH_INFO_ID", (b.getInventoryTransBatchInfoId() == 0 ? null : b.getInventoryTransBatchInfoId()));
+                tb.put("PARENT_ID", id);
+                tb.put("BATCH_NO", b.getBatchNo());
+                tb.put("EXPIRY_DATE", b.getExpiryDate());
+                tb.put("ACTUAL_QTY", b.getActualQty());
+                tb.put("ADJUSTMENT_QTY", b.getAdjustmentQty());
+                insertBatchList.add(new MapSqlParameterSource(tb));
+            }
+            id++;
+        }
+
+        SqlParameterSource[] insertInventory = new SqlParameterSource[insertList.size()];
+        sqlString = " INSERT INTO tmp_inventory (ID, INVENTORY_ID, REGION_ID, REALM_COUNTRY_PLANNING_UNIT_ID, INVENTORY_DATE, ACTUAL_QTY, ADJUSTMENT_QTY, DATA_SOURCE_ID, NOTES, ACTIVE) VALUES (:ID, :INVENTORY_ID, :REGION_ID, :REALM_COUNTRY_PLANNING_UNIT_ID, :INVENTORY_DATE, :ACTUAL_QTY, :ADJUSTMENT_QTY, :DATA_SOURCE_ID, :NOTES, :ACTIVE)";
+        this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertInventory));
+        if (insertBatchList.size() > 0) {
+            SqlParameterSource[] insertInventoryBatch = new SqlParameterSource[insertBatchList.size()];
+            sqlString = "INSERT INTO tmp_inventory_batch_info (PARENT_ID, INVENTORY_TRANS_ID, INVENTORY_TRANS_BATCH_INFO_ID, BATCH_NO, EXPIRY_DATE, ACTUAL_QTY, ADJUSTMENT_QTY) VALUES (:PARENT_ID, :INVENTORY_TRANS_ID, :INVENTORY_TRANS_BATCH_INFO_ID, :BATCH_NO, :EXPIRY_DATE, :ACTUAL_QTY, :ADJUSTMENT_QTY)";
+            this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertBatchList.toArray(insertInventoryBatch));
+        }
+        params.clear();
+        sqlString = "UPDATE tmp_inventory_batch_info tibi LEFT JOIN rm_inventory_trans_batch_info itbi ON tibi.INVENTORY_TRANS_BATCH_INFO_ID=itbi.INVENTORY_TRANS_BATCH_INFO_ID SET tibi.INVENTORY_TRANS_ID=itbi.INVENTORY_TRANS_ID WHERE tibi.INVENTORY_TRANS_BATCH_INFO_ID IS NOT NULL";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        params.clear();
+        // Update the VersionId's in tmp_inventory with the ones from inventory_trans based on VersionId
+        sqlString = "UPDATE tmp_inventory ti LEFT JOIN rm_inventory i ON ti.INVENTORY_ID=i.INVENTORY_ID SET ti.VERSION_ID=i.MAX_VERSION_ID WHERE ti.INVENTORY_ID IS NOT NULL";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        // Flag the rows for changed records
+        sqlString = "UPDATE tmp_inventory ti LEFT JOIN rm_inventory i ON ti.INVENTORY_ID=i.INVENTORY_ID LEFT JOIN rm_inventory_trans it ON ti.INVENTORY_ID=it.INVENTORY_ID AND ti.VERSION_ID=it.VERSION_ID SET ti.CHANGED=1 WHERE ti.REGION_ID!=it.REGION_ID OR ti.REALM_COUNTRY_PLANNING_UNIT_ID!=it.REALM_COUNTRY_PLANNING_UNIT_ID OR ti.INVENTORY_DATE!=it.INVENTORY_DATE OR ti.ACTUAL_QTY!=it.ACTUAL_QTY OR ti.ADJUSTMENT_QTY!=it.ADJUSTMENT_QTY OR ti.DATA_SOURCE_ID!=it.DATA_SOURCE_ID OR ti.NOTES!=it.NOTES OR ti.ACTIVE!=it.ACTIVE OR ti.INVENTORY_ID IS NULL";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "UPDATE tmp_inventory_batch_info tibi LEFT JOIN rm_inventory_trans_batch_info itbi ON tibi.INVENTORY_TRANS_BATCH_INFO_ID=itbi.INVENTORY_TRANS_BATCH_INFO_ID SET `CHANGED`=1 WHERE tibi.INVENTORY_TRANS_BATCH_INFO_ID IS NULL OR tibi.BATCH_NO!=itbi.BATCH_NO OR tibi.EXPIRY_DATE!= itbi.EXPIRY_DATE OR tibi.ACTUAL_QTY!=itbi.ACTUAL_QTY OR tibi.ADJUSTMENT_QTY!=itbi.ADJUSTMENT_QTY";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "UPDATE tmp_inventory ti LEFT JOIN tmp_inventory_batch_info tibi ON ti.ID = tibi.PARENT_ID SET ti.CHANGED=1 WHERE tibi.CHANGED=1";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+
+        // Check if there are any rows that need to be added
+        params.clear();
+        sqlString = "SELECT COUNT(*) FROM tmp_inventory ti WHERE ti.CHANGED=1";
+        int inventoryRows = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        if (inventoryRows > 0) {
+            if (version == null) {
+                params.put("programId", programData.getProgramId());
+                params.put("curUser", curUser.getUserId());
+                params.put("curDate", curDate);
+                params.put("versionTypeId", programData.getVersionType().getId());
+                params.put("versionStatusId", programData.getVersionStatus().getId());
+                params.put("notes", programData.getNotes());
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
+                version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+            }
+            params.put("programId", programData.getProgramId());
+            params.put("curUser", curUser.getUserId());
+            params.put("curDate", curDate);
+            params.put("versionId", version.getVersionId());
+            // Insert the rows where Inventory Id is not null
+            sqlString = "INSERT INTO rm_inventory_trans SELECT null, ti.INVENTORY_ID, ti.INVENTORY_DATE, ti.REGION_ID, ti.REALM_COUNTRY_PLANNING_UNIT_ID, ti.ACTUAL_QTY, ti.ADJUSTMENT_QTY, ti.DATA_SOURCE_ID, ti.NOTES, ti.ACTIVE, :curUser, :curDate, :versionId"
+                    + " FROM tmp_inventory ti "
+                    + " WHERE ti.CHANGED=1 AND ti.INVENTORY_ID!=0";
+            inventoryRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+            params.clear();
+            params.put("versionId", version.getVersionId());
+            // Update the rm_inventory table with the latest versionId
+            sqlString = "UPDATE tmp_inventory ti LEFT JOIN rm_inventory i ON i.INVENTORY_ID=ti.INVENTORY_ID SET i.MAX_VERSION_ID=:versionId WHERE ti.INVENTORY_ID IS NOT NULL AND ti.CHANGED=1";
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+            // Insert into rm_inventory_trans_batch_info where the inventory record was already existing but has changed
+            sqlString = "INSERT INTO rm_inventory_trans_batch_info SELECT null, it.INVENTORY_TRANS_ID, tibi.BATCH_NO, tibi.EXPIRY_DATE, tibi.ACTUAL_QTY, tibi.ADJUSTMENT_QTY from tmp_inventory ti left join tmp_inventory_batch_info tibi ON tibi.PARENT_ID=ti.ID LEFT JOIN rm_inventory_trans it ON ti.INVENTORY_ID=it.INVENTORY_ID AND it.VERSION_ID=:versionId WHERE ti.CHANGED=1 AND ti.INVENTORY_ID IS NOT NULL AND tibi.PARENT_ID IS NOT NULL";
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+
+            sqlString = "SELECT ti.ID FROM tmp_inventory ti WHERE ti.INVENTORY_ID IS NULL OR ti.INVENTORY_ID=0";
+            List<Integer> idListForInsert = this.namedParameterJdbcTemplate.queryForList(sqlString, params, Integer.class);
+            params.put("id", 0);
+            params.put("versionId", version.getVersionId());
+            params.put("programId", programData.getProgramId());
+            params.put("curUser", curUser.getUserId());
+            params.put("curDate", curDate);
+            for (Integer tmpId : idListForInsert) {
+                sqlString = "INSERT INTO rm_inventory (PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) VALUES (:programId, :curUser, :curDate, :curUser, :curDate, :versionId)";
+                consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+                params.replace("id", tmpId);
+                sqlString = "INSERT INTO rm_inventory_trans SELECT null, LAST_INSERT_ID(), ti.INVENTORY_DATE, ti.REGION_ID, ti.REALM_COUNTRY_PLANNING_UNIT_ID, ti.ACTUAL_QTY, ti.ADJUSTMENT_QTY, ti.DATA_SOURCE_ID, ti.NOTES, ti.ACTIVE, :curUser, :curDate, :versionId FROM tmp_inventory ti WHERE ti.ID=:id";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+                sqlString = "INSERT INTO rm_inventory_trans_batch_info SELECT null, LAST_INSERT_ID(), tibi.BATCH_NO, tibi.EXPIRY_DATE, tibi.ACTUAL_QTY, tibi.ADJUSTMENT_QTY from tmp_inventory_batch_info tibi WHERE tibi.PARENT_ID=:id";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+            }
+        }
+
+        // ###########################  Inventory  ############################################
+        // ###########################  Shipment  #############################################
+        params.clear();
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_shipment`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "CREATE TEMPORARY TABLE `tmp_shipment` ( "
+                //        sqlString = "CREATE TABLE `tmp_shipment` ( "
+                + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
+                + "  `SHIPMENT_ID` INT(10) UNSIGNED NULL, "
+                + "  `SUGGESTED_QTY` INT(10) UNSIGNED NULL, "
+                + "  `PROCUREMENT_AGENT_ID` INT(10) UNSIGNED NULL, "
+                + "  `ACCOUNT_FLAG` TINYINT(1) UNSIGNED NULL, "
+                + "  `ERP_FLAG` TINYINT(1) UNSIGNED NULL, "
+                + "  `CURRENCY_ID` INT(10) UNSIGNED NULL, "
+                + "  `CONVERSION_RATE_TO_USD` DECIMAL(12,2) UNSIGNED NULL, "
+                + "  `EMERGENCY_ORDER` TINYINT(1) UNSIGNED NOT NULL, "
+                + "  `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `EXPECTED_DELIVERY_DATE` DATE NOT NULL, "
+                + "  `PROCUREMENT_UNIT_ID` INT(10) UNSIGNED NULL, "
+                + "  `SUPPLIER_ID` INT(10) UNSIGNED NULL, "
+                + "  `SHIPMENT_QTY` INT(10) UNSIGNED NULL, "
+                + "  `RATE` DECIMAL(12,2) NOT NULL, "
+                + "  `PRODUCT_COST` DECIMAL(12,2) UNSIGNED NOT NULL, "
+                + "  `SHIPMENT_MODE` VARCHAR(4) NOT NULL, "
+                + "  `FREIGHT_COST` DECIMAL(12,2) UNSIGNED NOT NULL, "
+                + "  `ORDERED_DATE` DATE NULL, "
+                + "  `SHIPPED_DATE` DATE NULL, "
+                + "  `DELIVERED_DATE` DATE NULL, "
+                + "  `SHIPMENT_STATUS_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `NOTES` TEXT NULL, "
+                + "  `ORDER_NO` VARCHAR(15) NULL, "
+                + "  `PRIME_LINE_NO` VARCHAR(10) NULL, "
+                + "  `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1, "
+                + "  `VERSION_ID` INT(10) NULL, "
+                + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
+                + "  PRIMARY KEY (`ID`), "
+                + "  INDEX `fk_tmp_shipment_1_idx` (`SHIPMENT_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_2_idx` (`PLANNING_UNIT_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_3_idx` (`PROCUREMENT_UNIT_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_4_idx` (`SUPPLIER_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_5_idx` (`SHIPMENT_STATUS_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_6_idx` (`ORDER_NO` ASC), "
+                + "  INDEX `fk_tmp_shipment_7_idx` (`PRIME_LINE_NO` ASC), "
+                + "  INDEX `fk_tmp_shipment_8_idx` (`DATA_SOURCE_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_9_idx` (`VERSION_ID` ASC))";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_batch_info`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_shipment_batch_info`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "CREATE TEMPORARY TABLE `tmp_shipment_batch_info` ( "
+                //        sqlString = "CREATE TABLE `tmp_shipment_batch_info` ( "
+                + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
+                + "  `PARENT_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `SHIPMENT_TRANS_BATCH_INFO_ID` INT(10) UNSIGNED NULL, "
+                + "  `SHIPMENT_TRANS_ID` INT(10) UNSIGNED NULL, "
+                + "  `BATCH_NO` VARCHAR(20) NOT NULL, "
+                + "  `EXPIRY_DATE` DATE NOT NULL, "
+                + "  `BATCH_SHIPMENT_QTY` INT(10) UNSIGNED NOT NULL, "
+                + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
+                + "  PRIMARY KEY (`ID`), "
+                + "  INDEX `fk_tmp_consumption_1_idx` (`SHIPMENT_TRANS_ID` ASC), "
+                + "  INDEX `fk_tmp_consumption_2_idx` (`SHIPMENT_TRANS_BATCH_INFO_ID` ASC), "
+                + "  INDEX `fk_tmp_consumption_3_idx` (`BATCH_NO` ASC), "
+                + "  INDEX `fk_tmp_consumption_4_idx` (`EXPIRY_DATE` ASC))";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_budget`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_shipment_budget`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "CREATE TEMPORARY TABLE `tmp_shipment_budget` ( "
+                //        sqlString = "CREATE TABLE `tmp_shipment_budget` ( "
+                + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
+                + "  `PARENT_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `SHIPMENT_BUDGET_ID` INT(10) UNSIGNED NULL, "
+                + "  `BUDGET_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `BUDGET_AMT` DECIMAL(14,2) NOT NULL, "
+                + "  `CONVERSION_RATE_TO_USD` DECIMAL(14,4) NOT NULL, "
+                + "  `CURRENCY_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `ACTIVE` TINYINT(1) UNSIGNED NOT NULL, "
+                + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
+                + "  PRIMARY KEY (`ID`), "
+                + "  INDEX `fk_tmp_shipment_budget_1_idx` (`PARENT_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_budget_2_idx` (`SHIPMENT_BUDGET_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_budget_3_idx` (`BUDGET_ID` ASC), "
+                + "  INDEX `fk_tmp_shipment_budget_4_idx` (`CURRENCY_ID` ASC))";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+
+        insertList.clear();
+        insertBatchList.clear();
+        final List<SqlParameterSource> insertBudgetList = new ArrayList<>();
+        id = 1;
+        for (Shipment s : programData.getShipmentList()) {
+            Map<String, Object> tp = new HashMap<>();
+            tp.put("ID", id);
+            tp.put("SHIPMENT_ID", (s.getShipmentId() == 0 ? null : s.getShipmentId()));
+            tp.put("SUGGESTED_QTY", s.getSuggestedQty());
+            tp.put("PROCUREMENT_AGENT_ID", s.getProcurementAgent().getId());
+            tp.put("ACCOUNT_FLAG", s.isAccountFlag());
+            tp.put("ERP_FLAG", s.isErpFlag());
+            tp.put("CURRENCY_ID", s.getCurrency().getCurrencyId());
+            tp.put("CONVERSION_RATE_TO_USD", s.getCurrency().getConversionRateToUsd());
+            tp.put("EMERGENCY_ORDER", s.isEmergencyOrder());
+            tp.put("PLANNING_UNIT_ID", s.getPlanningUnit().getId());
+            tp.put("EXPECTED_DELIVERY_DATE", s.getExpectedDeliveryDate());
+            tp.put("PROCUREMENT_UNIT_ID", s.getProcurementUnit().getId());
+            tp.put("SUPPLIER_ID", s.getSupplier().getId());
+            tp.put("SHIPMENT_QTY", s.getShipmentQty());
+            tp.put("RATE", s.getRate());
+            tp.put("PRODUCT_COST", s.getProductCost());
+            tp.put("SHIPMENT_MODE", s.getShipmentMode());
+            tp.put("FREIGHT_COST", s.getFreightCost());
+            tp.put("ORDERED_DATE", s.getOrderedDate());
+            tp.put("SHIPPED_DATE", s.getShippedDate());
+            tp.put("DELIVERED_DATE", s.getDeliveredDate());
+            tp.put("SHIPMENT_STATUS_ID", s.getShipmentStatus().getId());
+            tp.put("DATA_SOURCE_ID", s.getDataSource().getId());
+            tp.put("NOTES", s.getNotes());
+            tp.put("ORDER_NO", s.getOrderNo());
+            tp.put("PRIME_LINE_NO", s.getPrimeLineNo());
+            tp.put("ACTIVE", s.isActive());
+            insertList.add(new MapSqlParameterSource(tp));
+            for (ShipmentBatchInfo b : s.getBatchInfoList()) {
+                Map<String, Object> tb = new HashMap<>();
+                tb.put("SHIPMENT_TRANS_ID", null);
+                tb.put("SHIPMENT_TRANS_BATCH_INFO_ID", (b.getShipmentTransBatchInfoId() == 0 ? null : b.getShipmentTransBatchInfoId()));
+                tb.put("PARENT_ID", id);
+                tb.put("BATCH_NO", b.getBatchNo());
+                tb.put("EXPIRY_DATE", b.getExpiryDate());
+                tb.put("BATCH_SHIPMENT_QTY", b.getShipmentQty());
+                insertBatchList.add(new MapSqlParameterSource(tb));
+            }
+            for (ShipmentBudget sb : s.getShipmentBudgetList()) {
+                Map<String, Object> tsb = new HashMap<>();
+                tsb.put("PARENT_ID", id);
+                tsb.put("SHIPMENT_BUDGET_ID", (sb.getShipmentBudgetId() == 0 ? null : sb.getShipmentBudgetId()));
+                tsb.put("BUDGET_ID", sb.getBudget().getId());
+                tsb.put("BUDGET_AMT", sb.getBudgetAmt());
+                tsb.put("CONVERSION_RATE_TO_USD", sb.getConversionRateToUsd());
+                tsb.put("CURRENCY_ID", sb.getCurrency().getCurrencyId());
+                tsb.put("ACTIVE", sb.isActive());
+                insertBudgetList.add(new MapSqlParameterSource(tsb));
+            }
+            id++;
+        }
+
+        SqlParameterSource[] insertShipment = new SqlParameterSource[insertList.size()];
+        sqlString = " INSERT INTO tmp_shipment (`ID`, `SHIPMENT_ID`, `SUGGESTED_QTY`, `PROCUREMENT_AGENT_ID`, `ACCOUNT_FLAG`, "
+                + "`ERP_FLAG`, `CURRENCY_ID`, `CONVERSION_RATE_TO_USD`, `EMERGENCY_ORDER`, `PLANNING_UNIT_ID`, "
+                + "`EXPECTED_DELIVERY_DATE`, `PROCUREMENT_UNIT_ID`, `SUPPLIER_ID`, `SHIPMENT_QTY`, `RATE`, "
+                + "`PRODUCT_COST`, `SHIPMENT_MODE`, `FREIGHT_COST`, `ORDERED_DATE`, `SHIPPED_DATE`, "
+                + "`DELIVERED_DATE`, `SHIPMENT_STATUS_ID`, `DATA_SOURCE_ID`, `NOTES`, `ORDER_NO`, "
+                + "`PRIME_LINE_NO`, `ACTIVE`) VALUES ("
+                + ":ID, :SHIPMENT_ID, :SUGGESTED_QTY, :PROCUREMENT_AGENT_ID, :ACCOUNT_FLAG, "
+                + ":ERP_FLAG, :CURRENCY_ID, :CONVERSION_RATE_TO_USD, :EMERGENCY_ORDER, :PLANNING_UNIT_ID, "
+                + ":EXPECTED_DELIVERY_DATE, :PROCUREMENT_UNIT_ID, :SUPPLIER_ID, :SHIPMENT_QTY, :RATE, "
+                + ":PRODUCT_COST, :SHIPMENT_MODE, :FREIGHT_COST, :ORDERED_DATE, :SHIPPED_DATE, "
+                + ":DELIVERED_DATE, :SHIPMENT_STATUS_ID, :DATA_SOURCE_ID, :NOTES, :ORDER_NO, "
+                + ":PRIME_LINE_NO, :ACTIVE)";
+        this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertShipment));
+        if (insertBatchList.size() > 0) {
+            SqlParameterSource[] insertShipmentBatch = new SqlParameterSource[insertBatchList.size()];
+            sqlString = "INSERT INTO tmp_shipment_batch_info (PARENT_ID, SHIPMENT_TRANS_ID, SHIPMENT_TRANS_BATCH_INFO_ID, BATCH_NO, EXPIRY_DATE, BATCH_SHIPMENT_QTY) VALUES (:PARENT_ID, :SHIPMENT_TRANS_ID, :SHIPMENT_TRANS_BATCH_INFO_ID, :BATCH_NO, :EXPIRY_DATE, :BATCH_SHIPMENT_QTY)";
+            this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertBatchList.toArray(insertShipmentBatch));
+        }
+        if (insertBudgetList.size() > 0) {
+            SqlParameterSource[] insertShipmentBudget = new SqlParameterSource[insertBudgetList.size()];
+            sqlString = "INSERT INTO tmp_shipment_budget (PARENT_ID, SHIPMENT_BUDGET_ID, BUDGET_ID, BUDGET_AMT, CONVERSION_RATE_TO_USD, CURRENCY_ID, ACTIVE) VALUES (:PARENT_ID, :SHIPMENT_BUDGET_ID, :BUDGET_ID, :BUDGET_AMT, :CONVERSION_RATE_TO_USD, :CURRENCY_ID, :ACTIVE)";
+            this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertBudgetList.toArray(insertShipmentBudget));
+        }
+        params.clear();
+        sqlString = "UPDATE tmp_shipment_batch_info tsbi LEFT JOIN rm_shipment_trans_batch_info stbi ON tsbi.SHIPMENT_TRANS_BATCH_INFO_ID=stbi.SHIPMENT_TRANS_BATCH_INFO_ID SET tsbi.SHIPMENT_TRANS_ID=stbi.SHIPMENT_TRANS_ID WHERE tsbi.SHIPMENT_TRANS_BATCH_INFO_ID IS NOT NULL";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+//        sqlString = "UPDATE tmp_shipment_budget tsb LEFT JOIN rm_shipment_budget sb ON tsb.SHIPMENT_BUDGET_ID=sb.SHIPMENT_BUDGET_ID SET tsb.SHIPMENT_TRANS_ID=sb.SHIPMENT_TRANS_ID WHERE tsb.SHIPMENT_BUDGET_ID IS NOT NULL";
+//        this.namedParameterJdbcTemplate.update(sqlString, params);
+        params.clear();
+        // Update the VersionId's in tmp_shipment with the ones from shipment_trans based on VersionId
+        sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID SET ts.VERSION_ID=s.MAX_VERSION_ID WHERE ts.SHIPMENT_ID IS NOT NULL";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        // Flag the rows for changed records
+        sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID LEFT JOIN rm_shipment_trans st ON ts.SHIPMENT_ID=st.SHIPMENT_ID AND ts.VERSION_ID=st.VERSION_ID "
+                + "SET ts.CHANGED=1 WHERE "
+                + "ts.SHIPMENT_ID!=st.SHIPMENT_ID OR "
+                + "ts.SUGGESTED_QTY!=s.SUGGESTED_QTY OR "
+                + "ts.PROCUREMENT_AGENT_ID!=s.PROCUREMENT_AGENT_ID OR "
+                + "ts.ACCOUNT_FLAG!=s.ACCOUNT_FLAG OR "
+                + "ts.ERP_FLAG!=s.ERP_FLAG OR "
+                + "ts.CURRENCY_ID!=s.CURRENCY_ID OR "
+                + "ts.CONVERSION_RATE_TO_USD!=s.CONVERSION_RATE_TO_USD OR "
+                + "ts.EMERGENCY_ORDER!=s.EMERGENCY_ORDER OR "
+                + "ts.PLANNING_UNIT_ID!=st.PLANNING_UNIT_ID OR "
+                + "ts.EXPECTED_DELIVERY_DATE!=st.EXPECTED_DELIVERY_DATE OR "
+                + "ts.PROCUREMENT_UNIT_ID!=st.PROCUREMENT_UNIT_ID OR "
+                + "ts.SUPPLIER_ID!=st.SUPPLIER_ID OR "
+                + "ts.SHIPMENT_QTY!=st.SHIPMENT_QTY OR "
+                + "ts.RATE!=st.RATE OR "
+                + "ts.PRODUCT_COST!=st.PRODUCT_COST OR "
+                + "ts.SHIPMENT_MODE!=st.SHIPMENT_MODE OR "
+                + "ts.FREIGHT_COST!=st.FREIGHT_COST OR "
+                + "ts.ORDERED_DATE!=st.ORDERED_DATE OR "
+                + "ts.SHIPPED_DATE!=st.SHIPPED_DATE OR "
+                + "ts.DELIVERED_DATE!=st.DELIVERED_DATE OR "
+                + "ts.SHIPMENT_STATUS_ID!=st.SHIPMENT_STATUS_ID OR "
+                + "ts.DATA_SOURCE_ID!=st.DATA_SOURCE_ID OR "
+                + "ts.NOTES!=st.NOTES OR "
+                + "ts.ORDER_NO!=st.ORDER_NO OR "
+                + "ts.PRIME_LINE_NO!=st.PRIME_LINE_NO OR "
+                + "ts.ACTIVE!=st.ACTIVE OR "
+                + "ts.SHIPMENT_ID IS NULL";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "UPDATE tmp_shipment_batch_info tsbi LEFT JOIN rm_shipment_trans_batch_info stbi ON tsbi.SHIPMENT_TRANS_BATCH_INFO_ID=stbi.SHIPMENT_TRANS_BATCH_INFO_ID SET `CHANGED`=1 WHERE tsbi.SHIPMENT_TRANS_BATCH_INFO_ID IS NULL OR tsbi.BATCH_NO!=stbi.BATCH_NO OR tsbi.EXPIRY_DATE!= stbi.EXPIRY_DATE OR tsbi.BATCH_SHIPMENT_QTY!=stbi.BATCH_SHIPMENT_QTY";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "UPDATE tmp_shipment_budget tsb LEFT JOIN rm_shipment_budget sb ON tsb.SHIPMENT_BUDGET_ID=sb.SHIPMENT_BUDGET_ID SET `CHANGED`=1 WHERE tsb.SHIPMENT_BUDGET_ID IS NULL OR tsb.BUDGET_ID!=sb.BUDGET_ID OR tsb.BUDGET_AMT!= sb.BUDGET_AMT OR tsb.CONVERSION_RATE_TO_USD!=sb.CONVERSION_RATE_TO_USD OR tsb.CURRENCY_ID!=sb.CURRENCY_ID OR tsb.ACTIVE!=sb.ACTIVE";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "UPDATE tmp_shipment ts LEFT JOIN tmp_shipment_batch_info tsbi ON ts.ID = tsbi.PARENT_ID SET ts.CHANGED=1 WHERE tsbi.CHANGED=1";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "UPDATE tmp_shipment ts LEFT JOIN tmp_shipment_budget tsb ON ts.ID = tsb.PARENT_ID SET ts.CHANGED=1 WHERE tsb.CHANGED=1";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+
+        // Check if there are any rows that need to be added
+        params.clear();
+        sqlString = "SELECT COUNT(*) FROM tmp_shipment ts WHERE ts.CHANGED=1";
+        int shipmentRows = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        if (shipmentRows > 0) {
+            if (version == null) {
+                params.put("programId", programData.getProgramId());
+                params.put("curUser", curUser.getUserId());
+                params.put("curDate", curDate);
+                params.put("versionTypeId", programData.getVersionType().getId());
+                params.put("versionStatusId", programData.getVersionStatus().getId());
+                params.put("notes", programData.getNotes());
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
+                version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+            }
+            params.put("versionId", version.getVersionId());
+            // Insert the rows where Shipment Id is not null
+            sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID SET "
+                    + "s.SUGGESTED_QTY=ts.SUGGESTED_QTY, "
+                    + "s.PROCUREMENT_AGENT_ID=ts.PROCUREMENT_AGENT_ID, "
+                    + "s.ACCOUNT_FLAG=ts.ACCOUNT_FLAG, "
+                    + "s.ERP_FLAG=ts.ERP_FLAG, "
+                    + "s.CURRENCY_ID=ts.CURRENCY_ID, "
+                    + "s.CONVERSION_RATE_TO_USD=ts.CONVERSION_RATE_TO_USD, "
+                    + "s.EMERGENCY_ORDER=ts.EMERGENCY_ORDER, "
+                    + "s.MAX_VERSION_ID=:versionId "
+                    + "WHERE ts.SHIPMENT_ID IS NOT NULL AND ts.CHANGED=1";
+            shipmentRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+            params.put("curUser", curUser.getUserId());
+            params.put("curDate", curDate);
+            sqlString = "INSERT INTO rm_shipment_trans ("
+                    + "SHIPMENT_ID, PLANNING_UNIT_ID, EXPECTED_DELIVERY_DATE, PROCUREMENT_UNIT_ID, SUPPLIER_ID, "
+                    + "SHIPMENT_QTY, RATE, PRODUCT_COST, SHIPMENT_MODE, FREIGHT_COST, "
+                    + "ORDERED_DATE, SHIPPED_DATE, DELIVERED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, "
+                    + "NOTES, ORDER_NO, PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, "
+                    + "LAST_MODIFIED_DATE, VERSION_ID) "
+                    + "SELECT "
+                    + "ts.SHIPMENT_ID, ts.PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, ts.PROCUREMENT_UNIT_ID, ts.SUPPLIER_ID, "
+                    + "ts.SHIPMENT_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, "
+                    + "ts.ORDERED_DATE, ts.SHIPPED_DATE, ts.DELIVERED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, "
+                    + "ts.NOTES, ts.ORDER_NO, ts.PRIME_LINE_NO, ts.ACTIVE, :curUser, "
+                    + ":curDate, :versionId FROM tmp_shipment ts WHERE ts.CHANGED=1 AND ts.SHIPMENT_ID IS NOT NULL";
+            shipmentRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+            params.clear();
+            params.put("versionId", version.getVersionId());
+            // Insert into rm_shipment_trans_batch_info where the shipment record was already existing but has changed
+            sqlString = "INSERT INTO rm_shipment_trans_batch_info SELECT null, st.SHIPMENT_TRANS_ID, tsbi.BATCH_NO, tsbi.EXPIRY_DATE, tsbi.BATCH_SHIPMENT_QTY FROM tmp_shipment ts left join tmp_shipment_batch_info tsbi ON tsbi.PARENT_ID=ts.ID LEFT JOIN rm_shipment_trans st ON ts.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID=:versionId WHERE ts.SHIPMENT_ID IS NOT NULL AND ts.CHANGED=1 AND tsbi.PARENT_ID IS NOT NULL";
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+            params.put("curUser", curUser.getUserId());
+            params.put("curDate", curDate);
+            sqlString = "INSERT INTO rm_shipment_budget (SHIPMENT_ID, BUDGET_ID, BUDGET_AMT, CONVERSION_RATE_TO_USD, CURRENCY_ID, ACTIVE, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID) "
+                    + "SELECT ts.SHIPMENT_ID, tsb.BUDGET_ID, tsb.BUDGET_AMT, tsb.CONVERSION_RATE_TO_USD, tsb.CURRENCY_ID, tsb.ACTIVE, :curUser, :curDate, :curUser, :curDate, :versionId "
+                    + "FROM tmp_shipment ts left join tmp_shipment_budget tsb ON tsb.PARENT_ID=ts.ID WHERE ts.SHIPMENT_ID IS NOT NULL AND ts.CHANGED=1 AND tsb.PARENT_ID IS NOT NULL";
+            shipmentRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+            params.clear();
+
+            sqlString = "SELECT ts.ID FROM tmp_shipment ts WHERE ts.SHIPMENT_ID IS NULL OR ts.SHIPMENT_ID=0";
+            List<Integer> idListForInsert = this.namedParameterJdbcTemplate.queryForList(sqlString, params, Integer.class);
+            params.put("id", 0);
+            params.put("versionId", version.getVersionId());
+            params.put("programId", programData.getProgramId());
+            params.put("curUser", curUser.getUserId());
+            params.put("curDate", curDate);
+            for (Integer tmpId : idListForInsert) {
+                sqlString = "INSERT INTO rm_shipment ("
+                        + "PROGRAM_ID, SUGGESTED_QTY, PROCUREMENT_AGENT_ID, ACCOUNT_FLAG, "
+                        + "ERP_FLAG, CURRENCY_ID, CONVERSION_RATE_TO_USD, EMERGENCY_ORDER, CREATED_BY, "
+                        + "CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) SELECT "
+                        + ":programId, ts.SUGGESTED_QTY, ts.PROCUREMENT_AGENT_ID, ts.ACCOUNT_FLAG, "
+                        + "ts.ERP_FLAG, ts.CURRENCY_ID, ts.CONVERSION_RATE_TO_USD, ts.EMERGENCY_ORDER, :curUser, "
+                        + ":curDate, :curUser, :curDate, :versionId FROM tmp_shipment ts WHERE ts.ID=:id";
+                params.replace("id", tmpId);
+                consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+                sqlString = "SELECT LAST_INSERT_ID()";
+                int shipmentId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+                params.put("shipmentId", shipmentId);
+                sqlString = "INSERT INTO rm_shipment_trans ("
+                        + "SHIPMENT_ID, PLANNING_UNIT_ID, EXPECTED_DELIVERY_DATE, PROCUREMENT_UNIT_ID, SUPPLIER_ID, "
+                        + "SHIPMENT_QTY, RATE, PRODUCT_COST, SHIPMENT_MODE, FREIGHT_COST, "
+                        + "ORDERED_DATE, SHIPPED_DATE, DELIVERED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, "
+                        + "NOTES, ORDER_NO, PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, "
+                        + "LAST_MODIFIED_DATE, VERSION_ID) SELECT "
+                        + ":shipmentId, ts.PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, ts.PROCUREMENT_UNIT_ID, ts.SUPPLIER_ID, "
+                        + "ts.SHIPMENT_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, "
+                        + "ts.ORDERED_DATE, ts.SHIPPED_DATE, ts.DELIVERED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, "
+                        + "ts.NOTES, ts.ORDER_NO, ts.PRIME_LINE_NO, ts.ACTIVE, :curUser, "
+                        + ":curDate, :versionId "
+                        + "FROM tmp_shipment ts WHERE ts.ID=:id";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+                sqlString = "INSERT INTO rm_shipment_trans_batch_info (SHIPMENT_TRANS_ID, BATCH_NO, EXPIRY_DATE, BATCH_SHIPMENT_QTY) SELECT LAST_INSERT_ID(), tsbi.BATCH_NO, tsbi.EXPIRY_DATE, tsbi.BATCH_SHIPMENT_QTY from tmp_shipment_batch_info tsbi WHERE tsbi.PARENT_ID=:id";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+                sqlString = "INSERT INTO rm_shipment_budget (SHIPMENT_ID, BUDGET_ID, BUDGET_AMT, CONVERSION_RATE_TO_USD, CURRENCY_ID, ACTIVE, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID) SELECT :shipmentId , tsb.BUDGET_ID, tsb.BUDGET_AMT, tsb.CONVERSION_RATE_TO_USD, tsb.CURRENCY_ID, tsb.ACTIVE, :curUser, :curDate, :curUser, :curDate, :versionId FROM tmp_shipment ts left join tmp_shipment_budget tsb ON tsb.PARENT_ID=ts.ID WHERE tsb.PARENT_ID=:id";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+            }
+        }
+        // ###########################  Shipment  ############################################
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption_trans_batch_info`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_inventory`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_inventory_trans_batch_info`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_trans_batch_info`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_budget`";
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        if (version == null) {
+            return new Version(0, null, null, null, null, null, null, null);
+        } else {
+            return version;
+        }
+
     }
 
     @Override
-    public List<PrgRegionDTO> getRegionListByProgramId(int programId) {
-        String sql = "SELECT rpr.`REGION_ID`,r.`CAPACITY_CBM`,ap_label.`LABEL_EN` AS REGION_LABEL_EN,r.`ACTIVE`\n"
-                + "                ,ap_label.`LABEL_FR` AS REGION_LABEL_FR,ap_label.`LABEL_PR` AS REGION_LABEL_PR,ap_label.`LABEL_SP` AS REGION_LABEL_SP,rc.`REALM_ID`\n"
-                + "                FROM rm_program_region rpr\n"
-                + "                LEFT JOIN rm_region r ON r.`REGION_ID`=rpr.`REGION_ID`\n"
-                + "                LEFT JOIN rm_realm_country rc ON rc.`REALM_COUNTRY_ID`=r.`REALM_COUNTRY_ID`\n"
-                + "                LEFT JOIN ap_label ON ap_label.`LABEL_ID`=r.`LABEL_ID` "
-                + " WHERE rpr.`PROGRAM_ID`=?;";
-        return this.jdbcTemplate.query(sql, new PrgRegionDTORowMapper(), programId);
+    public List<SimpleObject> getVersionTypeList() {
+        String sqlString = "SELECT vt.VERSION_TYPE_ID `ID`, vtl.LABEL_ID, vtl.LABEL_EN, vtl.LABEL_FR, vtl.LABEL_SP, vtl.LABEL_PR  FROM ap_version_type vt LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID";
+        return this.namedParameterJdbcTemplate.query(sqlString, new SimpleObjectRowMapper());
     }
 
     @Override
-    public List<PrgBudgetDTO> getBudgetListByProgramId(int programId) {
-        String sql = "SELECT b.`BUDGET_AMT` AS `BUDGET_AMOUNT`,b.`BUDGET_ID`,ap_label.`LABEL_EN` AS BUDGET_LABEL_EN,ap_label.`LABEL_FR` AS BUDGET_LABEL_FR,\n"
-                + "ap_label.`LABEL_PR` AS BUDGET_LABEL_PR,ap_label.`LABEL_SP` AS BUDGET_LABEL_SP,b.`START_DATE` AS BUDGET_START_DATE,\n"
-                + "b.`STOP_DATE` AS  BUDGET_STOP_DATE,rsfs.`FUNDING_SOURCE_ID`,rfs_label.`LABEL_EN` AS FUNDING_SOURCE_LABEL_EN\n"
-                + ",rfs_label.`LABEL_FR` AS FUNDING_SOURCE_LABEL_FR,rfs_label.`LABEL_PR` AS FUNDING_SOURCE_LABEL_PR\n"
-                + ",rfs_label.`LABEL_SP` AS FUNDING_SOURCE_LABEL_SP,rsfs.`SUB_FUNDING_SOURCE_ID`,\n"
-                + "rsfs_label.`LABEL_EN` AS SUB_FUNDING_SOURCE_LABEL_EN\n"
-                + ",rsfs_label.`LABEL_FR` AS SUB_FUNDING_SOURCE_LABEL_FR,rsfs_label.`LABEL_PR` AS SUB_FUNDING_SOURCE_LABEL_PR,\n"
-                + "rsfs_label.`LABEL_SP` AS SUB_FUNDING_SOURCE_LABEL_SP\n"
-                + "FROM rm_budget b \n"
-                + "LEFT JOIN ap_label ON ap_label.`LABEL_ID`=b.`LABEL_ID`\n"
-                + "LEFT JOIN rm_sub_funding_source rsfs ON rsfs.`SUB_FUNDING_SOURCE_ID`=b.`SUB_FUNDING_SOURCE_ID`\n"
-                + "LEFT JOIN rm_funding_source rfs ON rfs.`FUNDING_SOURCE_ID`=rsfs.`FUNDING_SOURCE_ID`\n"
-                + "LEFT JOIN ap_label rfs_label ON rfs_label.`LABEL_ID`=rfs.`LABEL_ID`\n"
-                + "LEFT JOIN ap_label rsfs_label ON rsfs.`LABEL_ID`=rsfs_label.`LABEL_ID`\n"
-                + "WHERE b.`PROGRAM_ID`=?;";
-        return this.jdbcTemplate.query(sql, new PrgBudgetDTORowMapper(), programId);
+    public List<SimpleObject> getVersionStatusList() {
+        String sqlString = "SELECT vs.VERSION_STATUS_ID `ID`, vsl.LABEL_ID, vsl.LABEL_EN, vsl.LABEL_FR, vsl.LABEL_SP, vsl.LABEL_PR  FROM ap_version_status vs LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID";
+        return this.namedParameterJdbcTemplate.query(sqlString, new SimpleObjectRowMapper());
+    }
+
+    @Override
+    public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("realmCountryId", realmCountryId);
+        params.put("healthAreaId", healthAreaId);
+        params.put("organisationId", organisationId);
+        params.put("versionId", versionId);
+        params.put("versionTypeId", versionTypeId);
+        params.put("versionStatusId", versionStatusId);
+        params.put("startDate", startDate + " 00:00:00");
+        params.put("stopDate", stopDate + " 23:59:59");
+        StringBuilder sb = new StringBuilder("SELECT  "
+                + "     pv.PROGRAM_VERSION_ID, pv.VERSION_ID, pv.NOTES, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, pv.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pv.LAST_MODIFIED_DATE, "
+                + "     p.PROGRAM_ID, pl.LABEL_ID `PROGRAM_LABEL_ID`, pl.LABEL_EN `PROGRAM_LABEL_EN`, pl.LABEL_FR `PROGRAM_LABEL_FR`, pl.LABEL_SP `PROGRAM_LABEL_SP`, pl.LABEL_PR `PROGRAM_LABEL_PR`, "
+                + "     rc.REALM_COUNTRY_ID, c.COUNTRY_CODE, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR`, "
+                + "     ha.HEALTH_AREA_ID, hal.LABEL_ID `HEALTH_AREA_LABEL_ID`, hal.LABEL_EN `HEALTH_AREA_LABEL_EN`, hal.LABEL_FR `HEALTH_AREA_LABEL_FR`, hal.LABEL_SP `HEALTH_AREA_LABEL_SP`, hal.LABEL_PR `HEALTH_AREA_LABEL_PR`, "
+                + "     o.ORGANISATION_ID, o.ORGANISATION_CODE, ol.LABEL_ID `ORGANISATION_LABEL_ID`, ol.LABEL_EN `ORGANISATION_LABEL_EN`, ol.LABEL_FR `ORGANISATION_LABEL_FR`, ol.LABEL_SP `ORGANISATION_LABEL_SP`, ol.LABEL_PR `ORGANISATION_LABEL_PR`, "
+                + "     vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
+                + "     vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR` "
+                + "FROM rm_program_version pv  "
+                + "LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
+                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+                + "LEFT JOIN rm_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
+                + "LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
+                + "LEFT JOIN rm_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
+                + "LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
+                + "LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON pv.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "LEFT JOIN ap_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
+                + "LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID "
+                + "LEFT JOIN ap_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID "
+                + "LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID "
+                + "WHERE TRUE "
+                + "AND (:programId = -1 OR p.PROGRAM_ID = :programId ) "
+                + "AND (:versionId = -1 OR pv.VERSION_ID = :versionId ) "
+                + "AND (:realmCountryId = -1 OR p.REALM_COUNTRY_ID= :realmCountryId ) "
+                + "AND (:healthAreaId = -1 OR p.HEALTH_AREA_ID = :healthAreaId ) "
+                + "AND (:organisationId = -1 OR p.ORGANISATION_ID = :organisationId) "
+                + "AND (:versionTypeId = -1 OR pv.VERSION_TYPE_ID = :versionTypeId) "
+                + "AND (:versionStatusId = -1 OR pv.VERSION_STATUS_ID = :versionStatusId) "
+                + "AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate ");
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ProgramVersionRowMapper());
+
+    }
+
+    @Override
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, CustomUserDetails curUser) {
+        String sqlString = "UPDATE rm_program_version pv SET pv.VERSION_STATUS_ID=:versionStatusId, pv.LAST_MODIFIED_DATE=:curDate, pv.LAST_MODIFIED_BY=:curUser WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        params.put("versionStatusId", versionStatusId);
+        params.put("curUser", curUser.getUserId());
+        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        return this.getVersionInfo(programId, versionId);
+    }
+
+    /**
+     *
+     * @param orderNo
+     * @param primeLineNo
+     * @param realmCountryId
+     * @param planningUnitId
+     * @return 0-Okay to go ahead link 1- Order not found, 2- Already linked
+     * 3-Order not for this Country, 4-Order not for this Planning Unit
+     *
+     */
+    @Override
+    public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId) {
+        String sqlString = "SELECT IF(steop.SHIPMENT_TRANS_ERP_ORDER_ID IS NOT NULL, 2, IF(c1.REALM_COUNTRY_ID!=:realmCountryId, 3, IF (papu.PLANNING_UNIT_ID!=:planningUnitId, 4, 0))) `REASON` "
+                + "FROM rm_erp_order eo "
+                + "LEFT JOIN rm_shipment_trans_erp_order_mapping steop ON eo.ERP_ORDER_ID=steop.ERP_ORDER_ID "
+                + "LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE FROM rm_realm_country rc LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=eo.RECPIENT_COUNTRY "
+                + "LEFT JOIN rm_procurement_agent_planning_unit papu ON eo.PLANNING_UNIT_SKU_CODE=papu.SKU_CODE AND papu.PROCUREMENT_AGENT_ID=1 "
+                + "WHERE eo.ORDER_NO=:orderNo AND eo.PRIME_LINE_NO=:primeLineNo";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("orderNo", orderNo);
+        params.put("primeLineNo", primeLineNo);
+        params.put("realmCountryId", realmCountryId);
+        params.put("planningUnitId", planningUnitId);
+        try {
+            return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        } catch (DataAccessException de) {
+            return 1; // Order not found
+        }
     }
 
 }

@@ -8,7 +8,6 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.dao.SupplierDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.PrgSupplierDTO;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.Supplier;
 import cc.altius.FASP.service.AclService;
@@ -35,7 +34,7 @@ public class SupplierServiceImpl implements SupplierService {
 
     @Override
     public int addSupplier(Supplier m, CustomUserDetails curUser) {
-        if (this.aclService.checkRealmAccessForUser(curUser, m.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, m.getRealm().getId())) {
             return this.supplierDao.addSupplier(m, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -45,7 +44,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     public int updateSupplier(Supplier m, CustomUserDetails curUser) {
         Supplier supplier = this.supplierDao.getSupplierById(m.getSupplierId(), curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, supplier.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, supplier.getRealm().getId())) {
             return this.supplierDao.updateSupplier(m, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -73,7 +72,7 @@ public class SupplierServiceImpl implements SupplierService {
     @Override
     public Supplier getSupplierById(int supplierId, CustomUserDetails curUser) {
         Supplier supplier = this.supplierDao.getSupplierById(supplierId, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, supplier.getRealm().getRealmId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, supplier.getRealm().getId())) {
             return this.supplierDao.getSupplierById(supplierId, curUser);
         } else {
             throw new AccessDeniedException("Access denied");

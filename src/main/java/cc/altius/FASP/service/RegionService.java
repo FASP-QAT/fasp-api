@@ -15,9 +15,9 @@ import java.util.List;
  */
 public interface RegionService {
 
-    public int addRegion(Region region, CustomUserDetails curUser);
+//    public int addRegion(Region region, CustomUserDetails curUser);
 
-    public int updateRegion(Region region, CustomUserDetails curUser);
+    public int saveRegions(Region[] regions, CustomUserDetails curUser);
 
     public List<Region> getRegionList(CustomUserDetails curUser);
 

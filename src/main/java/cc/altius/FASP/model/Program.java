@@ -17,23 +17,28 @@ public class Program extends BaseModel implements Serializable {
 
     private int programId;
     private RealmCountry realmCountry;
-    private Organisation organisation;
-    private HealthArea healthArea;
+    private SimpleObject organisation;
+    private SimpleObject healthArea;
     private Label label;
     private BasicUser programManager;
     private String programNotes;
     private double airFreightPerc;
     private double seaFreightPerc;
-    private int plannedToDraftLeadTime;
-    private int draftToSubmittedLeadTime;
-    private int submittedToApprovedLeadTime;
-    private int approvedToShippedLeadTime;
-    private int deliveredToReceivedLeadTime;
+    private double plannedToDraftLeadTime;
+    private double draftToSubmittedLeadTime;
+    private double submittedToApprovedLeadTime;
+    private double approvedToShippedLeadTime;
+    private double shippedToArrivedByAirLeadTime;
+    private double shippedToArrivedBySeaLeadTime;
+    private double arrivedToDeliveredLeadTime;
     private int monthsInPastForAmc;
     private int monthsInFutureForAmc;
+    
     @JsonIgnore
     private List<Region> regionList;
     String[] regionArray;
+    private Version currentVersion;
+    private List<Version> versionList;
 
     public Program() {
     }
@@ -43,6 +48,32 @@ public class Program extends BaseModel implements Serializable {
         this.label = label;
     }
 
+    public double getArrivedToDeliveredLeadTime() {
+        return arrivedToDeliveredLeadTime;
+    }
+
+    public void setArrivedToDeliveredLeadTime(double arrivedToDeliveredLeadTime) {
+        this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
+    }
+
+    public double getShippedToArrivedBySeaLeadTime() {
+        return shippedToArrivedBySeaLeadTime;
+    }
+
+    public void setShippedToArrivedBySeaLeadTime(double shippedToArrivedBySeaLeadTime) {
+        this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
+    }
+
+    public double getShippedToArrivedByAirLeadTime() {
+        return shippedToArrivedByAirLeadTime;
+    }
+
+    public void setShippedToArrivedByAirLeadTime(double shippedToArrivedByAirLeadTime) {
+        this.shippedToArrivedByAirLeadTime = shippedToArrivedByAirLeadTime;
+    }
+
+    
+    
     public int getProgramId() {
         return programId;
     }
@@ -59,19 +90,19 @@ public class Program extends BaseModel implements Serializable {
         this.realmCountry = realmCountry;
     }
 
-    public Organisation getOrganisation() {
+    public SimpleObject getOrganisation() {
         return organisation;
     }
 
-    public void setOrganisation(Organisation organisation) {
+    public void setOrganisation(SimpleObject organisation) {
         this.organisation = organisation;
     }
 
-    public HealthArea getHealthArea() {
+    public SimpleObject getHealthArea() {
         return healthArea;
     }
 
-    public void setHealthArea(HealthArea healthArea) {
+    public void setHealthArea(SimpleObject healthArea) {
         this.healthArea = healthArea;
     }
 
@@ -115,45 +146,39 @@ public class Program extends BaseModel implements Serializable {
         this.seaFreightPerc = seaFreightPerc;
     }
 
-    public int getPlannedToDraftLeadTime() {
+    public double getPlannedToDraftLeadTime() {
         return plannedToDraftLeadTime;
     }
 
-    public void setPlannedToDraftLeadTime(int plannedToDraftLeadTime) {
+    public void setPlannedToDraftLeadTime(double plannedToDraftLeadTime) {
         this.plannedToDraftLeadTime = plannedToDraftLeadTime;
     }
 
-    public int getDraftToSubmittedLeadTime() {
+    public double getDraftToSubmittedLeadTime() {
         return draftToSubmittedLeadTime;
     }
 
-    public void setDraftToSubmittedLeadTime(int draftToSubmittedLeadTime) {
+    public void setDraftToSubmittedLeadTime(double draftToSubmittedLeadTime) {
         this.draftToSubmittedLeadTime = draftToSubmittedLeadTime;
     }
 
-    public int getSubmittedToApprovedLeadTime() {
+    public double getSubmittedToApprovedLeadTime() {
         return submittedToApprovedLeadTime;
     }
 
-    public void setSubmittedToApprovedLeadTime(int submittedToApprovedLeadTime) {
+    public void setSubmittedToApprovedLeadTime(double submittedToApprovedLeadTime) {
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
     }
 
-    public int getApprovedToShippedLeadTime() {
+    public double getApprovedToShippedLeadTime() {
         return approvedToShippedLeadTime;
     }
 
-    public void setApprovedToShippedLeadTime(int approvedToShippedLeadTime) {
+    public void setApprovedToShippedLeadTime(double approvedToShippedLeadTime) {
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
     }
 
-    public int getDeliveredToReceivedLeadTime() {
-        return deliveredToReceivedLeadTime;
-    }
 
-    public void setDeliveredToReceivedLeadTime(int deliveredToReceivedLeadTime) {
-        this.deliveredToReceivedLeadTime = deliveredToReceivedLeadTime;
-    }
 
     public int getMonthsInPastForAmc() {
         return monthsInPastForAmc;
@@ -180,11 +205,35 @@ public class Program extends BaseModel implements Serializable {
     }
 
     public String[] getRegionArray() {
-        return regionArray;
+        if (this.regionList.isEmpty()) {
+            return new String[0];
+        } else {
+            return regionList.stream().map(Region::getRegionIdString).toArray(String[]::new);
+        }
     }
 
     public void setRegionArray(String[] regionArray) {
         this.regionArray = regionArray;
+        this.regionList.clear();
+        for (String r : regionArray) {
+            this.regionList.add(new Region(Integer.parseInt(r), null));
+        }
+    }
+
+    public Version getCurrentVersion() {
+        return currentVersion;
+    }
+
+    public void setCurrentVersion(Version currentVersion) {
+        this.currentVersion = currentVersion;
+    }
+
+    public List<Version> getVersionList() {
+        return versionList;
+    }
+
+    public void setVersionList(List<Version> versionList) {
+        this.versionList = versionList;
     }
 
     @Override

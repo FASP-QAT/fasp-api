@@ -11,22 +11,22 @@ package cc.altius.FASP.model;
  */
 public class SimpleObject {
 
-    private int id;
+    private Integer id;
     private Label label;
 
     public SimpleObject() {
     }
 
-    public SimpleObject(int id, Label label) {
+    public SimpleObject(Integer id, Label label) {
         this.id = id;
         this.label = label;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -36,6 +36,36 @@ public class SimpleObject {
 
     public void setLabel(Label label) {
         this.label = label;
+    }
+
+    @Override
+    public String toString() {
+        return "SimpleObject{" + "id=" + id + ", label=" + label + '}';
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 67 * hash + this.id;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SimpleObject other = (SimpleObject) obj;
+        if (this.id != other.id) {
+            return false;
+        }
+        return true;
     }
 
 }

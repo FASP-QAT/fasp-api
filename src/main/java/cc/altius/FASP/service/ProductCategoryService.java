@@ -6,7 +6,9 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.ExtendedProductCategory;
 import cc.altius.FASP.model.ProductCategory;
+import cc.altius.utils.TreeUtils.Node;
 import java.util.List;
 
 /**
@@ -15,16 +17,14 @@ import java.util.List;
  */
 public interface ProductCategoryService {
 
-    public int saveProductCategoryList(List<ProductCategory> productCategoryList, CustomUserDetails curUser);
+    public int saveProductCategoryList(Node<ProductCategory>[] productCategorys, CustomUserDetails curUser) throws Exception;
 
-    public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser);
+    public List<Node<ExtendedProductCategory>> getProductCategoryListForRealm(CustomUserDetails curUser, int realmId);
 
-    public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren);
-    
-    public List<ProductCategory> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren);
+    public List<Node<ExtendedProductCategory>> getProductCategoryList(CustomUserDetails curUser, int realmId, int productCategoryId, boolean includeCurrentLevel, boolean includeAllChildren);
 
-    public ProductCategory getProductCategoryById(int productCategoryId, CustomUserDetails curUser);
-    
-    public List<ProductCategory> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser);
+    public List<Node<ExtendedProductCategory>> getProductCategoryListForSync(String lastSyncDate, CustomUserDetails curUser);
+
+    public List<Node<ExtendedProductCategory>> getProductCategoryListForProgram(CustomUserDetails curUser, int realmId, int programId);
 
 }

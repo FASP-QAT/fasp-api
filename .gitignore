@@ -15,7 +15,6 @@ nbdist/
 
 # End of https://www.gitignore.io/api/netbeans
 
-/target/
 # Created by https://www.gitignore.io/api/netbeans
 # Edit at https://www.gitignore.io/?templates=netbeans
 
@@ -28,7 +27,12 @@ nbbuild/
 dist/
 nbdist/
 .nb-gradle/
-
+nbactions.xml
 # End of https://www.gitignore.io/api/netbeans
 /src/main/resources/fasp - db design.mwb.bak
 /src/main/resources/fasp - db design(2).mwb
+/src/main/resources/fasp - db design2.mwb
+src/main/resources/fasp - db design2.mwb
+src/main/resources/fasp - db design2.mwb.bak
+/src/main/resources/fasp - db design2.mwb.bak
+/target/

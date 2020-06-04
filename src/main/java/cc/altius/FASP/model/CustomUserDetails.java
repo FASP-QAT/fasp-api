@@ -35,6 +35,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private String emailId;
     private int sessionExpiresOn;
     private Language language;
+    private Date syncExpiresOn;
 
     public Realm getRealm() {
         return realm;
@@ -159,6 +160,15 @@ public class CustomUserDetails implements UserDetails, Serializable {
         this.language = language;
     }
 
+    public Date getSyncExpiresOn() {
+        return syncExpiresOn;
+    }
+
+    public void setSyncExpiresOn(Date syncExpiresOn) {
+        this.syncExpiresOn = syncExpiresOn;
+    }
+
+    
     @Override
     public String getUsername() {
         return username;
@@ -200,7 +210,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
             return true;
         }
     }
-
+    
     @Override
     public int hashCode() {
         int hash = 7;
@@ -225,6 +235,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
 
     @Override
     public String toString() {
-        return "CustomUserDetails{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", active=" + active + ", failedAttempts=" + failedAttempts + ", expiresOn=" + expiresOn + ", lastLoginDate=" + lastLoginDate + ", roles=" + roles + ", businessFunction=" + businessFunction + '}';
+        return "CustomUserDetails{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", active=" + active + ", failedAttempts=" + failedAttempts + ", expiresOn=" + expiresOn + ", lastLoginDate=" + lastLoginDate + ", realm=" + realm + ", roles=" + roles + ", aclList=" + aclList + ", businessFunction=" + businessFunction + ", emailId=" + emailId + ", sessionExpiresOn=" + sessionExpiresOn + ", language=" + language + ", syncExpiresOn=" + syncExpiresOn + '}';
     }
+
 }

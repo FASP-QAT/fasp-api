@@ -5,6 +5,11 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.utils.DateUtils;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -15,20 +20,32 @@ import java.util.Date;
 public class Budget extends BaseModel implements Serializable {
 
     private int budgetId;
-    private Program program;
-    private SubFundingSource subFundingSource;
+    private SimpleObject program;
+    private FundingSource fundingSource;
     private Label label;
-    private int budgetAmt;
-//    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private Currency currency;
+    private double budgetAmt;
+    private double budgetUsdAmt;
+    private double usedUsdAmt; // Will always be converted into USD
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
-//    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
+    private String notes;
 
     public Budget() {
     }
 
     public Budget(int budgetId, Label label) {
         this.budgetId = budgetId;
+        this.label = label;
+    }
+
+    public Budget(int budgetId, FundingSource fundingSource, Label label) {
+        this.budgetId = budgetId;
+        this.fundingSource = fundingSource;
         this.label = label;
     }
 
@@ -40,20 +57,20 @@ public class Budget extends BaseModel implements Serializable {
         this.budgetId = budgetId;
     }
 
-    public Program getProgram() {
+    public SimpleObject getProgram() {
         return program;
     }
 
-    public void setProgram(Program program) {
+    public void setProgram(SimpleObject program) {
         this.program = program;
     }
 
-    public SubFundingSource getSubFundingSource() {
-        return subFundingSource;
+    public FundingSource getFundingSource() {
+        return fundingSource;
     }
 
-    public void setSubFundingSource(SubFundingSource subFundingSource) {
-        this.subFundingSource = subFundingSource;
+    public void setFundingSource(FundingSource fundingSource) {
+        this.fundingSource = fundingSource;
     }
 
     public Label getLabel() {
@@ -64,12 +81,36 @@ public class Budget extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public int getBudgetAmt() {
+    public double getBudgetAmt() {
         return budgetAmt;
     }
 
-    public void setBudgetAmt(int budgetAmt) {
+    public void setBudgetAmt(double budgetAmt) {
         this.budgetAmt = budgetAmt;
+    }
+
+    public double getUsedUsdAmt() {
+        return usedUsdAmt;
+    }
+
+    public void setUsedUsdAmt(double usedUsdAmt) {
+        this.usedUsdAmt = usedUsdAmt;
+    }
+
+    public double getBudgetUsdAmt() {
+        return budgetUsdAmt;
+    }
+
+    public void setBudgetUsdAmt(double budgetUsdAmt) {
+        this.budgetUsdAmt = budgetUsdAmt;
+    }
+
+    public Currency getCurrency() {
+        return currency;
+    }
+
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
     }
 
     public Date getStartDate() {
@@ -86,6 +127,23 @@ public class Budget extends BaseModel implements Serializable {
 
     public void setStopDate(Date stopDate) {
         this.stopDate = stopDate;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public boolean isBudgetUsable() {
+        if (this.budgetUsdAmt > this.usedUsdAmt
+                && DateUtils.compareDate(DateUtils.getCurrentDateObject(DateUtils.EST), this.stopDate) <= 0) {
+            return this.isActive();
+        } else {
+            return false;
+        }
     }
 
     @Override
@@ -118,5 +176,4 @@ public class Budget extends BaseModel implements Serializable {
         return "Budget{" + "budgetId=" + budgetId + ", label=" + label + ", budgetAmt=" + budgetAmt + ", startDate=" + startDate + ", stopDate=" + stopDate + '}';
     }
 
-    
 }
