@@ -1,0 +1,93 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package cc.altius.FASP.model.pipeline;
+
+/**
+ *
+ * @author altius
+ */
+public class QatTempInventory {
+
+    private String planningUnitId;
+    private String dataSourceId;
+    private String regionId;
+    private String inventoryDate;
+    private int manualAdjustment;
+    private String notes;
+    private boolean active;
+
+    public QatTempInventory() {
+
+    }
+
+    public QatTempInventory(String planningUnitId, String dataSourceId, String regionId, String inventoryDate, int manualAdjustment, String notes, boolean active) {
+        this.planningUnitId = planningUnitId;
+        this.dataSourceId = dataSourceId;
+        this.regionId = regionId;
+        this.inventoryDate = inventoryDate;
+        this.manualAdjustment = manualAdjustment;
+        this.notes = notes;
+        this.active = active;
+    }
+
+    public String getPlanningUnitId() {
+        return planningUnitId;
+    }
+
+    public void setPlanningUnitId(String planningUnitId) {
+        this.planningUnitId = planningUnitId;
+    }
+
+    public String getDataSourceId() {
+        return dataSourceId;
+    }
+
+    public void setDataSourceId(String dataSourceId) {
+        this.dataSourceId = dataSourceId;
+    }
+
+    public String getRegionId() {
+        return regionId;
+    }
+
+    public void setRegionId(String regionId) {
+        this.regionId = regionId;
+    }
+
+    public String getInventoryDate() {
+        return inventoryDate;
+    }
+
+    public void setInventoryDate(String inventoryDate) {
+        this.inventoryDate = inventoryDate;
+    }
+
+    public int getManualAdjustment() {
+        return manualAdjustment;
+    }
+
+    public void setManualAdjustment(int manualAdjustment) {
+        this.manualAdjustment = manualAdjustment;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    
+}
