@@ -747,7 +747,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "FROM fasp.qat_temp_program_planning_unit p \n"
                 + "left join adb_product ap on ap.ProductID=p.PIPELINE_PRODUCT_ID and ap.PIPELINE_ID=:pipelineId\n"
                 + "left join adb_method m on m.MethodID=ap.MethodID and m.PIPELINE_ID=:pipelineId\n"
-                + "left join rm_planning_unit pu on pu.PLANNING_UNIT_ID=p.PLANNING_UNIT_ID\n"
+                + "left join rm_planning_unit pu on p.PLANNING_UNIT_ID like pu.PLANNING_UNIT_ID\n"
                 + "left join rm_forecasting_unit fu on fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID AND pu.PLANNING_UNIT_ID IS NOT NULL \n"
                 + "where p.PIPELINE_ID=:pipelineId;";
         params.put("pipelineId", pipelineId);
