@@ -15,7 +15,7 @@ public class ShipmentBudget implements Serializable {
 
     private int shipmentBudgetId;
     private SimpleBudgetObject budget;
-    private boolean active;
+    private transient boolean active;
     private double budgetAmt;
     private Currency currency;
     private double conversionRateToUsd;

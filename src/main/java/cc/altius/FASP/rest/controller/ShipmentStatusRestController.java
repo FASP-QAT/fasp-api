@@ -7,7 +7,6 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.service.RegionService;
 import cc.altius.FASP.service.ShipmentStatusService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
