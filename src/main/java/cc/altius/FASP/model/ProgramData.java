@@ -45,8 +45,20 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<Inventory> inventoryList;
     private List<Shipment> shipmentList;
     private int requestedProgramVersion;
+    @JsonIgnore
     private Date lastModifiedDate;
+    @JsonIgnore
     private BasicUser lastModifiedBy;
+    @JsonIgnore
+    private boolean active;
+    
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public int getRequestedProgramVersion() {
         return requestedProgramVersion;

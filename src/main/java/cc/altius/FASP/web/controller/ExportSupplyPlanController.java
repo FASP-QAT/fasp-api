@@ -6,7 +6,6 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.dao.ProgramDataDao;
-import cc.altius.FASP.dao.impl.ImportProductCatalogueDaoImpl;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.Program;
@@ -17,17 +16,11 @@ import cc.altius.FASP.service.ProgramService;
 import cc.altius.utils.DateUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.logging.Level;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,7 +50,7 @@ public class ExportSupplyPlanController {
     private int REALM_ID;
     private static org.slf4j.Logger LOG = LoggerFactory.getLogger(ExportSupplyPlanController.class);
 
-    @RequestMapping(value = "export")
+    @RequestMapping(value = "exportSupplyPlan")
 //    @Scheduled(cron = "00 */05 * * * *")
     public void exportSupplyPlan() {
         EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
