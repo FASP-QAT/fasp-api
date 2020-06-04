@@ -13,11 +13,12 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author ekta
  */
-public class AnnualShipmentCostOutputRowMapper implements RowMapper<AnnualShipmentCostOutput>{
-      @Override
+public class AnnualShipmentCostOutputRowMapper implements RowMapper<AnnualShipmentCostOutput> {
+
+    @Override
     public AnnualShipmentCostOutput mapRow(ResultSet rs, int i) throws SQLException {
-        AnnualShipmentCostOutput asco=new AnnualShipmentCostOutput();
+        AnnualShipmentCostOutput asco = new AnnualShipmentCostOutput();
         return asco;
     }
-    
+
 }

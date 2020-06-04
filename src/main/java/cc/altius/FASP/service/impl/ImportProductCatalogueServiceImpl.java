@@ -10,11 +10,17 @@ import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.ImportProductCatalogueService;
+import cc.altius.utils.DateUtils;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.SQLIntegrityConstraintViolationException;
+import java.text.SimpleDateFormat;
 import javax.xml.parsers.ParserConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 
@@ -29,59 +35,77 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
     private ImportProductCatalogueDao importProductCatalogueDao;
     @Autowired
     private EmailService emailService;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
 //    @Transactional(propagation = Propagation.REQUIRED)
 //    @Transactional
-    public void importProductCatalogue(String filePath) throws ParserConfigurationException, SAXException, IOException {
+    public void importProductCatalogue(String filePath) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException {
         EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
         String[] subjectParam = new String[]{};
         String[] bodyParam = null;
         Emailer emailer = new Emailer();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
+        String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         try {
-            this.importProductCatalogueDao.importProductCatalogue(filePath);
+            File directory = new File("/home/altius/Documents/FASP/ARTEMISDATA/");
+            if (directory.isDirectory()) {
+                this.importProductCatalogueDao.importProductCatalogue(filePath);
 //            this.importProductCatalogueDao.pullUnitTable();
 //        this.importProductCatalogueDao.pullTracerCategoryFromTmpTables();
 //        this.importProductCatalogueDao.pullForecastingUnitFromTmpTables();
 //        this.importProductCatalogueDao.pullPlanningUnitFromTmpTables();
 //        this.importProductCatalogueDao.pullSupplierFromTmpTables();
 //        this.importProductCatalogueDao.pullProcurementUnitFromTmpTables();
+            } else {
+                subjectParam = new String[]{"Product Catalogue", "Directory does not exists"};
+                bodyParam = new String[]{"Product Catalogue", date, "Directory does not exists", "Directory does not exists"};
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+                int emailerId = this.emailService.saveEmail(emailer);
+                emailer.setEmailerId(emailerId);
+                this.emailService.sendMail(emailer);
+                logger.error("Directory does not exists");
+            }
         } catch (FileNotFoundException e) {
             subjectParam = new String[]{"Product Catalogue", "File not found"};
-            bodyParam = new String[]{"Product Catalogue", "02-06-2020 12:50 PM IST", "File not found", e.getMessage()};
+            bodyParam = new String[]{"Product Catalogue", date, "File not found", e.getMessage()};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
-            System.out.println("file not found exception occured-------------------------------------");
-            e.printStackTrace();
+            logger.error("File not found exception occured", e);
         } catch (SAXException e) {
             subjectParam = new String[]{"Product Catalogue", "Xml syntax error"};
-            bodyParam = new String[]{"Product Catalogue", "02-06-2020 12:50PM IST", "Xml syntax error", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            bodyParam = new String[]{"Product Catalogue", date, "Xml syntax error", e.getMessage()};
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
-            System.out.println("SAX exception occured-------------------------------------");
-            e.printStackTrace();
+            logger.error("SAX exception occured", e);
         } catch (IOException e) {
             subjectParam = new String[]{"Product Catalogue", "Input/Output error"};
-            bodyParam = new String[]{"Product Catalogue", "02-06-2020 12:50PM IST", "Input/Output error", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            bodyParam = new String[]{"Product Catalogue", date, "Input/Output error", e.getMessage()};
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
-            System.out.println("IO exception occured-------------------------------------");
-            e.printStackTrace();
+            logger.error("IO exception occured", e);
+        } catch (BadSqlGrammarException e) {
+            subjectParam = new String[]{"Product Catalogue", "SQL Exception"};
+            bodyParam = new String[]{"Product Catalogue", date, "SQL Exception", e.getMessage()};
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            int emailerId = this.emailService.saveEmail(emailer);
+            emailer.setEmailerId(emailerId);
+            this.emailService.sendMail(emailer);
+            logger.error("SQL exception occured", e);
         } catch (Exception e) {
             subjectParam = new String[]{"Product Catalogue", e.getClass().toString()};
-            bodyParam = new String[]{"Product Catalogue", "02-06-2020 12:50PM IST", e.getClass().toString(), e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            bodyParam = new String[]{"Product Catalogue", date, e.getClass().toString(), e.getMessage()};
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
-            System.out.println("General exception occured-------------------------------------");
-            e.printStackTrace();
+            logger.error("Export supply plan exception occured", e);
         }
     }
 

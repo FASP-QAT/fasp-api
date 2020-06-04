@@ -23,7 +23,7 @@ public class ImportArtemisDataController {
     @Autowired
     private ImportArtemisDataService importArtemisDataService;
 
-    @RequestMapping(value = "import")
+    @RequestMapping(value = "importShipmentData")
 //    @Scheduled(cron = "00 */05 * * * *")
     public void importArtemisData() throws ParserConfigurationException, SAXException, IOException {
         System.out.println("inside controller------------------");

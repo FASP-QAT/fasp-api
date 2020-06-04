@@ -34,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -818,6 +819,37 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         this.namedParameterJdbcTemplate.update(sqlString, params);
         return this.getVersionInfo(programId, versionId);
+    }
+
+    /**
+     *
+     * @param orderNo
+     * @param primeLineNo
+     * @param realmCountryId
+     * @param planningUnitId
+     * @return 0-Okay to go ahead link 1- Order not found, 2- Already linked
+     * 3-Order not for this Country, 4-Order not for this Planning Unit
+     *
+     */
+    @Override
+    public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId) {
+        String sqlString = "SELECT IF(steop.SHIPMENT_TRANS_ERP_ORDER_ID IS NOT NULL, 2, IF(c1.REALM_COUNTRY_ID!=:realmCountryId, 3, IF (papu.PLANNING_UNIT_ID!=:planningUnitId, 4, 0))) `REASON` "
+                + "FROM rm_erp_order eo "
+                + "LEFT JOIN rm_shipment_trans_erp_order_mapping steop ON eo.ERP_ORDER_ID=steop.ERP_ORDER_ID "
+                + "LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE FROM rm_realm_country rc LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=eo.RECPIENT_COUNTRY "
+                + "LEFT JOIN rm_procurement_agent_planning_unit papu ON eo.PLANNING_UNIT_SKU_CODE=papu.SKU_CODE AND papu.PROCUREMENT_AGENT_ID=1 "
+                + "WHERE eo.ORDER_NO=:orderNo AND eo.PRIME_LINE_NO=:primeLineNo";
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("orderNo", orderNo);
+        params.put("primeLineNo", primeLineNo);
+        params.put("realmCountryId", realmCountryId);
+        params.put("planningUnitId", planningUnitId);
+        try {
+            return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        } catch (DataAccessException de) {
+            return 1; // Order not found
+        }
     }
 
 }
