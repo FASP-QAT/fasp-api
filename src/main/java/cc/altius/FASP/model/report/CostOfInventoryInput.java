@@ -19,8 +19,8 @@ import java.util.Date;
 public class CostOfInventoryInput implements Serializable {
 
     private int programId;
-    private String regionList;
-    private String planningUnitList;
+    private String[] regionIds;
+    private String[] planningUnitIds;
     private int versionId;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
@@ -35,20 +35,20 @@ public class CostOfInventoryInput implements Serializable {
         this.programId = programId;
     }
 
-    public String getRegionList() {
-        return regionList;
+    public String[] getRegions() {
+        return regionIds;
     }
 
-    public void setRegionList(String regionList) {
-        this.regionList = regionList;
+    public void setRegions(String[] regions) {
+        this.regionIds = regions;
     }
 
-    public String getPlanningUnitList() {
-        return planningUnitList;
+    public String[] getPlanningUnits() {
+        return planningUnitIds;
     }
 
-    public void setPlanningUnitList(String planningUnitList) {
-        this.planningUnitList = planningUnitList;
+    public void setPlanningUnits(String[] planningUnits) {
+        this.planningUnitIds = planningUnits;
     }
 
     public int getVersionId() {
@@ -75,4 +75,29 @@ public class CostOfInventoryInput implements Serializable {
         this.includePlannedShipments = includePlannedShipments;
     }
 
+    public String getPlanningUnitIdString() {
+        if (this.planningUnitIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.planningUnitIds);
+            if (this.planningUnitIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
+
+    public String getRegionIdString() {
+        if (this.regionIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.regionIds);
+            if (this.regionIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
 }

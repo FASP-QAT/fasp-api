@@ -67,29 +67,41 @@ public class ForecastMetricsInput implements Serializable {
     }
 
     public String getRealmCountryIdString() {
-        String opt = String.join("','", this.realmCountryIds);
-        if (this.realmCountryIds.length > 0) {
-            return "'" + opt + "'";
+        if (this.realmCountryIds == null) {
+            return "";
         } else {
-            return opt;
+            String opt = String.join("','", this.realmCountryIds);
+            if (this.realmCountryIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
         }
     }
 
     public String getProgramIdString() {
-        String opt = String.join("','", this.programIds);
-        if (this.programIds.length > 0) {
-            return "'" + opt + "'";
+        if (this.programIds == null) {
+            return "";
         } else {
-            return opt;
+            String opt = String.join("','", this.programIds);
+            if (this.programIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
         }
     }
 
     public String getPlanningUnitIdString() {
-        String opt = String.join("','", this.planningUnitIds);
-        if (this.planningUnitIds.length > 0) {
-            return "'" + opt + "'";
+        if (this.planningUnitIds == null) {
+            return "";
         } else {
-            return opt;
+            String opt = String.join("','", this.planningUnitIds);
+            if (this.planningUnitIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
         }
     }
 
