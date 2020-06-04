@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.dao;
+package cc.altius.FASP.ARTMIS.dao;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.web.controller;
+package cc.altius.FASP.ARTMIS.controller;
 
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.model.EmailTemplate;
@@ -59,7 +59,7 @@ public class ExportSupplyPlanController {
     @RequestMapping(value = "exportSupplyPlan")
 //    @Scheduled(cron = "00 */05 * * * *")
     public void exportSupplyPlan() {
-        EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
+        EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(4);
         String[] subjectParam = new String[]{};
         String[] bodyParam = null;
         Emailer emailer = new Emailer();
@@ -90,7 +90,7 @@ public class ExportSupplyPlanController {
 //                fileWriter.flush();
 //                fileWriter.close();
                 }
-                Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
+                Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
                 Type typeList = new TypeToken<List<ProgramData>>() {
                 }.getType();
                 json = gson.toJson(programDatas, typeList);
@@ -101,8 +101,8 @@ public class ExportSupplyPlanController {
                 fileWriter.close();
                 logger.info("Export supply plan successful");
             } else {
-                subjectParam = new String[]{"Export supply plan", "Directory does not exists"};
-                bodyParam = new String[]{"Export supply plan", date, "Directory does not exists", "Directory does not exists"};
+                subjectParam = new String[]{"supply plan", "Directory does not exists"};
+                bodyParam = new String[]{"supply plan", date, "Directory does not exists", "Directory does not exists"};
                 emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
@@ -110,32 +110,32 @@ public class ExportSupplyPlanController {
                 logger.error("Directory does not exists");
             }
         } catch (FileNotFoundException e) {
-            subjectParam = new String[]{"Export supply plan", "File not found"};
-            bodyParam = new String[]{"Export supply plan", date, "File not found", e.getMessage()};
+            subjectParam = new String[]{"supply plan", "File not found"};
+            bodyParam = new String[]{"supply plan", date, "File not found", e.getMessage()};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
             logger.error("File not found exception occured", e);
         } catch (IOException e) {
-            subjectParam = new String[]{"Export supply plan", "Input/Output error"};
-            bodyParam = new String[]{"Export supply plan", date, "Input/Output error", e.getMessage()};
+            subjectParam = new String[]{"supply plan", "Input/Output error"};
+            bodyParam = new String[]{"supply plan", date, "Input/Output error", e.getMessage()};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
             logger.error("IO exception occured", e);
         } catch (BadSqlGrammarException e) {
-            subjectParam = new String[]{"Export supply plan", "SQL Exception"};
-            bodyParam = new String[]{"Export supply plan", date, "SQL Exception", e.getMessage()};
+            subjectParam = new String[]{"supply plan", "SQL Exception"};
+            bodyParam = new String[]{"supply plan", date, "SQL Exception", e.getMessage()};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
             logger.error("SQL exception occured", e);
         } catch (Exception e) {
-            subjectParam = new String[]{"Export supply plan", e.getClass().getName().toString()};
-            bodyParam = new String[]{"Export supply plan", date, e.getClass().getName().toString(), e.getMessage()};
+            subjectParam = new String[]{"supply plan", e.getClass().getName().toString()};
+            bodyParam = new String[]{"supply plan", date, e.getClass().getName().toString(), e.getMessage()};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);

@@ -3,9 +3,9 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.service.impl;
+package cc.altius.FASP.ARTMIS.service.impl;
 
-import cc.altius.FASP.dao.ImportProductCatalogueDao;
+import cc.altius.FASP.ARTMIS.dao.ImportProductCatalogueDao;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.service.EmailService;
@@ -14,12 +14,13 @@ import cc.altius.utils.DateUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.SimpleDateFormat;
 import javax.xml.parsers.ParserConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
@@ -36,6 +37,8 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
     @Autowired
     private EmailService emailService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Value("${catalogFilePath}")
+    private String CATALOG_FILE_PATH;
 
     @Override
 //    @Transactional(propagation = Propagation.REQUIRED)
@@ -48,7 +51,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
         String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         try {
-            File directory = new File("/home/altius/Documents/FASP/ARTEMISDATA/");
+            File directory = new File(CATALOG_FILE_PATH);
             if (directory.isDirectory()) {
                 this.importProductCatalogueDao.importProductCatalogue(filePath);
 //            this.importProductCatalogueDao.pullUnitTable();
@@ -90,7 +93,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
             logger.error("IO exception occured", e);
-        } catch (BadSqlGrammarException e) {
+        } catch (BadSqlGrammarException | DataIntegrityViolationException e) {
             subjectParam = new String[]{"Product Catalogue", "SQL Exception"};
             bodyParam = new String[]{"Product Catalogue", date, "SQL Exception", e.getMessage()};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
