@@ -16,12 +16,13 @@ import java.util.Date;
  * @author ekta
  */
 public class AnnualShipmentCostInput {
+
     private int programId;
     private int planningUnitId;
     private int procurementAgentId;
     private int fundingSourceId;
     private int shipmentStatusId;
-     @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
@@ -97,6 +98,5 @@ public class AnnualShipmentCostInput {
     public String toString() {
         return "AnnualShipmentCostInput{" + "programId=" + programId + ", planningUnitId=" + planningUnitId + ", procurementAgentId=" + procurementAgentId + ", fundingSourceId=" + fundingSourceId + ", shipmentStatusId=" + shipmentStatusId + ", startDate=" + startDate + ", stopDate=" + stopDate + ", reportbaseValue=" + reportbaseValue + '}';
     }
-    
-    
+
 }

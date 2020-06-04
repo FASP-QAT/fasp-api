@@ -9,6 +9,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
+import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastMetricsInput;
 import cc.altius.FASP.model.report.StockOverTimeInput;
@@ -91,7 +92,7 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @RequestMapping(value = "/stockOverTime")
     public ResponseEntity getStockOverTime(@RequestBody StockOverTimeInput soti, Authentication auth) {
         try {
@@ -102,10 +103,10 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-     @RequestMapping(value = "/annualShipmentCost")
+
+    @RequestMapping(value = "/annualShipmentCost")
     public ResponseEntity getAnnualShipmentCost(@RequestBody AnnualShipmentCostInput asci, Authentication auth) {
-         System.out.println(""+asci);
+        System.out.println("" + asci);
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.reportService.getAnnualShipmentCost(asci, curUser), HttpStatus.OK);
@@ -113,6 +114,16 @@ public class ReportController {
             e.printStackTrace();
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
+    }
+    
+    @RequestMapping(value="/costOfInventory")
+    public ResponseEntity getCostOfInventory(@RequestBody CostOfInventoryInput cii, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.reportService.getCostOfInventory(cii, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

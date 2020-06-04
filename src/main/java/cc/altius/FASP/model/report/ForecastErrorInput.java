@@ -5,6 +5,10 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -16,7 +20,11 @@ public class ForecastErrorInput implements Serializable {
 
     private int realmCountryId;
     private int planningUnitId;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
     public final static int previousMonths = 2;
 
