@@ -217,7 +217,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 
         sql = "UPDATE tmp_erp_shipment teo SET teo.ACTUAL_DELIVERY_DATE = NULL WHERE teo.ACTUAL_DELIVERY_DATE='';";
         this.jdbcTemplate.update(sql);
-        
+
         sql = "SELECT COUNT(*) FROM rm_erp_shipment;";
         System.out.println("Total rows present in rm_erp_shipment---" + this.jdbcTemplate.queryForObject(sql, Integer.class));
 
@@ -250,12 +250,12 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                 + "LEFT JOIN rm_erp_order o ON o.`ORDER_NO`=t.`ORDER_NO` AND o.`PRIME_LINE_NO`=t.`PRIME_LINE_NO` "
                 + "SET t.`ERP_ORDER_ID`=o.`ERP_ORDER_ID`;";
         rows = this.jdbcTemplate.update(sql);
-        
+
         System.out.println("update erp order id in erp shipment table---" + rows);
-        
+
         sql = "SELECT COUNT(*) FROM rm_erp_shipment where erp_order_id is null and flag=1;";
         System.out.println("Total rows without erp_order_id in rm_erp_shipment---" + this.jdbcTemplate.queryForObject(sql, Integer.class));
-        
+
         sql = "SELECT s.`PROGRAM_ID`,m.`ERP_ORDER_ID` "
                 + "FROM rm_shipment_trans_erp_order_mapping m "
                 + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=m.`SHIPMENT_ID` "
@@ -264,28 +264,73 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                 + "GROUP BY m.`SHIPMENT_ID`;";
         List<TempProgramVersion> list = this.jdbcTemplate.query(sql, new TempProgramVersionRowMapper());
         for (TempProgramVersion t : list) {
-            sql = "CALL getVersionId(?,1,?);";
+            sql = "CALL getVersionId(?,1,1,'',1,?);";
             int versionId = this.jdbcTemplate.queryForObject(sql, Integer.class, t.getProgramId(), curDate);
             sql = "UPDATE rm_erp_order o SET o.`VERSION_ID`=? WHERE o.`ERP_ORDER_ID`=?;";
             rows = this.jdbcTemplate.update(sql, versionId, t.getErpOrderId());
         }
-        sql = "INSERT INTO rm_shipment_trans  "
-                + " SELECT NULL,m.`SHIPMENT_ID`,pu.`PLANNING_UNIT_ID`,o.`CURRENT_ESTIMATED_DELIVERY_DATE`,  "
-                + " pru.`PROCUREMENT_UNIT_ID`,sup.`SUPPLIER_ID`,o.`QTY`,o.`PRICE`,(o.`QTY`*o.`PRICE`),o.`SHIP_BY`,o.`SHIPPING_COST`,o.`ORDERD_DATE`,  "
-                + " min(es.`ACTUAL_SHIPMENT_DATE`),min(es.`ACTUAL_DELIVERY_DATE`),sm.`SHIPMENT_STATUS_ID`,NULL,10,o.`ORDER_NO`,o.`PRIME_LINE_NO`,1,?,o.`VERSION_ID`,1  "
-                + " FROM rm_erp_order o  "
-                + " LEFT JOIN rm_shipment_trans_erp_order_mapping m ON m.`ERP_ORDER_ID`=o.`ERP_ORDER_ID`  "
-                + " LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=m.`SHIPMENT_ID`  "
-                + " LEFT JOIN rm_procurement_agent_planning_unit pu ON pu.`SKU_CODE`=o.`PLANNING_UNIT_SKU_CODE` AND pu.`PROCUREMENT_AGENT_ID`=1  "
-                + " LEFT JOIN rm_procurement_agent_procurement_unit pru ON pru.`SKU_CODE`=o.`PROCUREMENT_UNIT_SKU_CODE` AND pru.`PROCUREMENT_AGENT_ID`=1  "
-                + " LEFT JOIN ap_label l ON l.`LABEL_EN`=o.`SUPPLIER_NAME`  "
-                + " LEFT JOIN rm_supplier sup ON sup.`LABEL_ID`=l.`LABEL_ID`  "
-                + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=o.`ERP_ORDER_ID`  "
-                + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=o.`STATUS` "
-                + " WHERE m.`SHIPMENT_ID` IS NOT NULL AND o.`FLAG`=1 "
-                + " GROUP BY o.`ERP_ORDER_ID`";
-        rows = this.jdbcTemplate.update(sql, curDate);
-        System.out.println("Total rows inserted into shipment trans---" + rows);
+//        sql = "INSERT INTO rm_shipment_trans  "
+//                + " SELECT NULL,m.`SHIPMENT_ID`,pu.`PLANNING_UNIT_ID`,o.`CURRENT_ESTIMATED_DELIVERY_DATE`,  "
+//                + " pru.`PROCUREMENT_UNIT_ID`,sup.`SUPPLIER_ID`,o.`QTY`,o.`PRICE`,(o.`QTY`*o.`PRICE`),o.`SHIP_BY`,o.`SHIPPING_COST`,o.`ORDERD_DATE`,  "
+//                + " min(es.`ACTUAL_SHIPMENT_DATE`),min(es.`ACTUAL_DELIVERY_DATE`),sm.`SHIPMENT_STATUS_ID`,NULL,10,o.`ORDER_NO`,o.`PRIME_LINE_NO`,1,?,o.`VERSION_ID`,1  "
+//                + " FROM rm_erp_order o  "
+//                + " LEFT JOIN rm_shipment_trans_erp_order_mapping m ON m.`ERP_ORDER_ID`=o.`ERP_ORDER_ID`  "
+//                + " LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=m.`SHIPMENT_ID`  "
+//                + " LEFT JOIN rm_procurement_agent_planning_unit pu ON pu.`SKU_CODE`=o.`PLANNING_UNIT_SKU_CODE` AND pu.`PROCUREMENT_AGENT_ID`=1  "
+//                + " LEFT JOIN rm_procurement_agent_procurement_unit pru ON pru.`SKU_CODE`=o.`PROCUREMENT_UNIT_SKU_CODE` AND pru.`PROCUREMENT_AGENT_ID`=1  "
+//                + " LEFT JOIN ap_label l ON l.`LABEL_EN`=o.`SUPPLIER_NAME`  "
+//                + " LEFT JOIN rm_supplier sup ON sup.`LABEL_ID`=l.`LABEL_ID`  "
+//                + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=o.`ERP_ORDER_ID`  "
+//                + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=o.`STATUS` "
+//                + " WHERE m.`SHIPMENT_ID` IS NOT NULL AND o.`FLAG`=1 "
+//                + " GROUP BY o.`ERP_ORDER_ID`";
+//        rows = this.jdbcTemplate.update(sql, curDate);
+//        System.out.println("Total rows inserted into shipment trans---" + rows);
+
+        sql = "SELECT o.`ERP_ORDER_ID` FROM rm_erp_order o WHERE o.`FLAG`=1;";
+        List<Integer> erpOrderIdList = this.jdbcTemplate.queryForList(sql, Integer.class);
+        System.out.println("erpOrderIdList---" + erpOrderIdList.size());
+        for (int erpOrderId : erpOrderIdList) {
+            sql = "INSERT INTO rm_shipment_trans  "
+                    + " SELECT NULL,m.`SHIPMENT_ID`,pu.`PLANNING_UNIT_ID`,o.`CURRENT_ESTIMATED_DELIVERY_DATE`,  "
+                    + " pru.`PROCUREMENT_UNIT_ID`,sup.`SUPPLIER_ID`,o.`QTY`,o.`PRICE`,(o.`QTY`*o.`PRICE`),o.`SHIP_BY`,o.`SHIPPING_COST`,o.`ORDERD_DATE`,  "
+                    + " min(es.`ACTUAL_SHIPMENT_DATE`),min(es.`ACTUAL_DELIVERY_DATE`),sm.`SHIPMENT_STATUS_ID`,NULL,10,o.`ORDER_NO`,o.`PRIME_LINE_NO`,1,?,o.`VERSION_ID`,1  "
+                    + " FROM rm_erp_order o  "
+                    + " LEFT JOIN rm_shipment_trans_erp_order_mapping m ON m.`ERP_ORDER_ID`=o.`ERP_ORDER_ID`  "
+                    + " LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=m.`SHIPMENT_ID`  "
+                    + " LEFT JOIN rm_procurement_agent_planning_unit pu ON pu.`SKU_CODE`=o.`PLANNING_UNIT_SKU_CODE` AND pu.`PROCUREMENT_AGENT_ID`=1  "
+                    + " LEFT JOIN rm_procurement_agent_procurement_unit pru ON pru.`SKU_CODE`=o.`PROCUREMENT_UNIT_SKU_CODE` AND pru.`PROCUREMENT_AGENT_ID`=1  "
+                    + " LEFT JOIN ap_label l ON l.`LABEL_EN`=o.`SUPPLIER_NAME`  "
+                    + " LEFT JOIN rm_supplier sup ON sup.`LABEL_ID`=l.`LABEL_ID`  "
+                    + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=o.`ERP_ORDER_ID`  "
+                    + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=o.`STATUS` "
+                    + " WHERE m.`SHIPMENT_ID` IS NOT NULL AND o.`ERP_ORDER_ID`=? "
+                    + " GROUP BY o.`ERP_ORDER_ID`";
+            int shipmentTransId = this.jdbcTemplate.update(sql, curDate, erpOrderId);
+
+            sql = "INSERT INTO rm_shipment_trans_batch_info "
+                    + "SELECT NULL,?,s.`BATCH_NO`,s.`EXPIRY_DATE`,s.`DELIVERED_QTY` FROM rm_erp_order o "
+                    + "LEFT JOIN rm_erp_shipment s ON s.`ERP_ORDER_ID`=o.`ERP_ORDER_ID` "
+                    + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? "
+                    + "GROUP BY s.`BATCH_NO`;";
+            this.jdbcTemplate.update(sql, shipmentTransId, erpOrderId);
+
+            sql = "SELECT t.`SHIPMENT_ID` FROM rm_shipment_trans_erp_order_mapping t WHERE t.`ERP_ORDER_ID`=?;";
+            int shipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderId);
+
+            sql = "SELECT o.`VERSION_ID` FROM rm_erp_order o WHERE o.`ERP_ORDER_ID`=?;";
+            int versionId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderId);
+
+            sql = "INSERT INTO rm_shipment_budget "
+                    + "SELECT  NULL,?,b.`BUDGET_ID`,b.`BUDGET_AMT`,b.`CONVERSION_RATE_TO_USD`,b.`CURRENCY_ID`, "
+                    + "b.`ACTIVE`,1,?,1,?,? "
+                    + " FROM rm_shipment_budget b WHERE b.`SHIPMENT_ID`=?;";
+            this.jdbcTemplate.update(sql, shipmentId, curDate, curDate, versionId);
+
+            sql = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=? WHERE s.`SHIPMENT_ID`=?;";
+            this.jdbcTemplate.update(sql, versionId, shipmentId);
+
+        }
 
     }
 
