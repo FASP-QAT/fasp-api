@@ -104,6 +104,13 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
 //                p.getRegionArray()[x] = Integer.toString(r.getRegionId());
 //                x++;
 //            }
+  String [] regionArray=new String[p.getRegionList().size()];
+           int x = 0;
+            for (Region r : p.getRegionList()) {
+              regionArray[x] = Integer.toString(r.getRegionId());
+                x++;
+            }
+            p.setRegionArray(regionArray);
             return p;
         } else {
             return null;
