@@ -18,6 +18,7 @@ import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentBatchInfo;
 import cc.altius.FASP.model.ShipmentBudget;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.UnaccountedConsumption;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.ConsumptionListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
@@ -25,6 +26,7 @@ import cc.altius.FASP.model.rowMapper.ProgramVersionRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
+import cc.altius.FASP.model.rowMapper.UnaccountedConsumptionRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -849,6 +851,20 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
         } catch (DataAccessException de) {
             return 1; // Order not found
+        }
+    }
+
+    @Override
+    public void buildStockBalances(int programId, int versionId) {
+        String sqlString = "CALL buildSupplyPlan(:programId, :versionId)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "SELECT spbi.TRANS_DATE, SUM(spbi.FORECASTED_CONSUMPTION_QTY+spbi.EXPIRED_CONSUMPTION) CONSUMPTION FROM rm_supply_plan_batch_info spbi WHERE spbi.PROGRAM_ID=:progarmId AND spbi.VERSION_ID=:versionId GROUP BY spbi.TRANS_DATE HAVING SUM(spbi.FORECASTED_CONSUMPTION_QTY)>0 OR SUM(spbi.EXPIRED_CONSUMPTION)>0";
+        List<UnaccountedConsumption> ucList = this.namedParameterJdbcTemplate.query(sqlString, new UnaccountedConsumptionRowMapper());
+        for (UnaccountedConsumption u : ucList) {
+            
         }
     }
 
