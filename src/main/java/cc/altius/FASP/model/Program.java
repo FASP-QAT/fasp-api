@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -41,11 +42,13 @@ public class Program extends BaseModel implements Serializable {
     private List<Version> versionList;
 
     public Program() {
+        this.regionList = new LinkedList<>();
     }
 
     public Program(int programId, Label label) {
         this.programId = programId;
         this.label = label;
+        this.regionList = new LinkedList<>();
     }
 
     public double getArrivedToDeliveredLeadTime() {
