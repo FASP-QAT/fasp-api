@@ -175,13 +175,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("NOTES", c.getNotes());
             tp.put("ACTIVE", c.isActive());
             insertList.add(new MapSqlParameterSource(tp));
+            
+            // TODO
+            // Create Batch first
             for (ConsumptionBatchInfo b : c.getBatchInfoList()) {
                 Map<String, Object> tb = new HashMap<>();
                 tb.put("CONSUMPTION_TRANS_ID", null);
                 tb.put("CONSUMPTION_TRANS_BATCH_INFO_ID", (b.getConsumptionTransBatchInfoId() == 0 ? null : b.getConsumptionTransBatchInfoId()));
                 tb.put("PARENT_ID", id);
-                tb.put("BATCH_NO", b.getBatchNo());
-                tb.put("EXPIRY_DATE", b.getExpiryDate());
+                tb.put("BATCH_NO", b.getBatch().getBatchNo());
+                tb.put("EXPIRY_DATE", b.getBatch().getExpiryDate());
                 tb.put("BATCH_QTY", b.getConsumptionQty());
                 insertBatchList.add(new MapSqlParameterSource(tb));
             }
@@ -323,13 +326,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("NOTES", i.getNotes());
             tp.put("ACTIVE", i.isActive());
             insertList.add(new MapSqlParameterSource(tp));
+            // TODO
+            // Create Batch first
             for (InventoryBatchInfo b : i.getBatchInfoList()) {
                 Map<String, Object> tb = new HashMap<>();
                 tb.put("INVENTORY_TRANS_ID", null);
                 tb.put("INVENTORY_TRANS_BATCH_INFO_ID", (b.getInventoryTransBatchInfoId() == 0 ? null : b.getInventoryTransBatchInfoId()));
                 tb.put("PARENT_ID", id);
-                tb.put("BATCH_NO", b.getBatchNo());
-                tb.put("EXPIRY_DATE", b.getExpiryDate());
+                tb.put("BATCH_NO", b.getBatch().getBatchNo());
+                tb.put("EXPIRY_DATE", b.getBatch().getExpiryDate());
                 tb.put("ACTUAL_QTY", b.getActualQty());
                 tb.put("ADJUSTMENT_QTY", b.getAdjustmentQty());
                 insertBatchList.add(new MapSqlParameterSource(tb));
@@ -533,13 +538,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("PRIME_LINE_NO", s.getPrimeLineNo());
             tp.put("ACTIVE", s.isActive());
             insertList.add(new MapSqlParameterSource(tp));
+            // TODO
+            // Create Batch first
             for (ShipmentBatchInfo b : s.getBatchInfoList()) {
                 Map<String, Object> tb = new HashMap<>();
                 tb.put("SHIPMENT_TRANS_ID", null);
                 tb.put("SHIPMENT_TRANS_BATCH_INFO_ID", (b.getShipmentTransBatchInfoId() == 0 ? null : b.getShipmentTransBatchInfoId()));
                 tb.put("PARENT_ID", id);
-                tb.put("BATCH_NO", b.getBatchNo());
-                tb.put("EXPIRY_DATE", b.getExpiryDate());
+                tb.put("BATCH_NO", b.getBatch().getBatchNo());
+                tb.put("EXPIRY_DATE", b.getBatch().getExpiryDate());
                 tb.put("BATCH_SHIPMENT_QTY", b.getShipmentQty());
                 insertBatchList.add(new MapSqlParameterSource(tb));
             }
