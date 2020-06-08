@@ -18,6 +18,7 @@ import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentBatchInfo;
 import cc.altius.FASP.model.ShipmentBudget;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.UnaccountedConsumption;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.ConsumptionListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
@@ -25,6 +26,7 @@ import cc.altius.FASP.model.rowMapper.ProgramVersionRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
+import cc.altius.FASP.model.rowMapper.UnaccountedConsumptionRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -173,13 +175,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("NOTES", c.getNotes());
             tp.put("ACTIVE", c.isActive());
             insertList.add(new MapSqlParameterSource(tp));
+            
+            // TODO
+            // Create Batch first
             for (ConsumptionBatchInfo b : c.getBatchInfoList()) {
                 Map<String, Object> tb = new HashMap<>();
                 tb.put("CONSUMPTION_TRANS_ID", null);
                 tb.put("CONSUMPTION_TRANS_BATCH_INFO_ID", (b.getConsumptionTransBatchInfoId() == 0 ? null : b.getConsumptionTransBatchInfoId()));
                 tb.put("PARENT_ID", id);
-                tb.put("BATCH_NO", b.getBatchNo());
-                tb.put("EXPIRY_DATE", b.getExpiryDate());
+                tb.put("BATCH_NO", b.getBatch().getBatchNo());
+                tb.put("EXPIRY_DATE", b.getBatch().getExpiryDate());
                 tb.put("BATCH_QTY", b.getConsumptionQty());
                 insertBatchList.add(new MapSqlParameterSource(tb));
             }
@@ -321,13 +326,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("NOTES", i.getNotes());
             tp.put("ACTIVE", i.isActive());
             insertList.add(new MapSqlParameterSource(tp));
+            // TODO
+            // Create Batch first
             for (InventoryBatchInfo b : i.getBatchInfoList()) {
                 Map<String, Object> tb = new HashMap<>();
                 tb.put("INVENTORY_TRANS_ID", null);
                 tb.put("INVENTORY_TRANS_BATCH_INFO_ID", (b.getInventoryTransBatchInfoId() == 0 ? null : b.getInventoryTransBatchInfoId()));
                 tb.put("PARENT_ID", id);
-                tb.put("BATCH_NO", b.getBatchNo());
-                tb.put("EXPIRY_DATE", b.getExpiryDate());
+                tb.put("BATCH_NO", b.getBatch().getBatchNo());
+                tb.put("EXPIRY_DATE", b.getBatch().getExpiryDate());
                 tb.put("ACTUAL_QTY", b.getActualQty());
                 tb.put("ADJUSTMENT_QTY", b.getAdjustmentQty());
                 insertBatchList.add(new MapSqlParameterSource(tb));
@@ -531,13 +538,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("PRIME_LINE_NO", s.getPrimeLineNo());
             tp.put("ACTIVE", s.isActive());
             insertList.add(new MapSqlParameterSource(tp));
+            // TODO
+            // Create Batch first
             for (ShipmentBatchInfo b : s.getBatchInfoList()) {
                 Map<String, Object> tb = new HashMap<>();
                 tb.put("SHIPMENT_TRANS_ID", null);
                 tb.put("SHIPMENT_TRANS_BATCH_INFO_ID", (b.getShipmentTransBatchInfoId() == 0 ? null : b.getShipmentTransBatchInfoId()));
                 tb.put("PARENT_ID", id);
-                tb.put("BATCH_NO", b.getBatchNo());
-                tb.put("EXPIRY_DATE", b.getExpiryDate());
+                tb.put("BATCH_NO", b.getBatch().getBatchNo());
+                tb.put("EXPIRY_DATE", b.getBatch().getExpiryDate());
                 tb.put("BATCH_SHIPMENT_QTY", b.getShipmentQty());
                 insertBatchList.add(new MapSqlParameterSource(tb));
             }
@@ -849,6 +858,20 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             return this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
         } catch (DataAccessException de) {
             return 1; // Order not found
+        }
+    }
+
+    @Override
+    public void buildStockBalances(int programId, int versionId) {
+        String sqlString = "CALL buildSupplyPlan(:programId, :versionId)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "SELECT spbi.TRANS_DATE, SUM(spbi.FORECASTED_CONSUMPTION_QTY+spbi.EXPIRED_CONSUMPTION) CONSUMPTION FROM rm_supply_plan_batch_info spbi WHERE spbi.PROGRAM_ID=:progarmId AND spbi.VERSION_ID=:versionId GROUP BY spbi.TRANS_DATE HAVING SUM(spbi.FORECASTED_CONSUMPTION_QTY)>0 OR SUM(spbi.EXPIRED_CONSUMPTION)>0";
+        List<UnaccountedConsumption> ucList = this.namedParameterJdbcTemplate.query(sqlString, new UnaccountedConsumptionRowMapper());
+        for (UnaccountedConsumption u : ucList) {
+            
         }
     }
 

@@ -33,4 +33,6 @@ public interface ProgramDataService {
     public Version updateProgramVersion(int programId, int versionId, int versionStatusId, CustomUserDetails curUser);
     
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId);
+    
+    public void buildStockBalances(int programId, int versionId);
 }
