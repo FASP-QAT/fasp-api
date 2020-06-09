@@ -21,7 +21,6 @@ import cc.altius.FASP.service.ProgramService;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
@@ -46,6 +45,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId));
         pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId));
         pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId));
+        pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId));
         return pd;
     }
 
@@ -82,6 +82,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId) {
         return this.programDataDao.checkErpOrder(orderNo, primeLineNo, realmCountryId, planningUnitId);
+    }
+
+    @Override
+    public void buildStockBalances(int programId, int versionId) {
+        this.programDataDao.buildStockBalances(programId, versionId);
     }
 
 }

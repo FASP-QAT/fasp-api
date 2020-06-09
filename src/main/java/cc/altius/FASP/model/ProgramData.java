@@ -44,6 +44,7 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<Consumption> consumptionList;
     private List<Inventory> inventoryList;
     private List<Shipment> shipmentList;
+    private List<Batch> batchInfoList;
     private int requestedProgramVersion;
     @JsonIgnore
     private Date lastModifiedDate;
@@ -285,6 +286,14 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setShipmentList(List<Shipment> shipmentList) {
         this.shipmentList = shipmentList;
+    }
+
+    public List<Batch> getBatchInfoList() {
+        return batchInfoList;
+    }
+
+    public void setBatchInfoList(List<Batch> batchInfoList) {
+        this.batchInfoList = batchInfoList;
     }
 
     public SimpleObject getVersionType() {
