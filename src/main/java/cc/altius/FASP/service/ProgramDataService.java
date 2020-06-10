@@ -27,12 +27,16 @@ public interface ProgramDataService {
     public List<SimpleObject> getVersionTypeList();
 
     public List<SimpleObject> getVersionStatusList();
-    
+
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser);
-    
+
     public Version updateProgramVersion(int programId, int versionId, int versionStatusId, CustomUserDetails curUser);
-    
+
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId);
-    
+
     public void buildStockBalances(int programId, int versionId);
+
+    public List<ProgramVersion> getProgramVersionForARTMIS(int realmId);
+
+    public int updateSentToARTMISFlag(String programVersionIds);
 }

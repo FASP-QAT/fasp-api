@@ -311,8 +311,8 @@ public class ProgramDaoImpl implements ProgramDao {
         for (String pId : programIds) {
             paramBuilder.append("'").append(pId).append("',");
         }
-        if (programIds.length>0) {
-            paramBuilder.setLength(paramBuilder.length()-1);
+        if (programIds.length > 0) {
+            paramBuilder.setLength(paramBuilder.length() - 1);
         }
         sqlStringBuilder.append(" AND p.PROGRAM_ID IN (").append(paramBuilder).append(") ");
         Map<String, Object> params = new HashMap<>();
@@ -470,14 +470,16 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<Program> getProgramList(int realmId) {
+    public Program getProgramList(int realmId, int programId, int versionId) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
-        sqlStringBuilder.append(" AND rc.`REALM_ID`=:realmId");
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        sqlStringBuilder.append(" AND rc.`REALM_ID`=:realmId AND p.`PROGRAM_ID`=:programId AND cpv.`VERSION_ID`=:versionId GROUP BY p.`PROGRAM_ID`");
         sqlStringBuilder.append(this.sqlOrderBy);
         System.out.println("sqlStringBuilder.toString()---" + sqlStringBuilder.toString());
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramListResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramResultSetExtractor());
     }
 
 }

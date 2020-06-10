@@ -19,6 +19,7 @@ public class ShipmentBudget implements Serializable {
     private double budgetAmt;
     private Currency currency;
     private double conversionRateToUsd;
+    private int budgetId;
 
     public ShipmentBudget() {
     }
@@ -80,6 +81,14 @@ public class ShipmentBudget implements Serializable {
         this.currency = currency;
     }
 
+    public int getBudgetId() {
+        return budgetId;
+    }
+
+    public void setBudgetId(int budgetId) {
+        this.budgetId = budgetId;
+    }
+
     @Override
     public int hashCode() {
         int hash = 5;
@@ -104,5 +113,5 @@ public class ShipmentBudget implements Serializable {
         }
         return true;
     }
-    
+
 }

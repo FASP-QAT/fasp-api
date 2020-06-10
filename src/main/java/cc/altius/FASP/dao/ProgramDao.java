@@ -41,5 +41,5 @@ public interface ProgramDao {
 
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId, int productCategory, boolean active, CustomUserDetails curUser);
 
-    public List<Program> getProgramList(int realmId);
+    public Program getProgramList(int realmId,int programId,int versionId);
 }

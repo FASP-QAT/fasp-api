@@ -89,4 +89,14 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         this.programDataDao.buildStockBalances(programId, versionId);
     }
 
+    @Override
+    public List<ProgramVersion> getProgramVersionForARTMIS(int realmId) {
+        return this.programDataDao.getProgramVersionForARTMIS(realmId);
+    }
+
+    @Override
+    public int updateSentToARTMISFlag(String programVersionIds) {
+        return this.programDataDao.updateSentToARTMISFlag(programVersionIds);
+    }
+
 }
