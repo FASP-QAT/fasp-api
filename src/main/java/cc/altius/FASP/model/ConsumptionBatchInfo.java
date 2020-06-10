@@ -5,12 +5,7 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  *
@@ -19,10 +14,7 @@ import java.util.Date;
 public class ConsumptionBatchInfo implements Serializable {
 
     private int consumptionTransBatchInfoId;
-    private String batchNo;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date expiryDate;
+    private Batch batch;
     private int consumptionQty;
 
     public int getConsumptionTransBatchInfoId() {
@@ -33,28 +25,20 @@ public class ConsumptionBatchInfo implements Serializable {
         this.consumptionTransBatchInfoId = consumptionTransBatchInfoId;
     }
 
-    public String getBatchNo() {
-        return batchNo;
-    }
-
-    public void setBatchNo(String batchNo) {
-        this.batchNo = batchNo;
-    }
-
-    public Date getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-
     public int getConsumptionQty() {
         return consumptionQty;
     }
 
     public void setConsumptionQty(int consumptionQty) {
         this.consumptionQty = consumptionQty;
+    }
+
+    public Batch getBatch() {
+        return batch;
+    }
+
+    public void setBatch(Batch batch) {
+        this.batch = batch;
     }
 
     @Override

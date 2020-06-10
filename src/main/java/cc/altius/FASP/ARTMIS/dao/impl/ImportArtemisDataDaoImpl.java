@@ -184,7 +184,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                         + "  `REQ_DELIVERY_DATE` varchar(45) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `REVISED_AGREED_DELIVERY_DATE` varchar(45) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `ITEM_SUPPLIER_NAME` varchar(100) COLLATE utf8_bin DEFAULT NULL, "
-                        + "  `WCS_CATALOG_PRICE` double DEFAULT NULL, "
+                        //                        + "  `WCS_CATALOG_PRICE` double DEFAULT NULL, "
                         + "  `UNIT_PRICE` double DEFAULT NULL, "
                         + "  `STATUS_NAME` varchar(100) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `EXTERNAL_STATUS_STAGE` varchar(100) COLLATE utf8_bin DEFAULT NULL, "
@@ -209,44 +209,44 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                 Document doc = dBuilder.parse(fXmlFile);
                 doc.getDocumentElement().normalize();
 
-                NodeList nList1 = doc.getElementsByTagName("DATA_RECORD");
+                NodeList nList1 = doc.getElementsByTagName("orderdata");
                 MapSqlParameterSource[] batchParams = new MapSqlParameterSource[nList1.getLength()];
                 Map<String, Object> map = new HashedMap<String, Object>();
                 int x = 0;
 
-                sql = "INSERT INTO tmp_erp_order VALUES(null,:roNo,:roPrimeLineNo,:orderNo,:primeLineNo,:orderTypeInd,:orderEntryDate,:parentRo,:parentOrderEntryDate,:itemId,:orderedQty,:poReleasedForFulfillmentDate,:latestEstimatedDeliveryDate,:reqDeliveryDate,:revisedAgreedDeliveryDate,:itemSupplierName,:wcsCatalogPrice,:unitPrice,:statusName,:externalStatusStage,:shippingCharges,:freightEstimate,:totalActualFreightCost,:carrierServiceCode,:recipientName,:recipientCountry,null)";
+                sql = "INSERT INTO tmp_erp_order VALUES(null,:roNo,:roPrimeLineNo,:orderNo,:primeLineNo,:orderTypeInd,:orderEntryDate,:parentRo,:parentOrderEntryDate,:itemId,:orderedQty,:poReleasedForFulfillmentDate,:latestEstimatedDeliveryDate,:reqDeliveryDate,:revisedAgreedDeliveryDate,:itemSupplierName,:unitPrice,:statusName,:externalStatusStage,:shippingCharges,:freightEstimate,:totalActualFreightCost,:carrierServiceCode,:recipientName,:recipientCountry,null)";
                 for (int temp2 = 0; temp2 < nList1.getLength(); temp2++) {
                     Node nNode1 = nList1.item(temp2);
                     if (nNode1.getNodeType() == Node.ELEMENT_NODE) {
                         Element dataRecordElement = (Element) nNode1;
-                        map.put("roNo", dataRecordElement.getElementsByTagName("RO_NUMBER").item(0).getTextContent());
-                        map.put("roPrimeLineNo", dataRecordElement.getElementsByTagName("RO_PRIME_LINE_NO").item(0).getTextContent());
-                        map.put("orderNo", dataRecordElement.getElementsByTagName("PO_DO_IO_NUMBER").item(0).getTextContent());
-                        map.put("primeLineNo", dataRecordElement.getElementsByTagName("PRIME_LINE_NO").item(0).getTextContent());
-                        map.put("orderTypeInd", dataRecordElement.getElementsByTagName("ORDER_TYPE_IND").item(0).getTextContent());
-                        map.put("orderEntryDate", dataRecordElement.getElementsByTagName("ORDER_ENTRY_DATE").item(0).getTextContent());
-                        map.put("parentRo", dataRecordElement.getElementsByTagName("PARENT_RO").item(0).getTextContent());
-                        map.put("parentOrderEntryDate", dataRecordElement.getElementsByTagName("PARENT_ORDER_ENTRY_DATE").item(0).getTextContent());
-                        map.put("itemId", dataRecordElement.getElementsByTagName("ITEM_ID").item(0).getTextContent());
-                        map.put("orderedQty", dataRecordElement.getElementsByTagName("ORDERED_QTY").item(0).getTextContent());
-                        map.put("poReleasedForFulfillmentDate", dataRecordElement.getElementsByTagName("PO_RELEASED_FOR_FULFILLMENT_DATE").item(0).getTextContent());
-                        map.put("latestEstimatedDeliveryDate", dataRecordElement.getElementsByTagName("LATEST_ESTIMATED_DELIVERY_DATE").item(0).getTextContent());
-                        map.put("reqDeliveryDate", dataRecordElement.getElementsByTagName("REQ_DELIVERY_DATE").item(0).getTextContent());
-                        map.put("revisedAgreedDeliveryDate", dataRecordElement.getElementsByTagName("REVISED_AGREED_DELIVERY_DATE").item(0).getTextContent());
-                        map.put("itemSupplierName", dataRecordElement.getElementsByTagName("ITEM_SUPPLIER_NAME").item(0).getTextContent());
-                        map.put("wcsCatalogPrice", dataRecordElement.getElementsByTagName("WCS_CATALOG_PRICE").item(0).getTextContent());
-                        map.put("unitPrice", dataRecordElement.getElementsByTagName("UNIT_PRICE").item(0).getTextContent());
-                        map.put("statusName", dataRecordElement.getElementsByTagName("STATUS_NAME").item(0).getTextContent());
-                        map.put("externalStatusStage", dataRecordElement.getElementsByTagName("EXTERNAL_STATUS_STAGE").item(0).getTextContent());
-                        String shippingCharges = dataRecordElement.getElementsByTagName("SHIPPING_CHARGES").item(0).getTextContent();
+                        map.put("roNo", dataRecordElement.getElementsByTagName("ro_number").item(0).getTextContent());
+                        map.put("roPrimeLineNo", dataRecordElement.getElementsByTagName("ro_prime_line_no").item(0).getTextContent());
+                        map.put("orderNo", dataRecordElement.getElementsByTagName("order_number").item(0).getTextContent());
+                        map.put("primeLineNo", dataRecordElement.getElementsByTagName("prime_line_no").item(0).getTextContent());
+                        map.put("orderTypeInd", dataRecordElement.getElementsByTagName("order_type_ind").item(0).getTextContent());
+                        map.put("orderEntryDate", dataRecordElement.getElementsByTagName("order_entry_date").item(0).getTextContent());
+                        map.put("parentRo", dataRecordElement.getElementsByTagName("parent_ro").item(0).getTextContent());
+                        map.put("parentOrderEntryDate", dataRecordElement.getElementsByTagName("parent_ro_entry_date").item(0).getTextContent());
+                        map.put("itemId", dataRecordElement.getElementsByTagName("item_id").item(0).getTextContent());
+                        map.put("orderedQty", dataRecordElement.getElementsByTagName("ordered_qty").item(0).getTextContent());
+                        map.put("poReleasedForFulfillmentDate", dataRecordElement.getElementsByTagName("po_released_for_fulfillment_date").item(0).getTextContent());
+                        map.put("latestEstimatedDeliveryDate", dataRecordElement.getElementsByTagName("latest_estimated_delivery_date").item(0).getTextContent());
+                        map.put("reqDeliveryDate", dataRecordElement.getElementsByTagName("req_delivery_date").item(0).getTextContent());
+                        map.put("revisedAgreedDeliveryDate", dataRecordElement.getElementsByTagName("revised_agreed_delivery_date").item(0).getTextContent());
+                        map.put("itemSupplierName", dataRecordElement.getElementsByTagName("item_supplier_name").item(0).getTextContent());
+//                        map.put("wcsCatalogPrice", dataRecordElement.getElementsByTagName("WCS_CATALOG_PRICE").item(0).getTextContent());
+                        map.put("unitPrice", dataRecordElement.getElementsByTagName("unit_price").item(0).getTextContent());
+                        map.put("statusName", dataRecordElement.getElementsByTagName("status_name").item(0).getTextContent());
+                        map.put("externalStatusStage", dataRecordElement.getElementsByTagName("external_status_stage").item(0).getTextContent());
+                        String shippingCharges = dataRecordElement.getElementsByTagName("shipping_charges").item(0).getTextContent();
                         map.put("shippingCharges", (shippingCharges != null && shippingCharges != "" ? shippingCharges : null));
-                        String freightEstimate = dataRecordElement.getElementsByTagName("FREIGHT_ESTIMATE").item(0).getTextContent();
+                        String freightEstimate = dataRecordElement.getElementsByTagName("freight_estimate").item(0).getTextContent();
                         map.put("freightEstimate", (freightEstimate != null && freightEstimate != "" ? freightEstimate : null));
-                        String totalActualFreightCost = dataRecordElement.getElementsByTagName("TOTAL_ACTUAL_FREIGHT_COST").item(0).getTextContent();
+                        String totalActualFreightCost = dataRecordElement.getElementsByTagName("total_actual_freight_cost").item(0).getTextContent();
                         map.put("totalActualFreightCost", (totalActualFreightCost != null && totalActualFreightCost != "" ? totalActualFreightCost : null));
-                        map.put("carrierServiceCode", dataRecordElement.getElementsByTagName("CARRIER_SERVICE_CODE").item(0).getTextContent());
-                        map.put("recipientName", dataRecordElement.getElementsByTagName("RECIPIENT_NAME").item(0).getTextContent());
-                        map.put("recipientCountry", dataRecordElement.getElementsByTagName("RECIPIENT_COUNTRY").item(0).getTextContent());
+                        map.put("carrierServiceCode", dataRecordElement.getElementsByTagName("carrier_service_code").item(0).getTextContent());
+                        map.put("recipientName", dataRecordElement.getElementsByTagName("recipient_name").item(0).getTextContent());
+                        map.put("recipientCountry", dataRecordElement.getElementsByTagName("recipient_country").item(0).getTextContent());
                         logger.info("map--------" + map);
                         batchParams[x] = new MapSqlParameterSource(map);
                         x++;
@@ -312,7 +312,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                 doc.getDocumentElement().normalize();
                 System.out.println("fXmlFile1 name---" + fXmlFile1.getName());
                 System.out.println("fXmlFile1 path---" + fXmlFile1.getPath());
-                NodeList nList2 = doc.getElementsByTagName("DATA_RECORD");
+                NodeList nList2 = doc.getElementsByTagName("shipmentdata");
                 batchParams = new MapSqlParameterSource[nList2.getLength()];
                 map.clear();
                 x = 0;
@@ -325,19 +325,20 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                     if (nNode1.getNodeType() == Node.ELEMENT_NODE) {
                         Element dataRecordElement = (Element) nNode1;
                         System.out.println("dataRecordElement---" + dataRecordElement);
-                        map.put("knShipmentNo", dataRecordElement.getElementsByTagName("KN_SHIPMENT_NUMBER").item(0).getTextContent());
-                        System.out.println("order no shipment---" + dataRecordElement.getElementsByTagName("ORDER_NO").item(0).getTextContent());
-                        map.put("orderNo", dataRecordElement.getElementsByTagName("ORDER_NO").item(0).getTextContent());
-                        map.put("primeLineNo", dataRecordElement.getElementsByTagName("PRIME_LINE_NO_ORDER").item(0).getTextContent());
-                        map.put("batchNo", dataRecordElement.getElementsByTagName("BATCH_NO").item(0).getTextContent());
-                        map.put("itemId", dataRecordElement.getElementsByTagName("ITEM_ID").item(0).getTextContent());
-                        map.put("expirationDate", dataRecordElement.getElementsByTagName("EXPIRATION_DATE").item(0).getTextContent());
-                        map.put("shippedQty", dataRecordElement.getElementsByTagName("ACTUAL_QUANTITY").item(0).getTextContent());
-                        map.put("deliveredQty", dataRecordElement.getElementsByTagName("DELIVERED_QUANTITY").item(0).getTextContent());
-                        map.put("statusName", dataRecordElement.getElementsByTagName("STATUS_NAME").item(0).getTextContent());
-                        map.put("externalStatusStage", dataRecordElement.getElementsByTagName("EXTERNAL_STATUS_STAGE").item(0).getTextContent());
-                        map.put("actualShipmentDate", dataRecordElement.getElementsByTagName("ACTUAL_SHIPMENT_DATE").item(0).getTextContent());
-                        map.put("actualDeliveryDate", dataRecordElement.getElementsByTagName("ACTUAL_DELIVERY_DATE").item(0).getTextContent());
+                        map.put("knShipmentNo", dataRecordElement.getElementsByTagName("kn_shipment_number").item(0).getTextContent());
+                        System.out.println("order no shipment---" + dataRecordElement.getElementsByTagName("order_number").item(0).getTextContent());
+                        map.put("orderNo", dataRecordElement.getElementsByTagName("order_number").item(0).getTextContent());
+                        map.put("primeLineNo", dataRecordElement.getElementsByTagName("prime_line_no").item(0).getTextContent());
+                        map.put("batchNo", dataRecordElement.getElementsByTagName("batch_no").item(0).getTextContent());
+                        map.put("itemId", dataRecordElement.getElementsByTagName("item_id").item(0).getTextContent());
+                        map.put("expirationDate", dataRecordElement.getElementsByTagName("expiration_date").item(0).getTextContent());
+                        map.put("shippedQty", dataRecordElement.getElementsByTagName("shipped_quantity").item(0).getTextContent());
+                        String deliveredQty = dataRecordElement.getElementsByTagName("delivered_quantity").item(0).getTextContent();
+                        map.put("deliveredQty", (deliveredQty != null && deliveredQty != "" ? deliveredQty : 0));
+                        map.put("statusName", dataRecordElement.getElementsByTagName("status_name").item(0).getTextContent());
+                        map.put("externalStatusStage", dataRecordElement.getElementsByTagName("external_status_stage").item(0).getTextContent());
+                        map.put("actualShipmentDate", dataRecordElement.getElementsByTagName("actual_shipment_date").item(0).getTextContent());
+                        map.put("actualDeliveryDate", dataRecordElement.getElementsByTagName("actual_delivery_date").item(0).getTextContent());
                         batchParams[x] = new MapSqlParameterSource(map);
                         x++;
                     }
@@ -530,7 +531,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                     if (keyHolder1.getKey() != null) {
                         shipmentTransId = keyHolder1.getKey().intValue();
                     }
-                    System.out.println("shipmentTransId---"+shipmentTransId);
+                    System.out.println("shipmentTransId---" + shipmentTransId);
 
                     if (shipmentTransId > 0) {
                         sql = "INSERT INTO rm_shipment_trans_batch_info "
