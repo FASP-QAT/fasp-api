@@ -10,7 +10,9 @@ import cc.altius.FASP.dao.PipelineDbDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.Region;
+import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.PplConsumption;
 import cc.altius.FASP.model.pipeline.PplProduct;
@@ -30,6 +32,7 @@ import cc.altius.FASP.model.pipeline.rowMapper.QatTempConsumptionRowMapper;
 import cc.altius.FASP.model.pipeline.rowMapper.QatTempPlanningUnitInventoryCountMapper;
 import cc.altius.FASP.model.pipeline.rowMapper.QatTempPlanningUnitRowMapper;
 import cc.altius.FASP.model.pipeline.rowMapper.QatTempShipmentRowMapper;
+import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.utils.DateUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -37,6 +40,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -76,7 +80,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.DELIVERED_TO_RECEIVED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
             + "     pl.LABEL_ID, pl.LABEL_EN, pl.LABEL_FR, pl.LABEL_PR, pl.LABEL_SP, "
-            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`, rc.SHIPPED_TO_ARRIVED_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_AIR_LEAD_TIME`, rc.SHIPPED_TO_ARRIVED_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_SEA_LEAD_TIME`, rc.ARRIVED_TO_DELIVERED_LEAD_TIME `REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME`, "
+            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`, rc.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_AIR_LEAD_TIME`, rc.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_SEA_LEAD_TIME`, rc.ARRIVED_TO_DELIVERED_LEAD_TIME `REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME`, "
             + "     rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
             + "     c.COUNTRY_ID, c.COUNTRY_CODE,  "
             + "     cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_PR `COUNTRY_LABEL_PR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, "
@@ -122,7 +126,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
 
     @Override
     @Transactional
-    public int savePipelineDbData(Pipeline pipeline, CustomUserDetails curUser,String fileName) {
+    public int savePipelineDbData(Pipeline pipeline, CustomUserDetails curUser, String fileName) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         // Save records for adb_pipeline
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("adb_pipeline").usingGeneratedKeyColumns("PIPELINE_ID");
@@ -597,7 +601,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "p.DRAFT_TO_SUBMITTED_LEAD_TIME=:draftToSubmittedLeadTime, "
                     + "p.SUBMITTED_TO_APPROVED_LEAD_TIME=:submittedToApprovedLeadTime, "
                     + "p.APPROVED_TO_SHIPPED_LEAD_TIME=:approvedToShippedLeadTime, "
-                    + "p.DELIVERED_TO_RECEIVED_LEAD_TIME=:deliveredToReceivedLeadTime, "
+                    //   + "p.DELIVERED_TO_RECEIVED_LEAD_TIME=:deliveredToReceivedLeadTime, "
                     + "p.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, "
                     + "p.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, "
                     + "p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, "
@@ -897,11 +901,6 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     }
 
     @Override
-    public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     @Transactional
     public int saveQatTempProgramPlanningUnit(QatTempProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser, int pipelineId) {
         String sql = " delete from qat_temp_program_planning_unit  where PIPELINE_ID=?";
@@ -1158,6 +1157,273 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         Map<String, Object> params = new HashMap<>();
         params.put("pipelineId", pipelineId);
         return this.namedParameterJdbcTemplate.query(sql, params, new QatTempPlanningUnitInventoryCountMapper());
+    }
+
+    @Override
+    @Transactional
+    public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser) {
+        Program p = this.getQatTempProgram(curUser, pipelineId);
+        Map<String, Object> params = new HashMap<>();
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        int labelId = this.labelDao.addLabel(p.getLabel(), curUser.getUserId());
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program").usingGeneratedKeyColumns("PROGRAM_ID");
+        params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
+        params.put("ORGANISATION_ID", p.getOrganisation().getId());
+        params.put("HEALTH_AREA_ID", p.getHealthArea().getId());
+        params.put("LABEL_ID", labelId);
+        params.put("PROGRAM_MANAGER_USER_ID", p.getProgramManager().getUserId());
+        params.put("PROGRAM_NOTES", p.getProgramNotes());
+        params.put("AIR_FREIGHT_PERC", p.getAirFreightPerc());
+        params.put("SEA_FREIGHT_PERC", p.getSeaFreightPerc());
+        params.put("PLANNED_TO_DRAFT_LEAD_TIME", p.getPlannedToDraftLeadTime());
+        params.put("DRAFT_TO_SUBMITTED_LEAD_TIME", p.getDraftToSubmittedLeadTime());
+        params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());
+        params.put("APPROVED_TO_SHIPPED_LEAD_TIME", p.getApprovedToShippedLeadTime());
+        params.put("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME", p.getShippedToArrivedBySeaLeadTime());
+        params.put("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME", p.getShippedToArrivedByAirLeadTime());
+        params.put("ARRIVED_TO_DELIVERED_LEAD_TIME", p.getArrivedToDeliveredLeadTime());
+        params.put("MONTHS_IN_PAST_FOR_AMC", p.getMonthsInPastForAmc());
+        params.put("MONTHS_IN_FUTURE_FOR_AMC", p.getMonthsInFutureForAmc());
+        params.put("CURRENT_VERSION_ID", null);
+        params.put("ACTIVE", true);
+        params.put("CREATED_BY", curUser.getUserId());
+        params.put("CREATED_DATE", curDate);
+        params.put("LAST_MODIFIED_BY", curUser.getUserId());
+        params.put("LAST_MODIFIED_DATE", curDate);
+        int programId = si.executeAndReturnKey(params).intValue();
+        System.out.println("" + programId);
+        si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_program_region");
+        SqlParameterSource[] paramList = new SqlParameterSource[p.getRegionArray().length];
+        int i = 0;
+        for (String rId : p.getRegionArray()) {
+            params = new HashMap<>();
+            params.put("REGION_ID", rId);
+            params.put("PROGRAM_ID", programId);
+            params.put("CREATED_BY", curUser.getUserId());
+            params.put("CREATED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            params.put("ACTIVE", true);
+            paramList[i] = new MapSqlParameterSource(params);
+            i++;
+        }
+        si.executeBatch(paramList);
+        params.clear();
+        params.put("curUser", curUser.getUserId());
+        params.put("curDate", curDate);
+        params.put("programId", programId);
+        params.put("versionTypeId", 1);
+        params.put("versionStatusId", 1);
+        params.put("notes", "testing.............");
+         Version version = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)", params, new VersionRowMapper());
+
+        params.put("versionId", version.getVersionId());
+
+        this.namedParameterJdbcTemplate.update("UPDATE rm_program SET CURRENT_VERSION_ID=:versionId WHERE PROGRAM_ID=:programId", params);
+
+        List<QatTempProgramPlanningUnit> programPlanningUnits = this.getQatTempPlanningUnitListByPipelienId(pipelineId, curUser);
+        si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_planning_unit");
+        List<SqlParameterSource> insertList = new ArrayList<>();
+        int rowsEffected = 0;
+        for (QatTempProgramPlanningUnit ppu : programPlanningUnits) {
+            params.put("PLANNING_UNIT_ID", ppu.getPlanningUnitId());
+            params.put("PROGRAM_ID", programId);
+            params.put("REORDER_FREQUENCY_IN_MONTHS", ppu.getReorderFrequencyInMonths());
+            params.put("MIN_MONTHS_OF_STOCK", ppu.getMinMonthsOfStock());
+            params.put("LOCAL_PROCUREMENT_LEAD_TIME", 0.25); //ppu.getLocalProcurementLeadTime());
+            params.put("BATCH_NO_REQUIRED", 0);
+            params.put("CREATED_DATE", curDate);
+            params.put("CREATED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("ACTIVE", true);
+            insertList.add(new MapSqlParameterSource(params));
+
+        }
+        SqlParameterSource[] insertParams = new SqlParameterSource[insertList.size()];
+        rowsEffected += si.executeBatch(insertList.toArray(insertParams)).length;
+        rowsEffected = 0;
+        params.clear();
+        /**
+         * *****************Consumption Insert*******************
+         */
+        List<QatTempConsumption> pipelineConsumptions = this.getQatTempConsumptionListByPipelienId(pipelineId, curUser);
+        si = new SimpleJdbcInsert(dataSource).withTableName("rm_consumption");
+        SimpleJdbcInsert si_trans = new SimpleJdbcInsert(dataSource).withTableName("rm_consumption_trans");
+        for (QatTempConsumption c : pipelineConsumptions) {
+            params.put("PROGRAM_ID", programId);
+            params.put("CREATED_DATE", curDate);
+            params.put("CREATED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("ACTIVE", true);
+            params.put("MAX_VERSION_ID", version.getVersionId());
+            int result = si.execute(params);
+            String sqlString = "SELECT LAST_INSERT_ID()";
+            params.put("CONSUMPTION_ID", this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class));
+
+            params.put("REGION_ID", c.getRegionId());
+            params.put("PLANNING_UNIT_ID", c.getPlanningUnitId());
+            params.put("CONSUMPTION_DATE", c.getConsumptionDate());
+            params.put("CONSUMPTION_QTY", c.getConsumptionQty());
+            params.put("ACTUAL_FLAG", c.isActualFlag());
+            params.put("DAYS_OF_STOCK_OUT", c.getDayOfStockOut());
+            params.put("DATA_SOURCE_ID", c.getDataSourceId());
+            params.put("NOTES", c.getNotes());
+            params.put("ACTIVE", true);
+            params.put("VERSION_ID", version.getVersionId());
+            rowsEffected = +si_trans.execute(params);
+            params.clear();
+        }
+        /**
+         * *************************Shipment,budget and shipment-budget
+         * Insert**********************************
+         */
+
+        String sql = "SELECT s.`FUNDING_SOURCE_ID`,SUM(IFNULL(s.`FREIGHT_COST`,0)+IFNULL(s.`PRODUCT_COST`,0)) budget FROM qat_temp_shipment s WHERE s.`PIPELINE_ID`=:pipelineId GROUP BY s.`FUNDING_SOURCE_ID`";
+        params.put("pipelineId", pipelineId);
+        List<Map<String, Object>> budgetList = this.namedParameterJdbcTemplate.queryForList(sql, params);
+        List<Map<String, Object>> newList = new LinkedList<>();
+        params.clear();
+        si = new SimpleJdbcInsert(dataSource).withTableName("rm_budget");
+        for (Map<String, Object> budget : budgetList) {
+            labelId = this.labelDao.addLabel(p.getLabel(), curUser.getUserId());
+            params.put("PROGRAM_ID", programId);
+            params.put("CREATED_DATE", curDate);
+            params.put("CREATED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("FUNDING_SOURCE_ID", budget.get("FUNDING_SOURCE_ID"));
+            params.put("LABEL_ID", labelId);
+            params.put("CURRENCY_ID", 1);
+            params.put("BUDGET_AMT", budget.get("budget"));
+            params.put("CONVERSION_RATE_TO_USD", 1);
+            params.put("NOTES", "");
+            params.put("ACTIVE", true);
+            int result = si.execute(params);
+            String sqlString = "SELECT LAST_INSERT_ID()";
+            budget.put("budgetId", this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class));
+            newList.add(budget);
+        }
+        params.clear();
+
+        rowsEffected = 0;
+        List<QatTempShipment> pipelineShipments = this.getPipelineShipmentdataById(pipelineId, curUser);
+        si = new SimpleJdbcInsert(dataSource).withTableName("rm_shipment");
+        si_trans = new SimpleJdbcInsert(dataSource).withTableName("rm_shipment_trans");
+        SimpleJdbcInsert si_shipment_budget = new SimpleJdbcInsert(dataSource).withTableName("rm_shipment_budget");
+        int ShipmentIds[] = new int[pipelineShipments.size()];
+        int j = 0;
+        for (QatTempShipment s : pipelineShipments) {
+            params.put("PROGRAM_ID", programId);
+            params.put("CREATED_DATE", curDate);
+            params.put("CREATED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("PROCUREMENT_AGENT_ID", s.getProcurementAgent());
+            params.put("ACCOUNT_FLAG", 1);
+            params.put("ERP_FLAG", 1);
+            params.put("SUGGESTED_QTY", s.getSuggestedQty());
+            params.put("CURRENCY_ID", 1);
+            params.put("CONVERSION_RATE_TO_USD", 1);
+            params.put("EMERGENCY_ORDER", false);
+            params.put("ACTIVE", true);
+            params.put("MAX_VERSION_ID", version.getVersionId());
+            int result = si.execute(params);
+            String sqlString = "SELECT LAST_INSERT_ID()";
+            int shipmentId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+            params.put("SHIPMENT_ID", shipmentId);
+            params.put("EXPECTED_DELIVERY_DATE", s.getExpectedDeliveryDate());
+            params.put("PLANNING_UNIT_ID", s.getPlanningUnit());
+            params.put("PROCUREMENT_UNIT_ID", s.getProcurementUnit());
+            params.put("SUPPLIER_ID", s.getSupplier());
+            params.put("SHIPMENT_QTY", s.getQuantity());
+            params.put("RATE", s.getRate());
+            params.put("PRODUCT_COST", s.getProductCost());
+            params.put("SHIPMENT_MODE", s.getShipmentMode());
+            params.put("FREIGHT_COST", s.getFreightCost());
+            params.put("ORDERED_DATE", s.getOrderedDate());
+            params.put("SHIPPED_DATE", s.getShippedDate());
+            params.put("DELIVERED_DATE", s.getReceivedDate());
+            params.put("SHIPMENT_STATUS_ID", s.getShipmentStatus());
+            params.put("NOTES", s.getNotes());
+            params.put("DATA_SOURCE_ID", s.getDataSource());
+            params.put("ORDER_NO", null);
+            params.put("PRIME_LINE_NO", null);
+            params.put("ACTIVE", true);
+            params.put("VERSION_ID", version.getVersionId());
+         
+           
+            rowsEffected = +si_trans.execute(params);
+            params.clear();
+
+            params.put("SHIPMENT_ID", shipmentId);
+            params.put("CREATED_DATE", curDate);
+            params.put("CREATED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            for (Map<String, Object> b : newList) {
+                if (b.get("FUNDING_SOURCE_ID").toString().equalsIgnoreCase(s.getFundingSource())) {
+                    params.put("BUDGET_ID", b.get("budgetId"));
+                    break;
+                }
+
+            }
+            params.put("BUDGET_AMT", s.getFreightCost() + s.getProductCost());
+            params.put("CURRENCY_ID", 1);
+            params.put("CONVERSION_RATE_TO_USD", 1);
+            params.put("VERSION_ID", version.getVersionId());
+            params.put("ACTIVE", true);
+            result = si_shipment_budget.execute(params);
+            params.clear();
+        }
+        /**
+         * *****************Inventory Insert*******************
+         */
+        rowsEffected = 0;
+        String sql1 = "SELECT "
+                + "i.ADJUSTMENT_QTY,"
+                + "i.DATA_SOURCE_ID, "
+                + "i.INVENTORY_DATE,"
+                + "i.REGION_ID,"
+                + "i.NOTES, "
+                + "i.REALM_COUNTRY_PLANNING_UNIT_ID,"
+                + "i.REGION_ID  "
+                + "FROM fasp.qat_temp_inventory i where i.PIPELINE_ID=:pipelineId;";
+
+        params.put("pipelineId", pipelineId);
+        List<QatTempInventory> pipelineInventorys = this.namedParameterJdbcTemplate.query(sql1, params, new QatInventoryRowMapper());
+        si = new SimpleJdbcInsert(dataSource).withTableName("rm_inventory");
+        si_trans = new SimpleJdbcInsert(dataSource).withTableName("rm_inventory_trans");
+        for (QatTempInventory inv : pipelineInventorys) {
+            params.put("PROGRAM_ID", programId);
+            params.put("CREATED_DATE", curDate);
+            params.put("CREATED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("ACTIVE", true);
+            params.put("MAX_VERSION_ID", version.getVersionId());
+            int result = si.execute(params);
+            String sqlString = "SELECT LAST_INSERT_ID()";
+            params.put("INVENTORY_ID", this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class));
+            params.put("REGION_ID", inv.getRegionId());
+            params.put("REALM_COUNTRY_PLANNING_UNIT_ID", inv.getPlanningUnitId());
+            params.put("INVENTORY_DATE", inv.getInventoryDate());
+            params.put("ACTUAL_QTY", inv.getManualAdjustment());
+            params.put("ADJUSTMENT_QTY", inv.getManualAdjustment());
+            params.put("DATA_SOURCE_ID", inv.getDataSourceId());
+            params.put("NOTES", inv.getNotes());
+            params.put("ACTIVE", true);
+            params.put("VERSION_ID", version.getVersionId());
+            rowsEffected = +si_trans.execute(params);
+            params.clear();
+        }
+
+         sql = "UPDATE`adb_pipeline` p SET p.`STATUS`=1 WHERE p.`PIPELINE_ID`=?";
+
+                rowsEffected = this.jdbcTemplate.update(sql, pipelineId);
+        
+        return programId;
     }
 
 }
