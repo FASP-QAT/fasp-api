@@ -124,19 +124,21 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 Document doc = dBuilder.parse(fXmlFile);
                 doc.getDocumentElement().normalize();
 
-                NodeList nList1 = doc.getElementsByTagName("DATA_RECORD");
+                NodeList nList1 = doc.getElementsByTagName("itemdata");
                 MapSqlParameterSource[] batchParams = new MapSqlParameterSource[nList1.getLength()];
                 Map<String, Object> map = new HashedMap<String, Object>();
                 int x = 0;
                 String sql;
 
                 logger.info("Going to drop tmp_product_catalog");
-                sql = "DROP TEMPORARY TABLE IF EXISTS `tmp_product_catalog`";
+//                sql = "DROP TEMPORARY TABLE IF EXISTS `tmp_product_catalog`";
+                sql = "DROP TABLE IF EXISTS `tmp_product_catalog`";
                 this.jdbcTemplate.execute(sql);
                 logger.info("Successfully droped tmp_product_catalog");
 
                 logger.info("Going to create tmp_product_catalog");
-                sql = "CREATE TEMPORARY TABLE `tmp_product_catalog` ( "
+//                sql = "CREATE TEMPORARY TABLE `tmp_product_catalog` ( "
+                sql = "CREATE TABLE `tmp_product_catalog` ( "
                         + "  `TaskOrder` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `CommodityCouncil` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `Subcategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
@@ -179,7 +181,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + "  `Drug4Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `Drug4Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `USAIDARVTier` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                        + "  `ProductAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+//                        + "  `ProductAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `PlanningUnitMOQ` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `PlanningUnitsperPallet` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `PlanningUnitsperContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
@@ -192,16 +194,16 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + "  `Weight` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `HeightUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `Height` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                        + "  `LengthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+//                        + "  `LengthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `Length` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                        + "  `WidthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+//                        + "  `WidthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `Width` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `GTIN` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `Labeling` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `ItemAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `UnitsperCase` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `UnitsperPallet` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                        + "  `PalletsPerContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+//                        + "  `PalletsPerContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `UnitsperContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `EstPrice` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  KEY `idxProductNameNoPack` (`ProductNameNoPack`), "
@@ -224,87 +226,89 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + ":productDrug2Name,:productDrug2Abbr,:productDrug2Strength,:productDrug2Measure,:productDrug2Unit,"
                         + ":productDrug3Name,:productDrug3Abbr,:productDrug3Strength,:productDrug3Measure,:productDrug3Unit,"
                         + ":productDrug4Name,:productDrug4Abbr,:productDrug4Strength,:productDrug4Measure,:productDrug4Unit,"
-                        + ":usaidArvTier,:productBuyable1,:planningUnitMoq,:planningUnitPallet,:planningUnitsPerContainer,"
+                        + ":usaidArvTier,:planningUnitMoq,:planningUnitPallet,:planningUnitsPerContainer,"
                         + ":planningUnitVolumeM3,:planningUnitWeightKg,:itemId,:itemName,:itemSupplierName,:itemWeightUom,"
-                        + ":itemWeight,:itemSizeMeasureH,:itemHeight,:itemSizeMeasureL,:itemLength,:itemSizeMeasureW,:itemWidth,"
+                        + ":itemWeight,:itemSizeMeasureH,:itemHeight,:itemLength,:itemWidth,"
                         + ":itemManufacturerGtinUpc,:itemLabelLanguages,:itemBuyable,:itemUnitsPerCase,:itemNumOfUnitsPallet,"
-                        + ":itemNumOfPalletsContainer,:unitsPerContainer,:wcsCataloguePrice);";
+                        + ":unitsPerContainer,:wcsCataloguePrice);";
                 for (int temp2 = 0; temp2 < nList1.getLength(); temp2++) {
                     Node nNode1 = nList1.item(temp2);
                     if (nNode1.getNodeType() == Node.ELEMENT_NODE) {
                         Element dataRecordElement = (Element) nNode1;
-                        map.put("taskOrderLongDescription", dataRecordElement.getElementsByTagName("TASK_ORDER_LONG_DESCRIPTION").item(0).getTextContent());
-                        map.put("commodityCouncilLongDesc", dataRecordElement.getElementsByTagName("COMMODITY_COUNCIL_LONG_DESC").item(0).getTextContent());
-                        map.put("commoditySubcatLongDesc", dataRecordElement.getElementsByTagName("COMMODITY_SUBCAT_LONG_DESC").item(0).getTextContent());
-                        map.put("productTracerCat", dataRecordElement.getElementsByTagName("PRODUCT_TRACER_CAT").item(0).getTextContent());
-                        map.put("productBuyable", dataRecordElement.getElementsByTagName("PRODUCT_BUYABLE").item(0).getTextContent());
-                        map.put("productIdNoPack", dataRecordElement.getElementsByTagName("PRODUCT_ID_NO_PACK").item(0).getTextContent());
-                        map.put("productNameNoPack", dataRecordElement.getElementsByTagName("PRODUCT_NAME_NO_PACK").item(0).getTextContent());
-                        map.put("productId", dataRecordElement.getElementsByTagName("PRODUCT_ID").item(0).getTextContent());
-                        map.put("productName", dataRecordElement.getElementsByTagName("PRODUCT_NAME").item(0).getTextContent());
-                        map.put("itemUom", dataRecordElement.getElementsByTagName("ITEM_UOM").item(0).getTextContent());
-                        map.put("productPackSize", dataRecordElement.getElementsByTagName("PRODUCT_PACK_SIZE").item(0).getTextContent());
-                        map.put("productBaseUnitMult", dataRecordElement.getElementsByTagName("PRODUCT_BASE_UNIT_MULT").item(0).getTextContent());
-                        map.put("productBaseUnit", dataRecordElement.getElementsByTagName("PRODUCT_BASE_UNIT").item(0).getTextContent());
-                        map.put("productDataTrusteeProductIdentifier", dataRecordElement.getElementsByTagName("PRODUCT_DATA_TRUSTEE_PRODUCT_IDENTIFIER").item(0).getTextContent());
-                        map.put("productUnspsc", dataRecordElement.getElementsByTagName("PRODUCT_UNSPSC").item(0).getTextContent());
-                        map.put("productInternationalNonproprietaryName", dataRecordElement.getElementsByTagName("PRODUCT_INTERNATIONAL_NONPROPRIETARY_NAME").item(0).getTextContent());
-                        map.put("productControlledItemWho", dataRecordElement.getElementsByTagName("PRODUCT_CONTROLLED_ITEM_WHO").item(0).getTextContent());
-                        map.put("productAdministrationRoute", dataRecordElement.getElementsByTagName("PRODUCT_ADMINISTRATION_ROUTE").item(0).getTextContent());
-                        map.put("productDosageForm", dataRecordElement.getElementsByTagName("PRODUCT_DOSAGE_FORM").item(0).getTextContent());
-                        map.put("productQaEligibilityCategory", dataRecordElement.getElementsByTagName("PRODUCT_QA_ELIGIBILITY_CATEGORY").item(0).getTextContent());
-                        map.put("productQaEligibilityCriteria", dataRecordElement.getElementsByTagName("PRODUCT_QA_ELIGIBILITY_CRITERIA").item(0).getTextContent());
-                        map.put("productDrug1Name", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_1_NAME").item(0).getTextContent());
-                        map.put("productDrug1Abbr", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_1_ABBREVIATION").item(0).getTextContent());
-                        map.put("productDrug1Strength", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_1_STRENGTH").item(0).getTextContent());
-                        map.put("productDrug1Measure", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_1_MEASURE").item(0).getTextContent());
-                        map.put("productDrug1Unit", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_1_UNIT").item(0).getTextContent());
+                        System.out.println("task order new---"+dataRecordElement.getElementsByTagName("task_order_long_description").item(0).getTextContent());
+//                        System.out.println("task order old---"+dataRecordElement.getElementsByTagName("TASK_ORDER_LONG_DESCRIPTION").item(0).getTextContent());
+                        map.put("taskOrderLongDescription", dataRecordElement.getElementsByTagName("task_order_long_description").item(0).getTextContent());
+                        map.put("commodityCouncilLongDesc", dataRecordElement.getElementsByTagName("commodity_council_long_desc").item(0).getTextContent());
+                        map.put("commoditySubcatLongDesc", dataRecordElement.getElementsByTagName("commodity_subcat_long_desc").item(0).getTextContent());
+                        map.put("productTracerCat", dataRecordElement.getElementsByTagName("product_tracer_cat").item(0).getTextContent());
+                        map.put("productBuyable", dataRecordElement.getElementsByTagName("product_buyable").item(0).getTextContent());
+                        map.put("productIdNoPack", dataRecordElement.getElementsByTagName("product_id_no_pack").item(0).getTextContent());
+                        map.put("productNameNoPack", dataRecordElement.getElementsByTagName("product_name_no_pack").item(0).getTextContent());
+                        map.put("productId", dataRecordElement.getElementsByTagName("product_id").item(0).getTextContent());
+                        map.put("productName", dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent());
+                        map.put("itemUom", dataRecordElement.getElementsByTagName("item_uom").item(0).getTextContent());
+                        map.put("productPackSize", dataRecordElement.getElementsByTagName("product_pack_size").item(0).getTextContent());
+                        map.put("productBaseUnitMult", dataRecordElement.getElementsByTagName("product_base_unit_mult").item(0).getTextContent());
+                        map.put("productBaseUnit", dataRecordElement.getElementsByTagName("product_base_unit").item(0).getTextContent());
+                        map.put("productDataTrusteeProductIdentifier", dataRecordElement.getElementsByTagName("product_data_trustee_product_identifier").item(0).getTextContent());
+                        map.put("productUnspsc", dataRecordElement.getElementsByTagName("product_unspsc").item(0).getTextContent());
+                        map.put("productInternationalNonproprietaryName", dataRecordElement.getElementsByTagName("product_international_nonproprietary_name").item(0).getTextContent());
+                        map.put("productControlledItemWho", dataRecordElement.getElementsByTagName("product_controlled_item_who").item(0).getTextContent());
+                        map.put("productAdministrationRoute", dataRecordElement.getElementsByTagName("product_administration_route").item(0).getTextContent());
+                        map.put("productDosageForm", dataRecordElement.getElementsByTagName("product_dosage_form").item(0).getTextContent());
+                        map.put("productQaEligibilityCategory", dataRecordElement.getElementsByTagName("product_qa_eligibility_category").item(0).getTextContent());
+                        map.put("productQaEligibilityCriteria", dataRecordElement.getElementsByTagName("product_qa_eligibility_criteria").item(0).getTextContent());
+                        map.put("productDrug1Name", dataRecordElement.getElementsByTagName("product_drug_1_name").item(0).getTextContent());
+                        map.put("productDrug1Abbr", dataRecordElement.getElementsByTagName("product_drug_1_abbreviation").item(0).getTextContent());
+                        map.put("productDrug1Strength", dataRecordElement.getElementsByTagName("product_drug_1_strength").item(0).getTextContent());
+                        map.put("productDrug1Measure", dataRecordElement.getElementsByTagName("product_drug_1_measure").item(0).getTextContent());
+                        map.put("productDrug1Unit", dataRecordElement.getElementsByTagName("product_drug_1_unit").item(0).getTextContent());
 
-                        map.put("productDrug2Name", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_2_NAME").item(0).getTextContent());
-                        map.put("productDrug2Abbr", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_2_ABBREVIATION").item(0).getTextContent());
-                        map.put("productDrug2Strength", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_2_STRENGTH").item(0).getTextContent());
-                        map.put("productDrug2Measure", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_2_MEASURE").item(0).getTextContent());
-                        map.put("productDrug2Unit", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_2_UNIT").item(0).getTextContent());
+                        map.put("productDrug2Name", dataRecordElement.getElementsByTagName("product_drug_2_name").item(0).getTextContent());
+                        map.put("productDrug2Abbr", dataRecordElement.getElementsByTagName("product_drug_2_abbreviation").item(0).getTextContent());
+                        map.put("productDrug2Strength", dataRecordElement.getElementsByTagName("product_drug_2_strength").item(0).getTextContent());
+                        map.put("productDrug2Measure", dataRecordElement.getElementsByTagName("product_drug_2_measure").item(0).getTextContent());
+                        map.put("productDrug2Unit", dataRecordElement.getElementsByTagName("product_drug_2_unit").item(0).getTextContent());
 
-                        map.put("productDrug3Name", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_3_NAME").item(0).getTextContent());
-                        map.put("productDrug3Abbr", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_3_ABBREVIATION").item(0).getTextContent());
-                        map.put("productDrug3Strength", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_3_STRENGTH").item(0).getTextContent());
-                        map.put("productDrug3Measure", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_3_MEASURE").item(0).getTextContent());
-                        map.put("productDrug3Unit", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_3_UNIT").item(0).getTextContent());
+                        map.put("productDrug3Name", dataRecordElement.getElementsByTagName("product_drug_3_name").item(0).getTextContent());
+                        map.put("productDrug3Abbr", dataRecordElement.getElementsByTagName("product_drug_3_abbreviation").item(0).getTextContent());
+                        map.put("productDrug3Strength", dataRecordElement.getElementsByTagName("product_drug_3_strength").item(0).getTextContent());
+                        map.put("productDrug3Measure", dataRecordElement.getElementsByTagName("product_drug_3_measure").item(0).getTextContent());
+                        map.put("productDrug3Unit", dataRecordElement.getElementsByTagName("product_drug_3_unit").item(0).getTextContent());
 
-                        map.put("productDrug4Name", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_4_NAME").item(0).getTextContent());
-                        map.put("productDrug4Abbr", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_4_ABBREVIATION").item(0).getTextContent());
-                        map.put("productDrug4Strength", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_4_STRENGTH").item(0).getTextContent());
-                        map.put("productDrug4Measure", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_4_MEASURE").item(0).getTextContent());
-                        map.put("productDrug4Unit", dataRecordElement.getElementsByTagName("PRODUCT_DRUG_4_UNIT").item(0).getTextContent());
+                        map.put("productDrug4Name", dataRecordElement.getElementsByTagName("product_drug_4_name").item(0).getTextContent());
+                        map.put("productDrug4Abbr", dataRecordElement.getElementsByTagName("product_drug_4_abbreviation").item(0).getTextContent());
+                        map.put("productDrug4Strength", dataRecordElement.getElementsByTagName("product_drug_4_strength").item(0).getTextContent());
+                        map.put("productDrug4Measure", dataRecordElement.getElementsByTagName("product_drug_4_measure").item(0).getTextContent());
+                        map.put("productDrug4Unit", dataRecordElement.getElementsByTagName("product_drug_4_unit").item(0).getTextContent());
 
-                        map.put("usaidArvTier", dataRecordElement.getElementsByTagName("USAID_ARV_TIER").item(0).getTextContent());
+                        map.put("usaidArvTier", dataRecordElement.getElementsByTagName("usaid_arv_tier").item(0).getTextContent());
                         // below
-                        map.put("productBuyable1", dataRecordElement.getElementsByTagName("PRODUCT_BUYABLE").item(1).getTextContent());
-                        map.put("planningUnitMoq", dataRecordElement.getElementsByTagName("PLANNING_UNIT_MOQ").item(0).getTextContent());
-                        map.put("planningUnitPallet", dataRecordElement.getElementsByTagName("PLANNING_UNIT_PALLET").item(0).getTextContent());
-                        map.put("planningUnitsPerContainer", dataRecordElement.getElementsByTagName("PLANNING_UNITS_PER_CONTAINER").item(0).getTextContent());
-                        map.put("planningUnitVolumeM3", dataRecordElement.getElementsByTagName("PLANNING_UNIT_VOLUME_M3").item(0).getTextContent());
-                        map.put("planningUnitWeightKg", dataRecordElement.getElementsByTagName("PLANNING_UNIT_WEIGHT_KG").item(0).getTextContent());
-                        map.put("itemId", dataRecordElement.getElementsByTagName("ITEM_ID").item(0).getTextContent());
-                        map.put("itemName", dataRecordElement.getElementsByTagName("ITEM_NAME").item(0).getTextContent());
-                        map.put("itemSupplierName", dataRecordElement.getElementsByTagName("ITEM_SUPPLIER_NAME").item(0).getTextContent());
-                        map.put("itemWeightUom", dataRecordElement.getElementsByTagName("ITEM_WEIGHT_UOM").item(0).getTextContent());
-                        map.put("itemWeight", dataRecordElement.getElementsByTagName("ITEM_WEIGHT").item(0).getTextContent());
-                        map.put("itemSizeMeasureH", dataRecordElement.getElementsByTagName("ITEM_SIZEMEASURE").item(0).getTextContent());
-                        map.put("itemHeight", dataRecordElement.getElementsByTagName("ITEM_HEIGHT").item(0).getTextContent());
-                        map.put("itemSizeMeasureL", dataRecordElement.getElementsByTagName("ITEM_SIZEMEASURE").item(1).getTextContent());
-                        map.put("itemLength", dataRecordElement.getElementsByTagName("ITEM_LENGTH").item(0).getTextContent());
-                        map.put("itemSizeMeasureW", dataRecordElement.getElementsByTagName("ITEM_SIZEMEASURE").item(2).getTextContent());
-                        map.put("itemWidth", dataRecordElement.getElementsByTagName("ITEM_WIDTH").item(0).getTextContent());
-                        map.put("itemManufacturerGtinUpc", dataRecordElement.getElementsByTagName("ITEM_MANUFACTURER_GTIN_UPC").item(0).getTextContent());
-                        map.put("itemLabelLanguages", dataRecordElement.getElementsByTagName("ITEM_LABEL_LANGUAGES").item(0).getTextContent());
-                        map.put("itemBuyable", dataRecordElement.getElementsByTagName("ITEM_BUYABLE").item(0).getTextContent());
-                        map.put("itemUnitsPerCase", dataRecordElement.getElementsByTagName("ITEM_UNITS_PER_CASE").item(0).getTextContent());
-                        map.put("itemNumOfUnitsPallet", dataRecordElement.getElementsByTagName("ITEM_NUM_OF_UNITS_PALLET").item(0).getTextContent());
-                        map.put("itemNumOfPalletsContainer", dataRecordElement.getElementsByTagName("ITEM_NUM_OF_PALLETS_CONTAINER").item(0).getTextContent());
-                        map.put("unitsPerContainer", dataRecordElement.getElementsByTagName("UNITS_PER_CONTAINER").item(0).getTextContent());
-                        map.put("wcsCataloguePrice", dataRecordElement.getElementsByTagName("WCS_CATALOG_PRICE").item(0).getTextContent());
+//                        map.put("productBuyable1", dataRecordElement.getElementsByTagName("product_buyable").item(1).getTextContent());
+                        map.put("planningUnitMoq", dataRecordElement.getElementsByTagName("planning_unit_moq").item(0).getTextContent());
+                        map.put("planningUnitPallet", dataRecordElement.getElementsByTagName("planning_unit_per_pallet").item(0).getTextContent());
+                        map.put("planningUnitsPerContainer", dataRecordElement.getElementsByTagName("planning_unit_per_container").item(0).getTextContent());
+                        map.put("planningUnitVolumeM3", dataRecordElement.getElementsByTagName("planning_unit_volume_m3").item(0).getTextContent());
+                        map.put("planningUnitWeightKg", dataRecordElement.getElementsByTagName("planning_unit_weight_kg").item(0).getTextContent());
+                        map.put("itemId", dataRecordElement.getElementsByTagName("item_id").item(0).getTextContent());
+                        map.put("itemName", dataRecordElement.getElementsByTagName("item_name").item(0).getTextContent());
+                        map.put("itemSupplierName", dataRecordElement.getElementsByTagName("item_supplier_name").item(0).getTextContent());
+                        map.put("itemWeightUom", dataRecordElement.getElementsByTagName("item_weight_uom").item(0).getTextContent());
+                        map.put("itemWeight", dataRecordElement.getElementsByTagName("item_weight").item(0).getTextContent());
+                        map.put("itemSizeMeasureH", dataRecordElement.getElementsByTagName("item_sizemeasure").item(0).getTextContent());
+                        map.put("itemHeight", dataRecordElement.getElementsByTagName("item_height").item(0).getTextContent());
+//                        map.put("itemSizeMeasureL", dataRecordElement.getElementsByTagName("ITEM_SIZEMEASURE").item(1).getTextContent());
+                        map.put("itemLength", dataRecordElement.getElementsByTagName("item_length").item(0).getTextContent());
+//                        map.put("itemSizeMeasureW", dataRecordElement.getElementsByTagName("ITEM_SIZEMEASURE").item(2).getTextContent());
+                        map.put("itemWidth", dataRecordElement.getElementsByTagName("item_width").item(0).getTextContent());
+                        map.put("itemManufacturerGtinUpc", dataRecordElement.getElementsByTagName("item_manufacturer_gtin_upc").item(0).getTextContent());
+                        map.put("itemLabelLanguages", dataRecordElement.getElementsByTagName("item_label_languages").item(0).getTextContent());
+                        map.put("itemBuyable", dataRecordElement.getElementsByTagName("item_buyable").item(0).getTextContent());
+                        map.put("itemUnitsPerCase", dataRecordElement.getElementsByTagName("item_units_per_case").item(0).getTextContent());
+                        map.put("itemNumOfUnitsPallet", dataRecordElement.getElementsByTagName("item_num_of_units_pallet").item(0).getTextContent());
+//                        map.put("itemNumOfPalletsContainer", dataRecordElement.getElementsByTagName("ITEM_NUM_OF_PALLETS_CONTAINER").item(0).getTextContent());
+                        map.put("unitsPerContainer", dataRecordElement.getElementsByTagName("units_per_container").item(0).getTextContent());
+                        map.put("wcsCataloguePrice", dataRecordElement.getElementsByTagName("wcs_catalog_price").item(0).getTextContent());
                         batchParams[x] = new MapSqlParameterSource(map);
                         x++;
                     }
@@ -344,10 +348,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
                 sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Bag' WHERE pc.HeightUOM='BAG'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Bag' WHERE pc.LengthUOM='BAG'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Bag' WHERE pc.WidthUOM='BAG'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Bag' WHERE pc.LengthUOM='BAG'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Bag' WHERE pc.WidthUOM='BAG'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
 
                 sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Bottle' WHERE pc.BaseUnit='BOT'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
@@ -357,10 +361,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
                 sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Bottle' WHERE pc.HeightUOM='BOT'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Bottle' WHERE pc.LengthUOM='BOT'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Bottle' WHERE pc.WidthUOM='BOT'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Bottle' WHERE pc.LengthUOM='BOT'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Bottle' WHERE pc.WidthUOM='BOT'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
 
                 sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Box' WHERE pc.BaseUnit='BOX'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
@@ -370,10 +374,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
                 sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Box' WHERE pc.HeightUOM='BOX'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Box' WHERE pc.LengthUOM='BOX'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Box' WHERE pc.WidthUOM='BOX'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Box' WHERE pc.LengthUOM='BOX'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Box' WHERE pc.WidthUOM='BOX'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
 
                 sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Cassette' WHERE pc.BaseUnit='CAS'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
@@ -383,10 +387,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
                 sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Cassette' WHERE pc.HeightUOM='CAS'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Cassette' WHERE pc.LengthUOM='CAS'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Cassette' WHERE pc.WidthUOM='CAS'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Cassette' WHERE pc.LengthUOM='CAS'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Cassette' WHERE pc.WidthUOM='CAS'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
 
                 sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Piece' WHERE pc.BaseUnit='PCS'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
@@ -396,10 +400,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
                 sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Piece' WHERE pc.HeightUOM='PCS'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Piece' WHERE pc.LengthUOM='PCS'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Piece' WHERE pc.WidthUOM='PCS'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Piece' WHERE pc.LengthUOM='PCS'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Piece' WHERE pc.WidthUOM='PCS'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
 
                 sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Roll' WHERE pc.BaseUnit='ROL'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
@@ -409,10 +413,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
                 sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Roll' WHERE pc.HeightUOM='ROL'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Roll' WHERE pc.LengthUOM='ROL'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Roll' WHERE pc.WidthUOM='ROL'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Roll' WHERE pc.LengthUOM='ROL'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Roll' WHERE pc.WidthUOM='ROL'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
 
                 sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Set' WHERE pc.BaseUnit='SET'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
@@ -422,10 +426,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
                 sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Set' WHERE pc.HeightUOM='SET'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Set' WHERE pc.LengthUOM='SET'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Set' WHERE pc.WidthUOM='SET'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Set' WHERE pc.LengthUOM='SET'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Set' WHERE pc.WidthUOM='SET'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
 
                 sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Tube' WHERE pc.BaseUnit='TUB'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
@@ -435,10 +439,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
                 sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Tube' WHERE pc.HeightUOM='TUB'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Tube' WHERE pc.LengthUOM='TUB'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Tube' WHERE pc.WidthUOM='TUB'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Tube' WHERE pc.LengthUOM='TUB'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Tube' WHERE pc.WidthUOM='TUB'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
 
                 sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Unit' WHERE pc.BaseUnit='UNT'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
@@ -448,10 +452,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
                 sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Unit' WHERE pc.HeightUOM='UNT'";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Unit' WHERE pc.LengthUOM='UNT'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Unit' WHERE pc.WidthUOM='UNT'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Unit' WHERE pc.LengthUOM='UNT'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Unit' WHERE pc.WidthUOM='UNT'";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
 
                 sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, BaseUnit, NULL, NULL, NULL FROM tmp_product_catalog WHERE BaseUnit IS NOT NULL AND BaseUnit != '' GROUP BY BaseUnit";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
@@ -461,10 +465,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
                 sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, HeightUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE HeightUOM IS NOT NULL AND HeightUOM != '' GROUP BY HeightUOM";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, LengthUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE LengthUOM IS NOT NULL AND LengthUOM != '' GROUP BY LengthUOM";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, WidthUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE WidthUOM IS NOT NULL AND WidthUOM != '' GROUP BY WidthUOM";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, LengthUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE LengthUOM IS NOT NULL AND LengthUOM != '' GROUP BY LengthUOM";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+//                sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, WidthUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE WidthUOM IS NOT NULL AND WidthUOM != '' GROUP BY WidthUOM";
+//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
 
                 sql = "SELECT COUNT(*) FROM tmp_unit;";
                 logger.info("Total rows inserted in tmp_unit---" + this.jdbcTemplate.queryForObject(sql, Integer.class));
@@ -593,13 +597,15 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 max = 0;
 
                 // Step 1 - Drop the table if it exists
-                sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_label`";
+//                sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_label`";
+                sqlString = "DROP TABLE IF EXISTS `tmp_label`";
                 this.jdbcTemplate.update(sqlString);
-                sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
+//                sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
+                sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
                 this.jdbcTemplate.update(sqlString);
 
                 // Step 2 - Create the tmp table
-                sqlString = "CREATE TEMPORARY TABLE `tmp_label` (  "
+                sqlString = "CREATE  TABLE `tmp_label` (  "
                         + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
                         + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
                         + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,  "
@@ -623,7 +629,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + "ADD INDEX `fk_tmpLabel_labelIdIdx` (`LABEL_ID` ASC)";
                 this.jdbcTemplate.update(sqlString);
 
-                sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (  "
+                sqlString = "CREATE TABLE `tmp_forecasting_unit` (  "
                         + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
                         + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
                         + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,  "
@@ -793,10 +799,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info("Total Rows after insertion rm_forecasting_unit---" + this.jdbcTemplate.queryForObject(sql, Integer.class));
 
                 // -----------------------Planning Unit-----------------
-                sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_planning_unit";
+                sqlString = "DROP TABLE IF EXISTS tmp_planning_unit";
                 this.jdbcTemplate.update(sqlString);
 
-                sqlString = "CREATE TEMPORARY TABLE `tmp_planning_unit` (  "
+                sqlString = "CREATE TABLE `tmp_planning_unit` (  "
                         + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
                         + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
                         + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,  "
@@ -890,8 +896,8 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
                 // Forcasting unit id is null so putting dummy value 1
                 // Step 8 Insert into the main planning Unit
-//        sqlString = "insert into rm_planning_unit select null, tpu.FORECASTING_UNIT_ID, tpu.LABEL_ID, tpu.UNIT_ID, tpu.MULTIPLIER, 1, 1, now(), 1, now() from tmp_planning_unit tpu";
-                sqlString = "insert into rm_planning_unit select null, 1, tpu.LABEL_ID, tpu.UNIT_ID, tpu.MULTIPLIER, 1, 1, now(), 1, now() from tmp_planning_unit tpu";
+                sqlString = "insert into rm_planning_unit select null, tpu.FORECASTING_UNIT_ID, tpu.LABEL_ID, tpu.UNIT_ID, tpu.MULTIPLIER, 1, 1, now(), 1, now() from tmp_planning_unit tpu";
+//                sqlString = "insert into rm_planning_unit select null, 1, tpu.LABEL_ID, tpu.UNIT_ID, tpu.MULTIPLIER, 1, 1, now(), 1, now() from tmp_planning_unit tpu";
                 rows = this.jdbcTemplate.update(sqlString);
                 logger.info(rows + " inserted into Planning unit");
 

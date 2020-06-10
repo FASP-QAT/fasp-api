@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.ShipmentBatchInfo;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -23,8 +24,7 @@ public class ShipmentBatchInfoRowMapper implements RowMapper<ShipmentBatchInfo> 
         if (rs.wasNull()) {
             return null;
         }
-        sb.setBatchNo(rs.getString("BATCH_NO"));
-        sb.setExpiryDate(rs.getDate("EXPIRY_DATE"));
+        sb.setBatch(new Batch(rs.getInt("BATCH_ID"), rs.getString("BATCH_NO"), rs.getDate("EXPIRY_DATE")));
         sb.setShipmentQty(rs.getInt("BATCH_SHIPMENT_QTY"));
         return sb;
     }
