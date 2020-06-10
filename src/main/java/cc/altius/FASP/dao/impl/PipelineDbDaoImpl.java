@@ -133,6 +133,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         params.put("FILE_NAME", fileName);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
+        params.put("STATUS", 0);
         int pipelineId = si.executeAndReturnKeyHolder(params).getKey().intValue();
 
         // Save records for adb_commodityprice
@@ -600,8 +601,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "p.DRAFT_TO_SUBMITTED_LEAD_TIME=:draftToSubmittedLeadTime, "
                     + "p.SUBMITTED_TO_APPROVED_LEAD_TIME=:submittedToApprovedLeadTime, "
                     + "p.APPROVED_TO_SHIPPED_LEAD_TIME=:approvedToShippedLeadTime, "
-                    + "p.DELIVERED_TO_RECEIVED_LEAD_TIME=:deliveredToReceivedLeadTime, "
-                    + "p.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, "
+                    //                    + "p.DELIVERED_TO_RECEIVED_LEAD_TIME=:deliveredToReceivedLeadTime, "
+                    //                    + "p.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, "
                     + "p.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, "
                     + "p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, "
                     + "p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime, "
@@ -746,7 +747,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "p.PLANNING_UNIT_ID, "
                 + "p.REORDER_FREQUENCY_IN_MONTHS, "
                 + "p.MIN_MONTHS_OF_STOCK, "
-                + "fu.PRODUCT_CATEGORY_ID  "
+                + "fu.PRODUCT_CATEGORY_ID,  "
+                + " p.LOCAL_PROCUREMENT_LEAD_TIME "
                 + "FROM fasp.qat_temp_program_planning_unit p  "
                 + "left join adb_product ap on ap.ProductID=p.PIPELINE_PRODUCT_ID and ap.PIPELINE_ID=:pipelineId "
                 + "left join adb_method m on m.MethodID=ap.MethodID and m.PIPELINE_ID=:pipelineId "
@@ -763,7 +765,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "p.ProductMinMonths as MIN_MONTHS_OF_STOCK, "
                     + "if(pu.PLANNING_UNIT_ID IS NULL,p.ProductName,pu.PLANNING_UNIT_ID) as PLANNING_UNIT_ID, "
                     + "if(fu.FORECASTING_UNIT_ID IS NULL,'',fu.PRODUCT_CATEGORY_ID) as PRODUCT_CATEGORY_ID, "
-                    + " '' as REORDER_FREQUENCY_IN_MONTHS "
+                    + " '' as REORDER_FREQUENCY_IN_MONTHS, "
+                    + " '' as LOCAL_PROCUREMENT_LEAD_TIME "
                     + "FROM fasp.adb_product p "
                     + "left join adb_method m on m.MethodID=p.MethodID and m.PIPELINE_ID=:pipelineId "
                     + "left join ap_label al on al.LABEL_EN=p.ProductName OR al.LABEL_FR=p.ProductName "
@@ -928,6 +931,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("LAST_MODIFIED_BY", curUser.getUserId());
             params.put("PIPELINE_ID", pipelineId);
             params.put("PIPELINE_PRODUCT_ID", ppu.getProgramPlanningUnitId());
+            params.put("LOCAL_PROCUREMENT_LEAD_TIME", ppu.getLocalProcurmentLeadTime());
             insertList.add(new MapSqlParameterSource(params));
 
         }
@@ -974,7 +978,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "c.DATA_SOURCE_ID,"
                 + "c.NOTES, "
                 + "c.CONSUMPTION_QUANTITY,"
-                + "c.ACTUAL_FLAG "
+                + "c.ACTUAL_FLAG ,"
+                + "1 as ConsNumMonths "
                 + "from qat_temp_consumption c where c.PIPELINE_ID=:pipelineId;";
         List<QatTempConsumption> consumptionList = this.namedParameterJdbcTemplate.query(sqlQatTemp, params, new QatTempConsumptionRowMapper());
 
@@ -988,6 +993,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "0 as DAYS_OF_STOCK_OUT,"
                     + " '' as REGION_ID,"
                     + "qtp.PLANNING_UNIT_ID as PLANNING_UNIT_ID "
+                    + " , c.ConsNumMonths "
                     + "FROM fasp.adb_consumption c "
                     + "left join adb_datasource ad on ad.DataSourceID=c.ConsDataSourceID AND ad.PIPELINE_ID=:pipelineId "
                     + "left join ap_label al on upper(al.LABEL_EN)=upper(ad.DataSourceName)  "
@@ -1068,8 +1074,10 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "i.INVENTORY_DATE,"
                 + "i.REGION_ID,"
                 + "i.NOTES, "
+                + "i.PLANNING_UNIT_ID,"
+                + "i.REGION_ID , "
                 + "i.REALM_COUNTRY_PLANNING_UNIT_ID,"
-                + "i.REGION_ID  "
+                + "i.MULTIPLIER "
                 + "FROM fasp.qat_temp_inventory i where i.PIPELINE_ID=:pipelineId;";
 
         List<QatTempInventory> result = this.namedParameterJdbcTemplate.query(sql1, params, new QatInventoryRowMapper());
@@ -1079,10 +1087,12 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "If(rds.DATA_SOURCE_ID IS NULL,ad.DataSourceName,rds.DATA_SOURCE_ID) as DATA_SOURCE_ID, "
                     //                    + "ad.DataSourceName,"
                     //                    + "i.ProductID,"
-                    + "qtp.PLANNING_UNIT_ID as REALM_COUNTRY_PLANNING_UNIT_ID,"
+                    + "qtp.PLANNING_UNIT_ID as PLANNING_UNIT_ID,"
                     + "i.InvNote as NOTES,"
                     + "i.InvAmount as ADJUSTMENT_QTY , "
-                    + "date_format(CONCAT(i.Period),\"%Y-%m-%d\") as INVENTORY_DATE,'' as REGION_ID  "
+                    + "date_format(CONCAT(i.Period),\"%Y-%m-%d\") as INVENTORY_DATE,'' as REGION_ID,  "
+                    + " 0 as REALM_COUNTRY_PLANNING_UNIT_ID,"
+                    + " 0 as MULTIPLIER "
                     + "from adb_inventory i "
                     + "left join adb_datasource ad on ad.DataSourceID=i.InvDataSourceID and ad.PIPELINE_ID=:pipelineId "
                     + "left join ap_label al on upper(al.LABEL_EN)=upper(ad.DataSourceName) "
@@ -1115,12 +1125,14 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             // Insert
             params = new HashMap<>();
             params.put("REGION_ID", ppu.getRegionId());
-            params.put("REALM_COUNTRY_PLANNING_UNIT_ID", ppu.getPlanningUnitId());
+            params.put("PLANNING_UNIT_ID", ppu.getPlanningUnitId());
             params.put("DATA_SOURCE_ID", ppu.getDataSourceId());
             params.put("INVENTORY_DATE", ppu.getInventoryDate());
             params.put("NOTES", ppu.getNotes());
             params.put("ADJUSTMENT_QTY", ppu.getManualAdjustment());
             params.put("PIPELINE_ID", ppu.isActive());
+            params.put("REALM_COUNTRY_PLANNING_UNIT_ID", ppu.getRealmCountryPlanningUnitId());
+            params.put("MULTIPLIER", ppu.getMultiplier());
 
             params.put("CREATED_DATE", curDate);
             params.put("CREATED_BY", curUser.getUserId());

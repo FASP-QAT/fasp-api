@@ -23,8 +23,10 @@ public class QatInventoryRowMapper implements RowMapper<QatTempInventory>{
         i.setInventoryDate(rs.getString("INVENTORY_DATE"));
         i.setManualAdjustment(rs.getInt("ADJUSTMENT_QTY"));
         i.setNotes(rs.getString("NOTES"));
-        i.setPlanningUnitId(rs.getString("REALM_COUNTRY_PLANNING_UNIT_ID"));
+        i.setPlanningUnitId(rs.getString("PLANNING_UNIT_ID"));
         i.setRegionId(rs.getString("REGION_ID"));
+        i.setRealmCountryPlanningUnitId(rs.getInt("REALM_COUNTRY_PLANNING_UNIT_ID"));
+        i.setMultiplier(rs.getDouble("MULTIPLIER"));
         return i;
     }
     

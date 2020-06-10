@@ -21,13 +21,14 @@ public class QatTempConsumption {
     private double consumptionQty;
     private int dayOfStockOut;
     private String dataSourceId;
+    private int consNumMonth;
     private String notes;
     
     
     public QatTempConsumption() {
     }
 
-    public QatTempConsumption(int consumptionId, String regionId, String planningUnitId, String consumptionDate, boolean actualFlag, double consumptionQty, int dayOfStockOut, String dataSourceId, String notes) {
+    public QatTempConsumption(int consumptionId, String regionId, String planningUnitId, String consumptionDate, boolean actualFlag, double consumptionQty, int dayOfStockOut, String dataSourceId, String notes,int consNumMonth) {
         this.consumptionId = consumptionId;
         this.regionId = regionId;
         this.planningUnitId = planningUnitId;
@@ -37,8 +38,18 @@ public class QatTempConsumption {
         this.dayOfStockOut = dayOfStockOut;
         this.dataSourceId = dataSourceId;
         this.notes = notes;
+        this.consNumMonth=consNumMonth;
     }
 
+    public int getConsNumMonth() {
+        return consNumMonth;
+    }
+
+    public void setConsNumMonth(int consNumMonth) {
+        this.consNumMonth = consNumMonth;
+    }
+
+    
     public int getConsumptionId() {
         return consumptionId;
     }
@@ -110,7 +121,5 @@ public class QatTempConsumption {
     public void setNotes(String notes) {
         this.notes = notes;
     }
-
-
     
 }
