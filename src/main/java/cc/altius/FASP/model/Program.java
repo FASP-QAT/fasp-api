@@ -212,7 +212,7 @@ public class Program extends BaseModel implements Serializable {
             return new String[0];
         } else {
             return regionList.stream().map(Region::getRegionIdString).toArray(String[]::new);
-        }
+    }
     }
 
     public void setRegionArray(String[] regionArray) {
@@ -220,7 +220,7 @@ public class Program extends BaseModel implements Serializable {
         this.regionList.clear();
         for (String r : regionArray) {
             this.regionList.add(new Region(Integer.parseInt(r), null));
-        }
+    }
     }
 
     public Version getCurrentVersion() {

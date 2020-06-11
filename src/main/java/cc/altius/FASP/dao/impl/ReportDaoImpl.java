@@ -8,8 +8,6 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
-import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
-import cc.altius.FASP.model.report.AnnualShipmentCostOutputRowMapper;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.CostOfInventoryRowMapper;
@@ -65,10 +63,11 @@ public class ReportDaoImpl implements ReportDao {
                 + "	LEFT JOIN rm_planning_unit pu ON cons.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID\n"
                 + "	LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`\n"
                 + "	LEFT JOIN rm_data_source ds ON cons.DATA_SOURCE_ID=ds.DATA_SOURCE_ID\n"
-                + "	WHERE rc.`REALM_ID`=:realmId\n";
-        params.put("realmId", realmId);
+                + "	WHERE  1";
+                //+ "rc.`REALM_ID`=:realmId\n";
+        //params.put("realmId", realmId);
         if (programId > 1) {
-            sql += "	AND cons.`PROGRAM_ID`=:programId";
+            sql += "	AND con.`PROGRAM_ID`=:programId";
             params.put("programId", programId);
         }
         // if (planningUnitId != 0) {

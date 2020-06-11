@@ -41,6 +41,7 @@ public class QatTempConsumptionRowMapper implements RowMapper<QatTempConsumption
         c.setNotes(rs.getString("NOTES"));
         c.setDayOfStockOut(rs.getInt("DAYS_OF_STOCK_OUT"));
         c.setConsumptionQty(rs.getDouble("CONSUMPTION_QUANTITY"));
+        c.setConsNumMonth(rs.getInt("ConsNumMonths"));
         
         return c;
     }
