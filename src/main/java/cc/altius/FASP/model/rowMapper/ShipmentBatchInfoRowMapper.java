@@ -24,7 +24,7 @@ public class ShipmentBatchInfoRowMapper implements RowMapper<ShipmentBatchInfo> 
         if (rs.wasNull()) {
             return null;
         }
-        sb.setBatch(new Batch(rs.getInt("BATCH_ID"), rs.getString("BATCH_NO"), rs.getDate("EXPIRY_DATE")));
+        sb.setBatch(new Batch(rs.getInt("BATCH_ID"), rs.getInt("BATCH_PLANNING_UNIT_ID"), rs.getString("BATCH_NO"), rs.getDate("EXPIRY_DATE")));
         sb.setShipmentQty(rs.getInt("BATCH_SHIPMENT_QTY"));
         return sb;
     }
