@@ -42,10 +42,12 @@ public class SupplyPlanRestController {
                 spbi.setOpeningBalance(prevCB);
                 sd.setUnallocatedConsumption(spbi.updateUnAllocatedCountAndExpiredStock(sd.getTransDate(), sd.getUnallocatedConsumption()));
             }
+            int unallocatedConsumption = sd.getUnallocatedConsumption();
             for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
-                sd.setUnallocatedConsumption(spbi.updateCB(sd.getUnallocatedConsumption()));
-                if (spbi.getBatchId()==0 && sd.getUnallocatedConsumption() > 0) {
-                    spbi.setUnmetDemand(sd.getUnallocatedConsumption());
+                sd.setUnallocatedConsumption(unallocatedConsumption);
+                unallocatedConsumption = spbi.updateCB(unallocatedConsumption);
+                if (spbi.getBatchId()==0 && unallocatedConsumption > 0) {
+                    spbi.setUnmetDemand(unallocatedConsumption);
                     sd.setUnallocatedConsumption(0);
                 }
                 System.out.println(spbi.getBatchId() + "\t\t" + sd.getTransDateStr() + "\t\t" + spbi.getExpiryDateStr() + "\t\t" + spbi.getShipmentQty() + "\t\t" + spbi.getConsumption() + "\t\t" + spbi.getAdjustment() + "\t\t" + spbi.getExpiredStock() + "\t\t" + sd.getUnallocatedConsumption() + "\t\t" + spbi.getCalculatedConsumption() + "\t\t" + spbi.getOpeningBalance() + "\t\t" + spbi.getClosingBalance() + "\t\t" + spbi.getUnmetDemand());

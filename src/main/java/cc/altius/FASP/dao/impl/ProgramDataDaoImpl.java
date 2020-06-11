@@ -813,10 +813,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     spbi.setOpeningBalance(prevCB);
                     sd.setUnallocatedConsumption(spbi.updateUnAllocatedCountAndExpiredStock(sd.getTransDate(), sd.getUnallocatedConsumption()));
                 }
+                int unallocatedConsumption = sd.getUnallocatedConsumption();
                 for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
-                    sd.setUnallocatedConsumption(spbi.updateCB(sd.getUnallocatedConsumption()));
-                    if (spbi.getBatchId() == 0 && sd.getUnallocatedConsumption() > 0) {
-                        spbi.setUnmetDemand(sd.getUnallocatedConsumption());
+                    sd.setUnallocatedConsumption(unallocatedConsumption);
+                    unallocatedConsumption = spbi.updateCB(unallocatedConsumption);
+                    if (spbi.getBatchId() == 0 && unallocatedConsumption > 0) {
+                        spbi.setUnmetDemand(unallocatedConsumption);
                         sd.setUnallocatedConsumption(0);
                     }
                     Map<String, Object> p1 = new HashMap<>();
@@ -1010,29 +1012,29 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //                    + "    spbi.ADJUSTMENT_MULTIPLIED_QTY `ADJUSTMENT` "
 //                    + "FROM rm_supply_plan_batch_info spbi WHERE spbi.PROGRAM_ID=:programId AND spbi.VERSION_ID=:versionId ORDER BY spbi.TRANS_DATE, spbi.EXPIRY_DATE, IF(spbi.BATCH_ID=0, 9999999999,spbi.BATCH_ID)";
 //            SupplyPlan sp = this.namedParameterJdbcTemplate.query(sqlString, params, new SupplyPlanResultSetExtractor());
-            List<SqlParameterSource> batchParams = new ArrayList<>();
-            for (SupplyPlanDate sd : sp.getSupplyPlanDateList()) {
-                for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
-                    int prevCB = sp.getPrevClosingBalance(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
-                    spbi.setOpeningBalance(prevCB);
-                    sd.setUnallocatedConsumption(spbi.updateUnAllocatedCountAndExpiredStock(sd.getTransDate(), sd.getUnallocatedConsumption()));
-                }
-                for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
-                    sd.setUnallocatedConsumption(spbi.updateCB(sd.getUnallocatedConsumption()));
-                    if (spbi.getBatchId() == 0 && sd.getUnallocatedConsumption() > 0) {
-                        spbi.setUnmetDemand(sd.getUnallocatedConsumption());
-                        sd.setUnallocatedConsumption(0);
-                    }
-                    Map<String, Object> p1 = new HashMap<>();
-                    p1.put("expired", spbi.getExpiredStock());
-                    p1.put("calculatedConsumption", spbi.getCalculatedConsumption());
-                    p1.put("openingBalance", spbi.getOpeningBalance());
-                    p1.put("closingBalance", spbi.getClosingBalance());
-                    p1.put("unmetDemand", spbi.getUnmetDemand());
-                    p1.put("supplyPlanBatchInfoId", spbi.getSupplyPlanId());
-                    batchParams.add(new MapSqlParameterSource(p1));
-                }
+        List<SqlParameterSource> batchParams = new ArrayList<>();
+        for (SupplyPlanDate sd : sp.getSupplyPlanDateList()) {
+            for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
+                int prevCB = sp.getPrevClosingBalance(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
+                spbi.setOpeningBalance(prevCB);
+                sd.setUnallocatedConsumption(spbi.updateUnAllocatedCountAndExpiredStock(sd.getTransDate(), sd.getUnallocatedConsumption()));
             }
+            for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
+                sd.setUnallocatedConsumption(spbi.updateCB(sd.getUnallocatedConsumption()));
+                if (spbi.getBatchId() == 0 && sd.getUnallocatedConsumption() > 0) {
+                    spbi.setUnmetDemand(sd.getUnallocatedConsumption());
+                    sd.setUnallocatedConsumption(0);
+                }
+                Map<String, Object> p1 = new HashMap<>();
+                p1.put("expired", spbi.getExpiredStock());
+                p1.put("calculatedConsumption", spbi.getCalculatedConsumption());
+                p1.put("openingBalance", spbi.getOpeningBalance());
+                p1.put("closingBalance", spbi.getClosingBalance());
+                p1.put("unmetDemand", spbi.getUnmetDemand());
+                p1.put("supplyPlanBatchInfoId", spbi.getSupplyPlanId());
+                batchParams.add(new MapSqlParameterSource(p1));
+            }
+        }
         sqlString = "SELECT   "
                 + "	spbi.SUPPLY_PLAN_BATCH_INFO_ID, "
                 + "    spbi.PROGRAM_ID, "
