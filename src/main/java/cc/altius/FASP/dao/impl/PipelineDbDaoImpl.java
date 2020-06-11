@@ -80,17 +80,17 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.DELIVERED_TO_RECEIVED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
             + "     pl.LABEL_ID, pl.LABEL_EN, pl.LABEL_FR, pl.LABEL_PR, pl.LABEL_SP, "
-//<<<<<<< HEAD
-//            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, "
-//            + "rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`, "
-//            + "rc.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_AIR_LEAD_TIME`, "
-//            + "rc.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_SEA_LEAD_TIME`, rc.ARRIVED_TO_DELIVERED_LEAD_TIME `REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME`, "
-//=======
+            //<<<<<<< HEAD
+            //            + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, "
+            //            + "rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`, "
+            //            + "rc.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_AIR_LEAD_TIME`, "
+            //            + "rc.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_SEA_LEAD_TIME`, rc.ARRIVED_TO_DELIVERED_LEAD_TIME `REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME`, "
+            //=======
             + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, "
             + "rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`,"
             + " rc.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_AIR_LEAD_TIME`, "
             + "rc.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_SEA_LEAD_TIME`, rc.ARRIVED_TO_DELIVERED_LEAD_TIME `REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME`, "
-//>>>>>>> dev
+            //>>>>>>> dev
             + "     rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
             + "     c.COUNTRY_ID, c.COUNTRY_CODE,  "
             + "     cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_PR `COUNTRY_LABEL_PR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, "
@@ -551,7 +551,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     public List<Map<String, Object>> getPipelineProgramList(CustomUserDetails curUser) {
         String sql = "select ap.*,u.USERNAME from adb_pipeline ap  "
                 + "left join us_user u on u.USER_ID=ap.CREATED_BY "
-                + "where ap.CREATED_BY=:userId";
+                + "where ap.CREATED_BY=:userId and ap.`STATUS`=0";
         Map<String, Object> params = new HashMap<>();
         params.put("userId", curUser.getUserId());
         return this.namedParameterJdbcTemplate.queryForList(sql, params);
@@ -612,13 +612,13 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "p.DRAFT_TO_SUBMITTED_LEAD_TIME=:draftToSubmittedLeadTime, "
                     + "p.SUBMITTED_TO_APPROVED_LEAD_TIME=:submittedToApprovedLeadTime, "
                     + "p.APPROVED_TO_SHIPPED_LEAD_TIME=:approvedToShippedLeadTime, "
-//<<<<<<< HEAD
-//                    //                    + "p.DELIVERED_TO_RECEIVED_LEAD_TIME=:deliveredToReceivedLeadTime, "
-//                    //                    + "p.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, "
-//=======
-//                    //   + "p.DELIVERED_TO_RECEIVED_LEAD_TIME=:deliveredToReceivedLeadTime, "
+                    //<<<<<<< HEAD
+                    //                    //                    + "p.DELIVERED_TO_RECEIVED_LEAD_TIME=:deliveredToReceivedLeadTime, "
+                    //                    //                    + "p.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, "
+                    //=======
+                    //                    //   + "p.DELIVERED_TO_RECEIVED_LEAD_TIME=:deliveredToReceivedLeadTime, "
                     + "p.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, "
-//>>>>>>> dev
+                    //>>>>>>> dev
                     + "p.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, "
                     + "p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, "
                     + "p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime, "
@@ -1242,7 +1242,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         params.put("versionTypeId", 1);
         params.put("versionStatusId", 1);
         params.put("notes", "testing.............");
-         Version version = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)", params, new VersionRowMapper());
+        Version version = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)", params, new VersionRowMapper());
 
         params.put("versionId", version.getVersionId());
 
@@ -1257,7 +1257,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("PROGRAM_ID", programId);
             params.put("REORDER_FREQUENCY_IN_MONTHS", ppu.getReorderFrequencyInMonths());
             params.put("MIN_MONTHS_OF_STOCK", ppu.getMinMonthsOfStock());
-            params.put("LOCAL_PROCUREMENT_LEAD_TIME", 0.25); //ppu.getLocalProcurementLeadTime());
+            params.put("LOCAL_PROCUREMENT_LEAD_TIME", ppu.getLocalProcurmentLeadTime()); //ppu.getLocalProcurementLeadTime());
             params.put("BATCH_NO_REQUIRED", 0);
             params.put("CREATED_DATE", curDate);
             params.put("CREATED_BY", curUser.getUserId());
@@ -1307,7 +1307,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
          * Insert**********************************
          */
 
-        String sql = "SELECT s.`FUNDING_SOURCE_ID`,SUM(IFNULL(s.`FREIGHT_COST`,0)+IFNULL(s.`PRODUCT_COST`,0)) budget FROM qat_temp_shipment s WHERE s.`PIPELINE_ID`=:pipelineId GROUP BY s.`FUNDING_SOURCE_ID`";
+        String sql = "SELECT s.`FUNDING_SOURCE_ID`,SUM(IFNULL(s.`FREIGHT_COST`,0)+IFNULL(s.`PRODUCT_COST`,0)) budget,EXTRACT(YEAR FROM MAX(ORDERED_DATE)) `year` FROM qat_temp_shipment s WHERE s.`PIPELINE_ID`=:pipelineId GROUP BY s.`FUNDING_SOURCE_ID`";
         params.put("pipelineId", pipelineId);
         List<Map<String, Object>> budgetList = this.namedParameterJdbcTemplate.queryForList(sql, params);
         List<Map<String, Object>> newList = new LinkedList<>();
@@ -1322,6 +1322,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("LAST_MODIFIED_BY", curUser.getUserId());
             params.put("FUNDING_SOURCE_ID", budget.get("FUNDING_SOURCE_ID"));
             params.put("LABEL_ID", labelId);
+            params.put("START_DATE", budget.get("year").toString() + "-01-01");
+            params.put("STOP_DATE", budget.get("year").toString() + "-12-31");
             params.put("CURRENCY_ID", 1);
             params.put("BUDGET_AMT", budget.get("budget"));
             params.put("CONVERSION_RATE_TO_USD", 1);
@@ -1379,8 +1381,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("PRIME_LINE_NO", null);
             params.put("ACTIVE", true);
             params.put("VERSION_ID", version.getVersionId());
-         
-           
+
             rowsEffected = +si_trans.execute(params);
             params.clear();
 
@@ -1413,9 +1414,11 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "i.DATA_SOURCE_ID, "
                 + "i.INVENTORY_DATE,"
                 + "i.REGION_ID,"
+                + "i.PLANNING_UNIT_ID,"
                 + "i.NOTES, "
                 + "i.REALM_COUNTRY_PLANNING_UNIT_ID,"
-                + "i.REGION_ID  "
+                + "i.REGION_ID,  "
+                + "i.MULTIPLIER "
                 + "FROM fasp.qat_temp_inventory i where i.PIPELINE_ID=:pipelineId;";
 
         params.put("pipelineId", pipelineId);
@@ -1434,22 +1437,23 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             String sqlString = "SELECT LAST_INSERT_ID()";
             params.put("INVENTORY_ID", this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class));
             params.put("REGION_ID", inv.getRegionId());
-            params.put("REALM_COUNTRY_PLANNING_UNIT_ID", inv.getPlanningUnitId());
+            params.put("REALM_COUNTRY_PLANNING_UNIT_ID", inv.getRealmCountryPlanningUnitId());
             params.put("INVENTORY_DATE", inv.getInventoryDate());
-            params.put("ACTUAL_QTY", inv.getManualAdjustment());
+            params.put("ACTUAL_QTY", 0);
             params.put("ADJUSTMENT_QTY", inv.getManualAdjustment());
             params.put("DATA_SOURCE_ID", inv.getDataSourceId());
             params.put("NOTES", inv.getNotes());
             params.put("ACTIVE", true);
             params.put("VERSION_ID", version.getVersionId());
+            System.out.println("param" + params);
             rowsEffected = +si_trans.execute(params);
             params.clear();
         }
 
-         sql = "UPDATE`adb_pipeline` p SET p.`STATUS`=1 WHERE p.`PIPELINE_ID`=?";
+        sql = "UPDATE`adb_pipeline` p SET p.`STATUS`=1 WHERE p.`PIPELINE_ID`=?";
 
-                rowsEffected = this.jdbcTemplate.update(sql, pipelineId);
-        
+        rowsEffected = this.jdbcTemplate.update(sql, pipelineId);
+
         return programId;
     }
 
