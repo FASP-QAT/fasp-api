@@ -29,6 +29,7 @@ public class SupplyPlanDate implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date transDate;
     private int unallocatedConsumption;
+    private int unallocatedConsumptionWps;
     private List<SupplyPlanBatchInfo> batchList;
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("MMM yy");
@@ -91,6 +92,14 @@ public class SupplyPlanDate implements Serializable {
 
     public void setUnallocatedConsumption(int unallocatedConsumption) {
         this.unallocatedConsumption = unallocatedConsumption;
+    }
+
+    public int getUnallocatedConsumptionWps() {
+        return unallocatedConsumptionWps;
+    }
+
+    public void setUnallocatedConsumptionWps(int unallocatedConsumptionWps) {
+        this.unallocatedConsumptionWps = unallocatedConsumptionWps;
     }
     
     @Override
