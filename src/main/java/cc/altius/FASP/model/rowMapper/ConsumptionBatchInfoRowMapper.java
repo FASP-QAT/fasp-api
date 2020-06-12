@@ -24,7 +24,7 @@ public class ConsumptionBatchInfoRowMapper implements RowMapper<ConsumptionBatch
         if (rs.wasNull()) {
             return null;
         }
-        cb.setBatch(new Batch(rs.getInt("BATCH_ID"), rs.getString("BATCH_NO"), rs.getDate("EXPIRY_DATE")));
+        cb.setBatch(new Batch(rs.getInt("BATCH_ID"), rs.getInt("BATCH_PLANNING_UNIT_ID"), rs.getString("BATCH_NO"), rs.getDate("EXPIRY_DATE")));
         cb.setConsumptionQty(rs.getInt("BATCH_QTY"));
         return cb;
     }

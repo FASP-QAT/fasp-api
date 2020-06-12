@@ -20,6 +20,7 @@ public class Batch implements Serializable {
 
     private int batchId;
     private String batchNo;
+    private int planningUnitId;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date expiryDate;
@@ -27,8 +28,9 @@ public class Batch implements Serializable {
     public Batch() {
     }
 
-    public Batch(int batchId, String batchNo, Date expiryDate) {
+    public Batch(int batchId, int planningUnitId, String batchNo, Date expiryDate) {
         this.batchId = batchId;
+        this.planningUnitId = planningUnitId;
         this.batchNo = batchNo;
         this.expiryDate = expiryDate;
     }
@@ -39,6 +41,14 @@ public class Batch implements Serializable {
 
     public void setBatchId(int batchId) {
         this.batchId = batchId;
+    }
+
+    public int getPlanningUnitId() {
+        return planningUnitId;
+    }
+
+    public void setPlanningUnitId(int planningUnitId) {
+        this.planningUnitId = planningUnitId;
     }
 
     public String getBatchNo() {
@@ -56,6 +66,4 @@ public class Batch implements Serializable {
     public void setExpiryDate(Date expiryDate) {
         this.expiryDate = expiryDate;
     }
-    
-    
 }
