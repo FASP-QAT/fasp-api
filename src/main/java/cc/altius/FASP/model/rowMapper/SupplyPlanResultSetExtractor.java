@@ -48,6 +48,10 @@ public class SupplyPlanResultSetExtractor implements ResultSetExtractor<SupplyPl
             spbi.setSupplyPlanId(rs.getInt("SUPPLY_PLAN_BATCH_INFO_ID"));
             spbi.setExpiryDate(rs.getDate("EXPIRY_DATE"));
             spbi.setShipmentQty(rs.getInt("SHIPMENT_QTY"));
+            spbi.setPlannedShipmentQty(rs.getInt("PLANNED_SHIPMENT_QTY"));
+            spbi.setOrderedShipmentQty(rs.getInt("ORDERED_SHIPMENT_QTY"));
+            spbi.setShippedShipmentQty(rs.getInt("SHIPPED_SHIPMENT_QTY"));
+            spbi.setDeliveredShipmentQty(rs.getInt("DELIVERED_SHIPMENT_QTY"));
             spbi.setConsumption(rs.getInt("CONSUMPTION"));
             spbi.setAdjustment(rs.getInt("ADJUSTMENT"));
         }

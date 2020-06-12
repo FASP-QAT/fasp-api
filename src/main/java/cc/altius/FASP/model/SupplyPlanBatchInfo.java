@@ -26,6 +26,10 @@ public class SupplyPlanBatchInfo implements Serializable {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date expiryDate;
+    private int plannedShipmentQty;
+    private int orderedShipmentQty;
+    private int shippedShipmentQty;
+    private int deliveredShipmentQty;
     private int shipmentQty;
     private int consumption;
     private int adjustment;
@@ -34,16 +38,25 @@ public class SupplyPlanBatchInfo implements Serializable {
     private int expiredStock;
     private int calculatedConsumption;
     private int unmetDemand;
+    private int openingBalanceWps;
+    private int closingBalanceWps;
+    private int expiredStockWps;
+    private int calculatedConsumptionWps;
+    private int unmetDemandWps;
 
     private final SimpleDateFormat sdf = new SimpleDateFormat("MMM yy");
 
     public SupplyPlanBatchInfo() {
     }
 
-    public SupplyPlanBatchInfo(int supplyPlanId, int batchId, Date expiryDate, int shipmentQty, int consumption, int adjustment) {
+    public SupplyPlanBatchInfo(int supplyPlanId, int batchId, Date expiryDate, int plannedShipmentQty, int orderedShipmentQty, int shippedShipmentQty, int deliveredShipmentQty, int shipmentQty, int consumption, int adjustment) {
         this.supplyPlanId = supplyPlanId;
         this.batchId = batchId;
         this.expiryDate = expiryDate;
+        this.plannedShipmentQty = plannedShipmentQty;
+        this.orderedShipmentQty = orderedShipmentQty;
+        this.shippedShipmentQty = shippedShipmentQty;
+        this.deliveredShipmentQty = deliveredShipmentQty;
         this.shipmentQty = shipmentQty;
         this.consumption = consumption;
         this.adjustment = adjustment;
@@ -75,6 +88,38 @@ public class SupplyPlanBatchInfo implements Serializable {
 
     public void setExpiryDate(Date expiryDate) {
         this.expiryDate = expiryDate;
+    }
+
+    public int getPlannedShipmentQty() {
+        return plannedShipmentQty;
+    }
+
+    public void setPlannedShipmentQty(int plannedShipmentQty) {
+        this.plannedShipmentQty = plannedShipmentQty;
+    }
+
+    public int getOrderedShipmentQty() {
+        return orderedShipmentQty;
+    }
+
+    public void setOrderedShipmentQty(int orderedShipmentQty) {
+        this.orderedShipmentQty = orderedShipmentQty;
+    }
+
+    public int getShippedShipmentQty() {
+        return shippedShipmentQty;
+    }
+
+    public void setShippedShipmentQty(int shippedShipmentQty) {
+        this.shippedShipmentQty = shippedShipmentQty;
+    }
+
+    public int getDeliveredShipmentQty() {
+        return deliveredShipmentQty;
+    }
+
+    public void setDeliveredShipmentQty(int deliveredShipmentQty) {
+        this.deliveredShipmentQty = deliveredShipmentQty;
     }
 
     public int getShipmentQty() {
@@ -125,6 +170,42 @@ public class SupplyPlanBatchInfo implements Serializable {
         this.expiredStock = expiredStock;
     }
 
+    public int getOpeningBalanceWps() {
+        return openingBalanceWps;
+    }
+
+    public void setOpeningBalanceWps(int openingBalanceWps) {
+        this.openingBalanceWps = openingBalanceWps;
+    }
+
+    public int getClosingBalanceWps() {
+        return closingBalanceWps;
+    }
+
+    public void setClosingBalanceWps(int closingBalanceWps) {
+        this.closingBalanceWps = closingBalanceWps;
+    }
+
+    public int getExpiredStockWps() {
+        return expiredStockWps;
+    }
+
+    public void setExpiredStockWps(int expiredStockWps) {
+        this.expiredStockWps = expiredStockWps;
+    }
+
+    public int getCalculatedConsumptionWps() {
+        return calculatedConsumptionWps;
+    }
+
+    public int getUnmetDemandWps() {
+        return unmetDemandWps;
+    }
+
+    public void setUnmetDemandWps(int unmetDemandWps) {
+        this.unmetDemandWps = unmetDemandWps;
+    }
+
     @JsonIgnore
     public String getExpiryDateStr() {
         return this.sdf.format(this.expiryDate);
@@ -160,6 +241,38 @@ public class SupplyPlanBatchInfo implements Serializable {
             closingBalance = tempCB;
         }
         return existingUnAllocatedConsumption;
+    }
+
+    public int updateUnAllocatedCountAndExpiredStockWps(Date transDate, int unallocatedConsumptionWps) {
+        if (this.openingBalanceWps > 0 && DateUtils.compareDate(transDate, expiryDate) >= 0) {
+            this.expiredStockWps = this.consumption;
+            unallocatedConsumptionWps += this.consumption;
+        }
+
+        int tempCBWps = this.openingBalanceWps + this.shipmentQty - this.plannedShipmentQty - this.consumption + this.adjustment;
+        if (tempCBWps < 0) {
+            unallocatedConsumptionWps += 0 - tempCBWps;
+        }
+        return unallocatedConsumptionWps;
+    }
+
+    public int updateCBWps(int existingUnAllocatedConsumptionWps) {
+        int tempCBWps = this.openingBalanceWps + this.shipmentQty - this.plannedShipmentQty - this.consumption + this.adjustment;
+        if (existingUnAllocatedConsumptionWps > 0 && tempCBWps > 0) {
+            if (tempCBWps > existingUnAllocatedConsumptionWps) {
+                this.calculatedConsumptionWps = existingUnAllocatedConsumptionWps;
+                tempCBWps -= existingUnAllocatedConsumptionWps;
+                existingUnAllocatedConsumptionWps = 0;
+            } else {
+                this.calculatedConsumptionWps = tempCBWps;
+                existingUnAllocatedConsumptionWps -= tempCBWps;
+                tempCBWps = 0;
+            }
+        }
+        if (tempCBWps >= 0) {
+            this.closingBalanceWps = tempCBWps;
+        }
+        return existingUnAllocatedConsumptionWps;
     }
 
     public int getCalculatedConsumption() {
