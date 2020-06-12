@@ -182,6 +182,7 @@ public class UserRestController {
     public ResponseEntity addUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
         auditLogger.info("Adding new User " + user.toString(), request.getRemoteAddr(), curUser.getUsername());
+        System.out.println("user obj------------------------------"+user);
         try {
             PasswordEncoder encoder = new BCryptPasswordEncoder();
             String password = PassPhrase.getPassword();
