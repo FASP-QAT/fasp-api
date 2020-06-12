@@ -12,6 +12,7 @@ import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.service.AclService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -84,9 +85,19 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         return this.programDataDao.checkErpOrder(orderNo, primeLineNo, realmCountryId, planningUnitId);
     }
 
+//    @Override
+//    public void buildStockBalances(int programId, int versionId) {
+//        this.programDataDao.buildStockBalances(programId, versionId);
+//    }
+
     @Override
-    public void buildStockBalances(int programId, int versionId) {
-        this.programDataDao.buildStockBalances(programId, versionId);
+    public SupplyPlan getSupplyPlan(int programId, int versionId) {
+        return this.programDataDao.getSupplyPlan(programId, versionId);
+    }
+
+    @Override
+    public void updateSupplyPlanBatchInfo(SupplyPlan sp) {
+        this.programDataDao.updateSupplyPlanBatchInfo(sp);
     }
 
     @Override

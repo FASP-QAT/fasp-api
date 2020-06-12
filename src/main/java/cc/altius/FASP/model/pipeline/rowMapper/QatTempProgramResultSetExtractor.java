@@ -83,10 +83,19 @@ public class QatTempProgramResultSetExtractor implements ResultSetExtractor<Prog
             isFirst = false;
         }
         if (!isFirst) {
-           String [] regionArray=new String[p.getRegionList().size()];
-           int x = 0;
+
+//            p.setRegionArray(new String[p.getRegionList().size()]);
+//            int x = 0;
+//            for (Region r : p.getRegionList()) {
+//                p.getRegionArray()[x] = Integer.toString(r.getRegionId());
+//                x++;
+//            }
+//            return p;
+            String[] regionArray = new String[p.getRegionList().size()];
+            int x = 0;
             for (Region r : p.getRegionList()) {
-              regionArray[x] = Integer.toString(r.getRegionId());
+                regionArray[x] = Integer.toString(r.getRegionId());
+
                 x++;
             }
             p.setRegionArray(regionArray);

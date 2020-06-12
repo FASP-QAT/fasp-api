@@ -18,12 +18,14 @@ public class QatTempInventory {
     private int manualAdjustment;
     private String notes;
     private boolean active;
+    private int realmCountryPlanningUnitId;
+    private double multiplier;
 
     public QatTempInventory() {
 
     }
 
-    public QatTempInventory(String planningUnitId, String dataSourceId, String regionId, String inventoryDate, int manualAdjustment, String notes, boolean active) {
+    public QatTempInventory(String planningUnitId, String dataSourceId, String regionId, String inventoryDate, int manualAdjustment, String notes, boolean active,int realmCountryPlanningUnitId,double  multiplier) {
         this.planningUnitId = planningUnitId;
         this.dataSourceId = dataSourceId;
         this.regionId = regionId;
@@ -31,7 +33,27 @@ public class QatTempInventory {
         this.manualAdjustment = manualAdjustment;
         this.notes = notes;
         this.active = active;
+        this.realmCountryPlanningUnitId=realmCountryPlanningUnitId;
+        this.multiplier=multiplier;
     }
+
+    public int getRealmCountryPlanningUnitId() {
+        return realmCountryPlanningUnitId;
+    }
+
+    public void setRealmCountryPlanningUnitId(int realmCountryPlanningUnitId) {
+        this.realmCountryPlanningUnitId = realmCountryPlanningUnitId;
+    }
+
+    public double getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(double multiplier) {
+        this.multiplier = multiplier;
+    }
+    
+    
 
     public String getPlanningUnitId() {
         return planningUnitId;

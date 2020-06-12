@@ -24,11 +24,12 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
     private int productCategoryId;
     private String pipelineProductName;
     private String pipelineProductCategoryName;
+    private double localProcurmentLeadTime;
     
     public QatTempProgramPlanningUnit() {
     }
 
-    public QatTempProgramPlanningUnit(String programPlanningUnitId, SimpleObject program, String planningUnitId, int reorderFrequencyInMonths, int minMonthsOfStock, int productCategoryId,String pipelineProductName,String pipelineProductCategoryName) {
+    public QatTempProgramPlanningUnit(String programPlanningUnitId, SimpleObject program, String planningUnitId, int reorderFrequencyInMonths, int minMonthsOfStock, int productCategoryId,String pipelineProductName,String pipelineProductCategoryName,double  localProcurmentLeadTime) {
         this.programPlanningUnitId = programPlanningUnitId;
         this.program = program;
         this.planningUnitId = planningUnitId;
@@ -37,8 +38,18 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
         this.productCategoryId=productCategoryId;
         this.pipelineProductCategoryName=pipelineProductCategoryName;
         this.pipelineProductName=pipelineProductName;
+        this.localProcurmentLeadTime=localProcurmentLeadTime;
     }
 
+    public double getLocalProcurmentLeadTime() {
+        return localProcurmentLeadTime;
+    }
+
+    public void setLocalProcurmentLeadTime(double localProcurmentLeadTime) {
+        this.localProcurmentLeadTime = localProcurmentLeadTime;
+    }
+
+    
     public String getPipelineProductName() {
         return pipelineProductName;
     }

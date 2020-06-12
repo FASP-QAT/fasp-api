@@ -14,6 +14,7 @@ import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.Version;
 import java.util.List;
 
@@ -45,7 +46,12 @@ public interface ProgramDataDao {
 
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId);
 
-    public void buildStockBalances(int programId, int versionId);
+//    public void buildStockBalances(int programId, int versionId);
+
+//    public void buildStockBalances(int programId, int versionId);
+    public SupplyPlan getSupplyPlan(int programId, int versionId);
+
+    public void updateSupplyPlanBatchInfo(SupplyPlan sp);
 
     public List<ProgramVersion> getProgramVersionForARTMIS(int realmId);
 

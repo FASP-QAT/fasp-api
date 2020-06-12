@@ -18,7 +18,7 @@ public class BatchRowMapper implements RowMapper<Batch>{
 
     @Override
     public Batch mapRow(ResultSet rs, int i) throws SQLException {
-        return new Batch(rs.getInt("BATCH_ID"), rs.getString("BATCH_NO"), rs.getDate("EXPIRY_DATE"));
+        return new Batch(rs.getInt("BATCH_ID"), rs.getInt("BATCH_PLANNING_UNIT_ID"), rs.getString("BATCH_NO"), rs.getDate("EXPIRY_DATE"));
     }
     
 }
