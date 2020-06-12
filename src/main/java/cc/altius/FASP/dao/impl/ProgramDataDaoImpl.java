@@ -807,19 +807,31 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //                    + "FROM rm_supply_plan_batch_info spbi WHERE spbi.PROGRAM_ID=:programId AND spbi.VERSION_ID=:versionId ORDER BY spbi.TRANS_DATE, spbi.EXPIRY_DATE, IF(spbi.BATCH_ID=0, 9999999999,spbi.BATCH_ID)";
 //            SupplyPlan sp = this.namedParameterJdbcTemplate.query(sqlString, params, new SupplyPlanResultSetExtractor());
             List<SqlParameterSource> batchParams = new ArrayList<>();
+            System.out.println("BATCH_ID\tTRANS_DATE\tEXPIRY_DATE\tSHIPMENT_QTY\tSHIPMENT_QTY_WPS\tCONSUMPTION\tADJUSTMENT\tEXPIRED\tUNALLOCATED\tCALCULCATED\tOPEN_BAL\tCLOSE_BAL\tUNMET DEMAND\tEXPIRED_WPS\tUNALLOCATED_WPS\tCALCULCATED_WPS\tOPEN_BAL_WPS\tCLOSE_BAL_WPS\tUNMET DEMAND_WPS");
             for (SupplyPlanDate sd : sp.getSupplyPlanDateList()) {
                 for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
                     int prevCB = sp.getPrevClosingBalance(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
                     spbi.setOpeningBalance(prevCB);
                     sd.setUnallocatedConsumption(spbi.updateUnAllocatedCountAndExpiredStock(sd.getTransDate(), sd.getUnallocatedConsumption()));
+
+                    int prevCBWps = sp.getPrevClosingBalanceWps(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
+                    spbi.setOpeningBalanceWps(prevCBWps);
+                    sd.setUnallocatedConsumptionWps(spbi.updateUnAllocatedCountAndExpiredStockWps(sd.getTransDate(), sd.getUnallocatedConsumptionWps()));
                 }
                 int unallocatedConsumption = sd.getUnallocatedConsumption();
+                int unallocatedConsumptionWps = sd.getUnallocatedConsumptionWps();
                 for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
                     sd.setUnallocatedConsumption(unallocatedConsumption);
+                    sd.setUnallocatedConsumptionWps(unallocatedConsumptionWps);
                     unallocatedConsumption = spbi.updateCB(unallocatedConsumption);
+                    unallocatedConsumptionWps = spbi.updateCBWps(unallocatedConsumptionWps);
                     if (spbi.getBatchId() == 0 && unallocatedConsumption > 0) {
                         spbi.setUnmetDemand(unallocatedConsumption);
                         sd.setUnallocatedConsumption(0);
+                    }
+                    if (spbi.getBatchId() == 0 && unallocatedConsumptionWps > 0) {
+                        spbi.setUnmetDemandWps(unallocatedConsumptionWps);
+                        sd.setUnallocatedConsumptionWps(0);
                     }
                     Map<String, Object> p1 = new HashMap<>();
                     p1.put("expired", spbi.getExpiredStock());
@@ -827,15 +839,25 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     p1.put("openingBalance", spbi.getOpeningBalance());
                     p1.put("closingBalance", spbi.getClosingBalance());
                     p1.put("unmetDemand", spbi.getUnmetDemand());
+                    p1.put("expiredWps", spbi.getExpiredStockWps());
+                    p1.put("calculatedConsumptionWps", spbi.getCalculatedConsumptionWps());
+                    p1.put("openingBalanceWps", spbi.getOpeningBalanceWps());
+                    p1.put("closingBalanceWps", spbi.getClosingBalanceWps());
+                    p1.put("unmetDemandWps", spbi.getUnmetDemandWps());
                     p1.put("supplyPlanBatchInfoId", spbi.getSupplyPlanId());
                     batchParams.add(new MapSqlParameterSource(p1));
+                    System.out.println(spbi.getBatchId() + "\t\t" + sd.getTransDateStr() + "\t\t" + spbi.getExpiryDateStr() + "\t\t" + spbi.getShipmentQty() + "\t\t" + (spbi.getShipmentQty() - spbi.getPlannedShipmentQty()) + "\t\t" + spbi.getConsumption() + "\t\t" + spbi.getAdjustment() + "\t\t" + spbi.getExpiredStock() + "\t\t" + sd.getUnallocatedConsumption() + "\t\t" + spbi.getCalculatedConsumption() + "\t\t" + spbi.getOpeningBalance() + "\t\t" + spbi.getClosingBalance() + "\t\t" + spbi.getUnmetDemand() + "\t\t" + spbi.getExpiredStockWps() + "\t\t" + sd.getUnallocatedConsumptionWps() + "\t\t" + spbi.getCalculatedConsumptionWps() + "\t\t" + spbi.getOpeningBalanceWps() + "\t\t" + spbi.getClosingBalanceWps() + "\t\t" + spbi.getUnmetDemandWps());
                 }
             }
             sqlString = "UPDATE rm_supply_plan_batch_info spbi "
                     + "SET "
                     + "spbi.EXPIRED_STOCK=:expired, spbi.CALCULATED_CONSUMPTION=:calculatedConsumption, "
                     + "spbi.FINAL_OPENING_BALANCE=:openingBalance, spbi.FINAL_CLOSING_BALANCE=:closingBalance, "
-                    + "spbi.UNMET_DEMAND=:unmetDemand WHERE spbi.SUPPLY_PLAN_BATCH_INFO_ID=:supplyPlanBatchInfoId";
+                    + "spbi.UNMET_DEMAND=:unmetDemand, "
+                    + "spbi.EXPIRED_STOCK_WPS=:expiredWps, spbi.CALCULATED_CONSUMPTION_WPS=:calculatedConsumptionWps, "
+                    + "spbi.FINAL_OPENING_BALANCE_WPS=:openingBalanceWps, spbi.FINAL_CLOSING_BALANCE_WPS=:closingBalanceWps, "
+                    + "spbi.UNMET_DEMAND_WPS=:unmetDemandWps "
+                    + "WHERE spbi.SUPPLY_PLAN_BATCH_INFO_ID=:supplyPlanBatchInfoId";
             SqlParameterSource[] updateParams = new SqlParameterSource[batchParams.size()];
             this.namedParameterJdbcTemplate.batchUpdate(sqlString, batchParams.toArray(updateParams));
             return version;
@@ -975,7 +997,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "SET "
                 + "spbi.EXPIRED_STOCK=:expired, spbi.CALCULATED_CONSUMPTION=:calculatedConsumption, "
                 + "spbi.FINAL_OPENING_BALANCE=:openingBalance, spbi.FINAL_CLOSING_BALANCE=:closingBalance, "
-                + "spbi.UNMET_DEMAND=:unmetDemand WHERE spbi.SUPPLY_PLAN_BATCH_INFO_ID=:supplyPlanBatchInfoId";
+                + "spbi.UNMET_DEMAND=:unmetDemand, "
+                + "spbi.EXPIRED_STOCK_WPS=:expiredWps, spbi.CALCULATED_CONSUMPTION_WPS=:calculatedConsumptionWps, "
+                + "spbi.FINAL_OPENING_BALANCE_WPS=:openingBalanceWps, spbi.FINAL_CLOSING_BALANCE_WPS=:closingBalanceWps, "
+                + "spbi.UNMET_DEMAND_WPS=:unmetDemandWps "
+                + "WHERE spbi.SUPPLY_PLAN_BATCH_INFO_ID=:supplyPlanBatchInfoId";
         List<SqlParameterSource> batchParams = new ArrayList<>();
         for (SupplyPlanDate sd : sp.getSupplyPlanDateList()) {
             for (SupplyPlanBatchInfo sbi : sd.getBatchList()) {
@@ -985,6 +1011,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("openingBalance", sbi.getOpeningBalance());
                 params.put("closingBalance", sbi.getClosingBalance());
                 params.put("unmetDemand", sbi.getUnmetDemand());
+                params.put("expiredWps", sbi.getExpiredStockWps());
+                params.put("calculatedConsumptionWps", sbi.getCalculatedConsumptionWps());
+                params.put("openingBalanceWps", sbi.getOpeningBalanceWps());
+                params.put("closingBalanceWps", sbi.getClosingBalanceWps());
+                params.put("unmetDemandWps", sbi.getUnmetDemandWps());
                 params.put("supplyPlanBatchInfoId", sbi.getSupplyPlanId());
                 batchParams.add(new MapSqlParameterSource(params));
             }
@@ -1004,7 +1035,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //                    + "	spbi.SUPPLY_PLAN_BATCH_INFO_ID, "
 //                    + "    spbi.PROGRAM_ID, "
 //                    + "    spbi.VERSION_ID, "
-//                    + "    spbi.BATCH_ID,  "
+//                    + "    spbi.BATCH_I,  "
 //                    + "    spbi.TRANS_DATE,  "
 //                    + "    spbi.EXPIRY_DATE,  "
 //                    + "    spbi.SHIPMENT_QTY,  "
@@ -1013,41 +1044,49 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //                    + "FROM rm_supply_plan_batch_info spbi WHERE spbi.PROGRAM_ID=:programId AND spbi.VERSION_ID=:versionId ORDER BY spbi.TRANS_DATE, spbi.EXPIRY_DATE, IF(spbi.BATCH_ID=0, 9999999999,spbi.BATCH_ID)";
 //            SupplyPlan sp = this.namedParameterJdbcTemplate.query(sqlString, params, new SupplyPlanResultSetExtractor());
         List<SqlParameterSource> batchParams = new ArrayList<>();
+        System.out.println("BATCH_ID\tTRANS_DATE\tEXPIRY_DATE\tSHIPMENT_QTY\tSHIPMENT_QTY_WPS\tCONSUMPTION\tADJUSTMENT\tEXPIRED\tUNALLOCATED\tCALCULCATED\tOPEN_BAL\tCLOSE_BAL\tUNMET DEMAND\tEXPIRED_WPS\tUNALLOCATED_WPS\tCALCULCATED_WPS\tOPEN_BAL_WPS\tCLOSE_BAL_WPS\tUNMET DEMAND_WPS");
         for (SupplyPlanDate sd : sp.getSupplyPlanDateList()) {
             for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
                 int prevCB = sp.getPrevClosingBalance(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
                 spbi.setOpeningBalance(prevCB);
                 sd.setUnallocatedConsumption(spbi.updateUnAllocatedCountAndExpiredStock(sd.getTransDate(), sd.getUnallocatedConsumption()));
+
+                int prevCBWps = sp.getPrevClosingBalanceWps(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
+                spbi.setOpeningBalanceWps(prevCBWps);
+                sd.setUnallocatedConsumptionWps(spbi.updateUnAllocatedCountAndExpiredStockWps(sd.getTransDate(), sd.getUnallocatedConsumptionWps()));
             }
+            int unallocatedConsumption = sd.getUnallocatedConsumption();
+            int unallocatedConsumptionWps = sd.getUnallocatedConsumptionWps();
             for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
-                sd.setUnallocatedConsumption(spbi.updateCB(sd.getUnallocatedConsumption()));
-                if (spbi.getBatchId() == 0 && sd.getUnallocatedConsumption() > 0) {
-                    spbi.setUnmetDemand(sd.getUnallocatedConsumption());
+                sd.setUnallocatedConsumption(unallocatedConsumption);
+                sd.setUnallocatedConsumptionWps(unallocatedConsumptionWps);
+                unallocatedConsumption = spbi.updateCB(unallocatedConsumption);
+                unallocatedConsumptionWps = spbi.updateCBWps(unallocatedConsumptionWps);
+                if (spbi.getBatchId() == 0 && unallocatedConsumption > 0) {
+                    spbi.setUnmetDemand(unallocatedConsumption);
                     sd.setUnallocatedConsumption(0);
                 }
-                Map<String, Object> p1 = new HashMap<>();
-                p1.put("expired", spbi.getExpiredStock());
-                p1.put("calculatedConsumption", spbi.getCalculatedConsumption());
-                p1.put("openingBalance", spbi.getOpeningBalance());
-                p1.put("closingBalance", spbi.getClosingBalance());
-                p1.put("unmetDemand", spbi.getUnmetDemand());
-                p1.put("supplyPlanBatchInfoId", spbi.getSupplyPlanId());
-                batchParams.add(new MapSqlParameterSource(p1));
+                if (spbi.getBatchId() == 0 && unallocatedConsumptionWps > 0) {
+                    spbi.setUnmetDemandWps(unallocatedConsumptionWps);
+                    sd.setUnallocatedConsumptionWps(0);
+                }
+                System.out.println(spbi.getBatchId() + "\t\t" + sd.getTransDateStr() + "\t\t" + spbi.getExpiryDateStr() + "\t\t" + spbi.getShipmentQty() + "\t\t" + (spbi.getShipmentQty() - spbi.getPlannedShipmentQty()) + "\t\t" + spbi.getConsumption() + "\t\t" + spbi.getAdjustment() + "\t\t" + spbi.getExpiredStock() + "\t\t" + sd.getUnallocatedConsumption() + "\t\t" + spbi.getCalculatedConsumption() + "\t\t" + spbi.getOpeningBalance() + "\t\t" + spbi.getClosingBalance() + "\t\t" + spbi.getUnmetDemand() + "\t\t" + spbi.getExpiredStockWps() + "\t\t" + sd.getUnallocatedConsumptionWps() + "\t\t" + spbi.getCalculatedConsumptionWps() + "\t\t" + spbi.getOpeningBalanceWps() + "\t\t" + spbi.getClosingBalanceWps() + "\t\t" + spbi.getUnmetDemandWps());
             }
         }
-        sqlString = "SELECT   "
-                + "	spbi.SUPPLY_PLAN_BATCH_INFO_ID, "
-                + "    spbi.PROGRAM_ID, "
-                + "    spbi.VERSION_ID, "
-                + "    spbi.BATCH_ID,  "
-                + "    spbi.TRANS_DATE,  "
-                + "    spbi.EXPIRY_DATE,  "
-                + "    spbi.SHIPMENT_QTY,  "
-                + "    spbi.ACTUAL_CONSUMPTION_QTY+spbi.FORECASTED_CONSUMPTION_QTY `CONSUMPTION`,  "
-                + "    spbi.ADJUSTMENT_MULTIPLIED_QTY `ADJUSTMENT` "
-                + "FROM rm_supply_plan_batch_info spbi WHERE spbi.PROGRAM_ID=:programId AND spbi.VERSION_ID=:versionId ORDER BY spbi.TRANS_DATE, spbi.EXPIRY_DATE, IF(spbi.BATCH_ID=0, 9999999999,spbi.BATCH_ID)";
-
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new SupplyPlanResultSetExtractor());
+//        sqlString = "SELECT   "
+//                + "	spbi.SUPPLY_PLAN_BATCH_INFO_ID, "
+//                + "    spbi.PROGRAM_ID, "
+//                + "    spbi.VERSION_ID, "
+//                + "    spbi.BATCH_ID,  "
+//                + "    spbi.TRANS_DATE,  "
+//                + "    spbi.EXPIRY_DATE,  "
+//                + "    spbi.SHIPMENT_QTY,  "
+//                + "    spbi.ACTUAL_CONSUMPTION_QTY+spbi.FORECASTED_CONSUMPTION_QTY `CONSUMPTION`,  "
+//                + "    spbi.ADJUSTMENT_MULTIPLIED_QTY `ADJUSTMENT` "
+//                + "FROM rm_supply_plan_batch_info spbi WHERE spbi.PROGRAM_ID=:programId AND spbi.VERSION_ID=:versionId ORDER BY spbi.TRANS_DATE, spbi.EXPIRY_DATE, IF(spbi.BATCH_ID=0, 9999999999,spbi.BATCH_ID)";
+//
+//        return this.namedParameterJdbcTemplate.query(sqlString, params, new SupplyPlanResultSetExtractor());
+        return sp;
     }
 
 }

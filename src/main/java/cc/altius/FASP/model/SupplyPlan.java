@@ -34,6 +34,22 @@ public class SupplyPlan implements Serializable {
             }
         }
     }
+    
+    public int getPrevClosingBalanceWps(int planningUnitId, int batchId, Date transDate) {
+        SupplyPlanDate s1 = new SupplyPlanDate(planningUnitId, transDate);
+        int idx1 = this.supplyPlanDateList.indexOf(s1);
+        if (idx1 == -1) {
+            return 0;
+        } else {
+            SupplyPlanBatchInfo s2 = new SupplyPlanBatchInfo(batchId);
+            int idx2 = this.supplyPlanDateList.get(idx1).getBatchList().indexOf(s2);
+            if (idx2 == -1) {
+                return 0;
+            } else {
+                return this.supplyPlanDateList.get(idx1).getBatchList().get(idx2).getClosingBalanceWps();
+            }
+        }
+    }
 
     public int getProgramId() {
         return programId;
