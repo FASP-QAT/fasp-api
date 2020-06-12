@@ -791,7 +791,8 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info("Rows available in rm_forecasting_unit---" + this.jdbcTemplate.queryForObject(sql, Integer.class));
 
                 // Step 16 Now insert all the data into ForecastingUnit
-                sqlString = "INSERT INTO rm_forecasting_unit select null, 1, tfu.PRODUCT_CATEGORY_ID, tfu.TRACER_CATEGORY_ID, tfu.GENERIC_LABEL_ID, tfu.LABEL_ID, tfu.UNIT_ID, 1, 1, now(), 1, now() from tmp_forecasting_unit tfu";
+//                sqlString = "INSERT INTO rm_forecasting_unit select null, 1, tfu.PRODUCT_CATEGORY_ID, tfu.TRACER_CATEGORY_ID, tfu.GENERIC_LABEL_ID, tfu.LABEL_ID, tfu.UNIT_ID, 1, 1, now(), 1, now() from tmp_forecasting_unit tfu";
+                sqlString = "INSERT INTO rm_forecasting_unit select null, 1, 1, tfu.TRACER_CATEGORY_ID, tfu.GENERIC_LABEL_ID, tfu.LABEL_ID, tfu.UNIT_ID, 1, 1, now(), 1, now() from tmp_forecasting_unit tfu";
                 rows = this.jdbcTemplate.update(sqlString);
                 logger.info(rows + " Inserted into the Forecasting Unit table");
 

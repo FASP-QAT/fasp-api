@@ -453,7 +453,7 @@ public class UserRestController {
             int row = this.userService.mapAccessControls(user, curUser);
             if (row > 0) {
                 auditLogger.error(user + " updated successfully");
-                return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+                return new ResponseEntity(new ResponseCode("static.message.accessControlSuccess"), HttpStatus.OK);
             } else {
                 auditLogger.error("Could not updated " + user + " 0 rows updated");
                 return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
