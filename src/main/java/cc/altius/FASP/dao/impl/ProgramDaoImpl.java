@@ -13,10 +13,12 @@ import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.UserAcl;
+import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.BudgetRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -184,8 +186,13 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         params.put("programId", programId);
-        int versionId = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId, :curUser, :curDate)", params, Integer.class);
-        params.put("versionId", versionId);
+        params.put("versionTypeId", 1);
+        params.put("versionStatusId", 1);
+        params.put("notes", "");
+        Version version=new Version();
+//        int versionId = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId,:versionTypeId,:versionStatusId,:notes,:curUser, :curDate)", params, new VersionRowMapper());
+        version = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId,:versionTypeId,:versionStatusId,:notes,:curUser, :curDate)", params, new VersionRowMapper());
+        params.put("versionId", version.getVersionId());
         this.namedParameterJdbcTemplate.update("UPDATE rm_program SET CURRENT_VERSION_ID=:versionId WHERE PROGRAM_ID=:programId", params);
         return programId;
     }
@@ -311,8 +318,8 @@ public class ProgramDaoImpl implements ProgramDao {
         for (String pId : programIds) {
             paramBuilder.append("'").append(pId).append("',");
         }
-        if (programIds.length>0) {
-            paramBuilder.setLength(paramBuilder.length()-1);
+        if (programIds.length > 0) {
+            paramBuilder.setLength(paramBuilder.length() - 1);
         }
         sqlStringBuilder.append(" AND p.PROGRAM_ID IN (").append(paramBuilder).append(") ");
         Map<String, Object> params = new HashMap<>();
