@@ -182,7 +182,7 @@ public class UserRestController {
     public ResponseEntity addUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
         auditLogger.info("Adding new User " + user.toString(), request.getRemoteAddr(), curUser.getUsername());
-        System.out.println("user obj------------------------------"+user);
+        System.out.println("user obj------------------------------" + user);
         try {
             PasswordEncoder encoder = new BCryptPasswordEncoder();
             String password = PassPhrase.getPassword();
@@ -455,9 +455,12 @@ public class UserRestController {
             if (row > 0) {
                 auditLogger.error(user + " updated successfully");
                 return new ResponseEntity(new ResponseCode("static.message.accessControlSuccess"), HttpStatus.OK);
+            } else if (row == -2) {
+                auditLogger.error("Either add All access or specific access " + user);
+                return new ResponseEntity(new ResponseCode("static.message.allAclAccess"), HttpStatus.INTERNAL_SERVER_ERROR);
             } else {
                 auditLogger.error("Could not updated " + user + " 0 rows updated");
-                return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+                return new ResponseEntity(new ResponseCode("static.message.updateFailedAcl"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } catch (DuplicateKeyException e) {
 //            System.out.println("Duplicate Access Controls");
@@ -465,7 +468,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.user.duplicateacl"), HttpStatus.INTERNAL_SERVER_ERROR);
         } catch (Exception e) {
             auditLogger.error("Error while trying to Add Access Controls", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailedAcl"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
