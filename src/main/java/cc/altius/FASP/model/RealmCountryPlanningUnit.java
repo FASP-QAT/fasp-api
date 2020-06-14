@@ -20,7 +20,7 @@ public class RealmCountryPlanningUnit extends BaseModel implements Serializable 
     private Label label;
     private double multiplier;
     private Unit unit;
-    private String gtin;
+//    private String gtin;
 
     public RealmCountryPlanningUnit() {
     }
@@ -87,13 +87,13 @@ public class RealmCountryPlanningUnit extends BaseModel implements Serializable 
         this.unit = unit;
     }
 
-    public String getGtin() {
-        return gtin;
-    }
+//    public String getGtin() {
+//        return gtin;
+//    }
 
-    public void setGtin(String gtin) {
-        this.gtin = gtin;
-    }
+//    public void setGtin(String gtin) {
+//        this.gtin = gtin;
+//    }
 
     @Override
     public int hashCode() {
