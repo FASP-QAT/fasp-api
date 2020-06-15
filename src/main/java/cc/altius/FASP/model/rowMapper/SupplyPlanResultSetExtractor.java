@@ -31,7 +31,7 @@ public class SupplyPlanResultSetExtractor implements ResultSetExtractor<SupplyPl
                 sp.setSupplyPlanDateList(new LinkedList<>());
                 isFirst = false;
             }
-            SupplyPlanDate spd = new SupplyPlanDate(1190, rs.getDate("TRANS_DATE"));
+            SupplyPlanDate spd = new SupplyPlanDate(rs.getInt("PLANNING_UNIT_ID"), rs.getDate("TRANS_DATE"));
             int idx = sp.getSupplyPlanDateList().indexOf(spd);
             if (idx == -1) {
                 sp.getSupplyPlanDateList().add(spd);

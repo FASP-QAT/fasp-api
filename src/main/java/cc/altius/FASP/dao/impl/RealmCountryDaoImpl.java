@@ -269,7 +269,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                     + "rcpul.LABEL_EN=:label_en, "
                     + "rcpu.UNIT_ID=:unitId, "
                     + "rcpu.ACTIVE=:active, "
-                    + "rcpu.LAST_MODIFIED_DATE=IF(rcpu.ACTIVE!=:active OR rcpu.SKU_CODE!=:skuCode OR rcpu.MULTIPLIER!=:multiplier "
+                    + "rcpu.LAST_MODIFIED_DATE=IF(rcpu.ACTIVE!=:active OR rcpu.SKU_CODE!=:skuCode OR rcpu.MULTIPLIER!=:multiplier OR "
 //                    + "OR rcpu.GTIN!=:gtin OR "
                     + "rcpul.LABEL_EN!=:label_en OR rcpu.UNIT_ID!=:unitId, :curDate, rcpu.LAST_MODIFIED_DATE), "
                     + "rcpu.LAST_MODIFIED_BY=IF(rcpu.ACTIVE!=:active OR rcpu.SKU_CODE!=:skuCode OR rcpu.MULTIPLIER!=:multiplier "
