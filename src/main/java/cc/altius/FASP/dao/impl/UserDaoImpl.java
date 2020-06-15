@@ -285,7 +285,8 @@ public class UserDaoImpl implements UserDao {
         SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("us_user").usingGeneratedKeyColumns("USER_ID");
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         Map<String, Object> map = new HashedMap<>();
-        map.put("REALM_ID", user.getRealm().getRealmId());
+        map.put("REALM_ID", (user.getRealm().getRealmId() != -1 ? user.getRealm().getRealmId() : null));
+//        map.put("REALM_ID", null);
         map.put("USERNAME", user.getUsername());
         map.put("PASSWORD", user.getPassword());
         map.put("EMAIL_ID", user.getEmailId());
@@ -680,7 +681,7 @@ public class UserDaoImpl implements UserDao {
         sql = "DELETE rbf.* FROM us_role_business_function rbf WHERE rbf.ROLE_ID=:roleId";
         params.put("roleId", role.getRoleId());
         this.namedParameterJdbcTemplate.update(sql, params);
-        
+
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("us_role_business_function");
         SqlParameterSource[] paramList = new SqlParameterSource[role.getBusinessFunctions().length];
         int i = 0;
@@ -697,11 +698,11 @@ public class UserDaoImpl implements UserDao {
         }
         si.executeBatch(paramList);
         params.clear();
-        
+
         sql = "DELETE ccr.* FROM us_can_create_role ccr WHERE ccr.ROLE_ID=:roleId";
         params.put("roleId", role.getRoleId());
         this.namedParameterJdbcTemplate.update(sql, params);
-        
+
         si = new SimpleJdbcInsert(dataSource).withTableName("us_can_create_role");
         if (role.getCanCreateRoles().length > 0) {
             paramList = new SqlParameterSource[role.getCanCreateRoles().length];
@@ -780,9 +781,30 @@ public class UserDaoImpl implements UserDao {
     public int mapAccessControls(User user, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sqlString = "";
-        int row = 0, x = 0;
+        int row = 0, x = 0, count;
         Map<String, Object> params = new HashMap<>();
         Map<String, Object>[] paramArray = new HashMap[user.getUserAcls().length];
+        if (user.getUserAcls() != null && user.getUserAcls().length > 1) {
+            for (UserAcl userAcl : user.getUserAcls()) {
+                count = 0;
+                if (userAcl.getRealmCountryId() == -1) {
+                    count++;
+                }
+                if (userAcl.getHealthAreaId() == -1) {
+                    count++;
+                }
+                if (userAcl.getOrganisationId() == -1) {
+                    count++;
+                }
+                if (userAcl.getProgramId() == -1) {
+                    count++;
+                }
+                if (count == 4) {
+                    return -2;
+                }
+            }
+
+        }
         if (user.getUserAcls() != null && user.getUserAcls().length > 0) {
             sqlString = "DELETE FROM us_user_acl WHERE  USER_ID=:userId";
             params.put("userId", user.getUserId());

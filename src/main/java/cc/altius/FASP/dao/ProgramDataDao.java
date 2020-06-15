@@ -31,7 +31,7 @@ public interface ProgramDataDao {
     public List<Inventory> getInventoryList(int programId, int versionId);
 
     public List<Shipment> getShipmentList(int programId, int versionId);
-    
+
     public List<Batch> getBatchList(int programId, int versionId);
 
     public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
@@ -45,11 +45,16 @@ public interface ProgramDataDao {
     public Version updateProgramVersion(int programId, int versionId, int versionStatusId, CustomUserDetails curUser);
 
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId);
-    
+
 //    public void buildStockBalances(int programId, int versionId);
-    
+
+//    public void buildStockBalances(int programId, int versionId);
     public SupplyPlan getSupplyPlan(int programId, int versionId);
-    
+
     public void updateSupplyPlanBatchInfo(SupplyPlan sp);
+
+    public List<ProgramVersion> getProgramVersionForARTMIS(int realmId);
+
+    public int updateSentToARTMISFlag(String programVersionIds);
 
 }

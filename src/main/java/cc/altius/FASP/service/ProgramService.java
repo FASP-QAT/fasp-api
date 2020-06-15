@@ -25,7 +25,7 @@ public interface ProgramService {
     public int updateProgram(Program p, CustomUserDetails curUser);
 
     public List<Program> getProgramList(CustomUserDetails curUser);
-    
+
     public List<Program> getProgramListForProgramIds(String[] programIds, CustomUserDetails curUser);
 
     public List<Program> getProgramList(int realmId, CustomUserDetails curUser);
@@ -44,5 +44,5 @@ public interface ProgramService {
 
     public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser);
 
-    public List<Program> getProgramList(int realmId);
+    public Program getProgramList(int realmId, int programId, int versionId);
 }

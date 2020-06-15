@@ -13,6 +13,7 @@ import java.util.Date;
  */
 public class ProgramVersion extends Version {
 
+    private int programVersionId;
     private SimpleObject program;
     private SimpleCodeObject realmCountry;
     private SimpleObject healthArea;
@@ -21,12 +22,21 @@ public class ProgramVersion extends Version {
     public ProgramVersion() {
     }
 
-    public ProgramVersion(SimpleObject program, SimpleCodeObject realmCountry, SimpleObject healthArea, SimpleCodeObject organisation, int versionId, SimpleObject versionType, SimpleObject versionStatus, String notes, BasicUser createdBy, Date createdDate, BasicUser lastModifiedBy, Date lastModifiedDate) {
+    public ProgramVersion(int programVersionId, SimpleObject program, SimpleCodeObject realmCountry, SimpleObject healthArea, SimpleCodeObject organisation, int versionId, SimpleObject versionType, SimpleObject versionStatus, String notes, BasicUser createdBy, Date createdDate, BasicUser lastModifiedBy, Date lastModifiedDate) {
         super(versionId, versionType, versionStatus, notes, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
+        this.programVersionId = programVersionId;
         this.program = program;
         this.realmCountry = realmCountry;
         this.healthArea = healthArea;
         this.organisation = organisation;
+    }
+
+    public int getProgramVersionId() {
+        return programVersionId;
+    }
+
+    public void setProgramVersionId(int programVersionId) {
+        this.programVersionId = programVersionId;
     }
 
     public SimpleObject getProgram() {
@@ -61,5 +71,4 @@ public class ProgramVersion extends Version {
         this.organisation = organisation;
     }
 
-    
 }

@@ -17,12 +17,12 @@ public class RealmCountry extends BaseModel implements Serializable {
     private Country country;
     private Realm realm;
     private Currency defaultCurrency;
-    private Unit palletUnit;
-    private double airFreightPercentage;
-    private double seaFreightPercentage;
-    private double shippedToArrivedByAirLeadTime;
-    private double shippedToArrivedBySeaLeadTime;
-    private double arrivedToDeliveredLeadTime;
+//    private Unit palletUnit;
+//    private double airFreightPercentage;
+//    private double seaFreightPercentage;
+//    private double shippedToArrivedByAirLeadTime;
+//    private double shippedToArrivedBySeaLeadTime;
+//    private double arrivedToDeliveredLeadTime;
 
     public RealmCountry() {
     }
@@ -70,53 +70,53 @@ public class RealmCountry extends BaseModel implements Serializable {
         this.defaultCurrency = defaultCurrency;
     }
 
-    public Unit getPalletUnit() {
-        return palletUnit;
-    }
-
-    public void setPalletUnit(Unit palletUnit) {
-        this.palletUnit = palletUnit;
-    }
-
-    public double getAirFreightPercentage() {
-        return airFreightPercentage;
-    }
-
-    public void setAirFreightPercentage(double airFreightPercentage) {
-        this.airFreightPercentage = airFreightPercentage;
-    }
-
-    public double getSeaFreightPercentage() {
-        return seaFreightPercentage;
-    }
-
-    public void setSeaFreightPercentage(double seaFreightPercentage) {
-        this.seaFreightPercentage = seaFreightPercentage;
-    }
-
-    public double getShippedToArrivedByAirLeadTime() {
-        return shippedToArrivedByAirLeadTime;
-    }
-
-    public void setShippedToArrivedByAirLeadTime(double shippedToArrivedByAirLeadTime) {
-        this.shippedToArrivedByAirLeadTime = shippedToArrivedByAirLeadTime;
-    }
-
-    public double getShippedToArrivedBySeaLeadTime() {
-        return shippedToArrivedBySeaLeadTime;
-    }
-
-    public void setShippedToArrivedBySeaLeadTime(double shippedToArrivedBySeaLeadTime) {
-        this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
-    }
-
-    public double getArrivedToDeliveredLeadTime() {
-        return arrivedToDeliveredLeadTime;
-    }
-
-    public void setArrivedToDeliveredLeadTime(double arrivedToDeliveredLeadTime) {
-        this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
-    }
+//    public Unit getPalletUnit() {
+//        return palletUnit;
+//    }
+//
+//    public void setPalletUnit(Unit palletUnit) {
+//        this.palletUnit = palletUnit;
+//    }
+//
+//    public double getAirFreightPercentage() {
+//        return airFreightPercentage;
+//    }
+//
+//    public void setAirFreightPercentage(double airFreightPercentage) {
+//        this.airFreightPercentage = airFreightPercentage;
+//    }
+//
+//    public double getSeaFreightPercentage() {
+//        return seaFreightPercentage;
+//    }
+//
+//    public void setSeaFreightPercentage(double seaFreightPercentage) {
+//        this.seaFreightPercentage = seaFreightPercentage;
+//    }
+//
+//    public double getShippedToArrivedByAirLeadTime() {
+//        return shippedToArrivedByAirLeadTime;
+//    }
+//
+//    public void setShippedToArrivedByAirLeadTime(double shippedToArrivedByAirLeadTime) {
+//        this.shippedToArrivedByAirLeadTime = shippedToArrivedByAirLeadTime;
+//    }
+//
+//    public double getShippedToArrivedBySeaLeadTime() {
+//        return shippedToArrivedBySeaLeadTime;
+//    }
+//
+//    public void setShippedToArrivedBySeaLeadTime(double shippedToArrivedBySeaLeadTime) {
+//        this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
+//    }
+//
+//    public double getArrivedToDeliveredLeadTime() {
+//        return arrivedToDeliveredLeadTime;
+//    }
+//
+//    public void setArrivedToDeliveredLeadTime(double arrivedToDeliveredLeadTime) {
+//        this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
+//    }
 
     @Override
     public int hashCode() {
@@ -145,7 +145,7 @@ public class RealmCountry extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "RealmCountry{" + "realmCountryId=" + realmCountryId + ", country=" + country + ", realm=" + realm + ", airFreightPercentage=" + airFreightPercentage + ", seaFreightPercentage=" + seaFreightPercentage + ", shippedToArrivedByAirLeadTime=" + shippedToArrivedByAirLeadTime + ", shippedToArrivedBySeaLeadTime=" + shippedToArrivedBySeaLeadTime + ", arrivedToDeliveredLeadTime=" + arrivedToDeliveredLeadTime + '}';
+        return "RealmCountry{" + "realmCountryId=" + realmCountryId + ", country=" + country + ", realm=" + realm + ", defaultCurrency=" + defaultCurrency + '}';
     }
 
 }

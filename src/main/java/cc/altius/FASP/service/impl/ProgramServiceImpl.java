@@ -168,8 +168,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<Program> getProgramList(int realmId) {
-        return this.programDao.getProgramList(realmId);
+    public Program getProgramList(int realmId, int programId, int versionId) {
+        return this.programDao.getProgramList(realmId, programId, versionId);
     }
 
 }
