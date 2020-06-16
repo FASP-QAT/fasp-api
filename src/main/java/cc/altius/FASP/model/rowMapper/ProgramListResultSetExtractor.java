@@ -7,13 +7,11 @@ package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.Country;
-import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.Unit;
 import cc.altius.FASP.model.Version;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,12 +37,6 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
             Program tmpProg = new Program(programId, null);
             if (pList.indexOf(tmpProg) == -1) {
                 if (!isFirst) {
-//                    p.setRegionArray(new String[p.getRegionList().size()]);
-//                    int x = 0;
-//                    for (Region r : p.getRegionList()) {
-//                        p.getRegionArray()[x] = Integer.toString(r.getRegionId());
-//                        x++;
-//                    }
                     p = new Program();
                 }
                 pList.add(p);
@@ -114,14 +106,6 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
             }
             isFirst = false;
         }
-//        if (p.getProgramId() != 0) {
-//            p.setRegionArray(new String[p.getRegionList().size()]);
-//            int x = 0;
-//            for (Region r : p.getRegionList()) {
-//                p.getRegionArray()[x] = Integer.toString(r.getRegionId());
-//                x++;
-//            }
-//        }
         return pList;
     }
 }
