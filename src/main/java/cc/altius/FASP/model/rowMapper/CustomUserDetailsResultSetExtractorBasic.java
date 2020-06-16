@@ -20,7 +20,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
  *
  * @author shrutika
  */
-public class CustomUserDetailsResultSetExtractor implements ResultSetExtractor<CustomUserDetails> {
+public class CustomUserDetailsResultSetExtractorBasic implements ResultSetExtractor<CustomUserDetails> {
 
     @Override
     public CustomUserDetails extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -42,23 +42,23 @@ public class CustomUserDetailsResultSetExtractor implements ResultSetExtractor<C
                 user.setRoles(new LinkedList<>());
                 user.setAclList(new LinkedList<>());
             }
-            Role r = new Role(rs.getString("ROLE_ID"), new LabelRowMapper("ROLE_").mapRow(rs, 1));
-            if (user.getRoles().indexOf(r) == -1) {
-                user.getRoles().add(r);
-            }
-            UserAcl acl = new UserAcl(
-                    user.getUserId(),
-                    rs.getInt("ACL_REALM_COUNTRY_ID"), new LabelRowMapper("ACL_REALM_").mapRow(rs, 1),
-                    rs.getInt("ACL_HEALTH_AREA_ID"), new LabelRowMapper("ACL_HEALTH_AREA_").mapRow(rs, 1),
-                    rs.getInt("ACL_ORGANISATION_ID"), new LabelRowMapper("ACL_ORGANISATION_").mapRow(rs, 1),
-                    rs.getInt("ACL_PROGRAM_ID"), new LabelRowMapper("ACL_PROGRAM_").mapRow(rs, 1));
-            if (user.getAclList().indexOf(acl) == -1) {
-                user.getAclList().add(acl);
-            }
-            SimpleGrantedAuthority bf = new SimpleGrantedAuthority(rs.getString("BUSINESS_FUNCTION_ID"));
-            if (user.getBusinessFunction().indexOf(bf) == -1) {
-                user.getBusinessFunction().add(bf);
-            }
+//            Role r = new Role(rs.getString("ROLE_ID"), new LabelRowMapper("ROLE_").mapRow(rs, 1));
+//            if (user.getRoles().indexOf(r) == -1) {
+//                user.getRoles().add(r);
+//            }
+//            UserAcl acl = new UserAcl(
+//                    user.getUserId(),
+//                    rs.getInt("ACL_REALM_COUNTRY_ID"), new LabelRowMapper("ACL_REALM_").mapRow(rs, 1),
+//                    rs.getInt("ACL_HEALTH_AREA_ID"), new LabelRowMapper("ACL_HEALTH_AREA_").mapRow(rs, 1),
+//                    rs.getInt("ACL_ORGANISATION_ID"), new LabelRowMapper("ACL_ORGANISATION_").mapRow(rs, 1),
+//                    rs.getInt("ACL_PROGRAM_ID"), new LabelRowMapper("ACL_PROGRAM_").mapRow(rs, 1));
+//            if (user.getAclList().indexOf(acl) == -1) {
+//                user.getAclList().add(acl);
+//            }
+//            SimpleGrantedAuthority bf = new SimpleGrantedAuthority(rs.getString("BUSINESS_FUNCTION_ID"));
+//            if (user.getBusinessFunction().indexOf(bf) == -1) {
+//                user.getBusinessFunction().add(bf);
+//            }
             isFirst = false;
         }
         if (isFirst) {

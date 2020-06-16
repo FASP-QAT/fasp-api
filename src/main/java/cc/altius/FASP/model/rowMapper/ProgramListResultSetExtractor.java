@@ -114,14 +114,6 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
             }
             isFirst = false;
         }
-//        if (p.getProgramId() != 0) {
-//            p.setRegionArray(new String[p.getRegionList().size()]);
-//            int x = 0;
-//            for (Region r : p.getRegionList()) {
-//                p.getRegionArray()[x] = Integer.toString(r.getRegionId());
-//                x++;
-//            }
-//        }
         return pList;
     }
 }

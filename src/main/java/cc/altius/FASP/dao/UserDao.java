@@ -23,6 +23,8 @@ public interface UserDao {
     public CustomUserDetails getCustomUserByUsername(String username);
 
     public CustomUserDetails getCustomUserByEmailId(String emailId);
+    
+    public CustomUserDetails getCustomUserByUserId(int userId);
 
     public Map<String, Object> checkIfUserExists(String username, String password);
 

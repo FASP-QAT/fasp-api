@@ -7,12 +7,11 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.BaseModel;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.ExtendedProductCategory;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.ProductCategoryService;
+import cc.altius.FASP.service.UserService;
 import cc.altius.utils.TreeUtils.Node;
-import cc.altius.utils.TreeUtils.Tree;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,11 +42,13 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
 
     @Autowired
     private ProductCategoryService productCategoryService;
+    @Autowired
+    private UserService userService;
 
     @PutMapping(path = "/productCategory")
     public ResponseEntity putProductCategory(@RequestBody Node<ProductCategory>[] productCategories, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.productCategoryService.saveProductCategoryList(productCategories, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -62,7 +63,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
     @GetMapping("/productCategory/realmId/{realmId}")
     public ResponseEntity getProductCategory(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.productCategoryService.getProductCategoryListForRealm(curUser, realmId), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Product Category", e);
@@ -81,7 +82,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
             bolIncludeAllChildren = includeAllChildren.get();
         }
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.productCategoryService.getProductCategoryList(curUser, realmId, productCategoryId, bolIncludeCurrentLevel, bolIncludeAllChildren), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Product Category", e);
@@ -94,7 +95,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.productCategoryService.getProductCategoryListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing productCategory", p);
@@ -108,7 +109,7 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
     @GetMapping("/productCategory/realmId/{realmId}/programId/{programId}")
     public ResponseEntity getProductCategoryForProgram(@PathVariable(value = "realmId", required = true) int realmId, @PathVariable(value = "programId", required = true) int programId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.productCategoryService.getProductCategoryListForProgram(curUser, realmId, programId), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Product Category", e);
