@@ -86,7 +86,7 @@ public class ReportDaoImpl implements ReportDao {
     public List<Map<String, Object>> getStockStatusMatrix(int realmId, int programId, int planningUnitId, int view, String startDate, String endDate) {
         StringBuilder sb = new StringBuilder();
         Map<String, Object> params = new HashMap<>();
-        params.put("realmId", realmId);
+      //  params.put("realmId", realmId);
         if (view == 1) {
             sb.append("SELECT a.* ,\n"
                     + "\n"
@@ -113,7 +113,7 @@ public class ReportDaoImpl implements ReportDao {
                     + "	LEFT JOIN rm_realm_country rc ON rcpu.`REALM_COUNTRY_ID`=rcpu.`REALM_COUNTRY_ID`\n"
                     + "LEFT JOIN rm_planning_unit pu ON pu.PLANNING_UNIT_ID=rcpu.PLANNING_UNIT_ID\n"
                     + "	LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`\n"
-                    + " LEFT JOIN ap_label irpu_label ON irpu_label.`LABEL_ID`=pu.`LABEL_ID` where rc.REALM_ID=:realmId ");
+                    + " LEFT JOIN ap_label irpu_label ON irpu_label.`LABEL_ID`=pu.`LABEL_ID` where 1 ");
             //  if (planningUnitId > 0) {
             sb.append(" and pu.PLANNING_UNIT_ID=:planningUnitId ");
             params.put("planningUnitId", planningUnitId);
@@ -141,7 +141,7 @@ public class ReportDaoImpl implements ReportDao {
                     + "	LEFT JOIN rm_realm_country rc ON rcpu.`REALM_COUNTRY_ID`=rcpu.`REALM_COUNTRY_ID`\n"
                     + "LEFT JOIN rm_planning_unit pu ON pu.PLANNING_UNIT_ID=rcpu.PLANNING_UNIT_ID\n"
                     + "	LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`\n"
-                    + " LEFT JOIN ap_label irpu_label ON irpu_label.`LABEL_ID`=pu.`LABEL_ID`  where rc.REALM_ID=:realmId ");
+                    + " LEFT JOIN ap_label irpu_label ON irpu_label.`LABEL_ID`=pu.`LABEL_ID`  where 1 ");
             //  if (planningUnitId > 0) {
             sb.append(" and pu.PLANNING_UNIT_ID=:planningUnitId ");
             params.put("planningUnitId", planningUnitId);
