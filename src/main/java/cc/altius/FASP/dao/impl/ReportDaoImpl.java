@@ -264,12 +264,10 @@ public class ReportDaoImpl implements ReportDao {
     public List<CostOfInventoryOutput> getCostOfInventory(CostOfInventoryInput cii, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", cii.getProgramId());
-        params.put("regionList", cii.getRegionIdString());
-        params.put("planningUnitList", cii.getPlanningUnitIdString());
         params.put("versionId", cii.getVersionId());
         params.put("dt", cii.getDt());
         params.put("includePlannedShipments", cii.isIncludePlannedShipments());
-        return this.namedParameterJdbcTemplate.query("CALL costOfInventory(:programId, :regionList, :planningUnitList, :versionId, :dt, :includePlannedShipments)", params, new CostOfInventoryRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL costOfInventory(:programId, :versionId, :dt, :includePlannedShipments)", params, new CostOfInventoryRowMapper());
     }
 
 }
