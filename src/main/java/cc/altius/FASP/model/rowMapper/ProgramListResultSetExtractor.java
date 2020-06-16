@@ -39,12 +39,6 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
             Program tmpProg = new Program(programId, null);
             if (pList.indexOf(tmpProg) == -1) {
                 if (!isFirst) {
-//                    p.setRegionArray(new String[p.getRegionList().size()]);
-//                    int x = 0;
-//                    for (Region r : p.getRegionList()) {
-//                        p.getRegionArray()[x] = Integer.toString(r.getRegionId());
-//                        x++;
-//                    }
                     p = new Program();
                 }
                 pList.add(p);
