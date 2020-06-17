@@ -17,6 +17,7 @@ import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.StockOverTimeInput;
 import cc.altius.FASP.model.report.StockOverTimeOutput;
+import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import java.util.List;
 import java.util.Map;
 
@@ -28,7 +29,7 @@ public interface ReportService {
 
     public List<Map<String, Object>> getConsumptionData(int realmId, int productcategoryId, int planningUnitId, String StartDate, String endDate);
 
-    public List<Map<String, Object>> getStockStatusMatrix(int realmId, int productcategoryId, int planningUnitId, int view, String StartDate, String endDate);
+    public List<Map<String, Object>> getStockStatusMatrix(StockStatusMatrixInput ssm);
 
     public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser);
 

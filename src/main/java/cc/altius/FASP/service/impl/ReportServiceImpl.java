@@ -8,7 +8,6 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
-import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
@@ -19,6 +18,7 @@ import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.StockOverTimeInput;
 import cc.altius.FASP.model.report.StockOverTimeOutput;
+import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.service.ReportService;
 import java.util.List;
 import java.util.Map;
@@ -41,8 +41,8 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<Map<String, Object>> getStockStatusMatrix(int realmId, int productcategoryId, int planningUnitId, int view, String startDate, String endDate) {
-        return this.reportDao.getStockStatusMatrix(realmId, productcategoryId, planningUnitId, view, startDate, endDate);
+    public List<Map<String, Object>> getStockStatusMatrix(StockStatusMatrixInput ssm) {
+        return this.reportDao.getStockStatusMatrix(ssm);
     }
 
     @Override

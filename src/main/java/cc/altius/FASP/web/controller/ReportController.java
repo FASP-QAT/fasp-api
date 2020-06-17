@@ -13,6 +13,7 @@ import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastMetricsInput;
 import cc.altius.FASP.model.report.StockOverTimeInput;
+import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.service.ReportService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -46,11 +47,11 @@ public class ReportController {
 
     }
 
-    @RequestMapping(value = "/stockmatrix/{realmId}/{programId}/{planningUnitId}/{view}/{startDate}/{endDate}")
-    public ResponseEntity getStockStatusMatrix(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, @PathVariable("planningUnitId") int planningUnitId, @PathVariable("view") int view, @PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate, Authentication auth) {
+    @RequestMapping(value = "/stockStatusMatrix")
+    public ResponseEntity getStockStatusMatrix(@RequestBody StockStatusMatrixInput ssm, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.reportService.getStockStatusMatrix(realmId, programId, planningUnitId, view, startDate, endDate), HttpStatus.OK);
+            return new ResponseEntity(this.reportService.getStockStatusMatrix(ssm), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
