@@ -31,7 +31,7 @@ public class CustomUserDetailsService implements UserDetailsService {
     public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         logger.info("Inside loadUserByUsername" + LogUtils.getArgsString(), LogUtils.getIpAddress(), LogUtils.getUsername());
         try {
-            CustomUserDetails user = this.userDao.getCustomUserByUsername(username);
+            CustomUserDetails user = this.userDao.getCustomUserByEmailId(username);
             if (!user.isPresent()) {
                 throw new UsernameNotFoundException("User not found");
             }
