@@ -16,6 +16,7 @@ import cc.altius.FASP.model.report.ForecastMetricsInput;
 import cc.altius.FASP.model.report.ForecastMetricsOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
+import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.StockOverTimeInput;
 import cc.altius.FASP.model.report.StockOverTimeOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
@@ -73,6 +74,11 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public List<CostOfInventoryOutput> getCostOfInventory(CostOfInventoryInput cii, CustomUserDetails curUser) {
         return this.reportDao.getCostOfInventory(cii, curUser);
+    }
+
+    @Override
+    public List<InventoryTurnsOutput> getInventoryTurns(CostOfInventoryInput it, CustomUserDetails curUser) {
+        return this.reportDao.getInventoryTurns(it, curUser);
     }
 
 }

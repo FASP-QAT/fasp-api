@@ -20,6 +20,8 @@ import cc.altius.FASP.model.report.ForecastMetricsOutputRowMapper;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutputRowMapper;
+import cc.altius.FASP.model.report.InventoryTurnsOutput;
+import cc.altius.FASP.model.report.InventoryTurnsOutputRowMapper;
 import cc.altius.FASP.model.report.ProgramAndPlanningUnit;
 import cc.altius.FASP.model.report.StockOverTimeInput;
 import cc.altius.FASP.model.report.StockOverTimeOutput;
@@ -245,6 +247,16 @@ public class ReportDaoImpl implements ReportDao {
         params.put("dt", cii.getDt());
         params.put("includePlannedShipments", cii.isIncludePlannedShipments());
         return this.namedParameterJdbcTemplate.query("CALL costOfInventory(:programId, :versionId, :dt, :includePlannedShipments)", params, new CostOfInventoryRowMapper());
+    }
+
+    @Override
+    public List<InventoryTurnsOutput> getInventoryTurns(CostOfInventoryInput it, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", it.getProgramId());
+        params.put("versionId", it.getVersionId());
+        params.put("dt", it.getDt());
+        params.put("includePlannedShipments", it.isIncludePlannedShipments());
+        return this.namedParameterJdbcTemplate.query("CALL inventoryTurns(:programId, :versionId, :dt, :includePlannedShipments)", params, new InventoryTurnsOutputRowMapper());
     }
 
 }
