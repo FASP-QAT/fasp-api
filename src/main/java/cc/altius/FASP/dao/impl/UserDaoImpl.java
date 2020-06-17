@@ -169,6 +169,7 @@ public class UserDaoImpl implements UserDao {
             CustomUserDetails user = this.namedParameterJdbcTemplate.query(sqlString, params, new CustomUserDetailsResultSetExtractor());
             return user;
         } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
     }

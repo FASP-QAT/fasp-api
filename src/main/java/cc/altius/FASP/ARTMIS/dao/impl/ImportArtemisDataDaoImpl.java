@@ -392,7 +392,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                         + "o.`AGREED_DELIVERY_DATE`=IFNULL(CONCAT(LEFT(t.`REVISED_AGREED_DELIVERY_DATE`,10),' ',REPLACE(MID(t.`REVISED_AGREED_DELIVERY_DATE`,12,8),'.',':')),NULL), "
                         + "o.`SUPPLIER_NAME`=t.`ITEM_SUPPLIER_NAME`, "
                         + "o.`PRICE`=t.`UNIT_PRICE`, "
-                        + "o.`SHIPPING_COST`=COALESCE(t.`TOTAL_ACTUAL_FREIGHT_COST`,t.`FREIGHT_ESTIMATE`,t.`SHIPPING_CHARGES`), "
+                        + "o.`SHIPPING_COST`=COALESCE(IF(t.`TOTAL_ACTUAL_FREIGHT_COST`=0,NULL,t.`TOTAL_ACTUAL_FREIGHT_COST`),IF(t.`FREIGHT_ESTIMATE`=0,NULL,t.`FREIGHT_ESTIMATE`),IF(t.`SHIPPING_CHARGES`=0,NULL,t.`SHIPPING_CHARGES`)), "
                         + "o.`SHIP_BY`=t.`CARRIER_SERVICE_CODE`, "
                         + "o.`RECPIENT_NAME`=t.`RECIPIENT_NAME`, "
                         + "o.`RECPIENT_COUNTRY`=t.`RECIPIENT_COUNTRY`, "
@@ -435,7 +435,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                         + " IFNULL(DATE_FORMAT(REQ_DELIVERY_DATE,'%Y-%m-%d'),NULL), "
                         + " IFNULL(DATE_FORMAT(REVISED_AGREED_DELIVERY_DATE,'%Y-%m-%d'),NULL),ITEM_SUPPLIER_NAME,UNIT_PRICE, "
                         + " COALESCE(TOTAL_ACTUAL_FREIGHT_COST,FREIGHT_ESTIMATE,SHIPPING_CHARGES),CARRIER_SERVICE_CODE,RECIPIENT_NAME, "
-                        + " RECIPIENT_COUNTRY,EXTERNAL_STATUS_STAGE,1,?,1,NULL "
+                        + " RECIPIENT_COUNTRY,STATUS_NAME,1,?,1,NULL "
                         + " FROM tmp_erp_order t ";
 
                 rows = this.jdbcTemplate.update(sql, curDate);
@@ -552,6 +552,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                     System.out.println("shipmentTransId---" + shipmentTransId);
 
                     if (shipmentTransId > 0) {
+                        System.out.println("erpOrderId inside if---"+erpOrderId);
                         sql = "SELECT t.`SHIPMENT_ID` FROM rm_shipment_trans_erp_order_mapping t WHERE t.`ERP_ORDER_ID`=?;";
                         int shipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderId);
 
@@ -567,9 +568,9 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                         sql = "INSERT IGNORE INTO rm_batch_info "
                                 + "SELECT NULL,?,?,s.`BATCH_NO`,s.`EXPIRY_DATE`,? FROM rm_erp_shipment s "
                                 + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? ";
-                        this.jdbcTemplate.update(sql, programId, planningUnitId, curDate);
+                        this.jdbcTemplate.update(sql, programId, planningUnitId, curDate,erpOrderId);
 
-                        sql = "SELECT NULL,?,b.`BATCH_ID`,SUM(s.`DELIVERED_QTY`) FROM rm_erp_shipment s "
+                        sql = "INSERT INTO rm_shipment_trans_batch_info SELECT NULL,?,b.`BATCH_ID`,SUM(s.`DELIVERED_QTY`) FROM rm_erp_shipment s "
                                 + "LEFT JOIN rm_batch_info b ON b.`BATCH_NO`=s.`BATCH_NO` AND b.`PROGRAM_ID`=? AND b.`PLANNING_UNIT_ID`=? "
                                 + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? "
                                 + "GROUP BY s.`BATCH_NO`;";
