@@ -8,10 +8,8 @@ package cc.altius.FASP.ARTMIS.dao.impl;
 import cc.altius.FASP.ARTMIS.dao.ImportArtemisDataDao;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
-import cc.altius.FASP.model.ShipmentBudget;
 import cc.altius.FASP.model.TempProgramVersion;
 import cc.altius.FASP.model.Version;
-import cc.altius.FASP.model.rowMapper.ShipmentBudgetRowMapper;
 import cc.altius.FASP.model.rowMapper.TempProgramVersionRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.EmailService;
@@ -591,16 +589,16 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                         if (budgetCount == 1) {
 
                             sql = "SELECT * FROM rm_shipment_budget b WHERE b.`SHIPMENT_ID`=?;";
-                            ShipmentBudget budget = this.jdbcTemplate.queryForObject(sql, new ShipmentBudgetRowMapper(), shipmentId);
+//                            ShipmentBudget budget = this.jdbcTemplate.queryForObject(sql, new ShipmentBudgetRowMapper(), shipmentId);
 
-                            this.jdbcTemplate.update(sqlb, shipmentId, budget.getBudgetId(), budgetAmt, budget.getConversionRateToUsd(), budget.getCurrency().getCurrencyId(), curDate, versionId);
+//                            this.jdbcTemplate.update(sqlb, shipmentId, budget.getBudgetId(), budgetAmt, budget.getConversionRateToUsd(), budget.getCurrency().getCurrencyId(), curDate, versionId);
                         } else if (budgetCount > 1) {
-                            List<ShipmentBudget> budgetList = this.jdbcTemplate.query(sql, new ShipmentBudgetRowMapper(), shipmentId);
-                            for (ShipmentBudget s : budgetList) {
-                                double percentage = s.getBudgetAmt() / (budgetAmt * 100);
-                                double budgetAmountPerc = (budgetAmt * percentage) / 100;
-                                this.jdbcTemplate.update(sqlb, shipmentId, s.getBudgetId(), budgetAmountPerc, s.getConversionRateToUsd(), s.getCurrency().getCurrencyId(), curDate, versionId);
-                            }
+//                            List<ShipmentBudget> budgetList = this.jdbcTemplate.query(sql, new ShipmentBudgetRowMapper(), shipmentId);
+//                            for (ShipmentBudget s : budgetList) {
+//                                double percentage = s.getBudgetAmt() / (budgetAmt * 100);
+//                                double budgetAmountPerc = (budgetAmt * percentage) / 100;
+//                                this.jdbcTemplate.update(sqlb, shipmentId, s.getBudgetId(), budgetAmountPerc, s.getConversionRateToUsd(), s.getCurrency().getCurrencyId(), curDate, versionId);
+//                            }
                         }
 
                         sql = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=? WHERE s.`SHIPMENT_ID`=?;";

@@ -16,26 +16,18 @@ import java.util.Date;
  *
  * @author akil
  */
-public class StockStatusMatrixInput implements Serializable {
+public class StockStatusInput implements Serializable {
 
     private int programId;
     private int versionId;
+    private int planningUnitId;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
-    private String[] ids;
-    private boolean includePlannedShipments;
-    private int view; // PlanningUnit // ProductCategory
 
-    public StockStatusMatrixInput() {
-        this.view = 1;
-        this.includePlannedShipments = false;
-    }
-
-    
     public int getProgramId() {
         return programId;
     }
@@ -52,6 +44,14 @@ public class StockStatusMatrixInput implements Serializable {
         this.versionId = versionId;
     }
 
+    public int getPlanningUnitId() {
+        return planningUnitId;
+    }
+
+    public void setPlanningUnitId(int planningUnitId) {
+        this.planningUnitId = planningUnitId;
+    }
+
     public Date getStartDate() {
         return startDate;
     }
@@ -66,36 +66,6 @@ public class StockStatusMatrixInput implements Serializable {
 
     public void setStopDate(Date stopDate) {
         this.stopDate = stopDate;
-    }
-
-
-    public boolean isIncludePlannedShipments() {
-        return includePlannedShipments;
-    }
-
-    public void setIncludePlannedShipments(boolean includePlannedShipments) {
-        this.includePlannedShipments = includePlannedShipments;
-    }
-
-    public String getIdsString() {
-        if (this.ids == null) {
-            return "";
-        } else {
-            String opt = String.join("','", this.ids);
-            if (this.ids.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
-        }
-    }
-
-    public int getView() {
-        return view;
-    }
-
-    public void setView(int view) {
-        this.view = view;
     }
 
 }

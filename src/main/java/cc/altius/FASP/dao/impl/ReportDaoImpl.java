@@ -156,13 +156,13 @@ public class ReportDaoImpl implements ReportDao {
 //            sb.append(" And i.`INVENTORY_DATE`between :startDate and :endDate GROUP BY QUARTER(i.`INVENTORY_DATE`),YEAR(i.`INVENTORY_DATE`),pu.`PLANNING_UNIT_ID` )a GROUP BY a.year,a.PLANNING_UNIT_ID");
 //        }
         if (ssm.getView() == 1) { // AnnualView
-            sb.append("CALL stockStatusMatrixAnnualView(:programId, :versionId, :planningUnitList, :startDate, :stopDate, :includePlannedShipments)");
+            sb.append("CALL stockStatusMatrixMonthlyView(:programId, :versionId, :planningUnitList, :startDate, :stopDate, :includePlannedShipments)");
         } else { // QuarterlyView
             sb.append("CALL stockStatusMatrixQuarterlyView(:programId, :versionId, :planningUnitList, :startDate, :stopDate, :includePlannedShipments)");
         }
         params.put("programId", ssm.getProgramId());
         params.put("versionId", ssm.getVersionId());
-        params.put("planningUnitList", ssm.getPlanningUnitIdString());
+        params.put("planningUnitList", ssm.getIdsString());
         params.put("startDate", ssm.getStartDate());
         params.put("stopDate", ssm.getStopDate());
         params.put("includePlannedShipments", ssm.isIncludePlannedShipments());

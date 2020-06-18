@@ -27,6 +27,8 @@ public class Shipment extends BaseModel implements Serializable {
     private Date expectedDeliveryDate;
     private int suggestedQty;
     private SimpleCodeObject procurementAgent;
+    private SimpleBudgetObject budget;
+    private SimpleObject fundingSource;
     private SimpleObject procurementUnit;
     private SimpleObject supplier;
     private int shipmentQty;
@@ -53,11 +55,9 @@ public class Shipment extends BaseModel implements Serializable {
     private String primeLineNo;
     private boolean emergencyOrder;
     private int versionId;
-    private List<ShipmentBudget> shipmentBudgetList;
     private List<ShipmentBatchInfo> batchInfoList;
     
     public Shipment() {
-        this.shipmentBudgetList = new LinkedList<>();
         this.batchInfoList = new LinkedList<>();
     }
     public int getShipmentId() {
@@ -106,6 +106,22 @@ public class Shipment extends BaseModel implements Serializable {
 
     public void setProcurementUnit(SimpleObject procurementUnit) {
         this.procurementUnit = procurementUnit;
+    }
+
+    public SimpleBudgetObject getBudget() {
+        return budget;
+    }
+
+    public void setBudget(SimpleBudgetObject budget) {
+        this.budget = budget;
+    }
+
+    public SimpleObject getFundingSource() {
+        return fundingSource;
+    }
+
+    public void setFundingSource(SimpleObject fundingSource) {
+        this.fundingSource = fundingSource;
     }
 
     public SimpleObject getSupplier() {
@@ -258,15 +274,6 @@ public class Shipment extends BaseModel implements Serializable {
 
     public void setVersionId(int versionId) {
         this.versionId = versionId;
-    }
-
-
-    public List<ShipmentBudget> getShipmentBudgetList() {
-        return shipmentBudgetList;
-    }
-
-    public void setShipmentBudgetList(List<ShipmentBudget> shipmentBudgetList) {
-        this.shipmentBudgetList = shipmentBudgetList;
     }
 
     public List<ShipmentBatchInfo> getBatchInfoList() {
