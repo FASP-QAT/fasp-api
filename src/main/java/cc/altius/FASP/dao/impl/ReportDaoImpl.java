@@ -162,7 +162,7 @@ public class ReportDaoImpl implements ReportDao {
         }
         params.put("programId", ssm.getProgramId());
         params.put("versionId", ssm.getVersionId());
-        params.put("planningUnitList", ssm.getPlanningUnitIdString());
+        params.put("planningUnitList", ssm.getIdsString());
         params.put("startDate", ssm.getStartDate());
         params.put("stopDate", ssm.getStopDate());
         params.put("includePlannedShipments", ssm.isIncludePlannedShipments());
