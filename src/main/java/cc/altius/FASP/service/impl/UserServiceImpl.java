@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
     public Role getRoleById(String roleId) {
         return this.userDao.getRoleById(roleId);
     }
-    
+
     @Override
     public List<Role> getRoleList() {
         return this.userDao.getRoleList();
@@ -139,9 +139,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int updatePassword(String username, String token, String newPassword, int offset) {
-        int r = this.userDao.updatePassword(username, token, newPassword, offset);
-        this.userDao.updateCompletionDateForForgotPasswordToken(username, token);
+    public int updatePassword(String emailId, String token, String newPassword, int offset) {
+        int r = this.userDao.updatePassword(emailId, token, newPassword, offset);
+        this.userDao.updateCompletionDateForForgotPasswordToken(emailId, token);
         return r;
     }
 
@@ -161,8 +161,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String generateTokenForUsername(String username, int emailTemplateId) {
-        EmailUser user = this.userDao.getEmailUserByUsername(username);
+    public String generateTokenForEmailId(String emailId, int emailTemplateId) {
+        EmailUser user = this.userDao.getEmailUserByEmailId(emailId);
         if (user == null) {
             return null;
         }
@@ -174,7 +174,7 @@ public class UserServiceImpl implements UserService {
 //            if (emailTemplateId == 1) {
 //                bodyParam = new String[]{HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
 //            } else if (emailTemplateId == 2) {
-            bodyParam = new String[]{user.getUsername(), HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
+            bodyParam = new String[]{user.getUsername(), HOST_URL, PASSWORD_RESET_URL, emailId, token};
 //            }
             Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
@@ -185,8 +185,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ForgotPasswordToken getForgotPasswordToken(String username, String token) {
-        return this.userDao.getForgotPasswordToken(username, token);
+    public ForgotPasswordToken getForgotPasswordToken(String emailId, String token) {
+        return this.userDao.getForgotPasswordToken(emailId, token);
     }
 
     @Override
@@ -195,8 +195,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateCompletionDateForForgotPasswordToken(String username, String token) {
-        this.userDao.updateCompletionDateForForgotPasswordToken(username, token);
+    public void updateCompletionDateForForgotPasswordToken(String emailId, String token) {
+        this.userDao.updateCompletionDateForForgotPasswordToken(emailId, token);
     }
 
     @Override
@@ -215,8 +215,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int updateSuncExpiresOn(String username) {
-        return this.userDao.updateSuncExpiresOn(username);
+    public int updateSuncExpiresOn(String emailId) {
+        return this.userDao.updateSuncExpiresOn(emailId);
     }
 
 }

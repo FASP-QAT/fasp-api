@@ -52,9 +52,9 @@ public interface UserDao {
 
     public int updatePassword(int userId, String newPassword, int offset);
 
-    public int updatePassword(String username, String token, String newPassword, int offset);
+    public int updatePassword(String emailId, String token, String newPassword, int offset);
 
-    public boolean confirmPassword(String username, String password);
+    public boolean confirmPassword(String emailId, String password);
 
     public int addRole(Role role, CustomUserDetails curUser);
 
@@ -66,13 +66,13 @@ public interface UserDao {
 
     public String generateTokenForUserId(int userId);
 
-    public EmailUser getEmailUserByUsername(String username);
+    public EmailUser getEmailUserByEmailId(String emailId);
 
-    public ForgotPasswordToken getForgotPasswordToken(String username, String token);
+    public ForgotPasswordToken getForgotPasswordToken(String emailId, String token);
 
     public void updateTriggeredDateForForgotPasswordToken(String username, String token);
 
-    public void updateCompletionDateForForgotPasswordToken(String username, String token);
+    public void updateCompletionDateForForgotPasswordToken(String emailId, String token);
 
     public boolean isTokenLogout(String token);
 
@@ -80,5 +80,5 @@ public interface UserDao {
 
     public int mapAccessControls(User user, CustomUserDetails curUser);
 
-    public int updateSuncExpiresOn(String username);
+    public int updateSuncExpiresOn(String emailId);
 }

@@ -426,34 +426,34 @@ public class UserDaoImpl implements UserDao {
     public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page) {
         String message = "", sql, username = user.getUsername(), phoneNo = user.getPhoneNumber();
         int userId = 0;
-        int result1 = 0, result2 = 0;
+        int result2 = 0;
         Map<String, Object> params = new HashMap<>();
         params.put("username", user.getUsername());
         params.put("emailId", user.getEmailId());
         if (page == 1) {
-            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`USERNAME`=:username";
-            result1 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
-            if (result1 > 0) {
-                message = "static.message.user.usernameExists";
-            }
+//            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`USERNAME`=:username";
+//            result1 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+//            if (result1 > 0) {
+//                message = "static.message.user.usernameExists";
+//            }
             sql = "SELECT COUNT(*) FROM us_user u WHERE u.`EMAIL_ID`=:emailId";
             result2 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
             if (result2 > 0) {
                 message = "static.message.user.emailIdExists";
             }
 
-            if (result1 > 0 && result2 > 0) {
-                message = "static.message.user.usernameemailIdExists";
-            }
+//            if (result1 > 0 && result2 > 0) {
+//                message = "static.message.user.usernameemailIdExists";
+//            }
         } else if (page == 2) {
-            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`USERNAME`=:username";
-            try {
-                result1 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
-            } catch (EmptyResultDataAccessException e) {
-            }
-            if (result1 > 0 && result1 != user.getUserId()) {
-                message = "static.message.user.usernameExists";
-            }
+//            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`USERNAME`=:username";
+//            try {
+//                result1 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+//            } catch (EmptyResultDataAccessException e) {
+//            }
+//            if (result1 > 0 && result1 != user.getUserId()) {
+//                message = "static.message.user.usernameExists";
+//            }
             sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`EMAIL_ID`=:emailId";
             try {
                 result2 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
@@ -462,9 +462,9 @@ public class UserDaoImpl implements UserDao {
             if (result2 > 0 && result2 != user.getUserId()) {
                 message = "static.message.user.emailIdExists";
             }
-            if ((result1 > 0 && result1 != user.getUserId()) && (result2 > 0 && result2 != user.getUserId())) {
-                message = "static.message.user.usernameemailIdExists";
-            }
+//            if ((result1 > 0 && result1 != user.getUserId()) && (result2 > 0 && result2 != user.getUserId())) {
+//                message = "static.message.user.usernameemailIdExists";
+//            }
         }
         return message;
     }
@@ -517,21 +517,21 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int updatePassword(String username, String token, String newPassword, int offset) {
+    public int updatePassword(String emailId, String token, String newPassword, int offset) {
         Date offsetDate = DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, offset);
-        String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn, FAILED_ATTEMPTS=0 WHERE us_user.USERNAME=:username";
+        String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn, FAILED_ATTEMPTS=0 WHERE us_user.EMAIL_ID=:emailId";
         Map<String, Object> params = new HashMap<>();
-        params.put("username", username);
+        params.put("emailId", emailId);
         params.put("hash", newPassword);
         params.put("expiresOn", offsetDate);
         return namedParameterJdbcTemplate.update(sqlString, params);
     }
 
     @Override
-    public boolean confirmPassword(String username, String password) {
-        String sqlString = "SELECT us_user.PASSWORD FROM us_user WHERE us_user.`USERNAME`=:username";
+    public boolean confirmPassword(String emailId, String password) {
+        String sqlString = "SELECT us_user.PASSWORD FROM us_user WHERE us_user.`EMAIL_ID`=:emailId";
         Map<String, Object> params = new HashMap<>();
-        params.put("username", username);
+        params.put("emailId", emailId);
         String hash = namedParameterJdbcTemplate.queryForObject(sqlString, params, String.class);
         PasswordEncoder encoder = new BCryptPasswordEncoder();
         return encoder.matches(password, hash);
@@ -659,18 +659,18 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public EmailUser getEmailUserByUsername(String username) {
+    public EmailUser getEmailUserByEmailId(String emailId) {
         Map<String, Object> params = new HashMap<>();
-        params.put("username", username);
-        return this.namedParameterJdbcTemplate.queryForObject("SELECT USERNAME, USER_ID, EMAIL_ID FROM us_user WHERE USERNAME=:username", params, new EmailUserRowMapper());
+        params.put("emailId", emailId);
+        return this.namedParameterJdbcTemplate.queryForObject("SELECT USERNAME, USER_ID, EMAIL_ID FROM us_user WHERE EMAIL_ID=:emailId", params, new EmailUserRowMapper());
     }
 
     @Override
-    public ForgotPasswordToken getForgotPasswordToken(String username, String token) {
+    public ForgotPasswordToken getForgotPasswordToken(String emailId, String token) {
         Map<String, Object> params = new HashMap<>();
-        params.put("username", username);
+        params.put("emailId", emailId);
         params.put("token", token);
-        return this.namedParameterJdbcTemplate.queryForObject("SELECT fpt.*, u.USERNAME FROM us_forgot_password_token fpt LEFT JOIN us_user u on fpt.USER_ID=u.USER_ID WHERE fpt.token=:token AND u.USERNAME=:username", params, new ForgotPasswordTokenRowMapper());
+        return this.namedParameterJdbcTemplate.queryForObject("SELECT fpt.*, u.USERNAME FROM us_forgot_password_token fpt LEFT JOIN us_user u on fpt.USER_ID=u.USER_ID WHERE fpt.token=:token AND u.EMAIL_ID=:emailId", params, new ForgotPasswordTokenRowMapper());
     }
 
     @Override
@@ -679,16 +679,16 @@ public class UserDaoImpl implements UserDao {
         params.put("username", username);
         params.put("token", token);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_TRIGGERED_DATE=:curDate WHERE u.USERNAME=:username AND fpt.TOKEN=:token", params);
+        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_TRIGGERED_DATE=:curDate WHERE u.EMAIL_ID=:username AND fpt.TOKEN=:token", params);
     }
 
     @Override
-    public void updateCompletionDateForForgotPasswordToken(String username, String token) {
+    public void updateCompletionDateForForgotPasswordToken(String emailId, String token) {
         Map<String, Object> params = new HashMap<>();
-        params.put("username", username);
+        params.put("emailId", emailId);
         params.put("token", token);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_COMPLETION_DATE=:curDate WHERE u.USERNAME=:username AND fpt.TOKEN=:token", params);
+        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_COMPLETION_DATE=:curDate WHERE u.EMAIL_ID=:emailId AND fpt.TOKEN=:token", params);
     }
 
     @Override
@@ -760,11 +760,11 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int updateSuncExpiresOn(String username) {
+    public int updateSuncExpiresOn(String emailId) {
         Map<String, Object> params = new HashMap<>();
-        params.put("username", username);
+        params.put("emailId", emailId);
         params.put("syncexpiresOn", DateUtils.getCurrentDateObject(DateUtils.EST));
-        return this.namedParameterJdbcTemplate.update("update us_user u set u.SYNC_EXPIRES_ON=:syncexpiresOn where u.USERNAME=:username;", params);
+        return this.namedParameterJdbcTemplate.update("update us_user u set u.SYNC_EXPIRES_ON=:syncexpiresOn where u.EMAIL_ID=:emailId;", params);
     }
 
 }

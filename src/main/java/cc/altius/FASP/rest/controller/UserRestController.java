@@ -194,7 +194,6 @@ public class UserRestController {
     public ResponseEntity addUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
         auditLogger.info("Adding new User " + user.toString(), request.getRemoteAddr(), curUser.getUsername());
-        System.out.println("user obj------------------------------" + user);
         try {
             PasswordEncoder encoder = new BCryptPasswordEncoder();
             String password = PassPhrase.getPassword();
@@ -204,7 +203,7 @@ public class UserRestController {
             if (msg.isEmpty()) {
                 int userId = this.userService.addNewUser(user, curUser.getUserId());
                 if (userId > 0) {
-                    String token = this.userService.generateTokenForUsername(user.getUsername(), 2);
+                    String token = this.userService.generateTokenForEmailId(user.getEmailId(), 2);
                     if (token == null || token.isEmpty()) {
                         auditLogger.info("Could not generate a Token for the new user");
                         return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -267,7 +266,7 @@ public class UserRestController {
             String hashPass = encoder.encode(password);
             int row = this.userService.unlockAccount(userId, hashPass);
             if (row > 0) {
-                String token = this.userService.generateTokenForUsername(user.getUsername(), 1);
+                String token = this.userService.generateTokenForEmailId(user.getEmailId(), 1);
                 if (token == null || token.isEmpty()) {
                     auditLogger.info("User could not be unlocked as Token could not be generated");
                     return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -291,10 +290,10 @@ public class UserRestController {
             if (password.getOldPassword().equals(password.getNewPassword())) {
                 return new ResponseEntity(new ResponseCode("static.message.passwordSame"), HttpStatus.PRECONDITION_FAILED);
             }
-            if (!this.userService.confirmPassword(password.getUsername(), password.getOldPassword().trim())) {
+            if (!this.userService.confirmPassword(password.getEmailId(), password.getOldPassword().trim())) {
                 return new ResponseEntity(new ResponseCode("static.message.incorrectPassword"), HttpStatus.FORBIDDEN);
             } else {
-                final CustomUserDetails userDetails = this.customUserDetailsService.loadUserByUsername(password.getUsername());
+                final CustomUserDetails userDetails = this.customUserDetailsService.loadUserByUsername(password.getEmailId());
                 PasswordEncoder encoder = new BCryptPasswordEncoder();
                 String hashPass = encoder.encode(password.getNewPassword());
                 password.setNewPassword(hashPass);
@@ -303,7 +302,7 @@ public class UserRestController {
                     userDetails.setSessionExpiresOn(sessionExpiryTime);
                     userDetails.setPassword(hashPass);
                     final String token = jwtTokenUtil.generateToken(userDetails);
-                    this.userService.updateSuncExpiresOn(password.getUsername());
+                    this.userService.updateSuncExpiresOn(password.getEmailId());
                     return ResponseEntity.ok(new JwtTokenResponse(token));
                 } else {
                     return new ResponseEntity(new ResponseCode("static.message.failedPasswordUpdate"), HttpStatus.PRECONDITION_FAILED);
@@ -318,7 +317,7 @@ public class UserRestController {
     public ResponseEntity changePassword(@RequestBody Password password) {
         try {
             User user = this.userService.getUserByUserId(password.getUserId());
-            if (!this.userService.confirmPassword(user.getUsername(), password.getOldPassword().trim())) {
+            if (!this.userService.confirmPassword(user.getEmailId(), password.getOldPassword().trim())) {
                 return new ResponseEntity(new ResponseCode("static.message.incorrectPassword"), HttpStatus.FORBIDDEN);
             } else {
                 PasswordEncoder encoder = new BCryptPasswordEncoder();
@@ -345,7 +344,7 @@ public class UserRestController {
             CustomUserDetails customUser = this.userService.getCustomUserByEmailId(user.getEmailId());
             if (customUser != null) {
                 if (customUser.isActive()) {
-                    String token = this.userService.generateTokenForUsername(customUser.getUsername(), 1);
+                    String token = this.userService.generateTokenForEmailId(user.getEmailId(), 1);
                     if (token == null || token.isEmpty()) {
                         auditLogger.info("Could not process request as Token could not be generated");
                         return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -372,14 +371,14 @@ public class UserRestController {
     @PostMapping("/confirmForgotPasswordToken")
     public ResponseEntity confirmForgotPasswordToken(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
-            ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getUsername(), user.getToken());
+            ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getEmailId(), user.getToken());
             auditLogger.info("Confirm forgot password has been triggered for Username:" + user.getUsername(), request.getRemoteAddr());
             if (fpt.isValidForTriggering()) {
-                this.userService.updateTriggeredDateForForgotPasswordToken(user.getUsername(), user.getToken());
+                this.userService.updateTriggeredDateForForgotPasswordToken(user.getEmailId(), user.getToken());
                 auditLogger.info("Token is valid and reset can proceed");
                 return new ResponseEntity(HttpStatus.OK);
             } else {
-                this.userService.updateCompletionDateForForgotPasswordToken(user.getUsername(), user.getToken());
+                this.userService.updateCompletionDateForForgotPasswordToken(user.getEmailId(), user.getToken());
                 auditLogger.info("Token is not valid or has expired");
                 return new ResponseEntity(new ResponseCode(fpt.inValidReasonForTriggering()), HttpStatus.FORBIDDEN);
             }
@@ -393,16 +392,16 @@ public class UserRestController {
     public ResponseEntity updatePaassword(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
             auditLogger.info("Update password triggered for Username: " + user.getUsername(), request.getRemoteAddr());
-            ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getUsername(), user.getToken());
+            ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getEmailId(), user.getToken());
             if (fpt.isValidForCompletion()) {
                 // Go ahead and reset the password
-                CustomUserDetails curUser = this.userService.getCustomUserByUsername(user.getUsername());
+                CustomUserDetails curUser = this.userService.getCustomUserByEmailId(user.getEmailId());
                 BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
                 if (bcrypt.matches(user.getPassword(), curUser.getPassword())) {
                     auditLogger.info("Failed to reset the password because New password is same as current password");
                     return new ResponseEntity(new ResponseCode("static.message.user.previousPasswordSame"), HttpStatus.PRECONDITION_FAILED);
                 } else {
-                    this.userService.updatePassword(user.getUsername(), user.getToken(), user.getHashPassword(), 90);
+                    this.userService.updatePassword(user.getEmailId(), user.getToken(), user.getHashPassword(), 90);
                     auditLogger.info("Password has now been updated successfully for Username: " + user.getUsername());
                     return new ResponseEntity(new ResponseCode("static.message.passwordSuccess"), HttpStatus.OK);
                 }
