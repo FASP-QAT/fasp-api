@@ -17,7 +17,6 @@ import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentBatchInfo;
-import cc.altius.FASP.model.ShipmentBudget;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.SupplyPlanBatchInfo;
@@ -47,7 +46,6 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -590,17 +588,17 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 tb.put("BATCH_SHIPMENT_QTY", b.getShipmentQty());
                 insertBatchList.add(new MapSqlParameterSource(tb));
             }
-            for (ShipmentBudget sb : s.getShipmentBudgetList()) {
-                Map<String, Object> tsb = new HashMap<>();
-                tsb.put("PARENT_ID", id);
-                tsb.put("SHIPMENT_BUDGET_ID", (sb.getShipmentBudgetId() == 0 ? null : sb.getShipmentBudgetId()));
-                tsb.put("BUDGET_ID", sb.getBudget().getId());
-                tsb.put("BUDGET_AMT", sb.getBudgetAmt());
-                tsb.put("CONVERSION_RATE_TO_USD", sb.getConversionRateToUsd());
-                tsb.put("CURRENCY_ID", sb.getCurrency().getCurrencyId());
-                tsb.put("ACTIVE", sb.isActive());
-                insertBudgetList.add(new MapSqlParameterSource(tsb));
-            }
+//            for (ShipmentBudget sb : s.getShipmentBudgetList()) {
+//                Map<String, Object> tsb = new HashMap<>();
+//                tsb.put("PARENT_ID", id);
+//                tsb.put("SHIPMENT_BUDGET_ID", (sb.getShipmentBudgetId() == 0 ? null : sb.getShipmentBudgetId()));
+//                tsb.put("BUDGET_ID", sb.getBudget().getId());
+//                tsb.put("BUDGET_AMT", sb.getBudgetAmt());
+//                tsb.put("CONVERSION_RATE_TO_USD", sb.getConversionRateToUsd());
+//                tsb.put("CURRENCY_ID", sb.getCurrency().getCurrencyId());
+//                tsb.put("ACTIVE", sb.isActive());
+//                insertBudgetList.add(new MapSqlParameterSource(tsb));
+//            }
             id++;
         }
 

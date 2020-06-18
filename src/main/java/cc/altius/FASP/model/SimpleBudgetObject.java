@@ -13,22 +13,22 @@ import java.io.Serializable;
  */
 public class SimpleBudgetObject extends SimpleObject implements Serializable {
 
-    private SimpleObject fundingSource;
+    private Currency currency;
 
     public SimpleBudgetObject() {
     }
 
-    public SimpleBudgetObject(Integer id, Label label, SimpleObject fundingSource) {
+    public SimpleBudgetObject(Integer id, Label label, Currency currency) {
         super(id, label);
-        this.fundingSource = fundingSource;
+        this.currency = currency;
     }
 
-    public SimpleObject getFundingSource() {
-        return fundingSource;
+    public Currency getCurrency() {
+        return currency;
     }
 
-    public void setFundingSource(SimpleObject fundingSource) {
-        this.fundingSource = fundingSource;
+    public void setCurrency(Currency currency) {
+        this.currency = currency;
     }
 
 }

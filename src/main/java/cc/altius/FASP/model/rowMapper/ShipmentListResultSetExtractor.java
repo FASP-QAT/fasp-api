@@ -8,7 +8,6 @@ package cc.altius.FASP.model.rowMapper;
 import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentBatchInfo;
-import cc.altius.FASP.model.ShipmentBudget;
 import cc.altius.FASP.model.SimpleBudgetObject;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleForecastingUnitObject;
@@ -53,6 +52,17 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             s.setExpectedDeliveryDate(rs.getDate("EXPECTED_DELIVERY_DATE"));
             s.setSuggestedQty(rs.getInt("SUGGESTED_QTY"));
             s.setProcurementAgent(new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, 1), rs.getString("PROCUREMENT_AGENT_CODE")));
+            s.setFundingSource(new SimpleObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, 1)));
+            s.setBudget(new SimpleBudgetObject(
+                    rs.getInt("BUDGET_ID"), 
+                    new LabelRowMapper("BUDGET_").mapRow(rs, 1), 
+                    new Currency(
+                            rs.getInt("BUDGET_CURRENCY_ID"),
+                            rs.getString("BUDGET_CURRENCY_CODE"),
+                            new LabelRowMapper("BUDGET_CURRENCY_").mapRow(rs, 1), 
+                            rs.getDouble("BUDGET_CURRENCY_CONVERSION_RATE_TO_USD")
+                    )
+            ));
             s.setProcurementUnit(new SimpleObject(rs.getInt("PROCUREMENT_UNIT_ID"), new LabelRowMapper("PROCUREMENT_UNIT_").mapRow(rs, 1)));
             s.setSupplier(new SimpleObject(rs.getInt("SUPPLIER_ID"), new LabelRowMapper("SUPPLIER_").mapRow(rs, 1)));
             s.setShipmentQty(rs.getInt("SHIPMENT_QTY"));
@@ -79,26 +89,6 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
                     rs.getDouble("SHIPMENT_CONVERSION_RATE_TO_USD")
             ));
             s.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
-            ShipmentBudget sb = new ShipmentBudget(
-                    rs.getInt("SHIPMENT_BUDGET_ID"),
-                    new SimpleBudgetObject(
-                            rs.getInt("BUDGET_ID"),
-                            new LabelRowMapper("BUDGET_").mapRow(rs, 1),
-                            new SimpleObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, 1))
-                    ),
-                    rs.getBoolean("SHIPMENT_BUDGET_ACTIVE"),
-                    rs.getDouble("BUDGET_AMT"),
-                    rs.getDouble("BUDGET_CONVERSION_RATE_TO_USD"),
-                    new Currency(
-                            rs.getInt("BUDGET_CURRENCY_ID"),
-                            rs.getString("BUDGET_CURRENCY_CODE"),
-                            new LabelRowMapper("BUDGET_CURRENCY_").mapRow(rs, 1),
-                            rs.getDouble("BUDGET_CONVERSION_RATE_TO_USD")
-                    )
-            );
-            if (s.getShipmentBudgetList().indexOf(sb) == -1) {
-                s.getShipmentBudgetList().add(sb);
-            }
             ShipmentBatchInfo sbi = new ShipmentBatchInfoRowMapper().mapRow(rs, 1);
             if (sbi != null && s.getBatchInfoList().indexOf(sbi) == -1) {
                 s.getBatchInfoList().add(sbi);
