@@ -64,7 +64,7 @@ public class BudgetDaoImpl implements BudgetDao {
             + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
             + "LEFT JOIN us_user cb ON b.CREATED_BY=cb.USER_ID "
             + "LEFT JOIN us_user lmb ON b.LAST_MODIFIED_BY=lmb.USER_ID "
-            + "LEFT JOIN (SELECT sb.BUDGET_ID, SUM(sb.BUDGET_AMT*sb.CONVERSION_RATE_TO_USD) `BUDGET_USD_AMT` FROM rm_shipment s LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID LEFT JOIN rm_shipment_budget sb ON s.SHIPMENT_ID=sb.SHIPMENT_ID AND s.MAX_VERSION_ID=sb.VERSION_ID WHERE st.ACTIVE AND st.SHIPMENT_STATUS_ID!=8 GROUP BY sb.BUDGET_ID) as ua ON ua.BUDGET_ID=b.BUDGET_ID "
+            + "LEFT JOIN (SELECT st.BUDGET_ID, SUM((st.PRODUCT_COST+st.FREIGHT_COST)*s.CONVERSION_RATE_TO_USD) `BUDGET_USD_AMT` FROM rm_shipment s LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID WHERE st.ACTIVE AND st.SHIPMENT_STATUS_ID!=8 GROUP BY st.BUDGET_ID) as ua ON ua.BUDGET_ID=b.BUDGET_ID "
             + "WHERE TRUE ";
 
     @Override
