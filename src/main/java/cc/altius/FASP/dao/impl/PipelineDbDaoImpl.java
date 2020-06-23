@@ -1340,7 +1340,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         List<QatTempShipment> pipelineShipments = this.getPipelineShipmentdataById(pipelineId, curUser);
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_shipment");
         si_trans = new SimpleJdbcInsert(dataSource).withTableName("rm_shipment_trans");
-        SimpleJdbcInsert si_shipment_budget = new SimpleJdbcInsert(dataSource).withTableName("rm_shipment_budget");
+//        SimpleJdbcInsert si_shipment_budget = new SimpleJdbcInsert(dataSource).withTableName("rm_shipment_budget");
         int ShipmentIds[] = new int[pipelineShipments.size()];
         int j = 0;
         for (QatTempShipment s : pipelineShipments) {
@@ -1349,13 +1349,13 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("CREATED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
             params.put("LAST_MODIFIED_BY", curUser.getUserId());
-            params.put("PROCUREMENT_AGENT_ID", s.getProcurementAgent());
-            params.put("ACCOUNT_FLAG", 1);
-            params.put("ERP_FLAG", 1);
+//            params.put("PROCUREMENT_AGENT_ID", s.getProcurementAgent());
+//            params.put("ACCOUNT_FLAG", 1);
+//            params.put("ERP_FLAG", 1);
             params.put("SUGGESTED_QTY", s.getSuggestedQty());
             params.put("CURRENCY_ID", 1);
             params.put("CONVERSION_RATE_TO_USD", 1);
-            params.put("EMERGENCY_ORDER", false);
+//            params.put("EMERGENCY_ORDER", false);
             params.put("ACTIVE", true);
             params.put("MAX_VERSION_ID", version.getVersionId());
             int result = si.execute(params);
@@ -1364,6 +1364,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("SHIPMENT_ID", shipmentId);
             params.put("EXPECTED_DELIVERY_DATE", s.getExpectedDeliveryDate());
             params.put("PLANNING_UNIT_ID", s.getPlanningUnit());
+            params.put("PROCUREMENT_AGENT_ID", s.getProcurementAgent());
             params.put("PROCUREMENT_UNIT_ID", s.getProcurementUnit());
             params.put("SUPPLIER_ID", s.getSupplier());
             params.put("SHIPMENT_QTY", s.getQuantity());
@@ -1377,13 +1378,16 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("SHIPMENT_STATUS_ID", s.getShipmentStatus());
             params.put("NOTES", s.getNotes());
             params.put("DATA_SOURCE_ID", s.getDataSource());
+            params.put("ACCOUNT_FLAG", 1);
+            params.put("ERP_FLAG", 1);
+            params.put("EMERGENCY_ORDER", false);
             params.put("ORDER_NO", null);
             params.put("PRIME_LINE_NO", null);
             params.put("ACTIVE", true);
             params.put("VERSION_ID", version.getVersionId());
 
-            rowsEffected = +si_trans.execute(params);
-            params.clear();
+            
+//            params.clear();
 
             params.put("SHIPMENT_ID", shipmentId);
             params.put("CREATED_DATE", curDate);
@@ -1402,7 +1406,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("CONVERSION_RATE_TO_USD", 1);
             params.put("VERSION_ID", version.getVersionId());
             params.put("ACTIVE", true);
-            result = si_shipment_budget.execute(params);
+            rowsEffected = +si_trans.execute(params);
+//            result = si_shipment_budget.execute(params);
             params.clear();
         }
         /**
