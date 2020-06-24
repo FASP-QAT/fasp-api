@@ -9,6 +9,7 @@ import cc.altius.FASP.model.Country;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.CountryService;
+import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -38,11 +39,13 @@ public class CountryRestController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     CountryService countryService;
+    @Autowired
+    private UserService userService;
 
     @GetMapping(value = "/country")
     public ResponseEntity getCountryList(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.countryService.getCountryList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
@@ -53,7 +56,7 @@ public class CountryRestController {
     @GetMapping(value = "/country/all")
     public ResponseEntity getCountryListAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.countryService.getCountryList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list all", e);
@@ -64,7 +67,7 @@ public class CountryRestController {
     @GetMapping(value = "/country/{countryId}")
     public ResponseEntity getCountryById(@PathVariable("countryId") int countryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.countryService.getCountryById(countryId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while getting country id=" + countryId, er);
@@ -78,7 +81,7 @@ public class CountryRestController {
     @PostMapping(value = "/country")
     public ResponseEntity addCountry(@RequestBody(required = true) Country country, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             int countryId = this.countryService.addCountry(country, curUser);
             if (countryId > 0) {
                 return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
@@ -99,7 +102,7 @@ public class CountryRestController {
     @PutMapping(value = "/country")
     public ResponseEntity editCountry(@RequestBody(required = true) Country country, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             int updatedId = this.countryService.updateCountry(country, curUser);
             if (updatedId > 0) {
                 return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);

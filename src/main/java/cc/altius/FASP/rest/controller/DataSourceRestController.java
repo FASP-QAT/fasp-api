@@ -9,6 +9,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DataSource;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.DataSourceService;
+import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -40,11 +41,13 @@ public class DataSourceRestController {
 
     @Autowired
     private DataSourceService dataSourceService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping(value = "/dataSource")
     public ResponseEntity addDataSource(@RequestBody DataSource dataSource, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.dataSourceService.addDataSource(dataSource, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -62,7 +65,7 @@ public class DataSourceRestController {
     @GetMapping(value = "/dataSource")
     public ResponseEntity getDataSourceList(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.dataSourceService.getDataSourceList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get DataSource list", e);
@@ -73,7 +76,7 @@ public class DataSourceRestController {
     @GetMapping(value = "/dataSource/all")
     public ResponseEntity getDataSourceListAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.dataSourceService.getDataSourceList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get DataSource list", e);
@@ -84,7 +87,7 @@ public class DataSourceRestController {
     @GetMapping(value = "/dataSource/{dataSourceId}")
     public ResponseEntity getDataSourceListAll(@PathVariable("dataSourceId") int dataSourceId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.dataSourceService.getDataSourceById(dataSourceId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get DataSource list", e);
@@ -101,7 +104,7 @@ public class DataSourceRestController {
     @GetMapping(value = "/dataSource/realmId/{realmId}/programId/{programId}")
     public ResponseEntity getDataSourceListForRealmIdProgramId(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.dataSourceService.getDataSourceForRealmAndProgram(realmId, programId, true, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get DataSource list", e);
@@ -118,7 +121,7 @@ public class DataSourceRestController {
     @GetMapping(value = "/dataSource/dataSourceTypeId/{dataSourceTypeId}")
     public ResponseEntity getDataSourceListForDataSourceTypeId(@PathVariable("dataSourceTypeId") int dataSourceTypeId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.dataSourceService.getDataSourceForDataSourceType(dataSourceTypeId, true, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get DataSource list", e);
@@ -135,7 +138,7 @@ public class DataSourceRestController {
     @PutMapping(value = "/dataSource")
     public ResponseEntity editDataSource(@RequestBody DataSource dataSource, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.dataSourceService.updateDataSource(dataSource, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -155,7 +158,7 @@ public class DataSourceRestController {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.dataSourceService.getDataSourceListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing dataSource", p);

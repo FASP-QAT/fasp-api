@@ -14,6 +14,7 @@ import cc.altius.FASP.model.pipeline.QatTempInventory;
 import cc.altius.FASP.model.pipeline.QatTempProgramPlanningUnit;
 import cc.altius.FASP.model.pipeline.QatTempShipment;
 import cc.altius.FASP.service.PipelineDbService;
+import cc.altius.FASP.service.UserService;
 import java.io.IOException;
 import java.util.Arrays;
 import static jxl.biff.BaseCellFeatures.logger;
@@ -41,10 +42,12 @@ public class PipelineDbRestController {
 
     @Autowired
     private PipelineDbService pipelineDbService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping(path = "/pipelineJson/{fileName}")
     public ResponseEntity postOrganisation(@RequestBody Pipeline pipeline,@PathVariable("fileName") String fileName, Authentication auth) throws IOException {
-        CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+        CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
         try {
             return new ResponseEntity(this.pipelineDbService.savePipelineDbData(pipeline, curUser,fileName), HttpStatus.OK);
         } catch (Exception e) {
@@ -56,7 +59,7 @@ public class PipelineDbRestController {
     @GetMapping("/pipeline")
     public ResponseEntity getPipelineProgramList(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.pipelineDbService.getPipelineProgramList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Program list", e);
@@ -67,7 +70,7 @@ public class PipelineDbRestController {
     @GetMapping("/pipeline/programInfo/{pipelineId}")
     public ResponseEntity getProgramInfo(@PathVariable("pipelineId") int pipelineId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.pipelineDbService.getPipelineProgramInfoById(pipelineId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException erda) {
             logger.error("Error while trying to get program data Id=" + pipelineId, erda);
@@ -84,7 +87,7 @@ public class PipelineDbRestController {
     @GetMapping("/pipeline/shipment/{pipelineId}")
     public ResponseEntity getPipelineShipmentdata(@PathVariable("pipelineId") int pipelineId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.pipelineDbService.getPipelineShipmentdataById(pipelineId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException erda) {
             logger.error("Error while trying to get program data Id=" + pipelineId, erda);
@@ -101,7 +104,7 @@ public class PipelineDbRestController {
     @PostMapping(path = "/qatTemp/program/{pipelineId}")
     public ResponseEntity postQatTempProgram(@RequestBody Program program, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.pipelineDbService.addQatTempProgram(program, curUser, pipelineId);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -116,7 +119,7 @@ public class PipelineDbRestController {
     @GetMapping(path = "/qatTemp/program/{pipelineId}")
     public ResponseEntity getQatTempProgram(Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.pipelineDbService.getQatTempProgram(curUser, pipelineId), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Program", ae);
@@ -130,7 +133,7 @@ public class PipelineDbRestController {
     @GetMapping("/pipeline/product/{pipelineId}")
     public ResponseEntity getPlanningUnit(Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.pipelineDbService.getPipelineProductListById(curUser, pipelineId), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -141,7 +144,7 @@ public class PipelineDbRestController {
     @PutMapping("/pipeline/planningUnit/{pipelineId}")
     public ResponseEntity savePlanningUnitForProgram(@RequestBody QatTempProgramPlanningUnit[] ppu, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.pipelineDbService.saveQatTempProgramPlanningUnit(ppu, curUser, pipelineId);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -156,7 +159,7 @@ public class PipelineDbRestController {
     @GetMapping("/qatTemp/planningUnitList/{pipelineId}")
     public ResponseEntity getQatTempPlanningUnitList(Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.pipelineDbService.getQatTempPlanningUnitListByPipelienId(pipelineId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -167,7 +170,7 @@ public class PipelineDbRestController {
     @GetMapping("/pipeline/consumption/{pipelineId}")
     public ResponseEntity getPlanningProgramConsumption(Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.pipelineDbService.getPipelineConsumptionById(curUser, pipelineId), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -178,7 +181,7 @@ public class PipelineDbRestController {
     @GetMapping("/qatTem/regions/{pipelineId}")
     public ResponseEntity getQatTempProgramRegion(Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.pipelineDbService.getQatTempRegionsById(curUser, pipelineId), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -189,7 +192,7 @@ public class PipelineDbRestController {
     @PutMapping("/pipeline/consumption/{pipelineId}")
     public ResponseEntity saveConsumptionForProgram(@RequestBody QatTempConsumption[] ppu, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.pipelineDbService.saveQatTempConsumption(ppu, curUser, pipelineId);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -204,7 +207,7 @@ public class PipelineDbRestController {
     @GetMapping("/qatTemp/consumption/{pipelineId}")
     public ResponseEntity getQatTempConsumptionList(Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.pipelineDbService.getQatTempConsumptionListByPipelienId(pipelineId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -214,7 +217,7 @@ public class PipelineDbRestController {
 
     @PostMapping(path = "/pipeline/shipment/{pipelineId}")
     public ResponseEntity saveShipmentData(@PathVariable("pipelineId") int pipelineId, @RequestBody QatTempShipment[] shipments, Authentication auth) throws IOException {
-        CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+        CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
         try {
             System.out.println("shipments-------->"+Arrays.toString(shipments));
             return new ResponseEntity(this.pipelineDbService.saveShipmentData(pipelineId, shipments, curUser), HttpStatus.OK);
@@ -226,7 +229,7 @@ public class PipelineDbRestController {
 
     @PostMapping(path = "/pipeline/programdata/{pipelineId}")
     public ResponseEntity finalSaveProgramData(@PathVariable("pipelineId") int pipelineId, Authentication auth) throws IOException {
-        CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+        CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
         try {
             return new ResponseEntity(this.pipelineDbService.finalSaveProgramData(pipelineId, curUser), HttpStatus.OK);
         } catch (Exception e) {
@@ -238,7 +241,7 @@ public class PipelineDbRestController {
     @GetMapping("/pipeline/inventory/{pipelineId}")
     public ResponseEntity getPipelineProgramInventory(Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.pipelineDbService.getPipelineInventoryById(curUser, pipelineId), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
@@ -249,7 +252,7 @@ public class PipelineDbRestController {
     @PutMapping("/pipeline/inventory/{pipelineId}")
     public ResponseEntity saveInventoryForProgram(@RequestBody QatTempInventory[] ppu, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.pipelineDbService.saveQatTempInventory(ppu, curUser, pipelineId);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -264,7 +267,7 @@ public class PipelineDbRestController {
     @GetMapping("/qatTemp/planningUnitListFinalInventry/{pipelineId}")
     public ResponseEntity getQatTempPlanningUnitListInventoryCount(Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.pipelineDbService.getQatTempPlanningUnitListInventoryCount(pipelineId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);

@@ -9,6 +9,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Language;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.LanguageService;
+import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -39,6 +40,8 @@ public class LanguageRestController {
 
     @Autowired
     private LanguageService languageService;
+    @Autowired
+    private UserService userService;
 
     @GetMapping("/locales/{languageCode}")
     ResponseEntity getLanguageJson(@PathVariable("languageCode") String languageCode) {
@@ -48,7 +51,7 @@ public class LanguageRestController {
     @GetMapping(value = "/language")
     public ResponseEntity getLanguageList(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.languageService.getLanguageList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting language list", e);
@@ -59,7 +62,7 @@ public class LanguageRestController {
     @GetMapping(value = "/language/all")
     public ResponseEntity getLanguageListAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.languageService.getLanguageList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting language list", e);
@@ -70,7 +73,7 @@ public class LanguageRestController {
     @GetMapping(value = "/language/{languageId}")
     public ResponseEntity getLanguageById(@PathVariable("languageId") int languageId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.languageService.getLanguageById(languageId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while getting languageId=" + languageId, er);
@@ -84,7 +87,7 @@ public class LanguageRestController {
     @PostMapping(value = "/language")
     public ResponseEntity addLanguage(@RequestBody(required = true) Language language, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             int languageId = this.languageService.addLanguage(language, curUser);
             if (languageId > 0) {
                 return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
@@ -105,7 +108,7 @@ public class LanguageRestController {
     @PutMapping(value = "/language")
     public ResponseEntity editLanguage(@RequestBody(required = true) Language language, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             int updatedId = this.languageService.editLanguage(language, curUser);
             if (updatedId > 0) {
                 return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);

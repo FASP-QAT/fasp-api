@@ -26,7 +26,8 @@ public class ProgramPlanningUnitRowMapper implements RowMapper<ProgramPlanningUn
                 rs.getInt("REORDER_FREQUENCY_IN_MONTHS"),
                 rs.getInt("MIN_MONTHS_OF_STOCK"),
                 rs.getDouble("LOCAL_PROCUREMENT_LEAD_TIME"),
-                rs.getBoolean("BATCH_NO_REQUIRED")
+                rs.getInt("SHELF_LIFE"),
+                rs.getDouble("CATALOG_PRICE")
         );
         ppu.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return ppu;

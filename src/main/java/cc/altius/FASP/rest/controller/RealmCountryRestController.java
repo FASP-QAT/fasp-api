@@ -11,6 +11,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.RealmCountryService;
+import cc.altius.FASP.service.UserService;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -43,11 +44,13 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
 
     @Autowired
     private RealmCountryService realmCountryService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping(path = "/realmCountry")
     public ResponseEntity postRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.realmCountryService.addRealmCountry(realmCountryList, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -62,7 +65,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @PutMapping(path = "/realmCountry")
     public ResponseEntity putRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.realmCountryService.updateRealmCountry(realmCountryList, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -77,7 +80,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @GetMapping("/realmCountry")
     public ResponseEntity getRealmCountry(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.realmCountryService.getRealmCountryList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list RealmCountry", e);
@@ -88,7 +91,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @GetMapping("/realmCountry/{realmCountryId}")
     public ResponseEntity getRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.realmCountryService.getRealmCountryById(realmCountryId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list RealmCountry", e);
@@ -105,7 +108,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @GetMapping("/realmCountry/realmId/{realmId}")
     public ResponseEntity getRealmCountryByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.realmCountryService.getRealmCountryListByRealmId(realmId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list RealmCountry", e);
@@ -122,7 +125,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @GetMapping("/realmCountry/{realmCountryId}/planningUnit")
     public ResponseEntity getPlanningUnitForCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.realmCountryService.getPlanningUnitListForRealmCountryId(realmCountryId, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit for Country", e);
@@ -139,7 +142,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @GetMapping("/realmCountry/{realmCountryId}/planningUnit/all")
     public ResponseEntity getPlanningUnitForCountryAll(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.realmCountryService.getPlanningUnitListForRealmCountryId(realmCountryId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit for Country", e);
@@ -156,7 +159,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @PutMapping("/realmCountry/planningUnit")
     public ResponseEntity savePlanningUnitForCountry(@RequestBody RealmCountryPlanningUnit[] realmCountryPlanningUnits, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.realmCountryService.savePlanningUnitForCountry(realmCountryPlanningUnits, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -171,7 +174,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @GetMapping("/realmCountry/program/realmId/{realmId}")
     public ResponseEntity getRealmCountryByRealmIdForActivePrograms(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.realmCountryService.getRealmCountryListByRealmIdForActivePrograms(realmId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list RealmCountry", e);
@@ -188,7 +191,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @GetMapping("/realmCountry/program")
     public ResponseEntity getRealmCountryForActivePrograms(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             if (curUser.getRealm().getRealmId() == -1) {
                 logger.error("A User with access to multiple Realms tried to access a RealmCountry Program list without specifying a Realm");
                 return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
@@ -211,7 +214,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.realmCountryService.getRealmCountryListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing realmCountry", p);
@@ -227,7 +230,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.realmCountryService.getRealmCountryPlanningUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing realmCountryPlanningUnit", p);

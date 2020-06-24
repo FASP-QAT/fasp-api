@@ -87,7 +87,8 @@ public class JwtTokenUtil implements Serializable {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userDetails.getUserId());
         claims.put("user", userDetails);
-        return doGenerateToken(claims, userDetails.getUsername());
+//        return doGenerateToken(claims, userDetails.getUsername());
+        return doGenerateToken(claims, userDetails.getEmailId());
     }
 
     private String doGenerateToken(Map<String, Object> claims, String subject) {
@@ -116,7 +117,7 @@ public class JwtTokenUtil implements Serializable {
     public Boolean validateToken(String token, CustomUserDetails userDetails) {
         CustomUserDetails user = userDetails;
         final String username = getUsernameFromToken(token);
-        return (username.equals(user.getUsername()) && !isTokenExpired(token) && !isTokenLogout(token));
+        return (username.equals(user.getEmailId()) && !isTokenExpired(token) && !isTokenLogout(token));
     }
 
     private Date calculateExpirationDate(Date createdDate) {

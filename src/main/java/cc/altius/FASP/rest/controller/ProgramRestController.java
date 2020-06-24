@@ -11,6 +11,7 @@ import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.ProgramService;
+import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -41,11 +42,13 @@ public class ProgramRestController {
 
     @Autowired
     private ProgramService programService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping(path = "/program")
     public ResponseEntity postProgram(@RequestBody Program program, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.programService.addProgram(program, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -60,7 +63,7 @@ public class ProgramRestController {
     @PutMapping(path = "/program")
     public ResponseEntity putProgram(@RequestBody Program program, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.programService.updateProgram(program, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
@@ -78,7 +81,7 @@ public class ProgramRestController {
     @PostMapping("/program/programIds")
     public ResponseEntity getProgram(@RequestBody String[] programIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getProgramListForProgramIds(programIds, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
@@ -89,7 +92,7 @@ public class ProgramRestController {
     @GetMapping("/program")
     public ResponseEntity getProgram(Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getProgramList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
@@ -100,7 +103,7 @@ public class ProgramRestController {
     @GetMapping("/program/{programId}/planningUnit")
     public ResponseEntity getPlanningUnitForProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getPlanningUnitListForProgramId(programId, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit for Program", e);
@@ -117,7 +120,7 @@ public class ProgramRestController {
     @GetMapping("/program/{programId}/planningUnit/all")
     public ResponseEntity getPlanningUnitForProgramAll(@PathVariable("programId") int programId, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getPlanningUnitListForProgramId(programId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit for Program", e);
@@ -134,7 +137,7 @@ public class ProgramRestController {
     @PutMapping("/program/planningUnit")
     public ResponseEntity savePlanningUnitForProgram(@RequestBody ProgramPlanningUnit[] ppu, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.programService.saveProgramPlanningUnit(ppu, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -149,7 +152,7 @@ public class ProgramRestController {
     @GetMapping("/program/realmId/{realmId}")
     public ResponseEntity getProgramForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getProgramList(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Program", e);
@@ -166,7 +169,7 @@ public class ProgramRestController {
     @GetMapping("/program/{programId}")
     public ResponseEntity getProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getProgramById(programId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list Program", e);
@@ -185,7 +188,7 @@ public class ProgramRestController {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getProgramListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing program", p);
@@ -201,7 +204,7 @@ public class ProgramRestController {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getProgramPlanningUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing program planning unit", p);
@@ -215,7 +218,7 @@ public class ProgramRestController {
     @GetMapping("/program/{programId}/{productCategory}/planningUnit/all")
     public ResponseEntity getPlanningUnitForProgramAndProductCategory(@PathVariable("programId") int programId, @PathVariable("productCategory") int productCategoryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getPlanningUnitListForProgramAndCategoryId(programId, productCategoryId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit for Program", e);
@@ -232,7 +235,7 @@ public class ProgramRestController {
     @PostMapping(path = "/program/initialize")
     public ResponseEntity postProgramInitialize(@RequestBody ProgramInitialize program, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.programService.addProgramInitialize(program, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {

@@ -22,6 +22,8 @@ public interface UserService {
     public CustomUserDetails getCustomUserByUsername(String username);
 
     public CustomUserDetails getCustomUserByEmailId(String emailId);
+    
+    public CustomUserDetails getCustomUserByUserId(int userId);
 
     public Map<String, Object> checkIfUserExists(String username, String password);
 
@@ -51,7 +53,7 @@ public interface UserService {
 
     public int updatePassword(int userId, String newPassword, int offset);
 
-    public int updatePassword(String username, String token, String newPassword, int offset);
+    public int updatePassword(String emailId, String token, String newPassword, int offset);
 
     public boolean confirmPassword(String username, String password);
 
@@ -59,13 +61,13 @@ public interface UserService {
 
     public int updateRole(Role role, CustomUserDetails curUser);
 
-    public String generateTokenForUsername(String username, int emailTemplateId);
+    public String generateTokenForEmailId(String emailId, int emailTemplateId);
 
-    public ForgotPasswordToken getForgotPasswordToken(String username, String token);
+    public ForgotPasswordToken getForgotPasswordToken(String emailId, String token);
 
     public void updateTriggeredDateForForgotPasswordToken(String username, String token);
 
-    public void updateCompletionDateForForgotPasswordToken(String username, String token);
+    public void updateCompletionDateForForgotPasswordToken(String emailId, String token);
 
     public boolean isTokenLogout(String token);
 
@@ -73,6 +75,6 @@ public interface UserService {
 
     public int mapAccessControls(User user, CustomUserDetails curUser);
 
-    public int updateSuncExpiresOn(String username);
+    public int updateSuncExpiresOn(String emailId);
 
 }

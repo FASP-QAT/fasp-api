@@ -8,6 +8,7 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.ShipmentStatusService;
+import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -32,14 +33,16 @@ public class ShipmentStatusRestController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    ShipmentStatusService shipmentStatusService;
+    private ShipmentStatusService shipmentStatusService;
+    @Autowired
+    private UserService userService;
 
     @GetMapping(value = "/sync/shipmentStatus/{lastSyncDate}")
     public ResponseEntity getShipmentStatusListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.shipmentStatusService.getShipmentStatusListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing Shipment status", p);

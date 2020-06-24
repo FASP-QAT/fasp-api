@@ -15,6 +15,7 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
  *
@@ -40,6 +41,7 @@ public class UserResultSetExtractor implements ResultSetExtractor<User> {
                 user.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 user.setRoleList(new LinkedList<>());
                 user.setUserAclList(new LinkedList<>());
+                user.setBusinessFunctionList(new LinkedList<>());
             }
             Role r = new Role(rs.getString("ROLE_ID"), new LabelRowMapper("ROLE_").mapRow(rs, 1));
             if (user.getRoleList().indexOf(r) == -1) {
@@ -55,6 +57,10 @@ public class UserResultSetExtractor implements ResultSetExtractor<User> {
                 if (user.getUserAclList().indexOf(acl) == -1) {
                     user.getUserAclList().add(acl);
                 }
+            }
+            String bf = new String(rs.getString("BUSINESS_FUNCTION_ID"));
+            if (user.getBusinessFunctionList().indexOf(bf) == -1) {
+                user.getBusinessFunctionList().add(bf);
             }
             isFirst = false;
         }

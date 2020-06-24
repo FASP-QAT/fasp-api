@@ -66,7 +66,6 @@ public class ExportSupplyPlanController {
         Emailer emailer = new Emailer();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
         String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
-        System.out.println(date);
         try {
 
             String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMD);
