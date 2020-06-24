@@ -83,7 +83,7 @@ public class OrganisationRestController {
     @GetMapping("/organisation")
     public ResponseEntity getOrganisation(Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.organisationService.getOrganisationList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Organisation list", e);
@@ -94,7 +94,7 @@ public class OrganisationRestController {
     @GetMapping("/organisation/realmId/{realmId}")
     public ResponseEntity getOrganisationByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.organisationService.getOrganisationListByRealmId(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Organisation list", e);
@@ -111,7 +111,7 @@ public class OrganisationRestController {
     @GetMapping("/organisation/{organisationId}")
     public ResponseEntity getOrganisation(@PathVariable("organisationId") int organisationId, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.organisationService.getOrganisationById(organisationId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Organisation list", er);

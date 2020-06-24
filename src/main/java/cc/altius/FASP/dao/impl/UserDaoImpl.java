@@ -16,6 +16,7 @@ import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.rowMapper.BusinessFunctionRowMapper;
 import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractorBasic;
+import cc.altius.FASP.model.rowMapper.CustomUserDetailsResultSetExtractorFull;
 import cc.altius.FASP.model.rowMapper.EmailUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ForgotPasswordTokenRowMapper;
 import cc.altius.FASP.model.rowMapper.RoleListResultSetExtractor;
@@ -190,7 +191,7 @@ public class UserDaoImpl implements UserDao {
         try {
             Map<String, Object> params = new HashMap<>();
             params.put("userId", userId);
-            CustomUserDetails user = this.namedParameterJdbcTemplate.query(sqlString, params, new CustomUserDetailsResultSetExtractorBasic());
+            CustomUserDetails user = this.namedParameterJdbcTemplate.query(sqlString, params, new CustomUserDetailsResultSetExtractorFull());
             return user;
         } catch (Exception e) {
             e.printStackTrace();

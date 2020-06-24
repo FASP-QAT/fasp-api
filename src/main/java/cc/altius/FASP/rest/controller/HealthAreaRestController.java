@@ -61,7 +61,7 @@ public class HealthAreaRestController {
     @PutMapping(path = "/healthArea")
     public ResponseEntity putHealhArea(@RequestBody HealthArea healthArea, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.healthAreaService.updateHealthArea(healthArea, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -76,7 +76,7 @@ public class HealthAreaRestController {
     @GetMapping("/healthArea")
     public ResponseEntity getHealthArea(Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.healthAreaService.getHealthAreaList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Health Area list", e);
@@ -87,7 +87,7 @@ public class HealthAreaRestController {
     @GetMapping("/healthArea/realmId/{realmId}")
     public ResponseEntity getHealthAreaByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.healthAreaService.getHealthAreaListByRealmId(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Health Area list", e);
@@ -104,7 +104,7 @@ public class HealthAreaRestController {
     @GetMapping("/healthArea/{healthAreaId}")
     public ResponseEntity getHealthArea(@PathVariable("healthAreaId") int healthAreaId, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.healthAreaService.getHealthAreaById(healthAreaId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Health Area list", er);
@@ -121,7 +121,7 @@ public class HealthAreaRestController {
     @GetMapping("/healthArea/program")
     public ResponseEntity getHealthAreaByForProgram(Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             if(curUser.getRealm().getRealmId()==-1) {
                 logger.error("A User with access to multiple Realms tried to access a HealthArea Program list without specifying a Realm");
                 return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
@@ -141,7 +141,7 @@ public class HealthAreaRestController {
     @GetMapping("/healthArea/program/realmId/{realmId}")
     public ResponseEntity getHealthAreaForProgramByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.healthAreaService.getHealthAreaListForProgramByRealmId(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Health Area list", e);

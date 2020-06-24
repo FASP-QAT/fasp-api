@@ -19,19 +19,21 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
     private int reorderFrequencyInMonths;
     private int minMonthsOfStock;
     private double localProcurementLeadTime;
-    private boolean batchNoRequired;
+    private int shelfLife;
+    private double catalogPrice;
 
     public ProgramPlanningUnit() {
     }
 
-    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, int reorderFrequencyInMonths, int minMonthsOfStock, double localProcurementLeadTime, boolean batchNoRequired) {
+    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, int reorderFrequencyInMonths, int minMonthsOfStock, double localProcurementLeadTime, int shelfLife, double catalogPrice) {
         this.programPlanningUnitId = programPlanningUnitId;
         this.program = program;
         this.planningUnit = planningUnit;
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
         this.minMonthsOfStock = minMonthsOfStock;
         this.localProcurementLeadTime = localProcurementLeadTime;
-        this.batchNoRequired = batchNoRequired;
+        this.shelfLife = shelfLife;
+        this.catalogPrice = catalogPrice;
     }
 
     public int getProgramPlanningUnitId() {
@@ -82,12 +84,20 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
         this.localProcurementLeadTime = localProcurementLeadTime;
     }
 
-    public boolean isBatchNoRequired() {
-        return batchNoRequired;
+    public int getShelfLife() {
+        return shelfLife;
     }
 
-    public void setBatchNoRequired(boolean batchNoRequired) {
-        this.batchNoRequired = batchNoRequired;
+    public void setShelfLife(int shelfLife) {
+        this.shelfLife = shelfLife;
+    }
+
+    public double getCatalogPrice() {
+        return catalogPrice;
+    }
+
+    public void setCatalogPrice(double catalogPrice) {
+        this.catalogPrice = catalogPrice;
     }
 
     @Override
