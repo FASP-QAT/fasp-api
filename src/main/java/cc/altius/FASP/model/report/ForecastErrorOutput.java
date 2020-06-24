@@ -26,7 +26,7 @@ public class ForecastErrorOutput implements Serializable {
     private double actualConsumption;
     private double forecastError;
     private int monthsInCalc;
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM-yyyy");
+    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM yy");
 
     public ForecastErrorOutput() {
     }
