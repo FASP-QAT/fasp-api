@@ -764,7 +764,9 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "p.REORDER_FREQUENCY_IN_MONTHS, "
                 + "p.MIN_MONTHS_OF_STOCK, "
                 + "fu.PRODUCT_CATEGORY_ID,  "
-                + " p.LOCAL_PROCUREMENT_LEAD_TIME "
+                + " p.LOCAL_PROCUREMENT_LEAD_TIME, "
+                + " p.SHELF_LIFE, "
+                + " p.CATALOG_PRICE "
                 + "FROM fasp.qat_temp_program_planning_unit p  "
                 + "left join adb_product ap on ap.ProductID=p.PIPELINE_PRODUCT_ID and ap.PIPELINE_ID=:pipelineId "
                 + "left join adb_method m on m.MethodID=ap.MethodID and m.PIPELINE_ID=:pipelineId "
@@ -782,7 +784,9 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "if(pu.PLANNING_UNIT_ID IS NULL,p.ProductName,pu.PLANNING_UNIT_ID) as PLANNING_UNIT_ID, "
                     + "if(fu.FORECASTING_UNIT_ID IS NULL,'',fu.PRODUCT_CATEGORY_ID) as PRODUCT_CATEGORY_ID, "
                     + " '' as REORDER_FREQUENCY_IN_MONTHS, "
-                    + " '' as LOCAL_PROCUREMENT_LEAD_TIME "
+                    + " '' as LOCAL_PROCUREMENT_LEAD_TIME, "
+                    + " '' as SHELF_LIFE, "
+                    + " '' as CATALOG_PRICE "
                     + "FROM fasp.adb_product p "
                     + "left join adb_method m on m.MethodID=p.MethodID and m.PIPELINE_ID=:pipelineId "
                     + "left join ap_label al on al.LABEL_EN=p.ProductName OR al.LABEL_FR=p.ProductName "
@@ -943,6 +947,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("PIPELINE_ID", pipelineId);
             params.put("PIPELINE_PRODUCT_ID", ppu.getProgramPlanningUnitId());
             params.put("LOCAL_PROCUREMENT_LEAD_TIME", ppu.getLocalProcurmentLeadTime());
+            params.put("SHELF_LIFE", ppu.getShelfLife());
+            params.put("CATALOG_PRICE", ppu.getCatalogPrice());
             insertList.add(new MapSqlParameterSource(params));
 
         }
@@ -1258,7 +1264,9 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("REORDER_FREQUENCY_IN_MONTHS", ppu.getReorderFrequencyInMonths());
             params.put("MIN_MONTHS_OF_STOCK", ppu.getMinMonthsOfStock());
             params.put("LOCAL_PROCUREMENT_LEAD_TIME", ppu.getLocalProcurmentLeadTime()); //ppu.getLocalProcurementLeadTime());
-            params.put("BATCH_NO_REQUIRED", 0);
+//            params.put("BATCH_NO_REQUIRED", 0);
+            params.put("SHELF_LIFE", ppu.getShelfLife());
+            params.put("CATALOG_PRICE",ppu.getCatalogPrice());
             params.put("CREATED_DATE", curDate);
             params.put("CREATED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
