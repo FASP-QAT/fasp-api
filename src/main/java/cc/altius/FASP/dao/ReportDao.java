@@ -16,6 +16,8 @@ import cc.altius.FASP.model.report.ForecastMetricsOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
+import cc.altius.FASP.model.report.StockAdjustmentListInput;
+import cc.altius.FASP.model.report.StockAdjustmentListOutput;
 import cc.altius.FASP.model.report.StockOverTimeInput;
 import cc.altius.FASP.model.report.StockOverTimeOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
@@ -45,4 +47,6 @@ public interface ReportDao {
     public List<CostOfInventoryOutput> getCostOfInventory(CostOfInventoryInput cii, CustomUserDetails curUser);
     
     public List<InventoryTurnsOutput> getInventoryTurns(CostOfInventoryInput it, CustomUserDetails curUser);
+    
+    public List<StockAdjustmentListOutput> getStockAdjustment(StockAdjustmentListInput si, CustomUserDetails curUser);
 }

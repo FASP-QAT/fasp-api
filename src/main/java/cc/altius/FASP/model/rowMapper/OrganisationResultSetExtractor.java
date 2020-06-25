@@ -7,7 +7,6 @@ package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.Country;
 import cc.altius.FASP.model.Organisation;
-import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.SimpleCodeObject;
 import java.sql.ResultSet;
@@ -35,11 +34,14 @@ public class OrganisationResultSetExtractor implements ResultSetExtractor<Organi
                 o.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 o.setRealmCountryList(new LinkedList<>());
             }
-            RealmCountry rc = new RealmCountry();
-            rc.setRealmCountryId(rs.getInt("REALM_COUNTRY_ID"));
-            rc.setCountry(new Country(rs.getInt("COUNTRY_ID"), new LabelRowMapper("COUNTRY_").mapRow(rs, 1)));
-            if (o.getRealmCountryList().indexOf(rc) == -1) {
-                o.getRealmCountryList().add(rc);
+            int realmCountryId = rs.getInt("REALM_COUNTRY_ID");
+            if (!rs.wasNull()) {
+                RealmCountry rc = new RealmCountry();
+                rc.setRealmCountryId(realmCountryId);
+                rc.setCountry(new Country(rs.getInt("COUNTRY_ID"), new LabelRowMapper("COUNTRY_").mapRow(rs, 1)));
+                if (o.getRealmCountryList().indexOf(rc) == -1) {
+                    o.getRealmCountryList().add(rc);
+                }
             }
             isFirst = false;
         }
