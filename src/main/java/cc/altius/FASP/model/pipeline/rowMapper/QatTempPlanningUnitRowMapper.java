@@ -30,6 +30,8 @@ public class QatTempPlanningUnitRowMapper implements RowMapper<QatTempProgramPla
         p.setPipelineProductCategoryName(rs.getString("PIPELINE_PRODUCT_CATEGORY"));
         p.setPipelineProductName(rs.getString("PIPELINE_PRODUCT_NAME"));
         p.setLocalProcurmentLeadTime(rs.getDouble("LOCAL_PROCUREMENT_LEAD_TIME"));
+        p.setShelfLife(rs.getInt("SHELF_LIFE"));
+        p.setCatalogPrice(rs.getDouble("CATALOG_PRICE"));
         return p;
     }
 
