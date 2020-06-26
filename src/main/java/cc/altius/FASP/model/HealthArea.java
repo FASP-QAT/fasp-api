@@ -18,6 +18,7 @@ public class HealthArea extends BaseModel implements Serializable {
     private int healthAreaId;
     private SimpleCodeObject realm;
     private Label label;
+    private String healthAreaCode;
     @JsonIgnore
     List<RealmCountry> realmCountryList;
     String[] realmCountryArray;
@@ -30,10 +31,11 @@ public class HealthArea extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public HealthArea(int healthAreaId, SimpleCodeObject realm, Label label) {
+    public HealthArea(int healthAreaId, SimpleCodeObject realm, Label label, String healthAreaCode) {
         this.healthAreaId = healthAreaId;
         this.realm = realm;
         this.label = label;
+        this.healthAreaCode = healthAreaCode;
     }
 
     public int getHealthAreaId() {
@@ -74,6 +76,14 @@ public class HealthArea extends BaseModel implements Serializable {
 
     public void setRealmCountryArray(String[] realmCountryArray) {
         this.realmCountryArray = realmCountryArray;
+    }
+
+    public String getHealthAreaCode() {
+        return healthAreaCode;
+    }
+
+    public void setHealthAreaCode(String healthAreaCode) {
+        this.healthAreaCode = healthAreaCode;
     }
 
     @Override

@@ -23,10 +23,13 @@ import cc.altius.FASP.model.report.GlobalConsumptionOutputRowMapper;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.InventoryTurnsOutputRowMapper;
 import cc.altius.FASP.model.report.ProgramAndPlanningUnit;
+import cc.altius.FASP.model.report.StockAdjustmentListInput;
+import cc.altius.FASP.model.report.StockAdjustmentListOutput;
 import cc.altius.FASP.model.report.StockOverTimeInput;
 import cc.altius.FASP.model.report.StockOverTimeOutput;
 import cc.altius.FASP.model.report.StockOverTimeOutputRowMapper;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
+import cc.altius.FASP.model.rowMapper.StockAdjustmentListOutputRowMapper;
 import java.text.SimpleDateFormat;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -259,4 +262,16 @@ public class ReportDaoImpl implements ReportDao {
         return this.namedParameterJdbcTemplate.query("CALL inventoryTurns(:programId, :versionId, :dt, :includePlannedShipments)", params, new InventoryTurnsOutputRowMapper());
     }
 
+    @Override
+    public List<StockAdjustmentListOutput> getStockAdjustment(StockAdjustmentListInput si, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", si.getProgramId());
+        params.put("versionId", si.getVersionId());
+        params.put("startDate", si.getStartDate());
+        params.put("stopDate", si.getStopDate());
+        params.put("planningUnitIds", si.getPlanningUnitIdString());
+        return this.namedParameterJdbcTemplate.query("CALL stockAdjustmentReport(:programId, :versionId, :startDate, :stopDate, :planningUnitIds)", params, new StockAdjustmentListOutputRowMapper());
+    }
+
 }
+

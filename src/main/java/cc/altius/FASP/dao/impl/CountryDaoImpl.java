@@ -41,7 +41,7 @@ public class CountryDaoImpl implements CountryDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    private final String sqlListString = "SELECT c.COUNTRY_ID, c.COUNTRY_CODE, "
+    private final String sqlListString = "SELECT c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2, "
             + "	cl.LABEL_ID, cl.LABEL_EN, cl.LABEL_FR, cl.LABEL_PR, cl.LABEL_SP, "
             + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CONVERSION_RATE_TO_USD, "
             + "    cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
@@ -63,6 +63,7 @@ public class CountryDaoImpl implements CountryDao {
         Map<String, Object> map = new HashMap<>();
         map.put("CURRENCY_ID", country.getCurrency().getId());
         map.put("COUNTRY_CODE", country.getCountryCode());
+        map.put("COUNTRY_CODE2", country.getCountryCode2());
         map.put("LABEL_ID", insertedLabelRowId);
         map.put("ACTIVE", 1);
         map.put("CREATED_BY", curUser.getUserId());
@@ -77,8 +78,8 @@ public class CountryDaoImpl implements CountryDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sqlString = "UPDATE ap_country c LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
                 + "SET  "
-                + "    c.COUNTRY_CODE=:countryCode, c.CURRENCY_ID=:currencyId, c.ACTIVE=:active, "
-                + "    c.LAST_MODIFIED_BY=IF(c.COUNTRY_CODE!=:countryCode OR c.CURRENCY_ID!=:currencyId OR c.ACTIVE!=:active,:curUser,c.LAST_MODIFIED_BY), "
+                + "    c.COUNTRY_CODE=:countryCode, c.COUNTRY_CODE2=:countryCode2, c.CURRENCY_ID=:currencyId, c.ACTIVE=:active, "
+                + "    c.LAST_MODIFIED_BY=IF(c.COUNTRY_CODE!=:countryCode OR c.COUNTRY_CODE2!=:countryCode2 OR c.CURRENCY_ID!=:currencyId OR c.ACTIVE!=:active,:curUser,c.LAST_MODIFIED_BY), "
                 + "    c.LAST_MODIFIED_DATE=IF(c.COUNTRY_CODE!=:countryCode OR c.CURRENCY_ID!=:currencyId OR c.ACTIVE!=:active,:curDate,c.LAST_MODIFIED_DATE), "
                 + "    cl.LABEL_EN=:label_en,  "
                 + "    cl.LAST_MODIFIED_BY=IF(cl.LABEL_EN!=:label_en, :curUser, cl.LAST_MODIFIED_BY), "
@@ -87,6 +88,7 @@ public class CountryDaoImpl implements CountryDao {
         Map<String, Object> params = new HashMap<>();
         params.put("countryId", country.getCountryId());
         params.put("countryCode", country.getCountryCode());
+        params.put("countryCode2", country.getCountryCode2());
         params.put("currencyId", country.getCurrency().getId());
         params.put("label_en", country.getLabel().getLabel_en());
         params.put("active", country.isActive());
