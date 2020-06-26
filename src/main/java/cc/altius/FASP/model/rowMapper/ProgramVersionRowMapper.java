@@ -24,7 +24,7 @@ public class ProgramVersionRowMapper implements RowMapper<ProgramVersion> {
         ProgramVersion pv = new ProgramVersion(rs.getInt("PROGRAM_VERSION_ID"),
                 new SimpleObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, i)),
                 new SimpleCodeObject(rs.getInt("REALM_COUNTRY_ID"), new LabelRowMapper("COUNTRY_").mapRow(rs, i), rs.getString("COUNTRY_CODE")),
-                new SimpleObject(rs.getInt("HEALTH_AREA_ID"), new LabelRowMapper("HEALTH_AREA_").mapRow(rs, i)),
+                new SimpleCodeObject(rs.getInt("HEALTH_AREA_ID"), new LabelRowMapper("HEALTH_AREA_").mapRow(rs, i), rs.getString("HEALTH_AREA_CODE")),
                 new SimpleCodeObject(rs.getInt("ORGANISATION_ID"), new LabelRowMapper("ORGANISATION_").mapRow(rs, i), rs.getString("ORGANISATION_CODE")),
                 rs.getInt("VERSION_ID"),
                 new SimpleObject(rs.getInt("VERSION_TYPE_ID"), new LabelRowMapper("VERSION_TYPE_").mapRow(rs, i)),

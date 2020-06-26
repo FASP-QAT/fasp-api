@@ -7,7 +7,6 @@ package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.Country;
 import cc.altius.FASP.model.HealthArea;
-import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.SimpleCodeObject;
 import java.sql.ResultSet;
@@ -31,15 +30,20 @@ public class HealthAreaResultSetExtractor implements ResultSetExtractor<HealthAr
                 ha.setHealthAreaId(rs.getInt("HEALTH_AREA_ID"));
                 ha.setRealm(new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")));
                 ha.setLabel(new LabelRowMapper().mapRow(rs, 1));
+                ha.setHealthAreaCode(rs.getString("HEALTH_AREA_CODE"));
                 ha.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 ha.setRealmCountryList(new LinkedList<>());
             }
             RealmCountry rc = new RealmCountry();
-            rc.setRealmCountryId(rs.getInt("REALM_COUNTRY_ID"));
-            rc.setCountry(new Country(rs.getInt("COUNTRY_ID"), new LabelRowMapper("COUNTRY_").mapRow(rs, 1)));
-            if (ha.getRealmCountryList().indexOf(rc) == -1) {
-                ha.getRealmCountryList().add(rc);
+            int realmCountryId = rs.getInt("REALM_COUNTRY_ID");
+            if (!rs.wasNull()) {
+                rc.setRealmCountryId(realmCountryId);
+                rc.setCountry(new Country(rs.getInt("COUNTRY_ID"), new LabelRowMapper("COUNTRY_").mapRow(rs, 1)));
+                if (ha.getRealmCountryList().indexOf(rc) == -1) {
+                    ha.getRealmCountryList().add(rc);
+                }
             }
+
             isFirst = false;
         }
         if (!isFirst) {
@@ -55,4 +59,3 @@ public class HealthAreaResultSetExtractor implements ResultSetExtractor<HealthAr
         }
     }
 }
-    

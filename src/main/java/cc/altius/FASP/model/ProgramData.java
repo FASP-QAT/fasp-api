@@ -18,8 +18,8 @@ public class ProgramData extends BaseModel implements Serializable {
 
     private int programId;
     private RealmCountry realmCountry;
-    private SimpleObject organisation;
-    private SimpleObject healthArea;
+    private SimpleCodeObject organisation;
+    private SimpleCodeObject healthArea;
     private Label label;
     private BasicUser programManager;
     private String programNotes;
@@ -112,19 +112,19 @@ public class ProgramData extends BaseModel implements Serializable {
         this.realmCountry = realmCountry;
     }
 
-    public SimpleObject getOrganisation() {
+    public SimpleCodeObject getOrganisation() {
         return organisation;
     }
 
-    public void setOrganisation(SimpleObject organisation) {
+    public void setOrganisation(SimpleCodeObject organisation) {
         this.organisation = organisation;
     }
 
-    public SimpleObject getHealthArea() {
+    public SimpleCodeObject getHealthArea() {
         return healthArea;
     }
 
-    public void setHealthArea(SimpleObject healthArea) {
+    public void setHealthArea(SimpleCodeObject healthArea) {
         this.healthArea = healthArea;
     }
 
