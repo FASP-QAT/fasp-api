@@ -106,7 +106,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         Map<String, Object> params = new HashMap<>();
         params.put("healthAreaId", h.getHealthAreaId());
         params.put("labelEn", h.getLabel().getLabel_en());
-        params.put("healthAreaCode", h.getLabel().getLabel_en());
+        params.put("healthAreaCode", h.getHealthAreaCode());
         params.put("active", h.isActive());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);

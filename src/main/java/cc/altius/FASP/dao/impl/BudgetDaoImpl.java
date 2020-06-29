@@ -45,10 +45,10 @@ public class BudgetDaoImpl implements BudgetDao {
     private AclService aclService;
 
     private final String sqlListString = "SELECT "
-            + "     b.BUDGET_ID, bl.LABEL_ID, bl.LABEL_EN, bl.LABEL_FR, bl.LABEL_SP, bl.LABEL_PR, "
+            + "     b.BUDGET_ID, b.BUDGET_CODE, bl.LABEL_ID, bl.LABEL_EN, bl.LABEL_FR, bl.LABEL_SP, bl.LABEL_PR, "
             + "     b.BUDGET_AMT, (b.BUDGET_AMT * b.CONVERSION_RATE_TO_USD) `BUDGET_USD_AMT`, IFNULL(ua.BUDGET_USD_AMT,0) `USED_USD_AMT`, b.START_DATE, b.STOP_DATE, b.NOTES, "
             + "     p.PROGRAM_ID, pl.LABEL_ID `PROGRAM_LABEL_ID`, pl.LABEL_EN `PROGRAM_LABEL_EN`, pl.LABEL_FR `PROGRAM_LABEL_FR`, pl.LABEL_SP `PROGRAM_LABEL_SP`, pl.LABEL_PR `PROGRAM_LABEL_PR`, "
-            + "     fs.FUNDING_SOURCE_ID, fsl.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fsl.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fsl.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fsl.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fsl.LABEL_PR `FUNDING_SOURCE_LABEL_PR`, "
+            + "     fs.FUNDING_SOURCE_ID, fs.FUNDING_SOURCE_CODE, fsl.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fsl.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fsl.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fsl.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fsl.LABEL_PR `FUNDING_SOURCE_LABEL_PR`, "
             + "     r.REALM_ID, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, r.`REALM_CODE`, "
             + "     c.CURRENCY_ID, c.CURRENCY_CODE, b.CONVERSION_RATE_TO_USD, cl.LABEL_ID `CURRENCY_LABEL_ID`, cl.LABEL_EN `CURRENCY_LABEL_EN`, cl.LABEL_FR `CURRENCY_LABEL_FR`, cl.LABEL_SP `CURRENCY_LABEL_SP`, cl.LABEL_PR `CURRENCY_LABEL_PR`, "
             + "	b.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, b.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, b.LAST_MODIFIED_DATE "
@@ -74,6 +74,7 @@ public class BudgetDaoImpl implements BudgetDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("PROGRAM_ID", b.getProgram().getId());
+        params.put("BUDGET_CODE", b.getBudgetCode());
         params.put("FUNDING_SOURCE_ID", b.getFundingSource().getFundingSourceId());
         int labelId = this.labelDao.addLabel(b.getLabel(), curUser.getUserId());
         params.put("BUDGET_AMT", b.getBudgetAmt());
@@ -98,6 +99,7 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("budgetId", b.getBudgetId());
         params.put("active", b.isActive());
         params.put("budgetAmt", b.getBudgetAmt());
+        params.put("budgetCode", b.getBudgetCode());
         params.put("startDate", b.getStartDate());
         params.put("stopDate", b.getStopDate());
         params.put("curUser", curUser.getUserId());
@@ -109,9 +111,9 @@ public class BudgetDaoImpl implements BudgetDao {
                 + "bl.`LABEL_EN`=:labelEn, "
                 + "bl.`LAST_MODIFIED_BY`=IF(bl.`LABEL_EN`!=:labelEn, :curUser, bl.LAST_MODIFIED_BY), "
                 + "bl.`LAST_MODIFIED_DATE`=IF(bl.`LABEL_EN`!=:labelEn, :curDate, bl.LAST_MODIFIED_DATE), "
-                + "b.BUDGET_AMT=:budgetAmt, b.START_DATE=:startDate, b.STOP_DATE=:stopDate, b.ACTIVE=:active, b.NOTES=:notes, "
-                + "b.LAST_MODIFIED_BY=IF(b.BUDGET_AMT!=:budgetAmt OR b.NOTES!=:notes OR b.START_DATE!=:startDate OR b.STOP_DATE!=:stopDate OR b.ACTIVE!=:active, :curUser, b.LAST_MODIFIED_BY), "
-                + "b.LAST_MODIFIED_DATE=IF(b.BUDGET_AMT!=:budgetAmt OR b.NOTES!=:notes  OR b.START_DATE!=:startDate OR b.STOP_DATE!=:stopDate OR b.ACTIVE!=:active, :curDate, b.LAST_MODIFIED_DATE) "
+                + "b.`BUDGET_CODE`=:budgetCode, b.`BUDGET_AMT`=:budgetAmt, b.`START_DATE`=:startDate, b.`STOP_DATE`=:stopDate, b.ACTIVE=:active, b.NOTES=:notes, "
+                + "b.LAST_MODIFIED_BY=IF(b.BUDGET_CODE!=:budgetCode OR b.BUDGET_AMT!=:budgetAmt OR b.NOTES!=:notes OR b.START_DATE!=:startDate OR b.STOP_DATE!=:stopDate OR b.ACTIVE!=:active, :curUser, b.LAST_MODIFIED_BY), "
+                + "b.LAST_MODIFIED_DATE=IF(b.BUDGET_CODE!=:budgetCode OR b.BUDGET_AMT!=:budgetAmt OR b.NOTES!=:notes  OR b.START_DATE!=:startDate OR b.STOP_DATE!=:stopDate OR b.ACTIVE!=:active, :curDate, b.LAST_MODIFIED_DATE) "
                 + "WHERE b.BUDGET_ID=:budgetId", params);
     }
 

@@ -6,7 +6,6 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.FundingSource;
-import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleCodeObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -22,6 +21,7 @@ public class FundingSourceRowMapper implements RowMapper<FundingSource> {
     public FundingSource mapRow(ResultSet rs, int i) throws SQLException {
         FundingSource m = new FundingSource();
         m.setFundingSourceId(rs.getInt("FUNDING_SOURCE_ID"));
+        m.setFundingSourceCode(rs.getString("FUNDING_SOURCE_CODE"));
         m.setLabel(new LabelRowMapper().mapRow(rs, i));
         m.setRealm(new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i), rs.getString("REALM_CODE")));
         m.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));

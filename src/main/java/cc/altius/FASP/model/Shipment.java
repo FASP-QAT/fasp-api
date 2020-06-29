@@ -28,7 +28,7 @@ public class Shipment extends BaseModel implements Serializable {
     private int suggestedQty;
     private SimpleCodeObject procurementAgent;
     private SimpleBudgetObject budget;
-    private SimpleObject fundingSource;
+    private SimpleCodeObject fundingSource;
     private SimpleObject procurementUnit;
     private SimpleObject supplier;
     private int shipmentQty;
@@ -116,11 +116,11 @@ public class Shipment extends BaseModel implements Serializable {
         this.budget = budget;
     }
 
-    public SimpleObject getFundingSource() {
+    public SimpleCodeObject getFundingSource() {
         return fundingSource;
     }
 
-    public void setFundingSource(SimpleObject fundingSource) {
+    public void setFundingSource(SimpleCodeObject fundingSource) {
         this.fundingSource = fundingSource;
     }
 

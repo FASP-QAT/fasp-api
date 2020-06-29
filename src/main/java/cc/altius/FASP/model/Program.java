@@ -17,6 +17,7 @@ import java.util.List;
 public class Program extends BaseModel implements Serializable {
 
     private int programId;
+    private String programCode;
     private RealmCountry realmCountry;
     private SimpleCodeObject organisation;
     private SimpleCodeObject healthArea;
@@ -45,8 +46,9 @@ public class Program extends BaseModel implements Serializable {
         this.regionList = new LinkedList<>();
     }
 
-    public Program(int programId, Label label) {
+    public Program(int programId, String programCode, Label label) {
         this.programId = programId;
+        this.programCode = programCode;
         this.label = label;
         this.regionList = new LinkedList<>();
     }
@@ -81,6 +83,14 @@ public class Program extends BaseModel implements Serializable {
 
     public void setProgramId(int programId) {
         this.programId = programId;
+    }
+
+    public String getProgramCode() {
+        return programCode;
+    }
+
+    public void setProgramCode(String programCode) {
+        this.programCode = programCode;
     }
 
     public RealmCountry getRealmCountry() {

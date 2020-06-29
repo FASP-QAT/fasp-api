@@ -14,7 +14,6 @@ import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.Version;
-import cc.altius.FASP.model.rowMapper.BudgetRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
@@ -57,7 +56,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     public String sqlListString = "SELECT  "
-            + "     p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_DRAFT_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME, "
+            + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_DRAFT_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME, "
             + "     cpv.VERSION_ID `CV_VERSION_ID`, cpv.NOTES `CV_VERSION_NOTES`, cpv.CREATED_DATE `CV_CREATED_DATE`, cpvcb.USER_ID `CV_CB_USER_ID`, cpvcb.USERNAME `CV_CB_USERNAME`, cpv.LAST_MODIFIED_DATE `CV_LAST_MODIFIED_DATE`, cpvlmb.USER_ID `CV_LMB_USER_ID`, cpvlmb.USERNAME `CV_LMB_USERNAME`, "
             + "     vt.VERSION_TYPE_ID `CV_VERSION_TYPE_ID`, vtl.LABEL_ID `CV_VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `CV_VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `CV_VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `CV_VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `CV_VERSION_TYPE_LABEL_PR`, "
             + "     vs.VERSION_STATUS_ID `CV_VERSION_STATUS_ID`, vsl.LABEL_ID `CV_VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `CV_VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `CV_VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `CV_VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `CV_VERSION_STATUS_LABEL_PR`, "
@@ -67,7 +66,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, "
 //            + "rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`, rc.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME`, rc.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME`, rc.ARRIVED_TO_DELIVERED_LEAD_TIME `REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME`, "
             + "     rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
-            + "     c.COUNTRY_ID, c.COUNTRY_CODE,  "
+            + "     c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2,  "
             + "     cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_PR `COUNTRY_LABEL_PR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, "
             + "     cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CONVERSION_RATE_TO_USD,  "
             + "     cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
@@ -146,6 +145,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
         params.put("ORGANISATION_ID", p.getOrganisation().getId());
         params.put("HEALTH_AREA_ID", p.getHealthArea().getId());
+        params.put("PROGRAM_CODE", p.getProgramCode());
         params.put("LABEL_ID", labelId);
         params.put("PROGRAM_MANAGER_USER_ID", p.getProgramManager().getUserId());
         params.put("PROGRAM_NOTES", p.getProgramNotes());
