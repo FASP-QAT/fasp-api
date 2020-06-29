@@ -26,7 +26,7 @@ public class Shipment extends BaseModel implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date expectedDeliveryDate;
     private int suggestedQty;
-    private SimpleCodeObject procurementAgent;
+    private SimpleProcurementAgentObject procurementAgent;
     private SimpleBudgetObject budget;
     private SimpleCodeObject fundingSource;
     private SimpleObject procurementUnit;
@@ -92,11 +92,11 @@ public class Shipment extends BaseModel implements Serializable {
         this.suggestedQty = suggestedQty;
     }
 
-    public SimpleCodeObject getProcurementAgent() {
+    public SimpleProcurementAgentObject getProcurementAgent() {
         return procurementAgent;
     }
 
-    public void setProcurementAgent(SimpleCodeObject procurementAgent) {
+    public void setProcurementAgent(SimpleProcurementAgentObject procurementAgent) {
         this.procurementAgent = procurementAgent;
     }
 
