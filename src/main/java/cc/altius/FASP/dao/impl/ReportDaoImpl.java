@@ -8,6 +8,8 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
+import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
+import cc.altius.FASP.model.report.AnnualShipmentCostOutputRowMapper;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.CostOfInventoryRowMapper;
@@ -229,17 +231,18 @@ public class ReportDaoImpl implements ReportDao {
     }
 
     @Override
-    public List<Map<String, Object>> getAnnualShipmentCost(AnnualShipmentCostInput asci, CustomUserDetails curUser) {
+    public List<AnnualShipmentCostOutput> getAnnualShipmentCost(AnnualShipmentCostInput asci, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         params.put("startDate", asci.getStartDate());
         params.put("stopDate", asci.getStopDate());
         params.put("procurementAgentId", asci.getProcurementAgentId());
         params.put("programId", asci.getProgramId());
+        params.put("versionId", asci.getVersionId());
         params.put("planningUnitId", asci.getPlanningUnitId());
         params.put("fundingSourceId", asci.getFundingSourceId());
         params.put("shipmentStatusId", asci.getFundingSourceId());
-        params.put("dateFlag", asci.isReportbaseValue());
-        return this.namedParameterJdbcTemplate.queryForList("CALL annualShipmentCost(:programId,:procurementAgentId,:planningUnitId,:fundingSourceId,:shipmentStatusId,:startDate,:stopDate,:dateFlag)", params);
+        params.put("reportBasedOn", asci.getReportBasedOn());
+        return this.namedParameterJdbcTemplate.query("CALL annualShipmentCost(:programId, :versionId, :procurementAgentId, :planningUnitId, :fundingSourceId, :shipmentStatusId, :startDate, :stopDate, :reportBasedOn)", params, new AnnualShipmentCostOutputRowMapper());
     }
 
     @Override
