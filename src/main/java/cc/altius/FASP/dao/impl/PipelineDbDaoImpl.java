@@ -5,7 +5,9 @@
  */
 package cc.altius.FASP.dao.impl;
 
+import cc.altius.FASP.dao.HealthAreaDao;
 import cc.altius.FASP.dao.LabelDao;
+import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.dao.PipelineDbDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Label;
@@ -33,6 +35,7 @@ import cc.altius.FASP.model.pipeline.rowMapper.QatTempPlanningUnitInventoryCount
 import cc.altius.FASP.model.pipeline.rowMapper.QatTempPlanningUnitRowMapper;
 import cc.altius.FASP.model.pipeline.rowMapper.QatTempShipmentRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
+import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.utils.DateUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -72,7 +75,15 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     }
 
     @Autowired
+    private RealmCountryService realmCountryService;
+
+    @Autowired
     private LabelDao labelDao;
+
+    @Autowired
+    private HealthAreaDao healthAreaDao;
+    @Autowired
+    private OrganisationDao organisationDao;
 
     public String sqlListString = "SELECT  "
             + "      p.ARRIVED_TO_DELIVERED_LEAD_TIME,p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME,p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME,"
@@ -1196,10 +1207,13 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     @Transactional
     public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser) {
         Program p = this.getQatTempProgram(curUser, pipelineId);
+        String programCode = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser).getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
+        p.setProgramCode(programCode);
         Map<String, Object> params = new HashMap<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         int labelId = this.labelDao.addLabel(p.getLabel(), curUser.getUserId());
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program").usingGeneratedKeyColumns("PROGRAM_ID");
+        params.put("PROGRAM_CODE", p.getProgramCode());
         params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
         params.put("ORGANISATION_ID", p.getOrganisation().getId());
         params.put("HEALTH_AREA_ID", p.getHealthArea().getId());
@@ -1266,7 +1280,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("LOCAL_PROCUREMENT_LEAD_TIME", ppu.getLocalProcurmentLeadTime()); //ppu.getLocalProcurementLeadTime());
 //            params.put("BATCH_NO_REQUIRED", 0);
             params.put("SHELF_LIFE", ppu.getShelfLife());
-            params.put("CATALOG_PRICE",ppu.getCatalogPrice());
+            params.put("CATALOG_PRICE", ppu.getCatalogPrice());
             params.put("CREATED_DATE", curDate);
             params.put("CREATED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
@@ -1320,9 +1334,10 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         List<Map<String, Object>> budgetList = this.namedParameterJdbcTemplate.queryForList(sql, params);
         List<Map<String, Object>> newList = new LinkedList<>();
         params.clear();
-        si = new SimpleJdbcInsert(dataSource).withTableName("rm_budget");
+        si = new SimpleJdbcInsert(dataSource).withTableName("rm_budget").usingGeneratedKeyColumns("BUDGET_ID");
         for (Map<String, Object> budget : budgetList) {
             labelId = this.labelDao.addLabel(p.getLabel(), curUser.getUserId());
+            params.put("BUDGET_CODE", "ABC");
             params.put("PROGRAM_ID", programId);
             params.put("CREATED_DATE", curDate);
             params.put("CREATED_BY", curUser.getUserId());
@@ -1337,9 +1352,17 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("CONVERSION_RATE_TO_USD", 1);
             params.put("NOTES", "");
             params.put("ACTIVE", true);
-            int result = si.execute(params);
-            String sqlString = "SELECT LAST_INSERT_ID()";
-            budget.put("budgetId", this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class));
+            int result = si.executeAndReturnKey(params).intValue();
+            
+            String sqlString = "update rm_budget rb \n"
+                    + "left join rm_program p on p.PROGRAM_ID=rb.PROGRAM_ID\n"
+                    + "left join rm_realm_country rc on rc.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID\n"
+                    + "left join ap_country ac on ac.COUNTRY_ID=rc.COUNTRY_ID\n"
+                    + "set rb.BUDGET_CODE=concat(ac.COUNTRY_CODE,rb.BUDGET_ID)\n"
+                    + "where rb.BUDGET_ID=?;";
+            this.jdbcTemplate.update(sqlString,result);
+            
+            budget.put("budgetId", result);
             newList.add(budget);
         }
         params.clear();
@@ -1394,9 +1417,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("ACTIVE", true);
             params.put("VERSION_ID", version.getVersionId());
 
-            
 //            params.clear();
-
             params.put("SHIPMENT_ID", shipmentId);
             params.put("CREATED_DATE", curDate);
             params.put("CREATED_BY", curUser.getUserId());

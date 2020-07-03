@@ -34,6 +34,7 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
         while (rs.next()) {
             if (isFirst) {
                 p.setProgramId(rs.getInt("PROGRAM_ID"));
+                p.setProgramCode(rs.getString("PROGRAM_CODE"));
                 p.setRealmCountry(
                         new RealmCountry(
                                 rs.getInt("REALM_COUNTRY_ID"),
@@ -41,6 +42,7 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
                                 new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE"))
                         )
                 );
+                p.getRealmCountry().getCountry().setCountryCode2(rs.getString("COUNTRY_CODE2"));
                 p.getRealmCountry().setDefaultCurrency(new Currency(rs.getInt("CURRENCY_ID"), rs.getString("CURRENCY_CODE"), new LabelRowMapper("CURRENCY_").mapRow(rs, 1), rs.getDouble("CONVERSION_RATE_TO_USD")));
 //                p.getRealmCountry().setAirFreightPercentage(rs.getDouble("REALM_COUNTRY_AIR_FREIGHT_PERC"));
 //                p.getRealmCountry().setSeaFreightPercentage(rs.getDouble("REALM_COUNTRY_SEA_FREIGHT_PERC"));

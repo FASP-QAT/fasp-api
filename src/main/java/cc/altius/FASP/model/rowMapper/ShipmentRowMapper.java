@@ -6,10 +6,10 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.Shipment;
-import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleForecastingUnitObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
+import cc.altius.FASP.model.SimpleProcurementAgentObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -35,7 +35,7 @@ public class ShipmentRowMapper implements RowMapper<Shipment> {
         );
         s.setExpectedDeliveryDate(rs.getDate("EXPECTED_DELIVERY_DATE"));
         s.setSuggestedQty(rs.getInt("SUGGESTED_QTY"));
-        s.setProcurementAgent(new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, i), rs.getString("PROCUREMENT_AGENT_CODE")));
+        s.setProcurementAgent(new SimpleProcurementAgentObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, i), rs.getString("PROCUREMENT_AGENT_CODE"), rs.getString("COLOR_HTML_CODE")));
         s.setProcurementUnit(new SimpleObject(rs.getInt("PROCUREMENT_UNIT_ID"), new LabelRowMapper("PROCUREMENT_UNIT_").mapRow(rs, i)));
         s.setSupplier(new SimpleObject(rs.getInt("SUPPLIER_ID"), new LabelRowMapper("SUPPLIER_").mapRow(rs, i)));
         s.setShipmentQty(rs.getInt("QUANTITY"));

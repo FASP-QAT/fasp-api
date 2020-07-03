@@ -28,6 +28,7 @@ public class ProcurementAgentRowMapper implements RowMapper<ProcurementAgent> {
                 rs.getDouble("SUBMITTED_TO_APPROVED_LEAD_TIME"),
                 rs.getBoolean("LOCAL_PROCUREMENT_AGENT")
         );
+        pa.setColorHtmlCode(rs.getString("COLOR_HTML_CODE"));
         pa.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return pa;
     }

@@ -19,6 +19,7 @@ public class ProcurementAgent extends BaseModel implements Serializable {
     private String procurementAgentCode;
     private double submittedToApprovedLeadTime;
     private boolean localProcurementAgent;
+    private String colorHtmlCode;
 
     public ProcurementAgent() {
     }
@@ -84,6 +85,14 @@ public class ProcurementAgent extends BaseModel implements Serializable {
 
     public void setLocalProcurementAgent(boolean localProcurementAgent) {
         this.localProcurementAgent = localProcurementAgent;
+    }
+
+    public String getColorHtmlCode() {
+        return colorHtmlCode;
+    }
+
+    public void setColorHtmlCode(String colorHtmlCode) {
+        this.colorHtmlCode = colorHtmlCode;
     }
 
     @Override

@@ -35,13 +35,14 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
         Program p = new Program();
         while (rs.next()) {
             int programId = rs.getInt("PROGRAM_ID");
-            Program tmpProg = new Program(programId, null);
+            Program tmpProg = new Program(programId, null, null);
             if (pList.indexOf(tmpProg) == -1) {
                 if (!isFirst) {
                     p = new Program();
                 }
                 pList.add(p);
                 p.setProgramId(rs.getInt("PROGRAM_ID"));
+                p.setProgramCode(rs.getString("PROGRAM_CODE"));
                 p.setRealmCountry(
                         new RealmCountry(
                                 rs.getInt("REALM_COUNTRY_ID"),

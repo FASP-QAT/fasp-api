@@ -18,6 +18,7 @@ import java.util.Date;
 public class AnnualShipmentCostInput {
 
     private int programId;
+    private int versionId;
     private int planningUnitId;
     private int procurementAgentId;
     private int fundingSourceId;
@@ -28,7 +29,7 @@ public class AnnualShipmentCostInput {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
-    private boolean reportbaseValue;
+    private int reportBasedOn; // Shipped Date, Recevied Date
 
     public int getProgramId() {
         return programId;
@@ -36,6 +37,14 @@ public class AnnualShipmentCostInput {
 
     public void setProgramId(int programId) {
         this.programId = programId;
+    }
+
+    public int getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(int versionId) {
+        this.versionId = versionId;
     }
 
     public int getPlanningUnitId() {
@@ -86,17 +95,12 @@ public class AnnualShipmentCostInput {
         this.stopDate = stopDate;
     }
 
-    public boolean isReportbaseValue() {
-        return reportbaseValue;
+    public int getReportBasedOn() {
+        return reportBasedOn;
     }
 
-    public void setReportbaseValue(boolean reportbaseValue) {
-        this.reportbaseValue = reportbaseValue;
-    }
-
-    @Override
-    public String toString() {
-        return "AnnualShipmentCostInput{" + "programId=" + programId + ", planningUnitId=" + planningUnitId + ", procurementAgentId=" + procurementAgentId + ", fundingSourceId=" + fundingSourceId + ", shipmentStatusId=" + shipmentStatusId + ", startDate=" + startDate + ", stopDate=" + stopDate + ", reportbaseValue=" + reportbaseValue + '}';
+    public void setReportBasedOn(int reportBasedOn) {
+        this.reportBasedOn = reportBasedOn;
     }
 
 }

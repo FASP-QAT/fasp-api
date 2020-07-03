@@ -11,15 +11,15 @@ import java.io.Serializable;
  *
  * @author akil
  */
-public class SimpleBudgetObject extends SimpleObject implements Serializable {
+public class SimpleBudgetObject extends SimpleCodeObject implements Serializable {
 
     private Currency currency;
 
     public SimpleBudgetObject() {
     }
 
-    public SimpleBudgetObject(Integer id, Label label, Currency currency) {
-        super(id, label);
+    public SimpleBudgetObject(Integer id, String code, Label label, Currency currency) {
+        super(id, label, code);
         this.currency = currency;
     }
 

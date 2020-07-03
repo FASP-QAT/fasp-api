@@ -8,15 +8,20 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
+import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastErrorOutput;
 import cc.altius.FASP.model.report.ForecastMetricsInput;
 import cc.altius.FASP.model.report.ForecastMetricsOutput;
+import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
+import cc.altius.FASP.model.report.FundingSourceShipmentReportOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
+import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
+import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
 import cc.altius.FASP.model.report.StockAdjustmentListInput;
 import cc.altius.FASP.model.report.StockAdjustmentListOutput;
 import cc.altius.FASP.model.report.StockOverTimeInput;
@@ -69,7 +74,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<Map<String, Object>> getAnnualShipmentCost(AnnualShipmentCostInput asci, CustomUserDetails curUser) {
+    public List<AnnualShipmentCostOutput> getAnnualShipmentCost(AnnualShipmentCostInput asci, CustomUserDetails curUser) {
         return this.reportDao.getAnnualShipmentCost(asci, curUser);
     }
 
@@ -88,4 +93,15 @@ public class ReportServiceImpl implements ReportService {
         return this.reportDao.getStockAdjustment(si, curUser);
     }
 
+    @Override
+    public List<ProcurementAgentShipmentReportOutput> getProcurementAgentShipmentReport(ProcurementAgentShipmentReportInput pari, CustomUserDetails curUser) {
+        return this.reportDao.getProcurementAgentShipmentReport(pari, curUser);
+    }
+
+    @Override
+    public List<FundingSourceShipmentReportOutput> getFundingSourceShipmentReport(FundingSourceShipmentReportInput fsri, CustomUserDetails curUser) {
+        return this.reportDao.getFundingSourceShipmentReport(fsri, curUser);
+    }
+
+    
 }

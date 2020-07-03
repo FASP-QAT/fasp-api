@@ -45,7 +45,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
     }
 
     private final String sqlListString = "SELECT  "
-            + "    fs.FUNDING_SOURCE_ID,  "
+            + "    fs.FUNDING_SOURCE_ID, fs.FUNDING_SOURCE_CODE, "
             + "    fsl.`LABEL_ID`, fsl.`LABEL_EN`, fsl.`LABEL_FR`, fsl.`LABEL_PR`, fsl.`LABEL_SP`,  "
             + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE,  "
             + "    fs.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fs.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, fs.LAST_MODIFIED_DATE  "
@@ -63,6 +63,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_funding_source").usingGeneratedKeyColumns("FUNDING_SOURCE_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
+        params.put("FUNDING_SOURCE_CODE", f.getFundingSourceCode());
         params.put("REALM_ID", f.getRealm().getId());
         int labelId = this.labelDao.addLabel(f.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
@@ -81,10 +82,11 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
         Map<String, Object> params = new HashMap<>();
         params.put("curDate", curDate);
         params.put("curUser", curUser.getUserId());
+        params.put("fundingSourceCode", f.getFundingSourceCode());
         params.put("fundingSourceId", f.getFundingSourceId());
         params.put("active", f.isActive());
         params.put("labelEn", f.getLabel().getLabel_en());
-        return this.namedParameterJdbcTemplate.update("UPDATE rm_funding_source fs LEFT JOIN ap_label fsl on fs.LABEL_ID=fsl.LABEL_ID SET fs.`ACTIVE`=:active, fs.`LAST_MODIFIED_BY`=:curUser, fs.`LAST_MODIFIED_DATE`=:curDate, fsl.LABEL_EN=:labelEn, fsl.LAST_MODIFIED_BY=:curUser, fsl.LAST_MODIFIED_DATE=:curDate WHERE fs.FUNDING_SOURCE_ID=:fundingSourceId", params);
+        return this.namedParameterJdbcTemplate.update("UPDATE rm_funding_source fs LEFT JOIN ap_label fsl on fs.LABEL_ID=fsl.LABEL_ID SET fs.`FUNDING_SOURCE_CODE`=:fundingSourceCode, fs.`ACTIVE`=:active, fs.`LAST_MODIFIED_BY`=:curUser, fs.`LAST_MODIFIED_DATE`=:curDate, fsl.LABEL_EN=:labelEn, fsl.LAST_MODIFIED_BY=:curUser, fsl.LAST_MODIFIED_DATE=:curDate WHERE fs.FUNDING_SOURCE_ID=:fundingSourceId", params);
     }
 
     @Override
