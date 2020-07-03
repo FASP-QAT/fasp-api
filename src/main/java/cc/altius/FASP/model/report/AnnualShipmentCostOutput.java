@@ -5,10 +5,52 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleObject;
+import java.io.Serializable;
+import java.util.Map;
+
 /**
  *
  * @author ekta
  */
-public class AnnualShipmentCostOutput {
-    
+public class AnnualShipmentCostOutput implements Serializable {
+
+    SimpleCodeObject procurementAgent;
+    SimpleCodeObject fundingSource;
+    SimpleObject planningUnit;
+    Map<String, Double> shipmentAmt;
+
+    public SimpleCodeObject getProcurementAgent() {
+        return procurementAgent;
+    }
+
+    public void setProcurementAgent(SimpleCodeObject procurementAgent) {
+        this.procurementAgent = procurementAgent;
+    }
+
+    public SimpleCodeObject getFundingSource() {
+        return fundingSource;
+    }
+
+    public void setFundingSource(SimpleCodeObject fundingSource) {
+        this.fundingSource = fundingSource;
+    }
+
+    public SimpleObject getPlanningUnit() {
+        return planningUnit;
+    }
+
+    public void setPlanningUnit(SimpleObject planningUnit) {
+        this.planningUnit = planningUnit;
+    }
+
+    public Map<String, Double> getShipmentAmt() {
+        return shipmentAmt;
+    }
+
+    public void setShipmentAmt(Map<String, Double> shipmentAmt) {
+        this.shipmentAmt = shipmentAmt;
+    }
+
 }

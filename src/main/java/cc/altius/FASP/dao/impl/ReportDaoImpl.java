@@ -8,6 +8,8 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
+import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
+import cc.altius.FASP.model.report.AnnualShipmentCostOutputRowMapper;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.CostOfInventoryRowMapper;
@@ -17,11 +19,17 @@ import cc.altius.FASP.model.report.ForecastErrorOutputRowMapper;
 import cc.altius.FASP.model.report.ForecastMetricsInput;
 import cc.altius.FASP.model.report.ForecastMetricsOutput;
 import cc.altius.FASP.model.report.ForecastMetricsOutputRowMapper;
+import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
+import cc.altius.FASP.model.report.FundingSourceShipmentReportOutput;
+import cc.altius.FASP.model.report.FundingSourceShipmentReportOutputRowMapper;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutputRowMapper;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.InventoryTurnsOutputRowMapper;
+import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
+import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
+import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutputRowMapper;
 import cc.altius.FASP.model.report.ProgramAndPlanningUnit;
 import cc.altius.FASP.model.report.StockAdjustmentListInput;
 import cc.altius.FASP.model.report.StockAdjustmentListOutput;
@@ -229,17 +237,18 @@ public class ReportDaoImpl implements ReportDao {
     }
 
     @Override
-    public List<Map<String, Object>> getAnnualShipmentCost(AnnualShipmentCostInput asci, CustomUserDetails curUser) {
+    public List<AnnualShipmentCostOutput> getAnnualShipmentCost(AnnualShipmentCostInput asci, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         params.put("startDate", asci.getStartDate());
         params.put("stopDate", asci.getStopDate());
         params.put("procurementAgentId", asci.getProcurementAgentId());
         params.put("programId", asci.getProgramId());
+        params.put("versionId", asci.getVersionId());
         params.put("planningUnitId", asci.getPlanningUnitId());
         params.put("fundingSourceId", asci.getFundingSourceId());
         params.put("shipmentStatusId", asci.getFundingSourceId());
-        params.put("dateFlag", asci.isReportbaseValue());
-        return this.namedParameterJdbcTemplate.queryForList("CALL annualShipmentCost(:programId,:procurementAgentId,:planningUnitId,:fundingSourceId,:shipmentStatusId,:startDate,:stopDate,:dateFlag)", params);
+        params.put("reportBasedOn", asci.getReportBasedOn());
+        return this.namedParameterJdbcTemplate.query("CALL annualShipmentCost(:programId, :versionId, :procurementAgentId, :planningUnitId, :fundingSourceId, :shipmentStatusId, :startDate, :stopDate, :reportBasedOn)", params, new AnnualShipmentCostOutputRowMapper());
     }
 
     @Override
@@ -271,6 +280,32 @@ public class ReportDaoImpl implements ReportDao {
         params.put("stopDate", si.getStopDate());
         params.put("planningUnitIds", si.getPlanningUnitIdString());
         return this.namedParameterJdbcTemplate.query("CALL stockAdjustmentReport(:programId, :versionId, :startDate, :stopDate, :planningUnitIds)", params, new StockAdjustmentListOutputRowMapper());
+    }
+
+    @Override
+    public List<ProcurementAgentShipmentReportOutput> getProcurementAgentShipmentReport(ProcurementAgentShipmentReportInput pari, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("procurementAgentId", pari.getProcurementAgentId());
+        params.put("startDate", pari.getStartDate());
+        params.put("stopDate", pari.getStopDate());
+        params.put("programId", pari.getProgramId());
+        params.put("versionId", pari.getVersionId());
+        params.put("planningUnitIds", pari.getPlanningUnitIdString());
+        params.put("includePlannedShipments", pari.isIncludePlannedShipments());
+        return this.namedParameterJdbcTemplate.query("CALL procurementAgentShipmentReport(:startDate, :stopDate, :procurementAgentId, :programId, :versionId, :planningUnitIds, :includePlannedShipments)", params, new ProcurementAgentShipmentReportOutputRowMapper());
+    }
+    
+    @Override
+    public List<FundingSourceShipmentReportOutput> getFundingSourceShipmentReport(FundingSourceShipmentReportInput fsri, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("fundingSourceId", fsri.getFundingSourceId());
+        params.put("startDate", fsri.getStartDate());
+        params.put("stopDate", fsri.getStopDate());
+        params.put("programId", fsri.getProgramId());
+        params.put("versionId", fsri.getVersionId());
+        params.put("planningUnitIds", fsri.getPlanningUnitIdString());
+        params.put("includePlannedShipments", fsri.isIncludePlannedShipments());
+        return this.namedParameterJdbcTemplate.query("CALL fundingSourceShipmentReport(:startDate, :stopDate, :fundingSourceId, :programId, :versionId, :planningUnitIds, :includePlannedShipments)", params, new FundingSourceShipmentReportOutputRowMapper());
     }
 
 }
