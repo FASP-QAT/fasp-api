@@ -31,7 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Service
 public class ProgramServiceImpl implements ProgramService {
-    
+
     @Autowired
     private ProgramDao programDao;
     @Autowired
@@ -44,12 +44,12 @@ public class ProgramServiceImpl implements ProgramService {
     private OrganisationDao organisationDao;
     @Autowired
     private AclService aclService;
-    
+
     @Override
     public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser) {
         return this.programDao.getProgramListForDropdown(curUser);
     }
-    
+
     @Override
     public int addProgram(Program p, CustomUserDetails curUser) {
         p.setRealmCountry(this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser));
@@ -67,7 +67,7 @@ public class ProgramServiceImpl implements ProgramService {
             throw new AccessDeniedException("Access denied");
         }
     }
-    
+
     @Override
     public int updateProgram(Program p, CustomUserDetails curUser) {
         Program curProg = this.getProgramById(p.getProgramId(), curUser);
@@ -86,17 +86,17 @@ public class ProgramServiceImpl implements ProgramService {
             throw new AccessDeniedException("Access denied");
         }
     }
-    
+
     @Override
     public List<Program> getProgramListForProgramIds(String[] programIds, CustomUserDetails curUser) {
         return this.programDao.getProgramListForProgramIds(programIds, curUser);
     }
-    
+
     @Override
     public List<Program> getProgramList(CustomUserDetails curUser) {
         return this.programDao.getProgramList(curUser);
     }
-    
+
     @Override
     public List<Program> getProgramList(int realmId, CustomUserDetails curUser) {
         Realm r = this.realmDao.getRealmById(realmId, curUser);
@@ -109,7 +109,7 @@ public class ProgramServiceImpl implements ProgramService {
             throw new AccessDeniedException("Access denied");
         }
     }
-    
+
     @Override
     public Program getProgramById(int programId, CustomUserDetails curUser) {
         Program p = this.programDao.getProgramById(programId, curUser);
@@ -122,7 +122,7 @@ public class ProgramServiceImpl implements ProgramService {
             throw new AccessDeniedException("Access denied");
         }
     }
-    
+
     @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
         Program p = this.programDao.getProgramById(programId, curUser);
@@ -132,7 +132,7 @@ public class ProgramServiceImpl implements ProgramService {
             throw new AccessDeniedException("Access denied");
         }
     }
-    
+
     @Override
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) {
         for (ProgramPlanningUnit ppu : programPlanningUnits) {
@@ -143,17 +143,17 @@ public class ProgramServiceImpl implements ProgramService {
         }
         return this.programDao.saveProgramPlanningUnit(programPlanningUnits, curUser);
     }
-    
+
     @Override
     public List<Program> getProgramListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.programDao.getProgramListForSync(lastSyncDate, curUser);
     }
-    
+
     @Override
     public List<ProgramPlanningUnit> getProgramPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.programDao.getProgramPlanningUnitListForSync(lastSyncDate, curUser);
     }
-    
+
     @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId, int productCategoryId, boolean active, CustomUserDetails curUser) {
         Program p = this.programDao.getProgramById(programId, curUser);
@@ -163,10 +163,12 @@ public class ProgramServiceImpl implements ProgramService {
             throw new AccessDeniedException("Access denied");
         }
     }
-    
+
     @Override
     @Transactional
     public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) {
+        String programCode = this.realmCountryService.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser).getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(program.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(program.getOrganisation().getId(), curUser).getOrganisationCode();
+        program.setProgramCode(programCode);
         int programId = this.programDao.addProgram(program, curUser);
         for (ProgramPlanningUnit ppu : program.getProgramPlanningUnits()) {
             ppu.getProgram().setId(programId);
@@ -174,10 +176,10 @@ public class ProgramServiceImpl implements ProgramService {
         this.programDao.saveProgramPlanningUnit(program.getProgramPlanningUnits(), curUser);
         return programId;
     }
-    
+
     @Override
     public Program getProgramList(int realmId, int programId, int versionId) {
         return this.programDao.getProgramList(realmId, programId, versionId);
     }
-    
+
 }
