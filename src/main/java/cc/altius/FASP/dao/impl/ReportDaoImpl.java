@@ -177,7 +177,7 @@ public class ReportDaoImpl implements ReportDao {
         params.put("versionId", asci.getVersionId());
         params.put("planningUnitId", asci.getPlanningUnitId());
         params.put("fundingSourceId", asci.getFundingSourceId());
-        params.put("shipmentStatusId", asci.getFundingSourceId());
+        params.put("shipmentStatusId", asci.getShipmentStatusId());
         params.put("reportBasedOn", asci.getReportBasedOn());
         return this.namedParameterJdbcTemplate.query("CALL annualShipmentCost(:programId, :versionId, :procurementAgentId, :planningUnitId, :fundingSourceId, :shipmentStatusId, :startDate, :stopDate, :reportBasedOn)", params, new AnnualShipmentCostOutputRowMapper());
     }
