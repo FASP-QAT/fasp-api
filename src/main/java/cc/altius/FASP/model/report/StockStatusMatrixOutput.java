@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import java.io.Serializable;
 
@@ -14,45 +15,63 @@ import java.io.Serializable;
  */
 public class StockStatusMatrixOutput implements Serializable {
 
-    private SimpleObject name;
-    private SimpleObject unit;
-    private int min;
+    private SimpleObject planningUnit;
+    private SimpleCodeObject unit;
+    private int minMonthsOfStock;
+    private int reorderFrequency;
+    private int multiplier;
     private int year;
-    private double janMos;
-    private double febMos;
-    private double marMos;
-    private double aprMos;
-    private double mayMos;
-    private double junMos;
-    private double julMos;
-    private double augMos;
-    private double sepMos;
-    private double octMos;
-    private double novMos;
-    private double decMos;
+    private double jan;
+    private double feb;
+    private double mar;
+    private double apr;
+    private double may;
+    private double jun;
+    private double jul;
+    private double aug;
+    private double sep;
+    private double oct;
+    private double nov;
+    private double dec;
 
-    public SimpleObject getName() {
-        return name;
+    public SimpleObject getPlanningUnit() {
+        return planningUnit;
     }
 
-    public void setName(SimpleObject name) {
-        this.name = name;
+    public void setPlanningUnit(SimpleObject planningUnit) {
+        this.planningUnit = planningUnit;
     }
 
-    public SimpleObject getUnit() {
+    public SimpleCodeObject getUnit() {
         return unit;
     }
 
-    public void setUnit(SimpleObject unit) {
+    public void setUnit(SimpleCodeObject unit) {
         this.unit = unit;
     }
 
-    public int getMin() {
-        return min;
+    public int getMinMonthsOfStock() {
+        return minMonthsOfStock;
     }
 
-    public void setMin(int min) {
-        this.min = min;
+    public void setMinMonthsOfStock(int minMonthsOfStock) {
+        this.minMonthsOfStock = minMonthsOfStock;
+    }
+
+    public int getReorderFrequency() {
+        return reorderFrequency;
+    }
+
+    public void setReorderFrequency(int reorderFrequency) {
+        this.reorderFrequency = reorderFrequency;
+    }
+
+    public int getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(int multiplier) {
+        this.multiplier = multiplier;
     }
 
     public int getYear() {
@@ -63,100 +82,100 @@ public class StockStatusMatrixOutput implements Serializable {
         this.year = year;
     }
 
-    public double getJanMos() {
-        return janMos;
+    public double getJan() {
+        return jan;
     }
 
-    public void setJanMos(double janMos) {
-        this.janMos = janMos;
+    public void setJan(double jan) {
+        this.jan = jan;
     }
 
-    public double getFebMos() {
-        return febMos;
+    public double getFeb() {
+        return feb;
     }
 
-    public void setFebMos(double febMos) {
-        this.febMos = febMos;
+    public void setFeb(double feb) {
+        this.feb = feb;
     }
 
-    public double getMarMos() {
-        return marMos;
+    public double getMar() {
+        return mar;
     }
 
-    public void setMarMos(double marMos) {
-        this.marMos = marMos;
+    public void setMar(double mar) {
+        this.mar = mar;
     }
 
-    public double getAprMos() {
-        return aprMos;
+    public double getApr() {
+        return apr;
     }
 
-    public void setAprMos(double aprMos) {
-        this.aprMos = aprMos;
+    public void setApr(double apr) {
+        this.apr = apr;
     }
 
-    public double getMayMos() {
-        return mayMos;
+    public double getMay() {
+        return may;
     }
 
-    public void setMayMos(double mayMos) {
-        this.mayMos = mayMos;
+    public void setMay(double may) {
+        this.may = may;
     }
 
-    public double getJunMos() {
-        return junMos;
+    public double getJun() {
+        return jun;
     }
 
-    public void setJunMos(double junMos) {
-        this.junMos = junMos;
+    public void setJun(double jun) {
+        this.jun = jun;
     }
 
-    public double getJulMos() {
-        return julMos;
+    public double getJul() {
+        return jul;
     }
 
-    public void setJulMos(double julMos) {
-        this.julMos = julMos;
+    public void setJul(double jul) {
+        this.jul = jul;
     }
 
-    public double getAugMos() {
-        return augMos;
+    public double getAug() {
+        return aug;
     }
 
-    public void setAugMos(double augMos) {
-        this.augMos = augMos;
+    public void setAug(double aug) {
+        this.aug = aug;
     }
 
-    public double getSepMos() {
-        return sepMos;
+    public double getSep() {
+        return sep;
     }
 
-    public void setSepMos(double sepMos) {
-        this.sepMos = sepMos;
+    public void setSep(double sep) {
+        this.sep = sep;
     }
 
-    public double getOctMos() {
-        return octMos;
+    public double getOct() {
+        return oct;
     }
 
-    public void setOctMos(double octMos) {
-        this.octMos = octMos;
+    public void setOct(double oct) {
+        this.oct = oct;
     }
 
-    public double getNovMos() {
-        return novMos;
+    public double getNov() {
+        return nov;
     }
 
-    public void setNovMos(double novMos) {
-        this.novMos = novMos;
+    public void setNov(double nov) {
+        this.nov = nov;
     }
 
-    public double getDecMos() {
-        return decMos;
+    public double getDec() {
+        return dec;
     }
 
-    public void setDecMos(double decMos) {
-        this.decMos = decMos;
+    public void setDec(double dec) {
+        this.dec = dec;
     }
-
+    
 }

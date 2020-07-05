@@ -26,16 +26,9 @@ public class StockStatusMatrixInput implements Serializable {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
-    private String[] ids;
+    private String[] planningUnitIds;
     private boolean includePlannedShipments;
-    private int view; // PlanningUnit // ProductCategory
 
-    public StockStatusMatrixInput() {
-        this.view = 1;
-        this.includePlannedShipments = false;
-    }
-
-    
     public int getProgramId() {
         return programId;
     }
@@ -77,25 +70,17 @@ public class StockStatusMatrixInput implements Serializable {
         this.includePlannedShipments = includePlannedShipments;
     }
 
-    public String getIdsString() {
-        if (this.ids == null) {
+    public String getPlanningUnitIdsString() {
+        if (this.planningUnitIds == null) {
             return "";
         } else {
-            String opt = String.join("','", this.ids);
-            if (this.ids.length > 0) {
+            String opt = String.join("','", this.planningUnitIds);
+            if (this.planningUnitIds.length > 0) {
                 return "'" + opt + "'";
             } else {
                 return opt;
             }
         }
-    }
-
-    public int getView() {
-        return view;
-    }
-
-    public void setView(int view) {
-        this.view = view;
     }
 
 }

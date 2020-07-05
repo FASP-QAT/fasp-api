@@ -22,11 +22,12 @@ import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
-import cc.altius.FASP.model.report.StockAdjustmentListInput;
-import cc.altius.FASP.model.report.StockAdjustmentListOutput;
+import cc.altius.FASP.model.report.StockAdjustmentReportInput;
+import cc.altius.FASP.model.report.StockAdjustmentReportOutput;
 import cc.altius.FASP.model.report.StockOverTimeInput;
 import cc.altius.FASP.model.report.StockOverTimeOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
+import cc.altius.FASP.model.report.StockStatusMatrixOutput;
 import cc.altius.FASP.service.ReportService;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<Map<String, Object>> getStockStatusMatrix(StockStatusMatrixInput ssm) {
+    public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm) {
         return this.reportDao.getStockStatusMatrix(ssm);
     }
 
@@ -89,8 +90,8 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<StockAdjustmentListOutput> getStockAdjustment(StockAdjustmentListInput si, CustomUserDetails curUser) {
-        return this.reportDao.getStockAdjustment(si, curUser);
+    public List<StockAdjustmentReportOutput> getStockAdjustmentReport(StockAdjustmentReportInput si, CustomUserDetails curUser) {
+        return this.reportDao.getStockAdjustmentReport(si, curUser);
     }
 
     @Override
