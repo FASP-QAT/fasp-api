@@ -20,13 +20,13 @@ public class ProcurementAgentShipmentReportOutputRowMapper implements RowMapper<
 
     @Override
     public ProcurementAgentShipmentReportOutput mapRow(ResultSet rs, int i) throws SQLException {
-        ProcurementAgentShipmentReportOutput paro = new ProcurementAgentShipmentReportOutput();
+        ProcurementAgentShipmentReportOutput paro = new ProcurementAgentShipmentReportOutput(
+                new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)),
+                rs.getInt("QTY"),
+                rs.getDouble("FREIGHT_COST"),
+                rs.getDouble("FREIGHT_PERC"),
+                rs.getDouble("PRODUCT_COST"));
         paro.setProcurementAgent(new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, i), rs.getString("PROCUREMENT_AGENT_CODE")));
-        paro.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
-        paro.setQty(rs.getInt("QTY"));
-        paro.setFreightCost(rs.getDouble("FREIGHT_COST"));
-        paro.setFreightPerc(rs.getDouble("FREIGHT_PERC"));
-        paro.setProductCost(rs.getDouble("PRODUCT_COST"));
         return paro;
     }
 

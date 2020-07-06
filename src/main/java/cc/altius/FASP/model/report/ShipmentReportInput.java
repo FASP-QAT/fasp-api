@@ -16,34 +16,18 @@ import java.util.Date;
  *
  * @author akil
  */
-public class StockStatusMatrixInput implements Serializable {
+public class ShipmentReportInput implements Serializable {
 
-    private int programId;
-    private int versionId;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
+    private int programId;
+    private int versionId;
     private String[] planningUnitIds;
     private boolean includePlannedShipments;
-
-    public int getProgramId() {
-        return programId;
-    }
-
-    public void setProgramId(int programId) {
-        this.programId = programId;
-    }
-
-    public int getVersionId() {
-        return versionId;
-    }
-
-    public void setVersionId(int versionId) {
-        this.versionId = versionId;
-    }
 
     public Date getStartDate() {
         return startDate;
@@ -61,16 +45,31 @@ public class StockStatusMatrixInput implements Serializable {
         this.stopDate = stopDate;
     }
 
-
-    public boolean isIncludePlannedShipments() {
-        return includePlannedShipments;
+    public int getProgramId() {
+        return programId;
     }
 
-    public void setIncludePlannedShipments(boolean includePlannedShipments) {
-        this.includePlannedShipments = includePlannedShipments;
+    public void setProgramId(int programId) {
+        this.programId = programId;
     }
 
-    public String getPlanningUnitIdsString() {
+    public int getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(int versionId) {
+        this.versionId = versionId;
+    }
+
+    public String[] getPlanningUnitIds() {
+        return planningUnitIds;
+    }
+
+    public void setPlanningUnitIds(String[] planningUnitIds) {
+        this.planningUnitIds = planningUnitIds;
+    }
+
+    public String getPlanningUnitIdString() {
         if (this.planningUnitIds == null) {
             return "";
         } else {
@@ -83,4 +82,11 @@ public class StockStatusMatrixInput implements Serializable {
         }
     }
 
+    public boolean isIncludePlannedShipments() {
+        return includePlannedShipments;
+    }
+
+    public void setIncludePlannedShipments(boolean includePlannedShipments) {
+        this.includePlannedShipments = includePlannedShipments;
+    }
 }

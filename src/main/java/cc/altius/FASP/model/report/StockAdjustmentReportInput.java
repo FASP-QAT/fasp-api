@@ -10,13 +10,14 @@ import cc.altius.FASP.framework.JsonDateSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
  *
  * @author akil
  */
-public class StockAdjustmentListInput implements Serializable {
+public class StockAdjustmentReportInput implements Serializable {
 
     private int programId;
     private int versionId;
@@ -27,6 +28,7 @@ public class StockAdjustmentListInput implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
     private String[] planningUnitIds;
+    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     public int getProgramId() {
         return programId;
@@ -67,7 +69,7 @@ public class StockAdjustmentListInput implements Serializable {
     public void setPlanningUnitIds(String[] planningUnitIds) {
         this.planningUnitIds = planningUnitIds;
     }
-    
+
     public String getPlanningUnitIdString() {
         if (this.planningUnitIds == null) {
             return "";
@@ -81,4 +83,11 @@ public class StockAdjustmentListInput implements Serializable {
         }
     }
 
+    public String getStartDateString() {
+        return sdf.format(this.startDate);
+    }
+    
+    public String getStopDateString() {
+        return sdf.format(this.stopDate);
+    }
 }

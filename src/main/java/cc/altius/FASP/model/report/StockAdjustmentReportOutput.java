@@ -18,7 +18,7 @@ import java.util.Date;
  *
  * @author akil
  */
-public class StockAdjustmentListOutput implements Serializable {
+public class StockAdjustmentReportOutput implements Serializable {
 
     private SimpleObject program;
     private SimpleObject planningUnit;
@@ -26,6 +26,7 @@ public class StockAdjustmentListOutput implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date inventoryDate;
     private int stockAdjustemntQty;
+    private SimpleObject dataSource;
     private BasicUser lastModifiedBy;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
@@ -86,6 +87,14 @@ public class StockAdjustmentListOutput implements Serializable {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public SimpleObject getDataSource() {
+        return dataSource;
+    }
+
+    public void setDataSource(SimpleObject dataSource) {
+        this.dataSource = dataSource;
     }
 
 }
