@@ -13,14 +13,13 @@ import java.io.Serializable;
  *
  * @author akil
  */
-public class FundingSourceShipmentReportOutput implements Serializable {
+public class FundingSourceShipmentReportOutput extends ShipmentReportOutput implements Serializable {
 
     private SimpleCodeObject fundingSource;
-    private SimpleObject planningUnit;
-    private int qty;
-    private double productCost;
-    private double freightPerc;
-    private double freightCost;
+
+    public FundingSourceShipmentReportOutput(SimpleObject planningUnit, int qty, double productCost, double freightPerc, double freightCost) {
+        super(planningUnit, qty, productCost, freightPerc, freightCost);
+    }
 
     public SimpleCodeObject getFundingSource() {
         return fundingSource;
@@ -29,49 +28,5 @@ public class FundingSourceShipmentReportOutput implements Serializable {
     public void setFundingSource(SimpleCodeObject fundingSource) {
         this.fundingSource = fundingSource;
     }
-
-    public SimpleObject getPlanningUnit() {
-        return planningUnit;
-    }
-
-    public void setPlanningUnit(SimpleObject planningUnit) {
-        this.planningUnit = planningUnit;
-    }
-
-    public int getQty() {
-        return qty;
-    }
-
-    public void setQty(int qty) {
-        this.qty = qty;
-    }
-
-    public double getProductCost() {
-        return productCost;
-    }
-
-    public void setProductCost(double productCost) {
-        this.productCost = productCost;
-    }
-
-    public double getFreightPerc() {
-        return freightPerc;
-    }
-
-    public void setFreightPerc(double freightPerc) {
-        this.freightPerc = freightPerc;
-    }
-
-    public double getFreightCost() {
-        return freightCost;
-    }
-
-    public void setFreightCost(double freightCost) {
-        this.freightCost = freightCost;
-    }
-
-    public double getTotalCost() {
-        return this.freightCost + this.productCost;
-    }
-
+    
 }

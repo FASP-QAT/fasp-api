@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.model.report;
 
-import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.rowMapper.LabelRowMapper;
 import java.sql.ResultSet;
@@ -16,19 +15,16 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author akil
  */
-public class FundingSourceShipmentReportOutputRowMapper implements RowMapper<FundingSourceShipmentReportOutput> {
+public class ShipmentReportOutputRowMapper implements RowMapper<ShipmentReportOutput> {
 
     @Override
-    public FundingSourceShipmentReportOutput mapRow(ResultSet rs, int i) throws SQLException {
-        FundingSourceShipmentReportOutput fsro = new FundingSourceShipmentReportOutput(
+    public ShipmentReportOutput mapRow(ResultSet rs, int i) throws SQLException {
+        return new ShipmentReportOutput(
                 new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)),
                 rs.getInt("QTY"),
                 rs.getDouble("FREIGHT_COST"),
                 rs.getDouble("FREIGHT_PERC"),
-                rs.getDouble("PRODUCT_COST")
-        );
-        fsro.setFundingSource(new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, i), rs.getString("FUNDING_SOURCE_CODE")));
-        return fsro;
+                rs.getDouble("PRODUCT_COST"));
     }
 
 }

@@ -22,12 +22,16 @@ import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
+import cc.altius.FASP.model.report.ShipmentReportInput;
+import cc.altius.FASP.model.report.ShipmentReportOutput;
 import cc.altius.FASP.model.report.StockAdjustmentReportInput;
 import cc.altius.FASP.model.report.StockAdjustmentReportOutput;
 import cc.altius.FASP.model.report.StockOverTimeInput;
 import cc.altius.FASP.model.report.StockOverTimeOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
+import cc.altius.FASP.model.report.WarehouseCapacityInput;
+import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.service.ReportService;
 import java.util.List;
 import java.util.Map;
@@ -104,5 +108,14 @@ public class ReportServiceImpl implements ReportService {
         return this.reportDao.getFundingSourceShipmentReport(fsri, curUser);
     }
 
+    @Override
+    public List<ShipmentReportOutput> getAggregateShipmentByProduct(ShipmentReportInput sri, CustomUserDetails curUser) {
+        return this.reportDao.getAggregateShipmentByProduct(sri, curUser);
+    }
+
+    @Override
+    public List<WarehouseCapacityOutput> getWarehouseCapacityReport(WarehouseCapacityInput wci, CustomUserDetails curUser) {
+        return this.reportDao.getWarehouseCapacityReport(wci, curUser);
+    }
     
 }

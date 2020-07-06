@@ -31,6 +31,9 @@ import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutputRowMapper;
 import cc.altius.FASP.model.report.ProgramAndPlanningUnit;
+import cc.altius.FASP.model.report.ShipmentReportInput;
+import cc.altius.FASP.model.report.ShipmentReportOutput;
+import cc.altius.FASP.model.report.ShipmentReportOutputRowMapper;
 import cc.altius.FASP.model.report.StockAdjustmentReportInput;
 import cc.altius.FASP.model.report.StockAdjustmentReportOutput;
 import cc.altius.FASP.model.report.StockOverTimeInput;
@@ -39,6 +42,9 @@ import cc.altius.FASP.model.report.StockOverTimeOutputRowMapper;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutputRowMapper;
+import cc.altius.FASP.model.report.WarehouseCapacityInput;
+import cc.altius.FASP.model.report.WarehouseCapacityOutput;
+import cc.altius.FASP.model.report.WarehouseCapacityOutputResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.utils.LogUtils;
 import java.text.SimpleDateFormat;
@@ -241,6 +247,26 @@ public class ReportDaoImpl implements ReportDao {
         params.put("planningUnitIds", fsri.getPlanningUnitIdString());
         params.put("includePlannedShipments", fsri.isIncludePlannedShipments());
         return this.namedParameterJdbcTemplate.query("CALL fundingSourceShipmentReport(:startDate, :stopDate, :fundingSourceId, :programId, :versionId, :planningUnitIds, :includePlannedShipments)", params, new FundingSourceShipmentReportOutputRowMapper());
+    }
+
+    @Override
+    public List<ShipmentReportOutput> getAggregateShipmentByProduct(ShipmentReportInput sri, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", sri.getStartDate());
+        params.put("stopDate", sri.getStopDate());
+        params.put("programId", sri.getProgramId());
+        params.put("versionId", sri.getVersionId());
+        params.put("planningUnitIds", sri.getPlanningUnitIdString());
+        params.put("includePlannedShipments", sri.isIncludePlannedShipments());
+        return this.namedParameterJdbcTemplate.query("CALL aggregateShipmentByProduct(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :includePlannedShipments)", params, new ShipmentReportOutputRowMapper());
+    }
+
+    @Override
+    public List<WarehouseCapacityOutput> getWarehouseCapacityReport(WarehouseCapacityInput wci, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmCountryId", wci.getRealmCountryId());
+        params.put("programId", wci.getProgramId());
+        return this.namedParameterJdbcTemplate.query("CALL warehouseCapacityReport(:realmCountryId, :programId)", params, new WarehouseCapacityOutputResultSetExtractor());
     }
 
 }
