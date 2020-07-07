@@ -5,11 +5,7 @@
  */
 package cc.altius.FASP.model.report;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.FASP.model.SimpleObject;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -20,10 +16,6 @@ import java.util.Date;
 public class CostOfInventoryOutput implements Serializable {
 
     private SimpleObject planningUnit;
-    private String batchNo;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date expiryDate;
     private double cost;
     private int stock;
 
@@ -51,20 +43,4 @@ public class CostOfInventoryOutput implements Serializable {
         this.stock = stock;
     }
 
-    public String getBatchNo() {
-        return batchNo;
-    }
-
-    public void setBatchNo(String batchNo) {
-        this.batchNo = batchNo;
-    }
-
-    public Date getExpiryDate() {
-        return expiryDate;
-    }
-
-    public void setExpiryDate(Date expiryDate) {
-        this.expiryDate = expiryDate;
-    }
-    
 }
