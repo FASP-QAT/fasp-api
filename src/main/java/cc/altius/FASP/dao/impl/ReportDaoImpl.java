@@ -39,6 +39,9 @@ import cc.altius.FASP.model.report.StockAdjustmentReportOutput;
 import cc.altius.FASP.model.report.StockOverTimeInput;
 import cc.altius.FASP.model.report.StockOverTimeOutput;
 import cc.altius.FASP.model.report.StockOverTimeOutputRowMapper;
+import cc.altius.FASP.model.report.StockStatusForProgramInput;
+import cc.altius.FASP.model.report.StockStatusForProgramOutput;
+import cc.altius.FASP.model.report.StockStatusForProgramOutputRowMapper;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutputRowMapper;
@@ -267,6 +270,16 @@ public class ReportDaoImpl implements ReportDao {
         params.put("realmCountryId", wci.getRealmCountryId());
         params.put("programId", wci.getProgramId());
         return this.namedParameterJdbcTemplate.query("CALL warehouseCapacityReport(:realmCountryId, :programId)", params, new WarehouseCapacityOutputResultSetExtractor());
+    }
+
+    @Override
+    public List<StockStatusForProgramOutput> getStockStatusForProgram(StockStatusForProgramInput sspi, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("dt", sspi.getDt());
+        params.put("programId", sspi.getProgramId());
+        params.put("versionId", sspi.getVersionId());
+        params.put("includePlannedShipments", sspi.isIncludePlannedShipments());
+        return this.namedParameterJdbcTemplate.query("CALL getStockStatusForProgram(:programId, :versionId, :dt, :includePlannedShipments)", params, new StockStatusForProgramOutputRowMapper());
     }
 
 }

@@ -28,6 +28,8 @@ import cc.altius.FASP.model.report.StockAdjustmentReportInput;
 import cc.altius.FASP.model.report.StockAdjustmentReportOutput;
 import cc.altius.FASP.model.report.StockOverTimeInput;
 import cc.altius.FASP.model.report.StockOverTimeOutput;
+import cc.altius.FASP.model.report.StockStatusForProgramInput;
+import cc.altius.FASP.model.report.StockStatusForProgramOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
@@ -116,6 +118,11 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public List<WarehouseCapacityOutput> getWarehouseCapacityReport(WarehouseCapacityInput wci, CustomUserDetails curUser) {
         return this.reportDao.getWarehouseCapacityReport(wci, curUser);
+    }
+
+    @Override
+    public List<StockStatusForProgramOutput> getStockStatusForProgram(StockStatusForProgramInput sspi, CustomUserDetails curUser) {
+        return this.reportDao.getStockStatusForProgram(sspi, curUser);
     }
     
 }
