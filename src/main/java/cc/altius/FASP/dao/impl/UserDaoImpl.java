@@ -259,13 +259,13 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int resetFailedAttemptsByUsername(String username) {
+    public int resetFailedAttemptsByUsername(String emailId) {
         try {
             Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
             Map<String, Object> params = new HashMap<>();
-            params.put("username", username);
+            params.put("emailId", emailId);
             params.put("curDate", curDate);
-            String sqlString = "UPDATE `us_user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=:curDate WHERE USERNAME=:username";
+            String sqlString = "UPDATE `us_user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=:curDate WHERE EMAIL_ID=:emailId";
             return this.namedParameterJdbcTemplate.update(sqlString, params);
         } catch (DataAccessException e) {
             return 0;

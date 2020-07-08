@@ -27,7 +27,7 @@ public interface UserService {
 
     public Map<String, Object> checkIfUserExists(String username, String password);
 
-    public int resetFailedAttemptsByUsername(String username);
+    public int resetFailedAttemptsByUsername(String emailId);
 
     public int updateFailedAttemptsByUserId(String username);
 
