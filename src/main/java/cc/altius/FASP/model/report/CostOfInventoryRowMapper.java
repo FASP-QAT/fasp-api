@@ -21,10 +21,9 @@ public class CostOfInventoryRowMapper implements RowMapper<CostOfInventoryOutput
     public CostOfInventoryOutput mapRow(ResultSet rs, int i) throws SQLException {
         CostOfInventoryOutput c = new CostOfInventoryOutput();
         c.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper().mapRow(rs, i)));
-        c.setBatchNo(rs.getString("BATCH_NO"));
-        c.setExpiryDate(rs.getDate("EXPIRY_DATE"));
         c.setCost(rs.getDouble("COST"));
         c.setStock(rs.getInt("STOCK"));
+        c.setCatalogPrice(rs.getDouble("CATALOG_PRICE"));
         return c;
     }
 

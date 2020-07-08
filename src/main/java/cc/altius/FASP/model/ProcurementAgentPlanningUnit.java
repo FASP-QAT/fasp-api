@@ -19,7 +19,8 @@ public class ProcurementAgentPlanningUnit extends BaseModel implements Serializa
     private String skuCode;
     private Double catalogPrice;
     private Integer moq;
-    private Integer unitsPerPallet;
+    private Integer unitsPerPalletEuro1;
+    private Integer unitsPerPalletEuro2;
     private Integer unitsPerContainer;
     private Double volume; // in m3
     private Double weight; // in kg
@@ -81,12 +82,20 @@ public class ProcurementAgentPlanningUnit extends BaseModel implements Serializa
         this.moq = moq;
     }
 
-    public Integer getUnitsPerPallet() {
-        return unitsPerPallet;
+    public Integer getUnitsPerPalletEuro1() {
+        return unitsPerPalletEuro1;
     }
 
-    public void setUnitsPerPallet(Integer unitsPerPallet) {
-        this.unitsPerPallet = unitsPerPallet;
+    public void setUnitsPerPalletEuro1(Integer unitsPerPalletEuro1) {
+        this.unitsPerPalletEuro1 = unitsPerPalletEuro1;
+    }
+    
+    public Integer getUnitsPerPalletEuro2() {
+        return unitsPerPalletEuro2;
+    }
+
+    public void setUnitsPerPalletEuro2(Integer unitsPerPalletEuro2) {
+        this.unitsPerPalletEuro2 = unitsPerPalletEuro2;
     }
 
     public Integer getUnitsPerContainer() {
