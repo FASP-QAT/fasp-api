@@ -21,6 +21,8 @@ import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
+import cc.altius.FASP.model.report.ProgramProductCatalogInput;
+import cc.altius.FASP.model.report.ProgramProductCatalogOutput;
 import cc.altius.FASP.model.report.ShipmentReportInput;
 import cc.altius.FASP.model.report.ShipmentReportOutput;
 import cc.altius.FASP.model.report.StockAdjustmentReportInput;
@@ -71,4 +73,6 @@ public interface ReportService {
     public List<WarehouseCapacityOutput> getWarehouseCapacityReport(WarehouseCapacityInput wci, CustomUserDetails curUser);
     
     public List<StockStatusForProgramOutput> getStockStatusForProgram(StockStatusForProgramInput sspi, CustomUserDetails curUser);
+    
+    public List<ProgramProductCatalogOutput> getProgramProductCatalog(ProgramProductCatalogInput ppc, CustomUserDetails curUser);
 }

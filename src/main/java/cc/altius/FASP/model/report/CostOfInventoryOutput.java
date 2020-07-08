@@ -7,7 +7,6 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleObject;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  *
@@ -18,6 +17,7 @@ public class CostOfInventoryOutput implements Serializable {
     private SimpleObject planningUnit;
     private double cost;
     private int stock;
+    private double catalogPrice;
 
     public SimpleObject getPlanningUnit() {
         return planningUnit;
@@ -41,6 +41,14 @@ public class CostOfInventoryOutput implements Serializable {
 
     public void setStock(int stock) {
         this.stock = stock;
+    }
+
+    public double getCatalogPrice() {
+        return catalogPrice;
+    }
+
+    public void setCatalogPrice(double catalogPrice) {
+        this.catalogPrice = catalogPrice;
     }
 
 }

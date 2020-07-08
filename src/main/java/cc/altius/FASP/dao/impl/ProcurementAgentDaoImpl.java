@@ -150,7 +150,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT papu.PROCUREMENT_AGENT_PLANNING_UNIT_ID, "
                 + " pa.PROCUREMENT_AGENT_ID, pal.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pal.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pal.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pal.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pal.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, "
                 + " pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
-                + " papu.CATALOG_PRICE, papu.MOQ, papu.UNITS_PER_CONTAINER, papu.UNITS_PER_PALLET, papu.SKU_CODE, papu.VOLUME, papu.WEIGHT, "
+                + " papu.CATALOG_PRICE, papu.MOQ, papu.UNITS_PER_CONTAINER, papu.UNITS_PER_PALLET_EURO1, papu.UNITS_PER_PALLET_EURO2, papu.SKU_CODE, papu.VOLUME, papu.WEIGHT, "
                 + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, papu.ACTIVE, papu.CREATED_DATE, papu.LAST_MODIFIED_DATE  "
                 + " FROM rm_procurement_agent_planning_unit papu  "
                 + " LEFT JOIN rm_procurement_agent pa ON pa.PROCUREMENT_AGENT_ID=papu.PROCUREMENT_AGENT_ID "
@@ -186,7 +186,8 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                 params.put("MOQ", papu.getMoq());
                 params.put("SKU_CODE", papu.getSkuCode());
                 params.put("CATALOG_PRICE", papu.getCatalogPrice());
-                params.put("UNITS_PER_PALLET", papu.getUnitsPerPallet());
+                params.put("UNITS_PER_PALLET_EURO1", papu.getUnitsPerPalletEuro1());
+                params.put("UNITS_PER_PALLET_EURO2", papu.getUnitsPerPalletEuro2());
                 params.put("UNITS_PER_CONTAINER", papu.getUnitsPerContainer());
                 params.put("VOLUME", papu.getVolume());
                 params.put("WEIGHT", papu.getWeight());
@@ -204,7 +205,8 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                 params.put("skuCode", papu.getSkuCode());
                 params.put("catalogPrice", papu.getCatalogPrice());
                 params.put("unitsPerContainer", papu.getUnitsPerContainer());
-                params.put("unitsPerPallet", papu.getUnitsPerPallet());
+                params.put("unitsPerPalletEuro1", papu.getUnitsPerPalletEuro1());
+                params.put("unitsPerPalletEuro2", papu.getUnitsPerPalletEuro2());
                 params.put("volume", papu.getVolume());
                 params.put("weight", papu.getWeight());
                 params.put("curDate", curDate);
@@ -225,13 +227,14 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                     + "papu.MOQ=:moq, "
                     + "papu.SKU_CODE=:skuCode, "
                     + "papu.UNITS_PER_CONTAINER=:unitsPerContainer, "
-                    + "papu.UNITS_PER_PALLET=:unitsPerPallet, "
+                    + "papu.UNITS_PER_PALLET_EURO1=:unitsPerPalletEuro1, "
+                    + "papu.UNITS_PER_PALLET_EURO2=:unitsPerPalletEuro2, "
                     + "papu.VOLUME=:volume, "
                     + "papu.WEIGHT=:weight, "
                     + "papu.CATALOG_PRICE=:catalogPrice, "
                     + " papu.ACTIVE=:active, "
-                    + "papu.LAST_MODIFIED_DATE=IF(papu.ACTIVE!=:active OR papu.MOQ!=:moq OR papu.SKU_CODE!=:skuCode OR papu.UNITS_PER_CONTAINER!=:unitsPerContainer OR papu.UNITS_PER_PALLET!=:unitsPerPallet OR papu.VOLUME!=:volume OR papu.WEIGHT!=:weight, :curDate, papu.LAST_MODIFIED_DATE), "
-                    + "papu.LAST_MODIFIED_BY=IF(papu.ACTIVE!=:active OR papu.MOQ!=:moq OR papu.SKU_CODE!=:skuCode OR papu.UNITS_PER_CONTAINER!=:unitsPerContainer OR papu.UNITS_PER_PALLET!=:unitsPerPallet OR papu.VOLUME!=:volume OR papu.WEIGHT!=:weight, :curUser, papu.LAST_MODIFIED_BY) "
+                    + "papu.LAST_MODIFIED_DATE=IF(papu.ACTIVE!=:active OR papu.MOQ!=:moq OR papu.SKU_CODE!=:skuCode OR papu.UNITS_PER_CONTAINER!=:unitsPerContainer OR papu.UNITS_PER_PALLET_EURO1!=:unitsPerPalletEuro1 OR papu.UNITS_PER_PALLET_EURO2!=:unitsPerPalletEuro2 OR papu.VOLUME!=:volume OR papu.WEIGHT!=:weight, :curDate, papu.LAST_MODIFIED_DATE), "
+                    + "papu.LAST_MODIFIED_BY=IF(papu.ACTIVE!=:active OR papu.MOQ!=:moq OR papu.SKU_CODE!=:skuCode OR papu.UNITS_PER_CONTAINER!=:unitsPerContainer OR papu.UNITS_PER_PALLET_EURO1!=:unitsPerPalletEuro1 OR papu.UNITS_PER_PALLET_EURO2!=:unitsPerPalletEuro2 OR papu.VOLUME!=:volume OR papu.WEIGHT!=:weight, :curUser, papu.LAST_MODIFIED_BY) "
                     + "WHERE papu.PROCUREMENT_AGENT_PLANNING_UNIT_ID=:procurementAgentPlanningUnitId";
             rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
         }
@@ -357,7 +360,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT papu.PROCUREMENT_AGENT_PLANNING_UNIT_ID, "
                 + " pa.PROCUREMENT_AGENT_ID, pal.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pal.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pal.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pal.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pal.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, "
                 + " pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
-                + " papu.CATALOG_PRICE, papu.MOQ, papu.UNITS_PER_CONTAINER, papu.UNITS_PER_PALLET, papu.SKU_CODE, papu.VOLUME, papu.WEIGHT, "
+                + " papu.CATALOG_PRICE, papu.MOQ, papu.UNITS_PER_CONTAINER, papu.UNITS_PER_PALLET_EURO1, papu.UNITS_PER_PALLET_EURO2, papu.SKU_CODE, papu.VOLUME, papu.WEIGHT, "
                 + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, papu.ACTIVE, papu.CREATED_DATE, papu.LAST_MODIFIED_DATE  "
                 + " FROM rm_procurement_agent_planning_unit papu  "
                 + " LEFT JOIN rm_procurement_agent pa ON pa.PROCUREMENT_AGENT_ID=papu.PROCUREMENT_AGENT_ID "

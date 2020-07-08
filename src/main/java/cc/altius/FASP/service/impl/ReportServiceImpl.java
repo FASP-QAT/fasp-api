@@ -22,6 +22,8 @@ import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
+import cc.altius.FASP.model.report.ProgramProductCatalogInput;
+import cc.altius.FASP.model.report.ProgramProductCatalogOutput;
 import cc.altius.FASP.model.report.ShipmentReportInput;
 import cc.altius.FASP.model.report.ShipmentReportOutput;
 import cc.altius.FASP.model.report.StockAdjustmentReportInput;
@@ -123,6 +125,11 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public List<StockStatusForProgramOutput> getStockStatusForProgram(StockStatusForProgramInput sspi, CustomUserDetails curUser) {
         return this.reportDao.getStockStatusForProgram(sspi, curUser);
+    }
+
+    @Override
+    public List<ProgramProductCatalogOutput> getProgramProductCatalog(ProgramProductCatalogInput ppc, CustomUserDetails curUser) {
+        return this.reportDao.getProgramProductCatalog(ppc, curUser);
     }
     
 }

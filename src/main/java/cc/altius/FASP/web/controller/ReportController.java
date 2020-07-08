@@ -14,6 +14,7 @@ import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastMetricsInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
+import cc.altius.FASP.model.report.ProgramProductCatalogInput;
 import cc.altius.FASP.model.report.StockAdjustmentReportInput;
 import cc.altius.FASP.model.report.StockOverTimeInput;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
@@ -207,6 +208,16 @@ public class ReportController {
             e.printStackTrace();
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
+    }
+    
+    @RequestMapping(value = "/programProductCatalog")
+    public ResponseEntity getProgramProductCatalog(@RequestBody ProgramProductCatalogInput ppc, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.reportService.getProgramProductCatalog(ppc, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
