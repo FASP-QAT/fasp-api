@@ -30,7 +30,7 @@ public interface UserDao {
 
     public List<String> getBusinessFunctionsForUserId(int userId);
 
-    public int resetFailedAttemptsByUsername(String username);
+    public int resetFailedAttemptsByUsername(String emailId);
 
     public int updateFailedAttemptsByUserId(String username);
 

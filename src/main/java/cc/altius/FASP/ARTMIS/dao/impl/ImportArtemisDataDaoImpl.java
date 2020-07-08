@@ -527,68 +527,69 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                 MapSqlParameterSource params1 = new MapSqlParameterSource();
                 logger.info("erpOrderIdList---" + erpOrderIdList.size());
                 for (int erpOrderId : erpOrderIdList) {
-                    sql = "SELECT st.`SHIPMENT_TRANS_ID`,t.`SHIPMENT_ID`,st.`VERSION_ID` ,st.`FUNDING_SOURCE_ID`,st.`BUDGET_ID`,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER` "
-                            + "FROM rm_shipment_trans_erp_order_mapping t "
-                            + "LEFT JOIN rm_shipment_trans st ON st.`SHIPMENT_ID`=t.`SHIPMENT_ID` "
-                            + "WHERE t.`ERP_ORDER_ID`=? "
-                            + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
-                    ArtmisShipmentDTO shipmentObj = this.jdbcTemplate.queryForObject(sql, new ArtmisShipmentDTORowMapper(), erpOrderId);
-                    if (shipmentObj != null) {
-                        sql = "INSERT INTO rm_shipment_trans  "
-                                + " SELECT NULL,m.`SHIPMENT_ID`,pu.`PLANNING_UNIT_ID`,1,:fundingSourceId,:budgetId,o.`CURRENT_ESTIMATED_DELIVERY_DATE`,  "
-                                + " pru.`PROCUREMENT_UNIT_ID`,sup.`SUPPLIER_ID`,o.`QTY`,o.`PRICE`,(o.`QTY`*o.`PRICE`),o.`SHIP_BY`,o.`SHIPPING_COST`,o.`ORDERD_DATE`,  "
-                                + " min(es.`ACTUAL_SHIPMENT_DATE`),min(es.`ACTUAL_DELIVERY_DATE`),sm.`SHIPMENT_STATUS_ID`,NULL,10,1,o.`ORDER_NO`,o.`PRIME_LINE_NO`,:accountFlag,:emergencyOrder,1,:curDate,o.`VERSION_ID`,1  "
-                                + " FROM rm_erp_order o  "
-                                + " LEFT JOIN rm_shipment_trans_erp_order_mapping m ON m.`ERP_ORDER_ID`=o.`ERP_ORDER_ID`  "
-                                + " LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=m.`SHIPMENT_ID`  "
-                                + " LEFT JOIN rm_procurement_agent_planning_unit pu ON pu.`SKU_CODE`=o.`PLANNING_UNIT_SKU_CODE` AND pu.`PROCUREMENT_AGENT_ID`=1  "
-                                + " LEFT JOIN rm_procurement_agent_procurement_unit pru ON pru.`SKU_CODE`=o.`PROCUREMENT_UNIT_SKU_CODE` AND pru.`PROCUREMENT_AGENT_ID`=1  "
-                                + " LEFT JOIN ap_label l ON l.`LABEL_EN`=o.`SUPPLIER_NAME`  "
-                                + " LEFT JOIN rm_supplier sup ON sup.`LABEL_ID`=l.`LABEL_ID`  "
-                                + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=o.`ERP_ORDER_ID`  "
-                                + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=o.`STATUS` "
-                                + " WHERE m.`SHIPMENT_ID` IS NOT NULL AND o.`ERP_ORDER_ID`=:erpOrderId "
-                                + " GROUP BY o.`ERP_ORDER_ID`";
-                        params1.addValue("fundingSourceId", shipmentObj.getFundingSourceId());
-                        params1.addValue("budgetId", shipmentObj.getBudgetId());
-                        params1.addValue("accountFlag", shipmentObj.isAccountFlag());
-                        params1.addValue("emergencyOrder", shipmentObj.isEmergencyOrder());
-                        params1.addValue("curDate", curDate);
-                        params1.addValue("erpOrderId", erpOrderId);
-                        namedParameterJdbcTemplate.update(sql, params1, keyHolder1);
+                    try {
+                        sql = "SELECT st.`SHIPMENT_TRANS_ID`,t.`SHIPMENT_ID`,st.`VERSION_ID` ,st.`FUNDING_SOURCE_ID`,st.`BUDGET_ID`,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER` "
+                                + "FROM rm_shipment_trans_erp_order_mapping t "
+                                + "LEFT JOIN rm_shipment_trans st ON st.`SHIPMENT_ID`=t.`SHIPMENT_ID` "
+                                + "WHERE t.`ERP_ORDER_ID`=? "
+                                + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+                        ArtmisShipmentDTO shipmentObj = this.jdbcTemplate.queryForObject(sql, new ArtmisShipmentDTORowMapper(), erpOrderId);
+                        if (shipmentObj != null) {
+                            sql = "INSERT INTO rm_shipment_trans  "
+                                    + " SELECT NULL,m.`SHIPMENT_ID`,pu.`PLANNING_UNIT_ID`,1,:fundingSourceId,:budgetId,o.`CURRENT_ESTIMATED_DELIVERY_DATE`,  "
+                                    + " pru.`PROCUREMENT_UNIT_ID`,sup.`SUPPLIER_ID`,o.`QTY`,o.`PRICE`,(o.`QTY`*o.`PRICE`),o.`SHIP_BY`,o.`SHIPPING_COST`,o.`ORDERD_DATE`,  "
+                                    + " min(es.`ACTUAL_SHIPMENT_DATE`),min(es.`ACTUAL_DELIVERY_DATE`),sm.`SHIPMENT_STATUS_ID`,NULL,10,1,o.`ORDER_NO`,o.`PRIME_LINE_NO`,:accountFlag,:emergencyOrder,1,:curDate,o.`VERSION_ID`,1  "
+                                    + " FROM rm_erp_order o  "
+                                    + " LEFT JOIN rm_shipment_trans_erp_order_mapping m ON m.`ERP_ORDER_ID`=o.`ERP_ORDER_ID`  "
+                                    + " LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=m.`SHIPMENT_ID`  "
+                                    + " LEFT JOIN rm_procurement_agent_planning_unit pu ON pu.`SKU_CODE`=o.`PLANNING_UNIT_SKU_CODE` AND pu.`PROCUREMENT_AGENT_ID`=1  "
+                                    + " LEFT JOIN rm_procurement_agent_procurement_unit pru ON pru.`SKU_CODE`=o.`PROCUREMENT_UNIT_SKU_CODE` AND pru.`PROCUREMENT_AGENT_ID`=1  "
+                                    + " LEFT JOIN ap_label l ON l.`LABEL_EN`=o.`SUPPLIER_NAME`  "
+                                    + " LEFT JOIN rm_supplier sup ON sup.`LABEL_ID`=l.`LABEL_ID`  "
+                                    + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=o.`ERP_ORDER_ID`  "
+                                    + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=o.`STATUS` "
+                                    + " WHERE m.`SHIPMENT_ID` IS NOT NULL AND o.`ERP_ORDER_ID`=:erpOrderId "
+                                    + " GROUP BY o.`ERP_ORDER_ID`";
+                            params1.addValue("fundingSourceId", shipmentObj.getFundingSourceId());
+                            params1.addValue("budgetId", shipmentObj.getBudgetId());
+                            params1.addValue("accountFlag", shipmentObj.isAccountFlag());
+                            params1.addValue("emergencyOrder", shipmentObj.isEmergencyOrder());
+                            params1.addValue("curDate", curDate);
+                            params1.addValue("erpOrderId", erpOrderId);
+                            namedParameterJdbcTemplate.update(sql, params1, keyHolder1);
 
-                        if (keyHolder1.getKey() != null) {
-                            shipmentTransId = keyHolder1.getKey().intValue();
-                        }
-                        System.out.println("shipmentTransId---" + shipmentTransId);
+                            if (keyHolder1.getKey() != null) {
+                                shipmentTransId = keyHolder1.getKey().intValue();
+                            }
+                            System.out.println("shipmentTransId---" + shipmentTransId);
 
 //                    if (shipmentTransId > 0) {
-                        System.out.println("erpOrderId inside if---" + erpOrderId);
+                            System.out.println("erpOrderId inside if---" + erpOrderId);
 //                        sql = "SELECT t.`SHIPMENT_ID` FROM rm_shipment_trans_erp_order_mapping t WHERE t.`ERP_ORDER_ID`=?;";
 //                        int shipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderId);
 
-                        sql = "SELECT s.`PROGRAM_ID` FROM rm_shipment s WHERE s.`SHIPMENT_ID`=?;";
-                        int programId = this.jdbcTemplate.queryForObject(sql, Integer.class, shipmentObj.getShipmentId());
+                            sql = "SELECT s.`PROGRAM_ID` FROM rm_shipment s WHERE s.`SHIPMENT_ID`=?;";
+                            int programId = this.jdbcTemplate.queryForObject(sql, Integer.class, shipmentObj.getShipmentId());
 
-                        sql = "SELECT pu.`PLANNING_UNIT_ID` "
-                                + "FROM rm_erp_order o "
-                                + "LEFT JOIN rm_procurement_agent_planning_unit pu ON pu.`SKU_CODE`=o.`PLANNING_UNIT_SKU_CODE` AND pu.`PROCUREMENT_AGENT_ID`=1  "
-                                + "WHERE o.`ERP_ORDER_ID`=?; ";
-                        int planningUnitId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderId);
+                            sql = "SELECT pu.`PLANNING_UNIT_ID` "
+                                    + "FROM rm_erp_order o "
+                                    + "LEFT JOIN rm_procurement_agent_planning_unit pu ON pu.`SKU_CODE`=o.`PLANNING_UNIT_SKU_CODE` AND pu.`PROCUREMENT_AGENT_ID`=1  "
+                                    + "WHERE o.`ERP_ORDER_ID`=?; ";
+                            int planningUnitId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderId);
 
-                        sql = "INSERT IGNORE INTO rm_batch_info "
-                                + "SELECT NULL,?,?,s.`BATCH_NO`,s.`EXPIRY_DATE`,? FROM rm_erp_shipment s "
-                                + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? ";
-                        this.jdbcTemplate.update(sql, programId, planningUnitId, curDate, erpOrderId);
+                            sql = "INSERT IGNORE INTO rm_batch_info "
+                                    + "SELECT NULL,?,?,s.`BATCH_NO`,s.`EXPIRY_DATE`,? FROM rm_erp_shipment s "
+                                    + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? ";
+                            this.jdbcTemplate.update(sql, programId, planningUnitId, curDate, erpOrderId);
 
-                        sql = "INSERT INTO rm_shipment_trans_batch_info SELECT NULL,?,b.`BATCH_ID`,SUM(s.`DELIVERED_QTY`) FROM rm_erp_shipment s "
-                                + "LEFT JOIN rm_batch_info b ON b.`BATCH_NO`=s.`BATCH_NO` AND b.`PROGRAM_ID`=? AND b.`PLANNING_UNIT_ID`=? "
-                                + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? "
-                                + "GROUP BY s.`BATCH_NO`;";
-                        this.jdbcTemplate.update(sql, shipmentTransId, programId, planningUnitId, erpOrderId);
+                            sql = "INSERT INTO rm_shipment_trans_batch_info SELECT NULL,?,b.`BATCH_ID`,SUM(s.`DELIVERED_QTY`) FROM rm_erp_shipment s "
+                                    + "LEFT JOIN rm_batch_info b ON b.`BATCH_NO`=s.`BATCH_NO` AND b.`PROGRAM_ID`=? AND b.`PLANNING_UNIT_ID`=? "
+                                    + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? "
+                                    + "GROUP BY s.`BATCH_NO`;";
+                            this.jdbcTemplate.update(sql, shipmentTransId, programId, planningUnitId, erpOrderId);
 
-                        sql = "SELECT o.`VERSION_ID` FROM rm_erp_order o WHERE o.`ERP_ORDER_ID`=?;";
-                        int versionId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderId);
+                            sql = "SELECT o.`VERSION_ID` FROM rm_erp_order o WHERE o.`ERP_ORDER_ID`=?;";
+                            int versionId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderId);
 
 //                        sql = "SELECT COUNT(*) FROM rm_shipment_budget r WHERE r.`SHIPMENT_ID`=?;";
 //                        int budgetCount = this.jdbcTemplate.queryForObject(sql, Integer.class, shipmentId);
@@ -612,8 +613,10 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 //                                this.jdbcTemplate.update(sqlb, shipmentId, s.getBudgetId(), budgetAmountPerc, s.getConversionRateToUsd(), s.getCurrency().getCurrencyId(), curDate, versionId);
 //                            }
 //                        }
-                        sql = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=? WHERE s.`SHIPMENT_ID`=?;";
-                        this.jdbcTemplate.update(sql, versionId, shipmentObj.getShipmentId());
+                            sql = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=? WHERE s.`SHIPMENT_ID`=?;";
+                            this.jdbcTemplate.update(sql, versionId, shipmentObj.getShipmentId());
+                        }
+                    } catch (Exception e) {
                     }
 
                 }
