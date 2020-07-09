@@ -31,6 +31,9 @@ import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutputRowMapper;
 import cc.altius.FASP.model.report.ProgramAndPlanningUnit;
+import cc.altius.FASP.model.report.ProgramLeadTimesInput;
+import cc.altius.FASP.model.report.ProgramLeadTimesOutput;
+import cc.altius.FASP.model.report.ProgramLeadTimesOutputRowMapper;
 import cc.altius.FASP.model.report.ProgramProductCatalogInput;
 import cc.altius.FASP.model.report.ProgramProductCatalogOutput;
 import cc.altius.FASP.model.report.ProgramProductCatalogOutputRowMapper;
@@ -292,6 +295,15 @@ public class ReportDaoImpl implements ReportDao {
         params.put("productCategoryId", ppc.getProductCategoryId());
         params.put("tracerCategoryId", ppc.getTracerCategoryId());
         return this.namedParameterJdbcTemplate.query("CALL programProductCatalog(:programId, :productCategoryId, :tracerCategoryId)", params, new ProgramProductCatalogOutputRowMapper());
+    }
+
+    @Override
+    public List<ProgramLeadTimesOutput> getProgramLeadTimes(ProgramLeadTimesInput plt, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", plt.getProgramId());
+        params.put("procurementAgentIds", plt.getProcurementAgentIdString());
+        params.put("planningUnitIds", plt.getPlanningUnitIdString());
+        return this.namedParameterJdbcTemplate.query("CALL programLeadTimes(:programId, :procurementAgentIds, :planningUnitIds)", params, new ProgramLeadTimesOutputRowMapper());
     }
 
 }
