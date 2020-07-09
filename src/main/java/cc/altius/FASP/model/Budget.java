@@ -149,9 +149,13 @@ public class Budget extends BaseModel implements Serializable {
     }
 
     public boolean isBudgetUsable() {
-        if (this.budgetUsdAmt > this.usedUsdAmt
-                && DateUtils.compareDate(DateUtils.getCurrentDateObject(DateUtils.EST), this.stopDate) <= 0) {
-            return this.isActive();
+        if (this.stopDate != null) {
+            if (this.budgetUsdAmt > this.usedUsdAmt
+                    && DateUtils.compareDate(DateUtils.getCurrentDateObject(DateUtils.EST), this.stopDate) <= 0) {
+                return this.isActive();
+            } else {
+                return false;
+            }
         } else {
             return false;
         }
