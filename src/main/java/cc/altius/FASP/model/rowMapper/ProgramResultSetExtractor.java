@@ -81,6 +81,8 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
                 p.setVersionList(new LinkedList<>());
             }
             Region r = new Region(rs.getInt("REGION_ID"), new LabelRowMapper("REGION_").mapRow(rs, 0));
+            r.setCapacityCbm(rs.getDouble("CAPACITY_CBM"));
+            r.setGln(rs.getString("GLN"));
             if (p.getRegionList().indexOf(r) == -1) {
                 p.getRegionList().add(r);
             }

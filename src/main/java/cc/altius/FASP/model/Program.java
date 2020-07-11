@@ -36,7 +36,6 @@ public class Program extends BaseModel implements Serializable {
     private int monthsInPastForAmc;
     private int monthsInFutureForAmc;
 
-    @JsonIgnore
     private List<Region> regionList;
     String[] regionArray;
     private Version currentVersion;
