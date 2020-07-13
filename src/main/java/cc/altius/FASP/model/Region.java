@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  *
  * @author altius
@@ -35,6 +37,7 @@ public class Region extends BaseModel {
         return regionId;
     }
 
+    @JsonIgnore
     public String getRegionIdString() {
         return Integer.toString(regionId);
     }

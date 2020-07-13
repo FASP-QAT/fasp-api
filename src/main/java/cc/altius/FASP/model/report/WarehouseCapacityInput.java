@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class WarehouseCapacityInput implements Serializable {
 
     private int realmCountryId;
-    private int programId;
+    private String[] programIds;
 
     public int getRealmCountryId() {
         return realmCountryId;
@@ -24,12 +24,25 @@ public class WarehouseCapacityInput implements Serializable {
         this.realmCountryId = realmCountryId;
     }
 
-    public int getProgramId() {
-        return programId;
+    public String[] getProgramIds() {
+        return programIds;
     }
 
-    public void setProgramId(int programId) {
-        this.programId = programId;
+    public void setProgramIds(String[] programIds) {
+        this.programIds = programIds;
+    }
+
+    public String getProgramIdString() {
+        if (this.programIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.programIds);
+            if (this.programIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
     }
 
 }

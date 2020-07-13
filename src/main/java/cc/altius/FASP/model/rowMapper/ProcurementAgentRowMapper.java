@@ -25,7 +25,9 @@ public class ProcurementAgentRowMapper implements RowMapper<ProcurementAgent> {
                 new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, rowNum), rs.getString("REALM_CODE")),
                 new LabelRowMapper().mapRow(rs, rowNum),
                 rs.getString("PROCUREMENT_AGENT_CODE"),
+                rs.getDouble("DRAFT_TO_SUBMITTED_LEAD_TIME"),
                 rs.getDouble("SUBMITTED_TO_APPROVED_LEAD_TIME"),
+                rs.getDouble("APPROVED_TO_SHIPPED_LEAD_TIME"),
                 rs.getBoolean("LOCAL_PROCUREMENT_AGENT")
         );
         pa.setColorHtmlCode(rs.getString("COLOR_HTML_CODE"));

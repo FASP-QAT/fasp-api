@@ -274,8 +274,8 @@ public class ReportDaoImpl implements ReportDao {
     public List<WarehouseCapacityOutput> getWarehouseCapacityReport(WarehouseCapacityInput wci, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         params.put("realmCountryId", wci.getRealmCountryId());
-        params.put("programId", wci.getProgramId());
-        return this.namedParameterJdbcTemplate.query("CALL warehouseCapacityReport(:realmCountryId, :programId)", params, new WarehouseCapacityOutputResultSetExtractor());
+        params.put("programIds", wci.getProgramIdString());
+        return this.namedParameterJdbcTemplate.query("CALL warehouseCapacityReport(:realmCountryId, :programIds)", params, new WarehouseCapacityOutputResultSetExtractor());
     }
 
     @Override
