@@ -134,7 +134,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
 
     @Override
     public int addProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser) {
-        System.out.println("procurementUnit---"+procurementUnit);
+        System.out.println("procurementUnit---" + procurementUnit);
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_procurement_unit").usingGeneratedKeyColumns("PROCUREMENT_UNIT_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
@@ -145,7 +145,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("MULTIPLIER", procurementUnit.getMultiplier());
         params.put("SUPPLIER_ID", procurementUnit.getSupplier().getId());
         params.put("HEIGHT_QTY", procurementUnit.getHeightQty());
-        params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getId() == 0 ? null : procurementUnit.getHeightUnit().getId()));
+        params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit().getId() == null ? null : procurementUnit.getHeightUnit().getId()));
         params.put("WIDTH_QTY", procurementUnit.getWidthQty());
         params.put("WIDTH_UNIT_ID", (procurementUnit.getWidthUnit().getId() == null ? null : procurementUnit.getWidthUnit().getId()));
         params.put("LENGTH_QTY", procurementUnit.getLengthQty());
@@ -166,6 +166,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
 
     @Override
     public int updateProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser) {
+        System.out.println("procurementUnit-------------------***********************" + procurementUnit);
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sqlString = "UPDATE rm_procurement_unit pru LEFT JOIN ap_label prul ON pru.LABEL_ID=prul.LABEL_ID "
                 + "SET  "
@@ -207,13 +208,13 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("multiplier", procurementUnit.getMultiplier());
         params.put("unitId", procurementUnit.getUnit().getId());
         params.put("heightQty", procurementUnit.getHeightQty());
-        params.put("heightUnitId", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getId() == 0 ? null : procurementUnit.getHeightUnit().getId()));
+        params.put("heightUnitId", (procurementUnit.getHeightUnit().getId() == null || procurementUnit.getHeightUnit().getId() == 0 ? null : procurementUnit.getHeightUnit().getId()));
         params.put("lengthQty", procurementUnit.getLengthQty());
-        params.put("lengthUnitId", (procurementUnit.getLengthUnit() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
+        params.put("lengthUnitId", (procurementUnit.getLengthUnit().getId() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
         params.put("widthQty", procurementUnit.getWidthQty());
-        params.put("widthUnitId", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
+        params.put("widthUnitId", (procurementUnit.getWidthUnit().getId() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
         params.put("weightQty", procurementUnit.getWeightQty());
-        params.put("weightUnitId", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
+        params.put("weightUnitId", (procurementUnit.getWidthUnit().getId() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
         params.put("unitsPerCase", procurementUnit.getUnitsPerCase());
         params.put("unitsPerPallet", procurementUnit.getUnitsPerPallet());
         params.put("unitsPerContainer", procurementUnit.getUnitsPerContainer());
