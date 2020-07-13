@@ -918,7 +918,8 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + "    `SKU_CODE` VARCHAR(50) null, "
                         + "    `EST_PRICE` varchar(20) null, "
                         + "    `MOQ` VARCHAR(20) null, "
-                        + "    `UNITS_PER_PALLET` VARCHAR(20) null, "
+                        + "    `UNITS_PER_PALLET_EURO1` VARCHAR(20) null, "
+                        + "    `UNITS_PER_PALLET_EURO2` VARCHAR(20) null, "
                         + "    `UNITS_PER_CONTAINER` VARCHAR(20) null, "
                         + "    `VOLUME` VARCHAR(20) null, "
                         + "    `WEIGHT` VARCHAR(20) null, "
@@ -926,7 +927,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
                 this.jdbcTemplate.update(sqlString);
 
-                sqlString = "insert into tmp_procurement_agent_planning_unit select null, pu.PLANNING_UNIT_ID, null, null, null, null, null, null, null from rm_planning_unit pu";
+                sqlString = "insert into tmp_procurement_agent_planning_unit select null, pu.PLANNING_UNIT_ID, null, null, null,null null, null, null, null from rm_planning_unit pu";
                 rows = this.jdbcTemplate.update(sqlString);
                 logger.info(rows + " rowsinstered into the tmpProcurementAgentPlanningUnit table");
 
@@ -935,7 +936,8 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + "	tpapu.SKU_CODE=tpc.ProductID,  "
                         + "    tpapu.EST_PRICE=if(tpc.EstPrice='', null,tpc.EstPrice),  "
                         + "    tpapu.MOQ=if(tpc.PlanningUnitMOQ='', null,tpc.PlanningUnitMOQ),  "
-                        + "    tpapu.UNITS_PER_PALLET=if(tpc.PlanningUnitsperPallet='',null,tpc.PlanningUnitsperPallet),  "
+                        + "    tpapu.UNITS_PER_PALLET_EURO1=if(tpc.PlanningUnitsperPallet='',null,tpc.PlanningUnitsperPallet),  "
+                        + "    tpapu.UNITS_PER_PALLET_EURO2=if(tpc.PlanningUnitsperPallet='',null,tpc.PlanningUnitsperPallet),  "
                         + "    tpapu.UNITS_PER_CONTAINER=if(tpc.PlanningUnitsperContainer='',null,tpc.PlanningUnitsperContainer),  "
                         + "    tpapu.VOLUME=if(tpc.PlanningUnitVolumem3='',null,tpc.PlanningUnitVolumem3),  "
                         + "    tpapu.WEIGHT=if(tpc.PlanningUnitWeightkg='',null,tpc.PlanningUnitWeightkg)";
@@ -945,7 +947,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 sqlString = "select count(*) from rm_procurement_agent_planning_unit;";
                 logger.info("No of rows before insertion in rm_procurement_agent_planning_unit --" + this.jdbcTemplate.queryForObject(sql, Integer.class));
 
-                sqlString = "insert into rm_procurement_agent_planning_unit select null, 1, tpapu.PLANNING_UNIT_ID, tpapu.SKU_CODE, tpapu.EST_PRICE, tpapu.MOQ, tpapu.UNITS_PER_PALLET, tpapu.UNITS_PER_CONTAINER, tpapu.VOLUME, tpapu.WEIGHT, 1, 1, now(), 1, now() from tmp_procurement_agent_planning_unit tpapu "
+                sqlString = "insert into rm_procurement_agent_planning_unit select null, 1, tpapu.PLANNING_UNIT_ID, tpapu.SKU_CODE, tpapu.EST_PRICE, tpapu.MOQ, tpapu.UNITS_PER_PALLET_EURO1,tpapu.UNITS_PER_PALLET_EURO2, tpapu.UNITS_PER_CONTAINER, tpapu.VOLUME, tpapu.WEIGHT, 1, 1, now(), 1, now() from tmp_procurement_agent_planning_unit tpapu "
                         + "where tpapu.SKU_CODE IS NOT NULL;";
                 rows = this.jdbcTemplate.update(sqlString);
                 logger.info(rows + " rows inserted into procurementAgentPlanningUnit");

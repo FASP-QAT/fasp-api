@@ -27,6 +27,8 @@ public class ProcurementUnit extends BaseModel implements Serializable {
     private SimpleObject lengthUnit;
     private Double weightQty;
     private SimpleObject weightUnit;
+    private Double unitsPerCase;
+    private Double unitsPerPallet;
     private Double unitsPerContainer;
     private String labeling;
 
@@ -158,6 +160,22 @@ public class ProcurementUnit extends BaseModel implements Serializable {
         this.weightQty = weightQty;
     }
 
+    public Double getUnitsPerCase() {
+        return unitsPerCase;
+    }
+
+    public void setUnitsPerCase(Double unitsPerCase) {
+        this.unitsPerCase = unitsPerCase;
+    }
+
+    public Double getUnitsPerPallet() {
+        return unitsPerPallet;
+    }
+
+    public void setUnitsPerPallet(Double unitsPerPallet) {
+        this.unitsPerPallet = unitsPerPallet;
+    }
+
     public Double getUnitsPerContainer() {
         return unitsPerContainer;
     }
@@ -201,7 +219,7 @@ public class ProcurementUnit extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "ProcurementUnit{" + "procurementUnitId=" + procurementUnitId + ", planningUnit=" + planningUnit + ", label=" + label + ", unit=" + unit + ", multiplier=" + multiplier + ", supplier=" + supplier + ", widthQty=" + widthQty + '}';
+        return "ProcurementUnit{" + "procurementUnitId=" + procurementUnitId + ", planningUnit=" + planningUnit + ", label=" + label + ", unit=" + unit + ", multiplier=" + multiplier + ", supplier=" + supplier + ", widthQty=" + widthQty + ", widthUnit=" + widthUnit + ", heightQty=" + heightQty + ", heightUnit=" + heightUnit + ", lengthQty=" + lengthQty + ", lengthUnit=" + lengthUnit + ", weightQty=" + weightQty + ", weightUnit=" + weightUnit + ", unitsPerCase=" + unitsPerCase + ", unitsPerPallet=" + unitsPerPallet + ", unitsPerContainer=" + unitsPerContainer + ", labeling=" + labeling + '}';
     }
 
 }

@@ -39,8 +39,10 @@ public class TreeExtendedProductCategoryResultSetExtractor implements ResultSetE
         try {
             while (rs.next()) {
                 Integer parentProductCategoryId = rs.getInt(this.prefix + "PARENT_PRODUCT_CATEGORY_ID");
+                System.out.println("parentProductCategoryId---" + parentProductCategoryId);
                 if (rs.wasNull()) {
                     parentProductCategoryId = null;
+                    System.out.println("parentProductCategoryId null---");
                 }
                 ExtendedProductCategory pc = new ExtendedProductCategory(
                         rs.getInt(this.prefix + "PRODUCT_CATEGORY_ID"),
@@ -50,17 +52,28 @@ public class TreeExtendedProductCategoryResultSetExtractor implements ResultSetE
                         ""
                 );
                 pc.setBaseModel(new BaseModelRowMapper(this.prefix).mapRow(rs, 1));
+                System.out.println("pc----------------" + pc);
 
                 if (isFirst) {
+                    System.out.println("is first yes");
                     Node<ExtendedProductCategory> n = new Node(count, null, pc, pc.getProductCategoryId());
+                    System.out.println("n--------------" + n);
                     productCategoryTree = new Tree<>(n);
+                    System.out.println("productCategoryTree---" + productCategoryTree.toString());
                     isFirst = false;
                 } else {
+                    System.out.println(" is first no");
+                    System.out.println("pc new---"+pc.toString());
+                    System.out.println("pc.getParentProductCategoryId()---"+pc.getParentProductCategoryId());
                     Node<ExtendedProductCategory> parentNode = productCategoryTree.findNodeByPayloadId(pc.getParentProductCategoryId());
+                    System.out.println("parentNode---" + parentNode);
                     Node<ExtendedProductCategory> n = new Node<>(count, parentNode.getId(), pc, pc.getProductCategoryId());
+                    System.out.println("n2--------------" + n);
                     productCategoryTree.addNode(n);
+                    System.out.println("productCategoryTree 2-----------" + productCategoryTree);
                 }
                 count++;
+                System.out.println("count---" + count);
             }
         } catch (Exception e) {
             throw new DataAccessResourceFailureException(e.getMessage());

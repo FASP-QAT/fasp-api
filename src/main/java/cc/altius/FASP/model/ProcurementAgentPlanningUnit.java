@@ -89,7 +89,7 @@ public class ProcurementAgentPlanningUnit extends BaseModel implements Serializa
     public void setUnitsPerPalletEuro1(Integer unitsPerPalletEuro1) {
         this.unitsPerPalletEuro1 = unitsPerPalletEuro1;
     }
-    
+
     public Integer getUnitsPerPalletEuro2() {
         return unitsPerPalletEuro2;
     }
@@ -145,6 +145,11 @@ public class ProcurementAgentPlanningUnit extends BaseModel implements Serializa
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "ProcurementAgentPlanningUnit{" + "procurementAgentPlanningUnitId=" + procurementAgentPlanningUnitId + ", procurementAgent=" + procurementAgent + ", planningUnit=" + planningUnit + ", skuCode=" + skuCode + ", catalogPrice=" + catalogPrice + ", moq=" + moq + ", unitsPerPalletEuro1=" + unitsPerPalletEuro1 + ", unitsPerPalletEuro2=" + unitsPerPalletEuro2 + ", unitsPerContainer=" + unitsPerContainer + ", volume=" + volume + ", weight=" + weight + '}';
     }
 
 }
