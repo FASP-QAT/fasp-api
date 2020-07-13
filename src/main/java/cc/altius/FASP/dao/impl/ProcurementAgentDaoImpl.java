@@ -17,6 +17,7 @@ import cc.altius.FASP.model.rowMapper.ProcurementAgentRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -181,6 +182,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
 
     @Override
     public int saveProcurementAgentPlanningUnit(ProcurementAgentPlanningUnit[] procurementAgentPlanningUnits, CustomUserDetails curUser) {
+        System.out.println("procurementAgentPlanningUnits---"+Arrays.toString(procurementAgentPlanningUnits));
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_procurement_agent_planning_unit");
         List<SqlParameterSource> insertList = new ArrayList<>();
         List<SqlParameterSource> updateList = new ArrayList<>();
@@ -189,6 +191,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         Map<String, Object> params;
         for (ProcurementAgentPlanningUnit papu : procurementAgentPlanningUnits) {
             if (papu.getProcurementAgentPlanningUnitId() == 0) {
+                System.out.println("inside if-----------------");
                 // Insert
                 params = new HashMap<>();
                 params.put("PLANNING_UNIT_ID", papu.getPlanningUnit().getId());
@@ -196,6 +199,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                 params.put("MOQ", papu.getMoq());
                 params.put("SKU_CODE", papu.getSkuCode());
                 params.put("CATALOG_PRICE", papu.getCatalogPrice());
+                System.out.println("papu.getUnitsPerPalletEuro1()");
                 params.put("UNITS_PER_PALLET_EURO1", papu.getUnitsPerPalletEuro1());
                 params.put("UNITS_PER_PALLET_EURO2", papu.getUnitsPerPalletEuro2());
                 params.put("UNITS_PER_CONTAINER", papu.getUnitsPerContainer());
@@ -208,9 +212,11 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                 params.put("ACTIVE", true);
                 insertList.add(new MapSqlParameterSource(params));
             } else {
+                System.out.println("inside else-----------------");
                 // Update
                 params = new HashMap<>();
                 params.put("procurementAgentPlanningUnitId", papu.getProcurementAgentPlanningUnitId());
+                params.put("planningUnitId", papu.getPlanningUnit().getId());
                 params.put("moq", papu.getMoq());
                 params.put("skuCode", papu.getSkuCode());
                 params.put("catalogPrice", papu.getCatalogPrice());
@@ -226,14 +232,17 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
             }
         }
         if (insertList.size() > 0) {
+            System.out.println("inside insert-----------------");
             SqlParameterSource[] insertParams = new SqlParameterSource[insertList.size()];
             rowsEffected += si.executeBatch(insertList.toArray(insertParams)).length;
         }
         if (updateList.size() > 0) {
+            System.out.println("inside update-----------------");
             SqlParameterSource[] updateParams = new SqlParameterSource[updateList.size()];
             String sqlString = "UPDATE "
                     + "rm_procurement_agent_planning_unit papu "
                     + "SET "
+                    + "papu.PLANNING_UNIT_ID=:planningUnitId, "
                     + "papu.MOQ=:moq, "
                     + "papu.SKU_CODE=:skuCode, "
                     + "papu.UNITS_PER_CONTAINER=:unitsPerContainer, "
