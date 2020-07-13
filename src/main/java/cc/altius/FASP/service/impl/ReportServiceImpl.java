@@ -26,16 +26,24 @@ import cc.altius.FASP.model.report.ProgramLeadTimesInput;
 import cc.altius.FASP.model.report.ProgramLeadTimesOutput;
 import cc.altius.FASP.model.report.ProgramProductCatalogInput;
 import cc.altius.FASP.model.report.ProgramProductCatalogOutput;
+import cc.altius.FASP.model.report.ShipmentDetailsInput;
+import cc.altius.FASP.model.report.ShipmentDetailsOutput;
+import cc.altius.FASP.model.report.ShipmentGlobalDemandInput;
+import cc.altius.FASP.model.report.ShipmentGlobalDemandOutput;
+import cc.altius.FASP.model.report.ShipmentOverviewInput;
+import cc.altius.FASP.model.report.ShipmentOverviewOutput;
 import cc.altius.FASP.model.report.ShipmentReportInput;
 import cc.altius.FASP.model.report.ShipmentReportOutput;
 import cc.altius.FASP.model.report.StockAdjustmentReportInput;
 import cc.altius.FASP.model.report.StockAdjustmentReportOutput;
-import cc.altius.FASP.model.report.StockOverTimeInput;
-import cc.altius.FASP.model.report.StockOverTimeOutput;
+import cc.altius.FASP.model.report.StockStatusOverTimeInput;
+import cc.altius.FASP.model.report.StockStatusOverTimeOutput;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
+import cc.altius.FASP.model.report.StockStatusVerticalInput;
+import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.service.ReportService;
@@ -80,8 +88,8 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<List<StockOverTimeOutput>> getStockOverTime(StockOverTimeInput soti, CustomUserDetails curUser) {
-        return this.reportDao.getStockOverTime(soti, curUser);
+    public List<StockStatusOverTimeOutput> getStockStatusOverTime(StockStatusOverTimeInput ssot, CustomUserDetails curUser) {
+        return this.reportDao.getStockStatusOverTime(ssot, curUser);
     }
 
     @Override
@@ -137,6 +145,26 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public List<ProgramLeadTimesOutput> getProgramLeadTimes(ProgramLeadTimesInput plt, CustomUserDetails curUser) {
         return this.reportDao.getProgramLeadTimes(plt, curUser);
+    }
+
+    @Override
+    public List<StockStatusVerticalOutput> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
+        return this.reportDao.getStockStatusVertical(ssv, curUser);
+    }
+
+    @Override
+    public List<ShipmentDetailsOutput> getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) {
+        return this.reportDao.getShipmentDetails(sd, curUser);
+    }
+
+    @Override
+    public ShipmentOverviewOutput getShipmentOverview(ShipmentOverviewInput so, CustomUserDetails curUser) {
+        return this.reportDao.getShipmentOverview(so, curUser);
+    }
+
+    @Override
+    public ShipmentGlobalDemandOutput getShipmentGlobalDemand(ShipmentGlobalDemandInput sgd, CustomUserDetails curUser) {
+        return this.reportDao.getShipmentGlobalDemand(sgd, curUser);
     }
 
 }

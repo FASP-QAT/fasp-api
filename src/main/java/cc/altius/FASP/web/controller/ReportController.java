@@ -16,13 +16,16 @@ import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProgramLeadTimesInput;
 import cc.altius.FASP.model.report.ProgramProductCatalogInput;
+import cc.altius.FASP.model.report.ShipmentDetailsInput;
+import cc.altius.FASP.model.report.ShipmentGlobalDemandInput;
+import cc.altius.FASP.model.report.ShipmentOverviewInput;
 import cc.altius.FASP.model.report.StockAdjustmentReportInput;
-import cc.altius.FASP.model.report.StockOverTimeInput;
+import cc.altius.FASP.model.report.StockStatusOverTimeInput;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
+import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.service.ReportService;
-import javax.websocket.server.PathParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -102,11 +105,11 @@ public class ReportController {
         }
     }
 
-    @RequestMapping(value = "/stockOverTime")
-    public ResponseEntity getStockOverTime(@RequestBody StockOverTimeInput soti, Authentication auth) {
+    @RequestMapping(value = "/stockStatusOverTime")
+    public ResponseEntity getStockStatusOverTime(@RequestBody StockStatusOverTimeInput ssot, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.reportService.getStockOverTime(soti, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.reportService.getStockStatusOverTime(ssot, curUser), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -228,6 +231,54 @@ public class ReportController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.reportService.getProgramLeadTimes(plt, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    // Report no 16
+    @RequestMapping(value = "/stockStatusVertical")
+    public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.reportService.getStockStatusVertical(ssv, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    // Report no 19
+    @RequestMapping(value = "/shipmentDetails")
+    public ResponseEntity getShipmentDetails(@RequestBody ShipmentDetailsInput sd, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.reportService.getShipmentDetails(sd, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    // Report no 20
+    @RequestMapping(value = "/shipmentOverview")
+    public ResponseEntity getShipmentOverview(@RequestBody ShipmentOverviewInput so, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.reportService.getShipmentOverview(so, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    // Report no 21
+    @RequestMapping(value = "/shipmentGlobalDemand")
+    public ResponseEntity getShipmentGlobalDemand(@RequestBody ShipmentGlobalDemandInput sgd, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.reportService.getShipmentGlobalDemand(sgd, curUser), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

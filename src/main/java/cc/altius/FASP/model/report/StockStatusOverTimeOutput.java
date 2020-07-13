@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import java.io.Serializable;
 
@@ -12,13 +13,14 @@ import java.io.Serializable;
  *
  * @author akil
  */
-public class StockOverTimeOutput implements Serializable {
+public class StockStatusOverTimeOutput implements Serializable {
 
     private String dt;
-    private SimpleObject program;
+    private SimpleCodeObject program;
     private SimpleObject planningUnit;
     private int stock;
     private int consumptionQty;
+    private Boolean actualConsumption;
     private double amc;
     private int amcMonthCount;
     private double mos;
@@ -31,11 +33,11 @@ public class StockOverTimeOutput implements Serializable {
         this.dt = dt;
     }
 
-    public SimpleObject getProgram() {
+    public SimpleCodeObject getProgram() {
         return program;
     }
 
-    public void setProgram(SimpleObject program) {
+    public void setProgram(SimpleCodeObject program) {
         this.program = program;
     }
 
@@ -86,6 +88,16 @@ public class StockOverTimeOutput implements Serializable {
     public void setMos(double mos) {
         this.mos = mos;
     }
-    
+
+    // 0 - Forecasted
+    // 1 - Actual
+    // null - no consumption data
+    public Boolean getActualConsumption() {
+        return actualConsumption;
+    }
+
+    public void setActualConsumption(Boolean actualConsumption) {
+        this.actualConsumption = actualConsumption;
+    }
     
 }

@@ -11,46 +11,37 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  *
  * @author akil
  */
-public class StockOverTimeInput implements Serializable {
-
-    List<ProgramAndPlanningUnit> programAndPlanningUnitList;
-    private Integer mosPast;
-    private Integer mosFuture;
+public class StockStatusVerticalInput implements Serializable {
+    
+    private int programId;
+    private int versionId;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
+    private int planningUnitId;
 
-    public List<ProgramAndPlanningUnit> getProgramAndPlanningUnitList() {
-        return programAndPlanningUnitList;
+    public int getProgramId() {
+        return programId;
     }
 
-    public void setProgramAndPlanningUnitList(List<ProgramAndPlanningUnit> programAndPlanningUnitList) {
-        this.programAndPlanningUnitList = programAndPlanningUnitList;
+    public void setProgramId(int programId) {
+        this.programId = programId;
     }
 
-    public Integer getMosPast() {
-        return mosPast;
+    public int getVersionId() {
+        return versionId;
     }
 
-    public void setMosPast(Integer mosPast) {
-        this.mosPast = mosPast;
-    }
-
-    public Integer getMosFuture() {
-        return mosFuture;
-    }
-
-    public void setMosFuture(Integer mosFuture) {
-        this.mosFuture = mosFuture;
+    public void setVersionId(int versionId) {
+        this.versionId = versionId;
     }
 
     public Date getStartDate() {
@@ -69,4 +60,13 @@ public class StockOverTimeInput implements Serializable {
         this.stopDate = stopDate;
     }
 
+    public int getPlanningUnitId() {
+        return planningUnitId;
+    }
+
+    public void setPlanningUnitId(int planningUnitId) {
+        this.planningUnitId = planningUnitId;
+    }
+    
+    
 }
