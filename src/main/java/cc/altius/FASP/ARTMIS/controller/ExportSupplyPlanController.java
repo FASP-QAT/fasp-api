@@ -71,13 +71,18 @@ public class ExportSupplyPlanController {
             String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMD);
             String path, json;
             List<ProgramVersion> programVersionForARTMIS = this.programDataDao.getProgramVersionForARTMIS(REALM_ID);
+            System.out.println("programVersionForARTMIS---"+programVersionForARTMIS);
 //            List<Program> programList = this.programService.getProgramList(REALM_ID);
             List<ProgramData> programDatas = new ArrayList<>();
             File directory = new File(EXPORT_SUPPLY_PLAN_FILE_PATH);
             String programVersionIds = "";
             if (directory.isDirectory()) {
                 for (ProgramVersion p : programVersionForARTMIS) {
+                    System.out.println("REALM_ID---"+REALM_ID);
+                    System.out.println("program id---"+p.getProgram().getId());
+                    System.out.println("version id---"+p.getVersionId());
                     Program program = this.programService.getProgramList(REALM_ID, p.getProgram().getId(), p.getVersionId());
+                    System.out.println("program---"+program);
                     ProgramData pd = new ProgramData(program);
                     pd.setRequestedProgramVersion(p.getVersionId());
                     pd.setConsumptionList(this.programDataDao.getConsumptionList(program.getProgramId(), p.getVersionId()));
@@ -103,6 +108,7 @@ public class ExportSupplyPlanController {
                 fileWriter.write(json);
                 fileWriter.flush();
                 fileWriter.close();
+                System.out.println("programVersionIds---"+programVersionIds);
                 int ids = this.programDataService.updateSentToARTMISFlag(programVersionIds);
                 logger.info(ids + " program version updated");
                 logger.info("Export supply plan successful");
