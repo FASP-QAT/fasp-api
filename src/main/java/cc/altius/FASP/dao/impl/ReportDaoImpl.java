@@ -10,6 +10,9 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
 import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
 import cc.altius.FASP.model.report.AnnualShipmentCostOutputRowMapper;
+import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
+import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
+import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutputRowMapper;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.CostOfInventoryRowMapper;
@@ -24,7 +27,7 @@ import cc.altius.FASP.model.report.FundingSourceShipmentReportOutput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportOutputRowMapper;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
-import cc.altius.FASP.model.report.GlobalConsumptionOutputRowMapper;
+import cc.altius.FASP.model.report.GlobalConsumptionOutputResultSetExtractor;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.InventoryTurnsOutputRowMapper;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
@@ -150,17 +153,6 @@ public class ReportDaoImpl implements ReportDao {
         return this.namedParameterJdbcTemplate.query("CALL forecastMetrics(:realmCountryId, :programId, :planningUnitId, :startDate, :previousMonths)", params, new ForecastMetricsOutputRowMapper());
     }
 
-    @Override
-    public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("startDate", gci.getStartDate());
-        params.put("stopDate", gci.getStopDate());
-        params.put("realmCountryIds", gci.getRealmCountryIdString());
-        params.put("programIds", gci.getProgramIdString());
-        params.put("planningUnitIds", gci.getPlanningUnitIdString());
-        return this.namedParameterJdbcTemplate.query("CALL globalConsumption(:realmCountryIds,:programIds,:planningUnitIds,:startDate,:stopDate)", params, new GlobalConsumptionOutputRowMapper());
-    }
-
     // Report no 1
     @Override
     public List<ProgramProductCatalogOutput> getProgramProductCatalog(ProgramProductCatalogInput ppc, CustomUserDetails curUser) {
@@ -169,6 +161,33 @@ public class ReportDaoImpl implements ReportDao {
         params.put("productCategoryId", ppc.getProductCategoryId());
         params.put("tracerCategoryId", ppc.getTracerCategoryId());
         return this.namedParameterJdbcTemplate.query("CALL programProductCatalog(:programId, :productCategoryId, :tracerCategoryId)", params, new ProgramProductCatalogOutputRowMapper());
+    }
+
+    // Report no 2
+    @Override
+    public List<ConsumptionForecastVsActualOutput> getConsumptionForecastVsActual(ConsumptionForecastVsActualInput cfa, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", cfa.getStartDate());
+        params.put("stopDate", cfa.getStopDate());
+        params.put("programId", cfa.getProgramId());
+        params.put("versionId", cfa.getVersionId());
+        params.put("planningUnitId", cfa.getPlanningUnitId());
+        params.put("reportView", cfa.getReportView());
+        return this.namedParameterJdbcTemplate.query("CALL consumptionForecastedVsActual (:startDate, :stopDate, :programId, :versionId, :planningUnitId, :reportView)", params, new ConsumptionForecastVsActualOutputRowMapper());
+    }
+    
+    // Report no 3
+    @Override
+    public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gc, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", gc.getRealmId());
+        params.put("startDate", gc.getStartDate());
+        params.put("stopDate", gc.getStopDate());
+        params.put("realmCountryIds", gc.getRealmCountryIdString());
+        params.put("programIds", gc.getProgramIdString());
+        params.put("planningUnitIds", gc.getPlanningUnitIdString());
+        params.put("reportView", gc.getReportView());
+        return this.namedParameterJdbcTemplate.query("CALL globalConsumption(:realmId, :realmCountryIds, :programIds, :planningUnitIds, :startDate, :stopDate, :reportView)", params, new GlobalConsumptionOutputResultSetExtractor());
     }
 
     // Report no 7
@@ -396,7 +415,7 @@ public class ReportDaoImpl implements ReportDao {
         return this.namedParameterJdbcTemplate.query("CALL aggregateShipmentByProduct(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :includePlannedShipments)", params, new ShipmentReportOutputRowMapper());
     }
 
-    // Report no 28 (not sure)
+    // Report no 28
     @Override
     public List<StockStatusForProgramOutput> getStockStatusForProgram(StockStatusForProgramInput sspi, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();

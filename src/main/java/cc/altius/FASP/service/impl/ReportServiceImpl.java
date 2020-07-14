@@ -9,6 +9,8 @@ import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
 import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
+import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
+import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
@@ -82,6 +84,7 @@ public class ReportServiceImpl implements ReportService {
         return this.reportDao.getForecastMetrics(fmi, curUser);
     }
 
+    // Report no 2
     @Override
     public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser) {
         return this.reportDao.getGlobalConsumption(gci, curUser);
@@ -137,9 +140,17 @@ public class ReportServiceImpl implements ReportService {
         return this.reportDao.getStockStatusForProgram(sspi, curUser);
     }
 
+    // Report no 1
     @Override
     public List<ProgramProductCatalogOutput> getProgramProductCatalog(ProgramProductCatalogInput ppc, CustomUserDetails curUser) {
         return this.reportDao.getProgramProductCatalog(ppc, curUser);
+    }
+
+    //Report no 2
+
+    @Override
+    public List<ConsumptionForecastVsActualOutput> getConsumptionForecastVsActual(ConsumptionForecastVsActualInput cfa, CustomUserDetails curUser) {
+        return this.reportDao.getConsumptionForecastVsActual(cfa, curUser);
     }
 
     @Override

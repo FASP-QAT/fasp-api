@@ -17,6 +17,7 @@ import java.util.Date;
  */
 public class GlobalConsumptionInput {
 
+    private int realmId;
     private String[] realmCountryIds;
     private String[] programIds;
     private String[] planningUnitIds;
@@ -26,7 +27,17 @@ public class GlobalConsumptionInput {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
+    private int reportView; // 1 = Planning Unit, 2 = Forecasting Unit
 
+    public int getRealmId() {
+        return realmId;
+    }
+
+    public void setRealmId(int realmId) {
+        this.realmId = realmId;
+    }
+
+    
     public String[] getRealmCountryIds() {
         return realmCountryIds;
     }
@@ -65,6 +76,14 @@ public class GlobalConsumptionInput {
 
     public void setStopDate(Date stopDate) {
         this.stopDate = stopDate;
+    }
+
+    public int getReportView() {
+        return reportView;
+    }
+
+    public void setReportView(int reportView) {
+        this.reportView = reportView;
     }
 
     public String getRealmCountryIdString() {
