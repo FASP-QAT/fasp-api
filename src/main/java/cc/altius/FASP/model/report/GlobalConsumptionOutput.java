@@ -7,12 +7,13 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
-import cc.altius.FASP.model.SimpleCodeObject;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -20,47 +21,68 @@ import java.util.Date;
  */
 public class GlobalConsumptionOutput implements Serializable {
 
-    SimpleCodeObject realmCountry;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    Date consumptionDate;
-    Double planningUnitQty;
-    Double forecastingUnitQty;
-    private static final SimpleDateFormat sdf = new SimpleDateFormat("MMM-yyyy");
+    Date transDate;
+    Map<String, CountryConsumptionData> countryConsumption;
 
-    public SimpleCodeObject getRealmCountry() {
-        return realmCountry;
+    public GlobalConsumptionOutput() {
+        countryConsumption = new HashMap<>();
     }
 
-    public void setRealmCountry(SimpleCodeObject realmCountry) {
-        this.realmCountry = realmCountry;
+    public Date getTransDate() {
+        return transDate;
     }
 
-    public Date getConsumptionDate() {
-        return consumptionDate;
+    public void setTransDate(Date transDate) {
+        this.transDate = transDate;
     }
 
-    public void setConsumptionDate(Date consumptionDate) {
-        this.consumptionDate = consumptionDate;
+    public Map<String, CountryConsumptionData> getCountryConsumption() {
+        return countryConsumption;
     }
 
-    public Double getPlanningUnitQty() {
-        return planningUnitQty;
+    public void setCountryConsumption(Map<String, CountryConsumptionData> countryConsumption) {
+        this.countryConsumption = countryConsumption;
     }
 
-    public void setPlanningUnitQty(Double planningUnitQty) {
-        this.planningUnitQty = planningUnitQty;
+    public int getTotalForecastedConsumption() {
+        return this.countryConsumption.values().stream().map(x -> x.getForecastedConsumption()).reduce(0, Integer::sum);
     }
 
-    public Double getForecastingUnitQty() {
-        return forecastingUnitQty;
+    public int getTotalActualConsumption() {
+        return this.countryConsumption.values().stream().map(x -> x.getActualConsumption()).reduce(0, Integer::sum);
     }
 
-    public void setForecastingUnitQty(Double forecastingUnitQty) {
-        this.forecastingUnitQty = forecastingUnitQty;
+    public int getTotalConsumption() {
+        return this.getTotalForecastedConsumption() + this.getTotalActualConsumption();
     }
 
-    public String getConsumptionDateString() {
-        return sdf.format(this.consumptionDate);
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.transDate);
+        return hash;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final GlobalConsumptionOutput other = (GlobalConsumptionOutput) obj;
+        if (!Objects.equals(this.transDate, other.transDate)) {
+            return false;
+        }
+        return true;
+    }
+    
+    
+
 }

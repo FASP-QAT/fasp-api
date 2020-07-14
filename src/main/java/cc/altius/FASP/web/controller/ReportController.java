@@ -9,6 +9,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
+import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.ForecastErrorInput;
 import cc.altius.FASP.model.report.ForecastMetricsInput;
@@ -58,6 +59,7 @@ public class ReportController {
 
     }
 
+    // Report no 18
     @RequestMapping(value = "/stockStatusMatrix")
     public ResponseEntity getStockStatusMatrix(@RequestBody StockStatusMatrixInput ssm, Authentication auth) {
         try {
@@ -94,6 +96,7 @@ public class ReportController {
 
     }
 
+    // Report no 3
     @RequestMapping(value = "/globalConsumption")
     public ResponseEntity getGlobalConsumption(@RequestBody GlobalConsumptionInput gci, Authentication auth) {
         try {
@@ -159,7 +162,7 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @RequestMapping(value = "/procurementAgentShipmentReport")
     public ResponseEntity getProcurementAgentShipmentReport(@RequestBody ProcurementAgentShipmentReportInput pari, Authentication auth) {
         try {
@@ -170,7 +173,7 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @RequestMapping(value = "/fundingSourceShipmentReport")
     public ResponseEntity getFundingSourceShipmentReport(@RequestBody FundingSourceShipmentReportInput fsri, Authentication auth) {
         try {
@@ -181,7 +184,7 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @RequestMapping(value = "/aggregateShipmentByProduct")
     public ResponseEntity getAggregateShipmentByProduct(@RequestBody FundingSourceShipmentReportInput fsri, Authentication auth) {
         try {
@@ -192,7 +195,7 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @RequestMapping(value = "/warehouseCapacityReport")
     public ResponseEntity getwarehouseCapacityReport(@RequestBody WarehouseCapacityInput wci, Authentication auth) {
         try {
@@ -203,7 +206,8 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    // Report no 28
     @RequestMapping(value = "/stockStatusForProgram")
     public ResponseEntity getStockStatusForProgram(@RequestBody StockStatusForProgramInput sspi, Authentication auth) {
         try {
@@ -214,18 +218,7 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    @RequestMapping(value = "/programProductCatalog")
-    public ResponseEntity getProgramProductCatalog(@RequestBody ProgramProductCatalogInput ppc, Authentication auth) {
-        try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.reportService.getProgramProductCatalog(ppc, curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-    
+
     @RequestMapping(value = "/programLeadTimes")
     public ResponseEntity getProgramLeadTimes(@RequestBody ProgramLeadTimesInput plt, Authentication auth) {
         try {
@@ -236,7 +229,31 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    // Report no 1
+    @RequestMapping(value = "/programProductCatalog")
+    public ResponseEntity getProgramProductCatalog(@RequestBody ProgramProductCatalogInput ppc, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.reportService.getProgramProductCatalog(ppc, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Report no 2
+    @RequestMapping(value = "/consumptionForecastVsActual")
+    public ResponseEntity getConsumptionForecastVsActual(@RequestBody ConsumptionForecastVsActualInput ppc, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.reportService.getConsumptionForecastVsActual(ppc, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     // Report no 16
     @RequestMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
@@ -248,7 +265,7 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     // Report no 19
     @RequestMapping(value = "/shipmentDetails")
     public ResponseEntity getShipmentDetails(@RequestBody ShipmentDetailsInput sd, Authentication auth) {
@@ -260,7 +277,7 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     // Report no 20
     @RequestMapping(value = "/shipmentOverview")
     public ResponseEntity getShipmentOverview(@RequestBody ShipmentOverviewInput so, Authentication auth) {
@@ -272,7 +289,7 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     // Report no 21
     @RequestMapping(value = "/shipmentGlobalDemand")
     public ResponseEntity getShipmentGlobalDemand(@RequestBody ShipmentGlobalDemandInput sgd, Authentication auth) {

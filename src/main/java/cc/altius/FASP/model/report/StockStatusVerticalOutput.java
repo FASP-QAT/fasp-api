@@ -5,8 +5,15 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -14,12 +21,14 @@ import java.util.Date;
  */
 public class StockStatusVerticalOutput implements Serializable {
     
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
     private Date dt;
     private int openingBalance;
     private Boolean actualConsumption;
     private int consumptionQty;
     private int shipmentQty;
-    private String shipmentDetails;
+    private List<ShipmentInfo> shipmentInfo;
     private int adjustment;
     private int expiredStock;
     private int closingBalance;
@@ -27,6 +36,10 @@ public class StockStatusVerticalOutput implements Serializable {
     private double mos;
     private int minMos;
     private int maxMos;
+
+    public StockStatusVerticalOutput() {
+        this.shipmentInfo = new LinkedList<>();
+    }
 
     public Date getDt() {
         return dt;
@@ -68,13 +81,6 @@ public class StockStatusVerticalOutput implements Serializable {
         this.shipmentQty = shipmentQty;
     }
 
-    public String getShipmentDetails() {
-        return shipmentDetails;
-    }
-
-    public void setShipmentDetails(String shipmentDetails) {
-        this.shipmentDetails = shipmentDetails;
-    }
 
     public int getAdjustment() {
         return adjustment;
@@ -131,6 +137,38 @@ public class StockStatusVerticalOutput implements Serializable {
     public void setMaxMos(int maxMos) {
         this.maxMos = maxMos;
     }
-    
+
+    public List<ShipmentInfo> getShipmentInfo() {
+        return shipmentInfo;
+    }
+
+    public void setShipmentInfo(List<ShipmentInfo> shipmentInfo) {
+        this.shipmentInfo = shipmentInfo;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 89 * hash + Objects.hashCode(this.dt);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final StockStatusVerticalOutput other = (StockStatusVerticalOutput) obj;
+        if (!Objects.equals(this.dt, other.dt)) {
+            return false;
+        }
+        return true;
+    }
     
 }
