@@ -1094,7 +1094,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 // Step 11 - Insert into the procurement_unit
                 sqlString = "INSERT INTO rm_procurement_unit "
                         + "SELECT NULL, tpu.PLANNING_UNIT_ID, tpu.LABEL_ID, tpu.UNIT_ID, tpu.MULTIPLIER, tpu.SUPPLIER_ID, "
-                        + "tpu.WIDTH_UNIT_ID, tpu.WIDTH, tpu.HEIGHT_UNIT_ID, tpu.HEIGHT, tpu.LENGTH_UNIT_ID, tpu.LENGTH, tpu.WEIGHT_UNIT_ID, tpu.WEIGHT, tpu.UNITS_PER_CONTAINER, tpu.LABELING, 1, 1, NOW(), 1, NOW(),  tpu.UNITS_PER_CASE, tpu.UNITS_PER_PALLET "
+                        + "tpu.WIDTH_UNIT_ID, tpu.WIDTH, tpu.HEIGHT_UNIT_ID, tpu.HEIGHT, tpu.LENGTH_UNIT_ID, tpu.LENGTH, tpu.WEIGHT_UNIT_ID, tpu.WEIGHT,tpu.UNITS_PER_CASE, tpu.UNITS_PER_PALLET, tpu.UNITS_PER_CONTAINER, tpu.LABELING, 1, 1, NOW(), 1, NOW() "
                         + "FROM tmp_procurement_unit tpu "
                         + "WHERE tpu.SUPPLIER_ID IS NOT NULL && tpu.PLANNING_UNIT_ID IS NOT NULL AND tpu.LABEL_ID IS NOT NULL;";
                 rows = this.jdbcTemplate.update(sqlString);
