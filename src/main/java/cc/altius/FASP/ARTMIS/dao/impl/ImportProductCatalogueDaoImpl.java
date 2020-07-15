@@ -181,7 +181,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + "  `Drug4Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `Drug4Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `USAIDARVTier` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-//                        + "  `ProductAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                        //                        + "  `ProductAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `PlanningUnitMOQ` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `PlanningUnitsperPallet` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `PlanningUnitsperContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
@@ -194,18 +194,20 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + "  `Weight` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `HeightUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `Height` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-//                        + "  `LengthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                        //                        + "  `LengthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `Length` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-//                        + "  `WidthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                        //                        + "  `WidthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `Width` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `GTIN` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `Labeling` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `ItemAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `UnitsperCase` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `UnitsperPallet` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-//                        + "  `PalletsPerContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                        //                        + "  `PalletsPerContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `UnitsperContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  `EstPrice` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                        + "  `Euro1` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                        + "  `Euro2` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                         + "  KEY `idxProductNameNoPack` (`ProductNameNoPack`), "
                         + "  KEY `idxProductName` (`ProductName`), "
                         + "  KEY `idxItemName` (`ItemName`) "
@@ -230,13 +232,11 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + ":planningUnitVolumeM3,:planningUnitWeightKg,:itemId,:itemName,:itemSupplierName,:itemWeightUom,"
                         + ":itemWeight,:itemSizeMeasureH,:itemHeight,:itemLength,:itemWidth,"
                         + ":itemManufacturerGtinUpc,:itemLabelLanguages,:itemBuyable,:itemUnitsPerCase,:itemNumOfUnitsPallet,"
-                        + ":unitsPerContainer,:wcsCataloguePrice);";
+                        + ":unitsPerContainer,:wcsCataloguePrice,:euro1,:euro2);";
                 for (int temp2 = 0; temp2 < nList1.getLength(); temp2++) {
                     Node nNode1 = nList1.item(temp2);
                     if (nNode1.getNodeType() == Node.ELEMENT_NODE) {
                         Element dataRecordElement = (Element) nNode1;
-                        System.out.println("task order new---"+dataRecordElement.getElementsByTagName("task_order_long_description").item(0).getTextContent());
-//                        System.out.println("task order old---"+dataRecordElement.getElementsByTagName("TASK_ORDER_LONG_DESCRIPTION").item(0).getTextContent());
                         map.put("taskOrderLongDescription", dataRecordElement.getElementsByTagName("task_order_long_description").item(0).getTextContent());
                         map.put("commodityCouncilLongDesc", dataRecordElement.getElementsByTagName("commodity_council_long_desc").item(0).getTextContent());
                         map.put("commoditySubcatLongDesc", dataRecordElement.getElementsByTagName("commodity_subcat_long_desc").item(0).getTextContent());
@@ -283,10 +283,16 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         map.put("productDrug4Unit", dataRecordElement.getElementsByTagName("product_drug_4_unit").item(0).getTextContent());
 
                         map.put("usaidArvTier", dataRecordElement.getElementsByTagName("usaid_arv_tier").item(0).getTextContent());
-                        // below
-//                        map.put("productBuyable1", dataRecordElement.getElementsByTagName("product_buyable").item(1).getTextContent());
+
                         map.put("planningUnitMoq", dataRecordElement.getElementsByTagName("planning_unit_moq").item(0).getTextContent());
-                        map.put("planningUnitPallet", dataRecordElement.getElementsByTagName("planning_unit_per_pallet").item(0).getTextContent());
+                        String planningUnitPerPallet = dataRecordElement.getElementsByTagName("planning_unit_per_pallet").item(0).getTextContent();
+                        map.put("planningUnitPallet", planningUnitPerPallet);
+                        String[] noOfPallets = planningUnitPerPallet.split("|");
+                        String euro1 = (noOfPallets[0].split("-")[1] != null && noOfPallets[0].split("-")[1] != "" ? noOfPallets[0].split("-")[1] : "0");
+                        String euro2 = (noOfPallets[1].split("-")[1] != null && noOfPallets[1].split("-")[1] != "" ? noOfPallets[1].split("-")[1] : "0");
+                        map.put("euro1", euro1);
+                        map.put("euro2", euro2);
+
                         map.put("planningUnitsPerContainer", dataRecordElement.getElementsByTagName("planning_unit_per_container").item(0).getTextContent());
                         map.put("planningUnitVolumeM3", dataRecordElement.getElementsByTagName("planning_unit_volume_m3").item(0).getTextContent());
                         map.put("planningUnitWeightKg", dataRecordElement.getElementsByTagName("planning_unit_weight_kg").item(0).getTextContent());
@@ -321,12 +327,14 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
                 // --------------------------Unit Table-----------------------
                 logger.info("Going to drop tmp_unit");
-                sql = "DROP TEMPORARY TABLE IF EXISTS `tmp_unit`";
+//                sql = "DROP TEMPORARY TABLE IF EXISTS `tmp_unit`";
+                sql = "DROP TABLE IF EXISTS `tmp_unit`";
                 this.jdbcTemplate.execute(sql);
 
                 logger.info("Successfully droped tmp_unit");
                 logger.info("Going to create tmp_unit");
-                sql = "CREATE TEMPORARY TABLE `tmp_unit` ( "
+//                sql = "CREATE TEMPORARY TABLE `tmp_unit` ( "
+                sql = "CREATE TABLE `tmp_unit` ( "
                         + " `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                         + " `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
                         + " `UNIT_ID` int (10) unsigned DEFAULT NULL, "
@@ -340,123 +348,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 sql = "ALTER TABLE  `tmp_unit` ADD UNIQUE INDEX `index2` (`LABEL` ASC)";
                 this.jdbcTemplate.execute(sql);
 
-                sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Bag' WHERE pc.BaseUnit='BAG'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Bag' WHERE pc.OrderUOM='BAG'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Bag' WHERE pc.WeightUOM='BAG'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Bag' WHERE pc.HeightUOM='BAG'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Bag' WHERE pc.LengthUOM='BAG'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Bag' WHERE pc.WidthUOM='BAG'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-
-                sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Bottle' WHERE pc.BaseUnit='BOT'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Bottle' WHERE pc.OrderUOM='BOT'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Bottle' WHERE pc.WeightUOM='BOT'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Bottle' WHERE pc.HeightUOM='BOT'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Bottle' WHERE pc.LengthUOM='BOT'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Bottle' WHERE pc.WidthUOM='BOT'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-
-                sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Box' WHERE pc.BaseUnit='BOX'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Box' WHERE pc.OrderUOM='BOX'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Box' WHERE pc.WeightUOM='BOX'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Box' WHERE pc.HeightUOM='BOX'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Box' WHERE pc.LengthUOM='BOX'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Box' WHERE pc.WidthUOM='BOX'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-
-                sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Cassette' WHERE pc.BaseUnit='CAS'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Cassette' WHERE pc.OrderUOM='CAS'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Cassette' WHERE pc.WeightUOM='CAS'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Cassette' WHERE pc.HeightUOM='CAS'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Cassette' WHERE pc.LengthUOM='CAS'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Cassette' WHERE pc.WidthUOM='CAS'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-
-                sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Piece' WHERE pc.BaseUnit='PCS'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Piece' WHERE pc.OrderUOM='PCS'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Piece' WHERE pc.WeightUOM='PCS'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Piece' WHERE pc.HeightUOM='PCS'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Piece' WHERE pc.LengthUOM='PCS'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Piece' WHERE pc.WidthUOM='PCS'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-
-                sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Roll' WHERE pc.BaseUnit='ROL'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Roll' WHERE pc.OrderUOM='ROL'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Roll' WHERE pc.WeightUOM='ROL'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Roll' WHERE pc.HeightUOM='ROL'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Roll' WHERE pc.LengthUOM='ROL'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Roll' WHERE pc.WidthUOM='ROL'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-
-                sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Set' WHERE pc.BaseUnit='SET'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Set' WHERE pc.OrderUOM='SET'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Set' WHERE pc.WeightUOM='SET'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Set' WHERE pc.HeightUOM='SET'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Set' WHERE pc.LengthUOM='SET'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Set' WHERE pc.WidthUOM='SET'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-
-                sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Tube' WHERE pc.BaseUnit='TUB'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Tube' WHERE pc.OrderUOM='TUB'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Tube' WHERE pc.WeightUOM='TUB'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Tube' WHERE pc.HeightUOM='TUB'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Tube' WHERE pc.LengthUOM='TUB'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Tube' WHERE pc.WidthUOM='TUB'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-
-                sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Unit' WHERE pc.BaseUnit='UNT'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Unit' WHERE pc.OrderUOM='UNT'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Unit' WHERE pc.WeightUOM='UNT'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-                sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Unit' WHERE pc.HeightUOM='UNT'";
-                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Unit' WHERE pc.LengthUOM='UNT'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Unit' WHERE pc.WidthUOM='UNT'";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-
                 sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, BaseUnit, NULL, NULL, NULL FROM tmp_product_catalog WHERE BaseUnit IS NOT NULL AND BaseUnit != '' GROUP BY BaseUnit";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
                 sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, OrderUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE OrderUOM IS NOT NULL AND OrderUOM != '' GROUP BY OrderUOM";
@@ -465,16 +356,14 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
                 sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, HeightUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE HeightUOM IS NOT NULL AND HeightUOM != '' GROUP BY HeightUOM";
                 logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, LengthUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE LengthUOM IS NOT NULL AND LengthUOM != '' GROUP BY LengthUOM";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-//                sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, WidthUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE WidthUOM IS NOT NULL AND WidthUOM != '' GROUP BY WidthUOM";
-//                logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
 
                 sql = "SELECT COUNT(*) FROM tmp_unit;";
                 logger.info("Total rows inserted in tmp_unit---" + this.jdbcTemplate.queryForObject(sql, Integer.class));
 
-                sql = "UPDATE ap_unit au LEFT JOIN ap_label al ON au.LABEL_ID = al.LABEL_ID LEFT JOIN tmp_unit tu ON al.LABEL_EN = tu.LABEL "
-                        + "SET tu.UNIT_ID = au.UNIT_ID WHERE tu.ID IS NOT NULL";
+                sql = "UPDATE ap_unit au "
+                        + "LEFT JOIN ap_label al ON au.LABEL_ID = al.LABEL_ID "
+                        + "LEFT JOIN tmp_unit tu ON au.`UNIT_CODE` = tu.LABEL OR al.LABEL_EN=tu.LABEL "
+                        + "SET tu.UNIT_ID = au.UNIT_ID WHERE tu.ID IS NOT NULL;";
                 this.jdbcTemplate.update(sql);
 
                 sql = "SELECT * FROM tmp_unit tu where tu.UNIT_ID IS NULL";
@@ -521,11 +410,13 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 max = 0;
 
                 // Step 1 - Drop the table if it exists
-                String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_tracer_category`";
+//                String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_tracer_category`";
+                String sqlString = "DROP TABLE IF EXISTS `tmp_tracer_category`";
                 this.jdbcTemplate.update(sqlString);
 
                 // Step 2 - Create the tmp table
-                sqlString = "CREATE TEMPORARY TABLE `tmp_tracer_category` ( "
+//                sqlString = "CREATE TEMPORARY TABLE `tmp_tracer_category` ( "
+                sqlString = "CREATE TABLE `tmp_tracer_category` ( "
                         + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                         + "  `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
                         + "  `TRACER_CATEGORY_ID` int(10) unsigned DEFAULT NULL, "
@@ -592,7 +483,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
                 sql = "select count(*) from rm_tracer_category;";
                 logger.info("Rows available in rm_tracer_category after insert---" + this.jdbcTemplate.queryForObject(sql, Integer.class));
-
+//
                 //------------Forcasting Unit--------------------------
                 max = 0;
 
@@ -791,14 +682,14 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info("Rows available in rm_forecasting_unit---" + this.jdbcTemplate.queryForObject(sql, Integer.class));
 
                 // Step 16 Now insert all the data into ForecastingUnit
-//                sqlString = "INSERT INTO rm_forecasting_unit select null, 1, tfu.PRODUCT_CATEGORY_ID, tfu.TRACER_CATEGORY_ID, tfu.GENERIC_LABEL_ID, tfu.LABEL_ID, tfu.UNIT_ID, 1, 1, now(), 1, now() from tmp_forecasting_unit tfu";
-                sqlString = "INSERT INTO rm_forecasting_unit select null, 1, 1, tfu.TRACER_CATEGORY_ID, tfu.GENERIC_LABEL_ID, tfu.LABEL_ID, tfu.UNIT_ID, 1, 1, now(), 1, now() from tmp_forecasting_unit tfu";
+                sqlString = "INSERT INTO rm_forecasting_unit select null, 1, tfu.PRODUCT_CATEGORY_ID, tfu.TRACER_CATEGORY_ID, tfu.GENERIC_LABEL_ID, tfu.LABEL_ID, tfu.UNIT_ID, 1, 1, now(), 1, now() from tmp_forecasting_unit tfu";
+//                sqlString = "INSERT INTO rm_forecasting_unit select null, 1, 1, tfu.TRACER_CATEGORY_ID, tfu.GENERIC_LABEL_ID, tfu.LABEL_ID, tfu.UNIT_ID, 1, 1, now(), 1, now() from tmp_forecasting_unit tfu";
                 rows = this.jdbcTemplate.update(sqlString);
                 logger.info(rows + " Inserted into the Forecasting Unit table");
 
                 sqlString = "select count(*) from rm_forecasting_unit;";
                 logger.info("Total Rows after insertion rm_forecasting_unit---" + this.jdbcTemplate.queryForObject(sql, Integer.class));
-
+//
                 // -----------------------Planning Unit-----------------
                 sqlString = "DROP TABLE IF EXISTS tmp_planning_unit";
                 this.jdbcTemplate.update(sqlString);
@@ -909,10 +800,12 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 this.jdbcTemplate.update(sqlString);
 
                 // Now for Procurment Agent Planning Unit
-                sqlString = "drop TEMPORARY table IF EXISTS `tmp_procurement_agent_planning_unit`";
+//                sqlString = "drop TEMPORARY table IF EXISTS `tmp_procurement_agent_planning_unit`";
+                sqlString = "drop table IF EXISTS `tmp_procurement_agent_planning_unit`";
                 this.jdbcTemplate.update(sqlString);
 
-                sqlString = "CREATE TEMPORARY TABLE `tmp_procurement_agent_planning_unit` (  "
+//                sqlString = "CREATE TEMPORARY TABLE `tmp_procurement_agent_planning_unit` (  "
+                sqlString = "CREATE TABLE `tmp_procurement_agent_planning_unit` (  "
                         + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
                         + "    `PLANNING_UNIT_ID` int(10) UNSIGNED not null, "
                         + "    `SKU_CODE` VARCHAR(50) null, "
@@ -927,7 +820,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
                 this.jdbcTemplate.update(sqlString);
 
-                sqlString = "insert into tmp_procurement_agent_planning_unit select null, pu.PLANNING_UNIT_ID, null, null, null,null null, null, null, null from rm_planning_unit pu";
+                sqlString = "insert into tmp_procurement_agent_planning_unit select null, pu.PLANNING_UNIT_ID, null, null, null,null,null, null, null, null from rm_planning_unit pu";
                 rows = this.jdbcTemplate.update(sqlString);
                 logger.info(rows + " rowsinstered into the tmpProcurementAgentPlanningUnit table");
 
@@ -936,8 +829,8 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + "	tpapu.SKU_CODE=tpc.ProductID,  "
                         + "    tpapu.EST_PRICE=if(tpc.EstPrice='', null,tpc.EstPrice),  "
                         + "    tpapu.MOQ=if(tpc.PlanningUnitMOQ='', null,tpc.PlanningUnitMOQ),  "
-                        + "    tpapu.UNITS_PER_PALLET_EURO1=if(tpc.PlanningUnitsperPallet='',null,tpc.PlanningUnitsperPallet),  "
-                        + "    tpapu.UNITS_PER_PALLET_EURO2=if(tpc.PlanningUnitsperPallet='',null,tpc.PlanningUnitsperPallet),  "
+                        + "    tpapu.UNITS_PER_PALLET_EURO1=IF(tpc.Euro1='',NULL,tpc.Euro1),   "
+                        + "    tpapu.UNITS_PER_PALLET_EURO2=IF(tpc.Euro2='',NULL,tpc.Euro2),  "
                         + "    tpapu.UNITS_PER_CONTAINER=if(tpc.PlanningUnitsperContainer='',null,tpc.PlanningUnitsperContainer),  "
                         + "    tpapu.VOLUME=if(tpc.PlanningUnitVolumem3='',null,tpc.PlanningUnitVolumem3),  "
                         + "    tpapu.WEIGHT=if(tpc.PlanningUnitWeightkg='',null,tpc.PlanningUnitWeightkg)";
@@ -954,12 +847,14 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
                 sqlString = "select count(*) from rm_procurement_agent_planning_unit;";
                 logger.info("No of rows after insertion in rm_procurement_agent_planning_unit --" + this.jdbcTemplate.queryForObject(sql, Integer.class));
-
+//
                 //------------Supplier----------------
-                sql = "DROP TEMPORARY TABLE IF EXISTS `tmp_supplier`";
+//                sql = "DROP TEMPORARY TABLE IF EXISTS `tmp_supplier`";
+                sql = "DROP TABLE IF EXISTS `tmp_supplier`";
                 this.jdbcTemplate.execute(sql);
 
-                sql = "CREATE TEMPORARY TABLE `tmp_supplier` ( "
+//                sql = "CREATE TEMPORARY TABLE `tmp_supplier` ( "
+                sql = "CREATE TABLE `tmp_supplier` ( "
                         + " `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                         + " `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
                         + " `SUPPLIER_ID` int (10) unsigned DEFAULT NULL, "
@@ -1008,12 +903,14 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
                 sql = "select count(*) from rm_supplier;";
                 logger.info("no of rows after insertion into rm_supplier---" + this.jdbcTemplate.queryForObject(sql, Integer.class));
-
+//
                 //----------Procurement Unit---------------
-                sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_procurement_unit";
+//                sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_procurement_unit";
+                sqlString = "DROP TABLE IF EXISTS tmp_procurement_unit";
                 this.jdbcTemplate.update(sqlString);
 
-                sqlString = "CREATE TEMPORARY TABLE `tmp_procurement_unit` (  "
+//                sqlString = "CREATE TEMPORARY TABLE `tmp_procurement_unit` (  "
+                sqlString = "CREATE TABLE `tmp_procurement_unit` (  "
                         + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
                         + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
                         + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,  "
@@ -1029,6 +926,8 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + "    `HEIGHT` decimal (12,2) unsigned DEFAULT NULL, "
                         + "    `WEIGHT_UNIT_ID` int (10) unsigned DEFAULT NULL, "
                         + "    `WEIGHT` decimal (12,2) unsigned DEFAULT NULL, "
+                        + "    `UNITS_PER_CASE` INT (10) UNSIGNED DEFAULT NULL, "
+                        + "    `UNITS_PER_PALLET` INT (10) UNSIGNED DEFAULT NULL, "
                         + "    `UNITS_PER_CONTAINER` int (10) unsigned DEFAULT NULL, "
                         + "    `LABELING` Varchar(200) DEFAULT NULL, "
                         + "    `SKU_CODE` Varchar(200) DEFAULT NULL, "
@@ -1125,7 +1024,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info(rows + " rows matched with new labels");
 
                 // Step 7 - Insert into the tmp_procurement table
-                sqlString = "INSERT INTO tmp_procurement_unit SELECT null, tl.LABEL, tl.LABEL_ID, null, null, null, null, null, null, null, null, null, null, null, null, null,null, null, null, null, null, 1  from tmp_label tl where tl.FOUND=0";
+                sqlString = "INSERT INTO tmp_procurement_unit SELECT null, tl.LABEL, tl.LABEL_ID, null, null, null,null,null, null, null, null, null, null, null, null, null, null, null,null, null, null, null, null, 1  from tmp_label tl where tl.FOUND=0";
                 rows = this.jdbcTemplate.update(sqlString);
                 logger.info(rows + " rows inserted into the tmp_procurement table");
 
@@ -1147,27 +1046,27 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 //        } while (!validData);
 
                 // Step 8 - match and update other data
-                sqlString = "update tmp_procurement_unit tpu  "
+                sqlString = " UPDATE tmp_procurement_unit tpu  "
                         + "LEFT JOIN tmp_product_catalog tpc ON tpu.LABEL=tpc.ItemName "
                         + "LEFT JOIN (SELECT u.*, ul.LABEL_EN FROM ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID) tuhd ON tpc.HeightUOM=tuhd.LABEL_EN "
-                        + "LEFT JOIN (SELECT u.*, ul.LABEL_EN FROM ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID) tuld ON tpc.LengthUOM=tuld.LABEL_EN "
-                        + "LEFT JOIN (SELECT u.*, ul.LABEL_EN FROM ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID) tuwd ON tpc.WidthUOM=tuwd.LABEL_EN "
                         + "LEFT JOIN (SELECT u.*, ul.LABEL_EN FROM ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID) tuwed ON tpc.WeightUOM=tuwed.LABEL_EN "
-                        + "set  "
-                        + "	tpu.HEIGHT=if(tpc.Height='', null, tpc.Height), "
-                        + "    tpu.LENGTH=if(tpc.Length='', null, tpc.Length), "
-                        + "    tpu.WIDTH=if(tpc.Width='', null, tpc.Width), "
-                        + "    tpu.WEIGHT=if(tpc.Weight='', null, tpc.Weight), "
-                        + "    tpu.UNITS_PER_CONTAINER=if(tpc.UnitsperContainer='', null, tpc.UnitsperContainer), "
-                        + "    tpu.LABELING=if(tpc.Labeling='', null, tpc.Labeling), "
-                        + "    tpu.SKU_CODE=if(tpc.ItemID='', null, tpc.ItemID), "
-                        + "    tpu.GTIN=if(tpc.GTIN='', null, tpc.GTIN), "
-                        + "    tpu.VENDOR_PRICE=null, "
-                        + "    tpu.APPROVED_TO_SHIPPED_LEAD_TIME=" + approvedToShipppedLeadTime + ","
-                        + "    tpu.HEIGHT_UNIT_ID=tuhd.UNIT_ID, "
-                        + "    tpu.LENGTH_UNIT_ID=tuld.UNIT_ID, "
-                        + "    tpu.WIDTH_UNIT_ID=tuwd.UNIT_ID, "
-                        + "    tpu.WEIGHT_UNIT_ID=tuwed.UNIT_ID";
+                        + "SET  "
+                        + "	tpu.HEIGHT=IF(tpc.Height='', NULL, tpc.Height), "
+                        + "tpu.LENGTH=IF(tpc.Length='', NULL, tpc.Length), "
+                        + "tpu.WIDTH=IF(tpc.Width='', NULL, tpc.Width), "
+                        + "tpu.WEIGHT=IF(tpc.Weight='', NULL, tpc.Weight), "
+                        + "tpu.UNITS_PER_CASE=IF(tpc.UnitsperCase='', NULL, tpc.UnitsperCase), "
+                        + "tpu.UNITS_PER_PALLET=IF(tpc.UnitsperPallet='', NULL, tpc.UnitsperPallet), "
+                        + "tpu.UNITS_PER_CONTAINER=IF(tpc.UnitsperContainer='', NULL, tpc.UnitsperContainer), "
+                        + "tpu.LABELING=IF(tpc.Labeling='', NULL, tpc.Labeling), "
+                        + "tpu.SKU_CODE=IF(tpc.ItemID='', NULL, tpc.ItemID), "
+                        + "tpu.GTIN=IF(tpc.GTIN='', NULL, tpc.GTIN), "
+                        + "tpu.VENDOR_PRICE=NULL, "
+                        + "tpu.APPROVED_TO_SHIPPED_LEAD_TIME=" + approvedToShipppedLeadTime + ","
+                        + "tpu.HEIGHT_UNIT_ID=tuhd.UNIT_ID, "
+                        + "tpu.LENGTH_UNIT_ID=tuhd.UNIT_ID, "
+                        + "tpu.WIDTH_UNIT_ID=tuhd.UNIT_ID, "
+                        + "tpu.WEIGHT_UNIT_ID=tuwed.UNIT_ID; ";
                 rows = this.jdbcTemplate.update(sqlString);
                 logger.info(rows + " rows updated with matching data from product_catalog");
 
@@ -1193,8 +1092,11 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info(max + " Current max for ProcurementUnit");
 
                 // Step 11 - Insert into the procurement_unit
-                sqlString = "insert into rm_procurement_unit  "
-                        + "SELECT null, tpu.PLANNING_UNIT_ID, tpu.LABEL_ID, tpu.UNIT_ID, tpu.MULTIPLIER, tpu.SUPPLIER_ID, tpu.WIDTH_UNIT_ID, tpu.WIDTH, tpu.HEIGHT_UNIT_ID, tpu.HEIGHT, tpu.LENGTH_UNIT_ID, tpu.LENGTH, tpu.WEIGHT_UNIT_ID, tpu.WEIGHT, tpu.UNITS_PER_CONTAINER, tpu.LABELING, 1, 1, now(), 1, now() from tmp_procurement_unit tpu WHERE tpu.SUPPLIER_ID is not null && tpu.PLANNING_UNIT_ID is not null AND tpu.LABEL_ID is not null";
+                sqlString = "INSERT INTO rm_procurement_unit "
+                        + "SELECT NULL, tpu.PLANNING_UNIT_ID, tpu.LABEL_ID, tpu.UNIT_ID, tpu.MULTIPLIER, tpu.SUPPLIER_ID, "
+                        + "tpu.WIDTH_UNIT_ID, tpu.WIDTH, tpu.HEIGHT_UNIT_ID, tpu.HEIGHT, tpu.LENGTH_UNIT_ID, tpu.LENGTH, tpu.WEIGHT_UNIT_ID, tpu.WEIGHT,tpu.UNITS_PER_CASE, tpu.UNITS_PER_PALLET, tpu.UNITS_PER_CONTAINER, tpu.LABELING, 1, 1, NOW(), 1, NOW() "
+                        + "FROM tmp_procurement_unit tpu "
+                        + "WHERE tpu.SUPPLIER_ID IS NOT NULL && tpu.PLANNING_UNIT_ID IS NOT NULL AND tpu.LABEL_ID IS NOT NULL;";
                 rows = this.jdbcTemplate.update(sqlString);
                 logger.info(rows + " rows inserted into the procurement unit table");
 

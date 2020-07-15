@@ -69,7 +69,13 @@ public class StockStatusMatrixInput implements Serializable {
     public void setIncludePlannedShipments(boolean includePlannedShipments) {
         this.includePlannedShipments = includePlannedShipments;
     }
+ public String[] getPlanningUnitIds() {
+        return planningUnitIds;
+    }
 
+    public void setPlanningUnitIds(String[] planningUnitIds) {
+        this.planningUnitIds = planningUnitIds;
+    }
     public String getPlanningUnitIdsString() {
         if (this.planningUnitIds == null) {
             return "";
