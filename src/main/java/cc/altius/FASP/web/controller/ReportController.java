@@ -11,8 +11,8 @@ import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
-import cc.altius.FASP.model.report.ForecastErrorInput;
-import cc.altius.FASP.model.report.ForecastMetricsInput;
+import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
+import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProgramLeadTimesInput;
@@ -72,30 +72,6 @@ public class ReportController {
 
     }
 
-    @RequestMapping(value = "/forecastError")
-    public ResponseEntity getForecastError(@RequestBody ForecastErrorInput fei, Authentication auth) {
-        try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.reportService.getForecastError(fei, curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-    }
-
-    @RequestMapping(value = "/forecastMetrics")
-    public ResponseEntity getForecastError(@RequestBody ForecastMetricsInput fmi, Authentication auth) {
-        try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.reportService.getForecastMetrics(fmi, curUser), HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-    }
-
     // Report no 3
     @RequestMapping(value = "/globalConsumption")
     public ResponseEntity getGlobalConsumption(@RequestBody GlobalConsumptionInput gci, Authentication auth) {
@@ -106,6 +82,31 @@ public class ReportController {
             e.printStackTrace();
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    // Report no 4
+    @RequestMapping(value = "/forecastMetricsMonthly")
+    public ResponseEntity getForecastMetricsMonthls(@RequestBody ForecastMetricsMonthlyInput fmi, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.reportService.getForecastMetricsMonthly(fmi, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Report no 5
+    @RequestMapping(value = "/forecastMetricsComparision")
+    public ResponseEntity getForecastMetricsComparision(@RequestBody ForecastMetricsComparisionInput fmi, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.reportService.getForecastMetricsComparision(fmi, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
     }
 
     @RequestMapping(value = "/stockStatusOverTime")

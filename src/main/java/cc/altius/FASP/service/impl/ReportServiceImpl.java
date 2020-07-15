@@ -13,10 +13,10 @@ import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
-import cc.altius.FASP.model.report.ForecastErrorInput;
-import cc.altius.FASP.model.report.ForecastErrorOutput;
-import cc.altius.FASP.model.report.ForecastMetricsInput;
-import cc.altius.FASP.model.report.ForecastMetricsOutput;
+import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
+import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
+import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
+import cc.altius.FASP.model.report.ForecastMetricsMonthlyOutput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
@@ -74,22 +74,36 @@ public class ReportServiceImpl implements ReportService {
         return this.reportDao.getStockStatusMatrix(ssm);
     }
 
+    // Report no 1
     @Override
-    public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser) {
-        return this.reportDao.getForecastError(fei, curUser);
+    public List<ProgramProductCatalogOutput> getProgramProductCatalog(ProgramProductCatalogInput ppc, CustomUserDetails curUser) {
+        return this.reportDao.getProgramProductCatalog(ppc, curUser);
     }
 
+    //Report no 2
     @Override
-    public List<ForecastMetricsOutput> getForecastMetrics(ForecastMetricsInput fmi, CustomUserDetails curUser) {
-        return this.reportDao.getForecastMetrics(fmi, curUser);
+    public List<ConsumptionForecastVsActualOutput> getConsumptionForecastVsActual(ConsumptionForecastVsActualInput cfa, CustomUserDetails curUser) {
+        return this.reportDao.getConsumptionForecastVsActual(cfa, curUser);
     }
-
-    // Report no 2
+    // Report no 3
     @Override
     public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser) {
         return this.reportDao.getGlobalConsumption(gci, curUser);
     }
 
+    // Report no 4
+    @Override
+    public List<ForecastMetricsMonthlyOutput> getForecastMetricsMonthly(ForecastMetricsMonthlyInput fmi, CustomUserDetails curUser) {
+        return this.reportDao.getForecastMetricsMonthly(fmi, curUser);
+    }
+
+    // Report no 5
+    @Override
+    public List<ForecastMetricsComparisionOutput> getForecastMetricsComparision(ForecastMetricsComparisionInput fmi, CustomUserDetails curUser) {
+        return this.reportDao.getForecastMetricsComparision(fmi, curUser);
+    }
+    
+    
     @Override
     public List<StockStatusOverTimeOutput> getStockStatusOverTime(StockStatusOverTimeInput ssot, CustomUserDetails curUser) {
         return this.reportDao.getStockStatusOverTime(ssot, curUser);
@@ -140,18 +154,7 @@ public class ReportServiceImpl implements ReportService {
         return this.reportDao.getStockStatusForProgram(sspi, curUser);
     }
 
-    // Report no 1
-    @Override
-    public List<ProgramProductCatalogOutput> getProgramProductCatalog(ProgramProductCatalogInput ppc, CustomUserDetails curUser) {
-        return this.reportDao.getProgramProductCatalog(ppc, curUser);
-    }
 
-    //Report no 2
-
-    @Override
-    public List<ConsumptionForecastVsActualOutput> getConsumptionForecastVsActual(ConsumptionForecastVsActualInput cfa, CustomUserDetails curUser) {
-        return this.reportDao.getConsumptionForecastVsActual(cfa, curUser);
-    }
 
     @Override
     public List<ProgramLeadTimesOutput> getProgramLeadTimes(ProgramLeadTimesInput plt, CustomUserDetails curUser) {

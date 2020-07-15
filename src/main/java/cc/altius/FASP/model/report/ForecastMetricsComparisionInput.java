@@ -16,8 +16,9 @@ import java.util.Date;
  *
  * @author akil
  */
-public class ForecastMetricsInput implements Serializable {
+public class ForecastMetricsComparisionInput implements Serializable {
 
+    private int realmId;
     private String[] realmCountryIds;
     private String[] programIds;
     private String[] planningUnitIds;
@@ -25,6 +26,14 @@ public class ForecastMetricsInput implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
     private int previousMonths;
+
+    public int getRealmId() {
+        return realmId;
+    }
+
+    public void setRealmId(int realmId) {
+        this.realmId = realmId;
+    }
 
     public String[] getRealmCountryIds() {
         return realmCountryIds;
@@ -66,6 +75,7 @@ public class ForecastMetricsInput implements Serializable {
         this.previousMonths = previousMonths;
     }
 
+    
     public String getRealmCountryIdString() {
         if (this.realmCountryIds == null) {
             return "";
@@ -104,5 +114,4 @@ public class ForecastMetricsInput implements Serializable {
             }
         }
     }
-
 }

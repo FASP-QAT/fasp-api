@@ -16,33 +16,18 @@ import java.util.Date;
  *
  * @author akil
  */
-public class ForecastErrorInput implements Serializable {
+public class ForecastMetricsMonthlyInput implements Serializable {
 
-    private int realmCountryId;
-    private int planningUnitId;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
-    public final static int previousMonths = 2;
-
-    public int getRealmCountryId() {
-        return realmCountryId;
-    }
-
-    public void setRealmCountryId(int realmCountryId) {
-        this.realmCountryId = realmCountryId;
-    }
-
-    public int getPlanningUnitId() {
-        return planningUnitId;
-    }
-
-    public void setPlanningUnitId(int planningUnitId) {
-        this.planningUnitId = planningUnitId;
-    }
+    private int programId;
+    private int versionId;
+    private int planningUnitId;
+    private int previousMonths;
 
     public Date getStartDate() {
         return startDate;
@@ -59,5 +44,37 @@ public class ForecastErrorInput implements Serializable {
     public void setStopDate(Date stopDate) {
         this.stopDate = stopDate;
     }
-    
+
+    public int getProgramId() {
+        return programId;
+    }
+
+    public void setProgramId(int programId) {
+        this.programId = programId;
+    }
+
+    public int getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(int versionId) {
+        this.versionId = versionId;
+    }
+
+    public int getPlanningUnitId() {
+        return planningUnitId;
+    }
+
+    public void setPlanningUnitId(int planningUnitId) {
+        this.planningUnitId = planningUnitId;
+    }
+
+    public int getPreviousMonths() {
+        return previousMonths;
+    }
+
+    public void setPreviousMonths(int previousMonths) {
+        this.previousMonths = previousMonths;
+    }
+
 }

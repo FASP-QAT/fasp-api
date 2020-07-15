@@ -21,7 +21,7 @@ public class StockOverTimeOutputRowMapper implements RowMapper<StockStatusOverTi
     @Override
     public StockStatusOverTimeOutput mapRow(ResultSet rs, int i) throws SQLException {
         StockStatusOverTimeOutput s = new StockStatusOverTimeOutput();
-        s.setDt(rs.getString("TRANS_DATE"));
+        s.setDt(rs.getString("MONTH"));
         s.setProgram(new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, i), rs.getString("PROGRAM_CODE")));
         s.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
         s.setStock(rs.getInt("FINAL_CLOSING_BALANCE"));

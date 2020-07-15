@@ -12,10 +12,10 @@ import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
-import cc.altius.FASP.model.report.ForecastErrorInput;
-import cc.altius.FASP.model.report.ForecastErrorOutput;
-import cc.altius.FASP.model.report.ForecastMetricsInput;
-import cc.altius.FASP.model.report.ForecastMetricsOutput;
+import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
+import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
+import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
+import cc.altius.FASP.model.report.ForecastMetricsMonthlyOutput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
@@ -60,9 +60,11 @@ public interface ReportService {
 
     public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm);
 
-    public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser);
+    // Report no 4
+    public List<ForecastMetricsMonthlyOutput> getForecastMetricsMonthly(ForecastMetricsMonthlyInput fmi, CustomUserDetails curUser);
 
-    public List<ForecastMetricsOutput> getForecastMetrics(ForecastMetricsInput fmi, CustomUserDetails curUser);
+    // Report no 5
+    public List<ForecastMetricsComparisionOutput> getForecastMetricsComparision(ForecastMetricsComparisionInput fmi, CustomUserDetails curUser);
 
     // Report no 2
     public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser);
@@ -76,30 +78,30 @@ public interface ReportService {
     public List<InventoryTurnsOutput> getInventoryTurns(CostOfInventoryInput it, CustomUserDetails curUser);
 
     public List<StockAdjustmentReportOutput> getStockAdjustmentReport(StockAdjustmentReportInput si, CustomUserDetails curUser);
-    
+
     public List<ProcurementAgentShipmentReportOutput> getProcurementAgentShipmentReport(ProcurementAgentShipmentReportInput pari, CustomUserDetails curUser);
-    
+
     public List<FundingSourceShipmentReportOutput> getFundingSourceShipmentReport(FundingSourceShipmentReportInput fsri, CustomUserDetails curUser);
-    
+
     public List<ShipmentReportOutput> getAggregateShipmentByProduct(ShipmentReportInput sri, CustomUserDetails curUser);
-    
+
     public List<WarehouseCapacityOutput> getWarehouseCapacityReport(WarehouseCapacityInput wci, CustomUserDetails curUser);
-    
+
     public List<StockStatusForProgramOutput> getStockStatusForProgram(StockStatusForProgramInput sspi, CustomUserDetails curUser);
-    
+
     // Report no 1
     public List<ProgramProductCatalogOutput> getProgramProductCatalog(ProgramProductCatalogInput ppc, CustomUserDetails curUser);
-    
+
     //Report no 2
     public List<ConsumptionForecastVsActualOutput> getConsumptionForecastVsActual(ConsumptionForecastVsActualInput cfa, CustomUserDetails curUser);
-    
+
     public List<ProgramLeadTimesOutput> getProgramLeadTimes(ProgramLeadTimesInput plt, CustomUserDetails curUser);
-    
+
     public List<StockStatusVerticalOutput> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser);
-    
+
     public List<ShipmentDetailsOutput> getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser);
-    
+
     public ShipmentOverviewOutput getShipmentOverview(ShipmentOverviewInput so, CustomUserDetails curUser);
-    
+
     public ShipmentGlobalDemandOutput getShipmentGlobalDemand(ShipmentGlobalDemandInput sgd, CustomUserDetails curUser);
 }
