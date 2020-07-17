@@ -54,8 +54,7 @@ public class QatTempProgramResultSetExtractor implements ResultSetExtractor<Prog
                 p.setProgramNotes(rs.getString("PROGRAM_NOTES"));
                 p.setAirFreightPerc(rs.getDouble("AIR_FREIGHT_PERC"));
                 p.setSeaFreightPerc(rs.getDouble("SEA_FREIGHT_PERC"));
-                p.setPlannedToDraftLeadTime(rs.getDouble("PLANNED_TO_DRAFT_LEAD_TIME"));
-                p.setDraftToSubmittedLeadTime(rs.getDouble("DRAFT_TO_SUBMITTED_LEAD_TIME"));
+                p.setPlannedToSubmittedLeadTime(rs.getDouble("PLANNED_TO_SUBMITTED_LEAD_TIME"));
                 p.setSubmittedToApprovedLeadTime(rs.getDouble("SUBMITTED_TO_APPROVED_LEAD_TIME"));
                 p.setApprovedToShippedLeadTime(rs.getDouble("APPROVED_TO_SHIPPED_LEAD_TIME"));
 //                p.setDeliveredToReceivedLeadTime(rs.getDouble("DELIVERED_TO_RECEIVED_LEAD_TIME"));

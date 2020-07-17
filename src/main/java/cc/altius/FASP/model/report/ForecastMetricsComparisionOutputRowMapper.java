@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.rowMapper.LabelRowMapper;
 import java.sql.ResultSet;
@@ -20,7 +21,8 @@ public class ForecastMetricsComparisionOutputRowMapper implements RowMapper<Fore
     @Override
     public ForecastMetricsComparisionOutput mapRow(ResultSet rs, int i) throws SQLException {
         ForecastMetricsComparisionOutput fmo = new ForecastMetricsComparisionOutput();
-        fmo.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper().mapRow(rs, i)));
+        fmo.setProgram(new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, i), rs.getString("PROGRAM_CODE")));
+        fmo.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
         fmo.setDiffConsumptionTotal(rs.getInt("DIFF_CONSUMPTION_TOTAL"));
         if (rs.wasNull()) {
             fmo.setDiffConsumptionTotal(null);

@@ -26,8 +26,7 @@ public class Program extends BaseModel implements Serializable {
     private String programNotes;
     private double airFreightPerc;
     private double seaFreightPerc;
-    private double plannedToDraftLeadTime;
-    private double draftToSubmittedLeadTime;
+    private double plannedToSubmittedLeadTime;
     private double submittedToApprovedLeadTime;
     private double approvedToShippedLeadTime;
     private double shippedToArrivedByAirLeadTime;
@@ -156,20 +155,12 @@ public class Program extends BaseModel implements Serializable {
         this.seaFreightPerc = seaFreightPerc;
     }
 
-    public double getPlannedToDraftLeadTime() {
-        return plannedToDraftLeadTime;
+    public double getPlannedToSubmittedLeadTime() {
+        return plannedToSubmittedLeadTime;
     }
 
-    public void setPlannedToDraftLeadTime(double plannedToDraftLeadTime) {
-        this.plannedToDraftLeadTime = plannedToDraftLeadTime;
-    }
-
-    public double getDraftToSubmittedLeadTime() {
-        return draftToSubmittedLeadTime;
-    }
-
-    public void setDraftToSubmittedLeadTime(double draftToSubmittedLeadTime) {
-        this.draftToSubmittedLeadTime = draftToSubmittedLeadTime;
+    public void setPlannedToSubmittedLeadTime(double plannedToSubmittedLeadTime) {
+        this.plannedToSubmittedLeadTime = plannedToSubmittedLeadTime;
     }
 
     public double getSubmittedToApprovedLeadTime() {

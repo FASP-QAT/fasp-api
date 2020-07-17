@@ -56,7 +56,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     public String sqlListString = "SELECT  "
-            + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_DRAFT_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME, "
+            + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME, "
             + "     cpv.VERSION_ID `CV_VERSION_ID`, cpv.NOTES `CV_VERSION_NOTES`, cpv.CREATED_DATE `CV_CREATED_DATE`, cpvcb.USER_ID `CV_CB_USER_ID`, cpvcb.USERNAME `CV_CB_USERNAME`, cpv.LAST_MODIFIED_DATE `CV_LAST_MODIFIED_DATE`, cpvlmb.USER_ID `CV_LMB_USER_ID`, cpvlmb.USERNAME `CV_LMB_USERNAME`, "
             + "     vt.VERSION_TYPE_ID `CV_VERSION_TYPE_ID`, vtl.LABEL_ID `CV_VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `CV_VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `CV_VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `CV_VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `CV_VERSION_TYPE_LABEL_PR`, "
             + "     vs.VERSION_STATUS_ID `CV_VERSION_STATUS_ID`, vsl.LABEL_ID `CV_VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `CV_VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `CV_VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `CV_VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `CV_VERSION_STATUS_LABEL_PR`, "
@@ -64,7 +64,6 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
             + "     pl.LABEL_ID, pl.LABEL_EN, pl.LABEL_FR, pl.LABEL_PR, pl.LABEL_SP, "
             + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, "
-//            + "rc.AIR_FREIGHT_PERC `REALM_COUNTRY_AIR_FREIGHT_PERC`, rc.SEA_FREIGHT_PERC `REALM_COUNTRY_SEA_FREIGHT_PERC`, rc.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME`, rc.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME `REALM_COUNTRY_SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME`, rc.ARRIVED_TO_DELIVERED_LEAD_TIME `REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME`, "
             + "     rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
             + "     c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2,  "
             + "     cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_PR `COUNTRY_LABEL_PR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, "
@@ -151,8 +150,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("PROGRAM_NOTES", p.getProgramNotes());
         params.put("AIR_FREIGHT_PERC", p.getAirFreightPerc());
         params.put("SEA_FREIGHT_PERC", p.getSeaFreightPerc());
-        params.put("PLANNED_TO_DRAFT_LEAD_TIME", p.getPlannedToDraftLeadTime());
-        params.put("DRAFT_TO_SUBMITTED_LEAD_TIME", p.getDraftToSubmittedLeadTime());
+        params.put("PLANNED_TO_SUBMITTED_LEAD_TIME", p.getPlannedToSubmittedLeadTime());
         params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());
         params.put("APPROVED_TO_SHIPPED_LEAD_TIME", p.getApprovedToShippedLeadTime());
         params.put("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME", p.getShippedToArrivedBySeaLeadTime());
@@ -208,8 +206,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programNotes", p.getProgramNotes());
         params.put("airFreightPerc", p.getAirFreightPerc());
         params.put("seaFreightPerc", p.getSeaFreightPerc());
-        params.put("plannedToDraftLeadTime", p.getPlannedToDraftLeadTime());
-        params.put("draftToSubmittedLeadTime", p.getDraftToSubmittedLeadTime());
+        params.put("plannedToSubmittedLeadTime", p.getPlannedToSubmittedLeadTime());
         params.put("submittedToApprovedLeadTime", p.getSubmittedToApprovedLeadTime());
         params.put("approvedToShippedLeadTime", p.getApprovedToShippedLeadTime());
         params.put("shippedToArrivedBySeaLeadTime", p.getShippedToArrivedBySeaLeadTime());
@@ -227,8 +224,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "p.PROGRAM_NOTES=:programNotes, "
                 + "p.AIR_FREIGHT_PERC=:airFreightPerc, "
                 + "p.SEA_FREIGHT_PERC=:seaFreightPerc, "
-                + "p.PLANNED_TO_DRAFT_LEAD_TIME=:plannedToDraftLeadTime, "
-                + "p.DRAFT_TO_SUBMITTED_LEAD_TIME=:draftToSubmittedLeadTime, "
+                + "p.PLANNED_TO_SUBMITTED_LEAD_TIME=:plannedToSubmittedLeadTime, "
                 + "p.SUBMITTED_TO_APPROVED_LEAD_TIME=:submittedToApprovedLeadTime, "
                 + "p.APPROVED_TO_SHIPPED_LEAD_TIME=:approvedToShippedLeadTime, "
                 + "p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=:shippedToArrivedBySeaLeadTime, "
@@ -242,8 +238,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "     p.PROGRAM_NOTES!=:programNotes OR "
                 + "     p.AIR_FREIGHT_PERC!=:airFreightPerc OR "
                 + "     p.SEA_FREIGHT_PERC!=:seaFreightPerc OR "
-                + "     p.PLANNED_TO_DRAFT_LEAD_TIME!=:plannedToDraftLeadTime OR "
-                + "     p.DRAFT_TO_SUBMITTED_LEAD_TIME!=:draftToSubmittedLeadTime OR "
+                + "     p.PLANNED_TO_SUBMITTED_LEAD_TIME!=:plannedToSubmittedLeadTime OR "
                 + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME!=:submittedToApprovedLeadTime OR "
                 + "     p.APPROVED_TO_SHIPPED_LEAD_TIME!=:approvedToShippedLeadTime OR "
                 + "     p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=:shippedToArrivedBySeaLeadTime OR "
@@ -258,8 +253,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "     p.PROGRAM_NOTES!=:programNotes OR "
                 + "     p.AIR_FREIGHT_PERC!=:airFreightPerc OR "
                 + "     p.SEA_FREIGHT_PERC!=:seaFreightPerc OR "
-                + "     p.PLANNED_TO_DRAFT_LEAD_TIME!=:plannedToDraftLeadTime OR "
-                + "     p.DRAFT_TO_SUBMITTED_LEAD_TIME!=:draftToSubmittedLeadTime OR "
+                + "     p.PLANNED_TO_SUBMITTED_LEAD_TIME!=:plannedToSubmittedLeadTime OR "
                 + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME!=:submittedToApprovedLeadTime OR "
                 + "     p.APPROVED_TO_SHIPPED_LEAD_TIME!=:approvedToShippedLeadTime OR "
                 + "     p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=:shippedToArrivedBySeaLeadTime OR "

@@ -52,7 +52,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
     @Autowired
     private AclService aclService;
 
-    private String sqlListString = " SELECT pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.COLOR_HTML_CODE, pa.DRAFT_TO_SUBMITTED_LEAD_TIME, pa.SUBMITTED_TO_APPROVED_LEAD_TIME, pa.APPROVED_TO_SHIPPED_LEAD_TIME, pa.LOCAL_PROCUREMENT_AGENT, "
+    private String sqlListString = " SELECT pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.COLOR_HTML_CODE, pa.SUBMITTED_TO_APPROVED_LEAD_TIME, pa.APPROVED_TO_SHIPPED_LEAD_TIME, pa.LOCAL_PROCUREMENT_AGENT, "
             + " r.REALM_ID, r.REALM_CODE, "
             + " pal.`LABEL_ID` ,pal.`LABEL_EN`, pal.`LABEL_FR`, pal.`LABEL_PR`, pal.`LABEL_SP`,"
             + " rl.`LABEL_ID` `REALM_LABEL_ID` ,rl.`LABEL_EN` `REALM_LABEL_EN`, rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`,"
@@ -76,7 +76,6 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         params.put("REALM_ID", p.getRealm().getId());
         int labelId = this.labelDao.addLabel(p.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
-        params.put("DRAFT_TO_SUBMITTED_LEAD_TIME", p.getDraftToSubmittedLeadTime());
         params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());
         params.put("APPROVED_TO_SHIPPED_LEAD_TIME", p.getApprovedToShippedLeadTime());
         params.put("LOCAL_PROCUREMENT_AGENT", p.isLocalProcurementAgent());
@@ -97,7 +96,6 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         params.put("labelEn", p.getLabel().getLabel_en());
         params.put("procurementAgentCode", p.getProcurementAgentCode());
         params.put("colorHtmlCode", p.getColorHtmlCode());
-        params.put("draftToSubmittedLeadTime", p.getDraftToSubmittedLeadTime());
         params.put("submittedToApprovedLeadTime", p.getSubmittedToApprovedLeadTime());
         params.put("approvedToShippedLeadTime", p.getApprovedToShippedLeadTime());
         params.put("active", p.isActive());
@@ -106,21 +104,18 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         return this.namedParameterJdbcTemplate.update("UPDATE rm_procurement_agent pa LEFT JOIN ap_label pal ON pa.LABEL_ID=pal.LABEL_ID SET "
                 + " pa.PROCUREMENT_AGENT_CODE=:procurementAgentCode, "
                 + " pa.COLOR_HTML_CODE=:colorHtmlCode, "
-                + " pa.DRAFT_TO_SUBMITTED_LEAD_TIME=:draftToSubmittedLeadTime, "
                 + " pa.SUBMITTED_TO_APPROVED_LEAD_TIME=:submittedToApprovedLeadTime, "
                 + " pa.APPROVED_TO_SHIPPED_LEAD_TIME=:approvedToShippedLeadTime, "
                 + " pa.ACTIVE=:active, "
                 + " pa.LAST_MODIFIED_BY=IF("
                 + "     pa.PROCUREMENT_AGENT_CODE!=:procurementAgentCode OR "
                 + "     pa.COLOR_HTML_CODE!=:colorHtmlCode OR "
-                + "     pa.DRAFT_TO_SUBMITTED_LEAD_TIME!=:draftToSubmittedLeadTime OR "
                 + "     pa.SUBMITTED_TO_APPROVED_LEAD_TIME!=:submittedToApprovedLeadTime OR "
                 + "     pa.APPROVED_TO_SHIPPED_LEAD_TIME!=:approvedToShippedLeadTime OR "
                 + "     pa.ACTIVE!=:active, :curUser, pa.LAST_MODIFIED_BY), "
                 + " pa.LAST_MODIFIED_DATE=IF("
                 + "     pa.PROCUREMENT_AGENT_CODE!=:procurementAgentCode OR "
                 + "     pa.COLOR_HTML_CODE!=:colorHtmlCode OR "
-                + "     pa.DRAFT_TO_SUBMITTED_LEAD_TIME!=:draftToSubmittedLeadTime OR "
                 + "     pa.SUBMITTED_TO_APPROVED_LEAD_TIME!=:submittedToApprovedLeadTime OR "
                 + "     pa.APPROVED_TO_SHIPPED_LEAD_TIME!=:approvedToShippedLeadTime OR "
                 + "     pa.ACTIVE!=:active, :curDate, pa.LAST_MODIFIED_DATE), "

@@ -14,12 +14,21 @@ import java.io.Serializable;
  */
 public class ForecastMetricsComparisionOutput implements Serializable {
 
+    private SimpleObject program;
     private SimpleObject planningUnit;
     private Integer diffConsumptionTotal;
     private Integer actualConsumptionTotal;
     private int monthCount;
     private Double forecastError;
 
+    public SimpleObject getProgram() {
+        return program;
+    }
+
+    public void setProgram(SimpleObject program) {
+        this.program = program;
+    }
+    
     public SimpleObject getPlanningUnit() {
         return planningUnit;
     }

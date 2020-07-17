@@ -12,7 +12,6 @@ import cc.altius.FASP.dao.PipelineDbDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.Program;
-import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.pipeline.Pipeline;
@@ -597,8 +596,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("programNotes", p.getProgramNotes());
             params.put("airFreightPerc", p.getAirFreightPerc());
             params.put("seaFreightPerc", p.getSeaFreightPerc());
-            params.put("plannedToDraftLeadTime", p.getPlannedToDraftLeadTime());
-            params.put("draftToSubmittedLeadTime", p.getDraftToSubmittedLeadTime());
+            params.put("plannedToSubmittedLeadTime", p.getPlannedToSubmittedLeadTime());
             params.put("submittedToApprovedLeadTime", p.getSubmittedToApprovedLeadTime());
             params.put("approvedToShippedLeadTime", p.getApprovedToShippedLeadTime());
 //            params.put("deliveredToReceivedLeadTime", p.getDeliveredToReceivedLeadTime());
@@ -677,8 +675,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("PROGRAM_NOTES", p.getProgramNotes());
             params.put("AIR_FREIGHT_PERC", p.getAirFreightPerc());
             params.put("SEA_FREIGHT_PERC", p.getSeaFreightPerc());
-            params.put("PLANNED_TO_DRAFT_LEAD_TIME", p.getPlannedToDraftLeadTime());
-            params.put("DRAFT_TO_SUBMITTED_LEAD_TIME", p.getDraftToSubmittedLeadTime());
+            params.put("PLANNED_TO_SUBMITTED_LEAD_TIME", p.getPlannedToSubmittedLeadTime());
             params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());
             params.put("APPROVED_TO_SHIPPED_LEAD_TIME", p.getApprovedToShippedLeadTime());
 //            params.put("DELIVERED_TO_RECEIVED_LEAD_TIME", p.getDeliveredToReceivedLeadTime());
@@ -1222,8 +1219,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         params.put("PROGRAM_NOTES", p.getProgramNotes());
         params.put("AIR_FREIGHT_PERC", p.getAirFreightPerc());
         params.put("SEA_FREIGHT_PERC", p.getSeaFreightPerc());
-        params.put("PLANNED_TO_DRAFT_LEAD_TIME", p.getPlannedToDraftLeadTime());
-        params.put("DRAFT_TO_SUBMITTED_LEAD_TIME", p.getDraftToSubmittedLeadTime());
+        params.put("PLANNED_TO_SUBMITTED_LEAD_TIME", p.getPlannedToSubmittedLeadTime());
         params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());
         params.put("APPROVED_TO_SHIPPED_LEAD_TIME", p.getApprovedToShippedLeadTime());
         params.put("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME", p.getShippedToArrivedBySeaLeadTime());
