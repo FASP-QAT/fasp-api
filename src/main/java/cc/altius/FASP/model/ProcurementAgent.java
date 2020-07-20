@@ -17,7 +17,6 @@ public class ProcurementAgent extends BaseModel implements Serializable {
     private SimpleCodeObject realm;
     private Label label;
     private String procurementAgentCode;
-    private double draftToSubmittedLeadTime;
     private double submittedToApprovedLeadTime;
     private double approvedToShippedLeadTime;
     private boolean localProcurementAgent;
@@ -32,12 +31,11 @@ public class ProcurementAgent extends BaseModel implements Serializable {
         this.procurementAgentCode = procurementAgentCode;
     }
 
-    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, Label label, String procurementAgentCode, double draftToSubmittedLeadTime, double submittedToApprovedLeadTime, double approvedToShippedLeadTime, boolean localProcurementAgent) {
+    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, Label label, String procurementAgentCode, double submittedToApprovedLeadTime, double approvedToShippedLeadTime, boolean localProcurementAgent) {
         this.procurementAgentId = procurementAgentId;
         this.realm = realm;
         this.label = label;
         this.procurementAgentCode = procurementAgentCode;
-        this.draftToSubmittedLeadTime = draftToSubmittedLeadTime;
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
         this.localProcurementAgent = localProcurementAgent;
@@ -89,14 +87,6 @@ public class ProcurementAgent extends BaseModel implements Serializable {
 
     public void setSubmittedToApprovedLeadTime(double submittedToApprovedLeadTime) {
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
-    }
-
-    public double getDraftToSubmittedLeadTime() {
-        return draftToSubmittedLeadTime;
-    }
-
-    public void setDraftToSubmittedLeadTime(double draftToSubmittedLeadTime) {
-        this.draftToSubmittedLeadTime = draftToSubmittedLeadTime;
     }
 
     public boolean isLocalProcurementAgent() {

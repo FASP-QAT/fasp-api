@@ -19,8 +19,7 @@ public class ProgramLeadTimesOutput implements Serializable {
     private SimpleCodeObject program;
     private SimpleCodeObject procurementAgent;
     private SimpleObject planningUnit;
-    private double plannedToDraftLeadTime;
-    private double draftToSubmittedLeadTime;
+    private double plannedToSubmittedLeadTime;
     private double submittedToApprovedLeadTime;
     private double approvedToShippedLeadTime;
     private double shippedToArrivedByAirLeadTime;
@@ -60,20 +59,12 @@ public class ProgramLeadTimesOutput implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public double getPlannedToDraftLeadTime() {
-        return plannedToDraftLeadTime;
+    public double getPlannedSubmittedLeadTime() {
+        return plannedToSubmittedLeadTime;
     }
 
-    public void setPlannedToDraftLeadTime(double plannedToDraftLeadTime) {
-        this.plannedToDraftLeadTime = plannedToDraftLeadTime;
-    }
-
-    public double getDraftToSubmittedLeadTime() {
-        return draftToSubmittedLeadTime;
-    }
-
-    public void setDraftToSubmittedLeadTime(double draftToSubmittedLeadTime) {
-        this.draftToSubmittedLeadTime = draftToSubmittedLeadTime;
+    public void setPlannedToSubmittedLeadTime(double plannedToSubmittedLeadTime) {
+        this.plannedToSubmittedLeadTime = plannedToSubmittedLeadTime;
     }
 
     public double getSubmittedToApprovedLeadTime() {
@@ -124,4 +115,11 @@ public class ProgramLeadTimesOutput implements Serializable {
         this.localProcurementAgentLeadTime = localProcurementAgentLeadTime;
     }
 
+    public double getTotalSeaLeadTime() {
+        return this.plannedToSubmittedLeadTime + this.submittedToApprovedLeadTime + this.approvedToShippedLeadTime + this.shippedToArrivedBySeaLeadTime + this.arrivedToDeliveredLeadTime;
+    }
+
+    public double getTotalAirLeadTime() {
+        return this.plannedToSubmittedLeadTime + this.submittedToApprovedLeadTime + this.approvedToShippedLeadTime + this.shippedToArrivedByAirLeadTime + this.arrivedToDeliveredLeadTime;
+    }
 }

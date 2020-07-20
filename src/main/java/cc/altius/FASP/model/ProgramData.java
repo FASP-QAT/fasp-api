@@ -26,8 +26,7 @@ public class ProgramData extends BaseModel implements Serializable {
     private String programNotes;
     private double airFreightPerc;
     private double seaFreightPerc;
-    private double plannedToDraftLeadTime;
-    private double draftToSubmittedLeadTime;
+    private double plannedToSubmittedLeadTime;
     private double submittedToApprovedLeadTime;
     private double approvedToShippedLeadTime;
     private double shippedToArrivedByAirLeadTime;
@@ -84,8 +83,7 @@ public class ProgramData extends BaseModel implements Serializable {
         this.programNotes = p.getProgramNotes();
         this.airFreightPerc = p.getAirFreightPerc();
         this.seaFreightPerc = p.getSeaFreightPerc();
-        this.plannedToDraftLeadTime = p.getPlannedToDraftLeadTime();
-        this.draftToSubmittedLeadTime = p.getDraftToSubmittedLeadTime();
+        this.plannedToSubmittedLeadTime = p.getPlannedToSubmittedLeadTime();
         this.submittedToApprovedLeadTime = p.getSubmittedToApprovedLeadTime();
         this.approvedToShippedLeadTime = p.getApprovedToShippedLeadTime();
         this.shippedToArrivedBySeaLeadTime = p.getShippedToArrivedBySeaLeadTime();
@@ -178,20 +176,12 @@ public class ProgramData extends BaseModel implements Serializable {
         this.seaFreightPerc = seaFreightPerc;
     }
 
-    public double getPlannedToDraftLeadTime() {
-        return plannedToDraftLeadTime;
+    public double getPlannedToSubmittedLeadTime() {
+        return plannedToSubmittedLeadTime;
     }
 
-    public void setPlannedToDraftLeadTime(double plannedToDraftLeadTime) {
-        this.plannedToDraftLeadTime = plannedToDraftLeadTime;
-    }
-
-    public double getDraftToSubmittedLeadTime() {
-        return draftToSubmittedLeadTime;
-    }
-
-    public void setDraftToSubmittedLeadTime(double draftToSubmittedLeadTime) {
-        this.draftToSubmittedLeadTime = draftToSubmittedLeadTime;
+    public void setPlannedToSubmittedLeadTime(double plannedToSubmittedLeadTime) {
+        this.plannedToSubmittedLeadTime = plannedToSubmittedLeadTime;
     }
 
     public double getSubmittedToApprovedLeadTime() {
@@ -348,7 +338,7 @@ public class ProgramData extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "ProgramData{" + "programId=" + programId + ", realmCountry=" + realmCountry + ", organisation=" + organisation + ", healthArea=" + healthArea + ", label=" + label + ", programManager=" + programManager + ", programNotes=" + programNotes + ", airFreightPerc=" + airFreightPerc + ", seaFreightPerc=" + seaFreightPerc + ", plannedToDraftLeadTime=" + plannedToDraftLeadTime + ", draftToSubmittedLeadTime=" + draftToSubmittedLeadTime + ", submittedToApprovedLeadTime=" + submittedToApprovedLeadTime + ", approvedToShippedLeadTime=" + approvedToShippedLeadTime + ", shippedToArrivedBySeaLeadTime=" + shippedToArrivedBySeaLeadTime + ", shippedToArrivedByAirLeadTime=" + shippedToArrivedByAirLeadTime + ", monthsInPastForAmc=" + monthsInPastForAmc + ", monthsInFutureForAmc=" + monthsInFutureForAmc + ", regionList=" + regionList + ", currentVersion=" + currentVersion + ", versionList=" + versionList + ", consumptionList=" + consumptionList + ", inventoryList=" + inventoryList + '}';
+        return "ProgramData{" + "programId=" + programId + ", realmCountry=" + realmCountry + ", organisation=" + organisation + ", healthArea=" + healthArea + ", label=" + label + ", programManager=" + programManager + ", programNotes=" + programNotes + ", airFreightPerc=" + airFreightPerc + ", seaFreightPerc=" + seaFreightPerc + ", plannedToSubmittedLeadTime=" + plannedToSubmittedLeadTime + ", submittedToApprovedLeadTime=" + submittedToApprovedLeadTime + ", approvedToShippedLeadTime=" + approvedToShippedLeadTime + ", shippedToArrivedBySeaLeadTime=" + shippedToArrivedBySeaLeadTime + ", shippedToArrivedByAirLeadTime=" + shippedToArrivedByAirLeadTime + ", monthsInPastForAmc=" + monthsInPastForAmc + ", monthsInFutureForAmc=" + monthsInFutureForAmc + ", regionList=" + regionList + ", currentVersion=" + currentVersion + ", versionList=" + versionList + ", consumptionList=" + consumptionList + ", inventoryList=" + inventoryList + '}';
     }
 
 }
