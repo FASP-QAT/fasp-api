@@ -21,11 +21,14 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
     private double localProcurementLeadTime;
     private int shelfLife;
     private double catalogPrice;
+    private int monthsInFutureForAmc;
+    private int monthsInPastForAmc;
+    
 
     public ProgramPlanningUnit() {
     }
 
-    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, int reorderFrequencyInMonths, int minMonthsOfStock, double localProcurementLeadTime, int shelfLife, double catalogPrice) {
+    public ProgramPlanningUnit(int programPlanningUnitI, SimpleObject program, SimpleObject planningUnit, int reorderFrequencyInMonths, int minMonthsOfStock, double localProcurementLeadTime, int shelfLife, double catalogPrice, int monthsInPastForAmc, int monthsInFutureForAmc) {
         this.programPlanningUnitId = programPlanningUnitId;
         this.program = program;
         this.planningUnit = planningUnit;
@@ -34,6 +37,8 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
         this.localProcurementLeadTime = localProcurementLeadTime;
         this.shelfLife = shelfLife;
         this.catalogPrice = catalogPrice;
+        this.monthsInPastForAmc = monthsInPastForAmc;
+        this.monthsInFutureForAmc = monthsInFutureForAmc;
     }
 
     public int getProgramPlanningUnitId() {
@@ -98,6 +103,22 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
 
     public void setCatalogPrice(double catalogPrice) {
         this.catalogPrice = catalogPrice;
+    }
+
+    public int getMonthsInFutureForAmc() {
+        return monthsInFutureForAmc;
+    }
+
+    public void setMonthsInFutureForAmc(int monthsInFutureForAmc) {
+        this.monthsInFutureForAmc = monthsInFutureForAmc;
+    }
+
+    public int getMonthsInPastForAmc() {
+        return monthsInPastForAmc;
+    }
+
+    public void setMonthsInPastForAmc(int monthsInPastForAmc) {
+        this.monthsInPastForAmc = monthsInPastForAmc;
     }
 
     @Override

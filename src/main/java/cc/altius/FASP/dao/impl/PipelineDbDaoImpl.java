@@ -600,8 +600,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("submittedToApprovedLeadTime", p.getSubmittedToApprovedLeadTime());
             params.put("approvedToShippedLeadTime", p.getApprovedToShippedLeadTime());
 //            params.put("deliveredToReceivedLeadTime", p.getDeliveredToReceivedLeadTime());
-            params.put("monthsInPastForAmc", p.getMonthsInPastForAmc());
-            params.put("monthsInFutureForAmc", p.getMonthsInFutureForAmc());
+//            params.put("monthsInPastForAmc", p.getMonthsInPastForAmc());
+//            params.put("monthsInFutureForAmc", p.getMonthsInFutureForAmc());
 
             params.put("arrivedToDeliveredLeadTime", p.getArrivedToDeliveredLeadTime());
             params.put("shippedToArrivedBySeaLeadTime", p.getShippedToArrivedBySeaLeadTime());
@@ -621,18 +621,9 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "p.DRAFT_TO_SUBMITTED_LEAD_TIME=:draftToSubmittedLeadTime, "
                     + "p.SUBMITTED_TO_APPROVED_LEAD_TIME=:submittedToApprovedLeadTime, "
                     + "p.APPROVED_TO_SHIPPED_LEAD_TIME=:approvedToShippedLeadTime, "
-                    //<<<<<<< HEAD
-                    //                    //                    + "p.DELIVERED_TO_RECEIVED_LEAD_TIME=:deliveredToReceivedLeadTime, "
-                    //                    //                    + "p.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, "
-                    //=======
-                    //                    //   + "p.DELIVERED_TO_RECEIVED_LEAD_TIME=:deliveredToReceivedLeadTime, "
-                    + "p.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, "
-                    //>>>>>>> dev
-                    + "p.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, "
                     + "p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, "
                     + "p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime, "
                     + "p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=:shippedToArrivedBySeaLeadTime, "
-                    //                    + "p.ACTIVE=:active, "
                     + "p.LAST_MODIFIED_BY=:curUser, "
                     + "p.LAST_MODIFIED_DATE=:curDate, "
                     + "pl.LABEL_EN=:labelEn, "
@@ -678,9 +669,6 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("PLANNED_TO_SUBMITTED_LEAD_TIME", p.getPlannedToSubmittedLeadTime());
             params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());
             params.put("APPROVED_TO_SHIPPED_LEAD_TIME", p.getApprovedToShippedLeadTime());
-//            params.put("DELIVERED_TO_RECEIVED_LEAD_TIME", p.getDeliveredToReceivedLeadTime());
-            params.put("MONTHS_IN_PAST_FOR_AMC", p.getMonthsInPastForAmc());
-            params.put("MONTHS_IN_FUTURE_FOR_AMC", p.getMonthsInFutureForAmc());
             params.put("CURRENT_VERSION_ID", null);
             params.put("ACTIVE", true);
             params.put("CREATED_BY", curUser.getUserId());
@@ -774,7 +762,9 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "fu.PRODUCT_CATEGORY_ID,  "
                 + " p.LOCAL_PROCUREMENT_LEAD_TIME, "
                 + " p.SHELF_LIFE, "
-                + " p.CATALOG_PRICE "
+                + " p.CATALOG_PRICE, "
+                + " p.MONTHS_IN_PAST_FOR_AMC, "
+                + " p.MONTHS_IN_FUTURE_FOR_AMC "
                 + "FROM fasp.qat_temp_program_planning_unit p  "
                 + "left join adb_product ap on ap.ProductID=p.PIPELINE_PRODUCT_ID and ap.PIPELINE_ID=:pipelineId "
                 + "left join adb_method m on m.MethodID=ap.MethodID and m.PIPELINE_ID=:pipelineId "
@@ -1225,8 +1215,6 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         params.put("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME", p.getShippedToArrivedBySeaLeadTime());
         params.put("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME", p.getShippedToArrivedByAirLeadTime());
         params.put("ARRIVED_TO_DELIVERED_LEAD_TIME", p.getArrivedToDeliveredLeadTime());
-        params.put("MONTHS_IN_PAST_FOR_AMC", p.getMonthsInPastForAmc());
-        params.put("MONTHS_IN_FUTURE_FOR_AMC", p.getMonthsInFutureForAmc());
         params.put("CURRENT_VERSION_ID", null);
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
@@ -1274,7 +1262,10 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("REORDER_FREQUENCY_IN_MONTHS", ppu.getReorderFrequencyInMonths());
             params.put("MIN_MONTHS_OF_STOCK", ppu.getMinMonthsOfStock());
             params.put("LOCAL_PROCUREMENT_LEAD_TIME", ppu.getLocalProcurmentLeadTime()); //ppu.getLocalProcurementLeadTime());
-//            params.put("BATCH_NO_REQUIRED", 0);
+            params.put("SHELF_LIFE", ppu.getShelfLife());
+            params.put("CATALOG_PRICE", ppu.getCatalogPrice());
+            params.put("MONTHS_IN_PAST_FOR_AMC", ppu.getMonthsInPastForAmc());
+            params.put("MONTHS_IN_FUTURE_FOR_AMC", ppu.getMonthsInFutureForAmc());
             params.put("SHELF_LIFE", ppu.getShelfLife());
             params.put("CATALOG_PRICE", ppu.getCatalogPrice());
             params.put("CREATED_DATE", curDate);

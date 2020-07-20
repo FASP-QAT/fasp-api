@@ -32,8 +32,6 @@ public class ProgramData extends BaseModel implements Serializable {
     private double shippedToArrivedByAirLeadTime;
     private double shippedToArrivedBySeaLeadTime;
     private double arrivedToDeliveredLeadTime;
-    private int monthsInPastForAmc;
-    private int monthsInFutureForAmc;
     private SimpleObject versionType;
     private SimpleObject versionStatus;
     private String notes;
@@ -89,8 +87,6 @@ public class ProgramData extends BaseModel implements Serializable {
         this.shippedToArrivedBySeaLeadTime = p.getShippedToArrivedBySeaLeadTime();
         this.shippedToArrivedByAirLeadTime = p.getShippedToArrivedByAirLeadTime();
         this.arrivedToDeliveredLeadTime = p.getArrivedToDeliveredLeadTime();
-        this.monthsInFutureForAmc = p.getMonthsInFutureForAmc();
-        this.monthsInPastForAmc = p.getMonthsInPastForAmc();
         this.regionList = p.getRegionList();
         this.currentVersion = p.getCurrentVersion();
         this.versionList = p.getVersionList();
@@ -224,22 +220,6 @@ public class ProgramData extends BaseModel implements Serializable {
         this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
     }
 
-    public int getMonthsInPastForAmc() {
-        return monthsInPastForAmc;
-    }
-
-    public void setMonthsInPastForAmc(int monthsInPastForAmc) {
-        this.monthsInPastForAmc = monthsInPastForAmc;
-    }
-
-    public int getMonthsInFutureForAmc() {
-        return monthsInFutureForAmc;
-    }
-
-    public void setMonthsInFutureForAmc(int monthsInFutureForAmc) {
-        this.monthsInFutureForAmc = monthsInFutureForAmc;
-    }
-
     public List<Region> getRegionList() {
         return regionList;
     }
@@ -338,7 +318,7 @@ public class ProgramData extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "ProgramData{" + "programId=" + programId + ", realmCountry=" + realmCountry + ", organisation=" + organisation + ", healthArea=" + healthArea + ", label=" + label + ", programManager=" + programManager + ", programNotes=" + programNotes + ", airFreightPerc=" + airFreightPerc + ", seaFreightPerc=" + seaFreightPerc + ", plannedToSubmittedLeadTime=" + plannedToSubmittedLeadTime + ", submittedToApprovedLeadTime=" + submittedToApprovedLeadTime + ", approvedToShippedLeadTime=" + approvedToShippedLeadTime + ", shippedToArrivedBySeaLeadTime=" + shippedToArrivedBySeaLeadTime + ", shippedToArrivedByAirLeadTime=" + shippedToArrivedByAirLeadTime + ", monthsInPastForAmc=" + monthsInPastForAmc + ", monthsInFutureForAmc=" + monthsInFutureForAmc + ", regionList=" + regionList + ", currentVersion=" + currentVersion + ", versionList=" + versionList + ", consumptionList=" + consumptionList + ", inventoryList=" + inventoryList + '}';
+        return "ProgramData{" + "programId=" + programId + ", realmCountry=" + realmCountry + ", organisation=" + organisation + ", healthArea=" + healthArea + ", label=" + label + ", programManager=" + programManager + ", programNotes=" + programNotes + ", airFreightPerc=" + airFreightPerc + ", seaFreightPerc=" + seaFreightPerc + ", plannedToSubmittedLeadTime=" + plannedToSubmittedLeadTime + ", submittedToApprovedLeadTime=" + submittedToApprovedLeadTime + ", approvedToShippedLeadTime=" + approvedToShippedLeadTime + ", shippedToArrivedBySeaLeadTime=" + shippedToArrivedBySeaLeadTime + ", shippedToArrivedByAirLeadTime=" + shippedToArrivedByAirLeadTime + ", regionList=" + regionList + ", currentVersion=" + currentVersion + ", versionList=" + versionList + ", consumptionList=" + consumptionList + ", inventoryList=" + inventoryList + '}';
     }
 
 }
