@@ -22,7 +22,7 @@ public interface UserService {
     public CustomUserDetails getCustomUserByUsername(String username);
 
     public CustomUserDetails getCustomUserByEmailId(String emailId);
-    
+
     public CustomUserDetails getCustomUserByUserId(int userId);
 
     public Map<String, Object> checkIfUserExists(String username, String password);
@@ -76,5 +76,9 @@ public interface UserService {
     public int mapAccessControls(User user, CustomUserDetails curUser);
 
     public int updateSuncExpiresOn(String emailId);
+
+    public int updateUserLanguage(int userId, String languageCode);
+
+    public int acceptUserAgreement(int userId);
 
 }

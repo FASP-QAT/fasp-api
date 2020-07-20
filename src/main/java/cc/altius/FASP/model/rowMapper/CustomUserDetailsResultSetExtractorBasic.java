@@ -36,6 +36,7 @@ public class CustomUserDetailsResultSetExtractorBasic implements ResultSetExtrac
                 user.setSyncExpiresOn(rs.getTimestamp("SYNC_EXPIRES_ON"));
                 user.setActive(rs.getBoolean("ACTIVE"));
                 user.setExpiresOn(rs.getTimestamp("EXPIRES_ON"));
+                user.setAgreementAccepted(rs.getBoolean("AGREEMENT_ACCEPTED"));
                 user.setRoles(new LinkedList<>());
                 user.setAclList(new LinkedList<>());
             }

@@ -36,6 +36,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
     private int sessionExpiresOn;
     private Language language;
     private Date syncExpiresOn;
+    private boolean agreementAccepted;
 
     public Realm getRealm() {
         return realm;
@@ -168,7 +169,14 @@ public class CustomUserDetails implements UserDetails, Serializable {
         this.syncExpiresOn = syncExpiresOn;
     }
 
-    
+    public boolean isAgreementAccepted() {
+        return agreementAccepted;
+    }
+
+    public void setAgreementAccepted(boolean agreementAccepted) {
+        this.agreementAccepted = agreementAccepted;
+    }
+
     @Override
     public String getUsername() {
         return username;
@@ -210,7 +218,7 @@ public class CustomUserDetails implements UserDetails, Serializable {
             return true;
         }
     }
-    
+
     @Override
     public int hashCode() {
         int hash = 7;

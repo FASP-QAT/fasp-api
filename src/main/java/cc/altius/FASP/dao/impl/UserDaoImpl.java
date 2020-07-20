@@ -72,7 +72,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     private final static String customUserString = "SELECT "
-            + "      `user`.`USER_ID`, `user`.`USERNAME`, `user`.`PASSWORD`,`user`.`SYNC_EXPIRES_ON`, "
+            + "      `user`.`USER_ID`,`user`.`AGREEMENT_ACCEPTED`, `user`.`USERNAME`, `user`.`PASSWORD`,`user`.`SYNC_EXPIRES_ON`, "
             + "      `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, "
             + "      realm.`REALM_ID`, realm.`REALM_CODE`, realm_lb.`LABEL_ID` `REALM_LABEL_ID`, realm_lb.`LABEL_EN` `REALM_LABEL_EN`, realm_lb.`LABEL_FR` `REALM_LABEL_FR`, realm_lb.`LABEL_SP` `REALM_LABEL_SP`, realm_lb.`LABEL_PR` `REALM_LABEL_PR`, "
             + "      lang.`LANGUAGE_ID`, lang.`LANGUAGE_NAME`, lang.`LANGUAGE_CODE`, "
@@ -312,7 +312,7 @@ public class UserDaoImpl implements UserDao {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         Map<String, Object> map = new HashedMap<>();
         map.put("REALM_ID", (user.getRealm().getRealmId() != -1 ? user.getRealm().getRealmId() : null));
-//        map.put("REALM_ID", null);
+        map.put("AGREEMENT_ACCEPTED", 0);
         map.put("USERNAME", user.getUsername());
         map.put("PASSWORD", user.getPassword());
         map.put("EMAIL_ID", user.getEmailId());
@@ -766,6 +766,23 @@ public class UserDaoImpl implements UserDao {
         params.put("emailId", emailId);
         params.put("syncexpiresOn", DateUtils.getCurrentDateObject(DateUtils.EST));
         return this.namedParameterJdbcTemplate.update("update us_user u set u.SYNC_EXPIRES_ON=:syncexpiresOn where u.EMAIL_ID=:emailId;", params);
+    }
+
+    @Override
+    public int updateUserLanguage(int userId, String languageCode) {
+        String sql;
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
+        sql = "SELECT l.`LANGUAGE_ID` FROM ap_language l WHERE l.`LANGUAGE_CODE`=?;";
+        int languageId = this.jdbcTemplate.queryForObject(sql, Integer.class, languageCode);
+        sql = "UPDATE us_user u SET u.`LANGUAGE_ID`=?,u.`LAST_LOGIN_DATE`=?,u.`LAST_MODIFIED_BY`=? WHERE u.`USER_ID`=?;";
+        return this.jdbcTemplate.update(sql, languageId, curDate, userId, userId);
+    }
+
+    @Override
+    public int acceptUserAgreement(int userId) {
+        String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
+        String sql = "UPDATE us_user u SET u.`AGREEMENT_ACCEPTED`=1,u.`LAST_LOGIN_DATE`=?,u.`LAST_MODIFIED_BY`=? WHERE u.`USER_ID`=?;";
+        return this.jdbcTemplate.update(sql, curDate, userId, userId);
     }
 
 }
