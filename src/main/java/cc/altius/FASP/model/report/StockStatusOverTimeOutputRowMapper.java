@@ -16,7 +16,7 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author akil
  */
-public class StockOverTimeOutputRowMapper implements RowMapper<StockStatusOverTimeOutput> {
+public class StockStatusOverTimeOutputRowMapper implements RowMapper<StockStatusOverTimeOutput> {
 
     @Override
     public StockStatusOverTimeOutput mapRow(ResultSet rs, int i) throws SQLException {

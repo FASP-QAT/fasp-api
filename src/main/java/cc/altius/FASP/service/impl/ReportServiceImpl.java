@@ -9,6 +9,8 @@ import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
 import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
+import cc.altius.FASP.model.report.BudgetReportInput;
+import cc.altius.FASP.model.report.BudgetReportOutput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
@@ -38,6 +40,9 @@ import cc.altius.FASP.model.report.ShipmentReportInput;
 import cc.altius.FASP.model.report.ShipmentReportOutput;
 import cc.altius.FASP.model.report.StockAdjustmentReportInput;
 import cc.altius.FASP.model.report.StockAdjustmentReportOutput;
+import cc.altius.FASP.model.report.StockStatusAcrossProductsForProgram;
+import cc.altius.FASP.model.report.StockStatusAcrossProductsInput;
+import cc.altius.FASP.model.report.StockStatusAcrossProductsOutput;
 import cc.altius.FASP.model.report.StockStatusOverTimeInput;
 import cc.altius.FASP.model.report.StockStatusOverTimeOutput;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
@@ -181,4 +186,23 @@ public class ReportServiceImpl implements ReportService {
         return this.reportDao.getShipmentGlobalDemand(sgd, curUser);
     }
 
+    @Override
+    public List<BudgetReportOutput> getBudgetReport(BudgetReportInput br, CustomUserDetails curUser) {
+        return this.reportDao.getBudgetReport(br, curUser);
+    }
+
+    // Report no 30
+    @Override
+    public List<StockStatusAcrossProductsOutput> getStockStatusAcrossProducts(StockStatusAcrossProductsInput ssap, CustomUserDetails curUser) {
+        List<StockStatusAcrossProductsOutput> ssapList = this.reportDao.getStockStatusAcrossProductsBasicInfo(ssap, curUser);
+        for (StockStatusAcrossProductsOutput s : ssapList) {
+            for (String progCode : s.getProgramData().keySet()) {
+                StockStatusAcrossProductsForProgram sData = this.reportDao.getStockStatusAcrossProductsProgramData(s.getProgramData().get(progCode).getProgram().getId(), s.getPlanningUnit().getId(), ssap.getDt());
+                s.getProgramData().replace(progCode, sData);
+            }
+        }
+        return ssapList;
+    }
+
+    
 }
