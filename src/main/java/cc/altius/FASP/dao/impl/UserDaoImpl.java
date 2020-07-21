@@ -273,11 +273,11 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int updateFailedAttemptsByUserId(String username) {
+    public int updateFailedAttemptsByUserId(String emailId) {
         try {
-            String sqlQuery = "UPDATE `us_user` SET FAILED_ATTEMPTS=FAILED_ATTEMPTS+1 WHERE USERNAME=:username";
+            String sqlQuery = "UPDATE `us_user` SET FAILED_ATTEMPTS=FAILED_ATTEMPTS+1 WHERE EMAIL_ID=:emailId";
             Map<String, Object> params = new HashMap<>();
-            params.put("username", username);
+            params.put("emailId", emailId);
             return this.namedParameterJdbcTemplate.update(sqlQuery, params);
         } catch (DataAccessException e) {
             return 0;
@@ -301,7 +301,7 @@ public class UserDaoImpl implements UserDao {
         String sql = " SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID`,c.`CAN_CREATE_ROLE` FROM us_role "
                 + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID` "
                 + "LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=us_role.`ROLE_ID` "
-                + "LEFT JOIN us_can_create_role c ON c.`ROLE_ID`=us_role.`ROLE_ID`";
+                + "LEFT JOIN us_can_create_role c ON c.`ROLE_ID`=us_role.`ROLE_ID` ORDER BY lb.`LABEL_EN` ASC";
         return this.namedParameterJdbcTemplate.query(sql, new RoleListResultSetExtractor());
     }
 
@@ -312,7 +312,7 @@ public class UserDaoImpl implements UserDao {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         Map<String, Object> map = new HashedMap<>();
         map.put("REALM_ID", (user.getRealm().getRealmId() != -1 ? user.getRealm().getRealmId() : null));
-        map.put("AGREEMENT_ACCEPTED", 0);
+        map.put("AGREEMENT_ACCEPTED", false);
         map.put("USERNAME", user.getUsername());
         map.put("PASSWORD", user.getPassword());
         map.put("EMAIL_ID", user.getEmailId());

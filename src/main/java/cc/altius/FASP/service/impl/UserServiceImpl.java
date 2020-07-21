@@ -74,8 +74,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int updateFailedAttemptsByUserId(String username) {
-        return this.userDao.updateFailedAttemptsByUserId(username);
+    public int updateFailedAttemptsByUserId(String emailId) {
+        return this.userDao.updateFailedAttemptsByUserId(emailId);
     }
 
     @Override

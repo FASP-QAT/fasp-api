@@ -29,7 +29,7 @@ public interface UserService {
 
     public int resetFailedAttemptsByUsername(String emailId);
 
-    public int updateFailedAttemptsByUserId(String username);
+    public int updateFailedAttemptsByUserId(String emailId);
 
     public Role getRoleById(String roleId);
 

@@ -32,7 +32,7 @@ public interface UserDao {
 
     public int resetFailedAttemptsByUsername(String emailId);
 
-    public int updateFailedAttemptsByUserId(String username);
+    public int updateFailedAttemptsByUserId(String emailId);
 
     public int addNewUser(User user, int curUser);
 
