@@ -27,11 +27,13 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
     private double localProcurmentLeadTime;
     private int shelfLife;
     private double catalogPrice;
+    private int monthsInPastForAmc;
+    private int monthsInFutureForAmc;
     
     public QatTempProgramPlanningUnit() {
     }
 
-    public QatTempProgramPlanningUnit(String programPlanningUnitId, SimpleObject program, String planningUnitId, int reorderFrequencyInMonths, int minMonthsOfStock, int productCategoryId, String pipelineProductName, String pipelineProductCategoryName, double localProcurmentLeadTime, int shelfLife, double catalogPrice) {
+    public QatTempProgramPlanningUnit(String programPlanningUnitId, SimpleObject program, String planningUnitId, int reorderFrequencyInMonths, int minMonthsOfStock, int productCategoryId, String pipelineProductName, String pipelineProductCategoryName, double localProcurmentLeadTime, int shelfLife, double catalogPrice, int monthsInPastForAmc, int monthsInFutureForAmc) {
         this.programPlanningUnitId = programPlanningUnitId;
         this.program = program;
         this.planningUnitId = planningUnitId;
@@ -43,6 +45,8 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
         this.localProcurmentLeadTime = localProcurmentLeadTime;
         this.shelfLife = shelfLife;
         this.catalogPrice = catalogPrice;
+        this.monthsInFutureForAmc=monthsInFutureForAmc;
+        this.monthsInPastForAmc=monthsInPastForAmc;
     }
 
     public String getProgramPlanningUnitId() {
@@ -133,9 +137,21 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
         this.catalogPrice = catalogPrice;
     }
 
-  
+    public int getMonthsInPastForAmc() {
+        return monthsInPastForAmc;
+    }
 
-    
+    public void setMonthsInPastForAmc(int monthsInPastForAmc) {
+        this.monthsInPastForAmc = monthsInPastForAmc;
+    }
+
+    public int getMonthsInFutureForAmc() {
+        return monthsInFutureForAmc;
+    }
+
+    public void setMonthsInFutureForAmc(int monthsInFutureForAmc) {
+        this.monthsInFutureForAmc = monthsInFutureForAmc;
+    }
 
     @Override
     public int hashCode() {

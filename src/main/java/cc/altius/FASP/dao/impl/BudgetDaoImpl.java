@@ -64,8 +64,23 @@ public class BudgetDaoImpl implements BudgetDao {
             + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
             + "LEFT JOIN us_user cb ON b.CREATED_BY=cb.USER_ID "
             + "LEFT JOIN us_user lmb ON b.LAST_MODIFIED_BY=lmb.USER_ID "
-            + "LEFT JOIN (SELECT st.BUDGET_ID, SUM((st.PRODUCT_COST+st.FREIGHT_COST)*s.CONVERSION_RATE_TO_USD) `BUDGET_USD_AMT` FROM rm_shipment s LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID WHERE st.ACTIVE AND st.SHIPMENT_STATUS_ID!=8 GROUP BY st.BUDGET_ID) as ua ON ua.BUDGET_ID=b.BUDGET_ID "
-            + "WHERE TRUE ";
+            + "LEFT JOIN ("
+            + "     SELECT "
+            + "         st.BUDGET_ID, "
+            + "         SUM((st.FREIGHT_COST+st.PRODUCT_COST)*s1.CONVERSION_RATE_TO_USD) BUDGET_USD_AMT "
+            + "     FROM "
+            + "         ("
+            + "         SELECT s.SHIPMENT_ID, s.CONVERSION_RATE_TO_USD, (st.VERSION_ID) `MAX_VERSION_ID` "
+            + "         FROM rm_program p "
+            + "         LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+            + "         LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID "
+            + "         LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID<=p.CURRENT_VERSION_ID "
+            + "         WHERE s.SHIPMENT_ID IS NOT NULL "
+            + "         GROUP BY s.SHIPMENT_ID"
+            + "     ) AS s1 "
+            + "     LEFT JOIN rm_shipment_trans st ON s1.SHIPMENT_ID=st.SHIPMENT_ID AND s1.MAX_VERSION_ID=st.VERSION_ID AND st.ACTIVE AND st.SHIPMENT_STATUS_ID!=8 "
+            + "     GROUP BY st.BUDGET_ID"
+            + ") as ua ON ua.BUDGET_ID=b.BUDGET_ID WHERE TRUE ";
 
     @Override
     @Transactional

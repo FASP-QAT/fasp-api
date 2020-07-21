@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,8 +31,6 @@ public class Program extends BaseModel implements Serializable {
     private double shippedToArrivedByAirLeadTime;
     private double shippedToArrivedBySeaLeadTime;
     private double arrivedToDeliveredLeadTime;
-    private int monthsInPastForAmc;
-    private int monthsInFutureForAmc;
 
     private List<Region> regionList;
     String[] regionArray;
@@ -177,22 +174,6 @@ public class Program extends BaseModel implements Serializable {
 
     public void setApprovedToShippedLeadTime(double approvedToShippedLeadTime) {
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
-    }
-
-    public int getMonthsInPastForAmc() {
-        return monthsInPastForAmc;
-    }
-
-    public void setMonthsInPastForAmc(int monthsInPastForAmc) {
-        this.monthsInPastForAmc = monthsInPastForAmc;
-    }
-
-    public int getMonthsInFutureForAmc() {
-        return monthsInFutureForAmc;
-    }
-
-    public void setMonthsInFutureForAmc(int monthsInFutureForAmc) {
-        this.monthsInFutureForAmc = monthsInFutureForAmc;
     }
 
     public List<Region> getRegionList() {

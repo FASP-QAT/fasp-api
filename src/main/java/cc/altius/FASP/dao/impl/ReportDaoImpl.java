@@ -10,6 +10,9 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
 import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
 import cc.altius.FASP.model.report.AnnualShipmentCostOutputRowMapper;
+import cc.altius.FASP.model.report.BudgetReportInput;
+import cc.altius.FASP.model.report.BudgetReportOutput;
+import cc.altius.FASP.model.report.BudgetReportOutputRowMapper;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutputRowMapper;
@@ -58,9 +61,14 @@ import cc.altius.FASP.model.report.ShipmentReportOutput;
 import cc.altius.FASP.model.report.ShipmentReportOutputRowMapper;
 import cc.altius.FASP.model.report.StockAdjustmentReportInput;
 import cc.altius.FASP.model.report.StockAdjustmentReportOutput;
+import cc.altius.FASP.model.report.StockStatusAcrossProductsForProgram;
+import cc.altius.FASP.model.report.StockStatusAcrossProductsForProgramRowMapper;
+import cc.altius.FASP.model.report.StockStatusAcrossProductsInput;
+import cc.altius.FASP.model.report.StockStatusAcrossProductsOutput;
+import cc.altius.FASP.model.report.StockStatusAcrossProductsOutputResultsetExtractor;
 import cc.altius.FASP.model.report.StockStatusOverTimeInput;
 import cc.altius.FASP.model.report.StockStatusOverTimeOutput;
-import cc.altius.FASP.model.report.StockOverTimeOutputRowMapper;
+import cc.altius.FASP.model.report.StockStatusOverTimeOutputRowMapper;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutput;
 import cc.altius.FASP.model.report.StockStatusForProgramOutputRowMapper;
@@ -75,6 +83,7 @@ import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutputResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.utils.LogUtils;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,17 +112,17 @@ public class ReportDaoImpl implements ReportDao {
     public List<Map<String, Object>> getConsumptionData(int realmId, int programId, int planningUnitId, String startDate, String endDate) {
         Map<String, Object> params = new HashMap<>();
 
-        String sql = "	SELECT \n"
-                + "		DATE_FORMAT(cons.`CONSUMPTION_DATE`,'%m-%Y') consumption_date,SUM(IF(cons.`ACTUAL_FLAG`=1,cons.`CONSUMPTION_QTY`,0)) Actual,SUM(IF(cons.`ACTUAL_FLAG`=0,cons.`CONSUMPTION_QTY`,0)) forcast	FROM  rm_consumption_trans cons \n"
-                + "	LEFT JOIN rm_consumption con  ON con.CONSUMPTION_ID=cons.CONSUMPTION_ID\n"
-                + "	LEFT JOIN rm_program p ON con.PROGRAM_ID=p.PROGRAM_ID\n"
-                + "	LEFT JOIN rm_realm_country rc ON rc.`REALM_COUNTRY_ID`=p.`REALM_COUNTRY_ID`\n"
-                + "	LEFT JOIN rm_region r ON cons.REGION_ID=r.REGION_ID\n"
-                + "	LEFT JOIN rm_planning_unit pu ON cons.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID\n"
-                + "	LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`\n"
-                + "	LEFT JOIN rm_data_source ds ON cons.DATA_SOURCE_ID=ds.DATA_SOURCE_ID\n"
+        String sql = "	SELECT "
+                + "		DATE_FORMAT(cons.`CONSUMPTION_DATE`,'%m-%Y') consumption_date,SUM(IF(cons.`ACTUAL_FLAG`=1,cons.`CONSUMPTION_QTY`,0)) Actual,SUM(IF(cons.`ACTUAL_FLAG`=0,cons.`CONSUMPTION_QTY`,0)) forcast	FROM  rm_consumption_trans cons "
+                + "	LEFT JOIN rm_consumption con  ON con.CONSUMPTION_ID=cons.CONSUMPTION_ID"
+                + "	LEFT JOIN rm_program p ON con.PROGRAM_ID=p.PROGRAM_ID"
+                + "	LEFT JOIN rm_realm_country rc ON rc.`REALM_COUNTRY_ID`=p.`REALM_COUNTRY_ID`"
+                + "	LEFT JOIN rm_region r ON cons.REGION_ID=r.REGION_ID"
+                + "	LEFT JOIN rm_planning_unit pu ON cons.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID"
+                + "	LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`"
+                + "	LEFT JOIN rm_data_source ds ON cons.DATA_SOURCE_ID=ds.DATA_SOURCE_ID"
                 + "	WHERE  1";
-        //+ "rc.`REALM_ID`=:realmId\n";
+        //+ "rc.`REALM_ID`=:realmId";
         //params.put("realmId", realmId);
         if (programId > 1) {
             sql += "	AND con.`PROGRAM_ID`=:programId";
@@ -123,7 +132,7 @@ public class ReportDaoImpl implements ReportDao {
         sql += "	AND pu.`PLANNING_UNIT_ID`=:planningUnitId";
         params.put("planningUnitId", planningUnitId);
         // }
-        sql += " And cons.`CONSUMPTION_DATE`between :startDate and :endDate	GROUP BY DATE_FORMAT(cons.`CONSUMPTION_DATE`,'%m-%Y') \n"
+        sql += " And cons.`CONSUMPTION_DATE`between :startDate and :endDate	GROUP BY DATE_FORMAT(cons.`CONSUMPTION_DATE`,'%m-%Y') "
                 + "    ORDER BY DATE_FORMAT(cons.`CONSUMPTION_DATE`,'%Y-%m')";
         params.put("startDate", startDate);
         params.put("endDate", endDate);
@@ -195,7 +204,6 @@ public class ReportDaoImpl implements ReportDao {
         params.put("planningUnitIds", fmi.getPlanningUnitIdString());
         return this.namedParameterJdbcTemplate.query("CALL forecastMetricsComparision(:realmId, :startDate, :realmCountryIds, :programIds, :planningUnitIds, :previousMonths)", params, new ForecastMetricsComparisionOutputRowMapper());
     }
-
 
     // Report no 7
     @Override
@@ -311,7 +319,8 @@ public class ReportDaoImpl implements ReportDao {
         params.put("programId", ssot.getProgramId());
         params.put("versionId", ssot.getVersionId());
         params.put("planningUnitIds", ssot.getPlanningUnitIdString());
-        return this.namedParameterJdbcTemplate.query(sqlString, params, new StockOverTimeOutputRowMapper());
+        System.out.println(LogUtils.buildStringForLog(sqlString, params));
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new StockStatusOverTimeOutputRowMapper());
     }
 
     // Report no 18
@@ -431,6 +440,51 @@ public class ReportDaoImpl implements ReportDao {
         params.put("versionId", sspi.getVersionId());
         params.put("includePlannedShipments", sspi.isIncludePlannedShipments());
         return this.namedParameterJdbcTemplate.query("CALL getStockStatusForProgram(:programId, :versionId, :dt, :includePlannedShipments)", params, new StockStatusForProgramOutputRowMapper());
+    }
+
+    // Report no 29
+    @Override
+    public List<BudgetReportOutput> getBudgetReport(BudgetReportInput br, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", br.getProgramId());
+        params.put("versionId", br.getVersionId());
+        return this.namedParameterJdbcTemplate.query("CALL budgetReport(:programId, :versionId)", params, new BudgetReportOutputRowMapper());
+    }
+
+    // Report no 30 - Basic info
+    @Override
+    public List<StockStatusAcrossProductsOutput> getStockStatusAcrossProductsBasicInfo(StockStatusAcrossProductsInput ssap, CustomUserDetails curUser) {
+
+        String sql = "SELECT "
+                + "	pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`,"
+                + "	p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR` "
+                + "FROM vw_program p "
+                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID "
+                + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "WHERE "
+                + "rc.REALM_ID = :realmId "
+                + " AND (:tracerCategoryId=-1 OR fu.TRACER_CATEGORY_ID=:tracerCategoryId) "
+                + " AND ppu.ACTIVE AND p.ACTIVE ";
+        if (ssap.getRealmCountryIds().length > 0) {
+            sql += " AND p.REALM_COUNTRY_ID in (" + ssap.getRealmCountryIdsString() + ") ";
+        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", ssap.getRealmId());
+        params.put("tracerCategoryId", ssap.getTracerCategoryId());
+        return this.namedParameterJdbcTemplate.query(sql, params, new StockStatusAcrossProductsOutputResultsetExtractor());
+    }
+
+    // Report no 30 - Actual data
+    @Override
+    public StockStatusAcrossProductsForProgram getStockStatusAcrossProductsProgramData(int programId, int planningUnitId, Date dt) {
+        String sql = "CALL stockStatusForProgramPlanningUnit(:programId, -1, :planningUnitId, :dt, 18)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("planningUnitId", planningUnitId);
+        params.put("dt", dt);
+        return this.namedParameterJdbcTemplate.queryForObject(sql, params, new StockStatusAcrossProductsForProgramRowMapper());
     }
 
 }

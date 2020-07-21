@@ -60,7 +60,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     cpv.VERSION_ID `CV_VERSION_ID`, cpv.NOTES `CV_VERSION_NOTES`, cpv.CREATED_DATE `CV_CREATED_DATE`, cpvcb.USER_ID `CV_CB_USER_ID`, cpvcb.USERNAME `CV_CB_USERNAME`, cpv.LAST_MODIFIED_DATE `CV_LAST_MODIFIED_DATE`, cpvlmb.USER_ID `CV_LMB_USER_ID`, cpvlmb.USERNAME `CV_LMB_USERNAME`, "
             + "     vt.VERSION_TYPE_ID `CV_VERSION_TYPE_ID`, vtl.LABEL_ID `CV_VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `CV_VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `CV_VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `CV_VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `CV_VERSION_TYPE_LABEL_PR`, "
             + "     vs.VERSION_STATUS_ID `CV_VERSION_STATUS_ID`, vsl.LABEL_ID `CV_VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `CV_VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `CV_VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `CV_VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `CV_VERSION_STATUS_LABEL_PR`, "
-            + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME, p.ARRIVED_TO_DELIVERED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
+            + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME, p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME, p.ARRIVED_TO_DELIVERED_LEAD_TIME, "
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
             + "     pl.LABEL_ID, pl.LABEL_EN, pl.LABEL_FR, pl.LABEL_PR, pl.LABEL_SP, "
             + "     rc.REALM_COUNTRY_ID, r.REALM_ID, r.REALM_CODE, "
@@ -122,7 +122,7 @@ public class ProgramDaoImpl implements ProgramDao {
     public String sqlListStringForProgramPlanningUnit = " SELECT ppu.PROGRAM_PLANNING_UNIT_ID,  "
             + " pg.PROGRAM_ID, pgl.LABEL_ID `PROGRAM_LABEL_ID`, pgl.LABEL_EN `PROGRAM_LABEL_EN`, pgl.LABEL_FR `PROGRAM_LABEL_FR`, pgl.LABEL_PR `PROGRAM_LABEL_PR`, pgl.LABEL_SP `PROGRAM_LABEL_SP`, "
             + " pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
-            + " ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.MIN_MONTHS_OF_STOCK, ppu.LOCAL_PROCUREMENT_LEAD_TIME, ppu.SHELF_LIFE, ppu.CATALOG_PRICE, "
+            + " ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.MIN_MONTHS_OF_STOCK, ppu.LOCAL_PROCUREMENT_LEAD_TIME, ppu.SHELF_LIFE, ppu.CATALOG_PRICE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, "
             + " ppu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ppu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppu.LAST_MODIFIED_DATE "
             + " FROM  rm_program_planning_unit ppu  "
             + " LEFT JOIN rm_program pg ON pg.PROGRAM_ID=ppu.PROGRAM_ID "
@@ -156,8 +156,6 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME", p.getShippedToArrivedBySeaLeadTime());
         params.put("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME", p.getShippedToArrivedByAirLeadTime());
         params.put("ARRIVED_TO_DELIVERED_LEAD_TIME", p.getArrivedToDeliveredLeadTime());
-        params.put("MONTHS_IN_PAST_FOR_AMC", p.getMonthsInPastForAmc());
-        params.put("MONTHS_IN_FUTURE_FOR_AMC", p.getMonthsInFutureForAmc());
         params.put("CURRENT_VERSION_ID", null);
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
@@ -188,7 +186,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("versionTypeId", 1);
         params.put("versionStatusId", 1);
         params.put("notes", "");
-        Version version=new Version();
+        Version version = new Version();
 //        int versionId = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId,:versionTypeId,:versionStatusId,:notes,:curUser, :curDate)", params, new VersionRowMapper());
         version = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId,:versionTypeId,:versionStatusId,:notes,:curUser, :curDate)", params, new VersionRowMapper());
         params.put("versionId", version.getVersionId());
@@ -212,8 +210,6 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("shippedToArrivedBySeaLeadTime", p.getShippedToArrivedBySeaLeadTime());
         params.put("shippedToArrivedByAirLeadTime", p.getShippedToArrivedByAirLeadTime());
         params.put("arrivedToDeliveredLeadTime", p.getArrivedToDeliveredLeadTime());
-        params.put("monthsInPastForAmc", p.getMonthsInPastForAmc());
-        params.put("monthsInFutureForAmc", p.getMonthsInFutureForAmc());
         params.put("active", p.isActive());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
@@ -230,8 +226,6 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=:shippedToArrivedBySeaLeadTime, "
                 + "p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime, "
                 + "p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, "
-                + "p.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, "
-                + "p.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, "
                 + "p.ACTIVE=:active,"
                 + "p.LAST_MODIFIED_BY=IF("
                 + "     p.PROGRAM_MANAGER_USER_ID!=:programManagerUserId OR "
@@ -244,8 +238,6 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "     p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=:shippedToArrivedBySeaLeadTime OR "
                 + "     p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime OR "
                 + "     p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime OR "
-                + "     p.MONTHS_IN_PAST_FOR_AMC!=:monthsInPastForAmc OR "
-                + "     p.MONTHS_IN_FUTURE_FOR_AMC!=:monthsInFutureForAmc OR "
                 + "     p.ACTIVE!=:active, "
                 + ":curUser, p.LAST_MODIFIED_BY), "
                 + "p.LAST_MODIFIED_DATE=IF("
@@ -259,8 +251,6 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "     p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=:shippedToArrivedBySeaLeadTime OR "
                 + "     p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime OR "
                 + "     p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime OR "
-                + "     p.MONTHS_IN_PAST_FOR_AMC!=:monthsInPastForAmc OR "
-                + "     p.MONTHS_IN_FUTURE_FOR_AMC!=:monthsInFutureForAmc OR "
                 + "     p.ACTIVE!=:active, "
                 + ":curDate, p.LAST_MODIFIED_DATE), "
                 + "pl.LABEL_EN=:labelEn, "
@@ -384,6 +374,8 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("LOCAL_PROCUREMENT_LEAD_TIME", ppu.getLocalProcurementLeadTime());
                 params.put("SHELF_LIFE", ppu.getShelfLife());
                 params.put("CATALOG_PRICE", ppu.getCatalogPrice());
+                params.put("MONTHS_IN_PAST_FOR_AMC", ppu.getMonthsInPastForAmc());
+                params.put("MONTHS_IN_FUTURE_FOR_AMC", ppu.getMonthsInFutureForAmc());
                 params.put("CREATED_DATE", curDate);
                 params.put("CREATED_BY", curUser.getUserId());
                 params.put("LAST_MODIFIED_DATE", curDate);
@@ -397,6 +389,10 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("reorderFrequencyInMonths", ppu.getReorderFrequencyInMonths());
                 params.put("minMonthsOfStock", ppu.getMinMonthsOfStock());
                 params.put("localProcurementLeadTime", ppu.getLocalProcurementLeadTime());
+                params.put("shelfLife", ppu.getShelfLife());
+                params.put("catalogPrice", ppu.getCatalogPrice());
+                params.put("monthsInPastForAmc", ppu.getMonthsInPastForAmc());
+                params.put("monthsInFutureForAmc", ppu.getMonthsInFutureForAmc());
                 params.put("curDate", curDate);
                 params.put("curUser", curUser.getUserId());
                 params.put("active", ppu.isActive());
@@ -410,9 +406,9 @@ public class ProgramDaoImpl implements ProgramDao {
         if (updateList.size() > 0) {
             SqlParameterSource[] updateParams = new SqlParameterSource[updateList.size()];
             String sqlString = "UPDATE "
-                    + "rm_program_planning_unit ppu SET ppu.MIN_MONTHS_OF_STOCK=:minMonthsOfStock,ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.LOCAL_PROCUREMENT_LEAD_TIME=:localProcurementLeadTime, ppu.ACTIVE=:active, "
-                    + "ppu.LAST_MODIFIED_DATE=IF(ppu.ACTIVE!=:active OR ppu.REORDER_FREQUENCY_IN_MONTHS!=:reorderFrequencyInMonths, :curDate, ppu.LAST_MODIFIED_DATE), "
-                    + "ppu.LAST_MODIFIED_BY=IF(ppu.ACTIVE!=:active OR ppu.REORDER_FREQUENCY_IN_MONTHS!=:reorderFrequencyInMonths, :curUser, ppu.LAST_MODIFIED_BY) "
+                    + "rm_program_planning_unit ppu SET ppu.MIN_MONTHS_OF_STOCK=:minMonthsOfStock,ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.LOCAL_PROCUREMENT_LEAD_TIME=:localProcurementLeadTime, ppu.SHELF_LIFE=:shelfLife, ppu.CATALOG_PRICE=:catalogPrice, ppu.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, ppu.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, ppu.ACTIVE=:active, "
+                    + "ppu.LAST_MODIFIED_DATE=IF(ppu.ACTIVE!=:active OR ppu.REORDER_FREQUENCY_IN_MONTHS!=:reorderFrequencyInMonths OR ppu.LOCAL_PROCUREMENT_LEAD_TIME!=:localProcurementLeadTime OR ppu.SHELF_LIFE!=:shelfLife OR ppu.CATALOG_PRICE!=:catalogPrice OR ppu.MONTHS_IN_PAST_FOR_AMC!=:monthsInPastForAmc OR ppu.MONTHS_IN_FUTURE_FOR_AMC!=:monthsInFutureForAmc, :curDate, ppu.LAST_MODIFIED_DATE), "
+                    + "ppu.LAST_MODIFIED_BY=IF  (ppu.ACTIVE!=:active OR ppu.REORDER_FREQUENCY_IN_MONTHS!=:reorderFrequencyInMonths OR ppu.LOCAL_PROCUREMENT_LEAD_TIME!=:localProcurementLeadTime OR ppu.SHELF_LIFE!=:shelfLife OR ppu.CATALOG_PRICE!=:catalogPrice OR ppu.MONTHS_IN_PAST_FOR_AMC!=:monthsInPastForAmc OR ppu.MONTHS_IN_FUTURE_FOR_AMC!=:monthsInFutureForAmc, :curUser, ppu.LAST_MODIFIED_BY) "
                     + "WHERE ppu.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId";
             rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
         }
