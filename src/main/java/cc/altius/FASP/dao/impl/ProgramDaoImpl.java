@@ -364,7 +364,9 @@ public class ProgramDaoImpl implements ProgramDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params;
         for (ProgramPlanningUnit ppu : programPlanningUnits) {
+            System.out.println("ppu.getProgramPlanningUnitId()---"+ppu.getProgramPlanningUnitId());
             if (ppu.getProgramPlanningUnitId() == 0) {
+                System.out.println("insert----------------");
                 // Insert
                 params = new HashMap<>();
                 params.put("PLANNING_UNIT_ID", ppu.getPlanningUnit().getId());
@@ -383,6 +385,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("ACTIVE", true);
                 insertList.add(new MapSqlParameterSource(params));
             } else {
+                System.out.println("update----------------");
                 // Update
                 params = new HashMap<>();
                 params.put("programPlanningUnitId", ppu.getProgramPlanningUnitId());
