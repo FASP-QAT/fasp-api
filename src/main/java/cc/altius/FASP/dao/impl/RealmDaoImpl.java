@@ -44,7 +44,7 @@ public class RealmDaoImpl implements RealmDao {
     @Autowired
     private AclService aclService;
 
-    private final String sqlListString = "SELECT r.REALM_ID, r.REALM_CODE, r.DEFAULT_REALM, "
+    private final String sqlListString = "SELECT r.REALM_ID, r.REALM_CODE, r.DEFAULT_REALM, r.MIN_MOS_MIN_GAURDAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, "
             + " rl.`LABEL_ID` ,rl.`LABEL_EN`, rl.`LABEL_FR`, rl.`LABEL_PR`, rl.`LABEL_SP`,"
             + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, r.ACTIVE, r.CREATED_DATE, r.LAST_MODIFIED_DATE "
             + " FROM rm_realm r "
@@ -63,6 +63,9 @@ public class RealmDaoImpl implements RealmDao {
         int labelId = this.labelDao.addLabel(r.getLabel(), curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("DEFAULT_REALM", r.isDefaultRealm());
+        params.put("MIN_MOS_MIN_GAURDRAIL", r.getMinMosMinGaurdrail());
+        params.put("MIN_MOS_MAX_GAURDRAIL", r.getMinMosMaxGaurdrail());
+        params.put("MAX_MOS_MAX_GAURDRAIL", r.getMaxMosMaxGaurdrail());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
@@ -86,19 +89,23 @@ public class RealmDaoImpl implements RealmDao {
         params.put("labelEn", r.getLabel().getLabel_en());
         params.put("realmCode", r.getRealmCode());
         params.put("default", r.isDefaultRealm());
+        params.put("minMosMinGaurdrail", r.getMinMosMinGaurdrail());
+        params.put("minMosMaxGaurdrail", r.getMinMosMaxGaurdrail());
+        params.put("maxMosMaxGaurdrail", r.getMaxMosMaxGaurdrail());
         params.put("active", r.isActive());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         int rows = this.namedParameterJdbcTemplate.update("UPDATE rm_realm r LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID SET "
                 + "r.REALM_CODE=:realmCode, "
                 + "r.DEFAULT_REALM=:default,"
+                + "r.MIN_MOS_MIN_GAURDRAIL=:minMosMinGaurdrail,"
+                + "r.MIN_MOS_MAX_GAURDRAIL=:minMosMaxGaurdrail,"
+                + "r.MAX_MOS_MAX_GAURDRAIL=:maxMosMaxGaurdrail,"
                 + "r.ACTIVE=:active, "
                 + "r.LAST_MODIFIED_BY=IF("
-                + "     r.REALM_CODE!=:realmCode OR "
-                + "     r.ACTIVE=:active, :curUser, r.LAST_MODIFIED_BY), "
+                + "     r.REALM_CODE!=:realmCode OR r.ACTIVE=:active OR r.DEFAULT_REALM!=:default OR r.MIN_MOS_MIN_GAURDRAIL!=:minMosMinGaurdrail OR r.MIN_MOS_MAX_GAURDRAIL!=:minMosMaxGaurdrail OR r.MAX_MOS_MAX_GAURDRAIL!=:maxMosMaxGaurdrail, :curUser, r.LAST_MODIFIED_BY), "
                 + "r.LAST_MODIFIED_DATE=IF("
-                + "     r.REALM_CODE!=:realmCode OR "
-                + "     r.ACTIVE=:active, :curDate, r.LAST_MODIFIED_DATE), "
+                + "     r.REALM_CODE!=:realmCode OR r.ACTIVE=:active OR r.DEFAULT_REALM!=:default OR r.MIN_MOS_MIN_GAURDRAIL!=:minMosMinGaurdrail OR r.MIN_MOS_MAX_GAURDRAIL!=:minMosMaxGaurdrail OR r.MAX_MOS_MAX_GAURDRAIL!=:maxMosMaxGaurdrail, :curDate, r.LAST_MODIFIED_DATE), "
                 + "rl.LABEL_EN=:labelEn, "
                 + "rl.LAST_MODIFIED_BY=IF(rl.LABEL_EN!=:labelEn, :curUser, rl.LAST_MODIFIED_BY), "
                 + "rl.LAST_MODIFIED_DATE=IF(rl.LABEL_EN!=:labelEn, :curDate, rl.LAST_MODIFIED_DATE) "
