@@ -76,8 +76,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, CustomUserDetails curUser) {
-        return this.programDataDao.updateProgramVersion(programId, versionId, versionStatusId, curUser);
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId,String notes, CustomUserDetails curUser) {
+        return this.programDataDao.updateProgramVersion(programId, versionId, versionStatusId,notes, curUser);
     }
 
     @Override

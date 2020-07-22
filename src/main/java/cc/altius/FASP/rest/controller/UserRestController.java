@@ -10,6 +10,7 @@ import cc.altius.FASP.jwt.resource.JwtTokenResponse;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
 import cc.altius.FASP.model.ForgotPasswordToken;
+import cc.altius.FASP.model.LanguageUser;
 import cc.altius.FASP.model.Password;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Role;
@@ -73,8 +74,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    
+
     @GetMapping(value = "/role")
     public ResponseEntity getRoleList() {
         try {
@@ -480,6 +480,34 @@ public class UserRestController {
         } catch (Exception e) {
             auditLogger.error("Error while trying to Add Access Controls", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailedAcl"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/user/language")
+    public ResponseEntity updateUserLanguage(@RequestBody LanguageUser languageUser, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            auditLogger.info("Update language change triggered for Username: " + curUser.getUsername());
+            this.userService.updateUserLanguage(curUser.getUserId(), languageUser.getLanguageCode());
+            auditLogger.info("Preferred language updated successfully for Username: " + curUser.getUsername());
+            return new ResponseEntity("", HttpStatus.OK);
+        } catch (Exception e) {
+            auditLogger.info("Could not update preferred language", e);
+            return new ResponseEntity(new ResponseCode("static.message.user.languageChangeError"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/user/agreement")
+    public ResponseEntity acceptUserAgreement(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            auditLogger.info("Update agreement for Username: " + curUser.getUsername());
+            this.userService.acceptUserAgreement(curUser.getUserId());
+            auditLogger.info("Agreement updated successfully for Username: " + curUser.getUsername());
+            return new ResponseEntity("", HttpStatus.OK);
+        } catch (Exception e) {
+            auditLogger.info("Could not update agreement", e);
+            return new ResponseEntity(new ResponseCode("static.message.user.languageChangeError"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

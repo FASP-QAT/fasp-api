@@ -74,8 +74,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int updateFailedAttemptsByUserId(String username) {
-        return this.userDao.updateFailedAttemptsByUserId(username);
+    public int updateFailedAttemptsByUserId(String emailId) {
+        return this.userDao.updateFailedAttemptsByUserId(emailId);
     }
 
     @Override
@@ -217,6 +217,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public int updateSuncExpiresOn(String emailId) {
         return this.userDao.updateSuncExpiresOn(emailId);
+    }
+
+    @Override
+    public int updateUserLanguage(int userId, String languageCode) {
+        return this.userDao.updateUserLanguage(userId, languageCode);
+    }
+
+    @Override
+    public int acceptUserAgreement(int userId) {
+        return this.userDao.acceptUserAgreement(userId);
     }
 
 }

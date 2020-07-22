@@ -23,7 +23,7 @@ public interface UserDao {
     public CustomUserDetails getCustomUserByUsername(String username);
 
     public CustomUserDetails getCustomUserByEmailId(String emailId);
-    
+
     public CustomUserDetails getCustomUserByUserId(int userId);
 
     public Map<String, Object> checkIfUserExists(String username, String password);
@@ -32,7 +32,7 @@ public interface UserDao {
 
     public int resetFailedAttemptsByUsername(String emailId);
 
-    public int updateFailedAttemptsByUserId(String username);
+    public int updateFailedAttemptsByUserId(String emailId);
 
     public int addNewUser(User user, int curUser);
 
@@ -61,7 +61,7 @@ public interface UserDao {
     public int updateRole(Role role, CustomUserDetails curUser);
 
     public Role getRoleById(String roleId);
-    
+
     public List<Role> getRoleList();
 
     public String generateTokenForUserId(int userId);
@@ -81,4 +81,8 @@ public interface UserDao {
     public int mapAccessControls(User user, CustomUserDetails curUser);
 
     public int updateSuncExpiresOn(String emailId);
+
+    public int updateUserLanguage(int userId, String languageCode);
+
+    public int acceptUserAgreement(int userId);
 }
