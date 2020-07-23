@@ -287,6 +287,20 @@ public class SupplyPlanBatchInfo implements Serializable {
         this.unmetDemand = unmetDemand;
     }
 
+    public boolean hasData() {
+        return !(this.shipmentQty == 0
+                && this.consumption == 0
+                && this.adjustment == 0
+                && this.openingBalance == 0
+                && this.openingBalanceWps == 0
+                && this.closingBalance == 0
+                && this.closingBalanceWps == 0
+                && this.expiredStock == 0
+                && this.expiredStockWps == 0
+                && this.unmetDemand == 0
+                && this.unmetDemandWps == 0);
+    }
+
     @Override
     public int hashCode() {
         int hash = 5;

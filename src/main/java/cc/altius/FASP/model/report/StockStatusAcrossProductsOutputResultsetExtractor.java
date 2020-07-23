@@ -34,11 +34,9 @@ public class StockStatusAcrossProductsOutputResultsetExtractor implements Result
                 ssapList.add(ssap);
             }
             SimpleCodeObject program = new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, 1), rs.getString("PROGRAM_CODE"));
-            if (ssap.getProgramData().get(program.getCode()) == null) {
-                StockStatusAcrossProductsForProgram ssapfp = new StockStatusAcrossProductsForProgram();
-                ssapfp.setProgram(program);
-                ssap.getProgramData().put(program.getCode(), ssapfp);
-            }
+            StockStatusAcrossProductsForProgram ssapfp = new StockStatusAcrossProductsForProgram();
+            ssapfp.setProgram(program);
+            ssap.getProgramData().add(ssapfp);
         }
         return ssapList;
     }

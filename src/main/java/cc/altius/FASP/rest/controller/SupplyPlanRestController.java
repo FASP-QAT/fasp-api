@@ -7,6 +7,7 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.service.ProgramDataService;
+import java.util.Date;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,8 +31,15 @@ public class SupplyPlanRestController {
     @GetMapping("/supplyPlan/programId/{programId}/versionId/{versionId}")
     @ResponseBody
     public ResponseEntity buildSupplyPlan(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId) {
+        System.out.println("Starting supply plan build");
+        System.out.println(new Date());
         SupplyPlan sp = this.programDataService.getSupplyPlan(programId, versionId);
+        System.out.println("Completed Supply plan build");
+        System.out.println(new Date());
+        System.out.println("Going to save to the rm_supply_plan_batch_info table");
         this.programDataService.updateSupplyPlanBatchInfo(sp);
+        System.out.println("Completed save to the table");
+        System.out.println(new Date());
         return new ResponseEntity(sp, HttpStatus.OK);
     }
 }
