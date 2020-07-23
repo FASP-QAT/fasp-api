@@ -671,12 +671,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             // Insert the rows where Shipment Id is not null
             sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID SET "
                     + "s.SUGGESTED_QTY=ts.SUGGESTED_QTY, "
-//                    + "s.PROCUREMENT_AGENT_ID=ts.PROCUREMENT_AGENT_ID, "
-//                    + "s.ACCOUNT_FLAG=ts.ACCOUNT_FLAG, "
-//                    + "s.ERP_FLAG=ts.ERP_FLAG, "
+                    //                    + "s.PROCUREMENT_AGENT_ID=ts.PROCUREMENT_AGENT_ID, "
+                    //                    + "s.ACCOUNT_FLAG=ts.ACCOUNT_FLAG, "
+                    //                    + "s.ERP_FLAG=ts.ERP_FLAG, "
                     + "s.CURRENCY_ID=ts.CURRENCY_ID, "
                     + "s.CONVERSION_RATE_TO_USD=ts.CONVERSION_RATE_TO_USD, "
-//                    + "s.EMERGENCY_ORDER=ts.EMERGENCY_ORDER, "
+                    //                    + "s.EMERGENCY_ORDER=ts.EMERGENCY_ORDER, "
                     + "s.MAX_VERSION_ID=:versionId "
                     + "WHERE ts.SHIPMENT_ID IS NOT NULL AND ts.CHANGED=1";
             shipmentRows = this.namedParameterJdbcTemplate.update(sqlString, params);
@@ -936,7 +936,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId,String notes, CustomUserDetails curUser) {
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser) {
         String sqlString = "UPDATE rm_program_version pv SET pv.VERSION_STATUS_ID=:versionStatusId,pv.NOTES=:notes, pv.LAST_MODIFIED_DATE=:curDate, pv.LAST_MODIFIED_BY=:curUser WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
@@ -946,9 +946,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("curUser", curUser.getUserId());
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         this.namedParameterJdbcTemplate.update(sqlString, params);
-  String sql = "INSERT INTO rm_program_version_trans SELECT NULL,pv.PROGRAM_VERSION_ID,pv.VERSION_TYPE_ID,?,?,?,? FROM  rm_program_version pv  "
-         + "WHERE pv.`PROGRAM_ID`=? AND pv.`VERSION_ID`=? ";
-        this.jdbcTemplate.update(sql, versionStatusId, notes, curUser.getUserId(), DateUtils.getCurrentDateObject(DateUtils.EST),programId,versionId);
+        String sql = "INSERT INTO rm_program_version_trans SELECT NULL,pv.PROGRAM_VERSION_ID,pv.VERSION_TYPE_ID,?,?,?,? FROM  rm_program_version pv  "
+                + "WHERE pv.`PROGRAM_ID`=? AND pv.`VERSION_ID`=? ";
+        this.jdbcTemplate.update(sql, versionStatusId, notes, curUser.getUserId(), DateUtils.getCurrentDateObject(DateUtils.EST), programId, versionId);
         return this.getVersionInfo(programId, versionId);
     }
 
@@ -1010,32 +1010,41 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         List<SqlParameterSource> batchParams = new ArrayList<>();
         for (SupplyPlanDate sd : sp.getSupplyPlanDateList()) {
             for (SupplyPlanBatchInfo sbi : sd.getBatchList()) {
-                Map<String, Object> params = new HashMap<>();
-                params.put("expired", sbi.getExpiredStock());
-                params.put("calculatedConsumption", sbi.getCalculatedConsumption());
-                params.put("openingBalance", sbi.getOpeningBalance());
-                params.put("closingBalance", sbi.getClosingBalance());
-                params.put("unmetDemand", sbi.getUnmetDemand());
-                params.put("expiredWps", sbi.getExpiredStockWps());
-                params.put("calculatedConsumptionWps", sbi.getCalculatedConsumptionWps());
-                params.put("openingBalanceWps", sbi.getOpeningBalanceWps());
-                params.put("closingBalanceWps", sbi.getClosingBalanceWps());
-                params.put("unmetDemandWps", sbi.getUnmetDemandWps());
-                params.put("supplyPlanBatchInfoId", sbi.getSupplyPlanId());
-                batchParams.add(new MapSqlParameterSource(params));
+                if (sbi.hasData()) {
+                    Map<String, Object> params = new HashMap<>();
+                    params.put("expired", sbi.getExpiredStock());
+                    params.put("calculatedConsumption", sbi.getCalculatedConsumption());
+                    params.put("openingBalance", sbi.getOpeningBalance());
+                    params.put("closingBalance", sbi.getClosingBalance());
+                    params.put("unmetDemand", sbi.getUnmetDemand());
+                    params.put("expiredWps", sbi.getExpiredStockWps());
+                    params.put("calculatedConsumptionWps", sbi.getCalculatedConsumptionWps());
+                    params.put("openingBalanceWps", sbi.getOpeningBalanceWps());
+                    params.put("closingBalanceWps", sbi.getClosingBalanceWps());
+                    params.put("unmetDemandWps", sbi.getUnmetDemandWps());
+                    params.put("supplyPlanBatchInfoId", sbi.getSupplyPlanId());
+                    batchParams.add(new MapSqlParameterSource(params));
+                }
             }
         }
         SqlParameterSource[] updateParams = new SqlParameterSource[batchParams.size()];
         this.namedParameterJdbcTemplate.batchUpdate(sqlString, batchParams.toArray(updateParams));
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", sp.getProgramId());
+        this.namedParameterJdbcTemplate.update("DELETE spbi.* FROM rm_supply_plan_batch_info spbi WHERE spbi.PROGRAM_ID=? AND !(spbi.SHIPMENT_QTY!=0 OR spbi.FORECASTED_CONSUMPTION_QTY!=0 OR spbi.ACTUAL_CONSUMPTION_QTY!=0 OR spbi.ADJUSTMENT_MULTIPLIED_QTY!=0 OR spbi.FINAL_OPENING_BALANCE!=0 OR spbi.FINAL_CLOSING_BALANCE!=0 OR spbi.FINAL_OPENING_BALANCE_WPS!=0 OR spbi.FINAL_CLOSING_BALANCE_WPS!=0 OR spbi.BATCH_ID=0)", params);
     }
 
     @Override
     public SupplyPlan getSupplyPlan(int programId, int versionId) {
+        System.out.println("Going to call buildSimpleSupplyPlan SP");
+        System.out.println(new Date());
         String sqlString = "CALL buildSimpleSupplyPlan(:programId, :versionId)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
         SupplyPlan sp = this.namedParameterJdbcTemplate.query(sqlString, params, new SupplyPlanResultSetExtractor());
+        System.out.println("SP call completed");
+        System.out.println(new Date());
 //        sqlString = "SELECT   "
 //                    + "	spbi.SUPPLY_PLAN_BATCH_INFO_ID, "
 //                    + "    spbi.PROGRAM_ID, "
@@ -1049,6 +1058,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //                    + "FROM rm_supply_plan_batch_info spbi WHERE spbi.PROGRAM_ID=:programId AND spbi.VERSION_ID=:versionId ORDER BY spbi.TRANS_DATE, spbi.EXPIRY_DATE, IF(spbi.BATCH_ID=0, 9999999999,spbi.BATCH_ID)";
 //            SupplyPlan sp = this.namedParameterJdbcTemplate.query(sqlString, params, new SupplyPlanResultSetExtractor());
         List<SqlParameterSource> batchParams = new ArrayList<>();
+        System.out.println("Going through the loops to calculate on basis of FEFO");
+        System.out.println(new Date());
         System.out.println("PLANNING_UNIT_ID\tBATCH_ID\tTRANS_DATE\tEXPIRY_DATE\tSHIPMENT_QTY\tSHIPMENT_QTY_WPS\tCONSUMPTION\tADJUSTMENT\tEXPIRED\tUNALLOCATED\tCALCULCATED\tOPEN_BAL\tCLOSE_BAL\tUNMET DEMAND\tEXPIRED_WPS\tUNALLOCATED_WPS\tCALCULCATED_WPS\tOPEN_BAL_WPS\tCLOSE_BAL_WPS\tUNMET DEMAND_WPS");
         for (SupplyPlanDate sd : sp.getSupplyPlanDateList()) {
             for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
@@ -1078,6 +1089,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 System.out.println(sd.getPlanningUnitId() + "\t\t" + spbi.getBatchId() + "\t\t" + sd.getTransDateStr() + "\t\t" + spbi.getExpiryDateStr() + "\t\t" + spbi.getShipmentQty() + "\t\t" + (spbi.getShipmentQty() - spbi.getPlannedShipmentQty()) + "\t\t" + spbi.getConsumption() + "\t\t" + spbi.getAdjustment() + "\t\t" + spbi.getExpiredStock() + "\t\t" + sd.getUnallocatedConsumption() + "\t\t" + spbi.getCalculatedConsumption() + "\t\t" + spbi.getOpeningBalance() + "\t\t" + spbi.getClosingBalance() + "\t\t" + spbi.getUnmetDemand() + "\t\t" + spbi.getExpiredStockWps() + "\t\t" + sd.getUnallocatedConsumptionWps() + "\t\t" + spbi.getCalculatedConsumptionWps() + "\t\t" + spbi.getOpeningBalanceWps() + "\t\t" + spbi.getClosingBalanceWps() + "\t\t" + spbi.getUnmetDemandWps());
             }
         }
+        System.out.println("Completed loops");
+        System.out.println(new Date());
 //        sqlString = "SELECT   "
 //                + "	spbi.SUPPLY_PLAN_BATCH_INFO_ID, "
 //                + "    spbi.PROGRAM_ID, "

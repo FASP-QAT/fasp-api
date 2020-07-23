@@ -90,6 +90,7 @@ public class ReportServiceImpl implements ReportService {
     public List<ConsumptionForecastVsActualOutput> getConsumptionForecastVsActual(ConsumptionForecastVsActualInput cfa, CustomUserDetails curUser) {
         return this.reportDao.getConsumptionForecastVsActual(cfa, curUser);
     }
+
     // Report no 3
     @Override
     public List<GlobalConsumptionOutput> getGlobalConsumption(GlobalConsumptionInput gci, CustomUserDetails curUser) {
@@ -107,8 +108,7 @@ public class ReportServiceImpl implements ReportService {
     public List<ForecastMetricsComparisionOutput> getForecastMetricsComparision(ForecastMetricsComparisionInput fmi, CustomUserDetails curUser) {
         return this.reportDao.getForecastMetricsComparision(fmi, curUser);
     }
-    
-    
+
     @Override
     public List<StockStatusOverTimeOutput> getStockStatusOverTime(StockStatusOverTimeInput ssot, CustomUserDetails curUser) {
         return this.reportDao.getStockStatusOverTime(ssot, curUser);
@@ -159,8 +159,6 @@ public class ReportServiceImpl implements ReportService {
         return this.reportDao.getStockStatusForProgram(sspi, curUser);
     }
 
-
-
     @Override
     public List<ProgramLeadTimesOutput> getProgramLeadTimes(ProgramLeadTimesInput plt, CustomUserDetails curUser) {
         return this.reportDao.getProgramLeadTimes(plt, curUser);
@@ -196,13 +194,13 @@ public class ReportServiceImpl implements ReportService {
     public List<StockStatusAcrossProductsOutput> getStockStatusAcrossProducts(StockStatusAcrossProductsInput ssap, CustomUserDetails curUser) {
         List<StockStatusAcrossProductsOutput> ssapList = this.reportDao.getStockStatusAcrossProductsBasicInfo(ssap, curUser);
         for (StockStatusAcrossProductsOutput s : ssapList) {
-            for (String progCode : s.getProgramData().keySet()) {
-                StockStatusAcrossProductsForProgram sData = this.reportDao.getStockStatusAcrossProductsProgramData(s.getProgramData().get(progCode).getProgram().getId(), s.getPlanningUnit().getId(), ssap.getDt());
-                s.getProgramData().replace(progCode, sData);
+            for (StockStatusAcrossProductsForProgram progData : s.getProgramData()) {
+                s.getProgramData().remove(progData);
+                StockStatusAcrossProductsForProgram sData = this.reportDao.getStockStatusAcrossProductsProgramData(progData.getProgram().getId(), s.getPlanningUnit().getId(), ssap.getDt());
+                s.getProgramData().add(sData);
             }
         }
         return ssapList;
     }
 
-    
 }

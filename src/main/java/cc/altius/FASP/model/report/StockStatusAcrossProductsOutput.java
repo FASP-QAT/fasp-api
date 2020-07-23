@@ -7,8 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleObject;
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -18,10 +18,10 @@ import java.util.Objects;
 public class StockStatusAcrossProductsOutput implements Serializable {
 
     private SimpleObject planningUnit;
-    private Map<String, StockStatusAcrossProductsForProgram> programData;
+    private List<StockStatusAcrossProductsForProgram> programData;
 
     public StockStatusAcrossProductsOutput() {
-        this.programData = new HashMap<>();
+        this.programData = new LinkedList<>();
     }
 
     public SimpleObject getPlanningUnit() {
@@ -32,11 +32,11 @@ public class StockStatusAcrossProductsOutput implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public Map<String, StockStatusAcrossProductsForProgram> getProgramData() {
+    public List<StockStatusAcrossProductsForProgram> getProgramData() {
         return programData;
     }
 
-    public void setProgramData(Map<String, StockStatusAcrossProductsForProgram> programData) {
+    public void setProgramData(List<StockStatusAcrossProductsForProgram> programData) {
         this.programData = programData;
     }
 
