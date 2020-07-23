@@ -15,9 +15,11 @@ import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -131,6 +133,26 @@ public class ProgramServiceImpl implements ProgramService {
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser) {
+        StringBuilder programList = new StringBuilder();
+        for (int programId : programIds) {
+            Program p = this.programDao.getProgramById(programId, curUser);
+            if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthArea().getId(), p.getOrganisation().getId())) {
+                programList.append("'").append(programId).append("',");
+            } else {
+                throw new AccessDeniedException("Access denied");
+            }
+        }
+        if (programList.length()>0) {
+            programList.setLength(programList.length()-1);
+            return this.programDao.getPlanningUnitListForProgramIds(programList.toString(), curUser);
+        } else {
+            return new LinkedList<>();
+        }
+        
     }
 
     @Override
