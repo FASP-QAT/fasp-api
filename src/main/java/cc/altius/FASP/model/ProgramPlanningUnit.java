@@ -23,7 +23,6 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
     private double catalogPrice;
     private int monthsInFutureForAmc;
     private int monthsInPastForAmc;
-    
 
     public ProgramPlanningUnit() {
     }
@@ -144,6 +143,11 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "ProgramPlanningUnit{" + "programPlanningUnitId=" + programPlanningUnitId + ", program=" + program + ", planningUnit=" + planningUnit + ", reorderFrequencyInMonths=" + reorderFrequencyInMonths + ", minMonthsOfStock=" + minMonthsOfStock + ", localProcurementLeadTime=" + localProcurementLeadTime + ", shelfLife=" + shelfLife + ", catalogPrice=" + catalogPrice + ", monthsInFutureForAmc=" + monthsInFutureForAmc + ", monthsInPastForAmc=" + monthsInPastForAmc + '}';
     }
 
 }

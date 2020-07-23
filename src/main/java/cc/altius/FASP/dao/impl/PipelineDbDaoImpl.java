@@ -938,6 +938,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("PROGRAM_ID", ppu.getProgram().getId());
             params.put("REORDER_FREQUENCY_IN_MONTHS", ppu.getReorderFrequencyInMonths());
             params.put("MIN_MONTHS_OF_STOCK", ppu.getMinMonthsOfStock());
+            params.put("MONTHS_IN_FUTURE_FOR_AMC", ppu.getMonthsInFutureForAmc());
+            params.put("MONTHS_IN_PAST_FOR_AMC", ppu.getMonthsInPastForAmc());
             params.put("CREATED_DATE", curDate);
             params.put("CREATED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
