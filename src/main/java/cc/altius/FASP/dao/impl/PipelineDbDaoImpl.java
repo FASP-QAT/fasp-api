@@ -896,8 +896,11 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("PRODUCT_COST", s.getProductCost());
             params.put("SHIPPING_MODE", s.getShipmentMode());
             params.put("FREIGHT_COST", s.getFreightCost());
-            params.put("ORDERED_DATE", s.getOrderedDate());
+            params.put("PLANNED_DATE", s.getPlannedDate());
+            params.put("SUBMITTED_DATE", s.getSubmittedDate());
+            params.put("APPROVED_DATE", s.getApprovedDate());
             params.put("SHIPPED_DATE", s.getShippedDate());
+            params.put("ARRIVED_DATE", s.getArrivedDate());
             params.put("RECEIVED_DATE", s.getReceivedDate());
             params.put("SHIPMENT_STATUS_ID", s.getShipmentStatus());
             params.put("DATA_SOURCE_ID", s.getDataSource());
@@ -1392,9 +1395,12 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("PRODUCT_COST", s.getProductCost());
             params.put("SHIPMENT_MODE", s.getShipmentMode());
             params.put("FREIGHT_COST", s.getFreightCost());
-            params.put("ORDERED_DATE", s.getOrderedDate());
+            params.put("PLANNED_DATE", s.getPlannedDate());
+            params.put("SUBMITTED_DATE", s.getSubmittedDate());
+            params.put("APPROVED_DATE", s.getApprovedDate());
             params.put("SHIPPED_DATE", s.getShippedDate());
-            params.put("DELIVERED_DATE", s.getReceivedDate());
+            params.put("ARRIVED_DATE", s.getArrivedDate());
+            params.put("RECEIVED_DATE", s.getReceivedDate());
             params.put("SHIPMENT_STATUS_ID", s.getShipmentStatus());
             params.put("NOTES", s.getNotes());
             params.put("DATA_SOURCE_ID", s.getDataSource());

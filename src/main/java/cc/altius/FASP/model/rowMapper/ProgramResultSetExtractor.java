@@ -39,7 +39,7 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
                         new RealmCountry(
                                 rs.getInt("REALM_COUNTRY_ID"),
                                 new Country(rs.getInt("COUNTRY_ID"), rs.getString("COUNTRY_CODE"), new LabelRowMapper("COUNTRY_").mapRow(rs, 1)),
-                                new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE"))
+                                new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE"), rs.getInt("MIN_MOS_MIN_GAURDRAIL"), rs.getInt("MIN_MOS_MAX_GAURDRAIL"), rs.getInt("MAX_MOS_MAX_GAURDRAIL"))
                         )
                 );
                 p.getRealmCountry().getCountry().setCountryCode2(rs.getString("COUNTRY_CODE2"));
