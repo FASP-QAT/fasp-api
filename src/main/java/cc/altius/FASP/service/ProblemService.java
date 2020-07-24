@@ -16,4 +16,6 @@ import java.util.List;
 public interface ProblemService {
 
     public List<RealmProblem> getProblemListByRealmId(int realmId, CustomUserDetails curUser);
+
+    public List<RealmProblem> getProblemListForSync(int realmId, String lastModifiedDate, CustomUserDetails curUser);
 }

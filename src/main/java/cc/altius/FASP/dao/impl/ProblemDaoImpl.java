@@ -26,16 +26,7 @@ public class ProblemDaoImpl implements ProblemDao {
 
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
-    @Autowired
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-    }
-
-    @Override
-    public List<RealmProblem> getProblemListByRealmId(int realmId, CustomUserDetails curUser) {
-        String sql = "SELECT  "
+    private static final String problemMasterSql = "SELECT  "
                 + "     rp.REALM_PROBLEM_ID, r.REALM_ID, r.REALM_CODE, r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_SP `REALM_LABEL_SP`, r.LABEL_PR `REALM_LABEL_PR`, "
                 + "     p.PROBLEM_ID, p.LABEL_ID `PROBLEM_LABEL_ID`, p.LABEL_EN `PROBLEM_LABEL_EN`, p.LABEL_FR `PROBLEM_LABEL_FR`, p.LABEL_SP `PROBLEM_LABEL_SP`, p.LABEL_PR `PROBLEM_LABEL_PR`, "
                 + "     p.ACTION_URL, rp.DATA1, rp.DATA2, rp.DATA3, "
@@ -47,9 +38,28 @@ public class ProblemDaoImpl implements ProblemDao {
                 + "	LEFT JOIN us_user cb ON rp.CREATED_BY=cb.USER_ID "
                 + "    LEFT JOIN us_user lmb ON rp.LAST_MODIFIED_BY=lmb.USER_ID "
                 + "    LEFT JOIN vw_realm r ON rp.REALM_ID=r.REALM_ID "
-                + "WHERE rp.REALM_ID=:realmId AND rp.ACTIVE AND p.ACTIVE";
+                + "WHERE rp.ACTIVE AND p.ACTIVE ";
+
+    @Autowired
+    public void setDataSource(DataSource dataSource) {
+        this.dataSource = dataSource;
+        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+    }
+
+    @Override
+    public List<RealmProblem> getProblemListByRealmId(int realmId, CustomUserDetails curUser) {
+        String sql = this.problemMasterSql +" AND rp.REALM_ID=:realmId ";
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
+        return this.namedParameterJdbcTemplate.query(sql, params, new RealmProblemRowMapper());
+    }
+    
+    @Override
+    public List<RealmProblem> getProblemListForSync(int realmId, String lastModifiedDate, CustomUserDetails curUser) {
+        String sql = this.problemMasterSql +" AND rp.REALM_ID=:realmId AND rp.LAST_MODIFIED_DATE>:lastModifiedDate ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        params.put("lastModifiedDate", lastModifiedDate);
         return this.namedParameterJdbcTemplate.query(sql, params, new RealmProblemRowMapper());
     }
 
