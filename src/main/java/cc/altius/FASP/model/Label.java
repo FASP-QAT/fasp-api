@@ -26,6 +26,7 @@ public class Label extends BaseModel {
         this.label_sp = label_sp;
         this.label_fr = label_fr;
         this.label_pr = label_pr;
+        setActive(true);
     }
 
     public Label(Integer labelId) {
