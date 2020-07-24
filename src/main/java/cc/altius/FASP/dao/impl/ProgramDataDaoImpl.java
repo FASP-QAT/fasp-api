@@ -1047,7 +1047,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", sp.getProgramId());
         this.namedParameterJdbcTemplate.update("DELETE spbi.* FROM rm_supply_plan_batch_info spbi WHERE spbi.PROGRAM_ID=:programId AND !(spbi.SHIPMENT_QTY!=0 OR spbi.FORECASTED_CONSUMPTION_QTY!=0 OR spbi.ACTUAL_CONSUMPTION_QTY!=0 OR spbi.ADJUSTMENT_MULTIPLIED_QTY!=0 OR spbi.FINAL_OPENING_BALANCE!=0 OR spbi.FINAL_CLOSING_BALANCE!=0 OR spbi.FINAL_OPENING_BALANCE_WPS!=0 OR spbi.FINAL_CLOSING_BALANCE_WPS!=0 OR spbi.BATCH_ID=0)", params);
-        this.namedParameterJdbcTemplate.update("UPDATE rm_supply_plan_batch_info spbi SET spbi.ACTUAL=null WHERE spbi.ACTUAL = 0 AND spbi.ACTUAL_CONSUMPTION_QTY=0 ANd spbi.FORECASTED_CONSUMPTION_QTY=0 AND spbi.PROGRAM_ID=:programId", params);
+        this.namedParameterJdbcTemplate.update("UPDATE rm_supply_plan_batch_info spbi SET spbi.ACTUAL=null WHERE ((spbi.ACTUAL_CONSUMPTION_QTY=0 AND spbi.FORECASTED_CONSUMPTION_QTY=0) OR (spbi.ACTUAL_CONSUMPTION_QTY is null and spbi.FORECASTED_CONSUMPTION_QTY is null)) AND spbi.PROGRAM_ID=:programId", params);
     }
 
     @Override
