@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ProblemDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.RealmProblem;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.ProblemService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ public class ProblemServiceImpl implements ProblemService {
 
     @Autowired
     private ProblemDao problemDao;
-    
+
     @Override
     public List<RealmProblem> getProblemListByRealmId(int realmId, CustomUserDetails curUser) {
         return this.problemDao.getProblemListByRealmId(realmId, curUser);
@@ -32,7 +33,15 @@ public class ProblemServiceImpl implements ProblemService {
     public List<RealmProblem> getProblemListForSync(int realmId, String lastModifiedDate, CustomUserDetails curUser) {
         return this.problemDao.getProblemListForSync(realmId, lastModifiedDate, curUser);
     }
-    
-    
-    
+
+    @Override
+    public List<SimpleObject> getProblemStatusForSync(String lastModifiedDate, CustomUserDetails curUser) {
+        return this.problemDao.getProblemStatusForSync(lastModifiedDate, curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getProblemCriticalityForSync(String lastModifiedDate, CustomUserDetails curUser) {
+        return this.problemDao.getProblemCriticalityForSync(lastModifiedDate, curUser);
+    }
+
 }
