@@ -86,7 +86,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
 
     public String sqlListString = "SELECT  "
             + "      p.ARRIVED_TO_DELIVERED_LEAD_TIME,p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME,p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME,"
-            + "     p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_DRAFT_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME,"
+            + "     p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME,"
             + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.DELIVERED_TO_RECEIVED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
             + "     pl.LABEL_ID, pl.LABEL_EN, pl.LABEL_FR, pl.LABEL_PR, pl.LABEL_SP, "
@@ -617,8 +617,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "p.PROGRAM_NOTES=:programNotes, "
                     + "p.AIR_FREIGHT_PERC=:airFreightPerc, "
                     + "p.SEA_FREIGHT_PERC=:seaFreightPerc, "
-                    + "p.PLANNED_TO_DRAFT_LEAD_TIME=:plannedToDraftLeadTime, "
-                    + "p.DRAFT_TO_SUBMITTED_LEAD_TIME=:draftToSubmittedLeadTime, "
+                    + "p.PLANNED_TO_SUBMITTED_LEAD_TIME=:plannedToSubmittedLeadTime, "
+//                    + "p.DRAFT_TO_SUBMITTED_LEAD_TIME=:draftToSubmittedLeadTime, "
                     + "p.SUBMITTED_TO_APPROVED_LEAD_TIME=:submittedToApprovedLeadTime, "
                     + "p.APPROVED_TO_SHIPPED_LEAD_TIME=:approvedToShippedLeadTime, "
                     + "p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, "
@@ -785,6 +785,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + " '' as LOCAL_PROCUREMENT_LEAD_TIME, "
                     + " '' as SHELF_LIFE, "
                     + " '' as CATALOG_PRICE "
+                    + " '' as MONTHS_IN_PAST_FOR_AMC "
+                    + " '' as MONTHS_IN_FUTURE_FOR_AMC "
                     + "FROM fasp.adb_product p "
                     + "left join adb_method m on m.MethodID=p.MethodID and m.PIPELINE_ID=:pipelineId "
                     + "left join ap_label al on al.LABEL_EN=p.ProductName OR al.LABEL_FR=p.ProductName "
@@ -1392,7 +1394,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("PRODUCT_COST", s.getProductCost());
             params.put("SHIPMENT_MODE", s.getShipmentMode());
             params.put("FREIGHT_COST", s.getFreightCost());
-            params.put("ORDERED_DATE", s.getOrderedDate());
+//            params.put("ORDERED_DATE", s.getOrderedDate());  planned date ,submited date ,approved date,arrived date
             params.put("SHIPPED_DATE", s.getShippedDate());
             params.put("DELIVERED_DATE", s.getReceivedDate());
             params.put("SHIPMENT_STATUS_ID", s.getShipmentStatus());
