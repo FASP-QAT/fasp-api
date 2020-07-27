@@ -32,10 +32,19 @@ public class QatTempShipment {
     private double freightCost;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    private Date orderedDate;
+    private Date plannedDate;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    private Date submittedDate;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    private Date approvedDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date shippedDate;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    private Date arrivedDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date receivedDate;
@@ -52,7 +61,7 @@ public class QatTempShipment {
     }
 
     
-    public QatTempShipment(int shipmentId, String planningUnit, Date expectedDeliveryDate, double suggestedQty, String procurementAgent, String procurementUnit, String supplier, double quantity, double rate, double productCost, String shipmentMode, double freightCost, Date orderedDate, Date shippedDate, Date receivedDate, String shipmentStatus, String notes, String dataSource, boolean accountFlag, boolean erpFlag, int versionId, String fundingSource) {
+    public QatTempShipment(int shipmentId, String planningUnit, Date expectedDeliveryDate, double suggestedQty, String procurementAgent, String procurementUnit, String supplier, double quantity, double rate, double productCost, String shipmentMode, double freightCost, Date plannedDate, Date submittedDate, Date approvedDate, Date shippedDate, Date arrivedDate, Date receivedDate, String shipmentStatus, String notes, String dataSource, boolean accountFlag, boolean erpFlag, int versionId, String fundingSource) {
         this.shipmentId = shipmentId;
         this.planningUnit = planningUnit;
         this.expectedDeliveryDate = expectedDeliveryDate;
@@ -65,8 +74,11 @@ public class QatTempShipment {
         this.productCost = productCost;
         this.shipmentMode = shipmentMode;
         this.freightCost = freightCost;
-        this.orderedDate = orderedDate;
+        this.plannedDate = plannedDate;
+        this.submittedDate = submittedDate;
+        this.approvedDate = approvedDate;
         this.shippedDate = shippedDate;
+        this.arrivedDate = arrivedDate;
         this.receivedDate = receivedDate;
         this.shipmentStatus = shipmentStatus;
         this.notes = notes;
@@ -173,12 +185,36 @@ public class QatTempShipment {
         this.freightCost = freightCost;
     }
 
-    public Date getOrderedDate() {
-        return orderedDate;
+    public Date getPlannedDate() {
+        return plannedDate;
     }
 
-    public void setOrderedDate(Date orderedDate) {
-        this.orderedDate = orderedDate;
+    public void setPlannedDate(Date plannedDate) {
+        this.plannedDate = plannedDate;
+    }
+
+    public Date getSubmittedDate() {
+        return submittedDate;
+    }
+
+    public void setSubmittedDate(Date submittedDate) {
+        this.submittedDate = submittedDate;
+    }
+
+    public Date getApprovedDate() {
+        return approvedDate;
+    }
+
+    public void setApprovedDate(Date approvedDate) {
+        this.approvedDate = approvedDate;
+    }
+
+    public Date getArrivedDate() {
+        return arrivedDate;
+    }
+
+    public void setArrivedDate(Date arrivedDate) {
+        this.arrivedDate = arrivedDate;
     }
 
     public Date getShippedDate() {
@@ -259,11 +295,6 @@ public class QatTempShipment {
 
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    @Override
-    public String toString() {
-        return "QatTempShipment{" + "shipmentId=" + shipmentId + ", planningUnit=" + planningUnit + ", expectedDeliveryDate=" + expectedDeliveryDate + ", suggestedQty=" + suggestedQty + ", procurementAgent=" + procurementAgent + ", procurementUnit=" + procurementUnit + ", supplier=" + supplier + ", quantity=" + quantity + ", rate=" + rate + ", productCost=" + productCost + ", shipmentMode=" + shipmentMode + ", freightCost=" + freightCost + ", orderedDate=" + orderedDate + ", shippedDate=" + shippedDate + ", receivedDate=" + receivedDate + ", shipmentStatus=" + shipmentStatus + ", notes=" + notes + ", dataSource=" + dataSource + ", accountFlag=" + accountFlag + ", erpFlag=" + erpFlag + ", versionId=" + versionId + ", fundingSource=" + fundingSource + ", active=" + active + '}';
     }
 
 }

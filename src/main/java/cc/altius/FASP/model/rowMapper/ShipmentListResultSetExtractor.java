@@ -72,9 +72,12 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             s.setProductCost(rs.getDouble("PRODUCT_COST"));
             s.setShipmentMode(rs.getString("SHIPMENT_MODE"));
             s.setFreightCost(rs.getDouble("FREIGHT_COST"));
-            s.setOrderedDate(rs.getDate("ORDERED_DATE"));
+            s.setPlannedDate(rs.getDate("PLANNED_DATE"));
+            s.setSubmittedDate(rs.getDate("SUBMITTED_DATE"));
+            s.setApprovedDate(rs.getDate("APPROVED_DATE"));
             s.setShippedDate(rs.getDate("SHIPPED_DATE"));
-            s.setDeliveredDate(rs.getDate("DELIVERED_DATE"));
+            s.setArrivedDate(rs.getDate("ARRIVED_DATE"));
+            s.setReceivedDate(rs.getDate("RECEIVED_DATE"));
             s.setShipmentStatus(new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, 1)));
             s.setNotes(rs.getString("NOTES"));
             s.setDataSource(new SimpleObject(rs.getInt("DATA_SOURCE_ID"), new LabelRowMapper("DATA_SOURCE_").mapRow(rs, 1)));

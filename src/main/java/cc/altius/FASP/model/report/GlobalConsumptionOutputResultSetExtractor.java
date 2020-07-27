@@ -48,3 +48,7 @@ public class GlobalConsumptionOutputResultSetExtractor implements ResultSetExtra
     }
 
 }
+
+
+
+

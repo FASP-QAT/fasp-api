@@ -39,13 +39,22 @@ public class Shipment extends BaseModel implements Serializable {
     private double freightCost;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    private Date orderedDate;
+    private Date plannedDate;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    private Date submittedDate;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    private Date approvedDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date shippedDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    private Date deliveredDate;
+    private Date arrivedDate;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    private Date receivedDate;
     private SimpleObject shipmentStatus;
     private String notes;
     private SimpleObject dataSource;
@@ -180,12 +189,28 @@ public class Shipment extends BaseModel implements Serializable {
         this.freightCost = freightCost;
     }
 
-    public Date getOrderedDate() {
-        return orderedDate;
+    public Date getPlannedDate() {
+        return plannedDate;
     }
 
-    public void setOrderedDate(Date orderedDate) {
-        this.orderedDate = orderedDate;
+    public void setPlannedDate(Date plannedDate) {
+        this.plannedDate = plannedDate;
+    }
+
+    public Date getSubmittedDate() {
+        return submittedDate;
+    }
+
+    public void setSubmittedDate(Date submittedDate) {
+        this.submittedDate = submittedDate;
+    }
+
+    public Date getApprovedDate() {
+        return approvedDate;
+    }
+
+    public void setApprovedDate(Date approvedDate) {
+        this.approvedDate = approvedDate;
     }
 
     public Date getShippedDate() {
@@ -196,12 +221,20 @@ public class Shipment extends BaseModel implements Serializable {
         this.shippedDate = shippedDate;
     }
 
-    public Date getDeliveredDate() {
-        return deliveredDate;
+    public Date getArrivedDate() {
+        return arrivedDate;
     }
 
-    public void setDeliveredDate(Date deliveredDate) {
-        this.deliveredDate = deliveredDate;
+    public void setArrivedDate(Date arrivedDate) {
+        this.arrivedDate = arrivedDate;
+    }
+
+    public Date getReceivedDate() {
+        return receivedDate;
+    }
+
+    public void setReceivedDate(Date receivedDate) {
+        this.receivedDate = receivedDate;
     }
 
     public SimpleObject getShipmentStatus() {

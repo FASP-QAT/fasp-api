@@ -618,7 +618,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "p.AIR_FREIGHT_PERC=:airFreightPerc, "
                     + "p.SEA_FREIGHT_PERC=:seaFreightPerc, "
                     + "p.PLANNED_TO_SUBMITTED_LEAD_TIME=:plannedToSubmittedLeadTime, "
-//                    + "p.DRAFT_TO_SUBMITTED_LEAD_TIME=:draftToSubmittedLeadTime, "
+                    //                    + "p.DRAFT_TO_SUBMITTED_LEAD_TIME=:draftToSubmittedLeadTime, "
                     + "p.SUBMITTED_TO_APPROVED_LEAD_TIME=:submittedToApprovedLeadTime, "
                     + "p.APPROVED_TO_SHIPPED_LEAD_TIME=:approvedToShippedLeadTime, "
                     + "p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, "
@@ -784,8 +784,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + " '' as REORDER_FREQUENCY_IN_MONTHS, "
                     + " '' as LOCAL_PROCUREMENT_LEAD_TIME, "
                     + " '' as SHELF_LIFE, "
-                    + " '' as CATALOG_PRICE "
-                    + " '' as MONTHS_IN_PAST_FOR_AMC "
+                    + " '' as CATALOG_PRICE, "
+                    + " '' as MONTHS_IN_PAST_FOR_AMC, "
                     + " '' as MONTHS_IN_FUTURE_FOR_AMC "
                     + "FROM fasp.adb_product p "
                     + "left join adb_method m on m.MethodID=p.MethodID and m.PIPELINE_ID=:pipelineId "
@@ -809,7 +809,13 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
         params.put("pipelineId", pipelineId);
         String sql = "SELECT "
-                + "		st.SHIPMENT_ID, st.EXPECTED_DELIVERY_DATE, st.ORDERED_DATE, st.SHIPPED_DATE, st.RECEIVED_DATE, st.QUANTITY, st.RATE, st.PRODUCT_COST, st.FREIGHT_COST, st.SHIPPING_MODE, st.SUGGESTED_QTY, '0' ACCOUNT_FLAG, '0'ERP_FLAG, st.NOTES, "
+                + "		st.SHIPMENT_ID, st.EXPECTED_DELIVERY_DATE, "
+                + "st.ORDERED_DATE, st.SHIPPED_DATE, st.RECEIVED_DATE,"
+                + "st.PLANNED_DATE, "
+                + "now() SUBMITTED_DATE,"
+                + "now() APPROVED_DATE,"
+                + "now() ARRIVED_DATE,"
+                + "st.QUANTITY, st.RATE, st.PRODUCT_COST, st.FREIGHT_COST, st.SHIPPING_MODE, st.SUGGESTED_QTY, '0' ACCOUNT_FLAG, '0'ERP_FLAG, st.NOTES, "
                 + "		0 VERSION_ID , "
                 + "		st.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pal.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pal.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pal.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pal.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, pal.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, "
                 + "		st.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, "
@@ -846,10 +852,26 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         List<QatTempShipment> result = this.namedParameterJdbcTemplate.query(sql, params, new QatTempShipmentRowMapper());
 
         if (result.size() == 0) {
-            sql = "SELECT ash.ShipmentID SHIPMENT_ID,qtp.`PLANNING_UNIT_ID`,ash.`ShipAmount`,ash.`ShipReceivedDate` EXPECTED_DELIVERY_DATE,ash.ShipAmount SUGGESTED_QTY,ash.ShipAmount QUANTITY,'0.0' RATE,ShipValue PRODUCT_COST,'' SHIPPING_MODE,ash.`ShipOrderedDate` ORDERED_DATE, "
-                    + "                 ash.`ShipShippedDate` SHIPPED_DATE,ash.`ShipReceivedDate` RECEIVED_DATE,ash.ShipStatusCode SHIPMENT_STATUS_ID,ash.`ShipNote` NOTES,ash.`ShipFreightCost` FREIGHT_COST,ash.`ShipPO`,COALESCE(rds.`DATA_SOURCE_ID`,ds.`DataSourceName`) DATA_SOURCE_ID, "
-                    + "                 '1'ACCOUNT_FLAG,'1'ERP_FLAG,'0'VERSION_ID ,COALESCE(rpa.`PROCUREMENT_AGENT_ID`,ads.`SupplierName`) PROCUREMENT_AGENT_ID, '' PROCUREMENT_UNIT_ID,'' SUPPLIER_ID ,COALESCE(rfs.`FUNDING_SOURCE_ID`,afs.`FundingSourceName`) FUNDING_SOURCE_ID,'1' ACTIVE  "
-                    + "                 FROM adb_shipment ash  "
+            sql = "SELECT ash.ShipmentID SHIPMENT_ID,"
+                    + "qtp.`PLANNING_UNIT_ID`,"
+                    + "ash.`ShipAmount`,"
+                    + "ash.`ShipReceivedDate` EXPECTED_DELIVERY_DATE,"
+                    + "ash.ShipAmount SUGGESTED_QTY,"
+                    + "ash.ShipAmount QUANTITY,"
+                    + "'0.0' RATE,"
+                    + "ShipValue PRODUCT_COST,"
+                    + "'' SHIPPING_MODE,"
+                    + "ash.`ShipPlannedDate` PLANNED_DATE, "
+                    + "ash.`ShipShippedDate` SHIPPED_DATE,"
+                    + "ash.`ShipReceivedDate` RECEIVED_DATE,"
+                    + "now() SUBMITTED_DATE,"
+                    + "now() APPROVED_DATE,"
+                    + "now() ARRIVED_DATE,"
+                    + "ash.ShipStatusCode SHIPMENT_STATUS_ID,"
+                    + "ash.`ShipNote` NOTES,"
+                    + "ash.`ShipFreightCost` FREIGHT_COST,ash.`ShipPO`,COALESCE(rds.`DATA_SOURCE_ID`,ds.`DataSourceName`) DATA_SOURCE_ID, "
+                    + "'1'ACCOUNT_FLAG,'1'ERP_FLAG,'0'VERSION_ID ,COALESCE(rpa.`PROCUREMENT_AGENT_ID`,ads.`SupplierName`) PROCUREMENT_AGENT_ID, '' PROCUREMENT_UNIT_ID,'' SUPPLIER_ID ,COALESCE(rfs.`FUNDING_SOURCE_ID`,afs.`FundingSourceName`) FUNDING_SOURCE_ID,'1' ACTIVE  "
+                    + "FROM adb_shipment ash  "
                     + "                   LEFT JOIN  qat_temp_program_planning_unit qtp ON qtp.PIPELINE_PRODUCT_ID = ash.ProductID  AND  qtp.`PIPELINE_ID`=:pipelineId "
                     + "                 LEFT JOIN adb_datasource ds ON ds.`DataSourceID`=ash.`ShipDataSourceID`AND ds.`PIPELINE_ID`=:pipelineId "
                     + "                LEFT JOIN ap_label ald ON UPPER(ald.LABEL_EN)=UPPER(ds.`DataSourceName`)  OR UPPER(ald.LABEL_FR)=UPPER(ds.`DataSourceName`) OR UPPER(ald.LABEL_SP)=UPPER(ds.`DataSourceName`) OR UPPER(ald.LABEL_PR)=UPPER(ds.`DataSourceName`) "
@@ -898,7 +920,12 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("PRODUCT_COST", s.getProductCost());
             params.put("SHIPPING_MODE", s.getShipmentMode());
             params.put("FREIGHT_COST", s.getFreightCost());
-            params.put("ORDERED_DATE", s.getOrderedDate());
+
+            params.put("PLANNED_DATE", curDate);
+            params.put("SUBMITTED_DATE", curDate);
+            params.put("APPROVED_DATE", curDate);
+            params.put("ARRIVED_DATE", curDate);
+
             params.put("SHIPPED_DATE", s.getShippedDate());
             params.put("RECEIVED_DATE", s.getReceivedDate());
             params.put("SHIPMENT_STATUS_ID", s.getShipmentStatus());
@@ -1149,7 +1176,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("INVENTORY_DATE", ppu.getInventoryDate());
             params.put("NOTES", ppu.getNotes());
             params.put("ADJUSTMENT_QTY", ppu.getManualAdjustment());
-            params.put("PIPELINE_ID", ppu.isActive());
+            params.put("PIPELINE_ID", pipelineId);
             params.put("REALM_COUNTRY_PLANNING_UNIT_ID", ppu.getRealmCountryPlanningUnitId());
             params.put("MULTIPLIER", ppu.getMultiplier());
 
@@ -1320,9 +1347,10 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
          * Insert**********************************
          */
 
-        String sql = "SELECT s.`FUNDING_SOURCE_ID`,SUM(IFNULL(s.`FREIGHT_COST`,0)+IFNULL(s.`PRODUCT_COST`,0)) budget,EXTRACT(YEAR FROM MAX(ORDERED_DATE)) `year` FROM qat_temp_shipment s WHERE s.`PIPELINE_ID`=:pipelineId GROUP BY s.`FUNDING_SOURCE_ID`";
+        String sql = "SELECT s.`FUNDING_SOURCE_ID`,SUM(IFNULL(s.`FREIGHT_COST`,0)+IFNULL(s.`PRODUCT_COST`,0)) budget,EXTRACT(YEAR FROM MAX(now())) `year` FROM qat_temp_shipment s WHERE s.`PIPELINE_ID`=:pipelineId GROUP BY s.`FUNDING_SOURCE_ID`";
         params.put("pipelineId", pipelineId);
         List<Map<String, Object>> budgetList = this.namedParameterJdbcTemplate.queryForList(sql, params);
+        System.out.println("budget list=======>" + budgetList);
         List<Map<String, Object>> newList = new LinkedList<>();
         params.clear();
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_budget").usingGeneratedKeyColumns("BUDGET_ID");
@@ -1344,15 +1372,15 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("NOTES", "");
             params.put("ACTIVE", true);
             int result = si.executeAndReturnKey(params).intValue();
-            
+
             String sqlString = "update rm_budget rb \n"
                     + "left join rm_program p on p.PROGRAM_ID=rb.PROGRAM_ID\n"
                     + "left join rm_realm_country rc on rc.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID\n"
                     + "left join ap_country ac on ac.COUNTRY_ID=rc.COUNTRY_ID\n"
                     + "set rb.BUDGET_CODE=concat(ac.COUNTRY_CODE,rb.BUDGET_ID)\n"
                     + "where rb.BUDGET_ID=?;";
-            this.jdbcTemplate.update(sqlString,result);
-            
+            this.jdbcTemplate.update(sqlString, result);
+
             budget.put("budgetId", result);
             newList.add(budget);
         }
@@ -1394,9 +1422,14 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("PRODUCT_COST", s.getProductCost());
             params.put("SHIPMENT_MODE", s.getShipmentMode());
             params.put("FREIGHT_COST", s.getFreightCost());
-//            params.put("ORDERED_DATE", s.getOrderedDate());  planned date ,submited date ,approved date,arrived date
+
+            params.put("PLANNED_DATE", s.getPlannedDate());
+            params.put("SUBMITTED_DATE", s.getSubmittedDate());
+            params.put("APPROVED_DATE", s.getApprovedDate());
+
             params.put("SHIPPED_DATE", s.getShippedDate());
-            params.put("DELIVERED_DATE", s.getReceivedDate());
+            params.put("ARRIVED_DATE", s.getArrivedDate());
+            params.put("RECEIVED_DATE", s.getReceivedDate());
             params.put("SHIPMENT_STATUS_ID", s.getShipmentStatus());
             params.put("NOTES", s.getNotes());
             params.put("DATA_SOURCE_ID", s.getDataSource());

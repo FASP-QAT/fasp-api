@@ -20,7 +20,18 @@ public class Realm extends BaseModel implements Serializable {
     private int minMosMinGaurdrail;
     private int minMosMaxGaurdrail;
     private int maxMosMaxGaurdrail;
-    
+
+    public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail) {
+        if (realmId == 0) {
+            realmId = -1;
+        }
+        this.realmId = realmId;
+        this.label = label;
+        this.realmCode = realmCode;
+        this.minMosMinGaurdrail = minMosMinGaurdrail;
+        this.minMosMaxGaurdrail = minMosMaxGaurdrail;
+        this.maxMosMaxGaurdrail = maxMosMaxGaurdrail;
+    }
 
     public Realm(Integer realmId, Label label, String realmCode) {
         if (realmId == 0) {

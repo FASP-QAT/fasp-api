@@ -6,6 +6,7 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -21,7 +22,7 @@ public class ProcurementAgentPlanningUnitRowMapper implements RowMapper<Procurem
     public ProcurementAgentPlanningUnit mapRow(ResultSet rs, int rowNum) throws SQLException {
         ProcurementAgentPlanningUnit papu = new ProcurementAgentPlanningUnit(
                 rs.getInt("PROCUREMENT_AGENT_PLANNING_UNIT_ID"),
-                new SimpleObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, rowNum)),
+                new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, rowNum), rs.getString("PROCUREMENT_AGENT_CODE")),
                 new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, rowNum))
         );
         papu.setSkuCode(rs.getString("SKU_CODE"));

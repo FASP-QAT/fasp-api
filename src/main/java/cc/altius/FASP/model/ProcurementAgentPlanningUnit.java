@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class ProcurementAgentPlanningUnit extends BaseModel implements Serializable {
 
     private int procurementAgentPlanningUnitId;
-    private SimpleObject procurementAgent;
+    private SimpleCodeObject procurementAgent;
     private SimpleObject planningUnit;
     private String skuCode;
     private Double catalogPrice;
@@ -28,7 +28,7 @@ public class ProcurementAgentPlanningUnit extends BaseModel implements Serializa
     public ProcurementAgentPlanningUnit() {
     }
 
-    public ProcurementAgentPlanningUnit(int procurementAgentPlanningUnitId, SimpleObject procurementAgent, SimpleObject planningUnit) {
+    public ProcurementAgentPlanningUnit(int procurementAgentPlanningUnitId, SimpleCodeObject procurementAgent, SimpleObject planningUnit) {
         this.procurementAgentPlanningUnitId = procurementAgentPlanningUnitId;
         this.procurementAgent = procurementAgent;
         this.planningUnit = planningUnit;
@@ -42,11 +42,11 @@ public class ProcurementAgentPlanningUnit extends BaseModel implements Serializa
         this.procurementAgentPlanningUnitId = procurementAgentPlanningUnitId;
     }
 
-    public SimpleObject getProcurementAgent() {
+    public SimpleCodeObject getProcurementAgent() {
         return procurementAgent;
     }
 
-    public void setProcurementAgent(SimpleObject procurementAgent) {
+    public void setProcurementAgent(SimpleCodeObject procurementAgent) {
         this.procurementAgent = procurementAgent;
     }
 
