@@ -580,7 +580,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "where ap.PIPELINE_ID=:pipelineId ;";
         Map<String, Object> params = new HashMap<>();
         params.put("pipelineId", pipelineId);
-        params.put("realmId", curUser.getRealm().getRealmId());
+        params.put("realmId", 1);
         return this.namedParameterJdbcTemplate.queryForObject(sql, params, new PplPrograminfoRowMapper());
     }
 
@@ -1204,11 +1204,11 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "FROM fasp.qat_temp_program_planning_unit pu "
                 + "left join rm_planning_unit rmp on rmp.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "left join ap_label al on al.LABEL_ID=rmp.LABEL_ID "
-                + "left join qat_temp_inventory i on i.REALM_COUNTRY_PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "left join qat_temp_inventory i on i.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "left join qat_temp_shipment s on s.PLANNING_UNIT_ID =pu.PLANNING_UNIT_ID  "
-                + "left join (select a.PLANNING_UNIT_ID,coalesce(if(a.co=2,(select qc.CONSUMPTION_QUANTITY from qat_temp_consumption qc where qc.PIPELINE_ID=1  "
+                + "left join (select a.PLANNING_UNIT_ID,coalesce(if(a.co=2,(select qc.CONSUMPTION_QUANTITY from qat_temp_consumption qc where qc.PIPELINE_ID=:pipelineId"
                 + "and qc.CONSUMPTION_DATE=a.CONSUMPTION_DATE and qc.PLANNING_UNIT_ID=a.PLANNING_UNIT_ID "
-                + "and qc.ACTUAL_FLAG=1),(select qc.CONSUMPTION_QUANTITY from qat_temp_consumption qc where qc.PIPELINE_ID=1  "
+                + "and qc.ACTUAL_FLAG=1),(select qc.CONSUMPTION_QUANTITY from qat_temp_consumption qc where qc.PIPELINE_ID=:pipelineId  "
                 + "and qc.CONSUMPTION_DATE=a.CONSUMPTION_DATE and qc.PLANNING_UNIT_ID=a.PLANNING_UNIT_ID)),0) as consumptionQty "
                 + "from (select count(*) as co ,c.CONSUMPTION_DATE,c.ACTUAL_FLAG,c.PLANNING_UNIT_ID from qat_temp_consumption  "
                 + "c where c.PIPELINE_ID=:pipelineId  "
@@ -1434,7 +1434,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("NOTES", s.getNotes());
             params.put("DATA_SOURCE_ID", s.getDataSource());
             params.put("ACCOUNT_FLAG", 1);
-            params.put("ERP_FLAG", 1);
+            params.put("ERP_FLAG", 0);
             params.put("EMERGENCY_ORDER", false);
             params.put("ORDER_NO", null);
             params.put("PRIME_LINE_NO", null);
