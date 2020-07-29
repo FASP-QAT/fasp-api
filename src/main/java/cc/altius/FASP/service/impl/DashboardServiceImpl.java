@@ -9,11 +9,13 @@ import cc.altius.FASP.dao.DashboardDao;
 import cc.altius.FASP.service.DashboardService;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /**
  *
  * @author altius
  */
+@Service
 public class DashboardServiceImpl implements DashboardService {
 
     @Autowired

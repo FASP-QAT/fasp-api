@@ -119,7 +119,8 @@ public class EmailDaoImpl implements EmailDao {
         try {
             Properties props = System.getProperties();
             props.setProperty("mail.host", "smtp.gmail.com");
-            props.setProperty("mail.smtp.port", "465");
+//            props.setProperty("mail.smtp.port", "465");
+            props.setProperty("mail.smtp.port", "587");
             props.setProperty("mail.smtp.auth", "true");
             props.setProperty("mail.smtp.socketFactory.port", "465");
             props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
