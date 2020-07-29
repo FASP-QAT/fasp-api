@@ -516,6 +516,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
+     * {"realmId":1,  "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":[158], "fundingSourceIds":[], "procurementAgentIds":[]}
      * </pre>
      *
      * @param so
@@ -537,6 +538,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
+     * {"realmId":1,  "startDate":"2019-10-01", "stopDate":"2020-07-01", "realmCountryIds":[1,2,3], "planningUnitId":158, "fundingSourceIds":[], "fundingSourceProcurementAgentIds":[], "reportView":1}
      * </pre>
      *
      * @param sgd
@@ -644,6 +646,13 @@ public class ReportController {
     }
 
     // Report no 29
+    /**
+     * Sample JSON 
+     * {"programId":3, "versionId":2}
+     * @param br
+     * @param auth
+     * @return 
+     */
     @RequestMapping(value = "/budgetReport")
     public ResponseEntity getBudgetReport(@RequestBody BudgetReportInput br, Authentication auth) {
         try {
@@ -659,7 +668,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"programId":3, "versionId":2, "dt":"2019-10-01", "includePlannedShipments":1}
+     * {"realmId":1, "tracerCategoryId":-1, "dt":"2019-10-01", "realmCountryIds":[1,2,3]}
      * -- programId must be a single Program cannot be muti-program select or -1 for all programs
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
      * -- dt is the month for which you want to run the report

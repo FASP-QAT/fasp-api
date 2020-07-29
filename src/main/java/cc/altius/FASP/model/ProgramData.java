@@ -43,6 +43,7 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<Inventory> inventoryList;
     private List<Shipment> shipmentList;
     private List<Batch> batchInfoList;
+    private List<ProblemReport> problemReportList;
     private int requestedProgramVersion;
     @JsonIgnore
     private Date lastModifiedDate;
@@ -314,6 +315,14 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setLastModifiedBy(BasicUser lastModifiedBy) {
         this.lastModifiedBy = lastModifiedBy;
+    }
+
+    public List<ProblemReport> getProblemReportList() {
+        return problemReportList;
+    }
+
+    public void setProblemReportList(List<ProblemReport> problemReportList) {
+        this.problemReportList = problemReportList;
     }
 
     @Override
