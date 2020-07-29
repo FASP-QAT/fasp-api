@@ -24,10 +24,10 @@ public class ProblemReport implements Serializable {
     private SimpleCodeObject program;
     private int versionId;
     private RealmProblem realmProblem;
-    private String data1;
-    private String data2;
-    private String data3;
-    private String data4;
+    private String dt;
+    private SimpleObject region;
+    private SimpleObject planningUnit;
+    private Integer shipmentId;
     private String data5;
     private SimpleObject problemStatus;
     private SimpleObject problemType;
@@ -77,36 +77,36 @@ public class ProblemReport implements Serializable {
         this.realmProblem = realmProblem;
     }
 
-    public String getData1() {
-        return data1;
+    public String getDt() {
+        return dt;
     }
 
-    public void setData1(String data1) {
-        this.data1 = data1;
+    public void setDt(String dt) {
+        this.dt = dt;
     }
 
-    public String getData2() {
-        return data2;
+    public SimpleObject getRegion() {
+        return region;
     }
 
-    public void setData2(String data2) {
-        this.data2 = data2;
+    public void setRegion(SimpleObject region) {
+        this.region = region;
     }
 
-    public String getData3() {
-        return data3;
+    public SimpleObject getPlanningUnit() {
+        return planningUnit;
     }
 
-    public void setData3(String data3) {
-        this.data3 = data3;
+    public void setPlanningUnit(SimpleObject planningUnit) {
+        this.planningUnit = planningUnit;
     }
 
-    public String getData4() {
-        return data4;
+    public Integer getShipmentId() {
+        return shipmentId;
     }
 
-    public void setData4(String data4) {
-        this.data4 = data4;
+    public void setShipmentId(Integer shipmentId) {
+        this.shipmentId = shipmentId;
     }
 
     public String getData5() {
