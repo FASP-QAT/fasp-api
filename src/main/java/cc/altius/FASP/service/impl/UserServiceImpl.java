@@ -42,8 +42,8 @@ public class UserServiceImpl implements UserService {
     private AclService aclService;
 
 //    @Value("${urlHost}")
-    private static String HOST_URL = "http://localhost:4202/#";
-//    private static String HOST_URL = "https://qat.altius.cc/#";
+//    private static String HOST_URL = "http://localhost:4202/#";
+    private static String HOST_URL = "https://uat.quantificationanalytics.org/#";
 //    private static String HOST_URL = "https://faspdeveloper.github.io/fasp";
 //    @Value("${urlPasswordReset}")
     private static String PASSWORD_RESET_URL = "resetPassword";

@@ -14,11 +14,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-
+import org.springframework.stereotype.Repository;
 /**
  *
  * @author altius
  */
+@Repository
 public class DashboardDaoImpl implements DashboardDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
