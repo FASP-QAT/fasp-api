@@ -31,17 +31,18 @@ public class ProblemDaoImpl implements ProblemDao {
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private static final String problemMasterSql = "SELECT  "
-            + "     rp.REALM_PROBLEM_ID, r.REALM_ID, r.REALM_CODE, r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_SP `REALM_LABEL_SP`, r.LABEL_PR `REALM_LABEL_PR`, "
-            + "     p.PROBLEM_ID, p.LABEL_ID `PROBLEM_LABEL_ID`, p.LABEL_EN `PROBLEM_LABEL_EN`, p.LABEL_FR `PROBLEM_LABEL_FR`, p.LABEL_SP `PROBLEM_LABEL_SP`, p.LABEL_PR `PROBLEM_LABEL_PR`, "
-            + "     p.ACTION_URL, rp.DATA1, rp.DATA2, rp.DATA3, "
-            + "	pc.CRITICALITY_ID, pc.COLOR_HTML_CODE, pc.LABEL_ID `CRITICALITY_LABEL_ID`, pc.LABEL_EN `CRITICALITY_LABEL_EN`, pc.LABEL_FR `CRITICALITY_LABEL_FR`, pc.LABEL_SP `CRITICALITY_LABEL_SP`, pc.LABEL_PR `CRITICALITY_LABEL_PR`, "
-            + "     rp.ACTIVE, cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, rp.CREATED_DATE, lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME, rp.LAST_MODIFIED_DATE "
+            + "rp.REALM_PROBLEM_ID, r.REALM_ID, r.REALM_CODE, r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_SP `REALM_LABEL_SP`, r.LABEL_PR `REALM_LABEL_PR`, "
+            + "p.PROBLEM_ID, p.LABEL_ID `PROBLEM_LABEL_ID`, p.LABEL_EN `PROBLEM_LABEL_EN`, p.LABEL_FR `PROBLEM_LABEL_FR`, p.LABEL_SP `PROBLEM_LABEL_SP`, p.LABEL_PR `PROBLEM_LABEL_PR`, "
+            + "p.ACTION_URL,p.ACTION_LABEL_ID,p.ACTION_LABEL_EN,p.ACTION_LABEL_FR,p.ACTION_LABEL_SP,p.ACTION_LABEL_PR, "
+            + "rp.DATA1, rp.DATA2, rp.DATA3, "
+            + "pc.CRITICALITY_ID, pc.COLOR_HTML_CODE, pc.LABEL_ID `CRITICALITY_LABEL_ID`, pc.LABEL_EN `CRITICALITY_LABEL_EN`, pc.LABEL_FR `CRITICALITY_LABEL_FR`, pc.LABEL_SP `CRITICALITY_LABEL_SP`, pc.LABEL_PR `CRITICALITY_LABEL_PR`,"
+            + "rp.ACTIVE, cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, rp.CREATED_DATE, lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME, rp.LAST_MODIFIED_DATE "
             + "FROM rm_realm_problem rp  "
-            + "    LEFT JOIN vw_problem p ON p.PROBLEM_ID=rp.PROBLEM_ID "
-            + "    LEFT JOIN vw_problem_criticality pc ON pc.CRITICALITY_ID=rp.CRITICALITY_ID "
-            + "	LEFT JOIN us_user cb ON rp.CREATED_BY=cb.USER_ID "
-            + "    LEFT JOIN us_user lmb ON rp.LAST_MODIFIED_BY=lmb.USER_ID "
-            + "    LEFT JOIN vw_realm r ON rp.REALM_ID=r.REALM_ID "
+            + "LEFT JOIN vw_problem p ON p.PROBLEM_ID=rp.PROBLEM_ID "
+            + "LEFT JOIN vw_problem_criticality pc ON pc.CRITICALITY_ID=rp.CRITICALITY_ID "
+            + "LEFT JOIN us_user cb ON rp.CREATED_BY=cb.USER_ID "
+            + "LEFT JOIN us_user lmb ON rp.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "LEFT JOIN vw_realm r ON rp.REALM_ID=r.REALM_ID "
             + "WHERE rp.ACTIVE AND p.ACTIVE ";
 
     @Autowired

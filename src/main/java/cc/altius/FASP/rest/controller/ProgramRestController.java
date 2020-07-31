@@ -151,7 +151,7 @@ public class ProgramRestController {
         }
     }
     
-    @GetMapping("/planningUnit/programs")
+    @PostMapping("/planningUnit/programs")
     public ResponseEntity getPlanningUnitForProgramList(@RequestBody Integer[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
