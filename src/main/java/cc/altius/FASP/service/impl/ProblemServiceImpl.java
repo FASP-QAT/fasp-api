@@ -7,6 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ProblemDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.ProblemReport;
 import cc.altius.FASP.model.RealmProblem;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.ProblemService;
@@ -27,6 +28,11 @@ public class ProblemServiceImpl implements ProblemService {
     @Override
     public List<RealmProblem> getProblemListByRealmId(int realmId, CustomUserDetails curUser) {
         return this.problemDao.getProblemListByRealmId(realmId, curUser);
+    }
+
+    @Override
+    public List<ProblemReport> getProblemReportList(int problemId, int versionId, CustomUserDetails curUser) {
+        return this.problemDao.getProblemReportList(problemId, versionId, curUser);
     }
 
     @Override

@@ -42,9 +42,8 @@ public class UserServiceImpl implements UserService {
     private AclService aclService;
 
 //    @Value("${urlHost}")
-    private static String HOST_URL = "http://localhost:4202/#";
-//    private static String HOST_URL = "https://qat.altius.cc/#";
-//    private static String HOST_URL = "https://faspdeveloper.github.io/fasp";
+//    private static String HOST_URL = "http://localhost:4202/#";
+    private static String HOST_URL = "https://uat.quantificationanalytics.org/#";
 //    @Value("${urlPasswordReset}")
     private static String PASSWORD_RESET_URL = "resetPassword";
 
@@ -176,6 +175,7 @@ public class UserServiceImpl implements UserService {
 //            } else if (emailTemplateId == 2) {
             bodyParam = new String[]{user.getUsername(), HOST_URL, PASSWORD_RESET_URL, emailId, token};
 //            }
+            System.out.println("emailId---" + emailId);
             Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);

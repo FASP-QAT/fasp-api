@@ -16,14 +16,16 @@ public class Problem extends BaseModel implements Serializable {
     private int problemId;
     private Label label;
     private String actionUrl;
+    private Label actionLabel;
 
     public Problem() {
     }
 
-    public Problem(int problemId, Label label, String actionUrl) {
+    public Problem(int problemId, Label label, String actionUrl, Label actionLabel) {
         this.problemId = problemId;
         this.label = label;
         this.actionUrl = actionUrl;
+        this.actionLabel = actionLabel;
         setActive(true);
     }
 
@@ -50,6 +52,13 @@ public class Problem extends BaseModel implements Serializable {
     public void setActionUrl(String actionUrl) {
         this.actionUrl = actionUrl;
     }
-    
+
+    public Label getActionLabel() {
+        return actionLabel;
+    }
+
+    public void setActionLabel(Label actionLabel) {
+        this.actionLabel = actionLabel;
+    }
     
 }

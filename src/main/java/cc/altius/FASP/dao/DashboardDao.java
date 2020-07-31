@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.dao;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,5 +16,10 @@ public interface DashboardDao {
 
     Map<String, Object> getApplicationLevelDashboard();
 
-    Map<String, Object> getRealmLevelDashboard();
+    Map<String, Object> getRealmLevelDashboard(int realmId);
+
+    List<Map<String, Object>> getUserListForApplicationLevelAdmin();
+
+    List<Map<String, Object>> getUserListForRealmLevelAdmin(int realmId);
+
 }

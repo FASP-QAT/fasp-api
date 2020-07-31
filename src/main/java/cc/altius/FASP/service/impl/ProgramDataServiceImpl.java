@@ -15,6 +15,7 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.service.ProblemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ProgramDataService;
@@ -36,6 +37,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Autowired
     private ProgramService programService;
     @Autowired
+    private ProblemService problemService;
+    @Autowired
     private AclService aclService;
 
     @Override
@@ -47,6 +50,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId));
         pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId));
         pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId));
+        pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
         return pd;
     }
 
