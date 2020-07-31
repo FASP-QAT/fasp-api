@@ -24,6 +24,10 @@ public class ShipmentRowMapper implements RowMapper<Shipment> {
     public Shipment mapRow(ResultSet rs, int i) throws SQLException {
         Shipment s = new Shipment();
         s.setShipmentId(rs.getInt("SHIPMENT_ID"));
+        s.setParentShipmentId(rs.getInt("PARENT_SHIPMENT_ID"));
+        if (rs.wasNull()) {
+            s.setParentShipmentId(null);
+        }
         s.setPlanningUnit(
                 new SimplePlanningUnitObject(
                         rs.getInt("PLANNING_UNIT_ID"),
@@ -56,6 +60,7 @@ public class ShipmentRowMapper implements RowMapper<Shipment> {
         s.setErpFlag(rs.getBoolean("ERP_FLAG"));
         s.setVersionId(rs.getInt("VERSION_ID"));
         s.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
+        s.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
         return s;
     }
 
