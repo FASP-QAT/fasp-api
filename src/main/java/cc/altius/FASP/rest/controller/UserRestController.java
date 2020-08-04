@@ -187,7 +187,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error(("Could not get User list for UserId=" + userId));
-            auditLogger.info("Could not get User list for UserId=" + userId);
+            auditLogger.info("Could not get User list for UserId=" + e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
