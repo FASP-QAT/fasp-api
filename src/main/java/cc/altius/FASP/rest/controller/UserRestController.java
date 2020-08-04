@@ -177,6 +177,7 @@ public class UserRestController {
     @GetMapping(value = "/user/{userId}")
     public ResponseEntity getUserByUserId(@PathVariable int userId) {
         try {
+            auditLogger.info("userId " + userId);
             return new ResponseEntity(this.userService.getUserByUserId(userId), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error(("Could not get User list for UserId=" + userId));
@@ -186,6 +187,7 @@ public class UserRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error(("Could not get User list for UserId=" + userId));
+            auditLogger.info("Could not get User list for UserId=" + e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -513,5 +515,6 @@ auditLogger.info("auth 3: " + ((CustomUserDetails) auth.getPrincipal()).getUserI
             auditLogger.info("Could not update agreement", e);
             return new ResponseEntity(new ResponseCode("static.message.user.languageChangeError"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+
     }
 }
