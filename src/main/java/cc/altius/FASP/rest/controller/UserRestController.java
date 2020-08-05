@@ -503,13 +503,7 @@ public class UserRestController {
     public ResponseEntity acceptUserAgreement(Authentication auth) {
         try {
 //            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            System.out.println("cur user---"+curUser);
-            auditLogger.info("auth 1: " + (CustomUserDetails) auth.getPrincipal());
-            auditLogger.info("auth 2: " + auth);
-            auditLogger.info("auth 3: " + ((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            auditLogger.info("Update agreement for Username: " + curUser);
             this.userService.acceptUserAgreement(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            auditLogger.info("Agreement updated successfully for Username: " + curUser.getUsername());
             return new ResponseEntity("", HttpStatus.OK);
         } catch (Exception e) {
             auditLogger.info("Could not update agreement", e);
