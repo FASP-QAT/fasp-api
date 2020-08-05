@@ -44,7 +44,7 @@ public class ExportOrderIdsCsv {
     @Value("${exportSupplyPlanFilePath}")
     private String EXPORT_SUPPLY_PLAN_FILE_PATH;
 
-    @RequestMapping(value = "exportProductData")
+    @RequestMapping(value = "exportOrderData")
 //    @Scheduled(cron = "00 */05 * * * *")
     public void exportProductData() {
         EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(4);

@@ -24,6 +24,7 @@ public class ExportProgramDataDTORowMapper implements RowMapper<ExportProgramDat
         e.setProgramName(rs.getString("PROGRAM_NAME"));
         e.setCountryCode2(rs.getString("COUNTRY_CODE2"));
         e.setTechnicalArea(rs.getString("TECHNICAL_AREA_NAME"));
+        e.setProgramActive(rs.getBoolean("ACTIVE"));
         return e;
     }
 

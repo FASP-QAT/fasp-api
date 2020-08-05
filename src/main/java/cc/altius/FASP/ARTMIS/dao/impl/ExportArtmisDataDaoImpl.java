@@ -34,7 +34,7 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
 
     @Override
     public List<ExportProgramDataDTO> exportProgramData() {
-        String sql = "SELECT p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_EN `PROGRAM_NAME`, c.COUNTRY_CODE2, ha.LABEL_EN `TECHNICAL_AREA_NAME`  "
+        String sql = "SELECT p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_EN `PROGRAM_NAME`, c.COUNTRY_CODE2, ha.LABEL_EN `TECHNICAL_AREA_NAME`,p.`ACTIVE`   "
                 + "FRom vw_program p LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + "LEFT JOIN vw_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID;";
@@ -44,7 +44,7 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
     @Override
     public List<ExportOrderDataDTO> exportOrderData() {
         String sql = "SELECT s1.SHIPMENT_ID, papu.SKU_CODE, s1.PROGRAM_ID, pa.PROCUREMENT_AGENT_CODE, st.SHIPMENT_QTY, "
-                + "st.EXPECTED_DELIVERY_DATE "
+                + "COALESCE(st.`RECEIVED_DATE`,st.EXPECTED_DELIVERY_DATE)  AS EXPECTED_DELIVERY_DATE "
                 + "FROM "
                 + "( "
                 + "    SELECT s.SHIPMENT_ID, s.PROGRAM_ID, MAX(st.SHIPMENT_TRANS_ID) SHIPMENT_TRANS_ID, s.MAX_VERSION_ID "

@@ -16,6 +16,7 @@ public class ExportProgramDataDTO {
     private String programName;
     private String countryCode2;
     private String technicalArea;
+    private boolean programActive;
 
     public int getProgramId() {
         return programId;
@@ -57,9 +58,17 @@ public class ExportProgramDataDTO {
         this.technicalArea = technicalArea;
     }
 
+    public boolean isProgramActive() {
+        return programActive;
+    }
+
+    public void setProgramActive(boolean programActive) {
+        this.programActive = programActive;
+    }
+
     @Override
     public String toString() {
-        return "ExportProgramDataDTO{" + "programId=" + programId + ", programCode=" + programCode + ", programName=" + programName + ", countryCode2=" + countryCode2 + ", technicalArea=" + technicalArea + '}';
+        return "ExportProgramDataDTO{" + "programId=" + programId + ", programCode=" + programCode + ", programName=" + programName + ", countryCode2=" + countryCode2 + ", technicalArea=" + technicalArea + ", programActive=" + programActive + '}';
     }
 
 }
