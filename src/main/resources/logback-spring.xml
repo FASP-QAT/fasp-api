@@ -95,8 +95,7 @@
     </logger>
     
     <!-- LOG "cc.altius.FASP.web.controller.UserController" at INFO level -->
-    <!--<logger name="cc.altius.FASP.web.controller.UserController" level="info" additivity="false">-->
-    <logger name="cc.altius.FASP" level="info" additivity="false">
+    <logger name="cc.altius.FASP.web.controller.UserController" level="info" additivity="false">
         <!--<appender-ref ref="SpringBootDb" />-->
         <!--<appender-ref ref="SpringBootFile" />-->
         <appender-ref ref="RootConsole" />

@@ -25,38 +25,34 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
  * @author altius
  */
 public class UserResultSetExtractor implements ResultSetExtractor<User> {
-private final Logger auditLogger = LoggerFactory.getLogger(UserRestController.class);
+
+    private final Logger auditLogger = LoggerFactory.getLogger(UserRestController.class);
+
     @Override
     public User extractData(ResultSet rs) throws SQLException, DataAccessException {
         User user = new User();
         boolean isFirst = true;
         while (rs.next()) {
             if (isFirst) {
-                auditLogger.info("-------------------------1-------------------------------");
                 user.setUserId(rs.getInt("USER_ID"));
-                auditLogger.info("-------------------------2-------------------------------");
                 user.setUsername(rs.getString("USERNAME"));
                 user.setEmailId(rs.getString("EMAIL_ID"));
                 user.setPhoneNumber(rs.getString("PHONE"));
                 user.setPassword(rs.getString("PASSWORD"));
-                auditLogger.info("-------------------------3-------------------------------");
                 user.setRealm(new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")));
                 user.setLanguage(new Language(rs.getInt("LANGUAGE_ID"), rs.getString("LANGUAGE_NAME"), rs.getString("LANGUAGE_CODE")));
                 user.setFaildAttempts(rs.getInt("FAILED_ATTEMPTS"));
                 user.setLastLoginDate(rs.getTimestamp("LAST_LOGIN_DATE"));
-                auditLogger.info("-------------------------4-------------------------------");
                 user.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 user.setRoleList(new LinkedList<>());
                 user.setUserAclList(new LinkedList<>());
                 user.setBusinessFunctionList(new LinkedList<>());
             }
             Role r = new Role(rs.getString("ROLE_ID"), new LabelRowMapper("ROLE_").mapRow(rs, 1));
-            auditLogger.info("-------------------------5-------------------------------");
             if (user.getRoleList().indexOf(r) == -1) {
                 user.getRoleList().add(r);
             }
             if (rs.getInt("USER_ACL_ID") != 0) {
-                auditLogger.info("-------------------------6-------------------------------");
                 UserAcl acl = new UserAcl(
                         user.getUserId(),
                         rs.getInt("ACL_REALM_COUNTRY_ID"), new LabelRowMapper("ACL_REALM_").mapRow(rs, 1),
@@ -68,19 +64,14 @@ private final Logger auditLogger = LoggerFactory.getLogger(UserRestController.cl
                 }
             }
             String bf = new String(rs.getString("BUSINESS_FUNCTION_ID"));
-            auditLogger.info("-------------------------7-------------------------------");
             if (user.getBusinessFunctionList().indexOf(bf) == -1) {
                 user.getBusinessFunctionList().add(bf);
             }
             isFirst = false;
         }
-        auditLogger.info("-------------------------8-------------------------------");
         if (isFirst) {
-            auditLogger.info("-------------------------9-------------------------------");
             return null;
         } else {
-            auditLogger.info("-------------------------10-------------------------------"+user);
-            auditLogger.info("-------------------------11-------------------------------");
             return user;
         }
     }
