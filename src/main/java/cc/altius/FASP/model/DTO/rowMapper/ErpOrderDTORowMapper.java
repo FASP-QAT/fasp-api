@@ -21,6 +21,9 @@ public class ErpOrderDTORowMapper implements RowMapper<ErpOrderDTO> {
         ErpOrderDTO e = new ErpOrderDTO();
         e.setErpOrderId(rs.getInt("ERP_ORDER_ID"));
         e.setShipmentId(rs.getInt("SHIPMENT_ID"));
+        e.setQuantity(rs.getInt("QTY"));
+        e.setOrderNo(rs.getString("ORDER_NO"));
+        e.setPrimeLineNo("PRIME_LINE_NO");
         return e;
     }
 

@@ -6,16 +6,10 @@
 package cc.altius.FASP.ARTMIS.dao.impl;
 
 import cc.altius.FASP.ARTMIS.dao.ImportArtemisDataDao;
-import cc.altius.FASP.model.DTO.ArtmisShipmentDTO;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
-import cc.altius.FASP.model.DTO.rowMapper.ArtmisShipmentDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTORowMapper;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
-import cc.altius.FASP.model.TempProgramVersion;
-import cc.altius.FASP.model.Version;
-import cc.altius.FASP.model.rowMapper.TempProgramVersionRowMapper;
-import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.utils.DateUtils;
 import java.io.File;
@@ -510,18 +504,97 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 //                    sql = "UPDATE rm_erp_order o SET o.`VERSION_ID`=? WHERE o.`ERP_ORDER_ID`=?;";
 //                    rows = this.jdbcTemplate.update(sql, versionId, t.getErpOrderId());
 //                }
-                sql = "SELECT o.`ERP_ORDER_ID`,o.`SHIPMENT_ID` FROM rm_erp_order o WHERE o.`FLAG`=1;";
+                sql = "SELECT o.`ERP_ORDER_ID`,o.`SHIPMENT_ID`,o.`QTY`,o.`ORDER_NO`,o.`PRIME_LINE_NO` FROM rm_erp_order o WHERE o.`FLAG`=1;";
                 List<ErpOrderDTO> erpOrderDTOList = this.jdbcTemplate.query(sql, new ErpOrderDTORowMapper());
-//                List<Integer> erpOrderIdList = this.jdbcTemplate.queryForList(sql, Integer.class);
-                int shipmentTransId = 0;
+                sql = "SELECT st.`ERP_FLAG` FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=? LIMIT 1;";
+                int shipmentTransId = 0, shipmentId;
                 KeyHolder keyHolder1 = new GeneratedKeyHolder();
                 MapSqlParameterSource params1 = new MapSqlParameterSource();
                 logger.info("erpOrderDTO---" + erpOrderDTOList.size());
                 for (ErpOrderDTO erpOrderDTO : erpOrderDTOList) {
                     try {
                         if (erpOrderDTO.getShipmentId() != 0) {
+                            boolean isErpLinked = this.jdbcTemplate.queryForObject(sql, Boolean.class);
+                            if (isErpLinked) {
 
+                            } else {
+                                sql = "UPDATE rm_shipment_trans st SET st.`ERP_FLAG`=1 WHERE st.`SHIPMENT_ID`=?;";
+                                this.jdbcTemplate.update(sql, erpOrderDTO.getShipmentId());
+                                //Shipment Table
+                                sql = "INSERT INTO  rm_shipment "
+                                        + "SELECT  NULL,s.`PROGRAM_ID`,:qty,s.`CURRENCY_ID`,s.`CONVERSION_RATE_TO_USD`, "
+                                        + "s.`SHIPMENT_ID`,1,:createdDate,1,:lastModifiedDate,s.`MAX_VERSION_ID`,NULL "
+                                        + "FROM rm_shipment s "
+                                        + "WHERE s.`SHIPMENT_ID`=:shipmentId;";
+                                params1.addValue("qty", erpOrderDTO.getQuantity());
+                                params1.addValue("createdDate", curDate);
+                                params1.addValue("lastModifiedDate", curDate);
+                                params1.addValue("shipmentId", erpOrderDTO.getShipmentId());
+                                namedParameterJdbcTemplate.update(sql, params1, keyHolder1);
+                                if (keyHolder1.getKey() != null) {
+                                    shipmentId = keyHolder1.getKey().intValue();
+                                }
+                                //Shipment Trans
+
+                            }
                         } else {
+                            // Find manually tagged shipment id
+                            sql = "SELECT m.`SHIPMENT_ID` FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=?;";
+                            shipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
+                            if (shipmentId != 0) {
+                                boolean isErpLinked = this.jdbcTemplate.queryForObject(sql, Boolean.class);
+                                if (isErpLinked) {
+                                    sql = "SELECT COUNT(*) FROM rm_shipment_trans st "
+                                            + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+                                            + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ACTIVE` AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=?;";
+                                    int found = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId(), erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
+                                    if (found > 0) {
+                                        //Found Update shipment
+                                        sql = "UPDATE rm_shipment_trans st "
+                                                + "LEFT JOIN rm_erp_order eo ON eo.`ORDER_NO`=st.`ORDER_NO`  AND st.`PRIME_LINE_NO`=eo.`PRIME_LINE_NO` "
+                                                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=eo.`STATUS` "
+                                                + "SET "
+                                                + "st.`EXPECTED_DELIVERY_DATE`=eo.`CURRENT_ESTIMATED_DELIVERY_DATE`, "
+                                                + "st.`SHIPMENT_QTY`=eo.`QTY`,st.`RATE`=eo.`PRICE`, "
+                                                + "st.`PRODUCT_COST`=(eo.`QTY`*eo.`PRICE`),st.`SHIPMENT_MODE`=eo.`SHIP_BY`, "
+                                                + "st.`FREIGHT_COST`=eo.`SHIPPING_COST`, "
+                                                + "st.`PLANNED_DATE`=NULL, "
+                                                + "st.`SUBMITTED_DATE`=NULL, "
+                                                + "st.`APPROVED_DATE`=NULL, "
+                                                + "st.`SHIPPED_DATE`=NULL, "
+                                                + "st.`ARRIVED_DATE`=NULL, "
+                                                + "st.`RECEIVED_DATE`=NULL, "
+                                                + "st.`LAST_MODIFIED_BY`=1, "
+                                                + "st.`LAST_MODIFIED_DATE`=?, "
+                                                + "st.`SHIPMENT_STATUS_ID`=sm.`SHIPMENT_STATUS_ID` "
+                                                + "WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`SHIPMENT_ID`=?;";
+                                        this.jdbcTemplate.update(sql, curDate, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), erpOrderDTO.getShipmentId());
+                                    } else {
+                                        //Not found-Insert shipment
+                                        sql = "";
+                                    }
+                                } else {
+                                    sql = "UPDATE rm_shipment_trans st SET st.`ERP_FLAG`=1 WHERE st.`SHIPMENT_ID`=?;";
+                                    this.jdbcTemplate.update(sql, erpOrderDTO.getShipmentId());
+                                    //Shipment Table
+                                    sql = "INSERT INTO  rm_shipment "
+                                            + "SELECT  NULL,s.`PROGRAM_ID`,:qty,s.`CURRENCY_ID`,s.`CONVERSION_RATE_TO_USD`, "
+                                            + "s.`SHIPMENT_ID`,1,:createdDate,1,:lastModifiedDate,s.`MAX_VERSION_ID`,NULL "
+                                            + "FROM rm_shipment s "
+                                            + "WHERE s.`SHIPMENT_ID`=:shipmentId;";
+                                    params1.addValue("qty", erpOrderDTO.getQuantity());
+                                    params1.addValue("createdDate", curDate);
+                                    params1.addValue("lastModifiedDate", curDate);
+                                    params1.addValue("shipmentId", erpOrderDTO.getShipmentId());
+                                    namedParameterJdbcTemplate.update(sql, params1, keyHolder1);
+                                    if (keyHolder1.getKey() != null) {
+                                        shipmentId = keyHolder1.getKey().intValue();
+                                    }
+                                    //Shipment Trans
+
+                                }
+                            }
+
                         }
                     } catch (Exception e) {
                         logger.info("Error occured while creating shipment---" + e);

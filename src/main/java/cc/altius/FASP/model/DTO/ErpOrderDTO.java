@@ -13,6 +13,9 @@ public class ErpOrderDTO {
 
     private int erpOrderId;
     private int shipmentId;
+    private int quantity;
+    private String orderNo;
+    private String primeLineNo;
 
     public int getErpOrderId() {
         return erpOrderId;
@@ -30,9 +33,28 @@ public class ErpOrderDTO {
         this.shipmentId = shipmentId;
     }
 
-    @Override
-    public String toString() {
-        return "ErpOrderDTO{" + "erpOrderId=" + erpOrderId + ", shipmentId=" + shipmentId + '}';
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
+
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public String getPrimeLineNo() {
+        return primeLineNo;
+    }
+
+    public void setPrimeLineNo(String primeLineNo) {
+        this.primeLineNo = primeLineNo;
     }
 
 }
