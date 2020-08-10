@@ -42,16 +42,12 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private AclService aclService;
 
-<<<<<<< HEAD
 //    @Value("${urlHost}")
 //    private static String HOST_URL = "http://localhost:4202/#";
-    private static String HOST_URL = "https://uat.quantificationanalytics.org/#";
-=======
+//    private static String HOST_URL = "https://uat.quantificationanalytics.org/#";
     @Value("${urlHost}")
     private static String HOST_URL;
-//    private static String HOST_URL = "https://faspdeveloper.github.io/fasp";
->>>>>>> origin/applicationLevelCrud
-//    @Value("${urlPasswordReset}")
+    @Value("${urlPasswordReset}")
     private static String PASSWORD_RESET_URL = "resetPassword";
 
     @Override

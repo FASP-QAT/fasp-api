@@ -71,9 +71,6 @@ public class Shipment extends BaseModel implements Serializable {
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     private Date lastModifiedDate;
     private List<ShipmentBatchInfo> batchInfoList;
-    @JsonSerialize(using = JsonDateTimeSerializer.class)
-    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
-    private Date lastModifiedDate;
     
     public Shipment() {
         this.batchInfoList = new LinkedList<>();
