@@ -10,18 +10,22 @@ import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.UserAcl;
+import cc.altius.FASP.rest.controller.UserRestController;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
  *
  * @author altius
  */
 public class UserResultSetExtractor implements ResultSetExtractor<User> {
+
+    private final Logger auditLogger = LoggerFactory.getLogger(UserRestController.class);
 
     @Override
     public User extractData(ResultSet rs) throws SQLException, DataAccessException {

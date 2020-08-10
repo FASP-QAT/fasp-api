@@ -74,7 +74,7 @@ public class ProblemRestController implements Serializable {
         }
     }
     
-    @GetMapping(value = "/sync/problem/realmId/{realmId}/{lastSyncDate}")
+    @GetMapping(value = "/sync/problem/{lastSyncDate}")
     public ResponseEntity getHealthAreaListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

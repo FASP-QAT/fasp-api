@@ -22,6 +22,7 @@ import cc.altius.FASP.service.UserService;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -41,10 +42,15 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private AclService aclService;
 
+<<<<<<< HEAD
 //    @Value("${urlHost}")
-    private static String HOST_URL = "http://localhost:4202/#";
-//    private static String HOST_URL = "https://qat.altius.cc/#";
+//    private static String HOST_URL = "http://localhost:4202/#";
+    private static String HOST_URL = "https://uat.quantificationanalytics.org/#";
+=======
+    @Value("${urlHost}")
+    private static String HOST_URL;
 //    private static String HOST_URL = "https://faspdeveloper.github.io/fasp";
+>>>>>>> origin/applicationLevelCrud
 //    @Value("${urlPasswordReset}")
     private static String PASSWORD_RESET_URL = "resetPassword";
 
@@ -176,6 +182,7 @@ public class UserServiceImpl implements UserService {
 //            } else if (emailTemplateId == 2) {
             bodyParam = new String[]{user.getUsername(), HOST_URL, PASSWORD_RESET_URL, emailId, token};
 //            }
+            System.out.println("emailId---" + emailId);
             Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
