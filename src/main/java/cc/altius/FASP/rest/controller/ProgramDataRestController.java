@@ -11,6 +11,8 @@ import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.UserService;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -128,10 +130,10 @@ public class ProgramDataRestController {
     }
 
     @PutMapping("/programVersion/programId/{programId}/versionId/{versionId}/versionStatusId/{versionStatusId}/{notes}")
-    public ResponseEntity putProgramData(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "versionStatusId", required = true) int versionStatusId,@PathVariable(value = "notes", required = true) String notes, Authentication auth) {
+    public ResponseEntity putProgramData(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "versionStatusId", required = true) int versionStatusId, @PathVariable(value = "notes", required = true) String notes, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.updateProgramVersion(programId, versionId, versionStatusId,notes, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programDataService.updateProgramVersion(programId, versionId, versionStatusId, notes, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to update ProgramVersion", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
@@ -150,7 +152,7 @@ public class ProgramDataRestController {
             @PathVariable(value = "primeLineNo", required = true) String primeLineNo,
             @PathVariable(value = "realmCountryId", required = true) int realmCountryId,
             @PathVariable(value = "planningUnitId", required = true) int planningUnitId,
-             Authentication auth) {
+            Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programDataService.checkErpOrder(orderNo, primeLineNo, realmCountryId, planningUnitId), HttpStatus.OK);
@@ -159,16 +161,20 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-//    @GetMapping("/programData/buildStockBalances")
-//    public ResponseEntity buildStockBalances(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            this.programDataService.buildStockBalances(programId, versionId);
-//            return new ResponseEntity(Boolean.TRUE, HttpStatus.OK);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to update StockBalances", e);
-//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+
+    @GetMapping("/programData/shipmentSync/programId/{programId}/versionId/{versionId}/lastSyncDate/{lastSyncDate}")
+    public ResponseEntity shipmentSync(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.parse(lastSyncDate);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programDataService.getShipmentListForSync(programId, versionId, lastSyncDate, curUser), HttpStatus.OK);
+        } catch (ParseException p) {
+            logger.error("Error while getting Sync list for Shipments", p);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (Exception e) {
+            logger.error("Error while getting Sync list for Shipments", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

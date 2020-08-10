@@ -67,6 +67,9 @@ public class Shipment extends BaseModel implements Serializable {
     private String primeLineNo;
     private boolean emergencyOrder;
     private int versionId;
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    private Date lastModifiedDate;
     private List<ShipmentBatchInfo> batchInfoList;
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)

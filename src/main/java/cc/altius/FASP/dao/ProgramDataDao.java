@@ -46,9 +46,6 @@ public interface ProgramDataDao {
 
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId);
 
-//    public void buildStockBalances(int programId, int versionId);
-
-//    public void buildStockBalances(int programId, int versionId);
     public SupplyPlan getSupplyPlan(int programId, int versionId);
 
     public void updateSupplyPlanBatchInfo(SupplyPlan sp);
@@ -56,5 +53,9 @@ public interface ProgramDataDao {
     public List<ProgramVersion> getProgramVersionForARTMIS(int realmId);
 
     public int updateSentToARTMISFlag(String programVersionIds);
+    
+    public List<Shipment> getShipmentListForSync(int programId, int versionId, String lastSyncDate);
+    
+    public List<Batch> getBatchListForSync(int programId, int versionId, String lastSyncDate);
 
 }
