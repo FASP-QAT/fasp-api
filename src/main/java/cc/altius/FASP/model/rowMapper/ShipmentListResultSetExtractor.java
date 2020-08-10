@@ -94,6 +94,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
                     rs.getDouble("SHIPMENT_CONVERSION_RATE_TO_USD")
             ));
             s.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
+            s.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
             ShipmentBatchInfo sbi = new ShipmentBatchInfoRowMapper().mapRow(rs, 1);
             if (sbi != null && s.getBatchInfoList().indexOf(sbi) == -1) {
                 s.getBatchInfoList().add(sbi);

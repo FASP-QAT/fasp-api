@@ -90,22 +90,21 @@ public class DashboardDaoImpl implements DashboardDao {
 
     @Override
     public List<Map<String, Object>> getUserListForApplicationLevelAdmin() {
-        String sql = "SELECT l.`LABEL_EN`,COUNT(*) as COUNT FROM us_user u "
-                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID` "
-                + "LEFT JOIN us_role r ON r.`ROLE_ID`=ur.`ROLE_ID` "
+        String sql = "SELECT l.`LABEL_EN`,COUNT(DISTINCT(u.`USER_ID`)) AS COUNT FROM us_role r "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=r.`LABEL_ID` "
-                + "WHERE u.`ACTIVE` "
+                + "LEFT JOIN us_user_role ur ON ur.`ROLE_ID`=r.`ROLE_ID` "
+                + "LEFT JOIN us_user u ON u.`USER_ID`=ur.`USER_ID` AND u.`ACTIVE` "
                 + "GROUP BY r.`ROLE_ID`;";
         return this.jdbcTemplate.queryForList(sql);
     }
 
     @Override
     public List<Map<String, Object>> getUserListForRealmLevelAdmin(int realmId) {
-        String sql = "SELECT l.`LABEL_EN`,COUNT(*) as COUNT FROM us_user u "
-                + "LEFT JOIN us_user_role ur ON ur.`USER_ID`=u.`USER_ID` "
-                + "LEFT JOIN us_role r ON r.`ROLE_ID`=ur.`ROLE_ID` "
+        String sql = "SELECT l.`LABEL_EN`,COUNT(DISTINCT(u.`USER_ID`)) AS COUNT FROM us_role r "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=r.`LABEL_ID` "
-                + "WHERE u.`ACTIVE` AND ur.`ROLE_ID` != 'ROLE_APPLICATION_ADMIN' AND u.`REALM_ID`=? "
+                + "LEFT JOIN us_user_role ur ON ur.`ROLE_ID`=r.`ROLE_ID` "
+                + "LEFT JOIN us_user u ON u.`USER_ID`=ur.`USER_ID` AND u.`ACTIVE` AND u.`REALM_ID`=? "
+                + "WHERE r.`ROLE_ID` != 'ROLE_APPLICATION_ADMIN' "
                 + "GROUP BY r.`ROLE_ID`;";
         return this.jdbcTemplate.queryForList(sql, realmId);
     }
