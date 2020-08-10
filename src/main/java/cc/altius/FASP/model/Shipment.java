@@ -7,6 +7,8 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.framework.JsonDateTimeDeserializer;
+import cc.altius.FASP.framework.JsonDateTimeSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -64,6 +66,9 @@ public class Shipment extends BaseModel implements Serializable {
     private String primeLineNo;
     private boolean emergencyOrder;
     private int versionId;
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    private Date lastModifiedDate;
     private List<ShipmentBatchInfo> batchInfoList;
     
     public Shipment() {
@@ -315,6 +320,14 @@ public class Shipment extends BaseModel implements Serializable {
 
     public void setBatchInfoList(List<ShipmentBatchInfo> batchInfoList) {
         this.batchInfoList = batchInfoList;
+    }
+
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     @Override

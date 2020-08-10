@@ -1206,7 +1206,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "left join ap_label al on al.LABEL_ID=rmp.LABEL_ID "
                 + "left join qat_temp_inventory i on i.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "left join qat_temp_shipment s on s.PLANNING_UNIT_ID =pu.PLANNING_UNIT_ID  "
-                + "left join (select a.PLANNING_UNIT_ID,coalesce(if(a.co=2,(select qc.CONSUMPTION_QUANTITY from qat_temp_consumption qc where qc.PIPELINE_ID=:pipelineId"
+                + "left join (select a.PLANNING_UNIT_ID,coalesce(if(a.co=2,(select qc.CONSUMPTION_QUANTITY from qat_temp_consumption qc where qc.PIPELINE_ID=:pipelineId "
                 + "and qc.CONSUMPTION_DATE=a.CONSUMPTION_DATE and qc.PLANNING_UNIT_ID=a.PLANNING_UNIT_ID "
                 + "and qc.ACTUAL_FLAG=1),(select qc.CONSUMPTION_QUANTITY from qat_temp_consumption qc where qc.PIPELINE_ID=:pipelineId  "
                 + "and qc.CONSUMPTION_DATE=a.CONSUMPTION_DATE and qc.PLANNING_UNIT_ID=a.PLANNING_UNIT_ID)),0) as consumptionQty "

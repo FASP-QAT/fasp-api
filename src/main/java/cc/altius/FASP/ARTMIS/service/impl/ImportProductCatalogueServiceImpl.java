@@ -53,7 +53,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         try {
             File directory = new File(CATALOG_FILE_PATH);
             if (directory.isDirectory()) {
-                this.importProductCatalogueDao.importProductCatalogue(filePath);
+                this.importProductCatalogueDao.importProductCatalogue();
 //            this.importProductCatalogueDao.pullUnitTable();
 //        this.importProductCatalogueDao.pullTracerCategoryFromTmpTables();
 //        this.importProductCatalogueDao.pullForecastingUnitFromTmpTables();

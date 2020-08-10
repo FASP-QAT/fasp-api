@@ -15,7 +15,6 @@ import java.sql.SQLException;
 import java.util.LinkedList;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 /**
  *
