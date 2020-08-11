@@ -19,6 +19,9 @@ import cc.altius.FASP.model.pipeline.QatTempProgramPlanningUnit;
 import cc.altius.FASP.model.pipeline.QatTempShipment;
 import java.util.List;
 import java.util.Map;
+import cc.altius.FASP.model.pipeline.QatTempDataSource;
+import cc.altius.FASP.model.pipeline.QatTempFundingSource;
+import cc.altius.FASP.model.pipeline.QatTempProcurementAgent;
 
 /**
  *
@@ -61,5 +64,17 @@ public interface PipelineDbService {
     public int saveQatTempInventory(QatTempInventory[] inventory, CustomUserDetails curUser, int pipelineId);
     
     public List<QatTempPlanningUnitInventoryCount> getQatTempPlanningUnitListInventoryCount(int pipelineId, CustomUserDetails curUser);
+
+    public int saveQatTempDataSource(QatTempDataSource[] datasources, CustomUserDetails curUser, int pipelineId);
+
+    public List<QatTempDataSource> getQatTempDataSourceListByPipelienId(int pipelineId, CustomUserDetails curUser);
+
+    public int saveQatTempFundingSource(QatTempFundingSource[] fundingsources, CustomUserDetails curUser, int pipelineId);
+
+    public List<QatTempFundingSource> getQatTempFundingSourceListByPipelienId(int pipelineId, CustomUserDetails curUser);
+
+  public int saveQatTempProcurementAgent(QatTempProcurementAgent[] procurementAgents, CustomUserDetails curUser, int pipelineId);
+
+    public List<QatTempProcurementAgent> getQatTempProcurementAgentListByPipelienId(int pipelineId, CustomUserDetails curUser);
 
 }
