@@ -507,16 +507,88 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                 sql = "SELECT o.`ERP_ORDER_ID`,o.`SHIPMENT_ID`,o.`QTY`,o.`ORDER_NO`,o.`PRIME_LINE_NO` FROM rm_erp_order o WHERE o.`FLAG`=1;";
                 List<ErpOrderDTO> erpOrderDTOList = this.jdbcTemplate.query(sql, new ErpOrderDTORowMapper());
                 sql = "SELECT st.`ERP_FLAG` FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=? LIMIT 1;";
-                int shipmentTransId = 0, shipmentId;
+                int shipmentTransId = 0, shipmentId = 0;
                 KeyHolder keyHolder1 = new GeneratedKeyHolder();
+                KeyHolder keyHolder2 = new GeneratedKeyHolder();
                 MapSqlParameterSource params1 = new MapSqlParameterSource();
                 logger.info("erpOrderDTO---" + erpOrderDTOList.size());
                 for (ErpOrderDTO erpOrderDTO : erpOrderDTOList) {
                     try {
+
                         if (erpOrderDTO.getShipmentId() != 0) {
+                            sql = "SELECT s.`PROGRAM_ID` FROM rm_shipment s WHERE s.`SHIPMENT_ID`=?;";
+                            int programId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId());
+
+                            sql = "SELECT pu.`PLANNING_UNIT_ID` "
+                                    + "FROM rm_erp_order o "
+                                    + "LEFT JOIN rm_procurement_agent_planning_unit pu ON pu.`SKU_CODE`=o.`PLANNING_UNIT_SKU_CODE` AND pu.`PROCUREMENT_AGENT_ID`=1  "
+                                    + "WHERE o.`ERP_ORDER_ID`=?; ";
+                            int planningUnitId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getErpOrderId());
+
+                            sql = "INSERT IGNORE INTO rm_batch_info "
+                                    + "SELECT NULL,?,?,s.`BATCH_NO`,s.`EXPIRY_DATE`,? FROM rm_erp_shipment s "
+                                    + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? ";
+                            this.jdbcTemplate.update(sql, programId, planningUnitId, curDate, erpOrderDTO.getErpOrderId());
+
+                            //ERP  Flag 
                             boolean isErpLinked = this.jdbcTemplate.queryForObject(sql, Boolean.class);
                             if (isErpLinked) {
+                                sql = "SELECT COUNT(*) FROM rm_shipment_trans st "
+                                        + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+                                        + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ACTIVE` AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=?;";
+                                int found = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId(), erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
+                                if (found > 0) {
+                                    //Found Update shipment
+                                    sql = "UPDATE rm_shipment_trans st "
+                                            + "LEFT JOIN rm_erp_order eo ON eo.`ORDER_NO`=st.`ORDER_NO`  AND st.`PRIME_LINE_NO`=eo.`PRIME_LINE_NO` "
+                                            + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=eo.`STATUS` "
+                                            + "SET "
+                                            + "st.`EXPECTED_DELIVERY_DATE`=eo.`CURRENT_ESTIMATED_DELIVERY_DATE`, "
+                                            + "st.`SHIPMENT_QTY`=eo.`QTY`,st.`RATE`=eo.`PRICE`, "
+                                            + "st.`PRODUCT_COST`=(eo.`QTY`*eo.`PRICE`),st.`SHIPMENT_MODE`=eo.`SHIP_BY`, "
+                                            + "st.`FREIGHT_COST`=eo.`SHIPPING_COST`, "
+                                            + "st.`PLANNED_DATE`=NULL, "
+                                            + "st.`SUBMITTED_DATE`=NULL, "
+                                            + "st.`APPROVED_DATE`=NULL, "
+                                            + "st.`SHIPPED_DATE`=NULL, "
+                                            + "st.`ARRIVED_DATE`=NULL, "
+                                            + "st.`RECEIVED_DATE`=NULL, "
+                                            + "st.`LAST_MODIFIED_BY`=1, "
+                                            + "st.`LAST_MODIFIED_DATE`=?, "
+                                            + "st.`SHIPMENT_STATUS_ID`=sm.`SHIPMENT_STATUS_ID` "
+                                            + "WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`SHIPMENT_ID`=?;";
+                                    this.jdbcTemplate.update(sql, curDate, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), erpOrderDTO.getShipmentId());
+                                } else {
+                                    //Not found-Insert shipment
+                                    //Shipment Trans
+                                    sql = "INSERT INTO rm_shipment_trans st "
+                                            + "SELECT NULL,:shipmentId,st.`PLANNING_UNIT_ID`,st.`PROCUREMENT_AGENT_ID`,st.`FUNDING_SOURCE_ID`,st.`BUDGET_ID`, "
+                                            + "eo.`CURRENT_ESTIMATED_DELIVERY_DATE`,st.`PROCUREMENT_UNIT_ID` ,st.`SUPPLIER_ID`,eo.`QTY`,eo.`PRICE`,(eo.`QTY`*eo.`PRICE`),eo.`SHIP_BY`,eo.`SHIPPING_COST`, "
+                                            + "st.`PLANNED_DATE`,st.`SUBMITTED_DATE`,st.`APPROVED_DATE`,MIN(es.`ACTUAL_SHIPMENT_DATE`),IF(sm.`SHIPMENT_STATUS_ID`=21,:CURDATE,NULL),MIN(es.`ACTUAL_DELIVERY_DATE`),sm.`SHIPMENT_STATUS_ID`,NULL,st.`DATA_SOURCE_ID`,1, "
+                                            + "eo.`ORDER_NO`,eo.`PRIME_LINE_NO`,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,1,:CURDATE,s.`MAX_VERSION_ID`,1 "
+                                            + "FROM rm_shipment_trans st "
+                                            + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+                                            + "LEFT JOIN rm_erp_order eo ON eo.`ORDER_NO`=:orderNo AND eo.`PRIME_LINE_NO`=:primeLineNo "
+                                            + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=eo.`STATUS` "
+                                            + "LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=eo.`ERP_ORDER_ID` "
+                                            + "WHERE st.`SHIPMENT_ID`=:shipmentId "
+                                            + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+                                    params1 = new MapSqlParameterSource();
+                                    params1.addValue("shipmentId", shipmentId);
+                                    params1.addValue("CURDATE", curDate);
+                                    params1.addValue("orderNo", erpOrderDTO.getOrderNo());
+                                    params1.addValue("primeLineNo", erpOrderDTO.getPrimeLineNo());
+                                    namedParameterJdbcTemplate.update(sql, params1, keyHolder2);
+                                    if (keyHolder2.getKey() != null) {
+                                        shipmentTransId = keyHolder2.getKey().intValue();
+                                    }
 
+                                    sql = "INSERT INTO rm_shipment_trans_batch_info SELECT NULL,?,b.`BATCH_ID`,SUM(s.`DELIVERED_QTY`) FROM rm_erp_shipment s "
+                                            + "LEFT JOIN rm_batch_info b ON b.`BATCH_NO`=s.`BATCH_NO` AND b.`PROGRAM_ID`=? AND b.`PLANNING_UNIT_ID`=? "
+                                            + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? "
+                                            + "GROUP BY s.`BATCH_NO`;";
+                                    this.jdbcTemplate.update(sql, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
+                                }
                             } else {
                                 sql = "UPDATE rm_shipment_trans st SET st.`ERP_FLAG`=1 WHERE st.`SHIPMENT_ID`=?;";
                                 this.jdbcTemplate.update(sql, erpOrderDTO.getShipmentId());
@@ -535,9 +607,49 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                                     shipmentId = keyHolder1.getKey().intValue();
                                 }
                                 //Shipment Trans
-
+                                sql = "INSERT INTO rm_shipment_trans st "
+                                        + "SELECT NULL,:shipmentId,st.`PLANNING_UNIT_ID`,st.`PROCUREMENT_AGENT_ID`,st.`FUNDING_SOURCE_ID`,st.`BUDGET_ID`, "
+                                        + "eo.`CURRENT_ESTIMATED_DELIVERY_DATE`,st.`PROCUREMENT_UNIT_ID` ,st.`SUPPLIER_ID`,eo.`QTY`,eo.`PRICE`,(eo.`QTY`*eo.`PRICE`),eo.`SHIP_BY`,eo.`SHIPPING_COST`, "
+                                        + "st.`PLANNED_DATE`,st.`SUBMITTED_DATE`,st.`APPROVED_DATE`,MIN(es.`ACTUAL_SHIPMENT_DATE`),IF(sm.`SHIPMENT_STATUS_ID`=21,:CURDATE,NULL),MIN(es.`ACTUAL_DELIVERY_DATE`),sm.`SHIPMENT_STATUS_ID`,NULL,st.`DATA_SOURCE_ID`,1, "
+                                        + "eo.`ORDER_NO`,eo.`PRIME_LINE_NO`,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,1,:CURDATE,s.`MAX_VERSION_ID`,1 "
+                                        + "FROM rm_shipment_trans st "
+                                        + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+                                        + "LEFT JOIN rm_erp_order eo ON eo.`ORDER_NO`=:orderNo AND eo.`PRIME_LINE_NO`=:primeLineNo "
+                                        + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=eo.`STATUS` "
+                                        + "LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=eo.`ERP_ORDER_ID` "
+                                        + "WHERE st.`SHIPMENT_ID`=:shipmentId "
+                                        + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+                                params1 = new MapSqlParameterSource();
+                                params1.addValue("shipmentId", shipmentId);
+                                params1.addValue("CURDATE", curDate);
+                                params1.addValue("orderNo", erpOrderDTO.getOrderNo());
+                                params1.addValue("primeLineNo", erpOrderDTO.getPrimeLineNo());
+                                namedParameterJdbcTemplate.update(sql, params1, keyHolder2);
+                                if (keyHolder2.getKey() != null) {
+                                    shipmentTransId = keyHolder2.getKey().intValue();
+                                }
+                                sql = "INSERT INTO rm_shipment_trans_batch_info SELECT NULL,?,b.`BATCH_ID`,SUM(s.`DELIVERED_QTY`) FROM rm_erp_shipment s "
+                                        + "LEFT JOIN rm_batch_info b ON b.`BATCH_NO`=s.`BATCH_NO` AND b.`PROGRAM_ID`=? AND b.`PLANNING_UNIT_ID`=? "
+                                        + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? "
+                                        + "GROUP BY s.`BATCH_NO`;";
+                                this.jdbcTemplate.update(sql, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
                             }
                         } else {
+
+                            sql = "SELECT s.`PROGRAM_ID` FROM rm_shipment s WHERE s.`SHIPMENT_ID`=?;";
+                            int programId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId());
+
+                            sql = "SELECT pu.`PLANNING_UNIT_ID` "
+                                    + "FROM rm_erp_order o "
+                                    + "LEFT JOIN rm_procurement_agent_planning_unit pu ON pu.`SKU_CODE`=o.`PLANNING_UNIT_SKU_CODE` AND pu.`PROCUREMENT_AGENT_ID`=1  "
+                                    + "WHERE o.`ERP_ORDER_ID`=?; ";
+                            int planningUnitId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getErpOrderId());
+
+                            sql = "INSERT IGNORE INTO rm_batch_info "
+                                    + "SELECT NULL,?,?,s.`BATCH_NO`,s.`EXPIRY_DATE`,? FROM rm_erp_shipment s "
+                                    + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? ";
+                            this.jdbcTemplate.update(sql, programId, planningUnitId, curDate, erpOrderDTO.getErpOrderId());
+
                             // Find manually tagged shipment id
                             sql = "SELECT m.`SHIPMENT_ID` FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=?;";
                             shipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
@@ -571,7 +683,34 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                                         this.jdbcTemplate.update(sql, curDate, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), erpOrderDTO.getShipmentId());
                                     } else {
                                         //Not found-Insert shipment
-                                        sql = "";
+                                        //Shipment Trans
+                                        sql = "INSERT INTO rm_shipment_trans st "
+                                                + "SELECT NULL,:shipmentId,st.`PLANNING_UNIT_ID`,st.`PROCUREMENT_AGENT_ID`,st.`FUNDING_SOURCE_ID`,st.`BUDGET_ID`, "
+                                                + "eo.`CURRENT_ESTIMATED_DELIVERY_DATE`,st.`PROCUREMENT_UNIT_ID` ,st.`SUPPLIER_ID`,eo.`QTY`,eo.`PRICE`,(eo.`QTY`*eo.`PRICE`),eo.`SHIP_BY`,eo.`SHIPPING_COST`, "
+                                                + "st.`PLANNED_DATE`,st.`SUBMITTED_DATE`,st.`APPROVED_DATE`,MIN(es.`ACTUAL_SHIPMENT_DATE`),IF(sm.`SHIPMENT_STATUS_ID`=21,:CURDATE,NULL),MIN(es.`ACTUAL_DELIVERY_DATE`),sm.`SHIPMENT_STATUS_ID`,NULL,st.`DATA_SOURCE_ID`,1, "
+                                                + "eo.`ORDER_NO`,eo.`PRIME_LINE_NO`,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,1,:CURDATE,s.`MAX_VERSION_ID`,1 "
+                                                + "FROM rm_shipment_trans st "
+                                                + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+                                                + "LEFT JOIN rm_erp_order eo ON eo.`ORDER_NO`=:orderNo AND eo.`PRIME_LINE_NO`=:primeLineNo "
+                                                + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=eo.`STATUS` "
+                                                + "LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=eo.`ERP_ORDER_ID` "
+                                                + "WHERE st.`SHIPMENT_ID`=:shipmentId "
+                                                + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+                                        params1 = new MapSqlParameterSource();
+                                        params1.addValue("shipmentId", shipmentId);
+                                        params1.addValue("CURDATE", curDate);
+                                        params1.addValue("orderNo", erpOrderDTO.getOrderNo());
+                                        params1.addValue("primeLineNo", erpOrderDTO.getPrimeLineNo());
+                                        namedParameterJdbcTemplate.update(sql, params1, keyHolder2);
+                                        if (keyHolder2.getKey() != null) {
+                                            shipmentTransId = keyHolder2.getKey().intValue();
+                                        }
+
+                                        sql = "INSERT INTO rm_shipment_trans_batch_info SELECT NULL,?,b.`BATCH_ID`,SUM(s.`DELIVERED_QTY`) FROM rm_erp_shipment s "
+                                                + "LEFT JOIN rm_batch_info b ON b.`BATCH_NO`=s.`BATCH_NO` AND b.`PROGRAM_ID`=? AND b.`PLANNING_UNIT_ID`=? "
+                                                + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? "
+                                                + "GROUP BY s.`BATCH_NO`;";
+                                        this.jdbcTemplate.update(sql, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
                                     }
                                 } else {
                                     sql = "UPDATE rm_shipment_trans st SET st.`ERP_FLAG`=1 WHERE st.`SHIPMENT_ID`=?;";
@@ -591,7 +730,33 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                                         shipmentId = keyHolder1.getKey().intValue();
                                     }
                                     //Shipment Trans
-
+//Shipment Trans
+                                    sql = "INSERT INTO rm_shipment_trans st "
+                                            + "SELECT NULL,:shipmentId,st.`PLANNING_UNIT_ID`,st.`PROCUREMENT_AGENT_ID`,st.`FUNDING_SOURCE_ID`,st.`BUDGET_ID`, "
+                                            + "eo.`CURRENT_ESTIMATED_DELIVERY_DATE`,st.`PROCUREMENT_UNIT_ID` ,st.`SUPPLIER_ID`,eo.`QTY`,eo.`PRICE`,(eo.`QTY`*eo.`PRICE`),eo.`SHIP_BY`,eo.`SHIPPING_COST`, "
+                                            + "st.`PLANNED_DATE`,st.`SUBMITTED_DATE`,st.`APPROVED_DATE`,MIN(es.`ACTUAL_SHIPMENT_DATE`),IF(sm.`SHIPMENT_STATUS_ID`=21,:CURDATE,NULL),MIN(es.`ACTUAL_DELIVERY_DATE`),sm.`SHIPMENT_STATUS_ID`,NULL,st.`DATA_SOURCE_ID`,1, "
+                                            + "eo.`ORDER_NO`,eo.`PRIME_LINE_NO`,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,1,:CURDATE,s.`MAX_VERSION_ID`,1 "
+                                            + "FROM rm_shipment_trans st "
+                                            + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+                                            + "LEFT JOIN rm_erp_order eo ON eo.`ORDER_NO`=:orderNo AND eo.`PRIME_LINE_NO`=:primeLineNo "
+                                            + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=eo.`STATUS` "
+                                            + "LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=eo.`ERP_ORDER_ID` "
+                                            + "WHERE st.`SHIPMENT_ID`=:shipmentId "
+                                            + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+                                    params1 = new MapSqlParameterSource();
+                                    params1.addValue("shipmentId", shipmentId);
+                                    params1.addValue("CURDATE", curDate);
+                                    params1.addValue("orderNo", erpOrderDTO.getOrderNo());
+                                    params1.addValue("primeLineNo", erpOrderDTO.getPrimeLineNo());
+                                    namedParameterJdbcTemplate.update(sql, params1, keyHolder2);
+                                    if (keyHolder2.getKey() != null) {
+                                        shipmentTransId = keyHolder2.getKey().intValue();
+                                    }
+                                    sql = "INSERT INTO rm_shipment_trans_batch_info SELECT NULL,?,b.`BATCH_ID`,SUM(s.`DELIVERED_QTY`) FROM rm_erp_shipment s "
+                                            + "LEFT JOIN rm_batch_info b ON b.`BATCH_NO`=s.`BATCH_NO` AND b.`PROGRAM_ID`=? AND b.`PLANNING_UNIT_ID`=? "
+                                            + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? "
+                                            + "GROUP BY s.`BATCH_NO`;";
+                                    this.jdbcTemplate.update(sql, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
                                 }
                             }
 
@@ -620,5 +785,10 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
             }
         }
     }
+    
+//    SELECT * FROM rm_shipment_trans st 
+//LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID`
+//WHERE s.`PROGRAM_ID`=1 AND st.`PLANNING_UNIT_ID`=1191
+//ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1
 
 }
