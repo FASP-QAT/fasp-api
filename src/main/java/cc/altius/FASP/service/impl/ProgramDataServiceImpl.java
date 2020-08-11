@@ -11,6 +11,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
+import cc.altius.FASP.model.ShipmentSync;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.Version;
@@ -80,19 +81,14 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId,String notes, CustomUserDetails curUser) {
-        return this.programDataDao.updateProgramVersion(programId, versionId, versionStatusId,notes, curUser);
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser) {
+        return this.programDataDao.updateProgramVersion(programId, versionId, versionStatusId, notes, curUser);
     }
 
     @Override
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId) {
         return this.programDataDao.checkErpOrder(orderNo, primeLineNo, realmCountryId, planningUnitId);
     }
-
-//    @Override
-//    public void buildStockBalances(int programId, int versionId) {
-//        this.programDataDao.buildStockBalances(programId, versionId);
-//    }
 
     @Override
     public SupplyPlan getSupplyPlan(int programId, int versionId) {
@@ -112,6 +108,16 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public int updateSentToARTMISFlag(String programVersionIds) {
         return this.programDataDao.updateSentToARTMISFlag(programVersionIds);
+    }
+
+    @Override
+    public ShipmentSync getShipmentListForSync(int programId, int versionId, String lastSyncDate, CustomUserDetails curUser) {
+        ShipmentSync ss = new ShipmentSync();
+        ss.setProgramId(programId);
+        ss.setVersionId(versionId);
+        ss.setShipmentList(this.programDataDao.getShipmentListForSync(programId, versionId, lastSyncDate));
+        ss.setBatchInfoList(this.programDataDao.getBatchListForSync(programId, versionId, lastSyncDate));
+        return ss;
     }
 
 }

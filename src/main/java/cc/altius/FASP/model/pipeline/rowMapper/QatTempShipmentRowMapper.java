@@ -31,12 +31,14 @@ public class QatTempShipmentRowMapper implements RowMapper<QatTempShipment>{
         s.setProductCost(rs.getDouble("PRODUCT_COST"));
         s.setShipmentMode(rs.getString("SHIPPING_MODE"));
         s.setFreightCost(rs.getDouble("FREIGHT_COST"));
+      
         s.setPlannedDate(rs.getDate("PLANNED_DATE"));
         s.setSubmittedDate(rs.getDate("SUBMITTED_DATE"));
         s.setApprovedDate(rs.getDate("APPROVED_DATE"));
         s.setShippedDate(rs.getDate("SHIPPED_DATE"));
         s.setArrivedDate(rs.getDate("ARRIVED_DATE"));
         s.setReceivedDate(rs.getDate("RECEIVED_DATE"));
+        
         s.setShipmentStatus(rs.getString("SHIPMENT_STATUS_ID"));
         s.setNotes(rs.getString("NOTES"));
         s.setDataSource(rs.getString("DATA_SOURCE_ID"));
