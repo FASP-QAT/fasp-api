@@ -20,6 +20,7 @@ public class RealmProblem extends BaseModel implements Serializable {
     private String data1;
     private String data2;
     private String data3;
+    private SimpleObject problemType;
 
     public int getRealmProblemId() {
         return realmProblemId;
@@ -75,6 +76,14 @@ public class RealmProblem extends BaseModel implements Serializable {
 
     public void setData3(String data3) {
         this.data3 = data3;
+    }
+
+    public SimpleObject getProblemType() {
+        return problemType;
+    }
+
+    public void setProblemType(SimpleObject problemType) {
+        this.problemType = problemType;
     }
 
 }

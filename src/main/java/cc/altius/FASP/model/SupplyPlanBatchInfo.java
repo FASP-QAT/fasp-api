@@ -150,8 +150,12 @@ public class SupplyPlanBatchInfo implements Serializable {
         return openingBalance;
     }
 
-    public void setOpeningBalance(int openingBalance) {
+    public void setOpeningBalance(int openingBalance, Date transDate) {
         this.openingBalance = openingBalance;
+        if (this.openingBalance > 0 && DateUtils.compareDate(transDate, expiryDate)>=0) {
+            this.expiredStock += this.openingBalance;
+            this.openingBalance = 0;
+        }
     }
 
     public int getClosingBalance() {
@@ -174,8 +178,12 @@ public class SupplyPlanBatchInfo implements Serializable {
         return openingBalanceWps;
     }
 
-    public void setOpeningBalanceWps(int openingBalanceWps) {
+    public void setOpeningBalanceWps(int openingBalanceWps, Date transDate) {
         this.openingBalanceWps = openingBalanceWps;
+        if (this.openingBalanceWps > 0 && DateUtils.compareDate(transDate, expiryDate)>=0) {
+            this.expiredStockWps += this.openingBalanceWps;
+            this.openingBalanceWps = 0;
+        }
     }
 
     public int getClosingBalanceWps() {
