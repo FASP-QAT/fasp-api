@@ -38,7 +38,6 @@ public class ProblemRestController implements Serializable {
     private ProblemService problemService;
     @Autowired
     private UserService userService;
-    
 
     @GetMapping("/problem/realmId/{realmId}")
     public ResponseEntity getProblmeByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
@@ -46,36 +45,36 @@ public class ProblemRestController implements Serializable {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.problemService.getProblemListByRealmId(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to get Health Area list", e);
+            logger.error("Error while trying to get Problem list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
-            logger.error("Error while trying to get Health Area list", e);
+            logger.error("Error while trying to get Problem list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            logger.error("Error while trying to get Health Area list", e);
+            logger.error("Error while trying to get Problem list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/problemReport/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getProblmeReport(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.problemService.getProblemReportList(programId, versionId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to get Health Area list", e);
+            logger.error("Error while trying to get Problem list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
-            logger.error("Error while trying to get Health Area list", e);
+            logger.error("Error while trying to get Problem list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            logger.error("Error while trying to get Health Area list", e);
+            logger.error("Error while trying to get Problem list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    @GetMapping(value = "/sync/problem/{lastSyncDate}")
-    public ResponseEntity getHealthAreaListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+
+    @GetMapping(value = "/sync/problem/realm/{realmId}/lastSyncDate/{lastSyncDate}")
+    public ResponseEntity getProblemListForSync(@PathVariable("realmId") int realmId, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
@@ -89,7 +88,7 @@ public class ProblemRestController implements Serializable {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping(value = "/sync/problemStatus/{lastSyncDate}")
     public ResponseEntity getProblemStatusListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
@@ -105,5 +104,5 @@ public class ProblemRestController implements Serializable {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
 }

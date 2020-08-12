@@ -9,6 +9,7 @@ import cc.altius.FASP.model.Criticality;
 import cc.altius.FASP.model.Problem;
 import cc.altius.FASP.model.RealmProblem;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -42,6 +43,7 @@ public class RealmProblemRowMapper implements RowMapper<RealmProblem> {
         rp.setData1(rs.getString(prefix + "DATA1"));
         rp.setData2(rs.getString(prefix + "DATA2"));
         rp.setData3(rs.getString(prefix + "DATA3"));
+        rp.setProblemType(new SimpleObject(rs.getInt(prefix + "PROBLEM_TYPE_ID"), new LabelRowMapper(prefix + "PROBLEM_TYPE_").mapRow(rs, i)));
         if (!this.skipBasicModel) {
             rp.setBaseModel(new BaseModelRowMapper(prefix).mapRow(rs, i));
         } else {

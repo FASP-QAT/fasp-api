@@ -796,11 +796,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             for (SupplyPlanDate sd : sp.getSupplyPlanDateList()) {
                 for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
                     int prevCB = sp.getPrevClosingBalance(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
-                    spbi.setOpeningBalance(prevCB);
+                    spbi.setOpeningBalance(prevCB, sd.getTransDate());
                     sd.setUnallocatedConsumption(spbi.updateUnAllocatedCountAndExpiredStock(sd.getTransDate(), sd.getUnallocatedConsumption()));
 
                     int prevCBWps = sp.getPrevClosingBalanceWps(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
-                    spbi.setOpeningBalanceWps(prevCBWps);
+                    spbi.setOpeningBalanceWps(prevCBWps, sd.getTransDate());
                     sd.setUnallocatedConsumptionWps(spbi.updateUnAllocatedCountAndExpiredStockWps(sd.getTransDate(), sd.getUnallocatedConsumptionWps()));
                 }
                 int unallocatedConsumption = sd.getUnallocatedConsumption();
@@ -1080,11 +1080,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         for (SupplyPlanDate sd : sp.getSupplyPlanDateList()) {
             for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
                 int prevCB = sp.getPrevClosingBalance(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
-                spbi.setOpeningBalance(prevCB);
+                spbi.setOpeningBalance(prevCB, sd.getTransDate());
                 sd.setUnallocatedConsumption(spbi.updateUnAllocatedCountAndExpiredStock(sd.getTransDate(), sd.getUnallocatedConsumption()));
-
                 int prevCBWps = sp.getPrevClosingBalanceWps(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
-                spbi.setOpeningBalanceWps(prevCBWps);
+                spbi.setOpeningBalanceWps(prevCBWps, sd.getTransDate());
                 sd.setUnallocatedConsumptionWps(spbi.updateUnAllocatedCountAndExpiredStockWps(sd.getTransDate(), sd.getUnallocatedConsumptionWps()));
             }
             int unallocatedConsumption = sd.getUnallocatedConsumption();
