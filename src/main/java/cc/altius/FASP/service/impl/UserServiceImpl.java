@@ -46,9 +46,9 @@ public class UserServiceImpl implements UserService {
 //    private static String HOST_URL = "http://localhost:4202/#";
 //    private static String HOST_URL = "https://uat.quantificationanalytics.org/#";
     @Value("${urlHost}")
-    private static String HOST_URL;
+    private String HOST_URL;
     @Value("${urlPasswordReset}")
-    private static String PASSWORD_RESET_URL;
+    private String PASSWORD_RESET_URL;
 
     @Override
     public CustomUserDetails getCustomUserByUsername(String username) {
