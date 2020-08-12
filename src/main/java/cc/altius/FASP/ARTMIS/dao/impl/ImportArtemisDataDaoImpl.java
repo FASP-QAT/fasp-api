@@ -504,7 +504,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 //                    sql = "UPDATE rm_erp_order o SET o.`VERSION_ID`=? WHERE o.`ERP_ORDER_ID`=?;";
 //                    rows = this.jdbcTemplate.update(sql, versionId, t.getErpOrderId());
 //                }
-                sql = "SELECT o.`ERP_ORDER_ID`,o.`SHIPMENT_ID`,o.`QTY`,o.`ORDER_NO`,o.`PRIME_LINE_NO` FROM rm_erp_order o WHERE o.`FLAG`=1;";
+                sql = "SELECT * FROM rm_erp_order o WHERE o.`FLAG`=1;";
                 List<ErpOrderDTO> erpOrderDTOList = this.jdbcTemplate.query(sql, new ErpOrderDTORowMapper());
                 sql = "SELECT st.`ERP_FLAG` FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=? LIMIT 1;";
                 int shipmentTransId = 0, shipmentId = 0;

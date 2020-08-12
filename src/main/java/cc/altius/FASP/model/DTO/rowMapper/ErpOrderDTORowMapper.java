@@ -23,7 +23,17 @@ public class ErpOrderDTORowMapper implements RowMapper<ErpOrderDTO> {
         e.setShipmentId(rs.getInt("SHIPMENT_ID"));
         e.setQuantity(rs.getInt("QTY"));
         e.setOrderNo(rs.getString("ORDER_NO"));
-        e.setPrimeLineNo("PRIME_LINE_NO");
+        e.setPrimeLineNo(rs.getInt("PRIME_LINE_NO"));
+        e.setRoNo(rs.getString("RO_NO"));
+        e.setRoPrimeLineNo(rs.getString("RO_PRIME_LINE_NO"));
+        e.setOrderType(rs.getString("ORDER_TYPE"));
+        e.setPlanningUnitSkuCode(rs.getString("PLANNING_UNIT_SKU_CODE"));
+        e.setProcurementUnitSkuCode(rs.getString("PROCUREMENT_UNIT_SKU_CODE"));
+        e.setCurrentEstimatedDeliveryDate(rs.getTimestamp("CURRENT_ESTIMATED_DELIVERY_DATE"));
+        e.setSupplierName(rs.getString("SUPPLIER_NAME"));
+        e.setPrice(rs.getDouble("PRICE"));
+        e.setShippingCost(rs.getDouble("SHIPPING_COST"));
+        e.setStatus(rs.getString("STATUS"));
         return e;
     }
 

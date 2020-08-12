@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.model.DTO;
 
+import java.util.Date;
+
 /**
  *
  * @author altius
@@ -15,7 +17,17 @@ public class ErpOrderDTO {
     private int shipmentId;
     private int quantity;
     private String orderNo;
-    private String primeLineNo;
+    private int primeLineNo;
+    private String roNo;
+    private String roPrimeLineNo;
+    private String orderType;
+    private String planningUnitSkuCode;
+    private String procurementUnitSkuCode;
+    private Date currentEstimatedDeliveryDate;
+    private String supplierName;
+    private double price;
+    private double shippingCost;
+    private String status;
 
     public int getErpOrderId() {
         return erpOrderId;
@@ -49,12 +61,92 @@ public class ErpOrderDTO {
         this.orderNo = orderNo;
     }
 
-    public String getPrimeLineNo() {
+    public int getPrimeLineNo() {
         return primeLineNo;
     }
 
-    public void setPrimeLineNo(String primeLineNo) {
+    public void setPrimeLineNo(int primeLineNo) {
         this.primeLineNo = primeLineNo;
+    }
+
+    public String getRoNo() {
+        return roNo;
+    }
+
+    public void setRoNo(String roNo) {
+        this.roNo = roNo;
+    }
+
+    public String getRoPrimeLineNo() {
+        return roPrimeLineNo;
+    }
+
+    public void setRoPrimeLineNo(String roPrimeLineNo) {
+        this.roPrimeLineNo = roPrimeLineNo;
+    }
+
+    public String getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(String orderType) {
+        this.orderType = orderType;
+    }
+
+    public String getPlanningUnitSkuCode() {
+        return planningUnitSkuCode;
+    }
+
+    public void setPlanningUnitSkuCode(String planningUnitSkuCode) {
+        this.planningUnitSkuCode = planningUnitSkuCode;
+    }
+
+    public String getProcurementUnitSkuCode() {
+        return procurementUnitSkuCode;
+    }
+
+    public void setProcurementUnitSkuCode(String procurementUnitSkuCode) {
+        this.procurementUnitSkuCode = procurementUnitSkuCode;
+    }
+
+    public Date getCurrentEstimatedDeliveryDate() {
+        return currentEstimatedDeliveryDate;
+    }
+
+    public void setCurrentEstimatedDeliveryDate(Date currentEstimatedDeliveryDate) {
+        this.currentEstimatedDeliveryDate = currentEstimatedDeliveryDate;
+    }
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
+    }
+
+    public double getShippingCost() {
+        return shippingCost;
+    }
+
+    public void setShippingCost(double shippingCost) {
+        this.shippingCost = shippingCost;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
 }
