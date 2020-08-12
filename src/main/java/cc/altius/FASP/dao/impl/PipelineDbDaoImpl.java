@@ -92,7 +92,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
 
     public String sqlListString = "SELECT  "
             + "      p.ARRIVED_TO_DELIVERED_LEAD_TIME,p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME,p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME,"
-            + "     p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC,  p.PLANNED_TO_SUBMITTED_LEAD_TIME,"
+            + "     p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME,"
             + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.DELIVERED_TO_RECEIVED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
             + "     pl.LABEL_ID, pl.LABEL_EN, pl.LABEL_FR, pl.LABEL_PR, pl.LABEL_SP, "
@@ -586,13 +586,81 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "where ap.PIPELINE_ID=:pipelineId ;";
         Map<String, Object> params = new HashMap<>();
         params.put("pipelineId", pipelineId);
-        params.put("realmId", curUser.getRealm().getRealmId());
+        params.put("realmId", 1);
         return this.namedParameterJdbcTemplate.queryForObject(sql, params, new PplPrograminfoRowMapper());
     }
 
     @Override
     @Transactional
     public int addQatTempProgram(Program p, CustomUserDetails curUser, int pipelineId) {
+
+//        if (p.getProgramId() != 0) {
+//            Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+//            Map<String, Object> params = new HashMap<>();
+//            params.put("programId", p.getProgramId());
+//            params.put("labelEn", p.getLabel().getLabel_en());
+//            params.put("programManagerUserId", p.getProgramManager().getUserId());
+//            params.put("programNotes", p.getProgramNotes());
+//            params.put("airFreightPerc", p.getAirFreightPerc());
+//            params.put("seaFreightPerc", p.getSeaFreightPerc());
+//            params.put("plannedToSubmittedLeadTime", p.getPlannedToSubmittedLeadTime());
+//            params.put("submittedToApprovedLeadTime", p.getSubmittedToApprovedLeadTime());
+//            params.put("approvedToShippedLeadTime", p.getApprovedToShippedLeadTime());
+////            params.put("deliveredToReceivedLeadTime", p.getDeliveredToReceivedLeadTime());
+////            params.put("monthsInPastForAmc", p.getMonthsInPastForAmc());
+////            params.put("monthsInFutureForAmc", p.getMonthsInFutureForAmc());
+//
+//            params.put("arrivedToDeliveredLeadTime", p.getArrivedToDeliveredLeadTime());
+//            params.put("shippedToArrivedBySeaLeadTime", p.getShippedToArrivedBySeaLeadTime());
+//            params.put("shippedToArrivedByAirLeadTime", p.getShippedToArrivedByAirLeadTime());
+//
+////            params.put("active", true);
+//            params.put("curUser", curUser.getUserId());
+//            params.put("curDate", curDate);
+//            String sqlString = "UPDATE qat_temp_program p "
+//                    + "LEFT JOIN qat_temp_ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
+//                    + "SET "
+//                    + "p.PROGRAM_MANAGER_USER_ID=:programManagerUserId, "
+//                    + "p.PROGRAM_NOTES=:programNotes, "
+//                    + "p.AIR_FREIGHT_PERC=:airFreightPerc, "
+//                    + "p.SEA_FREIGHT_PERC=:seaFreightPerc, "
+//                    + "p.PLANNED_TO_SUBMITTED_LEAD_TIME=:plannedToSubmittedLeadTime, "
+//                    //                    + "p.DRAFT_TO_SUBMITTED_LEAD_TIME=:draftToSubmittedLeadTime, "
+//                    + "p.SUBMITTED_TO_APPROVED_LEAD_TIME=:submittedToApprovedLeadTime, "
+//                    + "p.APPROVED_TO_SHIPPED_LEAD_TIME=:approvedToShippedLeadTime, "
+//                    + "p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, "
+//                    + "p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime, "
+//                    + "p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=:shippedToArrivedBySeaLeadTime, "
+//                    + "p.LAST_MODIFIED_BY=:curUser, "
+//                    + "p.LAST_MODIFIED_DATE=:curDate, "
+//                    + "pl.LABEL_EN=:labelEn, "
+//                    + "pl.LAST_MODIFIED_BY=:curUser, "
+//                    + "pl.LAST_MODIFIED_DATE=:curDate "
+//                    + "WHERE p.PROGRAM_ID=:programId ";
+//            int rows = this.namedParameterJdbcTemplate.update(sqlString, params);
+//            params.clear();
+//            params.put("programId", p.getProgramId());
+//            this.namedParameterJdbcTemplate.update("DELETE FROM qat_temp_program_region WHERE PROGRAM_ID=:programId", params);
+//            SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("qat_temp_program_region");
+//            SqlParameterSource[] paramList = new SqlParameterSource[p.getRegionArray().length];
+//            int i = 0;
+//            for (String regionId : p.getRegionArray()) {
+//                params = new HashMap<>();
+//                params.put("PROGRAM_ID", p.getProgramId());
+//                params.put("REGION_ID", regionId);
+//                params.put("CREATED_BY", curUser.getUserId());
+//                params.put("CREATED_DATE", curDate);
+//                params.put("LAST_MODIFIED_BY", curUser.getUserId());
+//                params.put("LAST_MODIFIED_DATE", curDate);
+//                params.put("ACTIVE", true);
+//                paramList[i] = new MapSqlParameterSource(params);
+//                i++;
+//            }
+//            si.executeBatch(paramList);
+//            return rows;
+//
+//        } else {
+
             Map<String, Object> params = new HashMap<>();
             params.put("pipelineId", pipelineId);
             this.namedParameterJdbcTemplate.update("DELETE FROM qat_temp_program WHERE PIPELINE_ID=:pipelineId", params);
@@ -631,7 +699,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             for (String rId : p.getRegionArray()) {
                 params = new HashMap<>();
                 params.put("REGION_ID", rId);
-params.put("PIPELINE_ID", pipelineId);
+                params.put("PIPELINE_ID", pipelineId);
                 params.put("CREATED_BY", curUser.getUserId());
                 params.put("CREATED_DATE", curDate);
                 params.put("LAST_MODIFIED_BY", curUser.getUserId());
@@ -723,6 +791,8 @@ params.put("PIPELINE_ID", pipelineId);
                     + " '' as SHELF_LIFE, "
                     + " '' as CATALOG_PRICE, "
                     + " 1 as MULTIPLIER "
+                    + " '' as MONTHS_IN_PAST_FOR_AMC, "
+                    + " '' as MONTHS_IN_FUTURE_FOR_AMC "
                     + "FROM fasp.adb_product p "
                     + "left join adb_method m on m.MethodID=p.MethodID and m.PIPELINE_ID=:pipelineId "
                     + "left join ap_label al on al.LABEL_EN=p.ProductName OR al.LABEL_FR=p.ProductName "
@@ -745,7 +815,13 @@ params.put("PIPELINE_ID", pipelineId);
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
         params.put("pipelineId", pipelineId);
         String sql = "SELECT "
-                + "		st.SHIPMENT_ID, st.EXPECTED_DELIVERY_DATE, st.ORDERED_DATE, st.SHIPPED_DATE, st.RECEIVED_DATE, st.QUANTITY, st.RATE, st.PRODUCT_COST, st.FREIGHT_COST, st.SHIPPING_MODE, st.SUGGESTED_QTY, '0' ACCOUNT_FLAG, '0'ERP_FLAG, st.NOTES, "
+                + "		st.SHIPMENT_ID, st.EXPECTED_DELIVERY_DATE, "
+                + "st.ORDERED_DATE, st.SHIPPED_DATE, st.RECEIVED_DATE,"
+                + "st.PLANNED_DATE, "
+                + "now() SUBMITTED_DATE,"
+                + "now() APPROVED_DATE,"
+                + "now() ARRIVED_DATE,"
+                + "st.QUANTITY, st.RATE, st.PRODUCT_COST, st.FREIGHT_COST, st.SHIPPING_MODE, st.SUGGESTED_QTY, '0' ACCOUNT_FLAG, '0'ERP_FLAG, st.NOTES, "
                 + "		0 VERSION_ID , "
                 + "		st.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pal.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pal.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pal.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pal.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, pal.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, "
                 + "		st.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, "
@@ -782,10 +858,32 @@ params.put("PIPELINE_ID", pipelineId);
         List<QatTempShipment> result = this.namedParameterJdbcTemplate.query(sql, params, new QatTempShipmentRowMapper());
 
         if (result.size() == 0) {
-            sql = "SELECT ash.ShipmentID SHIPMENT_ID,qtp.`PLANNING_UNIT_ID`,ash.`ShipAmount`,ash.`ShipReceivedDate` EXPECTED_DELIVERY_DATE,ash.ShipAmount SUGGESTED_QTY,ash.ShipAmount QUANTITY,'0.0' RATE,ShipValue PRODUCT_COST,'' SHIPPING_MODE,ash.`ShipOrderedDate` ORDERED_DATE, "
-                    + "     ash.ShipPlannedDate   PLANNED_DATE,null ARRIVED_DATE,null APPROVED_DATE,null SUBMITTED_DATE,         ash.`ShipShippedDate` SHIPPED_DATE,ash.`ShipReceivedDate` RECEIVED_DATE,ash.ShipStatusCode SHIPMENT_STATUS_ID,ash.`ShipNote` NOTES,ash.`ShipFreightCost` FREIGHT_COST,ash.`ShipPO`,COALESCE(rds.`DATA_SOURCE_ID`,ds.`DataSourceName`) DATA_SOURCE_ID, "
-                    + "                 '1'ACCOUNT_FLAG,'1'ERP_FLAG,'0'VERSION_ID ,COALESCE(rpa.`PROCUREMENT_AGENT_ID`,ads.`SupplierName`) PROCUREMENT_AGENT_ID, '' PROCUREMENT_UNIT_ID,'' SUPPLIER_ID ,COALESCE(rfs.`FUNDING_SOURCE_ID`,afs.`FundingSourceName`) FUNDING_SOURCE_ID,'1' ACTIVE  "
-                    + "                 FROM adb_shipment ash  "
+
+//            sql = "SELECT ash.ShipmentID SHIPMENT_ID,qtp.`PLANNING_UNIT_ID`,ash.`ShipAmount`,ash.`ShipReceivedDate` EXPECTED_DELIVERY_DATE,ash.ShipAmount SUGGESTED_QTY,ash.ShipAmount QUANTITY,'0.0' RATE,ShipValue PRODUCT_COST,'' SHIPPING_MODE,ash.`ShipOrderedDate` ORDERED_DATE, "
+//                    + "     ash.ShipPlannedDate   PLANNED_DATE,null ARRIVED_DATE,null APPROVED_DATE,null SUBMITTED_DATE,         ash.`ShipShippedDate` SHIPPED_DATE,ash.`ShipReceivedDate` RECEIVED_DATE,ash.ShipStatusCode SHIPMENT_STATUS_ID,ash.`ShipNote` NOTES,ash.`ShipFreightCost` FREIGHT_COST,ash.`ShipPO`,COALESCE(rds.`DATA_SOURCE_ID`,ds.`DataSourceName`) DATA_SOURCE_ID, "
+//                    + "                 '1'ACCOUNT_FLAG,'1'ERP_FLAG,'0'VERSION_ID ,COALESCE(rpa.`PROCUREMENT_AGENT_ID`,ads.`SupplierName`) PROCUREMENT_AGENT_ID, '' PROCUREMENT_UNIT_ID,'' SUPPLIER_ID ,COALESCE(rfs.`FUNDING_SOURCE_ID`,afs.`FundingSourceName`) FUNDING_SOURCE_ID,'1' ACTIVE  "
+//                    + "                 FROM adb_shipment ash  "
+
+            sql = "SELECT ash.ShipmentID SHIPMENT_ID,"
+                    + "qtp.`PLANNING_UNIT_ID`,"
+                    + "ash.`ShipAmount`,"
+                    + "ash.`ShipReceivedDate` EXPECTED_DELIVERY_DATE,"
+                    + "ash.ShipAmount SUGGESTED_QTY,"
+                    + "ash.ShipAmount QUANTITY,"
+                    + "'0.0' RATE,"
+                    + "ShipValue PRODUCT_COST,"
+                    + "'' SHIPPING_MODE,"
+                    + "ash.`ShipPlannedDate` PLANNED_DATE, "
+                    + "ash.`ShipShippedDate` SHIPPED_DATE,"
+                    + "ash.`ShipReceivedDate` RECEIVED_DATE,"
+                    + "now() SUBMITTED_DATE,"
+                    + "now() APPROVED_DATE,"
+                    + "now() ARRIVED_DATE,"
+                    + "ash.ShipStatusCode SHIPMENT_STATUS_ID,"
+                    + "ash.`ShipNote` NOTES,"
+                    + "ash.`ShipFreightCost` FREIGHT_COST,ash.`ShipPO`,COALESCE(rds.`DATA_SOURCE_ID`,ds.`DataSourceName`) DATA_SOURCE_ID, "
+                    + "'1'ACCOUNT_FLAG,'1'ERP_FLAG,'0'VERSION_ID ,COALESCE(rpa.`PROCUREMENT_AGENT_ID`,ads.`SupplierName`) PROCUREMENT_AGENT_ID, '' PROCUREMENT_UNIT_ID,'' SUPPLIER_ID ,COALESCE(rfs.`FUNDING_SOURCE_ID`,afs.`FundingSourceName`) FUNDING_SOURCE_ID,'1' ACTIVE  "
+                    + "FROM adb_shipment ash  "
                     + "                   LEFT JOIN  qat_temp_program_planning_unit qtp ON qtp.PIPELINE_PRODUCT_ID = ash.ProductID  AND  qtp.`PIPELINE_ID`=:pipelineId "
                     + "                 LEFT JOIN adb_datasource ds ON ds.`DataSourceID`=ash.`ShipDataSourceID`AND ds.`PIPELINE_ID`=:pipelineId "
                     + "                  LEFT JOIN qat_temp_data_source qtds ON qtds.PIPELINE_DATA_SOURCE_ID=ds.DataSourceID AND qtds.PIPELINE_ID=:pipelineId"
@@ -834,11 +932,13 @@ params.put("PIPELINE_ID", pipelineId);
             params.put("PRODUCT_COST", s.getProductCost());
             params.put("SHIPPING_MODE", s.getShipmentMode());
             params.put("FREIGHT_COST", s.getFreightCost());
-            params.put("PLANNED_DATE", s.getPlannedDate());
-            params.put("SUBMITTED_DATE", s.getSubmittedDate());
-            params.put("APPROVED_DATE", s.getApprovedDate());
+
+            params.put("PLANNED_DATE", curDate);
+            params.put("SUBMITTED_DATE", curDate);
+            params.put("APPROVED_DATE", curDate);
+            params.put("ARRIVED_DATE", curDate);
+
             params.put("SHIPPED_DATE", s.getShippedDate());
-            params.put("ARRIVED_DATE", s.getArrivedDate());
             params.put("RECEIVED_DATE", s.getReceivedDate());
             params.put("SHIPMENT_STATUS_ID", s.getShipmentStatus());
             params.put("DATA_SOURCE_ID", s.getDataSource());
@@ -1078,7 +1178,7 @@ params.put("PIPELINE_ID", pipelineId);
             params.put("INVENTORY_DATE", ppu.getInventoryDate());
             params.put("NOTES", ppu.getNotes());
             params.put("ADJUSTMENT_QTY", ppu.getManualAdjustment());
-            params.put("PIPELINE_ID", ppu.isActive());
+            params.put("PIPELINE_ID", pipelineId);
             params.put("REALM_COUNTRY_PLANNING_UNIT_ID", ppu.getRealmCountryPlanningUnitId());
             params.put("MULTIPLIER", ppu.getMultiplier());
 
@@ -1106,11 +1206,11 @@ params.put("PIPELINE_ID", pipelineId);
                 + "FROM fasp.qat_temp_program_planning_unit pu "
                 + "left join rm_planning_unit rmp on rmp.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "left join ap_label al on al.LABEL_ID=rmp.LABEL_ID "
-                + "left join qat_temp_inventory i on i.REALM_COUNTRY_PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "left join qat_temp_inventory i on i.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "left join qat_temp_shipment s on s.PLANNING_UNIT_ID =pu.PLANNING_UNIT_ID  "
-                + "left join (select a.PLANNING_UNIT_ID,coalesce(if(a.co=2,(select qc.CONSUMPTION_QUANTITY from qat_temp_consumption qc where qc.PIPELINE_ID=1  "
+                + "left join (select a.PLANNING_UNIT_ID,coalesce(if(a.co=2,(select qc.CONSUMPTION_QUANTITY from qat_temp_consumption qc where qc.PIPELINE_ID=:pipelineId "
                 + "and qc.CONSUMPTION_DATE=a.CONSUMPTION_DATE and qc.PLANNING_UNIT_ID=a.PLANNING_UNIT_ID "
-                + "and qc.ACTUAL_FLAG=1),(select qc.CONSUMPTION_QUANTITY from qat_temp_consumption qc where qc.PIPELINE_ID=1  "
+                + "and qc.ACTUAL_FLAG=1),(select qc.CONSUMPTION_QUANTITY from qat_temp_consumption qc where qc.PIPELINE_ID=:pipelineId  "
                 + "and qc.CONSUMPTION_DATE=a.CONSUMPTION_DATE and qc.PLANNING_UNIT_ID=a.PLANNING_UNIT_ID)),0) as consumptionQty "
                 + "from (select count(*) as co ,c.CONSUMPTION_DATE,c.ACTUAL_FLAG,c.PLANNING_UNIT_ID from qat_temp_consumption  "
                 + "c where c.PIPELINE_ID=:pipelineId  "
@@ -1249,9 +1349,10 @@ params.put("PIPELINE_ID", pipelineId);
          * Insert**********************************
          */
 
-        String sql = "SELECT s.`FUNDING_SOURCE_ID`,SUM(IFNULL(s.`FREIGHT_COST`,0)+IFNULL(s.`PRODUCT_COST`,0)) budget,EXTRACT(YEAR FROM MAX(ORDERED_DATE)) `year` FROM qat_temp_shipment s WHERE s.`PIPELINE_ID`=:pipelineId GROUP BY s.`FUNDING_SOURCE_ID`";
+        String sql = "SELECT s.`FUNDING_SOURCE_ID`,SUM(IFNULL(s.`FREIGHT_COST`,0)+IFNULL(s.`PRODUCT_COST`,0)) budget,EXTRACT(YEAR FROM MAX(now())) `year` FROM qat_temp_shipment s WHERE s.`PIPELINE_ID`=:pipelineId GROUP BY s.`FUNDING_SOURCE_ID`";
         params.put("pipelineId", pipelineId);
         List<Map<String, Object>> budgetList = this.namedParameterJdbcTemplate.queryForList(sql, params);
+        System.out.println("budget list=======>" + budgetList);
         List<Map<String, Object>> newList = new LinkedList<>();
         params.clear();
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_budget").usingGeneratedKeyColumns("BUDGET_ID");
@@ -1273,15 +1374,15 @@ params.put("PIPELINE_ID", pipelineId);
             params.put("NOTES", "");
             params.put("ACTIVE", true);
             int result = si.executeAndReturnKey(params).intValue();
-            
+
             String sqlString = "update rm_budget rb \n"
                     + "left join rm_program p on p.PROGRAM_ID=rb.PROGRAM_ID\n"
                     + "left join rm_realm_country rc on rc.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID\n"
                     + "left join ap_country ac on ac.COUNTRY_ID=rc.COUNTRY_ID\n"
                     + "set rb.BUDGET_CODE=concat(ac.COUNTRY_CODE,rb.BUDGET_ID)\n"
                     + "where rb.BUDGET_ID=?;";
-            this.jdbcTemplate.update(sqlString,result);
-            
+            this.jdbcTemplate.update(sqlString, result);
+
             budget.put("budgetId", result);
             newList.add(budget);
         }
@@ -1323,9 +1424,11 @@ params.put("PIPELINE_ID", pipelineId);
             params.put("PRODUCT_COST", s.getProductCost());
             params.put("SHIPMENT_MODE", s.getShipmentMode());
             params.put("FREIGHT_COST", s.getFreightCost());
+
             params.put("PLANNED_DATE", s.getPlannedDate());
             params.put("SUBMITTED_DATE", s.getSubmittedDate());
             params.put("APPROVED_DATE", s.getApprovedDate());
+
             params.put("SHIPPED_DATE", s.getShippedDate());
             params.put("ARRIVED_DATE", s.getArrivedDate());
             params.put("RECEIVED_DATE", s.getReceivedDate());
@@ -1333,7 +1436,7 @@ params.put("PIPELINE_ID", pipelineId);
             params.put("NOTES", s.getNotes());
             params.put("DATA_SOURCE_ID", s.getDataSource());
             params.put("ACCOUNT_FLAG", 1);
-            params.put("ERP_FLAG", 1);
+            params.put("ERP_FLAG", 0);
             params.put("EMERGENCY_ORDER", false);
             params.put("ORDER_NO", null);
             params.put("PRIME_LINE_NO", null);

@@ -33,6 +33,8 @@ public class QatTempPlanningUnitRowMapper implements RowMapper<QatTempProgramPla
         p.setShelfLife(rs.getInt("SHELF_LIFE"));
         p.setCatalogPrice(rs.getDouble("CATALOG_PRICE"));
         p.setMultiplier(rs.getInt("MULTIPLIER"));
+        p.setMonthsInFutureForAmc(rs.getInt("MONTHS_IN_FUTURE_FOR_AMC"));
+        p.setMonthsInPastForAmc(rs.getInt("MONTHS_IN_PAST_FOR_AMC"));
         return p;
     }
 

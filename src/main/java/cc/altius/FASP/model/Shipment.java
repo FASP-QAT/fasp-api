@@ -7,6 +7,8 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.framework.JsonDateTimeDeserializer;
+import cc.altius.FASP.framework.JsonDateTimeSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -21,6 +23,7 @@ import java.util.List;
 public class Shipment extends BaseModel implements Serializable {
 
     private int shipmentId;
+    private Integer parentShipmentId;
     private SimplePlanningUnitObject planningUnit;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
@@ -64,6 +67,9 @@ public class Shipment extends BaseModel implements Serializable {
     private String primeLineNo;
     private boolean emergencyOrder;
     private int versionId;
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    private Date lastModifiedDate;
     private List<ShipmentBatchInfo> batchInfoList;
     
     public Shipment() {
@@ -75,6 +81,14 @@ public class Shipment extends BaseModel implements Serializable {
 
     public void setShipmentId(int shipmentId) {
         this.shipmentId = shipmentId;
+    }
+
+    public Integer getParentShipmentId() {
+        return parentShipmentId;
+    }
+
+    public void setParentShipmentId(Integer parentShipmentId) {
+        this.parentShipmentId = parentShipmentId;
     }
 
     public SimplePlanningUnitObject getPlanningUnit() {
@@ -317,6 +331,14 @@ public class Shipment extends BaseModel implements Serializable {
         this.batchInfoList = batchInfoList;
     }
 
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+
     @Override
     public int hashCode() {
         int hash = 5;
@@ -342,5 +364,5 @@ public class Shipment extends BaseModel implements Serializable {
         return true;
 
     }
-
+    
 }
