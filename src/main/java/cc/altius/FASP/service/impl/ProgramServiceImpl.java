@@ -10,11 +10,14 @@ import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ErpOrderDTO;
+import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
@@ -146,13 +149,13 @@ public class ProgramServiceImpl implements ProgramService {
                 throw new AccessDeniedException("Access denied");
             }
         }
-        if (programList.length()>0) {
-            programList.setLength(programList.length()-1);
+        if (programList.length() > 0) {
+            programList.setLength(programList.length() - 1);
             return this.programDao.getPlanningUnitListForProgramIds(programList.toString(), curUser);
         } else {
             return new LinkedList<>();
         }
-        
+
     }
 
     @Override
@@ -202,6 +205,31 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public Program getProgramList(int realmId, int programId, int versionId) {
         return this.programDao.getProgramList(realmId, programId, versionId);
+    }
+
+    @Override
+    public List<ManualTaggingDTO> getShipmentListForManualTagging(int programId, int planningUnitId) {
+        return this.programDao.getShipmentListForManualTagging(programId, planningUnitId);
+    }
+
+    @Override
+    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(String orderNo, int primeLineNo) {
+        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(orderNo, primeLineNo);
+    }
+
+    @Override
+    public int linkShipmentWithARTMIS(String orderNo, int primeLineNo, int shipmentId, CustomUserDetails curUser) {
+        return this.programDao.linkShipmentWithARTMIS(orderNo, primeLineNo, shipmentId, curUser);
+    }
+
+    @Override
+    public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId) {
+        return this.programDao.getShipmentListForDelinking(programId, planningUnitId);
+    }
+
+    @Override
+    public int delinkShipment(int shipmentId, CustomUserDetails curUser) {
+        return this.programDao.delinkShipment(shipmentId, curUser);
     }
 
 }

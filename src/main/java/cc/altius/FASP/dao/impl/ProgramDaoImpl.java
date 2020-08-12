@@ -8,7 +8,11 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ErpOrderDTO;
+import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
+import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTORowMapper;
+import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramPlanningUnit;
@@ -29,6 +33,7 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -50,10 +55,12 @@ public class ProgramDaoImpl implements ProgramDao {
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
+    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
@@ -491,6 +498,67 @@ public class ProgramDaoImpl implements ProgramDao {
         sqlStringBuilder.append(this.sqlOrderBy);
         System.out.println("sqlStringBuilder.toString()---" + sqlStringBuilder.toString());
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramResultSetExtractor());
+    }
+
+    @Override
+    public List<ManualTaggingDTO> getShipmentListForManualTagging(int programId, int planningUnitId) {
+        String sql = " SELECT st.`EXPECTED_DELIVERY_DATE`,`statusLabel`.`LABEL_EN` AS SHIPMENT_STATUS_DESC, "
+                + "`paLabel`.`LABEL_EN` AS PROCUREMENT_AGENT_NAME,`baLabel`.`LABEL_EN` AS BUDGET_DESC,st.`SHIPMENT_QTY`,st.`PRODUCT_COST`,st.`SHIPMENT_ID`,st.`SHIPMENT_TRANS_ID` "
+                + " FROM rm_shipment_trans st "
+                + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+                + "LEFT JOIN ap_shipment_status ss ON ss.`SHIPMENT_STATUS_ID`=st.`SHIPMENT_STATUS_ID` "
+                + "LEFT JOIN ap_label statusLabel ON statusLabel.`LABEL_ID`=ss.`LABEL_ID` "
+                + "LEFT JOIN rm_procurement_agent pa ON pa.`PROCUREMENT_AGENT_ID`=st.`PROCUREMENT_AGENT_ID` "
+                + "LEFT JOIN ap_label paLabel ON paLabel.`LABEL_ID`=pa.`LABEL_ID` "
+                + "LEFT JOIN rm_budget b ON b.`BUDGET_ID`=st.`BUDGET_ID` "
+                + "LEFT JOIN ap_label baLabel ON baLabel.`LABEL_ID`=b.`LABEL_ID` "
+                + "WHERE s.`PROGRAM_ID`=:programId AND st.`PLANNING_UNIT_ID`=:planningUnitId "
+                + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("planningUnitId", planningUnitId);
+        return this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
+    }
+
+    @Override
+    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(String orderNo, int primeLineNo) {
+        String sql = "SELECT * FROM rm_erp_order e WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=?;";
+        return this.jdbcTemplate.queryForObject(sql, new ErpOrderDTORowMapper(), orderNo, primeLineNo);
+    }
+
+    @Override
+    public int linkShipmentWithARTMIS(String orderNo, int primeLineNo, int shipmentId, CustomUserDetails curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        String sql = "DELETE FROM rm_manual_tagging WHERE ORDER_NO=? AND PRIME_LINE_NO=?;";
+        this.jdbcTemplate.update(sql, orderNo, primeLineNo);
+        sql = "INSERT INTO rm_manual_tagging VALUES (NULL,?,?,?,?,?,?,?,1);";
+        return this.jdbcTemplate.update(sql, orderNo, primeLineNo, shipmentId, curDate, curUser.getUserId(), curDate, curUser.getUserId());
+    }
+
+    @Override
+    public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId) {
+        String sql = " SELECT st.`EXPECTED_DELIVERY_DATE`,`statusLabel`.`LABEL_EN` AS SHIPMENT_STATUS_DESC, "
+                + "`paLabel`.`LABEL_EN` AS PROCUREMENT_AGENT_NAME,`baLabel`.`LABEL_EN` AS BUDGET_DESC,st.`SHIPMENT_QTY`,st.`PRODUCT_COST`,st.`SHIPMENT_ID`,st.`SHIPMENT_TRANS_ID` "
+                + " FROM rm_shipment_trans st "
+                + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+                + "LEFT JOIN ap_shipment_status ss ON ss.`SHIPMENT_STATUS_ID`=st.`SHIPMENT_STATUS_ID` "
+                + "LEFT JOIN ap_label statusLabel ON statusLabel.`LABEL_ID`=ss.`LABEL_ID` "
+                + "LEFT JOIN rm_procurement_agent pa ON pa.`PROCUREMENT_AGENT_ID`=st.`PROCUREMENT_AGENT_ID` "
+                + "LEFT JOIN ap_label paLabel ON paLabel.`LABEL_ID`=pa.`LABEL_ID` "
+                + "LEFT JOIN rm_budget b ON b.`BUDGET_ID`=st.`BUDGET_ID` "
+                + "LEFT JOIN ap_label baLabel ON baLabel.`LABEL_ID`=b.`LABEL_ID` "
+                + "WHERE s.`PROGRAM_ID`=:programId AND st.`PLANNING_UNIT_ID`=:planningUnitId "
+                + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("planningUnitId", planningUnitId);
+        return this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
+    }
+
+    @Override
+    public int delinkShipment(int shipmentId, CustomUserDetails curUser) {
+        String sql = "";
+        return this.jdbcTemplate.update(sql, shipmentId);
     }
 
 }

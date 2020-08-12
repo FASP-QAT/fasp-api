@@ -72,7 +72,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
             + "     puc.PLANNING_UNIT_CAPACITY_ID, puc.START_DATE, puc.STOP_DATE, puc.CAPACITY, "
             + "     pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, "
             + "     s.SUPPLIER_ID, sl.LABEL_ID `SUPPLIER_LABEL_ID`, sl.LABEL_EN `SUPPLIER_LABEL_EN`, sl.LABEL_FR `SUPPLIER_LABEL_FR`, sl.LABEL_SP `SUPPLIER_LABEL_SP`, sl.LABEL_PR `SUPPLIER_LABEL_PR`, "
-            + "     puc.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, puc.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, puc.LAST_MODIFIED_DATE "
+            + "     puc.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, puc.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, puc.LAST_MODIFIED_DATE,puc.`ACTIVE` "
             + " FROM rm_planning_unit_capacity puc  "
             + " LEFT JOIN rm_planning_unit pu ON puc.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
             + " LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
@@ -180,6 +180,13 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     }
 
     @Override
+    public List<PlanningUnitCapacity> getPlanningUnitCapacityList(CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlPlanningUnitCapacityListString);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new PlanningUnitCapacityRowMapper());
+    }
+
+    @Override
     public List<PlanningUnitCapacity> getPlanningUnitCapacityForRealm(int realmId, String startDate, String stopDate, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlPlanningUnitCapacityListString);
@@ -272,15 +279,13 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     public List<PlanningUnit> getPlanningUnitListForProductCategory(String productCategorySortOrder, boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-         sqlStringBuilder.append(" AND pc.SORT_ORDER LIKE CONCAT(:productCategorySortOrder, '%')");
-            params.put("productCategorySortOrder", productCategorySortOrder);
+        sqlStringBuilder.append(" AND pc.SORT_ORDER LIKE CONCAT(:productCategorySortOrder, '%')");
+        params.put("productCategorySortOrder", productCategorySortOrder);
         if (active) {
             sqlStringBuilder.append(" AND pu.ACTIVE=:active ");
             params.put("active", active);
         }
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new PlanningUnitRowMapper());
     }
-    
-    
 
 }

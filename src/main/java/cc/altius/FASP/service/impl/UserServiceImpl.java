@@ -48,7 +48,7 @@ public class UserServiceImpl implements UserService {
     @Value("${urlHost}")
     private static String HOST_URL;
     @Value("${urlPasswordReset}")
-    private static String PASSWORD_RESET_URL = "resetPassword";
+    private static String PASSWORD_RESET_URL;
 
     @Override
     public CustomUserDetails getCustomUserByUsername(String username) {

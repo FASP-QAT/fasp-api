@@ -19,17 +19,19 @@ public class PlanningUnitCapacity extends BaseModel implements Serializable {
     private String startDate;
     private String stopDate;
     private double capacity;
+    private boolean active;
 
     public PlanningUnitCapacity() {
     }
 
-    public PlanningUnitCapacity(int planningUnitCapacityId, SimpleObject planningUnit, SimpleObject supplier, String startDate, String stopDate, double capacity) {
+    public PlanningUnitCapacity(int planningUnitCapacityId, SimpleObject planningUnit, SimpleObject supplier, String startDate, String stopDate, double capacity, boolean active) {
         this.planningUnitCapacityId = planningUnitCapacityId;
         this.planningUnit = planningUnit;
         this.supplier = supplier;
         this.startDate = startDate;
         this.stopDate = stopDate;
         this.capacity = capacity;
+        this.active = active;
     }
 
     public int getPlanningUnitCapacityId() {
@@ -80,5 +82,12 @@ public class PlanningUnitCapacity extends BaseModel implements Serializable {
         this.capacity = capacity;
     }
 
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
 }
