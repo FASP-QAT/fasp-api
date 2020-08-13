@@ -80,7 +80,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendMail(Emailer emailer) {
         try {
-//            this.emailDao.sendMail(emailer);
+            this.emailDao.sendMail(emailer);
         } catch (Exception e) {
         }
     }

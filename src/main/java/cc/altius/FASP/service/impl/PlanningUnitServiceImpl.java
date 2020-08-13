@@ -43,7 +43,6 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     private AclService aclService;
     @Autowired
     private ProductCategoryDao productCategoryDao;
-    
 
     @Override
     public List<PlanningUnit> getPlanningUnitList(boolean active, CustomUserDetails curUser) {
@@ -133,6 +132,15 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
                 throw new ParseException("One date cannot be null", 1);
             }
             return this.planningUnitDao.getPlanningUnitCapacityForId(planningUnitId, startDate, stopDate, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public List<PlanningUnitCapacity> getPlanningUnitCapacityList(CustomUserDetails curUser) {
+        if (this.aclService.checkRealmAccessForUser(curUser, curUser.getRealm().getRealmId())) {
+            return this.planningUnitDao.getPlanningUnitCapacityList(curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }

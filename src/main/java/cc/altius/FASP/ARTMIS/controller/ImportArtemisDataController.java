@@ -5,7 +5,7 @@
  */
 package cc.altius.FASP.ARTMIS.controller;
 
-import cc.altius.FASP.service.ImportArtemisDataService;
+import cc.altius.FASP.ARTMIS.service.ImportArtemisDataService;
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 import org.springframework.beans.factory.annotation.Autowired;
