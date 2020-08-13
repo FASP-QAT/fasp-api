@@ -6,7 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.pipeline.QatTempProgram;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.PplConsumption;
@@ -35,9 +35,9 @@ public interface PipelineDbService {
 
     public PplPrograminfo getPipelineProgramInfoById(int pipelineId, CustomUserDetails curUser);
 
-    public int addQatTempProgram(Program p, CustomUserDetails curUser, int pipelineId);
+    public int addQatTempProgram(QatTempProgram p, CustomUserDetails curUser, int pipelineId);
 
-    public Program getQatTempProgram(CustomUserDetails curUser, int pipelineId);
+    public QatTempProgram getQatTempProgram(CustomUserDetails curUser, int pipelineId);
 
     public List<PplProduct> getPipelineProductListById(CustomUserDetails curUser, int pipelineId);
 

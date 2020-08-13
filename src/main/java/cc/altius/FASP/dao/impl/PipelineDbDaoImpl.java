@@ -11,7 +11,7 @@ import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.dao.PipelineDbDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Label;
-import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.pipeline.QatTempProgram;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.pipeline.Pipeline;
@@ -92,8 +92,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
 
     public String sqlListString = "SELECT  "
             + "      p.ARRIVED_TO_DELIVERED_LEAD_TIME,p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME,p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME,"
-            + "     p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME, p.DRAFT_TO_SUBMITTED_LEAD_TIME,"
-            + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.DELIVERED_TO_RECEIVED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC, "
+            + "     p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME,"// p.DRAFT_TO_SUBMITTED_LEAD_TIME,"
+            + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.DELIVERED_TO_RECEIVED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC,p.SHELF_LIFE, "
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
             + "     pl.LABEL_ID, pl.LABEL_EN, pl.LABEL_FR, pl.LABEL_PR, pl.LABEL_SP, "
             //<<<<<<< HEAD
@@ -592,7 +592,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
 
     @Override
     @Transactional
-    public int addQatTempProgram(Program p, CustomUserDetails curUser, int pipelineId) {
+    public int addQatTempProgram(QatTempProgram p, CustomUserDetails curUser, int pipelineId) {
 
 //        if (p.getProgramId() != 0) {
 //            Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
@@ -685,8 +685,11 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("CREATED_DATE", curDate);
             params.put("LAST_MODIFIED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
-          params.put("PIPELINE_ID", pipelineId);
-
+            params.put("PIPELINE_ID", pipelineId);
+            params.put("MONTHS_IN_PAST_FOR_AMC", p.getMonthsInPastForAmc());
+            params.put("MONTHS_IN_FUTURE_FOR_AMC", p.getMonthsInFutureForAmc());
+            params.put("SHELF_LIFE", p.getShelfLife());
+          
             params.put("ARRIVED_TO_DELIVERED_LEAD_TIME", p.getArrivedToDeliveredLeadTime());
             params.put("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME", p.getShippedToArrivedByAirLeadTime());
             params.put("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME", p.getShippedToArrivedBySeaLeadTime());
@@ -715,7 +718,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     }
 
     @Override
-    public Program getQatTempProgram(CustomUserDetails curUser, int pipelineId) {
+    public QatTempProgram getQatTempProgram(CustomUserDetails curUser, int pipelineId) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND p.PIPELINE_ID=:pipelineId");
         Map<String, Object> params = new HashMap<>();
         params.put("pipelineId", pipelineId);
@@ -788,12 +791,13 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "if(fu.FORECASTING_UNIT_ID IS NULL,'',fu.PRODUCT_CATEGORY_ID) as PRODUCT_CATEGORY_ID, "
                     + " (p.ProductMaxMonths-p.ProductMinMonths) as REORDER_FREQUENCY_IN_MONTHS, "
                     + " '' as LOCAL_PROCUREMENT_LEAD_TIME, "
-                    + " '' as SHELF_LIFE, "
+                    + " COALESCE(qtp.SHELF_LIFE,'') as SHELF_LIFE, "
                     + " '' as CATALOG_PRICE, "
-                    + " 1 as MULTIPLIER "
-                    + " '' as MONTHS_IN_PAST_FOR_AMC, "
-                    + " '' as MONTHS_IN_FUTURE_FOR_AMC "
+                    + " 1 as MULTIPLIER, "
+                    + " COALESCE(qtp.MONTHS_IN_PAST_FOR_AMC,'') as MONTHS_IN_PAST_FOR_AMC, "
+                    + " COALESCE(qtp.MONTHS_IN_FUTURE_FOR_AMC,'') as MONTHS_IN_FUTURE_FOR_AMC "
                     + "FROM fasp.adb_product p "
+                    + "left join qat_temp_program qtp on  qtp.PIPELINE_ID=:pipelineId "
                     + "left join adb_method m on m.MethodID=p.MethodID and m.PIPELINE_ID=:pipelineId "
                     + "left join ap_label al on al.LABEL_EN=p.ProductName OR al.LABEL_FR=p.ProductName "
                     + "or al.LABEL_PR=p.ProductName or al.LABEL_SP=p.ProductName "
@@ -870,7 +874,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "ash.`ShipReceivedDate` EXPECTED_DELIVERY_DATE,"
                     + "ash.ShipAmount SUGGESTED_QTY,"
                     + "ash.ShipAmount QUANTITY,"
-                    + "'0.0' RATE,"
+                    + " COALESCE(acp.UnitPrice,'0.0') RATE,"
                     + "ShipValue PRODUCT_COST,"
                     + "'' SHIPPING_MODE,"
                     + "ash.`ShipPlannedDate` PLANNED_DATE, "
@@ -879,7 +883,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "now() SUBMITTED_DATE,"
                     + "now() APPROVED_DATE,"
                     + "now() ARRIVED_DATE,"
-                    + "ash.ShipStatusCode SHIPMENT_STATUS_ID,"
+                    + "COALESCE(ass.QAT_SHIPMENT_STATUS_ID,ash.ShipStatusCode) SHIPMENT_STATUS_ID,"
                     + "ash.`ShipNote` NOTES,"
                     + "ash.`ShipFreightCost` FREIGHT_COST,ash.`ShipPO`,COALESCE(rds.`DATA_SOURCE_ID`,ds.`DataSourceName`) DATA_SOURCE_ID, "
                     + "'1'ACCOUNT_FLAG,'1'ERP_FLAG,'0'VERSION_ID ,COALESCE(rpa.`PROCUREMENT_AGENT_ID`,ads.`SupplierName`) PROCUREMENT_AGENT_ID, '' PROCUREMENT_UNIT_ID,'' SUPPLIER_ID ,COALESCE(rfs.`FUNDING_SOURCE_ID`,afs.`FundingSourceName`) FUNDING_SOURCE_ID,'1' ACTIVE  "
@@ -894,6 +898,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "                LEFT JOIN adb_fundingsource afs ON afs.`FundingSourceID`=ash.`ShipFundingSourceID` AND afs.`PIPELINE_ID`= :pipelineId "
                     + "                  LEFT JOIN qat_temp_funding_source qtfs ON qtfs.PIPELINE_FUNDING_SOURCE_ID=afs.FundingSourceID AND qtfs.PIPELINE_ID=:pipelineId"
                     + "                LEFT JOIN rm_funding_source rfs ON rfs.`FUNDING_SOURCE_ID`=qtfs.`FUNDING_SOURCE_ID`  "
+                    + "                LEFT JOIN adb_shipmentstatus ass ON ash.`ShipStatusCode`=ass.`PipelineShipmentStatusCode`  "
+                    + "                LEFT JOIN adb_commodityprice acp ON acp.`ProductID`=qtp.`PIPELINE_PRODUCT_ID` and acp.SupplierID=qtpa.PIPELINE_PROCUREMENT_AGENT_ID "
                     + "                 WHERE ash.`PIPELINE_ID`=:pipelineId ";
 
             result = this.namedParameterJdbcTemplate.query(sql, params, new QatTempShipmentRowMapper());
@@ -1120,6 +1126,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().create();
         params.put("pipelineId", pipelineId);
         String sql1 = "SELECT "
+                + "i.ACTUAL_QTY,"
                 + "i.ADJUSTMENT_QTY,"
                 + "i.DATA_SOURCE_ID, "
                 + "i.INVENTORY_DATE,"
@@ -1140,7 +1147,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     //                    + "i.ProductID,"
                     + "qtp.PLANNING_UNIT_ID as PLANNING_UNIT_ID,"
                     + "i.InvNote as NOTES,"
-                    + "i.InvAmount as ADJUSTMENT_QTY , "
+                    + "if(InvTransferFlag=0,i.InvAmount,0) as ACTUAL_QTY , "
+                    + "if(InvTransferFlag=1,i.InvAmount,0) as ADJUSTMENT_QTY , "
                     + "date_format(CONCAT(i.Period),\"%Y-%m-%d\") as INVENTORY_DATE,'' as REGION_ID,  "
                     + " 0 as REALM_COUNTRY_PLANNING_UNIT_ID,"
                     + " 0 as MULTIPLIER "
@@ -1177,6 +1185,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("DATA_SOURCE_ID", ppu.getDataSourceId());
             params.put("INVENTORY_DATE", ppu.getInventoryDate());
             params.put("NOTES", ppu.getNotes());
+            params.put("ACTUAL_QTY", ppu.getInventory());
             params.put("ADJUSTMENT_QTY", ppu.getManualAdjustment());
             params.put("PIPELINE_ID", pipelineId);
             params.put("REALM_COUNTRY_PLANNING_UNIT_ID", ppu.getRealmCountryPlanningUnitId());
@@ -1226,7 +1235,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     @Override
     @Transactional
     public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser) {
-        Program p = this.getQatTempProgram(curUser, pipelineId);
+        QatTempProgram p = this.getQatTempProgram(curUser, pipelineId);
         String programCode = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser).getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
         p.setProgramCode(programCode);
         Map<String, Object> params = new HashMap<>();
@@ -1470,6 +1479,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
          */
         rowsEffected = 0;
         String sql1 = "SELECT "
+                + "i.ACTUAL_QTY,"
                 + "i.ADJUSTMENT_QTY,"
                 + "i.DATA_SOURCE_ID, "
                 + "i.INVENTORY_DATE,"
@@ -1499,7 +1509,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("REGION_ID", inv.getRegionId());
             params.put("REALM_COUNTRY_PLANNING_UNIT_ID", inv.getRealmCountryPlanningUnitId());
             params.put("INVENTORY_DATE", inv.getInventoryDate());
-            params.put("ACTUAL_QTY", 0);
+            params.put("ACTUAL_QTY", inv.getInventory());
             params.put("ADJUSTMENT_QTY", inv.getManualAdjustment());
             params.put("DATA_SOURCE_ID", inv.getDataSourceId());
             params.put("NOTES", inv.getNotes());
@@ -1593,7 +1603,7 @@ params.put("PIPELINE_ID", pipelineId);
                     + "OR upper(al.LABEL_FR)=upper(ds.FundingSourceName)  "
                     + "OR upper(al.LABEL_SP)=upper(ds.FundingSourceName)  "
                     + "OR upper(al.LABEL_PR)=upper(ds.FundingSourceName) "
-                    + "left join rm_funding_source rds on rds.LABEL_ID=al.LABEL_ID AND al.LABEL_ID IS NOT NULL "
+                    + "left join rm_funding_source rds on (rds.LABEL_ID=al.LABEL_ID AND al.LABEL_ID IS NOT NULL) or upper(rds.FUNDING_SOURCE_CODE)=upper(ds.FundingSourceName) "
                 + "where ds.PIPELINE_ID=:pipelineId;";
         params.put("pipelineId", pipelineId);
            
@@ -1648,7 +1658,7 @@ params.put("PIPELINE_ID", pipelineId);
                     + "OR upper(al.LABEL_FR)=upper(ds.SupplierName)  "
                     + "OR upper(al.LABEL_SP)=upper(ds.SupplierName)  "
                     + "OR upper(al.LABEL_PR)=upper(ds.SupplierName) "
-                    + "left join rm_procurement_agent rds on rds.LABEL_ID=al.LABEL_ID AND al.LABEL_ID IS NOT NULL "
+                    + "left join rm_procurement_agent rds on (rds.LABEL_ID=al.LABEL_ID AND al.LABEL_ID IS NOT NULL) or upper(rds.PROCUREMENT_AGENT_CODE)=upper(ds.SupplierName) "
                 + "where ds.PIPELINE_ID=:pipelineId;";
         params.put("pipelineId", pipelineId);
            

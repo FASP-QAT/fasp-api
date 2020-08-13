@@ -7,7 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.PipelineDbDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.pipeline.QatTempProgram;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.PplConsumption;
@@ -54,12 +54,12 @@ public class PipelineDbServiceImpl implements PipelineDbService {
 
     @Override
 
-    public int addQatTempProgram(Program p, CustomUserDetails curUser, int pipelineId) {
+    public int addQatTempProgram(QatTempProgram p, CustomUserDetails curUser, int pipelineId) {
         return this.pipelineDbDao.addQatTempProgram(p, curUser, pipelineId);
     }
 
     @Override
-    public Program getQatTempProgram(CustomUserDetails curUser, int pipelineId) {
+    public QatTempProgram getQatTempProgram(CustomUserDetails curUser, int pipelineId) {
         return this.pipelineDbDao.getQatTempProgram(curUser, pipelineId);
     }
 

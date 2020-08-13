@@ -6,7 +6,7 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.pipeline.QatTempProgram;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.QatTempConsumption;
@@ -105,7 +105,7 @@ public class PipelineDbRestController {
     }
 
     @PostMapping(path = "/qatTemp/program/{pipelineId}")
-    public ResponseEntity postQatTempProgram(@RequestBody Program program, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
+    public ResponseEntity postQatTempProgram(@RequestBody QatTempProgram program, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.pipelineDbService.addQatTempProgram(program, curUser, pipelineId);

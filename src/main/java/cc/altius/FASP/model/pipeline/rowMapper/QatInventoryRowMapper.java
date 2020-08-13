@@ -21,6 +21,7 @@ public class QatInventoryRowMapper implements RowMapper<QatTempInventory>{
         QatTempInventory i = new QatTempInventory();
         i.setDataSourceId(rs.getString("DATA_SOURCE_ID"));
         i.setInventoryDate(rs.getString("INVENTORY_DATE"));
+        i.setInventory(rs.getInt("ACTUAL_QTY"));
         i.setManualAdjustment(rs.getInt("ADJUSTMENT_QTY"));
         i.setNotes(rs.getString("NOTES"));
         i.setPlanningUnitId(rs.getString("PLANNING_UNIT_ID"));
