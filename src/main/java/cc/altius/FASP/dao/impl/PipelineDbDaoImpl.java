@@ -1209,7 +1209,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     public List<QatTempPlanningUnitInventoryCount> getQatTempPlanningUnitListInventoryCount(int pipelineId, CustomUserDetails curUser) {
         String sql = "SELECT al.LABEL_ID,pu.PLANNING_UNIT_ID,al.LABEL_EN,al.LABEL_FR, "
                 + "al.LABEL_PR,al.LABEL_SP, "
-                + "(coalesce(SUM(i.ADJUSTMENT_QTY),0)  "
+                + "(if(i.ACTUAL_QTY=0,coalesce(SUM(i.ADJUSTMENT_QTY),0),0)+ coalesce(SUM(i.ACTUAL_QTY),0) "
                 + "+coalesce(SUM(s.QUANTITY),0)- "
                 + "coalesce(SUM(c.consumptionQty),0)) as finalInventory "
                 + "FROM fasp.qat_temp_program_planning_unit pu "
@@ -1431,7 +1431,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("SHIPMENT_QTY", s.getQuantity());
             params.put("RATE", s.getRate());
             params.put("PRODUCT_COST", s.getProductCost());
-            params.put("SHIPMENT_MODE", s.getShipmentMode());
+            params.put("SHIPMENT_MODE", s.getShipmentMode()=="Air"?s.getShipmentMode():"Sea");
             params.put("FREIGHT_COST", s.getFreightCost());
 
             params.put("PLANNED_DATE", s.getPlannedDate());
@@ -1486,12 +1486,15 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "i.REGION_ID,"
                 + "i.PLANNING_UNIT_ID,"
                 + "i.NOTES, "
-                + "i.REALM_COUNTRY_PLANNING_UNIT_ID,"
+                + "rcpu.REALM_COUNTRY_PLANNING_UNIT_ID,"
                 + "i.REGION_ID,  "
                 + "i.MULTIPLIER "
-                + "FROM fasp.qat_temp_inventory i where i.PIPELINE_ID=:pipelineId;";
+                + "FROM fasp.qat_temp_inventory i"
+                + " left join rm_realm_country_planning_unit rcpu on rcpu.PLANNING_UNIT_ID=i.PLANNING_UNIT_ID and rcpu.REALM_COUNTRY_ID=:realmCountryId"
+                + " where i.PIPELINE_ID=:pipelineId;";
 
         params.put("pipelineId", pipelineId);
+params.put("realmCountryId", p.getRealmCountry().getRealmCountryId());
         List<QatTempInventory> pipelineInventorys = this.namedParameterJdbcTemplate.query(sql1, params, new QatInventoryRowMapper());
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_inventory");
         si_trans = new SimpleJdbcInsert(dataSource).withTableName("rm_inventory_trans");
