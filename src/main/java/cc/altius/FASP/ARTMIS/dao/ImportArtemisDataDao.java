@@ -5,8 +5,10 @@
  */
 package cc.altius.FASP.ARTMIS.dao;
 
+import cc.altius.FASP.model.Shipment;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 

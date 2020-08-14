@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package cc.altius.FASP.service;
+package cc.altius.FASP.ARTMIS.service;
 
 import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,4 +16,5 @@ import org.xml.sax.SAXException;
 public interface ImportArtemisDataService {
 
     public void importOrderAndShipmentData(String orderDataFilePath, String shipmentDataFilePath) throws ParserConfigurationException, SAXException, IOException;
+
 }

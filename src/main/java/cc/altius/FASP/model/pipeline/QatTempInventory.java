@@ -15,6 +15,7 @@ public class QatTempInventory {
     private String dataSourceId;
     private String regionId;
     private String inventoryDate;
+    private int inventory;
     private int manualAdjustment;
     private String notes;
     private boolean active;
@@ -25,11 +26,12 @@ public class QatTempInventory {
 
     }
 
-    public QatTempInventory(String planningUnitId, String dataSourceId, String regionId, String inventoryDate, int manualAdjustment, String notes, boolean active,int realmCountryPlanningUnitId,double  multiplier) {
+    public QatTempInventory(String planningUnitId, String dataSourceId, String regionId, String inventoryDate, int inventory,int manualAdjustment, String notes, boolean active,int realmCountryPlanningUnitId,double  multiplier) {
         this.planningUnitId = planningUnitId;
         this.dataSourceId = dataSourceId;
         this.regionId = regionId;
         this.inventoryDate = inventoryDate;
+        this.inventory=inventory;
         this.manualAdjustment = manualAdjustment;
         this.notes = notes;
         this.active = active;
@@ -87,6 +89,13 @@ public class QatTempInventory {
         this.inventoryDate = inventoryDate;
     }
 
+     public int getInventory() {
+        return inventory;
+    }
+
+    public void setInventory(int inventory) {
+        this.inventory = inventory;
+    }
     public int getManualAdjustment() {
         return manualAdjustment;
     }
