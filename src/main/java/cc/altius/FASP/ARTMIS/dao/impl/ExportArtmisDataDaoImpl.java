@@ -44,7 +44,7 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
     @Override
     public List<ExportOrderDataDTO> exportOrderData() {
         String sql = "SELECT s1.SHIPMENT_ID, papu.SKU_CODE, s1.PROGRAM_ID, pa.PROCUREMENT_AGENT_CODE, st.SHIPMENT_QTY, "
-                + "COALESCE(st.`RECEIVED_DATE`,st.EXPECTED_DELIVERY_DATE)  AS EXPECTED_DELIVERY_DATE "
+                + "COALESCE(st.`RECEIVED_DATE`,st.EXPECTED_DELIVERY_DATE)  AS EXPECTED_DELIVERY_DATE,st.`ACTIVE` "
                 + "FROM "
                 + "( "
                 + "    SELECT s.SHIPMENT_ID, s.PROGRAM_ID, MAX(st.SHIPMENT_TRANS_ID) SHIPMENT_TRANS_ID, s.MAX_VERSION_ID "

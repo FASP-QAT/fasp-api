@@ -49,7 +49,7 @@ public class DashboardDaoImpl implements DashboardDao {
         //Supply plan waiting for approval
         sql = " SELECT COUNT(*) FROM rm_program_version pv "
                 + " LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
-                + " WHERE TRUE AND  pv.`VERSION_STATUS_ID`=1; ";
+                + " WHERE TRUE AND  pv.`VERSION_STATUS_ID`=1 AND pv.`VERSION_TYPE_ID`=2; ";
         map.put("SUPPLY_PLAN_COUNT", this.jdbcTemplate.queryForObject(sql, Integer.class));
         return map;
     }
@@ -82,7 +82,7 @@ public class DashboardDaoImpl implements DashboardDao {
         sql = " SELECT COUNT(*) FROM rm_program_version pv "
                 + " LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
                 + " LEFT JOIN rm_realm_country rc ON rc.`REALM_COUNTRY_ID`=p.`REALM_COUNTRY_ID` "
-                + " WHERE TRUE AND  pv.`VERSION_STATUS_ID`=1  AND rc.`REALM_ID`=?; ";
+                + " WHERE TRUE AND  pv.`VERSION_STATUS_ID`=1 AND pv.`VERSION_TYPE_ID`=2  AND rc.`REALM_ID`=?; ";
         map.put("SUPPLY_PLAN_COUNT", this.jdbcTemplate.queryForObject(sql, Integer.class, realmId));
 
         return map;
