@@ -32,7 +32,7 @@ public class PlanningUnitRowMapper implements RowMapper<PlanningUnit> {
                         new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TRACER_CATEGORY_").mapRow(rs, rowNum))
                 ),
                 new LabelRowMapper().mapRow(rs, rowNum),
-                new SimpleObject(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, rowNum)),
+                new SimpleCodeObject(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, rowNum), rs.getString("UNIT_CODE")),
                 rs.getDouble("MULTIPLIER")
         );
         pu.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));

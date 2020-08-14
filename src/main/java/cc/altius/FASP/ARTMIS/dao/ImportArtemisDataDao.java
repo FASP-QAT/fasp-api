@@ -16,5 +16,6 @@ import org.xml.sax.SAXException;
  */
 public interface ImportArtemisDataDao {
 
-    public void importOrderAndShipmentData(String orderDataFilePath, String shipmentDataFilePath) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException;
+    public void importOrderAndShipmentData(String orderDataFilePath, String shipmentDataFilePath) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, Exception;
+    
 }
