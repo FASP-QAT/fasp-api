@@ -43,7 +43,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
     @Override
 //    @Transactional(propagation = Propagation.REQUIRED)
 //    @Transactional
-    public void importProductCatalogue(String filePath) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException {
+    public void importProductCatalogue() throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException {
         EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
         String[] subjectParam = new String[]{};
         String[] bodyParam = null;
@@ -53,7 +53,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         try {
             File directory = new File(CATALOG_FILE_PATH);
             if (directory.isDirectory()) {
-                this.importProductCatalogueDao.importProductCatalogue(filePath);
+                this.importProductCatalogueDao.importProductCatalogue();
 //            this.importProductCatalogueDao.pullUnitTable();
 //        this.importProductCatalogueDao.pullTracerCategoryFromTmpTables();
 //        this.importProductCatalogueDao.pullForecastingUnitFromTmpTables();
@@ -77,6 +77,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
             logger.error("File not found exception occured", e);
+            this.importProductCatalogueDao.rollBackAutoIncrement();
         } catch (SAXException e) {
             subjectParam = new String[]{"Product Catalogue", "Xml syntax error"};
             bodyParam = new String[]{"Product Catalogue", date, "Xml syntax error", e.getMessage()};
@@ -85,6 +86,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
             logger.error("SAX exception occured", e);
+            this.importProductCatalogueDao.rollBackAutoIncrement();
         } catch (IOException e) {
             subjectParam = new String[]{"Product Catalogue", "Input/Output error"};
             bodyParam = new String[]{"Product Catalogue", date, "Input/Output error", e.getMessage()};
@@ -93,6 +95,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
             logger.error("IO exception occured", e);
+            this.importProductCatalogueDao.rollBackAutoIncrement();
         } catch (BadSqlGrammarException | DataIntegrityViolationException e) {
             subjectParam = new String[]{"Product Catalogue", "SQL Exception"};
             bodyParam = new String[]{"Product Catalogue", date, "SQL Exception", e.getMessage()};
@@ -101,6 +104,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
             logger.error("SQL exception occured", e);
+            this.importProductCatalogueDao.rollBackAutoIncrement();
         } catch (Exception e) {
             subjectParam = new String[]{"Product Catalogue", e.getClass().toString()};
             bodyParam = new String[]{"Product Catalogue", date, e.getClass().toString(), e.getMessage()};
@@ -109,6 +113,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
             logger.error("Export supply plan exception occured", e);
+            this.importProductCatalogueDao.rollBackAutoIncrement();
         }
     }
 

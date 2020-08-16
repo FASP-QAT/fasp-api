@@ -796,11 +796,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             for (SupplyPlanDate sd : sp.getSupplyPlanDateList()) {
                 for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
                     int prevCB = sp.getPrevClosingBalance(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
-                    spbi.setOpeningBalance(prevCB);
+                    spbi.setOpeningBalance(prevCB, sd.getTransDate());
                     sd.setUnallocatedConsumption(spbi.updateUnAllocatedCountAndExpiredStock(sd.getTransDate(), sd.getUnallocatedConsumption()));
 
                     int prevCBWps = sp.getPrevClosingBalanceWps(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
-                    spbi.setOpeningBalanceWps(prevCBWps);
+                    spbi.setOpeningBalanceWps(prevCBWps, sd.getTransDate());
                     sd.setUnallocatedConsumptionWps(spbi.updateUnAllocatedCountAndExpiredStockWps(sd.getTransDate(), sd.getUnallocatedConsumptionWps()));
                 }
                 int unallocatedConsumption = sd.getUnallocatedConsumption();
@@ -863,7 +863,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public List<Batch> getBatchList(int programId, int versionId) {
-        String sqlString = "SELECT bi.BATCH_ID, bi.BATCH_NO, bi.PROGRAM_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.EXPIRY_DATE, bi.CREATED_DATE FROM rm_batch_info bi WHERE bi.PROGRAM_ID=:programId";
+        String sqlString = "SELECT bi.BATCH_ID, bi.BATCH_NO, bi.PROGRAM_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.`AUTO_GENERATED`, bi.EXPIRY_DATE, bi.CREATED_DATE FROM rm_batch_info bi WHERE bi.PROGRAM_ID=:programId";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new BatchRowMapper());
@@ -1080,11 +1080,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         for (SupplyPlanDate sd : sp.getSupplyPlanDateList()) {
             for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
                 int prevCB = sp.getPrevClosingBalance(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
-                spbi.setOpeningBalance(prevCB);
+                spbi.setOpeningBalance(prevCB, sd.getTransDate());
                 sd.setUnallocatedConsumption(spbi.updateUnAllocatedCountAndExpiredStock(sd.getTransDate(), sd.getUnallocatedConsumption()));
-
                 int prevCBWps = sp.getPrevClosingBalanceWps(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
-                spbi.setOpeningBalanceWps(prevCBWps);
+                spbi.setOpeningBalanceWps(prevCBWps, sd.getTransDate());
                 sd.setUnallocatedConsumptionWps(spbi.updateUnAllocatedCountAndExpiredStockWps(sd.getTransDate(), sd.getUnallocatedConsumptionWps()));
             }
             int unallocatedConsumption = sd.getUnallocatedConsumption();
@@ -1127,6 +1126,24 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     public int updateSentToARTMISFlag(String programVersionIds) {
         String sql = "UPDATE rm_program_version p SET p.`SENT_TO_ARTMIS`=1 WHERE p.`PROGRAM_VERSION_ID` IN (" + programVersionIds + ");";
         return this.jdbcTemplate.update(sql);
+    }
+
+    @Override
+    public List<Shipment> getShipmentListForSync(int programId, int versionId, String lastSyncDate) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        params.put("lastSyncDate", lastSyncDate);
+        return this.namedParameterJdbcTemplate.query("CALL getShipmentDataForSync(:programId, :versionId, :lastSyncDate)", params, new ShipmentListResultSetExtractor());
+    }
+
+    @Override
+    public List<Batch> getBatchListForSync(int programId, int versionId, String lastSyncDate) {
+        String sqlString = "SELECT bi.BATCH_ID, bi.BATCH_NO, bi.PROGRAM_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.`AUTO_GENERATED`, bi.EXPIRY_DATE, bi.CREATED_DATE FROM rm_batch_info bi WHERE bi.PROGRAM_ID=:programId AND bi.CREATED_DATE > :lastSyncDate";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("lastSyncDate", lastSyncDate);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new BatchRowMapper());
     }
 
 }

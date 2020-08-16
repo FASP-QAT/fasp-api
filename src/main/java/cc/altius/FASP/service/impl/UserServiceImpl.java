@@ -22,6 +22,7 @@ import cc.altius.FASP.service.UserService;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -43,9 +44,11 @@ public class UserServiceImpl implements UserService {
 
 //    @Value("${urlHost}")
 //    private static String HOST_URL = "http://localhost:4202/#";
-    private static String HOST_URL = "https://uat.quantificationanalytics.org/#";
-//    @Value("${urlPasswordReset}")
-    private static String PASSWORD_RESET_URL = "resetPassword";
+//    private static String HOST_URL = "https://uat.quantificationanalytics.org/#";
+    @Value("${urlHost}")
+    private String HOST_URL;
+    @Value("${urlPasswordReset}")
+    private String PASSWORD_RESET_URL;
 
     @Override
     public CustomUserDetails getCustomUserByUsername(String username) {

@@ -6,7 +6,7 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.pipeline.QatTempProgram;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.QatTempConsumption;
@@ -31,6 +31,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import cc.altius.FASP.model.pipeline.QatTempDataSource;
+import cc.altius.FASP.model.pipeline.QatTempFundingSource;
+import cc.altius.FASP.model.pipeline.QatTempProcurementAgent;
 
 /**
  *
@@ -102,7 +105,7 @@ public class PipelineDbRestController {
     }
 
     @PostMapping(path = "/qatTemp/program/{pipelineId}")
-    public ResponseEntity postQatTempProgram(@RequestBody Program program, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
+    public ResponseEntity postQatTempProgram(@RequestBody QatTempProgram program, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.pipelineDbService.addQatTempProgram(program, curUser, pipelineId);
@@ -274,5 +277,84 @@ public class PipelineDbRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+ @PutMapping("/pipeline/datasource/{pipelineId}")
+    public ResponseEntity saveDataSourceForProgram(@RequestBody QatTempDataSource[] ppu, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            this.pipelineDbService.saveQatTempDataSource(ppu, curUser, pipelineId);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to update DataSource for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to update DataSource for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/qatTemp/datasource/{pipelineId}")
+    public ResponseEntity getQatTempDataSourceList(Authentication auth, @PathVariable("pipelineId") int pipelineId) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.pipelineDbService.getQatTempDataSourceListByPipelienId(pipelineId, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list PlanningUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+@PutMapping("/pipeline/fundingsource/{pipelineId}")
+    public ResponseEntity saveFundingSourceForProgram(@RequestBody QatTempFundingSource[] ppu, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            this.pipelineDbService.saveQatTempFundingSource(ppu, curUser, pipelineId);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to update FundingSource for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to update PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/qatTemp/fundingsource/{pipelineId}")
+    public ResponseEntity getQatTempFundingSourceList(Authentication auth, @PathVariable("pipelineId") int pipelineId) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.pipelineDbService.getQatTempFundingSourceListByPipelienId(pipelineId, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list FundingSource", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+@PutMapping("/pipeline/procurementagent/{pipelineId}")
+    public ResponseEntity saveProcurementAgentForProgram(@RequestBody QatTempProcurementAgent[] ppu, Authentication auth, @PathVariable("pipelineId") int pipelineId) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            this.pipelineDbService.saveQatTempProcurementAgent(ppu, curUser, pipelineId);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to update ProcurementAgent for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to update PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/qatTemp/procurementagent/{pipelineId}")
+    public ResponseEntity getQatTempProcurementAgentList(Authentication auth, @PathVariable("pipelineId") int pipelineId) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.pipelineDbService.getQatTempProcurementAgentListByPipelienId(pipelineId, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list ProcurementAgent", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
 
 }

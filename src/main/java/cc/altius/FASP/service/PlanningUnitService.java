@@ -30,13 +30,15 @@ public interface PlanningUnitService {
     public PlanningUnit getPlanningUnitById(int planningUnitId, CustomUserDetails curUser);
 
     public List<PlanningUnitCapacity> getPlanningUnitCapacityForRealm(int realmId, String startDate, String stopDate, CustomUserDetails curUser) throws ParseException;
-    
+
     public List<PlanningUnitCapacity> getPlanningUnitCapacityForId(int planningUnitId, String startDate, String stopDate, CustomUserDetails curUser) throws ParseException;
+
+    public List<PlanningUnitCapacity> getPlanningUnitCapacityList(CustomUserDetails curUser);
 
     public int savePlanningUnitCapacity(PlanningUnitCapacity[] planningUnitCapacitys, CustomUserDetails curUser) throws ParseException;
 
     public List<PlanningUnit> getPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
-    
+
     public List<PlanningUnit> getPlanningUnitListForProductCategory(int productCategoryId, boolean active, CustomUserDetails curUser);
 
 }

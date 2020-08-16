@@ -17,17 +17,7 @@ import org.xml.sax.SAXException;
  */
 public interface ImportProductCatalogueDao {
 
-    public void importProductCatalogue(String filePath) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException;
+    public void importProductCatalogue() throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException;
 
-    public void pullUnitTable();
-
-    public void pullTracerCategoryFromTmpTables();
-
-    public void pullForecastingUnitFromTmpTables();
-
-    public void pullPlanningUnitFromTmpTables();
-
-    public void pullSupplierFromTmpTables();
-
-    public void pullProcurementUnitFromTmpTables();
+    public void rollBackAutoIncrement();
 }
