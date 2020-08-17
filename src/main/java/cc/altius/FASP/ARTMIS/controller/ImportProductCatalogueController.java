@@ -26,8 +26,8 @@ public class ImportProductCatalogueController {
     @RequestMapping(value = "importProductCatalog")
 //    @Scheduled(cron = "00 */05 * * * *")
     public void importProductcatalogue() throws ParserConfigurationException, SAXException, IOException {
-        String orderDataFilePath = "/home/akil/Documents/Altius/Software/FHI360/Artmis Data Import";
-        this.importProductCatalogueService.importProductCatalogue(orderDataFilePath);
+//        String orderDataFilePath = "/home/akil/Documents/Altius/Software/FHI360/Artmis Data Import";
+        this.importProductCatalogueService.importProductCatalogue();
 
     }
 }

@@ -915,6 +915,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "AND (:versionStatusId = -1 OR pv.VERSION_STATUS_ID = :versionStatusId) "
                 + "AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate ");
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        System.out.println("params---"+params);
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ProgramVersionRowMapper());
 
     }

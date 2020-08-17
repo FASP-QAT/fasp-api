@@ -6,8 +6,20 @@
 package cc.altius.FASP.ARTMIS.dao.impl;
 
 import cc.altius.FASP.ARTMIS.dao.ImportProductCatalogueDao;
+import cc.altius.FASP.model.DTO.PlanningUnitArtmisPull;
+import cc.altius.FASP.model.DTO.ProcurementUnitArtmisPull;
+import cc.altius.FASP.model.DTO.rowMapper.PlanningUnitArtmisPullRowMapper;
+import cc.altius.FASP.model.DTO.rowMapper.ProcurementUnitArtmisPullRowMapper;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
+import cc.altius.FASP.model.ForecastingUnit;
+import cc.altius.FASP.model.Supplier;
+import cc.altius.FASP.model.TracerCategory;
+import cc.altius.FASP.model.Unit;
+import cc.altius.FASP.model.rowMapper.ForecastingUnitRowMapper;
+import cc.altius.FASP.model.rowMapper.SupplierRowMapper;
+import cc.altius.FASP.model.rowMapper.TracerCategoryRowMapper;
+import cc.altius.FASP.model.rowMapper.UnitRowMapper;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.utils.FileNameComparator;
 import cc.altius.utils.DateUtils;
@@ -15,11 +27,13 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -30,10 +44,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Primary;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
@@ -47,6 +63,7 @@ import org.xml.sax.SAXException;
  * @author altius
  */
 @Repository
+@Primary
 public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao {
 
     private JdbcTemplate jdbcTemplate;
@@ -80,7 +97,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         Emailer emailer = new Emailer();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
         String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
-        String filepath, fileList = "";
+        String fileList = "";
         File dir = new File(CATALOG_FILE_PATH);
         FileFilter fileFilter = new WildcardFileFilter("item_data_*.xml");
         File[] files = dir.listFiles(fileFilter);
@@ -133,7 +150,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     MapSqlParameterSource[] batchParams = new MapSqlParameterSource[nList1.getLength()];
                     Map<String, Object> map = new HashedMap<String, Object>();
                     int x = 0;
-
+                    logger.info("######################################################################");
+                    logger.info("Starting import for file " + fXmlFile.getName());
+                    logger.info("######################################################################");
                     logger.info("Going to drop tmp_product_catalog");
 //                sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_product_catalog`";
                     sqlString = "DROP TABLE IF EXISTS `tmp_product_catalog`";
@@ -336,842 +355,19 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     int dRows = this.jdbcTemplate.update(sqlString);
                     logger.info("Delted rows from tmp_product_catalog because the TaskOrder was UNKNOWN ---" + dRows);
 
-                    sqlString = "SELECT COUNT(*) FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '';";
-                    logger.info("rows with product name no pack ---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-
-                    // --------------------------Unit Table-----------------------
-                    logger.info("Going to drop tmp_unit");
-//                sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_unit`";
-                    sqlString = "DROP TABLE IF EXISTS `tmp_unit`";
-                    this.jdbcTemplate.execute(sqlString);
-
-                    logger.info("Successfully droped tmp_unit");
-                    logger.info("Going to create tmp_unit");
-//                sqlString = "CREATE TEMPORARY TABLE `tmp_unit` ( "
-                    sqlString = "CREATE TABLE `tmp_unit` ( "
-                            + " `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
-                            + " `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
-                            + " `UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                            + " `LABEL_ID` int (10) unsigned DEFAULT NULL, "
-                            + " `DIMENSION_ID` int (10) unsigned DEFAULT NULL, "
-                            + " PRIMARY KEY (`ID`) "
-                            + " ) ENGINE = InnoDB DEFAULT CHARSET = utf8 COLLATE = utf8_bin";
-                    this.jdbcTemplate.execute(sqlString);
-                    logger.info("Successfully created tmp_unit");
-
-                    sqlString = "ALTER TABLE  `tmp_unit` ADD UNIQUE INDEX `index2` (`LABEL` ASC)";
-                    this.jdbcTemplate.execute(sqlString);
-
-                    sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, BaseUnit, NULL, NULL, NULL FROM tmp_product_catalog WHERE BaseUnit IS NOT NULL AND BaseUnit != '' GROUP BY BaseUnit";
-                    logger.info(sqlString + " -> " + this.jdbcTemplate.update(sqlString));
-                    sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, OrderUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE OrderUOM IS NOT NULL AND OrderUOM != '' GROUP BY OrderUOM";
-                    logger.info(sqlString + " -> " + this.jdbcTemplate.update(sqlString));
-                    sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, WeightUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE WeightUOM IS NOT NULL AND WeightUOM != '' GROUP BY WeightUOM";
-                    logger.info(sqlString + " -> " + this.jdbcTemplate.update(sqlString));
-                    sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, HeightUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE HeightUOM IS NOT NULL AND HeightUOM != '' GROUP BY HeightUOM";
-                    logger.info(sqlString + " -> " + this.jdbcTemplate.update(sqlString));
-
-                    sqlString = "SELECT COUNT(*) FROM tmp_unit;";
-                    logger.info("Total rows inserted in tmp_unit---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-
-                    sqlString = "UPDATE ap_unit au "
-                            + "LEFT JOIN ap_label al ON au.LABEL_ID = al.LABEL_ID "
-                            + "LEFT JOIN tmp_unit tu ON au.`UNIT_CODE` = tu.LABEL OR al.LABEL_EN=tu.LABEL "
-                            + "SET tu.UNIT_ID = au.UNIT_ID WHERE tu.ID IS NOT NULL;";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "SELECT * FROM tmp_unit tu where tu.UNIT_ID IS NULL";
-                    List<Map<String, Object>> result = this.jdbcTemplate.queryForList(sqlString);
-                    Scanner s = new Scanner(System.in);
-                    boolean validData = false;
-                    for (Map<String, Object> u : result) {
-                        validData = false;
-                        do {
-                            logger.info("---------------------------------------------------------------------------");
-                            logger.info("Please select the Dimension for this Unit. (Only enter the number)");
-                            logger.info("Possible Dimension values are Volume(1), Weight(2), Each(3), Distance(4)");
-                            logger.info("Unit: " + u.get("LABEL"));
-                            String input = s.nextLine();
-                            if (input.equals("1") || input.equals("2") || input.equals("3") || input.equals("4")) {
-                                validData = true;
-                                this.jdbcTemplate.update("UPDATE tmp_unit SET DIMENSION_ID=? WHERE ID=?", input, u.get("ID"));
-                            }
-                        } while (!validData);
-                    }
-
-                    sqlString = "SELECT MAX(LABEL_ID) FROM ap_label";
-                    int max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-
-                    sqlString = "INSERT INTO ap_label SELECT NULL, tu.LABEL, NULL, NULL, NULL, 1, NOW(), 1, NOW() FROM tmp_unit tu WHERE tu.UNIT_ID IS NULL";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "UPDATE tmp_unit tu LEFT JOIN ap_label l ON tu.LABEL=l.LABEL_EN AND l.LABEL_ID>" + max + " SET tu.LABEL_ID=l.LABEL_ID WHERE tu.UNIT_ID IS NULL";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "SELECT COUNT(*) FROM ap_unit;";
-                    logger.info("Total rows available in ap_unit---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-
-                    sqlString = "INSERT INTO ap_unit SELECT  null, tu.DIMENSION_ID, tu.LABEL_ID, tu.LABEL, true, 1, now(), 1, now() from tmp_unit tu where tu.UNIT_ID is null";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "SELECT COUNT(*) FROM ap_unit;";
-                    logger.info("Total new rows inserted in ap_unit---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-
+//                    sqlString = "SELECT COUNT(*) FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '';";
+//                    logger.info("rows with product name no pack ---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
                     sqlString = "SELECT COUNT(*) FROM tmp_product_catalog;";
-                    logger.info("Total rows inserted in tmp_unit---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
+                    logger.info("Total rows inserted in tmp_product_catalog---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
+                    pullUnit();
+                    pullTracerCategory();
+                    pullProductCategory();
+                    pullForecastingUnit();
+                    pullPlanningUnit();
+                    pullSupplier();
+                    pullProcurementUnit();
 
-                    // ---------------------Tracer Category------------------
-                    max = 0;
-
-                    // Step 1 - Drop the table if it exists
-//                sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_tracer_category`";
-                    sqlString = "DROP TABLE IF EXISTS `tmp_tracer_category`";
-                    this.jdbcTemplate.update(sqlString);
-
-                    // Step 2 - Create the tmp table
-//                sqlString = "CREATE TEMPORARY TABLE `tmp_tracer_category` ( "
-                    sqlString = "CREATE TABLE `tmp_tracer_category` ( "
-                            + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
-                            + "  `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
-                            + "  `TRACER_CATEGORY_ID` int(10) unsigned DEFAULT NULL, "
-                            + "  `LABEL_ID` int (10) unsigned DEFAULT NULL, "
-                            + "  PRIMARY KEY (`ID`) "
-                            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
-                    this.jdbcTemplate.update(sqlString);
-
-                    // Step 3 insert into the tmp_tracer all the data that you can get from 
-                    //        product_catalog that you just imported
-                    sqlString = "INSERT INTO tmp_tracer_category "
-                            + "SELECT NULL, TracerCategory, NULL, NULL "
-                            + "FROM tmp_product_catalog WHERE TracerCategory IS NOT NULL AND TracerCategory != '' GROUP BY TracerCategory";
-                    int rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " inserted into the tmp_tracer_category table");
-
-                    // Step 4 Match those records that are already present in the main tracer_category table
-                    sqlString = "UPDATE rm_tracer_category tc "
-                            + "LEFT JOIN ap_label tcl ON tc.LABEL_ID=tcl.LABEL_ID "
-                            + "LEFT JOIN tmp_tracer_category ttc ON tcl.LABEL_EN=ttc.LABEL "
-                            + "SET ttc.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID "
-                            + "WHERE ttc.ID IS NOT NULL";
-
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " existing labels found");
-
-                    // Step 5 Get the max count on the label table so that you can now work on data that you insert from here on
-                    sqlString = "SELECT MAX(LABEL_ID) m FROM ap_label";
-                    max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-                    logger.info(max + " is the current Max count for ap_label");
-
-                    // Step 6 Insert the rows that you do not have in tracer already into the label table
-                    sqlString = "INSERT INTO ap_label SELECT NULL, ttc.LABEL, NULL, NULL, NULL, 1, NOW(), 1, NOW() "
-                            + "FROM tmp_tracer_category ttc "
-                            + "WHERE ttc.TRACER_CATEGORY_ID IS NULL AND ttc.`LABEL` !=''";
-
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows inserted into the ap_label table");
-
-                    // Step 7 Now find the LABEL_ID for the rows that you just inserted and update your tmp table with those
-                    sqlString = "UPDATE tmp_tracer_category ttc "
-                            + "LEFT JOIN ap_label l ON ttc.LABEL=l.LABEL_EN "
-                            + "AND l.LABEL_ID>? "
-                            + "SET ttc.LABEL_ID=l.LABEL_ID "
-                            + "WHERE ttc.TRACER_CATEGORY_ID IS NULL";
-
-                    rows = this.jdbcTemplate.update(sqlString, max);
-                    logger.info(rows + " rows matched and LABEL_ID updated with new LABEL_ID");
-
-                    // Step 8 Finally take the Labels and 
-                    sqlString = "select count(*) from rm_tracer_category;";
-                    logger.info("Rows available in rm_tracer_category---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-
-                    sqlString = "INSERT INTO rm_tracer_category "
-                            + "SELECT NULL, 1, ttc.LABEL_ID, 1, 1, NOW(), 1, NOW() "
-                            + "FROM tmp_tracer_category ttc "
-                            + "WHERE ttc.TRACER_CATEGORY_ID IS NULL "
-                            + "AND ttc.LABEL_ID IS NOT NULL";
-
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " new rows inserted into the rm_tracer_category table");
-
-                    sqlString = "select count(*) from rm_tracer_category;";
-                    logger.info("Rows available in rm_tracer_category after insert---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-
-                    //------------Product Category-------------------------
-                    // Step 1: See if there are any new Commodity Councils
-                    sqlString = "SELECT tpc.CommodityCouncil FROM tmp_product_catalog tpc LEFT JOIN vw_product_category pc ON pc.REALM_ID=1 AND tpc.CommodityCouncil=right(pc.LABEL_EN, length(pc.LABEL_EN)-locate(\":\", pc.LABEL_EN)-1) WHERE pc.PRODUCT_CATEGORY_ID is null group by tpc.CommodityCouncil";
-                    logger.info("Checking if there are any new Commodity Councils");
-                    List<String> newProductCategoryList = this.jdbcTemplate.queryForList(sqlString, String.class);
-                    if (newProductCategoryList.size() > 0) {
-                        logger.info("New Commodity Council found so proceeding to enter those into the Product Category table");
-                        for (String pc : newProductCategoryList) {
-                            // Step 2: Get the highest CC (Commodity Council no in Product Category Table
-                            sqlString = "SELECT max(cast(right(left(pc.LABEL_EN, locate(':', pc.LABEL_EN)-1), length(left(pc.LABEL_EN, locate(':', pc.LABEL_EN)))-3) as UNSIGNED)) `maxCc` FROM vw_product_category pc where pc.REALM_ID=1 AND length(pc.SORT_ORDER)=5";
-                            int maxCc = this.jdbcTemplate.queryForObject(sqlString, Integer.class) + 1;
-                            String newCc = "CC " + maxCc + ": " + pc;
-                            // Step 3: Insert that into the label table
-                            sqlString = "INSERT INTO `ap_label` (`LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (? , null, null, null, 1, now(), 1, now())";
-                            this.jdbcTemplate.update(sqlString, newCc);
-                            int labelId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
-                            // Step 4: Then insert into the product_category table
-                            sqlString = "INSERT INTO `rm_product_category` (`REALM_ID`, `LABEL_ID`, `PARENT_PRODUCT_CATEGORY_ID`, `SORT_ORDER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, ?, 0, ?, 1, 1, now(), 1, now())";
-                            String sortOrder = "00." + String.format("%02d", maxCc);
-                            this.jdbcTemplate.update(sqlString, labelId, sortOrder);
-                            int productCategoryId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
-                            logger.info("Added " + newCc + " to the Product Category table");
-                            // Step 5: Now find all the SubCategories that are from the new CC and insert them
-                            sqlString = "SELECT tpc.Subcategory FROM tmp_product_catalog tpc where tpc.CommodityCouncil=? group by tpc.Subcategory";
-                            List<String> subCategoryList = this.jdbcTemplate.queryForList(sqlString, String.class, pc);
-                            int cnt = 1;
-                            for (String sc : subCategoryList) {
-                                // Step 6: Insert into the label table
-                                sqlString = "INSERT INTO `ap_label` (`LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (? , null, null, null, 1, now(), 1, now())";
-                                this.jdbcTemplate.update(sqlString, sc);
-                                labelId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
-                                // Step:7 Insert into the product category table
-                                sqlString = "INSERT INTO `rm_product_category` (`REALM_ID`, `LABEL_ID`, `PARENT_PRODUCT_CATEGORY_ID`, `SORT_ORDER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, ?, ?, ?, 1, 1, now(), 1, now())";
-                                this.jdbcTemplate.update(sqlString, labelId, productCategoryId, sortOrder + "." + String.format("%02d", cnt));
-                                cnt++;
-                                logger.info("Added " + sc + " under " + newCc + " to the ProductCategory table");
-                            }
-                        }
-                        // Step 9: Now find any new SubCategory that is not present in the ProductCategory table 
-                        logger.info("Checking if there are any new Subcategories that are not present in the Product Category table");
-                        sqlString = "SELECT tpc.Subcategory, pc2.SORT_ORDER, pc2.LABEL_EN, pc2.PRODUCT_CATEGORY_ID FROM tmp_product_catalog tpc LEFT JOIN vw_product_category pc1 ON pc1.REALM_ID=1 and pc1.LABEL_EN=tpc.Subcategory  LEFT JOIN vw_product_category pc2 ON pc2.REALM_ID=1 AND tpc.CommodityCouncil=right(pc2.LABEL_EN, length(pc2.LABEL_EN)-locate(':', pc2.LABEL_EN)-1) WHERE pc1.PRODUCT_CATEGORY_ID IS NULL  group by tpc.Subcategory";
-                        List<Map<String, Object>> subCategoryList = this.jdbcTemplate.queryForList(sqlString);
-                        for (Map<String, Object> sc : subCategoryList) {
-                            sqlString = "SELECT count(*) FROM vw_product_category pc WHERE pc.PARENT_PRODUCT_CATEGORY_ID=?";
-                            int maxCnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class, sc.get("PRODUCT_CATEGORY_ID"));
-                            sqlString = "INSERT INTO `ap_label` (`LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (? , null, null, null, 1, now(), 1, now())";
-                            this.jdbcTemplate.update(sqlString, sc.get("Subcategory"));
-                            int labelId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
-                            // Step:7 Insert into the product category table
-                            sqlString = "INSERT INTO `rm_product_category` (`REALM_ID`, `LABEL_ID`, `PARENT_PRODUCT_CATEGORY_ID`, `SORT_ORDER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, ?, ?, ?, 1, 1, now(), 1, now())";
-                            this.jdbcTemplate.update(sqlString, labelId, sc.get("PRODUCT_CATEGORY_ID"), sc.get("SORT_ORDER") + "." + String.format("%02d", maxCnt));
-                            logger.info("Added " + sc.get("Subcategory") + " under " + sc.get("LABEL_EN") + " to the ProductCategory table");
-                        }
-                    }
-
-                    //------------Forcasting Unit--------------------------
-                    max = 0;
-
-                    // Step 1 - Drop the table if it exists
-//                sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_label`";
-                    sqlString = "DROP TABLE IF EXISTS `tmp_label`";
-                    this.jdbcTemplate.update(sqlString);
-//                sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
-                    sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
-                    this.jdbcTemplate.update(sqlString);
-
-                    // Step 2 - Create the tmp table
-                    sqlString = "CREATE  TABLE `tmp_label` (  "
-                            + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
-                            + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
-                            + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,  "
-                            + "    `FOUND` tinyint(1) unsigned DEFAULT 0 NOT NULL, "
-                            + "    PRIMARY KEY (`ID`)  "
-                            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
-                    this.jdbcTemplate.update(sqlString);
-
-                    // Foreign keys dont work with temporary tables
-//        sqlString = "ALTER TABLE  `tmp_label`  "
-//                + "ADD INDEX `tmpLabel_label` (`LABEL` ASC), "
-//                + "ADD INDEX `fk_tmpLabel_labelIdIdx` (`LABEL_ID` ASC), "
-//                + "ADD CONSTRAINT `fk_tmpLabel_labelId` "
-//                + "  FOREIGN KEY (`LABEL_ID`) "
-//                + "  REFERENCES  `ap_label` (`LABEL_ID`) "
-//                + "  ON DELETE NO ACTION "
-//                + "  ON UPDATE NO ACTION;";
-//        this.jdbcTemplate.update(sqlString);
-                    sqlString = "ALTER TABLE  `tmp_label`  "
-                            + "ADD INDEX `tmpLabel_label` (`LABEL` ASC), "
-                            + "ADD INDEX `fk_tmpLabel_labelIdIdx` (`LABEL_ID` ASC)";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "CREATE TABLE `tmp_forecasting_unit` (  "
-                            + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
-                            + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
-                            + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,  "
-                            + "    `GENERIC_LABEL`varchar(200) COLLATE utf8_bin NULL,  "
-                            + "    `GENERIC_LABEL_ID` int (10) unsigned DEFAULT NULL,  "
-                            + "	`UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                            + "    `PRODUCT_CATEGORY_ID` int (10) unsigned default null, "
-                            + "    `TRACER_CATEGORY_ID` int (10) unsigned default null, "
-                            + "    PRIMARY KEY (`ID`)  "
-                            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "ALTER TABLE  `tmp_forecasting_unit`  "
-                            + "ADD INDEX `idxLabel` (`LABEL` ASC), "
-                            + "ADD INDEX `idxGenericLabel` (`GENERIC_LABEL` ASC), "
-                            + "ADD INDEX `fk_labelId_idx` (`LABEL_ID` ASC), "
-                            + "ADD INDEX `fk_unitId_idx` (`UNIT_ID` ASC), "
-                            + "ADD INDEX `fk_genericLabelId_idx` (`GENERIC_LABEL_ID` ASC), "
-                            + "ADD INDEX `fk_productCategoryId_idx` (`PRODUCT_CATEGORY_ID` ASC), "
-                            + "ADD INDEX `fk_tracerCategoryId_idx` (`TRACER_CATEGORY_ID` ASC)";
-                    this.jdbcTemplate.update(sqlString);
-//        sqlString = "ALTER TABLE  `tmp_forecasting_unit`  "
-//                + "ADD CONSTRAINT `fk_labelId` "
-//                + "  FOREIGN KEY (`LABEL_ID`) "
-//                + "  REFERENCES  `ap_label` (`LABEL_ID`) "
-//                + "  ON DELETE NO ACTION "
-//                + "  ON UPDATE NO ACTION, "
-//                + "ADD CONSTRAINT `fk_unitId` "
-//                + "  FOREIGN KEY (`UNIT_ID`) "
-//                + "  REFERENCES  `ap_unit` (`UNIT_ID`) "
-//                + "  ON DELETE NO ACTION "
-//                + "  ON UPDATE NO ACTION, "
-//                + "ADD CONSTRAINT `fk_genericLabelId` "
-//                + "  FOREIGN KEY (`GENERIC_LABEL_ID`) "
-//                + "  REFERENCES  `ap_label` (`LABEL_ID`) "
-//                + "  ON DELETE NO ACTION "
-//                + "  ON UPDATE NO ACTION, "
-//                + "ADD CONSTRAINT `fk_productCategoryId` "
-//                + "  FOREIGN KEY (`PRODUCT_CATEGORY_ID`) "
-//                + "  REFERENCES  `rm_product_category` (`PRODUCT_CATEGORY_ID`) "
-//                + "  ON DELETE NO ACTION "
-//                + "  ON UPDATE NO ACTION, "
-//                + "ADD CONSTRAINT `fk_tracerCategoryId` "
-//                + "  FOREIGN KEY (`TRACER_CATEGORY_ID`) "
-//                + "  REFERENCES  `rm_tracer_category` (`TRACER_CATEGORY_ID`) "
-//                + "  ON DELETE NO ACTION "
-//                + "  ON UPDATE NO ACTION";
-//        this.jdbcTemplate.update(sqlString);
-
-                    // Step 3 insert into the tmp_label the ProductNameNoPack
-                    sqlString = "insert into tmp_label SELECT null, ProductNameNoPack, null, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' group by tpc.ProductNameNoPack";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " inserted into the tmp_label for ProductNameNoPack");
-
-                    // Step 4 Match those records that are already present in the main forecasting_unit table
-                    sqlString = "update tmp_label tl LEFT JOIN (SELECT ful.LABEL_ID, ful.LABEL_EN FROM rm_forecasting_unit fu LEFT JOIN ap_label ful on fu.LABEL_ID=ful.LABEL_ID) as fuld ON tl.LABEL=fuld.LABEL_EN  "
-                            + "set tl.LABEL_ID = fuld.LABEL_ID, tl.FOUND=1 "
-                            + "where fuld.LABEL_ID is not null";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " existing labels found");
-
-                    // Step 5 Get the max count on the label table so that you can now work on data that you insert from here on
-                    sqlString = "SELECT MAX(LABEL_ID) m FROM ap_label";
-                    max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-                    logger.info(max + " is the current Max count for ap_label");
-
-                    // Step 6 Insert the rows that you do not have in label table
-                    sqlString = "INSERT INTO ap_label select null, tl.LABEL, null, null, null, 1, now(), 1, now() from tmp_label tl where tl.FOUND=false";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows inserted into the ap_label table");
-
-                    // Step 7 Now find the LABEL_ID for the rows that you just inserted and update your tmp table with those
-                    sqlString = "update tmp_label tl LEFT JOIN ap_label ful on ful.LABEL_EN=tl.LABEL and ful.LABEL_ID>? set tl.LABEL_ID = ful.LABEL_ID where ful.LABEL_ID is not null";
-                    rows = this.jdbcTemplate.update(sqlString, max);
-                    logger.info(rows + " rows matched and LABEL_ID updated with new LABEL_ID");
-
-                    // Step 8 - Insert into tmp_froecasting those rows that have not been found 
-                    sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, tl.LABEL, tl.LABEL_ID, null, null, null, null, null  from tmp_label tl where tl.FOUND=0";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows inserted into tmp_forecasting_unit");
-
-                    // Step 9 - Get the ProductCategory, TracerCategory, Unit and Generic matching ID's
-                    sqlString = "update tmp_forecasting_unit tfu  "
-                            + "LEFT JOIN tmp_product_catalog tpc ON tfu.LABEL=tpc.ProductNameNoPack  "
-                            + "set  "
-                            + "tfu.GENERIC_LABEL=tpc.INN";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " matching Generic labels updated");
-
-                    sqlString = "update tmp_forecasting_unit tfu LEFT JOIN tmp_product_catalog tpc ON tfu.LABEL=tpc.ProductNameNoPack   "
-                            + "LEFT JOIN (SELECT u.*, ul.LABEL_EN FROM ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID) tud ON tpc.BaseUnit=tud.LABEL_EN "
-                            + "set  "
-                            + "tfu.UNIT_ID=tud.UNIT_ID";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " matching Unit Id's updated");
-
-                    sqlString = "update tmp_forecasting_unit tfu LEFT JOIN tmp_product_catalog tpc ON tfu.LABEL=tpc.ProductNameNoPack  "
-                            + "LEFT JOIN (SELECT pc.PRODUCT_CATEGORY_ID, pcl.LABEL_EN FROM rm_product_category pc LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID) tpcd ON COALESCE(tpc.Subcategory, tpc.CommodityCouncil)=tpcd.LABEL_EN "
-                            + "set  "
-                            + "tfu.PRODUCT_CATEGORY_ID=tpcd.PRODUCT_CATEGORY_ID";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " matching Product Categories updated");
-
-                    sqlString = "update tmp_forecasting_unit tfu LEFT JOIN tmp_product_catalog tpc ON tfu.LABEL=tpc.ProductNameNoPack  "
-                            + "LEFT JOIN (SELECT tc.TRACER_CATEGORY_ID, tcl.LABEL_EN FROM rm_tracer_category tc LEFT JOIN ap_label tcl ON tc.LABEL_ID=tcl.LABEL_ID) ttcd ON tpc.TracerCategory=ttcd.LABEL_EN "
-                            + "set  "
-                            + "tfu.TRACER_CATEGORY_ID=ttcd.TRACER_CATEGORY_ID";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " matching Tracer Categories updated");
-
-                    // Step 10 Complete the Missing Generic labels
-                    sqlString = "truncate table tmp_label";
-                    this.jdbcTemplate.update(sqlString);
-// truncate commiting the transaction start
-//        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_label`";
-//        this.jdbcTemplate.update(sqlString);
 //
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_label` (  "
-//                + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
-//                + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
-//                + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,  "
-//                + "    `FOUND` tinyint(1) unsigned DEFAULT 0 NOT NULL, "
-//                + "    PRIMARY KEY (`ID`)  "
-//                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
-//        this.jdbcTemplate.update(sqlString);
-//
-//        sqlString = "ALTER TABLE  `tmp_label`  "
-//                + "ADD INDEX `tmpLabel_label` (`LABEL` ASC), "
-//                + "ADD INDEX `fk_tmpLabel_labelIdIdx` (`LABEL_ID` ASC)";
-//        this.jdbcTemplate.update(sqlString);
-// end
-
-                    // Step 11 Insert Unique Genric labels into the tmp_label table
-                    sqlString = "insert into tmp_label SELECT null, tfu.GENERIC_LABEL, null, 0 from tmp_forecasting_unit tfu WHERE tfu.GENERIC_LABEL IS NOT NULL and tfu.GENERIC_LABEL != '' group by tfu.GENERIC_LABEL";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " unique Generic names put into tmp_label");
-
-                    // Step 12 Get the max count on the label table so that you can now work on data that you insert from here on
-                    sqlString = "SELECT MAX(LABEL_ID) m FROM ap_label";
-                    max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-                    logger.info(max + " is the current Max count for ap_label");
-
-                    // Step 13 Insert the labels into ap_label
-                    sqlString = "INSERT INTO ap_label select null, tl.LABEL, null, null, null, 1, now(), 1, now() from tmp_label tl where tl.FOUND=false";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows inserted into ap_label");
-
-                    // Step 14 Now find the LABEL_ID for the rows that you just inserted and update your tmp table with those
-                    sqlString = "update tmp_label tl LEFT JOIN ap_label ful on ful.LABEL_EN=tl.LABEL and ful.LABEL_ID>? set tl.LABEL_ID = ful.LABEL_ID where ful.LABEL_ID is not null;";
-                    rows = this.jdbcTemplate.update(sqlString, max);
-                    logger.info(rows + " rows matched and LABEL_ID updated with new LABEL_ID");
-
-                    // Step 15 Update the Generic Label with the new ones inserted
-                    sqlString = "update tmp_forecasting_unit tfu left join tmp_label tl ON tfu.GENERIC_LABEL=tl.LABEL SET tfu.GENERIC_LABEL_ID=tl.LABEL_ID";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows updated with Generic Label Id");
-
-                    sqlString = "select count(*) from rm_forecasting_unit;";
-                    logger.info("Rows available in rm_forecasting_unit---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-
-                    // Step 16 Now insert all the data into ForecastingUnit
-                    sqlString = "INSERT INTO rm_forecasting_unit select null, 1, tfu.PRODUCT_CATEGORY_ID, tfu.TRACER_CATEGORY_ID, tfu.GENERIC_LABEL_ID, tfu.LABEL_ID, tfu.UNIT_ID, 1, 1, now(), 1, now() from tmp_forecasting_unit tfu";
-//                sqlString = "INSERT INTO rm_forecasting_unit select null, 1, 1, tfu.TRACER_CATEGORY_ID, tfu.GENERIC_LABEL_ID, tfu.LABEL_ID, tfu.UNIT_ID, 1, 1, now(), 1, now() from tmp_forecasting_unit tfu";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " Inserted into the Forecasting Unit table");
-
-                    sqlString = "select count(*) from rm_forecasting_unit;";
-                    logger.info("Total Rows after insertion rm_forecasting_unit---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-//
-                    // -----------------------Planning Unit-----------------
-                    sqlString = "DROP TABLE IF EXISTS tmp_planning_unit";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "CREATE TABLE `tmp_planning_unit` (  "
-                            + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
-                            + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
-                            + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,  "
-                            + "    `MULTIPLIER` double (20,2) UNSIGNED DEFAULT null, "
-                            + " 	`UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                            + "	`FORECASTING_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                            + "     `SKU_CODE` VARCHAR(100) NULL, "
-                            + "    PRIMARY KEY (`ID`)  "
-                            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "ALTER TABLE  `tmp_planning_unit`  "
-                            + "ADD INDEX `tmpPlanningUnit_label` (`LABEL` ASC), "
-                            + "ADD INDEX `fk_tmp_planning_unit_unitId_idx` (`UNIT_ID` ASC), "
-                            + "ADD INDEX `fk_tmp_planning_unit_forecastingUnit_idx` (`FORECASTING_UNIT_ID` ASC), "
-                            + "ADD INDEX `fk_tmp_planning_unit_labelId_idx` (`LABEL_ID` ASC)";
-                    this.jdbcTemplate.update(sqlString);
-                    sqlString = "ALTER TABLE  `tmp_planning_unit`  "
-                            + "ADD CONSTRAINT `fk_tmp_planning_unit_unitId` "
-                            + "  FOREIGN KEY (`UNIT_ID`) "
-                            + "  REFERENCES  `ap_unit` (`UNIT_ID`) "
-                            + "  ON DELETE NO ACTION "
-                            + "  ON UPDATE NO ACTION, "
-                            + "ADD CONSTRAINT `fk_tmp_planning_unit_forecastingUnit` "
-                            + "  FOREIGN KEY (`FORECASTING_UNIT_ID`) "
-                            + "  REFERENCES  `rm_forecasting_unit` (`FORECASTING_UNIT_ID`) "
-                            + "  ON DELETE NO ACTION "
-                            + "  ON UPDATE NO ACTION, "
-                            + "ADD CONSTRAINT `fk_tmp_planning_unit_labelId` "
-                            + "  FOREIGN KEY (`LABEL_ID`) "
-                            + "  REFERENCES  `ap_label` (`LABEL_ID`) "
-                            + "  ON DELETE NO ACTION "
-                            + "  ON UPDATE NO ACTION";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "truncate table tmp_label";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "ALTER TABLE `tmp_label` ADD COLUMN `PRODUCT_ID` VARCHAR(100) NOT NULL AFTER `FOUND`, ADD INDEX `idx_tmpLabel_productId` (`PRODUCT_ID` ASC)";
-                    this.jdbcTemplate.update(sqlString);
-
-                    // Step 1 Insert the PlanningUnit name into the tmpTable
-                    sqlString = "insert into tmp_label SELECT null, ProductName, null, 0, ProductID FROM tmp_product_catalog tpc WHERE tpc.ProductName IS NOT NULL AND tpc.ProductName != '' group by tpc.ProductName";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " labels instered into the tmp label table");
-
-                    // Step 2 Find the matching labels that are already there
-                    sqlString = "update tmp_label tl LEFT JOIN (SELECT pul.LABEL_ID, pul.LABEL_EN FROM rm_planning_unit pu LEFT JOIN ap_label pul on pu.LABEL_ID=pul.LABEL_ID) as puld ON tl.LABEL=puld.LABEL_EN  "
-                            + "set tl.LABEL_ID = puld.LABEL_ID, tl.FOUND=1 "
-                            + "where puld.LABEL_ID is not null";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " labels are already present");
-
-                    // Step 3 Get the max count on the label table so that you can now work on data that you insert from here on
-                    sqlString = "SELECT MAX(LABEL_ID) m FROM ap_label";
-                    max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-                    logger.info(max + " is the current Max count for ap_label");
-
-                    // Step 4 Insert the rows that you do not have in label table
-                    sqlString = "INSERT INTO ap_label select null, tl.LABEL, null, null, null, 1, now(), 1, now() from tmp_label tl where tl.FOUND=false";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows inserted into the ap_label table");
-
-                    // Step 5 Now find the LABEL_ID for the rows that you just inserted and update your tmp table with those
-                    sqlString = "update tmp_label tl LEFT JOIN ap_label pul on pul.LABEL_EN=tl.LABEL and pul.LABEL_ID>? set tl.LABEL_ID = pul.LABEL_ID where pul.LABEL_ID is not null";
-                    rows = this.jdbcTemplate.update(sqlString, max);
-                    logger.info(rows + " rows matched and LABEL_ID updated with new LABEL_ID");
-
-                    // Step 6 Insert into tmp planning unit 
-                    sqlString = "INSERT INTO tmp_planning_unit SELECT null, tl.LABEL, tl.LABEL_ID, 1, null, null, tl.PRODUCT_ID from tmp_label tl where tl.FOUND=0";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows inserted into tmpPlanningUnit");
-
-                    // Step 7 Update the ForecastingUnit and Unit
-                    sqlString = "update tmp_planning_unit tpu  "
-                            + "LEFT JOIN tmp_product_catalog tpc ON tpu.LABEL=tpc.ProductName "
-                            + "LEFT JOIN (SELECT u.*, ul.LABEL_EN FROM ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID) tud ON tpc.OrderUOM=tud.LABEL_EN "
-                            + "set tpu.UNIT_ID=tud.UNIT_ID, tpu.MULTIPLIER=IF(tpc.NoofBaseUnits != '',tpc.NoofBaseUnits,0)";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " UnitId's updated in tmpPlanningUnit");
-
-                    sqlString = "update tmp_planning_unit tpu  "
-                            + "LEFT JOIN tmp_product_catalog tpc ON tpu.LABEL=tpc.ProductName "
-                            + "LEFT JOIN (SELECT fu.*, ful.LABEL_EN FROM rm_forecasting_unit fu LEFT JOIN ap_label ful ON fu.LABEL_ID=ful.LABEL_ID) tfud ON tpc.ProductNameNoPack=tfud.LABEL_EN "
-                            + "set tpu.FORECASTING_UNIT_ID=tfud.FORECASTING_UNIT_ID";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " ForecastingUnits updated in tmpPlanningUnit");
-
-                    sqlString = "select count(*) from rm_planning_unit;";
-                    logger.info("No of rows before insertion in rm_planning_unit --" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-
-                    // Forcasting unit id is null so putting dummy value 1
-                    // Step 8 Insert into the main planning Unit
-                    sqlString = "insert into rm_planning_unit select null, tpu.FORECASTING_UNIT_ID, tpu.LABEL_ID, tpu.UNIT_ID, tpu.MULTIPLIER, 1, 1, now(), 1, now() from tmp_planning_unit tpu";
-//                sqlString = "insert into rm_planning_unit select null, 1, tpu.LABEL_ID, tpu.UNIT_ID, tpu.MULTIPLIER, 1, 1, now(), 1, now() from tmp_planning_unit tpu";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " inserted into Planning unit");
-
-                    sqlString = "select count(*) from rm_planning_unit;";
-                    logger.info("No of rows after insertion in rm_planning_unit --" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-
-                    sqlString = "ALTER TABLE `tmp_label` DROP COLUMN `PRODUCT_ID`, DROP INDEX `idx_tmpLabel_productId`";
-                    this.jdbcTemplate.update(sqlString);
-
-                    // Now for Procurment Agent Planning Unit
-//                sqlString = "drop TEMPORARY table IF EXISTS `tmp_procurement_agent_planning_unit`";
-                    sqlString = "drop table IF EXISTS `tmp_procurement_agent_planning_unit`";
-                    this.jdbcTemplate.update(sqlString);
-
-//                sqlString = "CREATE TEMPORARY TABLE `tmp_procurement_agent_planning_unit` (  "
-                    sqlString = "CREATE TABLE `tmp_procurement_agent_planning_unit` (  "
-                            + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
-                            + "    `PLANNING_UNIT_ID` int(10) UNSIGNED not null, "
-                            + "    `SKU_CODE` VARCHAR(50) null, "
-                            + "    `EST_PRICE` varchar(20) null, "
-                            + "    `MOQ` VARCHAR(20) null, "
-                            + "    `UNITS_PER_PALLET_EURO1` VARCHAR(20) null, "
-                            + "    `UNITS_PER_PALLET_EURO2` VARCHAR(20) null, "
-                            + "    `UNITS_PER_CONTAINER` VARCHAR(20) null, "
-                            + "    `VOLUME` VARCHAR(20) null, "
-                            + "    `WEIGHT` VARCHAR(20) null, "
-                            + "    PRIMARY KEY (`ID`)  "
-                            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "insert into tmp_procurement_agent_planning_unit select null, pu.PLANNING_UNIT_ID, null, null, null,null,null, null, null, null from rm_planning_unit pu";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rowsinstered into the tmpProcurementAgentPlanningUnit table");
-
-                    sqlString = "update tmp_procurement_agent_planning_unit tpapu LEFT JOIN rm_planning_unit pu ON tpapu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID LEFT JOIN tmp_product_catalog tpc ON pul.LABEL_EN=tpc.ProductName "
-                            + "SET  "
-                            + "	tpapu.SKU_CODE=tpc.ProductID,  "
-                            + "    tpapu.EST_PRICE=if(tpc.EstPrice='', null,tpc.EstPrice),  "
-                            + "    tpapu.MOQ=if(tpc.PlanningUnitMOQ='', null,tpc.PlanningUnitMOQ),  "
-                            + "    tpapu.UNITS_PER_PALLET_EURO1=IF(tpc.Euro1='',NULL,tpc.Euro1),   "
-                            + "    tpapu.UNITS_PER_PALLET_EURO2=IF(tpc.Euro2='',NULL,tpc.Euro2),  "
-                            + "    tpapu.UNITS_PER_CONTAINER=if(tpc.PlanningUnitsperContainer='',null,tpc.PlanningUnitsperContainer),  "
-                            + "    tpapu.VOLUME=if(tpc.PlanningUnitVolumem3='',null,tpc.PlanningUnitVolumem3),  "
-                            + "    tpapu.WEIGHT=if(tpc.PlanningUnitWeightkg='',null,tpc.PlanningUnitWeightkg)";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows mapped with data for planning unit");
-
-                    sqlString = "select count(*) from rm_procurement_agent_planning_unit;";
-                    logger.info("No of rows before insertion in rm_procurement_agent_planning_unit --" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-
-                    sqlString = "insert into rm_procurement_agent_planning_unit select null, 1, tpapu.PLANNING_UNIT_ID, tpapu.SKU_CODE, tpapu.EST_PRICE, tpapu.MOQ, tpapu.UNITS_PER_PALLET_EURO1,tpapu.UNITS_PER_PALLET_EURO2, tpapu.UNITS_PER_CONTAINER, tpapu.VOLUME, tpapu.WEIGHT, 1, 1, now(), 1, now() from tmp_procurement_agent_planning_unit tpapu "
-                            + "where tpapu.SKU_CODE IS NOT NULL;";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows inserted into procurementAgentPlanningUnit");
-
-                    sqlString = "select count(*) from rm_procurement_agent_planning_unit;";
-                    logger.info("No of rows after insertion in rm_procurement_agent_planning_unit --" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-//
-                    //------------Supplier----------------
-//                sql = "DROP TEMPORARY TABLE IF EXISTS `tmp_supplier`";
-                    sqlString = "DROP TABLE IF EXISTS `tmp_supplier`";
-                    this.jdbcTemplate.execute(sqlString);
-
-//                sql = "CREATE TEMPORARY TABLE `tmp_supplier` ( "
-                    sqlString = "CREATE TABLE `tmp_supplier` ( "
-                            + " `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
-                            + " `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
-                            + " `SUPPLIER_ID` int (10) unsigned DEFAULT NULL, "
-                            + " `LABEL_ID` int (10) unsigned DEFAULT NULL, "
-                            + " PRIMARY KEY (`ID`) "
-                            + " ) ENGINE = InnoDB DEFAULT CHARSET = utf8 COLLATE = utf8_bin";
-                    this.jdbcTemplate.execute(sqlString);
-
-                    sqlString = "ALTER TABLE  `tmp_supplier` ADD UNIQUE INDEX `index3` (`LABEL` ASC)";
-                    this.jdbcTemplate.execute(sqlString);
-
-                    sqlString = "INSERT IGNORE INTO tmp_supplier "
-                            + "SELECT NULL, Supplier, NULL, NULL "
-                            + "FROM tmp_product_catalog tpc "
-                            + "WHERE Supplier IS NOT NULL AND Supplier <> '' "
-                            + "GROUP BY Supplier;";
-
-                    logger.info("No of rows inserted into tmp_supplier---" + this.jdbcTemplate.update(sqlString));
-
-                    sqlString = "UPDATE rm_supplier rs "
-                            + "LEFT JOIN ap_label al ON rs.`LABEL_ID` = al.`LABEL_ID` "
-                            + "LEFT JOIN tmp_supplier ts ON al.`LABEL_EN` = ts.LABEL "
-                            + "SET ts.SUPPLIER_ID = rs.`SUPPLIER_ID` "
-                            + "WHERE ts.ID IS NOT NULL;";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "SELECT MAX(LABEL_ID) FROM ap_label";
-                    max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-
-                    sqlString = "INSERT INTO ap_label SELECT NULL, ts.LABEL, NULL, NULL, NULL, 1, NOW(), 1, NOW() "
-                            + "FROM tmp_supplier ts WHERE ts.SUPPLIER_ID IS NULL";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "UPDATE tmp_supplier ts LEFT JOIN ap_label l ON ts.LABEL=l.LABEL_EN AND l.LABEL_ID>"
-                            + max + " SET ts.LABEL_ID=l.LABEL_ID WHERE ts.SUPPLIER_ID IS NULL";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "select count(*) from rm_supplier;";
-                    logger.info("no of rows before insertion into rm_supplier---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-
-                    sqlString = "INSERT INTO rm_supplier "
-                            + "SELECT NULL, 1, ts.LABEL_ID, 1, 1, NOW(), 1 , NOW() "
-                            + "FROM tmp_supplier ts "
-                            + "WHERE ts.SUPPLIER_ID IS NULL";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "select count(*) from rm_supplier;";
-                    logger.info("no of rows after insertion into rm_supplier---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-//
-                    //----------Procurement Unit---------------
-//                sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_procurement_unit";
-                    sqlString = "DROP TABLE IF EXISTS tmp_procurement_unit";
-                    this.jdbcTemplate.update(sqlString);
-
-//                sqlString = "CREATE TEMPORARY TABLE `tmp_procurement_unit` (  "
-                    sqlString = "CREATE TABLE `tmp_procurement_unit` (  "
-                            + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
-                            + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
-                            + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,  "
-                            + "    `MULTIPLIER` double (12,2) UNSIGNED DEFAULT null, "
-                            + " 	`UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                            + "	`PLANNING_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                            + "    `SUPPLIER_ID` int (10) unsigned DEFAULT NULL, "
-                            + "    `WIDTH_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                            + "    `WIDTH` decimal (12,2) unsigned DEFAULT NULL, "
-                            + "    `LENGTH_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                            + "    `LENGTH` decimal (12,2) unsigned DEFAULT NULL, "
-                            + "    `HEIGHT_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                            + "    `HEIGHT` decimal (12,2) unsigned DEFAULT NULL, "
-                            + "    `WEIGHT_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                            + "    `WEIGHT` decimal (12,2) unsigned DEFAULT NULL, "
-                            + "    `UNITS_PER_CASE` INT (10) UNSIGNED DEFAULT NULL, "
-                            + "    `UNITS_PER_PALLET` INT (10) UNSIGNED DEFAULT NULL, "
-                            + "    `UNITS_PER_CONTAINER` int (10) unsigned DEFAULT NULL, "
-                            + "    `LABELING` Varchar(200) DEFAULT NULL, "
-                            + "    `SKU_CODE` Varchar(200) DEFAULT NULL, "
-                            + "    `GTIN` Varchar(200) DEFAULT NULL, "
-                            + "    `VENDOR_PRICE` Varchar(200) DEFAULT NULL, "
-                            + "    `APPROVED_TO_SHIPPED_LEAD_TIME` DECIMAL(12,2) DEFAULT NULL, "
-                            + "    `FOUND` tinyint(1) unsigned default 0 not null, "
-                            + "    CONSTRAINT PRIMARY KEY (`ID`)  "
-                            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "ALTER TABLE  `tmp_procurement_unit`  "
-                            + "ADD INDEX `idx_procurementUnit1` (`LABEL` ASC), "
-                            + "ADD INDEX `idx_procurementUnit2` (`LABEL_ID` ASC), "
-                            + "ADD INDEX `idx_procurementUnit3` (`UNIT_ID` ASC), "
-                            + "ADD INDEX `idx_procurementUnit4` (`PLANNING_UNIT_ID` ASC), "
-                            + "ADD INDEX `idx_procurementUnit5` (`WIDTH_UNIT_ID` ASC), "
-                            + "ADD INDEX `idx_procurementUnit6` (`HEIGHT_UNIT_ID` ASC), "
-                            + "ADD INDEX `idx_procurementUnit7` (`LENGTH_UNIT_ID` ASC), "
-                            + "ADD INDEX `idx_procurementUnit8` (`WEIGHT_UNIT_ID` ASC)";
-                    this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "ALTER TABLE  `tmp_procurement_unit`  "
-                            + "ADD CONSTRAINT `fk_forecastingUnit1` "
-                            + "  FOREIGN KEY (`LABEL_ID`) "
-                            + "  REFERENCES  `ap_label` (`LABEL_ID`) "
-                            + "  ON DELETE NO ACTION "
-                            + "  ON UPDATE NO ACTION, "
-                            + "ADD CONSTRAINT `fk_procurementUnit2` "
-                            + "  FOREIGN KEY (`UNIT_ID`) "
-                            + "  REFERENCES  `ap_unit` (`UNIT_ID`) "
-                            + "  ON DELETE NO ACTION "
-                            + "  ON UPDATE NO ACTION, "
-                            + "ADD CONSTRAINT `fk_procurementUnit3` "
-                            + "  FOREIGN KEY (`PLANNING_UNIT_ID`) "
-                            + "  REFERENCES  `rm_planning_unit` (`PLANNING_UNIT_ID`) "
-                            + "  ON DELETE NO ACTION "
-                            + "  ON UPDATE NO ACTION, "
-                            + "ADD CONSTRAINT `fk_procurementUnit4` "
-                            + "  FOREIGN KEY (`SUPPLIER_ID`) "
-                            + "  REFERENCES  `rm_supplier` (`SUPPLIER_ID`) "
-                            + "  ON DELETE NO ACTION "
-                            + "  ON UPDATE NO ACTION, "
-                            + "ADD CONSTRAINT `fk_procurementUnit5` "
-                            + "  FOREIGN KEY (`WIDTH_UNIT_ID`) "
-                            + "  REFERENCES  `ap_unit` (`UNIT_ID`) "
-                            + "  ON DELETE NO ACTION "
-                            + "  ON UPDATE NO ACTION, "
-                            + "  ADD CONSTRAINT `fk_procurementUnit6` "
-                            + "  FOREIGN KEY (`LENGTH_UNIT_ID`) "
-                            + "  REFERENCES  `ap_unit` (`UNIT_ID`) "
-                            + "  ON DELETE NO ACTION "
-                            + "  ON UPDATE NO ACTION, "
-                            + "  ADD CONSTRAINT `fk_procurementUnit7` "
-                            + "  FOREIGN KEY (`HEIGHT_UNIT_ID`) "
-                            + "  REFERENCES  `ap_unit` (`UNIT_ID`) "
-                            + "  ON DELETE NO ACTION "
-                            + "  ON UPDATE NO ACTION, "
-                            + "  ADD CONSTRAINT `fk_procurementUnit8` "
-                            + "  FOREIGN KEY (`WEIGHT_UNIT_ID`) "
-                            + "  REFERENCES  `ap_unit` (`UNIT_ID`) "
-                            + "  ON DELETE NO ACTION "
-                            + "  ON UPDATE NO ACTION";
-//        this.jdbcTemplate.update(sqlString);
-
-                    sqlString = "truncate table tmp_procurement_unit";
-
-                    sqlString = "truncate table tmp_label";
-                    this.jdbcTemplate.update(sqlString);
-
-                    // Step 2 - Insert into tmpLabel
-                    sqlString = "insert into tmp_label SELECT null, ItemName, null, 0 FROM tmp_product_catalog tpc WHERE tpc.ItemName IS NOT NULL AND tpc.ItemName != '' group by tpc.ItemName";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows inserted into tmpLabel");
-
-                    // Step 3 - Find already existing labels
-                    sqlString = "update tmp_label tl LEFT JOIN (SELECT pul.LABEL_ID, pul.LABEL_EN FROM rm_procurement_unit pu LEFT JOIN ap_label pul on pu.LABEL_ID=pul.LABEL_ID) as puld ON tl.LABEL=puld.LABEL_EN  set tl.LABEL_ID = puld.LABEL_ID, tl.FOUND=1 where puld.LABEL_ID is not null";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " labels already existed");
-
-                    // Step 4 - Find max
-                    sqlString = "SELECT MAX(ap_label.LABEL_ID) from ap_label";
-                    max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-                    logger.info(max + " Current max");
-
-                    // Step 5 - Insert into ap_labels
-                    sqlString = "INSERT INTO ap_label select null, tl.LABEL, null, null, null, 1, now(), 1, now() from tmp_label tl where tl.FOUND=false";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows inserted for labels");
-
-                    // Step 6 - Match the Labels inserted to find the label_id
-                    sqlString = "update tmp_label tl LEFT JOIN ap_label pul on pul.LABEL_EN=tl.LABEL and pul.LABEL_ID>? set tl.LABEL_ID = pul.LABEL_ID where pul.LABEL_ID is not null";
-                    rows = this.jdbcTemplate.update(sqlString, max);
-                    logger.info(rows + " rows matched with new labels");
-
-                    // Step 7 - Insert into the tmp_procurement table
-                    sqlString = "INSERT INTO tmp_procurement_unit SELECT null, tl.LABEL, tl.LABEL_ID, null, null, null,null,null, null, null, null, null, null, null, null, null, null, null,null, null, null, null, null, 1  from tmp_label tl where tl.FOUND=0";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows inserted into the tmp_procurement table");
-
-                    Scanner s1 = new Scanner(System.in);
-                    validData = false;
-                    Double approvedToShipppedLeadTime = 3.0;
-//        do {
-//            logger.info("---------------------------------------------------------------------------");
-//            logger.info("Please enter the Approved to Shipped Lead Time (in Months) that you want to use as default for all Procurement Units.");
-//            logger.info("Could be a Decimal or wirte 'null' if you want to keep it as null");
-//            logger.info("Approved to Shipped Lead Time (in months): ");
-//            String input = s.nextLine();
-//            if (NumberUtils.isCreatable(input) || input.equals("null")) {
-//                validData = true;
-//                if (!input.equals("null")) {
-//                    approvedToShipppedLeadTime = NumberUtils.toDouble(input);
-//                }
-//            }
-//        } while (!validData);
-
-                    // Step 8 - match and update other data
-                    sqlString = " UPDATE tmp_procurement_unit tpu  "
-                            + "LEFT JOIN tmp_product_catalog tpc ON tpu.LABEL=tpc.ItemName "
-                            + "LEFT JOIN (SELECT u.*, ul.LABEL_EN FROM ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID) tuhd ON tpc.HeightUOM=tuhd.LABEL_EN "
-                            + "LEFT JOIN (SELECT u.*, ul.LABEL_EN FROM ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID) tuwed ON tpc.WeightUOM=tuwed.LABEL_EN "
-                            + "SET  "
-                            + "	tpu.HEIGHT=IF(tpc.Height='', NULL, tpc.Height), "
-                            + "tpu.LENGTH=IF(tpc.Length='', NULL, tpc.Length), "
-                            + "tpu.WIDTH=IF(tpc.Width='', NULL, tpc.Width), "
-                            + "tpu.WEIGHT=IF(tpc.Weight='', NULL, tpc.Weight), "
-                            + "tpu.UNITS_PER_CASE=IF(tpc.UnitsperCase='', NULL, tpc.UnitsperCase), "
-                            + "tpu.UNITS_PER_PALLET=IF(tpc.UnitsperPallet='', NULL, tpc.UnitsperPallet), "
-                            + "tpu.UNITS_PER_CONTAINER=IF(tpc.UnitsperContainer='', NULL, tpc.UnitsperContainer), "
-                            + "tpu.LABELING=IF(tpc.Labeling='', NULL, tpc.Labeling), "
-                            + "tpu.SKU_CODE=IF(tpc.ItemID='', NULL, tpc.ItemID), "
-                            + "tpu.GTIN=IF(tpc.GTIN='', NULL, tpc.GTIN), "
-                            + "tpu.VENDOR_PRICE=NULL, "
-                            + "tpu.APPROVED_TO_SHIPPED_LEAD_TIME=" + approvedToShipppedLeadTime + ","
-                            + "tpu.HEIGHT_UNIT_ID=tuhd.UNIT_ID, "
-                            + "tpu.LENGTH_UNIT_ID=tuhd.UNIT_ID, "
-                            + "tpu.WIDTH_UNIT_ID=tuhd.UNIT_ID, "
-                            + "tpu.WEIGHT_UNIT_ID=tuwed.UNIT_ID; ";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows updated with matching data from product_catalog");
-
-                    // Step 9 - Match the Planning Unit, Multiplier and UnitId
-                    sqlString = "update tmp_procurement_unit tpu  "
-                            + "LEFT JOIN tmp_product_catalog tpc ON tpu.LABEL=tpc.ItemName "
-                            + "LEFT JOIN (SELECT pu.PLANNING_UNIT_ID, pul.LABEL_EN, pu.MULTIPLIER, pu.UNIT_ID FROM rm_planning_unit pu LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID) tpud ON tpc.ProductName=tpud.LABEL_EN "
-                            + "set tpu.PLANNING_UNIT_ID=tpud.PLANNING_UNIT_ID, tpu.MULTIPLIER=tpud.MULTIPLIER, tpu.UNIT_ID=tpud.UNIT_ID";
-                    this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows updated with matching data from planning_unit");
-
-                    // Step 10 - MAtch the Supplier Id
-                    sqlString = "update tmp_procurement_unit tpu  "
-                            + "LEFT JOIN tmp_product_catalog tpc ON tpu.LABEL=tpc.ItemName "
-                            + "LEFT JOIN (SELECT s.SUPPLIER_ID, sl.LABEL_EN from rm_supplier s LEFT JOIN ap_label sl ON s.LABEL_ID=sl.LABEL_ID) tsd ON tpc.Supplier=tsd.LABEL_EN "
-                            + "set tpu.SUPPLIER_ID=tsd.SUPPLIER_ID";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows updated with matching data from supplier");
-
-                    // Step 10a - Find max count for procurment_unit
-                    sqlString = "SELECT IFNULL(MAX(PROCUREMENT_UNIT_ID),0) from rm_procurement_unit";
-                    max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-                    logger.info(max + " Current max for ProcurementUnit");
-
-                    // Step 11 - Insert into the procurement_unit
-                    sqlString = "INSERT INTO rm_procurement_unit "
-                            + "SELECT NULL, tpu.PLANNING_UNIT_ID, tpu.LABEL_ID, tpu.UNIT_ID, tpu.MULTIPLIER, tpu.SUPPLIER_ID, "
-                            + "tpu.WIDTH_UNIT_ID, tpu.WIDTH, tpu.HEIGHT_UNIT_ID, tpu.HEIGHT, tpu.LENGTH_UNIT_ID, tpu.LENGTH, tpu.WEIGHT_UNIT_ID, tpu.WEIGHT,tpu.UNITS_PER_CASE, tpu.UNITS_PER_PALLET, tpu.UNITS_PER_CONTAINER, tpu.LABELING, 1, 1, NOW(), 1, NOW() "
-                            + "FROM tmp_procurement_unit tpu "
-                            + "WHERE tpu.SUPPLIER_ID IS NOT NULL && tpu.PLANNING_UNIT_ID IS NOT NULL AND tpu.LABEL_ID IS NOT NULL;";
-                    rows = this.jdbcTemplate.update(sqlString);
-                    logger.info(rows + " rows inserted into the procurement unit table");
-
-                    // Step 12 - Insert into the procurement_agent_procurement_unit
-                    sqlString = "insert ignore into rm_procurement_agent_procurement_unit SELECT null, pu.PROCUREMENT_UNIT_ID, 1, tpu.SKU_CODE, tpu.VENDOR_PRICE, tpu.APPROVED_TO_SHIPPED_LEAD_TIME, tpu.GTIN, 1, 1, now(), 1, now() from rm_procurement_unit pu LEFT JOIN tmp_procurement_unit tpu ON pu.LABEL_ID=tpu.LABEL_ID WHERE tpu.SKU_CODE is not null AND pu.PROCUREMENT_UNIT_ID>?";
-                    rows = this.jdbcTemplate.update(sqlString, max);
-                    logger.info(rows + " rows inserted into the procurement_agent_procurement_unit table");
-                    logger.info("Product catalog file imported successfully");
                     File directory = new File(BKP_CATALOG_FILE_PATH);
                     if (directory.isDirectory()) {
                         fXmlFile.renameTo(new File(BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
@@ -1186,6 +382,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         logger.error("Backup directory does not exists");
                     }
 //        throw new NullPointerException();
+                    logger.info("######################################################################");
+                    logger.info("Completed import for file " + fXmlFile.getName());
+                    logger.info("######################################################################");
                 }
             }
         }
@@ -1201,831 +400,783 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 //        }
     }
 
-    @Override
-    public void pullUnitTable() {
-        String sql = "DROP TEMPORARY TABLE IF EXISTS `tmp_unit`";
-        this.jdbcTemplate.execute(sql);
+    @Transactional
+    private void pullUnit() {
+        // --------------------------Unit Table-----------------------
+        logger.info("------------------------------- Unit ------------------------------------");
+        logger.info("Going to drop tmp_unit");
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_unit`";
+        this.jdbcTemplate.execute(sqlString);
 
-        sql = "CREATE TEMPORARY TABLE `tmp_unit` ( "
+        logger.info("Successfully droped tmp_unit");
+        logger.info("Going to create tmp_unit");
+        sqlString = "CREATE TEMPORARY TABLE `tmp_unit` ( "
                 + " `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + " `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
                 + " `UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + " `LABEL_ID` int (10) unsigned DEFAULT NULL, "
                 + " `DIMENSION_ID` int (10) unsigned DEFAULT NULL, "
-                + " PRIMARY KEY (`ID`) "
+                + " `FOUND` tinyint(1) unsigned DEFAULT 0,"
+                + " PRIMARY KEY (`ID`), "
+                + " UNIQUE INDEX `index2` (`LABEL` ASC)"
                 + " ) ENGINE = InnoDB DEFAULT CHARSET = utf8 COLLATE = utf8_bin";
-        this.jdbcTemplate.execute(sql);
+        this.jdbcTemplate.execute(sqlString);
+        logger.info("Successfully created tmp_unit");
 
-        sql = "ALTER TABLE  `tmp_unit` ADD UNIQUE INDEX `index2` (`LABEL` ASC)";
-        this.jdbcTemplate.execute(sql);
+        sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, BaseUnit, NULL, NULL, NULL, 0 FROM tmp_product_catalog WHERE BaseUnit IS NOT NULL AND BaseUnit != '' GROUP BY BaseUnit";
+        logger.info(sqlString + " -> " + this.jdbcTemplate.update(sqlString));
+        sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, OrderUOM, NULL, NULL, NULL, 0  FROM tmp_product_catalog WHERE OrderUOM IS NOT NULL AND OrderUOM != '' GROUP BY OrderUOM";
+        logger.info(sqlString + " -> " + this.jdbcTemplate.update(sqlString));
+        sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, WeightUOM, NULL, NULL, NULL, 0 FROM tmp_product_catalog WHERE WeightUOM IS NOT NULL AND WeightUOM != '' GROUP BY WeightUOM";
+        logger.info(sqlString + " -> " + this.jdbcTemplate.update(sqlString));
+        sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, HeightUOM, NULL, NULL, NULL, 0 FROM tmp_product_catalog WHERE HeightUOM IS NOT NULL AND HeightUOM != '' GROUP BY HeightUOM";
+        logger.info(sqlString + " -> " + this.jdbcTemplate.update(sqlString));
 
-        sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Bag' WHERE pc.BaseUnit='BAG'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Bag' WHERE pc.OrderUOM='BAG'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Bag' WHERE pc.WeightUOM='BAG'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Bag' WHERE pc.HeightUOM='BAG'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Bag' WHERE pc.LengthUOM='BAG'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Bag' WHERE pc.WidthUOM='BAG'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+        sqlString = "SELECT COUNT(*) FROM tmp_unit;";
+        logger.info("Total rows inserted in tmp_unit---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
 
-        sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Bottle' WHERE pc.BaseUnit='BOT'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Bottle' WHERE pc.OrderUOM='BOT'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Bottle' WHERE pc.WeightUOM='BOT'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Bottle' WHERE pc.HeightUOM='BOT'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Bottle' WHERE pc.LengthUOM='BOT'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Bottle' WHERE pc.WidthUOM='BOT'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+        sqlString = "UPDATE tmp_unit tu "
+                + "LEFT JOIN vw_unit u ON tu.LABEL = u.LABEL_EN OR tu.LABEL=u.UNIT_CODE "
+                + "SET tu.UNIT_ID = u.UNIT_ID, tu.FOUND=1 WHERE u.UNIT_ID IS NOT NULL";
+        int rows = this.jdbcTemplate.update(sqlString);
+        logger.info(rows + " matched with the ap_unit table");
 
-        sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Box' WHERE pc.BaseUnit='BOX'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Box' WHERE pc.OrderUOM='BOX'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Box' WHERE pc.WeightUOM='BOX'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Box' WHERE pc.HeightUOM='BOX'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Box' WHERE pc.LengthUOM='BOX'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Box' WHERE pc.WidthUOM='BOX'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+        logger.info("Setting the Dimension for any new rows to 3 - Eaches, rows updated:" + this.jdbcTemplate.update("UPDATE tmp_unit tu SET tu.DIMENSION_ID=3 WHERE tu.UNIT_ID IS NULL and tu.FOUND=0"));
 
-        sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Cassette' WHERE pc.BaseUnit='CAS'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Cassette' WHERE pc.OrderUOM='CAS'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Cassette' WHERE pc.WeightUOM='CAS'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Cassette' WHERE pc.HeightUOM='CAS'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Cassette' WHERE pc.LengthUOM='CAS'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Cassette' WHERE pc.WidthUOM='CAS'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+        sqlString = "SELECT MAX(LABEL_ID) FROM ap_label";
+        int max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
 
-        sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Piece' WHERE pc.BaseUnit='PCS'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Piece' WHERE pc.OrderUOM='PCS'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Piece' WHERE pc.WeightUOM='PCS'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Piece' WHERE pc.HeightUOM='PCS'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Piece' WHERE pc.LengthUOM='PCS'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Piece' WHERE pc.WidthUOM='PCS'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
+        sqlString = "SELECT u.UNIT_ID, u.LABEL UNIT_CODE, u.DIMENSION_ID, null `DIMENSION_LABEL_ID`, null `DIMENSION_LABEL_EN`,null `DIMENSION_LABEL_FR`,null `DIMENSION_LABEL_SP`,null `DIMENSION_LABEL_PR`, "
+                + " u.LABEL_ID, u.LABEL `LABEL_EN`, null `LABEL_FR`, null `LABEL_SP`, null `LABEL_PR`, "
+                + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
+                + "FROM tmp_unit u where u.FOUND=0";
+        SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
+        SimpleJdbcInsert siUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_unit");
+        Map<String, Object> labelParams = new HashMap<>();
+        Map<String, Object> unitParams = new HashMap<>();
+        int curUserId = 1;
+        Date curDate = DateUtils.getCurrentDateObject("EST");
+        labelParams.put("CREATED_BY", curUserId);
+        labelParams.put("CREATED_DATE", curDate);
+        labelParams.put("LAST_MODIFIED_BY", curUserId);
+        labelParams.put("LAST_MODIFIED_DATE", curDate);
+        labelParams.put("ACTIVE", true);
+        labelParams.put("LABEL_EN", "");
+        labelParams.put("SOURCE_ID", 17);
 
-        sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Roll' WHERE pc.BaseUnit='ROL'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Roll' WHERE pc.OrderUOM='ROL'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Roll' WHERE pc.WeightUOM='ROL'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Roll' WHERE pc.HeightUOM='ROL'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Roll' WHERE pc.LengthUOM='ROL'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Roll' WHERE pc.WidthUOM='ROL'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-
-        sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Set' WHERE pc.BaseUnit='SET'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Set' WHERE pc.OrderUOM='SET'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Set' WHERE pc.WeightUOM='SET'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Set' WHERE pc.HeightUOM='SET'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Set' WHERE pc.LengthUOM='SET'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Set' WHERE pc.WidthUOM='SET'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-
-        sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Tube' WHERE pc.BaseUnit='TUB'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Tube' WHERE pc.OrderUOM='TUB'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Tube' WHERE pc.WeightUOM='TUB'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Tube' WHERE pc.HeightUOM='TUB'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Tube' WHERE pc.LengthUOM='TUB'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Tube' WHERE pc.WidthUOM='TUB'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-
-        sql = "UPDATE tmp_product_catalog pc SET pc.BaseUnit = 'Unit' WHERE pc.BaseUnit='UNT'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.OrderUOM = 'Unit' WHERE pc.OrderUOM='UNT'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WeightUOM = 'Unit' WHERE pc.WeightUOM='UNT'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.HeightUOM = 'Unit' WHERE pc.HeightUOM='UNT'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.LengthUOM = 'Unit' WHERE pc.LengthUOM='UNT'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "UPDATE tmp_product_catalog pc SET pc.WidthUOM = 'Unit' WHERE pc.WidthUOM='UNT'";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-
-        sql = "INSERT INTO tmp_unit SELECT NULL, BaseUnit, NULL, NULL, NULL FROM tmp_product_catalog WHERE BaseUnit IS NOT NULL AND BaseUnit != '' GROUP BY BaseUnit";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, OrderUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE OrderUOM IS NOT NULL AND OrderUOM != '' GROUP BY OrderUOM";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, WeightUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE WeightUOM IS NOT NULL AND WeightUOM != '' GROUP BY WeightUOM";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, HeightUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE HeightUOM IS NOT NULL AND HeightUOM != '' GROUP BY HeightUOM";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, LengthUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE LengthUOM IS NOT NULL AND LengthUOM != '' GROUP BY LengthUOM";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-        sql = "INSERT IGNORE INTO tmp_unit SELECT NULL, WidthUOM, NULL, NULL, NULL FROM tmp_product_catalog WHERE WidthUOM IS NOT NULL AND WidthUOM != '' GROUP BY WidthUOM";
-        logger.info(sql + " -> " + this.jdbcTemplate.update(sql));
-
-        sql = "UPDATE ap_unit au LEFT JOIN ap_label al ON au.LABEL_ID = al.LABEL_ID LEFT JOIN tmp_unit tu ON al.LABEL_EN = tu.LABEL "
-                + "SET tu.UNIT_ID = au.UNIT_ID WHERE tu.ID IS NOT NULL";
-        this.jdbcTemplate.update(sql);
-
-        sql = "SELECT * FROM tmp_unit tu where tu.UNIT_ID IS NULL";
-        List<Map<String, Object>> result = this.jdbcTemplate.queryForList(sql);
-        Scanner s = new Scanner(System.in);
-        boolean validData = false;
-        for (Map<String, Object> u : result) {
-            validData = false;
-            do {
-                logger.info("---------------------------------------------------------------------------");
-                logger.info("Please select the Dimension for this Unit. (Only enter the number)");
-                logger.info("Possible Dimension values are Volume(1), Weight(2), Each(3), Distance(4)");
-                logger.info("Unit: " + u.get("LABEL"));
-                String input = s.nextLine();
-                if (input.equals("1") || input.equals("2") || input.equals("3") || input.equals("4")) {
-                    validData = true;
-                    this.jdbcTemplate.update("UPDATE tmp_unit SET DIMENSION_ID=? WHERE ID=?", input, u.get("ID"));
-                }
-            } while (!validData);
+        unitParams.put("CREATED_BY", curUserId);
+        unitParams.put("CREATED_DATE", curDate);
+        unitParams.put("LAST_MODIFIED_BY", curUserId);
+        unitParams.put("LAST_MODIFIED_DATE", curDate);
+        unitParams.put("ACTIVE", true);
+        unitParams.put("UNIT_CODE", "0");
+        unitParams.put("DIMENSION_ID", 0);
+        unitParams.put("LABEL_ID", 0);
+        for (Unit u : this.jdbcTemplate.query(sqlString, new UnitRowMapper())) {
+            labelParams.replace("LABEL_EN", u.getLabel().getLabel_en());
+            u.getLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
+            unitParams.replace("UNIT_CODE", u.getUnitCode());
+            unitParams.replace("DIMENSION_ID", u.getDimension().getId());
+            unitParams.replace("LABEL_ID", u.getLabel().getLabelId());
+            siUnit.execute(unitParams);
         }
 
-        sql = "SELECT MAX(LABEL_ID) FROM ap_label";
-        int max = this.jdbcTemplate.queryForObject(sql, Integer.class);
-
-        sql = "INSERT INTO ap_label SELECT NULL, tu.LABEL, NULL, NULL, NULL, 1, NOW(), 1, NOW() FROM tmp_unit tu WHERE tu.UNIT_ID IS NULL";
-        this.jdbcTemplate.update(sql);
-
-        sql = "UPDATE tmp_unit tu LEFT JOIN ap_label l ON tu.LABEL=l.LABEL_EN AND l.LABEL_ID>" + max + " SET tu.LABEL_ID=l.LABEL_ID WHERE tu.UNIT_ID IS NULL";
-        this.jdbcTemplate.update(sql);
-
-        sql = "INSERT INTO ap_unit SELECT  null, tu.DIMENSION_ID, tu.LABEL_ID, tu.LABEL, true, 1, now(), 1, now() from tmp_unit tu where tu.UNIT_ID is null";
-        this.jdbcTemplate.update(sql);
-        throw new NullPointerException();
+        sqlString = "SELECT COUNT(*) FROM ap_unit;";
+        logger.info("Total rows available in ap_unit---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
     }
 
-    @Override
     @Transactional
-    public void pullTracerCategoryFromTmpTables() {
-        int max;
+    private void pullTracerCategory() {
+        logger.info("------------------------------- Tracer Category ------------------------------------");
+        int max = 0;
 
         // Step 1 - Drop the table if it exists
-        String sqlString = "DROP TABLE IF EXISTS `tmp_tracer_category`";
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_tracer_category`";
         this.jdbcTemplate.update(sqlString);
 
         // Step 2 - Create the tmp table
-        sqlString = "CREATE TABLE `tmp_tracer_category` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_tracer_category` ( "
                 + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + "  `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
                 + "  `TRACER_CATEGORY_ID` int(10) unsigned DEFAULT NULL, "
                 + "  `LABEL_ID` int (10) unsigned DEFAULT NULL, "
+                + "  `FOUND` tinyint(1) unsigned default 0,"
                 + "  PRIMARY KEY (`ID`) "
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
         this.jdbcTemplate.update(sqlString);
 
         // Step 3 insert into the tmp_tracer all the data that you can get from 
         //        product_catalog that you just imported
-        sqlString = "INSERT INTO tmp_tracer_category "
-                + "SELECT NULL, TracerCategory, NULL, NULL "
-                + "FROM tmp_product_catalog WHERE TracerCategory IS NOT NULL AND TracerCategory != '' GROUP BY TracerCategory";
+        sqlString = "INSERT INTO tmp_tracer_category SELECT NULL, TracerCategory, NULL, NULL, 0 FROM tmp_product_catalog WHERE TracerCategory IS NOT NULL AND TracerCategory != '' GROUP BY TracerCategory";
         int rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " inserted into the tmp_tracer_category table");
 
         // Step 4 Match those records that are already present in the main tracer_category table
-        sqlString = "UPDATE rm_tracer_category tc "
-                + "LEFT JOIN ap_label tcl ON tc.LABEL_ID=tcl.LABEL_ID "
-                + "LEFT JOIN tmp_tracer_category ttc ON tcl.LABEL_EN=ttc.LABEL "
-                + "SET ttc.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID "
-                + "WHERE ttc.ID IS NOT NULL";
+        sqlString = "UPDATE tmp_tracer_category ttc "
+                + "LEFT JOIN vw_tracer_category tc ON ttc.LABEL=tc.LABEL_EN "
+                + "SET ttc.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID, ttc.FOUND=1 "
+                + "WHERE tc.TRACER_CATEGORY_ID IS NOT NULL";
 
         rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " existing labels found");
 
         // Step 5 Get the max count on the label table so that you can now work on data that you insert from here on
-        sqlString = "SELECT MAX(LABEL_ID) m FROM ap_label";
+        sqlString = "SELECT "
+                + " ttc.TRACER_CATEGORY_ID, 1 REALM_ID, null REALM_CODE, null REALM_LABEL_ID, null REALM_LABEL_EN, null REALM_LABEL_FR, null REALM_LABEL_SP, null REALM_LABEL_PR, "
+                + " null LABEL_ID, ttc.LABEL LABEL_EN, ttc.LABEL LABEL_Fr, ttc.LABEL LABEL_SP, ttc.LABEL LABEL_PR, "
+                + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
+                + "FROM tmp_tracer_category ttc WHERE ttc.FOUND=0";
+        this.jdbcTemplate.query(sqlString, new TracerCategoryRowMapper());
+        SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
+        SimpleJdbcInsert siUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_tracer_category");
+        Map<String, Object> labelParams = new HashMap<>();
+        Map<String, Object> tracerCategoryParams = new HashMap<>();
+        int curUserId = 1;
+        Date curDate = DateUtils.getCurrentDateObject("EST");
+        labelParams.put("CREATED_BY", curUserId);
+        labelParams.put("CREATED_DATE", curDate);
+        labelParams.put("LAST_MODIFIED_BY", curUserId);
+        labelParams.put("LAST_MODIFIED_DATE", curDate);
+        labelParams.put("ACTIVE", true);
+        labelParams.put("LABEL_EN", "");
+        labelParams.put("SOURCE_ID", 27);
 
-        max = this.jdbcTemplate.queryForObject(sqlString, Integer.class
-        );
-        logger.info(max + " is the current Max count for ap_label");
+        tracerCategoryParams.put("CREATED_BY", curUserId);
+        tracerCategoryParams.put("CREATED_DATE", curDate);
+        tracerCategoryParams.put("LAST_MODIFIED_BY", curUserId);
+        tracerCategoryParams.put("LAST_MODIFIED_DATE", curDate);
+        tracerCategoryParams.put("ACTIVE", true);
+        tracerCategoryParams.put("REALM_ID", 1);
+        tracerCategoryParams.put("LABEL_ID", 0);
+        for (TracerCategory tc : this.jdbcTemplate.query(sqlString, new TracerCategoryRowMapper())) {
+            labelParams.replace("LABEL_EN", tc.getLabel().getLabel_en());
+            tc.getLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
+            tracerCategoryParams.replace("LABEL_ID", tc.getLabel().getLabelId());
+            siUnit.execute(tracerCategoryParams);
+        }
 
-        // Step 6 Insert the rows that you do not have in tracer already into the label table
-        sqlString = "INSERT INTO ap_label SELECT NULL, ttc.LABEL, NULL, NULL, NULL, 1, NOW(), 1, NOW() "
-                + "FROM tmp_tracer_category ttc "
-                + "WHERE ttc.TRACER_CATEGORY_ID IS NULL AND ttc.`LABEL` !=''";
+        sqlString = "SELECT COUNT(*) FROM rm_tracer_category;";
+        logger.info("Total rows available in rm_tracer_category ---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
 
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rows inserted into the ap_label table");
-
-        // Step 7 Now find the LABEL_ID for the rows that you just inserted and update your tmp table with those
-        sqlString = "UPDATE tmp_tracer_category ttc "
-                + "LEFT JOIN ap_label l ON ttc.LABEL=l.LABEL_EN "
-                + "AND l.LABEL_ID>? "
-                + "SET ttc.LABEL_ID=l.LABEL_ID "
-                + "WHERE ttc.TRACER_CATEGORY_ID IS NULL";
-
-        rows = this.jdbcTemplate.update(sqlString, max);
-        logger.info(rows + " rows matched and LABEL_ID updated with new LABEL_ID");
-
-        // Step 8 Finally take the Labels and 
-        sqlString = "INSERT INTO rm_tracer_category "
-                + "SELECT NULL, 1, ttc.LABEL_ID, 1, 1, NOW(), 1, NOW() "
-                + "FROM tmp_tracer_category ttc "
-                + "WHERE ttc.TRACER_CATEGORY_ID IS NULL "
-                + "AND ttc.LABEL_ID IS NOT NULL";
-
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " new rows inserted into the rm_tracer_category table");
     }
 
-    @Override
     @Transactional
-    public void pullForecastingUnitFromTmpTables() {
-        int max;
+    private void pullProductCategory() {
+        //------------Product Category-------------------------
+        logger.info("------------------------------- Product Category ------------------------------------");
 
+        // Step 1: See if there are any new Commodity Councils
+        String sqlString = "SELECT tpc.CommodityCouncil FROM tmp_product_catalog tpc LEFT JOIN vw_product_category pc ON pc.REALM_ID=1 AND tpc.CommodityCouncil=right(pc.LABEL_EN, length(pc.LABEL_EN)-locate(\":\", pc.LABEL_EN)-1) WHERE pc.PRODUCT_CATEGORY_ID is null group by tpc.CommodityCouncil";
+        logger.info("Checking if there are any new Commodity Councils");
+        List<String> newProductCategoryList = this.jdbcTemplate.queryForList(sqlString, String.class);
+        if (newProductCategoryList.size() > 0) {
+            logger.info("New Commodity Council found so proceeding to enter those into the Product Category table");
+            for (String pc : newProductCategoryList) {
+                // Step 2: Get the highest CC (Commodity Council no in Product Category Table
+                sqlString = "SELECT max(cast(right(left(pc.LABEL_EN, locate(':', pc.LABEL_EN)-1), length(left(pc.LABEL_EN, locate(':', pc.LABEL_EN)))-3) as UNSIGNED)) `maxCc` FROM vw_product_category pc where pc.REALM_ID=1 AND length(pc.SORT_ORDER)=5";
+                int maxCc = this.jdbcTemplate.queryForObject(sqlString, Integer.class) + 1;
+                String newCc = "CC " + maxCc + ": " + pc;
+                // Step 3: Insert that into the label table
+                sqlString = "INSERT INTO `ap_label` (`LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `SOURCE_ID`) VALUES (? , null, null, null, 1, now(), 1, now(), 26)";
+                this.jdbcTemplate.update(sqlString, newCc);
+                int labelId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+                // Step 4: Then insert into the product_category table
+                sqlString = "INSERT INTO `rm_product_category` (`REALM_ID`, `LABEL_ID`, `PARENT_PRODUCT_CATEGORY_ID`, `SORT_ORDER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, ?, 0, ?, 1, 1, now(), 1, now())";
+                String sortOrder = "00." + String.format("%02d", maxCc);
+                this.jdbcTemplate.update(sqlString, labelId, sortOrder);
+                int productCategoryId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+                logger.info("Added " + newCc + " to the Product Category table");
+                // Step 5: Now find all the SubCategories that are from the new CC and insert them
+                sqlString = "SELECT tpc.Subcategory FROM tmp_product_catalog tpc where tpc.CommodityCouncil=? group by tpc.Subcategory";
+                List<String> subCategoryList = this.jdbcTemplate.queryForList(sqlString, String.class, pc);
+                int cnt = 1;
+                for (String sc : subCategoryList) {
+                    // Step 6: Insert into the label table
+                    sqlString = "INSERT INTO `ap_label` (`LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `SOURCE_ID`) VALUES (? , null, null, null, 1, now(), 1, now(), 26)";
+                    this.jdbcTemplate.update(sqlString, sc);
+                    labelId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+                    // Step:7 Insert into the product category table
+                    sqlString = "INSERT INTO `rm_product_category` (`REALM_ID`, `LABEL_ID`, `PARENT_PRODUCT_CATEGORY_ID`, `SORT_ORDER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, ?, ?, ?, 1, 1, now(), 1, now())";
+                    this.jdbcTemplate.update(sqlString, labelId, productCategoryId, sortOrder + "." + String.format("%02d", cnt));
+                    cnt++;
+                    logger.info("Added " + sc + " under " + newCc + " to the ProductCategory table");
+                }
+            }
+            // Step 9: Now find any new SubCategory that is not present in the ProductCategory table 
+            logger.info("Checking if there are any new Subcategories that are not present in the Product Category table");
+            sqlString = "SELECT tpc.Subcategory, pc2.SORT_ORDER, pc2.LABEL_EN, pc2.PRODUCT_CATEGORY_ID FROM tmp_product_catalog tpc LEFT JOIN vw_product_category pc1 ON pc1.REALM_ID=1 and pc1.LABEL_EN=tpc.Subcategory  LEFT JOIN vw_product_category pc2 ON pc2.REALM_ID=1 AND tpc.CommodityCouncil=right(pc2.LABEL_EN, length(pc2.LABEL_EN)-locate(':', pc2.LABEL_EN)-1) WHERE pc1.PRODUCT_CATEGORY_ID IS NULL  group by tpc.Subcategory order by pc2.PRODUCT_CATEGORY_ID, tpc.Subcategory";
+            List<Map<String, Object>> subCategoryList = this.jdbcTemplate.queryForList(sqlString);
+            for (Map<String, Object> sc : subCategoryList) {
+                sqlString = "SELECT count(*) FROM vw_product_category pc WHERE pc.PARENT_PRODUCT_CATEGORY_ID=?";
+                int maxCnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class, sc.get("PRODUCT_CATEGORY_ID")) + 1;
+                sqlString = "INSERT INTO `ap_label` (`LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `SOURCE_ID`) VALUES (? , null, null, null, 1, now(), 1, now(),26)";
+                this.jdbcTemplate.update(sqlString, sc.get("Subcategory"));
+                int labelId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+                // Step:7 Insert into the product category table
+                sqlString = "INSERT INTO `rm_product_category` (`REALM_ID`, `LABEL_ID`, `PARENT_PRODUCT_CATEGORY_ID`, `SORT_ORDER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, ?, ?, ?, 1, 1, now(), 1, now())";
+                this.jdbcTemplate.update(sqlString, labelId, sc.get("PRODUCT_CATEGORY_ID"), sc.get("SORT_ORDER") + "." + String.format("%02d", maxCnt));
+                logger.info("Added " + sc.get("Subcategory") + " under " + sc.get("LABEL_EN") + " to the ProductCategory table");
+            }
+        }
+    }
+
+    @Transactional
+    private void pullForecastingUnit() {
+        logger.info("------------------------------- Forecasting Unit ------------------------------------");
+        //------------Forcasting Unit--------------------------
         // Step 1 - Drop the table if it exists
-        String sqlString = "DROP TABLE IF EXISTS `tmp_label`";
-        this.jdbcTemplate.update(sqlString);
-        sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
         this.jdbcTemplate.update(sqlString);
 
-        // Step 2 - Create the tmp table
-        sqlString = "CREATE TABLE `tmp_label` (  "
-                + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
-                + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
-                + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,  "
-                + "    `FOUND` tinyint(1) unsigned DEFAULT 0 NOT NULL, "
-                + "    PRIMARY KEY (`ID`)  "
+        // Step 2 - Create Temporary Table
+        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
+                + "    `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
+                + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
+                + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,   "
+                + "    `GENERIC_LABEL`varchar(200) COLLATE utf8_bin NULL,   "
+                + "    `GENERIC_LABEL_ID` int (10) unsigned DEFAULT NULL,   "
+                + "    `UNIT_LABEL_EN` VARCHAR (100) COLLATE utf8_bin NULL,  "
+                + "    `COMMODITY_COUNCIL` VARCHAR(200) COLLATE utf8_bin NULL,  "
+                + "    `SUB_CATEGORY` VARCHAR(200) COLLATE utf8_bin NULL,  "
+                + "    `TRACER_CATEGORY` VARCHAR(200) COLLATE utf8_bin NULL,  "
+                + "    `FOUND` TINYINT(1) UNSIGNED DEFAULT NULL, "
+                + "    PRIMARY KEY (`ID`), "
+                + "    INDEX `idxLabel` (`LABEL` ASC),  "
+                + "    INDEX `idxGenericLabel` (`GENERIC_LABEL` ASC),  "
+                + "    INDEX `idxForecastingUnit_labelId_idx` (`LABEL_ID` ASC),  "
+                + "    INDEX `idxForecastingUnit_unitId_idx` (`UNIT_LABEL_EN` ASC),  "
+                + "    INDEX `idxForecastingUnit_genericLabelId_idx` (`GENERIC_LABEL_ID` ASC),  "
+                + "    INDEX `idxForecastingUnit_commodityCouncil_idx` (`COMMODITY_COUNCIL` ASC),  "
+                + "    INDEX `idxForecastingUnit_subCategory_idx` (`SUB_CATEGORY` ASC),  "
+                + "    INDEX `idxForecastingUnit_tracerCategoryId_idx` (`TRACER_CATEGORY` ASC), "
+                + "    INDEX `idxForecastingUnitFound` (`FOUND` ASC)"
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
-        this.jdbcTemplate.update(sqlString);
-
-        sqlString = "ALTER TABLE  `tmp_label`  "
-                + "ADD INDEX `tmpLabel_label` (`LABEL` ASC), "
-                + "ADD INDEX `fk_tmpLabel_labelIdIdx` (`LABEL_ID` ASC), "
-                + "ADD CONSTRAINT `fk_tmpLabel_labelId` "
-                + "  FOREIGN KEY (`LABEL_ID`) "
-                + "  REFERENCES  `ap_label` (`LABEL_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION;";
-        this.jdbcTemplate.update(sqlString);
-
-        sqlString = "CREATE TABLE `tmp_forecasting_unit` (  "
-                + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
-                + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
-                + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,  "
-                + "    `GENERIC_LABEL`varchar(200) COLLATE utf8_bin NULL,  "
-                + "    `GENERIC_LABEL_ID` int (10) unsigned DEFAULT NULL,  "
-                + "	`UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                + "    `PRODUCT_CATEGORY_ID` int (10) unsigned default null, "
-                + "    `TRACER_CATEGORY_ID` int (10) unsigned default null, "
-                + "    PRIMARY KEY (`ID`)  "
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
-        this.jdbcTemplate.update(sqlString);
-
-        sqlString = "ALTER TABLE  `tmp_forecasting_unit`  "
-                + "ADD INDEX `idxLabel` (`LABEL` ASC), "
-                + "ADD INDEX `idxGenericLabel` (`GENERIC_LABEL` ASC), "
-                + "ADD INDEX `fk_labelId_idx` (`LABEL_ID` ASC), "
-                + "ADD INDEX `fk_unitId_idx` (`UNIT_ID` ASC), "
-                + "ADD INDEX `fk_genericLabelId_idx` (`GENERIC_LABEL_ID` ASC), "
-                + "ADD INDEX `fk_productCategoryId_idx` (`PRODUCT_CATEGORY_ID` ASC), "
-                + "ADD INDEX `fk_tracerCategoryId_idx` (`TRACER_CATEGORY_ID` ASC)";
-        this.jdbcTemplate.update(sqlString);
-        sqlString = "ALTER TABLE  `tmp_forecasting_unit`  "
-                + "ADD CONSTRAINT `fk_labelId` "
-                + "  FOREIGN KEY (`LABEL_ID`) "
-                + "  REFERENCES  `ap_label` (`LABEL_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION, "
-                + "ADD CONSTRAINT `fk_unitId` "
-                + "  FOREIGN KEY (`UNIT_ID`) "
-                + "  REFERENCES  `ap_unit` (`UNIT_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION, "
-                + "ADD CONSTRAINT `fk_genericLabelId` "
-                + "  FOREIGN KEY (`GENERIC_LABEL_ID`) "
-                + "  REFERENCES  `ap_label` (`LABEL_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION, "
-                + "ADD CONSTRAINT `fk_productCategoryId` "
-                + "  FOREIGN KEY (`PRODUCT_CATEGORY_ID`) "
-                + "  REFERENCES  `rm_product_category` (`PRODUCT_CATEGORY_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION, "
-                + "ADD CONSTRAINT `fk_tracerCategoryId` "
-                + "  FOREIGN KEY (`TRACER_CATEGORY_ID`) "
-                + "  REFERENCES  `rm_tracer_category` (`TRACER_CATEGORY_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION";
         this.jdbcTemplate.update(sqlString);
 
         // Step 3 insert into the tmp_label the ProductNameNoPack
-        sqlString = "insert into tmp_label SELECT null, ProductNameNoPack, null, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' group by tpc.ProductNameNoPack";
+        sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, ProductNameNoPack, null, IF(TRIM(INN)='',null,TRIM(INN)), null, BaseUnit, CommodityCouncil, Subcategory, TracerCategory, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' group by tpc.ProductIDNoPack";
         int rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " inserted into the tmp_label for ProductNameNoPack");
 
         // Step 4 Match those records that are already present in the main forecasting_unit table
-        sqlString = "update tmp_label tl LEFT JOIN (SELECT ful.LABEL_ID, ful.LABEL_EN FROM rm_forecasting_unit fu LEFT JOIN ap_label ful on fu.LABEL_ID=ful.LABEL_ID) as fuld ON tl.LABEL=fuld.LABEL_EN  "
-                + "set tl.LABEL_ID = fuld.LABEL_ID, tl.FOUND=1 "
-                + "where fuld.LABEL_ID is not null";
+        sqlString = "update tmp_forecasting_unit tfu LEFT JOIN vw_forecasting_unit fu ON tfu.LABEL=fu.LABEL_EN "
+                + "set tfu.LABEL_ID = fu.LABEL_ID, tfu.FOUND=1  "
+                + "where fu.FORECASTING_UNIT_ID is not null AND fu.REALM_ID=1";
         rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " existing labels found");
+        logger.info(rows + " Forecasting units found");
 
-        // Step 5 Get the max count on the label table so that you can now work on data that you insert from here on
-        sqlString = "SELECT MAX(LABEL_ID) m FROM ap_label";
-        max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-        logger.info(max + " is the current Max count for ap_label");
+        sqlString = "SELECT null FORECASTING_UNIT_ID, 1 REALM_ID, null `REALM_LABEL_ID`, null REALM_CODE, null `REALM_LABEL_EN`,null `REALM_LABEL_FR`,null `REALM_LABEL_SP`,null `REALM_LABEL_PR`, "
+                + " fu.LABEL_ID, fu.LABEL `LABEL_EN`, null `LABEL_FR`, null `LABEL_SP`, null `LABEL_PR`, "
+                + " fu.GENERIC_LABEL_ID, fu.GENERIC_LABEL `GENERIC_LABEL_EN`, null `GENERIC_LABEL_FR`, null `GENERIC_LABEL_SP`, null `GENERIC_LABEL_PR`, "
+                + " null PRODUCT_CATEGORY_ID, null PRODUCT_CATEGORY_LABEL_ID, fu.SUB_CATEGORY PRODUCT_CATEGORY_LABEL_EN, fu.COMMODITY_COUNCIL PRODUCT_CATEGORY_LABEL_FR, null PRODUCT_CATEGORY_LABEL_SP, null PRODUCT_CATEGORY_LABEL_PR, "
+                + " null TRACER_CATEGORY_ID, null TRACER_CATEGORY_LABEL_ID, fu.TRACER_CATEGORY TRACER_CATEGORY_LABEL_EN, null TRACER_CATEGORY_LABEL_FR, null TRACER_CATEGORY_LABEL_SP, null TRACER_CATEGORY_LABEL_PR, "
+                + " null UNIT_ID, fu.UNIT_LABEL_EN UNIT_CODE, null UNIT_LABEL_ID, fu.UNIT_LABEL_EN UNIT_LABEL_EN, null UNIT_LABEL_FR, null UNIT_LABEL_SP, null UNIT_LABEL_PR, "
+                + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
+                + "FROM tmp_forecasting_unit fu where fu.FOUND=0";
+        SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
+        SimpleJdbcInsert siForecastingUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_forecasting_unit");
+        Map<String, Object> labelParams = new HashMap<>();
+        Map<String, Object> forecastingUnitParams = new HashMap<>();
+        int curUserId = 1;
+        Date curDate = DateUtils.getCurrentDateObject("EST");
+        labelParams.put("CREATED_BY", curUserId);
+        labelParams.put("CREATED_DATE", curDate);
+        labelParams.put("LAST_MODIFIED_BY", curUserId);
+        labelParams.put("LAST_MODIFIED_DATE", curDate);
+        labelParams.put("ACTIVE", true);
+        labelParams.put("LABEL_EN", "");
+        labelParams.put("SOURCE_ID", 28);
 
-        // Step 6 Insert the rows that you do not have in label table
-        sqlString = "INSERT INTO ap_label select null, tl.LABEL, null, null, null, 1, now(), 1, now() from tmp_label tl where tl.FOUND=false";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rows inserted into the ap_label table");
+        forecastingUnitParams.put("CREATED_BY", curUserId);
+        forecastingUnitParams.put("CREATED_DATE", curDate);
+        forecastingUnitParams.put("LAST_MODIFIED_BY", curUserId);
+        forecastingUnitParams.put("LAST_MODIFIED_DATE", curDate);
+        forecastingUnitParams.put("ACTIVE", true);
+        forecastingUnitParams.put("REALM_ID", 1);
+        forecastingUnitParams.put("LABEL_ID", 0);
+        forecastingUnitParams.put("GENERIC_LABEL_ID", 0);
+        forecastingUnitParams.put("UNIT_ID", 0);
+        forecastingUnitParams.put("PRODUCT_CATEGORY_ID", 0);
+        forecastingUnitParams.put("TRACER_CATEGORY_ID", 0);
 
-        // Step 7 Now find the LABEL_ID for the rows that you just inserted and update your tmp table with those
-        sqlString = "update tmp_label tl LEFT JOIN ap_label ful on ful.LABEL_EN=tl.LABEL and ful.LABEL_ID>? set tl.LABEL_ID = ful.LABEL_ID where ful.LABEL_ID is not null";
-        rows = this.jdbcTemplate.update(sqlString, max);
-        logger.info(rows + " rows matched and LABEL_ID updated with new LABEL_ID");
+        for (ForecastingUnit fu : this.jdbcTemplate.query(sqlString, new ForecastingUnitRowMapper())) {
+            try {
+                labelParams.replace("LABEL_EN", fu.getLabel().getLabel_en());
+                labelParams.replace("SOURCE_ID", 28);
+                fu.getLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
+                forecastingUnitParams.replace("LABEL_ID", fu.getLabel().getLabelId());
+                if (fu.getGenericLabel().getLabel_en() != null) {
+                    labelParams.replace("SOURCE_ID", 29);
+                    labelParams.replace("LABEL_EN", fu.getGenericLabel().getLabel_en());
+                    fu.getGenericLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
+                    forecastingUnitParams.replace("GENERIC_LABEL_ID", fu.getGenericLabel().getLabelId());
+                } else {
+                    forecastingUnitParams.replace("GENERIC_LABEL_ID", null);
+                }
 
-        // Step 8 - Insert into tmp_froecasting those rows that have not been found 
-        sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, tl.LABEL, tl.LABEL_ID, null, null, null, null, null  from tmp_label tl where tl.FOUND=0";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rows inserted into tmp_forecasting_unit");
+                sqlString = "SELECT UNIT_ID FROM vw_unit u WHERE u.UNIT_CODE=? OR u.LABEL_EN=?";
+                fu.getUnit().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getUnit().getCode(), fu.getUnit().getLabel().getLabel_en()));
+                forecastingUnitParams.replace("UNIT_ID", fu.getUnit().getId());
 
-        // Step 9 - Get the ProductCategory, TracerCategory, Unit and Generic matching ID's
-        sqlString = "update tmp_forecasting_unit tfu  "
-                + "LEFT JOIN tmp_product_catalog tpc ON tfu.LABEL=tpc.ProductNameNoPack  "
-                + "set  "
-                + "tfu.GENERIC_LABEL=tpc.INN";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " matching Generic labels updated");
+                sqlString = "SELECT SORT_ORDER FROM vw_product_category pc WHERE pc.REALM_ID=1 AND pc.LABEL_EN LIKE '%" + fu.getProductCategory().getLabel().getLabel_fr() + "' AND length(pc.SORT_ORDER)=5";
+                String sortOrder = this.jdbcTemplate.queryForObject(sqlString, String.class);
+                sqlString = "SELECT PRODUCT_CATEGORY_ID FROM vw_product_category pc WHERE pc.REALM_ID=1 AND pc.LABEL_EN=? AND pc.SORT_ORDER LIKE '" + sortOrder + "%'";
+                fu.getProductCategory().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getProductCategory().getLabel().getLabel_en()));
+                forecastingUnitParams.replace("PRODUCT_CATEGORY_ID", fu.getProductCategory().getId());
 
-        sqlString = "update tmp_forecasting_unit tfu LEFT JOIN tmp_product_catalog tpc ON tfu.LABEL=tpc.ProductNameNoPack   "
-                + "LEFT JOIN (SELECT u.*, ul.LABEL_EN FROM ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID) tud ON tpc.BaseUnit=tud.LABEL_EN "
-                + "set  "
-                + "tfu.UNIT_ID=tud.UNIT_ID";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " matching Unit Id's updated");
+                sqlString = "SELECT TRACER_CATEGORY_ID FROM vw_tracer_category tc WHERE tc.REALM_ID=1 AND tc.LABEL_EN=?";
+                fu.getTracerCategory().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getTracerCategory().getLabel().getLabel_en()));
+                forecastingUnitParams.replace("TRACER_CATEGORY_ID", fu.getTracerCategory().getId());
+                siForecastingUnit.execute(forecastingUnitParams);
+            } catch (Exception e) {
+                logger.info("Skipping the Forecasting Unit " + fu.getLabel() + " because there was an error " + e.getMessage());
+            }
+        }
 
-        sqlString = "update tmp_forecasting_unit tfu LEFT JOIN tmp_product_catalog tpc ON tfu.LABEL=tpc.ProductNameNoPack  "
-                + "LEFT JOIN (SELECT pc.PRODUCT_CATEGORY_ID, pcl.LABEL_EN FROM rm_product_category pc LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID) tpcd ON COALESCE(tpc.Subcategory, tpc.CommodityCouncil)=tpcd.LABEL_EN "
-                + "set  "
-                + "tfu.PRODUCT_CATEGORY_ID=tpcd.PRODUCT_CATEGORY_ID";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " matching Product Categories updated");
-
-        sqlString = "update tmp_forecasting_unit tfu LEFT JOIN tmp_product_catalog tpc ON tfu.LABEL=tpc.ProductNameNoPack  "
-                + "LEFT JOIN (SELECT tc.TRACER_CATEGORY_ID, tcl.LABEL_EN FROM rm_tracer_category tc LEFT JOIN ap_label tcl ON tc.LABEL_ID=tcl.LABEL_ID) ttcd ON tpc.TracerCategory=ttcd.LABEL_EN "
-                + "set  "
-                + "tfu.TRACER_CATEGORY_ID=ttcd.TRACER_CATEGORY_ID";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " matching Tracer Categories updated");
-
-        // Step 10 Complete the Missing Generic labels
-        sqlString = "truncate table tmp_label";
-        this.jdbcTemplate.update(sqlString);
-
-        // Step 11 Insert Unique Genric labels into the tmp_label table
-        sqlString = "insert into tmp_label SELECT null, tfu.GENERIC_LABEL, null, 0 from tmp_forecasting_unit tfu WHERE tfu.GENERIC_LABEL IS NOT NULL and tfu.GENERIC_LABEL != '' group by tfu.GENERIC_LABEL";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " unique Generic names put into tmp_label");
-
-        // Step 12 Get the max count on the label table so that you can now work on data that you insert from here on
-        sqlString = "SELECT MAX(LABEL_ID) m FROM ap_label";
-        max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-        logger.info(max + " is the current Max count for ap_label");
-
-        // Step 13 Insert the labels into ap_label
-        sqlString = "INSERT INTO ap_label select null, tl.LABEL, null, null, null, 1, now(), 1, now() from tmp_label tl where tl.FOUND=false";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rows inserted into ap_label");
-
-        // Step 14 Now find the LABEL_ID for the rows that you just inserted and update your tmp table with those
-        sqlString = "update tmp_label tl LEFT JOIN ap_label ful on ful.LABEL_EN=tl.LABEL and ful.LABEL_ID>? set tl.LABEL_ID = ful.LABEL_ID where ful.LABEL_ID is not null;";
-        rows = this.jdbcTemplate.update(sqlString, max);
-        logger.info(rows + " rows matched and LABEL_ID updated with new LABEL_ID");
-
-        // Step 15 Update the Generic Label with the new ones inserted
-        sqlString = "update tmp_forecasting_unit tfu left join tmp_label tl ON tfu.GENERIC_LABEL=tl.LABEL SET tfu.GENERIC_LABEL_ID=tl.LABEL_ID";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rows updated with Generic Label Id");
-
-        // Step 16 Now insert all the data into ForecastingUnit
-        sqlString = "INSERT INTO rm_forecasting_unit select null, 1, tfu.PRODUCT_CATEGORY_ID, tfu.TRACER_CATEGORY_ID, tfu.GENERIC_LABEL_ID, tfu.LABEL_ID, tfu.UNIT_ID, 1, 1, now(), 1, now() from tmp_forecasting_unit tfu";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " Inserted into the Forecasting Unit table");
+        sqlString = "SELECT COUNT(*) FROM rm_forecasting_unit";
+        logger.info("Total rows available in rm_forecasting_unit ---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
     }
 
-    @Override
     @Transactional
-    public void pullPlanningUnitFromTmpTables() {
-        String sqlString = "DROP TABLE IF EXISTS tmp_planning_unit";
+    private void pullPlanningUnit() {
+        // -----------------------Planning Unit-----------------
+        logger.info("------------------------------- Planning Unit ------------------------------------");
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_planning_unit";
         this.jdbcTemplate.update(sqlString);
 
-        sqlString = "CREATE TABLE `tmp_planning_unit` (  "
-                + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
-                + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
-                + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,  "
-                + "    `MULTIPLIER` double (20,2) UNSIGNED DEFAULT null, "
-                + " 	`UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                + "	`FORECASTING_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                + "     `SKU_CODE` VARCHAR(100) NULL, "
-                + "    PRIMARY KEY (`ID`)  "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_planning_unit` (   "
+                + "     `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
+                + "     `PLANNING_UNIT_ID` int (10) unsigned DEFAULT NULL,   "
+                + "     `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
+                + "     `MULTIPLIER` varchar(10) DEFAULT null,  "
+                + "     `UNIT` varchar(100) COLLATE utf8_bin NOT NULL,  "
+                + "     `SKU_CODE` VARCHAR(13) NULL, "
+                + "     `FORECASTING_UNIT` VARCHAR(200) COLLATE utf8_bin NOT NULL, "
+                + "     `CATALOG_PRICE` DECIMAL(12,4) UNSIGNED DEFAULT NULL, "
+                + "     `MOQ` INT(10) UNSIGNED DEFAULT NULL, "
+                + "     `UNITS_PER_PALLET_EURO1` INT(10) UNSIGNED DEFAULT NULL, "
+                + "     `UNITS_PER_PALLET_EURO2` INT(10) UNSIGNED DEFAULT NULL, "
+                + "     `UNITS_PER_CONTAINER` INT(10) UNSIGNED DEFAULT NULL, "
+                + "     `VOLUME` DECIMAL(12,4) UNSIGNED DEFAULT NULL, "
+                + "     `WEIGHT` DECIMAL(12,4) UNSIGNED DEFAULT NULL, "
+                + "     `FOUND` tinyint(1) unsigned default null, "
+                + "    PRIMARY KEY (`ID`), "
+                + "    INDEX `idx_tmp_planning_unit_Id_idx` (`PLANNING_UNIT_ID` ASC),  "
+                + "    INDEX `tmpPlanningUnit_label` (`LABEL` ASC),  "
+                + "    INDEX `idx_tmp_planning_unit_unitId_idx` (`UNIT` ASC),  "
+                + "    INDEX `idx_tmp_planning_unit_skuCode` (`SKU_CODE` ASC),  "
+                + "    INDEX `idx_tmp_planning_unit_forecastingUnitId_idx` (`FORECASTING_UNIT` ASC),  "
+                + "    INDEX `idx_tmp_planning_unit_found_idx` (`FOUND` ASC)      "
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
         this.jdbcTemplate.update(sqlString);
 
-        sqlString = "ALTER TABLE  `tmp_planning_unit`  "
-                + "ADD INDEX `tmpPlanningUnit_label` (`LABEL` ASC), "
-                + "ADD INDEX `fk_tmp_planning_unit_unitId_idx` (`UNIT_ID` ASC), "
-                + "ADD INDEX `fk_tmp_planning_unit_forecastingUnit_idx` (`FORECASTING_UNIT_ID` ASC), "
-                + "ADD INDEX `fk_tmp_planning_unit_labelId_idx` (`LABEL_ID` ASC)";
-        this.jdbcTemplate.update(sqlString);
-        sqlString = "ALTER TABLE  `tmp_planning_unit`  "
-                + "ADD CONSTRAINT `fk_tmp_planning_unit_unitId` "
-                + "  FOREIGN KEY (`UNIT_ID`) "
-                + "  REFERENCES  `ap_unit` (`UNIT_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION, "
-                + "ADD CONSTRAINT `fk_tmp_planning_unit_forecastingUnit` "
-                + "  FOREIGN KEY (`FORECASTING_UNIT_ID`) "
-                + "  REFERENCES  `rm_forecasting_unit` (`FORECASTING_UNIT_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION, "
-                + "ADD CONSTRAINT `fk_tmp_planning_unit_labelId` "
-                + "  FOREIGN KEY (`LABEL_ID`) "
-                + "  REFERENCES  `ap_label` (`LABEL_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION";
-        this.jdbcTemplate.update(sqlString);
-
-        sqlString = "truncate table tmp_label";
-        this.jdbcTemplate.update(sqlString);
-
-        sqlString = "ALTER TABLE `tmp_label` ADD COLUMN `PRODUCT_ID` VARCHAR(100) NOT NULL AFTER `FOUND`, ADD INDEX `idx_tmpLabel_productId` (`PRODUCT_ID` ASC)";
-        this.jdbcTemplate.update(sqlString);
-
-        // Step 1 Insert the PlanningUnit name into the tmpTable
-        sqlString = "insert into tmp_label SELECT null, ProductName, null, 0, ProductID FROM tmp_product_catalog tpc WHERE tpc.ProductName IS NOT NULL AND tpc.ProductName != '' group by tpc.ProductName";
+        // Step 1 Insert int tmpPlanningUnit
+        sqlString = "Insert into tmp_planning_unit SELECT null, null, ProductName, if(NoofBaseUnits='', null, NoofBaseUnits), OrderUOM, trim(ProductID), tpc.ProductNameNoPack, if(tpc.EstPrice='',null,tpc.EstPrice), if(PlanningUnitMOQ='', null,PlanningUnitMOQ), if(Euro1='',null,Euro1), if(Euro2='',null,Euro2), if(PlanningUnitsperContainer='',null,PlanningUnitsperContainer), if(PlanningUnitVolumem3='',null,PlanningUnitVolumem3), if(PlanningUnitWeightkg='',null,PlanningUnitWeightkg), 0 FROM tmp_product_catalog tpc WHERE tpc.ProductName IS NOT NULL AND tpc.ProductName != '' and tpc.OrderUOM!='' AND tpc.OrderUOM is not null group by tpc.ProductName";
         int rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " labels instered into the tmp label table");
+        logger.info(rows + " rows instered into the tmp planningUnit table");
 
-        // Step 2 Find the matching labels that are already there
-        sqlString = "update tmp_label tl LEFT JOIN (SELECT pul.LABEL_ID, pul.LABEL_EN FROM rm_planning_unit pu LEFT JOIN ap_label pul on pu.LABEL_ID=pul.LABEL_ID) as puld ON tl.LABEL=puld.LABEL_EN  "
-                + "set tl.LABEL_ID = puld.LABEL_ID, tl.FOUND=1 "
-                + "where puld.LABEL_ID is not null";
+        // Step 2 Locate if the Planning Unit has already come in before
+        sqlString = "UPDATE tmp_planning_unit tpu LEFT JOIN rm_procurement_agent_planning_unit papu ON tpu.SKU_CODE=papu.SKU_CODE LEFT JOIN rm_planning_unit pu ON papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON tpu.PLANNING_UNIT_ID=fu.FORECASTING_UNIT_ID SET tpu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID, tpu.FOUND=1 WHERE fu.REALM_ID=1 AND papu.PLANNING_UNIT_ID IS NOT NULL";
         rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " labels are already present");
+        logger.info(rows + " Planning units matched");
 
-        // Step 3 Get the max count on the label table so that you can now work on data that you insert from here on
-        sqlString = "SELECT MAX(LABEL_ID) m FROM ap_label";
-        int max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-        logger.info(max + " is the current Max count for ap_label");
+        sqlString = "SELECT tpu.*, u.UNIT_ID, fu.FORECASTING_UNIT_ID FROM tmp_planning_unit tpu LEFT JOIN vw_unit u ON u.UNIT_CODE=tpu.UNIT OR u.LABEL_EN=tpu.UNIT LEFT JOIN vw_forecasting_unit fu ON tpu.FORECASTING_UNIT=fu.LABEL_EN AND fu.REALM_ID=1 where tpu.FOUND=0";
+        SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
+        SimpleJdbcInsert siPlanningUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_planning_unit").usingGeneratedKeyColumns("PLANNING_UNIT_ID");
+        SimpleJdbcInsert siPapu = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_procurement_agent_planning_unit");
+        Map<String, Object> labelParams = new HashMap<>();
+        Map<String, Object> planningUnitParams = new HashMap<>();
+        Map<String, Object> papuParams = new HashMap<>();
+        int curUserId = 1;
+        Date curDate = DateUtils.getCurrentDateObject("EST");
+        labelParams.put("CREATED_BY", curUserId);
+        labelParams.put("CREATED_DATE", curDate);
+        labelParams.put("LAST_MODIFIED_BY", curUserId);
+        labelParams.put("LAST_MODIFIED_DATE", curDate);
+        labelParams.put("ACTIVE", true);
+        labelParams.put("LABEL_EN", "");
+        labelParams.put("SOURCE_ID", 30);
 
-        // Step 4 Insert the rows that you do not have in label table
-        sqlString = "INSERT INTO ap_label select null, tl.LABEL, null, null, null, 1, now(), 1, now() from tmp_label tl where tl.FOUND=false";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rows inserted into the ap_label table");
+        planningUnitParams.put("CREATED_BY", curUserId);
+        planningUnitParams.put("CREATED_DATE", curDate);
+        planningUnitParams.put("LAST_MODIFIED_BY", curUserId);
+        planningUnitParams.put("LAST_MODIFIED_DATE", curDate);
+        planningUnitParams.put("ACTIVE", true);
+        planningUnitParams.put("LABEL_ID", 0);
+        planningUnitParams.put("FORECASTING_UNIT_ID", 0);
+        planningUnitParams.put("UNIT_ID", 0);
+        planningUnitParams.put("MULTIPLIER", 0);
 
-        // Step 5 Now find the LABEL_ID for the rows that you just inserted and update your tmp table with those
-        sqlString = "update tmp_label tl LEFT JOIN ap_label pul on pul.LABEL_EN=tl.LABEL and pul.LABEL_ID>? set tl.LABEL_ID = pul.LABEL_ID where pul.LABEL_ID is not null";
-        rows = this.jdbcTemplate.update(sqlString, max);
-        logger.info(rows + " rows matched and LABEL_ID updated with new LABEL_ID");
+        papuParams.put("PROCUREMENT_AGENT_ID", 1);
+        papuParams.put("PLANNING_UNIT_ID", 0);
+        papuParams.put("CREATED_BY", curUserId);
+        papuParams.put("CREATED_DATE", curDate);
+        papuParams.put("LAST_MODIFIED_BY", curUserId);
+        papuParams.put("LAST_MODIFIED_DATE", curDate);
+        papuParams.put("ACTIVE", true);
+        papuParams.put("CATALOG_PRICE", 0);
+        papuParams.put("SKU_CODE", "");
+        papuParams.put("MOQ", 0);
+        papuParams.put("UNITS_PER_PALLET_EURO1", 0);
+        papuParams.put("UNITS_PER_PALLET_EURO2", 0);
+        papuParams.put("UNITS_PER_CONTAINER", 0);
+        papuParams.put("VOLUME", 0);
+        papuParams.put("WEIGHT", 0);
 
-        // Step 6 Insert into tmp planning unit 
-        sqlString = "INSERT INTO tmp_planning_unit SELECT null, tl.LABEL, tl.LABEL_ID, 1, null, null, tl.PRODUCT_ID from tmp_label tl where tl.FOUND=0";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rows inserted into tmpPlanningUnit");
+        for (PlanningUnitArtmisPull pu : this.jdbcTemplate.query(sqlString, new PlanningUnitArtmisPullRowMapper())) {
+            try {
+                labelParams.replace("LABEL_EN", pu.getLabel());
+                int labelId = siLabel.executeAndReturnKey(labelParams).intValue();
+                planningUnitParams.replace("LABEL_ID", labelId);
 
-        // Step 7 Update the ForecastingUnit and Unit
-        sqlString = "update tmp_planning_unit tpu  "
-                + "LEFT JOIN tmp_product_catalog tpc ON tpu.LABEL=tpc.ProductName "
-                + "LEFT JOIN (SELECT u.*, ul.LABEL_EN FROM ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID) tud ON tpc.OrderUOM=tud.LABEL_EN "
-                + "set tpu.UNIT_ID=tud.UNIT_ID, tpu.MULTIPLIER=IF(tpc.NoofBaseUnits != '',tpc.NoofBaseUnits,0)";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " UnitId's updated in tmpPlanningUnit");
+                planningUnitParams.replace("UNIT_ID", pu.getUnitId());
+                planningUnitParams.replace("FORECASTING_UNIT_ID", pu.getForecastingUnitId());
+                planningUnitParams.replace("MULTIPLIER", pu.getMultiplier());
+                int planningUnitId = siPlanningUnit.executeAndReturnKey(planningUnitParams).intValue();
 
-        sqlString = "update tmp_planning_unit tpu  "
-                + "LEFT JOIN tmp_product_catalog tpc ON tpu.LABEL=tpc.ProductName "
-                + "LEFT JOIN (SELECT fu.*, ful.LABEL_EN FROM rm_forecasting_unit fu LEFT JOIN ap_label ful ON fu.LABEL_ID=ful.LABEL_ID) tfud ON tpc.ProductNameNoPack=tfud.LABEL_EN "
-                + "set tpu.FORECASTING_UNIT_ID=tfud.FORECASTING_UNIT_ID";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " ForecastingUnits updated in tmpPlanningUnit");
+                papuParams.replace("PLANNING_UNIT_ID", planningUnitId);
+                papuParams.replace("CATALOG_PRICE", pu.getCatalogPrice());
+                papuParams.replace("SKU_CODE", pu.getSkuCode());
+                papuParams.replace("MOQ", pu.getMoq());
+                papuParams.replace("UNITS_PER_PALLET_EURO1", pu.getUnitsPerPalletEuro1());
+                papuParams.replace("UNITS_PER_PALLET_EURO2", pu.getUnitsPerPalletEuro2());
+                papuParams.replace("UNITS_PER_CONTAINER", pu.getUnitsPerContainer());
+                papuParams.replace("VOLUME", pu.getVolume());
+                papuParams.replace("WEIGHT", pu.getWeight());
+                siPapu.execute(papuParams);
+            } catch (Exception e) {
+                logger.info("Skipping the Planning Unit " + pu.getSkuCode() + " because there was an error " + e.getMessage());
+            }
+        }
 
-        // Step 8 Insert into the main planning Unit
-        sqlString = "insert into rm_planning_unit select null, tpu.FORECASTING_UNIT_ID, tpu.LABEL_ID, tpu.UNIT_ID, tpu.MULTIPLIER, 1, 1, now(), 1, now() from tmp_planning_unit tpu";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " inserted into Planning unit");
-
-        sqlString = "ALTER TABLE `tmp_label` DROP COLUMN `PRODUCT_ID`, DROP INDEX `idx_tmpLabel_productId`";
-        this.jdbcTemplate.update(sqlString);
-
-        // Now for Procurment Agent Planning Unit
-        sqlString = "drop table IF EXISTS `tmp_procurement_agent_planning_unit`";
-        this.jdbcTemplate.update(sqlString);
-
-        sqlString = "CREATE TABLE `tmp_procurement_agent_planning_unit` (  "
-                + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
-                + "    `PLANNING_UNIT_ID` int(10) UNSIGNED not null, "
-                + "    `SKU_CODE` VARCHAR(50) null, "
-                + "    `EST_PRICE` varchar(20) null, "
-                + "    `MOQ` VARCHAR(20) null, "
-                + "    `UNITS_PER_PALLET` VARCHAR(20) null, "
-                + "    `UNITS_PER_CONTAINER` VARCHAR(20) null, "
-                + "    `VOLUME` VARCHAR(20) null, "
-                + "    `WEIGHT` VARCHAR(20) null, "
-                + "    PRIMARY KEY (`ID`)  "
-                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
-        this.jdbcTemplate.update(sqlString);
-
-        sqlString = "insert into tmp_procurement_agent_planning_unit select null, pu.PLANNING_UNIT_ID, null, null, null, null, null, null, null from rm_planning_unit pu";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rowsinstered into the tmpProcurementAgentPlanningUnit table");
-
-        sqlString = "update tmp_procurement_agent_planning_unit tpapu LEFT JOIN rm_planning_unit pu ON tpapu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID LEFT JOIN tmp_product_catalog tpc ON pul.LABEL_EN=tpc.ProductName "
-                + "SET  "
-                + "	tpapu.SKU_CODE=tpc.ProductID,  "
-                + "    tpapu.EST_PRICE=if(tpc.EstPrice='', null,tpc.EstPrice),  "
-                + "    tpapu.MOQ=if(tpc.PlanningUnitMOQ='', null,tpc.PlanningUnitMOQ),  "
-                + "    tpapu.UNITS_PER_PALLET=if(tpc.PlanningUnitsperPallet='',null,tpc.PlanningUnitsperPallet),  "
-                + "    tpapu.UNITS_PER_CONTAINER=if(tpc.PlanningUnitsperContainer='',null,tpc.PlanningUnitsperContainer),  "
-                + "    tpapu.VOLUME=if(tpc.PlanningUnitVolumem3='',null,tpc.PlanningUnitVolumem3),  "
-                + "    tpapu.WEIGHT=if(tpc.PlanningUnitWeightkg='',null,tpc.PlanningUnitWeightkg)";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rows mapped with data for planning unit");
-
-        sqlString = "insert into rm_procurement_agent_planning_unit select null, 1, tpapu.PLANNING_UNIT_ID, tpapu.SKU_CODE, tpapu.EST_PRICE, tpapu.MOQ, tpapu.UNITS_PER_PALLET, tpapu.UNITS_PER_CONTAINER, tpapu.VOLUME, tpapu.WEIGHT, 1, 1, now(), 1, now() from tmp_procurement_agent_planning_unit tpapu "
-                + "where tpapu.SKU_CODE IS NOT NULL;";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rows inserted into procurementAgentPlanningUnit");
+        sqlString = "select count(*) from rm_planning_unit;";
+        logger.info("No of rows after insertion in rm_planning_unit --" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
     }
 
-    @Override
     @Transactional
-    public void pullSupplierFromTmpTables() {
-        String sql = "DROP TABLE IF EXISTS `tmp_supplier`";
-        this.jdbcTemplate.execute(sql);
+    private void pullSupplier() throws BadSqlGrammarException {
+        //------------Supplier----------------
+        logger.info("------------------------------- Suppliers ------------------------------------");
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_supplier`";
+        this.jdbcTemplate.execute(sqlString);
 
-        sql = "CREATE TABLE `tmp_supplier` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_supplier` ( "
                 + " `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + " `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
                 + " `SUPPLIER_ID` int (10) unsigned DEFAULT NULL, "
                 + " `LABEL_ID` int (10) unsigned DEFAULT NULL, "
-                + " PRIMARY KEY (`ID`) "
+                + " `FOUND` tinyint(1) UNSIGNED DEFAULT NULL, "
+                + " PRIMARY KEY (`ID`), "
+                + " UNIQUE INDEX `index3` (`LABEL` ASC) "
                 + " ) ENGINE = InnoDB DEFAULT CHARSET = utf8 COLLATE = utf8_bin";
-        this.jdbcTemplate.execute(sql);
+        this.jdbcTemplate.execute(sqlString);
 
-        sql = "ALTER TABLE  `tmp_supplier` ADD UNIQUE INDEX `index3` (`LABEL` ASC)";
-        this.jdbcTemplate.execute(sql);
-
-        sql = "INSERT IGNORE INTO tmp_supplier "
-                + "SELECT NULL, Supplier, NULL, NULL "
+        sqlString = "INSERT INTO tmp_supplier "
+                + "SELECT NULL, Supplier, NULL, NULL, 0 "
                 + "FROM tmp_product_catalog tpc "
-                + "WHERE Supplier IS NOT NULL AND Supplier <> '' "
+                + "WHERE Supplier IS NOT NULL AND Supplier != '' "
                 + "GROUP BY Supplier;";
 
-        this.jdbcTemplate.update(sql);
+        logger.info("No of rows inserted into tmp_supplier---" + this.jdbcTemplate.update(sqlString));
 
-        sql = "UPDATE rm_supplier rs "
-                + "LEFT JOIN ap_label al ON rs.`LABEL_ID` = al.`LABEL_ID` "
-                + "LEFT JOIN tmp_supplier ts ON al.`LABEL_EN` = ts.LABEL "
-                + "SET ts.SUPPLIER_ID = rs.`SUPPLIER_ID` "
-                + "WHERE ts.ID IS NOT NULL;";
-        this.jdbcTemplate.update(sql);
-
-        sql = "SELECT MAX(LABEL_ID) FROM ap_label";
-        int max = this.jdbcTemplate.queryForObject(sql, Integer.class);
-
-        sql = "INSERT INTO ap_label SELECT NULL, ts.LABEL, NULL, NULL, NULL, 1, NOW(), 1, NOW() "
-                + "FROM tmp_supplier ts WHERE ts.SUPPLIER_ID IS NULL";
-        this.jdbcTemplate.update(sql);
-
-        sql = "UPDATE tmp_supplier ts LEFT JOIN ap_label l ON ts.LABEL=l.LABEL_EN AND l.LABEL_ID>"
-                + max + " SET ts.LABEL_ID=l.LABEL_ID WHERE ts.SUPPLIER_ID IS NULL";
-        this.jdbcTemplate.update(sql);
-
-        sql = "INSERT INTO rm_supplier "
-                + "SELECT NULL, 1, ts.LABEL_ID, 1, 1, NOW(), 1 , NOW() "
-                + "FROM tmp_supplier ts "
-                + "WHERE ts.SUPPLIER_ID IS NULL";
-        this.jdbcTemplate.update(sql);
-    }
-
-    @Override
-    @Transactional
-    public void pullProcurementUnitFromTmpTables() {
-        // Step 1 -- Create Tables
-        String sqlString = "DROP TABLE IF EXISTS tmp_procurement_unit";
+        sqlString = "UPDATE tmp_supplier ts "
+                + "LEFT JOIN vw_supplier s ON ts.`LABEL` = s.`LABEL_EN` "
+                + "SET ts.SUPPLIER_ID = s.`SUPPLIER_ID`,ts.FOUND=1 "
+                + "WHERE s.REALM_ID=1 AND s.SUPPLIER_ID IS NOT NULL";
         this.jdbcTemplate.update(sqlString);
 
-        sqlString = "CREATE TABLE `tmp_procurement_unit` (  "
+        sqlString = "SELECT s.SUPPLIER_ID, 1 REALM_ID, null `REALM_LABEL_ID`, null REALM_CODE, null `REALM_LABEL_EN`,null `REALM_LABEL_FR`,null `REALM_LABEL_SP`,null `REALM_LABEL_PR`, "
+                + " s.LABEL_ID, s.LABEL `LABEL_EN`, null `LABEL_FR`, null `LABEL_SP`, null `LABEL_PR`, "
+                + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
+                + "FROM tmp_supplier s where s.FOUND=0";
+        SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
+        SimpleJdbcInsert siSupplier = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supplier");
+        Map<String, Object> labelParams = new HashMap<>();
+        Map<String, Object> supplierParams = new HashMap<>();
+        int curUserId = 1;
+        Date curDate = DateUtils.getCurrentDateObject("EST");
+        labelParams.put("CREATED_BY", curUserId);
+        labelParams.put("CREATED_DATE", curDate);
+        labelParams.put("LAST_MODIFIED_BY", curUserId);
+        labelParams.put("LAST_MODIFIED_DATE", curDate);
+        labelParams.put("ACTIVE", true);
+        labelParams.put("LABEL_EN", "");
+        labelParams.put("SOURCE_ID", 33);
+
+        supplierParams.put("CREATED_BY", curUserId);
+        supplierParams.put("CREATED_DATE", curDate);
+        supplierParams.put("LAST_MODIFIED_BY", curUserId);
+        supplierParams.put("LAST_MODIFIED_DATE", curDate);
+        supplierParams.put("ACTIVE", true);
+        supplierParams.put("REALM_ID", 1);
+        supplierParams.put("LABEL_ID", 0);
+        for (Supplier s : this.jdbcTemplate.query(sqlString, new SupplierRowMapper())) {
+            labelParams.replace("LABEL_EN", s.getLabel().getLabel_en());
+            s.getLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
+            supplierParams.replace("LABEL_ID", s.getLabel().getLabelId());
+            siSupplier.execute(supplierParams);
+        }
+        sqlString = "SELECT COUNT(*) FROM rm_supplier";
+        logger.info("Total rows available in rm_supplier---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
+    }
+
+    @Transactional
+    private void pullProcurementUnit() {
+        //----------Procurement Unit---------------
+        logger.info("------------------------------- Procurement Unit ------------------------------------");
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_procurement_unit";
+        this.jdbcTemplate.update(sqlString);
+
+        sqlString = "CREATE TEMPORARY TABLE `tmp_procurement_unit` (  "
                 + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
+                + "    `PROCUREMENT_UNIT_ID` int(10) UNSIGNED DEFAULT NULL,  "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
-                + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,  "
                 + "    `MULTIPLIER` double (12,2) UNSIGNED DEFAULT null, "
-                + " 	`UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                + "	`PLANNING_UNIT_ID` int (10) unsigned DEFAULT NULL, "
+                + "    `UNIT_ID` int (10) unsigned DEFAULT NULL, "
+                + "    `PLANNING_UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `SUPPLIER_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `WIDTH_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                + "    `WIDTH` decimal (12,2) unsigned DEFAULT NULL, "
+                + "    `WIDTH` decimal (12,4) unsigned DEFAULT NULL, "
                 + "    `LENGTH_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                + "    `LENGTH` decimal (12,2) unsigned DEFAULT NULL, "
+                + "    `LENGTH` decimal (12,4) unsigned DEFAULT NULL, "
                 + "    `HEIGHT_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                + "    `HEIGHT` decimal (12,2) unsigned DEFAULT NULL, "
+                + "    `HEIGHT` decimal (12,4) unsigned DEFAULT NULL, "
                 + "    `WEIGHT_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                + "    `WEIGHT` decimal (12,2) unsigned DEFAULT NULL, "
+                + "    `WEIGHT` decimal (12,4) unsigned DEFAULT NULL, "
+                + "    `UNITS_PER_CASE` INT (10) UNSIGNED DEFAULT NULL, "
+                + "    `UNITS_PER_PALLET` INT (10) UNSIGNED DEFAULT NULL, "
                 + "    `UNITS_PER_CONTAINER` int (10) unsigned DEFAULT NULL, "
-                + "    `LABELING` Varchar(200) DEFAULT NULL, "
+                + "    `LABELLING` Varchar(200) DEFAULT NULL, "
                 + "    `SKU_CODE` Varchar(200) DEFAULT NULL, "
                 + "    `GTIN` Varchar(200) DEFAULT NULL, "
                 + "    `VENDOR_PRICE` Varchar(200) DEFAULT NULL, "
                 + "    `APPROVED_TO_SHIPPED_LEAD_TIME` DECIMAL(12,2) DEFAULT NULL, "
-                + "    `FOUND` tinyint(1) unsigned default 0 not null, "
-                + "    CONSTRAINT PRIMARY KEY (`ID`)  "
+                + "    `FOUND` TINYINT(1) UNSIGNED DEFAULT 0, "
+                + "    CONSTRAINT PRIMARY KEY (`ID`),  "
+                + "     INDEX `idx_procurementUnit1` (`LABEL` ASC), "
+                + "     INDEX `idx_procurementUnit2` (`PROCUREMENT_UNIT_ID` ASC), "
+                + "     INDEX `idx_procurementUnit3` (`UNIT_ID` ASC), "
+                + "     INDEX `idx_procurementUnit4` (`PLANNING_UNIT_ID` ASC), "
+                + "     INDEX `idx_procurementUnit5` (`WIDTH_UNIT_ID` ASC), "
+                + "     INDEX `idx_procurementUnit6` (`HEIGHT_UNIT_ID` ASC), "
+                + "     INDEX `idx_procurementUnit7` (`LENGTH_UNIT_ID` ASC), "
+                + "     INDEX `idx_procurementUnit8` (`WEIGHT_UNIT_ID` ASC), "
+                + "     INDEX `idx_procurementUnit9` (`FOUND` ASC)"
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
         this.jdbcTemplate.update(sqlString);
 
-        sqlString = "ALTER TABLE  `tmp_procurement_unit`  "
-                + "ADD INDEX `idx_procurementUnit1` (`LABEL` ASC), "
-                + "ADD INDEX `idx_procurementUnit2` (`LABEL_ID` ASC), "
-                + "ADD INDEX `idx_procurementUnit3` (`UNIT_ID` ASC), "
-                + "ADD INDEX `idx_procurementUnit4` (`PLANNING_UNIT_ID` ASC), "
-                + "ADD INDEX `idx_procurementUnit5` (`WIDTH_UNIT_ID` ASC), "
-                + "ADD INDEX `idx_procurementUnit6` (`HEIGHT_UNIT_ID` ASC), "
-                + "ADD INDEX `idx_procurementUnit7` (`LENGTH_UNIT_ID` ASC), "
-                + "ADD INDEX `idx_procurementUnit8` (`WEIGHT_UNIT_ID` ASC)";
-        this.jdbcTemplate.update(sqlString);
+        Double approvedToShipppedLeadTime = 3.0;
 
-        sqlString = "ALTER TABLE  `tmp_procurement_unit`  "
-                + "ADD CONSTRAINT `fk_forecastingUnit1` "
-                + "  FOREIGN KEY (`LABEL_ID`) "
-                + "  REFERENCES  `ap_label` (`LABEL_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION, "
-                + "ADD CONSTRAINT `fk_procurementUnit2` "
-                + "  FOREIGN KEY (`UNIT_ID`) "
-                + "  REFERENCES  `ap_unit` (`UNIT_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION, "
-                + "ADD CONSTRAINT `fk_procurementUnit3` "
-                + "  FOREIGN KEY (`PLANNING_UNIT_ID`) "
-                + "  REFERENCES  `rm_planning_unit` (`PLANNING_UNIT_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION, "
-                + "ADD CONSTRAINT `fk_procurementUnit4` "
-                + "  FOREIGN KEY (`SUPPLIER_ID`) "
-                + "  REFERENCES  `rm_supplier` (`SUPPLIER_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION, "
-                + "ADD CONSTRAINT `fk_procurementUnit5` "
-                + "  FOREIGN KEY (`WIDTH_UNIT_ID`) "
-                + "  REFERENCES  `ap_unit` (`UNIT_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION, "
-                + "  ADD CONSTRAINT `fk_procurementUnit6` "
-                + "  FOREIGN KEY (`LENGTH_UNIT_ID`) "
-                + "  REFERENCES  `ap_unit` (`UNIT_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION, "
-                + "  ADD CONSTRAINT `fk_procurementUnit7` "
-                + "  FOREIGN KEY (`HEIGHT_UNIT_ID`) "
-                + "  REFERENCES  `ap_unit` (`UNIT_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION, "
-                + "  ADD CONSTRAINT `fk_procurementUnit8` "
-                + "  FOREIGN KEY (`WEIGHT_UNIT_ID`) "
-                + "  REFERENCES  `ap_unit` (`UNIT_ID`) "
-                + "  ON DELETE NO ACTION "
-                + "  ON UPDATE NO ACTION";
-        this.jdbcTemplate.update(sqlString);
-
-        sqlString = "truncate table tmp_procurement_unit";
-
-        sqlString = "truncate table tmp_label";
-        this.jdbcTemplate.update(sqlString);
-
-        // Step 2 - Insert into tmpLabel
-        sqlString = "insert into tmp_label SELECT null, ItemName, null, 0 FROM tmp_product_catalog tpc WHERE tpc.ItemName IS NOT NULL AND tpc.ItemName != '' group by tpc.ItemName";
-        int rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rows inserted into tmpLabel");
-
-        // Step 3 - Find already existing labels
-        sqlString = "update tmp_label tl LEFT JOIN (SELECT pul.LABEL_ID, pul.LABEL_EN FROM rm_procurement_unit pu LEFT JOIN ap_label pul on pu.LABEL_ID=pul.LABEL_ID) as puld ON tl.LABEL=puld.LABEL_EN  set tl.LABEL_ID = puld.LABEL_ID, tl.FOUND=1 where puld.LABEL_ID is not null";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " labels already existed");
-
-        // Step 4 - Find max
-        sqlString = "SELECT MAX(ap_label.LABEL_ID) from ap_label";
-        int max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-        logger.info(max + " Current max");
-
-        // Step 5 - Insert into ap_labels
-        sqlString = "INSERT INTO ap_label select null, tl.LABEL, null, null, null, 1, now(), 1, now() from tmp_label tl where tl.FOUND=false";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rows inserted for labels");
-
-        // Step 6 - Match the Labels inserted to find the label_id
-        sqlString = "update tmp_label tl LEFT JOIN ap_label pul on pul.LABEL_EN=tl.LABEL and pul.LABEL_ID>? set tl.LABEL_ID = pul.LABEL_ID where pul.LABEL_ID is not null";
-        rows = this.jdbcTemplate.update(sqlString, max);
-        logger.info(rows + " rows matched with new labels");
-
-        // Step 7 - Insert into the tmp_procurement table
-        sqlString = "INSERT INTO tmp_procurement_unit SELECT null, tl.LABEL, tl.LABEL_ID, null, null, null, null, null, null, null, null, null, null, null, null, null,null, null, null, null, null, 1  from tmp_label tl where tl.FOUND=0";
-        rows = this.jdbcTemplate.update(sqlString);
+        // Step 1 - Insert into the tmp_procurement table
+        sqlString = "INSERT INTO `tmp_procurement_unit` ( "
+                + "     `ID`,`LABEL`,`PROCUREMENT_UNIT_ID`,`MULTIPLIER`,`UNIT_ID`, "
+                + "     `PLANNING_UNIT_ID`,`SUPPLIER_ID`,`WIDTH_UNIT_ID`,`WIDTH`,`LENGTH_UNIT_ID`, "
+                + "     `LENGTH`,`HEIGHT_UNIT_ID`,`HEIGHT`,`WEIGHT_UNIT_ID`,`WEIGHT`, "
+                + "     `UNITS_PER_CASE`,`UNITS_PER_PALLET`,`UNITS_PER_CONTAINER`,`LABELLING`,`SKU_CODE`, "
+                + "     `GTIN`,`VENDOR_PRICE`,`APPROVED_TO_SHIPPED_LEAD_TIME`,`FOUND`) "
+                + "SELECT  "
+                + "     null,tpc.ItemName,null,1,u.UNIT_ID, "
+                + "     papu.PLANNING_UNIT_ID, s.SUPPLIER_ID, uh.UNIT_ID, IF(tpc.Width='', NULL, tpc.Width), uh.UNIT_ID, "
+                + "     IF(tpc.Length='', NULL, tpc.Length), uh.UNIT_ID, IF(tpc.Height='', NULL, tpc.Height), uw.UNIT_ID, IF(tpc.Weight='', NULL, tpc.Weight), "
+                + "     IF(tpc.UnitsperCase='', NULL, tpc.UnitsperCase), IF(tpc.UnitsperPallet='', NULL, tpc.UnitsperPallet), IF(tpc.UnitsperContainer='', NULL, tpc.UnitsperContainer), IF(tpc.Labeling='', NULL, tpc.Labeling), tpc.ItemID, "
+                + "     IF(tpc.GTIN='', NULL, tpc.GTIN), IF(tpc.EstPrice='',null, tpc.EstPrice), ?, 0 "
+                + "FROM tmp_product_catalog tpc  "
+                + "LEFT JOIN vw_unit uh ON tpc.HeightUOM=uh.LABEL_EN OR tpc.HeightUOM=uh.UNIT_CODE "
+                + "LEFT JOIN vw_unit uw ON tpc.WeightUOM=uw.LABEL_EN OR tpc.WeightUOM=uw.UNIT_CODE "
+                + "LEFT JOIN vw_unit u ON tpc.OrderUOM=u.LABEL_EN OR tpc.OrderUOM=u.UNIT_CODE "
+                + "LEFT JOIN rm_procurement_agent_planning_unit papu  ON tpc.ProductID=papu.SKU_CODE AND papu.PROCUREMENT_AGENT_ID=1 "
+                + "LEFT JOIN rm_planning_unit pu ON papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_supplier s ON tpc.Supplier=s.LABEL_EN "
+                + "WHERE tpc.ItemID!=''AND tpc.ItemID is not NULL AND length(tpc.ItemID)=15";
+        int rows = this.jdbcTemplate.update(sqlString, approvedToShipppedLeadTime);
         logger.info(rows + " rows inserted into the tmp_procurement table");
 
-        Scanner s = new Scanner(System.in);
-        boolean validData = false;
-        Double approvedToShipppedLeadTime = 3.0;
-//        do {
-//            logger.info("---------------------------------------------------------------------------");
-//            logger.info("Please enter the Approved to Shipped Lead Time (in Months) that you want to use as default for all Procurement Units.");
-//            logger.info("Could be a Decimal or wirte 'null' if you want to keep it as null");
-//            logger.info("Approved to Shipped Lead Time (in months): ");
-//            String input = s.nextLine();
-//            if (NumberUtils.isCreatable(input) || input.equals("null")) {
-//                validData = true;
-//                if (!input.equals("null")) {
-//                    approvedToShipppedLeadTime = NumberUtils.toDouble(input);
-//                }
-//            }
-//        } while (!validData);
-
-        // Step 8 - match and update other data
-        sqlString = "update tmp_procurement_unit tpu  "
-                + "LEFT JOIN tmp_product_catalog tpc ON tpu.LABEL=tpc.ItemName "
-                + "LEFT JOIN (SELECT u.*, ul.LABEL_EN FROM ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID) tuhd ON tpc.HeightUOM=tuhd.LABEL_EN "
-                + "LEFT JOIN (SELECT u.*, ul.LABEL_EN FROM ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID) tuld ON tpc.LengthUOM=tuld.LABEL_EN "
-                + "LEFT JOIN (SELECT u.*, ul.LABEL_EN FROM ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID) tuwd ON tpc.WidthUOM=tuwd.LABEL_EN "
-                + "LEFT JOIN (SELECT u.*, ul.LABEL_EN FROM ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID) tuwed ON tpc.WeightUOM=tuwed.LABEL_EN "
-                + "set  "
-                + "	tpu.HEIGHT=if(tpc.Height='', null, tpc.Height), "
-                + "    tpu.LENGTH=if(tpc.Length='', null, tpc.Length), "
-                + "    tpu.WIDTH=if(tpc.Width='', null, tpc.Width), "
-                + "    tpu.WEIGHT=if(tpc.Weight='', null, tpc.Weight), "
-                + "    tpu.UNITS_PER_CONTAINER=if(tpc.UnitsperContainer='', null, tpc.UnitsperContainer), "
-                + "    tpu.LABELING=if(tpc.Labeling='', null, tpc.Labeling), "
-                + "    tpu.SKU_CODE=if(tpc.ItemID='', null, tpc.ItemID), "
-                + "    tpu.GTIN=if(tpc.GTIN='', null, tpc.GTIN), "
-                + "    tpu.VENDOR_PRICE=null, "
-                + "    tpu.APPROVED_TO_SHIPPED_LEAD_TIME=" + approvedToShipppedLeadTime + ","
-                + "    tpu.HEIGHT_UNIT_ID=tuhd.UNIT_ID, "
-                + "    tpu.LENGTH_UNIT_ID=tuld.UNIT_ID, "
-                + "    tpu.WIDTH_UNIT_ID=tuwd.UNIT_ID, "
-                + "    tpu.WEIGHT_UNIT_ID=tuwed.UNIT_ID";
+        // Step 2 - Find already existing procurement_units based on SKU_CODE
+        sqlString = "update tmp_procurement_unit tpu LEFT JOIN rm_procurement_agent_procurement_unit papu ON tpu.SKU_CODE=papu.SKU_CODE and papu.PROCUREMENT_AGENT_ID=1 set tpu.PROCUREMENT_UNIT_ID=papu.PROCUREMENT_UNIT_ID, tpu.FOUND=1 where papu.PROCUREMENT_UNIT_ID is not null";
         rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rows updated with matching data from product_catalog");
+        logger.info(rows + " procurment units already existed");
 
-        // Step 9 - Match the Planning Unit, Multiplier and UnitId
-        sqlString = "update tmp_procurement_unit tpu  "
-                + "LEFT JOIN tmp_product_catalog tpc ON tpu.LABEL=tpc.ItemName "
-                + "LEFT JOIN (SELECT pu.PLANNING_UNIT_ID, pul.LABEL_EN, pu.MULTIPLIER, pu.UNIT_ID FROM rm_planning_unit pu LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID) tpud ON tpc.ProductName=tpud.LABEL_EN "
-                + "set tpu.PLANNING_UNIT_ID=tpud.PLANNING_UNIT_ID, tpu.MULTIPLIER=tpud.MULTIPLIER, tpu.UNIT_ID=tpud.UNIT_ID";
-        this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rows updated with matching data from planning_unit");
+        sqlString = "SELECT tpu.* FROM tmp_procurement_unit tpu WHERE tpu.FOUND=0";
+        SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
+        SimpleJdbcInsert siProcurementUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_procurement_unit").usingGeneratedKeyColumns("PROCUREMENT_UNIT_ID");
+        SimpleJdbcInsert siPapu = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_procurement_agent_procurement_unit");
+        Map<String, Object> labelParams = new HashMap<>();
+        Map<String, Object> procurementUnitParams = new HashMap<>();
+        Map<String, Object> papuParams = new HashMap<>();
+        int curUserId = 1;
+        Date curDate = DateUtils.getCurrentDateObject("EST");
+        labelParams.put("CREATED_BY", curUserId);
+        labelParams.put("CREATED_DATE", curDate);
+        labelParams.put("LAST_MODIFIED_BY", curUserId);
+        labelParams.put("LAST_MODIFIED_DATE", curDate);
+        labelParams.put("ACTIVE", true);
+        labelParams.put("LABEL_EN", "");
+        labelParams.put("SOURCE_ID", 31);
 
-        // Step 10 - MAtch the Supplier Id
-        sqlString = "update tmp_procurement_unit tpu  "
-                + "LEFT JOIN tmp_product_catalog tpc ON tpu.LABEL=tpc.ItemName "
-                + "LEFT JOIN (SELECT s.SUPPLIER_ID, sl.LABEL_EN from rm_supplier s LEFT JOIN ap_label sl ON s.LABEL_ID=sl.LABEL_ID) tsd ON tpc.Supplier=tsd.LABEL_EN "
-                + "set tpu.SUPPLIER_ID=tsd.SUPPLIER_ID";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rows updated with matching data from supplier");
+        procurementUnitParams.put("CREATED_BY", curUserId);
+        procurementUnitParams.put("CREATED_DATE", curDate);
+        procurementUnitParams.put("LAST_MODIFIED_BY", curUserId);
+        procurementUnitParams.put("LAST_MODIFIED_DATE", curDate);
+        procurementUnitParams.put("ACTIVE", true);
+        procurementUnitParams.put("LABEL_ID", 0);
+        procurementUnitParams.put("PLANNING_UNIT_ID", 0);
+        procurementUnitParams.put("UNIT_ID", 0);
+        procurementUnitParams.put("MULTIPLIER", 0);
+        procurementUnitParams.put("SUPPLIER_ID", 0);
+        procurementUnitParams.put("WIDTH_QTY", 0);
+        procurementUnitParams.put("WIDTH_UNIT_ID", 0);
+        procurementUnitParams.put("HEIGHT_QTY", 0);
+        procurementUnitParams.put("HEIGHT_UNIT_ID", 0);
+        procurementUnitParams.put("LENGTH_QTY", 0);
+        procurementUnitParams.put("LENGTH_UNIT_ID", 0);
+        procurementUnitParams.put("WEIGHT_QTY", 0);
+        procurementUnitParams.put("WEIGHT_UNIT_ID", 0);
+        procurementUnitParams.put("UNITS_PER_CASE", 0);
+        procurementUnitParams.put("UNITS_PER_PALLET", 0);
+        procurementUnitParams.put("UNITS_PER_CONTAINER", 0);
+        procurementUnitParams.put("LABELLING", "");
 
-        // Step 10a - Find max count for procurment_unit
-        sqlString = "SELECT IFNULL(MAX(PROCUREMENT_UNIT_ID),0) from rm_procurement_unit";
-        max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-        logger.info(max + " Current max for ProcurementUnit");
+        papuParams.put("CREATED_BY", curUserId);
+        papuParams.put("CREATED_DATE", curDate);
+        papuParams.put("LAST_MODIFIED_BY", curUserId);
+        papuParams.put("LAST_MODIFIED_DATE", curDate);
+        papuParams.put("ACTIVE", true);
+        papuParams.put("PROCUREMENT_UNIT_ID", 0);
+        papuParams.put("PROCUREMENT_AGENT_ID", 1);
+        papuParams.put("SKU_CODE", "");
+        papuParams.put("GTIN", "");
+        papuParams.put("VENDOR_PRICE", 0);
+        papuParams.put("ACTIVE", true);
+        papuParams.put("APPROVED_TO_SHIPPED_LEAD_TIME", 3);
 
-        // Step 11 - Insert into the procurement_unit
-        sqlString = "insert into rm_procurement_unit  "
-                + "SELECT null, tpu.PLANNING_UNIT_ID, tpu.LABEL_ID, tpu.UNIT_ID, tpu.MULTIPLIER, tpu.SUPPLIER_ID, tpu.WIDTH_UNIT_ID, tpu.WIDTH, tpu.HEIGHT_UNIT_ID, tpu.HEIGHT, tpu.LENGTH_UNIT_ID, tpu.LENGTH, tpu.WEIGHT_UNIT_ID, tpu.WEIGHT, tpu.UNITS_PER_CONTAINER, tpu.LABELING, 1, 1, now(), 1, now() from tmp_procurement_unit tpu WHERE tpu.SUPPLIER_ID is not null && tpu.PLANNING_UNIT_ID is not null AND tpu.LABEL_ID is not null";
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " rows inserted into the procurement unit table");
+        for (ProcurementUnitArtmisPull pu : this.jdbcTemplate.query(sqlString, new ProcurementUnitArtmisPullRowMapper())) {
+            try {
+                labelParams.replace("LABEL_EN", pu.getLabel());
+                int labelId = siLabel.executeAndReturnKey(labelParams).intValue();
+                procurementUnitParams.replace("LABEL_ID", labelId);
 
-        // Step 12 - Insert into the procurement_agent_procurement_unit
-        sqlString = "insert ignore into rm_procurement_agent_procurement_unit SELECT null, pu.PROCUREMENT_UNIT_ID, 1, tpu.SKU_CODE, tpu.VENDOR_PRICE, tpu.APPROVED_TO_SHIPPED_LEAD_TIME, tpu.GTIN, 1, 1, now(), 1, now() from rm_procurement_unit pu LEFT JOIN tmp_procurement_unit tpu ON pu.LABEL_ID=tpu.LABEL_ID WHERE tpu.SKU_CODE is not null AND pu.PROCUREMENT_UNIT_ID>?";
-        rows = this.jdbcTemplate.update(sqlString, max);
-        logger.info(rows + " rows inserted into the procurement_agent_procurement_unit table");
+                procurementUnitParams.replace("PLANNING_UNIT_ID", pu.getPlanningUnitId());
+                procurementUnitParams.replace("UNIT_ID", pu.getUnitId());
+                procurementUnitParams.replace("MULTIPLIER", pu.getMultiplier());
+                procurementUnitParams.replace("SUPPLIER_ID", pu.getSupplierId());
+                procurementUnitParams.replace("WIDTH_QTY", pu.getWidth());
+                procurementUnitParams.replace("WIDTH_UNIT_ID", pu.getWidthUnitId());
+                procurementUnitParams.replace("HEIGHT_QTY", pu.getHeight());
+                procurementUnitParams.replace("HEIGHT_UNIT_ID", pu.getHeightUnitId());
+                procurementUnitParams.replace("LENGTH_QTY", pu.getLength());
+                procurementUnitParams.replace("LENGTH_UNIT_ID", pu.getLengthUnitId());
+                procurementUnitParams.replace("WEIGHT_QTY", pu.getWeight());
+                procurementUnitParams.replace("WEIGHT_UNIT_ID", pu.getWeightUnitId());
+                procurementUnitParams.replace("UNITS_PER_CASE", pu.getUnitsPerCase());
+                procurementUnitParams.replace("UNITS_PER_PALLET", pu.getUnitsPerPallet());
+                procurementUnitParams.replace("UNITS_PER_CONTAINER", pu.getUnitsPerContainer());
+                procurementUnitParams.replace("LABELLING", pu.getLabelling());
+                pu.setProcurementUnitId(siProcurementUnit.executeAndReturnKey(procurementUnitParams).intValue());
+
+                papuParams.replace("PROCUREMENT_UNIT_ID", pu.getProcurementUnitId());
+                papuParams.replace("SKU_CODE", pu.getSkuCode());
+                papuParams.replace("VENDOR_PRICE", pu.getVendorPrice());
+                papuParams.replace("GTIN", pu.getGtin());
+                papuParams.replace("APPROVED_TO_SHIPPED_LEAD_TIME", pu.getApprovedToShippedLeadTime());
+                siPapu.execute(papuParams);
+            } catch (Exception e) {
+                logger.info("Skipping the Procurement Unit " + pu.getSkuCode() + " because there was an error " + e.getMessage());
+            }
+        }
+
+        String sqlUpdate = "UPDATE tmp_procurement_unit tpu "
+                + "LEFT JOIN rm_procurement_unit pu ON tpu.PROCUREMENT_UNIT_ID=pu.PROCUREMENT_UNIT_ID "
+                + "LEFT JOIN rm_procurement_agent_procurement_unit papu ON pu.PROCUREMENT_UNIT_ID=papu.PROCUREMENT_UNIT_ID AND papu.PROCUREMENT_AGENT_ID=1 "
+                + "LEFT JOIN ap_label l ON pu.LABEL_ID=l.LABEL_ID "
+                + "SET "
+                + "l.`LABEL_EN` = tpu.`LABEL`, "
+                + "l.`LAST_MODIFIED_BY` = IF(l.`LABEL_EN`!=tpu.`LABEL`, 1, l.`LAST_MODIFIED_BY`), "
+                + "l.`LAST_MODIFIED_DATE` = IF(l.`LABEL_EN`!=tpu.`LABEL`, now(), l.`LAST_MODIFIED_DATE`), "
+                + "pu.`UNIT_ID` = tpu.UNIT_ID, "
+                + "pu.`SUPPLIER_ID` = tpu.`SUPPLIER_ID`, "
+                + "pu.`WIDTH_UNIT_ID` = tpu.`WEIGHT_UNIT_ID`, "
+                + "pu.`WIDTH_QTY` = tpu.`WIDTH`, "
+                + "pu.`HEIGHT_UNIT_ID` = tpu.`HEIGHT_UNIT_ID`, "
+                + "pu.`HEIGHT_QTY` = tpu.`HEIGHT`, "
+                + "pu.`LENGTH_UNIT_ID` = tpu.`HEIGHT_UNIT_ID`, "
+                + "pu.`LENGTH_QTY` = tpu.`LENGTH`, "
+                + "pu.`WEIGHT_UNIT_ID` = tpu.`WIDTH_UNIT_ID`, "
+                + "pu.`WEIGHT_QTY` = tpu.`WEIGHT`, "
+                + "pu.`UNITS_PER_CASE` = tpu.`UNITS_PER_CASE`, "
+                + "pu.`UNITS_PER_PALLET` = tpu.`UNITS_PER_PALLET`, "
+                + "pu.`UNITS_PER_CONTAINER` = tpu.`UNITS_PER_CONTAINER`, "
+                + "pu.`LABELING` = tpu.`LABELLING`, "
+                + "pu.`LAST_MODIFIED_BY` =  "
+                + "	IF( "
+                + "         ( "
+                + "         l.`LABEL_EN`!= tpu.`LABEL` "
+                + "         OR pu.`UNIT_ID` != tpu.`UNIT_ID` "
+                + "         OR pu.`SUPPLIER_ID` != tpu.`SUPPLIER_ID` "
+                + "         OR pu.`WIDTH_UNIT_ID` != tpu.`WEIGHT_UNIT_ID` "
+                + "         OR pu.`WIDTH_QTY` != tpu.`WIDTH` "
+                + "         OR pu.`HEIGHT_UNIT_ID` != tpu.`HEIGHT_UNIT_ID` "
+                + "         OR pu.`HEIGHT_QTY` != tpu.`HEIGHT` "
+                + "         OR pu.`LENGTH_UNIT_ID` != tpu.`HEIGHT_UNIT_ID` "
+                + "         OR pu.`LENGTH_QTY` != tpu.`LENGTH` "
+                + "         OR pu.`WEIGHT_UNIT_ID` != tpu.`WIDTH_UNIT_ID` "
+                + "         OR pu.`WEIGHT_QTY` != tpu.`WEIGHT` "
+                + "         OR pu.`UNITS_PER_CASE` != tpu.`UNITS_PER_CASE` "
+                + "         OR pu.`UNITS_PER_PALLET` != tpu.`UNITS_PER_PALLET` "
+                + "         OR pu.`UNITS_PER_CONTAINER` != tpu.`UNITS_PER_CONTAINER` "
+                + "         OR pu.`LABELING` != tpu.`LABELLING` "
+                + "        ), 1, pu.`LAST_MODIFIED_BY`), "
+                + "pu.`LAST_MODIFIED_DATE` =  "
+                + "	IF( "
+                + "         ( "
+                + "         l.`LABEL_EN`!= tpu.`LABEL` "
+                + "         OR pu.`UNIT_ID` != tpu.`UNIT_ID` "
+                + "         OR pu.`SUPPLIER_ID` != tpu.`SUPPLIER_ID` "
+                + "         OR pu.`WIDTH_UNIT_ID` != tpu.`WEIGHT_UNIT_ID` "
+                + "         OR pu.`WIDTH_QTY` != tpu.`WIDTH` "
+                + "         OR pu.`HEIGHT_UNIT_ID` != tpu.`HEIGHT_UNIT_ID` "
+                + "         OR pu.`HEIGHT_QTY` != tpu.`HEIGHT` "
+                + "         OR pu.`LENGTH_UNIT_ID` != tpu.`HEIGHT_UNIT_ID` "
+                + "         OR pu.`LENGTH_QTY` != tpu.`LENGTH` "
+                + "         OR pu.`WEIGHT_UNIT_ID` != tpu.`WIDTH_UNIT_ID` "
+                + "         OR pu.`WEIGHT_QTY` != tpu.`WEIGHT` "
+                + "         OR pu.`UNITS_PER_CASE` != tpu.`UNITS_PER_CASE` "
+                + "         OR pu.`UNITS_PER_PALLET` != tpu.`UNITS_PER_PALLET` "
+                + "         OR pu.`UNITS_PER_CONTAINER` != tpu.`UNITS_PER_CONTAINER` "
+                + "         OR pu.`LABELING` != tpu.`LABELLING` "
+                + "        ), now(), pu.`LAST_MODIFIED_DATE`), "
+                + "papu.`GTIN`=tpu.`GTIN`, "
+                + "papu.`VENDOR_PRICE`=tpu.`VENDOR_PRICE`, "
+                + "papu.LAST_MODIFIED_BY = IF(papu.`GTIN`!=tpu.`GTIN`OR papu.`VENDOR_PRICE`!=tpu.`VENDOR_PRICE`, 1, papu.LAST_MODIFIED_BY), "
+                + "papu.LAST_MODIFIED_DATE = IF(papu.`GTIN`!=tpu.`GTIN`OR papu.`VENDOR_PRICE`!=tpu.`VENDOR_PRICE`, NOW(), papu.LAST_MODIFIED_DATE) WHERE tpu.FOUND=1";
+        this.jdbcTemplate.update(sqlUpdate);
+
+        sqlString = "select count(*) from rm_procurement_unit;";
+        logger.info("No of rows after insertion in rm_procurement_unit --" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
     }
 
+    @Override
+    public void rollBackAutoIncrement() {
+        logger.error("Rolling back AutoIncrement");
+        String sqlString = "ALTER TABLE ap_label AUTO_INCREMENT = 1";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "ALTER TABLE ap_unit AUTO_INCREMENT = 1";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "ALTER TABLE rm_supplier AUTO_INCREMENT = 1";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "ALTER TABLE rm_tracer_category AUTO_INCREMENT = 1";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "ALTER TABLE rm_product_category AUTO_INCREMENT = 1";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "ALTER TABLE rm_forecasting_unit AUTO_INCREMENT = 1";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "ALTER TABLE rm_planning_unit AUTO_INCREMENT = 1";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "ALTER TABLE rm_procurement_agent_planning_unit AUTO_INCREMENT = 1";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "ALTER TABLE rm_procurement_unit AUTO_INCREMENT = 1";
+        this.jdbcTemplate.update(sqlString);
+        sqlString = "ALTER TABLE rm_procurement_agent_procurement_unit AUTO_INCREMENT = 1";
+        this.jdbcTemplate.update(sqlString);
+    }
+    
 }
