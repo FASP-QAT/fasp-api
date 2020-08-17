@@ -37,7 +37,8 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
         String sql = "SELECT p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_EN `PROGRAM_NAME`, c.COUNTRY_CODE2, ha.LABEL_EN `TECHNICAL_AREA_NAME`,p.`ACTIVE`   "
                 + "FRom vw_program p LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + "LEFT JOIN vw_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID;";
+                + "LEFT JOIN vw_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID"
+                + "WHERE p.`LAST_MODIFIED_DATE` BETWEEN ? AND ?;";
         return this.jdbcTemplate.query(sql, new ExportProgramDataDTORowMapper());
     }
 
@@ -56,7 +57,7 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
                 + "LEFT JOIN rm_shipment_trans st ON s1.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID "
                 + "LEFT JOIN vw_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu ON pa.PROCUREMENT_AGENT_ID=papu.PROCUREMENT_AGENT_ID AND st.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID "
-                + "WHERE st.PROCUREMENT_AGENT_ID = 1;";
+                + "WHERE st.PROCUREMENT_AGENT_ID = 1 AND st.`LAST_MODIFIED_DATE` BETWEEN ? AND ?;";
         return this.jdbcTemplate.query(sql, new ExportOrderDataDTORowMapper());
     }
 
