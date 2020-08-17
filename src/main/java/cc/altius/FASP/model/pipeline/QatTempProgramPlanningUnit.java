@@ -19,6 +19,7 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
     private String programPlanningUnitId;
     private SimpleObject program;
     private String planningUnitId;
+    private double multiplier;
     private int reorderFrequencyInMonths;
     private int minMonthsOfStock;
     private int productCategoryId;
@@ -33,10 +34,11 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
     public QatTempProgramPlanningUnit() {
     }
 
-    public QatTempProgramPlanningUnit(String programPlanningUnitId, SimpleObject program, String planningUnitId, int reorderFrequencyInMonths, int minMonthsOfStock, int productCategoryId, String pipelineProductName, String pipelineProductCategoryName, double localProcurmentLeadTime, int shelfLife, double catalogPrice, int monthsInPastForAmc, int monthsInFutureForAmc) {
+    public QatTempProgramPlanningUnit(String programPlanningUnitId, SimpleObject program, String planningUnitId,double multiplier, int reorderFrequencyInMonths, int minMonthsOfStock, int productCategoryId, String pipelineProductName, String pipelineProductCategoryName, double localProcurmentLeadTime, int shelfLife, double catalogPrice, int monthsInPastForAmc, int monthsInFutureForAmc) {
         this.programPlanningUnitId = programPlanningUnitId;
         this.program = program;
         this.planningUnitId = planningUnitId;
+        this.multiplier = multiplier;
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
         this.minMonthsOfStock = minMonthsOfStock;
         this.productCategoryId = productCategoryId;
@@ -152,6 +154,15 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
     public void setMonthsInFutureForAmc(int monthsInFutureForAmc) {
         this.monthsInFutureForAmc = monthsInFutureForAmc;
     }
+
+ public double getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(double multiplier) {
+        this.multiplier = multiplier;
+    }
+
 
     @Override
     public int hashCode() {

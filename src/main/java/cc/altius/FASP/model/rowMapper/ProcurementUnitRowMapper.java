@@ -35,7 +35,7 @@ public class ProcurementUnitRowMapper implements RowMapper<ProcurementUnit> {
                         new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TRACER_CATEGORY_").mapRow(rs, rowNum))
                     ),
                     new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, rowNum),
-                    new SimpleObject(rs.getInt("PLANNING_UNIT_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_UNIT_").mapRow(rs, rowNum)),
+                    new SimpleCodeObject(rs.getInt("PLANNING_UNIT_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_UNIT_").mapRow(rs, rowNum), rs.getString("PLANNING_UNIT_UNIT_CODE")),
                     rs.getDouble("PLANNING_UNIT_MULTIPLIER")
                 ), 
                 new LabelRowMapper().mapRow(rs, rowNum),

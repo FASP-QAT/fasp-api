@@ -6,7 +6,6 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.TracerCategory;
-import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleCodeObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;

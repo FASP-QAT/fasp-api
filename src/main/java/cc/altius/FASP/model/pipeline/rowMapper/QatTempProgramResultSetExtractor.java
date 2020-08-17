@@ -8,7 +8,7 @@ package cc.altius.FASP.model.pipeline.rowMapper;
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.Country;
 import cc.altius.FASP.model.Currency;
-import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.pipeline.QatTempProgram;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.Region;
@@ -24,11 +24,11 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  *
  * @author altius
  */
-public class QatTempProgramResultSetExtractor implements ResultSetExtractor<Program> {
+public class QatTempProgramResultSetExtractor implements ResultSetExtractor<QatTempProgram> {
 
     @Override
-    public Program extractData(ResultSet rs) throws SQLException, DataAccessException {
-        Program p = new Program();
+    public QatTempProgram extractData(ResultSet rs) throws SQLException, DataAccessException {
+        QatTempProgram p = new QatTempProgram();
         boolean isFirst = true;
         while (rs.next()) {
             if (isFirst) {
@@ -60,6 +60,9 @@ public class QatTempProgramResultSetExtractor implements ResultSetExtractor<Prog
                 p.setArrivedToDeliveredLeadTime(rs.getDouble("ARRIVED_TO_DELIVERED_LEAD_TIME"));
                 p.setShippedToArrivedByAirLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME"));
                 p.setShippedToArrivedBySeaLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME"));
+                p.setMonthsInPastForAmc(rs.getInt("MONTHS_IN_PAST_FOR_AMC"));
+                p.setMonthsInFutureForAmc(rs.getInt("MONTHS_IN_FUTURE_FOR_AMC"));
+                p.setShelfLife(rs.getDouble("SHELF_LIFE"));
                 p.setRegionList(new LinkedList<>());
                 p.setVersionList(new LinkedList<>());
             }
