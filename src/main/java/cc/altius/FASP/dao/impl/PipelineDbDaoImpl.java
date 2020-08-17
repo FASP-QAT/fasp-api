@@ -60,6 +60,9 @@ import cc.altius.FASP.model.pipeline.QatTempFundingSource;
 import cc.altius.FASP.model.pipeline.rowMapper.QatTempFundingSourceRowMapper;
 import cc.altius.FASP.model.pipeline.QatTempProcurementAgent;
 import cc.altius.FASP.model.pipeline.rowMapper.QatTempProcurementAgentRowMapper;
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
+import java.util.Random;
 
 /**
  *
@@ -1150,14 +1153,16 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "if(InvTransferFlag=0,i.InvAmount,0) as ACTUAL_QTY , "
                     + "if(InvTransferFlag=1,i.InvAmount,0) as ADJUSTMENT_QTY , "
                     + "date_format(CONCAT(i.Period),\"%Y-%m-%d\") as INVENTORY_DATE,'' as REGION_ID,  "
-                    + " 0 as REALM_COUNTRY_PLANNING_UNIT_ID,"
-                    + " 0 as MULTIPLIER "
+                    + " COALESCE(rcpu.REALM_COUNTRY_PLANNING_UNIT_ID,0) as REALM_COUNTRY_PLANNING_UNIT_ID,"
+                    + " COALESCE(rcpu.MULTIPLIER,1) as MULTIPLIER "
                     + "from adb_inventory i "
                     + "left join adb_datasource ad on ad.DataSourceID=i.InvDataSourceID and ad.PIPELINE_ID=:pipelineId "
                     + "left join qat_temp_data_source qtds on qtds.PIPELINE_DATA_SOURCE_ID=ad.DataSourceID AND qtds.PIPELINE_ID=:pipelineId "
                     + "left join rm_data_source rds on qtds.DATA_SOURCE_ID=rds.DATA_SOURCE_ID  "
                     + "left join qat_temp_program_planning_unit qtp on qtp.PIPELINE_PRODUCT_ID=i.ProductID "
-                    + "where i.PIPELINE_ID=:pipelineId";
+                    + "left join qat_temp_program tp on tp.PIPELINE_ID=:pipelineId  "
+                    + "left join rm_realm_country_planning_unit rcpu on rcpu.PLANNING_UNIT_ID=qtp.PLANNING_UNIT_ID and  rcpu.REALM_COUNTRY_ID=tp.REALM_COUNTRY_ID"
+                    + " where i.PIPELINE_ID=:pipelineId";
             params.put("pipelineId", pipelineId);
             return gson.toJson(this.namedParameterJdbcTemplate.query(sql, params, new QatInventoryRowMapper()));
         } else {
@@ -1325,7 +1330,22 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         /**
          * *****************Consumption Insert*******************
          */
-        List<QatTempConsumption> pipelineConsumptions = this.getQatTempConsumptionListByPipelienId(pipelineId, curUser);
+
+ String sqlQatTemp = "select "
+                + "c.REGION_ID,"
+                + "c.PLANNING_UNIT_ID,"
+                + "c.CONSUMPTION_DATE, "
+                + "c.DAYS_OF_STOCK_OUT,"
+                + "c.DATA_SOURCE_ID,"
+                + "c.NOTES, "
+                + " (c.CONSUMPTION_QUANTITY*qtp.MULTIPLIER) CONSUMPTION_QUANTITY,"
+                + "c.ACTUAL_FLAG ,"
+                + "1 as ConsNumMonths "
+                + "from qat_temp_consumption c"
+            +" left join qat_temp_program_planning_unit qtp on qtp.PLANNING_UNIT_ID=c.PLANNING_UNIT_ID and qtp.PIPELINE_ID =:pipelineId "
+ + "where c.PIPELINE_ID=:pipelineId;";
+ params.put("pipelineId", pipelineId);
+        List<QatTempConsumption> pipelineConsumptions = this.namedParameterJdbcTemplate.query(sqlQatTemp, params, new QatTempConsumptionRowMapper());
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_consumption");
         SimpleJdbcInsert si_trans = new SimpleJdbcInsert(dataSource).withTableName("rm_consumption_trans");
         for (QatTempConsumption c : pipelineConsumptions) {
@@ -1341,7 +1361,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("CONSUMPTION_ID", this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class));
 
             params.put("REGION_ID", c.getRegionId());
-            params.put("PLANNING_UNIT_ID", c.getPlanningUnitId());
+            params.put("PLANNING_UNIT_ID", c.getPlanningUnitId() );
             params.put("CONSUMPTION_DATE", c.getConsumptionDate());
             params.put("CONSUMPTION_QTY", c.getConsumptionQty());
             params.put("ACTUAL_FLAG", c.isActualFlag());
@@ -1398,33 +1418,93 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         params.clear();
 
         rowsEffected = 0;
-        List<QatTempShipment> pipelineShipments = this.getPipelineShipmentdataById(pipelineId, curUser);
+
+  params.put("pipelineId", pipelineId);
+        sql = "SELECT "
+                + "		st.SHIPMENT_ID, st.EXPECTED_DELIVERY_DATE, "
+                + "st.ORDERED_DATE, st.SHIPPED_DATE, st.RECEIVED_DATE,"
+                + "st.PLANNED_DATE, "
+                + "now() SUBMITTED_DATE,"
+                + "now() APPROVED_DATE,"
+                + "now() ARRIVED_DATE,"
+                + " (st.QUANTITY * qtp.MULTIPLIER) QUANTITY, st.RATE, st.PRODUCT_COST, st.FREIGHT_COST, st.SHIPPING_MODE,( st.SUGGESTED_QTY * qtp.MULTIPLIER) SUGGESTED_QTY, '0' ACCOUNT_FLAG, '0'ERP_FLAG, st.NOTES, "
+                + "		0 VERSION_ID , "
+                + "		st.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pal.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pal.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pal.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pal.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, pal.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, "
+                + "		st.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, "
+                + "		fu.FORECASTING_UNIT_ID, ful.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, ful.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, ful.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, ful.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, ful.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, "
+                + "		pc.PRODUCT_CATEGORY_ID, pcl.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pcl.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pcl.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pcl.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, pcl.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, "
+                + "		st.PROCUREMENT_UNIT_ID, prul.LABEL_ID `PROCUREMENT_UNIT_LABEL_ID`, prul.LABEL_EN `PROCUREMENT_UNIT_LABEL_EN`, prul.LABEL_FR `PROCUREMENT_UNIT_LABEL_FR`, prul.LABEL_SP `PROCUREMENT_UNIT_LABEL_SP`, prul.LABEL_PR `PROCUREMENT_UNIT_LABEL_PR`, "
+                + "        st.SUPPLIER_ID, sul.LABEL_ID `SUPPLIER_LABEL_ID`, sul.LABEL_EN `SUPPLIER_LABEL_EN`, sul.LABEL_FR `SUPPLIER_LABEL_FR`, sul.LABEL_SP `SUPPLIER_LABEL_SP`, sul.LABEL_PR `SUPPLIER_LABEL_PR`, "
+                + "        st.SHIPMENT_STATUS_ID, shsl.LABEL_ID `SHIPMENT_STATUS_LABEL_ID`, shsl.LABEL_EN `SHIPMENT_STATUS_LABEL_EN`, shsl.LABEL_FR `SHIPMENT_STATUS_LABEL_FR`, shsl.LABEL_SP `SHIPMENT_STATUS_LABEL_SP`, shsl.LABEL_PR `SHIPMENT_STATUS_LABEL_PR`, "
+                + "        st.DATA_SOURCE_ID, dsl.LABEL_ID `DATA_SOURCE_LABEL_ID`, dsl.LABEL_EN `DATA_SOURCE_LABEL_EN`, dsl.LABEL_FR `DATA_SOURCE_LABEL_FR`, dsl.LABEL_SP `DATA_SOURCE_LABEL_SP`, dsl.LABEL_PR `DATA_SOURCE_LABEL_PR`, "
+                + "        st.FUNDING_SOURCE_ID, fsl.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fsl.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fsl.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fsl.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fsl.LABEL_PR `FUNDING_SOURCE_LABEL_PR`, "
+                + "		cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, st.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, st.LAST_MODIFIED_DATE, st.ACTIVE "
+                + "   	FROM  qat_temp_shipment st  "
+                + "	LEFT JOIN rm_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID "
+                + "	LEFT JOIN ap_label pal ON pa.LABEL_ID=pal.LABEL_ID "
+                + "	LEFT JOIN rm_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "	LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
+                + "	LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "	LEFT JOIN ap_label ful ON fu.LABEL_ID=ful.LABEL_ID "
+                + "	LEFT JOIN rm_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
+                + "	LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID "
+                + "    LEFT JOIN rm_procurement_unit pru ON st.PROCUREMENT_UNIT_ID=pru.PROCUREMENT_UNIT_ID "
+                + "    LEFT JOIN ap_label prul ON pru.LABEL_ID=prul.LABEL_ID "
+                + "	LEFT JOIN rm_supplier su ON st.SUPPLIER_ID=su.SUPPLIER_ID "
+                + "    LEFT JOIN ap_label sul ON su.LABEL_ID=sul.LABEL_ID "
+                + "    LEFT JOIN ap_shipment_status shs ON st.SHIPMENT_STATUS_ID=shs.SHIPMENT_STATUS_ID "
+                + "    LEFT JOIN ap_label shsl ON shs.LABEL_ID=shsl.LABEL_ID  "
+                + "    LEFT JOIN rm_data_source ds ON st.DATA_SOURCE_ID=ds.DATA_SOURCE_ID "
+                + "	LEFT JOIN ap_label dsl ON ds.LABEL_ID=dsl.LABEL_ID "
+                + "    LEFT JOIN rm_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID "
+                + "	LEFT JOIN ap_label fsl ON fs.LABEL_ID=fsl.LABEL_ID "
+                + "LEFT JOIN us_user cb ON st.CREATED_BY=cb.USER_ID "
+                + "	LEFT JOIN us_user lmb ON st.LAST_MODIFIED_BY=lmb.USER_ID"
+               +" left join qat_temp_program_planning_unit qtp on qtp.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID and qtp.PIPELINE_ID =:pipelineId "
+ 
+                + "	WHERE st.`PIPELINE_ID`=:pipelineId";
+        List<QatTempShipment> pipelineShipments =   this.namedParameterJdbcTemplate.query(sql, params, new QatTempShipmentRowMapper());
+
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_shipment");
         si_trans = new SimpleJdbcInsert(dataSource).withTableName("rm_shipment_trans");
-//        SimpleJdbcInsert si_shipment_budget = new SimpleJdbcInsert(dataSource).withTableName("rm_shipment_budget");
+        SimpleJdbcInsert si_batchInfo = new SimpleJdbcInsert(dataSource).withTableName("rm_batch_info");
+       SimpleJdbcInsert  si_batchInfo_trans = new SimpleJdbcInsert(dataSource).withTableName("rm_shipment_trans_batch_info");
+// SimpleJdbcInsert si_shipment_budget = new SimpleJdbcInsert(dataSource).withTableName("rm_shipment_budget");
         int ShipmentIds[] = new int[pipelineShipments.size()];
         int j = 0;
+        SimpleDateFormat df = new SimpleDateFormat("yymmdd");
         for (QatTempShipment s : pipelineShipments) {
+
             params.put("PROGRAM_ID", programId);
             params.put("CREATED_DATE", curDate);
             params.put("CREATED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
             params.put("LAST_MODIFIED_BY", curUser.getUserId());
-//            params.put("PROCUREMENT_AGENT_ID", s.getProcurementAgent());
-//            params.put("ACCOUNT_FLAG", 1);
-//            params.put("ERP_FLAG", 1);
+            params.put("FUNDING_SOURCE_ID", s.getFundingSource());
             params.put("SUGGESTED_QTY", s.getSuggestedQty());
             params.put("CURRENCY_ID", 1);
             params.put("CONVERSION_RATE_TO_USD", 1);
-//            params.put("EMERGENCY_ORDER", false);
             params.put("ACTIVE", true);
             params.put("MAX_VERSION_ID", version.getVersionId());
             int result = si.execute(params);
             String sqlString = "SELECT LAST_INSERT_ID()";
             int shipmentId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+             params.put("BATCH_NO", String.format("%06d",programId)+String.format("%08d",Integer.parseInt(s.getPlanningUnit()))+df.format(curDate)+ getAlphaNumeric(3) );
+            params.put("PLANNING_UNIT_ID", s.getPlanningUnit());
+            params.put("pipelineId", pipelineId);
+            sql="SELECT SHELF_LIFE FROM qat_temp_program_planning_unit WHERE  PLANNING_UNIT_ID=:PLANNING_UNIT_ID AND PIPELINE_ID=:pipelineId";
+            int shelfLife = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
+          
+            Calendar expiryDate = Calendar.getInstance();
+            expiryDate.setTime(s.getExpectedDeliveryDate());
+            expiryDate.add(Calendar.MONTH,shelfLife);
+            expiryDate.set(Calendar.DAY_OF_MONTH, 1);
+            params.put("EXPIRY_DATE",expiryDate.getTime() );
+             si_batchInfo.execute(params);
+            sqlString = "SELECT LAST_INSERT_ID()";
+            int batchId= this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
             params.put("SHIPMENT_ID", shipmentId);
             params.put("EXPECTED_DELIVERY_DATE", s.getExpectedDeliveryDate());
-            params.put("PLANNING_UNIT_ID", s.getPlanningUnit());
             params.put("PROCUREMENT_AGENT_ID", s.getProcurementAgent());
             params.put("PROCUREMENT_UNIT_ID", s.getProcurementUnit());
             params.put("SUPPLIER_ID", s.getSupplier());
@@ -1472,6 +1552,12 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("ACTIVE", true);
             rowsEffected = +si_trans.execute(params);
 //            result = si_shipment_budget.execute(params);
+             sqlString = "SELECT LAST_INSERT_ID()";
+            int shipmentTransId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+            params.put("BATCH_ID", batchId);
+            params.put("SHIPMENT_TRANS_ID", shipmentTransId);
+            params.put("BATCH_SHIPMENT_QTY", s.getQuantity());
+            si_batchInfo_trans.execute(params);
             params.clear();
         }
         /**
@@ -1479,8 +1565,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
          */
         rowsEffected = 0;
         String sql1 = "SELECT "
-                + "i.ACTUAL_QTY,"
-                + "i.ADJUSTMENT_QTY,"
+                + "(i.ACTUAL_QTY*qtp.MULTIPLIER) ACTUAL_QTY,"
+                + "(i.ADJUSTMENT_QTY*qtp.MULTIPLIER) ADJUSTMENT_QTY,"
                 + "i.DATA_SOURCE_ID, "
                 + "i.INVENTORY_DATE,"
                 + "i.REGION_ID,"
@@ -1491,10 +1577,12 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "i.MULTIPLIER "
                 + "FROM fasp.qat_temp_inventory i"
                 + " left join rm_realm_country_planning_unit rcpu on rcpu.PLANNING_UNIT_ID=i.PLANNING_UNIT_ID and rcpu.REALM_COUNTRY_ID=:realmCountryId"
+                +" left join qat_temp_program_planning_unit qtp on qtp.PLANNING_UNIT_ID=i.PLANNING_UNIT_ID and qtp.PIPELINE_ID =:pipelineId "
+
                 + " where i.PIPELINE_ID=:pipelineId;";
 
         params.put("pipelineId", pipelineId);
-params.put("realmCountryId", p.getRealmCountry().getRealmCountryId());
+        params.put("realmCountryId", p.getRealmCountry().getRealmCountryId());
         List<QatTempInventory> pipelineInventorys = this.namedParameterJdbcTemplate.query(sql1, params, new QatInventoryRowMapper());
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_inventory");
         si_trans = new SimpleJdbcInsert(dataSource).withTableName("rm_inventory_trans");
@@ -1529,6 +1617,21 @@ params.put("realmCountryId", p.getRealmCountry().getRealmCountryId());
 
         return programId;
     }
+
+  public String getAlphaNumeric(int len) {
+    char[] ch = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 
+        'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L',
+        'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X',
+        'Y', 'Z'};
+    
+    char[] c=new char[len];
+    Random random=new Random();
+    for (int i = 0; i < len; i++) {
+      c[i]=ch[random.nextInt(ch.length)];
+    }
+    
+    return new String(c);
+  }
 
  @Override
     public List<QatTempDataSource> getQatTempDataSourceListByPipelienId(int pipelineId, CustomUserDetails curUser) {

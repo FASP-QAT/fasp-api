@@ -237,7 +237,7 @@ public class PipelineDbRestController {
             return new ResponseEntity(this.pipelineDbService.finalSaveProgramData(pipelineId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity(new ResponseCode("incorrectformat"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
