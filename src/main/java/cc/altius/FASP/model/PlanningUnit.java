@@ -16,7 +16,7 @@ public class PlanningUnit extends BaseModel implements Serializable {
     private int planningUnitId;
     private ForecastingUnit forecastingUnit;
     private Label label;
-    private SimpleObject unit;
+    private SimpleCodeObject unit;
     private double multiplier;
 
     public PlanningUnit() {
@@ -27,7 +27,7 @@ public class PlanningUnit extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public PlanningUnit(int planningUnitId, ForecastingUnit forecastingUnit, Label label, SimpleObject unit, double multiplier) {
+    public PlanningUnit(int planningUnitId, ForecastingUnit forecastingUnit, Label label, SimpleCodeObject unit, double multiplier) {
         this.planningUnitId = planningUnitId;
         this.forecastingUnit = forecastingUnit;
         this.label = label;
@@ -59,11 +59,11 @@ public class PlanningUnit extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public SimpleObject getUnit() {
+    public SimpleCodeObject getUnit() {
         return unit;
     }
 
-    public void setUnit(SimpleObject unit) {
+    public void setUnit(SimpleCodeObject unit) {
         this.unit = unit;
     }
 
