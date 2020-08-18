@@ -19,6 +19,7 @@ public class Label extends BaseModel {
     private String label_sp;
     private String label_fr;
     private String label_pr;
+    private Integer sourceId;
 
     public Label(Integer labelId, String label_en, String label_sp, String label_fr, String label_pr) {
         this.labelId = labelId;
@@ -76,6 +77,13 @@ public class Label extends BaseModel {
         this.label_pr = label_pr;
     }
 
+    public Integer getSourceId() {
+        return sourceId;
+    }
+
+    public void setSourceId(Integer sourceId) {
+        this.sourceId = sourceId;
+    }
     @JsonIgnore
     public String getLabel() {
         return this.label_en;

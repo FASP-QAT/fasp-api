@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.HealthAreaDao;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.OrganisationDao;
+import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.PipelineDbDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Label;
@@ -92,6 +93,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     private HealthAreaDao healthAreaDao;
     @Autowired
     private OrganisationDao organisationDao;
+  @Autowired
+    private RealmCountryDao realmCountryDao;
 
     public String sqlListString = "SELECT  "
             + "      p.ARRIVED_TO_DELIVERED_LEAD_TIME,p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME,p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME,"
@@ -1242,10 +1245,14 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser) {
         QatTempProgram p = this.getQatTempProgram(curUser, pipelineId);
         String programCode = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser).getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
-        p.setProgramCode(programCode);
+       p.setProgramCode(programCode);
         Map<String, Object> params = new HashMap<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        int labelId = this.labelDao.addLabel(p.getLabel(), curUser.getUserId());
+        Label l=new Label();
+l.setLabel(p.getLabel());
+       l.setSourceId(18);
+System.out.print( l.getSourceId());
+        int labelId = this.labelDao.addLabel(l, curUser.getUserId());
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program").usingGeneratedKeyColumns("PROGRAM_ID");
         params.put("PROGRAM_CODE", p.getProgramCode());
         params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
@@ -1378,15 +1385,21 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
          * Insert**********************************
          */
 
-        String sql = "SELECT s.`FUNDING_SOURCE_ID`,SUM(IFNULL(s.`FREIGHT_COST`,0)+IFNULL(s.`PRODUCT_COST`,0)) budget,EXTRACT(YEAR FROM MAX(now())) `year` FROM qat_temp_shipment s WHERE s.`PIPELINE_ID`=:pipelineId GROUP BY s.`FUNDING_SOURCE_ID`";
+        String sql = "SELECT s.`FUNDING_SOURCE_ID`,fs.`FUNDING_SOURCE_CODE`,SUM(IFNULL(s.`FREIGHT_COST`,0)+IFNULL(s.`PRODUCT_COST`,0)) budget,EXTRACT(YEAR FROM MAX(now())) `year` FROM qat_temp_shipment s "
+ + " LEFT JOIN  rm_funding_source fs ON fs.`FUNDING_SOURCE_ID`=s.`FUNDING_SOURCE_ID`"
+ + " WHERE s.`PIPELINE_ID`=:pipelineId GROUP BY s.`FUNDING_SOURCE_ID`";
         params.put("pipelineId", pipelineId);
         List<Map<String, Object>> budgetList = this.namedParameterJdbcTemplate.queryForList(sql, params);
         System.out.println("budget list=======>" + budgetList);
         List<Map<String, Object>> newList = new LinkedList<>();
         params.clear();
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_budget").usingGeneratedKeyColumns("BUDGET_ID");
+ 
         for (Map<String, Object> budget : budgetList) {
-            labelId = this.labelDao.addLabel(p.getLabel(), curUser.getUserId());
+            String BudgetName=this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser).getCountry().getLabel().getLabel_en()+ "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-"+budget.get("FUNDING_SOURCE_CODE").toString() ;
+            l.setLabel_en(BudgetName);
+            l.setSourceId(14);
+            labelId = this.labelDao.addLabel(l, curUser.getUserId());
             params.put("BUDGET_CODE", "ABC");
             params.put("PROGRAM_ID", programId);
             params.put("CREATED_DATE", curDate);
@@ -1500,6 +1513,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             expiryDate.add(Calendar.MONTH,shelfLife);
             expiryDate.set(Calendar.DAY_OF_MONTH, 1);
             params.put("EXPIRY_DATE",expiryDate.getTime() );
+params.put("AUTO_GENERATED",true );
              si_batchInfo.execute(params);
             sqlString = "SELECT LAST_INSERT_ID()";
             int batchId= this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
