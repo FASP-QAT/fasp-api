@@ -1653,7 +1653,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "OR upper(al.LABEL_SP)=upper(ds.DataSourceName)  "
                     + "OR upper(al.LABEL_PR)=upper(ds.DataSourceName) "
                     + "left join rm_data_source rds on rds.LABEL_ID=al.LABEL_ID AND al.LABEL_ID IS NOT NULL "
-                + "where ds.PIPELINE_ID=:pipelineId;";
+                + "where ds.PIPELINE_ID=:pipelineId group by ds.`DataSourceID`;";
         params.put("pipelineId", pipelineId);
            
             return this.namedParameterJdbcTemplate.query(sql, params, new QatTempDataSourceRowMapper());
@@ -1710,7 +1710,7 @@ params.put("PIPELINE_ID", pipelineId);
                     + "OR upper(al.LABEL_SP)=upper(ds.FundingSourceName)  "
                     + "OR upper(al.LABEL_PR)=upper(ds.FundingSourceName) "
                     + "left join rm_funding_source rds on (rds.LABEL_ID=al.LABEL_ID AND al.LABEL_ID IS NOT NULL) or upper(rds.FUNDING_SOURCE_CODE)=upper(ds.FundingSourceName) "
-                + "where ds.PIPELINE_ID=:pipelineId;";
+                + "where ds.PIPELINE_ID=:pipelineId group by ds.FundingSourceID;";
         params.put("pipelineId", pipelineId);
            
             return this.namedParameterJdbcTemplate.query(sql, params, new QatTempFundingSourceRowMapper());
@@ -1765,7 +1765,7 @@ params.put("PIPELINE_ID", pipelineId);
                     + "OR upper(al.LABEL_SP)=upper(ds.SupplierName)  "
                     + "OR upper(al.LABEL_PR)=upper(ds.SupplierName) "
                     + "left join rm_procurement_agent rds on (rds.LABEL_ID=al.LABEL_ID AND al.LABEL_ID IS NOT NULL) or upper(rds.PROCUREMENT_AGENT_CODE)=upper(ds.SupplierName) "
-                + "where ds.PIPELINE_ID=:pipelineId;";
+                + "where ds.PIPELINE_ID=:pipelineId group by ds.SupplierID;";
         params.put("pipelineId", pipelineId);
            
             return this.namedParameterJdbcTemplate.query(sql, params, new QatTempProcurementAgentRowMapper());
