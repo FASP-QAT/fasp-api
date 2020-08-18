@@ -20,6 +20,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import cc.altius.FASP.dao.ForecastingUnitDao;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.service.AclService;
 
 /**
@@ -71,9 +72,9 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_forecasting_unit").usingGeneratedKeyColumns("FORECASTING_UNIT_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        int labelId = this.labelDao.addLabel(forecastingUnit.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(forecastingUnit.getLabel(), LabelConstants.RM_FORECASTING_UNIT, curUser.getUserId());
         params.put("LABEL_ID", labelId);
-        int genericLabelId = this.labelDao.addLabel(forecastingUnit.getGenericLabel(), curUser.getUserId());
+        int genericLabelId = this.labelDao.addLabel(forecastingUnit.getGenericLabel(), LabelConstants.RM_FORECASTING_UNIT_GENERIC_NAME, curUser.getUserId());
         params.put("GENERIC_LABEL_ID", genericLabelId);
         params.put("REALM_ID", forecastingUnit.getRealm().getId());
         params.put("UNIT_ID", forecastingUnit.getUnit().getId());

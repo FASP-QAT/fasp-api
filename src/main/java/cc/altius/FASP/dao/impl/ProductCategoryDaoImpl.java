@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProductCategoryDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ExtendedProductCategory;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.rowMapper.ProductCategoryRowMapper;
 import cc.altius.FASP.model.rowMapper.TreeExtendedProductCategoryResultSetExtractor;
@@ -73,7 +74,7 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
     @Transactional(propagation = Propagation.NESTED)
     public int addProductCategory(Node<ProductCategory> productCategory, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_product_category").usingGeneratedKeyColumns("PRODUCT_CATEGORY_ID");
-        int labelId = this.labelDao.addLabel(productCategory.getPayload().getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(productCategory.getPayload().getLabel(), LabelConstants.RM_PRODUCT_CATEGORY, curUser.getUserId());
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", productCategory.getPayload().getRealm().getId());

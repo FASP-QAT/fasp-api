@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.CountryDao;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.Country;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.rowMapper.CountryRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
@@ -58,7 +59,7 @@ public class CountryDaoImpl implements CountryDao {
     @Override
     public int addCountry(Country country, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
-        int insertedLabelRowId = this.labelDao.addLabel(country.getLabel(), curUser.getUserId());
+        int insertedLabelRowId = this.labelDao.addLabel(country.getLabel(), LabelConstants.AP_COUNTRY, curUser.getUserId());
         SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("ap_country").usingGeneratedKeyColumns("COUNTRY_ID");
         Map<String, Object> map = new HashMap<>();
         map.put("CURRENCY_ID", country.getCurrency().getId());

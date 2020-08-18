@@ -21,6 +21,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import cc.altius.FASP.dao.SupplierDao;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.service.AclService;
 
 /**
@@ -54,7 +55,7 @@ public class SupplierDaoImpl implements SupplierDao {
             + " LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
             + " LEFT JOIN us_user cb ON m.CREATED_BY=cb.USER_ID "
             + " LEFT JOIN us_user lmb ON m.LAST_MODIFIED_BY=lmb.USER_ID "
-            + " WHERE TRUE "; 
+            + " WHERE TRUE ";
 
     @Override
     @Transactional
@@ -63,7 +64,7 @@ public class SupplierDaoImpl implements SupplierDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", m.getRealm().getId());
-        int labelId = this.labelDao.addLabel(m.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(m.getLabel(), LabelConstants.RM_SUPPLIER, curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());

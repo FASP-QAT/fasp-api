@@ -11,6 +11,7 @@ import cc.altius.FASP.model.BusinessFunction;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
 import cc.altius.FASP.model.ForgotPasswordToken;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.UserAcl;
@@ -550,7 +551,7 @@ public class UserDaoImpl implements UserDao {
         for (int i = 0; i < splited.length; i++) {
             roleId = roleId + "_" + splited[i].toUpperCase();
         }
-        labelId = this.labelDao.addLabel(role.getLabel(), 1);
+        labelId = this.labelDao.addLabel(role.getLabel(), LabelConstants.US_ROLE, 1);
         params.put("ROLE_ID", roleId);
         params.put("LABEL_ID", labelId);
         params.put("CREATED_BY", curUser.getUserId());

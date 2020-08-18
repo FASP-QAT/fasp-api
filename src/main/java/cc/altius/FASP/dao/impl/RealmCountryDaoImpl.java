@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.rowMapper.RealmCountryPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.RealmCountryRowMapper;
@@ -227,7 +228,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                 params.put("PLANNING_UNIT_ID", rcpu.getPlanningUnit().getId());
                 params.put("REALM_COUNTRY_ID", rcpu.getRealmCountry().getId());
                 params.put("SKU_CODE", rcpu.getSkuCode());
-                int labelId = this.labelDao.addLabel(rcpu.getLabel(), curUser.getUserId());
+                int labelId = this.labelDao.addLabel(rcpu.getLabel(), LabelConstants.RM_REALM_COUNTRY_PLANNING_UNIT, curUser.getUserId());
                 params.put("LABEL_ID", labelId);
                 params.put("MULTIPLIER", rcpu.getMultiplier());
 //                params.put("GTIN", rcpu.getGtin());

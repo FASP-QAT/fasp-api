@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.DataSourceTypeDao;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DataSourceType;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.rowMapper.DataSourceTypeRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
@@ -59,7 +60,7 @@ public class DataSourceTypeDaoImpl implements DataSourceTypeDao {
     @Override
     public int addDataSourceType(DataSourceType dataSourceType, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
-        int insertedRow = this.labelDao.addLabel(dataSourceType.getLabel(), curUser.getUserId());
+        int insertedRow = this.labelDao.addLabel(dataSourceType.getLabel(), LabelConstants.RM_DATA_SOURCE_TYPE, curUser.getUserId());
         SimpleJdbcInsert insertDataSource = new SimpleJdbcInsert(dataSource).withTableName("rm_data_source_type").usingGeneratedKeyColumns("DATA_SOURCE_TYPE_ID");
         Map<String, Object> params = new HashMap<>();
         params.put("LABEL_ID", insertedRow);

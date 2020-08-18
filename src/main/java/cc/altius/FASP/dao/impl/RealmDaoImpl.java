@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.rowMapper.RealmRowMapper;
 import cc.altius.FASP.service.AclService;
@@ -60,7 +61,7 @@ public class RealmDaoImpl implements RealmDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_CODE", r.getRealmCode());
-        int labelId = this.labelDao.addLabel(r.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(r.getLabel(), LabelConstants.AP_REALM, curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("DEFAULT_REALM", r.isDefaultRealm());
         params.put("MIN_MOS_MIN_GAURDRAIL", r.getMinMosMinGaurdrail());

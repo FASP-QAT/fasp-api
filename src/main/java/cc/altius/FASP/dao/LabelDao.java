@@ -17,7 +17,7 @@ import java.util.List;
  */
 public interface LabelDao {
 
-    public int addLabel(Label label, int curUser);
+    public int addLabel(Label label, int sourceId, int curUser);
 
     public List<DatabaseTranslationsDTO> getDatabaseLabelsList(int realmId);
     
