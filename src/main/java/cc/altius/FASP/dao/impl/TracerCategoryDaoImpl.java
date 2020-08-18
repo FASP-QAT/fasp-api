@@ -21,6 +21,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import cc.altius.FASP.dao.TracerCategoryDao;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.service.AclService;
 
 /**
@@ -63,7 +64,7 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", m.getRealm().getId());
-        int labelId = this.labelDao.addLabel(m.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(m.getLabel(), LabelConstants.RM_TRACER_CATEGORY, curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());

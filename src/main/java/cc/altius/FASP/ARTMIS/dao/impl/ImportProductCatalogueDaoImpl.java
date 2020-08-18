@@ -404,6 +404,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     private void pullUnit() {
         // --------------------------Unit Table-----------------------
         logger.info("------------------------------- Unit ------------------------------------");
+
         logger.info("Going to drop tmp_unit");
         String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_unit`";
         this.jdbcTemplate.execute(sqlString);

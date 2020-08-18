@@ -9,8 +9,10 @@ import cc.altius.FASP.dao.BudgetDao;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Budget;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.rowMapper.BudgetRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.web.controller.LabelController;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -41,7 +43,7 @@ public class BudgetDaoImpl implements BudgetDao {
 
     @Autowired
     private LabelDao labelDao;
-    @Autowired 
+    @Autowired
     private AclService aclService;
 
     private final String sqlListString = "SELECT "
@@ -91,10 +93,10 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("PROGRAM_ID", b.getProgram().getId());
         params.put("BUDGET_CODE", b.getBudgetCode());
         params.put("FUNDING_SOURCE_ID", b.getFundingSource().getFundingSourceId());
-        int labelId = this.labelDao.addLabel(b.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(b.getLabel(), LabelConstants.RM_BUDGET, curUser.getUserId());
         params.put("BUDGET_AMT", b.getBudgetAmt());
         params.put("CURRENCY_ID", b.getCurrency().getCurrencyId());
-        params.put("CONVERSION_RATE_TO_USD",b.getCurrency().getConversionRateToUsd());
+        params.put("CONVERSION_RATE_TO_USD", b.getCurrency().getConversionRateToUsd());
         params.put("START_DATE", b.getStartDate());
         params.put("STOP_DATE", b.getStopDate());
         params.put("NOTES", b.getNotes());
@@ -120,7 +122,7 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         params.put("labelEn", b.getLabel().getLabel_en());
-        params.put("notes",b.getNotes());
+        params.put("notes", b.getNotes());
         return this.namedParameterJdbcTemplate.update("UPDATE rm_budget b "
                 + "LEFT JOIN ap_label bl ON b.LABEL_ID=bl.LABEL_ID SET "
                 + "bl.`LABEL_EN`=:labelEn, "
@@ -139,8 +141,8 @@ public class BudgetDaoImpl implements BudgetDao {
         for (String pId : programIds) {
             paramBuilder.append("'").append(pId).append("',");
         }
-        if (programIds.length>0) {
-            paramBuilder.setLength(paramBuilder.length()-1);
+        if (programIds.length > 0) {
+            paramBuilder.setLength(paramBuilder.length() - 1);
         }
         sqlStringBuilder.append(" AND p.PROGRAM_ID IN (").append(paramBuilder).append(") ");
         Map<String, Object> params = new HashMap<>();

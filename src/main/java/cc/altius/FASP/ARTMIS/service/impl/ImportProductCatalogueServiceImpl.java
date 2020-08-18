@@ -39,6 +39,8 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Value("${catalogFilePath}")
     private String CATALOG_FILE_PATH;
+    @Value("schedulerActive")
+    private String schedulerActive;
 
     @Override
 //    @Transactional(propagation = Propagation.REQUIRED)
@@ -61,57 +63,69 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
 //        this.importProductCatalogueDao.pullSupplierFromTmpTables();
 //        this.importProductCatalogueDao.pullProcurementUnitFromTmpTables();
             } else {
-                subjectParam = new String[]{"Product Catalogue", "Directory does not exists"};
-                bodyParam = new String[]{"Product Catalogue", date, "Directory does not exists", "Directory does not exists"};
+                if (schedulerActive.equals("1")) {
+                    subjectParam = new String[]{"Product Catalogue", "Directory does not exists"};
+                    bodyParam = new String[]{"Product Catalogue", date, "Directory does not exists", "Directory does not exists"};
+                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+                    int emailerId = this.emailService.saveEmail(emailer);
+                    emailer.setEmailerId(emailerId);
+                    this.emailService.sendMail(emailer);
+                }
+                logger.error("Directory does not exists");
+            }
+        } catch (FileNotFoundException e) {
+            if (schedulerActive.equals("1")) {
+                subjectParam = new String[]{"Product Catalogue", "File not found"};
+                bodyParam = new String[]{"Product Catalogue", date, "File not found", e.getMessage()};
                 emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
                 this.emailService.sendMail(emailer);
-                logger.error("Directory does not exists");
             }
-        } catch (FileNotFoundException e) {
-            subjectParam = new String[]{"Product Catalogue", "File not found"};
-            bodyParam = new String[]{"Product Catalogue", date, "File not found", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
-            int emailerId = this.emailService.saveEmail(emailer);
-            emailer.setEmailerId(emailerId);
-            this.emailService.sendMail(emailer);
             logger.error("File not found exception occured", e);
             this.importProductCatalogueDao.rollBackAutoIncrement();
         } catch (SAXException e) {
-            subjectParam = new String[]{"Product Catalogue", "Xml syntax error"};
-            bodyParam = new String[]{"Product Catalogue", date, "Xml syntax error", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
-            int emailerId = this.emailService.saveEmail(emailer);
-            emailer.setEmailerId(emailerId);
-            this.emailService.sendMail(emailer);
+            if (schedulerActive.equals("1")) {
+                subjectParam = new String[]{"Product Catalogue", "Xml syntax error"};
+                bodyParam = new String[]{"Product Catalogue", date, "Xml syntax error", e.getMessage()};
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+                int emailerId = this.emailService.saveEmail(emailer);
+                emailer.setEmailerId(emailerId);
+                this.emailService.sendMail(emailer);
+            }
             logger.error("SAX exception occured", e);
             this.importProductCatalogueDao.rollBackAutoIncrement();
         } catch (IOException e) {
-            subjectParam = new String[]{"Product Catalogue", "Input/Output error"};
-            bodyParam = new String[]{"Product Catalogue", date, "Input/Output error", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
-            int emailerId = this.emailService.saveEmail(emailer);
-            emailer.setEmailerId(emailerId);
-            this.emailService.sendMail(emailer);
+            if (schedulerActive.equals("1")) {
+                subjectParam = new String[]{"Product Catalogue", "Input/Output error"};
+                bodyParam = new String[]{"Product Catalogue", date, "Input/Output error", e.getMessage()};
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+                int emailerId = this.emailService.saveEmail(emailer);
+                emailer.setEmailerId(emailerId);
+                this.emailService.sendMail(emailer);
+            }
             logger.error("IO exception occured", e);
             this.importProductCatalogueDao.rollBackAutoIncrement();
         } catch (BadSqlGrammarException | DataIntegrityViolationException e) {
-            subjectParam = new String[]{"Product Catalogue", "SQL Exception"};
-            bodyParam = new String[]{"Product Catalogue", date, "SQL Exception", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
-            int emailerId = this.emailService.saveEmail(emailer);
-            emailer.setEmailerId(emailerId);
+            if (schedulerActive.equals("1")) {
+                subjectParam = new String[]{"Product Catalogue", "SQL Exception"};
+                bodyParam = new String[]{"Product Catalogue", date, "SQL Exception", e.getMessage()};
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+                int emailerId = this.emailService.saveEmail(emailer);
+                emailer.setEmailerId(emailerId);
+            }
             this.emailService.sendMail(emailer);
             logger.error("SQL exception occured", e);
             this.importProductCatalogueDao.rollBackAutoIncrement();
         } catch (Exception e) {
-            subjectParam = new String[]{"Product Catalogue", e.getClass().toString()};
-            bodyParam = new String[]{"Product Catalogue", date, e.getClass().toString(), e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
-            int emailerId = this.emailService.saveEmail(emailer);
-            emailer.setEmailerId(emailerId);
-            this.emailService.sendMail(emailer);
+            if (schedulerActive.equals("1")) {
+                subjectParam = new String[]{"Product Catalogue", e.getClass().toString()};
+                bodyParam = new String[]{"Product Catalogue", date, e.getClass().toString(), e.getMessage()};
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+                int emailerId = this.emailService.saveEmail(emailer);
+                emailer.setEmailerId(emailerId);
+                this.emailService.sendMail(emailer);
+            }
             logger.error("Export supply plan exception occured", e);
             this.importProductCatalogueDao.rollBackAutoIncrement();
         }

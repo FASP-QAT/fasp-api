@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.UnitDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.Unit;
 import cc.altius.FASP.model.rowMapper.UnitRowMapper;
 import cc.altius.utils.DateUtils;
@@ -61,7 +62,7 @@ public class UnitDaoImpl implements UnitDao {
         Map<String, Object> params = new HashMap<>();
         params.put("DIMENSION_ID", u.getDimension().getId());
         params.put("UNIT_CODE", u.getUnitCode());
-        int labelId = this.labelDao.addLabel(u.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(u.getLabel(), LabelConstants.AP_UNIT, curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
