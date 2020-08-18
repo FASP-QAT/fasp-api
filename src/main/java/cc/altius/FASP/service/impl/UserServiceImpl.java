@@ -176,7 +176,7 @@ public class UserServiceImpl implements UserService {
 //            if (emailTemplateId == 1) {
 //                bodyParam = new String[]{HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
 //            } else if (emailTemplateId == 2) {
-            bodyParam = new String[]{user.getUsername(), HOST_URL, PASSWORD_RESET_URL, emailId, token};
+            bodyParam = new String[]{emailId, HOST_URL, PASSWORD_RESET_URL, emailId, token};
 //            }
             System.out.println("emailId---" + emailId);
             Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
