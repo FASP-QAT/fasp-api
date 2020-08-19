@@ -23,12 +23,15 @@ public class QatTempConsumption {
     private String dataSourceId;
     private int consNumMonth;
     private String notes;
+    private int realmCountryPlanningUnitId;
+    private double multiplier;
+
     
     
     public QatTempConsumption() {
     }
 
-    public QatTempConsumption(int consumptionId, String regionId, String planningUnitId, String consumptionDate, boolean actualFlag, double consumptionQty, int dayOfStockOut, String dataSourceId, String notes,int consNumMonth) {
+    public QatTempConsumption(int consumptionId, String regionId, String planningUnitId, String consumptionDate, boolean actualFlag, double consumptionQty, int dayOfStockOut, String dataSourceId, String notes,int consNumMonth,int realmCountryPlanningUnitId,double  multiplier) {
         this.consumptionId = consumptionId;
         this.regionId = regionId;
         this.planningUnitId = planningUnitId;
@@ -39,6 +42,8 @@ public class QatTempConsumption {
         this.dataSourceId = dataSourceId;
         this.notes = notes;
         this.consNumMonth=consNumMonth;
+        this.realmCountryPlanningUnitId=realmCountryPlanningUnitId;
+        this.multiplier=multiplier;
     }
 
     public int getConsNumMonth() {
@@ -120,6 +125,21 @@ public class QatTempConsumption {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+     public int getRealmCountryPlanningUnitId() {
+        return realmCountryPlanningUnitId;
+    }
+
+    public void setRealmCountryPlanningUnitId(int realmCountryPlanningUnitId) {
+        this.realmCountryPlanningUnitId = realmCountryPlanningUnitId;
+    }
+
+    public double getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(double multiplier) {
+        this.multiplier = multiplier;
     }
     
 }
