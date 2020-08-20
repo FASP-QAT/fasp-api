@@ -55,11 +55,11 @@ public class LabelDaoImpl implements LabelDao {
         params.put("LABEL_FR", label.getLabel_fr());
         params.put("LABEL_SP", label.getLabel_sp());
         params.put("LABEL_PR", label.getLabel_pr());
+        params.put("SOURCE_ID", sourceId);
         params.put("CREATED_BY", curUser);
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", curUser);
         params.put("LAST_MODIFIED_DATE", curDate);
-        params.put("SOURCE_ID", sourceId);
         return si.executeAndReturnKey(params).intValue();
     }
 
