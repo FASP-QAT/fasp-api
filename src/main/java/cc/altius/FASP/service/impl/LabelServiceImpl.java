@@ -9,7 +9,6 @@ import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.DatabaseTranslationsDTO;
 import cc.altius.FASP.model.DTO.StaticLabelDTO;
-import cc.altius.FASP.model.Label;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

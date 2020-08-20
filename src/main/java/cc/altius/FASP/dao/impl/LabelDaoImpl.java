@@ -47,7 +47,7 @@ public class LabelDaoImpl implements LabelDao {
 
     @Override
     @Transactional
-    public int addLabel(Label label, int curUser) {
+    public int addLabel(Label label, int sourceId, int curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
         Map<String, Object> params = new HashMap<>();
@@ -55,6 +55,7 @@ public class LabelDaoImpl implements LabelDao {
         params.put("LABEL_FR", label.getLabel_fr());
         params.put("LABEL_SP", label.getLabel_sp());
         params.put("LABEL_PR", label.getLabel_pr());
+        params.put("SOURCE_ID", sourceId);
         params.put("CREATED_BY", curUser);
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", curUser);

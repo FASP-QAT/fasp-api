@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 
 /**
@@ -42,7 +43,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
 
     @Override
 //    @Transactional(propagation = Propagation.REQUIRED)
-//    @Transactional
+    @Transactional
     public void importProductCatalogue() throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException {
         EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
         String[] subjectParam = new String[]{};
@@ -54,12 +55,6 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
             File directory = new File(CATALOG_FILE_PATH);
             if (directory.isDirectory()) {
                 this.importProductCatalogueDao.importProductCatalogue();
-//            this.importProductCatalogueDao.pullUnitTable();
-//        this.importProductCatalogueDao.pullTracerCategoryFromTmpTables();
-//        this.importProductCatalogueDao.pullForecastingUnitFromTmpTables();
-//        this.importProductCatalogueDao.pullPlanningUnitFromTmpTables();
-//        this.importProductCatalogueDao.pullSupplierFromTmpTables();
-//        this.importProductCatalogueDao.pullProcurementUnitFromTmpTables();
             } else {
                 subjectParam = new String[]{"Product Catalogue", "Directory does not exists"};
                 bodyParam = new String[]{"Product Catalogue", date, "Directory does not exists", "Directory does not exists"};

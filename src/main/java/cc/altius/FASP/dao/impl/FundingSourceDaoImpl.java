@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.FundingSourceDao;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.FundingSource;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.rowMapper.FundingSourceRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
@@ -65,7 +66,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
         Map<String, Object> params = new HashMap<>();
         params.put("FUNDING_SOURCE_CODE", f.getFundingSourceCode());
         params.put("REALM_ID", f.getRealm().getId());
-        int labelId = this.labelDao.addLabel(f.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(f.getLabel(), LabelConstants.RM_FUNDING_SOURCE, curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());

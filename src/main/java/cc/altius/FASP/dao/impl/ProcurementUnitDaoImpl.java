@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProcurementUnitDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.ProcurementUnit;
 import cc.altius.FASP.model.rowMapper.ProcurementUnitRowMapper;
 import cc.altius.FASP.service.AclService;
@@ -138,7 +139,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_procurement_unit").usingGeneratedKeyColumns("PROCUREMENT_UNIT_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        int labelId = this.labelDao.addLabel(procurementUnit.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(procurementUnit.getLabel(), LabelConstants.RM_PROCUREMENT_UNIT, curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("PLANNING_UNIT_ID", procurementUnit.getPlanningUnit().getPlanningUnitId());
         params.put("UNIT_ID", procurementUnit.getUnit().getId());

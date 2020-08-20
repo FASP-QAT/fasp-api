@@ -15,6 +15,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import cc.altius.FASP.dao.DimensionDao;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -53,7 +54,7 @@ public class DimensionDaoImpl implements DimensionDao {
     @Override
     public int addDimension(Dimension dimension, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
-        int labelId = this.labelDao.addLabel(dimension.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(dimension.getLabel(), LabelConstants.AP_DIMENSION, curUser.getUserId());
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ap_dimension").usingGeneratedKeyColumns("DIMENSION_ID");
         Map<String, Object> params = new HashMap<>();
         params.put("LABEL_ID", labelId);
@@ -90,7 +91,7 @@ public class DimensionDaoImpl implements DimensionDao {
     public List<Dimension> getDimensionList(boolean active) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        if(active) {
+        if (active) {
             sqlStringBuilder.append(" AND d.ACTIVE");
             params.put("active", active);
         }

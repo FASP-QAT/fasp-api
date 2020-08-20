@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
@@ -74,7 +75,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         params.put("PROCUREMENT_AGENT_CODE", p.getProcurementAgentCode());
         params.put("COLOR_HTML_CODE", p.getColorHtmlCode());
         params.put("REALM_ID", p.getRealm().getId());
-        int labelId = this.labelDao.addLabel(p.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(p.getLabel(), LabelConstants.RM_PROCUREMENT_AGENT, curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());
         params.put("APPROVED_TO_SHIPPED_LEAD_TIME", p.getApprovedToShippedLeadTime());
@@ -177,7 +178,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
 
     @Override
     public int saveProcurementAgentPlanningUnit(ProcurementAgentPlanningUnit[] procurementAgentPlanningUnits, CustomUserDetails curUser) {
-        System.out.println("procurementAgentPlanningUnits---"+Arrays.toString(procurementAgentPlanningUnits));
+        System.out.println("procurementAgentPlanningUnits---" + Arrays.toString(procurementAgentPlanningUnits));
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_procurement_agent_planning_unit");
         List<SqlParameterSource> insertList = new ArrayList<>();
         List<SqlParameterSource> updateList = new ArrayList<>();
