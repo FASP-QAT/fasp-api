@@ -5,11 +5,12 @@
  */
 package cc.altius.FASP;
 
-import org.springframework.beans.factory.config.PropertiesFactoryBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 /**
  *
@@ -19,12 +20,16 @@ import org.springframework.core.io.FileSystemResource;
 public class ApplicationConfiguration {
 
     @Bean
-    public PropertiesFactoryBean versionProperties() {
-        PropertiesFactoryBean bean = new PropertiesFactoryBean();
-        bean.setLocation(new ClassPathResource("application.properties"));
-        bean.setLocation(new ClassPathResource("fasp.properties"));
-        bean.setLocation(new ClassPathResource("version.properties"));
-        bean.setLocation(new FileSystemResource("/home/altius/QAT/scheduler.properties"));
-        return bean;
+    public static PropertySourcesPlaceholderConfigurer properties() {
+        PropertySourcesPlaceholderConfigurer pspc = new PropertySourcesPlaceholderConfigurer();
+        Resource[] resources = new Resource[]{
+            new ClassPathResource("application.properties"), 
+            new ClassPathResource("fasp.properties"), 
+            new ClassPathResource("version.properties"), 
+            new FileSystemResource("/home/altius/QAT/scheduler.properties"),
+        };
+        pspc.setLocations(resources);
+        pspc.setIgnoreUnresolvablePlaceholders(true);
+        return pspc;
     }
 }

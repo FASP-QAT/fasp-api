@@ -11,6 +11,7 @@ import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.service.EmailService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 /**
@@ -22,6 +23,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Autowired
     private EmailDao emailDao;
+
+    @Value("${schedulerActive}")
+    private String schedulerActive;
 
     @Override
     public EmailTemplate getEmailTemplateByEmailTemplateId(int emailTemplateId) {
@@ -80,7 +84,9 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendMail(Emailer emailer) {
         try {
-            this.emailDao.sendMail(emailer);
+            if (schedulerActive.equals("1")) {
+                this.emailDao.sendMail(emailer);
+            }
         } catch (Exception e) {
         }
     }

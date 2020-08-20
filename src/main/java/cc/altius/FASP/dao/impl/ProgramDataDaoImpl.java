@@ -134,9 +134,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `CONSUMPTION_ID` INT UNSIGNED NULL, "
                 + "  `REGION_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `REALM_COUNTRY_PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `CONSUMPTION_DATE` DATE NOT NULL, "
                 + "  `ACTUAL_FLAG` TINYINT UNSIGNED NOT NULL, "
-                + "  `QTY` INT(10) UNSIGNED NOT NULL, "
+                + "  `RCPU_QTY` DOUBLE UNSIGNED NOT NULL, "
+                + "  `QTY` DOUBLE UNSIGNED NOT NULL, "
                 + "  `DAYS_OF_STOCK_OUT` INT UNSIGNED NOT NULL, "
                 + "  `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `NOTES` TEXT NULL, "
@@ -176,9 +178,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("ID", id);
             tp.put("CONSUMPTION_ID", (c.getConsumptionId() == 0 ? null : c.getConsumptionId()));
             tp.put("REGION_ID", c.getRegion().getId());
+            tp.put("REALM_COUNTRY_PLANNING_UNIT_ID", c.getPlanningUnit().getId());
             tp.put("PLANNING_UNIT_ID", c.getPlanningUnit().getId());
             tp.put("CONSUMPTION_DATE", c.getConsumptionDate());
             tp.put("ACTUAL_FLAG", c.isActualFlag());
+            tp.put("RCPU_QTY", c.getConsumptionQty());
             tp.put("QTY", c.getConsumptionQty());
             tp.put("DAYS_OF_STOCK_OUT", c.getDayOfStockOut());
             tp.put("DATA_SOURCE_ID", c.getDataSource().getId());
@@ -251,7 +255,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
             params.put("versionId", version.getVersionId());
             // Insert the rows where Consumption Id is not null
-            sqlString = "INSERT INTO rm_consumption_trans SELECT null, tc.CONSUMPTION_ID, tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.CONSUMPTION_DATE, tc.ACTUAL_FLAG, tc.QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, :curUser, :curDate, :versionId"
+            sqlString = "INSERT INTO rm_consumption_trans SELECT null, tc.CONSUMPTION_ID, tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.CONSUMPTION_DATE, tc.REALM_COUNTRY_PLANNING_UNIT_ID, tc.ACTUAL_FLAG, tc.QTY, tc.RCPU_QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, :curUser, :curDate, :versionId"
                     + " FROM fasp.tmp_consumption tc "
                     + " WHERE tc.CHANGED=1 AND tc.CONSUMPTION_ID!=0";
             consumptionRows = this.namedParameterJdbcTemplate.update(sqlString, params);
@@ -275,7 +279,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 sqlString = "INSERT INTO rm_consumption (PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) VALUES (:programId, :curUser, :curDate, :curUser, :curDate, :versionId)";
                 consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
                 params.replace("id", tmpId);
-                sqlString = "INSERT INTO rm_consumption_trans SELECT null, LAST_INSERT_ID(), tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.CONSUMPTION_DATE, tc.ACTUAL_FLAG, tc.QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, :curUser, :curDate, :versionId FROM tmp_consumption tc WHERE tc.ID=:id";
+                sqlString = "INSERT INTO rm_consumption_trans SELECT null, LAST_INSERT_ID(), tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.CONSUMPTION_DATE, tc.REALM_COUNTRY_PLANNING_UNIT_ID, tc.ACTUAL_FLAG, tc.QTY, tc.RCPU_QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, :curUser, :curDate, :versionId FROM tmp_consumption tc WHERE tc.ID=:id";
                 this.namedParameterJdbcTemplate.update(sqlString, params);
                 sqlString = "INSERT INTO rm_consumption_trans_batch_info SELECT null, LAST_INSERT_ID(), tcbi.BATCH_ID, tcbi.BATCH_QTY from tmp_consumption_batch_info tcbi WHERE tcbi.PARENT_ID=:id";
                 this.namedParameterJdbcTemplate.update(sqlString, params);
