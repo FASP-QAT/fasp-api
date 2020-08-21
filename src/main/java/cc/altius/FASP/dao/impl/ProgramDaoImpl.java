@@ -527,6 +527,12 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public int delinkShipment(int shipmentId, CustomUserDetails curUser) {
+        
+//        r 3) the way to do this would be as follows
+//
+//a. The Shipment Row would be marked as Active = False and ERP_Flag = True, the first thing to do is to create a new ShipmentTrans with Active = True and ERP_Flag = False also set ORDER_NO and PRIME_LINE_NO to null in the new shipmentTrans
+//
+//b. The other Shipments that have the ParentShipmentId = ShipmentId also need to have a ShipmentTrans added making the Active = False
         String sql = "";
         return this.jdbcTemplate.update(sql, shipmentId);
     }
