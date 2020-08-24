@@ -283,11 +283,11 @@ public class ProgramRestController {
         }
     }
 
-    @GetMapping("/orderDetails/{orderNo}/{primeLineNo}")
-    public ResponseEntity getOrderDetailsByOrderNoAndPrimeLineNo(@PathVariable("orderNo") String orderNo, @PathVariable("primeLineNo") int primeLineNo, Authentication auth) {
+    @GetMapping("/orderDetails/{programId}/{planningUnitId}/{orderNo}/{primeLineNo}")
+    public ResponseEntity getOrderDetailsByOrderNoAndPrimeLineNo(@PathVariable("programId") int programId, @PathVariable("planningUnitId") int planningUnitId, @PathVariable("orderNo") String orderNo, @PathVariable("primeLineNo") int primeLineNo, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getOrderDetailsByOrderNoAndPrimeLineNo(orderNo, primeLineNo), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getOrderDetailsByOrderNoAndPrimeLineNo(programId, planningUnitId, orderNo, primeLineNo), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -333,6 +333,7 @@ public class ProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @PostMapping("/delinkShipment/")
     public ResponseEntity delinkShipment(@RequestBody ErpOrderDTO erpOrderDTO, Authentication auth) {
         try {
