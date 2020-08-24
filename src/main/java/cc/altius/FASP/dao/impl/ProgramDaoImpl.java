@@ -492,17 +492,35 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<ManualTaggingDTO> getShipmentListForManualTagging(int programId, int planningUnitId) {
+        System.out.println("programId--->>>>>>" + programId);
+        System.out.println("planningUnitId--->>>>>>" + planningUnitId);
         String sql = "CALL getShipmentListForManualLinking(:programId, :planningUnitId, -1)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("planningUnitId", planningUnitId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
+        List<ManualTaggingDTO> list = this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
+        System.out.println("list--------------" + list);
+        return list;
     }
 
     @Override
-    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(String orderNo, int primeLineNo) {
-        String sql = "SELECT * FROM rm_erp_order e WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=?;";
-        return this.jdbcTemplate.queryForObject(sql, new ErpOrderDTORowMapper(), orderNo, primeLineNo);
+    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo) {
+        String sql = "SELECT  IF(c1.REALM_COUNTRY_ID=p.`REALM_COUNTRY_ID`,IF(sm.`SHIPMENT_STATUS_ID`!=7,IF(pu.`PROCUREMENT_AGENT_PLANNING_UNIT_ID` !=NULL,\"\",\"\"),\"Shipment already delivered\"),\"Different realm country found\") AS REASON "
+                + " FROM rm_erp_order o "
+                + " LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE "
+                + " FROM rm_realm_country rc "
+                + " LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=o.RECPIENT_COUNTRY "
+                + " LEFT JOIN rm_program p ON p.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND p.`PROGRAM_ID`=? "
+                + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=o.`STATUS` "
+                + " LEFT JOIN rm_procurement_agent_planning_unit pu ON pu.`SKU_CODE`=o.`PLANNING_UNIT_SKU_CODE` AND pu.`PROCUREMENT_AGENT_ID`=1 AND pu.`PLANNING_UNIT_ID`=? "
+                + " WHERE o.ORDER_NO=? AND o.PRIME_LINE_NO=? "
+                + " GROUP BY o.`ERP_ORDER_ID`;";
+        String reason = this.jdbcTemplate.queryForObject(sql, String.class, programId, planningUnitId, orderNo, primeLineNo);
+        sql = "SELECT * FROM rm_erp_order e WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=?;";
+        ErpOrderDTO erpOrderDTO = this.jdbcTemplate.queryForObject(sql, new ErpOrderDTORowMapper(), orderNo, primeLineNo);
+        erpOrderDTO.setReason(reason);
+        return erpOrderDTO;
     }
 
     @Override
@@ -525,8 +543,15 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public int delinkShipment(int shipmentId, CustomUserDetails curUser) {
-        String sql = "";
-        return this.jdbcTemplate.update(sql, shipmentId);
+
+//        r 3) the way to do this would be as follows
+//
+//a. The Shipment Row would be marked as Active = False and ERP_Flag = True, the first thing to do is to create a new ShipmentTrans with Active = True and ERP_Flag = False also set ORDER_NO and PRIME_LINE_NO to null in the new shipmentTrans
+//
+//b. The other Shipments that have the ParentShipmentId = ShipmentId also need to have a ShipmentTrans added making the Active = False
+        String sql = "SELECT s.`PARENT_SHIPMENT_ID` FROM rm_shipment s WHERE s.`SHIPMENT_ID`=?;";
+        int parentShipmentId = this.jdbcTemplate.update(sql, shipmentId);
+        return parentShipmentId;
     }
 
 }
