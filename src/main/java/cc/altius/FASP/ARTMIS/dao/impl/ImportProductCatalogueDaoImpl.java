@@ -302,17 +302,18 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             String planningUnitPerPallet = dataRecordElement.getElementsByTagName("planning_unit_per_pallet").item(0).getTextContent();
                             map.put("planningUnitPallet", planningUnitPerPallet);
 
-
-                            /* 
                             // To be used once ARTMIS confirm that they have implemented the split till then stick to Euro 1 only
-                            String[] noOfPallets = planningUnitPerPallet.split("|");
-                            String euro1 = (noOfPallets[0].split("-")[1] != null && noOfPallets[0].split("-")[1] != "" ? noOfPallets[0].split("-")[1] : "0");
-                            String euro2 = (noOfPallets[1].split("-")[1] != null && noOfPallets[1].split("-")[1] != "" ? noOfPallets[1].split("-")[1] : "0");
-                            map.put("euro1", euro1);
-                            map.put("euro2", euro2);
-                             */
-                            map.put("euro1", planningUnitPerPallet);
-                            map.put("euro2", null);
+                            try {
+                                String[] noOfPallets = planningUnitPerPallet.split("\\|");
+                                String euro1 = (noOfPallets[0].split("-")[1] != null && noOfPallets[0].split("-")[1] != "" ? noOfPallets[0].split("-")[1] : "0");
+                                String euro2 = (noOfPallets[1].split("-")[1] != null && noOfPallets[1].split("-")[1] != "" ? noOfPallets[1].split("-")[1] : "0");
+                                map.put("euro1", euro1);
+                                map.put("euro2", euro2);
+                            } catch (Exception e) {
+                                map.put("euro1", planningUnitPerPallet);
+                                map.put("euro2", null);
+                            }
+
                             map.put("planningUnitsPerContainer", dataRecordElement.getElementsByTagName("planning_unit_per_container").item(0).getTextContent());
                             map.put("planningUnitVolumeM3", dataRecordElement.getElementsByTagName("planning_unit_volume_m3").item(0).getTextContent());
                             map.put("planningUnitWeightKg", dataRecordElement.getElementsByTagName("planning_unit_weight_kg").item(0).getTextContent());

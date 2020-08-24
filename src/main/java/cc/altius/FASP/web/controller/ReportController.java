@@ -592,8 +592,8 @@ public class ReportController {
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
      * -- report will be run using startDate and stopDate based on Delivered Date or Expected Delivery Date
      * -- planningUnitIds is provided as a list of planningUnitId's or empty for all
-     * -- includePlannedShipments = 1 means the report will include all shipments that are Active and not Cancelled
-     * -- includePlannedShipments = 0 means only Approve, Shipped, Arrived, Delivered statuses will be included in the report
+     * -- includePlannedShipments = 1 means only Approve, Shipped, Arrived, Delivered statuses will be included in the report
+     * -- includePlannedShipments = 0 means the report will include all shipments that are Active and not Cancelled
      * -- FreightCost and ProductCost are converted to USD
      * -- FreightPerc is in SUM(FREIGHT_COST)/SUM(PRODUCT_COST) for that ProcurementAgent and that PlanningUnit
      * </pre>
