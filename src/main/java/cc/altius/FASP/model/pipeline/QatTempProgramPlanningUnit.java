@@ -25,9 +25,9 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
     private int productCategoryId;
     private String pipelineProductName;
     private String pipelineProductCategoryName;
-    private double localProcurmentLeadTime;
+    private Double localProcurmentLeadTime;
     private int shelfLife;
-    private double catalogPrice;
+    private Double catalogPrice;
     private int monthsInPastForAmc;
     private int monthsInFutureForAmc;
     
@@ -115,11 +115,11 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
         this.pipelineProductCategoryName = pipelineProductCategoryName;
     }
 
-    public double getLocalProcurmentLeadTime() {
+    public Double getLocalProcurmentLeadTime() {
         return localProcurmentLeadTime;
     }
 
-    public void setLocalProcurmentLeadTime(double localProcurmentLeadTime) {
+    public void setLocalProcurmentLeadTime(Double localProcurmentLeadTime) {
         this.localProcurmentLeadTime = localProcurmentLeadTime;
     }
 
@@ -131,11 +131,11 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
         this.shelfLife = shelfLife;
     }
 
-    public double getCatalogPrice() {
+    public Double getCatalogPrice() {
         return catalogPrice;
     }
 
-    public void setCatalogPrice(double catalogPrice) {
+    public void setCatalogPrice(Double catalogPrice) {
         this.catalogPrice = catalogPrice;
     }
 

@@ -24,6 +24,7 @@ public class Consumption extends BaseModel implements Serializable {
     private SimpleObject region;
     private SimplePlanningUnitObject planningUnit;
     private SimpleObject realmCountryPlanningUnit;
+    private double multiplier;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date consumptionDate;
@@ -70,6 +71,14 @@ public class Consumption extends BaseModel implements Serializable {
 
     public void setPlanningUnit(SimplePlanningUnitObject planningUnit) {
         this.planningUnit = planningUnit;
+    }
+
+    public double getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(double multiplier) {
+        this.multiplier = multiplier;
     }
 
     public Date getConsumptionDate() {

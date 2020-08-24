@@ -213,8 +213,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(String orderNo, int primeLineNo) {
-        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(orderNo, primeLineNo);
+    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo) {
+        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(programId, planningUnitId, orderNo, primeLineNo);
     }
 
     @Override

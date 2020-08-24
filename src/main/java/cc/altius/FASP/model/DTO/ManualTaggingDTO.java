@@ -94,5 +94,11 @@ public class ManualTaggingDTO implements Serializable {
     public void setProductCost(double productCost) {
         this.productCost = productCost;
     }
+
+    @Override
+    public String toString() {
+        return "ManualTaggingDTO{" + "shipmentId=" + shipmentId + ", shipmentTransId=" + shipmentTransId + ", expectedDeliveryDate=" + expectedDeliveryDate + ", shipmentStatus=" + shipmentStatus + ", procurementAgent=" + procurementAgent + ", budget=" + budget + ", shipmentQty=" + shipmentQty + ", productCost=" + productCost + '}';
+    }
+    
     
 }
