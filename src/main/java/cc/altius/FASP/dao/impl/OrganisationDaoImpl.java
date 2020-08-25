@@ -13,6 +13,7 @@ import cc.altius.FASP.model.rowMapper.OrganisationResultSetExtractor;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import cc.altius.FASP.dao.OrganisationDao;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.service.AclService;
 import java.util.HashMap;
 import java.util.List;
@@ -72,7 +73,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", o.getRealm().getId());
-        int labelId = this.labelDao.addLabel(o.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(o.getLabel(), LabelConstants.RM_ORGANISATION, curUser.getUserId());
         params.put("ORGANISATION_CODE", o.getOrganisationCode());
         params.put("LABEL_ID", labelId);
         params.put("ACTIVE", true);

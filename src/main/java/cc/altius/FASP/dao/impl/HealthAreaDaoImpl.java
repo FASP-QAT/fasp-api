@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.HealthAreaDao;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.HealthArea;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.rowMapper.HealthAreaListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.HealthAreaResultSetExtractor;
 import cc.altius.FASP.service.AclService;
@@ -63,7 +64,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
             + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
             + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
             + "WHERE TRUE ";
-    
+
     @Override
     @Transactional
     public int addHealthArea(HealthArea h, CustomUserDetails curUser) {
@@ -71,7 +72,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", h.getRealm().getId());
-        int labelId = this.labelDao.addLabel(h.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(h.getLabel(), LabelConstants.RM_HEALTH_AREA, curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("HEALTH_AREA_CODE", h.getHealthAreaCode());
         params.put("ACTIVE", true);

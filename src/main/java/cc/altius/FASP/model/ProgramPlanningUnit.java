@@ -16,6 +16,7 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
     private int programPlanningUnitId;
     private SimpleObject program;
     private SimpleObject planningUnit;
+    private SimpleObject productCategory;
     private int reorderFrequencyInMonths;
     private int minMonthsOfStock;
     private double localProcurementLeadTime;
@@ -27,10 +28,11 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
     public ProgramPlanningUnit() {
     }
 
-    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, int reorderFrequencyInMonths, int minMonthsOfStock, double localProcurementLeadTime, int shelfLife, double catalogPrice, int monthsInPastForAmc, int monthsInFutureForAmc) {
+    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, SimpleObject productCategory, int reorderFrequencyInMonths, int minMonthsOfStock, double localProcurementLeadTime, int shelfLife, double catalogPrice, int monthsInPastForAmc, int monthsInFutureForAmc) {
         this.programPlanningUnitId = programPlanningUnitId;
         this.program = program;
         this.planningUnit = planningUnit;
+        this.productCategory = productCategory;
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
         this.minMonthsOfStock = minMonthsOfStock;
         this.localProcurementLeadTime = localProcurementLeadTime;
@@ -62,6 +64,14 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
 
     public void setPlanningUnit(SimpleObject planningUnit) {
         this.planningUnit = planningUnit;
+    }
+
+    public SimpleObject getProductCategory() {
+        return productCategory;
+    }
+
+    public void setProductCategory(SimpleObject productCategory) {
+        this.productCategory = productCategory;
     }
 
     public int getReorderFrequencyInMonths() {

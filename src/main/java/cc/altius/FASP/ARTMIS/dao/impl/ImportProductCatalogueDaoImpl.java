@@ -27,7 +27,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -83,40 +82,32 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     private String CATALOG_FILE_PATH;
     @Value("${catalogBkpFilePath}")
     private String BKP_CATALOG_FILE_PATH;
-
-    private static org.slf4j.Logger LOG = LoggerFactory.getLogger(ImportProductCatalogueDaoImpl.class);
+    @Value("${email.toList}")
+    private String toList;
+    @Value("${email.ccList}")
+    private String ccList;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     @Transactional
     public void importProductCatalogue() throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException {
-//        try {
         EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
-        String[] subjectParam = new String[]{};
-        String[] bodyParam = null;
-        Emailer emailer = new Emailer();
+        String[] subjectParam;
+        String[] bodyParam;
+        Emailer emailer;
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
         String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         String fileList = "";
         File dir = new File(CATALOG_FILE_PATH);
         FileFilter fileFilter = new WildcardFileFilter("item_data_*.xml");
         File[] files = dir.listFiles(fileFilter);
-        String sqlString = "";
+        String sqlString;
         Arrays.sort(files, new FileNameComparator());
         logger.info("Going to start product catalogue import");
         for (int i = 0; i < files.length; i++) {
             fileList += " " + files[i];
             logger.info("File names---" + files[i]);
         }
-//        if (files.length > 1) {
-//            subjectParam = new String[]{"Product Catalogue", "Multiple files found in source folder"};
-//            bodyParam = new String[]{"Product Catalogue", date, "Multiple files found in source folder", fileList};
-//            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
-//            int emailerId = this.emailService.saveEmail(emailer);
-//            emailer.setEmailerId(emailerId);
-//            this.emailService.sendMail(emailer);
-//            logger.info("Multiple files found in source folder");
-//        } else 
         if (files.length < 1) {
             subjectParam = new String[]{"Product Catalogue", "File not found"};
             bodyParam = new String[]{"Product Catalogue", date, "File not found", "File not found"};
@@ -311,17 +302,18 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             String planningUnitPerPallet = dataRecordElement.getElementsByTagName("planning_unit_per_pallet").item(0).getTextContent();
                             map.put("planningUnitPallet", planningUnitPerPallet);
 
-
-                            /* 
                             // To be used once ARTMIS confirm that they have implemented the split till then stick to Euro 1 only
-                            String[] noOfPallets = planningUnitPerPallet.split("|");
-                            String euro1 = (noOfPallets[0].split("-")[1] != null && noOfPallets[0].split("-")[1] != "" ? noOfPallets[0].split("-")[1] : "0");
-                            String euro2 = (noOfPallets[1].split("-")[1] != null && noOfPallets[1].split("-")[1] != "" ? noOfPallets[1].split("-")[1] : "0");
-                            map.put("euro1", euro1);
-                            map.put("euro2", euro2);
-                             */
-                            map.put("euro1", planningUnitPerPallet);
-                            map.put("euro2", null);
+                            try {
+                                String[] noOfPallets = planningUnitPerPallet.split("\\|");
+                                String euro1 = (noOfPallets[0].split("-")[1] != null && noOfPallets[0].split("-")[1] != "" ? noOfPallets[0].split("-")[1] : "0");
+                                String euro2 = (noOfPallets[1].split("-")[1] != null && noOfPallets[1].split("-")[1] != "" ? noOfPallets[1].split("-")[1] : "0");
+                                map.put("euro1", euro1);
+                                map.put("euro2", euro2);
+                            } catch (Exception e) {
+                                map.put("euro1", planningUnitPerPallet);
+                                map.put("euro2", null);
+                            }
+
                             map.put("planningUnitsPerContainer", dataRecordElement.getElementsByTagName("planning_unit_per_container").item(0).getTextContent());
                             map.put("planningUnitVolumeM3", dataRecordElement.getElementsByTagName("planning_unit_volume_m3").item(0).getTextContent());
                             map.put("planningUnitWeightKg", dataRecordElement.getElementsByTagName("planning_unit_weight_kg").item(0).getTextContent());
@@ -350,13 +342,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     }
                     int[] rows1 = namedParameterJdbcTemplate.batchUpdate(sqlString, batchParams);
                     logger.info("Successfully inserted into tmp_product_catalog records---" + rows1.length);
-
                     sqlString = "DELETE tpc.* FROM tmp_product_catalog tpc where tpc.TaskOrder ='UNKNOWN'";
                     int dRows = this.jdbcTemplate.update(sqlString);
                     logger.info("Delted rows from tmp_product_catalog because the TaskOrder was UNKNOWN ---" + dRows);
-
-//                    sqlString = "SELECT COUNT(*) FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '';";
-//                    logger.info("rows with product name no pack ---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
                     sqlString = "SELECT COUNT(*) FROM tmp_product_catalog;";
                     logger.info("Total rows inserted in tmp_product_catalog---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
                     pullUnit();
@@ -366,8 +354,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     pullPlanningUnit();
                     pullSupplier();
                     pullProcurementUnit();
-
-//
                     File directory = new File(BKP_CATALOG_FILE_PATH);
                     if (directory.isDirectory()) {
                         fXmlFile.renameTo(new File(BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
@@ -375,35 +361,25 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     } else {
                         subjectParam = new String[]{"Product Catalogue", "Backup directory does not exists"};
                         bodyParam = new String[]{"Product Catalogue", date, "Backup directory does not exists", "Backup directory does not exists"};
-                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                         int emailerId = this.emailService.saveEmail(emailer);
                         emailer.setEmailerId(emailerId);
                         this.emailService.sendMail(emailer);
                         logger.error("Backup directory does not exists");
                     }
-//        throw new NullPointerException();
                     logger.info("######################################################################");
                     logger.info("Completed import for file " + fXmlFile.getName());
                     logger.info("######################################################################");
                 }
             }
         }
-//        } catch (ParserConfigurationException ex) {
-//            LOG.error("Error occured while reading product catalogue ParserConfigurationException---" + ex);
-//        } catch (SAXException ex) {
-//            LOG.error("Error occured while reading product catalogue SAXException---" + ex);
-//        } catch (FileNotFoundException ex) {
-//            logger.info("*******File not found at location---" + filePath);
-//        } catch (IOException ex) {
-//            logger.info("*******Error occured while reading file from location---" + filePath);
-//            LOG.error("Error occured while reading product catalogue IOException---" + ex);
-//        }
     }
 
     @Transactional
     private void pullUnit() {
         // --------------------------Unit Table-----------------------
         logger.info("------------------------------- Unit ------------------------------------");
+
         logger.info("Going to drop tmp_unit");
         String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_unit`";
         this.jdbcTemplate.execute(sqlString);
@@ -854,7 +830,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     }
 
     @Transactional
-    private void pullSupplier() throws BadSqlGrammarException {
+    private void pullSupplier() {
         //------------Supplier----------------
         logger.info("------------------------------- Suppliers ------------------------------------");
         String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_supplier`";
@@ -1178,5 +1154,5 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         sqlString = "ALTER TABLE rm_procurement_agent_procurement_unit AUTO_INCREMENT = 1";
         this.jdbcTemplate.update(sqlString);
     }
-    
+
 }

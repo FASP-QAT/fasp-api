@@ -23,10 +23,13 @@ public class Consumption extends BaseModel implements Serializable {
     private int consumptionId;
     private SimpleObject region;
     private SimplePlanningUnitObject planningUnit;
+    private SimpleObject realmCountryPlanningUnit;
+    private double multiplier;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date consumptionDate;
     private boolean actualFlag;
+    private double consumptionRcpuQty;
     private double consumptionQty;
     private int dayOfStockOut;
     private SimpleObject dataSource;
@@ -54,12 +57,28 @@ public class Consumption extends BaseModel implements Serializable {
         this.region = region;
     }
 
+    public SimpleObject getRealmCountryPlanningUnit() {
+        return realmCountryPlanningUnit;
+    }
+
+    public void setRealmCountryPlanningUnit(SimpleObject realmCountryPlanningUnit) {
+        this.realmCountryPlanningUnit = realmCountryPlanningUnit;
+    }
+
     public SimplePlanningUnitObject getPlanningUnit() {
         return planningUnit;
     }
 
     public void setPlanningUnit(SimplePlanningUnitObject planningUnit) {
         this.planningUnit = planningUnit;
+    }
+
+    public double getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(double multiplier) {
+        this.multiplier = multiplier;
     }
 
     public Date getConsumptionDate() {
@@ -76,6 +95,14 @@ public class Consumption extends BaseModel implements Serializable {
 
     public void setActualFlag(boolean actualFlag) {
         this.actualFlag = actualFlag;
+    }
+
+    public double getConsumptionRcpuQty() {
+        return consumptionRcpuQty;
+    }
+
+    public void setConsumptionRcpuQty(double consumptionRcpuQty) {
+        this.consumptionRcpuQty = consumptionRcpuQty;
     }
 
     public double getConsumptionQty() {

@@ -75,7 +75,6 @@ public class Label extends BaseModel {
     public void setLabel_pr(String label_pr) {
         this.label_pr = label_pr;
     }
-
     @JsonIgnore
     public String getLabel() {
         return this.label_en;

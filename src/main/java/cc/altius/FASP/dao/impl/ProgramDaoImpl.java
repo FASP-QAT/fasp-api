@@ -14,6 +14,7 @@ import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.SimpleObject;
@@ -131,6 +132,7 @@ public class ProgramDaoImpl implements ProgramDao {
     public String sqlListStringForProgramPlanningUnit = " SELECT ppu.PROGRAM_PLANNING_UNIT_ID,  "
             + " pg.PROGRAM_ID, pgl.LABEL_ID `PROGRAM_LABEL_ID`, pgl.LABEL_EN `PROGRAM_LABEL_EN`, pgl.LABEL_FR `PROGRAM_LABEL_FR`, pgl.LABEL_PR `PROGRAM_LABEL_PR`, pgl.LABEL_SP `PROGRAM_LABEL_SP`, "
             + " pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
+            + " pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, "
             + " ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.MIN_MONTHS_OF_STOCK, ppu.LOCAL_PROCUREMENT_LEAD_TIME, ppu.SHELF_LIFE, ppu.CATALOG_PRICE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, "
             + " ppu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ppu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppu.LAST_MODIFIED_DATE "
             + " FROM  rm_program_planning_unit ppu  "
@@ -139,6 +141,8 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN ap_label pgl ON pgl.LABEL_ID=pg.LABEL_ID "
             + " LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
             + " LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
+            + " LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+            + " LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
             + " LEFT JOIN us_user cb ON ppu.CREATED_BY=cb.USER_ID "
             + " LEFT JOIN us_user lmb ON ppu.LAST_MODIFIED_BY=lmb.USER_ID "
             + " WHERE TRUE ";
@@ -148,7 +152,7 @@ public class ProgramDaoImpl implements ProgramDao {
     public int addProgram(Program p, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        int labelId = this.labelDao.addLabel(p.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(p.getLabel(), LabelConstants.RM_PROGRAM, curUser.getUserId());
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program").usingGeneratedKeyColumns("PROGRAM_ID");
         params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
         params.put("ORGANISATION_ID", p.getOrganisation().getId());
@@ -458,21 +462,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId, int productCategoryId, boolean active, CustomUserDetails curUser) {
-        String sqlListStr = " SELECT ppu.PROGRAM_PLANNING_UNIT_ID,  "
-                + " pg.PROGRAM_ID, pgl.LABEL_ID `PROGRAM_LABEL_ID`, pgl.LABEL_EN `PROGRAM_LABEL_EN`, pgl.LABEL_FR `PROGRAM_LABEL_FR`, pgl.LABEL_PR `PROGRAM_LABEL_PR`, pgl.LABEL_SP `PROGRAM_LABEL_SP`, "
-                + " pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
-                + " ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.MIN_MONTHS_OF_STOCK,ppu.LOCAL_PROCUREMENT_LEAD_TIME, ppu.SHELF_LIFE, ppu.CATALOG_PRICE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, "
-                + " ppu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ppu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppu.LAST_MODIFIED_DATE "
-                + " FROM  rm_program_planning_unit ppu  "
-                + " LEFT JOIN rm_program pg ON pg.PROGRAM_ID=ppu.PROGRAM_ID "
-                + " LEFT JOIN rm_realm_country rc ON pg.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                + " LEFT JOIN ap_label pgl ON pgl.LABEL_ID=pg.LABEL_ID "
-                + " LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
-                + " LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
-                + " LEFT JOIN us_user cb ON ppu.CREATED_BY=cb.USER_ID "
-                + " LEFT JOIN us_user lmb ON ppu.LAST_MODIFIED_BY=lmb.USER_ID "
-                + " LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.FORECASTING_UNIT_ID"
-                + " WHERE true";
+        String sqlListStr = this.sqlListStringForProgramPlanningUnit;
         StringBuilder sqlStringBuilder = new StringBuilder(sqlListStr).append(" AND pg.PROGRAM_ID=:programId");
         if (active) {
             sqlStringBuilder = sqlStringBuilder.append(" AND ppu.ACTIVE ");
@@ -502,28 +492,35 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<ManualTaggingDTO> getShipmentListForManualTagging(int programId, int planningUnitId) {
-        String sql = " SELECT st.`EXPECTED_DELIVERY_DATE`,`statusLabel`.`LABEL_EN` AS SHIPMENT_STATUS_DESC, "
-                + "`paLabel`.`LABEL_EN` AS PROCUREMENT_AGENT_NAME,`baLabel`.`LABEL_EN` AS BUDGET_DESC,st.`SHIPMENT_QTY`,st.`PRODUCT_COST`,st.`SHIPMENT_ID`,st.`SHIPMENT_TRANS_ID` "
-                + " FROM rm_shipment_trans st "
-                + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-                + "LEFT JOIN ap_shipment_status ss ON ss.`SHIPMENT_STATUS_ID`=st.`SHIPMENT_STATUS_ID` "
-                + "LEFT JOIN ap_label statusLabel ON statusLabel.`LABEL_ID`=ss.`LABEL_ID` "
-                + "LEFT JOIN rm_procurement_agent pa ON pa.`PROCUREMENT_AGENT_ID`=st.`PROCUREMENT_AGENT_ID` "
-                + "LEFT JOIN ap_label paLabel ON paLabel.`LABEL_ID`=pa.`LABEL_ID` "
-                + "LEFT JOIN rm_budget b ON b.`BUDGET_ID`=st.`BUDGET_ID` "
-                + "LEFT JOIN ap_label baLabel ON baLabel.`LABEL_ID`=b.`LABEL_ID` "
-                + "WHERE s.`PROGRAM_ID`=:programId AND st.`PLANNING_UNIT_ID`=:planningUnitId "
-                + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+        System.out.println("programId--->>>>>>" + programId);
+        System.out.println("planningUnitId--->>>>>>" + planningUnitId);
+        String sql = "CALL getShipmentListForManualLinking(:programId, :planningUnitId, -1)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("planningUnitId", planningUnitId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
+        List<ManualTaggingDTO> list = this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
+        System.out.println("list--------------" + list);
+        return list;
     }
 
     @Override
-    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(String orderNo, int primeLineNo) {
-        String sql = "SELECT * FROM rm_erp_order e WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=?;";
-        return this.jdbcTemplate.queryForObject(sql, new ErpOrderDTORowMapper(), orderNo, primeLineNo);
+    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo) {
+        String sql = "SELECT  IF(c1.REALM_COUNTRY_ID=p.`REALM_COUNTRY_ID`,IF(sm.`SHIPMENT_STATUS_ID`!=7,IF(pu.`PROCUREMENT_AGENT_PLANNING_UNIT_ID` !=NULL,\"\",\"\"),\"Shipment already delivered\"),\"Different realm country found\") AS REASON "
+                + " FROM rm_erp_order o "
+                + " LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE "
+                + " FROM rm_realm_country rc "
+                + " LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=o.RECPIENT_COUNTRY "
+                + " LEFT JOIN rm_program p ON p.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND p.`PROGRAM_ID`=? "
+                + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=o.`STATUS` "
+                + " LEFT JOIN rm_procurement_agent_planning_unit pu ON pu.`SKU_CODE`=o.`PLANNING_UNIT_SKU_CODE` AND pu.`PROCUREMENT_AGENT_ID`=1 AND pu.`PLANNING_UNIT_ID`=? "
+                + " WHERE o.ORDER_NO=? AND o.PRIME_LINE_NO=? "
+                + " GROUP BY o.`ERP_ORDER_ID`;";
+        String reason = this.jdbcTemplate.queryForObject(sql, String.class, programId, planningUnitId, orderNo, primeLineNo);
+        sql = "SELECT * FROM rm_erp_order e WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=?;";
+        ErpOrderDTO erpOrderDTO = this.jdbcTemplate.queryForObject(sql, new ErpOrderDTORowMapper(), orderNo, primeLineNo);
+        erpOrderDTO.setReason(reason);
+        return erpOrderDTO;
     }
 
     @Override
@@ -537,18 +534,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId) {
-        String sql = " SELECT st.`EXPECTED_DELIVERY_DATE`,`statusLabel`.`LABEL_EN` AS SHIPMENT_STATUS_DESC, "
-                + "`paLabel`.`LABEL_EN` AS PROCUREMENT_AGENT_NAME,`baLabel`.`LABEL_EN` AS BUDGET_DESC,st.`SHIPMENT_QTY`,st.`PRODUCT_COST`,st.`SHIPMENT_ID`,st.`SHIPMENT_TRANS_ID` "
-                + " FROM rm_shipment_trans st "
-                + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-                + "LEFT JOIN ap_shipment_status ss ON ss.`SHIPMENT_STATUS_ID`=st.`SHIPMENT_STATUS_ID` "
-                + "LEFT JOIN ap_label statusLabel ON statusLabel.`LABEL_ID`=ss.`LABEL_ID` "
-                + "LEFT JOIN rm_procurement_agent pa ON pa.`PROCUREMENT_AGENT_ID`=st.`PROCUREMENT_AGENT_ID` "
-                + "LEFT JOIN ap_label paLabel ON paLabel.`LABEL_ID`=pa.`LABEL_ID` "
-                + "LEFT JOIN rm_budget b ON b.`BUDGET_ID`=st.`BUDGET_ID` "
-                + "LEFT JOIN ap_label baLabel ON baLabel.`LABEL_ID`=b.`LABEL_ID` "
-                + "WHERE s.`PROGRAM_ID`=:programId AND st.`PLANNING_UNIT_ID`=:planningUnitId "
-                + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+        String sql = "CALL getShipmentListFor(:programId, :planningUnitId, -1)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("planningUnitId", planningUnitId);
@@ -557,8 +543,15 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public int delinkShipment(int shipmentId, CustomUserDetails curUser) {
-        String sql = "";
-        return this.jdbcTemplate.update(sql, shipmentId);
+
+//        r 3) the way to do this would be as follows
+//
+//a. The Shipment Row would be marked as Active = False and ERP_Flag = True, the first thing to do is to create a new ShipmentTrans with Active = True and ERP_Flag = False also set ORDER_NO and PRIME_LINE_NO to null in the new shipmentTrans
+//
+//b. The other Shipments that have the ParentShipmentId = ShipmentId also need to have a ShipmentTrans added making the Active = False
+        String sql = "SELECT s.`PARENT_SHIPMENT_ID` FROM rm_shipment s WHERE s.`SHIPMENT_ID`=?;";
+        int parentShipmentId = this.jdbcTemplate.update(sql, shipmentId);
+        return parentShipmentId;
     }
 
 }
