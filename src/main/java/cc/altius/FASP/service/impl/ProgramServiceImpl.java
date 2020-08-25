@@ -228,8 +228,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int delinkShipment(int shipmentId, CustomUserDetails curUser) {
-        return this.programDao.delinkShipment(shipmentId, curUser);
+    public void delinkShipment(int shipmentId, CustomUserDetails curUser) {
+        this.programDao.delinkShipment(shipmentId, curUser);
     }
 
 }

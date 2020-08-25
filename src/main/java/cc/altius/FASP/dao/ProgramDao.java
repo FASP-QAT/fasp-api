@@ -57,5 +57,5 @@ public interface ProgramDao {
 
     public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId);
 
-    public int delinkShipment(int shipmentId, CustomUserDetails curUser);
+    public void delinkShipment(int shipmentId, CustomUserDetails curUser);
 }
