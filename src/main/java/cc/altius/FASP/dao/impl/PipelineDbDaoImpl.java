@@ -801,7 +801,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + " '-1' as CATALOG_PRICE, "
                     + " 1 as MULTIPLIER, "
                     + " COALESCE(qtp.MONTHS_IN_PAST_FOR_AMC,'') as MONTHS_IN_PAST_FOR_AMC, "
-                    + " COALESCE(qtp.MONTHS_IN_FUTURE_FOR_AMC,'') as MONTHS_IN_FUTURE_FOR_AMC, p.ProductActiveFlag as ACTIVE"
+                    + " COALESCE(qtp.MONTHS_IN_FUTURE_FOR_AMC,'') as MONTHS_IN_FUTURE_FOR_AMC, p.ProductActiveFlag as ACTIVE "
                     + "FROM fasp.adb_product p "
                     + "left join qat_temp_program qtp on  qtp.PIPELINE_ID=:pipelineId "
                     + "left join adb_method m on m.MethodID=p.MethodID and m.PIPELINE_ID=:pipelineId "
