@@ -35,6 +35,7 @@ public class QatTempPlanningUnitRowMapper implements RowMapper<QatTempProgramPla
         p.setMultiplier(rs.getDouble("MULTIPLIER"));
         p.setMonthsInFutureForAmc(rs.getInt("MONTHS_IN_FUTURE_FOR_AMC"));
         p.setMonthsInPastForAmc(rs.getInt("MONTHS_IN_PAST_FOR_AMC"));
+        p.setActive(rs.getBoolean("ACTIVE"));
         return p;
     }
 
