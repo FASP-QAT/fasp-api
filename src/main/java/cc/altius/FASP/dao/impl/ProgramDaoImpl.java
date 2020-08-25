@@ -536,7 +536,11 @@ public class ProgramDaoImpl implements ProgramDao {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("planningUnitId", planningUnitId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
+        List<ManualTaggingDTO> list = this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
+        System.out.println("programId---"+programId);
+        System.out.println("planningUnitId---"+planningUnitId);
+        System.out.println("list----------"+list);
+        return list;
     }
 
     @Override
