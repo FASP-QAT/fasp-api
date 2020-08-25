@@ -14,7 +14,7 @@ import java.util.Objects;
  *
  * @author altius
  */
-public class QatTempProgramPlanningUnit extends BaseModel implements Serializable {
+public class QatTempProgramPlanningUnit  implements Serializable {
     
     private String programPlanningUnitId;
     private SimpleObject program;
@@ -30,6 +30,7 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
     private Double catalogPrice;
     private int monthsInPastForAmc;
     private int monthsInFutureForAmc;
+    private boolean active;
     
     public QatTempProgramPlanningUnit() {
     }
@@ -155,12 +156,20 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
         this.monthsInFutureForAmc = monthsInFutureForAmc;
     }
 
- public double getMultiplier() {
+    public double getMultiplier() {
         return multiplier;
     }
 
     public void setMultiplier(double multiplier) {
         this.multiplier = multiplier;
+    }
+
+     public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
 
