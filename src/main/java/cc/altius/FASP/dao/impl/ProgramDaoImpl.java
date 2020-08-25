@@ -492,8 +492,6 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<ManualTaggingDTO> getShipmentListForManualTagging(int programId, int planningUnitId) {
-        System.out.println("programId--->>>>>>" + programId);
-        System.out.println("planningUnitId--->>>>>>" + planningUnitId);
         String sql = "CALL getShipmentListForManualLinking(:programId, :planningUnitId, -1)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
@@ -534,7 +532,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId) {
-        String sql = "CALL getShipmentListFor(:programId, :planningUnitId, -1)";
+        String sql = "CALL getShipmentListForDeLinking(:programId, :planningUnitId, -1)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("planningUnitId", planningUnitId);
