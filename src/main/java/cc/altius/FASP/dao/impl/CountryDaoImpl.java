@@ -102,7 +102,7 @@ public class CountryDaoImpl implements CountryDao {
     public List<Country> getCountryList(boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         if (active) {
-            sqlStringBuilder.append(" AND c.ACTIVE");
+            sqlStringBuilder.append(" AND c.ACTIVE ORDER BY cl.`LABEL_EN`");
         }
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), new CountryRowMapper());
     }
