@@ -778,7 +778,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + " p.SHELF_LIFE, "
                 + " COALESCE(p.CATALOG_PRICE,-1) CATALOG_PRICE, "
                 + " p.MONTHS_IN_PAST_FOR_AMC, "
-                + " p.MONTHS_IN_FUTURE_FOR_AMC "
+                + " p.MONTHS_IN_FUTURE_FOR_AMC,p.ACTIVE "
                 + "FROM fasp.qat_temp_program_planning_unit p  "
                 + "left join adb_product ap on ap.ProductID=p.PIPELINE_PRODUCT_ID and ap.PIPELINE_ID=:pipelineId "
                 + "left join adb_method m on m.MethodID=ap.MethodID and m.PIPELINE_ID=:pipelineId "
@@ -801,7 +801,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + " '-1' as CATALOG_PRICE, "
                     + " 1 as MULTIPLIER, "
                     + " COALESCE(qtp.MONTHS_IN_PAST_FOR_AMC,'') as MONTHS_IN_PAST_FOR_AMC, "
-                    + " COALESCE(qtp.MONTHS_IN_FUTURE_FOR_AMC,'') as MONTHS_IN_FUTURE_FOR_AMC "
+                    + " COALESCE(qtp.MONTHS_IN_FUTURE_FOR_AMC,'') as MONTHS_IN_FUTURE_FOR_AMC, p.ProductActiveFlag as ACTIVE "
                     + "FROM fasp.adb_product p "
                     + "left join qat_temp_program qtp on  qtp.PIPELINE_ID=:pipelineId "
                     + "left join adb_method m on m.MethodID=p.MethodID and m.PIPELINE_ID=:pipelineId "
@@ -994,6 +994,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("MIN_MONTHS_OF_STOCK", ppu.getMinMonthsOfStock());
             params.put("MONTHS_IN_FUTURE_FOR_AMC", ppu.getMonthsInFutureForAmc());
             params.put("MONTHS_IN_PAST_FOR_AMC", ppu.getMonthsInPastForAmc());
+            params.put("ACTIVE", ppu.isActive());
             params.put("CREATED_DATE", curDate);
             params.put("CREATED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
@@ -1331,7 +1332,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("CREATED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
             params.put("LAST_MODIFIED_BY", curUser.getUserId());
-            params.put("ACTIVE", true);
+            params.put("ACTIVE", ppu.isActive());
             insertList.add(new MapSqlParameterSource(params));
 
         }
