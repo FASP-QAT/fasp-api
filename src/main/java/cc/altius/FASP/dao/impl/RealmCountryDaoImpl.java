@@ -188,7 +188,6 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", realmId, curUser);
         sqlStringBuilder.append(" ORDER BY cl.LABEL_EN ");
-        System.out.println("----------------------------------"+sqlStringBuilder.toString());
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
     }
 

@@ -37,7 +37,6 @@ public class RegionServiceImpl implements RegionService {
         int rowsUpdated = 0;
         for (Region r : regions) {
             if (r.getRegionId() == 0) {
-                System.out.println(""+r.toString());
                 RealmCountry rc = this.realmCountryService.getRealmCountryById(r.getRealmCountry().getRealmCountryId(), curUser);
                 if (this.aclService.checkRealmAccessForUser(curUser, rc.getRealm().getRealmId())) {
                     this.regionDao.addRegion(r, curUser);

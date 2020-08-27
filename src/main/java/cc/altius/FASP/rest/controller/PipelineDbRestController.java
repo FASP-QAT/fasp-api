@@ -222,7 +222,6 @@ public class PipelineDbRestController {
     public ResponseEntity saveShipmentData(@PathVariable("pipelineId") int pipelineId, @RequestBody QatTempShipment[] shipments, Authentication auth) throws IOException {
         CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
         try {
-            System.out.println("shipments-------->"+Arrays.toString(shipments));
             return new ResponseEntity(this.pipelineDbService.saveShipmentData(pipelineId, shipments, curUser), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
