@@ -536,20 +536,55 @@ public class ProgramDaoImpl implements ProgramDao {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("planningUnitId", planningUnitId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
+        List<ManualTaggingDTO> list = this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
+        System.out.println("programId---" + programId);
+        System.out.println("planningUnitId---" + planningUnitId);
+        System.out.println("list----------" + list);
+        return list;
     }
 
     @Override
-    public int delinkShipment(int shipmentId, CustomUserDetails curUser) {
-
-//        r 3) the way to do this would be as follows
-//
-//a. The Shipment Row would be marked as Active = False and ERP_Flag = True, the first thing to do is to create a new ShipmentTrans with Active = True and ERP_Flag = False also set ORDER_NO and PRIME_LINE_NO to null in the new shipmentTrans
-//
-//b. The other Shipments that have the ParentShipmentId = ShipmentId also need to have a ShipmentTrans added making the Active = False
+    public void delinkShipment(int shipmentId, CustomUserDetails curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sql = "SELECT s.`PARENT_SHIPMENT_ID` FROM rm_shipment s WHERE s.`SHIPMENT_ID`=?;";
-        int parentShipmentId = this.jdbcTemplate.update(sql, shipmentId);
-        return parentShipmentId;
+        int parentShipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, shipmentId);
+        String sql1 = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=s.`MAX_VERSION_ID`+1 WHERE s.`SHIPMENT_ID`=?;";
+        this.jdbcTemplate.update(sql1, parentShipmentId);
+        System.out.println("parentShipmentId---"+parentShipmentId);
+        sql = "INSERT INTO rm_shipment_trans "
+                + "SELECT NULL,?,st.`PLANNING_UNIT_ID`,st.`PROCUREMENT_AGENT_ID` ,st.`FUNDING_SOURCE_ID`, "
+                + "st.`BUDGET_ID`,st.`EXPECTED_DELIVERY_DATE`,st.`PROCUREMENT_UNIT_ID`,st.`SUPPLIER_ID`, "
+                + "st.`SHIPMENT_QTY`,st.`RATE`,st.`PRODUCT_COST`,st.`SHIPMENT_MODE`,st.`FREIGHT_COST`, "
+                + "st.`PLANNED_DATE`,st.`SUBMITTED_DATE`,st.`APPROVED_DATE`,st.`SHIPPED_DATE`, "
+                + "st.`ARRIVED_DATE`,st.`RECEIVED_DATE`,st.`SHIPMENT_STATUS_ID`,st.`NOTES`,st.`DATA_SOURCE_ID`, "
+                + "0,NULL,NULL,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,?,?,s.`MAX_VERSION_ID`,1 "
+                + "FROM rm_shipment_trans st "
+                + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+                + "WHERE st.`SHIPMENT_ID`=? "
+                + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+        this.jdbcTemplate.update(sql, parentShipmentId, curUser.getUserId(), curDate, parentShipmentId);
+
+        sql = "SELECT s.`SHIPMENT_ID` FROM rm_shipment s WHERE s.`PARENT_SHIPMENT_ID`=?;";
+        List<Integer> shipmentIdList = this.jdbcTemplate.queryForList(sql, Integer.class, parentShipmentId);
+        System.out.println("shipmentIdList---" + shipmentIdList);
+        for (int shipmentId1 : shipmentIdList) {
+            sql1 = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=s.`MAX_VERSION_ID`+1 WHERE s.`SHIPMENT_ID`=?;";
+            this.jdbcTemplate.update(sql1, shipmentId1);
+            
+            sql = "INSERT INTO rm_shipment_trans "
+                    + "SELECT NULL,?,st.`PLANNING_UNIT_ID`,st.`PROCUREMENT_AGENT_ID` ,st.`FUNDING_SOURCE_ID`, "
+                    + "st.`BUDGET_ID`,st.`EXPECTED_DELIVERY_DATE`,st.`PROCUREMENT_UNIT_ID`,st.`SUPPLIER_ID`, "
+                    + "st.`SHIPMENT_QTY`,st.`RATE`,st.`PRODUCT_COST`,st.`SHIPMENT_MODE`,st.`FREIGHT_COST`, "
+                    + "st.`PLANNED_DATE`,st.`SUBMITTED_DATE`,st.`APPROVED_DATE`,st.`SHIPPED_DATE`, "
+                    + "st.`ARRIVED_DATE`,st.`RECEIVED_DATE`,st.`SHIPMENT_STATUS_ID`,st.`NOTES`,st.`DATA_SOURCE_ID`, "
+                    + "0,st.`ORDER_NO`,st.`PRIME_LINE_NO`,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,?,?,s.`MAX_VERSION_ID`,0 "
+                    + "FROM rm_shipment_trans st "
+                    + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+                    + "WHERE st.`SHIPMENT_ID`=? "
+                    + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+            this.jdbcTemplate.update(sql, shipmentId1, curUser.getUserId(), curDate, shipmentId1);
+        }
+
     }
 
 }
