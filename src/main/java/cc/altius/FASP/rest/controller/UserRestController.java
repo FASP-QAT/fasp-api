@@ -320,7 +320,7 @@ public class UserRestController {
         try {
             User user = this.userService.getUserByUserId(password.getUserId());
             if (!this.userService.confirmPassword(user.getEmailId(), password.getOldPassword().trim())) {
-                return new ResponseEntity(new ResponseCode("static.message.incorrectPassword"), HttpStatus.FORBIDDEN);
+                return new ResponseEntity(new ResponseCode("static.message.incorrectPassword"), HttpStatus.PRECONDITION_FAILED);
             } else {
                 PasswordEncoder encoder = new BCryptPasswordEncoder();
                 String hashPass = encoder.encode(password.getNewPassword());

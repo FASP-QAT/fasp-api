@@ -83,11 +83,15 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     public void sendMail(Emailer emailer) {
+        System.out.println("schedulerActive---"+schedulerActive);
+        schedulerActive ="1";
         try {
             if (schedulerActive.equals("1")) {
+                System.out.println("---------------send email------------------");
                 this.emailDao.sendMail(emailer);
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
