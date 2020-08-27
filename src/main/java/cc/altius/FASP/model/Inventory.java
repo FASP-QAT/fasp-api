@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -31,11 +32,21 @@ public class Inventory extends BaseModel implements Serializable {
     private Double actualQty;
     private double adjustmentQty;
     private double expectedBal;
+    @JsonIgnore
     private SimpleCodeObject unit;
     private SimpleObject dataSource;
     private String notes;
     private int versionId;
     private List<InventoryBatchInfo> batchInfoList;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public Inventory() {
         this.batchInfoList = new LinkedList<>();
