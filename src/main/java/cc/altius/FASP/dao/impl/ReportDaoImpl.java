@@ -194,7 +194,6 @@ public class ReportDaoImpl implements ReportDao {
         params.put("programId", fmi.getProgramId());
         params.put("versionId", fmi.getVersionId());
         String sql = "CALL forecastMetricsMonthly(:startDate, :stopDate, :programId, :versionId, :planningUnitId, :previousMonths)";
-        System.out.println(LogUtils.buildStringForLog(sql, params));
         return this.namedParameterJdbcTemplate.query(sql, params, new ForecastMetricsMonthlyOutputRowMapper());
     }
 
@@ -240,7 +239,6 @@ public class ReportDaoImpl implements ReportDao {
         params.put("dt", it.getDt());
         params.put("includePlannedShipments", it.isIncludePlannedShipments());
         String sql = "CALL inventoryTurns(:programId, :versionId, :dt, :includePlannedShipments)";
-        System.out.println(LogUtils.buildStringForLog(sql, params));
         return this.namedParameterJdbcTemplate.query(sql, params, new InventoryTurnsOutputRowMapper());
     }
 
@@ -325,7 +323,6 @@ public class ReportDaoImpl implements ReportDao {
         params.put("programId", ssot.getProgramId());
         params.put("versionId", ssot.getVersionId());
         params.put("planningUnitIds", ssot.getPlanningUnitIdString());
-        System.out.println(LogUtils.buildStringForLog(sqlString, params));
         return this.namedParameterJdbcTemplate.query(sqlString, params, new StockStatusOverTimeOutputRowMapper());
     }
 

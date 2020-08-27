@@ -74,8 +74,6 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
 
     @Override
     public int addPlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) {
-
-        System.out.println("--------------------------" + planningUnit.getForecastingUnit().getForecastingUnitId());
         ForecastingUnit fu = this.forecastingUnitDao.getForecastingUnitById(planningUnit.getForecastingUnit().getForecastingUnitId(), curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, fu.getRealm().getId())) {
             return this.planningUnitDao.addPlanningUnit(planningUnit, curUser);

@@ -112,7 +112,6 @@ public class DataSourceDaoImpl implements DataSourceDao {
         if (active) {
             sqlStringBuilder.append(" AND ds.ACTIVE ");
         }
-        System.out.println(sqlStringBuilder.toString());
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new DataSourceRowMapper());
     }
 
