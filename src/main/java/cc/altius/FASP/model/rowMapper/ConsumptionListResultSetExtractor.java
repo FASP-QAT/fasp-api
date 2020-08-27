@@ -53,6 +53,7 @@ public class ConsumptionListResultSetExtractor implements ResultSetExtractor<Lis
             c.setDataSource(new SimpleObject(rs.getInt("DATA_SOURCE_ID"), new LabelRowMapper("DATA_SOURCE_").mapRow(rs, 1)));
             c.setNotes(rs.getString("NOTES"));
             c.setVersionId(rs.getInt("VERSION_ID"));
+            c.setActive(rs.getBoolean("ACTIVE"));
             c.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
             ConsumptionBatchInfo cb = new ConsumptionBatchInfoRowMapper().mapRow(rs, 1);
             if (cb != null && c.getBatchInfoList().indexOf(cb) == -1) {
