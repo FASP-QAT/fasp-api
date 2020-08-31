@@ -69,7 +69,6 @@ public class DashboardRestController {
     public ResponseEntity realmLevelDashboardUserList(@PathVariable("realmId") int realmId,Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            System.out.println("users---"+this.dashboardService.getUserListForRealmLevelAdmin(realmId));
             return new ResponseEntity(this.dashboardService.getUserListForRealmLevelAdmin(realmId), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);

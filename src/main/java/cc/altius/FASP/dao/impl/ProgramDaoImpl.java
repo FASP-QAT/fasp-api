@@ -26,6 +26,7 @@ import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;
@@ -331,7 +332,7 @@ public class ProgramDaoImpl implements ProgramDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(this.sqlOrderBy);
+        sqlStringBuilder.append(" AND p.ACTIVE ").append(this.sqlOrderBy);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramListResultSetExtractor());
     }
 
@@ -385,9 +386,7 @@ public class ProgramDaoImpl implements ProgramDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params;
         for (ProgramPlanningUnit ppu : programPlanningUnits) {
-            System.out.println("ppu.getProgramPlanningUnitId()---" + ppu.getProgramPlanningUnitId());
             if (ppu.getProgramPlanningUnitId() == 0) {
-                System.out.println("insert----------------");
                 // Insert
                 params = new HashMap<>();
                 params.put("PLANNING_UNIT_ID", ppu.getPlanningUnit().getId());
@@ -406,7 +405,6 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("ACTIVE", true);
                 insertList.add(new MapSqlParameterSource(params));
             } else {
-                System.out.println("update----------------");
                 // Update
                 params = new HashMap<>();
                 params.put("programPlanningUnitId", ppu.getProgramPlanningUnitId());
@@ -486,7 +484,6 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("versionId", versionId);
         sqlStringBuilder.append(" AND rc.`REALM_ID`=:realmId AND p.`PROGRAM_ID`=:programId AND cpv.`VERSION_ID`=:versionId GROUP BY p.`PROGRAM_ID`");
         sqlStringBuilder.append(this.sqlOrderBy);
-        System.out.println("sqlStringBuilder.toString()---" + sqlStringBuilder.toString());
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramResultSetExtractor());
     }
 
@@ -497,7 +494,6 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programId", programId);
         params.put("planningUnitId", planningUnitId);
         List<ManualTaggingDTO> list = this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
-        System.out.println("list--------------" + list);
         return list;
     }
 
@@ -537,9 +533,6 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programId", programId);
         params.put("planningUnitId", planningUnitId);
         List<ManualTaggingDTO> list = this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
-        System.out.println("programId---" + programId);
-        System.out.println("planningUnitId---" + planningUnitId);
-        System.out.println("list----------" + list);
         return list;
     }
 
@@ -550,7 +543,6 @@ public class ProgramDaoImpl implements ProgramDao {
         int parentShipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, shipmentId);
         String sql1 = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=s.`MAX_VERSION_ID`+1 WHERE s.`SHIPMENT_ID`=?;";
         this.jdbcTemplate.update(sql1, parentShipmentId);
-        System.out.println("parentShipmentId---"+parentShipmentId);
         sql = "INSERT INTO rm_shipment_trans "
                 + "SELECT NULL,?,st.`PLANNING_UNIT_ID`,st.`PROCUREMENT_AGENT_ID` ,st.`FUNDING_SOURCE_ID`, "
                 + "st.`BUDGET_ID`,st.`EXPECTED_DELIVERY_DATE`,st.`PROCUREMENT_UNIT_ID`,st.`SUPPLIER_ID`, "
@@ -566,11 +558,10 @@ public class ProgramDaoImpl implements ProgramDao {
 
         sql = "SELECT s.`SHIPMENT_ID` FROM rm_shipment s WHERE s.`PARENT_SHIPMENT_ID`=?;";
         List<Integer> shipmentIdList = this.jdbcTemplate.queryForList(sql, Integer.class, parentShipmentId);
-        System.out.println("shipmentIdList---" + shipmentIdList);
         for (int shipmentId1 : shipmentIdList) {
             sql1 = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=s.`MAX_VERSION_ID`+1 WHERE s.`SHIPMENT_ID`=?;";
             this.jdbcTemplate.update(sql1, shipmentId1);
-            
+
             sql = "INSERT INTO rm_shipment_trans "
                     + "SELECT NULL,?,st.`PLANNING_UNIT_ID`,st.`PROCUREMENT_AGENT_ID` ,st.`FUNDING_SOURCE_ID`, "
                     + "st.`BUDGET_ID`,st.`EXPECTED_DELIVERY_DATE`,st.`PROCUREMENT_UNIT_ID`,st.`SUPPLIER_ID`, "
