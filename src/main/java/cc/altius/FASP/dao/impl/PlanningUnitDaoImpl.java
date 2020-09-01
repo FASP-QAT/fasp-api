@@ -110,6 +110,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
 
     @Override
     public int updatePlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) {
+        System.out.println("planningUnit---"+planningUnit);
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sqlString = "UPDATE rm_planning_unit pu LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
                 + "SET  "
