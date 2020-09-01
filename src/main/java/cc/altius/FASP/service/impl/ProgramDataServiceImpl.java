@@ -13,6 +13,7 @@ import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ShipmentSync;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.service.AclService;
@@ -52,6 +53,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId));
         pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId));
         pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
+        pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId));
         return pd;
     }
 
@@ -96,8 +98,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public void updateSupplyPlanBatchInfo(SupplyPlan sp) {
-        this.programDataDao.updateSupplyPlanBatchInfo(sp);
+    public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp) {
+        return this.programDataDao.updateSupplyPlanBatchInfo(sp);
     }
 
     @Override

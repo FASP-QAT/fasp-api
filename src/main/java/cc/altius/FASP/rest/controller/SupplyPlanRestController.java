@@ -5,9 +5,11 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.service.ProgramDataService;
 import java.util.Date;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -37,9 +39,9 @@ public class SupplyPlanRestController {
         System.out.println("Completed Supply plan build");
         System.out.println(new Date());
         System.out.println("Going to save to the rm_supply_plan_batch_info table");
-        this.programDataService.updateSupplyPlanBatchInfo(sp);
+        List<SimplifiedSupplyPlan> simplifiedSupplyPlan = this.programDataService.updateSupplyPlanBatchInfo(sp);
         System.out.println("Completed save to the table");
         System.out.println(new Date());
-        return new ResponseEntity(sp, HttpStatus.OK);
+        return new ResponseEntity(simplifiedSupplyPlan, HttpStatus.OK);
     }
 }

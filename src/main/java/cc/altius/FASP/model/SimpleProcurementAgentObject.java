@@ -18,6 +18,9 @@ public class SimpleProcurementAgentObject extends SimpleCodeObject {
         this.colorHtmlCode = colorHtmlCode;
     }
 
+    public SimpleProcurementAgentObject() {
+    }
+
     public String getColorHtmlCode() {
         return colorHtmlCode;
     }
