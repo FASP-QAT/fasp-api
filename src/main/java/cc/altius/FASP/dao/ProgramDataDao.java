@@ -14,6 +14,7 @@ import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.Version;
 import java.util.List;
@@ -48,7 +49,7 @@ public interface ProgramDataDao {
 
     public SupplyPlan getSupplyPlan(int programId, int versionId);
 
-    public void updateSupplyPlanBatchInfo(SupplyPlan sp);
+    public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp);
 
     public List<ProgramVersion> getProgramVersionForARTMIS(int realmId);
 
@@ -57,5 +58,7 @@ public interface ProgramDataDao {
     public List<Shipment> getShipmentListForSync(int programId, int versionId, String lastSyncDate);
     
     public List<Batch> getBatchListForSync(int programId, int versionId, String lastSyncDate);
+    
+    public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId);
 
 }

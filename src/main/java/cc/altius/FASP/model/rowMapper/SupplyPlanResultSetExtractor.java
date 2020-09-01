@@ -48,12 +48,21 @@ public class SupplyPlanResultSetExtractor implements ResultSetExtractor<SupplyPl
             spbi.setSupplyPlanId(rs.getInt("SUPPLY_PLAN_BATCH_INFO_ID"));
             spbi.setExpiryDate(rs.getDate("EXPIRY_DATE"));
             spbi.setShipmentQty(rs.getInt("SHIPMENT_QTY"));
-            spbi.setPlannedShipmentQty(rs.getInt("PLANNED_SHIPMENT_QTY"));
-            spbi.setOrderedShipmentQty(rs.getInt("ORDERED_SHIPMENT_QTY"));
-            spbi.setShippedShipmentQty(rs.getInt("SHIPPED_SHIPMENT_QTY"));
-            spbi.setDeliveredShipmentQty(rs.getInt("DELIVERED_SHIPMENT_QTY"));
+            spbi.setManualPlannedShipmentQty(rs.getInt("MANUAL_PLANNED_SHIPMENT_QTY"));
+            spbi.setManualSubmittedShipmentQty(rs.getInt("MANUAL_SUBMITTED_SHIPMENT_QTY"));
+            spbi.setManualApprovedShipmentQty(rs.getInt("MANUAL_APPROVED_SHIPMENT_QTY"));
+            spbi.setManualShippedShipmentQty(rs.getInt("MANUAL_SHIPPED_SHIPMENT_QTY"));
+            spbi.setManualReceivedShipmentQty(rs.getInt("MANUAL_RECEIVED_SHIPMENT_QTY"));
+            spbi.setManualOnholdShipmentQty(rs.getInt("MANUAL_ONHOLD_SHIPMENT_QTY"));
+            spbi.setErpPlannedShipmentQty(rs.getInt("ERP_PLANNED_SHIPMENT_QTY"));
+            spbi.setErpSubmittedShipmentQty(rs.getInt("ERP_SUBMITTED_SHIPMENT_QTY"));
+            spbi.setErpApprovedShipmentQty(rs.getInt("ERP_APPROVED_SHIPMENT_QTY"));
+            spbi.setErpShippedShipmentQty(rs.getInt("ERP_SHIPPED_SHIPMENT_QTY"));
+            spbi.setErpReceivedShipmentQty(rs.getInt("ERP_RECEIVED_SHIPMENT_QTY"));
+            spbi.setErpOnholdShipmentQty(rs.getInt("ERP_ONHOLD_SHIPMENT_QTY"));
             spbi.setConsumption(rs.getInt("CONSUMPTION"));
-            spbi.setAdjustment(rs.getInt("ADJUSTMENT"));
+            spbi.setAdjustment(rs.getInt("ADJUSTMENT_MULTIPLIED_QTY"));
+            spbi.setStock(rs.getInt("STOCK_MULTIPLIED_QTY"));
         }
         return sp;
     }

@@ -9,6 +9,7 @@ import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Version;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
@@ -64,7 +65,8 @@ public class ProgramDataRestController {
     public ResponseEntity putProgramData(@RequestBody ProgramData programData, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.saveProgramData(programData, curUser), HttpStatus.OK);
+            Version v = this.programDataService.saveProgramData(programData, curUser);
+            return new ResponseEntity(this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser), HttpStatus.OK);
         } catch (CouldNotSaveException e) {
             logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);

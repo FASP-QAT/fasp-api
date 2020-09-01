@@ -7,7 +7,6 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -25,7 +24,6 @@ public class Consumption extends BaseModel implements Serializable {
     private SimpleObject region;
     private SimplePlanningUnitObject planningUnit;
     private SimpleObject realmCountryPlanningUnit;
-    @JsonIgnore
     private double multiplier;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)

@@ -11,6 +11,7 @@ import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ShipmentSync;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.Version;
 import java.util.List;
@@ -41,7 +42,7 @@ public interface ProgramDataService {
 
     public SupplyPlan getSupplyPlan(int programId, int versionId);
 
-    public void updateSupplyPlanBatchInfo(SupplyPlan sp);
+    public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp);
 
     public ShipmentSync getShipmentListForSync(int programId, int versionId, String lastSyncDate, CustomUserDetails curUser);
 }
