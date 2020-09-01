@@ -131,6 +131,8 @@ public class RealmDaoImpl implements RealmDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
+        System.out.println("sqlStringBuilder.toString()---"+sqlStringBuilder.toString());
+        System.out.println("params---"+params);
         return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new RealmRowMapper());
     }
 

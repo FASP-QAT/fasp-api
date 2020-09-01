@@ -24,8 +24,8 @@ public class EmailServiceImpl implements EmailService {
     @Autowired
     private EmailDao emailDao;
 
-    @Value("schedulerActive")
-    private String schedulerActive;
+    private @Value("#{scheduler['schedulerActive']}")
+    String schedulerActive;
 
     @Override
     public EmailTemplate getEmailTemplateByEmailTemplateId(int emailTemplateId) {
