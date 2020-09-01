@@ -18,7 +18,7 @@ import org.springframework.jdbc.core.RowMapper;
  * @author akil
  */
 public class PlanningUnitRowMapper implements RowMapper<PlanningUnit> {
-
+    
     @Override
     public PlanningUnit mapRow(ResultSet rs, int rowNum) throws SQLException {
         PlanningUnit pu = new PlanningUnit(
@@ -33,10 +33,11 @@ public class PlanningUnitRowMapper implements RowMapper<PlanningUnit> {
                 ),
                 new LabelRowMapper().mapRow(rs, rowNum),
                 new SimpleCodeObject(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, rowNum), rs.getString("UNIT_CODE")),
-                rs.getDouble("MULTIPLIER")
+                rs.getDouble("MULTIPLIER"),
+                rs.getBoolean("ACTIVE")
         );
         pu.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return pu;
     }
-
+    
 }
