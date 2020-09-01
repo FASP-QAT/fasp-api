@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -352,10 +353,16 @@ public class ProgramDaoImpl implements ProgramDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND p.PROGRAM_ID=:programId");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
-        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(this.sqlOrderBy);
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramResultSetExtractor());
+        Program p = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramResultSetExtractor());
+        if (p == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
+            return p;
+        } else {
+            return null;
+        }
     }
 
     @Override

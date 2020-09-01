@@ -119,9 +119,9 @@ public class ProgramServiceImpl implements ProgramService {
     public Program getProgramById(int programId, CustomUserDetails curUser) {
         Program p = this.programDao.getProgramById(programId, curUser);
         if (p == null) {
-            throw new EmptyResultDataAccessException(1);
+            throw new AccessDeniedException("Access denied");
         }
-        if (this.aclService.checkRealmAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId())) {
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
             return p;
         } else {
             throw new AccessDeniedException("Access denied");
