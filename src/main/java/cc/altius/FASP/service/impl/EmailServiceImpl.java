@@ -84,7 +84,7 @@ public class EmailServiceImpl implements EmailService {
     @Override
     public void sendMail(Emailer emailer) {
         System.out.println("schedulerActive---"+schedulerActive);
-        schedulerActive ="1";
+//        schedulerActive ="1";
         try {
             if (schedulerActive.equals("1")) {
                 System.out.println("---------------send email------------------");
