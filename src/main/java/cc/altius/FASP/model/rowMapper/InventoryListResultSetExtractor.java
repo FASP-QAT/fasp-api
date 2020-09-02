@@ -56,6 +56,7 @@ public class InventoryListResultSetExtractor implements ResultSetExtractor<List<
             i.setDataSource(new SimpleObject(rs.getInt("DATA_SOURCE_ID"), new LabelRowMapper("DATA_SOURCE_").mapRow(rs, 1)));
             i.setNotes(rs.getString("NOTES"));
             i.setVersionId(rs.getInt("VERSION_ID"));
+            i.setActive(rs.getBoolean("ACTIVE"));
             Double actualQty = rs.getDouble("ACTUAL_QTY");
             if (rs.wasNull()) {
                 i.setActualQty(null);

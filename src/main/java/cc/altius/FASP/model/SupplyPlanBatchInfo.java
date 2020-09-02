@@ -26,13 +26,22 @@ public class SupplyPlanBatchInfo implements Serializable {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date expiryDate;
-    private int plannedShipmentQty;
-    private int orderedShipmentQty;
-    private int shippedShipmentQty;
-    private int deliveredShipmentQty;
+    private int manualPlannedShipmentQty;
+    private int manualSubmittedShipmentQty;
+    private int manualApprovedShipmentQty;
+    private int manualShippedShipmentQty;
+    private int manualReceivedShipmentQty;
+    private int manualOnholdShipmentQty;
+    private int erpPlannedShipmentQty;
+    private int erpSubmittedShipmentQty;
+    private int erpApprovedShipmentQty;
+    private int erpShippedShipmentQty;
+    private int erpReceivedShipmentQty;
+    private int erpOnholdShipmentQty;
     private int shipmentQty;
     private int consumption;
     private int adjustment;
+    private int stock;
     private int openingBalance;
     private int closingBalance;
     private int expiredStock;
@@ -49,17 +58,30 @@ public class SupplyPlanBatchInfo implements Serializable {
     public SupplyPlanBatchInfo() {
     }
 
-    public SupplyPlanBatchInfo(int supplyPlanId, int batchId, Date expiryDate, int plannedShipmentQty, int orderedShipmentQty, int shippedShipmentQty, int deliveredShipmentQty, int shipmentQty, int consumption, int adjustment) {
+    public SupplyPlanBatchInfo(
+            int supplyPlanId, int batchId, Date expiryDate, 
+            int manualPlannedShipmentQty, int manualSubmittedShipmentQty, int manualApprovedShipmentQty, int manualShippedShipmentQty, int manualReceivedShipmentQty, int manualOnholdShipmentQty, 
+            int erpPlannedShipmentQty, int erpSubmittedShipmentQty, int erpApprovedShipmentQty, int erpShippedShipmentQty, int erpReceivedShipmentQty, int erpOnholdShipmentQty, 
+            int shipmentQty, int consumption, int adjustment, int stock) {
         this.supplyPlanId = supplyPlanId;
         this.batchId = batchId;
         this.expiryDate = expiryDate;
-        this.plannedShipmentQty = plannedShipmentQty;
-        this.orderedShipmentQty = orderedShipmentQty;
-        this.shippedShipmentQty = shippedShipmentQty;
-        this.deliveredShipmentQty = deliveredShipmentQty;
+        this.manualPlannedShipmentQty = manualPlannedShipmentQty;
+        this.manualSubmittedShipmentQty = manualSubmittedShipmentQty;
+        this.manualApprovedShipmentQty = manualApprovedShipmentQty;
+        this.manualShippedShipmentQty = manualShippedShipmentQty;
+        this.manualReceivedShipmentQty = manualReceivedShipmentQty;
+        this.manualOnholdShipmentQty = manualOnholdShipmentQty;
+        this.erpPlannedShipmentQty = erpPlannedShipmentQty;
+        this.erpSubmittedShipmentQty = erpSubmittedShipmentQty;
+        this.erpApprovedShipmentQty = erpApprovedShipmentQty;
+        this.erpShippedShipmentQty = erpShippedShipmentQty;
+        this.erpReceivedShipmentQty = erpReceivedShipmentQty;
+        this.erpOnholdShipmentQty = erpOnholdShipmentQty;
         this.shipmentQty = shipmentQty;
         this.consumption = consumption;
         this.adjustment = adjustment;
+        this.stock = stock;
     }
 
     public SupplyPlanBatchInfo(int batchId) {
@@ -90,36 +112,100 @@ public class SupplyPlanBatchInfo implements Serializable {
         this.expiryDate = expiryDate;
     }
 
-    public int getPlannedShipmentQty() {
-        return plannedShipmentQty;
+    public int getManualPlannedShipmentQty() {
+        return manualPlannedShipmentQty;
     }
 
-    public void setPlannedShipmentQty(int plannedShipmentQty) {
-        this.plannedShipmentQty = plannedShipmentQty;
+    public void setManualPlannedShipmentQty(int manualPlannedShipmentQty) {
+        this.manualPlannedShipmentQty = manualPlannedShipmentQty;
     }
 
-    public int getOrderedShipmentQty() {
-        return orderedShipmentQty;
+    public int getManualApprovedShipmentQty() {
+        return manualApprovedShipmentQty;
     }
 
-    public void setOrderedShipmentQty(int orderedShipmentQty) {
-        this.orderedShipmentQty = orderedShipmentQty;
+    public void setManualApprovedShipmentQty(int manualApprovedShipmentQty) {
+        this.manualApprovedShipmentQty = manualApprovedShipmentQty;
     }
 
-    public int getShippedShipmentQty() {
-        return shippedShipmentQty;
+    public int getManualSubmittedShipmentQty() {
+        return manualSubmittedShipmentQty;
     }
 
-    public void setShippedShipmentQty(int shippedShipmentQty) {
-        this.shippedShipmentQty = shippedShipmentQty;
+    public void setManualSubmittedShipmentQty(int manualSubmittedShipmentQty) {
+        this.manualSubmittedShipmentQty = manualSubmittedShipmentQty;
     }
 
-    public int getDeliveredShipmentQty() {
-        return deliveredShipmentQty;
+    public int getManualShippedShipmentQty() {
+        return manualShippedShipmentQty;
     }
 
-    public void setDeliveredShipmentQty(int deliveredShipmentQty) {
-        this.deliveredShipmentQty = deliveredShipmentQty;
+    public void setManualShippedShipmentQty(int manualShippedShipmentQty) {
+        this.manualShippedShipmentQty = manualShippedShipmentQty;
+    }
+
+    public int getManualReceivedShipmentQty() {
+        return manualReceivedShipmentQty;
+    }
+
+    public void setManualReceivedShipmentQty(int manualReceivedShipmentQty) {
+        this.manualReceivedShipmentQty = manualReceivedShipmentQty;
+    }
+
+    public int getManualOnholdShipmentQty() {
+        return manualOnholdShipmentQty;
+    }
+
+    public void setManualOnholdShipmentQty(int manualOnholdShipmentQty) {
+        this.manualOnholdShipmentQty = manualOnholdShipmentQty;
+    }
+
+    public int getErpPlannedShipmentQty() {
+        return erpPlannedShipmentQty;
+    }
+
+    public void setErpPlannedShipmentQty(int erpPlannedShipmentQty) {
+        this.erpPlannedShipmentQty = erpPlannedShipmentQty;
+    }
+
+    public int getErpSubmittedShipmentQty() {
+        return erpSubmittedShipmentQty;
+    }
+
+    public void setErpSubmittedShipmentQty(int erpSubmittedShipmentQty) {
+        this.erpSubmittedShipmentQty = erpSubmittedShipmentQty;
+    }
+
+    public int getErpApprovedShipmentQty() {
+        return erpApprovedShipmentQty;
+    }
+
+    public void setErpApprovedShipmentQty(int erpApprovedShipmentQty) {
+        this.erpApprovedShipmentQty = erpApprovedShipmentQty;
+    }
+
+    public int getErpShippedShipmentQty() {
+        return erpShippedShipmentQty;
+    }
+
+    public void setErpShippedShipmentQty(int erpShippedShipmentQty) {
+        this.erpShippedShipmentQty = erpShippedShipmentQty;
+    }
+
+    public int getErpReceivedShipmentQty() {
+        return erpReceivedShipmentQty;
+    }
+
+    public void setErpReceivedShipmentQty(int erpReceivedShipmentQty) {
+        this.erpReceivedShipmentQty = erpReceivedShipmentQty;
+    }
+
+    public int getErpOnholdShipmentQty() {
+        return erpOnholdShipmentQty;
+    }
+
+    public void setErpOnholdShipmentQty(int erpOnholdShipmentQty) {
+        this.erpOnholdShipmentQty = erpOnholdShipmentQty;
     }
 
     public int getShipmentQty() {
@@ -144,6 +230,14 @@ public class SupplyPlanBatchInfo implements Serializable {
 
     public void setAdjustment(int adjustment) {
         this.adjustment = adjustment;
+    }
+
+    public int getStock() {
+        return stock;
+    }
+
+    public void setStock(int stock) {
+        this.stock = stock;
     }
 
     public int getOpeningBalance() {
@@ -257,7 +351,7 @@ public class SupplyPlanBatchInfo implements Serializable {
             unallocatedConsumptionWps += this.consumption;
         }
 
-        int tempCBWps = this.openingBalanceWps + this.shipmentQty - this.plannedShipmentQty - this.consumption + this.adjustment;
+        int tempCBWps = this.openingBalanceWps + this.shipmentQty - this.manualPlannedShipmentQty - this.erpPlannedShipmentQty - this.consumption + this.adjustment;
         if (tempCBWps < 0) {
             unallocatedConsumptionWps += 0 - tempCBWps;
         }
@@ -265,7 +359,7 @@ public class SupplyPlanBatchInfo implements Serializable {
     }
 
     public int updateCBWps(int existingUnAllocatedConsumptionWps) {
-        int tempCBWps = this.openingBalanceWps + this.shipmentQty - this.plannedShipmentQty - this.consumption + this.adjustment;
+        int tempCBWps = this.openingBalanceWps + this.shipmentQty - this.manualPlannedShipmentQty - this.erpPlannedShipmentQty - this.consumption + this.adjustment;
         if (existingUnAllocatedConsumptionWps > 0 && tempCBWps > 0) {
             if (tempCBWps > existingUnAllocatedConsumptionWps) {
                 this.calculatedConsumptionWps = existingUnAllocatedConsumptionWps;
