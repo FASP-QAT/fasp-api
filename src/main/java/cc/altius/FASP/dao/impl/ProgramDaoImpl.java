@@ -546,42 +546,49 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public void delinkShipment(int shipmentId, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        String sql = "SELECT s.`PARENT_SHIPMENT_ID` FROM rm_shipment s WHERE s.`SHIPMENT_ID`=?;";
-        int parentShipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, shipmentId);
-        String sql1 = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=s.`MAX_VERSION_ID`+1 WHERE s.`SHIPMENT_ID`=?;";
-        this.jdbcTemplate.update(sql1, parentShipmentId);
-        sql = "INSERT INTO rm_shipment_trans "
-                + "SELECT NULL,?,st.`PLANNING_UNIT_ID`,st.`PROCUREMENT_AGENT_ID` ,st.`FUNDING_SOURCE_ID`, "
-                + "st.`BUDGET_ID`,st.`EXPECTED_DELIVERY_DATE`,st.`PROCUREMENT_UNIT_ID`,st.`SUPPLIER_ID`, "
-                + "st.`SHIPMENT_QTY`,st.`RATE`,st.`PRODUCT_COST`,st.`SHIPMENT_MODE`,st.`FREIGHT_COST`, "
-                + "st.`PLANNED_DATE`,st.`SUBMITTED_DATE`,st.`APPROVED_DATE`,st.`SHIPPED_DATE`, "
-                + "st.`ARRIVED_DATE`,st.`RECEIVED_DATE`,st.`SHIPMENT_STATUS_ID`,st.`NOTES`,st.`DATA_SOURCE_ID`, "
-                + "0,NULL,NULL,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,?,?,s.`MAX_VERSION_ID`,1 "
-                + "FROM rm_shipment_trans st "
-                + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-                + "WHERE st.`SHIPMENT_ID`=? "
-                + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
-        this.jdbcTemplate.update(sql, parentShipmentId, curUser.getUserId(), curDate, parentShipmentId);
-
-        sql = "SELECT s.`SHIPMENT_ID` FROM rm_shipment s WHERE s.`PARENT_SHIPMENT_ID`=?;";
-        List<Integer> shipmentIdList = this.jdbcTemplate.queryForList(sql, Integer.class, parentShipmentId);
-        for (int shipmentId1 : shipmentIdList) {
-            sql1 = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=s.`MAX_VERSION_ID`+1 WHERE s.`SHIPMENT_ID`=?;";
-            this.jdbcTemplate.update(sql1, shipmentId1);
-
+        String sql = "SELECT st.`ERP_FLAG` FROM rm_shipment_trans st "
+                + "WHERE st.`SHIPMENT_ID`=? AND st.`ACTIVE` ORDER BY st.`SHIPMENT_TRANS_ID` LIMIT 1;";
+        Integer erpFlag = this.jdbcTemplate.queryForObject(sql, Integer.class, shipmentId);
+        if (erpFlag == 1) {
+            sql = "SELECT s.`PARENT_SHIPMENT_ID` FROM rm_shipment s WHERE s.`SHIPMENT_ID`=?;";
+            int parentShipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, shipmentId);
+            String sql1 = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=s.`MAX_VERSION_ID`+1 WHERE s.`SHIPMENT_ID`=?;";
+            this.jdbcTemplate.update(sql1, parentShipmentId);
             sql = "INSERT INTO rm_shipment_trans "
                     + "SELECT NULL,?,st.`PLANNING_UNIT_ID`,st.`PROCUREMENT_AGENT_ID` ,st.`FUNDING_SOURCE_ID`, "
                     + "st.`BUDGET_ID`,st.`EXPECTED_DELIVERY_DATE`,st.`PROCUREMENT_UNIT_ID`,st.`SUPPLIER_ID`, "
                     + "st.`SHIPMENT_QTY`,st.`RATE`,st.`PRODUCT_COST`,st.`SHIPMENT_MODE`,st.`FREIGHT_COST`, "
                     + "st.`PLANNED_DATE`,st.`SUBMITTED_DATE`,st.`APPROVED_DATE`,st.`SHIPPED_DATE`, "
                     + "st.`ARRIVED_DATE`,st.`RECEIVED_DATE`,st.`SHIPMENT_STATUS_ID`,st.`NOTES`,st.`DATA_SOURCE_ID`, "
-                    + "0,st.`ORDER_NO`,st.`PRIME_LINE_NO`,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,?,?,s.`MAX_VERSION_ID`,0 "
+                    + "0,NULL,NULL,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,?,?,s.`MAX_VERSION_ID`,1 "
                     + "FROM rm_shipment_trans st "
                     + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
                     + "WHERE st.`SHIPMENT_ID`=? "
                     + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
-            this.jdbcTemplate.update(sql, shipmentId1, curUser.getUserId(), curDate, shipmentId1);
+            this.jdbcTemplate.update(sql, parentShipmentId, curUser.getUserId(), curDate, parentShipmentId);
+
+            sql = "SELECT s.`SHIPMENT_ID` FROM rm_shipment s WHERE s.`PARENT_SHIPMENT_ID`=?;";
+            List<Integer> shipmentIdList = this.jdbcTemplate.queryForList(sql, Integer.class, parentShipmentId);
+            for (int shipmentId1 : shipmentIdList) {
+                sql1 = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=s.`MAX_VERSION_ID`+1 WHERE s.`SHIPMENT_ID`=?;";
+                this.jdbcTemplate.update(sql1, shipmentId1);
+
+                sql = "INSERT INTO rm_shipment_trans "
+                        + "SELECT NULL,?,st.`PLANNING_UNIT_ID`,st.`PROCUREMENT_AGENT_ID` ,st.`FUNDING_SOURCE_ID`, "
+                        + "st.`BUDGET_ID`,st.`EXPECTED_DELIVERY_DATE`,st.`PROCUREMENT_UNIT_ID`,st.`SUPPLIER_ID`, "
+                        + "st.`SHIPMENT_QTY`,st.`RATE`,st.`PRODUCT_COST`,st.`SHIPMENT_MODE`,st.`FREIGHT_COST`, "
+                        + "st.`PLANNED_DATE`,st.`SUBMITTED_DATE`,st.`APPROVED_DATE`,st.`SHIPPED_DATE`, "
+                        + "st.`ARRIVED_DATE`,st.`RECEIVED_DATE`,st.`SHIPMENT_STATUS_ID`,st.`NOTES`,st.`DATA_SOURCE_ID`, "
+                        + "0,st.`ORDER_NO`,st.`PRIME_LINE_NO`,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,?,?,s.`MAX_VERSION_ID`,0 "
+                        + "FROM rm_shipment_trans st "
+                        + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+                        + "WHERE st.`SHIPMENT_ID`=? "
+                        + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+                this.jdbcTemplate.update(sql, shipmentId1, curUser.getUserId(), curDate, shipmentId1);
+            }
         }
+        sql = "DELETE FROM rm_manual_tagging WHERE SHIPMENT_ID=?;";
+        this.jdbcTemplate.update(sql, shipmentId);
 
     }
 
