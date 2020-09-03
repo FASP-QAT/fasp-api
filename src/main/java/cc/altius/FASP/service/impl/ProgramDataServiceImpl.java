@@ -48,6 +48,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         ProgramData pd = new ProgramData(this.programService.getProgramById(programId, curUser));
         pd.setRequestedProgramVersion(versionId);
         pd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
+        versionId = pd.getCurrentVersion().getVersionId();
         pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId));
         pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId));
         pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId));
