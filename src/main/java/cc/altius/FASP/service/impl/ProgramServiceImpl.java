@@ -119,9 +119,9 @@ public class ProgramServiceImpl implements ProgramService {
     public Program getProgramById(int programId, CustomUserDetails curUser) {
         Program p = this.programDao.getProgramById(programId, curUser);
         if (p == null) {
-            throw new EmptyResultDataAccessException(1);
+            throw new AccessDeniedException("Access denied");
         }
-        if (this.aclService.checkRealmAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId())) {
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
             return p;
         } else {
             throw new AccessDeniedException("Access denied");
@@ -213,8 +213,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(String orderNo, int primeLineNo) {
-        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(orderNo, primeLineNo);
+    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo) {
+        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(programId, planningUnitId, orderNo, primeLineNo);
     }
 
     @Override
@@ -228,8 +228,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int delinkShipment(int shipmentId, CustomUserDetails curUser) {
-        return this.programDao.delinkShipment(shipmentId, curUser);
+    public void delinkShipment(int shipmentId, CustomUserDetails curUser) {
+        this.programDao.delinkShipment(shipmentId, curUser);
     }
 
 }

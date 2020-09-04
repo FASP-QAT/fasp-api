@@ -767,22 +767,22 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     @Override
     public List<QatTempProgramPlanningUnit> getQatTempPlanningUnitListByPipelienId(int pipelineId, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        String sql = "SELECT ap.ProductName as PIPELINE_PRODUCT_NAME, "
+        String sql = "SELECT concat(ap.ProductName,'~',ap.ProductId) as PIPELINE_PRODUCT_NAME, "
                 + "m.MethodName as PIPELINE_PRODUCT_CATEGORY, "
                 + "p.PIPELINE_PRODUCT_ID, "
                 + "p.PLANNING_UNIT_ID,p.MULTIPLIER, "
                 + "COALESCE(p.REORDER_FREQUENCY_IN_MONTHS,ap.ProductMaxMonths-ap.ProductMinMonths)REORDER_FREQUENCY_IN_MONTHS, "
                 + "p.MIN_MONTHS_OF_STOCK, "
                 + "fu.PRODUCT_CATEGORY_ID,  "
-                + " p.LOCAL_PROCUREMENT_LEAD_TIME, "
+                + " COALESCE(p.LOCAL_PROCUREMENT_LEAD_TIME,-1) LOCAL_PROCUREMENT_LEAD_TIME, "
                 + " p.SHELF_LIFE, "
-                + " p.CATALOG_PRICE, "
+                + " COALESCE(p.CATALOG_PRICE,-1) CATALOG_PRICE, "
                 + " p.MONTHS_IN_PAST_FOR_AMC, "
-                + " p.MONTHS_IN_FUTURE_FOR_AMC "
+                + " p.MONTHS_IN_FUTURE_FOR_AMC,p.ACTIVE "
                 + "FROM fasp.qat_temp_program_planning_unit p  "
                 + "left join adb_product ap on ap.ProductID=p.PIPELINE_PRODUCT_ID and ap.PIPELINE_ID=:pipelineId "
                 + "left join adb_method m on m.MethodID=ap.MethodID and m.PIPELINE_ID=:pipelineId "
-                + "left join rm_planning_unit pu on p.PLANNING_UNIT_ID like pu.PLANNING_UNIT_ID "
+                + "left join rm_planning_unit pu on p.PLANNING_UNIT_ID = pu.PLANNING_UNIT_ID "
                 + "left join rm_forecasting_unit fu on fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID AND pu.PLANNING_UNIT_ID IS NOT NULL  "
                 + "where p.PIPELINE_ID=:pipelineId;";
         params.put("pipelineId", pipelineId);
@@ -790,18 +790,18 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         if (qatList.size() == 0) {
             String sql1 = "SELECT  "
                     + "m.MethodName as PIPELINE_PRODUCT_CATEGORY, "
-                    + "p.ProductName as PIPELINE_PRODUCT_NAME, "
+                    + "concat(p.ProductName,'~',p.ProductId) as PIPELINE_PRODUCT_NAME, "
                     + "p.ProductId as PIPELINE_PRODUCT_ID, "
                     + "p.ProductMinMonths as MIN_MONTHS_OF_STOCK, "
                     + "if(pu.PLANNING_UNIT_ID IS NULL,p.ProductName,pu.PLANNING_UNIT_ID) as PLANNING_UNIT_ID, "
                     + "if(fu.FORECASTING_UNIT_ID IS NULL,'',fu.PRODUCT_CATEGORY_ID) as PRODUCT_CATEGORY_ID, "
                     + " (p.ProductMaxMonths-p.ProductMinMonths) as REORDER_FREQUENCY_IN_MONTHS, "
-                    + " '' as LOCAL_PROCUREMENT_LEAD_TIME, "
+                    + " '-1' as LOCAL_PROCUREMENT_LEAD_TIME, "
                     + " COALESCE(qtp.SHELF_LIFE,'') as SHELF_LIFE, "
-                    + " '' as CATALOG_PRICE, "
+                    + " '-1' as CATALOG_PRICE, "
                     + " 1 as MULTIPLIER, "
                     + " COALESCE(qtp.MONTHS_IN_PAST_FOR_AMC,'') as MONTHS_IN_PAST_FOR_AMC, "
-                    + " COALESCE(qtp.MONTHS_IN_FUTURE_FOR_AMC,'') as MONTHS_IN_FUTURE_FOR_AMC "
+                    + " COALESCE(qtp.MONTHS_IN_FUTURE_FOR_AMC,'') as MONTHS_IN_FUTURE_FOR_AMC, p.ProductActiveFlag as ACTIVE "
                     + "FROM fasp.adb_product p "
                     + "left join qat_temp_program qtp on  qtp.PIPELINE_ID=:pipelineId "
                     + "left join adb_method m on m.MethodID=p.MethodID and m.PIPELINE_ID=:pipelineId "
@@ -994,6 +994,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("MIN_MONTHS_OF_STOCK", ppu.getMinMonthsOfStock());
             params.put("MONTHS_IN_FUTURE_FOR_AMC", ppu.getMonthsInFutureForAmc());
             params.put("MONTHS_IN_PAST_FOR_AMC", ppu.getMonthsInPastForAmc());
+            params.put("ACTIVE", ppu.isActive());
             params.put("CREATED_DATE", curDate);
             params.put("CREATED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
@@ -1331,7 +1332,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("CREATED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
             params.put("LAST_MODIFIED_BY", curUser.getUserId());
-            params.put("ACTIVE", true);
+            params.put("ACTIVE", ppu.isActive());
             insertList.add(new MapSqlParameterSource(params));
 
         }

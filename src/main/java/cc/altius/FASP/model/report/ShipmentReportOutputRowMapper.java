@@ -22,9 +22,9 @@ public class ShipmentReportOutputRowMapper implements RowMapper<ShipmentReportOu
         return new ShipmentReportOutput(
                 new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)),
                 rs.getInt("QTY"),
-                rs.getDouble("FREIGHT_COST"),
+                rs.getDouble("PRODUCT_COST"),
                 rs.getDouble("FREIGHT_PERC"),
-                rs.getDouble("PRODUCT_COST"));
+                rs.getDouble("FREIGHT_COST"));
     }
 
 }

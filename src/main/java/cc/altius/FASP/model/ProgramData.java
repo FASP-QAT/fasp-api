@@ -44,6 +44,7 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<Shipment> shipmentList;
     private List<Batch> batchInfoList;
     private List<ProblemReport> problemReportList;
+    private List<SimplifiedSupplyPlan> supplyPlan;
     private int requestedProgramVersion;
     @JsonIgnore
     private Date lastModifiedDate;
@@ -323,6 +324,14 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setProblemReportList(List<ProblemReport> problemReportList) {
         this.problemReportList = problemReportList;
+    }
+
+    public List<SimplifiedSupplyPlan> getSupplyPlan() {
+        return supplyPlan;
+    }
+
+    public void setSupplyPlan(List<SimplifiedSupplyPlan> supplyPlan) {
+        this.supplyPlan = supplyPlan;
     }
 
     @Override

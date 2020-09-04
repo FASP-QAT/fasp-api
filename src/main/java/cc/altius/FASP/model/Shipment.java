@@ -71,10 +71,20 @@ public class Shipment extends BaseModel implements Serializable {
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     private Date lastModifiedDate;
     private List<ShipmentBatchInfo> batchInfoList;
-    
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     public Shipment() {
         this.batchInfoList = new LinkedList<>();
     }
+
     public int getShipmentId() {
         return shipmentId;
     }
@@ -364,5 +374,5 @@ public class Shipment extends BaseModel implements Serializable {
         return true;
 
     }
-    
+
 }

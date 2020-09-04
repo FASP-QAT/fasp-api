@@ -153,8 +153,15 @@ public class AclServiceImpl implements AclService {
 
     public void addFullAclForProgram(StringBuilder sb, Map<String, Object> params, String programAlias, CustomUserDetails curUser) {
         int count = 1;
+        boolean isFirst = true;
+        StringBuilder localSb = new StringBuilder();
         for (UserAcl userAcl : curUser.getAclList()) {
-            sb.append(" AND (")
+            if(isFirst) {
+                localSb.append(" AND (");
+            } else {
+                localSb.append(" OR ");
+            }
+            localSb.append("(")
                     .append("(").append(programAlias).append(".PROGRAM_ID IS NULL OR :realmCountryId").append(count).append("=-1 OR ").append(programAlias).append(".REALM_COUNTRY_ID=:realmCountryId").append(count).append(")")
                     .append("AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :healthAreaId").append(count).append("=-1 OR ").append(programAlias).append(".HEALTH_AREA_ID=:healthAreaId").append(count).append(")")
                     .append("AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :organisationId").append(count).append("=-1 OR ").append(programAlias).append(".ORGANISATION_ID=:organisationId").append(count).append(")")
@@ -165,6 +172,11 @@ public class AclServiceImpl implements AclService {
             params.put("organisationId" + count, userAcl.getOrganisationId());
             params.put("programId" + count, userAcl.getProgramId());
             count++;
+            isFirst = false;
         }
+        if (!params.isEmpty()) {
+            localSb.append(")");
+        }
+        sb.append(localSb);
     }
 }

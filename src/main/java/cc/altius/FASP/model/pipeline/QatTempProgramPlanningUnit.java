@@ -14,7 +14,7 @@ import java.util.Objects;
  *
  * @author altius
  */
-public class QatTempProgramPlanningUnit extends BaseModel implements Serializable {
+public class QatTempProgramPlanningUnit  implements Serializable {
     
     private String programPlanningUnitId;
     private SimpleObject program;
@@ -25,11 +25,12 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
     private int productCategoryId;
     private String pipelineProductName;
     private String pipelineProductCategoryName;
-    private double localProcurmentLeadTime;
+    private Double localProcurmentLeadTime;
     private int shelfLife;
-    private double catalogPrice;
+    private Double catalogPrice;
     private int monthsInPastForAmc;
     private int monthsInFutureForAmc;
+    private boolean active;
     
     public QatTempProgramPlanningUnit() {
     }
@@ -115,11 +116,11 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
         this.pipelineProductCategoryName = pipelineProductCategoryName;
     }
 
-    public double getLocalProcurmentLeadTime() {
+    public Double getLocalProcurmentLeadTime() {
         return localProcurmentLeadTime;
     }
 
-    public void setLocalProcurmentLeadTime(double localProcurmentLeadTime) {
+    public void setLocalProcurmentLeadTime(Double localProcurmentLeadTime) {
         this.localProcurmentLeadTime = localProcurmentLeadTime;
     }
 
@@ -131,11 +132,11 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
         this.shelfLife = shelfLife;
     }
 
-    public double getCatalogPrice() {
+    public Double getCatalogPrice() {
         return catalogPrice;
     }
 
-    public void setCatalogPrice(double catalogPrice) {
+    public void setCatalogPrice(Double catalogPrice) {
         this.catalogPrice = catalogPrice;
     }
 
@@ -155,12 +156,20 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
         this.monthsInFutureForAmc = monthsInFutureForAmc;
     }
 
- public double getMultiplier() {
+    public double getMultiplier() {
         return multiplier;
     }
 
     public void setMultiplier(double multiplier) {
         this.multiplier = multiplier;
+    }
+
+     public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
 

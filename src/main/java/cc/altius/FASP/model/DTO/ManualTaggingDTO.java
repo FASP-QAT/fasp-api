@@ -27,6 +27,7 @@ public class ManualTaggingDTO implements Serializable {
     private Date expectedDeliveryDate;
     private SimpleObject shipmentStatus;
     private SimpleCodeObject procurementAgent;
+    private SimpleCodeObject fundingSource;
     private SimpleCodeObject budget;
     private int shipmentQty;
     private double productCost;
@@ -71,6 +72,14 @@ public class ManualTaggingDTO implements Serializable {
         this.procurementAgent = procurementAgent;
     }
 
+    public SimpleCodeObject getFundingSource() {
+        return fundingSource;
+    }
+
+    public void setFundingSource(SimpleCodeObject fundingSource) {
+        this.fundingSource = fundingSource;
+    }
+
     public SimpleCodeObject getBudget() {
         return budget;
     }
@@ -94,5 +103,11 @@ public class ManualTaggingDTO implements Serializable {
     public void setProductCost(double productCost) {
         this.productCost = productCost;
     }
+
+    @Override
+    public String toString() {
+        return "ManualTaggingDTO{" + "shipmentId=" + shipmentId + ", shipmentTransId=" + shipmentTransId + ", expectedDeliveryDate=" + expectedDeliveryDate + ", shipmentStatus=" + shipmentStatus + ", procurementAgent=" + procurementAgent + ", budget=" + budget + ", shipmentQty=" + shipmentQty + ", productCost=" + productCost + '}';
+    }
+    
     
 }

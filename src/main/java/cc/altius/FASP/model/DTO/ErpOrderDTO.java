@@ -28,6 +28,7 @@ public class ErpOrderDTO {
     private double price;
     private double shippingCost;
     private String status;
+    private String reason;
 
     public int getErpOrderId() {
         return erpOrderId;
@@ -147,6 +148,14 @@ public class ErpOrderDTO {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 
 }

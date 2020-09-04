@@ -135,7 +135,6 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
 
     @Override
     public int addProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser) {
-        System.out.println("procurementUnit---" + procurementUnit);
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_procurement_unit").usingGeneratedKeyColumns("PROCUREMENT_UNIT_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
@@ -167,7 +166,6 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
 
     @Override
     public int updateProcurementUnit(ProcurementUnit procurementUnit, CustomUserDetails curUser) {
-        System.out.println("procurementUnit-------------------***********************" + procurementUnit);
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sqlString = "UPDATE rm_procurement_unit pru LEFT JOIN ap_label prul ON pru.LABEL_ID=prul.LABEL_ID "
                 + "SET  "

@@ -88,6 +88,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             s.setEmergencyOrder(rs.getBoolean("EMERGENCY_ORDER"));
             s.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
             s.setVersionId(rs.getInt("VERSION_ID"));
+            s.setActive(rs.getBoolean("ACTIVE"));
             s.setCurrency(new Currency(
                     rs.getInt("SHIPMENT_CURRENCY_ID"),
                     rs.getString("SHIPMENT_CURRENCY_CODE"),

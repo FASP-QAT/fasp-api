@@ -36,7 +36,16 @@ public class Consumption extends BaseModel implements Serializable {
     private String notes;
     private int versionId;
     private List<ConsumptionBatchInfo> batchInfoList;
+    private boolean active;
 
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+    
     public Consumption() {
         batchInfoList = new LinkedList<>();
     }

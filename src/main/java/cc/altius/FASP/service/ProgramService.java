@@ -54,11 +54,11 @@ public interface ProgramService {
 
     public List<ManualTaggingDTO> getShipmentListForManualTagging(int programId, int planningUnitId);
 
-    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(String orderNo, int primeLineNo);
+    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo);
 
     public int linkShipmentWithARTMIS(String orderNo, int primeLineNo, int shipmentId, CustomUserDetails curUser);
 
     public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId);
 
-    public int delinkShipment(int shipmentId, CustomUserDetails curUser);
+    public void delinkShipment(int shipmentId, CustomUserDetails curUser);
 }
