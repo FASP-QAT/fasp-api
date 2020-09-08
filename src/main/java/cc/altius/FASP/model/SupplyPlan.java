@@ -6,7 +6,6 @@
 package cc.altius.FASP.model;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -19,7 +18,7 @@ public class SupplyPlan implements Serializable {
     private int versionId;
     private List<SupplyPlanDate> supplyPlanDateList;
 
-    public int getPrevClosingBalance(int planningUnitId, int batchId, Date transDate) {
+    public int getPrevClosingBalance(int planningUnitId, int batchId, String transDate) {
         SupplyPlanDate s1 = new SupplyPlanDate(planningUnitId, transDate);
         int idx1 = this.supplyPlanDateList.indexOf(s1);
         if (idx1 == -1) {
@@ -35,7 +34,7 @@ public class SupplyPlan implements Serializable {
         }
     }
     
-    public int getPrevClosingBalanceWps(int planningUnitId, int batchId, Date transDate) {
+    public int getPrevClosingBalanceWps(int planningUnitId, int batchId, String transDate) {
         SupplyPlanDate s1 = new SupplyPlanDate(planningUnitId, transDate);
         int idx1 = this.supplyPlanDateList.indexOf(s1);
         if (idx1 == -1) {

@@ -28,7 +28,7 @@ public class NewSupplyPlanBatchResultSetExtractor implements ResultSetExtractor<
     @Override
     public List<NewSupplyPlan> extractData(ResultSet rs) throws SQLException, DataAccessException {
         while (rs.next()) {
-            NewSupplyPlan nsp = new NewSupplyPlan(rs.getInt("PLANNING_UNIT_ID"), rs.getDate("TRANS_DATE"));
+            NewSupplyPlan nsp = new NewSupplyPlan(rs.getInt("PLANNING_UNIT_ID"), rs.getString("TRANS_DATE"));
             int idx = this.nspList.indexOf(nsp);
             if (idx == -1) {
                 throw new SQLException("Cannot find record for planningUnitId:" + nsp.getPlanningUnitId() + " transDate:" + nsp.getTransDate());
@@ -40,7 +40,7 @@ public class NewSupplyPlanBatchResultSetExtractor implements ResultSetExtractor<
             if(rs.wasNull()) {
                 bd.setBatchId(null);
             }
-            bd.setExpiryDate(rs.getDate("EXPIRY_DATE"));
+            bd.setExpiryDate(rs.getString("EXPIRY_DATE"));
             bd.setShelfLife(rs.getInt("SHELF_LIFE"));
             bd.setActualConsumption(rs.getInt("ACTUAL_CONSUMPTION"));
             if(rs.wasNull()) {

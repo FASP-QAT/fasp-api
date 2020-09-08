@@ -36,7 +36,7 @@ public class InventoryListResultSetExtractor implements ResultSetExtractor<List<
             } else {
                 i = inventoryList.get(idx);
             }
-            i.setInventoryDate(rs.getDate("INVENTORY_DATE"));
+            i.setInventoryDate(rs.getString("INVENTORY_DATE"));
             i.setRegion(new SimpleObject(rs.getInt("REGION_ID"), new LabelRowMapper("REGION_").mapRow(rs, 1)));
             i.setRealmCountryPlanningUnit(new SimpleObject(rs.getInt("REALM_COUNTRY_PLANNING_UNIT_ID"), new LabelRowMapper("REALM_COUNTRY_PLANNING_UNIT_").mapRow(rs, 1)));
             i.setPlanningUnit(new SimplePlanningUnitObject(

@@ -5,18 +5,18 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -25,9 +25,7 @@ import java.util.Objects;
 public class SupplyPlanDate implements Serializable {
 
     private int planningUnitId;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date transDate;
+    private String transDate;
     private int unallocatedConsumption;
     private int unallocatedConsumptionWps;
     private List<SupplyPlanBatchInfo> batchList;
@@ -37,14 +35,14 @@ public class SupplyPlanDate implements Serializable {
     public SupplyPlanDate() {
     }
 
-    public SupplyPlanDate(int planningUnitId, Date transDate, List<SupplyPlanBatchInfo> batchList) {
+    public SupplyPlanDate(int planningUnitId, String transDate, List<SupplyPlanBatchInfo> batchList) {
         this.planningUnitId = planningUnitId;
         this.transDate = transDate;
         this.batchList = batchList;
         batchList = new LinkedList<>();
     }
 
-    public SupplyPlanDate(int planningUnitId, Date transDate) {
+    public SupplyPlanDate(int planningUnitId, String transDate) {
         this.planningUnitId = planningUnitId;
         this.transDate = transDate;
         batchList = new LinkedList<>();
@@ -58,11 +56,11 @@ public class SupplyPlanDate implements Serializable {
         this.planningUnitId = planningUnitId;
     }
 
-    public Date getTransDate() {
+    public String getTransDate() {
         return transDate;
     }
 
-    public void setTransDate(Date transDate) {
+    public void setTransDate(String transDate) {
         this.transDate = transDate;
     }
 
@@ -74,16 +72,20 @@ public class SupplyPlanDate implements Serializable {
         this.batchList = batchList;
     }
 
-    public String getTransDateStr() {
-        return this.sdf.format(this.transDate);
-    }
-
     @JsonIgnore
-    public Date getPrevTransDate() {
-        Calendar c = Calendar.getInstance();
-        c.setTime(transDate);
-        c.add(Calendar.MONTH, -1);
-        return c.getTime();
+    public String getPrevTransDate() {
+        Date dt;
+        try {
+            dt = DateUtils.getDateFromString(this.transDate, DateUtils.YMD);
+            Calendar c = Calendar.getInstance();
+            c.setTime(dt);
+            c.add(Calendar.MONTH, -1);
+            return new SimpleDateFormat("yyyy-MM-dd").format(c.getTime());
+        } catch (ParseException ex) {
+            Logger.getLogger(SupplyPlanDate.class.getName()).log(Level.SEVERE, null, ex);
+            return null;
+        }
+
     }
 
     public int getUnallocatedConsumption() {
@@ -101,7 +103,7 @@ public class SupplyPlanDate implements Serializable {
     public void setUnallocatedConsumptionWps(int unallocatedConsumptionWps) {
         this.unallocatedConsumptionWps = unallocatedConsumptionWps;
     }
-    
+
     @Override
     public int hashCode() {
         int hash = 5;
@@ -130,6 +132,5 @@ public class SupplyPlanDate implements Serializable {
         }
         return true;
     }
-    
-    
+
 }

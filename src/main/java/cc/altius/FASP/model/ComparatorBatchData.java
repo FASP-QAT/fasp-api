@@ -24,7 +24,7 @@ public class ComparatorBatchData implements Comparator<BatchData> {
         } else if (bd1.getExpiryDate() != null && bd2.getExpiryDate() == null) {
             return -1;
         } else {
-            int compare = DateUtils.compareDate(bd1.getExpiryDate(), bd2.getExpiryDate());
+            int compare = DateUtils.compareDates(bd1.getExpiryDate(), bd2.getExpiryDate());
             if (compare != 0) {
                 return compare;
             } else {

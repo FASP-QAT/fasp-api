@@ -41,6 +41,7 @@ import cc.altius.FASP.model.rowMapper.SupplyPlanResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -1185,7 +1186,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     spbi.setUnmetDemandWps(unallocatedConsumptionWps);
                     sd.setUnallocatedConsumptionWps(0);
                 }
-                System.out.println(sd.getPlanningUnitId() + "\t\t" + spbi.getBatchId() + "\t\t" + sd.getTransDateStr() + "\t\t" + spbi.getExpiryDateStr() + "\t\t" + spbi.getShipmentQty() + "\t\t" + (spbi.getShipmentQty() - spbi.getManualPlannedShipmentQty()) + "\t\t" + spbi.getConsumption() + "\t\t" + spbi.getAdjustment() + "\t\t" + spbi.getExpiredStock() + "\t\t" + sd.getUnallocatedConsumption() + "\t\t" + spbi.getCalculatedConsumption() + "\t\t" + spbi.getOpeningBalance() + "\t\t" + spbi.getClosingBalance() + "\t\t" + spbi.getUnmetDemand() + "\t\t" + spbi.getExpiredStockWps() + "\t\t" + sd.getUnallocatedConsumptionWps() + "\t\t" + spbi.getCalculatedConsumptionWps() + "\t\t" + spbi.getOpeningBalanceWps() + "\t\t" + spbi.getClosingBalanceWps() + "\t\t" + spbi.getUnmetDemandWps());
+                System.out.println(sd.getPlanningUnitId() + "\t\t" + spbi.getBatchId() + "\t\t" + sd.getTransDate() + "\t\t" + spbi.getExpiryDate() + "\t\t" + spbi.getShipmentQty() + "\t\t" + (spbi.getShipmentQty() - spbi.getManualPlannedShipmentQty()) + "\t\t" + spbi.getConsumption() + "\t\t" + spbi.getAdjustment() + "\t\t" + spbi.getExpiredStock() + "\t\t" + sd.getUnallocatedConsumption() + "\t\t" + spbi.getCalculatedConsumption() + "\t\t" + spbi.getOpeningBalance() + "\t\t" + spbi.getClosingBalance() + "\t\t" + spbi.getUnmetDemand() + "\t\t" + spbi.getExpiredStockWps() + "\t\t" + sd.getUnallocatedConsumptionWps() + "\t\t" + spbi.getCalculatedConsumptionWps() + "\t\t" + spbi.getOpeningBalanceWps() + "\t\t" + spbi.getClosingBalanceWps() + "\t\t" + spbi.getUnmetDemandWps());
             }
         }
         System.out.println("Completed loops");
@@ -1194,7 +1195,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public MasterSupplyPlan getNewSupplyPlanList(int programId, int versionId, boolean rebuild) {
+    public MasterSupplyPlan getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException {
         MasterSupplyPlan msp = new MasterSupplyPlan(programId, versionId);
         String sqlString = "CALL buildNewSupplyPlanRegion(:programId, :versionId, :rebuild)";
         Map<String, Object> params = new HashMap<>();

@@ -15,6 +15,7 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.Version;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -43,7 +44,7 @@ public interface ProgramDataService {
 
     public SupplyPlan getSupplyPlan(int programId, int versionId);
     
-    public MasterSupplyPlan getNewSupplyPlanList(int programId, int versionId, boolean rebuild);
+    public MasterSupplyPlan getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException;
     
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp);
 

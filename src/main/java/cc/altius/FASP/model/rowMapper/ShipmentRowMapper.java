@@ -37,7 +37,7 @@ public class ShipmentRowMapper implements RowMapper<Shipment> {
                                 new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, i),
                                 new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, i))))
         );
-        s.setExpectedDeliveryDate(rs.getDate("EXPECTED_DELIVERY_DATE"));
+        s.setExpectedDeliveryDate(rs.getString("EXPECTED_DELIVERY_DATE"));
         s.setSuggestedQty(rs.getInt("SUGGESTED_QTY"));
         s.setProcurementAgent(new SimpleProcurementAgentObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, i), rs.getString("PROCUREMENT_AGENT_CODE"), rs.getString("COLOR_HTML_CODE")));
         s.setProcurementUnit(new SimpleObject(rs.getInt("PROCUREMENT_UNIT_ID"), new LabelRowMapper("PROCUREMENT_UNIT_").mapRow(rs, i)));
@@ -47,12 +47,12 @@ public class ShipmentRowMapper implements RowMapper<Shipment> {
         s.setProductCost(rs.getDouble("PRODUCT_COST"));
         s.setShipmentMode(rs.getString("SHIPPING_MODE"));
         s.setFreightCost(rs.getDouble("FREIGHT_COST"));
-        s.setPlannedDate(rs.getDate("PLANNED_DATE"));
-        s.setSubmittedDate(rs.getDate("SUBMITTED_DATE"));
-        s.setApprovedDate(rs.getDate("APPROVED_DATE"));
-        s.setShippedDate(rs.getDate("SHIPPED_DATE"));
-        s.setArrivedDate(rs.getDate("ARRIVED_DATE"));
-        s.setReceivedDate(rs.getDate("RECEIVED_DATE"));
+        s.setPlannedDate(rs.getString("PLANNED_DATE"));
+        s.setSubmittedDate(rs.getString("SUBMITTED_DATE"));
+        s.setApprovedDate(rs.getString("APPROVED_DATE"));
+        s.setShippedDate(rs.getString("SHIPPED_DATE"));
+        s.setArrivedDate(rs.getString("ARRIVED_DATE"));
+        s.setReceivedDate(rs.getString("RECEIVED_DATE"));
         s.setShipmentStatus(new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, i)));
         s.setNotes(rs.getString("NOTES"));
         s.setDataSource(new SimpleObject(rs.getInt("DATA_SOURCE_ID"), new LabelRowMapper("DATA_SOURCE_").mapRow(rs, i)));
