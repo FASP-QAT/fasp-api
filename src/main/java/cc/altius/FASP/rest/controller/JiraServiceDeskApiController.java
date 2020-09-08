@@ -66,7 +66,11 @@ public class JiraServiceDeskApiController {
             response = restTemplate.exchange(
                     JIRA_API_URL + "/issue", HttpMethod.POST, entity, String.class);
             
-            return response;
+            if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {                
+                return new ResponseEntity(response.getBody(), HttpStatus.OK);
+            } else {                
+                return new ResponseEntity(response.getBody(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }                        
 
         } catch (Exception e) {
             logger.error("Error while creating issue", e);

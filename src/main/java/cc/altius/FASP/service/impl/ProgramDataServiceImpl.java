@@ -8,6 +8,8 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.MasterSupplyPlan;
+import cc.altius.FASP.model.NewSupplyPlan;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
@@ -98,6 +100,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         return this.programDataDao.getSupplyPlan(programId, versionId);
     }
 
+    @Override
+    public MasterSupplyPlan getNewSupplyPlanList(int programId, int versionId, boolean rebuild) {
+        return this.programDataDao.getNewSupplyPlanList(programId, versionId, rebuild);
+    }
+    
     @Override
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp) {
         return this.programDataDao.updateSupplyPlanBatchInfo(sp);
