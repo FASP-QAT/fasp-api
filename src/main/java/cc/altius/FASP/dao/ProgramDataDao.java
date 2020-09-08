@@ -10,6 +10,7 @@ import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Inventory;
+import cc.altius.FASP.model.MasterSupplyPlan;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.Shipment;
@@ -48,6 +49,8 @@ public interface ProgramDataDao {
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId);
 
     public SupplyPlan getSupplyPlan(int programId, int versionId);
+    
+    public MasterSupplyPlan getNewSupplyPlanList(int programId, int versionId, boolean rebuild);
 
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp);
 
