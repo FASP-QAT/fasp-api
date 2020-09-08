@@ -96,8 +96,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getUserList() {
-        return this.userDao.getUserList();
+    public List<User> getUserList(CustomUserDetails curUser) {
+        return this.userDao.getUserList(curUser);
     }
 
     @Override
@@ -111,8 +111,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByUserId(int userId) {
-        return this.userDao.getUserByUserId(userId);
+    public User getUserByUserId(int userId, CustomUserDetails curUser) {
+        return this.userDao.getUserByUserId(userId, curUser);
     }
 
     @Override
