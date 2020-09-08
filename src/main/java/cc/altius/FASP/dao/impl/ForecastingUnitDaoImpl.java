@@ -22,6 +22,8 @@ import org.springframework.stereotype.Repository;
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.service.AclService;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
 /**
  *
@@ -32,11 +34,13 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
+    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Autowired
@@ -114,7 +118,35 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
         params.put("genericLabelEn", forecastingUnit.getGenericLabel().getLabel_en());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
-        return this.namedParameterJdbcTemplate.update(sqlString, params);
+        int rows = this.namedParameterJdbcTemplate.update(sqlString, params);
+        if (!forecastingUnit.isActive()) {
+            sqlString = "SELECT p.`PLANNING_UNIT_ID` FROM rm_planning_unit p WHERE p.`FORECASTING_UNIT_ID`=?;";
+            List<Integer> list = this.jdbcTemplate.queryForList(sqlString, Integer.class, forecastingUnit.getForecastingUnitId());
+
+            MapSqlParameterSource[] batchParams;
+            int x;
+            params.clear();
+            batchParams = new MapSqlParameterSource[list.size()];
+            x = 0;
+            sqlString = "UPDATE rm_program_planning_unit p SET p.`ACTIVE`=0 WHERE p.`PLANNING_UNIT_ID`=:planningUnitId;";
+
+            for (int planningUnitId : list) {
+                params.put("planningUnitId", planningUnitId);
+                batchParams[x] = new MapSqlParameterSource(params);
+                x++;
+            }
+            namedParameterJdbcTemplate.batchUpdate(sqlString, batchParams);
+            sqlString = "UPDATE rm_procurement_agent_planning_unit p SET p.`ACTIVE`=0 WHERE p.`PLANNING_UNIT_ID`=:planningUnitId;";
+            namedParameterJdbcTemplate.batchUpdate(sqlString, batchParams);
+            sqlString = "UPDATE rm_procurement_unit p "
+                    + "LEFT JOIN rm_procurement_agent_procurement_unit pu ON pu.`PROCUREMENT_UNIT_ID`=p.`PROCUREMENT_UNIT_ID` "
+                    + "SET p.`ACTIVE`=0,pu.`ACTIVE`=0 "
+                    + "WHERE p.`PLANNING_UNIT_ID`=:planningUnitId;;";
+            namedParameterJdbcTemplate.batchUpdate(sqlString, batchParams);
+            sqlString = "UPDATE rm_planning_unit p SET p.`ACTIVE`=0 WHERE p.`FORECASTING_UNIT_ID`=?;";
+            this.jdbcTemplate.update(sqlString, forecastingUnit.getForecastingUnitId());
+        }
+        return rows;
     }
 
     @Override

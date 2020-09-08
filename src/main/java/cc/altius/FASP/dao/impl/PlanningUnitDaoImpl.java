@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -37,6 +38,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
+    private JdbcTemplate jdbcTemplate;
 
     @Autowired
     private LabelDao labelDao;
@@ -88,6 +90,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Override
@@ -110,7 +113,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
 
     @Override
     public int updatePlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) {
-        System.out.println("planningUnit---"+planningUnit);
+        System.out.println("planningUnit---" + planningUnit);
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sqlString = "UPDATE rm_planning_unit pu LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
                 + "SET  "
@@ -131,7 +134,23 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         params.put("multiplier", planningUnit.getMultiplier());
-        return this.namedParameterJdbcTemplate.update(sqlString, params);
+        int rows = this.namedParameterJdbcTemplate.update(sqlString, params);
+
+        if (!planningUnit.isActive()) {
+            // Program planning unit
+            sqlString = "UPDATE rm_program_planning_unit p SET p.`ACTIVE`=0 WHERE p.`PLANNING_UNIT_ID`=?;";
+            this.jdbcTemplate.update(sqlString, planningUnit.getPlanningUnitId());
+            // Procurement agent planning unit
+            sqlString = "UPDATE rm_procurement_agent_planning_unit p SET p.`ACTIVE`=0 WHERE p.`PLANNING_UNIT_ID`=?;";
+            this.jdbcTemplate.update(sqlString, planningUnit.getPlanningUnitId());
+            // Procurement unit and procurement agent procurement unit
+            sqlString = "UPDATE rm_procurement_unit p "
+                    + "LEFT JOIN rm_procurement_agent_procurement_unit pu ON pu.`PROCUREMENT_UNIT_ID`=p.`PROCUREMENT_UNIT_ID` "
+                    + "SET p.`ACTIVE`=0,pu.`ACTIVE`=0 "
+                    + "WHERE p.`PLANNING_UNIT_ID`=?;";
+            this.jdbcTemplate.update(sqlString, planningUnit.getPlanningUnitId());
+        }
+        return rows;
     }
 
     @Override

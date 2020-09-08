@@ -23,9 +23,9 @@ public class ProcurementAgentShipmentReportOutputRowMapper implements RowMapper<
         ProcurementAgentShipmentReportOutput paro = new ProcurementAgentShipmentReportOutput(
                 new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)),
                 rs.getInt("QTY"),
-                rs.getDouble("FREIGHT_COST"),
+                rs.getDouble("PRODUCT_COST"),
                 rs.getDouble("FREIGHT_PERC"),
-                rs.getDouble("PRODUCT_COST"));
+                rs.getDouble("FREIGHT_COST"));
         paro.setProcurementAgent(new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, i), rs.getString("PROCUREMENT_AGENT_CODE")));
         return paro;
     }

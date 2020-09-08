@@ -23,9 +23,10 @@ public class FundingSourceShipmentReportOutputRowMapper implements RowMapper<Fun
         FundingSourceShipmentReportOutput fsro = new FundingSourceShipmentReportOutput(
                 new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)),
                 rs.getInt("QTY"),
-                rs.getDouble("FREIGHT_COST"),
+                rs.getDouble("PRODUCT_COST"),
                 rs.getDouble("FREIGHT_PERC"),
-                rs.getDouble("PRODUCT_COST")
+                rs.getDouble("FREIGHT_COST")
+                
         );
         fsro.setFundingSource(new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, i), rs.getString("FUNDING_SOURCE_CODE")));
         return fsro;
