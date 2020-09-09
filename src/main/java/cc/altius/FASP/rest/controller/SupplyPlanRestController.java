@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.model.MasterSupplyPlan;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.service.ProgramDataService;
@@ -43,5 +44,20 @@ public class SupplyPlanRestController {
         System.out.println("Completed save to the table");
         System.out.println(new Date());
         return new ResponseEntity(simplifiedSupplyPlan, HttpStatus.OK);
+    }
+
+    @GetMapping("/newSupplyPlan/programId/{programId}/versionId/{versionId}/rebuild/{rebuild}")
+    @ResponseBody
+    public ResponseEntity buildNewSupplyPlan(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "rebuild", required = false) boolean rebuild) {
+        try {
+            System.out.println("Starting supply plan build for ProgramId:" + programId + " versionId:" + versionId + " rebuild:" + rebuild);
+            System.out.println(new Date());
+            MasterSupplyPlan msp = this.programDataService.getNewSupplyPlanList(programId, versionId, rebuild);
+            System.out.println("Completed Supply plan build");
+            System.out.println(new Date());
+            return new ResponseEntity(msp, HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }

@@ -24,6 +24,7 @@ import cc.altius.FASP.model.rowMapper.RoleListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RoleResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserResultSetExtractor;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -140,7 +141,8 @@ public class UserDaoImpl implements UserDao {
             + "    LEFT JOIN rm_program acl_program ON acl.`PROGRAM_ID`=acl_program.`PROGRAM_ID` "
             + "    LEFT JOIN ap_label acl_program_lb on acl_program.`LABEL_ID`=acl_program_lb.`LABEL_ID` "
             + "    LEFT JOIN us_role_business_function rbf ON role.ROLE_ID=rbf.ROLE_ID "
-            + "    WHERE TRUE ";
+            + "    LEFT JOIN us_user cu ON user.REALM_ID=cu.REALM_ID OR cu.REALM_ID IS NULL "
+            + "    WHERE cu.USER_ID=:curUser ";
 
     private static final String userOrderBy = " ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,acl.`USER_ACL_ID`";
 
@@ -348,9 +350,11 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<User> getUserList() {
+    public List<User> getUserList(CustomUserDetails curUser) {
         String sql = this.userString + this.userOrderBy;
-        return this.namedParameterJdbcTemplate.query(sql, new UserListResultSetExtractor());
+        Map<String, Object> params = new HashMap<>();
+        params.put("curUser", curUser.getUserId());
+        return this.namedParameterJdbcTemplate.query(sql, params, new UserListResultSetExtractor());
     }
 
     @Override
@@ -363,15 +367,17 @@ public class UserDaoImpl implements UserDao {
             params.put("userRealmId", curUser.getRealm().getRealmId());
             sql += " AND user.REALM_ID=:userRealmId ";
         }
+        params.put("curUser", curUser.getUserId());
         sql += this.userOrderBy;
         return this.namedParameterJdbcTemplate.query(sql, params, new UserListResultSetExtractor());
     }
 
     @Override
-    public User getUserByUserId(int userId) {
+    public User getUserByUserId(int userId, CustomUserDetails curUser) {
         String sql = this.userString + " AND `user`.`USER_ID`=:userId " + this.userOrderBy;
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
+        params.put("curUser", curUser.getUserId());
         User u = this.namedParameterJdbcTemplate.query(sql, params, new UserResultSetExtractor());
         if (u == null) {
             throw new EmptyResultDataAccessException(1);

@@ -155,6 +155,7 @@ public class BudgetDaoImpl implements BudgetDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fs", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetRowMapper());
     }
 
@@ -164,6 +165,7 @@ public class BudgetDaoImpl implements BudgetDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fs", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fs", realmId, curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new BudgetRowMapper());
     }
 

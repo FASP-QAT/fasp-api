@@ -5,10 +5,6 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.LinkedList;
@@ -25,9 +21,7 @@ public class Consumption extends BaseModel implements Serializable {
     private SimplePlanningUnitObject planningUnit;
     private SimpleObject realmCountryPlanningUnit;
     private double multiplier;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date consumptionDate;
+    private String consumptionDate;
     private boolean actualFlag;
     private double consumptionRcpuQty;
     private double consumptionQty;
@@ -90,11 +84,11 @@ public class Consumption extends BaseModel implements Serializable {
         this.multiplier = multiplier;
     }
 
-    public Date getConsumptionDate() {
+    public String getConsumptionDate() {
         return consumptionDate;
     }
 
-    public void setConsumptionDate(Date consumptionDate) {
+    public void setConsumptionDate(String consumptionDate) {
         this.consumptionDate = consumptionDate;
     }
 

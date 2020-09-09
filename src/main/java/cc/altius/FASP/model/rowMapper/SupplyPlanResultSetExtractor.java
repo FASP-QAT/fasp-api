@@ -31,7 +31,7 @@ public class SupplyPlanResultSetExtractor implements ResultSetExtractor<SupplyPl
                 sp.setSupplyPlanDateList(new LinkedList<>());
                 isFirst = false;
             }
-            SupplyPlanDate spd = new SupplyPlanDate(rs.getInt("PLANNING_UNIT_ID"), rs.getDate("TRANS_DATE"));
+            SupplyPlanDate spd = new SupplyPlanDate(rs.getInt("PLANNING_UNIT_ID"), rs.getString("TRANS_DATE"));
             int idx = sp.getSupplyPlanDateList().indexOf(spd);
             if (idx == -1) {
                 sp.getSupplyPlanDateList().add(spd);
@@ -46,7 +46,7 @@ public class SupplyPlanResultSetExtractor implements ResultSetExtractor<SupplyPl
                 spbi = spd.getBatchList().get(idx);
             }
             spbi.setSupplyPlanId(rs.getInt("SUPPLY_PLAN_BATCH_INFO_ID"));
-            spbi.setExpiryDate(rs.getDate("EXPIRY_DATE"));
+            spbi.setExpiryDate(rs.getString("EXPIRY_DATE"));
             spbi.setShipmentQty(rs.getInt("SHIPMENT_QTY"));
             spbi.setManualPlannedShipmentQty(rs.getInt("MANUAL_PLANNED_SHIPMENT_QTY"));
             spbi.setManualSubmittedShipmentQty(rs.getInt("MANUAL_SUBMITTED_SHIPMENT_QTY"));

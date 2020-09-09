@@ -13,6 +13,8 @@ import cc.altius.FASP.model.ConsumptionBatchInfo;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.InventoryBatchInfo;
+import cc.altius.FASP.model.MasterSupplyPlan;
+import cc.altius.FASP.model.NewSupplyPlan;
 import cc.altius.FASP.model.ProblemReport;
 import cc.altius.FASP.model.ProblemReportTrans;
 import cc.altius.FASP.model.ProgramData;
@@ -28,6 +30,8 @@ import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.BatchRowMapper;
 import cc.altius.FASP.model.rowMapper.ConsumptionListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.NewSupplyPlanBatchResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.NewSupplyPlanRegionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramVersionRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
@@ -37,6 +41,7 @@ import cc.altius.FASP.model.rowMapper.SupplyPlanResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -51,6 +56,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  *
@@ -123,18 +129,18 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-//    @Transactional
+    @Transactional
     public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         // Check which records have changed
         Map<String, Object> params = new HashMap<>();
 
         // ########################### Consumption ############################################
-//        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
-        String sqlString = "DROP TABLE IF EXISTS `tmp_consumption`";
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
+//        String sqlString = "DROP TABLE IF EXISTS `tmp_consumption`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_consumption` ( "
-        sqlString = "CREATE TABLE `tmp_consumption` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_consumption` ( "
+                //        sqlString = "CREATE TABLE `tmp_consumption` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `CONSUMPTION_ID` INT UNSIGNED NULL, "
                 + "  `REGION_ID` INT(10) UNSIGNED NOT NULL, "
@@ -158,11 +164,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  INDEX `fk_tmp_consumption_5_idx` (`VERSION_ID` ASC))";
         this.namedParameterJdbcTemplate.update(sqlString, params);
 
-//        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption_batch_info`";
-        sqlString = "DROP TABLE IF EXISTS `tmp_consumption_batch_info`";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption_batch_info`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_consumption_batch_info`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_consumption_batch_info` ( "
-        sqlString = "CREATE TABLE `tmp_consumption_batch_info` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_consumption_batch_info` ( "
+                //        sqlString = "CREATE TABLE `tmp_consumption_batch_info` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `PARENT_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `CONSUMPTION_TRANS_BATCH_INFO_ID` INT(10) UNSIGNED NULL, "
@@ -307,15 +313,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
         // ###########################  Inventory  ############################################
         params.clear();
-//        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_inventory`";
-        sqlString = "DROP TABLE IF EXISTS `tmp_inventory`";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_inventory`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_inventory`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_inventory` ( "
-        sqlString = "CREATE TABLE `tmp_inventory` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_inventory` ( "
+                //        sqlString = "CREATE TABLE `tmp_inventory` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `INVENTORY_ID` INT UNSIGNED NULL, "
                 + "  `INVENTORY_DATE` DATE NOT NULL, "
-                + "  `REGION_ID` INT(10) UNSIGNED NOT NULL, "
+                + "  `REGION_ID` INT(10) UNSIGNED NULL, "
                 + "  `REALM_COUNTRY_PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `ACTUAL_QTY` INT(10) UNSIGNED NULL, "
                 + "  `ADJUSTMENT_QTY` INT(10) NOT NULL, "
@@ -331,11 +337,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  INDEX `fk_tmp_inventory_4_idx` (`DATA_SOURCE_ID` ASC), "
                 + "  INDEX `fk_tmp_inventory_5_idx` (`VERSION_ID` ASC))";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-//        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_inventory_batch_info`";
-        sqlString = "DROP TABLE IF EXISTS `tmp_inventory_batch_info`";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_inventory_batch_info`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_inventory_batch_info`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_inventory_batch_info` ( "
-        sqlString = "CREATE TABLE `tmp_inventory_batch_info` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_inventory_batch_info` ( "
+                //        sqlString = "CREATE TABLE `tmp_inventory_batch_info` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `PARENT_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `INVENTORY_TRANS_BATCH_INFO_ID` INT(10) UNSIGNED NULL, "
@@ -470,11 +476,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         // ###########################  Inventory  ############################################
         // ###########################  Shipment  #############################################
         params.clear();
-//        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment`";
-        sqlString = "DROP TABLE IF EXISTS `tmp_shipment`";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment`";
+//        sqlString = "DROP TABLE IF EXISTS `tmp_shipment`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_shipment` ( "
-        sqlString = "CREATE TABLE `tmp_shipment` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_shipment` ( "
+                //        sqlString = "CREATE TABLE `tmp_shipment` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `SHIPMENT_ID` INT(10) UNSIGNED NULL, "
                 + "  `PARENT_SHIPMENT_ID` INT(10) UNSIGNED NULL, "
@@ -552,8 +558,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("PARENT_SHIPMENT_ID", s.getParentShipmentId());
             tp.put("SUGGESTED_QTY", s.getSuggestedQty());
             tp.put("PROCUREMENT_AGENT_ID", (s.getProcurementAgent() == null || s.getProcurementAgent().getId() == 0 ? null : s.getProcurementAgent().getId()));
-            tp.put("FUNDING_SOURCE_ID", (s.getFundingSource() == null || s.getBudget().getId() == 0 ? null : s.getFundingSource().getId()));
-            tp.put("BUDGET_ID", (s.getBudget() == null || s.getFundingSource().getId() == 0 ? null : s.getBudget().getId()));
+            tp.put("FUNDING_SOURCE_ID", (s.getFundingSource() == null || s.getFundingSource().getId() == 0 ? null : s.getFundingSource().getId()));
+            tp.put("BUDGET_ID", (s.getBudget() == null || s.getBudget().getId() == 0 ? null : s.getBudget().getId()));
             tp.put("ACCOUNT_FLAG", s.isAccountFlag());
             tp.put("ERP_FLAG", s.isErpFlag());
             tp.put("CURRENCY_ID", s.getCurrency().getCurrencyId());
@@ -1180,12 +1186,27 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     spbi.setUnmetDemandWps(unallocatedConsumptionWps);
                     sd.setUnallocatedConsumptionWps(0);
                 }
-                System.out.println(sd.getPlanningUnitId() + "\t\t" + spbi.getBatchId() + "\t\t" + sd.getTransDateStr() + "\t\t" + spbi.getExpiryDateStr() + "\t\t" + spbi.getShipmentQty() + "\t\t" + (spbi.getShipmentQty() - spbi.getManualPlannedShipmentQty()) + "\t\t" + spbi.getConsumption() + "\t\t" + spbi.getAdjustment() + "\t\t" + spbi.getExpiredStock() + "\t\t" + sd.getUnallocatedConsumption() + "\t\t" + spbi.getCalculatedConsumption() + "\t\t" + spbi.getOpeningBalance() + "\t\t" + spbi.getClosingBalance() + "\t\t" + spbi.getUnmetDemand() + "\t\t" + spbi.getExpiredStockWps() + "\t\t" + sd.getUnallocatedConsumptionWps() + "\t\t" + spbi.getCalculatedConsumptionWps() + "\t\t" + spbi.getOpeningBalanceWps() + "\t\t" + spbi.getClosingBalanceWps() + "\t\t" + spbi.getUnmetDemandWps());
+                System.out.println(sd.getPlanningUnitId() + "\t\t" + spbi.getBatchId() + "\t\t" + sd.getTransDate() + "\t\t" + spbi.getExpiryDate() + "\t\t" + spbi.getShipmentQty() + "\t\t" + (spbi.getShipmentQty() - spbi.getManualPlannedShipmentQty()) + "\t\t" + spbi.getConsumption() + "\t\t" + spbi.getAdjustment() + "\t\t" + spbi.getExpiredStock() + "\t\t" + sd.getUnallocatedConsumption() + "\t\t" + spbi.getCalculatedConsumption() + "\t\t" + spbi.getOpeningBalance() + "\t\t" + spbi.getClosingBalance() + "\t\t" + spbi.getUnmetDemand() + "\t\t" + spbi.getExpiredStockWps() + "\t\t" + sd.getUnallocatedConsumptionWps() + "\t\t" + spbi.getCalculatedConsumptionWps() + "\t\t" + spbi.getOpeningBalanceWps() + "\t\t" + spbi.getClosingBalanceWps() + "\t\t" + spbi.getUnmetDemandWps());
             }
         }
         System.out.println("Completed loops");
         System.out.println(new Date());
         return sp;
+    }
+
+    @Override
+    public MasterSupplyPlan getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException {
+        MasterSupplyPlan msp = new MasterSupplyPlan(programId, versionId);
+        String sqlString = "CALL buildNewSupplyPlanRegion(:programId, :versionId, :rebuild)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        params.put("rebuild", rebuild);
+        List<NewSupplyPlan> spList = this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanRegionResultSetExtractor());
+        sqlString = "CALL buildNewSupplyPlanBatch(:programId, :versionId, :rebuild)";
+        msp.setNspList(this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanBatchResultSetExtractor(spList)));
+        msp.buildPlan();
+        return msp;
     }
 
     @Override

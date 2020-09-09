@@ -7,6 +7,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.MasterSupplyPlan;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ShipmentSync;
@@ -14,6 +15,7 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.Version;
+import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -41,7 +43,9 @@ public interface ProgramDataService {
     public int updateSentToARTMISFlag(String programVersionIds);
 
     public SupplyPlan getSupplyPlan(int programId, int versionId);
-
+    
+    public MasterSupplyPlan getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException;
+    
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp);
 
     public ShipmentSync getShipmentListForSync(int programId, int versionId, String lastSyncDate, CustomUserDetails curUser);

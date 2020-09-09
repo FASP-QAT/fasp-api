@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.MasterSupplyPlan;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
@@ -23,6 +24,7 @@ import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.utils.DateUtils;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
 import org.springframework.security.access.AccessDeniedException;
@@ -96,6 +98,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public SupplyPlan getSupplyPlan(int programId, int versionId) {
         return this.programDataDao.getSupplyPlan(programId, versionId);
+    }
+
+    @Override
+    public MasterSupplyPlan getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException {
+        return this.programDataDao.getNewSupplyPlanList(programId, versionId, rebuild);
     }
 
     @Override
