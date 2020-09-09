@@ -8,6 +8,7 @@ package cc.altius.FASP.model;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.ParseException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -48,7 +49,7 @@ public class MasterSupplyPlan implements Serializable {
         this.nspList = nspList;
     }
 
-    private void updateOpeningBalance(NewSupplyPlan nsp) {
+    private void updateOpeningBalance(NewSupplyPlan nsp) throws ParseException {
         NewSupplyPlan prevNsp = new NewSupplyPlan(nsp.getPlanningUnitId(), nsp.getPrevTransDate());
         int idx1 = this.nspList.indexOf(prevNsp);
         if (idx1 == -1) {
@@ -74,7 +75,7 @@ public class MasterSupplyPlan implements Serializable {
         }
     }
 
-    public void buildPlan() {
+    public void buildPlan() throws ParseException {
         StringBuilder regionString = new StringBuilder()
                 .append("TransDate").append("\t")
                 .append("OB").append("\t")
@@ -127,7 +128,7 @@ public class MasterSupplyPlan implements Serializable {
                 bd.setUseActualConsumption(nsp.isActualConsumptionFlag());
                 bd.setUseAdjustment(nsp.isUseAdjustment());
                 batchString
-                        .append(nsp.getTransDateString()).append("\t")
+                        .append(nsp.getTransDate()).append("\t")
                         .append(bd.getBatchId()).append("\t")
                         .append(bd.getOpeningBalance()).append("\t")
                         .append(bd.getExpiredStock()).append("\t")
@@ -143,7 +144,7 @@ public class MasterSupplyPlan implements Serializable {
                         .append(bd.getClosingBalance()).append("\r\n");
             });
             regionString
-                    .append(nsp.getTransDateString()).append("\t")
+                    .append(nsp.getTransDate()).append("\t")
                     .append(nsp.getOpeningBalance()).append("\t")
                     .append(nsp.getExpiredStock()).append("\t")
                     .append(nsp.getShipment()).append("\t")

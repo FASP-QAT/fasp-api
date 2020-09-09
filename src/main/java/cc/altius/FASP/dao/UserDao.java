@@ -36,11 +36,11 @@ public interface UserDao {
 
     public int addNewUser(User user, int curUser);
 
-    public List<User> getUserList();
+    public List<User> getUserList(CustomUserDetails curUser);
 
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser);
 
-    public User getUserByUserId(int userId);
+    public User getUserByUserId(int userId, CustomUserDetails curUser);
 
     public int updateUser(User user, int curUser);
 

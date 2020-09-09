@@ -5,12 +5,6 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
-import cc.altius.FASP.framework.JsonDateTimeDeserializer;
-import cc.altius.FASP.framework.JsonDateTimeSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.LinkedList;
@@ -25,9 +19,7 @@ public class Shipment extends BaseModel implements Serializable {
     private int shipmentId;
     private Integer parentShipmentId;
     private SimplePlanningUnitObject planningUnit;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date expectedDeliveryDate;
+    private String expectedDeliveryDate;
     private int suggestedQty;
     private SimpleProcurementAgentObject procurementAgent;
     private SimpleBudgetObject budget;
@@ -40,24 +32,12 @@ public class Shipment extends BaseModel implements Serializable {
     private double productCost;
     private String shipmentMode;
     private double freightCost;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date plannedDate;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date submittedDate;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date approvedDate;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date shippedDate;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date arrivedDate;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date receivedDate;
+    private String plannedDate;
+    private String submittedDate;
+    private String approvedDate;
+    private String shippedDate;
+    private String arrivedDate;
+    private String receivedDate;
     private SimpleObject shipmentStatus;
     private String notes;
     private SimpleObject dataSource;
@@ -67,8 +47,6 @@ public class Shipment extends BaseModel implements Serializable {
     private String primeLineNo;
     private boolean emergencyOrder;
     private int versionId;
-    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
-    @JsonSerialize(using = JsonDateTimeSerializer.class)
     private Date lastModifiedDate;
     private List<ShipmentBatchInfo> batchInfoList;
     private boolean active;
@@ -109,11 +87,11 @@ public class Shipment extends BaseModel implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public Date getExpectedDeliveryDate() {
+    public String getExpectedDeliveryDate() {
         return expectedDeliveryDate;
     }
 
-    public void setExpectedDeliveryDate(Date expectedDeliveryDate) {
+    public void setExpectedDeliveryDate(String expectedDeliveryDate) {
         this.expectedDeliveryDate = expectedDeliveryDate;
     }
 
@@ -213,51 +191,51 @@ public class Shipment extends BaseModel implements Serializable {
         this.freightCost = freightCost;
     }
 
-    public Date getPlannedDate() {
+    public String getPlannedDate() {
         return plannedDate;
     }
 
-    public void setPlannedDate(Date plannedDate) {
+    public void setPlannedDate(String plannedDate) {
         this.plannedDate = plannedDate;
     }
 
-    public Date getSubmittedDate() {
+    public String getSubmittedDate() {
         return submittedDate;
     }
 
-    public void setSubmittedDate(Date submittedDate) {
+    public void setSubmittedDate(String submittedDate) {
         this.submittedDate = submittedDate;
     }
 
-    public Date getApprovedDate() {
+    public String getApprovedDate() {
         return approvedDate;
     }
 
-    public void setApprovedDate(Date approvedDate) {
+    public void setApprovedDate(String approvedDate) {
         this.approvedDate = approvedDate;
     }
 
-    public Date getShippedDate() {
+    public String getShippedDate() {
         return shippedDate;
     }
 
-    public void setShippedDate(Date shippedDate) {
+    public void setShippedDate(String shippedDate) {
         this.shippedDate = shippedDate;
     }
 
-    public Date getArrivedDate() {
+    public String getArrivedDate() {
         return arrivedDate;
     }
 
-    public void setArrivedDate(Date arrivedDate) {
+    public void setArrivedDate(String arrivedDate) {
         this.arrivedDate = arrivedDate;
     }
 
-    public Date getReceivedDate() {
+    public String getReceivedDate() {
         return receivedDate;
     }
 
-    public void setReceivedDate(Date receivedDate) {
+    public void setReceivedDate(String receivedDate) {
         this.receivedDate = receivedDate;
     }
 

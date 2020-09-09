@@ -5,11 +5,7 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.utils.DateUtils;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.text.ParseException;
 import java.util.Date;
@@ -22,9 +18,7 @@ import java.util.Objects;
 public class BatchData implements Serializable {
 
     private Integer batchId;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date expiryDate;
+    private String expiryDate;
     private int shelfLife;
     private Integer actualConsumption;
     private Integer shipment;
@@ -49,7 +43,7 @@ public class BatchData implements Serializable {
         if (expiryDate == null) {
             this.expiryDate = null;
         } else {
-            this.expiryDate = DateUtils.getDateFromString(expiryDate, DateUtils.YMD);
+            this.expiryDate = expiryDate;
         }
         
     }
@@ -62,11 +56,11 @@ public class BatchData implements Serializable {
         this.batchId = batchId;
     }
 
-    public Date getExpiryDate() {
+    public String getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(Date expiryDate) {
+    public void setExpiryDate(String expiryDate) {
         this.expiryDate = expiryDate;
     }
 

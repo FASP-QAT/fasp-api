@@ -5,16 +5,12 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -27,9 +23,7 @@ import java.util.Optional;
 public class NewSupplyPlan implements Serializable {
     
     private int planningUnitId;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date transDate;
+    private String transDate;
     
     private Integer finalConsumption;
     private boolean actualConsumptionFlag;
@@ -54,7 +48,7 @@ public class NewSupplyPlan implements Serializable {
         this.batchDataList = new LinkedList<>();
     }
     
-    public NewSupplyPlan(int planningUnitId, Date transDate) {
+    public NewSupplyPlan(int planningUnitId, String transDate) {
         this.planningUnitId = planningUnitId;
         this.transDate = transDate;
         this.regionDataList = new LinkedList<>();
@@ -69,20 +63,12 @@ public class NewSupplyPlan implements Serializable {
         this.planningUnitId = planningUnitId;
     }
     
-    public Date getTransDate() {
+    public String getTransDate() {
         return transDate;
     }
     
-    public void setTransDate(Date transDate) {
+    public void setTransDate(String transDate) {
         this.transDate = transDate;
-    }
-    
-    public String getTransDateString() {
-        if (transDate == null) {
-            return "";
-        } else {
-            return new SimpleDateFormat("yyyy-MM-dd").format(this.transDate);
-        }
     }
     
     public Integer getFinalConsumption() {
@@ -254,12 +240,14 @@ public class NewSupplyPlan implements Serializable {
         return (this.stock == null);
     }
     
+    
     @JsonIgnore
-    public Date getPrevTransDate() {
+    public String getPrevTransDate() throws ParseException {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         Calendar c = Calendar.getInstance();
-        c.setTime(this.transDate);
+        c.setTime(sdf.parse(transDate));
         c.add(Calendar.MONTH, -1);
-        return c.getTime();
+        return sdf.format(c.getTime());
     }
     
     public void addOpeningBalance(int ob) {
@@ -268,7 +256,7 @@ public class NewSupplyPlan implements Serializable {
     
     public void updateExpiredStock() {
         this.batchDataList.forEach(bd -> {
-            if (bd.getExpiryDate() != null && DateUtils.compareDate(bd.getExpiryDate(), this.transDate) <= 0) {
+            if (bd.getExpiryDate() != null && DateUtils.compareDates(bd.getExpiryDate(), this.transDate) <= 0) {
                 bd.setExpiredStock(Optional.ofNullable(bd.getShipment()).orElse(0) + bd.getOpeningBalance());
                 this.expiredStock = Optional.ofNullable(this.expiredStock).orElse(0) + bd.getExpiredStock();
             }

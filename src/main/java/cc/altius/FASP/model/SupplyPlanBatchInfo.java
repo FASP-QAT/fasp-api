@@ -5,12 +5,8 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -23,9 +19,7 @@ public class SupplyPlanBatchInfo implements Serializable {
 
     private int supplyPlanId;
     private int batchId;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date expiryDate;
+    private String expiryDate;
     private int manualPlannedShipmentQty;
     private int manualSubmittedShipmentQty;
     private int manualApprovedShipmentQty;
@@ -59,7 +53,7 @@ public class SupplyPlanBatchInfo implements Serializable {
     }
 
     public SupplyPlanBatchInfo(
-            int supplyPlanId, int batchId, Date expiryDate, 
+            int supplyPlanId, int batchId, String expiryDate, 
             int manualPlannedShipmentQty, int manualSubmittedShipmentQty, int manualApprovedShipmentQty, int manualShippedShipmentQty, int manualReceivedShipmentQty, int manualOnholdShipmentQty, 
             int erpPlannedShipmentQty, int erpSubmittedShipmentQty, int erpApprovedShipmentQty, int erpShippedShipmentQty, int erpReceivedShipmentQty, int erpOnholdShipmentQty, 
             int shipmentQty, int consumption, int adjustment, int stock) {
@@ -104,11 +98,11 @@ public class SupplyPlanBatchInfo implements Serializable {
         this.batchId = batchId;
     }
 
-    public Date getExpiryDate() {
+    public String getExpiryDate() {
         return expiryDate;
     }
 
-    public void setExpiryDate(Date expiryDate) {
+    public void setExpiryDate(String expiryDate) {
         this.expiryDate = expiryDate;
     }
 
@@ -244,9 +238,9 @@ public class SupplyPlanBatchInfo implements Serializable {
         return openingBalance;
     }
 
-    public void setOpeningBalance(int openingBalance, Date transDate) {
+    public void setOpeningBalance(int openingBalance, String transDate) {
         this.openingBalance = openingBalance;
-        if (this.openingBalance > 0 && DateUtils.compareDate(transDate, expiryDate)>=0) {
+        if (this.openingBalance > 0 && DateUtils.compareDates(transDate, expiryDate)>=0) {
             this.expiredStock += this.openingBalance;
             this.openingBalance = 0;
         }
@@ -272,9 +266,9 @@ public class SupplyPlanBatchInfo implements Serializable {
         return openingBalanceWps;
     }
 
-    public void setOpeningBalanceWps(int openingBalanceWps, Date transDate) {
+    public void setOpeningBalanceWps(int openingBalanceWps, String transDate) {
         this.openingBalanceWps = openingBalanceWps;
-        if (this.openingBalanceWps > 0 && DateUtils.compareDate(transDate, expiryDate)>=0) {
+        if (this.openingBalanceWps > 0 && DateUtils.compareDates(transDate, expiryDate)>=0) {
             this.expiredStockWps += this.openingBalanceWps;
             this.openingBalanceWps = 0;
         }
@@ -308,13 +302,8 @@ public class SupplyPlanBatchInfo implements Serializable {
         this.unmetDemandWps = unmetDemandWps;
     }
 
-    @JsonIgnore
-    public String getExpiryDateStr() {
-        return this.sdf.format(this.expiryDate);
-    }
-
-    public int updateUnAllocatedCountAndExpiredStock(Date transDate, int unallocatedConsumption) {
-        if (this.openingBalance > 0 && DateUtils.compareDate(transDate, expiryDate) >= 0) {
+    public int updateUnAllocatedCountAndExpiredStock(String transDate, int unallocatedConsumption) {
+        if (this.openingBalance > 0 && DateUtils.compareDates(transDate, expiryDate) >= 0) {
             this.expiredStock = this.consumption;
             unallocatedConsumption += this.consumption;
         }
@@ -345,8 +334,8 @@ public class SupplyPlanBatchInfo implements Serializable {
         return existingUnAllocatedConsumption;
     }
 
-    public int updateUnAllocatedCountAndExpiredStockWps(Date transDate, int unallocatedConsumptionWps) {
-        if (this.openingBalanceWps > 0 && DateUtils.compareDate(transDate, expiryDate) >= 0) {
+    public int updateUnAllocatedCountAndExpiredStockWps(String transDate, int unallocatedConsumptionWps) {
+        if (this.openingBalanceWps > 0 && DateUtils.compareDates(transDate, expiryDate) >= 0) {
             this.expiredStockWps = this.consumption;
             unallocatedConsumptionWps += this.consumption;
         }

@@ -68,7 +68,7 @@ public class UserRestController {
     public ResponseEntity getUserDetails(Authentication auth) {
         CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
         try {
-            return new ResponseEntity(this.userService.getUserByUserId(curUser.getUserId()), HttpStatus.OK);
+            return new ResponseEntity(this.userService.getUserByUserId(curUser.getUserId(), curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get User details", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -148,9 +148,10 @@ public class UserRestController {
     }
 
     @GetMapping(value = "/user")
-    public ResponseEntity getUserList() {
+    public ResponseEntity getUserList(Authentication auth) {
         try {
-            return new ResponseEntity(this.userService.getUserList(), HttpStatus.OK);
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.userService.getUserList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Could not get User list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -175,10 +176,11 @@ public class UserRestController {
     }
 
     @GetMapping(value = "/user/{userId}")
-    public ResponseEntity getUserByUserId(@PathVariable int userId) {
+    public ResponseEntity getUserByUserId(@PathVariable int userId, Authentication auth) {
         try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             auditLogger.info("userId " + userId);
-            return new ResponseEntity(this.userService.getUserByUserId(userId), HttpStatus.OK);
+            return new ResponseEntity(this.userService.getUserByUserId(userId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error(("Could not get User list for UserId=" + userId));
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
@@ -258,7 +260,7 @@ public class UserRestController {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
         auditLogger.info("Going to unlock account for userId: " + userId + " emailId:" + emailId, request.getRemoteAddr(), curUser.getUsername());
         try {
-            User user = this.userService.getUserByUserId(userId);
+            User user = this.userService.getUserByUserId(userId, curUser);
             if (!user.getEmailId().equals(emailId)) {
                 auditLogger.info("Incorrect emailId or UserId");
                 return new ResponseEntity(new ResponseCode("static.message.accountUnlocked"), HttpStatus.OK);
@@ -316,9 +318,10 @@ public class UserRestController {
     }
 
     @PostMapping(value = "/changePassword")
-    public ResponseEntity changePassword(@RequestBody Password password) {
+    public ResponseEntity changePassword(@RequestBody Password password, Authentication auth) {
         try {
-            User user = this.userService.getUserByUserId(password.getUserId());
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            User user = this.userService.getUserByUserId(password.getUserId(), curUser);
             if (!this.userService.confirmPassword(user.getEmailId(), password.getOldPassword().trim())) {
                 return new ResponseEntity(new ResponseCode("static.message.incorrectPassword"), HttpStatus.PRECONDITION_FAILED);
             } else {
