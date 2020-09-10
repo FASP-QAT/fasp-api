@@ -101,7 +101,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public MasterSupplyPlan getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException {
+    public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException {
         return this.programDataDao.getNewSupplyPlanList(programId, versionId, rebuild);
     }
 
