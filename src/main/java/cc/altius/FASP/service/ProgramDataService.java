@@ -44,7 +44,7 @@ public interface ProgramDataService {
 
     public SupplyPlan getSupplyPlan(int programId, int versionId);
     
-    public MasterSupplyPlan getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException;
+    public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException;
     
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp);
 

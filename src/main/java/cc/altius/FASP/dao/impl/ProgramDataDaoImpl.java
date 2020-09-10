@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.Batch;
+import cc.altius.FASP.model.BatchData;
 import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.ConsumptionBatchInfo;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -45,6 +46,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -853,8 +855,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         if (version == null) {
             return new Version(0, null, null, null, null, null, null, null);
         } else {
-            SupplyPlan sp = this.getSupplyPlan(programData.getProgramId(), version.getVersionId());
-            this.updateSupplyPlanBatchInfo(sp);
+            try {
+                getNewSupplyPlanList(programData.getProgramId(), version.getVersionId(), true);
+            } catch (ParseException pe) {
+                throw new CouldNotSaveException(pe.getMessage());
+            }
             return version;
         }
     }
@@ -1133,18 +1138,18 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "    spa.`OPENING_BALANCE`, spa.`OPENING_BALANCE_WPS`, "
                 + "    spa.`ACTUAL` `ACTUAL_FLAG`, IF(spa.`ACTUAL`, spa.`ACTUAL_CONSUMPTION_QTY`, spa.`FORECASTED_CONSUMPTION_QTY`) `CONSUMPTION_QTY`, "
                 + "    spa.`ADJUSTMENT_MULTIPLIED_QTY`, spa.`STOCK_MULTIPLIED_QTY`, "
+                + "    spa.`REGION_COUNT`, spa.`REGION_COUNT_FOR_STOCK`, "
                 + "    spa.`MANUAL_PLANNED_SHIPMENT_QTY`, spa.`MANUAL_SUBMITTED_SHIPMENT_QTY`, spa.`MANUAL_APPROVED_SHIPMENT_QTY`, spa.`MANUAL_SHIPPED_SHIPMENT_QTY`, spa.`MANUAL_RECEIVED_SHIPMENT_QTY`, spa.`MANUAL_ONHOLD_SHIPMENT_QTY`, "
                 + "    spa.`ERP_PLANNED_SHIPMENT_QTY`, spa.`ERP_SUBMITTED_SHIPMENT_QTY`, spa.`ERP_APPROVED_SHIPMENT_QTY`, spa.`ERP_SHIPPED_SHIPMENT_QTY`, spa.`ERP_RECEIVED_SHIPMENT_QTY`, spa.`ERP_ONHOLD_SHIPMENT_QTY`, "
-                + "    spa.`SHIPMENT_QTY`, "
                 + "    spa.`EXPIRED_STOCK`, spa.`EXPIRED_STOCK_WPS`, "
+                + "    spa.`NATIONAL_ADJUSTMENT`, spa.`NATIONAL_ADJUSTMENT_WPS`, "
                 + "    spa.`CLOSING_BALANCE`, spa.`CLOSING_BALANCE_WPS`, "
                 + "    spa.`UNMET_DEMAND`, spa.`UNMET_DEMAND_WPS`, "
                 + "    spa.`AMC`, spa.`AMC_COUNT`, spa.`MOS`, spa.`MIN_STOCK_MOS`, spa.`MIN_STOCK_QTY`, spa.`MAX_STOCK_MOS`, spa.`MAX_STOCK_QTY`, "
                 + "    b2.`BATCH_ID`, b2.`BATCH_NO`, b2.`EXPIRY_DATE`, b2.`AUTO_GENERATED`, b2.`BATCH_CLOSING_BALANCE`, b2.`BATCH_CLOSING_BALANCE_WPS`, b2.`BATCH_EXPIRED_STOCK`, b2.`BATCH_EXPIRED_STOCK_WPS` "
                 + "FROM rm_supply_plan_amc spa  "
-                + "LEFT JOIN (SELECT spbi.`PLANNING_UNIT_ID`, spbi.`TRANS_DATE`, spbi.`BATCH_ID`, bi.`BATCH_NO`, bi.`EXPIRY_DATE`, bi.`AUTO_GENERATED`, SUM(spbi.`FINAL_CLOSING_BALANCE`) `BATCH_CLOSING_BALANCE`, SUM(spbi.`FINAL_CLOSING_BALANCE_WPS`) `BATCH_CLOSING_BALANCE_WPS`, SUM(spbi.`EXPIRED_STOCK_WPS`) `BATCH_EXPIRED_STOCK_WPS`, SUM(spbi.`EXPIRED_STOCK`) `BATCH_EXPIRED_STOCK`  FROM rm_supply_plan_batch_info spbi LEFT JOIN rm_batch_info bi ON spbi.`BATCH_ID`=bi.`BATCH_ID` WHERE spbi.`PROGRAM_ID`=:programId and spbi.`VERSION_ID`=@versionId AND (spbi.FINAL_CLOSING_BALANCE>0 OR spbi.FINAL_CLOSING_BALANCE_WPS>0 AND spbi.EXPIRED_STOCK>0 OR spbi.EXPIRED_STOCK_WPS>0) GROUP by spbi.`PLANNING_UNIT_ID`, spbi.`TRANS_DATE`, spbi.`BATCH_ID`) b2 ON spa.`PLANNING_UNIT_ID`=b2.`PLANNING_UNIT_ID` AND spa.`TRANS_DATE`=b2.`TRANS_DATE` "
+                + "LEFT JOIN (SELECT spbq.`PLANNING_UNIT_ID`, spbq.`TRANS_DATE`, spbq.`BATCH_ID`, bi.`BATCH_NO`, bi.`EXPIRY_DATE`, bi.`AUTO_GENERATED`, SUM(spbq.`CLOSING_BALANCE`) `BATCH_CLOSING_BALANCE`, SUM(spbq.`CLOSING_BALANCE_WPS`) `BATCH_CLOSING_BALANCE_WPS`, SUM(spbq.`EXPIRED_STOCK_WPS`) `BATCH_EXPIRED_STOCK_WPS`, SUM(spbq.`EXPIRED_STOCK`) `BATCH_EXPIRED_STOCK`  FROM rm_supply_plan_batch_qty spbq LEFT JOIN rm_batch_info bi ON spbq.`BATCH_ID`=bi.`BATCH_ID` WHERE spbq.`PROGRAM_ID`=:programId and spbq.`VERSION_ID`=:versionId GROUP by spbq.`PLANNING_UNIT_ID`, spbq.`TRANS_DATE`, spbq.`BATCH_ID`) b2 ON spa.`PLANNING_UNIT_ID`=b2.`PLANNING_UNIT_ID` AND spa.`TRANS_DATE`=b2.`TRANS_DATE` "
                 + "WHERE spa.`PROGRAM_ID`=:programId AND spa.`VERSION_ID`=:versionId ";
-        System.out.println(LogUtils.buildStringForLog(sqlString, params));
         return this.namedParameterJdbcTemplate.query(sqlString, params, new SimplifiedSupplyPlanResultSetExtractor());
     }
 
@@ -1195,18 +1200,128 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public MasterSupplyPlan getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException {
-        MasterSupplyPlan msp = new MasterSupplyPlan(programId, versionId);
-        String sqlString = "CALL buildNewSupplyPlanRegion(:programId, :versionId, :rebuild)";
+    @Transactional
+    public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
-        params.put("rebuild", rebuild);
-        List<NewSupplyPlan> spList = this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanRegionResultSetExtractor());
-        sqlString = "CALL buildNewSupplyPlanBatch(:programId, :versionId, :rebuild)";
-        msp.setNspList(this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanBatchResultSetExtractor(spList)));
-        msp.buildPlan();
-        return msp;
+        if (rebuild == true) {
+            MasterSupplyPlan msp = new MasterSupplyPlan(programId, versionId);
+            String sqlString = "CALL buildNewSupplyPlanRegion(:programId, :versionId)";
+
+            List<NewSupplyPlan> spList = this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanRegionResultSetExtractor());
+            sqlString = "CALL buildNewSupplyPlanBatch(:programId, :versionId)";
+            msp.setNspList(this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanBatchResultSetExtractor(spList)));
+            msp.buildPlan();
+            // Store the data in rm_supply_plan_amc and rm_supply_plan_batch_info
+            List<MapSqlParameterSource> amcParams = new LinkedList<>();
+            List<MapSqlParameterSource> batchParams = new LinkedList<>();
+            int i = 0;
+            for (NewSupplyPlan nsp : msp.getNspList()) {
+                MapSqlParameterSource a1 = new MapSqlParameterSource();
+                a1.addValue("PROGRAM_ID", msp.getProgramId());
+                a1.addValue("VERSION_ID", msp.getVersionId());
+                a1.addValue("PLANNING_UNIT_ID", nsp.getPlanningUnitId());
+                a1.addValue("TRANS_DATE", nsp.getTransDate());
+                a1.addValue("OPENING_BALANCE", nsp.getOpeningBalance());
+                a1.addValue("OPENING_BALANCE_WPS", nsp.getOpeningBalanceWps());
+                a1.addValue("MANUAL_PLANNED_SHIPMENT_QTY", nsp.getPlannedShipmentsTotalData());
+                a1.addValue("MANUAL_SUBMITTED_SHIPMENT_QTY", nsp.getSubmittedShipmentsTotalData());
+                a1.addValue("MANUAL_APROVED_SHIPMENT_QTY", nsp.getApprovedShipmentsTotalData());
+                a1.addValue("MANUAL_SHIPPED_SHIPMENT_QTY", nsp.getShippedShipmentsTotalData());
+                a1.addValue("MANUAL_RECEIVED_SHIPMENT_QTY", nsp.getReceivedShipmentsTotalData());
+                a1.addValue("MANUAL_ONHOLD_SHIPMENT_QTY", nsp.getOnholdShipmentsTotalData());
+                a1.addValue("ERP_PLANNED_SHIPMENT_QTY", nsp.getPlannedErpShipmentsTotalData());
+                a1.addValue("ERP_SUBMITTED_SHIPMENT_QTY", nsp.getSubmittedErpShipmentsTotalData());
+                a1.addValue("ERP_APROVED_SHIPMENT_QTY", nsp.getApprovedErpShipmentsTotalData());
+                a1.addValue("ERP_SHIPPED_SHIPMENT_QTY", nsp.getShippedErpShipmentsTotalData());
+                a1.addValue("ERP_RECEIVED_SHIPMENT_QTY", nsp.getReceivedErpShipmentsTotalData());
+                a1.addValue("ERP_ONHOLD_SHIPMENT_QTY", nsp.getOnholdErpShipmentsTotalData());
+                a1.addValue("SHIPMENT_QTY", nsp.getManualShipmentTotal() + nsp.getErpShipmentTotal());
+                a1.addValue("FORECASTED_CONSUMPTION_QTY", nsp.getForecastedConsumptionQty());
+                a1.addValue("ACTUAL_CONSUMPTION_QTY", nsp.getActualConsumptionQty());
+                a1.addValue("ACTUAL", nsp.isActualConsumptionFlag());
+                a1.addValue("ADJUSTMENT_MULTIPLIED_QTY", nsp.getAdjustmentQty());
+                a1.addValue("STOCK_MULTIPLIED_QTY", nsp.getStockQty());
+                a1.addValue("REGION_COUNT", nsp.getRegionCount());
+                a1.addValue("REGION_COUNT_FOR_STOCK", nsp.getRegionCountForStock());
+                a1.addValue("NATIONAL_ADJUSTMENT", nsp.getNationalAdjustment());
+                a1.addValue("NATIONAL_ADJUSTMENT_WPS", nsp.getNationalAdjustmentWps());
+                a1.addValue("EXPIRED_STOCK", nsp.getExpiredStock());
+                a1.addValue("EXPIRED_STOCK_WPS", nsp.getExpiredStockWps());
+                a1.addValue("CLOSING_BALANCE", nsp.getClosingBalance());
+                a1.addValue("CLOSING_BALANCE_WPS", nsp.getClosingBalanceWps());
+                a1.addValue("UNMET_DEMAND", nsp.getUnmetDemand());
+                a1.addValue("UNMET_DEMAND_WPS", nsp.getUnmetDemandWps());
+                amcParams.add(a1);
+                for (BatchData bd : nsp.getBatchDataList()) {
+                    MapSqlParameterSource b1 = new MapSqlParameterSource();
+                    b1.addValue("PROGRAM_ID", msp.getProgramId());
+                    b1.addValue("VERSION_ID", msp.getVersionId());
+                    b1.addValue("PLANNING_UNIT_ID", nsp.getPlanningUnitId());
+                    b1.addValue("TRANS_DATE", nsp.getTransDate());
+                    b1.addValue("BATCH_ID", bd.getBatchId());
+                    b1.addValue("EXPIRY_DATE", bd.getExpiryDate());
+                    b1.addValue("ACTUAL_CONSUMPTION_QTY", bd.getActualConsumption());
+                    b1.addValue("ACTUAL", bd.isUseActualConsumption());
+                    b1.addValue("SHIPMENT_QTY", bd.getShipment());
+                    b1.addValue("SHIPMENT_QTY_WPS", bd.getShipmentWps());
+                    b1.addValue("ADJUSTMENT_MULTIPLIED_QTY", bd.getAdjustment());
+                    b1.addValue("STOCK_MULTIPLIED_QTY", bd.getStock());
+                    b1.addValue("ALL_REGIONS_REPORTED_STOCK", bd.isAllRegionsReportedStock());
+                    b1.addValue("USE_ADJUSTMENT", bd.isUseAdjustment());
+                    b1.addValue("OPENING_BALANCE", bd.getOpeningBalance());
+                    b1.addValue("OPENING_BALANCE_WPS", bd.getOpeningBalanceWps());
+                    b1.addValue("EXPIRED_STOCK", bd.getExpiredStock());
+                    b1.addValue("EXPIRED_STOCK_WPS", bd.getExpiredStockWps());
+                    b1.addValue("CALCULATED_CONSUMPTION", bd.getCalculatedConsumption());
+                    b1.addValue("CALCULATED_CONSUMPTION_WPS", bd.getCalculatedConsumptionWps());
+                    b1.addValue("CLOSING_BALANCE", bd.getClosingBalance());
+                    b1.addValue("CLOSING_BALANCE_WPS", bd.getClosingBalanceWps());
+                    batchParams.add(b1);
+                }
+                i++;
+            }
+            this.namedParameterJdbcTemplate.update("DELETE sma.* FROM rm_supply_plan_amc sma WHERE sma.PROGRAM_ID=:programId AND sma.VERSION_ID=:versionId", params);
+            SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_amc");
+            MapSqlParameterSource[] amcParamsArray = new MapSqlParameterSource[amcParams.size()];
+            amcParams.toArray(amcParamsArray);
+            si.executeBatch(amcParamsArray);
+            this.namedParameterJdbcTemplate.update("DELETE smq.* FROM rm_supply_plan_batch_qty smq WHERE smq.PROGRAM_ID=:programId AND smq.VERSION_ID=:versionId", params);
+            MapSqlParameterSource[] batchParamsArray = new MapSqlParameterSource[batchParams.size()];
+            batchParams.toArray(batchParamsArray);
+            si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_batch_qty");
+            si.executeBatch(batchParamsArray);
+            sqlString = "UPDATE rm_supply_plan_amc spa  "
+                    + "LEFT JOIN rm_program_planning_unit ppu ON spa.PROGRAM_ID=ppu.PROGRAM_ID AND spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
+                    + "LEFT JOIN rm_program p ON spa.PROGRAM_ID=p.PROGRAM_ID "
+                    + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                    + "LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
+                    + "LEFT JOIN ( "
+                    + "    SELECT spa.PROGRAM_ID, spa.VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH), ADDDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_FUTURE_FOR_AMC-1 MONTH), "
+                    + "        SUM(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
+                    + "        AVG(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC, COUNT(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
+                    + "    FROM rm_supply_plan_amc spa  "
+                    + "    LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND spa.PROGRAM_ID=ppu.PROGRAM_ID "
+                    + "    LEFT JOIN rm_supply_plan_amc spa2 ON  "
+                    + "        spa.PROGRAM_ID=spa2.PROGRAM_ID  "
+                    + "        AND spa.VERSION_ID=spa2.VERSION_ID "
+                    + "        AND spa.PLANNING_UNIT_ID=spa2.PLANNING_UNIT_ID  "
+                    + "        AND spa2.TRANS_DATE BETWEEN SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH) AND ADDDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_FUTURE_FOR_AMC-1 MONTH) "
+                    + "    WHERE spa.PROGRAM_ID=@programId AND spa.VERSION_ID=@versionId "
+                    + "GROUP BY spa.PLANNING_UNIT_ID, spa.TRANS_DATE) amc ON spa.PROGRAM_ID=amc.PROGRAM_ID AND spa.VERSION_ID=amc.VERSION_ID AND spa.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID AND spa.TRANS_DATE=amc.TRANS_DATE "
+                    + "SET  "
+                    + "    spa.AMC=amc.AMC,  "
+                    + "    spa.AMC_COUNT=amc.AMC_COUNT,  "
+                    + "    spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE_WPS/amc.AMC), "
+                    + "    spa.MIN_STOCK_MOS = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, IF(ppu.MIN_MONTHS_OF_STOCK>r.MIN_MOS_MAX_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)), "
+                    + "    spa.MAX_STOCK_MOS = IF(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS>r.MAX_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS), "
+                    + "    spa.MIN_STOCK_QTY = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, IF(ppu.MIN_MONTHS_OF_STOCK>r.MIN_MOS_MAX_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)) * amc.AMC, "
+                    + "    spa.MAX_STOCK_QTY = IF(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS>r.MAX_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS) * amc.AMC "
+                    + "WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
+            this.namedParameterJdbcTemplate.update(sqlString, params);
+        }
+        return getSimplifiedSupplyPlan(programId, versionId);
     }
 
     @Override
