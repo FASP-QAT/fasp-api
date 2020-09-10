@@ -9,6 +9,7 @@ import cc.altius.FASP.model.MasterSupplyPlan;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.service.ProgramDataService;
+import cc.altius.FASP.utils.LogUtils;
 import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,11 +53,12 @@ public class SupplyPlanRestController {
         try {
             System.out.println("Starting supply plan build for ProgramId:" + programId + " versionId:" + versionId + " rebuild:" + rebuild);
             System.out.println(new Date());
-            MasterSupplyPlan msp = this.programDataService.getNewSupplyPlanList(programId, versionId, rebuild);
+            List<SimplifiedSupplyPlan> spList = this.programDataService.getNewSupplyPlanList(programId, versionId, rebuild);
             System.out.println("Completed Supply plan build");
             System.out.println(new Date());
-            return new ResponseEntity(msp, HttpStatus.OK);
+            return new ResponseEntity(spList, HttpStatus.OK);
         } catch (Exception e) {
+            e.printStackTrace();
             return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
