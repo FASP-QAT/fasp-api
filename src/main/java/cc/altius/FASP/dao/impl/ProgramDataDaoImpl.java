@@ -40,7 +40,6 @@ import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplifiedSupplyPlanResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SupplyPlanResultSetExtractor;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -1202,6 +1201,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     @Transactional
     public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException {
+        Map<Integer, Integer> newBatchSubstituteMap = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
@@ -1255,6 +1255,30 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 a1.addValue("UNMET_DEMAND_WPS", nsp.getUnmetDemandWps());
                 amcParams.add(a1);
                 for (BatchData bd : nsp.getBatchDataList()) {
+                    int batchId = 0;
+                    if (bd.getBatchId() < 0) {
+                        // This is a new Batch so check if it has just been created if not then create it
+                        batchId = newBatchSubstituteMap.getOrDefault(bd.getBatchId(), 0);
+                        if (batchId == 0) {
+                            Map<String, Object> newBatchParams = new HashMap<>();
+                            newBatchParams.put("programId", msp.getProgramId());
+                            newBatchParams.put("planningUnitId", nsp.getPlanningUnitId());
+                            newBatchParams.put("transDate", nsp.getTransDate());
+                            newBatchParams.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
+                            String sql = "INSERT INTO `rm_batch_info` SELECT "
+                                    + "    null, "
+                                    + "    ppu.PROGRAM_ID, "
+                                    + "    ppu.PLANNING_UNIT_ID, "
+                                    + "    CONCAT(LPAD(ppu.PROGRAM_ID, 6,'0'), LPAD(ppu.PLANNING_UNIT_ID, 8,'0'), date_format(CONCAT(LEFT(ADDDATE(:transDate, INTERVAL ppu.SHELF_LIFE MONTH),7),'-01'), '%y%m%d'), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1)), "
+                                    + "    CONCAT(LEFT(ADDDATE(:transDate, INTERVAL ppu.SHELF_LIFE MONTH),7),'-01'), "
+                                    + "    :curDate, "
+                                    + "    null, 1 FROM rm_program_planning_unit ppu where ppu.PROGRAM_ID=:programId AND ppu.PLANNING_UNIT_ID=:planningUnitId";
+                            this.namedParameterJdbcTemplate.update(sql, newBatchParams);
+                            batchId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+                            newBatchSubstituteMap.put(bd.getBatchId(), batchId);
+                        }
+                        bd.setBatchId(batchId);
+                    }
                     MapSqlParameterSource b1 = new MapSqlParameterSource();
                     b1.addValue("PROGRAM_ID", msp.getProgramId());
                     b1.addValue("VERSION_ID", msp.getVersionId());
@@ -1320,7 +1344,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "    spa.MAX_STOCK_QTY = IF(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS>r.MAX_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS) * amc.AMC "
                     + "WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
             this.namedParameterJdbcTemplate.update(sqlString, params);
+//            msp.printSupplyPlan();
         }
+        
         return getSimplifiedSupplyPlan(programId, versionId);
     }
 

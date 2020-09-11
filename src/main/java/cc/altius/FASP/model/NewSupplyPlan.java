@@ -60,23 +60,15 @@ public class NewSupplyPlan implements Serializable {
     private int nationalAdjustmentWps;
     private int closingBalanceWps;
     private int unmetDemandWps;
+    private int newBatchCounter;
 
     private List<RegionData> regionDataList;
     private List<BatchData> batchDataList;
-    private int unallocatedConsumption;
-
-    private double amc;
-    private int amcCount;
-    private double mos;
-    private double mosWps;
-    private double minStock;
-    private double minStockMoS;
-    private double maxStock;
-    private double maxStockMoS;
 
     public NewSupplyPlan() {
         this.regionDataList = new LinkedList<>();
         this.batchDataList = new LinkedList<>();
+        this.newBatchCounter = -1;
     }
 
     public NewSupplyPlan(int planningUnitId, String transDate) {
@@ -84,6 +76,7 @@ public class NewSupplyPlan implements Serializable {
         this.transDate = transDate;
         this.regionDataList = new LinkedList<>();
         this.batchDataList = new LinkedList<>();
+        this.newBatchCounter = -1;
     }
 
     public int getPlanningUnitId() {
@@ -585,11 +578,22 @@ public class NewSupplyPlan implements Serializable {
                 periodConsumptionWps = 0;
             }
         }
-        if (periodConsumption != 0) {
-            System.out.println("We need to create a new Batch for Regular periodConsumption:" + periodConsumption + " PlanningUnitId:" + this.planningUnitId + " transDate:" + this.transDate);
-        }
-        if (periodConsumptionWps != 0) {
-            System.out.println("We need to create a new Batch for WPS periodConsumptionWps:" + periodConsumptionWps + " PlanningUnitId:" + this.planningUnitId + " transDate:" + this.transDate);
+        if (periodConsumption < 0 || periodConsumptionWps < 0) {
+            System.out.println("We need to create a new Batch for periodConsumptionWps:" + periodConsumptionWps + " PlanningUnitId:" + this.planningUnitId + " transDate:" + this.transDate);
+            BatchData bdNew = new BatchData();
+            bdNew.setBatchId(this.newBatchCounter);
+            bdNew.setExpiryDate("2050-12-01");
+            bdNew.setOpeningBalance(0);
+            bdNew.setOpeningBalanceWps(0);
+            bdNew.setShelfLife(48);
+            bdNew.setCalculatedConsumption(0 - periodConsumption);
+            bdNew.setCalculatedConsumptionWps(0 - periodConsumptionWps);
+            bdNew.setClosingBalance(0 - periodConsumption);
+            bdNew.setClosingBalanceWps(0 - periodConsumptionWps);
+            bdNew.setAllRegionsReportedStock(this.isAllRegionsReportedStock());
+            bdNew.setUseAdjustment(this.isUseAdjustment());
+            this.batchDataList.add(bdNew);
+            this.newBatchCounter--;
         }
     }
 
