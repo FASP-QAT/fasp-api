@@ -20,6 +20,7 @@ public class Realm extends BaseModel implements Serializable {
     private int minMosMinGaurdrail;
     private int minMosMaxGaurdrail;
     private int maxMosMaxGaurdrail;
+    private boolean active;
 
     public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail) {
         if (realmId == null || realmId == 0) {
@@ -109,6 +110,14 @@ public class Realm extends BaseModel implements Serializable {
 
     public void setMaxMosMaxGaurdrail(int maxMosMaxGaurdrail) {
         this.maxMosMaxGaurdrail = maxMosMaxGaurdrail;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     @Override
