@@ -314,10 +314,11 @@ public class UserDaoImpl implements UserDao {
         SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("us_user").usingGeneratedKeyColumns("USER_ID");
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         Map<String, Object> map = new HashedMap<>();
-        map.put("REALM_ID", (user.getRealm().getRealmId() != -1 ? user.getRealm().getRealmId() : null));
+        map.put("REALM_ID", ((user.getRealm() == null || user.getRealm().getRealmId() == null ? null : (user.getRealm().getRealmId() != -1 ? user.getRealm().getRealmId() : null))));
         map.put("AGREEMENT_ACCEPTED", false);
         map.put("USERNAME", user.getUsername());
         map.put("PASSWORD", user.getPassword());
+//        map.put("PASSWORD", null);
         map.put("EMAIL_ID", user.getEmailId());
         map.put("PHONE", user.getPhoneNumber());
         map.put("LANGUAGE_ID", user.getLanguage().getLanguageId());

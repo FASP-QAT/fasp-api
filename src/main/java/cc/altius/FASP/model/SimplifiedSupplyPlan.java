@@ -24,9 +24,7 @@ public class SimplifiedSupplyPlan implements Serializable {
     private int programId;
     private int versionId;
     private int planningUnitId;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date transDate;
+    private String transDate;
 
     // Is null if there is no Consumption reported.
     // Is true if the Consumption reported is Actual Consumption
@@ -35,15 +33,12 @@ public class SimplifiedSupplyPlan implements Serializable {
     // Is null if there is no Consumption reported
     private Integer consumptionQty;
     // Is 0 if there is no Shipment in that period
-    private int shipmentTotalQty;
-    private int manualTotalQty;
     private int receivedShipmentsTotalData;
     private int shippedShipmentsTotalData;
     private int approvedShipmentsTotalData;
     private int submittedShipmentsTotalData;
     private int plannedShipmentsTotalData;
     private int onholdShipmentsTotalData;
-    private int erpTotalQty;
     private int receivedErpShipmentsTotalData;
     private int shippedErpShipmentsTotalData;
     private int approvedErpShipmentsTotalData;
@@ -52,6 +47,8 @@ public class SimplifiedSupplyPlan implements Serializable {
     private int onholdErpShipmentsTotalData;
     private int stockQty;
     private int adjustmentQty;
+    private int regionCount;
+    private int regionCountForStock;
     private double amc;
     private int amcCount;
     private double minStock;
@@ -67,13 +64,16 @@ public class SimplifiedSupplyPlan implements Serializable {
     private int openingBalanceWps;
     private int closingBalance;
     private int closingBalanceWps;
+    private int nationalAdjustment;
+    private int nationalAdjustmentWps;
     private double mos;
+    private double mosWps;
 
     public SimplifiedSupplyPlan() {
         this.batchDetails = new LinkedList<>();
     }
 
-    public SimplifiedSupplyPlan(int programId, int versionId, int planningUnitId, Date transDate) {
+    public SimplifiedSupplyPlan(int programId, int versionId, int planningUnitId, String transDate) {
         this.programId = programId;
         this.versionId = versionId;
         this.planningUnitId = planningUnitId;
@@ -105,11 +105,11 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.planningUnitId = planningUnitId;
     }
 
-    public Date getTransDate() {
+    public String getTransDate() {
         return transDate;
     }
 
-    public void setTransDate(Date transDate) {
+    public void setTransDate(String transDate) {
         this.transDate = transDate;
     }
 
@@ -130,32 +130,19 @@ public class SimplifiedSupplyPlan implements Serializable {
     }
 
     public int getShipmentTotalQty() {
-        return shipmentTotalQty;
-    }
-
-    public void setShipmentTotalQty(int shipmentTotalQty) {
-        this.shipmentTotalQty = shipmentTotalQty;
+        return getManualTotalQty() + getErpTotalQty();
     }
 
     public int getManualTotalQty() {
-        return manualTotalQty;
+        return this.plannedShipmentsTotalData + this.submittedShipmentsTotalData + this.approvedShipmentsTotalData + this.shippedShipmentsTotalData + this.receivedShipmentsTotalData + this.onholdShipmentsTotalData;
     }
 
-    private void updateManualTotalQty() {
-        this.manualTotalQty = this.plannedShipmentsTotalData + this.submittedShipmentsTotalData + this.approvedShipmentsTotalData + this.shippedShipmentsTotalData + this.receivedShipmentsTotalData + this.onholdShipmentsTotalData;
-    }
-    
-    private void updateErpTotalQty() {
-        this.erpTotalQty = this.plannedErpShipmentsTotalData + this.submittedErpShipmentsTotalData + this.approvedErpShipmentsTotalData + this.shippedErpShipmentsTotalData + this.receivedErpShipmentsTotalData + this.onholdErpShipmentsTotalData;
-    }
-    
     public int getReceivedShipmentsTotalData() {
         return receivedShipmentsTotalData;
     }
 
     public void setReceivedShipmentsTotalData(int receivedShipmentsTotalData) {
         this.receivedShipmentsTotalData = receivedShipmentsTotalData;
-        updateManualTotalQty();
     }
 
     public int getShippedShipmentsTotalData() {
@@ -164,7 +151,6 @@ public class SimplifiedSupplyPlan implements Serializable {
 
     public void setShippedShipmentsTotalData(int shippedShipmentsTotalData) {
         this.shippedShipmentsTotalData = shippedShipmentsTotalData;
-        updateManualTotalQty();
     }
 
     public int getApprovedShipmentsTotalData() {
@@ -173,7 +159,6 @@ public class SimplifiedSupplyPlan implements Serializable {
 
     public void setApprovedShipmentsTotalData(int approvedShipmentsTotalData) {
         this.approvedShipmentsTotalData = approvedShipmentsTotalData;
-        updateManualTotalQty();
     }
 
     public int getSubmittedShipmentsTotalData() {
@@ -182,7 +167,6 @@ public class SimplifiedSupplyPlan implements Serializable {
 
     public void setSubmittedShipmentsTotalData(int submittedShipmentsTotalData) {
         this.submittedShipmentsTotalData = submittedShipmentsTotalData;
-        updateManualTotalQty();
     }
 
     public int getPlannedShipmentsTotalData() {
@@ -191,7 +175,6 @@ public class SimplifiedSupplyPlan implements Serializable {
 
     public void setPlannedShipmentsTotalData(int plannedShipmentsTotalData) {
         this.plannedShipmentsTotalData = plannedShipmentsTotalData;
-        updateManualTotalQty();
     }
 
     public int getOnholdShipmentsTotalData() {
@@ -200,11 +183,10 @@ public class SimplifiedSupplyPlan implements Serializable {
 
     public void setOnholdShipmentsTotalData(int onholdShipmentsTotalData) {
         this.onholdShipmentsTotalData = onholdShipmentsTotalData;
-        updateManualTotalQty();
     }
 
     public int getErpTotalQty() {
-        return erpTotalQty;
+        return this.plannedErpShipmentsTotalData + this.submittedErpShipmentsTotalData + this.approvedErpShipmentsTotalData + this.shippedErpShipmentsTotalData + this.receivedErpShipmentsTotalData + this.onholdErpShipmentsTotalData;
     }
 
     public int getReceivedErpShipmentsTotalData() {
@@ -213,7 +195,6 @@ public class SimplifiedSupplyPlan implements Serializable {
 
     public void setReceivedErpShipmentsTotalData(int receivedErpShipmentsTotalData) {
         this.receivedErpShipmentsTotalData = receivedErpShipmentsTotalData;
-        updateErpTotalQty();
     }
 
     public int getShippedErpShipmentsTotalData() {
@@ -222,7 +203,6 @@ public class SimplifiedSupplyPlan implements Serializable {
 
     public void setShippedErpShipmentsTotalData(int shippedErpShipmentsTotalData) {
         this.shippedErpShipmentsTotalData = shippedErpShipmentsTotalData;
-        updateErpTotalQty();
     }
 
     public int getApprovedErpShipmentsTotalData() {
@@ -231,7 +211,6 @@ public class SimplifiedSupplyPlan implements Serializable {
 
     public void setApprovedErpShipmentsTotalData(int approvedErpShipmentsTotalData) {
         this.approvedErpShipmentsTotalData = approvedErpShipmentsTotalData;
-        updateErpTotalQty();
     }
 
     public int getSubmittedErpShipmentsTotalData() {
@@ -240,7 +219,6 @@ public class SimplifiedSupplyPlan implements Serializable {
 
     public void setSubmittedErpShipmentsTotalData(int submittedErpShipmentsTotalData) {
         this.submittedErpShipmentsTotalData = submittedErpShipmentsTotalData;
-        updateErpTotalQty();
     }
 
     public int getPlannedErpShipmentsTotalData() {
@@ -249,7 +227,6 @@ public class SimplifiedSupplyPlan implements Serializable {
 
     public void setPlannedErpShipmentsTotalData(int plannedErpShipmentsTotalData) {
         this.plannedErpShipmentsTotalData = plannedErpShipmentsTotalData;
-        updateErpTotalQty();
     }
 
     public int getOnholdErpShipmentsTotalData() {
@@ -258,7 +235,6 @@ public class SimplifiedSupplyPlan implements Serializable {
 
     public void setOnholdErpShipmentsTotalData(int onholdErpShipmentsTotalData) {
         this.onholdErpShipmentsTotalData = onholdErpShipmentsTotalData;
-        updateErpTotalQty();
     }
 
     public int getStockQty() {
@@ -275,6 +251,22 @@ public class SimplifiedSupplyPlan implements Serializable {
 
     public void setAdjustmentQty(int adjustmentQty) {
         this.adjustmentQty = adjustmentQty;
+    }
+
+    public int getRegionCount() {
+        return regionCount;
+    }
+
+    public void setRegionCount(int regionCount) {
+        this.regionCount = regionCount;
+    }
+
+    public int getRegionCountForStock() {
+        return regionCountForStock;
+    }
+
+    public void setRegionCountForStock(int regionCountForStock) {
+        this.regionCountForStock = regionCountForStock;
     }
 
     public double getAmc() {
@@ -397,6 +389,22 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.closingBalanceWps = closingBalanceWps;
     }
 
+    public int getNationalAdjustment() {
+        return nationalAdjustment;
+    }
+
+    public void setNationalAdjustment(int nationalAdjustment) {
+        this.nationalAdjustment = nationalAdjustment;
+    }
+
+    public int getNationalAdjustmentWps() {
+        return nationalAdjustmentWps;
+    }
+
+    public void setNationalAdjustmentWps(int nationalAdjustmentWps) {
+        this.nationalAdjustmentWps = nationalAdjustmentWps;
+    }
+
     public double getMos() {
         return mos;
     }
@@ -405,7 +413,13 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.mos = mos;
     }
 
+    public double getMosWps() {
+        return mosWps;
+    }
 
+    public void setMosWps(double mosWps) {
+        this.mosWps = mosWps;
+    }
 
     @Override
     public int hashCode() {
@@ -444,5 +458,4 @@ public class SimplifiedSupplyPlan implements Serializable {
         return true;
     }
 
-    
 }

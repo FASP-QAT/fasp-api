@@ -25,6 +25,9 @@ public class NewSupplyPlanRegionResultSetExtractor implements ResultSetExtractor
         List<NewSupplyPlan> nspList = new LinkedList<>();
         while (rs.next()) {
             NewSupplyPlan nsp = new NewSupplyPlan(rs.getInt("PLANNING_UNIT_ID"), rs.getString("TRANS_DATE"));
+            if (nsp.getPlanningUnitId()==6959) {
+                System.out.println("break here");
+            }
             int idx = nspList.indexOf(nsp);
             if (idx == -1) {
                 nspList.add(nsp);
@@ -34,10 +37,18 @@ public class NewSupplyPlanRegionResultSetExtractor implements ResultSetExtractor
             RegionData rd = new RegionData();
             rd.setRegionId(rs.getInt("REGION_ID"));
             if (rs.wasNull()) {
-                nsp.setShipment(rs.getInt("SHIPMENT"));
-                if (rs.wasNull()) {
-                    nsp.setShipment(null);
-                }
+                nsp.addPlannedShipmentsTotalData(rs.getInt("MANUAL_PLANNED_SHIPMENT"));
+                nsp.addSubmittedShipmentsTotalData(rs.getInt("MANUAL_SUBMITTED_SHIPMENT"));
+                nsp.addApprovedShipmentsTotalData(rs.getInt("MANUAL_APPROVED_SHIPMENT"));
+                nsp.addShippedShipmentsTotalData(rs.getInt("MANUAL_SHIPPED_SHIPMENT"));
+                nsp.addReceivedShipmentsTotalData(rs.getInt("MANUAL_RECEIVED_SHIPMENT"));
+                nsp.addOnholdShipmentsTotalData(rs.getInt("MANUAL_ONHOLD_SHIPMENT"));
+                nsp.addPlannedErpShipmentsTotalData(rs.getInt("ERP_PLANNED_SHIPMENT"));
+                nsp.addSubmittedErpShipmentsTotalData(rs.getInt("ERP_SUBMITTED_SHIPMENT"));
+                nsp.addApprovedErpShipmentsTotalData(rs.getInt("ERP_APPROVED_SHIPMENT"));
+                nsp.addShippedErpShipmentsTotalData(rs.getInt("ERP_SHIPPED_SHIPMENT"));
+                nsp.addReceivedErpShipmentsTotalData(rs.getInt("ERP_RECEIVED_SHIPMENT"));
+                nsp.addOnholdErpShipmentsTotalData(rs.getInt("ERP_ONHOLD_SHIPMENT"));
             } else {
                 nsp.setActualConsumptionFlag(rs.getBoolean("USE_ACTUAL_CONSUMPTION"));
                 nsp.setRegionCountForStock(rs.getInt("REGION_STOCK_COUNT"));
@@ -46,25 +57,23 @@ public class NewSupplyPlanRegionResultSetExtractor implements ResultSetExtractor
                 if (rs.wasNull()) {
                     rd.setForecastedConsumption(null);
                 }
+                nsp.addForecastedConsumptionQty(rd.getForecastedConsumption());
                 rd.setActualConsumption(rs.getInt("ACTUAL_CONSUMPTION"));
                 if (rs.wasNull()) {
                     rd.setActualConsumption(null);
                 }
-                nsp.addFinalConsumption(nsp.isActualConsumptionFlag() ? rd.getActualConsumption() : rd.getForecastedConsumption());
+                nsp.addActualConsumptionQty(rd.getActualConsumption());
+                nsp.addFinalConsumptionQty(nsp.isActualConsumptionFlag() ? rd.getActualConsumption() : rd.getForecastedConsumption());
                 rd.setStock(rs.getInt("STOCK"));
                 if (rs.wasNull()) {
                     rd.setStock(null);
                 }
+                nsp.addStockQty(rd.getStock());
                 rd.setAdjustment(rs.getInt("ADJUSTMENT"));
                 if (rs.wasNull()) {
                     rd.setAdjustment(null);
                 }
-                if (rd.getStock() != null) {
-                    nsp.addStock(rd.getStock());
-                } else {
-                    nsp.addAdjustment(rd.getAdjustment());
-                }
-
+                nsp.addAdjustmentQty(rd.getAdjustment());
                 nsp.getRegionDataList().add(rd);
             }
         }

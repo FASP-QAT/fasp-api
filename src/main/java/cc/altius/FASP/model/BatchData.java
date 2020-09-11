@@ -5,10 +5,8 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.utils.DateUtils;
 import java.io.Serializable;
 import java.text.ParseException;
-import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -21,7 +19,8 @@ public class BatchData implements Serializable {
     private String expiryDate;
     private int shelfLife;
     private Integer actualConsumption;
-    private Integer shipment;
+    private int shipment;
+    private int shipmentWps;
     private Integer adjustment;
     private Integer stock;
 
@@ -35,6 +34,12 @@ public class BatchData implements Serializable {
     private int calculatedConsumption;
     private int closingBalance;
 
+    private int openingBalanceWps;
+    private int expiredStockWps;
+    private int unallocatedConsumptionWps;
+    private int calculatedConsumptionWps;
+    private int closingBalanceWps;
+
     public BatchData() {
     }
 
@@ -45,7 +50,6 @@ public class BatchData implements Serializable {
         } else {
             this.expiryDate = expiryDate;
         }
-        
     }
 
     public Integer getBatchId() {
@@ -80,12 +84,20 @@ public class BatchData implements Serializable {
         this.actualConsumption = actualConsumption;
     }
 
-    public Integer getShipment() {
+    public int getShipment() {
         return shipment;
     }
 
-    public void setShipment(Integer shipment) {
+    public void setShipment(int shipment) {
         this.shipment = shipment;
+    }
+    
+    public int getShipmentWps() {
+        return shipmentWps;
+    }
+
+    public void setShipmentWps(int shipmentWps) {
+        this.shipmentWps = shipmentWps;
     }
 
     public Integer getAdjustment() {
@@ -167,6 +179,48 @@ public class BatchData implements Serializable {
     public void setUnallocatedConsumption(int unallocatedConsumption) {
         this.unallocatedConsumption = unallocatedConsumption;
     }
+
+    public int getOpeningBalanceWps() {
+        return openingBalanceWps;
+    }
+
+    public void setOpeningBalanceWps(int openingBalanceWps) {
+        this.openingBalanceWps = openingBalanceWps;
+    }
+
+    public int getExpiredStockWps() {
+        return expiredStockWps;
+    }
+
+    public void setExpiredStockWps(int expiredStockWps) {
+        this.expiredStockWps = expiredStockWps;
+    }
+
+    public int getUnallocatedConsumptionWps() {
+        return unallocatedConsumptionWps;
+    }
+
+    public void setUnallocatedConsumptionWps(int unallocatedConsumptionWps) {
+        this.unallocatedConsumptionWps = unallocatedConsumptionWps;
+    }
+
+    public int getCalculatedConsumptionWps() {
+        return calculatedConsumptionWps;
+    }
+
+    public void setCalculatedConsumptionWps(int calculatedConsumptionWps) {
+        this.calculatedConsumptionWps = calculatedConsumptionWps;
+    }
+
+    public int getClosingBalanceWps() {
+        return closingBalanceWps;
+    }
+
+    public void setClosingBalanceWps(int closingBalanceWps) {
+        this.closingBalanceWps = closingBalanceWps;
+    }
+    
+    
 
     @Override
     public int hashCode() {

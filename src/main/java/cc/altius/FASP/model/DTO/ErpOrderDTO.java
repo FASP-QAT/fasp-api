@@ -29,6 +29,7 @@ public class ErpOrderDTO {
     private double shippingCost;
     private String status;
     private String reason;
+    private String recipentCountry;
 
     public int getErpOrderId() {
         return erpOrderId;
@@ -156,6 +157,19 @@ public class ErpOrderDTO {
 
     public void setReason(String reason) {
         this.reason = reason;
+    }
+
+    public String getRecipentCountry() {
+        return recipentCountry;
+    }
+
+    public void setRecipentCountry(String recipentCountry) {
+        this.recipentCountry = recipentCountry;
+    }
+
+    @Override
+    public String toString() {
+        return "ErpOrderDTO{" + "erpOrderId=" + erpOrderId + ", shipmentId=" + shipmentId + ", quantity=" + quantity + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", roNo=" + roNo + ", roPrimeLineNo=" + roPrimeLineNo + ", orderType=" + orderType + ", planningUnitSkuCode=" + planningUnitSkuCode + ", procurementUnitSkuCode=" + procurementUnitSkuCode + ", currentEstimatedDeliveryDate=" + currentEstimatedDeliveryDate + ", supplierName=" + supplierName + ", price=" + price + ", shippingCost=" + shippingCost + ", status=" + status + ", reason=" + reason + ", recipentCountry=" + recipentCountry + '}';
     }
 
 }

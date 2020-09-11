@@ -24,7 +24,7 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
     public List<SimplifiedSupplyPlan> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<SimplifiedSupplyPlan> spList = new LinkedList<>();
         while (rs.next()) {
-            SimplifiedSupplyPlan sp = new SimplifiedSupplyPlan(rs.getInt("PROGRAM_ID"), rs.getInt("VERSION_ID"), rs.getInt("PLANNING_UNIT_ID"), rs.getDate("TRANS_DATE"));
+            SimplifiedSupplyPlan sp = new SimplifiedSupplyPlan(rs.getInt("PROGRAM_ID"), rs.getInt("VERSION_ID"), rs.getInt("PLANNING_UNIT_ID"), rs.getString("TRANS_DATE"));
             int idx = spList.indexOf(sp);
             if (idx == -1) {
                 sp.setOpeningBalance(rs.getInt("OPENING_BALANCE"));
@@ -39,6 +39,8 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
                 }
                 sp.setAdjustmentQty(rs.getInt("ADJUSTMENT_MULTIPLIED_QTY"));
                 sp.setStockQty(rs.getInt("STOCK_MULTIPLIED_QTY"));
+                sp.setRegionCount(rs.getInt("REGION_COUNT"));
+                sp.setRegionCountForStock(rs.getInt("REGION_COUNT_FOR_STOCK"));
                 sp.setPlannedShipmentsTotalData(rs.getInt("MANUAL_PLANNED_SHIPMENT_QTY"));
                 sp.setSubmittedShipmentsTotalData(rs.getInt("MANUAL_SUBMITTED_SHIPMENT_QTY"));
                 sp.setApprovedShipmentsTotalData(rs.getInt("MANUAL_APPROVED_SHIPMENT_QTY"));
@@ -51,16 +53,18 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
                 sp.setShippedErpShipmentsTotalData(rs.getInt("ERP_SHIPPED_SHIPMENT_QTY"));
                 sp.setReceivedErpShipmentsTotalData(rs.getInt("ERP_RECEIVED_SHIPMENT_QTY"));
                 sp.setOnholdErpShipmentsTotalData(rs.getInt("ERP_ONHOLD_SHIPMENT_QTY"));
-                sp.setShipmentTotalQty(rs.getInt("SHIPMENT_QTY"));
                 sp.setExpiredStock(rs.getInt("EXPIRED_STOCK"));
                 sp.setExpiredStockWps(rs.getInt("EXPIRED_STOCK_WPS"));
                 sp.setClosingBalance(rs.getInt("CLOSING_BALANCE"));
                 sp.setClosingBalanceWps(rs.getInt("CLOSING_BALANCE_WPS"));
                 sp.setUnmetDemand(rs.getInt("UNMET_DEMAND"));
                 sp.setUnmetDemandWps(rs.getInt("UNMET_DEMAND_WPS"));
+                sp.setNationalAdjustment(rs.getInt("NATIONAL_ADJUSTMENT"));
+                sp.setNationalAdjustmentWps(rs.getInt("NATIONAL_ADJUSTMENT_WPS"));
                 sp.setAmc(rs.getDouble("AMC"));
                 sp.setAmcCount(rs.getInt("AMC_COUNT"));
                 sp.setMos(rs.getDouble("MOS"));
+                sp.setMosWps(rs.getDouble("MOS_WPS"));
                 sp.setMinStockMoS(rs.getDouble("MIN_STOCK_MOS"));
                 sp.setMinStock(rs.getDouble("MIN_STOCK_QTY"));
                 sp.setMaxStockMoS(rs.getDouble("MAX_STOCK_MOS"));

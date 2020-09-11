@@ -34,6 +34,7 @@ public class ErpOrderDTORowMapper implements RowMapper<ErpOrderDTO> {
         e.setPrice(rs.getDouble("PRICE"));
         e.setShippingCost(rs.getDouble("SHIPPING_COST"));
         e.setStatus(rs.getString("STATUS"));
+        e.setRecipentCountry(rs.getString("RECPIENT_COUNTRY"));
         return e;
     }
 
