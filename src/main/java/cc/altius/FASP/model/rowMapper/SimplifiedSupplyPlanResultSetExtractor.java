@@ -64,6 +64,7 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
                 sp.setAmc(rs.getDouble("AMC"));
                 sp.setAmcCount(rs.getInt("AMC_COUNT"));
                 sp.setMos(rs.getDouble("MOS"));
+                sp.setMosWps(rs.getDouble("MOS_WPS"));
                 sp.setMinStockMoS(rs.getDouble("MIN_STOCK_MOS"));
                 sp.setMinStock(rs.getDouble("MIN_STOCK_QTY"));
                 sp.setMaxStockMoS(rs.getDouble("MAX_STOCK_MOS"));

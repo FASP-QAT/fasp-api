@@ -67,6 +67,7 @@ public class SimplifiedSupplyPlan implements Serializable {
     private int nationalAdjustment;
     private int nationalAdjustmentWps;
     private double mos;
+    private double mosWps;
 
     public SimplifiedSupplyPlan() {
         this.batchDetails = new LinkedList<>();
@@ -412,7 +413,13 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.mos = mos;
     }
 
+    public double getMosWps() {
+        return mosWps;
+    }
 
+    public void setMosWps(double mosWps) {
+        this.mosWps = mosWps;
+    }
 
     @Override
     public int hashCode() {
@@ -451,5 +458,4 @@ public class SimplifiedSupplyPlan implements Serializable {
         return true;
     }
 
-    
 }
