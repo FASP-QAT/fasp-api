@@ -71,7 +71,7 @@ public class DataSourceDaoImpl implements DataSourceDao {
         Map<String, Object> map = new HashedMap<>();
         map.put("DATA_SOURCE_TYPE_ID", dataSource.getDataSourceType().getId());
         map.put("REALM_ID", dataSource.getRealm().getId());
-        map.put("PROGRAM_ID", (dataSource.getProgram().getId() == 0 ? null : dataSource.getProgram().getId()));
+        map.put("PROGRAM_ID", (dataSource.getProgram() != null ? (dataSource.getProgram().getId() == null || dataSource.getProgram().getId() == 0 ? null : dataSource.getProgram().getId()) : null));
         map.put("LABEL_ID", insertedLabelRowId);
         map.put("ACTIVE", 1);
         map.put("CREATED_BY", curUser.getUserId());
