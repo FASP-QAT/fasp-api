@@ -318,6 +318,7 @@ public class UserDaoImpl implements UserDao {
         map.put("AGREEMENT_ACCEPTED", false);
         map.put("USERNAME", user.getUsername());
         map.put("PASSWORD", user.getPassword());
+//        map.put("PASSWORD", null);
         map.put("EMAIL_ID", user.getEmailId());
         map.put("PHONE", user.getPhoneNumber());
         map.put("LANGUAGE_ID", user.getLanguage().getLanguageId());
