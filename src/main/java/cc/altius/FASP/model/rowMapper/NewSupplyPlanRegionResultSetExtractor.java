@@ -25,9 +25,6 @@ public class NewSupplyPlanRegionResultSetExtractor implements ResultSetExtractor
         List<NewSupplyPlan> nspList = new LinkedList<>();
         while (rs.next()) {
             NewSupplyPlan nsp = new NewSupplyPlan(rs.getInt("PLANNING_UNIT_ID"), rs.getString("TRANS_DATE"));
-            if (nsp.getPlanningUnitId()==6959) {
-                System.out.println("break here");
-            }
             int idx = nspList.indexOf(nsp);
             if (idx == -1) {
                 nspList.add(nsp);
@@ -49,6 +46,8 @@ public class NewSupplyPlanRegionResultSetExtractor implements ResultSetExtractor
                 nsp.addShippedErpShipmentsTotalData(rs.getInt("ERP_SHIPPED_SHIPMENT"));
                 nsp.addReceivedErpShipmentsTotalData(rs.getInt("ERP_RECEIVED_SHIPMENT"));
                 nsp.addOnholdErpShipmentsTotalData(rs.getInt("ERP_ONHOLD_SHIPMENT"));
+                nsp.setRegionCountForStock(rs.getInt("REGION_STOCK_COUNT"));
+                nsp.setRegionCount(rs.getInt("REGION_COUNT"));
             } else {
                 nsp.setActualConsumptionFlag(rs.getBoolean("USE_ACTUAL_CONSUMPTION"));
                 nsp.setRegionCountForStock(rs.getInt("REGION_STOCK_COUNT"));
