@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -50,7 +51,6 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -89,7 +89,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    @Transactional
+//    @Transactional
     public void importProductCatalogue() throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException {
         EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
         String[] subjectParam;
@@ -375,18 +375,18 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         }
     }
 
-    @Transactional
+//    @Transactional
     private void pullUnit() {
         // --------------------------Unit Table-----------------------
         logger.info("------------------------------- Unit ------------------------------------");
 
         logger.info("Going to drop tmp_unit");
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_unit`";
+        String sqlString = "DROP TABLE IF EXISTS `tmp_unit`";
         this.jdbcTemplate.execute(sqlString);
 
         logger.info("Successfully droped tmp_unit");
         logger.info("Going to create tmp_unit");
-        sqlString = "CREATE TEMPORARY TABLE `tmp_unit` ( "
+        sqlString = "CREATE TABLE `tmp_unit` ( "
                 + " `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + " `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
                 + " `UNIT_ID` int (10) unsigned DEFAULT NULL, "
@@ -461,17 +461,17 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         logger.info("Total rows available in ap_unit---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
     }
 
-    @Transactional
+//    @Transactional
     private void pullTracerCategory() {
         logger.info("------------------------------- Tracer Category ------------------------------------");
         int max = 0;
 
         // Step 1 - Drop the table if it exists
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_tracer_category`";
+        String sqlString = "DROP TABLE IF EXISTS `tmp_tracer_category`";
         this.jdbcTemplate.update(sqlString);
 
         // Step 2 - Create the tmp table
-        sqlString = "CREATE TEMPORARY TABLE `tmp_tracer_category` ( "
+        sqlString = "CREATE TABLE `tmp_tracer_category` ( "
                 + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + "  `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
                 + "  `TRACER_CATEGORY_ID` int(10) unsigned DEFAULT NULL, "
@@ -536,7 +536,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
     }
 
-    @Transactional
+//    @Transactional
     private void pullProductCategory() {
         //------------Product Category-------------------------
         logger.info("------------------------------- Product Category ------------------------------------");
@@ -596,16 +596,16 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         }
     }
 
-    @Transactional
+//    @Transactional
     private void pullForecastingUnit() {
         logger.info("------------------------------- Forecasting Unit ------------------------------------");
         //------------Forcasting Unit--------------------------
         // Step 1 - Drop the table if it exists
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
+        String sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
         this.jdbcTemplate.update(sqlString);
 
         // Step 2 - Create Temporary Table
-        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
+        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
                 + "    `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
                 + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,   "
@@ -677,19 +677,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
         for (ForecastingUnit fu : this.jdbcTemplate.query(sqlString, new ForecastingUnitRowMapper())) {
             try {
-                labelParams.replace("LABEL_EN", fu.getLabel().getLabel_en());
-                labelParams.replace("SOURCE_ID", 28);
-                fu.getLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
-                forecastingUnitParams.replace("LABEL_ID", fu.getLabel().getLabelId());
-                if (fu.getGenericLabel().getLabel_en() != null) {
-                    labelParams.replace("SOURCE_ID", 29);
-                    labelParams.replace("LABEL_EN", fu.getGenericLabel().getLabel_en());
-                    fu.getGenericLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
-                    forecastingUnitParams.replace("GENERIC_LABEL_ID", fu.getGenericLabel().getLabelId());
-                } else {
-                    forecastingUnitParams.replace("GENERIC_LABEL_ID", null);
-                }
-
                 sqlString = "SELECT UNIT_ID FROM vw_unit u WHERE u.UNIT_CODE=? OR u.LABEL_EN=?";
                 fu.getUnit().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getUnit().getCode(), fu.getUnit().getLabel().getLabel_en()));
                 forecastingUnitParams.replace("UNIT_ID", fu.getUnit().getId());
@@ -703,9 +690,28 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 sqlString = "SELECT TRACER_CATEGORY_ID FROM vw_tracer_category tc WHERE tc.REALM_ID=1 AND tc.LABEL_EN=?";
                 fu.getTracerCategory().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getTracerCategory().getLabel().getLabel_en()));
                 forecastingUnitParams.replace("TRACER_CATEGORY_ID", fu.getTracerCategory().getId());
-                siForecastingUnit.execute(forecastingUnitParams);
+                if (fu.getProductCategory().getId() != null
+                        && fu.getTracerCategory().getId() != null
+                        && fu.getProductCategory().getId() != 0
+                        && fu.getTracerCategory().getId() != 0) {
+                    labelParams.replace("LABEL_EN", fu.getLabel().getLabel_en());
+                    labelParams.replace("SOURCE_ID", 28);
+                    fu.getLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
+                    forecastingUnitParams.replace("LABEL_ID", fu.getLabel().getLabelId());
+                    if (fu.getGenericLabel().getLabel_en() != null) {
+                        labelParams.replace("SOURCE_ID", 29);
+                        labelParams.replace("LABEL_EN", fu.getGenericLabel().getLabel_en());
+                        fu.getGenericLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
+                        forecastingUnitParams.replace("GENERIC_LABEL_ID", fu.getGenericLabel().getLabelId());
+                    } else {
+                        forecastingUnitParams.replace("GENERIC_LABEL_ID", null);
+                    }
+                    siForecastingUnit.execute(forecastingUnitParams);
+                } else {
+                    logger.info("Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + "because either the ProductCategory or TracerCategory is not provided");
+                }
             } catch (Exception e) {
-                logger.info("Skipping the Forecasting Unit " + fu.getLabel() + " because there was an error " + e.getMessage());
+                logger.info("Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + " because there was an error " + e.getMessage());
             }
         }
 
@@ -713,14 +719,14 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         logger.info("Total rows available in rm_forecasting_unit ---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
     }
 
-    @Transactional
+//    @Transactional
     private void pullPlanningUnit() {
         // -----------------------Planning Unit-----------------
         logger.info("------------------------------- Planning Unit ------------------------------------");
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_planning_unit";
+        String sqlString = "DROP TABLE IF EXISTS tmp_planning_unit";
         this.jdbcTemplate.update(sqlString);
 
-        sqlString = "CREATE TEMPORARY TABLE `tmp_planning_unit` (   "
+        sqlString = "CREATE TABLE `tmp_planning_unit` (   "
                 + "     `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "     `PLANNING_UNIT_ID` int (10) unsigned DEFAULT NULL,   "
                 + "     `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
@@ -736,6 +742,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "     `VOLUME` DECIMAL(12,4) UNSIGNED DEFAULT NULL, "
                 + "     `WEIGHT` DECIMAL(12,4) UNSIGNED DEFAULT NULL, "
                 + "     `FOUND` tinyint(1) unsigned default null, "
+                + "     `DUPLICATE` tinyint(1) unsigned default null, "
                 + "    PRIMARY KEY (`ID`), "
                 + "    INDEX `idx_tmp_planning_unit_Id_idx` (`PLANNING_UNIT_ID` ASC),  "
                 + "    INDEX `tmpPlanningUnit_label` (`LABEL` ASC),  "
@@ -747,16 +754,21 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
 
         // Step 1 Insert int tmpPlanningUnit
-        sqlString = "Insert into tmp_planning_unit SELECT null, null, ProductName, if(NoofBaseUnits='', null, NoofBaseUnits), OrderUOM, trim(ProductID), tpc.ProductNameNoPack, if(tpc.EstPrice='',null,tpc.EstPrice), if(PlanningUnitMOQ='', null,PlanningUnitMOQ), if(Euro1='',null,Euro1), if(Euro2='',null,Euro2), if(PlanningUnitsperContainer='',null,PlanningUnitsperContainer), if(PlanningUnitVolumem3='',null,PlanningUnitVolumem3), if(PlanningUnitWeightkg='',null,PlanningUnitWeightkg), 0 FROM tmp_product_catalog tpc WHERE tpc.ProductName IS NOT NULL AND tpc.ProductName != '' and tpc.OrderUOM!='' AND tpc.OrderUOM is not null group by tpc.ProductName";
+        sqlString = "Insert into tmp_planning_unit SELECT null, null, ProductName, if(NoofBaseUnits='', null, NoofBaseUnits), OrderUOM, trim(ProductID), tpc.ProductNameNoPack, if(tpc.EstPrice='',null,tpc.EstPrice), if(PlanningUnitMOQ='', null,PlanningUnitMOQ), if(Euro1='',null,Euro1), if(Euro2='',null,Euro2), if(PlanningUnitsperContainer='',null,PlanningUnitsperContainer), if(PlanningUnitVolumem3='',null,PlanningUnitVolumem3), if(PlanningUnitWeightkg='',null,PlanningUnitWeightkg), 0, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductName IS NOT NULL AND tpc.ProductName != '' and tpc.OrderUOM!='' AND tpc.OrderUOM is not null group by tpc.ProductName";
         int rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " rows instered into the tmp planningUnit table");
 
-        // Step 2 Locate if the Planning Unit has already come in before
-        sqlString = "UPDATE tmp_planning_unit tpu LEFT JOIN rm_procurement_agent_planning_unit papu ON tpu.SKU_CODE=papu.SKU_CODE LEFT JOIN rm_planning_unit pu ON papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON tpu.PLANNING_UNIT_ID=fu.FORECASTING_UNIT_ID SET tpu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID, tpu.FOUND=1 WHERE fu.REALM_ID=1 AND papu.PLANNING_UNIT_ID IS NOT NULL";
+//        // Step 1.1 Find Duplicate SKU's in the same file
+//        sqlString = "UPDATE tmp_planning_unit tpu LEFT JOIN (SELECT SKU_CODE, min(tpu.ID) MIN_ID FROM tmp_planning_unit tpu group by tpu.SKU_CODE HAVING count(*)>1) m ON tpu.ID=m.MIN_ID SET tpu.DUPLICATE = 1 WHERE m.MIN_ID IS NOT NULL";
+//        rows = this.jdbcTemplate.update(sqlString);
+//        logger.info(rows + " rows marked as duplicate in the tmp planningUnit table");
+
+        // Step 2 Locate if the Planning Unit has already come in before and is not duplicate
+        sqlString = "UPDATE tmp_planning_unit tpu LEFT JOIN rm_procurement_agent_planning_unit papu ON tpu.SKU_CODE=papu.SKU_CODE LEFT JOIN rm_planning_unit pu ON papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID SET tpu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID, tpu.FOUND=1 WHERE fu.REALM_ID = 1 AND papu.PLANNING_UNIT_ID IS NOT NULL AND tpu.DUPLICATE=0";
         rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " Planning units matched");
 
-        sqlString = "SELECT tpu.*, u.UNIT_ID, fu.FORECASTING_UNIT_ID FROM tmp_planning_unit tpu LEFT JOIN vw_unit u ON u.UNIT_CODE=tpu.UNIT OR u.LABEL_EN=tpu.UNIT LEFT JOIN vw_forecasting_unit fu ON tpu.FORECASTING_UNIT=fu.LABEL_EN AND fu.REALM_ID=1 where tpu.FOUND=0";
+        sqlString = "SELECT tpu.*, u.UNIT_ID, fu.FORECASTING_UNIT_ID FROM tmp_planning_unit tpu LEFT JOIN vw_unit u ON u.UNIT_CODE=tpu.UNIT OR u.LABEL_EN=tpu.UNIT LEFT JOIN vw_forecasting_unit fu ON tpu.FORECASTING_UNIT=fu.LABEL_EN AND fu.REALM_ID=1 where tpu.FOUND=0 AND tpu.DUPLICATE=0";
         SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
         SimpleJdbcInsert siPlanningUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_planning_unit").usingGeneratedKeyColumns("PLANNING_UNIT_ID");
         SimpleJdbcInsert siPapu = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_procurement_agent_planning_unit");
@@ -801,25 +813,32 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
         for (PlanningUnitArtmisPull pu : this.jdbcTemplate.query(sqlString, new PlanningUnitArtmisPullRowMapper())) {
             try {
-                labelParams.replace("LABEL_EN", pu.getLabel());
-                int labelId = siLabel.executeAndReturnKey(labelParams).intValue();
-                planningUnitParams.replace("LABEL_ID", labelId);
+                if (pu.getForecastingUnitId() != null && pu.getForecastingUnitId() != 0) {
+                    labelParams.replace("LABEL_EN", pu.getLabel());
+                    if (pu.getSkuCode().equals("100123XUZ0G6P")) {
+                        logger.info("Found planning unit for insert into rm_planning_unit - 100123XUZ0G6P with ID = " + pu.getId() + " Duplicate flag=" + pu.isDuplicate());
+                    }
+                    int labelId = siLabel.executeAndReturnKey(labelParams).intValue();
+                    planningUnitParams.replace("LABEL_ID", labelId);
 
-                planningUnitParams.replace("UNIT_ID", pu.getUnitId());
-                planningUnitParams.replace("FORECASTING_UNIT_ID", pu.getForecastingUnitId());
-                planningUnitParams.replace("MULTIPLIER", pu.getMultiplier());
-                int planningUnitId = siPlanningUnit.executeAndReturnKey(planningUnitParams).intValue();
+                    planningUnitParams.replace("UNIT_ID", pu.getUnitId());
+                    planningUnitParams.replace("FORECASTING_UNIT_ID", pu.getForecastingUnitId());
+                    planningUnitParams.replace("MULTIPLIER", pu.getMultiplier());
+                    int planningUnitId = siPlanningUnit.executeAndReturnKey(planningUnitParams).intValue();
 
-                papuParams.replace("PLANNING_UNIT_ID", planningUnitId);
-                papuParams.replace("CATALOG_PRICE", pu.getCatalogPrice());
-                papuParams.replace("SKU_CODE", pu.getSkuCode());
-                papuParams.replace("MOQ", pu.getMoq());
-                papuParams.replace("UNITS_PER_PALLET_EURO1", pu.getUnitsPerPalletEuro1());
-                papuParams.replace("UNITS_PER_PALLET_EURO2", pu.getUnitsPerPalletEuro2());
-                papuParams.replace("UNITS_PER_CONTAINER", pu.getUnitsPerContainer());
-                papuParams.replace("VOLUME", pu.getVolume());
-                papuParams.replace("WEIGHT", pu.getWeight());
-                siPapu.execute(papuParams);
+                    papuParams.replace("PLANNING_UNIT_ID", planningUnitId);
+                    papuParams.replace("CATALOG_PRICE", pu.getCatalogPrice());
+                    papuParams.replace("SKU_CODE", pu.getSkuCode());
+                    papuParams.replace("MOQ", pu.getMoq());
+                    papuParams.replace("UNITS_PER_PALLET_EURO1", pu.getUnitsPerPalletEuro1());
+                    papuParams.replace("UNITS_PER_PALLET_EURO2", pu.getUnitsPerPalletEuro2());
+                    papuParams.replace("UNITS_PER_CONTAINER", pu.getUnitsPerContainer());
+                    papuParams.replace("VOLUME", pu.getVolume());
+                    papuParams.replace("WEIGHT", pu.getWeight());
+                    siPapu.execute(papuParams);
+                } else {
+                    logger.info("Skipping the Planning Unit " + pu.getSkuCode() + " since there is no ForecastingUnit defined");
+                }
             } catch (Exception e) {
                 logger.info("Skipping the Planning Unit " + pu.getSkuCode() + " because there was an error " + e.getMessage());
             }
@@ -829,14 +848,14 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         logger.info("No of rows after insertion in rm_planning_unit --" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
     }
 
-    @Transactional
+//    @Transactional
     private void pullSupplier() {
         //------------Supplier----------------
         logger.info("------------------------------- Suppliers ------------------------------------");
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_supplier`";
+        String sqlString = "DROP TABLE IF EXISTS `tmp_supplier`";
         this.jdbcTemplate.execute(sqlString);
 
-        sqlString = "CREATE TEMPORARY TABLE `tmp_supplier` ( "
+        sqlString = "CREATE TABLE `tmp_supplier` ( "
                 + " `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + " `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
                 + " `SUPPLIER_ID` int (10) unsigned DEFAULT NULL, "
@@ -896,14 +915,14 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         logger.info("Total rows available in rm_supplier---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
     }
 
-    @Transactional
+//    @Transactional
     private void pullProcurementUnit() {
         //----------Procurement Unit---------------
         logger.info("------------------------------- Procurement Unit ------------------------------------");
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_procurement_unit";
+        String sqlString = "DROP TABLE IF EXISTS tmp_procurement_unit";
         this.jdbcTemplate.update(sqlString);
 
-        sqlString = "CREATE TEMPORARY TABLE `tmp_procurement_unit` (  "
+        sqlString = "CREATE TABLE `tmp_procurement_unit` (  "
                 + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
                 + "    `PROCUREMENT_UNIT_ID` int(10) UNSIGNED DEFAULT NULL,  "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
@@ -1027,34 +1046,42 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
         for (ProcurementUnitArtmisPull pu : this.jdbcTemplate.query(sqlString, new ProcurementUnitArtmisPullRowMapper())) {
             try {
-                labelParams.replace("LABEL_EN", pu.getLabel());
-                int labelId = siLabel.executeAndReturnKey(labelParams).intValue();
-                procurementUnitParams.replace("LABEL_ID", labelId);
+                if (pu.getPlanningUnitId() != null && pu.getPlanningUnitId() != 0) {
+                    if (pu.getSupplierId() != null && pu.getSupplierId() != 0) {
+                        labelParams.replace("LABEL_EN", pu.getLabel());
+                        int labelId = siLabel.executeAndReturnKey(labelParams).intValue();
+                        procurementUnitParams.replace("LABEL_ID", labelId);
 
-                procurementUnitParams.replace("PLANNING_UNIT_ID", pu.getPlanningUnitId());
-                procurementUnitParams.replace("UNIT_ID", pu.getUnitId());
-                procurementUnitParams.replace("MULTIPLIER", pu.getMultiplier());
-                procurementUnitParams.replace("SUPPLIER_ID", pu.getSupplierId());
-                procurementUnitParams.replace("WIDTH_QTY", pu.getWidth());
-                procurementUnitParams.replace("WIDTH_UNIT_ID", pu.getWidthUnitId());
-                procurementUnitParams.replace("HEIGHT_QTY", pu.getHeight());
-                procurementUnitParams.replace("HEIGHT_UNIT_ID", pu.getHeightUnitId());
-                procurementUnitParams.replace("LENGTH_QTY", pu.getLength());
-                procurementUnitParams.replace("LENGTH_UNIT_ID", pu.getLengthUnitId());
-                procurementUnitParams.replace("WEIGHT_QTY", pu.getWeight());
-                procurementUnitParams.replace("WEIGHT_UNIT_ID", pu.getWeightUnitId());
-                procurementUnitParams.replace("UNITS_PER_CASE", pu.getUnitsPerCase());
-                procurementUnitParams.replace("UNITS_PER_PALLET", pu.getUnitsPerPallet());
-                procurementUnitParams.replace("UNITS_PER_CONTAINER", pu.getUnitsPerContainer());
-                procurementUnitParams.replace("LABELLING", pu.getLabelling());
-                pu.setProcurementUnitId(siProcurementUnit.executeAndReturnKey(procurementUnitParams).intValue());
+                        procurementUnitParams.replace("PLANNING_UNIT_ID", pu.getPlanningUnitId());
+                        procurementUnitParams.replace("UNIT_ID", pu.getUnitId());
+                        procurementUnitParams.replace("MULTIPLIER", pu.getMultiplier());
+                        procurementUnitParams.replace("SUPPLIER_ID", pu.getSupplierId());
+                        procurementUnitParams.replace("WIDTH_QTY", pu.getWidth());
+                        procurementUnitParams.replace("WIDTH_UNIT_ID", pu.getWidthUnitId());
+                        procurementUnitParams.replace("HEIGHT_QTY", pu.getHeight());
+                        procurementUnitParams.replace("HEIGHT_UNIT_ID", pu.getHeightUnitId());
+                        procurementUnitParams.replace("LENGTH_QTY", pu.getLength());
+                        procurementUnitParams.replace("LENGTH_UNIT_ID", pu.getLengthUnitId());
+                        procurementUnitParams.replace("WEIGHT_QTY", pu.getWeight());
+                        procurementUnitParams.replace("WEIGHT_UNIT_ID", pu.getWeightUnitId());
+                        procurementUnitParams.replace("UNITS_PER_CASE", pu.getUnitsPerCase());
+                        procurementUnitParams.replace("UNITS_PER_PALLET", pu.getUnitsPerPallet());
+                        procurementUnitParams.replace("UNITS_PER_CONTAINER", pu.getUnitsPerContainer());
+                        procurementUnitParams.replace("LABELLING", pu.getLabelling());
+                        pu.setProcurementUnitId(siProcurementUnit.executeAndReturnKey(procurementUnitParams).intValue());
 
-                papuParams.replace("PROCUREMENT_UNIT_ID", pu.getProcurementUnitId());
-                papuParams.replace("SKU_CODE", pu.getSkuCode());
-                papuParams.replace("VENDOR_PRICE", pu.getVendorPrice());
-                papuParams.replace("GTIN", pu.getGtin());
-                papuParams.replace("APPROVED_TO_SHIPPED_LEAD_TIME", pu.getApprovedToShippedLeadTime());
-                siPapu.execute(papuParams);
+                        papuParams.replace("PROCUREMENT_UNIT_ID", pu.getProcurementUnitId());
+                        papuParams.replace("SKU_CODE", pu.getSkuCode());
+                        papuParams.replace("VENDOR_PRICE", pu.getVendorPrice());
+                        papuParams.replace("GTIN", pu.getGtin());
+                        papuParams.replace("APPROVED_TO_SHIPPED_LEAD_TIME", pu.getApprovedToShippedLeadTime());
+                        siPapu.execute(papuParams);
+                    } else {
+                        logger.info("Skipping the Procurement Unit " + pu.getSkuCode() + " since there is no Supplier Id defined");
+                    }
+                } else {
+                    logger.info("Skipping the Procurement Unit " + pu.getSkuCode() + " since there is no PlanningUnit defined");
+                }
             } catch (Exception e) {
                 logger.info("Skipping the Procurement Unit " + pu.getSkuCode() + " because there was an error " + e.getMessage());
             }

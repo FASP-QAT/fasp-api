@@ -930,7 +930,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "AND (:versionStatusId = -1 OR pv.VERSION_STATUS_ID = :versionStatusId) "
                 + "AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate ");
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
-        System.out.println("params---" + params);
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ProgramVersionRowMapper());
 
     }
@@ -1225,13 +1224,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 a1.addValue("OPENING_BALANCE_WPS", nsp.getOpeningBalanceWps());
                 a1.addValue("MANUAL_PLANNED_SHIPMENT_QTY", nsp.getPlannedShipmentsTotalData());
                 a1.addValue("MANUAL_SUBMITTED_SHIPMENT_QTY", nsp.getSubmittedShipmentsTotalData());
-                a1.addValue("MANUAL_APROVED_SHIPMENT_QTY", nsp.getApprovedShipmentsTotalData());
+                a1.addValue("MANUAL_APPROVED_SHIPMENT_QTY", nsp.getApprovedShipmentsTotalData());
                 a1.addValue("MANUAL_SHIPPED_SHIPMENT_QTY", nsp.getShippedShipmentsTotalData());
                 a1.addValue("MANUAL_RECEIVED_SHIPMENT_QTY", nsp.getReceivedShipmentsTotalData());
                 a1.addValue("MANUAL_ONHOLD_SHIPMENT_QTY", nsp.getOnholdShipmentsTotalData());
                 a1.addValue("ERP_PLANNED_SHIPMENT_QTY", nsp.getPlannedErpShipmentsTotalData());
                 a1.addValue("ERP_SUBMITTED_SHIPMENT_QTY", nsp.getSubmittedErpShipmentsTotalData());
-                a1.addValue("ERP_APROVED_SHIPMENT_QTY", nsp.getApprovedErpShipmentsTotalData());
+                a1.addValue("ERP_APPROVED_SHIPMENT_QTY", nsp.getApprovedErpShipmentsTotalData());
                 a1.addValue("ERP_SHIPPED_SHIPMENT_QTY", nsp.getShippedErpShipmentsTotalData());
                 a1.addValue("ERP_RECEIVED_SHIPMENT_QTY", nsp.getReceivedErpShipmentsTotalData());
                 a1.addValue("ERP_ONHOLD_SHIPMENT_QTY", nsp.getOnholdErpShipmentsTotalData());
