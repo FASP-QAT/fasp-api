@@ -90,7 +90,6 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     public List<Node<ExtendedProductCategory>> getProductCategoryListForRealm(CustomUserDetails curUser, int realmId) {
-        System.out.println("*************realmId---"+realmId);
         Realm r = this.realmDao.getRealmById(realmId, curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
             return this.productCategoryDao.getProductCategoryListForRealm(curUser, realmId);
