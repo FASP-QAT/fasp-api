@@ -64,6 +64,9 @@ public class TreeExtendedProductCategoryResultSetExtractor implements ResultSetE
         } catch (Exception e) {
             throw new DataAccessResourceFailureException(e.getMessage());
         }
+        if (productCategoryTree == null) {
+            productCategoryTree = new Tree<>(new Node(count, null, 1, 1));
+        }
         return productCategoryTree;
     }
 }
