@@ -121,6 +121,10 @@ public class RealmDaoImpl implements RealmDao {
     public List<Realm> getRealmList(boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
+        if (active) {
+            sqlStringBuilder.append(" AND r.ACTIVE=:active ");
+            params.put("active", active);
+        }
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmRowMapper());
     }
@@ -131,8 +135,8 @@ public class RealmDaoImpl implements RealmDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
-        System.out.println("sqlStringBuilder.toString()---"+sqlStringBuilder.toString());
-        System.out.println("params---"+params);
+        System.out.println("sqlStringBuilder.toString()---" + sqlStringBuilder.toString());
+        System.out.println("params---" + params);
         return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new RealmRowMapper());
     }
 
