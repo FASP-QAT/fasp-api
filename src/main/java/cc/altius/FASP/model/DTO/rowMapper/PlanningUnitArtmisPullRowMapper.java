@@ -19,6 +19,7 @@ public class PlanningUnitArtmisPullRowMapper implements RowMapper<PlanningUnitAr
     @Override
     public PlanningUnitArtmisPull mapRow(ResultSet rs, int i) throws SQLException {
         PlanningUnitArtmisPull p = new PlanningUnitArtmisPull();
+        p.setId(rs.getInt("ID"));
         p.setPlanningUnitId(rs.getInt("PLANNING_UNIT_ID"));
         p.setLabel(rs.getString("LABEL"));
         p.setMultiplier(rs.getDouble("MULTIPLIER"));
@@ -33,6 +34,7 @@ public class PlanningUnitArtmisPullRowMapper implements RowMapper<PlanningUnitAr
         p.setVolume(rs.getDouble("VOLUME"));
         p.setWeight(rs.getDouble("WEIGHT"));
         p.setFound(rs.getBoolean("FOUND"));
+        p.setDuplicate((rs.getBoolean("DUPLICATE")));
         return p;
     }
 

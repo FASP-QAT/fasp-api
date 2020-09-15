@@ -66,7 +66,7 @@ public class MasterSupplyPlan implements Serializable {
             }
         }
     }
-    
+
     private NewSupplyPlan getPrevMonth(int planningUnitId, String transDate) {
         NewSupplyPlan before = new NewSupplyPlan(planningUnitId, transDate);
         return this.nspList.stream().filter(tp -> tp.getPlanningUnitId() == before.getPlanningUnitId() && DateUtils.compareDates(before.getTransDate(), tp.getTransDate()) >= 0).sorted(new NewSupplyComparator().reversed()).findFirst().orElse(null);
@@ -102,6 +102,7 @@ public class MasterSupplyPlan implements Serializable {
 
     public void printSupplyPlan() {
         StringBuilder regionString = new StringBuilder()
+                .append("PlngUnt").append("\t")
                 .append("TransDate").append("\t")
                 .append("OB").append("\t")
                 .append("OBW").append("\t")
@@ -123,6 +124,7 @@ public class MasterSupplyPlan implements Serializable {
                 .append("Unmet").append("\t")
                 .append("UnmetW").append("\r\n");
         StringBuilder batchString = new StringBuilder()
+                .append("PlngUnt").append("\t")
                 .append("TrnsDt").append("\t")
                 .append("BtchId").append("\t")
                 .append("OB").append("\t")
@@ -146,6 +148,7 @@ public class MasterSupplyPlan implements Serializable {
         this.nspList.forEach(nsp -> {
             nsp.getBatchDataList().forEach(bd -> {
                 batchString
+                        .append(nsp.getPlanningUnitId()).append("\t")
                         .append(nsp.getTransDate()).append("\t")
                         .append(bd.getBatchId()).append("\t")
                         .append(bd.getOpeningBalance()).append("\t")
@@ -168,6 +171,7 @@ public class MasterSupplyPlan implements Serializable {
                         .append(bd.getClosingBalanceWps()).append("\r\n");
             });
             regionString
+                    .append(nsp.getPlanningUnitId()).append("\t")
                     .append(nsp.getTransDate()).append("\t")
                     .append(nsp.getOpeningBalance()).append("\t")
                     .append(nsp.getOpeningBalanceWps()).append("\t")
