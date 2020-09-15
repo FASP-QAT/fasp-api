@@ -13,6 +13,7 @@ import java.io.Serializable;
  */
 public class PlanningUnitArtmisPull implements Serializable {
 
+    private int id;
     private int planningUnitId;
     private String label;
     private Double multiplier;
@@ -27,6 +28,15 @@ public class PlanningUnitArtmisPull implements Serializable {
     private Double volume;
     private Double weight;
     private boolean found;
+    private boolean duplicate;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public int getPlanningUnitId() {
         return planningUnitId;
@@ -138,6 +148,14 @@ public class PlanningUnitArtmisPull implements Serializable {
 
     public void setFound(boolean found) {
         this.found = found;
+    }
+
+    public boolean isDuplicate() {
+        return duplicate;
+    }
+
+    public void setDuplicate(boolean duplicate) {
+        this.duplicate = duplicate;
     }
 
 }
