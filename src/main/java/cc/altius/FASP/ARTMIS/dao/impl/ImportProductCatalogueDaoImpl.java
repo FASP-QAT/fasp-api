@@ -89,7 +89,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-    @Transactional
+//    @Transactional
     public void importProductCatalogue() throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException {
         EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
         String[] subjectParam;
@@ -375,7 +375,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         }
     }
 
-    @Transactional
+//    @Transactional
     private void pullUnit() {
         // --------------------------Unit Table-----------------------
         logger.info("------------------------------- Unit ------------------------------------");
@@ -461,7 +461,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         logger.info("Total rows available in ap_unit---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
     }
 
-    @Transactional
+//    @Transactional
     private void pullTracerCategory() {
         logger.info("------------------------------- Tracer Category ------------------------------------");
         int max = 0;
@@ -536,7 +536,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
     }
 
-    @Transactional
+//    @Transactional
     private void pullProductCategory() {
         //------------Product Category-------------------------
         logger.info("------------------------------- Product Category ------------------------------------");
@@ -596,16 +596,18 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         }
     }
 
-    @Transactional
+//    @Transactional
     private void pullForecastingUnit() {
         logger.info("------------------------------- Forecasting Unit ------------------------------------");
         //------------Forcasting Unit--------------------------
         // Step 1 - Drop the table if it exists
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
+//        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
+        String sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
         this.jdbcTemplate.update(sqlString);
 
         // Step 2 - Create Temporary Table
-        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
+//        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
+        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
                 + "    `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
                 + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,   "
@@ -709,6 +711,52 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
             }
         }
 
+        // Update queries 
+        String sqlStringUpdate = "SELECT ID AS FORECASTING_UNIT_ID, 1 REALM_ID, null `REALM_LABEL_ID`, null REALM_CODE, null `REALM_LABEL_EN`,null `REALM_LABEL_FR`,null `REALM_LABEL_SP`,null `REALM_LABEL_PR`, "
+                + " fu.LABEL_ID, fu.LABEL `LABEL_EN`, null `LABEL_FR`, null `LABEL_SP`, null `LABEL_PR`, "
+                + " fu.GENERIC_LABEL_ID, fu.GENERIC_LABEL `GENERIC_LABEL_EN`, null `GENERIC_LABEL_FR`, null `GENERIC_LABEL_SP`, null `GENERIC_LABEL_PR`, "
+                + " null PRODUCT_CATEGORY_ID, null PRODUCT_CATEGORY_LABEL_ID, fu.SUB_CATEGORY PRODUCT_CATEGORY_LABEL_EN, fu.COMMODITY_COUNCIL PRODUCT_CATEGORY_LABEL_FR, null PRODUCT_CATEGORY_LABEL_SP, null PRODUCT_CATEGORY_LABEL_PR, "
+                + " null TRACER_CATEGORY_ID, null TRACER_CATEGORY_LABEL_ID, fu.TRACER_CATEGORY TRACER_CATEGORY_LABEL_EN, null TRACER_CATEGORY_LABEL_FR, null TRACER_CATEGORY_LABEL_SP, null TRACER_CATEGORY_LABEL_PR, "
+                + " null UNIT_ID, fu.UNIT_LABEL_EN UNIT_CODE, null UNIT_LABEL_ID, fu.UNIT_LABEL_EN UNIT_LABEL_EN, null UNIT_LABEL_FR, null UNIT_LABEL_SP, null UNIT_LABEL_PR, "
+                + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
+                + "FROM tmp_forecasting_unit fu where fu.FOUND=1";
+        for (ForecastingUnit fu : this.jdbcTemplate.query(sqlStringUpdate, new ForecastingUnitRowMapper())) {
+            try {
+                sqlStringUpdate = "UPDATE ap_label l "
+                        + "LEFT JOIN tmp_forecasting_unit tf ON tf.`LABEL_ID`=l.`LABEL_ID` "
+                        + "LEFT JOIN rm_forecasting_unit f ON f.`LABEL_ID`=l.`LABEL_ID` "
+                        + "LEFT JOIN ap_label lg ON lg.`LABEL_EN`=tf.`GENERIC_LABEL` "
+                        + "LEFT JOIN ap_label lu ON lu.`LABEL_EN`=tf.`UNIT_LABEL_EN` "
+                        + "LEFT JOIN ap_unit au ON au.`LABEL_ID`=lu.`LABEL_ID` "
+                        + "LEFT JOIN ap_label ap ON ap.`LABEL_EN`=tf.`SUB_CATEGORY` "
+                        + "LEFT JOIN rm_product_category  pc ON pc.`LABEL_ID`=ap.`LABEL_ID` "
+                        + "LEFT JOIN ap_label lt ON lt.`LABEL_EN`=tf.`TRACER_CATEGORY` "
+                        + "LEFT JOIN rm_tracer_category  tc ON tc.`LABEL_ID`=lt.`LABEL_ID` "
+                        + "SET l.`LABEL_EN`=tf.`LABEL`, "
+                        + "f.`LAST_MODIFIED_BY`=?, "
+                        + "f.`LAST_MODIFIED_DATE`=?, "
+                        + "f.`PRODUCT_CATEGORY_ID`=pc.`PRODUCT_CATEGORY_ID`, "
+                        + "f.`TRACER_CATEGORY_ID`=tc.`TRACER_CATEGORY_ID`, "
+                        + "f.`UNIT_ID`=au.`UNIT_ID`, "
+                        + "f.`ACTIVE`=TRUE,"
+                        + "f.`GENERIC_LABEL_ID`=lg.`LABEL_ID` "
+                        + "WHERE tf.`ID`=?;";
+                System.out.println("rows updated---" + this.jdbcTemplate.update(sqlStringUpdate, curUserId, curDate, fu.getForecastingUnitId()));
+//                forecastingUnitParams.clear();
+////                forecastingUnitParams.put("forcastingUnitLabel", fu.getLabel().getLabel_en());
+//                forecastingUnitParams.put("lastModifiedBy", fu.getLabel().getLabel_en());
+//                forecastingUnitParams.put("lastModifiedDate", fu.getLabel().getLabel_en());
+//                forecastingUnitParams.put("productCategoryId", fu.getLabel().getLabel_en());
+//                forecastingUnitParams.put("tracerCategoryId", fu.getLabel().getLabel_en());
+////                forecastingUnitParams.put("genericLabelId", fu.getLabel().getLabel_en());
+//                forecastingUnitParams.put("unitId", fu.getLabel().getLabel_en());
+//                forecastingUnitParams.put("forcastingUnitId", fu.getForecastingUnitId());
+
+            } catch (Exception e) {
+                logger.info("Error while updating Forecasting Unit " + fu.getLabel() + " because there was an error " + e.getMessage());
+            }
+        }
+        //Update end
         sqlString = "SELECT COUNT(*) FROM rm_forecasting_unit";
         logger.info("Total rows available in rm_forecasting_unit ---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
     }
@@ -717,10 +765,12 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     private void pullPlanningUnit() {
         // -----------------------Planning Unit-----------------
         logger.info("------------------------------- Planning Unit ------------------------------------");
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_planning_unit";
+//        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_planning_unit";
+        String sqlString = "DROP TABLE IF EXISTS tmp_planning_unit";
         this.jdbcTemplate.update(sqlString);
 
-        sqlString = "CREATE TEMPORARY TABLE `tmp_planning_unit` (   "
+//        sqlString = "CREATE TEMPORARY TABLE `tmp_planning_unit` (   "
+        sqlString = "CREATE TABLE `tmp_planning_unit` (   "
                 + "     `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "     `PLANNING_UNIT_ID` int (10) unsigned DEFAULT NULL,   "
                 + "     `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
@@ -825,6 +875,38 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
             }
         }
 
+        // Update planning unit start
+        sqlString = "SELECT tpu.*,tpu.`ID` AS PLANNING_UNIT_ID, u.UNIT_ID, fu.FORECASTING_UNIT_ID FROM tmp_planning_unit tpu LEFT JOIN vw_unit u ON u.UNIT_CODE=tpu.UNIT OR u.LABEL_EN=tpu.UNIT LEFT JOIN vw_forecasting_unit fu ON tpu.FORECASTING_UNIT=fu.LABEL_EN AND fu.REALM_ID=1 where tpu.FOUND=1";
+        for (PlanningUnitArtmisPull pu : this.jdbcTemplate.query(sqlString, new PlanningUnitArtmisPullRowMapper())) {
+            try {
+                sqlString = "UPDATE `tmp_planning_unit` tp "
+                        + "LEFT JOIN ap_label l  ON tp.`LABEL`=l.`LABEL_EN` "
+                        + "LEFT JOIN rm_planning_unit rp ON rp.`LABEL_ID`=l.`LABEL_ID` "
+                        + "LEFT JOIN ap_label fl ON fl.`LABEL_EN`=tp.`FORECASTING_UNIT` "
+                        + "LEFT JOIN rm_forecasting_unit fu ON fu.`LABEL_ID`=fl.`LABEL_ID` "
+                        + "LEFT JOIN ap_label lu ON lu.`LABEL_EN`=tp.`UNIT` "
+                        + "LEFT JOIN ap_unit au ON au.`UNIT_CODE`=tp.`UNIT` OR lu.`LABEL_EN`=tp.`UNIT` "
+                        + "LEFT JOIN rm_procurement_agent_planning_unit papu ON papu.`PLANNING_UNIT_ID`=rp.`PLANNING_UNIT_ID` "
+                        + "SET l.`LABEL_EN`=tp.`LABEL`, "
+                        + "rp.`MULTIPLIER`=tp.`MULTIPLIER` "
+                        + "rp.`UNIT_ID`=au.`UNIT_ID`, "
+                        + "rp.`FORECASTING_UNIT_ID`=fu.`FORECASTING_UNIT_ID`, "
+                        + "papu.`CATALOG_PRICE`=tp.`CATALOG_PRICE`, "
+                        + "papu.`MOQ`=tp.`MOQ`, "
+                        + "papu.`UNITS_PER_PALLET_EURO1`=tp.`UNITS_PER_PALLET_EURO1`, "
+                        + "papu.`UNITS_PER_PALLET_EURO2`=tp.`UNITS_PER_PALLET_EURO2`, "
+                        + "papu.`UNITS_PER_CONTAINER`=tp.`UNITS_PER_CONTAINER`, "
+                        + "papu.`VOLUME`=tp.`VOLUME`, "
+                        + "papu.`WEIGHT`=tp.`WEIGHT` "
+                        + "papu.`SKU_CODE`=tp`SKU_CODE` "
+                        + "WHERE tp.`ID`=?;";
+                this.jdbcTemplate.update(sqlString,pu.getPlanningUnitId());
+            } catch (Exception e) {
+                logger.info("Error while updating the Planning Unit " + pu.getSkuCode() + " because there was an error " + e.getMessage());
+            }
+        }
+        // Update planning unit end
+
         sqlString = "select count(*) from rm_planning_unit;";
         logger.info("No of rows after insertion in rm_planning_unit --" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
     }
@@ -900,10 +982,12 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     private void pullProcurementUnit() {
         //----------Procurement Unit---------------
         logger.info("------------------------------- Procurement Unit ------------------------------------");
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_procurement_unit";
+//        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_procurement_unit";
+        String sqlString = "DROP TABLE IF EXISTS tmp_procurement_unit";
         this.jdbcTemplate.update(sqlString);
 
-        sqlString = "CREATE TEMPORARY TABLE `tmp_procurement_unit` (  "
+//        sqlString = "CREATE TEMPORARY TABLE `tmp_procurement_unit` (  "
+        sqlString = "CREATE TABLE `tmp_procurement_unit` (  "
                 + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
                 + "    `PROCUREMENT_UNIT_ID` int(10) UNSIGNED DEFAULT NULL,  "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
