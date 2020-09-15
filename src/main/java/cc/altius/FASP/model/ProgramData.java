@@ -22,6 +22,7 @@ public class ProgramData extends BaseModel implements Serializable {
     private SimpleCodeObject organisation;
     private SimpleCodeObject healthArea;
     private Label label;
+    @JsonIgnore
     private BasicUser programManager;
     private String programNotes;
     private double airFreightPerc;
@@ -32,8 +33,11 @@ public class ProgramData extends BaseModel implements Serializable {
     private double shippedToArrivedByAirLeadTime;
     private double shippedToArrivedBySeaLeadTime;
     private double arrivedToDeliveredLeadTime;
+    @JsonIgnore
     private SimpleObject versionType;
+    @JsonIgnore
     private SimpleObject versionStatus;
+    @JsonIgnore
     private String notes;
     private List<Region> regionList;
     private Version currentVersion;
@@ -43,8 +47,10 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<Inventory> inventoryList;
     private List<Shipment> shipmentList;
     private List<Batch> batchInfoList;
+    @JsonIgnore
     private List<ProblemReport> problemReportList;
     private List<SimplifiedSupplyPlan> supplyPlan;
+    @JsonIgnore
     private int requestedProgramVersion;
     @JsonIgnore
     private Date lastModifiedDate;

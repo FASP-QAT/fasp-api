@@ -15,8 +15,11 @@ public class Region extends BaseModel {
 
     private int regionId;
     private Label label;
+    @JsonIgnore
     private RealmCountry realmCountry;
+    @JsonIgnore
     private String gln;
+    @JsonIgnore
     private Double capacityCbm;
 
     public Region() {

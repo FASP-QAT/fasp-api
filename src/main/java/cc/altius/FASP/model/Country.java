@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 
 /**
@@ -13,10 +14,12 @@ import java.io.Serializable;
  */
 public class Country extends BaseModel implements Serializable {
 
+    @JsonIgnore
     private int countryId;
     private String countryCode;
     private String countryCode2;
     private Label label;
+    @JsonIgnore
     private SimpleObject currency;
 
     public Country() {

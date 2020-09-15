@@ -5,12 +5,15 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  *
  * @author akil
  */
 public class SimplePlanningUnitObject extends SimpleObject {
 
+    @JsonIgnore
     private SimpleForecastingUnitObject forecastingUnit;
 
     public SimplePlanningUnitObject() {

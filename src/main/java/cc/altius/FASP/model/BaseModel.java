@@ -23,6 +23,7 @@ public class BaseModel implements Serializable {
     private transient BasicUser lastModifiedBy;
     @JsonIgnore
     private transient Date lastModifiedDate;
+    @JsonIgnore
     private transient boolean active;
 
     public BasicUser getCreatedBy() {

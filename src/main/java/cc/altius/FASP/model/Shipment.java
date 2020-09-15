@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.LinkedList;
@@ -21,10 +22,13 @@ public class Shipment extends BaseModel implements Serializable {
     private SimplePlanningUnitObject planningUnit;
     private String expectedDeliveryDate;
     private int suggestedQty;
+    
     private SimpleProcurementAgentObject procurementAgent;
     private SimpleBudgetObject budget;
     private SimpleCodeObject fundingSource;
+    @JsonIgnore
     private SimpleObject procurementUnit;
+    @JsonIgnore
     private SimpleObject supplier;
     private int shipmentQty;
     private double rate;
@@ -47,6 +51,7 @@ public class Shipment extends BaseModel implements Serializable {
     private String primeLineNo;
     private boolean emergencyOrder;
     private int versionId;
+    @JsonIgnore
     private Date lastModifiedDate;
     private List<ShipmentBatchInfo> batchInfoList;
     private boolean active;

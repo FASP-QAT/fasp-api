@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 
 /**
@@ -13,7 +14,9 @@ import java.io.Serializable;
  */
 public class RealmProblem extends BaseModel implements Serializable {
 
+    @JsonIgnore
     private int realmProblemId;
+    @JsonIgnore
     private SimpleCodeObject realm;
     private Problem problem;
     private Criticality criticality;

@@ -5,12 +5,15 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  *
  * @author akil
  */
 public class SimpleProcurementAgentObject extends SimpleCodeObject {
 
+    @JsonIgnore
     private String colorHtmlCode;
 
     public SimpleProcurementAgentObject(Integer id, Label label, String code, String colorHtmlCode) {

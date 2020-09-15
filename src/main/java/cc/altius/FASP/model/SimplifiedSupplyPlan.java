@@ -5,12 +5,8 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -21,7 +17,9 @@ import java.util.Objects;
  */
 public class SimplifiedSupplyPlan implements Serializable {
 
+    @JsonIgnore
     private int programId;
+    @JsonIgnore
     private int versionId;
     private int planningUnitId;
     private String transDate;

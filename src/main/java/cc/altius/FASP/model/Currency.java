@@ -5,16 +5,22 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 /**
  *
  * @author palash
  */
 public class Currency extends BaseModel {
     
+    @JsonIgnore
     private int currencyId;
     private String currencyCode;
+    @JsonIgnore
     private Label label;
+    @JsonIgnore
     private double conversionRateToUsd;
+    @JsonIgnore
     private boolean isSync;
 
     public Currency() {

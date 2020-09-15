@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 
 /**
@@ -15,7 +16,9 @@ public class RealmCountry extends BaseModel implements Serializable {
 
     private int realmCountryId;
     private Country country;
+    @JsonIgnore
     private Realm realm;
+    @JsonIgnore
     private Currency defaultCurrency;
 //    private Unit palletUnit;
 //    private double airFreightPercentage;

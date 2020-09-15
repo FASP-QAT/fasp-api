@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateTimeDeserializer;
 import cc.altius.FASP.framework.JsonDateTimeSerializer;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -21,6 +22,7 @@ import java.util.List;
 public class ProblemReport implements Serializable {
 
     private int problemReportId;
+    @JsonIgnore
     private SimpleCodeObject program;
     private int versionId;
     private RealmProblem realmProblem;
