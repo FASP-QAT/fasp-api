@@ -906,7 +906,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + "LEFT JOIN ap_unit au ON au.`UNIT_CODE`=tp.`UNIT` OR lu.`LABEL_EN`=tp.`UNIT` "
                         + "LEFT JOIN rm_procurement_agent_planning_unit papu ON papu.`PLANNING_UNIT_ID`=rp.`PLANNING_UNIT_ID` "
                         + "SET l.`LABEL_EN`=tp.`LABEL`, "
-                        + "rp.`MULTIPLIER`=tp.`MULTIPLIER` "
+                        + "rp.`MULTIPLIER`=tp.`MULTIPLIER`, "
                         + "rp.`UNIT_ID`=au.`UNIT_ID`, "
                         + "rp.`FORECASTING_UNIT_ID`=fu.`FORECASTING_UNIT_ID`, "
                         + "papu.`CATALOG_PRICE`=tp.`CATALOG_PRICE`, "
@@ -915,8 +915,8 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + "papu.`UNITS_PER_PALLET_EURO2`=tp.`UNITS_PER_PALLET_EURO2`, "
                         + "papu.`UNITS_PER_CONTAINER`=tp.`UNITS_PER_CONTAINER`, "
                         + "papu.`VOLUME`=tp.`VOLUME`, "
-                        + "papu.`WEIGHT`=tp.`WEIGHT` "
-                        + "papu.`SKU_CODE`=tp`SKU_CODE` "
+                        + "papu.`WEIGHT`=tp.`WEIGHT`, "
+                        + "papu.`SKU_CODE`=tp.`SKU_CODE` "
                         + "WHERE tp.`ID`=?;";
                 this.jdbcTemplate.update(sqlString, pu.getPlanningUnitId());
             } catch (Exception e) {
