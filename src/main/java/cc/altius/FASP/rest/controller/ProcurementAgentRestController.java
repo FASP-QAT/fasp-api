@@ -56,6 +56,9 @@ public class ProcurementAgentRestController {
             } else {
                 return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
             }
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to add Procurement Agent", ae);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
         } catch (DuplicateKeyException e) {
             logger.error("Error while trying to add Procurement Agent", e);
             return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
@@ -72,6 +75,9 @@ public class ProcurementAgentRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             int rows = this.procurementAgentService.updateProcurementAgent(procurementAgent, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to update Procurement Agent", ae);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
         } catch (DuplicateKeyException e) {
             logger.error("Error while trying to update Procurement Agent", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
@@ -225,7 +231,7 @@ public class ProcurementAgentRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping(value = "/sync/procurementAgent/procurementUnit/{lastSyncDate}")
     public ResponseEntity getProcurementAgentProcurementUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {

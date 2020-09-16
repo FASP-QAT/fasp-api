@@ -10,11 +10,13 @@ import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.FundingSourceService;
 import cc.altius.FASP.service.UserService;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -51,6 +53,9 @@ public class FundingSourceRestController {
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Funding source", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+        } catch (DuplicateKeyException d) {
+            logger.error("Error while trying to add Funding source", d);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to add Funding source", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -69,6 +74,9 @@ public class FundingSourceRestController {
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update Funding source", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (DuplicateKeyException d) {
+            logger.error("Error while trying to update Funding source", d);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to update Funding source", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
