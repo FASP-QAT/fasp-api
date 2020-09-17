@@ -41,7 +41,6 @@ import cc.altius.utils.DateUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -76,6 +75,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private JdbcTemplate jdbcTemplate;
+    static int programExistCount;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -94,7 +94,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     private HealthAreaDao healthAreaDao;
     @Autowired
     private OrganisationDao organisationDao;
-  @Autowired
+    @Autowired
     private RealmCountryDao realmCountryDao;
 
     public String sqlListString = "SELECT  "
@@ -162,412 +162,430 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     public int savePipelineDbData(Pipeline pipeline, CustomUserDetails curUser, String fileName) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         // Save records for adb_pipeline
-        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("adb_pipeline").usingGeneratedKeyColumns("PIPELINE_ID");
-        Map<String, Object> params = new HashMap<>();
-        params.put("FILE_NAME", fileName);
-        params.put("CREATED_BY", curUser.getUserId());
-        params.put("CREATED_DATE", curDate);
-        params.put("STATUS", 0);
-        int pipelineId = si.executeAndReturnKeyHolder(params).getKey().intValue();
-
-        // Save records for adb_commodityprice
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_commodityprice");
-        final List<SqlParameterSource> batchParams = new ArrayList<>();
-        if (pipeline.getCommodityprice() != null) {
-            pipeline.getCommodityprice().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("ProductID", c.getProductid());
-                tp.put("SupplierID", c.getSupplierid());
-                tp.put("dtmEffective", c.getDtmeffective());
-                tp.put("UnitPrice", c.getUnitprice());
-                tp.put("dtmChanged", c.getDtmchanged());
-                tp.put("User", c.getUser());
-                tp.put("Note", c.getNote());
-                tp.put("fUserDefined", c.getFuserdefined());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
-        }
-
-        // Save records for adb_consumption
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_consumption");
-        batchParams.clear();
-        if (pipeline.getConsumption() != null) {
-            pipeline.getConsumption().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("ProductID", c.getProductid());
-                tp.put("ConsStartYear", c.getConsstartyear());
-                tp.put("ConsStartMonth", c.getConsstartmonth());
-                tp.put("ConsActualFlag", c.getConsactualflag());
-                tp.put("ConsNumMonths", c.getConsnummonths());
-                tp.put("ConsAmount", c.getConsamount());
-                tp.put("ConsDataSourceID", c.getConsdatasourceid());
-                tp.put("ConsIflator", c.getConsiflator());
-                tp.put("ConsNote", c.getConsnote());
-                tp.put("ConsDateChanged", c.getConsdatechanged());
-                tp.put("ConsID", c.getConsid());
-                tp.put("ConsDisplayNote", c.getConsdisplaynote());
-                tp.put("Old consumption", c.getOld_consumption());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
-        }
-
-        // Save records for adb_datasource
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_datasource");
-        batchParams.clear();
-        if (pipeline.getDatasource() != null) {
-            pipeline.getDatasource().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("DataSourceID", c.getDatasourceid());
-                tp.put("DataSourceName", c.getDatasourcename());
-                tp.put("DataSourceTypeID", c.getDatasourcetypeid());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
-        }
-        // Save records for adb_fundingsource
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_fundingsource");
-        batchParams.clear();
-        if (pipeline.getFundingsource() != null) {
-            pipeline.getFundingsource().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("FundingSourceID", c.getFundingsourceid());
-                tp.put("FundingSourceName", c.getFundingsourcename());
-                tp.put("FundingNote", c.getFundingnote());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
-        }
-
-        // Save records for adb_inventory
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_inventory");
-        batchParams.clear();
-        if (pipeline.getInventory() != null) {
-            pipeline.getInventory().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("ProductID", c.getProductid());
-                tp.put("Period", c.getPeriod());
-                tp.put("InvAmount", c.getInvamount());
-                tp.put("InvTransferFlag", c.getInvtransferflag());
-                tp.put("InvNote", c.getInvnote());
-                tp.put("InvDateChanged", c.getInvdatechanged());
-                tp.put("ctrIndex", c.getCtrindex());
-                tp.put("InvDisplayNote", c.getInvdisplaynote());
-                tp.put("InvDataSourceID", c.getInvdatasourceid());
-                tp.put("fImported", c.getFimported());
-                tp.put("Old_Inventory", c.getOld_inventory());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
-        }
-
-        // Save records for adb_method
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_method");
-        batchParams.clear();
-        if (pipeline.getMethod() != null) {
-            pipeline.getMethod().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("MethodID", c.getMethodid());
-                tp.put("MethodName", c.getMethodname());
-                tp.put("CYPFactor", c.getCypfactor());
-                tp.put("MethodNote", c.getMethodnote());
-                tp.put("ParentID", c.getParentid());
-                tp.put("CategoryID", c.getCategoryid());
-                tp.put("fRollup", c.getFrollup());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
-        }
-
-        // Save records for adb_monthlystockarchive
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_monthlystockarchive");
-        batchParams.clear();
-        if (pipeline.getMonthlystockarchive() != null) {
-            pipeline.getMonthlystockarchive().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("ProductID", c.getProductid());
-                tp.put("EOYBalance", c.getEoybalance());
-                tp.put("StockYear", c.getStockyear());
-                tp.put("StockMonth", c.getStockmonth());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
-        }
-        // Save records for adb_paste_errors
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_paste_errors");
-        batchParams.clear();
-        if (pipeline.getPaste_errors() != null) {
-            pipeline.getPaste_errors().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("F1", c.getF1());
-                tp.put("F2", c.getF2());
-                tp.put("F3", c.getF3());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
-        }
-
-        // Save records for adb_product
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_product");
-        batchParams.clear();
-        if (pipeline.getProduct() != null) {
-            pipeline.getProduct().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("ProductID", c.getProductid());
-                tp.put("ProductName", c.getProductname());
-                tp.put("ProductMinMonths", c.getProductminmonths());
-                tp.put("ProductMaxMonths", c.getProductmaxmonths());
-                tp.put("SupplierID", c.getSupplierid());
-                tp.put("MethodID", c.getMethodid());
-                tp.put("ProductActiveFlag", c.getProductactiveflag());
-                tp.put("ProductActiveDate", c.getProductactivedate());
-                tp.put("DefaultCaseSize", c.getDefaultcasesize());
-                tp.put("ProductNote", c.getProductnote());
-                tp.put("ProdCMax", c.getProdcmax());
-                tp.put("ProdCMin", c.getProdcmin());
-                tp.put("ProdDesStock", c.getProddesstock());
-                tp.put("txtInnovatorDrugName", c.getTxtinnovatordrugname());
-                tp.put("dblLowestUnitQty", c.getDbllowestunitqty());
-                tp.put("txtLowestUnitMeasure", c.getTxtlowestunitmeasure());
-                tp.put("txtSubstitutionList", c.getTxtsubstitutionlist());
-                tp.put("fPermittedInCountry", c.getFpermittedincountry());
-                tp.put("memAvailabilityNotes", c.getMemavailabilitynotes());
-                tp.put("fAvailabilityStatus", c.getFavailabilitystatus());
-                tp.put("fUserDefined", c.getFuserdefined());
-                tp.put("strImportSource", c.getStrimportsource());
-                tp.put("BUConversion", c.getBuconversion());
-                tp.put("txtPreferenceNotes", c.getTxtpreferencenotes());
-                tp.put("lngAMCStart", c.getLngamcstart());
-                tp.put("lngAMCMonths", c.getLngamcmonths());
-                tp.put("fAMCChanged", c.getFamcchanged());
-                tp.put("txtMigrationStatus", c.getTxtmigrationstatus());
-                tp.put("txtMigrationStatusDate", c.getTxtmigrationstatusdate());
-                tp.put("strType", c.getStrtype());
-                tp.put("OldProductID", c.getOldproductid());
-                tp.put("OldProductName", c.getOldproductname());
-                tp.put("lngBatch", c.getLngbatch());
-                tp.put("OldMethodID", c.getOldmethodid());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
-        }
-
-        // Save records for adb_productfreightcost
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_productfreightcost");
-        batchParams.clear();
-        if (pipeline.getProductfreightcost() != null) {
-            pipeline.getProductfreightcost().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("ProductID", c.getProductid());
-                tp.put("SupplierID", c.getSupplierid());
-                tp.put("FreightCost", c.getFreightcost());
-                tp.put("dtmChanged", c.getDtmchanged());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
-        }
-
-        // Save records for adb_productsuppliercasesize
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_productsuppliercasesize");
-        batchParams.clear();
-        if (pipeline.getProductsuppliercasesize() != null) {
-            pipeline.getProductsuppliercasesize().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("ProductID", c.getProductid());
-                tp.put("SupplierID", c.getSupplierid());
-                tp.put("dtmEffective", c.getDtmeffective());
-                tp.put("intCaseSize", c.getIntcasesize());
-                tp.put("dtmChanged", c.getDtmchanged());
-                tp.put("User", c.getUser());
-                tp.put("Note", c.getNote());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
-        }
-
-        // Save records for adb_programinfo
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_programinfo");
-        batchParams.clear();
         if (pipeline.getPrograminfo() != null) {
             pipeline.getPrograminfo().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("ProgramName", c.getProgramname());
-                tp.put("DataDirectory", c.getDatadirectory());
-                tp.put("Language", c.getLanguage());
-                tp.put("DefaultLeadTimePlan", c.getDefaultleadtimeplan());
-                tp.put("DefaultLeadTimeOrder", c.getDefaultleadtimeorder());
-                tp.put("DefaultLeadTimeShip", c.getDefaultleadtimeship());
-                tp.put("DefaultShipCost", c.getDefaultshipcost());
-                tp.put("ProgramContact", c.getProgramcontact());
-                tp.put("Telephone", c.getTelephone());
-                tp.put("Fax", c.getFax());
-                tp.put("Email", c.getEmail());
-                tp.put("CountryCode", c.getCountrycode());
-                tp.put("CountryName", c.getCountryname());
-                tp.put("IsCurrent", c.getIscurrent());
-                tp.put("Note", c.getNote());
-                tp.put("ProgramCode", c.getProgramcode());
-                tp.put("IsActive", c.getIsactive());
-                tp.put("StartSize", c.getStartsize());
-                tp.put("IsDefault", c.getIsdefault());
-                tp.put("ArchiveDate", c.getArchivedate());
-                tp.put("ArchiveYear", c.getArchiveyear());
-                tp.put("ArchiveInclude", c.getArchiveinclude());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
-        }
+                String programName = c.getProgramname();
+                if (programName != "" && programName != null) {
+                    programExistCount = this.jdbcTemplate.queryForObject("SELECT count(*) FROM fasp.adb_programinfo pi \n"
+                            + "left join adb_pipeline ap on ap.PIPELINE_ID=pi.PIPELINE_ID\n"
+                            + "where pi.ProgramName like '%" + programName + "%'", Integer.class);
+                } else {
+                    programExistCount=0;
+                }
 
-        // Save records for adb_shipment
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_shipment");
-        batchParams.clear();
-        if (pipeline.getShipment() != null) {
-            pipeline.getShipment().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("ShipmentID", c.getShipmentid());
-                tp.put("ProductID", c.getProductid());
-                tp.put("SupplierID", c.getSupplierid());
-                tp.put("ShipDataSourceID", c.getShipdatasourceid());
-                tp.put("ShipAmount", c.getShipamount());
-                tp.put("ShipPlannedDate", c.getShipplanneddate());
-                tp.put("ShipOrderedDate", c.getShipordereddate());
-                tp.put("ShipShippedDate", c.getShipshippeddate());
-                tp.put("ShipReceivedDate", c.getShipreceiveddate());
-                tp.put("ShipStatusCode", c.getShipstatuscode());
-                tp.put("ShipNote", c.getShipnote());
-                tp.put("ShipDateChanged", c.getShipdatechanged());
-                tp.put("ShipFreightCost", c.getShipfreightcost());
-                tp.put("ShipValue", c.getShipvalue());
-                tp.put("ShipCaseLot", c.getShipcaselot());
-                tp.put("ShipDisplayNote", c.getShipdisplaynote());
-                tp.put("ShipPO", c.getShippo());
-                tp.put("Old Shipment", c.getOld_shipment());
-                tp.put("ShipFundingSourceID", c.getShipfundingsourceid());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
             });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
         }
+//        System.out.println("=======>" + programExistCount);
+        if (programExistCount > 0) {
+            return 0;
+        } else {
+            SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("adb_pipeline").usingGeneratedKeyColumns("PIPELINE_ID");
+            Map<String, Object> params = new HashMap<>();
+            params.put("FILE_NAME", fileName);
+            params.put("CREATED_BY", curUser.getUserId());
+            params.put("CREATED_DATE", curDate);
+            params.put("STATUS", 0);
+            int pipelineId = si.executeAndReturnKeyHolder(params).getKey().intValue();
 
-        // Save records for adb_source
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_source");
-        batchParams.clear();
-        if (pipeline.getSource() != null) {
-            pipeline.getSource().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("SupplierID", c.getSupplierid());
-                tp.put("SupplierName", c.getSuppliername());
-                tp.put("SupplierLeadTimePlan", c.getSupplierleadtimeplan());
-                tp.put("SupplierLeadTimeOrder", c.getSupplierleadtimeorder());
-                tp.put("SupplierLeadTimeShip", c.getSupplierleadtimeship());
-                tp.put("SupplierNote", c.getSuppliernote());
-                tp.put("Freight", c.getFreight());
-                tp.put("DefaultSupplier", c.getDefaultsupplier());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
-        }
+            // Save records for adb_commodityprice
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_commodityprice");
+            final List<SqlParameterSource> batchParams = new ArrayList<>();
+            if (pipeline.getCommodityprice() != null) {
+                pipeline.getCommodityprice().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("ProductID", c.getProductid());
+                    tp.put("SupplierID", c.getSupplierid());
+                    tp.put("dtmEffective", c.getDtmeffective());
+                    tp.put("UnitPrice", c.getUnitprice());
+                    tp.put("dtmChanged", c.getDtmchanged());
+                    tp.put("User", c.getUser());
+                    tp.put("Note", c.getNote());
+                    tp.put("fUserDefined", c.getFuserdefined());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
 
-        // Save records for adb_tblbe_version
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_tblbe_version");
-        batchParams.clear();
-        if (pipeline.getTblbe_version() != null) {
-            pipeline.getTblbe_version().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("sBE_Version", c.getSbe_version());
-                tp.put("dtmUpdated", c.getDtmupdated());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
-        }
+            // Save records for adb_consumption
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_consumption");
+            batchParams.clear();
+            if (pipeline.getConsumption() != null) {
+                pipeline.getConsumption().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("ProductID", c.getProductid());
+                    tp.put("ConsStartYear", c.getConsstartyear());
+                    tp.put("ConsStartMonth", c.getConsstartmonth());
+                    tp.put("ConsActualFlag", c.getConsactualflag());
+                    tp.put("ConsNumMonths", c.getConsnummonths());
+                    tp.put("ConsAmount", c.getConsamount());
+                    tp.put("ConsDataSourceID", c.getConsdatasourceid());
+                    tp.put("ConsIflator", c.getConsiflator());
+                    tp.put("ConsNote", c.getConsnote());
+                    tp.put("ConsDateChanged", c.getConsdatechanged());
+                    tp.put("ConsID", c.getConsid());
+                    tp.put("ConsDisplayNote", c.getConsdisplaynote());
+                    tp.put("Old consumption", c.getOld_consumption());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
 
-        // Save records for adb_tblimportproducts
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_tblimportproducts");
-        batchParams.clear();
-        if (pipeline.getTblimportproducts() != null) {
-            pipeline.getTblimportproducts().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("strProductID", c.getStrproductid());
-                tp.put("strName", c.getStrname());
-                tp.put("strDose", c.getStrdose());
-                tp.put("lngCYP", c.getLngcyp());
-                tp.put("dtmExport", c.getDtmexport());
-                tp.put("fProcessed", c.getFprocessed());
-                tp.put("lngID", c.getLngid());
-                tp.put("strSource", c.getStrsource());
-                tp.put("strMapping", c.getStrmapping());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
-        }
+            // Save records for adb_datasource
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_datasource");
+            batchParams.clear();
+            if (pipeline.getDatasource() != null) {
+                pipeline.getDatasource().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("DataSourceID", c.getDatasourceid());
+                    tp.put("DataSourceName", c.getDatasourcename());
+                    tp.put("DataSourceTypeID", c.getDatasourcetypeid());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
+            // Save records for adb_fundingsource
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_fundingsource");
+            batchParams.clear();
+            if (pipeline.getFundingsource() != null) {
+                pipeline.getFundingsource().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("FundingSourceID", c.getFundingsourceid());
+                    tp.put("FundingSourceName", c.getFundingsourcename());
+                    tp.put("FundingNote", c.getFundingnote());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
 
-        // Save records for adb_tblimportrecords
-        si = null;
-        si = new SimpleJdbcInsert(dataSource).withTableName("adb_tblimportrecords");
-        batchParams.clear();
-        if (pipeline.getTblimportrecords() != null) {
-            pipeline.getTblimportrecords().forEach((c) -> {
-                Map<String, Object> tp = new HashMap<>();
-                tp.put("strProductID", c.getStrproductid());
-                tp.put("dtmPeriod", c.getDtmperiod());
-                tp.put("lngconsumption", c.getLngconsumption());
-                tp.put("lngAdjustment", c.getLngadjustment());
-                tp.put("dblDataInterval", c.getDbldatainterval());
-                tp.put("lngParentID", c.getLngparentid());
-                tp.put("PIPELINE_ID", pipelineId);
-                batchParams.add(new MapSqlParameterSource(tp));
-            });
-            SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
-            si.executeBatch(batchParams.toArray(batchSqlSource));
+            // Save records for adb_inventory
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_inventory");
+            batchParams.clear();
+            if (pipeline.getInventory() != null) {
+                pipeline.getInventory().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("ProductID", c.getProductid());
+                    tp.put("Period", c.getPeriod());
+                    tp.put("InvAmount", c.getInvamount());
+                    tp.put("InvTransferFlag", c.getInvtransferflag());
+                    tp.put("InvNote", c.getInvnote());
+                    tp.put("InvDateChanged", c.getInvdatechanged());
+                    tp.put("ctrIndex", c.getCtrindex());
+                    tp.put("InvDisplayNote", c.getInvdisplaynote());
+                    tp.put("InvDataSourceID", c.getInvdatasourceid());
+                    tp.put("fImported", c.getFimported());
+                    tp.put("Old_Inventory", c.getOld_inventory());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
+
+            // Save records for adb_method
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_method");
+            batchParams.clear();
+            if (pipeline.getMethod() != null) {
+                pipeline.getMethod().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("MethodID", c.getMethodid());
+                    tp.put("MethodName", c.getMethodname());
+                    tp.put("CYPFactor", c.getCypfactor());
+                    tp.put("MethodNote", c.getMethodnote());
+                    tp.put("ParentID", c.getParentid());
+                    tp.put("CategoryID", c.getCategoryid());
+                    tp.put("fRollup", c.getFrollup());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
+
+            // Save records for adb_monthlystockarchive
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_monthlystockarchive");
+            batchParams.clear();
+            if (pipeline.getMonthlystockarchive() != null) {
+                pipeline.getMonthlystockarchive().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("ProductID", c.getProductid());
+                    tp.put("EOYBalance", c.getEoybalance());
+                    tp.put("StockYear", c.getStockyear());
+                    tp.put("StockMonth", c.getStockmonth());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
+            // Save records for adb_paste_errors
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_paste_errors");
+            batchParams.clear();
+            if (pipeline.getPaste_errors() != null) {
+                pipeline.getPaste_errors().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("F1", c.getF1());
+                    tp.put("F2", c.getF2());
+                    tp.put("F3", c.getF3());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
+
+            // Save records for adb_product
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_product");
+            batchParams.clear();
+            if (pipeline.getProduct() != null) {
+                pipeline.getProduct().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("ProductID", c.getProductid());
+                    tp.put("ProductName", c.getProductname());
+                    tp.put("ProductMinMonths", c.getProductminmonths());
+                    tp.put("ProductMaxMonths", c.getProductmaxmonths());
+                    tp.put("SupplierID", c.getSupplierid());
+                    tp.put("MethodID", c.getMethodid());
+                    tp.put("ProductActiveFlag", c.getProductactiveflag());
+                    tp.put("ProductActiveDate", c.getProductactivedate());
+                    tp.put("DefaultCaseSize", c.getDefaultcasesize());
+                    tp.put("ProductNote", c.getProductnote());
+                    tp.put("ProdCMax", c.getProdcmax());
+                    tp.put("ProdCMin", c.getProdcmin());
+                    tp.put("ProdDesStock", c.getProddesstock());
+                    tp.put("txtInnovatorDrugName", c.getTxtinnovatordrugname());
+                    tp.put("dblLowestUnitQty", c.getDbllowestunitqty());
+                    tp.put("txtLowestUnitMeasure", c.getTxtlowestunitmeasure());
+                    tp.put("txtSubstitutionList", c.getTxtsubstitutionlist());
+                    tp.put("fPermittedInCountry", c.getFpermittedincountry());
+                    tp.put("memAvailabilityNotes", c.getMemavailabilitynotes());
+                    tp.put("fAvailabilityStatus", c.getFavailabilitystatus());
+                    tp.put("fUserDefined", c.getFuserdefined());
+                    tp.put("strImportSource", c.getStrimportsource());
+                    tp.put("BUConversion", c.getBuconversion());
+                    tp.put("txtPreferenceNotes", c.getTxtpreferencenotes());
+                    tp.put("lngAMCStart", c.getLngamcstart());
+                    tp.put("lngAMCMonths", c.getLngamcmonths());
+                    tp.put("fAMCChanged", c.getFamcchanged());
+                    tp.put("txtMigrationStatus", c.getTxtmigrationstatus());
+                    tp.put("txtMigrationStatusDate", c.getTxtmigrationstatusdate());
+                    tp.put("strType", c.getStrtype());
+                    tp.put("OldProductID", c.getOldproductid());
+                    tp.put("OldProductName", c.getOldproductname());
+                    tp.put("lngBatch", c.getLngbatch());
+                    tp.put("OldMethodID", c.getOldmethodid());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
+
+            // Save records for adb_productfreightcost
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_productfreightcost");
+            batchParams.clear();
+            if (pipeline.getProductfreightcost() != null) {
+                pipeline.getProductfreightcost().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("ProductID", c.getProductid());
+                    tp.put("SupplierID", c.getSupplierid());
+                    tp.put("FreightCost", c.getFreightcost());
+                    tp.put("dtmChanged", c.getDtmchanged());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
+
+            // Save records for adb_productsuppliercasesize
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_productsuppliercasesize");
+            batchParams.clear();
+            if (pipeline.getProductsuppliercasesize() != null) {
+                pipeline.getProductsuppliercasesize().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("ProductID", c.getProductid());
+                    tp.put("SupplierID", c.getSupplierid());
+                    tp.put("dtmEffective", c.getDtmeffective());
+                    tp.put("intCaseSize", c.getIntcasesize());
+                    tp.put("dtmChanged", c.getDtmchanged());
+                    tp.put("User", c.getUser());
+                    tp.put("Note", c.getNote());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
+
+            // Save records for adb_programinfo
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_programinfo");
+            batchParams.clear();
+            if (pipeline.getPrograminfo() != null) {
+                pipeline.getPrograminfo().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("ProgramName", c.getProgramname());
+                    tp.put("DataDirectory", c.getDatadirectory());
+                    tp.put("Language", c.getLanguage());
+                    tp.put("DefaultLeadTimePlan", c.getDefaultleadtimeplan());
+                    tp.put("DefaultLeadTimeOrder", c.getDefaultleadtimeorder());
+                    tp.put("DefaultLeadTimeShip", c.getDefaultleadtimeship());
+                    tp.put("DefaultShipCost", c.getDefaultshipcost());
+                    tp.put("ProgramContact", c.getProgramcontact());
+                    tp.put("Telephone", c.getTelephone());
+                    tp.put("Fax", c.getFax());
+                    tp.put("Email", c.getEmail());
+                    tp.put("CountryCode", c.getCountrycode());
+                    tp.put("CountryName", c.getCountryname());
+                    tp.put("IsCurrent", c.getIscurrent());
+                    tp.put("Note", c.getNote());
+                    tp.put("ProgramCode", c.getProgramcode());
+                    tp.put("IsActive", c.getIsactive());
+                    tp.put("StartSize", c.getStartsize());
+                    tp.put("IsDefault", c.getIsdefault());
+                    tp.put("ArchiveDate", c.getArchivedate());
+                    tp.put("ArchiveYear", c.getArchiveyear());
+                    tp.put("ArchiveInclude", c.getArchiveinclude());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
+
+            // Save records for adb_shipment
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_shipment");
+            batchParams.clear();
+            if (pipeline.getShipment() != null) {
+                pipeline.getShipment().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("ShipmentID", c.getShipmentid());
+                    tp.put("ProductID", c.getProductid());
+                    tp.put("SupplierID", c.getSupplierid());
+                    tp.put("ShipDataSourceID", c.getShipdatasourceid());
+                    tp.put("ShipAmount", c.getShipamount());
+                    tp.put("ShipPlannedDate", c.getShipplanneddate());
+                    tp.put("ShipOrderedDate", c.getShipordereddate());
+                    tp.put("ShipShippedDate", c.getShipshippeddate());
+                    tp.put("ShipReceivedDate", c.getShipreceiveddate());
+                    tp.put("ShipStatusCode", c.getShipstatuscode());
+                    tp.put("ShipNote", c.getShipnote());
+                    tp.put("ShipDateChanged", c.getShipdatechanged());
+                    tp.put("ShipFreightCost", c.getShipfreightcost());
+                    tp.put("ShipValue", c.getShipvalue());
+                    tp.put("ShipCaseLot", c.getShipcaselot());
+                    tp.put("ShipDisplayNote", c.getShipdisplaynote());
+                    tp.put("ShipPO", c.getShippo());
+                    tp.put("Old Shipment", c.getOld_shipment());
+                    tp.put("ShipFundingSourceID", c.getShipfundingsourceid());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
+
+            // Save records for adb_source
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_source");
+            batchParams.clear();
+            if (pipeline.getSource() != null) {
+                pipeline.getSource().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("SupplierID", c.getSupplierid());
+                    tp.put("SupplierName", c.getSuppliername());
+                    tp.put("SupplierLeadTimePlan", c.getSupplierleadtimeplan());
+                    tp.put("SupplierLeadTimeOrder", c.getSupplierleadtimeorder());
+                    tp.put("SupplierLeadTimeShip", c.getSupplierleadtimeship());
+                    tp.put("SupplierNote", c.getSuppliernote());
+                    tp.put("Freight", c.getFreight());
+                    tp.put("DefaultSupplier", c.getDefaultsupplier());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
+
+            // Save records for adb_tblbe_version
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_tblbe_version");
+            batchParams.clear();
+            if (pipeline.getTblbe_version() != null) {
+                pipeline.getTblbe_version().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("sBE_Version", c.getSbe_version());
+                    tp.put("dtmUpdated", c.getDtmupdated());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
+
+            // Save records for adb_tblimportproducts
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_tblimportproducts");
+            batchParams.clear();
+            if (pipeline.getTblimportproducts() != null) {
+                pipeline.getTblimportproducts().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("strProductID", c.getStrproductid());
+                    tp.put("strName", c.getStrname());
+                    tp.put("strDose", c.getStrdose());
+                    tp.put("lngCYP", c.getLngcyp());
+                    tp.put("dtmExport", c.getDtmexport());
+                    tp.put("fProcessed", c.getFprocessed());
+                    tp.put("lngID", c.getLngid());
+                    tp.put("strSource", c.getStrsource());
+                    tp.put("strMapping", c.getStrmapping());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
+
+            // Save records for adb_tblimportrecords
+            si = null;
+            si = new SimpleJdbcInsert(dataSource).withTableName("adb_tblimportrecords");
+            batchParams.clear();
+            if (pipeline.getTblimportrecords() != null) {
+                pipeline.getTblimportrecords().forEach((c) -> {
+                    Map<String, Object> tp = new HashMap<>();
+                    tp.put("strProductID", c.getStrproductid());
+                    tp.put("dtmPeriod", c.getDtmperiod());
+                    tp.put("lngconsumption", c.getLngconsumption());
+                    tp.put("lngAdjustment", c.getLngadjustment());
+                    tp.put("dblDataInterval", c.getDbldatainterval());
+                    tp.put("lngParentID", c.getLngparentid());
+                    tp.put("PIPELINE_ID", pipelineId);
+                    batchParams.add(new MapSqlParameterSource(tp));
+                });
+                SqlParameterSource[] batchSqlSource = new SqlParameterSource[batchParams.size()];
+                si.executeBatch(batchParams.toArray(batchSqlSource));
+            }
+            return pipelineId;
         }
-        return pipelineId;
     }
 
     @Override
@@ -904,9 +922,9 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "                  LEFT JOIN qat_temp_funding_source qtfs ON qtfs.PIPELINE_FUNDING_SOURCE_ID=afs.FundingSourceID AND qtfs.PIPELINE_ID=:pipelineId"
                     + "                LEFT JOIN rm_funding_source rfs ON rfs.`FUNDING_SOURCE_ID`=qtfs.`FUNDING_SOURCE_ID`  "
                     + "                LEFT JOIN adb_shipmentstatus ass ON ash.`ShipStatusCode`=ass.`PipelineShipmentStatusCode`  "
-                    + "                LEFT JOIN (SELECT a.*,MAX(a.dtmEffective) effective_date FROM adb_commodityprice a WHERE  a.`PIPELINE_ID`=1 GROUP BY a.`ProductID`,a.`SupplierID`   )acp ON acp.`ProductID`=qtp.`PIPELINE_PRODUCT_ID` AND acp.SupplierID=qtpa.PIPELINE_PROCUREMENT_AGENT_ID " 
-                    + "             LEFT JOIN   adb_commodityprice acp1 ON acp.`ProductID`=acp1.`ProductID` AND acp.SupplierID=acp1.SupplierID AND acp.effective_date=acp1.`dtmEffective`" 
-                    +  "                                  WHERE ash.`PIPELINE_ID`=:pipelineId ";
+                    + "                LEFT JOIN (SELECT a.*,MAX(a.dtmEffective) effective_date FROM adb_commodityprice a WHERE  a.`PIPELINE_ID`=1 GROUP BY a.`ProductID`,a.`SupplierID`   )acp ON acp.`ProductID`=qtp.`PIPELINE_PRODUCT_ID` AND acp.SupplierID=qtpa.PIPELINE_PROCUREMENT_AGENT_ID "
+                    + "             LEFT JOIN   adb_commodityprice acp1 ON acp.`ProductID`=acp1.`ProductID` AND acp.SupplierID=acp1.SupplierID AND acp.effective_date=acp1.`dtmEffective`"
+                    + "                                  WHERE ash.`PIPELINE_ID`=:pipelineId ";
 
             result = this.namedParameterJdbcTemplate.query(sql, params, new QatTempShipmentRowMapper());
         }
@@ -1121,7 +1139,6 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("REALM_COUNTRY_PLANNING_UNIT_ID", ppu.getRealmCountryPlanningUnitId());
             params.put("MULTIPLIER", ppu.getMultiplier());
 
-
             params.put("CREATED_DATE", curDate);
             params.put("CREATED_BY", curUser.getUserId());
             params.put("LAST_MODIFIED_DATE", curDate);
@@ -1255,7 +1272,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser) {
         QatTempProgram p = this.getQatTempProgram(curUser, pipelineId);
         String programCode = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser).getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
-       p.setProgramCode(programCode);
+        p.setProgramCode(programCode);
         Map<String, Object> params = new HashMap<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         int labelId = this.labelDao.addLabel(p.getLabel(), LabelConstants.RM_PROGRAM, curUser.getUserId());
@@ -1361,7 +1378,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + " left join qat_temp_program_planning_unit qtp on qtp.PLANNING_UNIT_ID=c.PLANNING_UNIT_ID and qtp.PIPELINE_ID =:pipelineId "
                 + "where c.PIPELINE_ID=:pipelineId;";
         params.put("pipelineId", pipelineId);
- params.put("realmCountryId", p.getRealmCountry().getRealmCountryId());
+        params.put("realmCountryId", p.getRealmCountry().getRealmCountryId());
         List<QatTempConsumption> pipelineConsumptions = this.namedParameterJdbcTemplate.query(sqlQatTemp, params, new QatTempConsumptionRowMapper());
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_consumption");
         SimpleJdbcInsert si_trans = new SimpleJdbcInsert(dataSource).withTableName("rm_consumption_trans");
@@ -1378,7 +1395,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("CONSUMPTION_ID", this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class));
             params.put("REALM_COUNTRY_PLANNING_UNIT_ID", c.getRealmCountryPlanningUnitId());
             params.put("MULTIPLIER", c.getMultiplier());
-            
+
             params.put("REGION_ID", c.getRegionId());
             params.put("PLANNING_UNIT_ID", c.getPlanningUnitId());
             params.put("CONSUMPTION_DATE", c.getConsumptionDate());
@@ -1398,18 +1415,18 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
          */
 
         String sql = "SELECT s.`FUNDING_SOURCE_ID`,fs.`FUNDING_SOURCE_CODE`,SUM(IFNULL(s.`FREIGHT_COST`,0)+IFNULL(s.`PRODUCT_COST`,0)) budget,EXTRACT(YEAR FROM MAX(now())) `year` FROM qat_temp_shipment s "
- + " LEFT JOIN  rm_funding_source fs ON fs.`FUNDING_SOURCE_ID`=s.`FUNDING_SOURCE_ID`"
- + " WHERE s.`PIPELINE_ID`=:pipelineId GROUP BY s.`FUNDING_SOURCE_ID`";
+                + " LEFT JOIN  rm_funding_source fs ON fs.`FUNDING_SOURCE_ID`=s.`FUNDING_SOURCE_ID`"
+                + " WHERE s.`PIPELINE_ID`=:pipelineId GROUP BY s.`FUNDING_SOURCE_ID`";
         params.put("pipelineId", pipelineId);
         List<Map<String, Object>> budgetList = this.namedParameterJdbcTemplate.queryForList(sql, params);
         System.out.println("budget list=======>" + budgetList);
         List<Map<String, Object>> newList = new LinkedList<>();
         params.clear();
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_budget").usingGeneratedKeyColumns("BUDGET_ID");
- 
+
         for (Map<String, Object> budget : budgetList) {
-            String BudgetName=this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser).getCountry().getLabel().getLabel_en()+ "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-"+budget.get("FUNDING_SOURCE_CODE").toString() ;
-            Label l= new Label() ; 
+            String BudgetName = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser).getCountry().getLabel().getLabel_en() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + budget.get("FUNDING_SOURCE_CODE").toString();
+            Label l = new Label();
             l.setLabel_en(BudgetName);
             labelId = this.labelDao.addLabel(l, LabelConstants.RM_BUDGET, curUser.getUserId());
             params.put("BUDGET_CODE", "ABC");
@@ -1523,9 +1540,9 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             expiryDate.setTime(s.getExpectedDeliveryDate());
             expiryDate.add(Calendar.MONTH, shelfLife);
             expiryDate.set(Calendar.DAY_OF_MONTH, 1);
-            params.put("EXPIRY_DATE",expiryDate.getTime() );
-            params.put("AUTO_GENERATED",true );
-             si_batchInfo.execute(params);
+            params.put("EXPIRY_DATE", expiryDate.getTime());
+            params.put("AUTO_GENERATED", true);
+            si_batchInfo.execute(params);
             sqlString = "SELECT LAST_INSERT_ID()";
             int batchId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
             params.put("SHIPMENT_ID", shipmentId);
@@ -1678,9 +1695,9 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "OR upper(al.LABEL_SP)=upper(ds.DataSourceName)  "
                     + "OR upper(al.LABEL_PR)=upper(ds.DataSourceName) "
                     + "left join rm_data_source rds on rds.LABEL_ID=al.LABEL_ID AND al.LABEL_ID IS NOT NULL "
-                + "where ds.PIPELINE_ID=:pipelineId group by ds.`DataSourceID`;";
-        params.put("pipelineId", pipelineId);
-           
+                    + "where ds.PIPELINE_ID=:pipelineId group by ds.`DataSourceID`;";
+            params.put("pipelineId", pipelineId);
+
             return this.namedParameterJdbcTemplate.query(sql, params, new QatTempDataSourceRowMapper());
         } else {
             return qatList;
@@ -1736,9 +1753,9 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "OR upper(al.LABEL_SP)=upper(ds.FundingSourceName)  "
                     + "OR upper(al.LABEL_PR)=upper(ds.FundingSourceName) "
                     + "left join rm_funding_source rds on (rds.LABEL_ID=al.LABEL_ID AND al.LABEL_ID IS NOT NULL) or upper(rds.FUNDING_SOURCE_CODE)=upper(ds.FundingSourceName) "
-                + "where ds.PIPELINE_ID=:pipelineId group by ds.FundingSourceID;";
-        params.put("pipelineId", pipelineId);
-           
+                    + "where ds.PIPELINE_ID=:pipelineId group by ds.FundingSourceID;";
+            params.put("pipelineId", pipelineId);
+
             return this.namedParameterJdbcTemplate.query(sql, params, new QatTempFundingSourceRowMapper());
         } else {
             return qatList;
@@ -1793,9 +1810,9 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "OR upper(al.LABEL_SP)=upper(ds.SupplierName)  "
                     + "OR upper(al.LABEL_PR)=upper(ds.SupplierName) "
                     + "left join rm_procurement_agent rds on (rds.LABEL_ID=al.LABEL_ID AND al.LABEL_ID IS NOT NULL) or upper(rds.PROCUREMENT_AGENT_CODE)=upper(ds.SupplierName) "
-                + "where ds.PIPELINE_ID=:pipelineId group by ds.SupplierID;";
-        params.put("pipelineId", pipelineId);
-           
+                    + "where ds.PIPELINE_ID=:pipelineId group by ds.SupplierID;";
+            params.put("pipelineId", pipelineId);
+
             return this.namedParameterJdbcTemplate.query(sql, params, new QatTempProcurementAgentRowMapper());
         } else {
             return qatList;

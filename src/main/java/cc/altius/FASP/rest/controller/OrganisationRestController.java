@@ -55,7 +55,7 @@ public class OrganisationRestController {
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
         } catch (DuplicateKeyException ae) {
             logger.error("Error while trying to add Organisation", ae);
-            return new ResponseEntity(new ResponseCode("static.message.duplicateOrg"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to add Organisation", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -68,12 +68,15 @@ public class OrganisationRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.organisationService.updateOrganisation(organisation, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException ae) {
+            logger.error("Error while trying to update Organisation", ae);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update Organisation", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
         } catch (DuplicateKeyException ae) {
             logger.error("Error while trying to update Organisation", ae);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_ACCEPTABLE);
+            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to update Organisation", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
