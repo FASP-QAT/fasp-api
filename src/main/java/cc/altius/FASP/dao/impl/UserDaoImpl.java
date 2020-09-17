@@ -156,7 +156,7 @@ public class UserDaoImpl implements UserDao {
     public CustomUserDetails getCustomUserByUsername(String username) {
         logger.info("Inside the getCustomerUserByUsername method - " + username);
         String sqlString = this.customUserString
-                + "  AND `user`.`USERNAME`=:username "
+                + "  AND LOWER(`user`.`USERNAME`)=LOWER(:username) "
                 + this.customUserOrderBy;
 
         try {
@@ -177,7 +177,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public CustomUserDetails getCustomUserByEmailId(String emailId) {
         logger.info("Inside the getCustomUserByEmailId method - " + emailId);
-        String sqlString = this.customUserString + "  AND `user`.`EMAIL_ID`=:emailId " + this.customUserOrderBy;
+        String sqlString = this.customUserString + "  AND LOWER(`user`.`EMAIL_ID`)=LOWER(:emailId) " + this.customUserOrderBy;
         try {
             Map<String, Object> params = new HashMap<>();
             params.put("emailId", emailId);
@@ -433,37 +433,19 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page) {
-        String message = "", sql, username = user.getUsername(), phoneNo = user.getPhoneNumber();
-        int userId = 0;
+        String message = "", sql;
         int result2 = 0;
         Map<String, Object> params = new HashMap<>();
         params.put("username", user.getUsername());
         params.put("emailId", user.getEmailId());
         if (page == 1) {
-//            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`USERNAME`=:username";
-//            result1 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
-//            if (result1 > 0) {
-//                message = "static.message.user.usernameExists";
-//            }
-            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`EMAIL_ID`=:emailId";
+            sql = "SELECT COUNT(*) FROM us_user u WHERE LOWER(u.`EMAIL_ID`)=LOWER(:emailId)";
             result2 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
             if (result2 > 0) {
                 message = "static.message.user.emailIdExists";
             }
-
-//            if (result1 > 0 && result2 > 0) {
-//                message = "static.message.user.usernameemailIdExists";
-//            }
         } else if (page == 2) {
-//            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`USERNAME`=:username";
-//            try {
-//                result1 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
-//            } catch (EmptyResultDataAccessException e) {
-//            }
-//            if (result1 > 0 && result1 != user.getUserId()) {
-//                message = "static.message.user.usernameExists";
-//            }
-            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`EMAIL_ID`=:emailId";
+            sql = "SELECT u.`USER_ID` FROM us_user u WHERE LOWER(u.`EMAIL_ID`)=LOWER(:emailId)";
             try {
                 result2 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
             } catch (EmptyResultDataAccessException e) {
@@ -471,9 +453,6 @@ public class UserDaoImpl implements UserDao {
             if (result2 > 0 && result2 != user.getUserId()) {
                 message = "static.message.user.emailIdExists";
             }
-//            if ((result1 > 0 && result1 != user.getUserId()) && (result2 > 0 && result2 != user.getUserId())) {
-//                message = "static.message.user.usernameemailIdExists";
-//            }
         }
         return message;
     }
@@ -538,7 +517,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public boolean confirmPassword(String emailId, String password) {
-        String sqlString = "SELECT us_user.PASSWORD FROM us_user WHERE us_user.`EMAIL_ID`=:emailId";
+        String sqlString = "SELECT us_user.PASSWORD FROM us_user WHERE LOWER(us_user.`EMAIL_ID`)=LOWER(:emailId)";
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
         String hash = namedParameterJdbcTemplate.queryForObject(sqlString, params, String.class);

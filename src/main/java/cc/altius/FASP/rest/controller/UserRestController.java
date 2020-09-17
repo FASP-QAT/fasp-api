@@ -306,6 +306,7 @@ public class UserRestController {
                     userDetails.setSessionExpiresOn(sessionExpiryTime);
                     userDetails.setPassword(hashPass);
                     final String token = jwtTokenUtil.generateToken(userDetails);
+                    this.userService.resetFailedAttemptsByUsername(password.getEmailId());
                     this.userService.updateSuncExpiresOn(password.getEmailId());
                     return ResponseEntity.ok(new JwtTokenResponse(token));
                 } else {
