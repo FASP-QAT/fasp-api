@@ -5,17 +5,24 @@
  */
 package cc.altius.FASP.service.impl;
 
+import cc.altius.FASP.dao.HealthAreaDao;
+import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ErpOrderDTO;
+import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.Shipment;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -37,6 +44,10 @@ public class ProgramServiceImpl implements ProgramService {
     @Autowired
     private RealmDao realmDao;
     @Autowired
+    private HealthAreaDao healthAreaDao;
+    @Autowired
+    private OrganisationDao organisationDao;
+    @Autowired
     private AclService aclService;
 
     @Override
@@ -54,6 +65,8 @@ public class ProgramServiceImpl implements ProgramService {
                 p.getHealthArea().getId(),
                 p.getOrganisation().getId(),
                 0)) {
+            String programCode = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser).getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
+            p.setProgramCode(programCode);
             return this.programDao.addProgram(p, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -106,9 +119,9 @@ public class ProgramServiceImpl implements ProgramService {
     public Program getProgramById(int programId, CustomUserDetails curUser) {
         Program p = this.programDao.getProgramById(programId, curUser);
         if (p == null) {
-            throw new EmptyResultDataAccessException(1);
+            throw new AccessDeniedException("Access denied");
         }
-        if (this.aclService.checkRealmAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId())) {
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
             return p;
         } else {
             throw new AccessDeniedException("Access denied");
@@ -123,6 +136,26 @@ public class ProgramServiceImpl implements ProgramService {
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser) {
+        StringBuilder programList = new StringBuilder();
+        for (int programId : programIds) {
+            Program p = this.programDao.getProgramById(programId, curUser);
+            if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthArea().getId(), p.getOrganisation().getId())) {
+                programList.append("'").append(programId).append("',");
+            } else {
+                throw new AccessDeniedException("Access denied");
+            }
+        }
+        if (programList.length() > 0) {
+            programList.setLength(programList.length() - 1);
+            return this.programDao.getPlanningUnitListForProgramIds(programList.toString(), curUser);
+        } else {
+            return new LinkedList<>();
+        }
+
     }
 
     @Override
@@ -159,6 +192,8 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     @Transactional
     public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) {
+        String programCode = this.realmCountryService.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser).getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(program.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(program.getOrganisation().getId(), curUser).getOrganisationCode();
+        program.setProgramCode(programCode);
         int programId = this.programDao.addProgram(program, curUser);
         for (ProgramPlanningUnit ppu : program.getProgramPlanningUnits()) {
             ppu.getProgram().setId(programId);
@@ -168,8 +203,33 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<Program> getProgramList(int realmId) {
-        return this.programDao.getProgramList(realmId);
+    public Program getProgramList(int realmId, int programId, int versionId) {
+        return this.programDao.getProgramList(realmId, programId, versionId);
+    }
+
+    @Override
+    public List<ManualTaggingDTO> getShipmentListForManualTagging(int programId, int planningUnitId) {
+        return this.programDao.getShipmentListForManualTagging(programId, planningUnitId);
+    }
+
+    @Override
+    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo) {
+        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(programId, planningUnitId, orderNo, primeLineNo);
+    }
+
+    @Override
+    public int linkShipmentWithARTMIS(String orderNo, int primeLineNo, int shipmentId, CustomUserDetails curUser) {
+        return this.programDao.linkShipmentWithARTMIS(orderNo, primeLineNo, shipmentId, curUser);
+    }
+
+    @Override
+    public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId) {
+        return this.programDao.getShipmentListForDelinking(programId, planningUnitId);
+    }
+
+    @Override
+    public void delinkShipment(int shipmentId, CustomUserDetails curUser) {
+        this.programDao.delinkShipment(shipmentId, curUser);
     }
 
 }

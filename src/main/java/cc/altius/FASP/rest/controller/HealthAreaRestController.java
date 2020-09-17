@@ -9,11 +9,13 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.HealthAreaService;
+import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,16 +41,21 @@ public class HealthAreaRestController {
 
     @Autowired
     private HealthAreaService healthAreaService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping(path = "/healthArea")
     public ResponseEntity postHealthArea(@RequestBody HealthArea healthArea, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.healthAreaService.addHealthArea(healthArea, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Health Area", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+        } catch (DuplicateKeyException d) {
+            logger.error("Error while trying to add Health Area", d);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to add Health Area", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -58,12 +65,18 @@ public class HealthAreaRestController {
     @PutMapping(path = "/healthArea")
     public ResponseEntity putHealhArea(@RequestBody HealthArea healthArea, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.healthAreaService.updateHealthArea(healthArea, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException ae) {
+            logger.error("Error while trying to update Health Area", ae);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update Health Area", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (DuplicateKeyException d) {
+            logger.error("Error while trying to update Health Area", d);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to update Health Area", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -73,7 +86,7 @@ public class HealthAreaRestController {
     @GetMapping("/healthArea")
     public ResponseEntity getHealthArea(Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.healthAreaService.getHealthAreaList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Health Area list", e);
@@ -84,7 +97,7 @@ public class HealthAreaRestController {
     @GetMapping("/healthArea/realmId/{realmId}")
     public ResponseEntity getHealthAreaByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.healthAreaService.getHealthAreaListByRealmId(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Health Area list", e);
@@ -101,7 +114,7 @@ public class HealthAreaRestController {
     @GetMapping("/healthArea/{healthAreaId}")
     public ResponseEntity getHealthArea(@PathVariable("healthAreaId") int healthAreaId, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.healthAreaService.getHealthAreaById(healthAreaId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get Health Area list", er);
@@ -114,12 +127,12 @@ public class HealthAreaRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/healthArea/program")
     public ResponseEntity getHealthAreaByForProgram(Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            if(curUser.getRealm().getRealmId()==-1) {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            if (curUser.getRealm().getRealmId() == -1) {
                 logger.error("A User with access to multiple Realms tried to access a HealthArea Program list without specifying a Realm");
                 return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
             }
@@ -135,10 +148,11 @@ public class HealthAreaRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
     @GetMapping("/healthArea/program/realmId/{realmId}")
     public ResponseEntity getHealthAreaForProgramByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.healthAreaService.getHealthAreaListForProgramByRealmId(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Health Area list", e);
@@ -157,7 +171,7 @@ public class HealthAreaRestController {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.healthAreaService.getHealthAreaListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing healthArea", p);

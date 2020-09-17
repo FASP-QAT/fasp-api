@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import cc.altius.FASP.service.TracerCategoryService;
+import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
@@ -38,12 +39,14 @@ public class TracerCategoryRestController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    TracerCategoryService tracerCategoryService;
+    private TracerCategoryService tracerCategoryService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping(path = "/tracerCategory")
     public ResponseEntity postTracerCategory(@RequestBody TracerCategory tracerCategory, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.tracerCategoryService.addTracerCategory(tracerCategory, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -58,7 +61,7 @@ public class TracerCategoryRestController {
     @PutMapping(path = "/tracerCategory")
     public ResponseEntity putTracerCategory(@RequestBody TracerCategory tracerCategory, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.tracerCategoryService.updateTracerCategory(tracerCategory, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -73,7 +76,7 @@ public class TracerCategoryRestController {
     @GetMapping("/tracerCategory")
     public ResponseEntity getTracerCategory(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get TracerCategory list", e);
@@ -84,7 +87,7 @@ public class TracerCategoryRestController {
     @GetMapping("/tracerCategory/{tracerCategoryId}")
     public ResponseEntity getTracerCategory(@PathVariable("tracerCategoryId") int tracerCategoryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryById(tracerCategoryId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get TracerCategory list", er);
@@ -101,7 +104,7 @@ public class TracerCategoryRestController {
     @GetMapping("/tracerCategory/realmId/{realmId}")
     public ResponseEntity getTracerCategoryForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForRealm(realmId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get TracerCategory list", er);
@@ -120,7 +123,7 @@ public class TracerCategoryRestController {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing tracerCategory", p);

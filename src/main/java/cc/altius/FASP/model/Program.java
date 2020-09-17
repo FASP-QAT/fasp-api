@@ -5,8 +5,8 @@
  */
 package cc.altius.FASP.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -16,36 +16,36 @@ import java.util.List;
 public class Program extends BaseModel implements Serializable {
 
     private int programId;
+    private String programCode;
     private RealmCountry realmCountry;
-    private SimpleObject organisation;
-    private SimpleObject healthArea;
+    private SimpleCodeObject organisation;
+    private SimpleCodeObject healthArea;
     private Label label;
     private BasicUser programManager;
     private String programNotes;
     private double airFreightPerc;
     private double seaFreightPerc;
-    private double plannedToDraftLeadTime;
-    private double draftToSubmittedLeadTime;
+    private double plannedToSubmittedLeadTime;
     private double submittedToApprovedLeadTime;
     private double approvedToShippedLeadTime;
     private double shippedToArrivedByAirLeadTime;
     private double shippedToArrivedBySeaLeadTime;
     private double arrivedToDeliveredLeadTime;
-    private int monthsInPastForAmc;
-    private int monthsInFutureForAmc;
-    
-    @JsonIgnore
+
     private List<Region> regionList;
     String[] regionArray;
     private Version currentVersion;
     private List<Version> versionList;
 
     public Program() {
+        this.regionList = new LinkedList<>();
     }
 
-    public Program(int programId, Label label) {
+    public Program(int programId, String programCode, Label label) {
         this.programId = programId;
+        this.programCode = programCode;
         this.label = label;
+        this.regionList = new LinkedList<>();
     }
 
     public double getArrivedToDeliveredLeadTime() {
@@ -72,14 +72,20 @@ public class Program extends BaseModel implements Serializable {
         this.shippedToArrivedByAirLeadTime = shippedToArrivedByAirLeadTime;
     }
 
-    
-    
     public int getProgramId() {
         return programId;
     }
 
     public void setProgramId(int programId) {
         this.programId = programId;
+    }
+
+    public String getProgramCode() {
+        return programCode;
+    }
+
+    public void setProgramCode(String programCode) {
+        this.programCode = programCode;
     }
 
     public RealmCountry getRealmCountry() {
@@ -90,19 +96,19 @@ public class Program extends BaseModel implements Serializable {
         this.realmCountry = realmCountry;
     }
 
-    public SimpleObject getOrganisation() {
+    public SimpleCodeObject getOrganisation() {
         return organisation;
     }
 
-    public void setOrganisation(SimpleObject organisation) {
+    public void setOrganisation(SimpleCodeObject organisation) {
         this.organisation = organisation;
     }
 
-    public SimpleObject getHealthArea() {
+    public SimpleCodeObject getHealthArea() {
         return healthArea;
     }
 
-    public void setHealthArea(SimpleObject healthArea) {
+    public void setHealthArea(SimpleCodeObject healthArea) {
         this.healthArea = healthArea;
     }
 
@@ -146,20 +152,12 @@ public class Program extends BaseModel implements Serializable {
         this.seaFreightPerc = seaFreightPerc;
     }
 
-    public double getPlannedToDraftLeadTime() {
-        return plannedToDraftLeadTime;
+    public double getPlannedToSubmittedLeadTime() {
+        return plannedToSubmittedLeadTime;
     }
 
-    public void setPlannedToDraftLeadTime(double plannedToDraftLeadTime) {
-        this.plannedToDraftLeadTime = plannedToDraftLeadTime;
-    }
-
-    public double getDraftToSubmittedLeadTime() {
-        return draftToSubmittedLeadTime;
-    }
-
-    public void setDraftToSubmittedLeadTime(double draftToSubmittedLeadTime) {
-        this.draftToSubmittedLeadTime = draftToSubmittedLeadTime;
+    public void setPlannedToSubmittedLeadTime(double plannedToSubmittedLeadTime) {
+        this.plannedToSubmittedLeadTime = plannedToSubmittedLeadTime;
     }
 
     public double getSubmittedToApprovedLeadTime() {
@@ -176,24 +174,6 @@ public class Program extends BaseModel implements Serializable {
 
     public void setApprovedToShippedLeadTime(double approvedToShippedLeadTime) {
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
-    }
-
-
-
-    public int getMonthsInPastForAmc() {
-        return monthsInPastForAmc;
-    }
-
-    public void setMonthsInPastForAmc(int monthsInPastForAmc) {
-        this.monthsInPastForAmc = monthsInPastForAmc;
-    }
-
-    public int getMonthsInFutureForAmc() {
-        return monthsInFutureForAmc;
-    }
-
-    public void setMonthsInFutureForAmc(int monthsInFutureForAmc) {
-        this.monthsInFutureForAmc = monthsInFutureForAmc;
     }
 
     public List<Region> getRegionList() {

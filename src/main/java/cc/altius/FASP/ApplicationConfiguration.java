@@ -5,10 +5,40 @@
  */
 package cc.altius.FASP;
 
+import org.springframework.beans.factory.config.PropertiesFactoryBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+
 /**
  *
  * @author altius
  */
+@Configuration
 public class ApplicationConfiguration {
 
+    @Bean(name = "scheduler")
+    public PropertiesFactoryBean schedulerProperties() {
+        PropertiesFactoryBean bean = new PropertiesFactoryBean();
+//        "/home/altius/aquagreenFiles/scheduler.properties"
+        bean.setLocation(new FileSystemResource("/home/altius/QAT/scheduler.properties"));
+//        bean.setLocation(new FileSystemResource("/home/yogesh/perfetti/scheduler.properties"));
+        return bean;
+    }
+
+    @Bean
+    public static PropertySourcesPlaceholderConfigurer properties() {
+        PropertySourcesPlaceholderConfigurer pspc = new PropertySourcesPlaceholderConfigurer();
+        Resource[] resources = new Resource[]{
+            new ClassPathResource("application.properties"),
+            new ClassPathResource("fasp.properties"),
+            new ClassPathResource("version.properties"), //            new FileSystemResource("/home/altius/QAT/scheduler.properties"),
+        };
+        pspc.setLocations(resources);
+        pspc.setIgnoreUnresolvablePlaceholders(true);
+        return pspc;
+    }
 }

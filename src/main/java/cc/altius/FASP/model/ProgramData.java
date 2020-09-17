@@ -17,23 +17,21 @@ import java.util.List;
 public class ProgramData extends BaseModel implements Serializable {
 
     private int programId;
+    private String programCode;
     private RealmCountry realmCountry;
-    private SimpleObject organisation;
-    private SimpleObject healthArea;
+    private SimpleCodeObject organisation;
+    private SimpleCodeObject healthArea;
     private Label label;
     private BasicUser programManager;
     private String programNotes;
     private double airFreightPerc;
     private double seaFreightPerc;
-    private double plannedToDraftLeadTime;
-    private double draftToSubmittedLeadTime;
+    private double plannedToSubmittedLeadTime;
     private double submittedToApprovedLeadTime;
     private double approvedToShippedLeadTime;
     private double shippedToArrivedByAirLeadTime;
     private double shippedToArrivedBySeaLeadTime;
     private double arrivedToDeliveredLeadTime;
-    private int monthsInPastForAmc;
-    private int monthsInFutureForAmc;
     private SimpleObject versionType;
     private SimpleObject versionStatus;
     private String notes;
@@ -44,6 +42,9 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<Consumption> consumptionList;
     private List<Inventory> inventoryList;
     private List<Shipment> shipmentList;
+    private List<Batch> batchInfoList;
+    private List<ProblemReport> problemReportList;
+    private List<SimplifiedSupplyPlan> supplyPlan;
     private int requestedProgramVersion;
     @JsonIgnore
     private Date lastModifiedDate;
@@ -73,6 +74,7 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public ProgramData(Program p) {
         this.programId = p.getProgramId();
+        this.programCode = p.getProgramCode();
         this.realmCountry = p.getRealmCountry();
         this.organisation = p.getOrganisation();
         this.healthArea = p.getHealthArea();
@@ -81,15 +83,12 @@ public class ProgramData extends BaseModel implements Serializable {
         this.programNotes = p.getProgramNotes();
         this.airFreightPerc = p.getAirFreightPerc();
         this.seaFreightPerc = p.getSeaFreightPerc();
-        this.plannedToDraftLeadTime = p.getPlannedToDraftLeadTime();
-        this.draftToSubmittedLeadTime = p.getDraftToSubmittedLeadTime();
+        this.plannedToSubmittedLeadTime = p.getPlannedToSubmittedLeadTime();
         this.submittedToApprovedLeadTime = p.getSubmittedToApprovedLeadTime();
         this.approvedToShippedLeadTime = p.getApprovedToShippedLeadTime();
         this.shippedToArrivedBySeaLeadTime = p.getShippedToArrivedBySeaLeadTime();
         this.shippedToArrivedByAirLeadTime = p.getShippedToArrivedByAirLeadTime();
         this.arrivedToDeliveredLeadTime = p.getArrivedToDeliveredLeadTime();
-        this.monthsInFutureForAmc = p.getMonthsInFutureForAmc();
-        this.monthsInPastForAmc = p.getMonthsInPastForAmc();
         this.regionList = p.getRegionList();
         this.currentVersion = p.getCurrentVersion();
         this.versionList = p.getVersionList();
@@ -103,6 +102,14 @@ public class ProgramData extends BaseModel implements Serializable {
         this.programId = programId;
     }
 
+    public String getProgramCode() {
+        return programCode;
+    }
+
+    public void setProgramCode(String programCode) {
+        this.programCode = programCode;
+    }
+
     public RealmCountry getRealmCountry() {
         return realmCountry;
     }
@@ -111,19 +118,19 @@ public class ProgramData extends BaseModel implements Serializable {
         this.realmCountry = realmCountry;
     }
 
-    public SimpleObject getOrganisation() {
+    public SimpleCodeObject getOrganisation() {
         return organisation;
     }
 
-    public void setOrganisation(SimpleObject organisation) {
+    public void setOrganisation(SimpleCodeObject organisation) {
         this.organisation = organisation;
     }
 
-    public SimpleObject getHealthArea() {
+    public SimpleCodeObject getHealthArea() {
         return healthArea;
     }
 
-    public void setHealthArea(SimpleObject healthArea) {
+    public void setHealthArea(SimpleCodeObject healthArea) {
         this.healthArea = healthArea;
     }
 
@@ -167,20 +174,12 @@ public class ProgramData extends BaseModel implements Serializable {
         this.seaFreightPerc = seaFreightPerc;
     }
 
-    public double getPlannedToDraftLeadTime() {
-        return plannedToDraftLeadTime;
+    public double getPlannedToSubmittedLeadTime() {
+        return plannedToSubmittedLeadTime;
     }
 
-    public void setPlannedToDraftLeadTime(double plannedToDraftLeadTime) {
-        this.plannedToDraftLeadTime = plannedToDraftLeadTime;
-    }
-
-    public double getDraftToSubmittedLeadTime() {
-        return draftToSubmittedLeadTime;
-    }
-
-    public void setDraftToSubmittedLeadTime(double draftToSubmittedLeadTime) {
-        this.draftToSubmittedLeadTime = draftToSubmittedLeadTime;
+    public void setPlannedToSubmittedLeadTime(double plannedToSubmittedLeadTime) {
+        this.plannedToSubmittedLeadTime = plannedToSubmittedLeadTime;
     }
 
     public double getSubmittedToApprovedLeadTime() {
@@ -221,22 +220,6 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setArrivedToDeliveredLeadTime(double arrivedToDeliveredLeadTime) {
         this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
-    }
-
-    public int getMonthsInPastForAmc() {
-        return monthsInPastForAmc;
-    }
-
-    public void setMonthsInPastForAmc(int monthsInPastForAmc) {
-        this.monthsInPastForAmc = monthsInPastForAmc;
-    }
-
-    public int getMonthsInFutureForAmc() {
-        return monthsInFutureForAmc;
-    }
-
-    public void setMonthsInFutureForAmc(int monthsInFutureForAmc) {
-        this.monthsInFutureForAmc = monthsInFutureForAmc;
     }
 
     public List<Region> getRegionList() {
@@ -287,6 +270,14 @@ public class ProgramData extends BaseModel implements Serializable {
         this.shipmentList = shipmentList;
     }
 
+    public List<Batch> getBatchInfoList() {
+        return batchInfoList;
+    }
+
+    public void setBatchInfoList(List<Batch> batchInfoList) {
+        this.batchInfoList = batchInfoList;
+    }
+
     public SimpleObject getVersionType() {
         return versionType;
     }
@@ -327,9 +318,25 @@ public class ProgramData extends BaseModel implements Serializable {
         this.lastModifiedBy = lastModifiedBy;
     }
 
+    public List<ProblemReport> getProblemReportList() {
+        return problemReportList;
+    }
+
+    public void setProblemReportList(List<ProblemReport> problemReportList) {
+        this.problemReportList = problemReportList;
+    }
+
+    public List<SimplifiedSupplyPlan> getSupplyPlan() {
+        return supplyPlan;
+    }
+
+    public void setSupplyPlan(List<SimplifiedSupplyPlan> supplyPlan) {
+        this.supplyPlan = supplyPlan;
+    }
+
     @Override
     public String toString() {
-        return "ProgramData{" + "programId=" + programId + ", realmCountry=" + realmCountry + ", organisation=" + organisation + ", healthArea=" + healthArea + ", label=" + label + ", programManager=" + programManager + ", programNotes=" + programNotes + ", airFreightPerc=" + airFreightPerc + ", seaFreightPerc=" + seaFreightPerc + ", plannedToDraftLeadTime=" + plannedToDraftLeadTime + ", draftToSubmittedLeadTime=" + draftToSubmittedLeadTime + ", submittedToApprovedLeadTime=" + submittedToApprovedLeadTime + ", approvedToShippedLeadTime=" + approvedToShippedLeadTime + ", shippedToArrivedBySeaLeadTime=" + shippedToArrivedBySeaLeadTime + ", shippedToArrivedByAirLeadTime=" + shippedToArrivedByAirLeadTime + ", monthsInPastForAmc=" + monthsInPastForAmc + ", monthsInFutureForAmc=" + monthsInFutureForAmc + ", regionList=" + regionList + ", currentVersion=" + currentVersion + ", versionList=" + versionList + ", consumptionList=" + consumptionList + ", inventoryList=" + inventoryList + '}';
+        return "ProgramData{" + "programId=" + programId + ", realmCountry=" + realmCountry + ", organisation=" + organisation + ", healthArea=" + healthArea + ", label=" + label + ", programManager=" + programManager + ", programNotes=" + programNotes + ", airFreightPerc=" + airFreightPerc + ", seaFreightPerc=" + seaFreightPerc + ", plannedToSubmittedLeadTime=" + plannedToSubmittedLeadTime + ", submittedToApprovedLeadTime=" + submittedToApprovedLeadTime + ", approvedToShippedLeadTime=" + approvedToShippedLeadTime + ", shippedToArrivedBySeaLeadTime=" + shippedToArrivedBySeaLeadTime + ", shippedToArrivedByAirLeadTime=" + shippedToArrivedByAirLeadTime + ", regionList=" + regionList + ", currentVersion=" + currentVersion + ", versionList=" + versionList + ", consumptionList=" + consumptionList + ", inventoryList=" + inventoryList + '}';
     }
 
 }

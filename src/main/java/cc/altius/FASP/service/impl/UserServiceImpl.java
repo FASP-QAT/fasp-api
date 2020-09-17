@@ -22,6 +22,7 @@ import cc.altius.FASP.service.UserService;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -42,10 +43,12 @@ public class UserServiceImpl implements UserService {
     private AclService aclService;
 
 //    @Value("${urlHost}")
-    private static String HOST_URL = "http://localhost:4202/#";
-//    private static String HOST_URL = "https://faspdeveloper.github.io/fasp";
-//    @Value("${urlPasswordReset}")
-    private static String PASSWORD_RESET_URL = "resetPassword";
+//    private static String HOST_URL = "http://localhost:4202/#";
+//    private static String HOST_URL = "https://uat.quantificationanalytics.org/#";
+    @Value("${urlHost}")
+    private String HOST_URL;
+    @Value("${urlPasswordReset}")
+    private String PASSWORD_RESET_URL;
 
     @Override
     public CustomUserDetails getCustomUserByUsername(String username) {
@@ -58,25 +61,30 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public CustomUserDetails getCustomUserByUserId(int userId) {
+        return this.userDao.getCustomUserByUserId(userId);
+    }
+
+    @Override
     public Map<String, Object> checkIfUserExists(String username, String password) {
         return this.userDao.checkIfUserExists(username, password);
     }
 
     @Override
-    public int resetFailedAttemptsByUsername(String username) {
-        return this.userDao.resetFailedAttemptsByUsername(username);
+    public int resetFailedAttemptsByUsername(String emailId) {
+        return this.userDao.resetFailedAttemptsByUsername(emailId);
     }
 
     @Override
-    public int updateFailedAttemptsByUserId(String username) {
-        return this.userDao.updateFailedAttemptsByUserId(username);
+    public int updateFailedAttemptsByUserId(String emailId) {
+        return this.userDao.updateFailedAttemptsByUserId(emailId);
     }
 
     @Override
     public Role getRoleById(String roleId) {
         return this.userDao.getRoleById(roleId);
     }
-    
+
     @Override
     public List<Role> getRoleList() {
         return this.userDao.getRoleList();
@@ -88,8 +96,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getUserList() {
-        return this.userDao.getUserList();
+    public List<User> getUserList(CustomUserDetails curUser) {
+        return this.userDao.getUserList(curUser);
     }
 
     @Override
@@ -103,8 +111,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User getUserByUserId(int userId) {
-        return this.userDao.getUserByUserId(userId);
+    public User getUserByUserId(int userId, CustomUserDetails curUser) {
+        return this.userDao.getUserByUserId(userId, curUser);
     }
 
     @Override
@@ -133,9 +141,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int updatePassword(String username, String token, String newPassword, int offset) {
-        int r = this.userDao.updatePassword(username, token, newPassword, offset);
-        this.userDao.updateCompletionDateForForgotPasswordToken(username, token);
+    public int updatePassword(String emailId, String token, String newPassword, int offset) {
+        int r = this.userDao.updatePassword(emailId, token, newPassword, offset);
+        this.userDao.updateCompletionDateForForgotPasswordToken(emailId, token);
         return r;
     }
 
@@ -155,8 +163,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String generateTokenForUsername(String username, int emailTemplateId) {
-        EmailUser user = this.userDao.getEmailUserByUsername(username);
+    public String generateTokenForEmailId(String emailId, int emailTemplateId) {
+        EmailUser user = this.userDao.getEmailUserByEmailId(emailId);
         if (user == null) {
             return null;
         }
@@ -168,7 +176,7 @@ public class UserServiceImpl implements UserService {
 //            if (emailTemplateId == 1) {
 //                bodyParam = new String[]{HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
 //            } else if (emailTemplateId == 2) {
-            bodyParam = new String[]{user.getUsername(), HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
+            bodyParam = new String[]{emailId, HOST_URL, PASSWORD_RESET_URL, emailId, token};
 //            }
             Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
@@ -179,8 +187,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public ForgotPasswordToken getForgotPasswordToken(String username, String token) {
-        return this.userDao.getForgotPasswordToken(username, token);
+    public ForgotPasswordToken getForgotPasswordToken(String emailId, String token) {
+        return this.userDao.getForgotPasswordToken(emailId, token);
     }
 
     @Override
@@ -189,8 +197,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateCompletionDateForForgotPasswordToken(String username, String token) {
-        this.userDao.updateCompletionDateForForgotPasswordToken(username, token);
+    public void updateCompletionDateForForgotPasswordToken(String emailId, String token) {
+        this.userDao.updateCompletionDateForForgotPasswordToken(emailId, token);
     }
 
     @Override
@@ -209,8 +217,18 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public int updateSuncExpiresOn(String username) {
-        return this.userDao.updateSuncExpiresOn(username);
+    public int updateSuncExpiresOn(String emailId) {
+        return this.userDao.updateSuncExpiresOn(emailId);
+    }
+
+    @Override
+    public int updateUserLanguage(int userId, String languageCode) {
+        return this.userDao.updateUserLanguage(userId, languageCode);
+    }
+
+    @Override
+    public int acceptUserAgreement(int userId) {
+        return this.userDao.acceptUserAgreement(userId);
     }
 
 }

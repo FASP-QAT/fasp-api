@@ -5,10 +5,6 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.LinkedList;
@@ -23,17 +19,27 @@ public class Consumption extends BaseModel implements Serializable {
     private int consumptionId;
     private SimpleObject region;
     private SimplePlanningUnitObject planningUnit;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date consumptionDate;
+    private SimpleObject realmCountryPlanningUnit;
+    private double multiplier;
+    private String consumptionDate;
     private boolean actualFlag;
+    private double consumptionRcpuQty;
     private double consumptionQty;
     private int dayOfStockOut;
     private SimpleObject dataSource;
     private String notes;
     private int versionId;
     private List<ConsumptionBatchInfo> batchInfoList;
+    private boolean active;
 
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+    
     public Consumption() {
         batchInfoList = new LinkedList<>();
     }
@@ -54,6 +60,14 @@ public class Consumption extends BaseModel implements Serializable {
         this.region = region;
     }
 
+    public SimpleObject getRealmCountryPlanningUnit() {
+        return realmCountryPlanningUnit;
+    }
+
+    public void setRealmCountryPlanningUnit(SimpleObject realmCountryPlanningUnit) {
+        this.realmCountryPlanningUnit = realmCountryPlanningUnit;
+    }
+
     public SimplePlanningUnitObject getPlanningUnit() {
         return planningUnit;
     }
@@ -62,11 +76,19 @@ public class Consumption extends BaseModel implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public Date getConsumptionDate() {
+    public double getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(double multiplier) {
+        this.multiplier = multiplier;
+    }
+
+    public String getConsumptionDate() {
         return consumptionDate;
     }
 
-    public void setConsumptionDate(Date consumptionDate) {
+    public void setConsumptionDate(String consumptionDate) {
         this.consumptionDate = consumptionDate;
     }
 
@@ -76,6 +98,14 @@ public class Consumption extends BaseModel implements Serializable {
 
     public void setActualFlag(boolean actualFlag) {
         this.actualFlag = actualFlag;
+    }
+
+    public double getConsumptionRcpuQty() {
+        return consumptionRcpuQty;
+    }
+
+    public void setConsumptionRcpuQty(double consumptionRcpuQty) {
+        this.consumptionRcpuQty = consumptionRcpuQty;
     }
 
     public double getConsumptionQty() {

@@ -9,6 +9,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementUnit;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.ProcurementUnitService;
+import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -39,11 +40,13 @@ public class ProcurementUnitRestController {
 
     @Autowired
     private ProcurementUnitService procurementUnitService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping(path = "/procurementUnit")
     public ResponseEntity postProcurementUnit(@RequestBody ProcurementUnit procurementUnit, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.procurementUnitService.addProcurementUnit(procurementUnit, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -58,7 +61,7 @@ public class ProcurementUnitRestController {
     @PutMapping(path = "/procurementUnit")
     public ResponseEntity putProcurementUnit(@RequestBody ProcurementUnit procurementUnit, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.procurementUnitService.updateProcurementUnit(procurementUnit, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -73,7 +76,7 @@ public class ProcurementUnitRestController {
     @GetMapping("/procurementUnit")
     public ResponseEntity getProcurementUnit(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.procurementUnitService.getProcurementUnitList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list ProcurementUnit", e);
@@ -84,7 +87,7 @@ public class ProcurementUnitRestController {
     @GetMapping("/procurementUnit/all")
     public ResponseEntity getProcurementUnitAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.procurementUnitService.getProcurementUnitList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list ProcurementUnit", e);
@@ -95,7 +98,7 @@ public class ProcurementUnitRestController {
     @GetMapping("/procurementUnit/realmId/{realmId}")
     public ResponseEntity getProcurementUnitForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.procurementUnitService.getProcurementUnitListForRealm(realmId, true, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list ProcurementUnit", e);
@@ -109,7 +112,7 @@ public class ProcurementUnitRestController {
     @GetMapping("/procurementUnit/realmId/{realmId}/all")
     public ResponseEntity getProcurementUnitForRealmAll(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.procurementUnitService.getProcurementUnitListForRealm(realmId, false, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list ProcurementUnit", e);
@@ -123,7 +126,7 @@ public class ProcurementUnitRestController {
     @GetMapping("/procurementUnit/planningUnitId/{planningUnitId}")
     public ResponseEntity getProcurementUnitForPlanningUnit(@PathVariable(value = "planningUnitId", required = true) int planningUnitId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.procurementUnitService.getProcurementUnitListByPlanningUnit(planningUnitId, true, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list ProcurementUnit", e);
@@ -137,7 +140,7 @@ public class ProcurementUnitRestController {
     @GetMapping("/procurementUnit/planningUnitId/{planningUnitId}/all")
     public ResponseEntity getProcurementUnitForPlanningUnitAll(@PathVariable(value = "planningUnitId", required = true) int planningUnitId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.procurementUnitService.getProcurementUnitListByPlanningUnit(planningUnitId, false, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list ProcurementUnit", e);
@@ -151,7 +154,7 @@ public class ProcurementUnitRestController {
     @GetMapping("/procurementUnit/{procurementUnitId}")
     public ResponseEntity getProcurementUnitById(@PathVariable("procurementUnitId") int procurementUnitId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.procurementUnitService.getProcurementUnitById(procurementUnitId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to list ProcurementUnit", er);
@@ -168,7 +171,7 @@ public class ProcurementUnitRestController {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.procurementUnitService.getProcurementUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing procurementUnit", p);

@@ -14,20 +14,23 @@ import java.io.Serializable;
 public class FundingSource extends BaseModel implements Serializable {
 
     private int fundingSourceId;
+    private String fundingSourceCode;
     private Label label;
     private SimpleCodeObject realm;
 
     public FundingSource() {
     }
 
-    public FundingSource(int fundingSourceId, Label label, SimpleCodeObject realm) {
+    public FundingSource(int fundingSourceId, String fundingSourceCode, Label label, SimpleCodeObject realm) {
         this.fundingSourceId = fundingSourceId;
+        this.fundingSourceCode = fundingSourceCode;
         this.label = label;
         this.realm = realm;
     }
 
-    public FundingSource(int fundingSourceId, Label label) {
+    public FundingSource(int fundingSourceId, String fundingSourceCode, Label label) {
         this.fundingSourceId = fundingSourceId;
+        this.fundingSourceCode = fundingSourceCode;
         this.label = label;
     }
 
@@ -37,6 +40,14 @@ public class FundingSource extends BaseModel implements Serializable {
 
     public void setFundingSourceId(int fundingSourceId) {
         this.fundingSourceId = fundingSourceId;
+    }
+
+    public String getFundingSourceCode() {
+        return fundingSourceCode;
+    }
+
+    public void setFundingSourceCode(String fundingSourceCode) {
+        this.fundingSourceCode = fundingSourceCode;
     }
 
     public Label getLabel() {

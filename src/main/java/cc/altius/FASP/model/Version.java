@@ -145,4 +145,9 @@ public class Version implements Serializable {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "Version{" + "versionId=" + versionId + ", versionType=" + versionType + ", versionStatus=" + versionStatus + ", notes=" + notes + ", createdBy=" + createdBy + ", lastModifiedBy=" + lastModifiedBy + ", createdDate=" + createdDate + ", lastModifiedDate=" + lastModifiedDate + '}';
+    }
+
 }

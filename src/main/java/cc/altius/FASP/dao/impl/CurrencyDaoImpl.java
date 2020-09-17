@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.CurrencyDao;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.rowMapper.CurrencyRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
@@ -54,7 +55,7 @@ public class CurrencyDaoImpl implements CurrencyDao {
     @Override
     public int addCurrency(Currency currency, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        int insertedLabelRowId = this.labelDao.addLabel(currency.getLabel(), curUser.getUserId());
+        int insertedLabelRowId = this.labelDao.addLabel(currency.getLabel(), LabelConstants.AP_CURRENCY, curUser.getUserId());
         SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("ap_currency").usingGeneratedKeyColumns("CURRENCY_ID");
         Map<String, Object> map = new HashMap<>();
         map.put("CURRENCY_CODE", currency.getCurrencyCode());

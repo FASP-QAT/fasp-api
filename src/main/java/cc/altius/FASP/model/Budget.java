@@ -20,6 +20,7 @@ import java.util.Date;
 public class Budget extends BaseModel implements Serializable {
 
     private int budgetId;
+    private String budgetCode;
     private SimpleObject program;
     private FundingSource fundingSource;
     private Label label;
@@ -38,13 +39,15 @@ public class Budget extends BaseModel implements Serializable {
     public Budget() {
     }
 
-    public Budget(int budgetId, Label label) {
+    public Budget(int budgetId, String budgetCode, Label label) {
         this.budgetId = budgetId;
+        this.budgetCode = budgetCode;
         this.label = label;
     }
 
-    public Budget(int budgetId, FundingSource fundingSource, Label label) {
+    public Budget(int budgetId, String budgetCode, FundingSource fundingSource, Label label) {
         this.budgetId = budgetId;
+        this.budgetCode = budgetCode;
         this.fundingSource = fundingSource;
         this.label = label;
     }
@@ -55,6 +58,14 @@ public class Budget extends BaseModel implements Serializable {
 
     public void setBudgetId(int budgetId) {
         this.budgetId = budgetId;
+    }
+
+    public String getBudgetCode() {
+        return budgetCode;
+    }
+
+    public void setBudgetCode(String budgetCode) {
+        this.budgetCode = budgetCode;
     }
 
     public SimpleObject getProgram() {
@@ -138,9 +149,13 @@ public class Budget extends BaseModel implements Serializable {
     }
 
     public boolean isBudgetUsable() {
-        if (this.budgetUsdAmt > this.usedUsdAmt
-                && DateUtils.compareDate(DateUtils.getCurrentDateObject(DateUtils.EST), this.stopDate) <= 0) {
-            return this.isActive();
+        if (this.stopDate != null) {
+            if (this.budgetUsdAmt > this.usedUsdAmt
+                    && DateUtils.compareDate(DateUtils.getCurrentDateObject(DateUtils.EST), this.stopDate) <= 0) {
+                return this.isActive();
+            } else {
+                return false;
+            }
         } else {
             return false;
         }

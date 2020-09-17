@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import cc.altius.FASP.service.DimensionService;
+import cc.altius.FASP.service.UserService;
 
 /**
  *
@@ -39,11 +40,13 @@ public class DimensionRestController {
 
     @Autowired
     private DimensionService dimensionService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping(path = "/dimension")
     public ResponseEntity postDimension(@RequestBody Dimension dimension, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.dimensionService.addDimension(dimension, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException ae) {
@@ -58,7 +61,7 @@ public class DimensionRestController {
     @PutMapping(path = "/dimension")
     public ResponseEntity putDimension(@RequestBody Dimension dimension, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.dimensionService.updateDimension(dimension, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {

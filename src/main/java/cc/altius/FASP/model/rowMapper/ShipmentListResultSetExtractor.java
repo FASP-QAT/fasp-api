@@ -8,12 +8,12 @@ package cc.altius.FASP.model.rowMapper;
 import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentBatchInfo;
-import cc.altius.FASP.model.ShipmentBudget;
 import cc.altius.FASP.model.SimpleBudgetObject;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleForecastingUnitObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
+import cc.altius.FASP.model.SimpleProcurementAgentObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -50,9 +50,21 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
                                     new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, 1),
                                     new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, 1))))
             );
-            s.setExpectedDeliveryDate(rs.getDate("EXPECTED_DELIVERY_DATE"));
+            s.setExpectedDeliveryDate(rs.getString("EXPECTED_DELIVERY_DATE"));
             s.setSuggestedQty(rs.getInt("SUGGESTED_QTY"));
-            s.setProcurementAgent(new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, 1), rs.getString("PROCUREMENT_AGENT_CODE")));
+            s.setProcurementAgent(new SimpleProcurementAgentObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, 1), rs.getString("PROCUREMENT_AGENT_CODE"), rs.getString("COLOR_HTML_CODE")));
+            s.setFundingSource(new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, 1), rs.getString("FUNDING_SOURCE_CODE")));
+            s.setBudget(new SimpleBudgetObject(
+                    rs.getInt("BUDGET_ID"),
+                    rs.getString("BUDGET_CODE"),
+                    new LabelRowMapper("BUDGET_").mapRow(rs, 1),
+                    new Currency(
+                            rs.getInt("BUDGET_CURRENCY_ID"),
+                            rs.getString("BUDGET_CURRENCY_CODE"),
+                            new LabelRowMapper("BUDGET_CURRENCY_").mapRow(rs, 1),
+                            rs.getDouble("BUDGET_CURRENCY_CONVERSION_RATE_TO_USD")
+                    )
+            ));
             s.setProcurementUnit(new SimpleObject(rs.getInt("PROCUREMENT_UNIT_ID"), new LabelRowMapper("PROCUREMENT_UNIT_").mapRow(rs, 1)));
             s.setSupplier(new SimpleObject(rs.getInt("SUPPLIER_ID"), new LabelRowMapper("SUPPLIER_").mapRow(rs, 1)));
             s.setShipmentQty(rs.getInt("SHIPMENT_QTY"));
@@ -60,9 +72,12 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             s.setProductCost(rs.getDouble("PRODUCT_COST"));
             s.setShipmentMode(rs.getString("SHIPMENT_MODE"));
             s.setFreightCost(rs.getDouble("FREIGHT_COST"));
-            s.setOrderedDate(rs.getDate("ORDERED_DATE"));
-            s.setShippedDate(rs.getDate("SHIPPED_DATE"));
-            s.setDeliveredDate(rs.getDate("DELIVERED_DATE"));
+            s.setPlannedDate(rs.getString("PLANNED_DATE"));
+            s.setSubmittedDate(rs.getString("SUBMITTED_DATE"));
+            s.setApprovedDate(rs.getString("APPROVED_DATE"));
+            s.setShippedDate(rs.getString("SHIPPED_DATE"));
+            s.setArrivedDate(rs.getString("ARRIVED_DATE"));
+            s.setReceivedDate(rs.getString("RECEIVED_DATE"));
             s.setShipmentStatus(new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, 1)));
             s.setNotes(rs.getString("NOTES"));
             s.setDataSource(new SimpleObject(rs.getInt("DATA_SOURCE_ID"), new LabelRowMapper("DATA_SOURCE_").mapRow(rs, 1)));
@@ -71,7 +86,9 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             s.setOrderNo(rs.getString("ORDER_NO"));
             s.setPrimeLineNo(rs.getString("PRIME_LINE_NO"));
             s.setEmergencyOrder(rs.getBoolean("EMERGENCY_ORDER"));
+            s.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
             s.setVersionId(rs.getInt("VERSION_ID"));
+            s.setActive(rs.getBoolean("ACTIVE"));
             s.setCurrency(new Currency(
                     rs.getInt("SHIPMENT_CURRENCY_ID"),
                     rs.getString("SHIPMENT_CURRENCY_CODE"),
@@ -79,26 +96,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
                     rs.getDouble("SHIPMENT_CONVERSION_RATE_TO_USD")
             ));
             s.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
-            ShipmentBudget sb = new ShipmentBudget(
-                    rs.getInt("SHIPMENT_BUDGET_ID"),
-                    new SimpleBudgetObject(
-                            rs.getInt("BUDGET_ID"),
-                            new LabelRowMapper("BUDGET_").mapRow(rs, 1),
-                            new SimpleObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, 1))
-                    ),
-                    rs.getBoolean("SHIPMENT_BUDGET_ACTIVE"),
-                    rs.getDouble("BUDGET_AMT"),
-                    rs.getDouble("BUDGET_CONVERSION_RATE_TO_USD"),
-                    new Currency(
-                            rs.getInt("BUDGET_CURRENCY_ID"),
-                            rs.getString("BUDGET_CURRENCY_CODE"),
-                            new LabelRowMapper("BUDGET_CURRENCY_").mapRow(rs, 1),
-                            rs.getDouble("BUDGET_CONVERSION_RATE_TO_USD")
-                    )
-            );
-            if (s.getShipmentBudgetList().indexOf(sb) == -1) {
-                s.getShipmentBudgetList().add(sb);
-            }
+            s.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
             ShipmentBatchInfo sbi = new ShipmentBatchInfoRowMapper().mapRow(rs, 1);
             if (sbi != null && s.getBatchInfoList().indexOf(sbi) == -1) {
                 s.getBatchInfoList().add(sbi);

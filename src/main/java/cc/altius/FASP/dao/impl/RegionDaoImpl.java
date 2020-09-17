@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.RegionDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.rowMapper.RegionRowMapper;
 import cc.altius.FASP.service.AclService;
@@ -57,7 +58,7 @@ public class RegionDaoImpl implements RegionDao {
             + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
             + " LEFT JOIN us_user cb ON re.CREATED_BY=cb.USER_ID "
             + " LEFT JOIN us_user lmb ON re.LAST_MODIFIED_BY=lmb.USER_ID "
-            + " WHERE TRUE "; 
+            + " WHERE TRUE ";
 
     @Override
     @Transactional
@@ -65,7 +66,7 @@ public class RegionDaoImpl implements RegionDao {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_region").usingGeneratedKeyColumns("REGION_ID");
         Map<String, Object> params = new HashMap<>();
-        int labelId = this.labelDao.addLabel(region.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(region.getLabel(), LabelConstants.RM_REGION, curUser.getUserId());
         params.put("REALM_COUNTRY_ID", region.getRealmCountry().getRealmCountryId());
         params.put("LABEL_ID", labelId);
         params.put("GLN", region.getGln());

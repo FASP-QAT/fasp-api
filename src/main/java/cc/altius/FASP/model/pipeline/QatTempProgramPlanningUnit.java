@@ -14,49 +14,44 @@ import java.util.Objects;
  *
  * @author altius
  */
-public class QatTempProgramPlanningUnit extends BaseModel implements Serializable {
+public class QatTempProgramPlanningUnit  implements Serializable {
     
     private String programPlanningUnitId;
     private SimpleObject program;
     private String planningUnitId;
+    private double multiplier;
     private int reorderFrequencyInMonths;
     private int minMonthsOfStock;
     private int productCategoryId;
     private String pipelineProductName;
     private String pipelineProductCategoryName;
+    private Double localProcurmentLeadTime;
+    private int shelfLife;
+    private Double catalogPrice;
+    private int monthsInPastForAmc;
+    private int monthsInFutureForAmc;
+    private boolean active;
     
     public QatTempProgramPlanningUnit() {
     }
 
-    public QatTempProgramPlanningUnit(String programPlanningUnitId, SimpleObject program, String planningUnitId, int reorderFrequencyInMonths, int minMonthsOfStock, int productCategoryId,String pipelineProductName,String pipelineProductCategoryName) {
+    public QatTempProgramPlanningUnit(String programPlanningUnitId, SimpleObject program, String planningUnitId,double multiplier, int reorderFrequencyInMonths, int minMonthsOfStock, int productCategoryId, String pipelineProductName, String pipelineProductCategoryName, double localProcurmentLeadTime, int shelfLife, double catalogPrice, int monthsInPastForAmc, int monthsInFutureForAmc) {
         this.programPlanningUnitId = programPlanningUnitId;
         this.program = program;
         this.planningUnitId = planningUnitId;
+        this.multiplier = multiplier;
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
         this.minMonthsOfStock = minMonthsOfStock;
-        this.productCategoryId=productCategoryId;
-        this.pipelineProductCategoryName=pipelineProductCategoryName;
-        this.pipelineProductName=pipelineProductName;
-    }
-
-    public String getPipelineProductName() {
-        return pipelineProductName;
-    }
-
-    public void setPipelineProductName(String pipelineProductName) {
+        this.productCategoryId = productCategoryId;
         this.pipelineProductName = pipelineProductName;
-    }
-
-    public String getPipelineProductCategoryName() {
-        return pipelineProductCategoryName;
-    }
-
-    public void setPipelineProductCategoryName(String pipelineProductCategoryName) {
         this.pipelineProductCategoryName = pipelineProductCategoryName;
+        this.localProcurmentLeadTime = localProcurmentLeadTime;
+        this.shelfLife = shelfLife;
+        this.catalogPrice = catalogPrice;
+        this.monthsInFutureForAmc=monthsInFutureForAmc;
+        this.monthsInPastForAmc=monthsInPastForAmc;
     }
 
-    
-    
     public String getProgramPlanningUnitId() {
         return programPlanningUnitId;
     }
@@ -104,6 +99,79 @@ public class QatTempProgramPlanningUnit extends BaseModel implements Serializabl
     public void setProductCategoryId(int productCategoryId) {
         this.productCategoryId = productCategoryId;
     }
+
+    public String getPipelineProductName() {
+        return pipelineProductName;
+    }
+
+    public void setPipelineProductName(String pipelineProductName) {
+        this.pipelineProductName = pipelineProductName;
+    }
+
+    public String getPipelineProductCategoryName() {
+        return pipelineProductCategoryName;
+    }
+
+    public void setPipelineProductCategoryName(String pipelineProductCategoryName) {
+        this.pipelineProductCategoryName = pipelineProductCategoryName;
+    }
+
+    public Double getLocalProcurmentLeadTime() {
+        return localProcurmentLeadTime;
+    }
+
+    public void setLocalProcurmentLeadTime(Double localProcurmentLeadTime) {
+        this.localProcurmentLeadTime = localProcurmentLeadTime;
+    }
+
+    public int getShelfLife() {
+        return shelfLife;
+    }
+
+    public void setShelfLife(int shelfLife) {
+        this.shelfLife = shelfLife;
+    }
+
+    public Double getCatalogPrice() {
+        return catalogPrice;
+    }
+
+    public void setCatalogPrice(Double catalogPrice) {
+        this.catalogPrice = catalogPrice;
+    }
+
+    public int getMonthsInPastForAmc() {
+        return monthsInPastForAmc;
+    }
+
+    public void setMonthsInPastForAmc(int monthsInPastForAmc) {
+        this.monthsInPastForAmc = monthsInPastForAmc;
+    }
+
+    public int getMonthsInFutureForAmc() {
+        return monthsInFutureForAmc;
+    }
+
+    public void setMonthsInFutureForAmc(int monthsInFutureForAmc) {
+        this.monthsInFutureForAmc = monthsInFutureForAmc;
+    }
+
+    public double getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(double multiplier) {
+        this.multiplier = multiplier;
+    }
+
+     public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
 
     @Override
     public int hashCode() {

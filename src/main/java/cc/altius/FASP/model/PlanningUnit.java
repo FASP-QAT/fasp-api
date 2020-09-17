@@ -16,8 +16,9 @@ public class PlanningUnit extends BaseModel implements Serializable {
     private int planningUnitId;
     private ForecastingUnit forecastingUnit;
     private Label label;
-    private SimpleObject unit;
+    private SimpleCodeObject unit;
     private double multiplier;
+    private boolean active;
 
     public PlanningUnit() {
     }
@@ -27,12 +28,13 @@ public class PlanningUnit extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public PlanningUnit(int planningUnitId, ForecastingUnit forecastingUnit, Label label, SimpleObject unit, double multiplier) {
+    public PlanningUnit(int planningUnitId, ForecastingUnit forecastingUnit, Label label, SimpleCodeObject unit, double multiplier, boolean active) {
         this.planningUnitId = planningUnitId;
         this.forecastingUnit = forecastingUnit;
         this.label = label;
         this.unit = unit;
         this.multiplier = multiplier;
+        this.active = active;
     }
 
     public int getPlanningUnitId() {
@@ -59,11 +61,11 @@ public class PlanningUnit extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public SimpleObject getUnit() {
+    public SimpleCodeObject getUnit() {
         return unit;
     }
 
-    public void setUnit(SimpleObject unit) {
+    public void setUnit(SimpleCodeObject unit) {
         this.unit = unit;
     }
 
@@ -73,6 +75,14 @@ public class PlanningUnit extends BaseModel implements Serializable {
 
     public void setMultiplier(double multiplier) {
         this.multiplier = multiplier;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     @Override
@@ -102,7 +112,7 @@ public class PlanningUnit extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "PlanningUnit{" + "planningUnitId=" + planningUnitId + ", label=" + label + ", multiplier=" + multiplier + '}';
+        return "PlanningUnit{" + "planningUnitId=" + planningUnitId + ", forecastingUnit=" + forecastingUnit + ", label=" + label + ", unit=" + unit + ", multiplier=" + multiplier + ", active=" + active + '}';
     }
 
 }

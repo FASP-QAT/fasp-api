@@ -17,9 +17,25 @@ public class Realm extends BaseModel implements Serializable {
     private Label label;
     private String realmCode;
     private boolean defaultRealm;
+    private int minMosMinGaurdrail;
+    private int minMosMaxGaurdrail;
+    private int maxMosMaxGaurdrail;
+    private boolean active;
+
+    public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail) {
+        if (realmId == null || realmId == 0) {
+            realmId = -1;
+        }
+        this.realmId = realmId;
+        this.label = label;
+        this.realmCode = realmCode;
+        this.minMosMinGaurdrail = minMosMinGaurdrail;
+        this.minMosMaxGaurdrail = minMosMaxGaurdrail;
+        this.maxMosMaxGaurdrail = maxMosMaxGaurdrail;
+    }
 
     public Realm(Integer realmId, Label label, String realmCode) {
-        if (realmId == 0) {
+        if (realmId == null || realmId == 0) {
             realmId = -1;
         }
         this.realmId = realmId;
@@ -31,7 +47,7 @@ public class Realm extends BaseModel implements Serializable {
     }
 
     public Realm(Integer realmId) {
-        if (realmId == 0) {
+        if (realmId == null || realmId == 0) {
             realmId = -1;
         }
         this.realmId = realmId;
@@ -42,7 +58,7 @@ public class Realm extends BaseModel implements Serializable {
     }
 
     public void setRealmId(Integer realmId) {
-        if (realmId == 0) {
+        if (realmId == null || realmId == 0) {
             realmId = -1;
         }
         this.realmId = realmId;
@@ -70,6 +86,38 @@ public class Realm extends BaseModel implements Serializable {
 
     public void setDefaultRealm(boolean defaultRealm) {
         this.defaultRealm = defaultRealm;
+    }
+
+    public int getMinMosMinGaurdrail() {
+        return minMosMinGaurdrail;
+    }
+
+    public void setMinMosMinGaurdrail(int minMosMinGaurdrail) {
+        this.minMosMinGaurdrail = minMosMinGaurdrail;
+    }
+
+    public int getMinMosMaxGaurdrail() {
+        return minMosMaxGaurdrail;
+    }
+
+    public void setMinMosMaxGaurdrail(int minMosMaxGaurdrail) {
+        this.minMosMaxGaurdrail = minMosMaxGaurdrail;
+    }
+
+    public int getMaxMosMaxGaurdrail() {
+        return maxMosMaxGaurdrail;
+    }
+
+    public void setMaxMosMaxGaurdrail(int maxMosMaxGaurdrail) {
+        this.maxMosMaxGaurdrail = maxMosMaxGaurdrail;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     @Override

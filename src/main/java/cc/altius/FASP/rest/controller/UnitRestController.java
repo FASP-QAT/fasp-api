@@ -9,6 +9,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Unit;
 import cc.altius.FASP.service.UnitService;
+import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -39,11 +40,13 @@ public class UnitRestController {
 
     @Autowired
     private UnitService unitService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping(path = "/unit")
     public ResponseEntity postUnit(@RequestBody Unit unit, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.unitService.addUnit(unit, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException ae) {
@@ -58,7 +61,7 @@ public class UnitRestController {
     @PutMapping(path = "/unit")
     public ResponseEntity putUnit(@RequestBody Unit unit, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.unitService.updateUnit(unit, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException ae) {

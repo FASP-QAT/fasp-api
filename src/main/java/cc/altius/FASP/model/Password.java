@@ -12,7 +12,7 @@ package cc.altius.FASP.model;
 public class Password {
 
     private int userId;
-    private String username;
+    private String emailId;
     private String oldPassword;
     private String newPassword;
 
@@ -24,12 +24,12 @@ public class Password {
         this.userId = userId;
     }
 
-    public String getUsername() {
-        return username;
+    public String getEmailId() {
+        return emailId;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setEmailId(String emailId) {
+        this.emailId = emailId;
     }
 
     public String getOldPassword() {

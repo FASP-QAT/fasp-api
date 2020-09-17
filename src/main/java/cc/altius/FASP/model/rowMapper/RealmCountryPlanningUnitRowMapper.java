@@ -27,7 +27,7 @@ public class RealmCountryPlanningUnitRowMapper implements RowMapper<RealmCountry
         );
         rcpu.setSkuCode(rs.getString("SKU_CODE"));
         rcpu.setLabel(new LabelRowMapper().mapRow(rs, 0));
-        rcpu.setGtin(rs.getString("GTIN"));
+//        rcpu.setGtin(rs.getString("GTIN"));
         rcpu.setMultiplier(rs.getDouble("MULTIPLIER"));
         rcpu.setUnit(new Unit(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, 0), rs.getString("UNIT_CODE")));
         rcpu.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));

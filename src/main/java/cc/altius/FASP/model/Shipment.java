@@ -5,10 +5,6 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.LinkedList;
@@ -21,12 +17,13 @@ import java.util.List;
 public class Shipment extends BaseModel implements Serializable {
 
     private int shipmentId;
+    private Integer parentShipmentId;
     private SimplePlanningUnitObject planningUnit;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date expectedDeliveryDate;
+    private String expectedDeliveryDate;
     private int suggestedQty;
-    private SimpleCodeObject procurementAgent;
+    private SimpleProcurementAgentObject procurementAgent;
+    private SimpleBudgetObject budget;
+    private SimpleCodeObject fundingSource;
     private SimpleObject procurementUnit;
     private SimpleObject supplier;
     private int shipmentQty;
@@ -35,15 +32,12 @@ public class Shipment extends BaseModel implements Serializable {
     private double productCost;
     private String shipmentMode;
     private double freightCost;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date orderedDate;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date shippedDate;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date deliveredDate;
+    private String plannedDate;
+    private String submittedDate;
+    private String approvedDate;
+    private String shippedDate;
+    private String arrivedDate;
+    private String receivedDate;
     private SimpleObject shipmentStatus;
     private String notes;
     private SimpleObject dataSource;
@@ -53,19 +47,36 @@ public class Shipment extends BaseModel implements Serializable {
     private String primeLineNo;
     private boolean emergencyOrder;
     private int versionId;
-    private List<ShipmentBudget> shipmentBudgetList;
+    private Date lastModifiedDate;
     private List<ShipmentBatchInfo> batchInfoList;
-    
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
     public Shipment() {
-        this.shipmentBudgetList = new LinkedList<>();
         this.batchInfoList = new LinkedList<>();
     }
+
     public int getShipmentId() {
         return shipmentId;
     }
 
     public void setShipmentId(int shipmentId) {
         this.shipmentId = shipmentId;
+    }
+
+    public Integer getParentShipmentId() {
+        return parentShipmentId;
+    }
+
+    public void setParentShipmentId(Integer parentShipmentId) {
+        this.parentShipmentId = parentShipmentId;
     }
 
     public SimplePlanningUnitObject getPlanningUnit() {
@@ -76,11 +87,11 @@ public class Shipment extends BaseModel implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public Date getExpectedDeliveryDate() {
+    public String getExpectedDeliveryDate() {
         return expectedDeliveryDate;
     }
 
-    public void setExpectedDeliveryDate(Date expectedDeliveryDate) {
+    public void setExpectedDeliveryDate(String expectedDeliveryDate) {
         this.expectedDeliveryDate = expectedDeliveryDate;
     }
 
@@ -92,11 +103,11 @@ public class Shipment extends BaseModel implements Serializable {
         this.suggestedQty = suggestedQty;
     }
 
-    public SimpleCodeObject getProcurementAgent() {
+    public SimpleProcurementAgentObject getProcurementAgent() {
         return procurementAgent;
     }
 
-    public void setProcurementAgent(SimpleCodeObject procurementAgent) {
+    public void setProcurementAgent(SimpleProcurementAgentObject procurementAgent) {
         this.procurementAgent = procurementAgent;
     }
 
@@ -106,6 +117,22 @@ public class Shipment extends BaseModel implements Serializable {
 
     public void setProcurementUnit(SimpleObject procurementUnit) {
         this.procurementUnit = procurementUnit;
+    }
+
+    public SimpleBudgetObject getBudget() {
+        return budget;
+    }
+
+    public void setBudget(SimpleBudgetObject budget) {
+        this.budget = budget;
+    }
+
+    public SimpleCodeObject getFundingSource() {
+        return fundingSource;
+    }
+
+    public void setFundingSource(SimpleCodeObject fundingSource) {
+        this.fundingSource = fundingSource;
     }
 
     public SimpleObject getSupplier() {
@@ -164,28 +191,52 @@ public class Shipment extends BaseModel implements Serializable {
         this.freightCost = freightCost;
     }
 
-    public Date getOrderedDate() {
-        return orderedDate;
+    public String getPlannedDate() {
+        return plannedDate;
     }
 
-    public void setOrderedDate(Date orderedDate) {
-        this.orderedDate = orderedDate;
+    public void setPlannedDate(String plannedDate) {
+        this.plannedDate = plannedDate;
     }
 
-    public Date getShippedDate() {
+    public String getSubmittedDate() {
+        return submittedDate;
+    }
+
+    public void setSubmittedDate(String submittedDate) {
+        this.submittedDate = submittedDate;
+    }
+
+    public String getApprovedDate() {
+        return approvedDate;
+    }
+
+    public void setApprovedDate(String approvedDate) {
+        this.approvedDate = approvedDate;
+    }
+
+    public String getShippedDate() {
         return shippedDate;
     }
 
-    public void setShippedDate(Date shippedDate) {
+    public void setShippedDate(String shippedDate) {
         this.shippedDate = shippedDate;
     }
 
-    public Date getDeliveredDate() {
-        return deliveredDate;
+    public String getArrivedDate() {
+        return arrivedDate;
     }
 
-    public void setDeliveredDate(Date deliveredDate) {
-        this.deliveredDate = deliveredDate;
+    public void setArrivedDate(String arrivedDate) {
+        this.arrivedDate = arrivedDate;
+    }
+
+    public String getReceivedDate() {
+        return receivedDate;
+    }
+
+    public void setReceivedDate(String receivedDate) {
+        this.receivedDate = receivedDate;
     }
 
     public SimpleObject getShipmentStatus() {
@@ -260,21 +311,20 @@ public class Shipment extends BaseModel implements Serializable {
         this.versionId = versionId;
     }
 
-
-    public List<ShipmentBudget> getShipmentBudgetList() {
-        return shipmentBudgetList;
-    }
-
-    public void setShipmentBudgetList(List<ShipmentBudget> shipmentBudgetList) {
-        this.shipmentBudgetList = shipmentBudgetList;
-    }
-
     public List<ShipmentBatchInfo> getBatchInfoList() {
         return batchInfoList;
     }
 
     public void setBatchInfoList(List<ShipmentBatchInfo> batchInfoList) {
         this.batchInfoList = batchInfoList;
+    }
+
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     @Override

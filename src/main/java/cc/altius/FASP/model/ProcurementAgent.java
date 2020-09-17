@@ -18,7 +18,9 @@ public class ProcurementAgent extends BaseModel implements Serializable {
     private Label label;
     private String procurementAgentCode;
     private double submittedToApprovedLeadTime;
+    private double approvedToShippedLeadTime;
     private boolean localProcurementAgent;
+    private String colorHtmlCode;
 
     public ProcurementAgent() {
     }
@@ -29,12 +31,13 @@ public class ProcurementAgent extends BaseModel implements Serializable {
         this.procurementAgentCode = procurementAgentCode;
     }
 
-    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, Label label, String procurementAgentCode, double submittedToApprovedLeadTime, boolean localProcurementAgent) {
+    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, Label label, String procurementAgentCode, double submittedToApprovedLeadTime, double approvedToShippedLeadTime, boolean localProcurementAgent) {
         this.procurementAgentId = procurementAgentId;
         this.realm = realm;
         this.label = label;
         this.procurementAgentCode = procurementAgentCode;
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
+        this.approvedToShippedLeadTime = approvedToShippedLeadTime;
         this.localProcurementAgent = localProcurementAgent;
     }
 
@@ -70,6 +73,14 @@ public class ProcurementAgent extends BaseModel implements Serializable {
         this.procurementAgentCode = procurementAgentCode;
     }
 
+    public double getApprovedToShippedLeadTime() {
+        return approvedToShippedLeadTime;
+    }
+
+    public void setApprovedToShippedLeadTime(double approvedToShippedLeadTime) {
+        this.approvedToShippedLeadTime = approvedToShippedLeadTime;
+    }
+
     public double getSubmittedToApprovedLeadTime() {
         return submittedToApprovedLeadTime;
     }
@@ -84,6 +95,14 @@ public class ProcurementAgent extends BaseModel implements Serializable {
 
     public void setLocalProcurementAgent(boolean localProcurementAgent) {
         this.localProcurementAgent = localProcurementAgent;
+    }
+
+    public String getColorHtmlCode() {
+        return colorHtmlCode;
+    }
+
+    public void setColorHtmlCode(String colorHtmlCode) {
+        this.colorHtmlCode = colorHtmlCode;
     }
 
     @Override

@@ -62,9 +62,9 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
                     if (productCategory.getParentId() != null && productCategory.getParentId() != 0) {
                         Node<ProductCategory> parent = productCategoryTree.findNode(productCategory.getParentId());
                         productCategory.getPayload().setParentProductCategoryId(parent.getPayloadId());
+                        int productCategoryId = this.productCategoryDao.addProductCategory(productCategory, curUser);
+                        productCategory.setPayloadId(productCategoryId);
                     }
-                    int productCategoryId = this.productCategoryDao.addProductCategory(productCategory, curUser);
-                    productCategory.setPayloadId(productCategoryId);
                 } else {
                     throw new AccessDeniedException("Access denied");
                 }

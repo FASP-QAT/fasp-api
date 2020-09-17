@@ -9,6 +9,7 @@ import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.BudgetService;
+import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -38,11 +39,13 @@ public class BudgetRestController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private BudgetService budgetService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping(path = "/budget")
     public ResponseEntity postBudget(@RequestBody Budget budget, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.budgetService.addBudget(budget, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -60,7 +63,7 @@ public class BudgetRestController {
     @PutMapping(path = "/budget")
     public ResponseEntity putBudget(@RequestBody Budget budget, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             int rows = this.budgetService.updateBudget(budget, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -75,7 +78,7 @@ public class BudgetRestController {
     @PostMapping("/budget/programIds")
     public ResponseEntity getBudget(@RequestBody String[] programIds, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.budgetService.getBudgetListForProgramIds(programIds, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Budget list", e);
@@ -86,7 +89,7 @@ public class BudgetRestController {
     @GetMapping("/budget")
     public ResponseEntity getBudget(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.budgetService.getBudgetList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Budget list", e);
@@ -97,7 +100,7 @@ public class BudgetRestController {
     @GetMapping("/budget/{budgetId}")
     public ResponseEntity getBudget(@PathVariable("budgetId") int budgetId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.budgetService.getBudgetById(budgetId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException erda) {
             logger.error("Error while trying to get Budget Id=" + budgetId, erda);
@@ -114,7 +117,7 @@ public class BudgetRestController {
     @GetMapping("/budget/realmId/{realmId}")
     public ResponseEntity getBudgetForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.budgetService.getBudgetListForRealm(realmId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException erda) {
             logger.error("Error while trying to get Budget list", erda);
@@ -179,7 +182,7 @@ public class BudgetRestController {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.budgetService.getBudgetListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing budget", p);

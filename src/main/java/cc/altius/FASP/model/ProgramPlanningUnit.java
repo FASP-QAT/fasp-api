@@ -16,22 +16,30 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
     private int programPlanningUnitId;
     private SimpleObject program;
     private SimpleObject planningUnit;
+    private SimpleObject productCategory;
     private int reorderFrequencyInMonths;
     private int minMonthsOfStock;
     private double localProcurementLeadTime;
-    private boolean batchNoRequired;
+    private int shelfLife;
+    private double catalogPrice;
+    private int monthsInFutureForAmc;
+    private int monthsInPastForAmc;
 
     public ProgramPlanningUnit() {
     }
 
-    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, int reorderFrequencyInMonths, int minMonthsOfStock, double localProcurementLeadTime, boolean batchNoRequired) {
+    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, SimpleObject productCategory, int reorderFrequencyInMonths, int minMonthsOfStock, double localProcurementLeadTime, int shelfLife, double catalogPrice, int monthsInPastForAmc, int monthsInFutureForAmc) {
         this.programPlanningUnitId = programPlanningUnitId;
         this.program = program;
         this.planningUnit = planningUnit;
+        this.productCategory = productCategory;
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
         this.minMonthsOfStock = minMonthsOfStock;
         this.localProcurementLeadTime = localProcurementLeadTime;
-        this.batchNoRequired = batchNoRequired;
+        this.shelfLife = shelfLife;
+        this.catalogPrice = catalogPrice;
+        this.monthsInPastForAmc = monthsInPastForAmc;
+        this.monthsInFutureForAmc = monthsInFutureForAmc;
     }
 
     public int getProgramPlanningUnitId() {
@@ -58,6 +66,14 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
         this.planningUnit = planningUnit;
     }
 
+    public SimpleObject getProductCategory() {
+        return productCategory;
+    }
+
+    public void setProductCategory(SimpleObject productCategory) {
+        this.productCategory = productCategory;
+    }
+
     public int getReorderFrequencyInMonths() {
         return reorderFrequencyInMonths;
     }
@@ -82,12 +98,36 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
         this.localProcurementLeadTime = localProcurementLeadTime;
     }
 
-    public boolean isBatchNoRequired() {
-        return batchNoRequired;
+    public int getShelfLife() {
+        return shelfLife;
     }
 
-    public void setBatchNoRequired(boolean batchNoRequired) {
-        this.batchNoRequired = batchNoRequired;
+    public void setShelfLife(int shelfLife) {
+        this.shelfLife = shelfLife;
+    }
+
+    public double getCatalogPrice() {
+        return catalogPrice;
+    }
+
+    public void setCatalogPrice(double catalogPrice) {
+        this.catalogPrice = catalogPrice;
+    }
+
+    public int getMonthsInFutureForAmc() {
+        return monthsInFutureForAmc;
+    }
+
+    public void setMonthsInFutureForAmc(int monthsInFutureForAmc) {
+        this.monthsInFutureForAmc = monthsInFutureForAmc;
+    }
+
+    public int getMonthsInPastForAmc() {
+        return monthsInPastForAmc;
+    }
+
+    public void setMonthsInPastForAmc(int monthsInPastForAmc) {
+        this.monthsInPastForAmc = monthsInPastForAmc;
     }
 
     @Override
@@ -113,6 +153,11 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "ProgramPlanningUnit{" + "programPlanningUnitId=" + programPlanningUnitId + ", program=" + program + ", planningUnit=" + planningUnit + ", reorderFrequencyInMonths=" + reorderFrequencyInMonths + ", minMonthsOfStock=" + minMonthsOfStock + ", localProcurementLeadTime=" + localProcurementLeadTime + ", shelfLife=" + shelfLife + ", catalogPrice=" + catalogPrice + ", monthsInFutureForAmc=" + monthsInFutureForAmc + ", monthsInPastForAmc=" + monthsInPastForAmc + '}';
     }
 
 }

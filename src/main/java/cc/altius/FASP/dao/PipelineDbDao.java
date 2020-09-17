@@ -7,7 +7,7 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Label;
-import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.pipeline.QatTempProgram;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.PplConsumption;
@@ -20,6 +20,9 @@ import cc.altius.FASP.model.pipeline.QatTempProgramPlanningUnit;
 import cc.altius.FASP.model.pipeline.QatTempShipment;
 import java.util.List;
 import java.util.Map;
+import cc.altius.FASP.model.pipeline.QatTempDataSource;
+import cc.altius.FASP.model.pipeline.QatTempFundingSource;
+import cc.altius.FASP.model.pipeline.QatTempProcurementAgent;
 
 /**
  *
@@ -33,9 +36,9 @@ public interface PipelineDbDao {
 
     public PplPrograminfo getPipelineProgramInfoById(int pipelineId, CustomUserDetails curUser);
 
-    public int addQatTempProgram(Program p, CustomUserDetails curUser, int pipelineId);
+    public int addQatTempProgram(QatTempProgram p, CustomUserDetails curUser, int pipelineId);
 
-    public Program getQatTempProgram(CustomUserDetails curUser, int pipelineId);
+    public QatTempProgram getQatTempProgram(CustomUserDetails curUser, int pipelineId);
 
     public int addQatTempLabel(Label label, int curUser);
 
@@ -71,5 +74,19 @@ public interface PipelineDbDao {
     public int saveQatTempInventory(QatTempInventory[] inventory, CustomUserDetails curUser, int pipelineId);
 
     public List<QatTempPlanningUnitInventoryCount> getQatTempPlanningUnitListInventoryCount(int pipelineId, CustomUserDetails curUser);
+
+    public int saveQatTempDataSource(QatTempDataSource[] datasources, CustomUserDetails curUser, int pipelineId);
+
+    public List<QatTempDataSource> getQatTempDataSourceListByPipelienId(int pipelineId, CustomUserDetails curUser);
+
+    public int saveQatTempFundingSource(QatTempFundingSource[] fundingsources, CustomUserDetails curUser, int pipelineId);
+
+    public List<QatTempFundingSource> getQatTempFundingSourceListByPipelienId(int pipelineId, CustomUserDetails curUser);
+
+  public int saveQatTempProcurementAgent(QatTempProcurementAgent[] procurementAgents, CustomUserDetails curUser, int pipelineId);
+
+    public List<QatTempProcurementAgent> getQatTempProcurementAgentListByPipelienId(int pipelineId, CustomUserDetails curUser);
+
+
 
 }

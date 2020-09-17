@@ -25,7 +25,8 @@ public class PlanningUnitCapacityRowMapper implements RowMapper<PlanningUnitCapa
                 new SimpleObject(rs.getInt("SUPPLIER_ID"), new LabelRowMapper("SUPPLIER_").mapRow(rs, rowNum)),
                 rs.getString("START_DATE"),
                 rs.getString("STOP_DATE"),
-                rs.getDouble("CAPACITY")
+                rs.getDouble("CAPACITY"),
+                rs.getBoolean("ACTIVE")
         );
         puc.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return puc;

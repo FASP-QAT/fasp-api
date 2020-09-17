@@ -22,11 +22,12 @@ public class BudgetRowMapper implements RowMapper<Budget> {
 
     @Override
     public Budget mapRow(ResultSet rs, int rowNum) throws SQLException {
-        Budget b = new Budget(rs.getInt("BUDGET_ID"), new LabelRowMapper().mapRow(rs, rowNum));
+        Budget b = new Budget(rs.getInt("BUDGET_ID"), rs.getString("BUDGET_CODE"), new LabelRowMapper().mapRow(rs, rowNum));
         b.setProgram(new SimpleObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, rowNum)));
         b.setFundingSource(
                 new FundingSource(
                         rs.getInt("FUNDING_SOURCE_ID"),
+                        rs.getString("FUNDING_SOURCE_CODE"),
                         new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, rowNum),
                         new SimpleCodeObject(
                                 rs.getInt("REALM_ID"),

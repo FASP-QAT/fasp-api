@@ -180,7 +180,7 @@ public class ShipmentStatusDaoImp implements ShipmentStatusDao {
                 + " LEFT JOIN ap_shipment_status_allowed ssa ON s.SHIPMENT_STATUS_ID=ssa.SHIPMENT_STATUS_ID "
                 + " LEFT JOIN us_user cb ON s.CREATED_BY=cb.USER_ID "
                 + " LEFT JOIN us_user lmb ON s.LAST_MODIFIED_BY=lmb.USER_ID "
-                + " WHERE TRUE AND s.LAST_MODIFIED_DATE>:lastSyncDate ";
+                + " WHERE TRUE AND s.LAST_MODIFIED_DATE>:lastSyncDate AND s.ACTIVE ";
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new ShipmentStatusResultSetExtractor());

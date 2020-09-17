@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.HealthAreaDao;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.HealthArea;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.rowMapper.HealthAreaListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.HealthAreaResultSetExtractor;
 import cc.altius.FASP.service.AclService;
@@ -48,7 +49,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
     private AclService aclService;
 
     private final String sqlListString = "SELECT "
-            + "	ha.HEALTH_AREA_ID, hal.LABEL_ID, hal.LABEL_EN, hal.LABEL_FR, hal.LABEL_SP, hal.LABEL_PR, "
+            + "	ha.HEALTH_AREA_ID, ha.HEALTH_AREA_CODE, hal.LABEL_ID, hal.LABEL_EN, hal.LABEL_FR, hal.LABEL_SP, hal.LABEL_PR, "
             + "     r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
             + "     ha.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ha.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ha.LAST_MODIFIED_DATE, "
             + "     rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
@@ -63,7 +64,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
             + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
             + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
             + "WHERE TRUE ";
-    
+
     @Override
     @Transactional
     public int addHealthArea(HealthArea h, CustomUserDetails curUser) {
@@ -71,8 +72,9 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", h.getRealm().getId());
-        int labelId = this.labelDao.addLabel(h.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(h.getLabel(), LabelConstants.RM_HEALTH_AREA, curUser.getUserId());
         params.put("LABEL_ID", labelId);
+        params.put("HEALTH_AREA_CODE", h.getHealthAreaCode());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
@@ -105,10 +107,11 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         Map<String, Object> params = new HashMap<>();
         params.put("healthAreaId", h.getHealthAreaId());
         params.put("labelEn", h.getLabel().getLabel_en());
+        params.put("healthAreaCode", h.getHealthAreaCode());
         params.put("active", h.isActive());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
-        int rows = this.namedParameterJdbcTemplate.update("UPDATE rm_health_area ha LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID SET ha.ACTIVE=:active, ha.LAST_MODIFIED_BY=IF(ha.ACTIVE!=:active,:curUser,ha.LAST_MODIFIED_BY), ha.LAST_MODIFIED_DATE=IF(ha.ACTIVE!=:active, :curDate, ha.LAST_MODIFIED_DATE), hal.LABEL_EN=:labelEn, hal.LAST_MODIFIED_BY=IF(hal.LABEL_EN!=:labelEn,:curUser,hal.LAST_MODIFIED_BY), hal.LAST_MODIFIED_DATE=IF(hal.LABEL_EN!=:labelEn, :curDate, hal.LAST_MODIFIED_DATE)  WHERE ha.HEALTH_AREA_ID=:healthAreaId", params);
+        int rows = this.namedParameterJdbcTemplate.update("UPDATE rm_health_area ha LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID SET ha.ACTIVE=:active, ha.HEALTH_AREA_CODE=:healthAreaCode, ha.LAST_MODIFIED_BY=IF(ha.ACTIVE!=:active OR ha.HEALTH_AREA_CODE!=:healthAreaCode, :curUser,ha.LAST_MODIFIED_BY), ha.LAST_MODIFIED_DATE=IF(ha.ACTIVE!=:active OR ha.HEALTH_AREA_CODE!=:healthAreaCode, :curDate, ha.LAST_MODIFIED_DATE), hal.LABEL_EN=:labelEn, hal.LAST_MODIFIED_BY=IF(hal.LABEL_EN!=:labelEn,:curUser,hal.LAST_MODIFIED_BY), hal.LAST_MODIFIED_DATE=IF(hal.LABEL_EN!=:labelEn, :curDate, hal.LAST_MODIFIED_DATE)  WHERE ha.HEALTH_AREA_ID=:healthAreaId", params);
         this.namedParameterJdbcTemplate.update("DELETE FROM rm_health_area_country WHERE HEALTH_AREA_ID=:healthAreaId", params);
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_health_area_country");
         SqlParameterSource[] paramList = new SqlParameterSource[h.getRealmCountryArray().length];

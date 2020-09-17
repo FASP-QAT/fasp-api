@@ -17,5 +17,5 @@ import org.xml.sax.SAXException;
  */
 public interface ImportProductCatalogueService {
 
-    public void importProductCatalogue(String filePath) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException;
+    public void importProductCatalogue() throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException;
 }

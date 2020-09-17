@@ -9,6 +9,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.RegionService;
+import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -39,12 +40,14 @@ public class RegionRestController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    RegionService regionService;
+    private RegionService regionService;
+    @Autowired
+    private UserService userService;
 
 //    @PostMapping(value = "/region")
 //    public ResponseEntity addRegion(@RequestBody Region region, Authentication auth) {
 //        try {
-//            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
 //            this.regionService.addRegion(region, curUser);
 //            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
 //        } catch (AccessDeniedException e) {
@@ -58,11 +61,10 @@ public class RegionRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
     @PutMapping(path = "/region")
     public ResponseEntity putRegion(@RequestBody Region[] regions, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.regionService.saveRegions(regions, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
@@ -80,7 +82,7 @@ public class RegionRestController {
     @GetMapping("/region")
     public ResponseEntity getRegion(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.regionService.getRegionList(curUser), HttpStatus.OK);
         } catch (DataAccessException e) {
             logger.error("Error while trying to list Region", e);
@@ -94,7 +96,7 @@ public class RegionRestController {
     @GetMapping("/region/{regionId}")
     public ResponseEntity getRegion(@PathVariable("regionId") int regionId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.regionService.getRegionById(regionId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Region", e);
@@ -111,7 +113,7 @@ public class RegionRestController {
     @GetMapping("/region/realmCountryId/{realmCountryId}")
     public ResponseEntity getRegionByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.regionService.getRegionListByRealmCountryId(realmCountryId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Region", e);
@@ -130,7 +132,7 @@ public class RegionRestController {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.regionService.getRegionListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing region", p);

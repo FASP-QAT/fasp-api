@@ -28,10 +28,10 @@ public class CustomUserDetailsService implements UserDetailsService {
     private UserDao userDao;
 
     @Override
-    public CustomUserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public CustomUserDetails loadUserByUsername(String emailId) throws UsernameNotFoundException {
         logger.info("Inside loadUserByUsername" + LogUtils.getArgsString(), LogUtils.getIpAddress(), LogUtils.getUsername());
         try {
-            CustomUserDetails user = this.userDao.getCustomUserByUsername(username);
+            CustomUserDetails user = this.userDao.getCustomUserByEmailId(emailId);
             if (!user.isPresent()) {
                 throw new UsernameNotFoundException("User not found");
             }

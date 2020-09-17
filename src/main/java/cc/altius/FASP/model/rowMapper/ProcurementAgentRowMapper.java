@@ -21,13 +21,14 @@ public class ProcurementAgentRowMapper implements RowMapper<ProcurementAgent> {
     public ProcurementAgent mapRow(ResultSet rs, int rowNum) throws SQLException {
         ProcurementAgent pa = new ProcurementAgent(
                 rs.getInt("PROCUREMENT_AGENT_ID"),
-                //                new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, rowNum), rs.getString("REALM_CODE")), 
                 new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, rowNum), rs.getString("REALM_CODE")),
                 new LabelRowMapper().mapRow(rs, rowNum),
                 rs.getString("PROCUREMENT_AGENT_CODE"),
                 rs.getDouble("SUBMITTED_TO_APPROVED_LEAD_TIME"),
+                rs.getDouble("APPROVED_TO_SHIPPED_LEAD_TIME"),
                 rs.getBoolean("LOCAL_PROCUREMENT_AGENT")
         );
+        pa.setColorHtmlCode(rs.getString("COLOR_HTML_CODE"));
         pa.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return pa;
     }

@@ -23,21 +23,22 @@ public class ProcurementUnitRowMapper implements RowMapper<ProcurementUnit> {
     @Override
     public ProcurementUnit mapRow(ResultSet rs, int rowNum) throws SQLException {
         ProcurementUnit pu = new ProcurementUnit(
-                rs.getInt("PROCUREMENT_UNIT_ID"), 
+                rs.getInt("PROCUREMENT_UNIT_ID"),
                 new PlanningUnit(
-                    rs.getInt("PLANNING_UNIT_ID"),
-                    new ForecastingUnit(
-                        rs.getInt("FORECASTING_UNIT_ID"),
-                        new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, rowNum), rs.getString("REALM_CODE")),
-                        new LabelRowMapper("GENERIC_").mapRow(rs, rowNum),
-                        new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, rowNum),
-                        new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, rowNum)),
-                        new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TRACER_CATEGORY_").mapRow(rs, rowNum))
-                    ),
-                    new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, rowNum),
-                    new SimpleObject(rs.getInt("PLANNING_UNIT_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_UNIT_").mapRow(rs, rowNum)),
-                    rs.getDouble("PLANNING_UNIT_MULTIPLIER")
-                ), 
+                        rs.getInt("PLANNING_UNIT_ID"),
+                        new ForecastingUnit(
+                                rs.getInt("FORECASTING_UNIT_ID"),
+                                new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, rowNum), rs.getString("REALM_CODE")),
+                                new LabelRowMapper("GENERIC_").mapRow(rs, rowNum),
+                                new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, rowNum),
+                                new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, rowNum)),
+                                new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TRACER_CATEGORY_").mapRow(rs, rowNum))
+                        ),
+                        new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, rowNum),
+                        new SimpleCodeObject(rs.getInt("PLANNING_UNIT_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_UNIT_").mapRow(rs, rowNum), rs.getString("PLANNING_UNIT_UNIT_CODE")),
+                        rs.getDouble("PLANNING_UNIT_MULTIPLIER"),
+                        rs.getBoolean("ACTIVE")
+                ),
                 new LabelRowMapper().mapRow(rs, rowNum),
                 new SimpleObject(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, rowNum)),
                 rs.getDouble("MULTIPLIER"));
@@ -49,11 +50,13 @@ public class ProcurementUnitRowMapper implements RowMapper<ProcurementUnit> {
         pu.setLengthUnit(new SimpleObject(rs.getInt("LENGTH_UNIT_ID"), new LabelRowMapper("LENGTH_UNIT_").mapRow(rs, rowNum)));
         pu.setWeightQty(rs.getDouble("WEIGHT_QTY"));
         pu.setWeightUnit(new SimpleObject(rs.getInt("WEIGHT_UNIT_ID"), new LabelRowMapper("WEIGHT_UNIT_").mapRow(rs, rowNum)));
+        pu.setUnitsPerCase(rs.getDouble("UNITS_PER_CASE"));
+        pu.setUnitsPerPallet(rs.getDouble("UNITS_PER_PALLET"));
         pu.setUnitsPerContainer(rs.getDouble("UNITS_PER_CONTAINER"));
         pu.setLabeling(rs.getString("LABELING"));
         pu.setSupplier(new SimpleObject(rs.getInt("SUPPLIER_ID"), new LabelRowMapper("SUPPLIER_").mapRow(rs, rowNum)));
         pu.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return pu;
     }
-    
+
 }

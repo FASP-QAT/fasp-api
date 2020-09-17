@@ -9,6 +9,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.RealmService;
+import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
@@ -40,11 +41,13 @@ public class RealmRestController {
 
     @Autowired
     private RealmService realmService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping(path = "/realm")
     public ResponseEntity postRealm(@RequestBody Realm realm, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.realmService.addRealm(realm, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException ae) {
@@ -59,7 +62,7 @@ public class RealmRestController {
     @PutMapping(path = "/realm")
     public ResponseEntity putRealm(@RequestBody Realm realm, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.realmService.updateRealm(realm, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
@@ -77,7 +80,7 @@ public class RealmRestController {
     @GetMapping("/realm")
     public ResponseEntity getRealm(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.realmService.getRealmList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Realm", e);
@@ -88,7 +91,7 @@ public class RealmRestController {
     @GetMapping("/realm/{realmId}")
     public ResponseEntity getRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.realmService.getRealmById(realmId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to list Realm", ae);
@@ -107,7 +110,7 @@ public class RealmRestController {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.realmService.getRealmListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing realm", p);

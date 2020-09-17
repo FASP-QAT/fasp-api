@@ -19,8 +19,6 @@ import java.util.Date;
 public class CostOfInventoryInput implements Serializable {
 
     private int programId;
-    private String[] regionIds;
-    private String[] planningUnitIds;
     private int versionId;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
@@ -33,22 +31,6 @@ public class CostOfInventoryInput implements Serializable {
 
     public void setProgramId(int programId) {
         this.programId = programId;
-    }
-
-    public String[] getRegions() {
-        return regionIds;
-    }
-
-    public void setRegions(String[] regions) {
-        this.regionIds = regions;
-    }
-
-    public String[] getPlanningUnits() {
-        return planningUnitIds;
-    }
-
-    public void setPlanningUnits(String[] planningUnits) {
-        this.planningUnitIds = planningUnits;
     }
 
     public int getVersionId() {
@@ -75,29 +57,4 @@ public class CostOfInventoryInput implements Serializable {
         this.includePlannedShipments = includePlannedShipments;
     }
 
-    public String getPlanningUnitIdString() {
-        if (this.planningUnitIds == null) {
-            return "";
-        } else {
-            String opt = String.join("','", this.planningUnitIds);
-            if (this.planningUnitIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
-        }
-    }
-
-    public String getRegionIdString() {
-        if (this.regionIds == null) {
-            return "";
-        } else {
-            String opt = String.join("','", this.regionIds);
-            if (this.regionIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
-        }
-    }
 }

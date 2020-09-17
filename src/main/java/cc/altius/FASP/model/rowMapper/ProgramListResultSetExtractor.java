@@ -7,13 +7,12 @@ package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.Country;
-import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.Region;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.Unit;
 import cc.altius.FASP.model.Version;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -36,49 +35,41 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
         Program p = new Program();
         while (rs.next()) {
             int programId = rs.getInt("PROGRAM_ID");
-            Program tmpProg = new Program(programId, null);
+            Program tmpProg = new Program(programId, null, null);
             if (pList.indexOf(tmpProg) == -1) {
                 if (!isFirst) {
-//                    p.setRegionArray(new String[p.getRegionList().size()]);
-//                    int x = 0;
-//                    for (Region r : p.getRegionList()) {
-//                        p.getRegionArray()[x] = Integer.toString(r.getRegionId());
-//                        x++;
-//                    }
                     p = new Program();
                 }
                 pList.add(p);
                 p.setProgramId(rs.getInt("PROGRAM_ID"));
+                p.setProgramCode(rs.getString("PROGRAM_CODE"));
                 p.setRealmCountry(
                         new RealmCountry(
                                 rs.getInt("REALM_COUNTRY_ID"),
-                                new Country(rs.getInt("COUNTRY_ID"), new LabelRowMapper("COUNTRY_").mapRow(rs, 1)),
-                                new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE"))
+                                new Country(rs.getInt("COUNTRY_ID"), rs.getString("COUNTRY_CODE"), new LabelRowMapper("COUNTRY_").mapRow(rs, 1)),
+                                new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE"), rs.getInt("MIN_MOS_MIN_GAURDRAIL"), rs.getInt("MIN_MOS_MAX_GAURDRAIL"), rs.getInt("MAX_MOS_MAX_GAURDRAIL"))
                         )
                 );
-                p.getRealmCountry().setDefaultCurrency(new Currency(rs.getInt("CURRENCY_ID"), rs.getString("CURRENCY_CODE"), new LabelRowMapper("CURRENCY_").mapRow(rs, 1), rs.getDouble("CONVERSION_RATE_TO_USD")));
-                p.getRealmCountry().setAirFreightPercentage(rs.getDouble("REALM_COUNTRY_AIR_FREIGHT_PERC"));
-                p.getRealmCountry().setSeaFreightPercentage(rs.getDouble("REALM_COUNTRY_SEA_FREIGHT_PERC"));
-                p.getRealmCountry().setShippedToArrivedBySeaLeadTime(rs.getDouble("REALM_COUNTRY_SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME"));
-                p.getRealmCountry().setShippedToArrivedByAirLeadTime(rs.getDouble("REALM_COUNTRY_SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME"));
-                p.getRealmCountry().setArrivedToDeliveredLeadTime(rs.getDouble("REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME"));
-                p.getRealmCountry().setPalletUnit(new Unit(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, 1), rs.getString("UNIT_CODE")));
+//                p.getRealmCountry().setDefaultCurrency(new Currency(rs.getInt("CURRENCY_ID"), rs.getString("CURRENCY_CODE"), new LabelRowMapper("CURRENCY_").mapRow(rs, 1), rs.getDouble("CONVERSION_RATE_TO_USD")));
+//                p.getRealmCountry().setAirFreightPercentage(rs.getDouble("REALM_COUNTRY_AIR_FREIGHT_PERC"));
+//                p.getRealmCountry().setSeaFreightPercentage(rs.getDouble("REALM_COUNTRY_SEA_FREIGHT_PERC"));
+//                p.getRealmCountry().setShippedToArrivedBySeaLeadTime(rs.getDouble("REALM_COUNTRY_SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME"));
+//                p.getRealmCountry().setShippedToArrivedByAirLeadTime(rs.getDouble("REALM_COUNTRY_SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME"));
+//                p.getRealmCountry().setArrivedToDeliveredLeadTime(rs.getDouble("REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME"));
+//                p.getRealmCountry().setPalletUnit(new Unit(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, 1), rs.getString("UNIT_CODE")));
                 p.setLabel(new LabelRowMapper().mapRow(rs, 1));
-                p.setOrganisation(new SimpleObject(rs.getInt("ORGANISATION_ID"), new LabelRowMapper("ORGANISATION_").mapRow(rs, 0)));
-                p.setHealthArea(new SimpleObject(rs.getInt("HEALTH_AREA_ID"), new LabelRowMapper("REALM_").mapRow(rs, 0)));
+                p.setOrganisation(new SimpleCodeObject(rs.getInt("ORGANISATION_ID"), new LabelRowMapper("ORGANISATION_").mapRow(rs, 1), rs.getString("ORGANISATION_CODE")));
+                p.setHealthArea(new SimpleCodeObject(rs.getInt("HEALTH_AREA_ID"), new LabelRowMapper("HEALTH_AREA_").mapRow(rs, 1), rs.getString("HEALTH_AREA_CODE")));
                 p.setProgramManager(new BasicUser(rs.getInt("PROGRAM_MANAGER_USER_ID"), rs.getString("PROGRAM_MANAGER_USERNAME")));
                 p.setProgramNotes(rs.getString("PROGRAM_NOTES"));
                 p.setAirFreightPerc(rs.getDouble("AIR_FREIGHT_PERC"));
                 p.setSeaFreightPerc(rs.getDouble("SEA_FREIGHT_PERC"));
-                p.setPlannedToDraftLeadTime(rs.getDouble("PLANNED_TO_DRAFT_LEAD_TIME"));
-                p.setDraftToSubmittedLeadTime(rs.getDouble("DRAFT_TO_SUBMITTED_LEAD_TIME"));
+                p.setPlannedToSubmittedLeadTime(rs.getDouble("PLANNED_TO_SUBMITTED_LEAD_TIME"));
                 p.setSubmittedToApprovedLeadTime(rs.getDouble("SUBMITTED_TO_APPROVED_LEAD_TIME"));
                 p.setApprovedToShippedLeadTime(rs.getDouble("APPROVED_TO_SHIPPED_LEAD_TIME"));
                 p.setShippedToArrivedBySeaLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME"));
                 p.setShippedToArrivedByAirLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME"));
                 p.setArrivedToDeliveredLeadTime(rs.getDouble("ARRIVED_TO_DELIVERED_LEAD_TIME"));
-                p.setMonthsInPastForAmc(rs.getInt("MONTHS_IN_PAST_FOR_AMC"));
-                p.setMonthsInFutureForAmc(rs.getInt("MONTHS_IN_FUTURE_FOR_AMC"));
                 p.setCurrentVersion(new Version(
                         rs.getInt("CV_VERSION_ID"),
                         new SimpleObject(rs.getInt("CV_VERSION_TYPE_ID"), new LabelRowMapper("CV_VERSION_TYPE_").mapRow(rs, 1)),
@@ -96,6 +87,8 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
                 p = pList.get(pList.indexOf(tmpProg));
             }
             Region r = new Region(rs.getInt("REGION_ID"), new LabelRowMapper("REGION_").mapRow(rs, 0));
+            r.setCapacityCbm(rs.getDouble("CAPACITY_CBM"));
+            r.setGln(rs.getString("GLN"));
             if (p.getRegionList().indexOf(r) == -1) {
                 p.getRegionList().add(r);
             }
@@ -114,14 +107,6 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
             }
             isFirst = false;
         }
-//        if (p.getProgramId() != 0) {
-//            p.setRegionArray(new String[p.getRegionList().size()]);
-//            int x = 0;
-//            for (Region r : p.getRegionList()) {
-//                p.getRegionArray()[x] = Integer.toString(r.getRegionId());
-//                x++;
-//            }
-//        }
         return pList;
     }
 }

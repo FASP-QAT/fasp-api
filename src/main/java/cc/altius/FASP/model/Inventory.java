@@ -5,12 +5,8 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,9 +17,7 @@ import java.util.List;
 public class Inventory extends BaseModel implements Serializable {
 
     private int inventoryId;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date inventoryDate;
+    private String inventoryDate;
     private SimpleObject region;
     private SimpleObject realmCountryPlanningUnit;
     private SimplePlanningUnitObject planningUnit;
@@ -31,11 +25,21 @@ public class Inventory extends BaseModel implements Serializable {
     private Double actualQty;
     private double adjustmentQty;
     private double expectedBal;
+    @JsonIgnore
     private SimpleCodeObject unit;
     private SimpleObject dataSource;
     private String notes;
     private int versionId;
     private List<InventoryBatchInfo> batchInfoList;
+    private boolean active;
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 
     public Inventory() {
         this.batchInfoList = new LinkedList<>();
@@ -49,11 +53,11 @@ public class Inventory extends BaseModel implements Serializable {
         this.inventoryId = inventoryId;
     }
 
-    public Date getInventoryDate() {
+    public String getInventoryDate() {
         return inventoryDate;
     }
 
-    public void setInventoryDate(Date inventoryDate) {
+    public void setInventoryDate(String inventoryDate) {
         this.inventoryDate = inventoryDate;
     }
 

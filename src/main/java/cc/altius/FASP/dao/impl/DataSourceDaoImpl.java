@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.DataSourceDao;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DataSource;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.rowMapper.DataSourceRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
@@ -65,12 +66,12 @@ public class DataSourceDaoImpl implements DataSourceDao {
     @Override
     public int addDataSource(DataSource dataSource, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
-        int insertedLabelRowId = this.labelDao.addLabel(dataSource.getLabel(), curUser.getUserId());
+        int insertedLabelRowId = this.labelDao.addLabel(dataSource.getLabel(), LabelConstants.RM_DATA_SOURCE, curUser.getUserId());
         SimpleJdbcInsert insert = new SimpleJdbcInsert(this.dataSource).withTableName("rm_data_source").usingGeneratedKeyColumns("DATA_SOURCE_ID");
         Map<String, Object> map = new HashedMap<>();
         map.put("DATA_SOURCE_TYPE_ID", dataSource.getDataSourceType().getId());
         map.put("REALM_ID", dataSource.getRealm().getId());
-        map.put("PROGRAM_ID", (dataSource.getProgram().getId() == 0 ? null : dataSource.getProgram().getId()));
+        map.put("PROGRAM_ID", (dataSource.getProgram() != null ? (dataSource.getProgram().getId() == null || dataSource.getProgram().getId() == 0 ? null : dataSource.getProgram().getId()) : null));
         map.put("LABEL_ID", insertedLabelRowId);
         map.put("ACTIVE", 1);
         map.put("CREATED_BY", curUser.getUserId());
@@ -80,7 +81,7 @@ public class DataSourceDaoImpl implements DataSourceDao {
         int dataSourceId = insert.executeAndReturnKey(map).intValue();
         return dataSourceId;
     }
-    
+
     @Transactional
     @Override
     public int updateDataSource(DataSource dataSource, CustomUserDetails curUser) {
@@ -111,7 +112,6 @@ public class DataSourceDaoImpl implements DataSourceDao {
         if (active) {
             sqlStringBuilder.append(" AND ds.ACTIVE ");
         }
-        System.out.println(sqlStringBuilder.toString());
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new DataSourceRowMapper());
     }
 

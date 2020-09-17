@@ -10,6 +10,7 @@ import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
@@ -65,23 +66,31 @@ public class ExportSupplyPlanController {
         Emailer emailer = new Emailer();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
         String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
-        System.out.println(date);
         try {
 
             String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMD);
             String path, json;
-            List<Program> programList = this.programService.getProgramList(REALM_ID);
+            List<ProgramVersion> programVersionForARTMIS = this.programDataDao.getProgramVersionForARTMIS(REALM_ID);
+            System.out.println("programVersionForARTMIS---"+programVersionForARTMIS);
+//            List<Program> programList = this.programService.getProgramList(REALM_ID);
             List<ProgramData> programDatas = new ArrayList<>();
             File directory = new File(EXPORT_SUPPLY_PLAN_FILE_PATH);
+            String programVersionIds = "";
             if (directory.isDirectory()) {
-                for (Program p : programList) {
-                    ProgramData pd = new ProgramData(p);
-                    pd.setRequestedProgramVersion(VERSION_ID);
-                    pd.setConsumptionList(this.programDataDao.getConsumptionList(p.getProgramId(), VERSION_ID));
-                    pd.setInventoryList(this.programDataDao.getInventoryList(p.getProgramId(), VERSION_ID));
-                    pd.setShipmentList(this.programDataDao.getShipmentList(p.getProgramId(), VERSION_ID));
+                for (ProgramVersion p : programVersionForARTMIS) {
+                    System.out.println("REALM_ID---"+REALM_ID);
+                    System.out.println("program id---"+p.getProgram().getId());
+                    System.out.println("version id---"+p.getVersionId());
+                    Program program = this.programService.getProgramList(REALM_ID, p.getProgram().getId(), p.getVersionId());
+                    System.out.println("program---"+program);
+                    ProgramData pd = new ProgramData(program);
+                    pd.setRequestedProgramVersion(p.getVersionId());
+                    pd.setConsumptionList(this.programDataDao.getConsumptionList(program.getProgramId(), p.getVersionId()));
+                    pd.setInventoryList(this.programDataDao.getInventoryList(program.getProgramId(), p.getVersionId()));
+                    pd.setShipmentList(this.programDataDao.getShipmentList(program.getProgramId(), p.getVersionId()));
 //                    if(p.getProgramId()==1){
                     programDatas.add(pd);
+                    programVersionIds += "," + p.getProgramVersionId();
 //                    }
 //                json = gson.toJson(pd, type);
 //                path = EXPORT_SUPPLY_PLAN_FILE_PATH + "SUPPLY_PLAN_" + p.getProgramId() + "_" + curDate + ".json";
@@ -99,6 +108,9 @@ public class ExportSupplyPlanController {
                 fileWriter.write(json);
                 fileWriter.flush();
                 fileWriter.close();
+                System.out.println("programVersionIds---"+programVersionIds);
+                int ids = this.programDataService.updateSentToARTMISFlag(programVersionIds);
+                logger.info(ids + " program version updated");
                 logger.info("Export supply plan successful");
             } else {
                 subjectParam = new String[]{"supply plan", "Directory does not exists"};

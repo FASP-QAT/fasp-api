@@ -24,21 +24,23 @@ public interface UserDao {
 
     public CustomUserDetails getCustomUserByEmailId(String emailId);
 
+    public CustomUserDetails getCustomUserByUserId(int userId);
+
     public Map<String, Object> checkIfUserExists(String username, String password);
 
     public List<String> getBusinessFunctionsForUserId(int userId);
 
-    public int resetFailedAttemptsByUsername(String username);
+    public int resetFailedAttemptsByUsername(String emailId);
 
-    public int updateFailedAttemptsByUserId(String username);
+    public int updateFailedAttemptsByUserId(String emailId);
 
     public int addNewUser(User user, int curUser);
 
-    public List<User> getUserList();
+    public List<User> getUserList(CustomUserDetails curUser);
 
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser);
 
-    public User getUserByUserId(int userId);
+    public User getUserByUserId(int userId, CustomUserDetails curUser);
 
     public int updateUser(User user, int curUser);
 
@@ -50,27 +52,27 @@ public interface UserDao {
 
     public int updatePassword(int userId, String newPassword, int offset);
 
-    public int updatePassword(String username, String token, String newPassword, int offset);
+    public int updatePassword(String emailId, String token, String newPassword, int offset);
 
-    public boolean confirmPassword(String username, String password);
+    public boolean confirmPassword(String emailId, String password);
 
     public int addRole(Role role, CustomUserDetails curUser);
 
     public int updateRole(Role role, CustomUserDetails curUser);
 
     public Role getRoleById(String roleId);
-    
+
     public List<Role> getRoleList();
 
     public String generateTokenForUserId(int userId);
 
-    public EmailUser getEmailUserByUsername(String username);
+    public EmailUser getEmailUserByEmailId(String emailId);
 
-    public ForgotPasswordToken getForgotPasswordToken(String username, String token);
+    public ForgotPasswordToken getForgotPasswordToken(String emailId, String token);
 
     public void updateTriggeredDateForForgotPasswordToken(String username, String token);
 
-    public void updateCompletionDateForForgotPasswordToken(String username, String token);
+    public void updateCompletionDateForForgotPasswordToken(String emailId, String token);
 
     public boolean isTokenLogout(String token);
 
@@ -78,5 +80,9 @@ public interface UserDao {
 
     public int mapAccessControls(User user, CustomUserDetails curUser);
 
-    public int updateSuncExpiresOn(String username);
+    public int updateSuncExpiresOn(String emailId);
+
+    public int updateUserLanguage(int userId, String languageCode);
+
+    public int acceptUserAgreement(int userId);
 }

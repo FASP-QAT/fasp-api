@@ -7,7 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.PipelineDbDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.pipeline.QatTempProgram;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.pipeline.Pipeline;
 import cc.altius.FASP.model.pipeline.PplConsumption;
@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import cc.altius.FASP.model.pipeline.QatTempDataSource;
+import cc.altius.FASP.model.pipeline.QatTempFundingSource;
+import cc.altius.FASP.model.pipeline.QatTempProcurementAgent;
 
 /**
  *
@@ -51,12 +54,12 @@ public class PipelineDbServiceImpl implements PipelineDbService {
 
     @Override
 
-    public int addQatTempProgram(Program p, CustomUserDetails curUser, int pipelineId) {
+    public int addQatTempProgram(QatTempProgram p, CustomUserDetails curUser, int pipelineId) {
         return this.pipelineDbDao.addQatTempProgram(p, curUser, pipelineId);
     }
 
     @Override
-    public Program getQatTempProgram(CustomUserDetails curUser, int pipelineId) {
+    public QatTempProgram getQatTempProgram(CustomUserDetails curUser, int pipelineId) {
         return this.pipelineDbDao.getQatTempProgram(curUser, pipelineId);
     }
 
@@ -128,6 +131,33 @@ public class PipelineDbServiceImpl implements PipelineDbService {
        return this.pipelineDbDao.getQatTempPlanningUnitListInventoryCount(pipelineId, curUser);
     }
 
-    
+     @Override
+    public int saveQatTempDataSource(QatTempDataSource[] datasources, CustomUserDetails curUser, int pipelineId) {
+        return this.pipelineDbDao.saveQatTempDataSource(datasources, curUser, pipelineId);
+    }
+
+    @Override
+    public  List<QatTempDataSource> getQatTempDataSourceListByPipelienId(int pipelineId, CustomUserDetails curUser){
+        return this.pipelineDbDao.getQatTempDataSourceListByPipelienId(pipelineId, curUser);
+    }
+
+   @Override
+    public int saveQatTempFundingSource(QatTempFundingSource[] fundingsources, CustomUserDetails curUser, int pipelineId) {
+        return this.pipelineDbDao.saveQatTempFundingSource(fundingsources, curUser, pipelineId);
+    }
+
+    @Override
+    public  List<QatTempFundingSource> getQatTempFundingSourceListByPipelienId(int pipelineId, CustomUserDetails curUser){
+        return this.pipelineDbDao.getQatTempFundingSourceListByPipelienId(pipelineId, curUser);
+    }
+      @Override
+    public int saveQatTempProcurementAgent(QatTempProcurementAgent[] procurementAgents, CustomUserDetails curUser, int pipelineId) {
+        return this.pipelineDbDao.saveQatTempProcurementAgent(procurementAgents, curUser, pipelineId);
+    }
+
+    @Override
+    public  List<QatTempProcurementAgent> getQatTempProcurementAgentListByPipelienId(int pipelineId, CustomUserDetails curUser){
+        return this.pipelineDbDao.getQatTempProcurementAgentListByPipelienId(pipelineId, curUser);
+    }
 
 }

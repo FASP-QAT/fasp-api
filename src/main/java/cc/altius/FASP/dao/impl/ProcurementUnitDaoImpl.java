@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProcurementUnitDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.ProcurementUnit;
 import cc.altius.FASP.model.rowMapper.ProcurementUnitRowMapper;
 import cc.altius.FASP.service.AclService;
@@ -55,7 +56,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
             + "    pc.PRODUCT_CATEGORY_ID, pcl.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pcl.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pcl.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pcl.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pcl.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, "
             + "    tc.TRACER_CATEGORY_ID, tcl.LABEL_ID `TRACER_CATEGORY_LABEL_ID`, tcl.LABEL_EN `TRACER_CATEGORY_LABEL_EN`, tcl.LABEL_FR `TRACER_CATEGORY_LABEL_FR`, tcl.LABEL_PR `TRACER_CATEGORY_LABEL_PR`, tcl.LABEL_SP `TRACER_CATEGORY_LABEL_SP`, "
             + "    puu.UNIT_ID `PLANNING_UNIT_UNIT_ID`, puu.UNIT_CODE `PLANNING_UNIT_UNIT_CODE`, puul.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puul.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puul.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puul.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puul.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`, "
-            + "    pru.HEIGHT_QTY, pru.WIDTH_QTY, pru.LENGTH_QTY, pru.WEIGHT_QTY, pru.LABELING, pru.MULTIPLIER, pru.UNITS_PER_CONTAINER, pru.LABELING,"
+            + "    pru.HEIGHT_QTY, pru.WIDTH_QTY, pru.LENGTH_QTY, pru.WEIGHT_QTY, pru.LABELING, pru.MULTIPLIER,pru.UNITS_PER_CASE,pru.UNITS_PER_PALLET, pru.UNITS_PER_CONTAINER, pru.LABELING,"
             + "    hu.UNIT_ID  `HEIGHT_UNIT_ID`, hu.UNIT_CODE  `HEIGHT_UNIT_CODE`, hul.LABEL_ID  `HEIGHT_UNIT_LABEL_ID`, hul.LABEL_EN  `HEIGHT_UNIT_LABEL_EN`, hul.LABEL_FR  `HEIGHT_UNIT_LABEL_FR`, hul.LABEL_PR  `HEIGHT_UNIT_LABEL_PR`, hul.LABEL_SP  `HEIGHT_UNIT_LABEL_SP`, "
             + "    lu.UNIT_ID  `LENGTH_UNIT_ID`, lu.UNIT_CODE  `LENGTH_UNIT_CODE`, lul.LABEL_ID  `LENGTH_UNIT_LABEL_ID`, lul.LABEL_EN  `LENGTH_UNIT_LABEL_EN`, lul.LABEL_FR  `LENGTH_UNIT_LABEL_FR`, lul.LABEL_PR  `LENGTH_UNIT_LABEL_PR`, lul.LABEL_SP  `LENGTH_UNIT_LABEL_SP`, "
             + "    wu.UNIT_ID   `WIDTH_UNIT_ID`, wu.UNIT_CODE   `WIDTH_UNIT_CODE`, wul.LABEL_ID   `WIDTH_UNIT_LABEL_ID`, wul.LABEL_EN   `WIDTH_UNIT_LABEL_EN`, wul.LABEL_FR   `WIDTH_UNIT_LABEL_FR`, wul.LABEL_PR   `WIDTH_UNIT_LABEL_PR`, wul.LABEL_SP   `WIDTH_UNIT_LABEL_SP`, "
@@ -137,21 +138,23 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_procurement_unit").usingGeneratedKeyColumns("PROCUREMENT_UNIT_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        int labelId = this.labelDao.addLabel(procurementUnit.getLabel(), curUser.getUserId());
+        int labelId = this.labelDao.addLabel(procurementUnit.getLabel(), LabelConstants.RM_PROCUREMENT_UNIT, curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("PLANNING_UNIT_ID", procurementUnit.getPlanningUnit().getPlanningUnitId());
         params.put("UNIT_ID", procurementUnit.getUnit().getId());
         params.put("MULTIPLIER", procurementUnit.getMultiplier());
         params.put("SUPPLIER_ID", procurementUnit.getSupplier().getId());
         params.put("HEIGHT_QTY", procurementUnit.getHeightQty());
-        params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getId() == 0 ? null : procurementUnit.getHeightUnit().getId()));
+        params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit().getId() == null ? null : procurementUnit.getHeightUnit().getId()));
         params.put("WIDTH_QTY", procurementUnit.getWidthQty());
-        params.put("WIDTH_UNIT_ID", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
+        params.put("WIDTH_UNIT_ID", (procurementUnit.getWidthUnit().getId() == null ? null : procurementUnit.getWidthUnit().getId()));
         params.put("LENGTH_QTY", procurementUnit.getLengthQty());
-        params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
+        params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit().getId() == null ? null : procurementUnit.getLengthUnit().getId()));
         params.put("WEIGHT_QTY", procurementUnit.getWeightQty());
-        params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit() == null || procurementUnit.getWeightUnit().getId() == 0 ? null : procurementUnit.getWeightUnit().getId()));
+        params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit().getId() == null ? null : procurementUnit.getWeightUnit().getId()));
         params.put("LABELING", procurementUnit.getLabeling());
+        params.put("UNITS_PER_CASE", procurementUnit.getUnitsPerCase());
+        params.put("UNITS_PER_PALLET", procurementUnit.getUnitsPerPallet());
         params.put("UNITS_PER_CONTAINER", procurementUnit.getUnitsPerContainer());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
@@ -176,6 +179,8 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
                 + "    pru.WIDTH_UNIT_ID=:widthUnitId, "
                 + "    pru.WEIGHT_QTY=:weightQty, "
                 + "    pru.WEIGHT_UNIT_ID=:weightUnitId, "
+                + "    pru.UNITS_PER_CASE=:unitsPerCase, "
+                + "    pru.UNITS_PER_PALLET=:unitsPerPallet, "
                 + "    pru.UNITS_PER_CONTAINER=:unitsPerContainer, "
                 + "    pru.LABELING=:labeling, "
                 + "    pru.ACTIVE=:active, "
@@ -202,13 +207,15 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("multiplier", procurementUnit.getMultiplier());
         params.put("unitId", procurementUnit.getUnit().getId());
         params.put("heightQty", procurementUnit.getHeightQty());
-        params.put("heightUnitId", (procurementUnit.getHeightUnit() == null || procurementUnit.getHeightUnit().getId() == 0 ? null : procurementUnit.getHeightUnit().getId()));
+        params.put("heightUnitId", (procurementUnit.getHeightUnit().getId() == null || procurementUnit.getHeightUnit().getId() == 0 ? null : procurementUnit.getHeightUnit().getId()));
         params.put("lengthQty", procurementUnit.getLengthQty());
-        params.put("lengthUnitId", (procurementUnit.getLengthUnit() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
+        params.put("lengthUnitId", (procurementUnit.getLengthUnit().getId() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
         params.put("widthQty", procurementUnit.getWidthQty());
-        params.put("widthUnitId", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
+        params.put("widthUnitId", (procurementUnit.getWidthUnit().getId() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
         params.put("weightQty", procurementUnit.getWeightQty());
-        params.put("weightUnitId", (procurementUnit.getWidthUnit() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
+        params.put("weightUnitId", (procurementUnit.getWidthUnit().getId() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
+        params.put("unitsPerCase", procurementUnit.getUnitsPerCase());
+        params.put("unitsPerPallet", procurementUnit.getUnitsPerPallet());
         params.put("unitsPerContainer", procurementUnit.getUnitsPerContainer());
         params.put("labeling", procurementUnit.getLabeling());
         params.put("active", procurementUnit.isActive());

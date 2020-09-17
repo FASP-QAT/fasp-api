@@ -50,7 +50,6 @@ public class TreeExtendedProductCategoryResultSetExtractor implements ResultSetE
                         ""
                 );
                 pc.setBaseModel(new BaseModelRowMapper(this.prefix).mapRow(rs, 1));
-
                 if (isFirst) {
                     Node<ExtendedProductCategory> n = new Node(count, null, pc, pc.getProductCategoryId());
                     productCategoryTree = new Tree<>(n);

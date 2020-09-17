@@ -15,8 +15,9 @@ import java.io.Serializable;
 public class CostOfInventoryOutput implements Serializable {
 
     private SimpleObject planningUnit;
-    private double price;
-    private int qty;
+    private double cost;
+    private int stock;
+    private double catalogPrice;
 
     public SimpleObject getPlanningUnit() {
         return planningUnit;
@@ -26,20 +27,28 @@ public class CostOfInventoryOutput implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public double getPrice() {
-        return price;
+    public double getCost() {
+        return cost;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
+    public void setCost(double cost) {
+        this.cost = cost;
     }
 
-    public int getQty() {
-        return qty;
+    public int getStock() {
+        return stock;
     }
 
-    public void setQty(int qty) {
-        this.qty = qty;
+    public void setStock(int stock) {
+        this.stock = stock;
     }
-    
+
+    public double getCatalogPrice() {
+        return catalogPrice;
+    }
+
+    public void setCatalogPrice(double catalogPrice) {
+        this.catalogPrice = catalogPrice;
+    }
+
 }

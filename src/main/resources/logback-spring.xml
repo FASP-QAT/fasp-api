@@ -62,7 +62,7 @@
         </rollingPolicy>
     </appender>
     
-    <appender name="SpringBootDb" class="ch.qos.logback.classic.db.DBAppender">
+<!--    <appender name="SpringBootDb" class="ch.qos.logback.classic.db.DBAppender">
         <connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">
             <dataSource class="com.zaxxer.hikari.HikariDataSource">
                 <driverClassName>com.mysql.cj.jdbc.Driver</driverClassName>
@@ -71,7 +71,7 @@
                 <password>${jdbcPassword}</password>
             </dataSource>
         </connectionSource>
-    </appender>
+    </appender>-->
      
     <!-- LOG everything at INFO level -->
     <root level="info">

@@ -9,6 +9,7 @@ import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.CurrencyService;
+import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import javax.servlet.http.HttpServletRequest;
@@ -41,11 +42,13 @@ public class CurrencyRestController {
 
     @Autowired
     private CurrencyService currencyService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping(value = "/currency")
     public ResponseEntity addCurrency(@RequestBody Currency currency, Authentication auth, HttpServletRequest request) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.currencyService.addCurrency(currency, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException e) {
@@ -60,7 +63,7 @@ public class CurrencyRestController {
     @GetMapping(value = "/currency")
     public ResponseEntity getCurrencyList(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.currencyService.getCurrencyList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Currency list", e);
@@ -71,7 +74,7 @@ public class CurrencyRestController {
     @GetMapping(value = "/currency/{currencyId}")
     public ResponseEntity getCurrencyList(@PathVariable("currencyId") int currencyId, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.currencyService.getCurrencyById(currencyId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get Currency list", e);
@@ -85,7 +88,7 @@ public class CurrencyRestController {
     @GetMapping(value = "/currency/all")
     public ResponseEntity getCurrencyListAll(Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.currencyService.getCurrencyList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get Currency list", e);
@@ -96,7 +99,7 @@ public class CurrencyRestController {
     @PutMapping(value = "/currency")
     public ResponseEntity editCurrency(@RequestBody Currency currency, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.currencyService.updateCurrency(currency, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException e) {

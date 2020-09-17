@@ -36,6 +36,7 @@ public class User extends BaseModel implements Serializable {
     private Date lastLoginDate;
     private List<UserAcl> userAclList;
     private UserAcl[] userAcls;
+    private List<String> businessFunctionList;
 
     public String[] getRoles() {
         if (this.roleList.isEmpty()) {
@@ -157,6 +158,14 @@ public class User extends BaseModel implements Serializable {
     public void setUserAcls(UserAcl[] userAcls) {
         this.userAcls = userAcls;
         this.userAclList = Arrays.asList(userAcls);
+    }
+
+    public List<String> getBusinessFunctionList() {
+        return businessFunctionList;
+    }
+
+    public void setBusinessFunctionList(List<String> businessFunctionList) {
+        this.businessFunctionList = businessFunctionList;
     }
 
     @Override

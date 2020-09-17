@@ -22,6 +22,10 @@ public class RealmRowMapper implements RowMapper<Realm> {
         r.setRealmId(rs.getInt("REALM_ID"));
         r.setRealmCode(rs.getString("REALM_CODE"));
         r.setDefaultRealm(rs.getBoolean("DEFAULT_REALM"));
+        r.setMinMosMinGaurdrail(rs.getInt("MIN_MOS_MIN_GAURDRAIL"));
+        r.setMinMosMaxGaurdrail(rs.getInt("MIN_MOS_MAX_GAURDRAIL"));
+        r.setMaxMosMaxGaurdrail(rs.getInt("MAX_MOS_MAX_GAURDRAIL"));
+        r.setActive(rs.getBoolean("ACTIVE"));
         r.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
         r.setLabel(new LabelRowMapper().mapRow(rs, i));
         return r;

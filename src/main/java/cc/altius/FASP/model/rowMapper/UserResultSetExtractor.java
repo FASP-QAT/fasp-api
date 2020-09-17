@@ -10,9 +10,12 @@ import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.UserAcl;
+import cc.altius.FASP.rest.controller.UserRestController;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
@@ -21,6 +24,8 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  * @author altius
  */
 public class UserResultSetExtractor implements ResultSetExtractor<User> {
+
+    private final Logger auditLogger = LoggerFactory.getLogger(UserRestController.class);
 
     @Override
     public User extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -40,6 +45,7 @@ public class UserResultSetExtractor implements ResultSetExtractor<User> {
                 user.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 user.setRoleList(new LinkedList<>());
                 user.setUserAclList(new LinkedList<>());
+                user.setBusinessFunctionList(new LinkedList<>());
             }
             Role r = new Role(rs.getString("ROLE_ID"), new LabelRowMapper("ROLE_").mapRow(rs, 1));
             if (user.getRoleList().indexOf(r) == -1) {
@@ -55,6 +61,10 @@ public class UserResultSetExtractor implements ResultSetExtractor<User> {
                 if (user.getUserAclList().indexOf(acl) == -1) {
                     user.getUserAclList().add(acl);
                 }
+            }
+            String bf = new String(rs.getString("BUSINESS_FUNCTION_ID"));
+            if (user.getBusinessFunctionList().indexOf(bf) == -1) {
+                user.getBusinessFunctionList().add(bf);
             }
             isFirst = false;
         }
