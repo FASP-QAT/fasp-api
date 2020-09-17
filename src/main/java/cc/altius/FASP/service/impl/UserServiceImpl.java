@@ -231,4 +231,14 @@ public class UserServiceImpl implements UserService {
         return this.userDao.acceptUserAgreement(userId);
     }
 
+    @Override
+    public int addUserJiraAccountId(int userId, String jiraCustomerAccountId) {
+        return this.userDao.addUserJiraAccountId(userId, jiraCustomerAccountId);
+    }
+
+    @Override
+    public String getUserJiraAccountId(int userId) {
+        return this.userDao.getUserJiraAccountId(userId);
+    }
+
 }
