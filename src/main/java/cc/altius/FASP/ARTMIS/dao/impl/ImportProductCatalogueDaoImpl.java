@@ -726,6 +726,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + " null UNIT_ID, fu.UNIT_LABEL_EN UNIT_CODE, null UNIT_LABEL_ID, fu.UNIT_LABEL_EN UNIT_LABEL_EN, null UNIT_LABEL_FR, null UNIT_LABEL_SP, null UNIT_LABEL_PR, "
                 + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
                 + "FROM tmp_forecasting_unit fu where fu.FOUND=1";
+        int rowCount = 0;
         for (ForecastingUnit fu : this.jdbcTemplate.query(sqlStringUpdate, new ForecastingUnitRowMapper())) {
             try {
                 sqlStringUpdate = "UPDATE ap_label l "
@@ -747,7 +748,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + "f.`ACTIVE`=TRUE,"
                         + "f.`GENERIC_LABEL_ID`=lg.`LABEL_ID` "
                         + "WHERE tf.`ID`=?;";
-                System.out.println("rows updated---" + this.jdbcTemplate.update(sqlStringUpdate, curUserId, curDate, fu.getForecastingUnitId()));
+                rowCount += this.jdbcTemplate.update(sqlStringUpdate, curUserId, curDate, fu.getForecastingUnitId());
 //                forecastingUnitParams.clear();
 ////                forecastingUnitParams.put("forcastingUnitLabel", fu.getLabel().getLabel_en());
 //                forecastingUnitParams.put("lastModifiedBy", fu.getLabel().getLabel_en());
@@ -762,6 +763,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info("Error while updating Forecasting Unit " + fu.getLabel() + " because there was an error " + e.getMessage());
             }
         }
+        System.out.println("Rows updated - " + rowCount);
         //Update end
         sqlString = "SELECT COUNT(*) FROM rm_forecasting_unit";
         logger.info("Total rows available in rm_forecasting_unit ---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
