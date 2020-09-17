@@ -5,7 +5,9 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.service.JiraServiceDeskApiService;
 import cc.altius.FASP.service.UserService;
 import java.util.Arrays;
 import java.util.Base64;
@@ -49,23 +51,17 @@ public class JiraServiceDeskApiController {
     private String JIRA_API_USERNAME;
     @Value("${jira.apiToken}")
     private String JIRA_API_TOKEN;
+    @Autowired
+    private JiraServiceDeskApiService jiraServiceDeskApiService;
+    @Autowired
+    private UserService userService;
 
     @PostMapping(value = "/ticket/addIssue")
     public ResponseEntity addIssue(@RequestBody(required = true) String jsonData, Authentication auth) {
-        try {
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> response;           
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Authorization", getJiraBasicAuthenticationToken());
-            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            headers.setContentType(MediaType.APPLICATION_JSON);
-
-            HttpEntity<String> entity = new HttpEntity<String>(jsonData, headers);
-
-            response = restTemplate.exchange(
-                    JIRA_API_URL + "/issue", HttpMethod.POST, entity, String.class);
-            
+        try {            
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            ResponseEntity<String> response;
+            response = this.jiraServiceDeskApiService.addIssue(jsonData, curUser);
             if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {                
                 return new ResponseEntity(response.getBody(), HttpStatus.OK);
             } else {                
@@ -83,32 +79,8 @@ public class JiraServiceDeskApiController {
     public ResponseEntity addIssueAttachment(@RequestParam("file") MultipartFile file, @PathVariable("issueId") String issueId, Authentication auth) {
         String message = "";
         try {            
-            RestTemplate restTemplate = new RestTemplate();
-            ResponseEntity<String> response;            
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.add("Authorization", getJiraBasicAuthenticationToken());
-            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-            headers.add("X-Atlassian-Token", "no-check");
-
-            MultiValueMap<String, String> fileMap = new LinkedMultiValueMap<>();
-            ContentDisposition contentDisposition = ContentDisposition
-                    .builder("form-data")
-                    .name("file")
-                    .filename(file.getOriginalFilename())
-                    .build();
-            fileMap.add(HttpHeaders.CONTENT_DISPOSITION, contentDisposition.toString());
-            HttpEntity<byte[]> fileEntity = new HttpEntity<>(file.getBytes(), fileMap);
-
-            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-            body.add("file", fileEntity);
-
-            HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-            response = restTemplate.exchange(
-                    JIRA_API_URL + "/issue/" + issueId + "/attachments", HttpMethod.POST, requestEntity, String.class);
-
+            ResponseEntity<String> response;
+            response = this.jiraServiceDeskApiService.addIssueAttachment(file, issueId);
             if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
                 message = "Uploaded the file successfully: " + file.getOriginalFilename();
                 return new ResponseEntity(new ResponseCode(message), HttpStatus.OK);
@@ -122,11 +94,5 @@ public class JiraServiceDeskApiController {
             message = "Could not upload the file: " + file.getOriginalFilename() + "!";
             return new ResponseEntity(new ResponseCode(message), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }
-    
-    private String getJiraBasicAuthenticationToken() {
-        String authStr = JIRA_API_USERNAME + ":" + JIRA_API_TOKEN;
-        String base64Creds = "Basic " + Base64.getEncoder().encodeToString(authStr.getBytes());
-        return base64Creds;
-    }
+    }        
 }

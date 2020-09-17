@@ -792,5 +792,21 @@ public class UserDaoImpl implements UserDao {
         String sql = "UPDATE us_user u SET u.`AGREEMENT_ACCEPTED`=1,u.`LAST_LOGIN_DATE`=?,u.`LAST_MODIFIED_BY`=? WHERE u.`USER_ID`=?;";
         return this.jdbcTemplate.update(sql, curDate, userId, userId);
     }
+    
+    @Override
+    public int addUserJiraAccountId(int userId, String jiraCustomerAccountId) {       
+        String sql = "UPDATE us_user u SET u.`JIRA_ACCOUNT_ID`=? WHERE u.`USER_ID`=?;";
+        return this.jdbcTemplate.update(sql, jiraCustomerAccountId, userId);
+    }
+
+    @Override
+    public String getUserJiraAccountId(int userId) {
+        String sql = "SELECT u.`JIRA_ACCOUNT_ID` FROM us_user u WHERE u.`USER_ID`=?;";
+        try {
+            return this.jdbcTemplate.queryForObject(sql, String.class, userId);             
+        } catch (Exception e) {
+            return null;
+        }
+    }
 
 }
