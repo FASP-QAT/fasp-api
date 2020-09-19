@@ -79,7 +79,7 @@ public class ProblemRestController implements Serializable {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.problemService.getProblemListForSync(1, lastSyncDate, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.problemService.getProblemListForSync(realmId, lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing realmProblems", p);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);

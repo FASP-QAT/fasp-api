@@ -67,6 +67,7 @@ public class RegionDaoImpl implements RegionDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_region").usingGeneratedKeyColumns("REGION_ID");
         Map<String, Object> params = new HashMap<>();
         int labelId = this.labelDao.addLabel(region.getLabel(), LabelConstants.RM_REGION, curUser.getUserId());
+        params.put("REALM_ID", region.getRealmCountry().getRealm().getRealmId());
         params.put("REALM_COUNTRY_ID", region.getRealmCountry().getRealmCountryId());
         params.put("LABEL_ID", labelId);
         params.put("GLN", region.getGln());
