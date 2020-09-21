@@ -15,6 +15,8 @@ import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
+import cc.altius.FASP.model.report.ExpiredStockInput;
+import cc.altius.FASP.model.report.ExpiredStockOutput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
@@ -127,6 +129,11 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public List<InventoryTurnsOutput> getInventoryTurns(CostOfInventoryInput it, CustomUserDetails curUser) {
         return this.reportDao.getInventoryTurns(it, curUser);
+    }
+
+    @Override
+    public List<ExpiredStockOutput> getExpiredStock(ExpiredStockInput esi, CustomUserDetails curUser) {
+        return this.reportDao.getExpiredStock(esi, curUser);
     }
 
     @Override
