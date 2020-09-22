@@ -21,6 +21,9 @@ import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutputRowMapper;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.CostOfInventoryRowMapper;
+import cc.altius.FASP.model.report.ExpiredStockInput;
+import cc.altius.FASP.model.report.ExpiredStockOutput;
+import cc.altius.FASP.model.report.ExpiredStockOutputRowMapper;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionOutputRowMapper;
@@ -240,6 +243,19 @@ public class ReportDaoImpl implements ReportDao {
         params.put("includePlannedShipments", it.isIncludePlannedShipments());
         String sql = "CALL inventoryTurns(:programId, :versionId, :dt, :includePlannedShipments)";
         return this.namedParameterJdbcTemplate.query(sql, params, new InventoryTurnsOutputRowMapper());
+    }
+
+    // Report no 10
+    @Override
+    public List<ExpiredStockOutput> getExpiredStock(ExpiredStockInput es, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", es.getProgramId());
+        params.put("versionId", es.getVersionId());
+        params.put("startDate", es.getStartDate());
+        params.put("stopDate", es.getStopDate());
+        params.put("includePlannedShipments", es.isIncludePlannedShipments());
+        String sql = "CALL getExpiredStock(:programId, :versionId, :startDate, :stopDate, :includePlannedShipments)";
+        return this.namedParameterJdbcTemplate.query(sql, params, new ExpiredStockOutputRowMapper());
     }
 
     // Report no 12

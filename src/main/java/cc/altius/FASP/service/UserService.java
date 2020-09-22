@@ -80,5 +80,9 @@ public interface UserService {
     public int updateUserLanguage(int userId, String languageCode);
 
     public int acceptUserAgreement(int userId);
+    
+    public int addUserJiraAccountId(int userId, String jiraCustomerAccountId);
+    
+    public String getUserJiraAccountId(int userId);
 
 }

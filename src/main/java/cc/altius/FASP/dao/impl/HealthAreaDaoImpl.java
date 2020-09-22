@@ -13,6 +13,7 @@ import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.rowMapper.HealthAreaListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.HealthAreaResultSetExtractor;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -64,6 +65,23 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
             + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
             + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
             + "WHERE TRUE ";
+    private final String sqlListProgramString = "SELECT "
+            + "	ha.HEALTH_AREA_ID, ha.HEALTH_AREA_CODE, hal.LABEL_ID, hal.LABEL_EN, hal.LABEL_FR, hal.LABEL_SP, hal.LABEL_PR, "
+            + "     r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
+            + "     ha.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ha.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ha.LAST_MODIFIED_DATE, "
+            + "     rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
+            + "FROM rm_health_area ha "
+            + "LEFT JOIN rm_program p ON ha.HEALTH_AREA_ID=p.HEALTH_AREA_ID AND p.REALM_COUNTRY_ID=:realmCountryId "
+            + "LEFT JOIN rm_realm r ON ha.REALM_ID=r.REALM_ID "
+            + "LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
+            + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
+            + "LEFT JOIN us_user cb ON ha.CREATED_BY=cb.USER_ID "
+            + "LEFT JOIN us_user lmb ON ha.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "LEFT JOIN rm_health_area_country hac ON ha.HEALTH_AREA_ID=hac.HEALTH_AREA_ID AND hac.REALM_COUNTRY_ID=:realmCountryId "
+            + "LEFT JOIN rm_realm_country rc ON hac.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+            + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+            + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
+            + "WHERE TRUE AND rc.REALM_COUNTRY_ID=:realmCountryId AND p.PROGRAM_ID IS NOT NULL AND p.ACTIVE  ";
 
     @Override
     @Transactional
@@ -138,22 +156,17 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new HealthAreaListResultSetExtractor());
-//        for (UserAcl acl : curUser.getAclList()) {
-//            if (acl.getRealmCountryId() != -1) {
-//                sqlString += "AND hac.REALM_COUNTRY_ID=:realmCountryId";
-//                params.put("realmCountryId", acl.getRealmCountryId());
-//            }
-//            if (acl.getHealthAreaId() != -1) {
-//                sqlString += "AND ha.HEALTH_AREA_ID=:healthAreaId";
-//                params.put("healthAreaId", acl.getHealthAreaId());
-//            }
-//            if (acl.getOrganisationId() != -1) {
-//
-//            }
-//            if (acl.getProgramId() != -1) {
-//
-//            }
-//        }
+    }
+
+    @Override
+    public List<HealthArea> getHealthAreaForActiveProgramsList(int realmCountryId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListProgramString);
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmCountryId", realmCountryId);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
+        this.aclService.addUserAclForHealthArea(sqlStringBuilder, params, "ha", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new HealthAreaListResultSetExtractor());
     }
 
     @Override

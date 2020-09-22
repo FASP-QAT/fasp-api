@@ -23,9 +23,7 @@ public class ApplicationConfiguration {
     @Bean(name = "scheduler")
     public PropertiesFactoryBean schedulerProperties() {
         PropertiesFactoryBean bean = new PropertiesFactoryBean();
-//        "/home/altius/aquagreenFiles/scheduler.properties"
         bean.setLocation(new FileSystemResource("/home/altius/QAT/scheduler.properties"));
-//        bean.setLocation(new FileSystemResource("/home/yogesh/perfetti/scheduler.properties"));
         return bean;
     }
 
@@ -35,7 +33,7 @@ public class ApplicationConfiguration {
         Resource[] resources = new Resource[]{
             new ClassPathResource("application.properties"),
             new ClassPathResource("fasp.properties"),
-            new ClassPathResource("version.properties"), //            new FileSystemResource("/home/altius/QAT/scheduler.properties"),
+            new ClassPathResource("version.properties"),
         };
         pspc.setLocations(resources);
         pspc.setIgnoreUnresolvablePlaceholders(true);

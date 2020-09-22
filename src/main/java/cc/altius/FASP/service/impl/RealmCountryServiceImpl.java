@@ -11,6 +11,7 @@ import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
+import cc.altius.FASP.model.RealmCountryHealthArea;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.RealmCountryService;
 import java.util.List;
@@ -121,7 +122,7 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     }
 
     @Override
-    public List<RealmCountry> getRealmCountryListByRealmIdForActivePrograms(int realmId, CustomUserDetails curUser) {
+    public List<RealmCountryHealthArea> getRealmCountryListByRealmIdForActivePrograms(int realmId, CustomUserDetails curUser) {
         Realm r = this.realmDao.getRealmById(realmId, curUser);
         if (r == null) {
             throw new EmptyResultDataAccessException(1);

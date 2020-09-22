@@ -52,7 +52,14 @@ public class PipelineDbRestController {
     public ResponseEntity postOrganisation(@RequestBody Pipeline pipeline,@PathVariable("fileName") String fileName, Authentication auth) throws IOException {
         CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
         try {
-            return new ResponseEntity(this.pipelineDbService.savePipelineDbData(pipeline, curUser,fileName), HttpStatus.OK);
+            String msg="static.message.pipeline.programExists";
+            int duplicateCheckCount=this.pipelineDbService.savePipelineDbData(pipeline, curUser,fileName);
+            if(duplicateCheckCount==0){
+                return new ResponseEntity(new ResponseCode(msg), HttpStatus.PRECONDITION_FAILED);
+            }else{
+                return new ResponseEntity(this.pipelineDbService.savePipelineDbData(pipeline, curUser,fileName), HttpStatus.OK);
+            }
+            
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity(new ResponseCode("incorrectformat"), HttpStatus.INTERNAL_SERVER_ERROR);

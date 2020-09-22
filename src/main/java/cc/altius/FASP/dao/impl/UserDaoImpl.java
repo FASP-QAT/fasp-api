@@ -156,7 +156,7 @@ public class UserDaoImpl implements UserDao {
     public CustomUserDetails getCustomUserByUsername(String username) {
         logger.info("Inside the getCustomerUserByUsername method - " + username);
         String sqlString = this.customUserString
-                + "  AND `user`.`USERNAME`=:username "
+                + "  AND LOWER(`user`.`USERNAME`)=LOWER(:username) "
                 + this.customUserOrderBy;
 
         try {
@@ -177,7 +177,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public CustomUserDetails getCustomUserByEmailId(String emailId) {
         logger.info("Inside the getCustomUserByEmailId method - " + emailId);
-        String sqlString = this.customUserString + "  AND `user`.`EMAIL_ID`=:emailId " + this.customUserOrderBy;
+        String sqlString = this.customUserString + "  AND LOWER(`user`.`EMAIL_ID`)=LOWER(:emailId) " + this.customUserOrderBy;
         try {
             Map<String, Object> params = new HashMap<>();
             params.put("emailId", emailId);
@@ -268,7 +268,7 @@ public class UserDaoImpl implements UserDao {
             Map<String, Object> params = new HashMap<>();
             params.put("emailId", emailId);
             params.put("curDate", curDate);
-            String sqlString = "UPDATE `us_user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=:curDate WHERE EMAIL_ID=:emailId";
+            String sqlString = "UPDATE `us_user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=:curDate WHERE LOWER(EMAIL_ID)=LOWER(:emailId)";
             return this.namedParameterJdbcTemplate.update(sqlString, params);
         } catch (DataAccessException e) {
             return 0;
@@ -278,7 +278,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int updateFailedAttemptsByUserId(String emailId) {
         try {
-            String sqlQuery = "UPDATE `us_user` SET FAILED_ATTEMPTS=FAILED_ATTEMPTS+1 WHERE EMAIL_ID=:emailId";
+            String sqlQuery = "UPDATE `us_user` SET FAILED_ATTEMPTS=FAILED_ATTEMPTS+1 WHERE LOWER(EMAIL_ID)=LOWER(:emailId)";
             Map<String, Object> params = new HashMap<>();
             params.put("emailId", emailId);
             return this.namedParameterJdbcTemplate.update(sqlQuery, params);
@@ -433,37 +433,19 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page) {
-        String message = "", sql, username = user.getUsername(), phoneNo = user.getPhoneNumber();
-        int userId = 0;
+        String message = "", sql;
         int result2 = 0;
         Map<String, Object> params = new HashMap<>();
         params.put("username", user.getUsername());
         params.put("emailId", user.getEmailId());
         if (page == 1) {
-//            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`USERNAME`=:username";
-//            result1 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
-//            if (result1 > 0) {
-//                message = "static.message.user.usernameExists";
-//            }
-            sql = "SELECT COUNT(*) FROM us_user u WHERE u.`EMAIL_ID`=:emailId";
+            sql = "SELECT COUNT(*) FROM us_user u WHERE LOWER(u.`EMAIL_ID`)=LOWER(:emailId)";
             result2 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
             if (result2 > 0) {
                 message = "static.message.user.emailIdExists";
             }
-
-//            if (result1 > 0 && result2 > 0) {
-//                message = "static.message.user.usernameemailIdExists";
-//            }
         } else if (page == 2) {
-//            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`USERNAME`=:username";
-//            try {
-//                result1 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
-//            } catch (EmptyResultDataAccessException e) {
-//            }
-//            if (result1 > 0 && result1 != user.getUserId()) {
-//                message = "static.message.user.usernameExists";
-//            }
-            sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`EMAIL_ID`=:emailId";
+            sql = "SELECT u.`USER_ID` FROM us_user u WHERE LOWER(u.`EMAIL_ID`)=LOWER(:emailId)";
             try {
                 result2 = this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class);
             } catch (EmptyResultDataAccessException e) {
@@ -471,9 +453,6 @@ public class UserDaoImpl implements UserDao {
             if (result2 > 0 && result2 != user.getUserId()) {
                 message = "static.message.user.emailIdExists";
             }
-//            if ((result1 > 0 && result1 != user.getUserId()) && (result2 > 0 && result2 != user.getUserId())) {
-//                message = "static.message.user.usernameemailIdExists";
-//            }
         }
         return message;
     }
@@ -528,7 +507,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int updatePassword(String emailId, String token, String newPassword, int offset) {
         Date offsetDate = DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, offset);
-        String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn, FAILED_ATTEMPTS=0 WHERE us_user.EMAIL_ID=:emailId";
+        String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn, FAILED_ATTEMPTS=0 WHERE LOWER(us_user.EMAIL_ID)=LOWER(:emailId)";
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
         params.put("hash", newPassword);
@@ -538,7 +517,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public boolean confirmPassword(String emailId, String password) {
-        String sqlString = "SELECT us_user.PASSWORD FROM us_user WHERE us_user.`EMAIL_ID`=:emailId";
+        String sqlString = "SELECT us_user.PASSWORD FROM us_user WHERE LOWER(us_user.`EMAIL_ID`)=LOWER(:emailId)";
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
         String hash = namedParameterJdbcTemplate.queryForObject(sqlString, params, String.class);
@@ -671,7 +650,7 @@ public class UserDaoImpl implements UserDao {
     public EmailUser getEmailUserByEmailId(String emailId) {
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
-        return this.namedParameterJdbcTemplate.queryForObject("SELECT USERNAME, USER_ID, EMAIL_ID FROM us_user WHERE EMAIL_ID=:emailId", params, new EmailUserRowMapper());
+        return this.namedParameterJdbcTemplate.queryForObject("SELECT USERNAME, USER_ID, EMAIL_ID FROM us_user WHERE LOWER(EMAIL_ID)=LOWER(:emailId)", params, new EmailUserRowMapper());
     }
 
     @Override
@@ -679,7 +658,7 @@ public class UserDaoImpl implements UserDao {
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
         params.put("token", token);
-        return this.namedParameterJdbcTemplate.queryForObject("SELECT fpt.*, u.USERNAME FROM us_forgot_password_token fpt LEFT JOIN us_user u on fpt.USER_ID=u.USER_ID WHERE fpt.token=:token AND u.EMAIL_ID=:emailId", params, new ForgotPasswordTokenRowMapper());
+        return this.namedParameterJdbcTemplate.queryForObject("SELECT fpt.*, u.USERNAME FROM us_forgot_password_token fpt LEFT JOIN us_user u on fpt.USER_ID=u.USER_ID WHERE fpt.token=:token AND LOWER(u.EMAIL_ID)=LOWER(:emailId)", params, new ForgotPasswordTokenRowMapper());
     }
 
     @Override
@@ -688,7 +667,7 @@ public class UserDaoImpl implements UserDao {
         params.put("username", username);
         params.put("token", token);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_TRIGGERED_DATE=:curDate WHERE u.EMAIL_ID=:username AND fpt.TOKEN=:token", params);
+        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_TRIGGERED_DATE=:curDate WHERE LOWER(u.EMAIL_ID)=LOWER(:username) AND fpt.TOKEN=:token", params);
     }
 
     @Override
@@ -697,7 +676,7 @@ public class UserDaoImpl implements UserDao {
         params.put("emailId", emailId);
         params.put("token", token);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_COMPLETION_DATE=:curDate WHERE u.EMAIL_ID=:emailId AND fpt.TOKEN=:token", params);
+        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_COMPLETION_DATE=:curDate WHERE LOWER(u.EMAIL_ID)=LOWER(:emailId) AND fpt.TOKEN=:token", params);
     }
 
     @Override
@@ -773,7 +752,7 @@ public class UserDaoImpl implements UserDao {
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
         params.put("syncexpiresOn", DateUtils.getCurrentDateObject(DateUtils.EST));
-        return this.namedParameterJdbcTemplate.update("update us_user u set u.SYNC_EXPIRES_ON=:syncexpiresOn where u.EMAIL_ID=:emailId;", params);
+        return this.namedParameterJdbcTemplate.update("update us_user u set u.SYNC_EXPIRES_ON=:syncexpiresOn where LOWER(u.EMAIL_ID)=LOWER(:emailId)", params);
     }
 
     @Override
@@ -791,6 +770,22 @@ public class UserDaoImpl implements UserDao {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sql = "UPDATE us_user u SET u.`AGREEMENT_ACCEPTED`=1,u.`LAST_LOGIN_DATE`=?,u.`LAST_MODIFIED_BY`=? WHERE u.`USER_ID`=?;";
         return this.jdbcTemplate.update(sql, curDate, userId, userId);
+    }
+    
+    @Override
+    public int addUserJiraAccountId(int userId, String jiraCustomerAccountId) {       
+        String sql = "UPDATE us_user u SET u.`JIRA_ACCOUNT_ID`=? WHERE u.`USER_ID`=?;";
+        return this.jdbcTemplate.update(sql, jiraCustomerAccountId, userId);
+    }
+
+    @Override
+    public String getUserJiraAccountId(int userId) {
+        String sql = "SELECT u.`JIRA_ACCOUNT_ID` FROM us_user u WHERE u.`USER_ID`=?;";
+        try {
+            return this.jdbcTemplate.queryForObject(sql, String.class, userId);             
+        } catch (Exception e) {
+            return null;
+        }
     }
 
 }
