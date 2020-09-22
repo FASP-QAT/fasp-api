@@ -11,6 +11,8 @@ import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.RealmCountry;
+import cc.altius.FASP.model.RealmCountryHealthArea;
+import cc.altius.FASP.model.rowMapper.RealmCountryHealthAreaResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RealmCountryPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.RealmCountryRowMapper;
 import cc.altius.FASP.service.AclService;
@@ -71,14 +73,23 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
             + " LEFT JOIN ap_label unl ON un.LABEL_ID=unl.LABEL_ID "
             + " LEFT JOIN us_user cb ON rc.CREATED_BY=cb.USER_ID "
             + " LEFT JOIN us_user lmb ON rc.LAST_MODIFIED_BY=lmb.USER_ID ";
-    
+
     private final String sqlListString = this.sqlListStringBase + " WHERE TRUE ";
-    
-    private final String sqlListForProgramString = this.sqlListStringBase 
-            + " LEFT JOIN rm_program p ON rc.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID "
-            + " LEFT JOIN rm_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
-            + " LEFT JOIN rm_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
-            + " WHERE TRUE ";
+
+    private final String sqlListForProgramString = "SELECT  "
+            + "     rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, c.LABEL_ID `COUNTRY_LABEL_ID`, c.COUNTRY_CODE, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_SP `COUNTRY_LABEL_SP`, c.LABEL_PR `COUNTRY_LABEL_PR`, "
+            + "     ha.HEALTH_AREA_ID, ha.HEALTH_AREA_CODE, ha.LABEL_ID `HEALTH_AREA_LABEL_ID`, ha.LABEL_EN `HEALTH_AREA_LABEL_EN`, ha.LABEL_FR `HEALTH_AREA_LABEL_FR`, ha.LABEL_SP `HEALTH_AREA_LABEL_SP`, ha.LABEL_PR `HEALTH_AREA_LABEL_PR` "
+            + "FROM vw_realm r  "
+            + "LEFT JOIN rm_realm_country rc ON r.REALM_ID=rc.REALM_ID "
+            + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+            + "LEFT JOIN rm_program p ON rc.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID "
+            + "LEFT JOIN vw_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
+            + "LEFT JOIN rm_health_area_country hac ON ha.HEALTH_AREA_ID = hac.HEALTH_AREA_ID AND rc.REALM_COUNTRY_ID=hac.REALM_COUNTRY_ID "
+            + "LEFT JOIN rm_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
+            + "LEFT JOIN us_user cb ON ha.CREATED_BY=cb.USER_ID  "
+            + "LEFT JOIN us_user lmb ON ha.LAST_MODIFIED_BY=lmb.USER_ID  "
+            + "WHERE r.REALM_ID=:realmId AND r.ACTIVE and rc.ACTIVE AND p.ACTIVE AND ha.ACTIVE AND hac.ACTIVE ";
+
 
     private final String sqlListStringForRealmCountryPlanningUnit = " SELECT rcpu.REALM_COUNTRY_PLANNING_UNIT_ID,   "
             + "      rc.REALM_COUNTRY_ID, cl.LABEL_ID `REALM_COUNTRY_LABEL_ID`, cl.LABEL_EN `REALM_COUNTRY_LABEL_EN`, cl.LABEL_FR `REALM_COUNTRY_LABEL_FR`, cl.LABEL_PR `REALM_COUNTRY_LABEL_PR`, cl.LABEL_SP `REALM_COUNTRY_LABEL_SP`,  "
@@ -217,14 +228,16 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
     }
 
     @Override
-    public List<RealmCountry> getRealmCountryListByRealmIdForActivePrograms(int realmId, CustomUserDetails curUser) {
+    public List<RealmCountryHealthArea> getRealmCountryListByRealmIdForActivePrograms(int realmId, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListForProgramString);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", realmId, curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(" AND p.PROGRAM_ID IS NOT NULL AND rc.REALM_COUNTRY_ID IN (SELECT p.REALM_COUNTRY_ID FROM rm_program p WHERE p.ACTIVE) AND p.ACTIVE AND rc.ACTIVE GROUP BY rc.REALM_COUNTRY_ID ");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
+        sqlStringBuilder.append(" GROUP BY rc.REALM_COUNTRY_ID, ha.HEALTH_AREA_ID ORDER BY c.COUNTRY_CODE, ha.HEALTH_AREA_CODE");
+        System.out.println(LogUtils.buildStringForLog(sqlStringBuilder.toString(), params));
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryHealthAreaResultSetExtractor());
     }
 
     @Override

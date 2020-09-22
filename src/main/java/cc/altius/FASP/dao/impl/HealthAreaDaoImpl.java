@@ -159,7 +159,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
     }
 
     @Override
-    public List<HealthArea> getHealthAreaList(int realmCountryId, CustomUserDetails curUser) {
+    public List<HealthArea> getHealthAreaForActiveProgramsList(int realmCountryId, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListProgramString);
         Map<String, Object> params = new HashMap<>();
         params.put("realmCountryId", realmCountryId);

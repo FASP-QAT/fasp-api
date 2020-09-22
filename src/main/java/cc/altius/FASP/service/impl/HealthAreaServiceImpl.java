@@ -61,12 +61,13 @@ public class HealthAreaServiceImpl implements HealthAreaService {
     }
 
     @Override
-    public List<HealthArea> getHealthAreaList(int realmCountryId, CustomUserDetails curUser) {
-        RealmCountry rc = this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
-        if (rc == null) {
+    public List<HealthArea> getHealthAreaForActiveProgramsList(int realmId, CustomUserDetails curUser) {
+        Realm r = this.realmDao.getRealmById(realmId, curUser);
+        if (r == null) {
             throw new EmptyResultDataAccessException(1);
         }
-        return this.healthAreaDao.getHealthAreaList(realmCountryId, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId));
+        return this.healthAreaDao.getHealthAreaForActiveProgramsList(realmId, curUser);
     }
 
     @Override
