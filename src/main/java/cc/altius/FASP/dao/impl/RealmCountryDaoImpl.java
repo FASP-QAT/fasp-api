@@ -72,7 +72,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
             + " LEFT JOIN us_user cb ON rc.CREATED_BY=cb.USER_ID "
             + " LEFT JOIN us_user lmb ON rc.LAST_MODIFIED_BY=lmb.USER_ID ";
     
-    private final String sqlListString = this.sqlListString + " WHERE TRUE ";
+    private final String sqlListString = this.sqlListStringBase + " WHERE TRUE ";
     
     private final String sqlListForProgramString = this.sqlListStringBase 
             + " LEFT JOIN rm_program p ON rc.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID "

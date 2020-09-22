@@ -81,7 +81,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
             + "LEFT JOIN rm_realm_country rc ON hac.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
             + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
             + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-            + "WHERE TRUE AND rc.REALM_COUNTRY_ID=:realmCountryId ";
+            + "WHERE TRUE AND rc.REALM_COUNTRY_ID=:realmCountryId AND p.PROGRAM_ID IS NOT NULL AND p.ACTIVE  ";
 
     @Override
     @Transactional
@@ -166,7 +166,6 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addUserAclForHealthArea(sqlStringBuilder, params, "ha", curUser);
-        System.out.println(LogUtils.buildStringForLog(sqlStringBuilder.toString(), params));
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new HealthAreaListResultSetExtractor());
     }
 
