@@ -14,6 +14,7 @@ import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.rowMapper.RealmCountryPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.RealmCountryRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -50,9 +52,9 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    private final String sqlListString = "SELECT "
+    private final String sqlListStringBase = "SELECT "
             + "    rc.REALM_COUNTRY_ID, "
-//            + "rc.AIR_FREIGHT_PERC, rc.SEA_FREIGHT_PERC, rc.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME, rc.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME, rc.ARRIVED_TO_DELIVERED_LEAD_TIME, "
+            //            + "rc.AIR_FREIGHT_PERC, rc.SEA_FREIGHT_PERC, rc.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME, rc.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME, rc.ARRIVED_TO_DELIVERED_LEAD_TIME, "
             + "    r.REALM_ID, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, r.REALM_CODE, "
             + "    c.COUNTRY_ID, c.COUNTRY_CODE, cl.LABEL_ID `COUNTRY_LABEL_ID`,cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_PR `COUNTRY_LABEL_PR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, "
             + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CONVERSION_RATE_TO_USD, cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
@@ -68,14 +70,21 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
             + " LEFT JOIN ap_unit un ON rc.PALLET_UNIT_ID=un.UNIT_ID "
             + " LEFT JOIN ap_label unl ON un.LABEL_ID=unl.LABEL_ID "
             + " LEFT JOIN us_user cb ON rc.CREATED_BY=cb.USER_ID "
-            + " LEFT JOIN us_user lmb ON rc.LAST_MODIFIED_BY=lmb.USER_ID "
+            + " LEFT JOIN us_user lmb ON rc.LAST_MODIFIED_BY=lmb.USER_ID ";
+    
+    private final String sqlListString = this.sqlListString + " WHERE TRUE ";
+    
+    private final String sqlListForProgramString = this.sqlListStringBase 
+            + " LEFT JOIN rm_program p ON rc.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID "
+            + " LEFT JOIN rm_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
+            + " LEFT JOIN rm_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
             + " WHERE TRUE ";
 
-        private final String sqlListStringForRealmCountryPlanningUnit = " SELECT rcpu.REALM_COUNTRY_PLANNING_UNIT_ID,   "
+    private final String sqlListStringForRealmCountryPlanningUnit = " SELECT rcpu.REALM_COUNTRY_PLANNING_UNIT_ID,   "
             + "      rc.REALM_COUNTRY_ID, cl.LABEL_ID `REALM_COUNTRY_LABEL_ID`, cl.LABEL_EN `REALM_COUNTRY_LABEL_EN`, cl.LABEL_FR `REALM_COUNTRY_LABEL_FR`, cl.LABEL_PR `REALM_COUNTRY_LABEL_PR`, cl.LABEL_SP `REALM_COUNTRY_LABEL_SP`,  "
             + "      pu.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`,  "
             + "      rcpu.SKU_CODE, rcpu.MULTIPLIER, "
-//                + "rcpu.GTIN,  "
+            //                + "rcpu.GTIN,  "
             + "      rcpul.LABEL_ID, rcpul.LABEL_EN, rcpul.LABEL_FR, rcpul.LABEL_SP, rcpul.LABEL_PR, "
             + "      u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `UNIT_LABEL_ID`, ul.LABEL_EN `UNIT_LABEL_EN`, ul.LABEL_FR `UNIT_LABEL_FR`, ul.LABEL_SP  `UNIT_LABEL_SP`, ul.LABEL_PR  `UNIT_LABEL_PR`, "
             + "      rcpu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, rcpu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, rcpu.LAST_MODIFIED_DATE "
@@ -121,22 +130,22 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sqlString = "UPDATE rm_realm_country rc SET "
                 + "DEFAULT_CURRENCY_ID=:defaultCurrencyId, "
-//                + "AIR_FREIGHT_PERC=:airFreightPerc, "
-//                + "SEA_FREIGHT_PERC=:seaFreightPerc, "
-//                + "SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime, "
-//                + "SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=:shippedToArrivedBySeaLeadTime, "
-//                + "ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, "
+                //                + "AIR_FREIGHT_PERC=:airFreightPerc, "
+                //                + "SEA_FREIGHT_PERC=:seaFreightPerc, "
+                //                + "SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime, "
+                //                + "SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=:shippedToArrivedBySeaLeadTime, "
+                //                + "ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, "
                 + "ACTIVE=:active, "
                 + "LAST_MODIFIED_BY=:curUser, "
                 + "LAST_MODIFIED_DATE=:curDate "
                 + "WHERE REALM_COUNTRY_ID=:realmCountryId "
                 + "AND ("
                 + "DEFAULT_CURRENCY_ID!=:defaultCurrencyId OR "
-//                + "AIR_FREIGHT_PERC!=:airFreightPerc OR "
-//                + "SEA_FREIGHT_PERC!=:seaFreightPerc OR "
-//                + "SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME!=:shippedToArrivedByAirLeadTime OR "
-//                + "SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME!=:shippedToArrivedBySeaLeadTime OR "
-//                + "ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime OR "
+                //                + "AIR_FREIGHT_PERC!=:airFreightPerc OR "
+                //                + "SEA_FREIGHT_PERC!=:seaFreightPerc OR "
+                //                + "SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME!=:shippedToArrivedByAirLeadTime OR "
+                //                + "SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME!=:shippedToArrivedBySeaLeadTime OR "
+                //                + "ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime OR "
                 + "ACTIVE!=:active) ";
         Map<String, Object> params = new HashMap<>();
         params.put("realmCountryId", realmCountry.getRealmCountryId());
@@ -169,7 +178,11 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Map<String, Object> params = new HashMap<>();
         params.put("realmCountryId", realmCountryId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
-        return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
+        try {
+            return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
+        } catch (EmptyResultDataAccessException erda) {
+            return null;
+        }
     }
 
     @Override
@@ -206,10 +219,11 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
     @Override
     public List<RealmCountry> getRealmCountryListByRealmIdForActivePrograms(int realmId, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListForProgramString);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", realmId, curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
-        sqlStringBuilder.append(" AND rc.REALM_COUNTRY_ID IN (SELECT p.REALM_COUNTRY_ID FROM rm_program p WHERE p.ACTIVE) ");
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" AND p.PROGRAM_ID IS NOT NULL AND rc.REALM_COUNTRY_ID IN (SELECT p.REALM_COUNTRY_ID FROM rm_program p WHERE p.ACTIVE) AND p.ACTIVE AND rc.ACTIVE GROUP BY rc.REALM_COUNTRY_ID ");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
     }
 
@@ -267,15 +281,15 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                     + "SET "
                     + "rcpu.SKU_CODE=:skuCode, "
                     + "rcpu.MULTIPLIER=:multiplier, "
-//                    + "rcpu.GTIN=:gtin, "
+                    //                    + "rcpu.GTIN=:gtin, "
                     + "rcpul.LABEL_EN=:label_en, "
                     + "rcpu.UNIT_ID=:unitId, "
                     + "rcpu.ACTIVE=:active, "
                     + "rcpu.LAST_MODIFIED_DATE=IF(rcpu.ACTIVE!=:active OR rcpu.SKU_CODE!=:skuCode OR rcpu.MULTIPLIER!=:multiplier OR "
-//                    + "OR rcpu.GTIN!=:gtin OR "
+                    //                    + "OR rcpu.GTIN!=:gtin OR "
                     + "rcpul.LABEL_EN!=:label_en OR rcpu.UNIT_ID!=:unitId, :curDate, rcpu.LAST_MODIFIED_DATE), "
                     + "rcpu.LAST_MODIFIED_BY=IF(rcpu.ACTIVE!=:active OR rcpu.SKU_CODE!=:skuCode OR rcpu.MULTIPLIER!=:multiplier "
-//                    + "OR rcpu.GTIN!=:gtin "
+                    //                    + "OR rcpu.GTIN!=:gtin "
                     + "OR rcpul.LABEL_EN!=:label_en OR rcpu.UNIT_ID!=:unitId, :curUser, rcpu.LAST_MODIFIED_BY), "
                     + "rcpul.LAST_MODIFIED_DATE=IF(rcpul.LABEL_EN!=:label_en, :curDate, rcpul.LAST_MODIFIED_DATE), "
                     + "rcpul.LAST_MODIFIED_BY=IF(rcpul.LABEL_EN!=:label_en, :curUser, rcpul.LAST_MODIFIED_BY) "

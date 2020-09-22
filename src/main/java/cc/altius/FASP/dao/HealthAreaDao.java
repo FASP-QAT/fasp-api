@@ -21,6 +21,8 @@ public interface HealthAreaDao {
 
     public List<HealthArea> getHealthAreaList(CustomUserDetails curUser);
     
+    public List<HealthArea> getHealthAreaList(int realmCountryId, CustomUserDetails curUser);
+    
     public List<HealthArea> getHealthAreaListByRealmId(int realmId, CustomUserDetails curUser);
 
     public HealthArea getHealthAreaById(int healthAreaId, CustomUserDetails curUser);

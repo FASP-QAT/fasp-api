@@ -134,7 +134,7 @@ public class AclServiceImpl implements AclService {
         }
         return sqlString;
     }
-    
+
     @Override
     public void addUserAclForRealm(StringBuilder sb, Map<String, Object> params, String realmAlias, int realmId, CustomUserDetails curUser) {
         if (realmId != -1) {
@@ -151,12 +151,13 @@ public class AclServiceImpl implements AclService {
         }
     }
 
+    @Override
     public void addFullAclForProgram(StringBuilder sb, Map<String, Object> params, String programAlias, CustomUserDetails curUser) {
         int count = 1;
         boolean isFirst = true;
         StringBuilder localSb = new StringBuilder();
         for (UserAcl userAcl : curUser.getAclList()) {
-            if(isFirst) {
+            if (isFirst) {
                 localSb.append(" AND (");
             } else {
                 localSb.append(" OR ");
@@ -179,4 +180,77 @@ public class AclServiceImpl implements AclService {
         }
         sb.append(localSb);
     }
+
+    @Override
+    public void addUserAclForHealthArea(StringBuilder sb, Map<String, Object> params, String haAlias, CustomUserDetails curUser) {
+        int count = 1;
+        boolean isFirst = true;
+        StringBuilder localSb = new StringBuilder();
+        for (UserAcl userAcl : curUser.getAclList()) {
+            if (isFirst) {
+                localSb.append(" AND (");
+            } else {
+                localSb.append(" OR ");
+            }
+            localSb.append("(")
+                    .append("(").append(haAlias).append(".HEALTH_AREA_ID IS NULL OR :healthAreaIdHa").append(count).append("=-1 OR ").append(haAlias).append(".HEALTH_AREA_ID=:healthAreaIdHa").append(count).append(")")
+                    .append(")");
+            params.put("healthAreaIdHa" + count, userAcl.getHealthAreaId());
+            count++;
+            isFirst = false;
+        }
+        if (!params.isEmpty()) {
+            localSb.append(")");
+        }
+        sb.append(localSb);
+    }
+
+    @Override
+    public void addUserAclForOrganisation(StringBuilder sb, Map<String, Object> params, String oAlias, CustomUserDetails curUser) {
+        int count = 1;
+        boolean isFirst = true;
+        StringBuilder localSb = new StringBuilder();
+        for (UserAcl userAcl : curUser.getAclList()) {
+            if (isFirst) {
+                localSb.append(" AND (");
+            } else {
+                localSb.append(" OR ");
+            }
+            localSb.append("(")
+                    .append("(").append(oAlias).append(".ORGANISATION_ID IS NULL OR :organisationIdO").append(count).append("=-1 OR ").append(oAlias).append(".ORGANISATION_ID=:organisationIdO").append(count).append(")")
+                    .append(")");
+            params.put("organisationIdO" + count, userAcl.getOrganisationId());
+            count++;
+            isFirst = false;
+        }
+        if (!params.isEmpty()) {
+            localSb.append(")");
+        }
+        sb.append(localSb);
+    }
+
+    @Override
+    public void addUserAclForRealmCountry(StringBuilder sb, Map<String, Object> params, String rcAlias, CustomUserDetails curUser) {
+        int count = 1;
+        boolean isFirst = true;
+        StringBuilder localSb = new StringBuilder();
+        for (UserAcl userAcl : curUser.getAclList()) {
+            if (isFirst) {
+                localSb.append(" AND (");
+            } else {
+                localSb.append(" OR ");
+            }
+            localSb.append("(")
+                    .append("(").append(rcAlias).append(".REALM_COUNTRY_ID IS NULL OR :realmCountryIdRc").append(count).append("=-1 OR ").append(rcAlias).append(".REALM_COUNTRY_ID=:realmCountryIdRc").append(count).append(")")
+                    .append(")");
+            params.put("realmCountryIdRc" + count, userAcl.getRealmCountryId());
+            count++;
+            isFirst = false;
+        }
+        if (!params.isEmpty()) {
+            localSb.append(")");
+        }
+        sb.append(localSb);
+    }
+
 }
