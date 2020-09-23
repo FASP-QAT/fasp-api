@@ -236,7 +236,6 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" GROUP BY rc.REALM_COUNTRY_ID, ha.HEALTH_AREA_ID ORDER BY c.COUNTRY_CODE, ha.HEALTH_AREA_CODE");
-        System.out.println(LogUtils.buildStringForLog(sqlStringBuilder.toString(), params));
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryHealthAreaResultSetExtractor());
     }
 

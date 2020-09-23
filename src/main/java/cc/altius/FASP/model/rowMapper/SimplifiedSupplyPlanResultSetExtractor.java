@@ -75,7 +75,7 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
             sp = spList.get(idx);
             Integer batchId = rs.getInt("BATCH_ID");
             if (!rs.wasNull()) {
-                SimpleBatchQuantity sb = new SimpleBatchQuantity(batchId, rs.getString("BATCH_NO"), rs.getDate("EXPIRY_DATE"), rs.getBoolean("AUTO_GENERATED"), rs.getInt("BATCH_CLOSING_BALANCE"), rs.getInt("BATCH_CLOSING_BALANCE_WPS"), rs.getInt("BATCH_EXPIRED_STOCK"), rs.getInt("BATCH_EXPIRED_STOCK_WPS"));
+                SimpleBatchQuantity sb = new SimpleBatchQuantity(batchId, rs.getString("BATCH_NO"), rs.getDate("EXPIRY_DATE"), rs.getBoolean("AUTO_GENERATED"), rs.getInt("BATCH_CLOSING_BALANCE"), rs.getInt("BATCH_CLOSING_BALANCE_WPS"), rs.getInt("BATCH_EXPIRED_STOCK"), rs.getInt("BATCH_EXPIRED_STOCK_WPS"), rs.getDate("BATCH_CREATED_DATE"));
                 sp.getBatchDetails().add(sb);
             }
         }

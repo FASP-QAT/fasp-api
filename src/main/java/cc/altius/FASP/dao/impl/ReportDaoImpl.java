@@ -255,7 +255,6 @@ public class ReportDaoImpl implements ReportDao {
         params.put("stopDate", es.getStopDate());
         params.put("includePlannedShipments", es.isIncludePlannedShipments());
         String sql = "CALL getExpiredStock(:programId, :versionId, :startDate, :stopDate, :includePlannedShipments)";
-        System.out.println(LogUtils.buildStringForLog(sql, params));
         return this.namedParameterJdbcTemplate.query(sql, params, new ExpiredStockOutputRowMapper());
     }
 
