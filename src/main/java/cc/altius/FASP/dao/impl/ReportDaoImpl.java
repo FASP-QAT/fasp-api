@@ -47,9 +47,11 @@ import cc.altius.FASP.model.report.ProgramLeadTimesOutputRowMapper;
 import cc.altius.FASP.model.report.ProgramProductCatalogInput;
 import cc.altius.FASP.model.report.ProgramProductCatalogOutput;
 import cc.altius.FASP.model.report.ProgramProductCatalogOutputRowMapper;
+import cc.altius.FASP.model.report.ShipmentDetailsFundingSourceRowMapper;
 import cc.altius.FASP.model.report.ShipmentDetailsInput;
 import cc.altius.FASP.model.report.ShipmentDetailsOutput;
-import cc.altius.FASP.model.report.ShipmentDetailsOutputRowMapper;
+import cc.altius.FASP.model.report.ShipmentDetailsListRowMapper;
+import cc.altius.FASP.model.report.ShipmentDetailsMonthRowMapper;
 import cc.altius.FASP.model.report.ShipmentGlobalDemandCountryShipmentSplitRowMapper;
 import cc.altius.FASP.model.report.ShipmentGlobalDemandCountrySplitRowMapper;
 import cc.altius.FASP.model.report.ShipmentGlobalDemandDateSplitRowMapper;
@@ -345,25 +347,21 @@ public class ReportDaoImpl implements ReportDao {
     // Report no 18
     @Override
     public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm) {
-        String sql = "CALL stockStatusMatrix(:programId, :versionId, :planningUnitId, :startDate, :stopDate, :includePlannedShipments)";
+        String sql = "CALL stockStatusMatrix(:programId, :versionId, :planningUnitIds, :startDate, :stopDate, :includePlannedShipments)";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("programId", ssm.getProgramId());
         params.put("versionId", ssm.getVersionId());
         params.put("startDate", ssm.getStartDate());
         params.put("stopDate", ssm.getStopDate());
         params.put("includePlannedShipments", ssm.isIncludePlannedShipments());
-        List<StockStatusMatrixOutput> finalList = new LinkedList<>();
-        for (String pu : ssm.getPlanningUnitIds()) {
-            params.remove("planningUnitId", pu);
-            params.put("planningUnitId", pu);
-            finalList.addAll(this.namedParameterJdbcTemplate.query(sql, params, new StockStatusMatrixOutputRowMapper()));
-        }
-        return finalList;
+        params.put("planningUnitIds", ssm.getPlanningUnitIdsString());
+        return this.namedParameterJdbcTemplate.query(sql, params, new StockStatusMatrixOutputRowMapper());
     }
 
     // Report no 19
     @Override
-    public List<ShipmentDetailsOutput> getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) {
+    public ShipmentDetailsOutput getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) {
+        ShipmentDetailsOutput sdo = new ShipmentDetailsOutput();
         String sql = "CALL shipmentDetails(:startDate, :stopDate, :programId, :versionId, :planningUnitIds)";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("programId", sd.getProgramId());
@@ -371,7 +369,11 @@ public class ReportDaoImpl implements ReportDao {
         params.put("planningUnitIds", sd.getPlanningUnitIdsString());
         params.put("startDate", sd.getStartDate());
         params.put("stopDate", sd.getStopDate());
-        return this.namedParameterJdbcTemplate.query(sql, params, new ShipmentDetailsOutputRowMapper());
+        params.put("reportView", sd.getReportView());
+        sdo.setShipmentDetailsList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentDetailsListRowMapper()));
+        sdo.setShipmentDetailsFundingSourceList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsFundingSource(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :reportView)", params, new ShipmentDetailsFundingSourceRowMapper()));
+        sdo.setShipmentDetailsMonthList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsMonth(:startDate, :stopDate, :programId, :versionId, :planningUnitIds)", params, new ShipmentDetailsMonthRowMapper()));
+        return sdo;
     }
 
     // Report no 20
@@ -504,6 +506,7 @@ public class ReportDaoImpl implements ReportDao {
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", ssap.getRealmId());
         params.put("tracerCategoryId", ssap.getTracerCategoryId());
+        System.out.println(LogUtils.buildStringForLog(sql, params));
         return this.namedParameterJdbcTemplate.query(sql, params, new StockStatusAcrossProductsOutputResultsetExtractor());
     }
 

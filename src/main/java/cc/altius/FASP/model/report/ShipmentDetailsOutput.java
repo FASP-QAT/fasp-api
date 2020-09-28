@@ -5,14 +5,8 @@
  */
 package cc.altius.FASP.model.report;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
-import cc.altius.FASP.model.SimpleCodeObject;
-import cc.altius.FASP.model.SimpleObject;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
-import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -20,125 +14,32 @@ import java.util.Date;
  */
 public class ShipmentDetailsOutput implements Serializable {
 
-    private int shipmentId;
-    private SimpleObject planningUnit;
-    private SimpleObject forecastingUnit;
-    private int multiplier;
-    private SimpleCodeObject procurementAgent;
-    private SimpleCodeObject fundingSource;
-    private SimpleObject shipmentStatus;
-    private int shipmentQty;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date expectedDeliveryDate;
-    private double productCost;
-    private double freightCost;
-    private double totalCost;
-    private String notes;
+    List<ShipmentDetailsList> shipmentDetailsList;
+    List<ShipmentDetailsFundingSource> shipmentDetailsFundingSourceList;
+    List<ShipmentDetailsMonth> shipmentDetailsMonthList;
 
-    public int getShipmentId() {
-        return shipmentId;
+    public List<ShipmentDetailsList> getShipmentDetailsList() {
+        return shipmentDetailsList;
     }
 
-    public void setShipmentId(int shipmentId) {
-        this.shipmentId = shipmentId;
+    public void setShipmentDetailsList(List<ShipmentDetailsList> shipmentDetailsList) {
+        this.shipmentDetailsList = shipmentDetailsList;
     }
 
-    public SimpleObject getPlanningUnit() {
-        return planningUnit;
+    public List<ShipmentDetailsFundingSource> getShipmentDetailsFundingSourceList() {
+        return shipmentDetailsFundingSourceList;
     }
 
-    public void setPlanningUnit(SimpleObject planningUnit) {
-        this.planningUnit = planningUnit;
+    public void setShipmentDetailsFundingSourceList(List<ShipmentDetailsFundingSource> shipmentDetailsFundingSourceList) {
+        this.shipmentDetailsFundingSourceList = shipmentDetailsFundingSourceList;
     }
 
-    public SimpleCodeObject getProcurementAgent() {
-        return procurementAgent;
+    public List<ShipmentDetailsMonth> getShipmentDetailsMonthList() {
+        return shipmentDetailsMonthList;
     }
 
-    public void setProcurementAgent(SimpleCodeObject procurementAgent) {
-        this.procurementAgent = procurementAgent;
+    public void setShipmentDetailsMonthList(List<ShipmentDetailsMonth> shipmentDetailsMonthList) {
+        this.shipmentDetailsMonthList = shipmentDetailsMonthList;
     }
 
-    public SimpleCodeObject getFundingSource() {
-        return fundingSource;
-    }
-
-    public void setFundingSource(SimpleCodeObject fundingSource) {
-        this.fundingSource = fundingSource;
-    }
-
-    public SimpleObject getShipmentStatus() {
-        return shipmentStatus;
-    }
-
-    public void setShipmentStatus(SimpleObject shipmentStatus) {
-        this.shipmentStatus = shipmentStatus;
-    }
-
-    public int getShipmentQty() {
-        return shipmentQty;
-    }
-
-    public void setShipmentQty(int shipmentQty) {
-        this.shipmentQty = shipmentQty;
-    }
-
-    public Date getExpectedDeliveryDate() {
-        return expectedDeliveryDate;
-    }
-
-    public void setExpectedDeliveryDate(Date expectedDeliveryDate) {
-        this.expectedDeliveryDate = expectedDeliveryDate;
-    }
-
-    public double getProductCost() {
-        return productCost;
-    }
-
-    public void setProductCost(double productCost) {
-        this.productCost = productCost;
-    }
-
-    public double getFreightCost() {
-        return freightCost;
-    }
-
-    public void setFreightCost(double freightCost) {
-        this.freightCost = freightCost;
-    }
-
-    public double getTotalCost() {
-        return totalCost;
-    }
-
-    public void setTotalCost(double totalCost) {
-        this.totalCost = totalCost;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
-    public SimpleObject getForecastingUnit() {
-        return forecastingUnit;
-    }
-
-    public void setForecastingUnit(SimpleObject forecastingUnit) {
-        this.forecastingUnit = forecastingUnit;
-    }
-
-    public int getMultiplier() {
-        return multiplier;
-    }
-
-    public void setMultiplier(int multiplier) {
-        this.multiplier = multiplier;
-    }
-    
-    
 }

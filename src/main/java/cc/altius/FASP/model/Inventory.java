@@ -23,7 +23,7 @@ public class Inventory extends BaseModel implements Serializable {
     private SimplePlanningUnitObject planningUnit;
     private double multiplier;
     private Double actualQty;
-    private double adjustmentQty;
+    private Double adjustmentQty;
     private double expectedBal;
     @JsonIgnore
     private SimpleCodeObject unit;
@@ -101,11 +101,11 @@ public class Inventory extends BaseModel implements Serializable {
         this.actualQty = actualQty;
     }
 
-    public double getAdjustmentQty() {
+    public Double getAdjustmentQty() {
         return adjustmentQty;
     }
 
-    public void setAdjustmentQty(double adjustmentQty) {
+    public void setAdjustmentQty(Double adjustmentQty) {
         this.adjustmentQty = adjustmentQty;
     }
 

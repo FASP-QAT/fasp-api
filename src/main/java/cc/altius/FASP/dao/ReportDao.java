@@ -115,7 +115,7 @@ public interface ReportDao {
     public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm);
 
     // Report no 19
-    public List<ShipmentDetailsOutput> getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser);
+    public ShipmentDetailsOutput getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser);
 
     // Report no 20
     public ShipmentOverviewOutput getShipmentOverview(ShipmentOverviewInput so, CustomUserDetails curUser);

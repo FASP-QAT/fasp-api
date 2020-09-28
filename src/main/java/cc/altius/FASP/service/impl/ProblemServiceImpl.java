@@ -36,8 +36,8 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public List<RealmProblem> getProblemListForSync(int realmId, String lastModifiedDate, CustomUserDetails curUser) {
-        return this.problemDao.getProblemListForSync(realmId, lastModifiedDate, curUser);
+    public List<RealmProblem> getProblemListForSync(String lastModifiedDate, CustomUserDetails curUser) {
+        return this.problemDao.getProblemListForSync(lastModifiedDate, curUser);
     }
 
     @Override

@@ -177,7 +177,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<ShipmentDetailsOutput> getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) {
+    public ShipmentDetailsOutput getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) {
         return this.reportDao.getShipmentDetails(sd, curUser);
     }
 

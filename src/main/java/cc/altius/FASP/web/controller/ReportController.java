@@ -697,7 +697,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"realmId":1, "tracerCategoryId":-1, "dt":"2019-10-01", "realmCountryIds":[1,2,3]}
+     * {"realmId": "1",    "dt": "2020-09-01",    "tracerCategoryId":-1,    "realmCountryIds":[]}
      * -- programId must be a single Program cannot be muti-program select or -1 for all programs
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
      * -- dt is the month for which you want to run the report
