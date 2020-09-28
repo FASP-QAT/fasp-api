@@ -106,10 +106,9 @@ public class ProblemDaoImpl implements ProblemDao {
     }
 
     @Override
-    public List<RealmProblem> getProblemListForSync(int realmId, String lastModifiedDate, CustomUserDetails curUser) {
-        String sql = this.problemMasterSql + " AND rp.REALM_ID=:realmId AND rp.LAST_MODIFIED_DATE>:lastModifiedDate ";
+    public List<RealmProblem> getProblemListForSync(String lastModifiedDate, CustomUserDetails curUser) {
+        String sql = this.problemMasterSql + " AND rp.LAST_MODIFIED_DATE>:lastModifiedDate ";
         Map<String, Object> params = new HashMap<>();
-        params.put("realmId", realmId);
         params.put("lastModifiedDate", lastModifiedDate);
         return this.namedParameterJdbcTemplate.query(sql, params, new RealmProblemRowMapper());
     }

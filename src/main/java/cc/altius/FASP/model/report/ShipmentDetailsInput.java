@@ -26,6 +26,7 @@ public class ShipmentDetailsInput {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
     private String[] planningUnitIds;
+    private int reportView; // 1 = Planning Units, 2 = Forecasting Units
 
     public int getProgramId() {
         return programId;
@@ -79,4 +80,13 @@ public class ShipmentDetailsInput {
             }
         }
     }
+
+    public int getReportView() {
+        return reportView;
+    }
+
+    public void setReportView(int reportView) {
+        this.reportView = reportView;
+    }
+    
 }
