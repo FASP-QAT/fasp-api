@@ -13,14 +13,20 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author akil
  */
-public class ConsumptionForecastVsActualOutputRowMapper implements RowMapper<ConsumptionForecastVsActualOutput>{
-
+public class ConsumptionForecastVsActualOutputRowMapper implements RowMapper<ConsumptionForecastVsActualOutput> {
+    
     @Override
     public ConsumptionForecastVsActualOutput mapRow(ResultSet rs, int i) throws SQLException {
         ConsumptionForecastVsActualOutput cfa = new ConsumptionForecastVsActualOutput();
         cfa.setTransDate(rs.getDate("MONTH"));
         cfa.setForecastedConsumption(rs.getInt("FORECASTED_CONSUMPTION"));
+        if (rs.wasNull()) {
+            cfa.setForecastedConsumption(null);
+        }
         cfa.setActualConsumption(rs.getInt("ACTUAL_CONSUMPTION"));
+        if (rs.wasNull()) {
+            cfa.setActualConsumption(null);
+        }
         return cfa;
     }
     
