@@ -8,7 +8,6 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ReportDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
 import cc.altius.FASP.model.report.AnnualShipmentCostOutput;
 import cc.altius.FASP.model.report.AnnualShipmentCostOutputRowMapper;
@@ -89,10 +88,8 @@ import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutputResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
-import cc.altius.FASP.utils.LogUtils;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
@@ -500,7 +497,6 @@ public class ReportDaoImpl implements ReportDao {
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", ssap.getRealmId());
         params.put("tracerCategoryId", ssap.getTracerCategoryId());
-        System.out.println(LogUtils.buildStringForLog(sql, params));
         return this.namedParameterJdbcTemplate.query(sql, params, new StockStatusAcrossProductsOutputResultsetExtractor());
     }
 
