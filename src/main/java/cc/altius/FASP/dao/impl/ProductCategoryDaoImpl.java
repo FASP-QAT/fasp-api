@@ -14,6 +14,7 @@ import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.rowMapper.ProductCategoryRowMapper;
 import cc.altius.FASP.model.rowMapper.TreeExtendedProductCategoryResultSetExtractor;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import cc.altius.utils.TreeUtils.Node;
 import cc.altius.utils.TreeUtils.Tree;
@@ -175,16 +176,14 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
     public List<Node<ExtendedProductCategory>> getProductCategoryListForProgram(CustomUserDetails curUser, int realmId, int programId) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
-        params.put("sortOrder", "00");
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringPart1WithoutActive)
-                .append(", IF(pc.ACTIVE && pcf.PRODUCT_CATEGORY_ID IS NOT NULL, TRUE, FALSE) `ACTIVE` ")
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringPart1)
+//                .append(", IF(pc.ACTIVE && pcf.PRODUCT_CATEGORY_ID IS NOT NULL, TRUE, FALSE) `ACTIVE` ")
                 .append(sqlListStringPart2)
-                .append(" LEFT JOIN (SELECT fu.PRODUCT_CATEGORY_ID FROM rm_program_planning_unit ppu LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID WHERE ppu.PROGRAM_ID=:programId GROUP BY fu.PRODUCT_CATEGORY_ID) pcf ON pc.PRODUCT_CATEGORY_ID=pcf.PRODUCT_CATEGORY_ID ")
                 .append(sqlListStringPart3);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
-        sqlStringBuilder.append(" AND pc.`SORT_ORDER` LIKE CONCAT(:sortOrder, '%') ) OR pc.REALM_ID IS NULL ORDER BY pc.SORT_ORDER");
+        sqlStringBuilder.append(" AND (length(pc.SORT_ORDER)<5 OR LEFT(pc.`SORT_ORDER`,5) IN (SELECT LEFT(pc.SORT_ORDER,5) SO FROM rm_program_planning_unit ppu LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID LEFT JOIN rm_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID WHERE ppu.PROGRAM_ID=:programId GROUP BY LEFT(pc.SORT_ORDER,5)))) OR pc.REALM_ID IS NULL ORDER BY pc.SORT_ORDER");
         List<Node<ExtendedProductCategory>> pcList = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TreeExtendedProductCategoryResultSetExtractor()).getTreeFullList();
-        pcList.remove(0);
+//        pcList.remove(0);
         return pcList;
     }
 
