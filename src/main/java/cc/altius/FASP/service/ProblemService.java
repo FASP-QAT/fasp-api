@@ -21,7 +21,7 @@ public interface ProblemService {
     
     public List<ProblemReport> getProblemReportList(int problemId, int versionId, CustomUserDetails curUser);
 
-    public List<RealmProblem> getProblemListForSync(int realmId, String lastModifiedDate, CustomUserDetails curUser);
+    public List<RealmProblem> getProblemListForSync(String lastModifiedDate, CustomUserDetails curUser);
     
     public List<SimpleObject> getProblemStatusForSync(String lastModifiedDate, CustomUserDetails curUser);
     

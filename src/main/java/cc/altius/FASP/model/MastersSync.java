@@ -46,6 +46,7 @@ public class MastersSync implements Serializable {
     private List<RealmProblem> realmProblemList;
     private List<Budget> budgetList;
 
+
     public List<Country> getCountryList() {
         return countryList;
     }

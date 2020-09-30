@@ -22,6 +22,8 @@ public interface TracerCategoryDao {
     public List<TracerCategory> getTracerCategoryList(boolean active, CustomUserDetails curUser);
 
     public List<TracerCategory> getTracerCategoryListForRealm(int realmId, boolean active, CustomUserDetails curUser);
+    
+    public List<TracerCategory> getTracerCategoryListForRealm(int realmId, int programId, boolean active, CustomUserDetails curUser);
 
     public TracerCategory getTracerCategoryById(int tracerCategoryId, CustomUserDetails curUser);
 

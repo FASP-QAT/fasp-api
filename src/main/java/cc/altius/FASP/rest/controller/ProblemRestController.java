@@ -73,13 +73,13 @@ public class ProblemRestController implements Serializable {
         }
     }
 
-    @GetMapping(value = "/sync/problem/realm/{realmId}/lastSyncDate/{lastSyncDate}")
-    public ResponseEntity getProblemListForSync(@PathVariable("realmId") int realmId, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+    @GetMapping(value = "/sync/problem/lastSyncDate/{lastSyncDate}")
+    public ResponseEntity getProblemListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.problemService.getProblemListForSync(realmId, lastSyncDate, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.problemService.getProblemListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing realmProblems", p);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
