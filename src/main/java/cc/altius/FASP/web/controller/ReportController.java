@@ -456,7 +456,7 @@ public class ReportController {
             logger.info(ssv.toString());
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             List<StockStatusVerticalOutput> ssvoList = this.reportService.getStockStatusVertical(ssv, curUser);
-            logger.info(new SimpleDateFormat("yyyy-MM-dd").format(ssvoList.get(0).getDt()));
+            logger.info(ssvoList.get(0).getDt());
             logger.info(ssvoList.toString());
             return new ResponseEntity(ssvoList, HttpStatus.OK);
         } catch (Exception e) {
