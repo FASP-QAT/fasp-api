@@ -70,7 +70,7 @@ public class StockStatusVerticalInput implements Serializable {
 
     @Override
     public String toString() {
-        return "StockStatusVerticalInput{" + "programId=" + programId + ", versionId=" + versionId + ", startDate=" + startDate + ", stopDate=" + stopDate + ", planningUnitId=" + planningUnitId + '}';
+        return "StockStatusVerticalInput{" + "programId=" + programId + ", versionId=" + versionId + ", startDate=" + startDate + ", stopDate=" + stopDate + ", planningUnitId=" + planningUnitId + "}\n";
     }
     
     
