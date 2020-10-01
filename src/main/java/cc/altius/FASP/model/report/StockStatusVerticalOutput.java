@@ -5,12 +5,7 @@
  */
 package cc.altius.FASP.model.report;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -21,9 +16,7 @@ import java.util.Objects;
  */
 public class StockStatusVerticalOutput implements Serializable {
     
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date dt;
+    private String dt;
     private int openingBalance;
     private Boolean actualConsumption;
     private int consumptionQty;
@@ -41,11 +34,11 @@ public class StockStatusVerticalOutput implements Serializable {
         this.shipmentInfo = new LinkedList<>();
     }
 
-    public Date getDt() {
+    public String getDt() {
         return dt;
     }
 
-    public void setDt(Date dt) {
+    public void setDt(String dt) {
         this.dt = dt;
     }
 
