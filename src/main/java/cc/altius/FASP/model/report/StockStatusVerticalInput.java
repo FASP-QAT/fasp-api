@@ -67,6 +67,11 @@ public class StockStatusVerticalInput implements Serializable {
     public void setPlanningUnitId(int planningUnitId) {
         this.planningUnitId = planningUnitId;
     }
+
+    @Override
+    public String toString() {
+        return "StockStatusVerticalInput{" + "programId=" + programId + ", versionId=" + versionId + ", startDate=" + startDate + ", stopDate=" + stopDate + ", planningUnitId=" + planningUnitId + '}';
+    }
     
     
 }
