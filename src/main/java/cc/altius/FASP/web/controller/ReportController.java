@@ -455,6 +455,7 @@ public class ReportController {
             logger.info(ssv.toString());
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             List<StockStatusVerticalOutput> ssvoList = this.reportService.getStockStatusVertical(ssv, curUser);
+            logger.info(ssvoList.toString());
             return new ResponseEntity(ssvoList, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while calling StockStatusVertical report", e);
