@@ -13,11 +13,11 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
+import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.Realm;
-import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
@@ -230,6 +230,16 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public void delinkShipment(int shipmentId, CustomUserDetails curUser) {
         this.programDao.delinkShipment(shipmentId, curUser);
+    }
+
+    @Override
+    public List<LoadProgram> getLoadProgram(CustomUserDetails curUser) {
+        return this.programDao.getLoadProgram(curUser);
+    }
+
+    @Override
+    public LoadProgram getLoadProgram(int programId, int page, CustomUserDetails curUser) {
+        return this.programDao.getLoadProgram(programId, page, curUser);
     }
 
 }
