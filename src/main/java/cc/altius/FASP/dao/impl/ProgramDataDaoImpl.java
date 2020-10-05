@@ -49,6 +49,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -129,17 +131,20 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId)", params, new ShipmentListResultSetExtractor());
     }
 
+    private final Logger logger = LoggerFactory.getLogger(ProgramDaoImpl.class);
+
     @Override
     @Transactional
     public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         // Check which records have changed
         Map<String, Object> params = new HashMap<>();
-
+        logger.info("Starting ProgramData Save");
         // ########################### Consumption ############################################
         String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
 //        String sqlString = "DROP TABLE IF EXISTS `tmp_consumption`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info("tmp_consumption temporary table dropped");
         sqlString = "CREATE TEMPORARY TABLE `tmp_consumption` ( "
                 //        sqlString = "CREATE TABLE `tmp_consumption` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
@@ -164,10 +169,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  INDEX `fk_tmp_consumption_4_idx` (`DATA_SOURCE_ID` ASC),"
                 + "  INDEX `fk_tmp_consumption_5_idx` (`VERSION_ID` ASC))";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-
+        logger.info("tmp_consumption temporary table created");
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption_batch_info`";
 //        sqlString = "DROP TABLE IF EXISTS `tmp_consumption_batch_info`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info("tmp_consumption_batch_info temporary table dropped");
         sqlString = "CREATE TEMPORARY TABLE `tmp_consumption_batch_info` ( "
                 //        sqlString = "CREATE TABLE `tmp_consumption_batch_info` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
@@ -182,6 +188,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  INDEX `fk_tmp_consumption_2_idx` (`CONSUMPTION_TRANS_BATCH_INFO_ID` ASC), "
                 + "  INDEX `fk_tmp_consumption_3_idx` (`BATCH_ID` ASC))";
         this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info("tmp_consumption_batch_info temporary table created");
+        logger.info("Going to load all the Consumption records into temp table");
         final List<SqlParameterSource> insertList = new ArrayList<>();
         final List<SqlParameterSource> insertBatchList = new ArrayList<>();
         int id = 1;
@@ -214,8 +222,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     batchParams.put("CREATED_DATE", c.getConsumptionDate());
                     try {
                         b.getBatch().setBatchId(this.namedParameterJdbcTemplate.queryForObject("SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.BATCH_NO=:BATCH_NO AND bi.PROGRAM_ID=:PROGRAM_ID AND bi.EXPIRY_DATE=:EXPIRY_DATE", batchParams, Integer.class));
+                        logger.info("Batch No + Expiry Dt found for this Program");
                     } catch (DataAccessException d) {
+                        logger.info("Batch No + Expiry Dt not found for this Program, so creating it");
                         b.getBatch().setBatchId(batchInsert.executeAndReturnKey(batchParams).intValue());
+                        logger.info("Batch Id created");
                     }
                 }
                 Map<String, Object> tb = new HashMap<>();
@@ -228,14 +239,27 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             }
             id++;
         }
+        logger.info(id + " consumption records going to be inserted into the tmp table");
 
         SqlParameterSource[] insertConsumption = new SqlParameterSource[insertList.size()];
         sqlString = " INSERT INTO tmp_consumption (ID, CONSUMPTION_ID, REGION_ID, PLANNING_UNIT_ID, REALM_COUNTRY_PLANNING_UNIT_ID, CONSUMPTION_DATE, ACTUAL_FLAG, QTY, RCPU_QTY, DAYS_OF_STOCK_OUT, DATA_SOURCE_ID, NOTES, ACTIVE, VERSION_ID) VALUES (:ID, :CONSUMPTION_ID, :REGION_ID, :PLANNING_UNIT_ID, :REALM_COUNTRY_PLANNING_UNIT_ID, :CONSUMPTION_DATE, :ACTUAL_FLAG, :QTY, :RCPU_QTY, :DAYS_OF_STOCK_OUT, :DATA_SOURCE_ID, :NOTES, :ACTIVE, :VERSION_ID)";
-        this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertConsumption));
+        try {
+            int cCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertConsumption)).length;
+            logger.info(cCnt + " records imported into the tmp table");
+        } catch (Exception e) {
+            logger.info("Could not load the tmp consumption records going to throw a CouldNotSaveException");
+            throw new CouldNotSaveException("Could not save Consumption data - " + e.getMessage());
+        }
         if (insertBatchList.size() > 0) {
             SqlParameterSource[] insertConsumptionBatch = new SqlParameterSource[insertBatchList.size()];
             sqlString = "INSERT INTO tmp_consumption_batch_info (PARENT_ID, CONSUMPTION_TRANS_ID, CONSUMPTION_TRANS_BATCH_INFO_ID, BATCH_ID, BATCH_QTY) VALUES (:PARENT_ID, :CONSUMPTION_TRANS_ID, :CONSUMPTION_TRANS_BATCH_INFO_ID, :BATCH_ID, :BATCH_QTY)";
-            this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertBatchList.toArray(insertConsumptionBatch));
+            try {
+                logger.info(insertBatchList.size() + " consumption batch records going to be inserted into the tmp table");
+                int cCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertBatchList.toArray(insertConsumptionBatch)).length;
+                logger.info(cCnt + " records imported into the tmp table");
+            } catch (Exception e) {
+                throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
+            }
         }
         params.clear();
         sqlString = "UPDATE tmp_consumption_batch_info tcbi LEFT JOIN rm_consumption_trans_batch_info ctbi ON tcbi.CONSUMPTION_TRANS_BATCH_INFO_ID=ctbi.CONSUMPTION_TRANS_BATCH_INFO_ID SET tcbi.CONSUMPTION_TRANS_ID=ctbi.CONSUMPTION_TRANS_ID WHERE tcbi.CONSUMPTION_TRANS_BATCH_INFO_ID IS NOT NULL";
@@ -258,17 +282,32 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "tc.NOTES!=ct.NOTES OR "
                 + "tc.ACTIVE!=ct.ACTIVE OR "
                 + "tc.CONSUMPTION_ID IS NULL";
-        this.namedParameterJdbcTemplate.update(sqlString, params);
+        try {
+            int cCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+            logger.info(cCnt + " records updated in tmp as changed where a direct consumption record has changed");
+        } catch (Exception e) {
+            throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
+        }
         sqlString = "UPDATE tmp_consumption_batch_info tcbi LEFT JOIN rm_consumption_trans_batch_info ctbi ON tcbi.CONSUMPTION_TRANS_BATCH_INFO_ID=ctbi.CONSUMPTION_TRANS_BATCH_INFO_ID SET `CHANGED`=1 WHERE tcbi.CONSUMPTION_TRANS_BATCH_INFO_ID IS NULL OR tcbi.BATCH_ID!=ctbi.BATCH_ID OR tcbi.BATCH_QTY!=ctbi.CONSUMPTION_QTY";
-        this.namedParameterJdbcTemplate.update(sqlString, params);
+        try {
+            int cCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+            logger.info(cCnt + " records updated in tmp as changed where a batch record has changed");
+        } catch (Exception e) {
+            throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
+        }
         sqlString = "UPDATE tmp_consumption tc LEFT JOIN tmp_consumption_batch_info tcbi ON tc.ID = tcbi.PARENT_ID SET tc.CHANGED=1 WHERE tcbi.CHANGED=1";
-        this.namedParameterJdbcTemplate.update(sqlString, params);
+        try {
+            int cCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+            logger.info(cCnt + " records updated in tmp as changed where a Batch Id has changed");
+        } catch (Exception e) {
+            throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
+        }
 
         // Check if there are any rows that need to be added
         params.clear();
         sqlString = "SELECT COUNT(*) FROM tmp_consumption tc WHERE tc.CHANGED=1";
         int consumptionRows = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
-
+        logger.info(consumptionRows + " total consumption records that have changed");
         Version version = null;
         if (consumptionRows > 0) {
             params.put("programId", programData.getProgramId());
@@ -278,22 +317,45 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("versionStatusId", programData.getVersionStatus().getId());
             params.put("notes", programData.getNotes());
             sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
-            version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+            try {
+                version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+                logger.info(version + " is the new version no");
+            } catch (Exception e) {
+                logger.info("Failed to get a new version no for this program");
+                throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
+            }
             params.put("versionId", version.getVersionId());
             // Insert the rows where Consumption Id is not null
             sqlString = "INSERT INTO rm_consumption_trans SELECT null, tc.CONSUMPTION_ID, tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.CONSUMPTION_DATE, tc.REALM_COUNTRY_PLANNING_UNIT_ID, tc.ACTUAL_FLAG, tc.QTY, tc.RCPU_QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, :curUser, :curDate, :versionId"
                     + " FROM fasp.tmp_consumption tc "
                     + " WHERE tc.CHANGED=1 AND tc.CONSUMPTION_ID!=0";
-            consumptionRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+            try {
+                consumptionRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+                logger.info(consumptionRows + " added to the consumption_trans table");
+            } catch (Exception e) {
+                logger.info("Failed to add to the consumption_trans table");
+                throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
+            }
             params.clear();
             params.put("versionId", version.getVersionId());
             // Update the rm_consumption table with the latest versionId
             sqlString = "UPDATE tmp_consumption tc LEFT JOIN rm_consumption c ON c.CONSUMPTION_ID=tc.CONSUMPTION_ID SET c.MAX_VERSION_ID=:versionId WHERE tc.CONSUMPTION_ID IS NOT NULL AND tc.CHANGED=1";
-            this.namedParameterJdbcTemplate.update(sqlString, params);
+            try {
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+                logger.info("Updated the Version no in the consumption table");
+            } catch (Exception e) {
+                logger.info("Failed to update the Version no in the consumption table");
+                throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
+            }
             // Insert into rm_consumption_trans_batch_info where the consumption record was already existing but has changed
             sqlString = "INSERT INTO rm_consumption_trans_batch_info SELECT null, ct.CONSUMPTION_TRANS_ID, tcbi.BATCH_ID, tcbi.BATCH_QTY from tmp_consumption tc left join tmp_consumption_batch_info tcbi ON tcbi.PARENT_ID=tc.ID LEFT JOIN rm_consumption_trans ct ON tc.CONSUMPTION_ID=ct.CONSUMPTION_ID AND ct.VERSION_ID=:versionId WHERE tc.CHANGED=1 AND tc.CONSUMPTION_ID IS NOT NULL AND tcbi.PARENT_ID IS NOT NULL";
-            this.namedParameterJdbcTemplate.update(sqlString, params);
-
+            try {
+                consumptionRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+                logger.info(consumptionRows + " rows inserted into the consumption_trans_batch_info table");
+            } catch (Exception e) {
+                logger.info("Failed to insert into the consumption_trans_batch_info table");
+                throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
+            }
             sqlString = "SELECT tc.ID FROM tmp_consumption tc WHERE tc.CONSUMPTION_ID IS NULL OR tc.CONSUMPTION_ID=0";
             List<Integer> idListForInsert = this.namedParameterJdbcTemplate.queryForList(sqlString, params, Integer.class);
             params.put("id", 0);
@@ -301,15 +363,32 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("programId", programData.getProgramId());
             params.put("curUser", curUser.getUserId());
             params.put("curDate", curDate);
+            consumptionRows = 0;
             for (Integer tmpId : idListForInsert) {
                 sqlString = "INSERT INTO rm_consumption (PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) VALUES (:programId, :curUser, :curDate, :curUser, :curDate, :versionId)";
-                consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+                try {
+                    this.namedParameterJdbcTemplate.update(sqlString, params);
+                } catch (Exception e) {
+                    logger.info("Failed to insert into the consumption table");
+                    throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
+                }
                 params.replace("id", tmpId);
                 sqlString = "INSERT INTO rm_consumption_trans SELECT null, LAST_INSERT_ID(), tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.CONSUMPTION_DATE, tc.REALM_COUNTRY_PLANNING_UNIT_ID, tc.ACTUAL_FLAG, tc.QTY, tc.RCPU_QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, :curUser, :curDate, :versionId FROM tmp_consumption tc WHERE tc.ID=:id";
-                this.namedParameterJdbcTemplate.update(sqlString, params);
+                try {
+                    this.namedParameterJdbcTemplate.update(sqlString, params);
+                } catch (Exception e) {
+                    logger.info("Failed to insert into the consumption_trans table");
+                    throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
+                }
                 sqlString = "INSERT INTO rm_consumption_trans_batch_info SELECT null, LAST_INSERT_ID(), tcbi.BATCH_ID, tcbi.BATCH_QTY from tmp_consumption_batch_info tcbi WHERE tcbi.PARENT_ID=:id";
-                this.namedParameterJdbcTemplate.update(sqlString, params);
+                try {
+                    this.namedParameterJdbcTemplate.update(sqlString, params);
+                } catch (Exception e) {
+                    logger.info("Failed to insert into the consumption_trans_batch_info table");
+                    throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
+                }
             }
+            logger.info(consumptionRows + " records inserted into the consumption, consumption_trans and consumption_trans_batch_info tables");
         }
         // ########################### Consumption ############################################
 
@@ -1206,7 +1285,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         if (rebuild == true) {
             MasterSupplyPlan msp = new MasterSupplyPlan(programId, versionId);
             String sqlString = "CALL buildNewSupplyPlanRegion(:programId, :versionId)";
-
             List<NewSupplyPlan> spList = this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanRegionResultSetExtractor());
             sqlString = "CALL buildNewSupplyPlanBatch(:programId, :versionId)";
             msp.setNspList(this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanBatchResultSetExtractor(spList)));
@@ -1262,7 +1340,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             newBatchParams.put("programId", msp.getProgramId());
                             newBatchParams.put("planningUnitId", nsp.getPlanningUnitId());
                             newBatchParams.put("transDate", nsp.getTransDate());
-                            newBatchParams.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
+                            newBatchParams.put("curDate", nsp.getTransDate());
                             String sql = "INSERT INTO `rm_batch_info` SELECT "
                                     + "    null, "
                                     + "    ppu.PROGRAM_ID, "
@@ -1276,6 +1354,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             newBatchSubstituteMap.put(bd.getBatchId(), batchId);
                         }
                         bd.setBatchId(batchId);
+                        bd.setExpiryDate(this.jdbcTemplate.queryForObject("SELECT EXPIRY_DATE FROM rm_batch_info WHERE BATCH_ID=?", String.class, bd.getBatchId()));
                     }
                     MapSqlParameterSource b1 = new MapSqlParameterSource();
                     b1.addValue("PROGRAM_ID", msp.getProgramId());

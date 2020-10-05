@@ -29,8 +29,12 @@ import cc.altius.FASP.model.report.StockStatusOverTimeInput;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
+import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.service.ReportService;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -50,6 +54,7 @@ public class ReportController {
 
     @Autowired
     private ReportService reportService;
+    private final Logger logger = LoggerFactory.getLogger(ReportController.class);
 
     @RequestMapping(value = "/consumption/{realmId}/{programId}/{planningUnitId}/{startDate}/{endDate}")
     public ResponseEntity getConsumptionData(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, @PathVariable("planningUnitId") int planningUnitId, @PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate, Authentication auth) {
@@ -104,7 +109,7 @@ public class ReportController {
     public ResponseEntity getConsumptionForecastVsActual(@RequestBody ConsumptionForecastVsActualInput ppc, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-                return new ResponseEntity(this.reportService.getConsumptionForecastVsActual(ppc, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.reportService.getConsumptionForecastVsActual(ppc, curUser), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -286,7 +291,7 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     // Report no 1-
     /**
      * <pre>
@@ -446,10 +451,14 @@ public class ReportController {
     @RequestMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
         try {
+            logger.info("Input call for StockStatusVertical");
+            logger.info(ssv.toString());
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.reportService.getStockStatusVertical(ssv, curUser), HttpStatus.OK);
+            List<StockStatusVerticalOutput> ssvoList = this.reportService.getStockStatusVertical(ssv, curUser);
+            logger.info(ssvoList.toString());
+            return new ResponseEntity(ssvoList, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while calling StockStatusVertical report", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -676,11 +685,11 @@ public class ReportController {
 
     // Report no 29
     /**
-     * Sample JSON 
-     * {"programId":3, "versionId":2}
+     * Sample JSON {"programId":3, "versionId":2}
+     *
      * @param br
      * @param auth
-     * @return 
+     * @return
      */
     @RequestMapping(value = "/budgetReport")
     public ResponseEntity getBudgetReport(@RequestBody BudgetReportInput br, Authentication auth) {
@@ -692,7 +701,7 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     // Report no 30
     /**
      * <pre>
