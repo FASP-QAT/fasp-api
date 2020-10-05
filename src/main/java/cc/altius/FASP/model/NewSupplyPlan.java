@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -24,7 +25,7 @@ public class NewSupplyPlan implements Serializable {
 
     private int planningUnitId;
     private String transDate;
-
+    private int shelfLife;
     private Integer actualConsumptionQty;
     private Integer forecastedConsumptionQty;
     private Integer finalConsumptionQty;
@@ -74,6 +75,15 @@ public class NewSupplyPlan implements Serializable {
     public NewSupplyPlan(int planningUnitId, String transDate) {
         this.planningUnitId = planningUnitId;
         this.transDate = transDate;
+        this.regionDataList = new LinkedList<>();
+        this.batchDataList = new LinkedList<>();
+        this.newBatchCounter = -1;
+    }
+
+    public NewSupplyPlan(int planningUnitId, String transDate, int shelfLife) {
+        this.planningUnitId = planningUnitId;
+        this.transDate = transDate;
+        this.shelfLife = shelfLife;
         this.regionDataList = new LinkedList<>();
         this.batchDataList = new LinkedList<>();
         this.newBatchCounter = -1;
@@ -501,7 +511,7 @@ public class NewSupplyPlan implements Serializable {
         int periodConsumption = Optional.ofNullable(this.finalConsumptionQty).orElse(0) - Optional.ofNullable(this.finalAdjustmentQty).orElse(0) - Optional.ofNullable(this.nationalAdjustment).orElse(0);
         int periodConsumptionWps = Optional.ofNullable(this.finalConsumptionQty).orElse(0) - Optional.ofNullable(this.finalAdjustmentQty).orElse(0) - Optional.ofNullable(this.nationalAdjustmentWps).orElse(0);
         // draw down from the Batches that you have
-        for (BatchData bd : this.getBatchDataList()) {
+        for (BatchData bd : this.getBatchDataList().stream().sorted(new ComparatorBatchData()).collect(Collectors.toList())) {
             bd.setUnallocatedConsumption(periodConsumption);
             bd.setUnallocatedConsumptionWps(periodConsumptionWps);
             if (periodConsumption > 0) {
@@ -582,10 +592,10 @@ public class NewSupplyPlan implements Serializable {
             System.out.println("We need to create a new Batch for periodConsumptionWps:" + periodConsumptionWps + " PlanningUnitId:" + this.planningUnitId + " transDate:" + this.transDate);
             BatchData bdNew = new BatchData();
             bdNew.setBatchId(this.newBatchCounter);
-            bdNew.setExpiryDate("2050-12-01");
+            bdNew.setExpiryDate(this.calculateExpiryDate(this.transDate));
             bdNew.setOpeningBalance(0);
             bdNew.setOpeningBalanceWps(0);
-            bdNew.setShelfLife(48);
+            bdNew.setShelfLife(this.shelfLife);
             bdNew.setCalculatedConsumption(0 - periodConsumption);
             bdNew.setCalculatedConsumptionWps(0 - periodConsumptionWps);
             bdNew.setClosingBalance(0 - periodConsumption);
@@ -615,6 +625,17 @@ public class NewSupplyPlan implements Serializable {
             removeList.add(bd);
         });
         this.getBatchDataList().removeAll(removeList);
+    }
+
+    String calculateExpiryDate(String transDate) {
+        Calendar cal = Calendar.getInstance();
+        try {
+            cal.setTime(DateUtils.getDateFromString(transDate, DateUtils.YMD));
+        } catch (Exception e) {
+
+        }
+        cal.add(Calendar.MONTH, 24);
+        return new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime());
     }
 
     @Override

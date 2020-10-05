@@ -28,13 +28,19 @@ public class ProcurementUnitArtmisPullRowMapper implements RowMapper<Procurement
         p.setLength(rs.getDouble("LENGTH"));
         p.setLengthUnitId(rs.getInt("LENGTH_UNIT_ID"));
         p.setHeight(rs.getDouble("HEIGHT"));
-        p.setHeightUnitId(rs.getInt("HEIGHT_UNIT_ID"));
         p.setWidth(rs.getDouble("WIDTH"));
-        p.setWidthUnitId(rs.getInt("WIDTH_UNIT_ID"));
         p.setWeight(rs.getDouble("WEIGHT"));
         p.setWeightUnitId(rs.getInt("WEIGHT_UNIT_ID"));
+        p.setVolume(rs.getDouble("VOLUME"));
+        if (rs.wasNull()) {
+            p.setVolume(null);
+        }
+        p.setVolumeUnitId(rs.getInt("VOLUME_UNIT_ID"));
+        if (rs.wasNull()) {
+            p.setVolumeUnitId(null);
+        }
         p.setUnitsPerCase(rs.getInt("UNITS_PER_CASE"));
-        p.setUnitsPerPallet(rs.getInt("UNITS_PER_PALLET"));
+        p.setUnitsPerPalletEuro1(rs.getInt("UNITS_PER_PALLET_EURO1"));
         p.setUnitsPerContainer(rs.getInt("UNITS_PER_CONTAINER"));
         p.setLabelling(rs.getString("LABELLING"));
         p.setGtin(rs.getString("GTIN"));

@@ -23,10 +23,10 @@ public class StockStatusAcrossProductsForProgramRowMapper implements RowMapper<S
         ssap.setProgram(new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, 1), rs.getString("PROGRAM_CODE")));
         ssap.setAmc(rs.getDouble("AMC"));
         ssap.setAmcCount(rs.getInt("AMC_COUNT"));
-        ssap.setFinalClosingBalance(rs.getInt("FINAL_CLOSING_BALANCE_WPS"));
-        ssap.setMaxMos(rs.getInt("MAX_MONTHS_OF_STOCK"));
-        ssap.setMinMos(rs.getInt("MIN_MONTHS_OF_STOCK"));
-        ssap.setMos(rs.getDouble("MoS"));
+        ssap.setFinalClosingBalance(rs.getInt("CLOSING_BALANCE"));
+        ssap.setMaxMos(rs.getInt("MAX_STOCK_MOS"));
+        ssap.setMinMos(rs.getInt("MIN_STOCK_MOS"));
+        ssap.setMos(rs.getDouble("MOS"));
         return ssap;
     }
     
