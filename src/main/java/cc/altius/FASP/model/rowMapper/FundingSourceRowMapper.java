@@ -24,6 +24,7 @@ public class FundingSourceRowMapper implements RowMapper<FundingSource> {
         m.setFundingSourceCode(rs.getString("FUNDING_SOURCE_CODE"));
         m.setLabel(new LabelRowMapper().mapRow(rs, i));
         m.setRealm(new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i), rs.getString("REALM_CODE")));
+        m.setAllowedInBudget(rs.getBoolean("ALLOWED_IN_BUDGET"));
         m.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return m;
     }

@@ -22,13 +22,14 @@ public class ProcurementUnitArtmisPull implements Serializable {
     private Double length;
     private Integer lengthUnitId;
     private Double height;
-    private Integer heightUnitId;
     private Double width;
-    private Integer widthUnitId;
     private Double weight;
     private Integer weightUnitId;
+    private Double volume;
+    private Integer volumeUnitId;
     private Integer unitsPerCase;
-    private Integer unitsPerPallet;
+    private Integer unitsPerPalletEuro1;
+    private Integer unitsPerPalletEuro2;
     private Integer unitsPerContainer;
     private String labelling;
     private String gtin;
@@ -109,28 +110,12 @@ public class ProcurementUnitArtmisPull implements Serializable {
         this.height = height;
     }
 
-    public Integer getHeightUnitId() {
-        return heightUnitId;
-    }
-
-    public void setHeightUnitId(Integer heightUnitId) {
-        this.heightUnitId = heightUnitId;
-    }
-
     public Double getWidth() {
         return width;
     }
 
     public void setWidth(Double width) {
         this.width = width;
-    }
-
-    public Integer getWidthUnitId() {
-        return widthUnitId;
-    }
-
-    public void setWidthUnitId(Integer widthUnitId) {
-        this.widthUnitId = widthUnitId;
     }
 
     public Double getWeight() {
@@ -149,6 +134,22 @@ public class ProcurementUnitArtmisPull implements Serializable {
         this.weightUnitId = weightUnitId;
     }
 
+    public Double getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Double volume) {
+        this.volume = volume;
+    }
+
+    public Integer getVolumeUnitId() {
+        return volumeUnitId;
+    }
+
+    public void setVolumeUnitId(Integer volumeUnitId) {
+        this.volumeUnitId = volumeUnitId;
+    }
+
     public Integer getUnitsPerCase() {
         return unitsPerCase;
     }
@@ -157,12 +158,20 @@ public class ProcurementUnitArtmisPull implements Serializable {
         this.unitsPerCase = unitsPerCase;
     }
 
-    public Integer getUnitsPerPallet() {
-        return unitsPerPallet;
+    public Integer getUnitsPerPalletEuro1() {
+        return unitsPerPalletEuro1;
     }
 
-    public void setUnitsPerPallet(Integer unitsPerPallet) {
-        this.unitsPerPallet = unitsPerPallet;
+    public void setUnitsPerPalletEuro1(Integer unitsPerPalletEuro1) {
+        this.unitsPerPalletEuro1 = unitsPerPalletEuro1;
+    }
+
+    public Integer getUnitsPerPalletEuro2() {
+        return unitsPerPalletEuro2;
+    }
+
+    public void setUnitsPerPalletEuro2(Integer unitsPerPalletEuro2) {
+        this.unitsPerPalletEuro2 = unitsPerPalletEuro2;
     }
 
     public Integer getUnitsPerContainer() {
