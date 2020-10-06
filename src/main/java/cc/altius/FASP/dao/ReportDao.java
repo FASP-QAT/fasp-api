@@ -138,5 +138,5 @@ public interface ReportDao {
     // Report no 30 Basic
     public List<StockStatusAcrossProductsOutput> getStockStatusAcrossProductsBasicInfo(StockStatusAcrossProductsInput ssap, CustomUserDetails curUser);
 
-    public StockStatusAcrossProductsForProgram getStockStatusAcrossProductsProgramData(int programId, int planningUnitId, Date dt);
+    public StockStatusAcrossProductsForProgram getStockStatusAcrossProductsProgramData(int programId, int planningUnitId, Date dt, boolean useApprovedSupplyPlanOnly);
 }

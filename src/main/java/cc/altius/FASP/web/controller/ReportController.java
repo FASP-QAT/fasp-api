@@ -117,6 +117,7 @@ public class ReportController {
     }
 
     // Report no 3
+    // Global Report
     /**
      * <pre>
      * Sample JSON
@@ -177,6 +178,7 @@ public class ReportController {
     }
 
     // Report no 5
+    // Global Report
     /**
      * <pre>
      * Sample JSON
@@ -551,6 +553,7 @@ public class ReportController {
     }
 
     // Report no 20
+    // Global Report
     /**
      * <pre>
      * Sample JSON
@@ -573,6 +576,7 @@ public class ReportController {
     }
 
     // Report no 21
+    // Global Report
     /**
      * <pre>
      * Sample JSON
@@ -703,6 +707,7 @@ public class ReportController {
     }
 
     // Report no 30
+    // Global Report
     /**
      * <pre>
      * Sample JSON

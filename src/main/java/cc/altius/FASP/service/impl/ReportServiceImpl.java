@@ -203,7 +203,7 @@ public class ReportServiceImpl implements ReportService {
         for (StockStatusAcrossProductsOutput s : ssapList) {
             for (StockStatusAcrossProductsForProgram progData : s.getProgramData()) {
                 s.getProgramData().remove(progData);
-                StockStatusAcrossProductsForProgram sData = this.reportDao.getStockStatusAcrossProductsProgramData(progData.getProgram().getId(), s.getPlanningUnit().getId(), ssap.getDt());
+                StockStatusAcrossProductsForProgram sData = this.reportDao.getStockStatusAcrossProductsProgramData(progData.getProgram().getId(), s.getPlanningUnit().getId(), ssap.getDt(), ssap.isUseApprovedSupplyPlanOnly());
                 s.getProgramData().add(sData);
             }
         }
