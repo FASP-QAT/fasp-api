@@ -10,7 +10,6 @@ import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.FundingSourceService;
 import cc.altius.FASP.service.UserService;
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.slf4j.Logger;

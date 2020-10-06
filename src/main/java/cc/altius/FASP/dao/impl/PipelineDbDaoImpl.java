@@ -170,7 +170,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                             + "left join adb_pipeline ap on ap.PIPELINE_ID=pi.PIPELINE_ID\n"
                             + "where pi.ProgramName like '%" + programName + "%'", Integer.class);
                 } else {
-                    programExistCount=0;
+                    programExistCount = 0;
                 }
 
             });
@@ -1530,7 +1530,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             int result = si.execute(params);
             String sqlString = "SELECT LAST_INSERT_ID()";
             int shipmentId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
-            params.put("BATCH_NO", String.format("%06d", programId) + String.format("%08d", Integer.parseInt(s.getPlanningUnit())) + df.format(curDate) + getAlphaNumeric(3));
+            params.put("BATCH_NO", "QAT" + String.format("%06d", programId) + String.format("%08d", Integer.parseInt(s.getPlanningUnit())) + df.format(curDate) + getAlphaNumeric(3));
             params.put("PLANNING_UNIT_ID", s.getPlanningUnit());
             params.put("pipelineId", pipelineId);
             sql = "SELECT SHELF_LIFE FROM qat_temp_program_planning_unit WHERE  PLANNING_UNIT_ID=:PLANNING_UNIT_ID AND PIPELINE_ID=:pipelineId";

@@ -31,6 +31,7 @@ public class ProblemReport implements Serializable {
     private String data5;
     private SimpleObject problemStatus;
     private SimpleObject problemType;
+    private boolean reviewed;
     private BasicUser createdBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
@@ -131,6 +132,14 @@ public class ProblemReport implements Serializable {
 
     public void setProblemType(SimpleObject problemType) {
         this.problemType = problemType;
+    }
+
+    public boolean isReviewed() {
+        return reviewed;
+    }
+
+    public void setReviewed(boolean reviewed) {
+        this.reviewed = reviewed;
     }
 
     public BasicUser getCreatedBy() {

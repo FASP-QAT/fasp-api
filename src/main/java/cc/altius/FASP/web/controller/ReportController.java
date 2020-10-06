@@ -32,7 +32,6 @@ import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.service.ReportService;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -456,7 +455,6 @@ public class ReportController {
             logger.info(ssv.toString());
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             List<StockStatusVerticalOutput> ssvoList = this.reportService.getStockStatusVertical(ssv, curUser);
-            logger.info(ssvoList.get(0).getDt());
             logger.info(ssvoList.toString());
             return new ResponseEntity(ssvoList, HttpStatus.OK);
         } catch (Exception e) {
