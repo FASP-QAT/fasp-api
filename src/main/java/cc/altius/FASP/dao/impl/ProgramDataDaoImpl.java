@@ -575,6 +575,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `CURRENCY_ID` INT(10) UNSIGNED NULL, "
                 + "  `CONVERSION_RATE_TO_USD` DECIMAL(12,2) UNSIGNED NULL, "
                 + "  `EMERGENCY_ORDER` TINYINT(1) UNSIGNED NOT NULL, "
+                + "  `LOCAL_PROCUREMENT` TINYINT(1) UNSIGNED NOT NULL, "
                 + "  `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `EXPECTED_DELIVERY_DATE` DATE NOT NULL, "
                 + "  `PROCUREMENT_UNIT_ID` INT(10) UNSIGNED NULL, "
@@ -647,6 +648,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("CURRENCY_ID", s.getCurrency().getCurrencyId());
             tp.put("CONVERSION_RATE_TO_USD", s.getCurrency().getConversionRateToUsd());
             tp.put("EMERGENCY_ORDER", s.isEmergencyOrder());
+            tp.put("LOCAL_PROCUREMENT", s.isLocalProcurement());
             tp.put("PLANNING_UNIT_ID", s.getPlanningUnit().getId());
             tp.put("EXPECTED_DELIVERY_DATE", s.getExpectedDeliveryDate());
             tp.put("PROCUREMENT_UNIT_ID", (s.getProcurementUnit() == null || s.getProcurementUnit().getId() == null || s.getProcurementUnit().getId() == 0 ? null : s.getProcurementUnit().getId()));
@@ -770,6 +772,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "ts.ORDER_NO!=st.ORDER_NO OR "
                 + "ts.PRIME_LINE_NO!=st.PRIME_LINE_NO OR "
                 + "ts.ACTIVE!=st.ACTIVE OR "
+                + "ts.LOCAL_PROCUREMENT!=st.LOCAL_PROCUREMENT OR "
                 + "ts.SHIPMENT_ID IS NULL";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "UPDATE tmp_shipment_batch_info tsbi LEFT JOIN rm_shipment_trans_batch_info stbi ON tsbi.SHIPMENT_TRANS_BATCH_INFO_ID=stbi.SHIPMENT_TRANS_BATCH_INFO_ID SET `CHANGED`=1 WHERE tsbi.SHIPMENT_TRANS_BATCH_INFO_ID IS NULL OR tsbi.BATCH_ID!=stbi.BATCH_ID OR tsbi.BATCH_SHIPMENT_QTY!=stbi.BATCH_SHIPMENT_QTY";
@@ -814,7 +817,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "RECEIVED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, NOTES, ORDER_NO, "
                     + "PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID, "
                     + "PROCUREMENT_AGENT_ID, FUNDING_SOURCE_ID, BUDGET_ID, ACCOUNT_FLAG, ERP_FLAG, "
-                    + "EMERGENCY_ORDER) "
+                    + "EMERGENCY_ORDER, LOCAL_PROCUREMENT) "
                     + "SELECT "
                     + "ts.SHIPMENT_ID, ts.PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, IF(ts.PROCUREMENT_UNIT_ID=0,null,ts.PROCUREMENT_UNIT_ID), IF(ts.SUPPLIER_ID=0,null,ts.SUPPLIER_ID), "
                     + "ts.SHIPMENT_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, "
@@ -822,7 +825,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "ts.RECEIVED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, ts.NOTES, ts.ORDER_NO, "
                     + "ts.PRIME_LINE_NO, ts.ACTIVE, :curUser, :curDate, :versionId, "
                     + "ts.PROCUREMENT_AGENT_ID, ts.FUNDING_SOURCE_ID, ts.BUDGET_ID, ts.ACCOUNT_FLAG, ts.ERP_FLAG, "
-                    + "ts.EMERGENCY_ORDER FROM tmp_shipment ts WHERE ts.CHANGED=1 AND ts.SHIPMENT_ID IS NOT NULL";
+                    + "ts.EMERGENCY_ORDER, ts.LOCAL_PROCUREMENT FROM tmp_shipment ts WHERE ts.CHANGED=1 AND ts.SHIPMENT_ID IS NOT NULL";
             shipmentRows = this.namedParameterJdbcTemplate.update(sqlString, params);
             params.clear();
             params.put("versionId", version.getVersionId());
@@ -857,14 +860,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         + "RECEIVED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, NOTES, ORDER_NO, "
                         + "PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID, "
                         + "PROCUREMENT_AGENT_ID, FUNDING_SOURCE_ID, BUDGET_ID, ACCOUNT_FLAG, ERP_FLAG, "
-                        + "EMERGENCY_ORDER) SELECT "
+                        + "EMERGENCY_ORDER, LOCAL_PROCUREMENT) SELECT "
                         + ":shipmentId, ts.PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, IF(ts.PROCUREMENT_UNIT_ID=0,null,ts.PROCUREMENT_UNIT_ID), IF(ts.SUPPLIER_ID=0,null,ts.SUPPLIER_ID), "
                         + "ts.SHIPMENT_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, "
                         + "ts.PLANNED_DATE, ts.SUBMITTED_DATE, ts.APPROVED_DATE, ts.SHIPPED_DATE, ts.ARRIVED_DATE, "
                         + "ts.RECEIVED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, ts.NOTES, ts.ORDER_NO, "
                         + "ts.PRIME_LINE_NO, ts.ACTIVE, :curUser, :curDate, :versionId, "
                         + "ts.PROCUREMENT_AGENT_ID, ts.FUNDING_SOURCE_ID, ts.BUDGET_ID, ts.ACCOUNT_FLAG, ts.ERP_FLAG, "
-                        + "ts.EMERGENCY_ORDER "
+                        + "ts.EMERGENCY_ORDER, ts.LOCAL_PROCUREMENT "
                         + "FROM tmp_shipment ts WHERE ts.ID=:id";
                 this.namedParameterJdbcTemplate.update(sqlString, params);
                 sqlString = "INSERT INTO rm_shipment_trans_batch_info (SHIPMENT_TRANS_ID, BATCH_ID, BATCH_SHIPMENT_QTY) SELECT LAST_INSERT_ID(), tsbi.BATCH_ID, tsbi.BATCH_SHIPMENT_QTY from tmp_shipment_batch_info tsbi WHERE tsbi.PARENT_ID=:id";
@@ -890,6 +893,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("DATA3", pr.getPlanningUnit().getId()); // PlanningUnitId
             tp.put("DATA4", pr.getShipmentId()); // ShipmentId
             tp.put("DATA5", pr.getData5());
+            tp.put("REVIWED", pr.isReviewed());
             tp.put("CREATED_BY", pr.getCreatedBy().getUserId());
             tp.put("CREATED_DATE", pr.getCreatedDate());
             tp.put("LAST_MODIFIED_BY", pr.getLastModifiedBy().getUserId());
@@ -908,9 +912,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     transParams.put("PROBLEM_REPORT_ID", pr.getProblemReportId());
                     transParams.put("PROBLEM_STATUS_ID", prt.getProblemStatus().getId());
                     transParams.put("NOTES", prt.getNotes());
+                    transParams.put("REVIEWED", prt.isReviewed());
                     transParams.put("CREATED_BY", prt.getCreatedBy().getUserId());
                     transParams.put("CREATED_DATE", prt.getCreatedDate());
-                    this.namedParameterJdbcTemplate.update("INSERT INTO `rm_problem_report_trans` (`PROBLEM_REPORT_ID`, `PROBLEM_STATUS_ID`, `NOTES`, `CREATED_BY`, `CREATED_DATE`) VALUES (:PROBLEM_REPORT_ID, :PROBLEM_STATUS_ID, :NOTES, :CREATED_BY, :CREATED_DATE)", transParams);
+                    this.namedParameterJdbcTemplate.update("INSERT INTO `rm_problem_report_trans` (`PROBLEM_REPORT_ID`, `PROBLEM_STATUS_ID`, `NOTES`, `REVIEWED`, `CREATED_BY`, `CREATED_DATE`) VALUES (:PROBLEM_REPORT_ID, :PROBLEM_STATUS_ID, :NOTES, :REVIEWED, :CREATED_BY, :CREATED_DATE)", transParams);
                 }
             }
         }

@@ -21,6 +21,7 @@ public class ProblemReportTrans implements Serializable {
     private int problemReportTransId;
     private SimpleObject problemStatus;
     private String notes;
+    private boolean reviewed;
     private BasicUser createdBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
@@ -48,6 +49,14 @@ public class ProblemReportTrans implements Serializable {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public boolean isReviewed() {
+        return reviewed;
+    }
+
+    public void setReviewed(boolean reviewed) {
+        this.reviewed = reviewed;
     }
 
     public BasicUser getCreatedBy() {

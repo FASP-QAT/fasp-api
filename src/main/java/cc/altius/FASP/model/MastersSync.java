@@ -41,7 +41,7 @@ public class MastersSync implements Serializable {
     private List<Program> programList;
     private List<Region> regionList;
     private List<ProgramPlanningUnit> programPlanningUnitList;
-    private List<SimpleObject> problemStatusList;
+    private List<ProblemStatus> problemStatusList;
     private List<SimpleObject> problemCriticalityList;
     private List<RealmProblem> realmProblemList;
     private List<Budget> budgetList;
@@ -263,11 +263,11 @@ public class MastersSync implements Serializable {
         this.realmProblemList = realmProblemList;
     }
 
-    public List<SimpleObject> getProblemStatusList() {
+    public List<ProblemStatus> getProblemStatusList() {
         return problemStatusList;
     }
 
-    public void setProblemStatusList(List<SimpleObject> problemStatusList) {
+    public void setProblemStatusList(List<ProblemStatus> problemStatusList) {
         this.problemStatusList = problemStatusList;
     }
 

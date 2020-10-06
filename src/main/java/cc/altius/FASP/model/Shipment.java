@@ -47,6 +47,7 @@ public class Shipment extends BaseModel implements Serializable {
     private String orderNo;
     private String primeLineNo;
     private boolean emergencyOrder;
+    private boolean localProcurement;
     private int versionId;
     @JsonIgnore
     private Date lastModifiedDate;
@@ -303,6 +304,14 @@ public class Shipment extends BaseModel implements Serializable {
 
     public void setEmergencyOrder(boolean emergencyOrder) {
         this.emergencyOrder = emergencyOrder;
+    }
+
+    public boolean isLocalProcurement() {
+        return localProcurement;
+    }
+
+    public void setLocalProcurement(boolean localProcurement) {
+        this.localProcurement = localProcurement;
     }
 
     public int getVersionId() {
