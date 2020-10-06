@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ProblemDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProblemReport;
+import cc.altius.FASP.model.ProblemStatus;
 import cc.altius.FASP.model.RealmProblem;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.ProblemService;
@@ -41,7 +42,7 @@ public class ProblemServiceImpl implements ProblemService {
     }
 
     @Override
-    public List<SimpleObject> getProblemStatusForSync(String lastModifiedDate, CustomUserDetails curUser) {
+    public List<ProblemStatus> getProblemStatusForSync(String lastModifiedDate, CustomUserDetails curUser) {
         return this.problemDao.getProblemStatusForSync(lastModifiedDate, curUser);
     }
 

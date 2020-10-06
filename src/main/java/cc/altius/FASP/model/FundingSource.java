@@ -17,6 +17,7 @@ public class FundingSource extends BaseModel implements Serializable {
     private String fundingSourceCode;
     private Label label;
     private SimpleCodeObject realm;
+    private boolean allowedInBudget;
 
     public FundingSource() {
     }
@@ -64,6 +65,14 @@ public class FundingSource extends BaseModel implements Serializable {
 
     public void setRealm(SimpleCodeObject realm) {
         this.realm = realm;
+    }
+
+    public boolean isAllowedInBudget() {
+        return allowedInBudget;
+    }
+
+    public void setAllowedInBudget(boolean allowedInBudget) {
+        this.allowedInBudget = allowedInBudget;
     }
 
     @Override

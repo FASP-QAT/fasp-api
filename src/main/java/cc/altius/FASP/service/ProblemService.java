@@ -7,6 +7,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProblemReport;
+import cc.altius.FASP.model.ProblemStatus;
 import cc.altius.FASP.model.RealmProblem;
 import cc.altius.FASP.model.SimpleObject;
 import java.util.List;
@@ -23,7 +24,7 @@ public interface ProblemService {
 
     public List<RealmProblem> getProblemListForSync(String lastModifiedDate, CustomUserDetails curUser);
     
-    public List<SimpleObject> getProblemStatusForSync(String lastModifiedDate, CustomUserDetails curUser);
+    public List<ProblemStatus> getProblemStatusForSync(String lastModifiedDate, CustomUserDetails curUser);
     
     public List<SimpleObject> getProblemCriticalityForSync(String lastModifiedDate, CustomUserDetails curUser);
 }

@@ -9,9 +9,9 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
+import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramPlanningUnit;
-import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.SimpleObject;
 import java.util.List;
 
@@ -58,4 +58,8 @@ public interface ProgramDao {
     public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId);
 
     public void delinkShipment(int shipmentId, CustomUserDetails curUser);
+    
+    public List<LoadProgram> getLoadProgram(CustomUserDetails curUser);
+    
+    public LoadProgram getLoadProgram(int programId, int page, CustomUserDetails curUser);
 }
