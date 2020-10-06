@@ -26,7 +26,8 @@ public class ProcurementUnit extends BaseModel implements Serializable {
     private Double weightQty;
     private SimpleObject weightUnit;
     private Double unitsPerCase;
-    private Double unitsPerPallet;
+    private Double unitsPerPalletEuro1;
+    private Double unitsPerPalletEuro2;
     private Double unitsPerContainer;
     private String labeling;
 
@@ -150,12 +151,20 @@ public class ProcurementUnit extends BaseModel implements Serializable {
         this.unitsPerCase = unitsPerCase;
     }
 
-    public Double getUnitsPerPallet() {
-        return unitsPerPallet;
+    public Double getUnitsPerPalletEuro1() {
+        return unitsPerPalletEuro1;
     }
 
-    public void setUnitsPerPallet(Double unitsPerPallet) {
-        this.unitsPerPallet = unitsPerPallet;
+    public void setUnitsPerPalletEuro1(Double unitsPerPalletEuro1) {
+        this.unitsPerPalletEuro1 = unitsPerPalletEuro1;
+    }
+
+    public Double getUnitsPerPalletEuro2() {
+        return unitsPerPalletEuro2;
+    }
+
+    public void setUnitsPerPalletEuro2(Double unitsPerPalletEuro2) {
+        this.unitsPerPalletEuro2 = unitsPerPalletEuro2;
     }
 
     public Double getUnitsPerContainer() {

@@ -56,7 +56,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
             + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`,  "
             + "    tc.TRACER_CATEGORY_ID, tc.LABEL_ID `TRACER_CATEGORY_LABEL_ID`, tc.LABEL_EN `TRACER_CATEGORY_LABEL_EN`, tc.LABEL_FR `TRACER_CATEGORY_LABEL_FR`, tc.LABEL_PR `TRACER_CATEGORY_LABEL_PR`, tc.LABEL_SP `TRACER_CATEGORY_LABEL_SP`,  "
             + "    puu.UNIT_ID `PLANNING_UNIT_UNIT_ID`, puu.UNIT_CODE `PLANNING_UNIT_UNIT_CODE`, puu.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puu.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puu.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puu.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puu.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`,  "
-            + "    pru.HEIGHT_QTY, pru.WIDTH_QTY, pru.LENGTH_QTY, pru.WEIGHT_QTY, pru.LABELING, pru.MULTIPLIER, pru.UNITS_PER_CASE, pru.UNITS_PER_PALLET, pru.UNITS_PER_CONTAINER, pru.LABELING, "
+            + "    pru.HEIGHT_QTY, pru.WIDTH_QTY, pru.LENGTH_QTY, pru.WEIGHT_QTY, pru.LABELING, pru.MULTIPLIER, pru.UNITS_PER_CASE, pru.UNITS_PER_PALLET_EURO1, pru.UNITS_PER_PALLET_EURO2, pru.UNITS_PER_CONTAINER, pru.LABELING, "
             + "    lu.UNIT_ID  `LENGTH_UNIT_ID`, lu.UNIT_CODE  `LENGTH_UNIT_CODE`, lu.LABEL_ID  `LENGTH_UNIT_LABEL_ID`, lu.LABEL_EN  `LENGTH_UNIT_LABEL_EN`, lu.LABEL_FR  `LENGTH_UNIT_LABEL_FR`, lu.LABEL_PR  `LENGTH_UNIT_LABEL_PR`, lu.LABEL_SP  `LENGTH_UNIT_LABEL_SP`,  "
             + "    weu.UNIT_ID `WEIGHT_UNIT_ID`, weu.UNIT_CODE `WEIGHT_UNIT_CODE`, weu.LABEL_ID `WEIGHT_UNIT_LABEL_ID`, weu.LABEL_EN `WEIGHT_UNIT_LABEL_EN`, weu.LABEL_FR `WEIGHT_UNIT_LABEL_FR`, weu.LABEL_PR `WEIGHT_UNIT_LABEL_PR`, weu.LABEL_SP `WEIGHT_UNIT_LABEL_SP`, "
             + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pru.ACTIVE, pru.CREATED_DATE, pru.LAST_MODIFIED_DATE   "
@@ -135,7 +135,8 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit().getId() == null ? null : procurementUnit.getWeightUnit().getId()));
         params.put("LABELING", procurementUnit.getLabeling());
         params.put("UNITS_PER_CASE", procurementUnit.getUnitsPerCase());
-        params.put("UNITS_PER_PALLET", procurementUnit.getUnitsPerPallet());
+        params.put("UNITS_PER_PALLET_EURO1", procurementUnit.getUnitsPerPalletEuro1());
+        params.put("UNITS_PER_PALLET_EURO2", procurementUnit.getUnitsPerPalletEuro1());
         params.put("UNITS_PER_CONTAINER", procurementUnit.getUnitsPerContainer());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
@@ -159,7 +160,8 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
                 + "    pru.WEIGHT_QTY=:weightQty, "
                 + "    pru.WEIGHT_UNIT_ID=:weightUnitId, "
                 + "    pru.UNITS_PER_CASE=:unitsPerCase, "
-                + "    pru.UNITS_PER_PALLET=:unitsPerPallet, "
+                + "    pru.UNITS_PER_PALLET_EURO1=:unitsPerPalletEuro1, "
+                + "    pru.UNITS_PER_PALLET_EURO2=:unitsPerPalletEuro2, "
                 + "    pru.UNITS_PER_CONTAINER=:unitsPerContainer, "
                 + "    pru.LABELING=:labeling, "
                 + "    pru.ACTIVE=:active, "
@@ -192,7 +194,8 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("weightQty", procurementUnit.getWeightQty());
         params.put("weightUnitId", (procurementUnit.getWeightUnit().getId() == null || procurementUnit.getWeightUnit().getId() == 0 ? null : procurementUnit.getWeightUnit().getId()));
         params.put("unitsPerCase", procurementUnit.getUnitsPerCase());
-        params.put("unitsPerPallet", procurementUnit.getUnitsPerPallet());
+        params.put("unitsPerPalletEuro1", procurementUnit.getUnitsPerPalletEuro1());
+        params.put("unitsPerPalletEuro2", procurementUnit.getUnitsPerPalletEuro2());
         params.put("unitsPerContainer", procurementUnit.getUnitsPerContainer());
         params.put("labeling", procurementUnit.getLabeling());
         params.put("active", procurementUnit.isActive());
