@@ -19,6 +19,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -56,6 +57,9 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add RealmCountry", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+        } catch (DuplicateKeyException d) {
+            logger.error("Error while trying to add RealmCountry", d);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("Error while trying to add RealmCountry", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -68,6 +72,9 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.realmCountryService.updateRealmCountry(realmCountryList, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (DuplicateKeyException d) {
+            logger.error("Error while trying to add RealmCountry", d);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to update RealmCountry", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
@@ -224,7 +231,7 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping(value = "/sync/realmCountryPlanningUnit/{lastSyncDate}")
     public ResponseEntity getRealmCountryPlanningUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {

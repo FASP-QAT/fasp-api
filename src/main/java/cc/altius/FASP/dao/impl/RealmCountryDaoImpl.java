@@ -56,7 +56,6 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
 
     private final String sqlListStringBase = "SELECT "
             + "    rc.REALM_COUNTRY_ID, "
-            //            + "rc.AIR_FREIGHT_PERC, rc.SEA_FREIGHT_PERC, rc.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME, rc.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME, rc.ARRIVED_TO_DELIVERED_LEAD_TIME, "
             + "    r.REALM_ID, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, r.REALM_CODE, "
             + "    c.COUNTRY_ID, c.COUNTRY_CODE, cl.LABEL_ID `COUNTRY_LABEL_ID`,cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_PR `COUNTRY_LABEL_PR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, "
             + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CONVERSION_RATE_TO_USD, cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
@@ -121,12 +120,6 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         params.put("REALM_ID", realmCountry.getRealm().getRealmId());
         params.put("COUNTRY_ID", realmCountry.getCountry().getCountryId());
         params.put("DEFAULT_CURRENCY_ID", realmCountry.getDefaultCurrency().getCurrencyId());
-//        params.put("PALLET_UNIT_ID", realmCountry.getPalletUnit().getUnitId());
-//        params.put("AIR_FREIGHT_PERC", realmCountry.getAirFreightPercentage());
-//        params.put("SEA_FREIGHT_PERC", realmCountry.getSeaFreightPercentage());
-//        params.put("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME", realmCountry.getShippedToArrivedByAirLeadTime());
-//        params.put("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME", realmCountry.getShippedToArrivedBySeaLeadTime());
-//        params.put("ARRIVED_TO_DELIVERED_LEAD_TIME", realmCountry.getArrivedToDeliveredLeadTime());
         params.put("CREATED_DATE", curDate);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
@@ -141,32 +134,16 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sqlString = "UPDATE rm_realm_country rc SET "
                 + "DEFAULT_CURRENCY_ID=:defaultCurrencyId, "
-                //                + "AIR_FREIGHT_PERC=:airFreightPerc, "
-                //                + "SEA_FREIGHT_PERC=:seaFreightPerc, "
-                //                + "SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime, "
-                //                + "SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=:shippedToArrivedBySeaLeadTime, "
-                //                + "ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, "
                 + "ACTIVE=:active, "
                 + "LAST_MODIFIED_BY=:curUser, "
                 + "LAST_MODIFIED_DATE=:curDate "
                 + "WHERE REALM_COUNTRY_ID=:realmCountryId "
                 + "AND ("
                 + "DEFAULT_CURRENCY_ID!=:defaultCurrencyId OR "
-                //                + "AIR_FREIGHT_PERC!=:airFreightPerc OR "
-                //                + "SEA_FREIGHT_PERC!=:seaFreightPerc OR "
-                //                + "SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME!=:shippedToArrivedByAirLeadTime OR "
-                //                + "SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME!=:shippedToArrivedBySeaLeadTime OR "
-                //                + "ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime OR "
                 + "ACTIVE!=:active) ";
         Map<String, Object> params = new HashMap<>();
         params.put("realmCountryId", realmCountry.getRealmCountryId());
         params.put("defaultCurrencyId", realmCountry.getDefaultCurrency().getCurrencyId());
-//        params.put("palletUnitId", realmCountry.getPalletUnit().getUnitId());
-//        params.put("airFreightPerc", realmCountry.getAirFreightPercentage());
-//        params.put("seaFreightPerc", realmCountry.getSeaFreightPercentage());
-//        params.put("shippedToArrivedByAirLeadTime", realmCountry.getShippedToArrivedByAirLeadTime());
-//        params.put("shippedToArrivedBySeaLeadTime", realmCountry.getShippedToArrivedBySeaLeadTime());
-//        params.put("arrivedToDeliveredLeadTime", realmCountry.getArrivedToDeliveredLeadTime());
         params.put("lastModifiedDate", curDate);
         params.put("lastModifiedBy", curUser.getUserId());
         params.put("active", realmCountry.isActive());
