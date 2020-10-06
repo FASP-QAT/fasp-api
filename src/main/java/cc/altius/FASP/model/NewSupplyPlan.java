@@ -592,10 +592,10 @@ public class NewSupplyPlan implements Serializable {
             System.out.println("We need to create a new Batch for periodConsumptionWps:" + periodConsumptionWps + " PlanningUnitId:" + this.planningUnitId + " transDate:" + this.transDate);
             BatchData bdNew = new BatchData();
             bdNew.setBatchId(this.newBatchCounter);
+            bdNew.setShelfLife(this.shelfLife);
             bdNew.setExpiryDate(this.calculateExpiryDate(this.transDate));
             bdNew.setOpeningBalance(0);
             bdNew.setOpeningBalanceWps(0);
-            bdNew.setShelfLife(this.shelfLife);
             bdNew.setCalculatedConsumption(0 - periodConsumption);
             bdNew.setCalculatedConsumptionWps(0 - periodConsumptionWps);
             bdNew.setClosingBalance(0 - periodConsumption);
@@ -634,7 +634,7 @@ public class NewSupplyPlan implements Serializable {
         } catch (Exception e) {
 
         }
-        cal.add(Calendar.MONTH, 24);
+        cal.add(Calendar.MONTH, this.shelfLife);
         return new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime());
     }
 
