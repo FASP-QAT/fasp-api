@@ -18,7 +18,7 @@ public class ProblemStatusRowMapper implements RowMapper<ProblemStatus> {
 
     @Override
     public ProblemStatus mapRow(ResultSet rs, int i) throws SQLException {
-        return new ProblemStatus(rs.getBoolean("USER_MANAGED"), rs.getInt("PROBLEM_STATUS_ID"), new LabelRowMapper().mapRow(rs, i));
+        return new ProblemStatus(rs.getBoolean("USER_MANAGED"), rs.getInt("ID"), new LabelRowMapper().mapRow(rs, i));
     }
 
 }
