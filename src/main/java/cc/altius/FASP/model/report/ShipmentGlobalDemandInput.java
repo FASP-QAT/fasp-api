@@ -29,6 +29,8 @@ public class ShipmentGlobalDemandInput implements Serializable {
     private int planningUnitId;
     private int reportView; // 1 = Funding Source, 2 = Procurement Agent
     private String[] fundingSourceProcurementAgentIds;
+    private boolean useApprovedSupplyPlanOnly;
+    private boolean includePlannedShipments;
 
     public int getRealmId() {
         return realmId;
@@ -110,6 +112,22 @@ public class ShipmentGlobalDemandInput implements Serializable {
                 return opt;
             }
         }
+    }
+
+    public boolean isUseApprovedSupplyPlanOnly() {
+        return useApprovedSupplyPlanOnly;
+    }
+
+    public void setUseApprovedSupplyPlanOnly(boolean useApprovedSupplyPlanOnly) {
+        this.useApprovedSupplyPlanOnly = useApprovedSupplyPlanOnly;
+    }
+
+    public boolean isIncludePlannedShipments() {
+        return includePlannedShipments;
+    }
+
+    public void setIncludePlannedShipments(boolean includePlannedShipments) {
+        this.includePlannedShipments = includePlannedShipments;
     }
 }
     

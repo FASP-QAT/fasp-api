@@ -26,6 +26,7 @@ public class ForecastMetricsMonthlyOutput implements Serializable {
     private Double forecastError;
     private Integer actualConsumption;
     private Integer forecastedConsumption;
+    private Boolean actual;
 
     public Date getMonth() {
         return month;
@@ -75,4 +76,23 @@ public class ForecastMetricsMonthlyOutput implements Serializable {
         this.forecastedConsumption = forecastedConsumption;
     }
 
+    public Boolean getActual() {
+        return actual;
+    }
+
+    public void setActual(Boolean actual) {
+        this.actual = actual;
+    }
+
+    public String getMessage() {
+        if (this.actualConsumption == null || this.forecastedConsumption == null || this.actual == null || this.actual == false) {
+            return "static.reports.forecastMetrics.noConsumption";
+        } else if (this.actualConsumptionHistory == null || this.actualConsumptionHistory == 0) {
+            return "static.reports.forecastMetrics.totalConsumptionIs0";
+        } else if (this.getForecastError() == null) {
+            return "";
+        } else {
+            return null;
+        }
+    }
 }

@@ -25,6 +25,7 @@ public class InventoryBatchInfoRowMapper implements RowMapper<InventoryBatchInfo
             return null;
         }
         ib.setBatch(new Batch(rs.getInt("BATCH_ID"), rs.getInt("BATCH_PLANNING_UNIT_ID"), rs.getString("BATCH_NO"), rs.getBoolean("AUTO_GENERATED"), rs.getDate("EXPIRY_DATE")));
+        ib.getBatch().setCreatedDate(rs.getDate("BATCH_CREATED_DATE"));
         ib.setAdjustmentQty(rs.getInt("BATCH_ADJUSTMENT_QTY"));
         if (rs.wasNull()) {
             ib.setAdjustmentQty(null);
