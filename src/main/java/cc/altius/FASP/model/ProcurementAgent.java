@@ -19,7 +19,6 @@ public class ProcurementAgent extends BaseModel implements Serializable {
     private String procurementAgentCode;
     private double submittedToApprovedLeadTime;
     private double approvedToShippedLeadTime;
-    private boolean localProcurementAgent;
     private String colorHtmlCode;
 
     public ProcurementAgent() {
@@ -31,14 +30,13 @@ public class ProcurementAgent extends BaseModel implements Serializable {
         this.procurementAgentCode = procurementAgentCode;
     }
 
-    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, Label label, String procurementAgentCode, double submittedToApprovedLeadTime, double approvedToShippedLeadTime, boolean localProcurementAgent) {
+    public ProcurementAgent(int procurementAgentId, SimpleCodeObject realm, Label label, String procurementAgentCode, double submittedToApprovedLeadTime, double approvedToShippedLeadTime) {
         this.procurementAgentId = procurementAgentId;
         this.realm = realm;
         this.label = label;
         this.procurementAgentCode = procurementAgentCode;
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
-        this.localProcurementAgent = localProcurementAgent;
     }
 
     public int getProcurementAgentId() {
@@ -87,14 +85,6 @@ public class ProcurementAgent extends BaseModel implements Serializable {
 
     public void setSubmittedToApprovedLeadTime(double submittedToApprovedLeadTime) {
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
-    }
-
-    public boolean isLocalProcurementAgent() {
-        return localProcurementAgent;
-    }
-
-    public void setLocalProcurementAgent(boolean localProcurementAgent) {
-        this.localProcurementAgent = localProcurementAgent;
     }
 
     public String getColorHtmlCode() {
