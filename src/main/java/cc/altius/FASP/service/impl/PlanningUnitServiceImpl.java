@@ -169,8 +169,13 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
 
     @Override
     public List<PlanningUnit> getPlanningUnitListForProductCategory(int productCategoryId, boolean active, CustomUserDetails curUser) {
-        ProductCategory pc = this.productCategoryDao.getProductCategoryById(productCategoryId, curUser);
-        return this.planningUnitDao.getPlanningUnitListForProductCategory(pc.getSortOrder(), active, curUser);
+
+        if (productCategoryId != 0) {
+            ProductCategory pc = this.productCategoryDao.getProductCategoryById(productCategoryId, curUser);
+            return this.planningUnitDao.getPlanningUnitListForProductCategory(pc.getSortOrder(), active, curUser);
+        } else {
+            return this.planningUnitDao.getPlanningUnitListForProductCategory("00", active, curUser);
+        }
     }
 
 }

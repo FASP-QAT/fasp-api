@@ -28,6 +28,7 @@ public class ShipmentOverviewInput implements Serializable {
     private String[] planningUnitIds;
     private String[] fundingSourceIds;
     private String[] shipmentStatusIds;
+    private boolean useApprovedSupplyPlanOnly;
 
     public int getRealmId() {
         return realmId;
@@ -115,4 +116,13 @@ public class ShipmentOverviewInput implements Serializable {
             }
         }
     }
+
+    public boolean isUseApprovedSupplyPlanOnly() {
+        return useApprovedSupplyPlanOnly;
+    }
+
+    public void setUseApprovedSupplyPlanOnly(boolean useApprovedSupplyPlanOnly) {
+        this.useApprovedSupplyPlanOnly = useApprovedSupplyPlanOnly;
+    }
+
 }

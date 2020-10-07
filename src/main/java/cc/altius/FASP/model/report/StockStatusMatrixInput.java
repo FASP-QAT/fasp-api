@@ -26,7 +26,7 @@ public class StockStatusMatrixInput implements Serializable {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
-    private String[] planningUnitIds;
+    private String[] planningUnitIds;   
     private boolean includePlannedShipments;
 
     public int getProgramId() {

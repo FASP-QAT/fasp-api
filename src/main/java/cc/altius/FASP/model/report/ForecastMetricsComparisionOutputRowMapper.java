@@ -31,11 +31,23 @@ public class ForecastMetricsComparisionOutputRowMapper implements RowMapper<Fore
         if (rs.wasNull()) {
             fmo.setActualConsumptionTotal(null);
         }
+        fmo.setActualConsumption(rs.getInt("ACTUAL_CONSUMPTION"));
+        if (rs.wasNull()) {
+            fmo.setActualConsumption(null);
+        }
+        fmo.setForecastedConsumption(rs.getInt("FORECASTED_CONSUMPTION"));
+        if (rs.wasNull()) {
+            fmo.setForecastedConsumption(null);
+        }
         fmo.setForecastError(rs.getDouble("FORECAST_ERROR"));
         if (rs.wasNull()) {
             fmo.setForecastError(null);
         }
         fmo.setMonthCount(rs.getInt("MONTH_COUNT"));
+        fmo.setActual(rs.getBoolean("ACTUAL"));
+        if (rs.wasNull()) {
+            fmo.setActual(null);
+        }
         return fmo;
     }
 

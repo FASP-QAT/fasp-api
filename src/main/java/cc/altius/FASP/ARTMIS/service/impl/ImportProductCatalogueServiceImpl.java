@@ -43,7 +43,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
 
     @Override
 //    @Transactional(propagation = Propagation.REQUIRED)
-//    @Transactional
+    @Transactional
     public void importProductCatalogue() throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException {
         EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
         String[] subjectParam = new String[]{};

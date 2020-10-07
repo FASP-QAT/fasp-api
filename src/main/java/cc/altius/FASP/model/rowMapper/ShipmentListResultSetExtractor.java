@@ -86,6 +86,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             s.setOrderNo(rs.getString("ORDER_NO"));
             s.setPrimeLineNo(rs.getString("PRIME_LINE_NO"));
             s.setEmergencyOrder(rs.getBoolean("EMERGENCY_ORDER"));
+            s.setLocalProcurement(rs.getBoolean("LOCAL_PROCUREMENT"));
             s.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
             s.setVersionId(rs.getInt("VERSION_ID"));
             s.setActive(rs.getBoolean("ACTIVE"));

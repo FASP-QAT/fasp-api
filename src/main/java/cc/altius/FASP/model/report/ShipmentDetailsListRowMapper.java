@@ -16,11 +16,11 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author akil
  */
-public class ShipmentDetailsOutputRowMapper implements RowMapper<ShipmentDetailsOutput>{
+public class ShipmentDetailsListRowMapper implements RowMapper<ShipmentDetailsList>{
 
     @Override
-    public ShipmentDetailsOutput mapRow(ResultSet rs, int i) throws SQLException {
-        ShipmentDetailsOutput sd = new ShipmentDetailsOutput();
+    public ShipmentDetailsList mapRow(ResultSet rs, int i) throws SQLException {
+        ShipmentDetailsList sd = new ShipmentDetailsList();
         sd.setShipmentId(rs.getInt("SHIPMENT_ID"));
         sd.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
         sd.setForecastingUnit(new SimpleObject(rs.getInt("FORECASTING_UNIT_ID"), new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, i)));
@@ -28,7 +28,7 @@ public class ShipmentDetailsOutputRowMapper implements RowMapper<ShipmentDetails
         sd.setProcurementAgent(new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, i), rs.getString("PROCUREMENT_AGENT_CODE")));
         sd.setFundingSource(new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, i), rs.getString("FUNDING_SOURCE_CODE")));
         sd.setShipmentStatus(new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, i)));
-        sd.setShipmentQty(rs.getInt("SHIPMENT_QTY"));
+        sd.setShipmentQty(rs.getLong("SHIPMENT_QTY"));
         sd.setExpectedDeliveryDate(rs.getDate("EDD"));
         sd.setProductCost(rs.getDouble("PRODUCT_COST"));
         sd.setFreightCost(rs.getDouble("FREIGHT_COST"));

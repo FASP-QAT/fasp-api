@@ -26,6 +26,7 @@ public class ForecastMetricsComparisionInput implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
     private int previousMonths;
+    private boolean useApprovedSupplyPlanOnly;
 
     public int getRealmId() {
         return realmId;
@@ -114,4 +115,13 @@ public class ForecastMetricsComparisionInput implements Serializable {
             }
         }
     }
+
+    public boolean isUseApprovedSupplyPlanOnly() {
+        return useApprovedSupplyPlanOnly;
+    }
+
+    public void setUseApprovedSupplyPlanOnly(boolean useApprovedSupplyPlanOnly) {
+        this.useApprovedSupplyPlanOnly = useApprovedSupplyPlanOnly;
+    }
+    
 }

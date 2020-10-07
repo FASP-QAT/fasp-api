@@ -8,9 +8,11 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.ProblemDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProblemReport;
+import cc.altius.FASP.model.ProblemStatus;
 import cc.altius.FASP.model.RealmProblem;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.rowMapper.ProblemReportResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ProblemStatusRowMapper;
 import cc.altius.FASP.model.rowMapper.RealmProblemRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import java.util.HashMap;
@@ -66,7 +68,7 @@ public class ProblemDaoImpl implements ProblemDao {
         String sql = "SELECT  "
                 + "	prr.PROBLEM_REPORT_ID,  "
                 + "     prog.PROGRAM_ID, prog.PROGRAM_CODE, prog.LABEL_ID `PROGRAM_LABEL_ID`, prog.LABEL_EN `PROGRAM_LABEL_EN`, prog.LABEL_FR `PROGRAM_LABEL_FR`, prog.LABEL_SP `PROGRAM_LABEL_SP`, prog.LABEL_PR `PROGRAM_LABEL_PR`,  "
-                + "     prr.VERSION_ID, prr.DATA1 `DT`, "
+                + "     prr.VERSION_ID, prr.DATA1 `DT`, prr.`REVIEWED`, "
                 + "     re.`REGION_ID`, re.LABEL_ID `REGION_LABEL_ID`, re.LABEL_EN `REGION_LABEL_EN`, re.LABEL_FR `REGION_LABEL_FR`, re.LABEL_SP `REGION_LABEL_SP`, re.LABEL_PR `REGION_LABEL_PR`,  "
                 + "     pu.`PLANNING_UNIT_ID`, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, "
                 + "     prr.DATA4 `SHIPMENT_ID`, prr.DATA5, "
@@ -79,7 +81,7 @@ public class ProblemDaoImpl implements ProblemDao {
                 + "     pc.CRITICALITY_ID `RP_CRITICALITY_ID`, pc.COLOR_HTML_CODE `RP_COLOR_HTML_CODE`, pc.LABEL_ID `RP_CRITICALITY_LABEL_ID`, pc.LABEL_EN `RP_CRITICALITY_LABEL_EN`, pc.LABEL_FR `RP_CRITICALITY_LABEL_FR`, pc.LABEL_SP `RP_CRITICALITY_LABEL_SP`, pc.LABEL_PR `RP_CRITICALITY_LABEL_PR`, "
                 + "     rp.DATA1 `RP_DATA1`, rp.DATA2 `RP_DATA2`, rp.DATA3 `RP_DATA3`, "
                 + "     cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, prr.CREATED_DATE, lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME, prr.LAST_MODIFIED_DATE, "
-                + "     prt.PROBLEM_REPORT_TRANS_ID, prt.NOTES, prt.CREATED_DATE `TRANS_CREATED_DATE`, cbt.USER_ID `CBT_USER_ID`, cbt.USERNAME `CBT_USERNAME`, "
+                + "     prt.PROBLEM_REPORT_TRANS_ID, prt.NOTES, prt.`REVIEWED` `PROBLEM_REPORT_TRANS_REVIEWED`, prt.CREATED_DATE `TRANS_CREATED_DATE`, cbt.USER_ID `CBT_USER_ID`, cbt.USERNAME `CBT_USERNAME`, "
                 + "     pst.PROBLEM_STATUS_ID `PROBLEM_STATUS_TRANS_ID`, pst.LABEL_ID `PROBLEM_STATUS_TRANS_LABEL_ID`, pst.LABEL_EN `PROBLEM_STATUS_TRANS_LABEL_EN`, pst.LABEL_FR `PROBLEM_STATUS_TRANS_LABEL_FR`, pst.LABEL_SP `PROBLEM_STATUS_TRANS_LABEL_SP`, pst.LABEL_PR `PROBLEM_STATUS_TRANS_LABEL_PR` "
                 + "FROM rm_problem_report prr "
                 + "     LEFT JOIN vw_region re ON prr.DATA2=re.REGION_ID "
@@ -106,17 +108,16 @@ public class ProblemDaoImpl implements ProblemDao {
     }
 
     @Override
-    public List<RealmProblem> getProblemListForSync(int realmId, String lastModifiedDate, CustomUserDetails curUser) {
-        String sql = this.problemMasterSql + " AND rp.REALM_ID=:realmId AND rp.LAST_MODIFIED_DATE>:lastModifiedDate ";
+    public List<RealmProblem> getProblemListForSync(String lastModifiedDate, CustomUserDetails curUser) {
+        String sql = this.problemMasterSql + " AND rp.LAST_MODIFIED_DATE>:lastModifiedDate ";
         Map<String, Object> params = new HashMap<>();
-        params.put("realmId", realmId);
         params.put("lastModifiedDate", lastModifiedDate);
         return this.namedParameterJdbcTemplate.query(sql, params, new RealmProblemRowMapper());
     }
 
     @Override
-    public List<SimpleObject> getProblemStatusForSync(String lastModifiedDate, CustomUserDetails curUser) {
-        return this.namedParameterJdbcTemplate.query("SELECT ps.PROBLEM_STATUS_ID `ID`, ps.LABEL_ID, ps.LABEL_EN, ps.LABEL_FR, ps.LABEL_SP, ps.LABEL_PR FROM vw_problem_status ps", new SimpleObjectRowMapper());
+    public List<ProblemStatus> getProblemStatusForSync(String lastModifiedDate, CustomUserDetails curUser) {
+        return this.namedParameterJdbcTemplate.query("SELECT ps.PROBLEM_STATUS_ID `ID`, ps.LABEL_ID, ps.LABEL_EN, ps.LABEL_FR, ps.LABEL_SP, ps.LABEL_PR, ps.USER_MANAGED FROM vw_problem_status ps", new ProblemStatusRowMapper());
     }
 
     @Override

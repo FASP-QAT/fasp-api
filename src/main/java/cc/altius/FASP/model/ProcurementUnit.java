@@ -20,15 +20,14 @@ public class ProcurementUnit extends BaseModel implements Serializable {
     private Double multiplier;
     private SimpleObject supplier;
     private Double widthQty;
-    private SimpleObject widthUnit;
     private Double heightQty;
-    private SimpleObject heightUnit;
     private Double lengthQty;
     private SimpleObject lengthUnit;
     private Double weightQty;
     private SimpleObject weightUnit;
     private Double unitsPerCase;
-    private Double unitsPerPallet;
+    private Double unitsPerPalletEuro1;
+    private Double unitsPerPalletEuro2;
     private Double unitsPerContainer;
     private String labeling;
 
@@ -78,22 +77,6 @@ public class ProcurementUnit extends BaseModel implements Serializable {
 
     public void setSupplier(SimpleObject supplier) {
         this.supplier = supplier;
-    }
-
-    public SimpleObject getWidthUnit() {
-        return widthUnit;
-    }
-
-    public void setWidthUnit(SimpleObject widthUnit) {
-        this.widthUnit = widthUnit;
-    }
-
-    public SimpleObject getHeightUnit() {
-        return heightUnit;
-    }
-
-    public void setHeightUnit(SimpleObject heightUnit) {
-        this.heightUnit = heightUnit;
     }
 
     public SimpleObject getLengthUnit() {
@@ -168,12 +151,20 @@ public class ProcurementUnit extends BaseModel implements Serializable {
         this.unitsPerCase = unitsPerCase;
     }
 
-    public Double getUnitsPerPallet() {
-        return unitsPerPallet;
+    public Double getUnitsPerPalletEuro1() {
+        return unitsPerPalletEuro1;
     }
 
-    public void setUnitsPerPallet(Double unitsPerPallet) {
-        this.unitsPerPallet = unitsPerPallet;
+    public void setUnitsPerPalletEuro1(Double unitsPerPalletEuro1) {
+        this.unitsPerPalletEuro1 = unitsPerPalletEuro1;
+    }
+
+    public Double getUnitsPerPalletEuro2() {
+        return unitsPerPalletEuro2;
+    }
+
+    public void setUnitsPerPalletEuro2(Double unitsPerPalletEuro2) {
+        this.unitsPerPalletEuro2 = unitsPerPalletEuro2;
     }
 
     public Double getUnitsPerContainer() {
@@ -216,10 +207,4 @@ public class ProcurementUnit extends BaseModel implements Serializable {
         }
         return true;
     }
-
-    @Override
-    public String toString() {
-        return "ProcurementUnit{" + "procurementUnitId=" + procurementUnitId + ", planningUnit=" + planningUnit + ", label=" + label + ", unit=" + unit + ", multiplier=" + multiplier + ", supplier=" + supplier + ", widthQty=" + widthQty + ", widthUnit=" + widthUnit + ", heightQty=" + heightQty + ", heightUnit=" + heightUnit + ", lengthQty=" + lengthQty + ", lengthUnit=" + lengthUnit + ", weightQty=" + weightQty + ", weightUnit=" + weightUnit + ", unitsPerCase=" + unitsPerCase + ", unitsPerPallet=" + unitsPerPallet + ", unitsPerContainer=" + unitsPerContainer + ", labeling=" + labeling + '}';
-    }
-
 }

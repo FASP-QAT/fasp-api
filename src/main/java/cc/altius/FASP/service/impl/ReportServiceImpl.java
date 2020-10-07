@@ -15,6 +15,8 @@ import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
+import cc.altius.FASP.model.report.ExpiredStockInput;
+import cc.altius.FASP.model.report.ExpiredStockOutput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
@@ -130,6 +132,11 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    public List<ExpiredStockOutput> getExpiredStock(ExpiredStockInput esi, CustomUserDetails curUser) {
+        return this.reportDao.getExpiredStock(esi, curUser);
+    }
+
+    @Override
     public List<StockAdjustmentReportOutput> getStockAdjustmentReport(StockAdjustmentReportInput si, CustomUserDetails curUser) {
         return this.reportDao.getStockAdjustmentReport(si, curUser);
     }
@@ -170,7 +177,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<ShipmentDetailsOutput> getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) {
+    public ShipmentDetailsOutput getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) {
         return this.reportDao.getShipmentDetails(sd, curUser);
     }
 
@@ -196,7 +203,7 @@ public class ReportServiceImpl implements ReportService {
         for (StockStatusAcrossProductsOutput s : ssapList) {
             for (StockStatusAcrossProductsForProgram progData : s.getProgramData()) {
                 s.getProgramData().remove(progData);
-                StockStatusAcrossProductsForProgram sData = this.reportDao.getStockStatusAcrossProductsProgramData(progData.getProgram().getId(), s.getPlanningUnit().getId(), ssap.getDt());
+                StockStatusAcrossProductsForProgram sData = this.reportDao.getStockStatusAcrossProductsProgramData(progData.getProgram().getId(), s.getPlanningUnit().getId(), ssap.getDt(), ssap.isUseApprovedSupplyPlanOnly());
                 s.getProgramData().add(sData);
             }
         }

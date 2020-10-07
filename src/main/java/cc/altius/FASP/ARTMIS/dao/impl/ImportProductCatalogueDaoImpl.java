@@ -726,6 +726,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + " null UNIT_ID, fu.UNIT_LABEL_EN UNIT_CODE, null UNIT_LABEL_ID, fu.UNIT_LABEL_EN UNIT_LABEL_EN, null UNIT_LABEL_FR, null UNIT_LABEL_SP, null UNIT_LABEL_PR, "
                 + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
                 + "FROM tmp_forecasting_unit fu where fu.FOUND=1";
+        int rowCount = 0;
         for (ForecastingUnit fu : this.jdbcTemplate.query(sqlStringUpdate, new ForecastingUnitRowMapper())) {
             try {
                 sqlStringUpdate = "UPDATE ap_label l "
@@ -747,7 +748,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + "f.`ACTIVE`=TRUE,"
                         + "f.`GENERIC_LABEL_ID`=lg.`LABEL_ID` "
                         + "WHERE tf.`ID`=?;";
-                System.out.println("rows updated---" + this.jdbcTemplate.update(sqlStringUpdate, curUserId, curDate, fu.getForecastingUnitId()));
+                rowCount += this.jdbcTemplate.update(sqlStringUpdate, curUserId, curDate, fu.getForecastingUnitId());
 //                forecastingUnitParams.clear();
 ////                forecastingUnitParams.put("forcastingUnitLabel", fu.getLabel().getLabel_en());
 //                forecastingUnitParams.put("lastModifiedBy", fu.getLabel().getLabel_en());
@@ -762,6 +763,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info("Error while updating Forecasting Unit " + fu.getLabel() + " because there was an error " + e.getMessage());
             }
         }
+        System.out.println("Rows updated - " + rowCount);
         //Update end
         sqlString = "SELECT COUNT(*) FROM rm_forecasting_unit";
         logger.info("Total rows available in rm_forecasting_unit ---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
@@ -1013,16 +1015,17 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "    `UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `PLANNING_UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `SUPPLIER_ID` int (10) unsigned DEFAULT NULL, "
-                + "    `WIDTH_UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `WIDTH` decimal (12,4) unsigned DEFAULT NULL, "
                 + "    `LENGTH_UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `LENGTH` decimal (12,4) unsigned DEFAULT NULL, "
-                + "    `HEIGHT_UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `HEIGHT` decimal (12,4) unsigned DEFAULT NULL, "
+                + "    `VOLUME_UNIT_ID` int (10) unsigned DEFAULT NULL, "
+                + "    `VOLUME` decimal (12,4) unsigned DEFAULT NULL, "
                 + "    `WEIGHT_UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `WEIGHT` decimal (12,4) unsigned DEFAULT NULL, "
                 + "    `UNITS_PER_CASE` INT (10) UNSIGNED DEFAULT NULL, "
-                + "    `UNITS_PER_PALLET` INT (10) UNSIGNED DEFAULT NULL, "
+                + "    `UNITS_PER_PALLET_EURO1` INT (10) UNSIGNED DEFAULT NULL, "
+                + "    `UNITS_PER_PALLET_EURO2` INT (10) UNSIGNED DEFAULT NULL, "
                 + "    `UNITS_PER_CONTAINER` int (10) unsigned DEFAULT NULL, "
                 + "    `LABELLING` Varchar(200) DEFAULT NULL, "
                 + "    `SKU_CODE` Varchar(200) DEFAULT NULL, "
@@ -1035,8 +1038,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "     INDEX `idx_procurementUnit2` (`PROCUREMENT_UNIT_ID` ASC), "
                 + "     INDEX `idx_procurementUnit3` (`UNIT_ID` ASC), "
                 + "     INDEX `idx_procurementUnit4` (`PLANNING_UNIT_ID` ASC), "
-                + "     INDEX `idx_procurementUnit5` (`WIDTH_UNIT_ID` ASC), "
-                + "     INDEX `idx_procurementUnit6` (`HEIGHT_UNIT_ID` ASC), "
+                + "     INDEX `idx_procurementUnit5` (`VOLUME_UNIT_ID` ASC), "
                 + "     INDEX `idx_procurementUnit7` (`LENGTH_UNIT_ID` ASC), "
                 + "     INDEX `idx_procurementUnit8` (`WEIGHT_UNIT_ID` ASC), "
                 + "     INDEX `idx_procurementUnit9` (`FOUND` ASC)"
@@ -1048,15 +1050,15 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         // Step 1 - Insert into the tmp_procurement table
         sqlString = "INSERT INTO `tmp_procurement_unit` ( "
                 + "     `ID`,`LABEL`,`PROCUREMENT_UNIT_ID`,`MULTIPLIER`,`UNIT_ID`, "
-                + "     `PLANNING_UNIT_ID`,`SUPPLIER_ID`,`WIDTH_UNIT_ID`,`WIDTH`,`LENGTH_UNIT_ID`, "
-                + "     `LENGTH`,`HEIGHT_UNIT_ID`,`HEIGHT`,`WEIGHT_UNIT_ID`,`WEIGHT`, "
-                + "     `UNITS_PER_CASE`,`UNITS_PER_PALLET`,`UNITS_PER_CONTAINER`,`LABELLING`,`SKU_CODE`, "
+                + "     `PLANNING_UNIT_ID`,`SUPPLIER_ID`,`WIDTH`,`LENGTH_UNIT_ID`, `LENGTH`,"
+                + "     `HEIGHT`, `WEIGHT_UNIT_ID`, `WEIGHT`, `VOLUME_UNIT_ID`, `VOLUME`, "
+                + "     `UNITS_PER_CASE`,`UNITS_PER_PALLET_EURO1`,`UNITS_PER_PALLET_EURO2`, `UNITS_PER_CONTAINER`,`LABELLING`,`SKU_CODE`, "
                 + "     `GTIN`,`VENDOR_PRICE`,`APPROVED_TO_SHIPPED_LEAD_TIME`,`FOUND`) "
                 + "SELECT  "
                 + "     null,tpc.ItemName,null,1,u.UNIT_ID, "
-                + "     papu.PLANNING_UNIT_ID, s.SUPPLIER_ID, uh.UNIT_ID, IF(tpc.Width='', NULL, tpc.Width), uh.UNIT_ID, "
-                + "     IF(tpc.Length='', NULL, tpc.Length), uh.UNIT_ID, IF(tpc.Height='', NULL, tpc.Height), uw.UNIT_ID, IF(tpc.Weight='', NULL, tpc.Weight), "
-                + "     IF(tpc.UnitsperCase='', NULL, tpc.UnitsperCase), IF(tpc.UnitsperPallet='', NULL, tpc.UnitsperPallet), IF(tpc.UnitsperContainer='', NULL, tpc.UnitsperContainer), IF(tpc.Labeling='', NULL, tpc.Labeling), tpc.ItemID, "
+                + "     papu.PLANNING_UNIT_ID, s.SUPPLIER_ID, IF(tpc.Width='', NULL, tpc.Width), uh.UNIT_ID, IF(tpc.Length='', NULL, tpc.Length), "
+                + "     IF(tpc.Height='', NULL, tpc.Height), uw.UNIT_ID, IF(tpc.Weight='', NULL, tpc.Weight), null, null, "
+                + "     IF(tpc.UnitsperCase='', NULL, tpc.UnitsperCase), IF(tpc.UnitsperPallet='', NULL, tpc.UnitsperPallet), null, IF(tpc.UnitsperContainer='', NULL, tpc.UnitsperContainer), IF(tpc.Labeling='', NULL, tpc.Labeling), tpc.ItemID, "
                 + "     IF(tpc.GTIN='', NULL, tpc.GTIN), IF(tpc.EstPrice='',null, tpc.EstPrice), ?, 0 "
                 + "FROM tmp_product_catalog tpc  "
                 + "LEFT JOIN vw_unit uh ON tpc.HeightUOM=uh.LABEL_EN OR tpc.HeightUOM=uh.UNIT_CODE "
@@ -1102,15 +1104,16 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         procurementUnitParams.put("MULTIPLIER", 0);
         procurementUnitParams.put("SUPPLIER_ID", 0);
         procurementUnitParams.put("WIDTH_QTY", 0);
-        procurementUnitParams.put("WIDTH_UNIT_ID", 0);
         procurementUnitParams.put("HEIGHT_QTY", 0);
-        procurementUnitParams.put("HEIGHT_UNIT_ID", 0);
         procurementUnitParams.put("LENGTH_QTY", 0);
         procurementUnitParams.put("LENGTH_UNIT_ID", 0);
         procurementUnitParams.put("WEIGHT_QTY", 0);
         procurementUnitParams.put("WEIGHT_UNIT_ID", 0);
+        procurementUnitParams.put("VOLUME_QTY", 0);
+        procurementUnitParams.put("VOLUME_UNIT_ID", 0);
         procurementUnitParams.put("UNITS_PER_CASE", 0);
-        procurementUnitParams.put("UNITS_PER_PALLET", 0);
+        procurementUnitParams.put("UNITS_PER_PALLET_EURO1", 0);
+        procurementUnitParams.put("UNITS_PER_PALLET_EURO2", 0);
         procurementUnitParams.put("UNITS_PER_CONTAINER", 0);
         procurementUnitParams.put("LABELLING", "");
 
@@ -1140,15 +1143,16 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         procurementUnitParams.replace("MULTIPLIER", pu.getMultiplier());
                         procurementUnitParams.replace("SUPPLIER_ID", pu.getSupplierId());
                         procurementUnitParams.replace("WIDTH_QTY", pu.getWidth());
-                        procurementUnitParams.replace("WIDTH_UNIT_ID", pu.getWidthUnitId());
                         procurementUnitParams.replace("HEIGHT_QTY", pu.getHeight());
-                        procurementUnitParams.replace("HEIGHT_UNIT_ID", pu.getHeightUnitId());
                         procurementUnitParams.replace("LENGTH_QTY", pu.getLength());
                         procurementUnitParams.replace("LENGTH_UNIT_ID", pu.getLengthUnitId());
                         procurementUnitParams.replace("WEIGHT_QTY", pu.getWeight());
                         procurementUnitParams.replace("WEIGHT_UNIT_ID", pu.getWeightUnitId());
+                        procurementUnitParams.replace("VOLUME_QTY", pu.getVolume());
+                        procurementUnitParams.replace("VOLUME_UNIT_ID", pu.getVolumeUnitId());
                         procurementUnitParams.replace("UNITS_PER_CASE", pu.getUnitsPerCase());
-                        procurementUnitParams.replace("UNITS_PER_PALLET", pu.getUnitsPerPallet());
+                        procurementUnitParams.replace("UNITS_PER_PALLET_EURO1", pu.getUnitsPerPalletEuro1());
+                        procurementUnitParams.replace("UNITS_PER_PALLET_EURO2", pu.getUnitsPerPalletEuro2());
                         procurementUnitParams.replace("UNITS_PER_CONTAINER", pu.getUnitsPerContainer());
                         procurementUnitParams.replace("LABELLING", pu.getLabelling());
                         pu.setProcurementUnitId(siProcurementUnit.executeAndReturnKey(procurementUnitParams).intValue());
@@ -1180,16 +1184,17 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "l.`LAST_MODIFIED_DATE` = IF(l.`LABEL_EN`!=tpu.`LABEL`, now(), l.`LAST_MODIFIED_DATE`), "
                 + "pu.`UNIT_ID` = tpu.UNIT_ID, "
                 + "pu.`SUPPLIER_ID` = tpu.`SUPPLIER_ID`, "
-                + "pu.`WIDTH_UNIT_ID` = tpu.`WEIGHT_UNIT_ID`, "
                 + "pu.`WIDTH_QTY` = tpu.`WIDTH`, "
-                + "pu.`HEIGHT_UNIT_ID` = tpu.`HEIGHT_UNIT_ID`, "
                 + "pu.`HEIGHT_QTY` = tpu.`HEIGHT`, "
-                + "pu.`LENGTH_UNIT_ID` = tpu.`HEIGHT_UNIT_ID`, "
+                + "pu.`LENGTH_UNIT_ID` = tpu.`LENGTH_UNIT_ID`, "
                 + "pu.`LENGTH_QTY` = tpu.`LENGTH`, "
-                + "pu.`WEIGHT_UNIT_ID` = tpu.`WIDTH_UNIT_ID`, "
+                + "pu.`WEIGHT_UNIT_ID` = tpu.`WEIGHT_UNIT_ID`, "
                 + "pu.`WEIGHT_QTY` = tpu.`WEIGHT`, "
+                + "pu.`VOLUME_UNIT_ID` = tpu.`VOLUME_UNIT_ID`, "
+                + "pu.`VOLUME_QTY` = tpu.`VOLUME`, "
                 + "pu.`UNITS_PER_CASE` = tpu.`UNITS_PER_CASE`, "
-                + "pu.`UNITS_PER_PALLET` = tpu.`UNITS_PER_PALLET`, "
+                + "pu.`UNITS_PER_PALLET_EURO1` = tpu.`UNITS_PER_PALLET_EURO1`, "
+                + "pu.`UNITS_PER_PALLET_EURO2` = tpu.`UNITS_PER_PALLET_EURO2`, "
                 + "pu.`UNITS_PER_CONTAINER` = tpu.`UNITS_PER_CONTAINER`, "
                 + "pu.`LABELING` = tpu.`LABELLING`, "
                 + "pu.`LAST_MODIFIED_BY` =  "
@@ -1198,16 +1203,17 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "         l.`LABEL_EN`!= tpu.`LABEL` "
                 + "         OR pu.`UNIT_ID` != tpu.`UNIT_ID` "
                 + "         OR pu.`SUPPLIER_ID` != tpu.`SUPPLIER_ID` "
-                + "         OR pu.`WIDTH_UNIT_ID` != tpu.`WEIGHT_UNIT_ID` "
-                + "         OR pu.`WIDTH_QTY` != tpu.`WIDTH` "
-                + "         OR pu.`HEIGHT_UNIT_ID` != tpu.`HEIGHT_UNIT_ID` "
+                + "         OR pu.`LENGTH_UNIT_ID` != tpu.`LENGTH_UNIT_ID` "
                 + "         OR pu.`HEIGHT_QTY` != tpu.`HEIGHT` "
-                + "         OR pu.`LENGTH_UNIT_ID` != tpu.`HEIGHT_UNIT_ID` "
                 + "         OR pu.`LENGTH_QTY` != tpu.`LENGTH` "
-                + "         OR pu.`WEIGHT_UNIT_ID` != tpu.`WIDTH_UNIT_ID` "
+                + "         OR pu.`WIDTH_QTY` != tpu.`WIDTH` "
+                + "         OR pu.`WEIGHT_UNIT_ID` != tpu.`WEIGHT_UNIT_ID` "
                 + "         OR pu.`WEIGHT_QTY` != tpu.`WEIGHT` "
+                + "         OR pu.`VOLUME_UNIT_ID` != tpu.`VOLUME_UNIT_ID` "
+                + "         OR pu.`VOLUME_QTY` != tpu.`VOLUME` "
                 + "         OR pu.`UNITS_PER_CASE` != tpu.`UNITS_PER_CASE` "
-                + "         OR pu.`UNITS_PER_PALLET` != tpu.`UNITS_PER_PALLET` "
+                + "         OR pu.`UNITS_PER_PALLET_EURO1` != tpu.`UNITS_PER_PALLET_EURO1` "
+                + "         OR pu.`UNITS_PER_PALLET_EURO2` != tpu.`UNITS_PER_PALLET_EURO2` "
                 + "         OR pu.`UNITS_PER_CONTAINER` != tpu.`UNITS_PER_CONTAINER` "
                 + "         OR pu.`LABELING` != tpu.`LABELLING` "
                 + "        ), 1, pu.`LAST_MODIFIED_BY`), "
@@ -1217,16 +1223,17 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "         l.`LABEL_EN`!= tpu.`LABEL` "
                 + "         OR pu.`UNIT_ID` != tpu.`UNIT_ID` "
                 + "         OR pu.`SUPPLIER_ID` != tpu.`SUPPLIER_ID` "
-                + "         OR pu.`WIDTH_UNIT_ID` != tpu.`WEIGHT_UNIT_ID` "
-                + "         OR pu.`WIDTH_QTY` != tpu.`WIDTH` "
-                + "         OR pu.`HEIGHT_UNIT_ID` != tpu.`HEIGHT_UNIT_ID` "
+                + "         OR pu.`LENGTH_UNIT_ID` != tpu.`LENGTH_UNIT_ID` "
                 + "         OR pu.`HEIGHT_QTY` != tpu.`HEIGHT` "
-                + "         OR pu.`LENGTH_UNIT_ID` != tpu.`HEIGHT_UNIT_ID` "
                 + "         OR pu.`LENGTH_QTY` != tpu.`LENGTH` "
-                + "         OR pu.`WEIGHT_UNIT_ID` != tpu.`WIDTH_UNIT_ID` "
+                + "         OR pu.`WIDTH_QTY` != tpu.`WIDTH` "
+                + "         OR pu.`WEIGHT_UNIT_ID` != tpu.`WEIGHT_UNIT_ID` "
                 + "         OR pu.`WEIGHT_QTY` != tpu.`WEIGHT` "
+                + "         OR pu.`VOLUME_UNIT_ID` != tpu.`VOLUME_UNIT_ID` "
+                + "         OR pu.`VOLUME_QTY` != tpu.`VOLUME` "
                 + "         OR pu.`UNITS_PER_CASE` != tpu.`UNITS_PER_CASE` "
-                + "         OR pu.`UNITS_PER_PALLET` != tpu.`UNITS_PER_PALLET` "
+                + "         OR pu.`UNITS_PER_PALLET_EURO1` != tpu.`UNITS_PER_PALLET_EURO1` "
+                + "         OR pu.`UNITS_PER_PALLET_EURO2` != tpu.`UNITS_PER_PALLET_EURO2` "
                 + "         OR pu.`UNITS_PER_CONTAINER` != tpu.`UNITS_PER_CONTAINER` "
                 + "         OR pu.`LABELING` != tpu.`LABELLING` "
                 + "        ), now(), pu.`LAST_MODIFIED_DATE`), "

@@ -24,6 +24,7 @@ public class StockStatusAcrossProductsInput implements Serializable {
     private Date dt;
     private int tracerCategoryId;
     private String[] realmCountryIds;
+    private boolean useApprovedSupplyPlanOnly;
 
     public int getRealmId() {
         return realmId;
@@ -68,6 +69,14 @@ public class StockStatusAcrossProductsInput implements Serializable {
                 return opt;
             }
         }
+    }
+
+    public boolean isUseApprovedSupplyPlanOnly() {
+        return useApprovedSupplyPlanOnly;
+    }
+
+    public void setUseApprovedSupplyPlanOnly(boolean useApprovedSupplyPlanOnly) {
+        this.useApprovedSupplyPlanOnly = useApprovedSupplyPlanOnly;
     }
 
 }

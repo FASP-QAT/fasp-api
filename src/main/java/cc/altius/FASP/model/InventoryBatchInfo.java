@@ -15,7 +15,7 @@ public class InventoryBatchInfo implements Serializable {
 
     private int inventoryTransBatchInfoId;
     private Batch batch;
-    private int adjustmentQty;
+    private Integer adjustmentQty;
     private Integer actualQty;
 
     public int getInventoryTransBatchInfoId() {
@@ -34,11 +34,11 @@ public class InventoryBatchInfo implements Serializable {
         this.batch = batch;
     }
 
-    public int getAdjustmentQty() {
+    public Integer getAdjustmentQty() {
         return adjustmentQty;
     }
 
-    public void setAdjustmentQty(int adjustmentQty) {
+    public void setAdjustmentQty(Integer adjustmentQty) {
         this.adjustmentQty = adjustmentQty;
     }
 

@@ -12,6 +12,7 @@ import cc.altius.FASP.model.report.AnnualShipmentCostInput;
 import cc.altius.FASP.model.report.BudgetReportInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
+import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
@@ -28,8 +29,12 @@ import cc.altius.FASP.model.report.StockStatusOverTimeInput;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
+import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.service.ReportService;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -49,6 +54,7 @@ public class ReportController {
 
     @Autowired
     private ReportService reportService;
+    private final Logger logger = LoggerFactory.getLogger(ReportController.class);
 
     @RequestMapping(value = "/consumption/{realmId}/{programId}/{planningUnitId}/{startDate}/{endDate}")
     public ResponseEntity getConsumptionData(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, @PathVariable("planningUnitId") int planningUnitId, @PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate, Authentication auth) {
@@ -86,7 +92,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitId":152, "reportView":1}
+     * {"programId":2535, "versionId":1, "startDate":"2019-01-01", "stopDate":"2019-12-01", "planningUnitId":778, "reportView":1}
      * -- programId must be a single Program cannot be muti-program select or -1 for all programs
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
      * -- planningUnitId must be a valid PlanningUnitId
@@ -111,10 +117,11 @@ public class ReportController {
     }
 
     // Report no 3
+    // Global Report
     /**
      * <pre>
      * Sample JSON
-     * { "realmId": 1, "realmCountryIds": [ 1, 2], "programIds": [1, 3], "planningUnitIds": [157, 152, 1190], "startDate": "2019-10-01", "stopDate": "2020-07-01", "reportView": 1}
+     * { "realmId": 1, "realmCountryIds": [ 51], "programIds": [2535], "planningUnitIds": [778], "startDate": "2019-01-01", "stopDate": "2019-12-01", "reportView": 1}
      * -- realmId must be a valid realm that you want to run this Global report for
      * -- RealmCountryIds is the list of Countries that you want to run the report for. Empty means all Countries
      * -- ProgramIds is the list of Programs that you want to run the report for. Empty means all Programs
@@ -160,7 +167,7 @@ public class ReportController {
      * @return
      */
     @RequestMapping(value = "/forecastMetricsMonthly")
-    public ResponseEntity getForecastMetricsMonthls(@RequestBody ForecastMetricsMonthlyInput fmi, Authentication auth) {
+    public ResponseEntity getForecastMetricsMonthly(@RequestBody ForecastMetricsMonthlyInput fmi, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.reportService.getForecastMetricsMonthly(fmi, curUser), HttpStatus.OK);
@@ -171,10 +178,11 @@ public class ReportController {
     }
 
     // Report no 5
+    // Global Report
     /**
      * <pre>
      * Sample JSON
-     * { "realmId":1, "realmCountryIds":[1,2], "programIds":[1,3], "planningUnitIds":[157,152,1190], "startDate":"2020-02-01", "previousMonths":5}
+     * { "realmId":1, "realmCountryIds":[5,51], "programIds":[2028,2535], "planningUnitIds":[], "startDate":"2019-11-01", "previousMonths":5}
      * -- realmId since it is a Global report need to include Realm
      * -- startDate - date that the report is to be run for
      * -- realmCountryIds list of countries that we need to run the report for
@@ -280,6 +288,34 @@ public class ReportController {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.reportService.getInventoryTurns(it, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Report no 1-
+    /**
+     * <pre>
+     * Sample JSON
+     * {"programId":2535, "versionId":1, "startDt":"2017-01-01", "stopDt":"2021-12-01", "includePlannedShipments":1}
+     * -- programId cannot be -1 (All) it must be a valid ProgramId
+     * -- versionId can be -1 or a valid VersionId for that Program. If it is -1 then the last committed Version is automatically taken.
+     * -- StartDate is the start date that you want to run the report for
+     * -- StopDate is the stop date that you want to run the report for
+     * -- Include Planned Shipments = 1 menas that Shipments that are in the Planned stages will also be considered in the report
+     * -- Include Planned Shipments = 0 means that Shipments that are in the Planned stages will not be considered in the report
+     * </pre>
+     *
+     * @param it
+     * @param auth
+     * @return
+     */
+    @RequestMapping(value = "/expiredStock")
+    public ResponseEntity getExpiredStock(@RequestBody ExpiredStockInput esi, Authentication auth) {
+        try {
+            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            return new ResponseEntity(this.reportService.getExpiredStock(esi, curUser), HttpStatus.OK);
         } catch (Exception e) {
             e.printStackTrace();
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -417,10 +453,14 @@ public class ReportController {
     @RequestMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
         try {
+            logger.info("Input call for StockStatusVertical");
+            logger.info(ssv.toString());
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.reportService.getStockStatusVertical(ssv, curUser), HttpStatus.OK);
+            List<StockStatusVerticalOutput> ssvoList = this.reportService.getStockStatusVertical(ssv, curUser);
+            logger.info(ssvoList.toString());
+            return new ResponseEntity(ssvoList, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error while calling StockStatusVertical report", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -513,6 +553,7 @@ public class ReportController {
     }
 
     // Report no 20
+    // Global Report
     /**
      * <pre>
      * Sample JSON
@@ -535,6 +576,7 @@ public class ReportController {
     }
 
     // Report no 21
+    // Global Report
     /**
      * <pre>
      * Sample JSON
@@ -647,11 +689,11 @@ public class ReportController {
 
     // Report no 29
     /**
-     * Sample JSON 
-     * {"programId":3, "versionId":2}
+     * Sample JSON {"programId":3, "versionId":2}
+     *
      * @param br
      * @param auth
-     * @return 
+     * @return
      */
     @RequestMapping(value = "/budgetReport")
     public ResponseEntity getBudgetReport(@RequestBody BudgetReportInput br, Authentication auth) {
@@ -663,12 +705,13 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     // Report no 30
+    // Global Report
     /**
      * <pre>
      * Sample JSON
-     * {"realmId":1, "tracerCategoryId":-1, "dt":"2019-10-01", "realmCountryIds":[1,2,3]}
+     * {"realmId": "1",    "dt": "2020-09-01",    "tracerCategoryId":-1,    "realmCountryIds":[]}
      * -- programId must be a single Program cannot be muti-program select or -1 for all programs
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
      * -- dt is the month for which you want to run the report

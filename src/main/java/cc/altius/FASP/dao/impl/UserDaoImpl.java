@@ -268,7 +268,7 @@ public class UserDaoImpl implements UserDao {
             Map<String, Object> params = new HashMap<>();
             params.put("emailId", emailId);
             params.put("curDate", curDate);
-            String sqlString = "UPDATE `us_user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=:curDate WHERE EMAIL_ID=:emailId";
+            String sqlString = "UPDATE `us_user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=:curDate WHERE LOWER(EMAIL_ID)=LOWER(:emailId)";
             return this.namedParameterJdbcTemplate.update(sqlString, params);
         } catch (DataAccessException e) {
             return 0;
@@ -278,7 +278,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int updateFailedAttemptsByUserId(String emailId) {
         try {
-            String sqlQuery = "UPDATE `us_user` SET FAILED_ATTEMPTS=FAILED_ATTEMPTS+1 WHERE EMAIL_ID=:emailId";
+            String sqlQuery = "UPDATE `us_user` SET FAILED_ATTEMPTS=FAILED_ATTEMPTS+1 WHERE LOWER(EMAIL_ID)=LOWER(:emailId)";
             Map<String, Object> params = new HashMap<>();
             params.put("emailId", emailId);
             return this.namedParameterJdbcTemplate.update(sqlQuery, params);
@@ -507,7 +507,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int updatePassword(String emailId, String token, String newPassword, int offset) {
         Date offsetDate = DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, offset);
-        String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn, FAILED_ATTEMPTS=0 WHERE us_user.EMAIL_ID=:emailId";
+        String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn, FAILED_ATTEMPTS=0 WHERE LOWER(us_user.EMAIL_ID)=LOWER(:emailId)";
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
         params.put("hash", newPassword);
@@ -650,7 +650,7 @@ public class UserDaoImpl implements UserDao {
     public EmailUser getEmailUserByEmailId(String emailId) {
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
-        return this.namedParameterJdbcTemplate.queryForObject("SELECT USERNAME, USER_ID, EMAIL_ID FROM us_user WHERE EMAIL_ID=:emailId", params, new EmailUserRowMapper());
+        return this.namedParameterJdbcTemplate.queryForObject("SELECT USERNAME, USER_ID, EMAIL_ID FROM us_user WHERE LOWER(EMAIL_ID)=LOWER(:emailId)", params, new EmailUserRowMapper());
     }
 
     @Override
@@ -658,7 +658,7 @@ public class UserDaoImpl implements UserDao {
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
         params.put("token", token);
-        return this.namedParameterJdbcTemplate.queryForObject("SELECT fpt.*, u.USERNAME FROM us_forgot_password_token fpt LEFT JOIN us_user u on fpt.USER_ID=u.USER_ID WHERE fpt.token=:token AND u.EMAIL_ID=:emailId", params, new ForgotPasswordTokenRowMapper());
+        return this.namedParameterJdbcTemplate.queryForObject("SELECT fpt.*, u.USERNAME FROM us_forgot_password_token fpt LEFT JOIN us_user u on fpt.USER_ID=u.USER_ID WHERE fpt.token=:token AND LOWER(u.EMAIL_ID)=LOWER(:emailId)", params, new ForgotPasswordTokenRowMapper());
     }
 
     @Override
@@ -667,7 +667,7 @@ public class UserDaoImpl implements UserDao {
         params.put("username", username);
         params.put("token", token);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_TRIGGERED_DATE=:curDate WHERE u.EMAIL_ID=:username AND fpt.TOKEN=:token", params);
+        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_TRIGGERED_DATE=:curDate WHERE LOWER(u.EMAIL_ID)=LOWER(:username) AND fpt.TOKEN=:token", params);
     }
 
     @Override
@@ -676,7 +676,7 @@ public class UserDaoImpl implements UserDao {
         params.put("emailId", emailId);
         params.put("token", token);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_COMPLETION_DATE=:curDate WHERE u.EMAIL_ID=:emailId AND fpt.TOKEN=:token", params);
+        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_COMPLETION_DATE=:curDate WHERE LOWER(u.EMAIL_ID)=LOWER(:emailId) AND fpt.TOKEN=:token", params);
     }
 
     @Override
@@ -752,7 +752,7 @@ public class UserDaoImpl implements UserDao {
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
         params.put("syncexpiresOn", DateUtils.getCurrentDateObject(DateUtils.EST));
-        return this.namedParameterJdbcTemplate.update("update us_user u set u.SYNC_EXPIRES_ON=:syncexpiresOn where u.EMAIL_ID=:emailId;", params);
+        return this.namedParameterJdbcTemplate.update("update us_user u set u.SYNC_EXPIRES_ON=:syncexpiresOn where LOWER(u.EMAIL_ID)=LOWER(:emailId)", params);
     }
 
     @Override

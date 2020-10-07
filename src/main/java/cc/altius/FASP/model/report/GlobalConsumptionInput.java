@@ -28,6 +28,7 @@ public class GlobalConsumptionInput {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
     private int reportView; // 1 = Planning Unit, 2 = Forecasting Unit
+    private boolean useApprovedSupplyPlanOnly;
 
     public int getRealmId() {
         return realmId;
@@ -84,6 +85,14 @@ public class GlobalConsumptionInput {
 
     public void setReportView(int reportView) {
         this.reportView = reportView;
+    }
+
+    public boolean isUseApprovedSupplyPlanOnly() {
+        return useApprovedSupplyPlanOnly;
+    }
+
+    public void setUseApprovedSupplyPlanOnly(boolean useApprovedSupplyPlanOnly) {
+        this.useApprovedSupplyPlanOnly = useApprovedSupplyPlanOnly;
     }
 
     public String getRealmCountryIdString() {

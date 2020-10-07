@@ -37,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class ProgramDataRestController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(ProgramDataRestController.class);
 
     @Autowired
     private ProgramDataService programDataService;
@@ -117,7 +117,6 @@ public class ProgramDataRestController {
             @PathVariable(value = "stopDate", required = true) String stopDate,
             Authentication auth) {
         try {
-            System.out.println("versionTypeId---"+versionTypeId);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programDataService.getProgramVersionList(programId, versionId, realmCountryId, healthAreaId, organisationId, versionTypeId, versionStatusId, startDate, stopDate, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {

@@ -24,7 +24,7 @@ public class NewSupplyPlanRegionResultSetExtractor implements ResultSetExtractor
     public List<NewSupplyPlan> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<NewSupplyPlan> nspList = new LinkedList<>();
         while (rs.next()) {
-            NewSupplyPlan nsp = new NewSupplyPlan(rs.getInt("PLANNING_UNIT_ID"), rs.getString("TRANS_DATE"));
+            NewSupplyPlan nsp = new NewSupplyPlan(rs.getInt("PLANNING_UNIT_ID"), rs.getString("TRANS_DATE"), rs.getInt("SHELF_LIFE"));
             int idx = nspList.indexOf(nsp);
             if (idx == -1) {
                 nspList.add(nsp);
