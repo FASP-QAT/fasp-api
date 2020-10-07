@@ -167,7 +167,7 @@ public class ReportController {
      * @return
      */
     @RequestMapping(value = "/forecastMetricsMonthly")
-    public ResponseEntity getForecastMetricsMonthls(@RequestBody ForecastMetricsMonthlyInput fmi, Authentication auth) {
+    public ResponseEntity getForecastMetricsMonthly(@RequestBody ForecastMetricsMonthlyInput fmi, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
             return new ResponseEntity(this.reportService.getForecastMetricsMonthly(fmi, curUser), HttpStatus.OK);

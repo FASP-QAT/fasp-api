@@ -39,6 +39,10 @@ public class ForecastMetricsMonthlyOutputRowMapper implements RowMapper<Forecast
         if (rs.wasNull()) {
             fmo.setForecastedConsumption(null);
         }
+        fmo.setActual(rs.getBoolean("ACTUAL"));
+        if(rs.wasNull()) {
+            fmo.setActual(null);
+        }
         return fmo;
     }
 
