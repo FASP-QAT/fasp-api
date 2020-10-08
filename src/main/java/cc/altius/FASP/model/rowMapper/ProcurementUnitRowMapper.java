@@ -48,6 +48,8 @@ public class ProcurementUnitRowMapper implements RowMapper<ProcurementUnit> {
         pu.setLengthUnit(new SimpleObject(rs.getInt("LENGTH_UNIT_ID"), new LabelRowMapper("LENGTH_UNIT_").mapRow(rs, rowNum)));
         pu.setWeightQty(rs.getDouble("WEIGHT_QTY"));
         pu.setWeightUnit(new SimpleObject(rs.getInt("WEIGHT_UNIT_ID"), new LabelRowMapper("WEIGHT_UNIT_").mapRow(rs, rowNum)));
+        pu.setVolumeQty(rs.getDouble("VOLUME_QTY"));
+        pu.setVolumeUnit(new SimpleObject(rs.getInt("VOLUME_UNIT_ID"), new LabelRowMapper("VOLUME_UNIT_").mapRow(rs, rowNum)));
         pu.setUnitsPerCase(rs.getDouble("UNITS_PER_CASE"));
         pu.setUnitsPerPalletEuro1(rs.getDouble("UNITS_PER_PALLET_EURO1"));
         pu.setUnitsPerPalletEuro2(rs.getDouble("UNITS_PER_PALLET_EURO2"));

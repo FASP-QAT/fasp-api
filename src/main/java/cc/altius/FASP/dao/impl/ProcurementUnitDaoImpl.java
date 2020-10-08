@@ -56,9 +56,10 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
             + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`,  "
             + "    tc.TRACER_CATEGORY_ID, tc.LABEL_ID `TRACER_CATEGORY_LABEL_ID`, tc.LABEL_EN `TRACER_CATEGORY_LABEL_EN`, tc.LABEL_FR `TRACER_CATEGORY_LABEL_FR`, tc.LABEL_PR `TRACER_CATEGORY_LABEL_PR`, tc.LABEL_SP `TRACER_CATEGORY_LABEL_SP`,  "
             + "    puu.UNIT_ID `PLANNING_UNIT_UNIT_ID`, puu.UNIT_CODE `PLANNING_UNIT_UNIT_CODE`, puu.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puu.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puu.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puu.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puu.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`,  "
-            + "    pru.HEIGHT_QTY, pru.WIDTH_QTY, pru.LENGTH_QTY, pru.WEIGHT_QTY, pru.LABELING, pru.MULTIPLIER, pru.UNITS_PER_CASE, pru.UNITS_PER_PALLET_EURO1, pru.UNITS_PER_PALLET_EURO2, pru.UNITS_PER_CONTAINER, pru.LABELING, "
+            + "    pru.HEIGHT_QTY, pru.WIDTH_QTY, pru.LENGTH_QTY, pru.WEIGHT_QTY, pru.VOLUME_QTY, pru.LABELING, pru.MULTIPLIER, pru.UNITS_PER_CASE, pru.UNITS_PER_PALLET_EURO1, pru.UNITS_PER_PALLET_EURO2, pru.UNITS_PER_CONTAINER, pru.LABELING, "
             + "    lu.UNIT_ID  `LENGTH_UNIT_ID`, lu.UNIT_CODE  `LENGTH_UNIT_CODE`, lu.LABEL_ID  `LENGTH_UNIT_LABEL_ID`, lu.LABEL_EN  `LENGTH_UNIT_LABEL_EN`, lu.LABEL_FR  `LENGTH_UNIT_LABEL_FR`, lu.LABEL_PR  `LENGTH_UNIT_LABEL_PR`, lu.LABEL_SP  `LENGTH_UNIT_LABEL_SP`,  "
             + "    weu.UNIT_ID `WEIGHT_UNIT_ID`, weu.UNIT_CODE `WEIGHT_UNIT_CODE`, weu.LABEL_ID `WEIGHT_UNIT_LABEL_ID`, weu.LABEL_EN `WEIGHT_UNIT_LABEL_EN`, weu.LABEL_FR `WEIGHT_UNIT_LABEL_FR`, weu.LABEL_PR `WEIGHT_UNIT_LABEL_PR`, weu.LABEL_SP `WEIGHT_UNIT_LABEL_SP`, "
+            + "    vu.UNIT_ID `VOLUME_UNIT_ID`, vu.UNIT_CODE `VOLUME_UNIT_CODE`, vu.LABEL_ID `VOLUME_UNIT_LABEL_ID`, vu.LABEL_EN `VOLUME_UNIT_LABEL_EN`, vu.LABEL_FR `VOLUME_UNIT_LABEL_FR`, vu.LABEL_PR `VOLUME_UNIT_LABEL_PR`, vu.LABEL_SP `VOLUME_UNIT_LABEL_SP`, "
             + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pru.ACTIVE, pru.CREATED_DATE, pru.LAST_MODIFIED_DATE   "
             + " FROM vw_procurement_unit pru "
             + " LEFT JOIN vw_supplier s ON pru.SUPPLIER_ID=s.SUPPLIER_ID "
@@ -72,6 +73,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
             + " LEFT JOIN vw_unit puu ON pu.UNIT_ID=puu.UNIT_ID  "
             + " LEFT JOIN vw_unit lu ON pru.LENGTH_UNIT_ID=lu.UNIT_ID "
             + " LEFT JOIN vw_unit weu ON pru.WEIGHT_UNIT_ID=weu.UNIT_ID "
+            + " LEFT JOIN vw_unit vu ON pru.VOLUME_UNIT_ID=vu.UNIT_ID "
             + " LEFT JOIN us_user cb ON pru.CREATED_BY=cb.USER_ID   "
             + " LEFT JOIN us_user lmb ON pru.LAST_MODIFIED_BY=lmb.USER_ID "
             + " WHERE TRUE";
@@ -133,6 +135,8 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit().getId() == null ? null : procurementUnit.getLengthUnit().getId()));
         params.put("WEIGHT_QTY", procurementUnit.getWeightQty());
         params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit().getId() == null ? null : procurementUnit.getWeightUnit().getId()));
+        params.put("VOLUME_QTY", procurementUnit.getVolumeQty());
+        params.put("VOLUME_UNIT_ID", (procurementUnit.getVolumeUnit().getId() == null ? null : procurementUnit.getVolumeUnit().getId()));
         params.put("LABELING", procurementUnit.getLabeling());
         params.put("UNITS_PER_CASE", procurementUnit.getUnitsPerCase());
         params.put("UNITS_PER_PALLET_EURO1", procurementUnit.getUnitsPerPalletEuro1());
@@ -159,6 +163,8 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
                 + "    pru.WIDTH_QTY=:widthQty, "
                 + "    pru.WEIGHT_QTY=:weightQty, "
                 + "    pru.WEIGHT_UNIT_ID=:weightUnitId, "
+                + "    pru.VOLUME_QTY=:volumeQty, "
+                + "    pru.VOLUME_UNIT_ID=:volumeUnitId, "
                 + "    pru.UNITS_PER_CASE=:unitsPerCase, "
                 + "    pru.UNITS_PER_PALLET_EURO1=:unitsPerPalletEuro1, "
                 + "    pru.UNITS_PER_PALLET_EURO2=:unitsPerPalletEuro2, "
@@ -170,6 +176,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
                 + "         OR pru.LENGTH_QTY!=:lengthQty OR pru.LENGTH_UNIT_ID!=:lengthUnitId "
                 + "         OR pru.WIDTH_QTY!=:widthQty "
                 + "         OR pru.WEIGHT_QTY!=:weightQty OR pru.WEIGHT_UNIT_ID!=:weightUnitId "
+                + "         OR pru.VOLUME_QTY!=:volumeQty OR pru.VOLUME_UNIT_ID!=:volumeUnitId "
                 + "         OR pru.UNITS_PER_CASE!=:unitsPerCase OR pru.UNITS_PER_PALLET!=:unitsPerPallet OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELING!=:labeling "
                 + "         OR pru.ACTIVE!=:active,:curUser, pru.LAST_MODIFIED_BY), "
                 + "    pru.LAST_MODIFIED_DATE=IF(pru.MULTIPLIER!=:multiplier OR pru.UNIT_ID!=:unitId "
@@ -177,6 +184,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
                 + "         OR pru.LENGTH_QTY!=:lengthQty OR pru.LENGTH_UNIT_ID!=:lengthUnitId "
                 + "         OR pru.WIDTH_QTY!=:widthQty "
                 + "         OR pru.WEIGHT_QTY!=:weightQty OR pru.WEIGHT_UNIT_ID!=:weightUnitId "
+                + "         OR pru.VOLUME_QTY!=:volumeQty OR pru.VOLUME_UNIT_ID!=:volumeUnitId "
                 + "         OR pru.UNITS_PER_CASE!=:unitsPerCase OR pru.UNITS_PER_PALLET!=:unitsPerPallet OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELING!=:labeling "
                 + "         OR pru.ACTIVE!=:active,:curDate, pru.LAST_MODIFIED_DATE), "
                 + "    prul.LABEL_EN=:labelEn, "
@@ -193,6 +201,8 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("widthQty", procurementUnit.getWidthQty());
         params.put("weightQty", procurementUnit.getWeightQty());
         params.put("weightUnitId", (procurementUnit.getWeightUnit().getId() == null || procurementUnit.getWeightUnit().getId() == 0 ? null : procurementUnit.getWeightUnit().getId()));
+        params.put("volumeQty", procurementUnit.getVolumeQty());
+        params.put("volumeUnitId", (procurementUnit.getVolumeUnit().getId() == null || procurementUnit.getVolumeUnit().getId() == 0 ? null : procurementUnit.getVolumeUnit().getId()));
         params.put("unitsPerCase", procurementUnit.getUnitsPerCase());
         params.put("unitsPerPalletEuro1", procurementUnit.getUnitsPerPalletEuro1());
         params.put("unitsPerPalletEuro2", procurementUnit.getUnitsPerPalletEuro2());
