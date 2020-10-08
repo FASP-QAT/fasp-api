@@ -16,7 +16,7 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author akil
  */
-public class ProgramLeadTimesOutputRowMapper implements RowMapper<ProgramLeadTimesOutput>{
+public class ProgramLeadTimesOutputRowMapper implements RowMapper<ProgramLeadTimesOutput> {
 
     @Override
     public ProgramLeadTimesOutput mapRow(ResultSet rs, int i) throws SQLException {
@@ -32,7 +32,10 @@ public class ProgramLeadTimesOutputRowMapper implements RowMapper<ProgramLeadTim
         plt.setShippedToArrivedBySeaLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME"));
         plt.setArrivedToDeliveredLeadTime(rs.getDouble("ARRIVED_TO_DELIVERED_LEAD_TIME"));
         plt.setLocalProcurementAgentLeadTime(rs.getDouble("LOCAL_PROCUREMENT_LEAD_TIME"));
+        if (rs.wasNull()) {
+            plt.setLocalProcurementAgentLeadTime(null);
+        }
         return plt;
     }
-    
+
 }

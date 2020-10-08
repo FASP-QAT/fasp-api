@@ -33,6 +33,10 @@ public class ShipmentDetailsListRowMapper implements RowMapper<ShipmentDetailsLi
         sd.setProductCost(rs.getDouble("PRODUCT_COST"));
         sd.setFreightCost(rs.getDouble("FREIGHT_COST"));
         sd.setTotalCost(rs.getDouble("TOTAL_COST"));
+        sd.setOrderNo(rs.getString("ORDER_NO"));
+        sd.setLocalProcurement(rs.getBoolean("LOCAL_PROCUREMENT"));
+        sd.setEmergencyOrder(rs.getBoolean("EMERGENCY_ORDER"));
+        sd.setErpFlag(rs.getBoolean("ERP_FLAG"));
         sd.setNotes(rs.getString("NOTES"));
         return sd;
     }
