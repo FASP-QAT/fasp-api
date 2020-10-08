@@ -22,7 +22,7 @@ public class StockStatusAcrossProductsInput implements Serializable {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date dt;
-    private int tracerCategoryId;
+    private String[] tracerCategoryIds;
     private String[] realmCountryIds;
     private boolean useApprovedSupplyPlanOnly;
 
@@ -42,12 +42,12 @@ public class StockStatusAcrossProductsInput implements Serializable {
         this.dt = dt;
     }
 
-    public int getTracerCategoryId() {
-        return tracerCategoryId;
+    public String[] getTracerCategoryIds() {
+        return tracerCategoryIds;
     }
 
-    public void setTracerCategoryId(int tracerCategoryId) {
-        this.tracerCategoryId = tracerCategoryId;
+    public void setTracerCategoryIds(String[] tracerCategoryIds) {
+        this.tracerCategoryIds = tracerCategoryIds;
     }
 
     public String[] getRealmCountryIds() {
@@ -79,4 +79,16 @@ public class StockStatusAcrossProductsInput implements Serializable {
         this.useApprovedSupplyPlanOnly = useApprovedSupplyPlanOnly;
     }
 
+    public String getTracerCategoryIdsString() {
+        if (this.tracerCategoryIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.tracerCategoryIds);
+            if (this.tracerCategoryIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
 }
