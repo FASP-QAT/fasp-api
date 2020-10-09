@@ -21,18 +21,18 @@ public class StockStatusMatrixOutput implements Serializable {
     private int reorderFrequency;
     private int multiplier;
     private int year;
-    private double jan;
-    private double feb;
-    private double mar;
-    private double apr;
-    private double may;
-    private double jun;
-    private double jul;
-    private double aug;
-    private double sep;
-    private double oct;
-    private double nov;
-    private double dec;
+    private Double jan;
+    private Double feb;
+    private Double mar;
+    private Double apr;
+    private Double may;
+    private Double jun;
+    private Double jul;
+    private Double aug;
+    private Double sep;
+    private Double oct;
+    private Double nov;
+    private Double dec;
 
     public SimpleObject getPlanningUnit() {
         return planningUnit;
@@ -82,100 +82,101 @@ public class StockStatusMatrixOutput implements Serializable {
         this.year = year;
     }
 
-    public double getJan() {
+    public Double getJan() {
         return jan;
     }
 
-    public void setJan(double jan) {
+    public void setJan(Double jan) {
         this.jan = jan;
     }
 
-    public double getFeb() {
+    public Double getFeb() {
         return feb;
     }
 
-    public void setFeb(double feb) {
+    public void setFeb(Double feb) {
         this.feb = feb;
     }
 
-    public double getMar() {
+    public Double getMar() {
         return mar;
     }
 
-    public void setMar(double mar) {
+    public void setMar(Double mar) {
         this.mar = mar;
     }
 
-    public double getApr() {
+    public Double getApr() {
         return apr;
     }
 
-    public void setApr(double apr) {
+    public void setApr(Double apr) {
         this.apr = apr;
     }
 
-    public double getMay() {
+    public Double getMay() {
         return may;
     }
 
-    public void setMay(double may) {
+    public void setMay(Double may) {
         this.may = may;
     }
 
-    public double getJun() {
+    public Double getJun() {
         return jun;
     }
 
-    public void setJun(double jun) {
+    public void setJun(Double jun) {
         this.jun = jun;
     }
 
-    public double getJul() {
+    public Double getJul() {
         return jul;
     }
 
-    public void setJul(double jul) {
+    public void setJul(Double jul) {
         this.jul = jul;
     }
 
-    public double getAug() {
+    public Double getAug() {
         return aug;
     }
 
-    public void setAug(double aug) {
+    public void setAug(Double aug) {
         this.aug = aug;
     }
 
-    public double getSep() {
+    public Double getSep() {
         return sep;
     }
 
-    public void setSep(double sep) {
+    public void setSep(Double sep) {
         this.sep = sep;
     }
 
-    public double getOct() {
+    public Double getOct() {
         return oct;
     }
 
-    public void setOct(double oct) {
+    public void setOct(Double oct) {
         this.oct = oct;
     }
 
-    public double getNov() {
+    public Double getNov() {
         return nov;
     }
 
-    public void setNov(double nov) {
+    public void setNov(Double nov) {
         this.nov = nov;
     }
 
-    public double getDec() {
+    public Double getDec() {
         return dec;
     }
 
-    public void setDec(double dec) {
+    public void setDec(Double dec) {
         this.dec = dec;
     }
+
     
 }

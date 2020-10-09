@@ -20,6 +20,7 @@ import cc.altius.FASP.model.ProblemReport;
 import cc.altius.FASP.model.ProblemReportTrans;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
+import cc.altius.FASP.model.ReviewedProblem;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentBatchInfo;
 import cc.altius.FASP.model.SimpleObject;
@@ -716,14 +717,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "`PRODUCT_COST`, `SHIPMENT_MODE`, `FREIGHT_COST`, `PLANNED_DATE`, `SUBMITTED_DATE`, "
                 + "`APPROVED_DATE`, `SHIPPED_DATE`, `ARRIVED_DATE`, `RECEIVED_DATE`, `SHIPMENT_STATUS_ID`, "
                 + "`DATA_SOURCE_ID`, `NOTES`, `ORDER_NO`, `PRIME_LINE_NO`, `ACTIVE`, "
-                + "`FUNDING_SOURCE_ID`, `BUDGET_ID`) VALUES ("
+                + "`FUNDING_SOURCE_ID`, `BUDGET_ID`,LOCAL_PROCUREMENT) VALUES ("
                 + ":ID, :SHIPMENT_ID, :PARENT_SHIPMENT_ID, :SUGGESTED_QTY, :PROCUREMENT_AGENT_ID, :ACCOUNT_FLAG, "
                 + ":ERP_FLAG, :CURRENCY_ID, :CONVERSION_RATE_TO_USD, :EMERGENCY_ORDER, :PLANNING_UNIT_ID, "
                 + ":EXPECTED_DELIVERY_DATE, :PROCUREMENT_UNIT_ID, :SUPPLIER_ID, :SHIPMENT_QTY, :RATE, "
                 + ":PRODUCT_COST, :SHIPMENT_MODE, :FREIGHT_COST, :PLANNED_DATE, :SUBMITTED_DATE, "
                 + ":APPROVED_DATE, :SHIPPED_DATE, :ARRIVED_DATE, :RECEIVED_DATE, :SHIPMENT_STATUS_ID, "
                 + ":DATA_SOURCE_ID, :NOTES, :ORDER_NO, :PRIME_LINE_NO, :ACTIVE, "
-                + ":FUNDING_SOURCE_ID, :BUDGET_ID)";
+                + ":FUNDING_SOURCE_ID, :BUDGET_ID ,:LOCAL_PROCUREMENT)";
         this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertShipment));
         if (insertBatchList.size() > 0) {
             SqlParameterSource[] insertShipmentBatch = new SqlParameterSource[insertBatchList.size()];
@@ -899,7 +900,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("LAST_MODIFIED_BY", pr.getLastModifiedBy().getUserId());
             tp.put("LAST_MODIFIED_DATE", pr.getLastModifiedDate());
             if (pr.getProblemReportId() == 0) {
-                this.namedParameterJdbcTemplate.update("INSERT INTO `rm_problem_report` (`REALM_PROBLEM_ID`, `PROGRAM_ID`, `VERSION_ID`, `PROBLEM_TYPE_ID`, `PROBLEM_STATUS_ID`, `DATA1`, `DATA2`, `DATA3`, `DATA4`, `DATA5`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (:REALM_PROBLEM_ID, :PROGRAM_ID, :VERSION_ID, :PROBLEM_TYPE_ID, :PROBLEM_STATUS_ID, :DATA1, :DATA2, :DATA3, :DATA4, :DATA5, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE)", tp);
+                this.namedParameterJdbcTemplate.update("INSERT INTO `rm_problem_report` (`REALM_PROBLEM_ID`, `PROGRAM_ID`, `VERSION_ID`, `PROBLEM_TYPE_ID`, `PROBLEM_STATUS_ID`, `DATA1`, `DATA2`, `DATA3`, `DATA4`, `DATA5`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`,`REVIEWED`) VALUES (:REALM_PROBLEM_ID, :PROGRAM_ID, :VERSION_ID, :PROBLEM_TYPE_ID, :PROBLEM_STATUS_ID, :DATA1, :DATA2, :DATA3, :DATA4, :DATA5, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE,:REVIWED)", tp);
                 sqlString = "SELECT LAST_INSERT_ID()";
                 pr.setProblemReportId(this.jdbcTemplate.queryForObject(sqlString, Integer.class));
             } else {
@@ -958,8 +959,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<Batch> getBatchList(int programId, int versionId
-    ) {
+    public List<Batch> getBatchList(int programId, int versionId) {
         String sqlString = "SELECT bi.BATCH_ID, bi.BATCH_NO, bi.PROGRAM_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.`AUTO_GENERATED`, bi.EXPIRY_DATE, bi.CREATED_DATE FROM rm_batch_info bi WHERE bi.PROGRAM_ID=:programId";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
@@ -967,9 +967,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate,
-            String stopDate, CustomUserDetails curUser
-    ) {
+    public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("realmCountryId", realmCountryId);
@@ -1019,8 +1017,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<ProgramVersion> getProgramVersionForARTMIS(int realmId
-    ) {
+    public List<ProgramVersion> getProgramVersionForARTMIS(int realmId) {
         String sql = "SELECT  "
                 + " pv.PROGRAM_VERSION_ID, pv.VERSION_ID, pv.NOTES, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, pv.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pv.LAST_MODIFIED_DATE, "
                 + " p.PROGRAM_ID, pl.LABEL_ID `PROGRAM_LABEL_ID`, pl.LABEL_EN `PROGRAM_LABEL_EN`, pl.LABEL_FR `PROGRAM_LABEL_FR`, pl.LABEL_SP `PROGRAM_LABEL_SP`, pl.LABEL_PR `PROGRAM_LABEL_PR`, "
@@ -1051,21 +1048,37 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes,
-            CustomUserDetails curUser
-    ) {
+    @Transactional
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList) {
         String sqlString = "UPDATE rm_program_version pv SET pv.VERSION_STATUS_ID=:versionStatusId,pv.NOTES=:notes, pv.LAST_MODIFIED_DATE=:curDate, pv.LAST_MODIFIED_BY=:curUser WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId";
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
         params.put("versionStatusId", versionStatusId);
         params.put("notes", notes);
         params.put("curUser", curUser.getUserId());
-        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
+        params.put("curDate", curDate);
         this.namedParameterJdbcTemplate.update(sqlString, params);
         String sql = "INSERT INTO rm_program_version_trans SELECT NULL,pv.PROGRAM_VERSION_ID,pv.VERSION_TYPE_ID,?,?,?,? FROM  rm_program_version pv  "
                 + "WHERE pv.`PROGRAM_ID`=? AND pv.`VERSION_ID`=? ";
         this.jdbcTemplate.update(sql, versionStatusId, notes, curUser.getUserId(), DateUtils.getCurrentDateObject(DateUtils.EST), programId, versionId);
+        sqlString = "UPDATE rm_problem_report pr set pr.REVIEWED=:reviewed, pr.NOTES = CONCAT(pr.NOTES, '\\n',:notes), pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
+        final List<SqlParameterSource> updateList = new ArrayList<>();
+        for (ReviewedProblem rp : reviewedProblemList) {
+            Map<String, Object> updateParams = new HashMap<>();
+            updateParams.put("reviewed", rp.isReviewed());
+            updateParams.put("curUser", curUser.getUserId());
+            updateParams.put("curDate", curDate);
+            updateParams.put("notes", rp.getNotes());
+            updateParams.put("problemReportId", rp.getProblemReportId());
+            updateList.add(new MapSqlParameterSource(updateParams));
+        }
+        if (updateList.size() > 0) {
+            SqlParameterSource[] updateArray = new SqlParameterSource[updateList.size()];
+            this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateArray));
+            this.namedParameterJdbcTemplate.batchUpdate(sql, updateArray);
+        }
         return this.getVersionInfo(programId, versionId);
     }
 
@@ -1080,9 +1093,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
      *
      */
     @Override
-    public int checkErpOrder(String orderNo, String primeLineNo,
-            int realmCountryId, int planningUnitId
-    ) {
+    public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId) {
         String sqlString = "SELECT IF(steop.SHIPMENT_TRANS_ERP_ORDER_ID IS NOT NULL, 2, IF(c1.REALM_COUNTRY_ID!=:realmCountryId, 3, IF (papu.PLANNING_UNIT_ID!=:planningUnitId, 4, 0))) `REASON` "
                 + "FROM rm_erp_order eo "
                 + "LEFT JOIN rm_shipment_trans_erp_order_mapping steop ON eo.ERP_ORDER_ID=steop.ERP_ORDER_ID "

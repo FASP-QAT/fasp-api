@@ -24,16 +24,16 @@ public class StockStatusVerticalOutput implements Serializable {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date dt;
-    private int openingBalance;
+    private Integer openingBalance;
     private Boolean actualConsumption;
-    private int consumptionQty;
-    private int shipmentQty;
+    private Integer consumptionQty;
+    private Integer shipmentQty;
     private List<ShipmentInfo> shipmentInfo;
-    private int adjustment;
-    private int expiredStock;
-    private int closingBalance;
-    private double amc;
-    private double mos;
+    private Integer adjustment;
+    private Integer expiredStock;
+    private Integer closingBalance;
+    private Double amc;
+    private Double mos;
     private int minMos;
     private int maxMos;
 
@@ -49,11 +49,11 @@ public class StockStatusVerticalOutput implements Serializable {
         this.dt = dt;
     }
 
-    public int getOpeningBalance() {
+    public Integer getOpeningBalance() {
         return openingBalance;
     }
 
-    public void setOpeningBalance(int openingBalance) {
+    public void setOpeningBalance(Integer openingBalance) {
         this.openingBalance = openingBalance;
     }
 
@@ -65,60 +65,59 @@ public class StockStatusVerticalOutput implements Serializable {
         this.actualConsumption = actualConsumption;
     }
 
-    public int getConsumptionQty() {
+    public Integer getConsumptionQty() {
         return consumptionQty;
     }
 
-    public void setConsumptionQty(int consumptionQty) {
+    public void setConsumptionQty(Integer consumptionQty) {
         this.consumptionQty = consumptionQty;
     }
 
-    public int getShipmentQty() {
+    public Integer getShipmentQty() {
         return shipmentQty;
     }
 
-    public void setShipmentQty(int shipmentQty) {
+    public void setShipmentQty(Integer shipmentQty) {
         this.shipmentQty = shipmentQty;
     }
 
-
-    public int getAdjustment() {
+    public Integer getAdjustment() {
         return adjustment;
     }
 
-    public void setAdjustment(int adjustment) {
+    public void setAdjustment(Integer adjustment) {
         this.adjustment = adjustment;
     }
 
-    public int getExpiredStock() {
+    public Integer getExpiredStock() {
         return expiredStock;
     }
 
-    public void setExpiredStock(int expiredStock) {
+    public void setExpiredStock(Integer expiredStock) {
         this.expiredStock = expiredStock;
     }
 
-    public int getClosingBalance() {
+    public Integer getClosingBalance() {
         return closingBalance;
     }
 
-    public void setClosingBalance(int closingBalance) {
+    public void setClosingBalance(Integer closingBalance) {
         this.closingBalance = closingBalance;
     }
 
-    public double getAmc() {
+    public Double getAmc() {
         return amc;
     }
 
-    public void setAmc(double amc) {
+    public void setAmc(Double amc) {
         this.amc = amc;
     }
 
-    public double getMos() {
+    public Double getMos() {
         return mos;
     }
 
-    public void setMos(double mos) {
+    public void setMos(Double mos) {
         this.mos = mos;
     }
 
