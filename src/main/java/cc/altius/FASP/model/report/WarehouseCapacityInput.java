@@ -13,15 +13,15 @@ import java.io.Serializable;
  */
 public class WarehouseCapacityInput implements Serializable {
 
-    private int realmCountryId;
+    private String[] realmCountryIds;
     private String[] programIds;
 
-    public int getRealmCountryId() {
-        return realmCountryId;
+    public String[] getRealmCountryIds() {
+        return realmCountryIds;
     }
 
-    public void setRealmCountryId(int realmCountryId) {
-        this.realmCountryId = realmCountryId;
+    public void setRealmCountryIds(String[] realmCountryIds) {
+        this.realmCountryIds = realmCountryIds;
     }
 
     public String[] getProgramIds() {
@@ -38,6 +38,19 @@ public class WarehouseCapacityInput implements Serializable {
         } else {
             String opt = String.join("','", this.programIds);
             if (this.programIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
+
+    public String getRealmCountryIdString() {
+        if (this.realmCountryIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.realmCountryIds);
+            if (this.realmCountryIds.length > 0) {
                 return "'" + opt + "'";
             } else {
                 return opt;
