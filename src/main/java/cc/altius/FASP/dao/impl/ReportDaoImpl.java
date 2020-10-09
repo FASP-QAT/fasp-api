@@ -218,9 +218,10 @@ public class ReportDaoImpl implements ReportDao {
     @Override
     public List<WarehouseCapacityOutput> getWarehouseCapacityReport(WarehouseCapacityInput wci, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("realmCountryId", wci.getRealmCountryId());
+        params.put("realmId", curUser.getRealm().getRealmId());
+        params.put("realmCountryIds", wci.getRealmCountryIdString());
         params.put("programIds", wci.getProgramIdString());
-        return this.namedParameterJdbcTemplate.query("CALL warehouseCapacityReport(:realmCountryId, :programIds)", params, new WarehouseCapacityOutputResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query("CALL warehouseCapacityReport(:realmId, :realmCountryIds, :programIds)", params, new WarehouseCapacityOutputResultSetExtractor());
     }
 
     // Report no 8
@@ -276,14 +277,14 @@ public class ReportDaoImpl implements ReportDao {
     @Override
     public List<ProcurementAgentShipmentReportOutput> getProcurementAgentShipmentReport(ProcurementAgentShipmentReportInput pari, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("procurementAgentId", pari.getProcurementAgentId());
+        params.put("procurementAgentIds", pari.getProcurementAgentIdString());
         params.put("startDate", pari.getStartDate());
         params.put("stopDate", pari.getStopDate());
         params.put("programId", pari.getProgramId());
         params.put("versionId", pari.getVersionId());
         params.put("planningUnitIds", pari.getPlanningUnitIdString());
         params.put("includePlannedShipments", pari.isIncludePlannedShipments());
-        return this.namedParameterJdbcTemplate.query("CALL procurementAgentShipmentReport(:startDate, :stopDate, :procurementAgentId, :programId, :versionId, :planningUnitIds, :includePlannedShipments)", params, new ProcurementAgentShipmentReportOutputRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL procurementAgentShipmentReport(:startDate, :stopDate, :procurementAgentIds, :programId, :versionId, :planningUnitIds, :includePlannedShipments)", params, new ProcurementAgentShipmentReportOutputRowMapper());
     }
 
     // Report no 14
@@ -300,14 +301,14 @@ public class ReportDaoImpl implements ReportDao {
     @Override
     public List<FundingSourceShipmentReportOutput> getFundingSourceShipmentReport(FundingSourceShipmentReportInput fsri, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
-        params.put("fundingSourceId", fsri.getFundingSourceId());
+        params.put("fundingSourceIds", fsri.getFundingSourceIdString());
         params.put("startDate", fsri.getStartDate());
         params.put("stopDate", fsri.getStopDate());
         params.put("programId", fsri.getProgramId());
         params.put("versionId", fsri.getVersionId());
         params.put("planningUnitIds", fsri.getPlanningUnitIdString());
         params.put("includePlannedShipments", fsri.isIncludePlannedShipments());
-        return this.namedParameterJdbcTemplate.query("CALL fundingSourceShipmentReport(:startDate, :stopDate, :fundingSourceId, :programId, :versionId, :planningUnitIds, :includePlannedShipments)", params, new FundingSourceShipmentReportOutputRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL fundingSourceShipmentReport(:startDate, :stopDate, :fundingSourceIds, :programId, :versionId, :planningUnitIds, :includePlannedShipments)", params, new FundingSourceShipmentReportOutputRowMapper());
     }
 
     // Report no 16
@@ -493,15 +494,16 @@ public class ReportDaoImpl implements ReportDao {
                 + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
                 + "WHERE "
-                + "rc.REALM_ID = :realmId "
-                + " AND (:tracerCategoryId=-1 OR fu.TRACER_CATEGORY_ID=:tracerCategoryId) "
-                + " AND ppu.ACTIVE AND p.ACTIVE ";
+                + "rc.REALM_ID = :realmId ";
+        if (ssap.getTracerCategoryIds().length > 0) {
+            sql += " AND fu.TRACER_CATEGORY_ID IN (" + ssap.getTracerCategoryIdsString() + ")";
+        }
+        sql += " AND ppu.ACTIVE AND p.ACTIVE ";
         if (ssap.getRealmCountryIds().length > 0) {
             sql += " AND p.REALM_COUNTRY_ID in (" + ssap.getRealmCountryIdsString() + ") ";
         }
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", ssap.getRealmId());
-        params.put("tracerCategoryId", ssap.getTracerCategoryId());
         return this.namedParameterJdbcTemplate.query(sql, params, new StockStatusAcrossProductsOutputResultsetExtractor());
     }
 

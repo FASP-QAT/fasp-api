@@ -13,14 +13,26 @@ import java.io.Serializable;
  */
 public class FundingSourceShipmentReportInput extends ShipmentReportInput implements Serializable {
 
-    private int fundingSourceId;
+    private String[] fundingSourceIds;
 
-    public int getFundingSourceId() {
-        return fundingSourceId;
+    public String[] getFundingSourceIds() {
+        return fundingSourceIds;
     }
 
-    public void setFundingSourceId(int fundingSourceId) {
-        this.fundingSourceId = fundingSourceId;
+    public void setFundingSourceIds(String[] fundingSourceIds) {
+        this.fundingSourceIds = fundingSourceIds;
     }
 
+    public String getFundingSourceIdString() {
+        if (this.fundingSourceIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.fundingSourceIds);
+            if (this.fundingSourceIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
 }
