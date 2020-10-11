@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.Objects;
 
 /**
@@ -13,6 +14,7 @@ import java.util.Objects;
  */
 public class SimpleCodeObject extends SimpleObject {
 
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String code;
 
     public SimpleCodeObject() {

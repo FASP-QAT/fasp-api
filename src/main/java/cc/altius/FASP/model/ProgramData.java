@@ -5,9 +5,8 @@
  */
 package cc.altius.FASP.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,51 +15,63 @@ import java.util.List;
  */
 public class ProgramData extends BaseModel implements Serializable {
 
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private int programId;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private String programCode;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private RealmCountry realmCountry;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private SimpleCodeObject organisation;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private SimpleCodeObject healthArea;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private Label label;
     private BasicUser programManager;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private String programNotes;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private double airFreightPerc;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private double seaFreightPerc;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private double plannedToSubmittedLeadTime;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private double submittedToApprovedLeadTime;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private double approvedToShippedLeadTime;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private double shippedToArrivedByAirLeadTime;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private double shippedToArrivedBySeaLeadTime;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private double arrivedToDeliveredLeadTime;
+    @JsonView(Views.InternalView.class)
     private SimpleObject versionType;
+    @JsonView(Views.InternalView.class)
     private SimpleObject versionStatus;
+    @JsonView(Views.InternalView.class)
     private String notes;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private List<Region> regionList;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private Version currentVersion;
-    @JsonIgnore
     private List<Version> versionList;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private List<Consumption> consumptionList;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private List<Inventory> inventoryList;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private List<Shipment> shipmentList;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private List<Batch> batchInfoList;
+    @JsonView(Views.InternalView.class)
     private List<ProblemReport> problemReportList;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private List<SimplifiedSupplyPlan> supplyPlan;
+    @JsonView(Views.InternalView.class)
     private int requestedProgramVersion;
-    @JsonIgnore
-    private Date lastModifiedDate;
-    @JsonIgnore
-    private BasicUser lastModifiedBy;
-    @JsonIgnore
-    private boolean active;
     
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
     public int getRequestedProgramVersion() {
         return requestedProgramVersion;
     }
@@ -300,22 +311,6 @@ public class ProgramData extends BaseModel implements Serializable {
 
     public void setNotes(String notes) {
         this.notes = notes;
-    }
-
-    public Date getLastModifiedDate() {
-        return lastModifiedDate;
-    }
-
-    public void setLastModifiedDate(Date lastModifiedDate) {
-        this.lastModifiedDate = lastModifiedDate;
-    }
-
-    public BasicUser getLastModifiedBy() {
-        return lastModifiedBy;
-    }
-
-    public void setLastModifiedBy(BasicUser lastModifiedBy) {
-        this.lastModifiedBy = lastModifiedBy;
     }
 
     public List<ProblemReport> getProblemReportList() {

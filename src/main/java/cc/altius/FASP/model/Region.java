@@ -6,6 +6,7 @@
 package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 /**
  *
@@ -13,10 +14,15 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  */
 public class Region extends BaseModel {
 
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private int regionId;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private Label label;
+    @JsonView(Views.InternalView.class)
     private RealmCountry realmCountry;
+    @JsonView(Views.InternalView.class)
     private String gln;
+    @JsonView(Views.InternalView.class)
     private Double capacityCbm;
 
     public Region() {
