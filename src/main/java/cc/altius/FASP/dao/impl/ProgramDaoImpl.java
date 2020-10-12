@@ -509,7 +509,11 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo) {
-        String sql = "SELECT  IF(c1.REALM_COUNTRY_ID=p.`REALM_COUNTRY_ID`,IF(sm.`SHIPMENT_STATUS_ID`!=7,IF(pu.`PROCUREMENT_AGENT_PLANNING_UNIT_ID` !=NULL,\"\",\"\"),\"Shipment already delivered\"),\"Different realm country found\") AS REASON "
+        System.out.println("programId---" + programId);
+        System.out.println("planningUnitId---" + planningUnitId);
+        System.out.println("orderNo---" + orderNo);
+        System.out.println("primeLineNo---" + primeLineNo);
+        String sql = "SELECT  IF(c1.REALM_COUNTRY_ID=p.`REALM_COUNTRY_ID`,IF(sm.`SHIPMENT_STATUS_ID`!=7,IF(pu.`PROCUREMENT_AGENT_PLANNING_UNIT_ID` IS NOT NULL,\"\",\"Planning unit not matching\"),\"Shipment already delivered\"),\"Recipient country not matching\") AS REASON "
                 + " FROM rm_erp_order o "
                 + " LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE "
                 + " FROM rm_realm_country rc "
@@ -521,7 +525,12 @@ public class ProgramDaoImpl implements ProgramDao {
                 + " WHERE o.ORDER_NO=? AND o.PRIME_LINE_NO=? "
                 + " GROUP BY o.`ERP_ORDER_ID`;";
         String reason = this.jdbcTemplate.queryForObject(sql, String.class, programId, planningUnitId, orderNo, primeLineNo);
-        sql = "SELECT * FROM rm_erp_order e WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=?;";
+        sql = "SELECT e.*,l.`LABEL_ID`,IF(l.`LABEL_EN` IS NOT NULL,l.`LABEL_EN`,'') AS LABEL_EN,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP` FROM rm_erp_order e "
+                + " LEFT JOIN rm_procurement_agent_planning_unit pu ON pu.`SKU_CODE`=e.`PLANNING_UNIT_SKU_CODE` "
+                + " AND pu.`PROCUREMENT_AGENT_ID`=1 "
+                + " LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
+                + " LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
+                + " WHERE e.ORDER_NO=? AND e.PRIME_LINE_NO=?; ";
         ErpOrderDTO erpOrderDTO = this.jdbcTemplate.queryForObject(sql, new ErpOrderDTORowMapper(), orderNo, primeLineNo);
         erpOrderDTO.setReason(reason);
         return erpOrderDTO;
@@ -530,10 +539,16 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public int linkShipmentWithARTMIS(String orderNo, int primeLineNo, int shipmentId, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        String sql = "DELETE FROM rm_manual_tagging WHERE ORDER_NO=? AND PRIME_LINE_NO=?;";
-        this.jdbcTemplate.update(sql, orderNo, primeLineNo);
-        sql = "INSERT INTO rm_manual_tagging VALUES (NULL,?,?,?,?,?,?,?,1);";
-        return this.jdbcTemplate.update(sql, orderNo, primeLineNo, shipmentId, curDate, curUser.getUserId(), curDate, curUser.getUserId());
+        String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=?;";
+        int count = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
+        if (count == 0) {
+//            sql = "DELETE FROM rm_manual_tagging WHERE ORDER_NO=? AND PRIME_LINE_NO=?;";
+//            this.jdbcTemplate.update(sql, orderNo, primeLineNo);
+            sql = "INSERT INTO rm_manual_tagging VALUES (NULL,?,?,?,?,?,?,?,1);";
+            return this.jdbcTemplate.update(sql, orderNo, primeLineNo, shipmentId, curDate, curUser.getUserId(), curDate, curUser.getUserId());
+        } else {
+            return -1;
+        }
     }
 
     @Override
@@ -550,7 +565,7 @@ public class ProgramDaoImpl implements ProgramDao {
     public void delinkShipment(int shipmentId, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sql = "SELECT st.`ERP_FLAG` FROM rm_shipment_trans st "
-                + "WHERE st.`SHIPMENT_ID`=? AND st.`ACTIVE` ORDER BY st.`SHIPMENT_TRANS_ID` LIMIT 1;";
+                + "WHERE st.`SHIPMENT_ID`=? AND st.`ACTIVE` ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
         Integer erpFlag = this.jdbcTemplate.queryForObject(sql, Integer.class, shipmentId);
         if (erpFlag == 1) {
             sql = "SELECT s.`PARENT_SHIPMENT_ID` FROM rm_shipment s WHERE s.`SHIPMENT_ID`=?;";
@@ -562,8 +577,8 @@ public class ProgramDaoImpl implements ProgramDao {
                     + "st.`BUDGET_ID`,st.`EXPECTED_DELIVERY_DATE`,st.`PROCUREMENT_UNIT_ID`,st.`SUPPLIER_ID`, "
                     + "st.`SHIPMENT_QTY`,st.`RATE`,st.`PRODUCT_COST`,st.`SHIPMENT_MODE`,st.`FREIGHT_COST`, "
                     + "st.`PLANNED_DATE`,st.`SUBMITTED_DATE`,st.`APPROVED_DATE`,st.`SHIPPED_DATE`, "
-                    + "st.`ARRIVED_DATE`,st.`RECEIVED_DATE`,st.`SHIPMENT_STATUS_ID`,st.`NOTES`,st.`DATA_SOURCE_ID`, "
-                    + "0,NULL,NULL,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,?,?,s.`MAX_VERSION_ID`,1 "
+                    + "st.`ARRIVED_DATE`,st.`RECEIVED_DATE`,st.`SHIPMENT_STATUS_ID`,st.`NOTES`, "
+                    + "0,NULL,NULL,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,st.`LOCAL_PROCUREMENT`,?,st.`DATA_SOURCE_ID`,?,s.`MAX_VERSION_ID`,1 "
                     + "FROM rm_shipment_trans st "
                     + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
                     + "WHERE st.`SHIPMENT_ID`=? "
@@ -581,8 +596,8 @@ public class ProgramDaoImpl implements ProgramDao {
                         + "st.`BUDGET_ID`,st.`EXPECTED_DELIVERY_DATE`,st.`PROCUREMENT_UNIT_ID`,st.`SUPPLIER_ID`, "
                         + "st.`SHIPMENT_QTY`,st.`RATE`,st.`PRODUCT_COST`,st.`SHIPMENT_MODE`,st.`FREIGHT_COST`, "
                         + "st.`PLANNED_DATE`,st.`SUBMITTED_DATE`,st.`APPROVED_DATE`,st.`SHIPPED_DATE`, "
-                        + "st.`ARRIVED_DATE`,st.`RECEIVED_DATE`,st.`SHIPMENT_STATUS_ID`,st.`NOTES`,st.`DATA_SOURCE_ID`, "
-                        + "0,st.`ORDER_NO`,st.`PRIME_LINE_NO`,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,?,?,s.`MAX_VERSION_ID`,0 "
+                        + "st.`ARRIVED_DATE`,st.`RECEIVED_DATE`,st.`SHIPMENT_STATUS_ID`,st.`NOTES`, "
+                        + "0,st.`ORDER_NO`,st.`PRIME_LINE_NO`,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,st.`LOCAL_PROCUREMENT`,?,st.`DATA_SOURCE_ID`,?,s.`MAX_VERSION_ID`,0 "
                         + "FROM rm_shipment_trans st "
                         + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
                         + "WHERE st.`SHIPMENT_ID`=? "
@@ -611,11 +626,13 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     /**
-     * 
+     *
      * @param programId
-     * @param page Page no is the pagination value that you want to see. Starts from 0 which is shown by default. Everytime the user clicks on More... you should increment the pagination for that Page and return it
+     * @param page Page no is the pagination value that you want to see. Starts
+     * from 0 which is shown by default. Everytime the user clicks on More...
+     * you should increment the pagination for that Page and return it
      * @param curUser
-     * @return 
+     * @return
      */
     @Override
     public LoadProgram getLoadProgram(int programId, int page, CustomUserDetails curUser) {
