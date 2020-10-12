@@ -6,7 +6,6 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.DTO.QuantimedImportDTO;
-import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.QuantimedImportService;
 import org.slf4j.Logger;
@@ -17,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -40,8 +38,6 @@ public class QuantimedImportRestController {
     public ResponseEntity quantimedImport(@RequestParam("file") MultipartFile file, @PathVariable("programId") String programId, Authentication auth) {
         String message = "";
         try {                                    
-//            System.out.println("ProgramId : ================== "+programId);
-//            System.out.println("Attached Filename : ========== "+file.getOriginalFilename());
             QuantimedImportDTO quantimedImportDTO = this.quantimedImportService.importForecastData(file, programId);            
             return new ResponseEntity(quantimedImportDTO, HttpStatus.OK);
         } catch (Exception e) {     

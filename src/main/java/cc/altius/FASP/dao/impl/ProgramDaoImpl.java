@@ -337,6 +337,7 @@ public class ProgramDaoImpl implements ProgramDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" AND p.ACTIVE ").append(this.sqlOrderBy);
+        System.out.println(LogUtils.buildStringForLog(sqlStringBuilder.toString(), params));
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramListResultSetExtractor());
     }
 
