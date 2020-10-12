@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,13 +14,21 @@ import java.io.Serializable;
  */
 public class RealmProblem extends BaseModel implements Serializable {
 
+    @JsonView(Views.InternalView.class)
     private int realmProblemId;
+    @JsonView(Views.InternalView.class)
     private SimpleCodeObject realm;
+    @JsonView(Views.InternalView.class)
     private Problem problem;
+    @JsonView(Views.InternalView.class)
     private Criticality criticality;
+    @JsonView(Views.InternalView.class)
     private String data1;
+    @JsonView(Views.InternalView.class)
     private String data2;
+    @JsonView(Views.InternalView.class)
     private String data3;
+    @JsonView(Views.InternalView.class)
     private SimpleObject problemType;
 
     public int getRealmProblemId() {
