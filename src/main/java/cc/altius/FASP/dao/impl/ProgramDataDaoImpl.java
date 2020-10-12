@@ -1092,7 +1092,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     @Transactional
     public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList) {
-        String sqlString = "UPDATE rm_program_version pv SET pv.VERSION_STATUS_ID=:versionStatusId,pv.NOTES=:notes, pv.LAST_MODIFIED_DATE=:curDate, pv.LAST_MODIFIED_BY=:curUser WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId";
+        String programVersionUpdateSql = "UPDATE rm_program_version pv SET pv.VERSION_STATUS_ID=:versionStatusId, pv.NOTES=:notes, pv.LAST_MODIFIED_DATE=:curDate, pv.LAST_MODIFIED_BY=:curUser WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId";
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
@@ -1101,12 +1101,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("notes", notes);
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
-        this.namedParameterJdbcTemplate.update(sqlString, params);
-        String sql = "INSERT INTO rm_program_version_trans SELECT NULL,pv.PROGRAM_VERSION_ID,pv.VERSION_TYPE_ID,?,?,?,? FROM  rm_program_version pv  "
+        this.namedParameterJdbcTemplate.update(programVersionUpdateSql, params);
+        String programVersionTransSql = "INSERT INTO rm_program_version_trans SELECT NULL,pv.PROGRAM_VERSION_ID,pv.VERSION_TYPE_ID,?,?,?,? FROM  rm_program_version pv  "
                 + "WHERE pv.`PROGRAM_ID`=? AND pv.`VERSION_ID`=? ";
-        this.jdbcTemplate.update(sql, versionStatusId, notes, curUser.getUserId(), DateUtils.getCurrentDateObject(DateUtils.EST), programId, versionId);
-        sqlString = "UPDATE rm_problem_report pr set pr.REVIEWED=:reviewed, pr.NOTES = CONCAT(pr.NOTES, '\\n',:notes), pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
-        final List<SqlParameterSource> updateList = new ArrayList<>();
+        this.jdbcTemplate.update(programVersionTransSql, versionStatusId, notes, curUser.getUserId(), DateUtils.getCurrentDateObject(DateUtils.EST), programId, versionId);
+        String problemReportUpdateSql = "UPDATE rm_problem_report pr set pr.REVIEWED=:reviewed, pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
+        String problemReportTransInsertSql = "INSERT INTO rm_problem_report_trans SELECT null, :problemReportId, rm.PROBLEM_STATUS_ID, :reviewed, :notes, :curUser, :curDate FROM rm_problem_report pr WHERE pr.PROBLEM_REPORT_ID=:problemReportId)";
+        final List<SqlParameterSource> paramsList = new ArrayList<>();
         for (ReviewedProblem rp : reviewedProblemList) {
             Map<String, Object> updateParams = new HashMap<>();
             updateParams.put("reviewed", rp.isReviewed());
@@ -1114,12 +1115,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             updateParams.put("curDate", curDate);
             updateParams.put("notes", rp.getNotes());
             updateParams.put("problemReportId", rp.getProblemReportId());
-            updateList.add(new MapSqlParameterSource(updateParams));
+            paramsList.add(new MapSqlParameterSource(updateParams));
         }
-        if (updateList.size() > 0) {
-            SqlParameterSource[] updateArray = new SqlParameterSource[updateList.size()];
-            this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateArray));
-            this.namedParameterJdbcTemplate.batchUpdate(sql, updateArray);
+        if (paramsList.size() > 0) {
+            SqlParameterSource[] updateArray = new SqlParameterSource[paramsList.size()];
+            this.namedParameterJdbcTemplate.batchUpdate(problemReportUpdateSql, paramsList.toArray(updateArray));
+            this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
+            
         }
         return this.getVersionInfo(programId, versionId);
     }
