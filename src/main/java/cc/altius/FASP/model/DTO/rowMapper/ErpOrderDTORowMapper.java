@@ -6,6 +6,7 @@
 package cc.altius.FASP.model.DTO.rowMapper;
 
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
+import cc.altius.FASP.model.Label;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -35,6 +36,7 @@ public class ErpOrderDTORowMapper implements RowMapper<ErpOrderDTO> {
         e.setShippingCost(rs.getDouble("SHIPPING_COST"));
         e.setStatus(rs.getString("STATUS"));
         e.setRecipentCountry(rs.getString("RECPIENT_COUNTRY"));
+        e.setPlanningUnitLabel(new Label(rs.getInt("LABEL_ID"), rs.getString("LABEL_EN"), rs.getString("LABEL_SP"), rs.getString("LABEL_FR"), rs.getString("LABEL_PR")));
         return e;
     }
 
