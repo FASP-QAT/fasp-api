@@ -9,11 +9,15 @@ import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.ReviewedProblem;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,8 +48,27 @@ public class ProgramDataRestController {
     @Autowired
     private UserService userService;
 
+    @JsonView(Views.InternalView.class)
     @GetMapping("/programData/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getProgramData(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to get ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @JsonView(Views.ArtmisView.class)
+    @GetMapping("/programData/artmis/programId/{programId}/versionId/{versionId}")
+    public ResponseEntity getProgramDataArtmis(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser), HttpStatus.OK);
@@ -132,10 +155,10 @@ public class ProgramDataRestController {
     }
 
     @PutMapping("/programVersion/programId/{programId}/versionId/{versionId}/versionStatusId/{versionStatusId}/{notes}")
-    public ResponseEntity updateProgramVersion(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "versionStatusId", required = true) int versionStatusId, @PathVariable(value = "notes", required = true) String notes, Authentication auth) {
+    public ResponseEntity updateProgramVersion(@RequestBody List<ReviewedProblem> reviewedProblemList, @PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "versionStatusId", required = true) int versionStatusId, @PathVariable(value = "notes", required = true) String notes, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.updateProgramVersion(programId, versionId, versionStatusId, notes, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programDataService.updateProgramVersion(programId, versionId, versionStatusId, notes, curUser, reviewedProblemList), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to update ProgramVersion", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);

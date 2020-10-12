@@ -5,6 +5,11 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateTimeSerializer;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.LinkedList;
@@ -14,22 +19,49 @@ import java.util.List;
  *
  * @author akil
  */
-public class Consumption extends BaseModel implements Serializable {
+public class Consumption implements Serializable {
 
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private int consumptionId;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private SimpleObject region;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private SimplePlanningUnitObject planningUnit;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private SimpleObject realmCountryPlanningUnit;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private double multiplier;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String consumptionDate;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private boolean actualFlag;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private double consumptionRcpuQty;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private double consumptionQty;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private int dayOfStockOut;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private SimpleObject dataSource;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String notes;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private int versionId;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private List<ConsumptionBatchInfo> batchInfoList;
+    @JsonView(Views.InternalView.class)
+    private BasicUser createdBy;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.InternalView.class)
+    private Date createdDate;
+    @JsonView(Views.InternalView.class)
+    private BasicUser lastModifiedBy;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.InternalView.class)
+    private Date lastModifiedDate;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private boolean active;
 
     public boolean isActive() {
@@ -39,7 +71,7 @@ public class Consumption extends BaseModel implements Serializable {
     public void setActive(boolean active) {
         this.active = active;
     }
-    
+
     public Consumption() {
         batchInfoList = new LinkedList<>();
     }
@@ -154,6 +186,38 @@ public class Consumption extends BaseModel implements Serializable {
 
     public void setBatchInfoList(List<ConsumptionBatchInfo> batchInfoList) {
         this.batchInfoList = batchInfoList;
+    }
+
+    public BasicUser getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(BasicUser createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public BasicUser getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(BasicUser lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
+
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     @Override

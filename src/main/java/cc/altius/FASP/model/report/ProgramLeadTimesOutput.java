@@ -25,7 +25,7 @@ public class ProgramLeadTimesOutput implements Serializable {
     private double shippedToArrivedByAirLeadTime;
     private double shippedToArrivedBySeaLeadTime;
     private double arrivedToDeliveredLeadTime;
-    private double localProcurementAgentLeadTime;
+    private Double localProcurementAgentLeadTime;
 
     public SimpleCodeObject getCountry() {
         return country;
@@ -107,11 +107,11 @@ public class ProgramLeadTimesOutput implements Serializable {
         this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
     }
 
-    public double getLocalProcurementAgentLeadTime() {
+    public Double getLocalProcurementAgentLeadTime() {
         return localProcurementAgentLeadTime;
     }
 
-    public void setLocalProcurementAgentLeadTime(double localProcurementAgentLeadTime) {
+    public void setLocalProcurementAgentLeadTime(Double localProcurementAgentLeadTime) {
         this.localProcurementAgentLeadTime = localProcurementAgentLeadTime;
     }
 

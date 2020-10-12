@@ -34,6 +34,10 @@ public class ShipmentDetailsList implements Serializable {
     private double productCost;
     private double freightCost;
     private double totalCost;
+    private String orderNo;
+    private boolean emergencyOrder;
+    private boolean localProcurement;
+    private boolean erpFlag;
     private String notes;
 
     public int getShipmentId() {
@@ -132,6 +136,14 @@ public class ShipmentDetailsList implements Serializable {
         this.forecastingUnit = forecastingUnit;
     }
 
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
     public int getMultiplier() {
         return multiplier;
     }
@@ -139,4 +151,30 @@ public class ShipmentDetailsList implements Serializable {
     public void setMultiplier(int multiplier) {
         this.multiplier = multiplier;
     }
+
+    public boolean isEmergencyOrder() {
+        return emergencyOrder;
+    }
+
+    public void setEmergencyOrder(boolean emergencyOrder) {
+        this.emergencyOrder = emergencyOrder;
+    }
+
+    public boolean isLocalProcurement() {
+        return localProcurement;
+    }
+
+    public void setLocalProcurement(boolean localProcurement) {
+        this.localProcurement = localProcurement;
+    }
+
+    public boolean isErpFlag() {
+        return erpFlag;
+    }
+
+    public void setErpFlag(boolean erpFlag) {
+        this.erpFlag = erpFlag;
+    }
+    
+    
 }

@@ -62,9 +62,18 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
                 sp.setNationalAdjustment(rs.getInt("NATIONAL_ADJUSTMENT"));
                 sp.setNationalAdjustmentWps(rs.getInt("NATIONAL_ADJUSTMENT_WPS"));
                 sp.setAmc(rs.getDouble("AMC"));
+                if (rs.wasNull()) {
+                    sp.setAmc(null);
+                }
                 sp.setAmcCount(rs.getInt("AMC_COUNT"));
                 sp.setMos(rs.getDouble("MOS"));
+                if (rs.wasNull()) {
+                    sp.setMos(null);
+                }
                 sp.setMosWps(rs.getDouble("MOS_WPS"));
+                if (rs.wasNull()) {
+                    sp.setMosWps(null);
+                }
                 sp.setMinStockMoS(rs.getDouble("MIN_STOCK_MOS"));
                 sp.setMinStock(rs.getDouble("MIN_STOCK_QTY"));
                 sp.setMaxStockMoS(rs.getDouble("MAX_STOCK_MOS"));

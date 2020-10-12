@@ -39,7 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -55,18 +54,6 @@ public class ReportController {
     @Autowired
     private ReportService reportService;
     private final Logger logger = LoggerFactory.getLogger(ReportController.class);
-
-    @RequestMapping(value = "/consumption/{realmId}/{programId}/{planningUnitId}/{startDate}/{endDate}")
-    public ResponseEntity getConsumptionData(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, @PathVariable("planningUnitId") int planningUnitId, @PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate, Authentication auth) {
-        try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.reportService.getConsumptionData(realmId, programId, planningUnitId, startDate, endDate), HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-    }
 
     // Report no 1
     /**
@@ -150,7 +137,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * { "startDate":"2019-10-01", "stopDate":"2020-07-01", "programId":3, "versionId":2, "planningUnitId":152, "previousMonths":5}
+     * { "programId": 2003, "versionId":2, "planningUnitId": 772, "startDate": "2020-01-01", "stopDate": "2020-05-01", "previousMonths": 6}
      * -- startDate and stopDate are the range that you want to run the report for
      * -- programId must be a single Program cannot be muti-program select or -1 for all programs
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
@@ -182,7 +169,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * { "realmId":1, "realmCountryIds":[5,51], "programIds":[2028,2535], "planningUnitIds":[], "startDate":"2019-11-01", "previousMonths":5}
+     * { "realmId":1, "realmCountryIds":[2], "programIds":[2003], "planningUnitIds":[772], "startDate":"2020-03-01", "previousMonths":5}
      * -- realmId since it is a Global report need to include Realm
      * -- startDate - date that the report is to be run for
      * -- realmCountryIds list of countries that we need to run the report for

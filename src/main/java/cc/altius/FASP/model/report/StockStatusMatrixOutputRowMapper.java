@@ -28,17 +28,53 @@ public class StockStatusMatrixOutputRowMapper implements RowMapper<StockStatusMa
         ssmo.setReorderFrequency(rs.getInt("REORDER_FREQUENCY_IN_MONTHS"));
         ssmo.setMultiplier(rs.getInt("MULTIPLIER"));
         ssmo.setJan(rs.getDouble("Jan"));
+        if (rs.wasNull()) {
+            ssmo.setJan(null);
+        }
         ssmo.setFeb(rs.getDouble("Feb"));
+        if (rs.wasNull()) {
+            ssmo.setFeb(null);
+        }
         ssmo.setMar(rs.getDouble("Mar"));
+        if (rs.wasNull()) {
+            ssmo.setMar(null);
+        }
         ssmo.setApr(rs.getDouble("Apr"));
+        if (rs.wasNull()) {
+            ssmo.setApr(null);
+        }
         ssmo.setMay(rs.getDouble("May"));
+        if (rs.wasNull()) {
+            ssmo.setMay(null);
+        }
         ssmo.setJun(rs.getDouble("Jun"));
+        if (rs.wasNull()) {
+            ssmo.setJun(null);
+        }
         ssmo.setJul(rs.getDouble("Jul"));
+        if (rs.wasNull()) {
+            ssmo.setJul(null);
+        }
         ssmo.setAug(rs.getDouble("Aug"));
+        if (rs.wasNull()) {
+            ssmo.setAug(null);
+        }
         ssmo.setSep(rs.getDouble("Sep"));
+        if (rs.wasNull()) {
+            ssmo.setSep(null);
+        }
         ssmo.setOct(rs.getDouble("Oct"));
+        if (rs.wasNull()) {
+            ssmo.setOct(null);
+        }
         ssmo.setNov(rs.getDouble("Nov"));
+        if (rs.wasNull()) {
+            ssmo.setNov(null);
+        }
         ssmo.setDec(rs.getDouble("Dec"));
+        if (rs.wasNull()) {
+            ssmo.setDec(null);
+        }
         return ssmo;
     }
 

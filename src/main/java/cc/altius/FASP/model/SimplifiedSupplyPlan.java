@@ -44,7 +44,7 @@ public class SimplifiedSupplyPlan implements Serializable {
     private int adjustmentQty;
     private int regionCount;
     private int regionCountForStock;
-    private double amc;
+    private Double amc;
     private int amcCount;
     private double minStock;
     private double minStockMoS;
@@ -61,8 +61,8 @@ public class SimplifiedSupplyPlan implements Serializable {
     private int closingBalanceWps;
     private int nationalAdjustment;
     private int nationalAdjustmentWps;
-    private double mos;
-    private double mosWps;
+    private Double mos;
+    private Double mosWps;
 
     public SimplifiedSupplyPlan() {
         this.batchDetails = new LinkedList<>();
@@ -264,11 +264,11 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.regionCountForStock = regionCountForStock;
     }
 
-    public double getAmc() {
+    public Double getAmc() {
         return amc;
     }
 
-    public void setAmc(double amc) {
+    public void setAmc(Double amc) {
         this.amc = amc;
     }
 
@@ -400,19 +400,19 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.nationalAdjustmentWps = nationalAdjustmentWps;
     }
 
-    public double getMos() {
+    public Double getMos() {
         return mos;
     }
 
-    public void setMos(double mos) {
+    public void setMos(Double mos) {
         this.mos = mos;
     }
 
-    public double getMosWps() {
+    public Double getMosWps() {
         return mosWps;
     }
 
-    public void setMosWps(double mosWps) {
+    public void setMosWps(Double mosWps) {
         this.mosWps = mosWps;
     }
 

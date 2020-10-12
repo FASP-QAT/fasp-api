@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.InventoryBatchInfo;
 import cc.altius.FASP.model.SimpleCodeObject;
@@ -64,7 +65,10 @@ public class InventoryListResultSetExtractor implements ResultSetExtractor<List<
             if (rs.wasNull()) {
                 i.setActualQty(null);
             }
-            i.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
+            i.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
+            i.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
+            i.setCreatedBy(new BasicUser(rs.getInt("CB_USER_ID"), rs.getString("CB_USERNAME")));
+            i.setLastModifiedBy(new BasicUser(rs.getInt("LMB_USER_ID"), rs.getString("LMB_USERNAME")));
             InventoryBatchInfo ib = new InventoryBatchInfoRowMapper().mapRow(rs, 1);
             if (ib != null && i.getBatchInfoList().indexOf(ib) == -1) {
                 i.getBatchInfoList().add(ib);

@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.ConsumptionBatchInfo;
 import cc.altius.FASP.model.SimpleForecastingUnitObject;
@@ -54,7 +55,10 @@ public class ConsumptionListResultSetExtractor implements ResultSetExtractor<Lis
             c.setNotes(rs.getString("NOTES"));
             c.setVersionId(rs.getInt("VERSION_ID"));
             c.setActive(rs.getBoolean("ACTIVE"));
-            c.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
+            c.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
+            c.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
+            c.setCreatedBy(new BasicUser(rs.getInt("CB_USER_ID"), rs.getString("CB_USERNAME")));
+            c.setLastModifiedBy(new BasicUser(rs.getInt("LMB_USER_ID"), rs.getString("LMB_USERNAME")));
             ConsumptionBatchInfo cb = new ConsumptionBatchInfoRowMapper().mapRow(rs, 1);
             if (cb != null && c.getBatchInfoList().indexOf(cb) == -1) {
                 c.getBatchInfoList().add(cb);

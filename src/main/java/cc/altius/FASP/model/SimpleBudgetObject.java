@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,6 +14,7 @@ import java.io.Serializable;
  */
 public class SimpleBudgetObject extends SimpleCodeObject implements Serializable {
 
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private Currency currency;
 
     public SimpleBudgetObject() {

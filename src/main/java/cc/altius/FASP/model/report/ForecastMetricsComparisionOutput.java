@@ -97,14 +97,16 @@ public class ForecastMetricsComparisionOutput implements Serializable {
     }
 
     public String getMessage() {
-        if (this.actualConsumption == null || this.forecastedConsumption == null || this.actual == null || this.actual == false) {
-            return "Current month does not contain actual consumption and/or* forecasted consumption";
+        if (this.monthCount == 0) {
+            return "static.reports.forecastMetrics.noConsumptionAcrossPeriod";
+        } else if (this.actualConsumption == null || this.forecastedConsumption == null || this.actual == null || this.actual == false) {
+            return "static.reports.forecastMetrics.noConsumption";
         } else if (this.actualConsumptionTotal == null || this.actualConsumptionTotal == 0) {
-            return "Total actual consumption for last 6 months = 0";
+            return "static.reports.forecastMetrics.totalConsumptionIs0";
         } else if (this.getForecastError() == null) {
             return "";
         } else {
-            return this.getForecastError().toString();
+            return null;
         }
     }
 }

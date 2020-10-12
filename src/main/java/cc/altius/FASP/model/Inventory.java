@@ -5,8 +5,14 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateTimeSerializer;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -14,23 +20,49 @@ import java.util.List;
  *
  * @author akil
  */
-public class Inventory extends BaseModel implements Serializable {
+public class Inventory implements Serializable {
 
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private int inventoryId;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String inventoryDate;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private SimpleObject region;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private SimpleObject realmCountryPlanningUnit;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private SimplePlanningUnitObject planningUnit;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private double multiplier;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private Double actualQty;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private Double adjustmentQty;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private double expectedBal;
     @JsonIgnore
     private SimpleCodeObject unit;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private SimpleObject dataSource;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String notes;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private int versionId;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private List<InventoryBatchInfo> batchInfoList;
+    @JsonView(Views.InternalView.class)
+    private BasicUser createdBy;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.InternalView.class)
+    private Date createdDate;
+    @JsonView(Views.InternalView.class)
+    private BasicUser lastModifiedBy;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.InternalView.class)
+    private Date lastModifiedDate;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private boolean active;
 
     public boolean isActive() {
@@ -157,6 +189,38 @@ public class Inventory extends BaseModel implements Serializable {
         this.batchInfoList = batchInfoList;
     }
 
+    public BasicUser getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(BasicUser createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public BasicUser getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(BasicUser lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
+    }
+
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
+    }
+    
     @Override
     public int hashCode() {
         int hash = 7;

@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,8 +14,11 @@ import java.io.Serializable;
  */
 public class ConsumptionBatchInfo implements Serializable {
 
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private int consumptionTransBatchInfoId;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private Batch batch;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private int consumptionQty;
 
     public int getConsumptionTransBatchInfoId() {

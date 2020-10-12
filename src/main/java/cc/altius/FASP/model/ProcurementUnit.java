@@ -25,6 +25,8 @@ public class ProcurementUnit extends BaseModel implements Serializable {
     private SimpleObject lengthUnit;
     private Double weightQty;
     private SimpleObject weightUnit;
+    private Double volumeQty;
+    private SimpleObject volumeUnit;
     private Double unitsPerCase;
     private Double unitsPerPalletEuro1;
     private Double unitsPerPalletEuro2;
@@ -141,6 +143,22 @@ public class ProcurementUnit extends BaseModel implements Serializable {
 
     public void setWeightQty(Double weightQty) {
         this.weightQty = weightQty;
+    }
+
+    public Double getVolumeQty() {
+        return volumeQty;
+    }
+
+    public void setVolumeQty(Double volumeQty) {
+        this.volumeQty = volumeQty;
+    }
+
+    public SimpleObject getVolumeUnit() {
+        return volumeUnit;
+    }
+
+    public void setVolumeUnit(SimpleObject volumeUnit) {
+        this.volumeUnit = volumeUnit;
     }
 
     public Double getUnitsPerCase() {
