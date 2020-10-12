@@ -32,6 +32,7 @@ import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.service.ReportService;
+import cc.altius.FASP.service.UserService;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,6 +54,9 @@ public class ReportController {
 
     @Autowired
     private ReportService reportService;
+    @Autowired
+    private UserService userService;
+
     private final Logger logger = LoggerFactory.getLogger(ReportController.class);
 
     // Report no 1
@@ -67,10 +71,10 @@ public class ReportController {
     @RequestMapping(value = "/programProductCatalog")
     public ResponseEntity getProgramProductCatalog(@RequestBody ProgramProductCatalogInput ppc, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getProgramProductCatalog(ppc, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/programProductCatalog", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -95,10 +99,10 @@ public class ReportController {
     @RequestMapping(value = "/consumptionForecastVsActual")
     public ResponseEntity getConsumptionForecastVsActual(@RequestBody ConsumptionForecastVsActualInput ppc, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getConsumptionForecastVsActual(ppc, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/consumptionForecastVsActual", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -125,10 +129,10 @@ public class ReportController {
     @RequestMapping(value = "/globalConsumption")
     public ResponseEntity getGlobalConsumption(@RequestBody GlobalConsumptionInput gci, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getGlobalConsumption(gci, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/globalConsumption", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -156,10 +160,10 @@ public class ReportController {
     @RequestMapping(value = "/forecastMetricsMonthly")
     public ResponseEntity getForecastMetricsMonthly(@RequestBody ForecastMetricsMonthlyInput fmi, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getForecastMetricsMonthly(fmi, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/forecastMetricsMonthly", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -189,10 +193,10 @@ public class ReportController {
     @RequestMapping(value = "/forecastMetricsComparision")
     public ResponseEntity getForecastMetricsComparision(@RequestBody ForecastMetricsComparisionInput fmi, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getForecastMetricsComparision(fmi, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/forecastMetricsComparision", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -216,10 +220,10 @@ public class ReportController {
     @RequestMapping(value = "/warehouseCapacityReport")
     public ResponseEntity getwarehouseCapacityReport(@RequestBody WarehouseCapacityInput wci, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getWarehouseCapacityReport(wci, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/warehouseCapacityReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -245,10 +249,10 @@ public class ReportController {
     @RequestMapping(value = "/costOfInventory")
     public ResponseEntity getCostOfInventory(@RequestBody CostOfInventoryInput cii, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getCostOfInventory(cii, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/costOfInventory", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -273,10 +277,10 @@ public class ReportController {
     @RequestMapping(value = "/inventoryTurns")
     public ResponseEntity getInventoryTurns(@RequestBody CostOfInventoryInput it, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getInventoryTurns(it, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/inventoryTurns", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -301,10 +305,10 @@ public class ReportController {
     @RequestMapping(value = "/expiredStock")
     public ResponseEntity getExpiredStock(@RequestBody ExpiredStockInput esi, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getExpiredStock(esi, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/expiredStock", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -327,10 +331,10 @@ public class ReportController {
     @RequestMapping(value = "/stockAdjustmentReport")
     public ResponseEntity getStockAdjustmentReport(@RequestBody StockAdjustmentReportInput si, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getStockAdjustmentReport(si, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/stockAdjustmentReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -359,10 +363,10 @@ public class ReportController {
     @RequestMapping(value = "/procurementAgentShipmentReport")
     public ResponseEntity getProcurementAgentShipmentReport(@RequestBody ProcurementAgentShipmentReportInput pari, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getProcurementAgentShipmentReport(pari, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/procurementAgentShipmentReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -384,10 +388,10 @@ public class ReportController {
     @RequestMapping(value = "/programLeadTimes")
     public ResponseEntity getProgramLeadTimes(@RequestBody ProgramLeadTimesInput plt, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getProgramLeadTimes(plt, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/programLeadTimes", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -415,10 +419,10 @@ public class ReportController {
     @RequestMapping(value = "/fundingSourceShipmentReport")
     public ResponseEntity getFundingSourceShipmentReport(@RequestBody FundingSourceShipmentReportInput fsri, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getFundingSourceShipmentReport(fsri, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/fundingSourceShipmentReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -440,14 +444,11 @@ public class ReportController {
     @RequestMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
         try {
-            logger.info("Input call for StockStatusVertical");
-            logger.info(ssv.toString());
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             List<StockStatusVerticalOutput> ssvoList = this.reportService.getStockStatusVertical(ssv, curUser);
-            logger.info(ssvoList.toString());
             return new ResponseEntity(ssvoList, HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Error while calling StockStatusVertical report", e);
+            logger.error("/api/report/stockStatusVertical", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -473,10 +474,10 @@ public class ReportController {
     @RequestMapping(value = "/stockStatusOverTime")
     public ResponseEntity getStockStatusOverTime(@RequestBody StockStatusOverTimeInput ssot, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getStockStatusOverTime(ssot, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/stockStatusOverTime", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -503,10 +504,10 @@ public class ReportController {
     @RequestMapping(value = "/stockStatusMatrix")
     public ResponseEntity getStockStatusMatrix(@RequestBody StockStatusMatrixInput ssm, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getStockStatusMatrix(ssm), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/stockStatusMatrix", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -531,10 +532,10 @@ public class ReportController {
     @RequestMapping(value = "/shipmentDetails")
     public ResponseEntity getShipmentDetails(@RequestBody ShipmentDetailsInput sd, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getShipmentDetails(sd, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/shipmentDetails", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -554,10 +555,10 @@ public class ReportController {
     @RequestMapping(value = "/shipmentOverview")
     public ResponseEntity getShipmentOverview(@RequestBody ShipmentOverviewInput so, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getShipmentOverview(so, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/shipmentOverview", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -577,10 +578,10 @@ public class ReportController {
     @RequestMapping(value = "/shipmentGlobalDemand")
     public ResponseEntity getShipmentGlobalDemand(@RequestBody ShipmentGlobalDemandInput sgd, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getShipmentGlobalDemand(sgd, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/shipmentGlobalDemand", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -604,10 +605,10 @@ public class ReportController {
     @RequestMapping(value = "/annualShipmentCost")
     public ResponseEntity getAnnualShipmentCost(@RequestBody AnnualShipmentCostInput asci, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getAnnualShipmentCost(asci, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/annualShipmentCost", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -634,10 +635,10 @@ public class ReportController {
     @RequestMapping(value = "/aggregateShipmentByProduct")
     public ResponseEntity getAggregateShipmentByProduct(@RequestBody ShipmentReportInput fsri, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getAggregateShipmentByProduct(fsri, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/aggregateShipmentByProduct", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -666,10 +667,10 @@ public class ReportController {
     @RequestMapping(value = "/stockStatusForProgram")
     public ResponseEntity getStockStatusForProgram(@RequestBody StockStatusForProgramInput sspi, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getStockStatusForProgram(sspi, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/stockStatusForProgram", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -685,10 +686,10 @@ public class ReportController {
     @RequestMapping(value = "/budgetReport")
     public ResponseEntity getBudgetReport(@RequestBody BudgetReportInput br, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getBudgetReport(br, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/budgetReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -718,10 +719,10 @@ public class ReportController {
     @RequestMapping(value = "/stockStatusAcrossProducts")
     public ResponseEntity getStockStatusAcrossProducts(@RequestBody StockStatusAcrossProductsInput ssap, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getStockStatusAcrossProducts(ssap, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/stockStatusAcrossProducts", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
