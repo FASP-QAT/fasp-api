@@ -15,8 +15,8 @@ public class QuantimedImportRecordDTO implements Serializable{
     
     private String productId;
     private String dtmPeriod;
-    private String ingConsumption;
-    private String ingAdjustments;
+    private int ingConsumption;
+    private int ingAdjustments;
     private QuantimedImportProductDTO product;
 
     public QuantimedImportProductDTO getProduct() {
@@ -43,19 +43,19 @@ public class QuantimedImportRecordDTO implements Serializable{
         this.dtmPeriod = dtmPeriod;
     }
 
-    public String getIngConsumption() {
+    public int getIngConsumption() {
         return ingConsumption;
     }
 
-    public void setIngConsumption(String ingConsumption) {
+    public void setIngConsumption(int ingConsumption) {
         this.ingConsumption = ingConsumption;
     }
 
-    public String getIngAdjustments() {
+    public int getIngAdjustments() {
         return ingAdjustments;
     }
 
-    public void setIngAdjustments(String ingAdjustments) {
+    public void setIngAdjustments(int ingAdjustments) {
         this.ingAdjustments = ingAdjustments;
     }
 

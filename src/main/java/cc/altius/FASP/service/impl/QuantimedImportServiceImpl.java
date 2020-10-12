@@ -13,6 +13,9 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +28,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.collections4.map.HashedMap;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -43,17 +47,9 @@ import org.xml.sax.SAXException;
 @Service
 public class QuantimedImportServiceImpl implements QuantimedImportService {
 
-    private JdbcTemplate jdbcTemplate;
-    private DataSource dataSource;
-    private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());
-
-    @Autowired
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-        this.jdbcTemplate = new JdbcTemplate(dataSource);
-        this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
-    }
+    @Value("${quantimedFilePath}")
+    private String QMED_FILE_PATH;        
+    private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());    
 
     @Override
     public QuantimedImportDTO importForecastData(MultipartFile file, String programId) {
@@ -63,17 +59,18 @@ public class QuantimedImportServiceImpl implements QuantimedImportService {
         List<QuantimedImportRecordDTO> recordDTOs = new LinkedList<>();
         QuantimedImportProductDTO importProductDTO = null;
         QuantimedImportRecordDTO importRecordDTO = null;
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
         int i = file.getOriginalFilename().lastIndexOf('.');
         if (i > 0) {
             extension = file.getOriginalFilename().substring(i + 1);
         }
 
         if (!extension.equalsIgnoreCase("xml")) {
-            System.out.println("File is not an xml");
+//            System.out.println("File is not an xml");
         } else {
 
             try {
-                File file1 = new File("/home/altius/" + file.getOriginalFilename());
+                File file1 = new File(QMED_FILE_PATH + file.getOriginalFilename());
                 file.transferTo(file1);
                 DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -107,7 +104,7 @@ public class QuantimedImportServiceImpl implements QuantimedImportService {
 //                    System.out.println("Source : " + doc.getElementsByTagName("SourceName").item(0).getTextContent());
 
                     nList1 = doc.getElementsByTagName("Product");
-                    System.out.println("=====================" + nList1.getLength());
+//                    System.out.println("=====================" + nList1.getLength());
                     x = 0;
                     for (int temp2 = 0; temp2 < nList1.getLength(); temp2++) {
                         Node nNode1 = nList1.item(temp2);
@@ -143,17 +140,33 @@ public class QuantimedImportServiceImpl implements QuantimedImportService {
                     importDTO.setProducts(productDTOs);
 
                     nList2 = doc.getElementsByTagName("Record");
-                    System.out.println("=====================" + nList2.getLength());
+//                    System.out.println("=====================" + nList2.getLength());
+                    int tempCosumption, tempAdjustment;
+                    String tempCosumptionStr, tempAdjustmentStr;
                     for (int temp2 = 0; temp2 < nList2.getLength(); temp2++) {
                         Node nNode2 = nList2.item(temp2);
+                        tempCosumption = tempAdjustment = 0;
+                        tempCosumptionStr = tempAdjustmentStr = null;
+                        
                         if (nNode2.getNodeType() == Node.ELEMENT_NODE) {
                             Element dataRecordElement = (Element) nNode2;
 
                             importRecordDTO = new QuantimedImportRecordDTO();
                             importRecordDTO.setProductId(dataRecordElement.getElementsByTagName("strProductID").item(0).getTextContent().trim());
-                            importRecordDTO.setDtmPeriod(dataRecordElement.getElementsByTagName("dtmPeriod").item(0).getTextContent().trim());
-                            importRecordDTO.setIngConsumption(dataRecordElement.getElementsByTagName("lngConsumption").item(0).getTextContent().trim());
-                            importRecordDTO.setIngAdjustments(dataRecordElement.getElementsByTagName("lngAdjustments").item(0).getTextContent().trim());
+                            
+                            String sDate1=dataRecordElement.getElementsByTagName("dtmPeriod").item(0).getTextContent().trim();
+                            Date date1=new SimpleDateFormat("MM/dd/yyyy").parse(sDate1);
+                            
+                            importRecordDTO.setDtmPeriod(dateFormat.format(date1));
+                            
+                            tempCosumptionStr = dataRecordElement.getElementsByTagName("lngConsumption").item(0).getTextContent().trim();
+                            tempCosumption = (tempCosumptionStr != null && !tempCosumptionStr.equals("")) ? Integer.parseInt(tempCosumptionStr) : 0;
+                            importRecordDTO.setIngConsumption(tempCosumption);
+                            
+                            tempAdjustmentStr = dataRecordElement.getElementsByTagName("lngAdjustments").item(0).getTextContent().trim();
+                            tempAdjustment = (tempAdjustmentStr != null && !tempAdjustmentStr.equals("")) ? Integer.parseInt(tempAdjustmentStr) : 0;
+                            importRecordDTO.setIngAdjustments(tempAdjustment);
+                            
                             importRecordDTO.setProduct(map.get(dataRecordElement.getElementsByTagName("strProductID").item(0).getTextContent().trim()));
                             recordDTOs.add(importRecordDTO);
 
@@ -172,6 +185,8 @@ public class QuantimedImportServiceImpl implements QuantimedImportService {
             } catch (SAXException ex) {
                 Logger.getLogger(QuantimedImportServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             } catch (IOException ex) {
+                Logger.getLogger(QuantimedImportServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ParseException ex) {
                 Logger.getLogger(QuantimedImportServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             }
         }

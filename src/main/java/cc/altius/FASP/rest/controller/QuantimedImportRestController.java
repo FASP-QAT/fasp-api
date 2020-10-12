@@ -39,11 +39,9 @@ public class QuantimedImportRestController {
     @PostMapping(value = "/quantimed/quantimedImport/{programId}")
     public ResponseEntity quantimedImport(@RequestParam("file") MultipartFile file, @PathVariable("programId") String programId, Authentication auth) {
         String message = "";
-        try {            
-            ResponseEntity<String> response;
-            
-            System.out.println("ProgramId : ================== "+programId);
-            System.out.println("Attached Filename : ========== "+file.getOriginalFilename());
+        try {                                    
+//            System.out.println("ProgramId : ================== "+programId);
+//            System.out.println("Attached Filename : ========== "+file.getOriginalFilename());
             QuantimedImportDTO quantimedImportDTO = this.quantimedImportService.importForecastData(file, programId);            
             return new ResponseEntity(quantimedImportDTO, HttpStatus.OK);
         } catch (Exception e) {     
@@ -53,19 +51,19 @@ public class QuantimedImportRestController {
         }
     } 
     
-    @PostMapping(value = "/quantimed/addQuantimedImport")
-    public ResponseEntity addQuantimedImport(@RequestBody QuantimedImportDTO importDTO, Authentication auth) {
-        String message = "";
-        try {            
-            ResponseEntity<String> response;
-            
-            System.out.println("ProgramId : ================== "+importDTO);
-            
-            return new ResponseEntity("", HttpStatus.OK);
-        } catch (Exception e) {     
-            logger.error("Error while upload the file", e);
-            message = "";
-            return new ResponseEntity(new ResponseCode(message), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }    
+//    @PostMapping(value = "/quantimed/addQuantimedImport")
+//    public ResponseEntity addQuantimedImport(@RequestBody QuantimedImportDTO importDTO, Authentication auth) {
+//        String message = "";
+//        try {            
+//            ResponseEntity<String> response;
+//            
+//            System.out.println("ProgramId : ================== "+importDTO);
+//            
+//            return new ResponseEntity("", HttpStatus.OK);
+//        } catch (Exception e) {     
+//            logger.error("Error while upload the file", e);
+//            message = "";
+//            return new ResponseEntity(new ResponseCode(message), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }    
 }
