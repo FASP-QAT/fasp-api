@@ -15,10 +15,10 @@ import java.io.Serializable;
 public class StockStatusAcrossProductsForProgram implements Serializable {
 
     private SimpleCodeObject program;
-    private double amc;
+    private Double amc;
     private int amcCount;
-    private int finalClosingBalance;
-    private double mos;
+    private Integer finalClosingBalance;
+    private Double mos;
     private int minMos;
     private int maxMos;
 
@@ -30,11 +30,11 @@ public class StockStatusAcrossProductsForProgram implements Serializable {
         this.program = program;
     }
 
-    public double getAmc() {
+    public Double getAmc() {
         return amc;
     }
 
-    public void setAmc(double amc) {
+    public void setAmc(Double amc) {
         this.amc = amc;
     }
 
@@ -46,19 +46,19 @@ public class StockStatusAcrossProductsForProgram implements Serializable {
         this.amcCount = amcCount;
     }
 
-    public int getFinalClosingBalance() {
+    public Integer getFinalClosingBalance() {
         return finalClosingBalance;
     }
 
-    public void setFinalClosingBalance(int finalClosingBalance) {
+    public void setFinalClosingBalance(Integer finalClosingBalance) {
         this.finalClosingBalance = finalClosingBalance;
     }
 
-    public double getMos() {
+    public Double getMos() {
         return mos;
     }
 
-    public void setMos(double mos) {
+    public void setMos(Double mos) {
         this.mos = mos;
     }
 
@@ -79,13 +79,13 @@ public class StockStatusAcrossProductsForProgram implements Serializable {
     }
 
     public String getOutputString() {
-        if (mos == 0) {
+        if (mos == null || mos == 0) {
             return "OUT";
-        } else if (mos < minMos) {
+        } else if (mos != null && mos < minMos) {
             return "low";
-        } else if (mos >= minMos && mos <= maxMos) {
+        } else if (mos != null && mos >= minMos && mos <= maxMos) {
             return "";
-        } else if (mos >maxMos) {
+        } else if (mos != null && mos > maxMos) {
             return "excess";
         } else {
             return "unkown";

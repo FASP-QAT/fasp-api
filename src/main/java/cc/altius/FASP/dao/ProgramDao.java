@@ -58,8 +58,10 @@ public interface ProgramDao {
     public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId);
 
     public void delinkShipment(int shipmentId, CustomUserDetails curUser);
-    
+
     public List<LoadProgram> getLoadProgram(CustomUserDetails curUser);
-    
+
     public LoadProgram getLoadProgram(int programId, int page, CustomUserDetails curUser);
+
+    public boolean validateProgramCode(int realmId, int programId, String programCode, CustomUserDetails curUser);
 }

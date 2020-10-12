@@ -62,8 +62,6 @@ import java.util.Map;
  */
 public interface ReportService {
 
-    public List<Map<String, Object>> getConsumptionData(int realmId, int productcategoryId, int planningUnitId, String StartDate, String endDate);
-
     // Report no 1
     public List<ProgramProductCatalogOutput> getProgramProductCatalog(ProgramProductCatalogInput ppc, CustomUserDetails curUser);
 

@@ -25,14 +25,26 @@ public class StockStatusOverTimeOutputRowMapper implements RowMapper<StockStatus
         s.setProgram(new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, i), rs.getString("PROGRAM_CODE")));
         s.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
         s.setStock(rs.getInt("FINAL_CLOSING_BALANCE"));
+        if(rs.wasNull()) {
+            s.setStock(null);
+        }
         s.setConsumptionQty(rs.getInt("CONSUMPTION_QTY"));
+        if(rs.wasNull()) {
+            s.setConsumptionQty(null);
+        }
         s.setActualConsumption(rs.getBoolean("ACTUAL"));
         if (rs.wasNull()) {
             s.setActualConsumption(null);
         }
         s.setAmc(rs.getDouble("AMC"));
+        if(rs.wasNull()) {
+            s.setAmc(null);
+        }
         s.setAmcMonthCount(rs.getInt("AMC_COUNT"));
         s.setMos(rs.getDouble("MoS"));
+        if(rs.wasNull()) {
+            s.setMos(null);
+        }
         return s;
     }
 

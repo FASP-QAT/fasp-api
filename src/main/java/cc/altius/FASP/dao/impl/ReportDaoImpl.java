@@ -116,38 +116,6 @@ public class ReportDaoImpl implements ReportDao {
     @Autowired
     private ProgramDao programDao;
 
-    @Override
-    public List<Map<String, Object>> getConsumptionData(int realmId, int programId, int planningUnitId, String startDate, String endDate) {
-        Map<String, Object> params = new HashMap<>();
-
-        String sql = "	SELECT "
-                + "		DATE_FORMAT(cons.`CONSUMPTION_DATE`,'%m-%Y') consumption_date,SUM(IF(cons.`ACTUAL_FLAG`=1,cons.`CONSUMPTION_QTY`,0)) Actual,SUM(IF(cons.`ACTUAL_FLAG`=0,cons.`CONSUMPTION_QTY`,0)) forcast	FROM  rm_consumption_trans cons "
-                + "	LEFT JOIN rm_consumption con  ON con.CONSUMPTION_ID=cons.CONSUMPTION_ID"
-                + "	LEFT JOIN rm_program p ON con.PROGRAM_ID=p.PROGRAM_ID"
-                + "	LEFT JOIN rm_realm_country rc ON rc.`REALM_COUNTRY_ID`=p.`REALM_COUNTRY_ID`"
-                + "	LEFT JOIN rm_region r ON cons.REGION_ID=r.REGION_ID"
-                + "	LEFT JOIN rm_planning_unit pu ON cons.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID"
-                + "	LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`"
-                + "	LEFT JOIN rm_data_source ds ON cons.DATA_SOURCE_ID=ds.DATA_SOURCE_ID"
-                + "	WHERE  1";
-        //+ "rc.`REALM_ID`=:realmId";
-        //params.put("realmId", realmId);
-        if (programId > 1) {
-            sql += "	AND con.`PROGRAM_ID`=:programId";
-            params.put("programId", programId);
-        }
-        // if (planningUnitId != 0) {
-        sql += "	AND pu.`PLANNING_UNIT_ID`=:planningUnitId";
-        params.put("planningUnitId", planningUnitId);
-        // }
-        sql += " And cons.`CONSUMPTION_DATE`between :startDate and :endDate	GROUP BY DATE_FORMAT(cons.`CONSUMPTION_DATE`,'%m-%Y') "
-                + "    ORDER BY DATE_FORMAT(cons.`CONSUMPTION_DATE`,'%Y-%m')";
-        params.put("startDate", startDate);
-        params.put("endDate", endDate);
-        params.put("planningUnitId", planningUnitId);
-        return this.namedParameterJdbcTemplate.queryForList(sql, params);
-    }
-
     // Report no 1
     @Override
     public List<ProgramProductCatalogOutput> getProgramProductCatalog(ProgramProductCatalogInput ppc, CustomUserDetails curUser) {

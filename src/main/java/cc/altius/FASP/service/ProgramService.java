@@ -65,4 +65,6 @@ public interface ProgramService {
     public List<LoadProgram> getLoadProgram(CustomUserDetails curUser);
     
     public LoadProgram getLoadProgram(int programId, int page, CustomUserDetails curUser);
+    
+    public boolean validateProgramCode(int realmId, int programId, String programCode, CustomUserDetails curUser);
 }

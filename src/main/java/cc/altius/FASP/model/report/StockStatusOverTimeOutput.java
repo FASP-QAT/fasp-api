@@ -18,12 +18,12 @@ public class StockStatusOverTimeOutput implements Serializable {
     private String dt;
     private SimpleCodeObject program;
     private SimpleObject planningUnit;
-    private int stock;
-    private int consumptionQty;
+    private Integer stock;
+    private Integer consumptionQty;
     private Boolean actualConsumption;
-    private double amc;
+    private Double amc;
     private int amcMonthCount;
-    private double mos;
+    private Double mos;
 
     public String getDt() {
         return dt;
@@ -49,29 +49,38 @@ public class StockStatusOverTimeOutput implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public int getStock() {
+    public Integer getStock() {
         return stock;
     }
 
-    public void setStock(int stock) {
+    public void setStock(Integer stock) {
         this.stock = stock;
     }
 
-    public int getConsumptionQty() {
+    public Integer getConsumptionQty() {
         return consumptionQty;
     }
 
-    public void setConsumptionQty(int consumptionQty) {
+    public void setConsumptionQty(Integer consumptionQty) {
         this.consumptionQty = consumptionQty;
     }
 
-    public double getAmc() {
+    public Double getAmc() {
         return amc;
     }
 
-    public void setAmc(double amc) {
+    public void setAmc(Double amc) {
         this.amc = amc;
     }
+
+    public Double getMos() {
+        return mos;
+    }
+
+    public void setMos(Double mos) {
+        this.mos = mos;
+    }
+
 
     public int getAmcMonthCount() {
         return amcMonthCount;
@@ -79,14 +88,6 @@ public class StockStatusOverTimeOutput implements Serializable {
 
     public void setAmcMonthCount(int amcMonthCount) {
         this.amcMonthCount = amcMonthCount;
-    }
-
-    public double getMos() {
-        return mos;
-    }
-
-    public void setMos(double mos) {
-        this.mos = mos;
     }
 
     // 0 - Forecasted

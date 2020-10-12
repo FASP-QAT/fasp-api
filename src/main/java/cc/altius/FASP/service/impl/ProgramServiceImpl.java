@@ -242,4 +242,12 @@ public class ProgramServiceImpl implements ProgramService {
         return this.programDao.getLoadProgram(programId, page, curUser);
     }
 
+    @Override
+    public boolean validateProgramCode(int realmId, int programId, String programCode, CustomUserDetails curUser) {
+        if (curUser.getRealm().getRealmId() != realmId) {
+            throw new AccessDeniedException("Access denied");
+        } 
+        return this.programDao.validateProgramCode(realmId, programId, programCode, curUser);
+    }
+
 }

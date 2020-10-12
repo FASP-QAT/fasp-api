@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentBatchInfo;
@@ -96,7 +97,9 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
                     new LabelRowMapper("SHIPMENT_CURRENCY_").mapRow(rs, 1),
                     rs.getDouble("SHIPMENT_CONVERSION_RATE_TO_USD")
             ));
-            s.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
+            s.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
+            s.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
+            s.setCreatedBy(new BasicUser(rs.getInt("CB_USER_ID"), rs.getString("CB_USERNAME")));
             s.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
             ShipmentBatchInfo sbi = new ShipmentBatchInfoRowMapper().mapRow(rs, 1);
             if (sbi != null && s.getBatchInfoList().indexOf(sbi) == -1) {

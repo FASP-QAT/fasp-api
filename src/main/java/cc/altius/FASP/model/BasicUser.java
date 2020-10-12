@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,7 +14,9 @@ import java.io.Serializable;
  */
 public class BasicUser implements Serializable {
 
+    @JsonView({Views.InternalView.class, Views.ArtmisView.class})
     private int userId;
+    @JsonView({Views.InternalView.class, Views.ArtmisView.class})
     private String username;
 
     public BasicUser(int userId, String username) {

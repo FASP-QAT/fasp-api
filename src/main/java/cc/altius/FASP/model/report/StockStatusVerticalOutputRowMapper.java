@@ -35,12 +35,33 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                     ssv.setActualConsumption(null);
                 }
                 ssv.setConsumptionQty(rs.getInt("CONSUMPTION_QTY"));
+                if (rs.wasNull()) {
+                    ssv.setConsumptionQty(null);
+                }
                 ssv.setShipmentQty(rs.getInt("SQTY"));
+                if (rs.wasNull()) {
+                    ssv.setShipmentQty(null);
+                }
                 ssv.setAdjustment(rs.getInt("ADJUSTMENT"));
+                if (rs.wasNull()) {
+                    ssv.setAdjustment(null);
+                }
                 ssv.setExpiredStock(rs.getInt("EXPIRED_STOCK"));
+                if (rs.wasNull()) {
+                    ssv.setExpiredStock(null);
+                }
                 ssv.setClosingBalance(rs.getInt("FINAL_CLOSING_BALANCE"));
+                if (rs.wasNull()) {
+                    ssv.setClosingBalance(null);
+                }
                 ssv.setAmc(rs.getDouble("AMC"));
+                if (rs.wasNull()) {
+                    ssv.setAmc(null);
+                }
                 ssv.setMos(rs.getDouble("MoS"));
+                if (rs.wasNull()) {
+                    ssv.setMos(null);
+                }
                 ssv.setMinMos(rs.getInt("MIN_MONTHS_OF_STOCK"));
                 ssv.setMaxMos(rs.getInt("MAX_MONTHS_OF_STOCK"));
                 ssvList.add(ssv);

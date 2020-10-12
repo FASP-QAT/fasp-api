@@ -5,16 +5,23 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 /**
  *
  * @author palash
  */
 public class Currency extends BaseModel {
     
+    @JsonView(Views.InternalView.class)
     private int currencyId;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String currencyCode;
+    @JsonView(Views.InternalView.class)
     private Label label;
+    @JsonView(Views.InternalView.class)
     private double conversionRateToUsd;
+    @JsonView(Views.InternalView.class)
     private boolean isSync;
 
     public Currency() {

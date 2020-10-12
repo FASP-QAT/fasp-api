@@ -642,4 +642,14 @@ public class ProgramDaoImpl implements ProgramDao {
         return programList;
     }
 
+    @Override
+    public boolean validateProgramCode(int realmId, int programId, String programCode, CustomUserDetails curUser) {
+        String sql = "SELECT COUNT(*) FROM rm_program p LEFT JOIN rm_realm_country rc  ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID WHERE rc.REALM_ID = :realmId AND p.PROGRAM_CODE = :programCode AND (:programId = 0 OR p.PROGRAM_ID != :programId)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        params.put("programId", programId);
+        params.put("programCode", programCode);
+        return (this.namedParameterJdbcTemplate.queryForObject(sql, params, Integer.class) == 0);
+    }
+
 }

@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateTimeDeserializer;
 import cc.altius.FASP.framework.JsonDateTimeSerializer;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -18,18 +19,26 @@ import java.util.Date;
  */
 public class Version implements Serializable {
 
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private int versionId;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private SimpleObject versionType;
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private SimpleObject versionStatus;
+    @JsonView(Views.InternalView.class)
     private String notes;
-    private transient BasicUser createdBy;
-    private transient BasicUser lastModifiedBy;
+    @JsonView(Views.InternalView.class)
+    private BasicUser createdBy;
+    @JsonView(Views.InternalView.class)
+    private BasicUser lastModifiedBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
-    private transient Date createdDate;
+    @JsonView(Views.InternalView.class)
+    private Date createdDate;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
-    private transient Date lastModifiedDate;
+    @JsonView(Views.InternalView.class)
+    private Date lastModifiedDate;
 
     public Version() {
     }

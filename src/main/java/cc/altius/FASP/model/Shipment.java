@@ -5,7 +5,11 @@
  */
 package cc.altius.FASP.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateTimeSerializer;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.LinkedList;
@@ -15,52 +19,88 @@ import java.util.List;
  *
  * @author akil
  */
-public class Shipment extends BaseModel implements Serializable {
+public class Shipment implements Serializable {
 
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private int shipmentId;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private Integer parentShipmentId;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private SimplePlanningUnitObject planningUnit;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String expectedDeliveryDate;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private int suggestedQty;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private SimpleProcurementAgentObject procurementAgent;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private SimpleBudgetObject budget;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private SimpleCodeObject fundingSource;
+    @JsonView(Views.InternalView.class)
     private SimpleObject procurementUnit;
+    @JsonView(Views.InternalView.class)
     private SimpleObject supplier;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private int shipmentQty;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private double rate;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private Currency currency;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private double productCost;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String shipmentMode;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private double freightCost;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String plannedDate;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String submittedDate;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String approvedDate;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String shippedDate;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String arrivedDate;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String receivedDate;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private SimpleObject shipmentStatus;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String notes;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private SimpleObject dataSource;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private boolean accountFlag;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private boolean erpFlag;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String orderNo;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private String primeLineNo;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private boolean emergencyOrder;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private boolean localProcurement;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private int versionId;
-    @JsonIgnore
-    private Date lastModifiedDate;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private List<ShipmentBatchInfo> batchInfoList;
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
     private boolean active;
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
+    @JsonView(Views.InternalView.class)
+    private BasicUser createdBy;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.InternalView.class)
+    private Date createdDate;
+    @JsonView(Views.InternalView.class)
+    private BasicUser lastModifiedBy;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.InternalView.class)
+    private Date lastModifiedDate;
 
     public Shipment() {
         this.batchInfoList = new LinkedList<>();
@@ -328,6 +368,38 @@ public class Shipment extends BaseModel implements Serializable {
 
     public void setBatchInfoList(List<ShipmentBatchInfo> batchInfoList) {
         this.batchInfoList = batchInfoList;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public BasicUser getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(BasicUser createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    public BasicUser getLastModifiedBy() {
+        return lastModifiedBy;
+    }
+
+    public void setLastModifiedBy(BasicUser lastModifiedBy) {
+        this.lastModifiedBy = lastModifiedBy;
     }
 
     public Date getLastModifiedDate() {
