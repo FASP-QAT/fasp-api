@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,9 +14,13 @@ import java.io.Serializable;
  */
 public class Problem extends BaseModel implements Serializable {
 
+    @JsonView(Views.InternalView.class)
     private int problemId;
+    @JsonView(Views.InternalView.class)
     private Label label;
+    @JsonView(Views.InternalView.class)
     private String actionUrl;
+    @JsonView(Views.InternalView.class)
     private Label actionLabel;
 
     public Problem() {

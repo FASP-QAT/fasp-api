@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,6 +14,7 @@ import java.io.Serializable;
  */
 public class Criticality extends SimpleObject implements Serializable {
 
+    @JsonView(Views.InternalView.class)
     private String colorHtmlCode;
 
     public Criticality() {
