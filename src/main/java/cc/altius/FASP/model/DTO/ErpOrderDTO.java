@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.DTO;
 
+import cc.altius.FASP.model.Label;
 import java.util.Date;
 
 /**
@@ -30,6 +31,7 @@ public class ErpOrderDTO {
     private String status;
     private String reason;
     private String recipentCountry;
+    private Label planningUnitLabel;
 
     public int getErpOrderId() {
         return erpOrderId;
@@ -165,6 +167,14 @@ public class ErpOrderDTO {
 
     public void setRecipentCountry(String recipentCountry) {
         this.recipentCountry = recipentCountry;
+    }
+
+    public Label getPlanningUnitLabel() {
+        return planningUnitLabel;
+    }
+
+    public void setPlanningUnitLabel(Label planningUnitLabel) {
+        this.planningUnitLabel = planningUnitLabel;
     }
 
     @Override
