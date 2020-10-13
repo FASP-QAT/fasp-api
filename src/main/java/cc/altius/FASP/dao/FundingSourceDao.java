@@ -20,11 +20,12 @@ public interface FundingSourceDao {
     public int updateFundingSource(FundingSource f, CustomUserDetails CurUser);
 
     public List<FundingSource> getFundingSourceList(CustomUserDetails curUser);
-    
+
     public List<FundingSource> getFundingSourceList(int realmId, CustomUserDetails curUser);
 
     public FundingSource getFundingSourceById(int fundingSourceId, CustomUserDetails curUser);
-    
+
     public List<FundingSource> getFundingSourceListForSync(String lastSyncDate, CustomUserDetails curUser);
 
+    public String getDisplayName(int realmId, String name, CustomUserDetails curUser);
 }
