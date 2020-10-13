@@ -1106,7 +1106,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "WHERE pv.`PROGRAM_ID`=? AND pv.`VERSION_ID`=? ";
         this.jdbcTemplate.update(programVersionTransSql, versionStatusId, notes, curUser.getUserId(), DateUtils.getCurrentDateObject(DateUtils.EST), programId, versionId);
         String problemReportUpdateSql = "UPDATE rm_problem_report pr set pr.REVIEWED=:reviewed, pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
-        String problemReportTransInsertSql = "INSERT INTO rm_problem_report_trans SELECT null, :problemReportId, rm.PROBLEM_STATUS_ID, :reviewed, :notes, :curUser, :curDate FROM rm_problem_report pr WHERE pr.PROBLEM_REPORT_ID=:problemReportId)";
+        String problemReportTransInsertSql = "INSERT INTO rm_problem_report_trans SELECT null, :problemReportId, pr.PROBLEM_STATUS_ID, :reviewed, :notes, :curUser, :curDate FROM rm_problem_report pr WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
         final List<SqlParameterSource> paramsList = new ArrayList<>();
         for (ReviewedProblem rp : reviewedProblemList) {
             Map<String, Object> updateParams = new HashMap<>();

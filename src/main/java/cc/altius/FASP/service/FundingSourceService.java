@@ -26,5 +26,6 @@ public interface FundingSourceService {
     public FundingSource getFundingSourceById(int fundingSourceId, CustomUserDetails curUser);
     
     public List<FundingSource> getFundingSourceListForSync(String lastSyncDate, CustomUserDetails curUser);
-
+    
+    public String getDisplayName(int realmId, String name, CustomUserDetails curUser);
 }

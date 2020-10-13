@@ -16,6 +16,7 @@ import cc.altius.FASP.model.rowMapper.ProcurementAgentPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentProcurementUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;
@@ -362,6 +363,18 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentProcurementUnitRowMapper());
     }
 
+    @Override
+    public String getDisplayName(int realmId, String name, CustomUserDetails curUser) {
+        String extractedName = SuggestedDisplayName.getAlphaNumericString(name, SuggestedDisplayName.PROCUREMENT_AGENT_LENGTH);
+        String sqlString = "SELECT COUNT(*) CNT FROM rm_procurement_agent pa WHERE pa.REALM_ID=:realmId AND UPPER(LEFT(pa.PROCUREMENT_AGENT_CODE,:len))=:extractedName";
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        params.put("len", extractedName.length());
+        params.put("extractedName", extractedName);
+        int cnt = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        return SuggestedDisplayName.getFinalDisplayName(extractedName, cnt);
+    }
+    
     @Override
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT papu.PROCUREMENT_AGENT_PLANNING_UNIT_ID, "
