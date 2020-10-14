@@ -80,6 +80,11 @@ public class FundingSourceServiceImpl implements FundingSourceService {
     }
 
     @Override
+    public String getDisplayName(int realmId, String name, CustomUserDetails curUser) {
+        return this.fundingSourceDao.getDisplayName(realmId, name, curUser);
+    }
+
+    @Override
     public List<FundingSource> getFundingSourceListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.fundingSourceDao.getFundingSourceListForSync(lastSyncDate, curUser);
     }

@@ -128,6 +128,18 @@ public class OrganisationRestController {
         }
     }
 
+    @GetMapping("/organisation/getDisplayName/realmId/{realmId}/name/{name}")
+    public ResponseEntity getOrganisationDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.organisationService.getDisplayName(realmId, name, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get Funding source suggested display name", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    
     @GetMapping(value = "/sync/organisation/{lastSyncDate}")
     public ResponseEntity getOrganisatiionListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
