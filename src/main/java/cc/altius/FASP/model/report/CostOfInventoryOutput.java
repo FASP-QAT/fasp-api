@@ -18,6 +18,7 @@ public class CostOfInventoryOutput implements Serializable {
     private double cost;
     private int stock;
     private double catalogPrice;
+    private boolean calculated;
 
     public SimpleObject getPlanningUnit() {
         return planningUnit;
@@ -49,6 +50,14 @@ public class CostOfInventoryOutput implements Serializable {
 
     public void setCatalogPrice(double catalogPrice) {
         this.catalogPrice = catalogPrice;
+    }
+
+    public boolean isCalculated() {
+        return calculated;
+    }
+
+    public void setCalculated(boolean calculated) {
+        this.calculated = calculated;
     }
 
 }

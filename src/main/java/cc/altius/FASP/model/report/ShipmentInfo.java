@@ -18,15 +18,17 @@ public class ShipmentInfo implements Serializable {
     private int shipmentId;
     private int shipmentQty;
     private SimpleCodeObject fundingSource;
+    private SimpleCodeObject procurementAgent;
     private SimpleObject shipmentStatus;
 
     public ShipmentInfo() {
     }
 
-    public ShipmentInfo(int shipmentId, int shipmentQty, SimpleCodeObject fundingSource, SimpleObject shipmentStatus) {
+    public ShipmentInfo(int shipmentId, int shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus) {
         this.shipmentId = shipmentId;
         this.shipmentQty = shipmentQty;
         this.fundingSource = fundingSource;
+        this.procurementAgent = procurementAgent;
         this.shipmentStatus = shipmentStatus;
     }
 
@@ -60,6 +62,14 @@ public class ShipmentInfo implements Serializable {
 
     public void setShipmentStatus(SimpleObject shipmentStatus) {
         this.shipmentStatus = shipmentStatus;
+    }
+
+    public SimpleCodeObject getProcurementAgent() {
+        return procurementAgent;
+    }
+
+    public void setProcurementAgent(SimpleCodeObject procurementAgent) {
+        this.procurementAgent = procurementAgent;
     }
 
     @Override
