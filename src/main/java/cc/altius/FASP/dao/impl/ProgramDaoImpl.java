@@ -505,6 +505,9 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programId", programId);
         params.put("planningUnitId", planningUnitId);
         List<ManualTaggingDTO> list = this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
+        System.out.println("list---" + list);
+        System.out.println("program Id---" + programId);
+        System.out.println("planningUnitId---" + planningUnitId);
         return list;
     }
 
@@ -514,20 +517,27 @@ public class ProgramDaoImpl implements ProgramDao {
         System.out.println("planningUnitId---" + planningUnitId);
         System.out.println("orderNo---" + orderNo);
         System.out.println("primeLineNo---" + primeLineNo);
-        String sql = "SELECT  IF(c1.REALM_COUNTRY_ID=p.`REALM_COUNTRY_ID`,IF(sm.`SHIPMENT_STATUS_ID`!=7,IF(pu.`PROCUREMENT_AGENT_PLANNING_UNIT_ID` IS NOT NULL,\"\",\"Planning unit not matching\"),\"Shipment already delivered\"),\"Recipient country not matching\") AS REASON "
-                + " FROM rm_erp_order o "
-                + " LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE "
-                + " FROM rm_realm_country rc "
-                + " LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=o.RECPIENT_COUNTRY "
-                + " LEFT JOIN rm_program p ON p.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND p.`PROGRAM_ID`=? "
-                + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=o.`STATUS` "
-                + " LEFT JOIN rm_procurement_agent_planning_unit pu ON pu.`SKU_CODE`=o.`PLANNING_UNIT_SKU_CODE` AND pu.`PROCUREMENT_AGENT_ID`=1 AND pu.`PLANNING_UNIT_ID`=? "
-                + " WHERE o.ORDER_NO=? AND o.PRIME_LINE_NO=? "
-                + " GROUP BY o.`ERP_ORDER_ID`;";
-        String reason = this.jdbcTemplate.queryForObject(sql, String.class, programId, planningUnitId, orderNo, primeLineNo);
+        String reason = "";
+        String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=?;";
+        int count = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
+        if (count > 0) {
+            reason = "Order no. and prime line no. already tagged.";
+        } else {
+            sql = "SELECT  IF(o.`PROGRAM_ID`=?,IF(sm.`SHIPMENT_STATUS_ID`!=7,IF(pu.`PROCUREMENT_AGENT_PLANNING_UNIT_ID` IS NOT NULL,\"\",\"Planning unit not matching\"),\"Shipment already delivered\"),\"Program does not match\") AS REASON "
+                    + " FROM rm_erp_order o "
+                    + " LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE "
+                    + " FROM rm_realm_country rc "
+                    + " LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                    + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=o.RECPIENT_COUNTRY "
+                    + " LEFT JOIN rm_program p ON p.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND p.`PROGRAM_ID`=? "
+                    + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=o.`STATUS` "
+                    + " LEFT JOIN rm_procurement_agent_planning_unit pu ON LEFT(pu.`SKU_CODE`,12)=o.`PLANNING_UNIT_SKU_CODE` AND pu.`PROCUREMENT_AGENT_ID`=1 AND pu.`PLANNING_UNIT_ID`=? "
+                    + " WHERE o.ORDER_NO=? AND o.PRIME_LINE_NO=? "
+                    + " GROUP BY o.`ERP_ORDER_ID`;";
+            reason = this.jdbcTemplate.queryForObject(sql, String.class, programId, programId, planningUnitId, orderNo, primeLineNo);
+        }
         sql = "SELECT e.*,l.`LABEL_ID`,IF(l.`LABEL_EN` IS NOT NULL,l.`LABEL_EN`,'') AS LABEL_EN,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP` FROM rm_erp_order e "
-                + " LEFT JOIN rm_procurement_agent_planning_unit pu ON pu.`SKU_CODE`=e.`PLANNING_UNIT_SKU_CODE` "
+                + " LEFT JOIN rm_procurement_agent_planning_unit pu ON LEFT(pu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
                 + " AND pu.`PROCUREMENT_AGENT_ID`=1 "
                 + " LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
                 + " LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
@@ -543,8 +553,6 @@ public class ProgramDaoImpl implements ProgramDao {
         String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=?;";
         int count = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
         if (count == 0) {
-//            sql = "DELETE FROM rm_manual_tagging WHERE ORDER_NO=? AND PRIME_LINE_NO=?;";
-//            this.jdbcTemplate.update(sql, orderNo, primeLineNo);
             sql = "INSERT INTO rm_manual_tagging VALUES (NULL,?,?,?,?,?,?,?,1);";
             return this.jdbcTemplate.update(sql, orderNo, primeLineNo, shipmentId, curDate, curUser.getUserId(), curDate, curUser.getUserId());
         } else {
