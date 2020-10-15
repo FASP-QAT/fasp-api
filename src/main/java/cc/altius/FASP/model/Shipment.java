@@ -6,6 +6,7 @@
 package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateTimeDeserializer;
 import cc.altius.FASP.framework.JsonDateTimeSerializer;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -91,13 +92,13 @@ public class Shipment implements Serializable {
     private boolean active;
     @JsonView(Views.InternalView.class)
     private BasicUser createdBy;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     @JsonView(Views.InternalView.class)
     private Date createdDate;
     @JsonView(Views.InternalView.class)
     private BasicUser lastModifiedBy;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     @JsonView(Views.InternalView.class)
     private Date lastModifiedDate;

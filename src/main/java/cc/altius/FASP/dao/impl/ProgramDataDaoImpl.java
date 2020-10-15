@@ -163,9 +163,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `NOTES` TEXT NULL, "
                 + "  `CREATED_BY` INT UNSIGNED NOT NULL, "
-                + "  `CREATED_DATE` DATE NOT NULL, "
+                + "  `CREATED_DATE` DATETIME NOT NULL, "
                 + "  `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL, "
-                + "  `LAST_MODIFIED_DATE` DATE NOT NULL, "
+                + "  `LAST_MODIFIED_DATE` DATETIME NOT NULL, "
                 + "  `ACTIVE` TINYINT UNSIGNED NOT NULL DEFAULT 1, "
                 + "  `VERSION_ID` INT(10) NULL, "
                 + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
@@ -336,7 +336,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.clear();
             params.put("versionId", version.getVersionId());
             // Update the rm_consumption table with the latest versionId
-            sqlString = "UPDATE tmp_consumption tc LEFT JOIN rm_consumption c ON c.CONSUMPTION_ID=tc.CONSUMPTION_ID SET c.MAX_VERSION_ID=:versionId WHERE tc.CONSUMPTION_ID IS NOT NULL AND tc.CHANGED=1";
+            sqlString = "UPDATE tmp_consumption tc LEFT JOIN rm_consumption c ON c.CONSUMPTION_ID=tc.CONSUMPTION_ID SET c.MAX_VERSION_ID=:versionId, c.LAST_MODIFIED_BY=tc.LAST_MODIFIED_BY, c.LAST_MODIFIED_DATE=tc.LAST_MODIFIED_DATE WHERE tc.CONSUMPTION_ID IS NOT NULL AND tc.CHANGED=1";
             try {
                 this.namedParameterJdbcTemplate.update(sqlString, params);
                 logger.info("Updated the Version no in the consumption table");
@@ -401,7 +401,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //        sqlString = "DROP TABLE IF EXISTS `tmp_inventory`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_inventory` ( "
-                //        sqlString = "CREATE TABLE `tmp_inventory` ( "
+//                        sqlString = "CREATE TABLE `tmp_inventory` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `INVENTORY_ID` INT UNSIGNED NULL, "
                 + "  `INVENTORY_DATE` DATE NOT NULL, "
@@ -412,9 +412,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `NOTES` TEXT NULL, "
                 + "  `CREATED_BY` INT UNSIGNED NOT NULL, "
-                + "  `CREATED_DATE` DATE NOT NULL, "
+                + "  `CREATED_DATE` DATETIME NOT NULL, "
                 + "  `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL, "
-                + "  `LAST_MODIFIED_DATE` DATE NOT NULL, "
+                + "  `LAST_MODIFIED_DATE` DATETIME NOT NULL, "
                 + "  `ACTIVE` TINYINT UNSIGNED NOT NULL DEFAULT 1, "
                 + "  `VERSION_ID` INT(10) NULL, "
                 + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
@@ -429,7 +429,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //        sqlString = "DROP TABLE IF EXISTS `tmp_inventory_batch_info`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_inventory_batch_info` ( "
-                //        sqlString = "CREATE TABLE `tmp_inventory_batch_info` ( "
+//                        sqlString = "CREATE TABLE `tmp_inventory_batch_info` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `PARENT_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `INVENTORY_TRANS_BATCH_INFO_ID` INT(10) UNSIGNED NULL, "
@@ -463,6 +463,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("LAST_MODIFIED_BY", i.getLastModifiedBy().getUserId());
             tp.put("LAST_MODIFIED_DATE", i.getLastModifiedDate());
             tp.put("ACTIVE", i.isActive());
+            tp.put("VERSION_ID", i.getVersionId());
             insertList.add(new MapSqlParameterSource(tp));
             SimpleJdbcInsert batchInsert = new SimpleJdbcInsert(dataSource).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
             for (InventoryBatchInfo b : i.getBatchInfoList()) {
@@ -497,7 +498,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         logger.info(id + " inventory records going to be inserted into the tmp table");
 
         SqlParameterSource[] insertInventory = new SqlParameterSource[insertList.size()];
-        sqlString = " INSERT INTO tmp_inventory (ID, INVENTORY_ID, REGION_ID, REALM_COUNTRY_PLANNING_UNIT_ID, INVENTORY_DATE, ACTUAL_QTY, ADJUSTMENT_QTY, DATA_SOURCE_ID, NOTES, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, ACTIVE) VALUES (:ID, :INVENTORY_ID, :REGION_ID, :REALM_COUNTRY_PLANNING_UNIT_ID, :INVENTORY_DATE, :ACTUAL_QTY, :ADJUSTMENT_QTY, :DATA_SOURCE_ID, :NOTES, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE)";
+        sqlString = " INSERT INTO tmp_inventory (ID, INVENTORY_ID, REGION_ID, REALM_COUNTRY_PLANNING_UNIT_ID, INVENTORY_DATE, ACTUAL_QTY, ADJUSTMENT_QTY, DATA_SOURCE_ID, NOTES, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, ACTIVE, VERSION_ID) VALUES (:ID, :INVENTORY_ID, :REGION_ID, :REALM_COUNTRY_PLANNING_UNIT_ID, :INVENTORY_DATE, :ACTUAL_QTY, :ADJUSTMENT_QTY, :DATA_SOURCE_ID, :NOTES, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE, :VERSION_ID)";
         try {
             int iCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertInventory)).length;
             logger.info(iCnt + " records imported into the tmp table");
@@ -580,7 +581,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.clear();
             params.put("versionId", version.getVersionId());
             // Update the rm_inventory table with the latest versionId
-            sqlString = "UPDATE tmp_inventory ti LEFT JOIN rm_inventory i ON i.INVENTORY_ID=ti.INVENTORY_ID SET i.MAX_VERSION_ID=:versionId WHERE ti.INVENTORY_ID IS NOT NULL AND ti.CHANGED=1";
+            sqlString = "UPDATE tmp_inventory ti LEFT JOIN rm_inventory i ON i.INVENTORY_ID=ti.INVENTORY_ID SET i.MAX_VERSION_ID=:versionId, i.LAST_MODIFIED_BY=ti.LAST_MODIFIED_BY, i.LAST_MODIFIED_DATE=ti.LAST_MODIFIED_DATE WHERE ti.INVENTORY_ID IS NOT NULL AND ti.CHANGED=1";
             try {
                 this.namedParameterJdbcTemplate.update(sqlString, params);
                 logger.info("Updated the Version no in the inventory table");
@@ -681,9 +682,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `ORDER_NO` VARCHAR(15) NULL, "
                 + "  `PRIME_LINE_NO` VARCHAR(10) NULL, "
                 + "  `CREATED_BY` INT UNSIGNED NOT NULL, "
-                + "  `CREATED_DATE` DATE NOT NULL, "
+                + "  `CREATED_DATE` DATETIME NOT NULL, "
                 + "  `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL, "
-                + "  `LAST_MODIFIED_DATE` DATE NOT NULL, "
+                + "  `LAST_MODIFIED_DATE` DATETIME NOT NULL, "
                 + "  `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1, "
                 + "  `VERSION_ID` INT(10) NULL, "
                 + "  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, "
@@ -762,6 +763,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("LAST_MODIFIED_BY", s.getLastModifiedBy().getUserId());
             tp.put("LAST_MODIFIED_DATE", s.getLastModifiedDate());
             tp.put("ACTIVE", s.isActive());
+            tp.put("VERSION_ID", s. getVersionId());
             insertList.add(new MapSqlParameterSource(tp));
             SimpleJdbcInsert batchInsert = new SimpleJdbcInsert(dataSource).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
             for (ShipmentBatchInfo b : s.getBatchInfoList()) {
@@ -795,7 +797,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         logger.info(id + " shipment records going to be inserted into the tmp table");
 
         SqlParameterSource[] insertShipment = new SqlParameterSource[insertList.size()];
-        sqlString = " INSERT INTO tmp_shipment (`ID`, `SHIPMENT_ID`, `PARENT_SHIPMENT_ID`, `SUGGESTED_QTY`, `PROCUREMENT_AGENT_ID`, `ACCOUNT_FLAG`, `ERP_FLAG`, `CURRENCY_ID`, `CONVERSION_RATE_TO_USD`, `EMERGENCY_ORDER`, `PLANNING_UNIT_ID`, `EXPECTED_DELIVERY_DATE`, `PROCUREMENT_UNIT_ID`, `SUPPLIER_ID`, `SHIPMENT_QTY`, `RATE`, `PRODUCT_COST`, `SHIPMENT_MODE`, `FREIGHT_COST`, `PLANNED_DATE`, `SUBMITTED_DATE`, `APPROVED_DATE`, `SHIPPED_DATE`, `ARRIVED_DATE`, `RECEIVED_DATE`, `SHIPMENT_STATUS_ID`, `DATA_SOURCE_ID`, `NOTES`, `ORDER_NO`, `PRIME_LINE_NO`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`, `FUNDING_SOURCE_ID`, `BUDGET_ID`,LOCAL_PROCUREMENT) VALUES (:ID, :SHIPMENT_ID, :PARENT_SHIPMENT_ID, :SUGGESTED_QTY, :PROCUREMENT_AGENT_ID, :ACCOUNT_FLAG, :ERP_FLAG, :CURRENCY_ID, :CONVERSION_RATE_TO_USD, :EMERGENCY_ORDER, :PLANNING_UNIT_ID, :EXPECTED_DELIVERY_DATE, :PROCUREMENT_UNIT_ID, :SUPPLIER_ID, :SHIPMENT_QTY, :RATE, :PRODUCT_COST, :SHIPMENT_MODE, :FREIGHT_COST, :PLANNED_DATE, :SUBMITTED_DATE, :APPROVED_DATE, :SHIPPED_DATE, :ARRIVED_DATE, :RECEIVED_DATE, :SHIPMENT_STATUS_ID, :DATA_SOURCE_ID, :NOTES, :ORDER_NO, :PRIME_LINE_NO, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE, :FUNDING_SOURCE_ID, :BUDGET_ID ,:LOCAL_PROCUREMENT)";
+        sqlString = " INSERT INTO tmp_shipment (`ID`, `SHIPMENT_ID`, `PARENT_SHIPMENT_ID`, `SUGGESTED_QTY`, `PROCUREMENT_AGENT_ID`, `ACCOUNT_FLAG`, `ERP_FLAG`, `CURRENCY_ID`, `CONVERSION_RATE_TO_USD`, `EMERGENCY_ORDER`, `PLANNING_UNIT_ID`, `EXPECTED_DELIVERY_DATE`, `PROCUREMENT_UNIT_ID`, `SUPPLIER_ID`, `SHIPMENT_QTY`, `RATE`, `PRODUCT_COST`, `SHIPMENT_MODE`, `FREIGHT_COST`, `PLANNED_DATE`, `SUBMITTED_DATE`, `APPROVED_DATE`, `SHIPPED_DATE`, `ARRIVED_DATE`, `RECEIVED_DATE`, `SHIPMENT_STATUS_ID`, `DATA_SOURCE_ID`, `NOTES`, `ORDER_NO`, `PRIME_LINE_NO`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`, `FUNDING_SOURCE_ID`, `BUDGET_ID`,LOCAL_PROCUREMENT, VERSION_ID) VALUES (:ID, :SHIPMENT_ID, :PARENT_SHIPMENT_ID, :SUGGESTED_QTY, :PROCUREMENT_AGENT_ID, :ACCOUNT_FLAG, :ERP_FLAG, :CURRENCY_ID, :CONVERSION_RATE_TO_USD, :EMERGENCY_ORDER, :PLANNING_UNIT_ID, :EXPECTED_DELIVERY_DATE, :PROCUREMENT_UNIT_ID, :SUPPLIER_ID, :SHIPMENT_QTY, :RATE, :PRODUCT_COST, :SHIPMENT_MODE, :FREIGHT_COST, :PLANNED_DATE, :SUBMITTED_DATE, :APPROVED_DATE, :SHIPPED_DATE, :ARRIVED_DATE, :RECEIVED_DATE, :SHIPMENT_STATUS_ID, :DATA_SOURCE_ID, :NOTES, :ORDER_NO, :PRIME_LINE_NO, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE, :FUNDING_SOURCE_ID, :BUDGET_ID ,:LOCAL_PROCUREMENT, :VERSION_ID)";
         try {
             int sCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertShipment)).length;
             logger.info(sCnt + " records imported into the tmp table");
@@ -864,7 +866,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             }
             params.put("versionId", version.getVersionId());
             // Insert the rows where Shipment Id is not null
-            sqlString = "INSERT INTO rm_shipment_trans (SHIPMENT_ID, PLANNING_UNIT_ID, EXPECTED_DELIVERY_DATE, PROCUREMENT_UNIT_ID, SUPPLIER_ID, SHIPMENT_QTY, RATE, PRODUCT_COST, SHIPMENT_MODE, FREIGHT_COST, PLANNED_DATE, SUBMITTED_DATE, APPROVED_DATE, SHIPPED_DATE, ARRIVED_DATE, RECEIVED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, NOTES, ORDER_NO, PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID, PROCUREMENT_AGENT_ID, FUNDING_SOURCE_ID, BUDGET_ID, ACCOUNT_FLAG, ERP_FLAG, EMERGENCY_ORDER, LOCAL_PROCUREMENT) SELECT ts.SHIPMENT_ID, ts.PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, IF(ts.PROCUREMENT_UNIT_ID=0,null,ts.PROCUREMENT_UNIT_ID), IF(ts.SUPPLIER_ID=0,null,ts.SUPPLIER_ID), ts.SHIPMENT_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, ts.PLANNED_DATE, ts.SUBMITTED_DATE, ts.APPROVED_DATE, ts.SHIPPED_DATE, ts.ARRIVED_DATE, ts.RECEIVED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, ts.NOTES, ts.ORDER_NO, ts.PRIME_LINE_NO, ts.ACTIVE, ts.LAST_MODIFIED_BY, ts.LAST_MODIFIED_DATE, :versionId, s.PROCUREMENT_AGENT_ID, ts.FUNDING_SOURCE_ID, ts.BUDGET_ID, ts.ACCOUNT_FLAG, ts.ERP_FLAG, ts.EMERGENCY_ORDER, ts.LOCAL_PROCUREMENT"
+            sqlString = "INSERT INTO rm_shipment_trans (SHIPMENT_ID, PLANNING_UNIT_ID, EXPECTED_DELIVERY_DATE, PROCUREMENT_UNIT_ID, SUPPLIER_ID, SHIPMENT_QTY, RATE, PRODUCT_COST, SHIPMENT_MODE, FREIGHT_COST, PLANNED_DATE, SUBMITTED_DATE, APPROVED_DATE, SHIPPED_DATE, ARRIVED_DATE, RECEIVED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, NOTES, ORDER_NO, PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID, PROCUREMENT_AGENT_ID, FUNDING_SOURCE_ID, BUDGET_ID, ACCOUNT_FLAG, ERP_FLAG, EMERGENCY_ORDER, LOCAL_PROCUREMENT) SELECT ts.SHIPMENT_ID, ts.PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, IF(ts.PROCUREMENT_UNIT_ID=0,null,ts.PROCUREMENT_UNIT_ID), IF(ts.SUPPLIER_ID=0,null,ts.SUPPLIER_ID), ts.SHIPMENT_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, ts.PLANNED_DATE, ts.SUBMITTED_DATE, ts.APPROVED_DATE, ts.SHIPPED_DATE, ts.ARRIVED_DATE, ts.RECEIVED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, ts.NOTES, ts.ORDER_NO, ts.PRIME_LINE_NO, ts.ACTIVE, ts.LAST_MODIFIED_BY, ts.LAST_MODIFIED_DATE, :versionId, ts.PROCUREMENT_AGENT_ID, ts.FUNDING_SOURCE_ID, ts.BUDGET_ID, ts.ACCOUNT_FLAG, ts.ERP_FLAG, ts.EMERGENCY_ORDER, ts.LOCAL_PROCUREMENT"
                     + " FROM tmp_shipment ts "
                     + "WHERE ts.CHANGED=1 AND ts.SHIPMENT_ID IS NOT NULL";
             try {
@@ -877,7 +879,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.clear();
             params.put("versionId", version.getVersionId());
             // Update the rm_shipment table with the latest versionId
-            sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID SET s.SUGGESTED_QTY=ts.SUGGESTED_QTY, s.CURRENCY_ID=ts.CURRENCY_ID, s.CONVERSION_RATE_TO_USD=ts.CONVERSION_RATE_TO_USD, s.MAX_VERSION_ID=:versionId WHERE ts.SHIPMENT_ID IS NOT NULL AND ts.CHANGED=1";
+            sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID SET s.SUGGESTED_QTY=ts.SUGGESTED_QTY, s.CURRENCY_ID=ts.CURRENCY_ID, s.CONVERSION_RATE_TO_USD=ts.CONVERSION_RATE_TO_USD, s.MAX_VERSION_ID=:versionId, s.LAST_MODIFIED_BY=ts.LAST_MODIFIED_BY, s.LAST_MODIFIED_DATE=ts.LAST_MODIFIED_DATE WHERE ts.SHIPMENT_ID IS NOT NULL AND ts.CHANGED=1";
             try {
                 this.namedParameterJdbcTemplate.update(sqlString, params);
                 logger.info("Updated the Version no in the shipment table");
