@@ -10,13 +10,11 @@ import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.ARTMIS.service.ImportArtemisDataService;
-import cc.altius.FASP.model.Shipment;
 import cc.altius.utils.DateUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +37,8 @@ public class ImportArtemisDataServiceImpl implements ImportArtemisDataService {
     @Autowired
     private EmailService emailService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Value("${qat.filePath}")
+    private String QAT_FILE_PATH;
     @Value("${catalogFilePath}")
     private String CATALOG_FILE_PATH;
     @Value("${email.toList}")
@@ -55,7 +55,7 @@ public class ImportArtemisDataServiceImpl implements ImportArtemisDataService {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
         String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         try {
-            File directory = new File(CATALOG_FILE_PATH);
+            File directory = new File(QAT_FILE_PATH+CATALOG_FILE_PATH);
             if (directory.isDirectory()) {
                 this.importArtemisDataDao.importOrderAndShipmentData(orderDataFilePath, shipmentDataFilePath);
             } else {

@@ -60,6 +60,8 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
+    @Value("${qat.filePath}")
+    private String QAT_FILE_PATH;
     @Value("${catalogFilePath}")
     private String CATALOG_FILE_PATH;
     @Value("${catalogBkpFilePath}")
@@ -307,7 +309,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
         String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         String filepath, fileList = "", fileList1 = "";
 
-        File dir = new File(CATALOG_FILE_PATH);
+        File dir = new File(QAT_FILE_PATH+CATALOG_FILE_PATH);
         FileFilter fileFilter = new WildcardFileFilter("order_data_*.xml");
         File[] files = dir.listFiles(fileFilter);
 //        logger.info("Going to start product catalogue import");
@@ -755,10 +757,10 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 
                 }
                 logger.info("Order/Shipment file imported successfully");
-                File directory = new File(BKP_CATALOG_FILE_PATH);
+                File directory = new File(QAT_FILE_PATH+BKP_CATALOG_FILE_PATH);
                 if (directory.isDirectory()) {
-                    fXmlFile.renameTo(new File(BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
-                    fXmlFile1.renameTo(new File(BKP_CATALOG_FILE_PATH + fXmlFile1.getName()));
+                    fXmlFile.renameTo(new File(QAT_FILE_PATH+BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
+                    fXmlFile1.renameTo(new File(QAT_FILE_PATH+BKP_CATALOG_FILE_PATH + fXmlFile1.getName()));
                     logger.info("Order/Shipment files moved into processed folder");
                 } else {
                     subjectParam = new String[]{"Order/Shipment", "Backup directory does not exists"};

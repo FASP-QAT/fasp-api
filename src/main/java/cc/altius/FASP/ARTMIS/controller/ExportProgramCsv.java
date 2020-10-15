@@ -41,6 +41,8 @@ public class ExportProgramCsv {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private EmailService emailService;
+    @Value("${qat.filePath}")
+    private String QAT_FILE_PATH;
     @Value("${exportSupplyPlanFilePath}")
     private String EXPORT_SUPPLY_PLAN_FILE_PATH;
 
@@ -60,14 +62,14 @@ public class ExportProgramCsv {
             List<ExportProgramDataDTO> exportProgramData = this.exportArtmisDataService.exportProgramData();
             System.out.println("exportProgramData---" + exportProgramData);
 
-            File directory = new File(EXPORT_SUPPLY_PLAN_FILE_PATH);
+            File directory = new File(QAT_FILE_PATH+EXPORT_SUPPLY_PLAN_FILE_PATH);
 
             if (directory.isDirectory()) {
                 Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
                 Type typeList = new TypeToken<List<ExportProgramDataDTO>>() {
                 }.getType();
                 json = gson.toJson(exportProgramData, typeList);
-                path = EXPORT_SUPPLY_PLAN_FILE_PATH + "QAT_Programs_" + curDate + ".csv";
+                path = QAT_FILE_PATH+EXPORT_SUPPLY_PLAN_FILE_PATH + "QAT_Programs_" + curDate + ".csv";
                 FileWriter fileWriter = new FileWriter(path);
                 fileWriter.write(json);
                 fileWriter.flush();
