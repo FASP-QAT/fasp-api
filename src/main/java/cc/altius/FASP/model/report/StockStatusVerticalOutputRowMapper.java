@@ -74,6 +74,7 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                         rs.getInt("SHIPMENT_ID"),
                         rs.getInt("SHIPMENT_QTY"),
                         new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, index), rs.getString("FUNDING_SOURCE_CODE")),
+                        new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, index), rs.getString("PROCUREMENT_AGENT_CODE")),
                         new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, index))
                 );
                 ssv.getShipmentInfo().add(si);

@@ -81,6 +81,11 @@ public class OrganisationServiceImpl implements OrganisationService {
     }
 
     @Override
+    public String getDisplayName(int realmId, String name, CustomUserDetails curUser) {
+        return this.organisationDao.getDisplayName(realmId, name, curUser);
+    }
+
+    @Override
     public List<Organisation> getOrganisationListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.organisationDao.getOrganisationListForSync(lastSyncDate, curUser);
     }

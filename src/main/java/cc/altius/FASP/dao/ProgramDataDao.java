@@ -45,12 +45,12 @@ public interface ProgramDataDao {
 
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser);
 
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId,String notes, CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList);
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList);
 
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId);
 
     public SupplyPlan getSupplyPlan(int programId, int versionId);
-    
+
     public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException;
 
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp);
@@ -58,11 +58,11 @@ public interface ProgramDataDao {
     public List<ProgramVersion> getProgramVersionForARTMIS(int realmId);
 
     public int updateSentToARTMISFlag(String programVersionIds);
-    
+
     public List<Shipment> getShipmentListForSync(int programId, int versionId, String lastSyncDate);
-    
+
     public List<Batch> getBatchListForSync(int programId, int versionId, String lastSyncDate);
-    
+
     public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId);
 
 }

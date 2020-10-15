@@ -103,6 +103,11 @@ public class HealthAreaServiceImpl implements HealthAreaService {
     }
 
     @Override
+    public String getDisplayName(int realmId, String name, CustomUserDetails curUser) {
+        return this.healthAreaDao.getDisplayName(realmId, name, curUser);
+    }
+
+    @Override
     public List<HealthArea> getHealthAreaListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.healthAreaDao.getHealthAreaListForSync(lastSyncDate, curUser);
     }
