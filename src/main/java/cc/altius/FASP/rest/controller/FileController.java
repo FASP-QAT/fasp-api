@@ -35,7 +35,7 @@ public class FileController {
     @Value("${qat.userGuideFileName}")
     private String QAT_USER_GUIDE;
 
-    @GetMapping("/api/file/{fileName}")
+    @GetMapping("/file/{fileName}")
     public byte[] getFile(@PathVariable("fileName") String fileName, HttpServletResponse response, Authentication auth) throws FileNotFoundException, IOException {
         FileInputStream fin = null;
         switch (fileName) {
