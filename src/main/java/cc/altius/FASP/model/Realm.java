@@ -21,8 +21,11 @@ public class Realm extends BaseModel implements Serializable {
     @JsonView(Views.InternalView.class)
     private String realmCode;
     private boolean defaultRealm;
+    @JsonView(Views.InternalView.class)
     private int minMosMinGaurdrail;
+    @JsonView(Views.InternalView.class)
     private int minMosMaxGaurdrail;
+    @JsonView(Views.InternalView.class)
     private int maxMosMaxGaurdrail;
     private boolean active;
 
