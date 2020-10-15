@@ -10,13 +10,11 @@ import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.ARTMIS.service.ImportArtemisDataService;
-import cc.altius.FASP.model.Shipment;
 import cc.altius.utils.DateUtils;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,8 +37,14 @@ public class ImportArtemisDataServiceImpl implements ImportArtemisDataService {
     @Autowired
     private EmailService emailService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Value("${qat.filePath}")
+    private String QAT_FILE_PATH;
     @Value("${catalogFilePath}")
     private String CATALOG_FILE_PATH;
+    @Value("${email.toList}")
+    private String toList;
+    @Value("${email.ccList}")
+    private String ccList;
 
     @Override
     public void importOrderAndShipmentData(String orderDataFilePath, String shipmentDataFilePath) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException {
@@ -51,13 +55,13 @@ public class ImportArtemisDataServiceImpl implements ImportArtemisDataService {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
         String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         try {
-            File directory = new File(CATALOG_FILE_PATH);
+            File directory = new File(QAT_FILE_PATH+CATALOG_FILE_PATH);
             if (directory.isDirectory()) {
                 this.importArtemisDataDao.importOrderAndShipmentData(orderDataFilePath, shipmentDataFilePath);
             } else {
                 subjectParam = new String[]{"Order/Shipment", "Directory does not exists"};
                 bodyParam = new String[]{"Order/Shipment", date, "Directory does not exists", "Directory does not exists"};
-                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
                 this.emailService.sendMail(emailer);
@@ -66,7 +70,7 @@ public class ImportArtemisDataServiceImpl implements ImportArtemisDataService {
         } catch (FileNotFoundException e) {
             subjectParam = new String[]{"Order/Shipment", "File not found"};
             bodyParam = new String[]{"Order/Shipment", date, "File not found", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -75,7 +79,7 @@ public class ImportArtemisDataServiceImpl implements ImportArtemisDataService {
         } catch (SAXException e) {
             subjectParam = new String[]{"Order/Shipment", "Xml syntax error"};
             bodyParam = new String[]{"Order/Shipment", date, "Xml syntax error", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -84,7 +88,7 @@ public class ImportArtemisDataServiceImpl implements ImportArtemisDataService {
         } catch (IOException e) {
             subjectParam = new String[]{"Order/Shipment", "Input/Output error"};
             bodyParam = new String[]{"Order/Shipment", date, "Input/Output error", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc", "shubham.y@altius.cc,priti.p@altius.cc", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -93,7 +97,7 @@ public class ImportArtemisDataServiceImpl implements ImportArtemisDataService {
         } catch (BadSqlGrammarException | DataIntegrityViolationException e) {
             subjectParam = new String[]{"Order/Shipment", "SQL Exception"};
             bodyParam = new String[]{"Order/Shipment", date, "SQL Exception", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc", "shubham.y@altius.cc,priti.p@altius.cc", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -101,7 +105,7 @@ public class ImportArtemisDataServiceImpl implements ImportArtemisDataService {
         } catch (Exception e) {
             subjectParam = new String[]{"Order/Shipment", e.getClass().toString()};
             bodyParam = new String[]{"Order/Shipment", date, e.getClass().toString(), e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc", "shubham.y@altius.cc,priti.p@altius.cc", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);

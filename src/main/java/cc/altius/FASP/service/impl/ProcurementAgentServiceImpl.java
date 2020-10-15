@@ -130,6 +130,11 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     }
 
     @Override
+    public String getDisplayName(int realmId, String name, CustomUserDetails curUser) {
+        return this.procurementAgentDao.getDisplayName(realmId, name, curUser);
+    }
+
+    @Override
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.procurementAgentDao.getProcurementAgentProcurementUnitListForSync(lastSyncDate, curUser);
     }

@@ -10,6 +10,7 @@ import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ReviewedProblem;
 import cc.altius.FASP.model.ShipmentSync;
@@ -134,6 +135,18 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         ss.setShipmentList(this.programDataDao.getShipmentListForSync(programId, versionId, lastSyncDate));
         ss.setBatchInfoList(this.programDataDao.getBatchListForSync(programId, versionId, lastSyncDate));
         return ss;
+    }
+
+    @Override
+    public boolean checkNewerVersions(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
+        boolean newer = false;
+        for (ProgramIdAndVersionId pv : programVersionList) {
+            Program p = this.programService.getProgramById(pv.getProgramId(), curUser);
+            if (p.getCurrentVersion().getVersionId()>pv.getVersionId()) {
+                newer = true;
+            }
+        }
+        return newer;
     }
 
 }

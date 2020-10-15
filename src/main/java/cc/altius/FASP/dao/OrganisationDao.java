@@ -26,5 +26,7 @@ public interface OrganisationDao {
 
     public Organisation getOrganisationById(int organisationId, CustomUserDetails curUser);
 
+    public String getDisplayName(int realmId, String name, CustomUserDetails curUser);
+    
     public List<Organisation> getOrganisationListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

@@ -12,7 +12,6 @@ import cc.altius.FASP.service.QuantimedImportService;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,17 +20,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.sql.DataSource;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.collections4.map.HashedMap;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.w3c.dom.Document;
@@ -47,8 +42,10 @@ import org.xml.sax.SAXException;
 @Service
 public class QuantimedImportServiceImpl implements QuantimedImportService {
 
+    @Value("${qat.filePath}")
+    private String QAT_FILE_PATH;
     @Value("${quantimedFilePath}")
-    private String QMED_FILE_PATH;        
+    private String QMED_FILE_PATH;
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());    
 
     @Override
@@ -70,7 +67,7 @@ public class QuantimedImportServiceImpl implements QuantimedImportService {
         } else {
 
             try {
-                File file1 = new File(QMED_FILE_PATH + file.getOriginalFilename());
+                File file1 = new File(QAT_FILE_PATH+QMED_FILE_PATH + file.getOriginalFilename());
                 file.transferTo(file1);
                 DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();

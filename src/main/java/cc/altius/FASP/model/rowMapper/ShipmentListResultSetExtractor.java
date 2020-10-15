@@ -100,7 +100,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             s.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
             s.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
             s.setCreatedBy(new BasicUser(rs.getInt("CB_USER_ID"), rs.getString("CB_USERNAME")));
-            s.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
+            s.setLastModifiedBy(new BasicUser(rs.getInt("LMB_USER_ID"), rs.getString("LMB_USERNAME")));
             ShipmentBatchInfo sbi = new ShipmentBatchInfoRowMapper().mapRow(rs, 1);
             if (sbi != null && s.getBatchInfoList().indexOf(sbi) == -1) {
                 s.getBatchInfoList().add(sbi);

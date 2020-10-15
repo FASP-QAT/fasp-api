@@ -183,6 +183,19 @@ public class HealthAreaRestController {
         }
     }
 
+    
+    @GetMapping("/healthArea/getDisplayName/realmId/{realmId}/name/{name}")
+    public ResponseEntity getHealthAreaDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.healthAreaService.getDisplayName(realmId, name, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get Funding source suggested display name", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    
     @GetMapping(value = "/sync/healthArea/{lastSyncDate}")
     public ResponseEntity getHealthAreaListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {

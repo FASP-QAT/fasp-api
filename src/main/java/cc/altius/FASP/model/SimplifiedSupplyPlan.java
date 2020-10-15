@@ -166,10 +166,12 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.consumptionQty = consumptionQty;
     }
 
+    @JsonView({Views.InternalView.class})
     public int getShipmentTotalQty() {
         return getManualTotalQty() + getErpTotalQty();
     }
 
+    @JsonView({Views.InternalView.class})
     public int getManualTotalQty() {
         return this.plannedShipmentsTotalData + this.submittedShipmentsTotalData + this.approvedShipmentsTotalData + this.shippedShipmentsTotalData + this.receivedShipmentsTotalData + this.onholdShipmentsTotalData;
     }
@@ -222,6 +224,7 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.onholdShipmentsTotalData = onholdShipmentsTotalData;
     }
 
+    @JsonView({Views.InternalView.class})
     public int getErpTotalQty() {
         return this.plannedErpShipmentsTotalData + this.submittedErpShipmentsTotalData + this.approvedErpShipmentsTotalData + this.shippedErpShipmentsTotalData + this.receivedErpShipmentsTotalData + this.onholdErpShipmentsTotalData;
     }
