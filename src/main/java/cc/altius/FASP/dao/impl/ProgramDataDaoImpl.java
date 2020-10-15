@@ -269,6 +269,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 int cCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertBatchList.toArray(insertConsumptionBatch)).length;
                 logger.info(cCnt + " records imported into the tmp table");
             } catch (Exception e) {
+                logger.info("Could not load the tmp consumption batch records going to throw a CouldNotSaveException");
                 throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
             }
         }
@@ -276,23 +277,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         sqlString = "UPDATE tmp_consumption_batch_info tcbi LEFT JOIN rm_consumption_trans_batch_info ctbi ON tcbi.CONSUMPTION_TRANS_BATCH_INFO_ID=ctbi.CONSUMPTION_TRANS_BATCH_INFO_ID SET tcbi.CONSUMPTION_TRANS_ID=ctbi.CONSUMPTION_TRANS_ID WHERE tcbi.CONSUMPTION_TRANS_BATCH_INFO_ID IS NOT NULL";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         params.clear();
-        // Update the VersionId's in tmp_consumption with the ones from consumption_trans based on VersionId
-//        sqlString = "UPDATE tmp_consumption tc LEFT JOIN rm_consumption c ON tc.CONSUMPTION_ID=c.CONSUMPTION_ID SET tc.VERSION_ID=c.MAX_VERSION_ID WHERE tc.CONSUMPTION_ID IS NOT NULL";
-//        this.namedParameterJdbcTemplate.update(sqlString, params);
         // Flag the rows for changed records
-        sqlString = "UPDATE tmp_consumption tc LEFT JOIN rm_consumption c ON tc.CONSUMPTION_ID=c.CONSUMPTION_ID LEFT JOIN rm_consumption_trans ct ON tc.CONSUMPTION_ID=ct.CONSUMPTION_ID AND tc.VERSION_ID=ct.VERSION_ID SET tc.CHANGED=1 WHERE "
-                + "tc.REGION_ID!=ct.REGION_ID OR "
-                + "tc.PLANNING_UNIT_ID!=ct.PLANNING_UNIT_ID OR "
-                + "tc.REALM_COUNTRY_PLANNING_UNIT_ID!=ct.REALM_COUNTRY_PLANNING_UNIT_ID OR "
-                + "tc.CONSUMPTION_DATE!=ct.CONSUMPTION_DATE OR "
-                + "tc.ACTUAL_FLAG!=ct.ACTUAL_FLAG OR "
-                + "tc.QTY!=ct.CONSUMPTION_QTY OR "
-                + "tc.RCPU_QTY!=ct.CONSUMPTION_RCPU_QTY OR "
-                + "tc.DAYS_OF_STOCK_OUT!=ct.DAYS_OF_STOCK_OUT OR "
-                + "tc.DATA_SOURCE_ID!=ct.DATA_SOURCE_ID OR "
-                + "tc.NOTES!=ct.NOTES OR "
-                + "tc.ACTIVE!=ct.ACTIVE OR "
-                + "tc.CONSUMPTION_ID IS NULL";
+        sqlString = "UPDATE tmp_consumption tc LEFT JOIN rm_consumption c ON tc.CONSUMPTION_ID=c.CONSUMPTION_ID LEFT JOIN rm_consumption_trans ct ON tc.CONSUMPTION_ID=ct.CONSUMPTION_ID AND tc.VERSION_ID=ct.VERSION_ID SET tc.CHANGED=1 WHERE tc.REGION_ID!=ct.REGION_ID OR tc.PLANNING_UNIT_ID!=ct.PLANNING_UNIT_ID OR tc.REALM_COUNTRY_PLANNING_UNIT_ID!=ct.REALM_COUNTRY_PLANNING_UNIT_ID OR tc.CONSUMPTION_DATE!=ct.CONSUMPTION_DATE OR tc.ACTUAL_FLAG!=ct.ACTUAL_FLAG OR tc.QTY!=ct.CONSUMPTION_QTY OR tc.RCPU_QTY!=ct.CONSUMPTION_RCPU_QTY OR tc.DAYS_OF_STOCK_OUT!=ct.DAYS_OF_STOCK_OUT OR tc.DATA_SOURCE_ID!=ct.DATA_SOURCE_ID OR tc.NOTES!=ct.NOTES OR tc.ACTIVE!=ct.ACTIVE OR tc.CONSUMPTION_ID IS NULL";
         try {
             int cCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
             logger.info(cCnt + " records updated in tmp as changed where a direct consumption record has changed");
@@ -371,6 +357,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             List<IdByAndDate> idListForInsert = this.namedParameterJdbcTemplate.query(sqlString, params, new IdByAndDateRowMapper());
             params.put("versionId", version.getVersionId());
             params.put("programId", programData.getProgramId());
+            params.put("id", 0);
             params.put("createdBy", curUser.getUserId());
             params.put("createdDate", curDate);
             params.put("lastModifiedBy", curUser.getUserId());
@@ -384,21 +371,21 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.replace("lastModifiedDate", tmpId.getLastModifiedDate());
                 sqlString = "INSERT INTO rm_consumption (PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) VALUES (:programId, :createdBy, :createdDate, :lastModifiedBy, :lastModifiedDate, :versionId)";
                 try {
-                    this.namedParameterJdbcTemplate.update(sqlString, params);
+                    consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
                 } catch (Exception e) {
                     logger.info("Failed to insert into the consumption table");
                     throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
                 }
                 sqlString = "INSERT INTO rm_consumption_trans SELECT null, LAST_INSERT_ID(), tc.REGION_ID, tc.PLANNING_UNIT_ID, tc.CONSUMPTION_DATE, tc.REALM_COUNTRY_PLANNING_UNIT_ID, tc.ACTUAL_FLAG, tc.QTY, tc.RCPU_QTY, tc.DAYS_OF_STOCK_OUT, tc.DATA_SOURCE_ID, tc.NOTES, tc.ACTIVE, :lastModifiedBy, :lastModifiedDate, :versionId FROM tmp_consumption tc WHERE tc.ID=:id";
                 try {
-                    this.namedParameterJdbcTemplate.update(sqlString, params);
+                    consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
                 } catch (Exception e) {
                     logger.info("Failed to insert into the consumption_trans table");
                     throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
                 }
                 sqlString = "INSERT INTO rm_consumption_trans_batch_info SELECT null, LAST_INSERT_ID(), tcbi.BATCH_ID, tcbi.BATCH_QTY from tmp_consumption_batch_info tcbi WHERE tcbi.PARENT_ID=:id";
                 try {
-                    this.namedParameterJdbcTemplate.update(sqlString, params);
+                    consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
                 } catch (Exception e) {
                     logger.info("Failed to insert into the consumption_trans_batch_info table");
                     throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
@@ -489,8 +476,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     batchParams.put("CREATED_DATE", i.getInventoryDate());
                     try {
                         b.getBatch().setBatchId(this.namedParameterJdbcTemplate.queryForObject("SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.BATCH_NO=:BATCH_NO AND bi.PROGRAM_ID=:PROGRAM_ID AND bi.EXPIRY_DATE=:EXPIRY_DATE", batchParams, Integer.class));
+                        logger.info("Batch No + Expiry Dt found for this Program");
                     } catch (DataAccessException d) {
+                        logger.info("Batch No + Expiry Dt not found for this Program, so creating it");
                         b.getBatch().setBatchId(batchInsert.executeAndReturnKey(batchParams).intValue());
+                        logger.info("Batch Id created");
                     }
                 }
                 Map<String, Object> tb = new HashMap<>();
@@ -504,29 +494,55 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             }
             id++;
         }
+        logger.info(id + " inventory records going to be inserted into the tmp table");
 
         SqlParameterSource[] insertInventory = new SqlParameterSource[insertList.size()];
         sqlString = " INSERT INTO tmp_inventory (ID, INVENTORY_ID, REGION_ID, REALM_COUNTRY_PLANNING_UNIT_ID, INVENTORY_DATE, ACTUAL_QTY, ADJUSTMENT_QTY, DATA_SOURCE_ID, NOTES, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, ACTIVE) VALUES (:ID, :INVENTORY_ID, :REGION_ID, :REALM_COUNTRY_PLANNING_UNIT_ID, :INVENTORY_DATE, :ACTUAL_QTY, :ADJUSTMENT_QTY, :DATA_SOURCE_ID, :NOTES, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE)";
-        this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertInventory));
+        try {
+            int iCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertInventory)).length;
+            logger.info(iCnt + " records imported into the tmp table");
+        } catch (Exception e) {
+            logger.info("Could not load the tmp inventory records going to throw a CouldNotSaveException");
+            throw new CouldNotSaveException("Could not save Inventory data - " + e.getMessage());
+        }
         if (insertBatchList.size() > 0) {
             SqlParameterSource[] insertInventoryBatch = new SqlParameterSource[insertBatchList.size()];
             sqlString = "INSERT INTO tmp_inventory_batch_info (PARENT_ID, INVENTORY_TRANS_ID, INVENTORY_TRANS_BATCH_INFO_ID, BATCH_ID, ACTUAL_QTY, ADJUSTMENT_QTY) VALUES (:PARENT_ID, :INVENTORY_TRANS_ID, :INVENTORY_TRANS_BATCH_INFO_ID, :BATCH_ID, :ACTUAL_QTY, :ADJUSTMENT_QTY)";
-            this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertBatchList.toArray(insertInventoryBatch));
+            try {
+                logger.info(insertBatchList.size() + " inventory batch records going to be inserted into the tmp table");
+                int iCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertBatchList.toArray(insertInventoryBatch)).length;
+                logger.info(iCnt + " records imported into the tmp table");
+            } catch (Exception e) {
+                logger.info("Could not load the tmp inventory batch records going to throw a CouldNotSaveException");
+                throw new CouldNotSaveException("Could not save Inventory Batch data - " + e.getMessage());
+            }
         }
         params.clear();
         sqlString = "UPDATE tmp_inventory_batch_info tibi LEFT JOIN rm_inventory_trans_batch_info itbi ON tibi.INVENTORY_TRANS_BATCH_INFO_ID=itbi.INVENTORY_TRANS_BATCH_INFO_ID SET tibi.INVENTORY_TRANS_ID=itbi.INVENTORY_TRANS_ID WHERE tibi.INVENTORY_TRANS_BATCH_INFO_ID IS NOT NULL";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         params.clear();
-        // Update the VersionId's in tmp_inventory with the ones from inventory_trans based on VersionId
-//        sqlString = "UPDATE tmp_inventory ti LEFT JOIN rm_inventory i ON ti.INVENTORY_ID=i.INVENTORY_ID SET ti.VERSION_ID=i.MAX_VERSION_ID WHERE ti.INVENTORY_ID IS NOT NULL";
-//        this.namedParameterJdbcTemplate.update(sqlString, params);
         // Flag the rows for changed records
         sqlString = "UPDATE tmp_inventory ti LEFT JOIN rm_inventory i ON ti.INVENTORY_ID=i.INVENTORY_ID LEFT JOIN rm_inventory_trans it ON ti.INVENTORY_ID=it.INVENTORY_ID AND ti.VERSION_ID=it.VERSION_ID SET ti.CHANGED=1 WHERE ti.REGION_ID!=it.REGION_ID OR ti.REALM_COUNTRY_PLANNING_UNIT_ID!=it.REALM_COUNTRY_PLANNING_UNIT_ID OR ti.INVENTORY_DATE!=it.INVENTORY_DATE OR ti.ACTUAL_QTY!=it.ACTUAL_QTY OR ti.ADJUSTMENT_QTY!=it.ADJUSTMENT_QTY OR ti.DATA_SOURCE_ID!=it.DATA_SOURCE_ID OR ti.NOTES!=it.NOTES OR ti.ACTIVE!=it.ACTIVE OR ti.INVENTORY_ID IS NULL";
-        this.namedParameterJdbcTemplate.update(sqlString, params);
+        try {
+            int iCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+            logger.info(iCnt + " records updated in tmp as changed where a direct inventory record has changed");
+        } catch (Exception e) {
+            throw new CouldNotSaveException("Could not save Inventory Batch data - " + e.getMessage());
+        }
         sqlString = "UPDATE tmp_inventory_batch_info tibi LEFT JOIN rm_inventory_trans_batch_info itbi ON tibi.INVENTORY_TRANS_BATCH_INFO_ID=itbi.INVENTORY_TRANS_BATCH_INFO_ID SET `CHANGED`=1 WHERE tibi.INVENTORY_TRANS_BATCH_INFO_ID IS NULL OR tibi.BATCH_ID!=itbi.BATCH_ID OR tibi.ACTUAL_QTY!=itbi.ACTUAL_QTY OR tibi.ADJUSTMENT_QTY!=itbi.ADJUSTMENT_QTY";
-        this.namedParameterJdbcTemplate.update(sqlString, params);
+        try {
+            int iCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+            logger.info(iCnt + " records updated in tmp as changed where a batch record has changed");
+        } catch (Exception e) {
+            throw new CouldNotSaveException("Could not save Inventory Batch data - " + e.getMessage());
+        }
         sqlString = "UPDATE tmp_inventory ti LEFT JOIN tmp_inventory_batch_info tibi ON ti.ID = tibi.PARENT_ID SET ti.CHANGED=1 WHERE tibi.CHANGED=1";
-        this.namedParameterJdbcTemplate.update(sqlString, params);
+        try {
+            int iCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+            logger.info(iCnt + " records updated in tmp as changed where a Batch Id has changed");
+        } catch (Exception e) {
+            throw new CouldNotSaveException("Could not save Inventory Batch data - " + e.getMessage());
+        }
 
         // Check if there are any rows that need to be added
         params.clear();
@@ -541,25 +557,48 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionStatusId", programData.getVersionStatus().getId());
                 params.put("notes", programData.getNotes());
                 sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
-                version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+                try {
+                    version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+                    logger.info(version + " is the new version no");
+                } catch (Exception e) {
+                    logger.info("Failed to get a new version no for this program");
+                    throw new CouldNotSaveException("Could not save Inventory Batch data - " + e.getMessage());
+                }
             }
-            params.put("programId", programData.getProgramId());
             params.put("versionId", version.getVersionId());
             // Insert the rows where Inventory Id is not null
             sqlString = "INSERT INTO rm_inventory_trans SELECT null, ti.INVENTORY_ID, ti.INVENTORY_DATE, ti.REGION_ID, ti.REALM_COUNTRY_PLANNING_UNIT_ID, ti.ACTUAL_QTY, ti.ADJUSTMENT_QTY, ti.DATA_SOURCE_ID, ti.NOTES, ti.ACTIVE, ti.LAST_MODIFIED_BY, ti.LAST_MODIFIED_DATE, :versionId"
                     + " FROM tmp_inventory ti "
                     + " WHERE ti.CHANGED=1 AND ti.INVENTORY_ID!=0";
-            inventoryRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+            try {
+                inventoryRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+                logger.info(consumptionRows + " added to the inventory_trans table");
+            } catch (Exception e) {
+                logger.info("Failed to add to the inventory_trans table");
+                throw new CouldNotSaveException("Could not save Inventory Batch data - " + e.getMessage());
+            }
             params.clear();
             params.put("versionId", version.getVersionId());
             // Update the rm_inventory table with the latest versionId
             sqlString = "UPDATE tmp_inventory ti LEFT JOIN rm_inventory i ON i.INVENTORY_ID=ti.INVENTORY_ID SET i.MAX_VERSION_ID=:versionId WHERE ti.INVENTORY_ID IS NOT NULL AND ti.CHANGED=1";
-            this.namedParameterJdbcTemplate.update(sqlString, params);
+            try {
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+                logger.info("Updated the Version no in the inventory table");
+            } catch (Exception e) {
+                logger.info("Failed to update the Version no in the inventory table");
+                throw new CouldNotSaveException("Could not save Inventory Batch data - " + e.getMessage());
+            }
             // Insert into rm_inventory_trans_batch_info where the inventory record was already existing but has changed
             sqlString = "INSERT INTO rm_inventory_trans_batch_info SELECT null, it.INVENTORY_TRANS_ID, tibi.BATCH_ID, tibi.ACTUAL_QTY, tibi.ADJUSTMENT_QTY from tmp_inventory ti left join tmp_inventory_batch_info tibi ON tibi.PARENT_ID=ti.ID LEFT JOIN rm_inventory_trans it ON ti.INVENTORY_ID=it.INVENTORY_ID AND it.VERSION_ID=:versionId WHERE ti.CHANGED=1 AND ti.INVENTORY_ID IS NOT NULL AND tibi.PARENT_ID IS NOT NULL";
-            this.namedParameterJdbcTemplate.update(sqlString, params);
+            try {
+                inventoryRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+                logger.info(inventoryRows + " rows inserted into the inventory_trans_batch_info table");
+            } catch (Exception e) {
+                logger.info("Failed to insert into the inventory_trans_batch_info table");
+                throw new CouldNotSaveException("Could not save Inventory Batch data - " + e.getMessage());
+            }
 
-            sqlString = "SELECT ti.ID, ti.CREATED_BY, ti.CREATED_DATE FROM tmp_inventory ti WHERE ti.INVENTORY_ID IS NULL OR ti.INVENTORY_ID=0";
+            sqlString = "SELECT ti.ID, ti.CREATED_BY, ti.CREATED_DATE, ti.LAST_MODIFIED_DATE, ti.LAST_MODIFIED_BY FROM tmp_inventory ti WHERE ti.INVENTORY_ID IS NULL OR ti.INVENTORY_ID=0";
             List<IdByAndDate> idListForInsert = this.namedParameterJdbcTemplate.query(sqlString, params, new IdByAndDateRowMapper());
             params.put("id", 0);
             params.put("versionId", version.getVersionId());
@@ -568,6 +607,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("createdDate", curDate);
             params.put("lastModifiedBy", curUser.getUserId());
             params.put("lastModifiedDate", curDate);
+            inventoryRows = 0;
             for (IdByAndDate tmpId : idListForInsert) {
                 params.replace("id", tmpId.getId());
                 params.replace("createdBy", tmpId.getCreatedBy());
@@ -575,12 +615,28 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.replace("lastModifiedBy", tmpId.getLastModifiedBy());
                 params.replace("lastModifiedDate", tmpId.getLastModifiedDate());
                 sqlString = "INSERT INTO rm_inventory (PROGRAM_ID, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) VALUES (:programId, :createdBy, :createdDate, :lastModifiedBy, :lastModifiedDate, :versionId)";
-                consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+                try {
+                    inventoryRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+                } catch (Exception e) {
+                    logger.info("Failed to insert into the consumption table");
+                    throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
+                }
                 sqlString = "INSERT INTO rm_inventory_trans SELECT null, LAST_INSERT_ID(), ti.INVENTORY_DATE, ti.REGION_ID, ti.REALM_COUNTRY_PLANNING_UNIT_ID, ti.ACTUAL_QTY, ti.ADJUSTMENT_QTY, ti.DATA_SOURCE_ID, ti.NOTES, ti.ACTIVE, :lastModifiedBy, :lastModifiedDate, :versionId FROM tmp_inventory ti WHERE ti.ID=:id";
-                this.namedParameterJdbcTemplate.update(sqlString, params);
+                try {
+                    inventoryRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+                } catch (Exception e) {
+                    logger.info("Failed to insert into the consumption_trans table");
+                    throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
+                }
                 sqlString = "INSERT INTO rm_inventory_trans_batch_info SELECT null, LAST_INSERT_ID(), tibi.BATCH_ID, tibi.ACTUAL_QTY, tibi.ADJUSTMENT_QTY from tmp_inventory_batch_info tibi WHERE tibi.PARENT_ID=:id";
-                this.namedParameterJdbcTemplate.update(sqlString, params);
+                try {
+                    inventoryRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+                } catch (Exception e) {
+                    logger.info("Failed to insert into the consumption_trans_batch_info table");
+                    throw new CouldNotSaveException("Could not save Consumption Batch data - " + e.getMessage());
+                }
             }
+            logger.info(inventoryRows + " records inserted into the inventory, inventory_trans and inventory_trans_batch_info tables");
         }
 
         // ###########################  Inventory  ############################################
@@ -719,8 +775,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     batchParams.put("CREATED_DATE", (s.getReceivedDate() != null ? s.getReceivedDate() : s.getExpectedDeliveryDate()));
                     try {
                         b.getBatch().setBatchId(this.namedParameterJdbcTemplate.queryForObject("SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.BATCH_NO=:BATCH_NO AND bi.PROGRAM_ID=:PROGRAM_ID AND bi.EXPIRY_DATE=:EXPIRY_DATE", batchParams, Integer.class));
+                        logger.info("Batch No + Expiry Dt found for this Program");
                     } catch (DataAccessException d) {
+                        logger.info("Batch No + Expiry Dt not found for this Program, so creating it");
                         b.getBatch().setBatchId(batchInsert.executeAndReturnKey(batchParams).intValue());
+                        logger.info("Batch Id created");
                     }
                 }
                 Map<String, Object> tb = new HashMap<>();
@@ -731,90 +790,56 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 tb.put("BATCH_SHIPMENT_QTY", b.getShipmentQty());
                 insertBatchList.add(new MapSqlParameterSource(tb));
             }
-//            for (ShipmentBudget sb : s.getShipmentBudgetList()) {
-//                Map<String, Object> tsb = new HashMap<>();
-//                tsb.put("PARENT_ID", id);
-//                tsb.put("SHIPMENT_BUDGET_ID", (sb.getShipmentBudgetId() == 0 ? null : sb.getShipmentBudgetId()));
-//                tsb.put("BUDGET_ID", sb.getBudget().getId());
-//                tsb.put("BUDGET_AMT", sb.getBudgetAmt());
-//                tsb.put("CONVERSION_RATE_TO_USD", sb.getConversionRateToUsd());
-//                tsb.put("CURRENCY_ID", sb.getCurrency().getCurrencyId());
-//                tsb.put("ACTIVE", sb.isActive());
-//                insertBudgetList.add(new MapSqlParameterSource(tsb));
-//            }
             id++;
         }
+        logger.info(id + " shipment records going to be inserted into the tmp table");
 
         SqlParameterSource[] insertShipment = new SqlParameterSource[insertList.size()];
-        sqlString = " INSERT INTO tmp_shipment (`ID`, `SHIPMENT_ID`, `PARENT_SHIPMENT_ID`, `SUGGESTED_QTY`, `PROCUREMENT_AGENT_ID`, `ACCOUNT_FLAG`, "
-                + "`ERP_FLAG`, `CURRENCY_ID`, `CONVERSION_RATE_TO_USD`, `EMERGENCY_ORDER`, `PLANNING_UNIT_ID`, "
-                + "`EXPECTED_DELIVERY_DATE`, `PROCUREMENT_UNIT_ID`, `SUPPLIER_ID`, `SHIPMENT_QTY`, `RATE`, "
-                + "`PRODUCT_COST`, `SHIPMENT_MODE`, `FREIGHT_COST`, `PLANNED_DATE`, `SUBMITTED_DATE`, "
-                + "`APPROVED_DATE`, `SHIPPED_DATE`, `ARRIVED_DATE`, `RECEIVED_DATE`, `SHIPMENT_STATUS_ID`, "
-                + "`DATA_SOURCE_ID`, `NOTES`, `ORDER_NO`, `PRIME_LINE_NO`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`, "
-                + "`FUNDING_SOURCE_ID`, `BUDGET_ID`,LOCAL_PROCUREMENT) VALUES ("
-                + ":ID, :SHIPMENT_ID, :PARENT_SHIPMENT_ID, :SUGGESTED_QTY, :PROCUREMENT_AGENT_ID, :ACCOUNT_FLAG, "
-                + ":ERP_FLAG, :CURRENCY_ID, :CONVERSION_RATE_TO_USD, :EMERGENCY_ORDER, :PLANNING_UNIT_ID, "
-                + ":EXPECTED_DELIVERY_DATE, :PROCUREMENT_UNIT_ID, :SUPPLIER_ID, :SHIPMENT_QTY, :RATE, "
-                + ":PRODUCT_COST, :SHIPMENT_MODE, :FREIGHT_COST, :PLANNED_DATE, :SUBMITTED_DATE, "
-                + ":APPROVED_DATE, :SHIPPED_DATE, :ARRIVED_DATE, :RECEIVED_DATE, :SHIPMENT_STATUS_ID, "
-                + ":DATA_SOURCE_ID, :NOTES, :ORDER_NO, :PRIME_LINE_NO, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE, "
-                + ":FUNDING_SOURCE_ID, :BUDGET_ID ,:LOCAL_PROCUREMENT)";
-        this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertShipment));
+        sqlString = " INSERT INTO tmp_shipment (`ID`, `SHIPMENT_ID`, `PARENT_SHIPMENT_ID`, `SUGGESTED_QTY`, `PROCUREMENT_AGENT_ID`, `ACCOUNT_FLAG`, `ERP_FLAG`, `CURRENCY_ID`, `CONVERSION_RATE_TO_USD`, `EMERGENCY_ORDER`, `PLANNING_UNIT_ID`, `EXPECTED_DELIVERY_DATE`, `PROCUREMENT_UNIT_ID`, `SUPPLIER_ID`, `SHIPMENT_QTY`, `RATE`, `PRODUCT_COST`, `SHIPMENT_MODE`, `FREIGHT_COST`, `PLANNED_DATE`, `SUBMITTED_DATE`, `APPROVED_DATE`, `SHIPPED_DATE`, `ARRIVED_DATE`, `RECEIVED_DATE`, `SHIPMENT_STATUS_ID`, `DATA_SOURCE_ID`, `NOTES`, `ORDER_NO`, `PRIME_LINE_NO`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`, `FUNDING_SOURCE_ID`, `BUDGET_ID`,LOCAL_PROCUREMENT) VALUES (:ID, :SHIPMENT_ID, :PARENT_SHIPMENT_ID, :SUGGESTED_QTY, :PROCUREMENT_AGENT_ID, :ACCOUNT_FLAG, :ERP_FLAG, :CURRENCY_ID, :CONVERSION_RATE_TO_USD, :EMERGENCY_ORDER, :PLANNING_UNIT_ID, :EXPECTED_DELIVERY_DATE, :PROCUREMENT_UNIT_ID, :SUPPLIER_ID, :SHIPMENT_QTY, :RATE, :PRODUCT_COST, :SHIPMENT_MODE, :FREIGHT_COST, :PLANNED_DATE, :SUBMITTED_DATE, :APPROVED_DATE, :SHIPPED_DATE, :ARRIVED_DATE, :RECEIVED_DATE, :SHIPMENT_STATUS_ID, :DATA_SOURCE_ID, :NOTES, :ORDER_NO, :PRIME_LINE_NO, :CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE, :ACTIVE, :FUNDING_SOURCE_ID, :BUDGET_ID ,:LOCAL_PROCUREMENT)";
+        try {
+            int sCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertList.toArray(insertShipment)).length;
+            logger.info(sCnt + " records imported into the tmp table");
+        } catch (Exception e) {
+            logger.info("Could not load the tmp shipment records going to throw a CouldNotSaveException");
+            throw new CouldNotSaveException("Could not save Shipment data - " + e.getMessage());
+        }
         if (insertBatchList.size() > 0) {
             SqlParameterSource[] insertShipmentBatch = new SqlParameterSource[insertBatchList.size()];
             sqlString = "INSERT INTO tmp_shipment_batch_info (PARENT_ID, SHIPMENT_TRANS_ID, SHIPMENT_TRANS_BATCH_INFO_ID, BATCH_ID, BATCH_SHIPMENT_QTY) VALUES (:PARENT_ID, :SHIPMENT_TRANS_ID, :SHIPMENT_TRANS_BATCH_INFO_ID, :BATCH_ID, :BATCH_SHIPMENT_QTY)";
-            this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertBatchList.toArray(insertShipmentBatch));
+            try {
+                int sCnt = this.namedParameterJdbcTemplate.batchUpdate(sqlString, insertBatchList.toArray(insertShipmentBatch)).length;
+                logger.info(sCnt + " records imported into the tmp table");
+            } catch (Exception e) {
+                logger.info("Could not load the tmp shipment batch records going to throw a CouldNotSaveException");
+                throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
+            }
         }
         params.clear();
         sqlString = "UPDATE tmp_shipment_batch_info tsbi LEFT JOIN rm_shipment_trans_batch_info stbi ON tsbi.SHIPMENT_TRANS_BATCH_INFO_ID=stbi.SHIPMENT_TRANS_BATCH_INFO_ID SET tsbi.SHIPMENT_TRANS_ID=stbi.SHIPMENT_TRANS_ID WHERE tsbi.SHIPMENT_TRANS_BATCH_INFO_ID IS NOT NULL";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         params.clear();
-        // Update the VersionId's in tmp_shipment with the ones from shipment_trans based on VersionId
-//        sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID SET ts.VERSION_ID=s.MAX_VERSION_ID WHERE ts.SHIPMENT_ID IS NOT NULL";
-//        this.namedParameterJdbcTemplate.update(sqlString, params);
         // Flag the rows for changed records
-        sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID LEFT JOIN rm_shipment_trans st ON ts.SHIPMENT_ID=st.SHIPMENT_ID AND ts.VERSION_ID=st.VERSION_ID "
-                + "SET ts.CHANGED=1 WHERE "
-                + "ts.SHIPMENT_ID!=st.SHIPMENT_ID OR "
-                + "ts.SUGGESTED_QTY!=s.SUGGESTED_QTY OR "
-                + "ts.CURRENCY_ID!=s.CURRENCY_ID OR "
-                + "ts.PARENT_SHIPMENT_ID!=s.PARENT_SHIPMENT_ID OR "
-                + "ts.PROCUREMENT_AGENT_ID!=st.PROCUREMENT_AGENT_ID OR "
-                + "ts.FUNDING_SOURCE_ID!=st.FUNDING_SOURCE_ID OR "
-                + "ts.BUDGET_ID!=st.BUDGET_ID OR "
-                + "ts.ACCOUNT_FLAG!=st.ACCOUNT_FLAG OR "
-                + "ts.ERP_FLAG!=st.ERP_FLAG OR "
-                + "ts.CONVERSION_RATE_TO_USD!=s.CONVERSION_RATE_TO_USD OR "
-                + "ts.EMERGENCY_ORDER!=st.EMERGENCY_ORDER OR "
-                + "ts.PLANNING_UNIT_ID!=st.PLANNING_UNIT_ID OR "
-                + "ts.EXPECTED_DELIVERY_DATE!=st.EXPECTED_DELIVERY_DATE OR "
-                + "ts.PROCUREMENT_UNIT_ID!=st.PROCUREMENT_UNIT_ID OR "
-                + "ts.SUPPLIER_ID!=st.SUPPLIER_ID OR "
-                + "ts.SHIPMENT_QTY!=st.SHIPMENT_QTY OR "
-                + "ts.RATE!=st.RATE OR "
-                + "ts.PRODUCT_COST!=st.PRODUCT_COST OR "
-                + "ts.SHIPMENT_MODE!=st.SHIPMENT_MODE OR "
-                + "ts.FREIGHT_COST!=st.FREIGHT_COST OR "
-                + "ts.PLANNED_DATE!=st.PLANNED_DATE OR "
-                + "ts.SUBMITTED_DATE!=st.SUBMITTED_DATE OR "
-                + "ts.APPROVED_DATE!=st.APPROVED_DATE OR "
-                + "ts.SHIPPED_DATE!=st.SHIPPED_DATE OR "
-                + "ts.ARRIVED_DATE!=st.ARRIVED_DATE OR "
-                + "ts.RECEIVED_DATE!=st.RECEIVED_DATE OR "
-                + "ts.SHIPMENT_STATUS_ID!=st.SHIPMENT_STATUS_ID OR "
-                + "ts.DATA_SOURCE_ID!=st.DATA_SOURCE_ID OR "
-                + "ts.NOTES!=st.NOTES OR "
-                + "ts.ORDER_NO!=st.ORDER_NO OR "
-                + "ts.PRIME_LINE_NO!=st.PRIME_LINE_NO OR "
-                + "ts.ACTIVE!=st.ACTIVE OR "
-                + "ts.LOCAL_PROCUREMENT!=st.LOCAL_PROCUREMENT OR "
-                + "ts.SHIPMENT_ID IS NULL";
-        this.namedParameterJdbcTemplate.update(sqlString, params);
+        sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID LEFT JOIN rm_shipment_trans st ON ts.SHIPMENT_ID=st.SHIPMENT_ID AND ts.VERSION_ID=st.VERSION_ID SET ts.CHANGED=1 WHERE ts.SHIPMENT_ID!=st.SHIPMENT_ID OR ts.SUGGESTED_QTY!=s.SUGGESTED_QTY OR ts.CURRENCY_ID!=s.CURRENCY_ID OR ts.PARENT_SHIPMENT_ID!=s.PARENT_SHIPMENT_ID OR ts.PROCUREMENT_AGENT_ID!=st.PROCUREMENT_AGENT_ID OR ts.FUNDING_SOURCE_ID!=st.FUNDING_SOURCE_ID OR ts.BUDGET_ID!=st.BUDGET_ID OR ts.ACCOUNT_FLAG!=st.ACCOUNT_FLAG OR ts.ERP_FLAG!=st.ERP_FLAG OR ts.CONVERSION_RATE_TO_USD!=s.CONVERSION_RATE_TO_USD OR ts.EMERGENCY_ORDER!=st.EMERGENCY_ORDER OR ts.PLANNING_UNIT_ID!=st.PLANNING_UNIT_ID OR ts.EXPECTED_DELIVERY_DATE!=st.EXPECTED_DELIVERY_DATE OR ts.PROCUREMENT_UNIT_ID!=st.PROCUREMENT_UNIT_ID OR ts.SUPPLIER_ID!=st.SUPPLIER_ID OR ts.SHIPMENT_QTY!=st.SHIPMENT_QTY OR ts.RATE!=st.RATE OR ts.PRODUCT_COST!=st.PRODUCT_COST OR ts.SHIPMENT_MODE!=st.SHIPMENT_MODE OR ts.FREIGHT_COST!=st.FREIGHT_COST OR ts.PLANNED_DATE!=st.PLANNED_DATE OR ts.SUBMITTED_DATE!=st.SUBMITTED_DATE OR ts.APPROVED_DATE!=st.APPROVED_DATE OR ts.SHIPPED_DATE!=st.SHIPPED_DATE OR ts.ARRIVED_DATE!=st.ARRIVED_DATE OR ts.RECEIVED_DATE!=st.RECEIVED_DATE OR ts.SHIPMENT_STATUS_ID!=st.SHIPMENT_STATUS_ID OR ts.DATA_SOURCE_ID!=st.DATA_SOURCE_ID OR ts.NOTES!=st.NOTES OR ts.ORDER_NO!=st.ORDER_NO OR ts.PRIME_LINE_NO!=st.PRIME_LINE_NO OR ts.ACTIVE!=st.ACTIVE OR ts.LOCAL_PROCUREMENT!=st.LOCAL_PROCUREMENT OR ts.SHIPMENT_ID IS NULL";
+        try {
+            int iCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+            logger.info(iCnt + " records updated in tmp as changed where a direct shipment record has changed");
+        } catch (Exception e) {
+            throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
+        }
         sqlString = "UPDATE tmp_shipment_batch_info tsbi LEFT JOIN rm_shipment_trans_batch_info stbi ON tsbi.SHIPMENT_TRANS_BATCH_INFO_ID=stbi.SHIPMENT_TRANS_BATCH_INFO_ID SET `CHANGED`=1 WHERE tsbi.SHIPMENT_TRANS_BATCH_INFO_ID IS NULL OR tsbi.BATCH_ID!=stbi.BATCH_ID OR tsbi.BATCH_SHIPMENT_QTY!=stbi.BATCH_SHIPMENT_QTY";
-        this.namedParameterJdbcTemplate.update(sqlString, params);
+        try {
+            int iCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+            logger.info(iCnt + " records updated in tmp as changed where a batch record has changed");
+        } catch (Exception e) {
+            throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
+        }
         sqlString = "UPDATE tmp_shipment ts LEFT JOIN tmp_shipment_batch_info tsbi ON ts.ID = tsbi.PARENT_ID SET ts.CHANGED=1 WHERE tsbi.CHANGED=1";
-        this.namedParameterJdbcTemplate.update(sqlString, params);
+        try {
+            int iCnt = this.namedParameterJdbcTemplate.update(sqlString, params);
+            logger.info(iCnt + " records updated in tmp as changed where a Batch Id has changed");
+        } catch (Exception e) {
+            throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
+        }
 
         // Check if there are any rows that need to be added
         params.clear();
@@ -829,47 +854,46 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionStatusId", programData.getVersionStatus().getId());
                 params.put("notes", programData.getNotes());
                 sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
-                version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+                try {
+                    version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+                    logger.info(version + " is the new version no");
+                } catch (Exception e) {
+                    logger.info("Failed to get a new version no for this program");
+                    throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
+                }
             }
             params.put("versionId", version.getVersionId());
             // Insert the rows where Shipment Id is not null
-            sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID SET "
-                    + "s.SUGGESTED_QTY=ts.SUGGESTED_QTY, "
-                    //                    + "s.PROCUREMENT_AGENT_ID=ts.PROCUREMENT_AGENT_ID, "
-                    //                    + "s.ACCOUNT_FLAG=ts.ACCOUNT_FLAG, "
-                    //                    + "s.ERP_FLAG=ts.ERP_FLAG, "
-                    + "s.CURRENCY_ID=ts.CURRENCY_ID, "
-                    + "s.CONVERSION_RATE_TO_USD=ts.CONVERSION_RATE_TO_USD, "
-                    //                    + "s.EMERGENCY_ORDER=ts.EMERGENCY_ORDER, "
-                    + "s.MAX_VERSION_ID=:versionId "
-                    + "WHERE ts.SHIPMENT_ID IS NOT NULL AND ts.CHANGED=1";
-            shipmentRows = this.namedParameterJdbcTemplate.update(sqlString, params);
-            params.put("curUser", curUser.getUserId());
-            params.put("curDate", curDate);
-            sqlString = "INSERT INTO rm_shipment_trans ("
-                    + "SHIPMENT_ID, PLANNING_UNIT_ID, EXPECTED_DELIVERY_DATE, PROCUREMENT_UNIT_ID, SUPPLIER_ID, "
-                    + "SHIPMENT_QTY, RATE, PRODUCT_COST, SHIPMENT_MODE, FREIGHT_COST, "
-                    + "PLANNED_DATE, SUBMITTED_DATE, APPROVED_DATE, SHIPPED_DATE, ARRIVED_DATE, "
-                    + "RECEIVED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, NOTES, ORDER_NO, "
-                    + "PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID, "
-                    + "PROCUREMENT_AGENT_ID, FUNDING_SOURCE_ID, BUDGET_ID, ACCOUNT_FLAG, ERP_FLAG, "
-                    + "EMERGENCY_ORDER, LOCAL_PROCUREMENT) "
-                    + "SELECT "
-                    + "ts.SHIPMENT_ID, ts.PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, IF(ts.PROCUREMENT_UNIT_ID=0,null,ts.PROCUREMENT_UNIT_ID), IF(ts.SUPPLIER_ID=0,null,ts.SUPPLIER_ID), "
-                    + "ts.SHIPMENT_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, "
-                    + "ts.PLANNED_DATE, ts.SUBMITTED_DATE, ts.APPROVED_DATE, ts.SHIPPED_DATE, ts.ARRIVED_DATE, "
-                    + "ts.RECEIVED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, ts.NOTES, ts.ORDER_NO, "
-                    + "ts.PRIME_LINE_NO, ts.ACTIVE, ts.LAST_MODIFIED_BY, ts.LAST_MODIFIED_DATE, :versionId, "
-                    + "ts.PROCUREMENT_AGENT_ID, ts.FUNDING_SOURCE_ID, ts.BUDGET_ID, ts.ACCOUNT_FLAG, ts.ERP_FLAG, "
-                    + "ts.EMERGENCY_ORDER, ts.LOCAL_PROCUREMENT FROM tmp_shipment ts WHERE ts.CHANGED=1 AND ts.SHIPMENT_ID IS NOT NULL";
-            shipmentRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+            sqlString = "INSERT INTO rm_shipment_trans (SHIPMENT_ID, PLANNING_UNIT_ID, EXPECTED_DELIVERY_DATE, PROCUREMENT_UNIT_ID, SUPPLIER_ID, SHIPMENT_QTY, RATE, PRODUCT_COST, SHIPMENT_MODE, FREIGHT_COST, PLANNED_DATE, SUBMITTED_DATE, APPROVED_DATE, SHIPPED_DATE, ARRIVED_DATE, RECEIVED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, NOTES, ORDER_NO, PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID, PROCUREMENT_AGENT_ID, FUNDING_SOURCE_ID, BUDGET_ID, ACCOUNT_FLAG, ERP_FLAG, EMERGENCY_ORDER, LOCAL_PROCUREMENT) SELECT ts.SHIPMENT_ID, ts.PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, IF(ts.PROCUREMENT_UNIT_ID=0,null,ts.PROCUREMENT_UNIT_ID), IF(ts.SUPPLIER_ID=0,null,ts.SUPPLIER_ID), ts.SHIPMENT_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, ts.PLANNED_DATE, ts.SUBMITTED_DATE, ts.APPROVED_DATE, ts.SHIPPED_DATE, ts.ARRIVED_DATE, ts.RECEIVED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, ts.NOTES, ts.ORDER_NO, ts.PRIME_LINE_NO, ts.ACTIVE, ts.LAST_MODIFIED_BY, ts.LAST_MODIFIED_DATE, :versionId, s.PROCUREMENT_AGENT_ID, ts.FUNDING_SOURCE_ID, ts.BUDGET_ID, ts.ACCOUNT_FLAG, ts.ERP_FLAG, ts.EMERGENCY_ORDER, ts.LOCAL_PROCUREMENT"
+                    + " FROM tmp_shipment ts "
+                    + "WHERE ts.CHANGED=1 AND ts.SHIPMENT_ID IS NOT NULL";
+            try {
+                shipmentRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+                logger.info(shipmentRows + " added to the shipment_trans table");
+            } catch (Exception e) {
+                logger.info("Failed to add to the shipment_trans table");
+                throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
+            }
             params.clear();
             params.put("versionId", version.getVersionId());
-
+            // Update the rm_shipment table with the latest versionId
+            sqlString = "UPDATE tmp_shipment ts LEFT JOIN rm_shipment s ON ts.SHIPMENT_ID=s.SHIPMENT_ID SET s.SUGGESTED_QTY=ts.SUGGESTED_QTY, s.CURRENCY_ID=ts.CURRENCY_ID, s.CONVERSION_RATE_TO_USD=ts.CONVERSION_RATE_TO_USD, s.MAX_VERSION_ID=:versionId WHERE ts.SHIPMENT_ID IS NOT NULL AND ts.CHANGED=1";
+            try {
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+                logger.info("Updated the Version no in the shipment table");
+            } catch (Exception e) {
+                logger.info("Failed to update the Version no in the shipment table");
+                throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
+            }
             // Insert into rm_shipment_trans_batch_info where the shipment record was already existing but has changed
             sqlString = "INSERT INTO rm_shipment_trans_batch_info SELECT null, st.SHIPMENT_TRANS_ID, tsbi.BATCH_ID, tsbi.BATCH_SHIPMENT_QTY FROM tmp_shipment ts left join tmp_shipment_batch_info tsbi ON tsbi.PARENT_ID=ts.ID LEFT JOIN rm_shipment_trans st ON ts.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID=:versionId WHERE ts.SHIPMENT_ID IS NOT NULL AND ts.CHANGED=1 AND tsbi.PARENT_ID IS NOT NULL";
-            this.namedParameterJdbcTemplate.update(sqlString, params);
-            params.clear();
+            try {
+                shipmentRows = this.namedParameterJdbcTemplate.update(sqlString, params);
+                logger.info(shipmentRows + " rows inserted into the shipment_trans_batch_info table");
+            } catch (Exception e) {
+                logger.info("Failed to insert into the shipment_trans_batch_info table");
+                throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
+            }
 
             sqlString = "SELECT ts.ID, ts.CREATED_BY, ts.CREATED_DATE, ts.LAST_MODIFIED_BY, ts.LAST_MODIFIED_DATE FROM tmp_shipment ts WHERE ts.SHIPMENT_ID IS NULL OR ts.SHIPMENT_ID=0";
             List<IdByAndDate> idListForInsert = this.namedParameterJdbcTemplate.query(sqlString, params, new IdByAndDateRowMapper());
@@ -886,35 +910,27 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("createdDate", tmpId.getCreatedDate());
                 params.put("lastModifiedBy", tmpId.getLastModifiedBy());
                 params.put("lastModifiedDate", tmpId.getLastModifiedDate());
-                sqlString = "INSERT INTO rm_shipment ("
-                        + "PROGRAM_ID, SUGGESTED_QTY, CURRENCY_ID, CONVERSION_RATE_TO_USD, CREATED_BY, "
-                        + "CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) SELECT "
-                        + ":programId, ts.SUGGESTED_QTY, ts.CURRENCY_ID, ts.CONVERSION_RATE_TO_USD, :createdBy, "
-                        + ":createdDate, :lastModifiedBy, :lastModifiedDate, :versionId FROM tmp_shipment ts WHERE ts.ID=:id";
-
-                consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
-                sqlString = "SELECT LAST_INSERT_ID()";
-                int shipmentId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
-                params.put("shipmentId", shipmentId);
-                sqlString = "INSERT INTO rm_shipment_trans ("
-                        + "SHIPMENT_ID, PLANNING_UNIT_ID, EXPECTED_DELIVERY_DATE, PROCUREMENT_UNIT_ID, SUPPLIER_ID, "
-                        + "SHIPMENT_QTY, RATE, PRODUCT_COST, SHIPMENT_MODE, FREIGHT_COST, "
-                        + "PLANNED_DATE, SUBMITTED_DATE, APPROVED_DATE, SHIPPED_DATE, ARRIVED_DATE, "
-                        + "RECEIVED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, NOTES, ORDER_NO, "
-                        + "PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID, "
-                        + "PROCUREMENT_AGENT_ID, FUNDING_SOURCE_ID, BUDGET_ID, ACCOUNT_FLAG, ERP_FLAG, "
-                        + "EMERGENCY_ORDER, LOCAL_PROCUREMENT) SELECT "
-                        + ":shipmentId, ts.PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, IF(ts.PROCUREMENT_UNIT_ID=0,null,ts.PROCUREMENT_UNIT_ID), IF(ts.SUPPLIER_ID=0,null,ts.SUPPLIER_ID), "
-                        + "ts.SHIPMENT_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, "
-                        + "ts.PLANNED_DATE, ts.SUBMITTED_DATE, ts.APPROVED_DATE, ts.SHIPPED_DATE, ts.ARRIVED_DATE, "
-                        + "ts.RECEIVED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, ts.NOTES, ts.ORDER_NO, "
-                        + "ts.PRIME_LINE_NO, ts.ACTIVE, :lastModifiedBy, :lastModifiedDate, :versionId, "
-                        + "ts.PROCUREMENT_AGENT_ID, ts.FUNDING_SOURCE_ID, ts.BUDGET_ID, ts.ACCOUNT_FLAG, ts.ERP_FLAG, "
-                        + "ts.EMERGENCY_ORDER, ts.LOCAL_PROCUREMENT "
-                        + "FROM tmp_shipment ts WHERE ts.ID=:id";
-                this.namedParameterJdbcTemplate.update(sqlString, params);
+                sqlString = "INSERT INTO rm_shipment (PROGRAM_ID, SUGGESTED_QTY, CURRENCY_ID, CONVERSION_RATE_TO_USD, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, MAX_VERSION_ID) SELECT :programId, ts.SUGGESTED_QTY, ts.CURRENCY_ID, ts.CONVERSION_RATE_TO_USD, :createdBy, :createdDate, :lastModifiedBy, :lastModifiedDate, :versionId FROM tmp_shipment ts WHERE ts.ID=:id";
+                try {
+                    consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+                } catch (Exception e) {
+                    logger.info("Failed to insert into the shipment table");
+                    throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
+                }
+                sqlString = "INSERT INTO rm_shipment_trans (SHIPMENT_ID, PLANNING_UNIT_ID, EXPECTED_DELIVERY_DATE, PROCUREMENT_UNIT_ID, SUPPLIER_ID, SHIPMENT_QTY, RATE, PRODUCT_COST, SHIPMENT_MODE, FREIGHT_COST, PLANNED_DATE, SUBMITTED_DATE, APPROVED_DATE, SHIPPED_DATE, ARRIVED_DATE, RECEIVED_DATE, SHIPMENT_STATUS_ID, DATA_SOURCE_ID, NOTES, ORDER_NO, PRIME_LINE_NO, ACTIVE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, VERSION_ID, PROCUREMENT_AGENT_ID, FUNDING_SOURCE_ID, BUDGET_ID, ACCOUNT_FLAG, ERP_FLAG, EMERGENCY_ORDER, LOCAL_PROCUREMENT) SELECT LAST_INSERT_ID(), ts.PLANNING_UNIT_ID, ts.EXPECTED_DELIVERY_DATE, IF(ts.PROCUREMENT_UNIT_ID=0,null,ts.PROCUREMENT_UNIT_ID), IF(ts.SUPPLIER_ID=0,null,ts.SUPPLIER_ID), ts.SHIPMENT_QTY, ts.RATE, ts.PRODUCT_COST, ts.SHIPMENT_MODE, ts.FREIGHT_COST, ts.PLANNED_DATE, ts.SUBMITTED_DATE, ts.APPROVED_DATE, ts.SHIPPED_DATE, ts.ARRIVED_DATE, ts.RECEIVED_DATE, ts.SHIPMENT_STATUS_ID, ts.DATA_SOURCE_ID, ts.NOTES, ts.ORDER_NO, ts.PRIME_LINE_NO, ts.ACTIVE, :lastModifiedBy, :lastModifiedDate, :versionId, ts.PROCUREMENT_AGENT_ID, ts.FUNDING_SOURCE_ID, ts.BUDGET_ID, ts.ACCOUNT_FLAG, ts.ERP_FLAG, ts.EMERGENCY_ORDER, ts.LOCAL_PROCUREMENT FROM tmp_shipment ts WHERE ts.ID=:id";
+                try {
+                    consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+                } catch (Exception e) {
+                    logger.info("Failed to insert into the shipment_trans table");
+                    throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
+                }
                 sqlString = "INSERT INTO rm_shipment_trans_batch_info (SHIPMENT_TRANS_ID, BATCH_ID, BATCH_SHIPMENT_QTY) SELECT LAST_INSERT_ID(), tsbi.BATCH_ID, tsbi.BATCH_SHIPMENT_QTY from tmp_shipment_batch_info tsbi WHERE tsbi.PARENT_ID=:id";
-                this.namedParameterJdbcTemplate.update(sqlString, params);
+                try {
+                    consumptionRows += this.namedParameterJdbcTemplate.update(sqlString, params);
+                } catch (Exception e) {
+                    logger.info("Failed to insert into the shipment_trans_batch_info table");
+                    throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
+                }
             }
         }
         // ###########################  Shipment  ############################################
@@ -1001,7 +1017,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<Batch> getBatchList(int programId, int versionId) {
+    public List<Batch> getBatchList(int programId, int versionId
+    ) {
         String sqlString = "SELECT bi.BATCH_ID, bi.BATCH_NO, bi.PROGRAM_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.`AUTO_GENERATED`, bi.EXPIRY_DATE, bi.CREATED_DATE FROM rm_batch_info bi WHERE bi.PROGRAM_ID=:programId";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
@@ -1009,7 +1026,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser) {
+    public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate,
+            String stopDate, CustomUserDetails curUser
+    ) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("realmCountryId", realmCountryId);
@@ -1059,7 +1078,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<ProgramVersion> getProgramVersionForARTMIS(int realmId) {
+    public List<ProgramVersion> getProgramVersionForARTMIS(int realmId
+    ) {
         String sql = "SELECT  "
                 + " pv.PROGRAM_VERSION_ID, pv.VERSION_ID, pv.NOTES, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, pv.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pv.LAST_MODIFIED_DATE, "
                 + " p.PROGRAM_ID, pl.LABEL_ID `PROGRAM_LABEL_ID`, pl.LABEL_EN `PROGRAM_LABEL_EN`, pl.LABEL_FR `PROGRAM_LABEL_FR`, pl.LABEL_SP `PROGRAM_LABEL_SP`, pl.LABEL_PR `PROGRAM_LABEL_PR`, "
@@ -1091,7 +1111,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     @Transactional
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList) {
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes,
+            CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList
+    ) {
         String programVersionUpdateSql = "UPDATE rm_program_version pv SET pv.VERSION_STATUS_ID=:versionStatusId, pv.NOTES=:notes, pv.LAST_MODIFIED_DATE=:curDate, pv.LAST_MODIFIED_BY=:curUser WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId";
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
@@ -1121,7 +1143,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             SqlParameterSource[] updateArray = new SqlParameterSource[paramsList.size()];
             this.namedParameterJdbcTemplate.batchUpdate(problemReportUpdateSql, paramsList.toArray(updateArray));
             this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
-            
+
         }
         return this.getVersionInfo(programId, versionId);
     }
@@ -1137,7 +1159,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
      *
      */
     @Override
-    public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId) {
+    public int checkErpOrder(String orderNo, String primeLineNo,
+            int realmCountryId, int planningUnitId
+    ) {
         String sqlString = "SELECT IF(steop.SHIPMENT_TRANS_ERP_ORDER_ID IS NOT NULL, 2, IF(c1.REALM_COUNTRY_ID!=:realmCountryId, 3, IF (papu.PLANNING_UNIT_ID!=:planningUnitId, 4, 0))) `REASON` "
                 + "FROM rm_erp_order eo "
                 + "LEFT JOIN rm_shipment_trans_erp_order_mapping steop ON eo.ERP_ORDER_ID=steop.ERP_ORDER_ID "
@@ -1172,7 +1196,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //        }
 //    }
     @Override
-    public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp) {
+    public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp
+    ) {
         String sqlString = "UPDATE rm_supply_plan_batch_info spbi "
                 + "SET "
                 + "spbi.EXPIRED_STOCK=:expired, spbi.CALCULATED_CONSUMPTION=:calculatedConsumption, "

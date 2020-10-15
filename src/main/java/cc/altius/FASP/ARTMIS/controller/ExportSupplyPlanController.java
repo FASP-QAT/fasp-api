@@ -49,10 +49,10 @@ public class ExportSupplyPlanController {
     private ProgramDataDao programDataDao;
     @Autowired
     private EmailService emailService;
+    @Value("${qat.filePath}")
+    private String QAT_FILE_PATH;
     @Value("${exportSupplyPlanFilePath}")
     private String EXPORT_SUPPLY_PLAN_FILE_PATH;
-    @Value("${versionId}")
-    private int VERSION_ID;
     @Value("${realmId}")
     private int REALM_ID;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -74,7 +74,7 @@ public class ExportSupplyPlanController {
             System.out.println("programVersionForARTMIS---"+programVersionForARTMIS);
 //            List<Program> programList = this.programService.getProgramList(REALM_ID);
             List<ProgramData> programDatas = new ArrayList<>();
-            File directory = new File(EXPORT_SUPPLY_PLAN_FILE_PATH);
+            File directory = new File(QAT_FILE_PATH+EXPORT_SUPPLY_PLAN_FILE_PATH);
             String programVersionIds = "";
             if (directory.isDirectory()) {
                 for (ProgramVersion p : programVersionForARTMIS) {
@@ -103,7 +103,7 @@ public class ExportSupplyPlanController {
                 Type typeList = new TypeToken<List<ProgramData>>() {
                 }.getType();
                 json = gson.toJson(programDatas, typeList);
-                path = EXPORT_SUPPLY_PLAN_FILE_PATH + "SUPPLY_PLAN_" + curDate + ".json";
+                path = QAT_FILE_PATH+EXPORT_SUPPLY_PLAN_FILE_PATH + "SUPPLY_PLAN_" + curDate + ".json";
                 FileWriter fileWriter = new FileWriter(path);
                 fileWriter.write(json);
                 fileWriter.flush();
