@@ -78,6 +78,8 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     @Autowired
     private EmailService emailService;
 
+    @Value("${qat.filePath}")
+    private String QAT_FILE_PATH;
     @Value("${catalogFilePath}")
     private String CATALOG_FILE_PATH;
     @Value("${catalogBkpFilePath}")
@@ -98,7 +100,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
         String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         String fileList = "";
-        File dir = new File(CATALOG_FILE_PATH);
+        File dir = new File(QAT_FILE_PATH+CATALOG_FILE_PATH);
         FileFilter fileFilter = new WildcardFileFilter("item_data_*.xml");
         File[] files = dir.listFiles(fileFilter);
         String sqlString;
@@ -354,9 +356,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     pullPlanningUnit();
                     pullSupplier();
                     pullProcurementUnit();
-                    File directory = new File(BKP_CATALOG_FILE_PATH);
+                    File directory = new File(QAT_FILE_PATH+BKP_CATALOG_FILE_PATH);
                     if (directory.isDirectory()) {
-                        fXmlFile.renameTo(new File(BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
+                        fXmlFile.renameTo(new File(QAT_FILE_PATH+BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
                         logger.info("Product catalog file moved to processed folder successfully");
                     } else {
                         subjectParam = new String[]{"Product Catalogue", "Backup directory does not exists"};

@@ -361,6 +361,18 @@ public class PipelineDbRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @PutMapping(path = "/pipeline/realmCountryPlanningUnit/{pipelineId}")
+    public ResponseEntity createRealmCountryPlanningUnits(@PathVariable("pipelineId") int pipelineId, Authentication auth) throws IOException {
+        CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+        try {
+            this.pipelineDbService.createRealmCountryPlanningUnits(pipelineId, curUser);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"),HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("/api//", e);
+            return new ResponseEntity(new ResponseCode(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 
 

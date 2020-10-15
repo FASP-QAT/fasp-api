@@ -38,6 +38,8 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
     @Autowired
     private EmailService emailService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    @Value("${qat.filePath}")
+    private String QAT_FILE_PATH;
     @Value("${catalogFilePath}")
     private String CATALOG_FILE_PATH;
 
@@ -52,7 +54,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
         String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         try {
-            File directory = new File(CATALOG_FILE_PATH);
+            File directory = new File(QAT_FILE_PATH+CATALOG_FILE_PATH);
             if (directory.isDirectory()) {
                 this.importProductCatalogueDao.importProductCatalogue();
             } else {
