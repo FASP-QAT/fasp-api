@@ -721,17 +721,23 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                                     sql = "UPDATE rm_shipment_trans st SET st.`ERP_FLAG`=1 WHERE st.`SHIPMENT_ID`=?;";
                                     this.jdbcTemplate.update(sql, shipmentId);
                                     //Shipment Table
+                                    params1 = new MapSqlParameterSource();
                                     params1.addValue("qty", erpOrderDTO.getQuantity());
                                     params1.addValue("createdDate", curDate);
                                     params1.addValue("lastModifiedDate", curDate);
-                                    params1.addValue("shipmentId", erpOrderDTO.getShipmentId());
+                                    params1.addValue("shipmentId", shipmentId);
+                                    System.out.println("params1 manual tagging ---" + params1);
+                                    System.out.println("createNewEntryInShipmentTable manual tagging ---" + createNewEntryInShipmentTable);
                                     namedParameterJdbcTemplate.update(createNewEntryInShipmentTable, params1, keyHolder1);
+                                    int newShipid = 0;
                                     if (keyHolder1.getKey() != null) {
-                                        shipmentId = keyHolder1.getKey().intValue();
+                                        System.out.println("inside mt shipment");
+                                        newShipid = keyHolder1.getKey().intValue();
                                     }
+                                    System.out.println("my manual tagging shipment id---" + shipmentId);
                                     //Shipment Trans
                                     params1 = new MapSqlParameterSource();
-                                    params1.addValue("shipmentId", shipmentId);
+                                    params1.addValue("shipmentId", newShipid);
                                     params1.addValue("shipmentId1", shipmentId);
                                     params1.addValue("CURDATE", curDate);
                                     params1.addValue("CURDATE1", curDate);
@@ -742,6 +748,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                                     if (keyHolder2.getKey() != null) {
                                         shipmentTransId = keyHolder2.getKey().intValue();
                                     }
+                                    System.out.println("manual tagging shipment trans---" + shipmentTransId);
                                     //insert Into Shipment Trans Batch Info
                                     this.jdbcTemplate.update(insertIntoShipmentTransBatchInfo, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
                                 }
