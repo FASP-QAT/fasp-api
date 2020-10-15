@@ -24,6 +24,7 @@ public class CostOfInventoryRowMapper implements RowMapper<CostOfInventoryOutput
         c.setCost(rs.getDouble("COST"));
         c.setStock(rs.getInt("STOCK"));
         c.setCatalogPrice(rs.getDouble("CATALOG_PRICE"));
+        c.setCalculated(rs.getBoolean("CALCULATED"));
         return c;
     }
 

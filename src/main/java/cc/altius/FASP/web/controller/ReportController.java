@@ -112,7 +112,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * { "realmId": 1, "realmCountryIds": [ 51], "programIds": [2535], "planningUnitIds": [778], "startDate": "2019-01-01", "stopDate": "2019-12-01", "reportView": 1}
+     * { "realmId": 1, "realmCountryIds": [5,51], "programIds": [2028,2029,2535], "planningUnitIds": [778,2692], "startDate": "2019-01-01", "stopDate": "2019-12-01", "reportView": 1, "useApprovedSupplyPlanOnly":0}
      * -- realmId must be a valid realm that you want to run this Global report for
      * -- RealmCountryIds is the list of Countries that you want to run the report for. Empty means all Countries
      * -- ProgramIds is the list of Programs that you want to run the report for. Empty means all Programs
@@ -173,7 +173,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * { "realmId":1, "realmCountryIds":[2], "programIds":[2003], "planningUnitIds":[772], "startDate":"2020-03-01", "previousMonths":5}
+     * { "realmId":1, "realmCountryIds":[2,5], "programIds":[2003,2028], "planningUnitIds":[772,2692], "startDate":"2020-03-01", "previousMonths":5}
      * -- realmId since it is a Global report need to include Realm
      * -- startDate - date that the report is to be run for
      * -- realmCountryIds list of countries that we need to run the report for
@@ -545,7 +545,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"realmId":1,  "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":[158], "fundingSourceIds":[], "procurementAgentIds":[]}
+     * {"curUser":20, "realmId":1,  "startDate":"2019-10-01", "stopDate":"2021-07-01", "shipmentStatusIds":[],"planningUnitIds":[], "fundingSourceIds":[], "procurementAgentIds":[], "useApprovedSupplyPlansOnly":0}
      * </pre>
      *
      * @param so
@@ -568,7 +568,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"realmId":1,  "startDate":"2019-10-01", "stopDate":"2020-07-01", "realmCountryIds":[1,2,3], "planningUnitId":158, "fundingSourceIds":[], "fundingSourceProcurementAgentIds":[], "reportView":1}
+     * {"curUser": 20,"realmId": 1,"realmCountryIds": [5,51],"programIds": [2028,2029,2535],"planningUnitId": 2692,"startDate": 2019-01-01","stopDate": "2019-12-01","fundingSourceProcurementAgentIds": [],"reportView": 1,"useApprovedSupplyPlanOnly": 0,"includePlannedShipments": 1}
      * </pre>
      *
      * @param sgd
@@ -677,7 +677,7 @@ public class ReportController {
 
     // Report no 29
     /**
-     * Sample JSON {"programId":3, "versionId":2}
+     * Sample JSON {"programId":2028, "versionId":1, "startDate":"2019-01-01", "stopDate":"2021-12-01", "fundingSourceIds":[], "shippingStatusIds":[]}
      *
      * @param br
      * @param auth
@@ -699,7 +699,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"realmId": "1",    "dt": "2020-09-01",    "tracerCategoryId":-1,    "realmCountryIds":[]}
+     * {    "curUser": 20,    "realmId": 1,    "realmCountryIds": [        5,        51    ],    "tracerCategoryIds":[], "dt":"2020-09-01"}
      * -- programId must be a single Program cannot be muti-program select or -1 for all programs
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
      * -- dt is the month for which you want to run the report
