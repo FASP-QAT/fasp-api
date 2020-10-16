@@ -175,6 +175,14 @@ public class QuantimedImportServiceImpl implements QuantimedImportService {
                         }
                     }
                     recordDTOs.sort((QuantimedImportRecordDTO s1, QuantimedImportRecordDTO s2)->s1.getProduct().getProductName().compareTo(s2.getProduct().getProductName()));
+                    for(int s=1; s<recordDTOs.size(); s++) {
+                        if(!recordDTOs.get(s-1).getProductId().equals(recordDTOs.get(s).getProductId()) && recordDTOs.get(s-1).getIngConsumption() == 0) {
+                           recordDTOs.remove(s-1);
+                        }
+                    }
+                    if(recordDTOs.size() > 1) {
+                        recordDTOs.remove(recordDTOs.size() - 1);
+                    }
                     importDTO.setRecords(recordDTOs);
                 }
             } catch (ParserConfigurationException ex) {
