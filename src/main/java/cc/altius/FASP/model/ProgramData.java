@@ -50,7 +50,7 @@ public class ProgramData extends BaseModel implements Serializable {
     private SimpleObject versionType;
     @JsonView(Views.InternalView.class)
     private SimpleObject versionStatus;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private String notes;
     @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private List<Region> regionList;

@@ -62,7 +62,7 @@ public interface UserDao {
 
     public Role getRoleById(String roleId);
 
-    public List<Role> getRoleList();
+    public List<Role> getRoleList(CustomUserDetails curUser);
 
     public String generateTokenForUserId(int userId);
 
