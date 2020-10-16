@@ -8,6 +8,8 @@ package cc.altius.FASP.model.report;
 import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -16,19 +18,33 @@ import java.io.Serializable;
  */
 public class ProgramProductCatalogOutput implements Serializable {
 
+    @JsonView({Views.ReportView.class})
     private SimpleCodeObject program;
+    @JsonView({Views.ReportView.class})
     private SimpleObject tracerCategory;
+    @JsonView({Views.ReportView.class})
     private SimpleObject productCategory;
+    @JsonView({Views.ReportView.class})
     private SimpleObject forecastingUnit;
+    @JsonView({Views.ReportView.class})
     private SimpleCodeObject fUnit;
+    @JsonView({Views.ReportView.class})
     private Label genericName;
+    @JsonView({Views.ReportView.class})
     private SimpleObject planningUnit;
+    @JsonView({Views.ReportView.class})
     private SimpleCodeObject pUnit;
+    @JsonView({Views.ReportView.class})
     private int forecastingtoPlanningUnitMultiplier;
+    @JsonView({Views.ReportView.class})
     private int minMonthsOfStock;
+    @JsonView({Views.ReportView.class})
     private int reorderFrequencyInMonths;
+    @JsonView({Views.ReportView.class})
     private double catalogPrice;
+    @JsonView({Views.ReportView.class})
     private int shelfLife;
+    @JsonView({Views.ReportView.class})
     private boolean active;
 
     public SimpleCodeObject getProgram() {

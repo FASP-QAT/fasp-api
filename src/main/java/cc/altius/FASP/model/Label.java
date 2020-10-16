@@ -17,13 +17,13 @@ public class Label extends BaseModel {
 
     @JsonView(Views.InternalView.class)
     private Integer labelId;
-    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.InternalView.class, Views.ReportView.class})
     private String label_en;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private String label_sp;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private String label_fr;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.ReportView.class})
     private String label_pr;
 
     public Label(Integer labelId, String label_en, String label_sp, String label_fr, String label_pr) {
