@@ -19,6 +19,10 @@ public class Views {
         
     }
     
+    public interface ReportView {
+        
+    }
+    
     public interface IgnoreView {
         
     }

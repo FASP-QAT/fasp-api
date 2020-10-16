@@ -8,6 +8,7 @@ package cc.altius.FASP.web.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
 import cc.altius.FASP.model.report.BudgetReportInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
@@ -33,6 +34,7 @@ import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.service.ReportService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,12 +64,16 @@ public class ReportController {
     // Report no 1
     /**
      * <pre>
-     * Sample JSON {"productCategoryId": -1, "tracerCategoryId": -1, "programId": 3 }
+     * Sample JSON {"productCategoryId": -1, "tracerCategoryId": -1, "programId": 2028 }
      * -- Program Id must be a valid Program Id, cannot be -1 (Any)      *
      * -- TracerCategory and ProductCategory are used as Filters for the report and can be = -1 which means Any
      * -- Return the list of Program-Planning Units and their corresponding fields
      * </pre>
+     * @param ProgramProductCatalogInput
+     * @param auth Authentication object from JWT
+     * @return ProgramProductCatalogOutput
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/programProductCatalog")
     public ResponseEntity getProgramProductCatalog(@RequestBody ProgramProductCatalogInput ppc, Authentication auth) {
         try {
@@ -92,10 +98,11 @@ public class ReportController {
      * -- reportView = 2 - Data is reported in terms of Forecasting Unit
      * </pre>
      *
-     * @param ppc
-     * @param auth
-     * @return
+     * @param ConsumptionForecastVsActualInput
+     * @param auth Authentication object from JWT
+     * @return ConsumptionForecastVsActualOutput
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/consumptionForecastVsActual")
     public ResponseEntity getConsumptionForecastVsActual(@RequestBody ConsumptionForecastVsActualInput ppc, Authentication auth) {
         try {

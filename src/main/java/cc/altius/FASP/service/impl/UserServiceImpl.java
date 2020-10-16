@@ -86,8 +86,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Role> getRoleList() {
-        return this.userDao.getRoleList();
+    public List<Role> getRoleList(CustomUserDetails curUser) {
+        return this.userDao.getRoleList(curUser);
     }
 
     @Override

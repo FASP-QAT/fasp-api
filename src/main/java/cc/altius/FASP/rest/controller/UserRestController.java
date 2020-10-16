@@ -76,9 +76,10 @@ public class UserRestController {
     }
 
     @GetMapping(value = "/role")
-    public ResponseEntity getRoleList() {
+    public ResponseEntity getRoleList(Authentication auth) {
         try {
-            return new ResponseEntity(this.userService.getRoleList(), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.userService.getRoleList(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Role", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

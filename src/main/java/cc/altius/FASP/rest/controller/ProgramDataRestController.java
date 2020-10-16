@@ -204,6 +204,12 @@ public class ProgramDataRestController {
         }
     }
 
+    /**
+     * Sample JSON [{"programId":2535,"versionId":3},{"programId":2001,"versionId":5}]
+     * @param programVersionList
+     * @param auth
+     * @return 
+     */
     @GetMapping("/programData/checkNewerVersions")
     public ResponseEntity checkNewerVersions(@RequestBody List<ProgramIdAndVersionId> programVersionList, Authentication auth) {
         try {

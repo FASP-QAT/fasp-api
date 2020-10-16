@@ -24,8 +24,8 @@ import cc.altius.FASP.model.rowMapper.RoleListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RoleResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserResultSetExtractor;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -301,12 +301,29 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<Role> getRoleList() {
-        String sql = " SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID`,c.`CAN_CREATE_ROLE` FROM us_role "
-                + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID` "
-                + "LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=us_role.`ROLE_ID` "
-                + "LEFT JOIN us_can_create_role c ON c.`ROLE_ID`=us_role.`ROLE_ID` ORDER BY lb.`LABEL_EN` ASC";
-        return this.namedParameterJdbcTemplate.query(sql, new RoleListResultSetExtractor());
+    public List<Role> getRoleList(CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder();
+//        sb.append(" SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID`,c.`CAN_CREATE_ROLE` FROM us_role "
+//                + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID` "
+//                + "LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=us_role.`ROLE_ID` "
+//                + "LEFT JOIN us_can_create_role c ON c.`ROLE_ID`=us_role.`ROLE_ID` WHERE 1 ");
+        sb.append("SELECT c.`CAN_CREATE_ROLE`,r.`ROLE_ID`,lb.*,rb.`BUSINESS_FUNCTION_ID` "
+                + " FROM us_can_create_role c "
+                + " LEFT JOIN us_role r ON r.`ROLE_ID`=c.`CAN_CREATE_ROLE` "
+                + " LEFT JOIN ap_label lb ON lb.`LABEL_ID`=r.`LABEL_ID` "
+                + " LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=r.`ROLE_ID` WHERE 1 ");
+        String role[] = new String[curUser.getRoles().size()];
+        for (int i = 0; i < curUser.getRoles().size(); i++) {
+            role[i] = curUser.getRoles().get(i).getRoleId();
+        }
+        if (Arrays.asList(role).contains("ROLE_APPLICATION_ADMIN")) {
+            sb.append("AND c.`ROLE_ID`=\"ROLE_APPLICATION_ADMIN\"");
+
+        } else if (Arrays.asList(role).contains("ROLE_REALM_ADMIN")) {
+            sb.append("AND c.`ROLE_ID`=\"ROLE_REALM_ADMIN\"");
+        }
+        sb.append(" ORDER BY lb.`LABEL_EN` ASC ");
+        return this.namedParameterJdbcTemplate.query(sb.toString(), new RoleListResultSetExtractor());
     }
 
     @Override
@@ -772,9 +789,9 @@ public class UserDaoImpl implements UserDao {
         String sql = "UPDATE us_user u SET u.`AGREEMENT_ACCEPTED`=1,u.`LAST_LOGIN_DATE`=?,u.`LAST_MODIFIED_BY`=? WHERE u.`USER_ID`=?;";
         return this.jdbcTemplate.update(sql, curDate, userId, userId);
     }
-    
+
     @Override
-    public int addUserJiraAccountId(int userId, String jiraCustomerAccountId) {       
+    public int addUserJiraAccountId(int userId, String jiraCustomerAccountId) {
         String sql = "UPDATE us_user u SET u.`JIRA_ACCOUNT_ID`=? WHERE u.`USER_ID`=?;";
         return this.jdbcTemplate.update(sql, jiraCustomerAccountId, userId);
     }
@@ -783,7 +800,7 @@ public class UserDaoImpl implements UserDao {
     public String getUserJiraAccountId(int userId) {
         String sql = "SELECT u.`JIRA_ACCOUNT_ID` FROM us_user u WHERE u.`USER_ID`=?;";
         try {
-            return this.jdbcTemplate.queryForObject(sql, String.class, userId);             
+            return this.jdbcTemplate.queryForObject(sql, String.class, userId);
         } catch (Exception e) {
             return null;
         }
