@@ -410,14 +410,14 @@ public class ReportDaoImpl implements ReportDao {
         Map<String, Object> params = new HashMap<>();
         params.put("startDate", asci.getStartDate());
         params.put("stopDate", asci.getStopDate());
-        params.put("procurementAgentId", asci.getProcurementAgentId());
+        params.put("procurementAgentIds", asci.getProcurementAgentIdString());
         params.put("programId", asci.getProgramId());
         params.put("versionId", asci.getVersionId());
         params.put("planningUnitId", asci.getPlanningUnitId());
-        params.put("fundingSourceId", asci.getFundingSourceId());
-        params.put("shipmentStatusId", asci.getShipmentStatusId());
+        params.put("fundingSourceIds", asci.getFundingSourceIdString());
+        params.put("shipmentStatusIds", asci.getShipmentStatusIdString());
         params.put("reportBasedOn", asci.getReportBasedOn());
-        return this.namedParameterJdbcTemplate.query("CALL annualShipmentCost(:programId, :versionId, :procurementAgentId, :planningUnitId, :fundingSourceId, :shipmentStatusId, :startDate, :stopDate, :reportBasedOn)", params, new AnnualShipmentCostOutputRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL annualShipmentCost(:programId, :versionId, :procurementAgentIds, :planningUnitId, :fundingSourceIds, :shipmentStatusIds, :startDate, :stopDate, :reportBasedOn)", params, new AnnualShipmentCostOutputRowMapper());
     }
 
     // Report no 24
