@@ -32,6 +32,7 @@ public class ErpOrderDTO {
     private String reason;
     private String recipentCountry;
     private Label planningUnitLabel;
+    private String notes;
 
     public int getErpOrderId() {
         return erpOrderId;
@@ -177,9 +178,17 @@ public class ErpOrderDTO {
         this.planningUnitLabel = planningUnitLabel;
     }
 
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
     @Override
     public String toString() {
-        return "ErpOrderDTO{" + "erpOrderId=" + erpOrderId + ", shipmentId=" + shipmentId + ", quantity=" + quantity + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", roNo=" + roNo + ", roPrimeLineNo=" + roPrimeLineNo + ", orderType=" + orderType + ", planningUnitSkuCode=" + planningUnitSkuCode + ", procurementUnitSkuCode=" + procurementUnitSkuCode + ", currentEstimatedDeliveryDate=" + currentEstimatedDeliveryDate + ", supplierName=" + supplierName + ", price=" + price + ", shippingCost=" + shippingCost + ", status=" + status + ", reason=" + reason + ", recipentCountry=" + recipentCountry + '}';
+        return "ErpOrderDTO{" + "erpOrderId=" + erpOrderId + ", shipmentId=" + shipmentId + ", quantity=" + quantity + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", roNo=" + roNo + ", roPrimeLineNo=" + roPrimeLineNo + ", orderType=" + orderType + ", planningUnitSkuCode=" + planningUnitSkuCode + ", procurementUnitSkuCode=" + procurementUnitSkuCode + ", currentEstimatedDeliveryDate=" + currentEstimatedDeliveryDate + ", supplierName=" + supplierName + ", price=" + price + ", shippingCost=" + shippingCost + ", status=" + status + ", reason=" + reason + ", recipentCountry=" + recipentCountry + ", planningUnitLabel=" + planningUnitLabel + ", notes=" + notes + '}';
     }
 
 }
