@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,12 +35,7 @@ public class JiraServiceDeskApiController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     
-    @Value("${jira.apiUrl}")
-    private String JIRA_API_URL;
-    @Value("${jira.apiUsername}")
-    private String JIRA_API_USERNAME;
-    @Value("${jira.apiToken}")
-    private String JIRA_API_TOKEN;
+
     @Autowired
     private JiraServiceDeskApiService jiraServiceDeskApiService;
     @Autowired
@@ -83,5 +79,17 @@ public class JiraServiceDeskApiController {
             message = "Could not upload the file: " + file.getOriginalFilename() + "!";
             return new ResponseEntity(new ResponseCode(message), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }        
+    }     
+    
+    @GetMapping(value = "/ticket/openIssues")
+    public ResponseEntity getOpenIssue(Authentication auth) {
+        try {            
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());            
+            return new ResponseEntity(this.jiraServiceDeskApiService.openIssues(curUser), HttpStatus.OK);            
+        } catch (Exception e) {
+            logger.error("Error while creating issue", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+    }
 }

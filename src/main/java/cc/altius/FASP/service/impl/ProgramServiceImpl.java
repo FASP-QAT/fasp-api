@@ -228,8 +228,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public void delinkShipment(int shipmentId, CustomUserDetails curUser) {
-        this.programDao.delinkShipment(shipmentId, curUser);
+    public void delinkShipment(ErpOrderDTO erpOrderDTO, CustomUserDetails curUser) {
+        this.programDao.delinkShipment(erpOrderDTO, curUser);
     }
 
     @Override
@@ -246,7 +246,7 @@ public class ProgramServiceImpl implements ProgramService {
     public boolean validateProgramCode(int realmId, int programId, String programCode, CustomUserDetails curUser) {
         if (curUser.getRealm().getRealmId() != realmId) {
             throw new AccessDeniedException("Access denied");
-        } 
+        }
         return this.programDao.validateProgramCode(realmId, programId, programCode, curUser);
     }
 
