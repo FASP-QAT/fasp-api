@@ -1670,38 +1670,36 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
 
         sql = "UPDATE`adb_pipeline` p SET p.`STATUS`=1 WHERE p.`PIPELINE_ID`=?";
         rowsEffected = this.jdbcTemplate.update(sql, pipelineId);
-        
-        sql ="update rm_realm_country r set r.ACTIVE=1,r.LAST_MODIFIED_BY=?,r.LAST_MODIFIED_DATE=? where r.REALM_COUNTRY_ID=? and r.ACTIVE=0";
-        this.jdbcTemplate.update(sql,curUser.getUserId(),curDate,p.getRealmCountry().getRealmCountryId());
-        
-        sql ="update rm_health_area ha set ha.ACTIVE=1,ha.LAST_MODIFIED_BY=?,ha.LAST_MODIFIED_DATE=? where ha.HEALTH_AREA_ID=? and ha.ACTIVE=0;";
-        this.jdbcTemplate.update(sql,curUser.getUserId(),curDate,p.getHealthArea().getId());
-        
-        sql ="update rm_organisation o set o.ACTIVE=1,o.LAST_MODIFIED_BY=?,o.LAST_MODIFIED_DATE=? where o.ORGANISATION_ID=? and o.ACTIVE=0;";
-        this.jdbcTemplate.update(sql,curUser.getUserId(),curDate,p.getOrganisation().getId());
 
-        sql="select count(*) from rm_health_area_country hac where hac.HEALTH_AREA_ID=? and hac.REALM_COUNTRY_ID=?;";
-        int haCount=this.jdbcTemplate.queryForObject(sql, Integer.class,p.getHealthArea().getId(),p.getRealmCountry().getRealmCountryId());
-        if(haCount>0){
-            sql="update rm_health_area_country hac set hac.ACTIVE=1,hac.LAST_MODIFIED_BY=?,hac.LAST_MODIFIED_DATE=?  where hac.HEALTH_AREA_ID=? and hac.REALM_COUNTRY_ID=? and hac.ACTIVE=0;";
-            this.jdbcTemplate.update(sql,curUser.getUserId(),curDate,p.getHealthArea().getId(),p.getRealmCountry().getRealmCountryId());
-        }else{
-            sql="insert into rm_health_area_country values(null,?,?,1,?,?,?,?)";
-            this.jdbcTemplate.update(sql,p.getHealthArea().getId(),p.getRealmCountry().getRealmCountryId(),curUser.getUserId(),curDate,curUser.getUserId(),curDate);
+        sql = "update rm_realm_country r set r.ACTIVE=1,r.LAST_MODIFIED_BY=?,r.LAST_MODIFIED_DATE=? where r.REALM_COUNTRY_ID=? and r.ACTIVE=0";
+        this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, p.getRealmCountry().getRealmCountryId());
+
+        sql = "update rm_health_area ha set ha.ACTIVE=1,ha.LAST_MODIFIED_BY=?,ha.LAST_MODIFIED_DATE=? where ha.HEALTH_AREA_ID=? and ha.ACTIVE=0;";
+        this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, p.getHealthArea().getId());
+
+        sql = "update rm_organisation o set o.ACTIVE=1,o.LAST_MODIFIED_BY=?,o.LAST_MODIFIED_DATE=? where o.ORGANISATION_ID=? and o.ACTIVE=0;";
+        this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, p.getOrganisation().getId());
+
+        sql = "select count(*) from rm_health_area_country hac where hac.HEALTH_AREA_ID=? and hac.REALM_COUNTRY_ID=?;";
+        int haCount = this.jdbcTemplate.queryForObject(sql, Integer.class, p.getHealthArea().getId(), p.getRealmCountry().getRealmCountryId());
+        if (haCount > 0) {
+            sql = "update rm_health_area_country hac set hac.ACTIVE=1,hac.LAST_MODIFIED_BY=?,hac.LAST_MODIFIED_DATE=?  where hac.HEALTH_AREA_ID=? and hac.REALM_COUNTRY_ID=? and hac.ACTIVE=0;";
+            this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, p.getHealthArea().getId(), p.getRealmCountry().getRealmCountryId());
+        } else {
+            sql = "insert into rm_health_area_country values(null,?,?,1,?,?,?,?)";
+            this.jdbcTemplate.update(sql, p.getHealthArea().getId(), p.getRealmCountry().getRealmCountryId(), curUser.getUserId(), curDate, curUser.getUserId(), curDate);
         }
-        
-        
-        sql="select count(*) from rm_organisation_country roc where roc.ORGANISATION_ID=? and roc.REALM_COUNTRY_ID=?";
-        int oCount=this.jdbcTemplate.queryForObject(sql, Integer.class,p.getOrganisation().getId(),p.getRealmCountry().getRealmCountryId());
-        if(oCount>0){
-            sql="update rm_organisation_country roc set roc.ACTIVE=1,roc.LAST_MODIFIED_BY=?,roc.LAST_MODIFIED_DATE=?  where roc.ORGANISATION_ID=? and roc.REALM_COUNTRY_ID=? and roc.ACTIVE=0";
-            this.jdbcTemplate.update(sql,curUser.getUserId(),curDate,p.getOrganisation().getId(),p.getRealmCountry().getRealmCountryId());
-        }else{
-            sql="insert into rm_organisation_country values(null,?,?,1,?,?,?,?)";
-            this.jdbcTemplate.update(sql,p.getOrganisation().getId(),p.getRealmCountry().getRealmCountryId(),curUser.getUserId(),curDate,curUser.getUserId(),curDate);
+
+        sql = "select count(*) from rm_organisation_country roc where roc.ORGANISATION_ID=? and roc.REALM_COUNTRY_ID=?";
+        int oCount = this.jdbcTemplate.queryForObject(sql, Integer.class, p.getOrganisation().getId(), p.getRealmCountry().getRealmCountryId());
+        if (oCount > 0) {
+            sql = "update rm_organisation_country roc set roc.ACTIVE=1,roc.LAST_MODIFIED_BY=?,roc.LAST_MODIFIED_DATE=?  where roc.ORGANISATION_ID=? and roc.REALM_COUNTRY_ID=? and roc.ACTIVE=0";
+            this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, p.getOrganisation().getId(), p.getRealmCountry().getRealmCountryId());
+        } else {
+            sql = "insert into rm_organisation_country values(null,?,?,1,?,?,?,?)";
+            this.jdbcTemplate.update(sql, p.getOrganisation().getId(), p.getRealmCountry().getRealmCountryId(), curUser.getUserId(), curDate, curUser.getUserId(), curDate);
         }
-        
-        
+
         try {
             this.ProgramDataDaoImpl.getNewSupplyPlanList(programId, version.getVersionId(), true);
         } catch (ParseException ex) {
@@ -1738,15 +1736,27 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         params.put("pipelineId", pipelineId);
         List<QatTempDataSource> qatList = this.namedParameterJdbcTemplate.query(sql1, params, new QatTempDataSourceRowMapper());
         if (qatList.size() == 0) {
-            String sql = "SELECT  ds.`DataSourceName`PIPELINE_DATA_SOURCE,ds.`DataSourceTypeID` PIPELINE_DATA_SOURCE_TYPE,COALESCE(rds.DATA_SOURCE_ID,'') DATA_SOURCE_ID,"
-                    + " ds.DataSourceID PIPELINE_DATA_SOURCE_ID, COALESCE(rds.DATA_SOURCE_TYPE_ID,'') DATA_SOURCE_TYPE_ID \n"
-                    + "FROM `adb_datasource` ds   "
-                    + "left join ap_label al on upper(al.LABEL_EN)=upper(ds.DataSourceName) "
-                    + "OR upper(al.LABEL_FR)=upper(ds.DataSourceName)  "
-                    + "OR upper(al.LABEL_SP)=upper(ds.DataSourceName)  "
-                    + "OR upper(al.LABEL_PR)=upper(ds.DataSourceName) "
-                    + "left join rm_data_source rds on rds.LABEL_ID=al.LABEL_ID AND al.LABEL_ID IS NOT NULL "
-                    + "where ds.PIPELINE_ID=:pipelineId group by ds.`DataSourceID`;";
+//            String sql = "SELECT  ds.`DataSourceName`PIPELINE_DATA_SOURCE,ds.`DataSourceTypeID` PIPELINE_DATA_SOURCE_TYPE,COALESCE(rds.DATA_SOURCE_ID,'') DATA_SOURCE_ID,"
+//                    + " ds.DataSourceID PIPELINE_DATA_SOURCE_ID, COALESCE(rds.DATA_SOURCE_TYPE_ID,'') DATA_SOURCE_TYPE_ID \n"
+//                    + "FROM `adb_datasource` ds   "
+//                    + "left join ap_label al on upper(al.LABEL_EN)=upper(ds.DataSourceName) "
+//                    + "OR upper(al.LABEL_FR)=upper(ds.DataSourceName)  "
+//                    + "OR upper(al.LABEL_SP)=upper(ds.DataSourceName)  "
+//                    + "OR upper(al.LABEL_PR)=upper(ds.DataSourceName) "
+//                    + "left join rm_data_source rds on rds.LABEL_ID=al.LABEL_ID AND al.LABEL_ID IS NOT NULL "
+//                    + "where ds.PIPELINE_ID=:pipelineId group by ds.`DataSourceID`;";
+            String sql = "SELECT  ds.`DataSourceName`PIPELINE_DATA_SOURCE,ds.`DataSourceTypeID` PIPELINE_DATA_SOURCE_TYPE,COALESCE(rds.DATA_SOURCE_ID,'') DATA_SOURCE_ID,\n"
+                    + "ds.DataSourceID PIPELINE_DATA_SOURCE_ID, COALESCE(dst.DATA_SOURCE_TYPE_ID,'') DATA_SOURCE_TYPE_ID\n"
+                    + "FROM `adb_datasource` ds \n"
+                    + "left join ap_label a on a.LABEL_EN= ds.QATDataSourceLabel and a.SOURCE_ID=16 and a.LABEL_ID is not null\n"
+                    + "left join rm_data_source_type dst on dst.LABEL_ID=a.LABEL_ID\n"
+                    + "left join ap_label al on upper(al.LABEL_EN)=upper(ds.DataSourceName) \n"
+                    + "OR upper(al.LABEL_FR)=upper(ds.DataSourceName)  \n"
+                    + "OR upper(al.LABEL_SP)=upper(ds.DataSourceName)  \n"
+                    + "OR upper(al.LABEL_PR)=upper(ds.DataSourceName) \n"
+                    + "left join rm_data_source rds on rds.LABEL_ID=al.LABEL_ID AND al.LABEL_ID IS NOT NULL \n"
+                    + "and rds.DATA_SOURCE_TYPE_ID=dst.DATA_SOURCE_TYPE_ID \n"
+                    + "where ds.PIPELINE_ID=:pipelineId group by ds.`DataSourceID`";
             params.put("pipelineId", pipelineId);
 
             return this.namedParameterJdbcTemplate.query(sql, params, new QatTempDataSourceRowMapper());
