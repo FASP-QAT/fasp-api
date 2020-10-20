@@ -8,12 +8,14 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.service.JiraServiceDeskApiService;
 import cc.altius.FASP.service.UserService;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.minidev.json.JSONObject;
@@ -202,5 +204,53 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
         headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         return headers;
 
+    }
+
+    @Override
+    public String syncUserJiraAccountId() {
+                
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response;  
+        int total = 0;
+        JsonArray jsonArray = null;
+        StringBuilder sb = new StringBuilder();
+
+        HttpHeaders headers = getCommonHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("X-ExperimentalApi", "opt-in");
+
+        HttpEntity<String> entity = new HttpEntity<String>("", headers);
+
+        response = restTemplate.exchange(
+                JIRA_SERVICE_DESK_API_URL + "/servicedesk/2/customer", HttpMethod.GET, entity, String.class);
+        
+        if (response.getStatusCode() == HttpStatus.OK) {
+
+            JsonObject jsonObject = JsonParser.parseString​(response.getBody()).getAsJsonObject();
+            JsonElement element = jsonObject.get("size");
+            total = element.getAsInt();
+            
+            if(total > 0) {
+                List<String> userEmails = this.userService.getUserListForUpdateJiraAccountId();
+                jsonArray = jsonObject.getAsJsonArray("values");                
+                sb.append("{");
+                for(int i=0 ; i < total ; i++) {
+                    String jiraEmailAddress = "", jiraAccountId = "";
+                    JsonObject jsonObject1 = jsonArray.get(i).getAsJsonObject();
+                    jiraEmailAddress = jsonObject1.get("emailAddress").getAsString();
+                    jiraAccountId = jsonObject1.get("accountId").getAsString();                        
+                    for(int j=0 ; j<userEmails.size() ; j++) {                        
+                        if(userEmails.get(j).equalsIgnoreCase(jiraEmailAddress)) {
+                            this.userService.updateUserJiraAccountId(userEmails.get(j), jiraAccountId);
+                            sb.append(jsonObject1);
+                        }
+                    }
+                }
+                sb.append("}");
+            }            
+        }
+
+        return sb.toString() ;
+                
     }
 }

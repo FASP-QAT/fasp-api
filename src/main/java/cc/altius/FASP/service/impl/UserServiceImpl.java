@@ -241,4 +241,14 @@ public class UserServiceImpl implements UserService {
         return this.userDao.getUserJiraAccountId(userId);
     }
 
+    @Override
+    public List<String> getUserListForUpdateJiraAccountId() {
+        return this.userDao.getUserListForUpdateJiraAccountId();
+    }
+
+    @Override
+    public void updateUserJiraAccountId(String emailAddress, String jiraAccountId) {
+        this.userDao.updateUserJiraAccountId(emailAddress, jiraAccountId);
+    }
+
 }
