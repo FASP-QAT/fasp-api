@@ -342,7 +342,7 @@ public class ProgramRestController {
     public ResponseEntity delinkShipment(@RequestBody ErpOrderDTO erpOrderDTO, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            this.programService.delinkShipment(erpOrderDTO.getShipmentId(), curUser);
+            this.programService.delinkShipment(erpOrderDTO, curUser);
             return new ResponseEntity(new ResponseCode("success"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);

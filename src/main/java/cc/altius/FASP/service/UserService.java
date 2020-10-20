@@ -84,5 +84,9 @@ public interface UserService {
     public int addUserJiraAccountId(int userId, String jiraCustomerAccountId);
     
     public String getUserJiraAccountId(int userId);
+    
+    public List<String> getUserListForUpdateJiraAccountId();
+    
+    public void updateUserJiraAccountId(String emailAddress, String jiraAccountId);
 
 }

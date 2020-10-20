@@ -21,4 +21,6 @@ public interface JiraServiceDeskApiService {
     public ResponseEntity addIssueAttachment(MultipartFile file, String issueId);      
     
     public String openIssues(CustomUserDetails curUser);
+    
+    public String syncUserJiraAccountId();
 }
