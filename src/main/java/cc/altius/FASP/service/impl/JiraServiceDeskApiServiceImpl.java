@@ -8,12 +8,14 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.service.JiraServiceDeskApiService;
 import cc.altius.FASP.service.UserService;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.minidev.json.JSONObject;
@@ -47,25 +49,27 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
     private String JIRA_API_USERNAME;
     @Value("${jira.apiToken}")
     private String JIRA_API_TOKEN;
+    @Value("${jira.projectName}")
+    private String JIRA_PROJECT_NAME;
 
     @Autowired
-    private UserService userService;    
+    private UserService userService;
 
     @Override
     public ResponseEntity addIssue(String jsonData, CustomUserDetails curUser) {
 
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response;
-        JsonObject jsonObject, fieldsObject, reporterObject;        
+        JsonObject jsonObject, fieldsObject, reporterObject;
 
         HttpHeaders headers = getCommonHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        
+
         jsonObject = JsonParser.parseString​(jsonData).getAsJsonObject();
         fieldsObject = jsonObject.getAsJsonObject("fields");
-        
+
         reporterObject = fieldsObject.getAsJsonObject("reporter");
-        reporterObject.addProperty("id", getUserJiraAccountId(curUser));                
+        reporterObject.addProperty("id", getUserJiraAccountId(curUser));
 
         HttpEntity<String> entity = new HttpEntity<String>(jsonObject.toString(), headers);
 
@@ -82,7 +86,7 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
         try {
 
             HttpHeaders headers = getCommonHeaders();
-            headers.setContentType(MediaType.MULTIPART_FORM_DATA);            
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
             headers.add("X-Atlassian-Token", "no-check");
 
             MultiValueMap<String, String> fileMap = new LinkedMultiValueMap<>();
@@ -107,8 +111,49 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
             Logger.getLogger(JiraServiceDeskApiServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
             return response;
         }
-    }    
-    
+    }
+
+    @Override
+    public String openIssues(CustomUserDetails curUser) {
+
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response;
+        String totalOpenIssue = "0";
+        String jiraAccountId = "";
+        jiraAccountId = this.userService.getUserJiraAccountId(curUser.getUserId());
+
+        if (jiraAccountId != null && !jiraAccountId.equals("")) {
+            StringBuilder jqlSearchString = new StringBuilder("");
+            jqlSearchString.append("project=").append(JIRA_PROJECT_NAME)
+                    .append(" AND reporter=").append(jiraAccountId)
+                    .append(" AND status=Open");
+
+//            System.out.println("URL : " + jqlSearchString.toString());
+
+            HttpHeaders headers = getCommonHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            JSONObject obj = new JSONObject();           
+            obj.put("jql", jqlSearchString.toString());
+            obj.put("maxResults", 100);
+            HttpEntity<String> entity = new HttpEntity<String>(obj.toJSONString(), headers);
+            
+            response = restTemplate.exchange(
+                    JIRA_API_URL + "/search", HttpMethod.POST, entity, String.class);
+
+            if (response.getStatusCode() == HttpStatus.OK) {
+                JsonObject jsonObject = JsonParser.parseString​(response.getBody()).getAsJsonObject();
+                JsonElement element = jsonObject.get("total");
+                totalOpenIssue = element.getAsString();
+                return totalOpenIssue;
+            } else {
+                return totalOpenIssue;
+            }          
+        } else {
+            return totalOpenIssue;
+        }
+    }
+
     private String getUserJiraAccountId(CustomUserDetails curUser) {
 
         String jiraAccountId = "";
@@ -120,18 +165,18 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
             return this.addJiraCustomer(curUser);
         }
     }
-    
+
     private String addJiraCustomer(CustomUserDetails curUser) {
         JSONObject obj = new JSONObject();
         String accountId = "";
         obj.put("email", curUser.getEmailId());
-        obj.put("displayName", curUser.getUsername());        
+        obj.put("displayName", curUser.getUsername());
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response;
 
         HttpHeaders headers = getCommonHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
-        
+
         HttpEntity<String> entity = new HttpEntity<String>(obj.toJSONString(), headers);
 
         response = restTemplate.exchange(
@@ -153,11 +198,59 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
     private HttpHeaders getCommonHeaders() {
 
         String authStr = JIRA_API_USERNAME + ":" + JIRA_API_TOKEN;
-        String base64Creds = "Basic " + Base64.getEncoder().encodeToString(authStr.getBytes());        
+        String base64Creds = "Basic " + Base64.getEncoder().encodeToString(authStr.getBytes());
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", base64Creds);
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));        
+        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
         return headers;
+
+    }
+
+    @Override
+    public String syncUserJiraAccountId() {
+                
+        RestTemplate restTemplate = new RestTemplate();
+        ResponseEntity<String> response;  
+        int total = 0;
+        JsonArray jsonArray = null;
+        StringBuilder sb = new StringBuilder();
+
+        HttpHeaders headers = getCommonHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.add("X-ExperimentalApi", "opt-in");
+
+        HttpEntity<String> entity = new HttpEntity<String>("", headers);
+
+        response = restTemplate.exchange(
+                JIRA_SERVICE_DESK_API_URL + "/servicedesk/2/customer", HttpMethod.GET, entity, String.class);
         
-    }        
+        if (response.getStatusCode() == HttpStatus.OK) {
+
+            JsonObject jsonObject = JsonParser.parseString​(response.getBody()).getAsJsonObject();
+            JsonElement element = jsonObject.get("size");
+            total = element.getAsInt();
+            
+            if(total > 0) {
+                List<String> userEmails = this.userService.getUserListForUpdateJiraAccountId();
+                jsonArray = jsonObject.getAsJsonArray("values");                
+                sb.append("{");
+                for(int i=0 ; i < total ; i++) {
+                    String jiraEmailAddress = "", jiraAccountId = "";
+                    JsonObject jsonObject1 = jsonArray.get(i).getAsJsonObject();
+                    jiraEmailAddress = jsonObject1.get("emailAddress").getAsString();
+                    jiraAccountId = jsonObject1.get("accountId").getAsString();                        
+                    for(int j=0 ; j<userEmails.size() ; j++) {                        
+                        if(userEmails.get(j).equalsIgnoreCase(jiraEmailAddress)) {
+                            this.userService.updateUserJiraAccountId(userEmails.get(j), jiraAccountId);
+                            sb.append(jsonObject1);
+                        }
+                    }
+                }
+                sb.append("}");
+            }            
+        }
+
+        return sb.toString() ;
+                
+    }
 }
