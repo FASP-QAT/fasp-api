@@ -25,6 +25,7 @@ import cc.altius.FASP.model.rowMapper.RoleResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserResultSetExtractor;
 import cc.altius.utils.DateUtils;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
@@ -804,6 +805,21 @@ public class UserDaoImpl implements UserDao {
         } catch (Exception e) {
             return null;
         }
+    }
+    
+    public List<String> getUserListForUpdateJiraAccountId(){
+        String sql = "SELECT DISTINCT(u.`EMAIL_ID`) FROM us_user u WHERE u.`JIRA_ACCOUNT_ID` IS NULL OR u.`JIRA_ACCOUNT_ID` = '';";
+        try {
+            return this.jdbcTemplate.queryForList(sql, String.class);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public void updateUserJiraAccountId(String emailAddress, String jiraAccountId) {
+        String sql = "UPDATE us_user u SET u.`JIRA_ACCOUNT_ID`=? WHERE u.`EMAIL_ID`=?;";
+        this.jdbcTemplate.update(sql, jiraAccountId, emailAddress);
     }
 
 }
