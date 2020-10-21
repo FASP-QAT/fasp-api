@@ -142,7 +142,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         boolean newer = false;
         for (ProgramIdAndVersionId pv : programVersionList) {
             Program p = this.programService.getProgramById(pv.getProgramId(), curUser);
-            if (p.getCurrentVersion().getVersionId()>pv.getVersionId()) {
+            if (p.getCurrentVersion().getVersionId() > pv.getVersionId()) {
                 newer = true;
             }
         }
