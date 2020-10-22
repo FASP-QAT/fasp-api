@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,9 +14,12 @@ import java.io.Serializable;
  */
 public class SimpleRealmCountryObject implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private int realmCountryId;
+    @JsonView(Views.ReportView.class)
     private String countryCode;
     private String countryCode2;
+    @JsonView(Views.ReportView.class)
     private Label label;
 
     public SimpleRealmCountryObject() {

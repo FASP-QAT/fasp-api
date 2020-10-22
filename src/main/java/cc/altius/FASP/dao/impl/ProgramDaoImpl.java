@@ -29,7 +29,6 @@ import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;
@@ -337,7 +336,6 @@ public class ProgramDaoImpl implements ProgramDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" AND p.ACTIVE ").append(this.sqlOrderBy);
-        System.out.println(LogUtils.buildStringForLog(sqlStringBuilder.toString(), params));
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramListResultSetExtractor());
     }
 
@@ -505,18 +503,11 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programId", programId);
         params.put("planningUnitId", planningUnitId);
         List<ManualTaggingDTO> list = this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
-        System.out.println("list---" + list);
-        System.out.println("program Id---" + programId);
-        System.out.println("planningUnitId---" + planningUnitId);
         return list;
     }
 
     @Override
     public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo) {
-        System.out.println("programId---" + programId);
-        System.out.println("planningUnitId---" + planningUnitId);
-        System.out.println("orderNo---" + orderNo);
-        System.out.println("primeLineNo---" + primeLineNo);
         String reason = "";
         String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=?;";
         int count = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
@@ -614,7 +605,6 @@ public class ProgramDaoImpl implements ProgramDao {
                 this.jdbcTemplate.update(sql, shipmentId1, curUser.getUserId(), curDate, shipmentId1);
             }
         }
-        System.out.println("erpOrderDTO---"+erpOrderDTO);
         sql = "UPDATE rm_manual_tagging m SET m.`ACTIVE`=0,m.`NOTES`=? WHERE m.`SHIPMENT_ID`=?;";
         this.jdbcTemplate.update(sql, erpOrderDTO.getNotes(), erpOrderDTO.getShipmentId());
 
@@ -664,7 +654,6 @@ public class ProgramDaoImpl implements ProgramDao {
             showCount = versionCount - page * 5;
         }
         params.put("showCount", showCount);
-        System.out.println(LogUtils.buildStringForLog("These are the params", params));
         programList.setVersionList(this.namedParameterJdbcTemplate.query("SELECT LPAD(pv.VERSION_ID,6,'0') VERSION_ID, vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR`, cb.USER_ID, cb.USERNAME, pv.CREATED_DATE FROM vw_program p LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID LEFT JOIN ap_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID LEFT JOIN ap_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID WHERE p.ACTIVE AND p.PROGRAM_ID=:programId ORDER BY pv.VERSION_ID DESC LIMIT :offsetNo, :showCount", params, new LoadProgramVersionRowMapper()));
         return programList;
     }

@@ -32,4 +32,9 @@ public class ProgramIdAndVersionId implements Serializable {
         this.versionId = versionId;
     }
 
+    @Override
+    public String toString() {
+        return "ProgramIdAndVersionId{" + "programId=" + programId + ", versionId=" + versionId + '}';
+    }
+
 }
