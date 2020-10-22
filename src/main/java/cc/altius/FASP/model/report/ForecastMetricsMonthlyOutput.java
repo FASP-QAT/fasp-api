@@ -7,6 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -20,13 +22,21 @@ public class ForecastMetricsMonthlyOutput implements Serializable {
 
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView(Views.ReportView.class)
     private Date month;
+    @JsonView(Views.ReportView.class)
     private Integer diffConsumptionHistory;
+    @JsonView(Views.ReportView.class)
     private Integer actualConsumptionHistory;
+    @JsonView(Views.ReportView.class)
     private Double forecastError;
+    @JsonView(Views.ReportView.class)
     private Integer actualConsumption;
+    @JsonView(Views.ReportView.class)
     private Integer forecastedConsumption;
+    @JsonView(Views.ReportView.class)
     private Boolean actual;
+    @JsonView(Views.ReportView.class)
     private int monthCount;
 
     public Date getMonth() {
@@ -93,6 +103,7 @@ public class ForecastMetricsMonthlyOutput implements Serializable {
         this.monthCount = monthCount;
     }
 
+    @JsonView(Views.ReportView.class)
     public String getMessage() {
         if (this.monthCount == 0) {
             return "static.reports.forecastMetrics.noConsumptionAcrossPeriod";

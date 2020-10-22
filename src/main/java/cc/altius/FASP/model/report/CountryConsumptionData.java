@@ -6,6 +6,8 @@
 package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -20,8 +22,11 @@ public class CountryConsumptionData implements Serializable {
         this.actualConsumption = actualConsumption;
     }
 
+    @JsonView(Views.ReportView.class)
     SimpleCodeObject country;
+    @JsonView(Views.ReportView.class)
     int forecastedConsumption;
+    @JsonView(Views.ReportView.class)
     int actualConsumption;
 
     public int getForecastedConsumption() {
@@ -47,5 +52,5 @@ public class CountryConsumptionData implements Serializable {
     public void setCountry(SimpleCodeObject country) {
         this.country = country;
     }
-    
+
 }

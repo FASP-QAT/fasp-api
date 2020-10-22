@@ -10,7 +10,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.ReviewedProblem;
+import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.ProgramDataService;
@@ -156,11 +156,11 @@ public class ProgramDataRestController {
         }
     }
 
-    @PutMapping("/programVersion/programId/{programId}/versionId/{versionId}/versionStatusId/{versionStatusId}/{notes}")
-    public ResponseEntity updateProgramVersion(@RequestBody List<ReviewedProblem> reviewedProblemList, @PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "versionStatusId", required = true) int versionStatusId, @PathVariable(value = "notes", required = true) String notes, Authentication auth) {
+    @PutMapping("/programVersion/programId/{programId}/versionId/{versionId}/versionStatusId/{versionStatusId}")
+    public ResponseEntity updateProgramVersion(@RequestBody UpdateProgramVersion updateProgramVersion, @PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "versionStatusId", required = true) int versionStatusId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.updateProgramVersion(programId, versionId, versionStatusId, notes, curUser, reviewedProblemList), HttpStatus.OK);
+            return new ResponseEntity(this.programDataService.updateProgramVersion(programId, versionId, versionStatusId, updateProgramVersion.getNotes(), curUser, updateProgramVersion.getReviewedProblemList()), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to update ProgramVersion", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
