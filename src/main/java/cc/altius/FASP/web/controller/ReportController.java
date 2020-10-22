@@ -307,6 +307,7 @@ public class ReportController {
     }
 
     // Report no 11
+    // Reports -> Inventory Reports -> Expiries
     /**
      * <pre>
      * Sample JSON
@@ -323,6 +324,7 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/expiredStock")
     public ResponseEntity getExpiredStock(@RequestBody ExpiredStockInput esi, Authentication auth) {
         try {
