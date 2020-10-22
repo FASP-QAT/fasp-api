@@ -7,6 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -21,9 +23,11 @@ import java.util.Objects;
  */
 public class GlobalConsumptionOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     Date transDate;
+    @JsonView(Views.ReportView.class)
     Map<String, CountryConsumptionData> countryConsumption;
 
     public GlobalConsumptionOutput() {
@@ -82,7 +86,5 @@ public class GlobalConsumptionOutput implements Serializable {
         }
         return true;
     }
-    
-    
 
 }

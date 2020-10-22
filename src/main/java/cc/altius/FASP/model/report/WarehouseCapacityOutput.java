@@ -8,6 +8,8 @@ package cc.altius.FASP.model.report;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleRealmCountryObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,10 +21,15 @@ import java.util.Objects;
  */
 public class WarehouseCapacityOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private SimpleRealmCountryObject realmCountry;
+    @JsonView(Views.ReportView.class)
     private List<SimpleCodeObject> programList;
+    @JsonView(Views.ReportView.class)
     private SimpleObject region;
+    @JsonView(Views.ReportView.class)
     private String gln;
+    @JsonView(Views.ReportView.class)
     private Double capacityCbm;
 
     public WarehouseCapacityOutput() {
