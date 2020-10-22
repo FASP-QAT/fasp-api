@@ -79,6 +79,18 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // Batch Query
+//    -- INSERT IGNORE INTO rm_batch_info 
+//             SELECT NULL,?,?,IF(s.`BATCH_NO` != 99 AND s.`BATCH_NO` != -99 AND s.`BATCH_NO` != 'NOBATCH',s.`BATCH_NO`,CONCAT()),s.`EXPIRY_DATE`,?,NULL,0 
+//            FROM rm_erp_shipment s 
+//            LEFT JOIN rm_erp_order eo ON eo.`ERP_ORDER_ID`=s.`ERP_ORDER_ID`
+//            LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=eo.`PLANNING_UNIT_SKU_CODE` AND papu.`PROCUREMENT_AGENT_ID`=1
+//            LEFT JOIN rm_shipment_trans st ON st.`SHIPMENT_ID`=? AND st.`VERSION_ID`=(SELECT MAX(rst.`VERSION_ID`) FROM rm_shipment_trans rst WHERE rst.`SHIPMENT_ID`=?)
+//            LEFT JOIN rm_shipment rs ON rs.`SHIPMENT_ID`=st.`SHIPMENT_ID`
+//            LEFT JOIN rm_program_planning_unit ppu ON ppu.`PROGRAM_ID`=rs.`PROGRAM_ID` AND ppu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID`
+//            WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=?
+//            GROUP BY s.`BATCH_NO`
+    
+    
 //    INSERT INTO `rm_batch_info` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `BATCH_NO`, `EXPIRY_DATE`, `CREATED_DATE`, `TMP_ID`, `AUTO_GENERATED`) "
 //                + "SELECT s.PROGRAM_ID, st.PLANNING_UNIT_ID, CONCAT(LPAD(s.PROGRAM_ID, 6,'0'), LPAD(st.PLANNING_UNIT_ID, 8,'0'), date_format(CONCAT(LEFT(ADDDATE(COALESCE(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE), INTERVAL ppu.SHELF_LIFE MONTH),7),'-01'), '%y%m%d'), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1)) `BATCH_NO`,    CONCAT(LEFT(ADDDATE(COALESCE(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE), INTERVAL ppu.SHELF_LIFE MONTH),7),'-01') `EXPIRY_DATE`, ?, st.`SHIPMENT_TRANS_ID`, 1 FROM  rm_shipment s "
 //                + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID=1 "
@@ -227,21 +239,22 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
             + " WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ACTIVE` AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=?;";
 
     private final String getVersionIdOrderNoPrimeLineNo = "SELECT MAX(stt.`VERSION_ID`) FROM rm_shipment_trans stt WHERE stt.`ORDER_NO`=? AND stt.`PRIME_LINE_NO`=?;";
+    private final String getMaxVersionFromShipmentTable = "SELECT s.`MAX_VERSION_ID` FROM rm_shipment s WHERE s.`SHIPMENT_ID`=?;";
     private final String updateShipmentBasedOnOnderNoPrimeLineNo = "UPDATE rm_shipment_trans st "
             + "LEFT JOIN rm_erp_order eo ON eo.`ORDER_NO`=st.`ORDER_NO`  AND st.`PRIME_LINE_NO`=eo.`PRIME_LINE_NO` "
             + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=eo.`STATUS`"
             + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+            + "LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=eo.`ERP_ORDER_ID` "
             + "SET "
             + "st.`EXPECTED_DELIVERY_DATE`=eo.`CURRENT_ESTIMATED_DELIVERY_DATE`, "
             + "st.`SHIPMENT_QTY`=eo.`QTY`,st.`RATE`=eo.`PRICE`, "
             + "st.`PRODUCT_COST`=(eo.`QTY`*eo.`PRICE`),st.`SHIPMENT_MODE`=eo.`SHIP_BY`, "
             + "st.`FREIGHT_COST`=eo.`SHIPPING_COST`, "
-            + "st.`PLANNED_DATE`=NULL, "
-            + "st.`SUBMITTED_DATE`=NULL, "
-            + "st.`APPROVED_DATE`=NULL, "
-            + "st.`SHIPPED_DATE`=NULL, "
-            + "st.`ARRIVED_DATE`=NULL, "
-            + "st.`RECEIVED_DATE`=NULL, "
+            + "st.`SUBMITTED_DATE`=COALESCE(eo.`PARENT_CREATED_DATE`,eo.`ORDER_ENTRY_DATE`), "
+            + "st.`APPROVED_DATE`=eo.`ORDERD_DATE`, "
+            + "st.`SHIPPED_DATE`=MIN(es.`ACTUAL_SHIPMENT_DATE`), "
+            + "st.`ARRIVED_DATE`=IF(sm.`SHIPMENT_STATUS_ID`=21,?,NULL), "
+            + "st.`RECEIVED_DATE`=MIN(es.`ACTUAL_DELIVERY_DATE`), "
             + "st.`LAST_MODIFIED_BY`=1, "
             + "st.`LAST_MODIFIED_DATE`=?, "
             + "st.`SHIPMENT_STATUS_ID`=sm.`SHIPMENT_STATUS_ID` "
@@ -256,7 +269,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
     private final String createNewEntryIntoShipmentTrans = "INSERT INTO rm_shipment_trans "
             + "SELECT NULL,:shipmentId,st.`PLANNING_UNIT_ID`,st.`PROCUREMENT_AGENT_ID`,st.`FUNDING_SOURCE_ID`,st.`BUDGET_ID`, "
             + "COALESCE(eo.`CURRENT_ESTIMATED_DELIVERY_DATE`,st.`EXPECTED_DELIVERY_DATE`),st.`PROCUREMENT_UNIT_ID` ,st.`SUPPLIER_ID`,eo.`QTY`,eo.`PRICE`,(eo.`QTY`*eo.`PRICE`),eo.`SHIP_BY`,eo.`SHIPPING_COST`, "
-            + "st.`PLANNED_DATE`,st.`SUBMITTED_DATE`,st.`APPROVED_DATE`,MIN(es.`ACTUAL_SHIPMENT_DATE`),IF(sm.`SHIPMENT_STATUS_ID`=21,:CURDATE,NULL),MIN(es.`ACTUAL_DELIVERY_DATE`),sm.`SHIPMENT_STATUS_ID`,NULL,1, "
+            + "st.`PLANNED_DATE`,COALESCE(eo.`PARENT_CREATED_DATE`,eo.`ORDER_ENTRY_DATE`,st.`SUBMITTED_DATE`),COALESCE(eo.`ORDERD_DATE`,st.`APPROVED_DATE`),IFNULL(MIN(es.`ACTUAL_SHIPMENT_DATE`),NULL),IF(sm.`SHIPMENT_STATUS_ID`=21,:CURDATE,NULL),IFNULL(MIN(es.`ACTUAL_DELIVERY_DATE`),NULL),sm.`SHIPMENT_STATUS_ID`,NULL,1, "
             + "eo.`ORDER_NO`,eo.`PRIME_LINE_NO`,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,st.`LOCAL_PROCUREMENT`,1,st.`DATA_SOURCE_ID`,:CURDATE1,s.`MAX_VERSION_ID`,1 "
             + "FROM rm_shipment_trans st "
             + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
@@ -647,6 +660,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 
                                     //Shipment trans batch info
                                     this.jdbcTemplate.update(insertIntoShipmentTransBatchInfo, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
+                                    int versionId = this.jdbcTemplate.queryForObject(getMaxVersionFromShipmentTable, Integer.class, shipmentId);
                                     this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
                                 }
 
@@ -713,6 +727,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                                         //Found Update shipment
                                         // Update shipment trans
                                         this.jdbcTemplate.update(updateShipmentTransManuallyTagged, curDate, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), erpOrderDTO.getShipmentId());
+                                        int versionId = this.jdbcTemplate.queryForObject(getVersionIdOrderNoPrimeLineNo, Integer.class, shipmentId);
                                         this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
                                     } else {
                                         //Not found-Insert shipment
@@ -731,6 +746,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 
                                         //Insert Into Shipment Trans Batch Info
                                         this.jdbcTemplate.update(insertIntoShipmentTransBatchInfo, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
+                                        int versionId = this.jdbcTemplate.queryForObject(getMaxVersionFromShipmentTable, Integer.class, shipmentId);
                                         this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
                                     }
                                 } else {
@@ -767,6 +783,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                                     System.out.println("manual tagging shipment trans---" + shipmentTransId);
                                     //insert Into Shipment Trans Batch Info
                                     this.jdbcTemplate.update(insertIntoShipmentTransBatchInfo, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
+                                    int versionId = this.jdbcTemplate.queryForObject(getMaxVersionFromShipmentTable, Integer.class, newShipid);
                                     this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
                                 }
                             }
