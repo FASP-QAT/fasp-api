@@ -6,6 +6,7 @@
 package cc.altius.FASP.ARTMIS.dao.impl;
 
 import cc.altius.FASP.ARTMIS.dao.ImportArtemisDataDao;
+import cc.altius.FASP.dao.impl.ProgramDataDaoImpl;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTORowMapper;
 import cc.altius.FASP.model.EmailTemplate;
@@ -73,9 +74,16 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private ProgramDataDaoImpl programDataDaoImpl;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     // Batch Query
+//    INSERT INTO `rm_batch_info` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `BATCH_NO`, `EXPIRY_DATE`, `CREATED_DATE`, `TMP_ID`, `AUTO_GENERATED`) "
+//                + "SELECT s.PROGRAM_ID, st.PLANNING_UNIT_ID, CONCAT(LPAD(s.PROGRAM_ID, 6,'0'), LPAD(st.PLANNING_UNIT_ID, 8,'0'), date_format(CONCAT(LEFT(ADDDATE(COALESCE(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE), INTERVAL ppu.SHELF_LIFE MONTH),7),'-01'), '%y%m%d'), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1)) `BATCH_NO`,    CONCAT(LEFT(ADDDATE(COALESCE(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE), INTERVAL ppu.SHELF_LIFE MONTH),7),'-01') `EXPIRY_DATE`, ?, st.`SHIPMENT_TRANS_ID`, 1 FROM  rm_shipment s "
+//                + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID=1 "
+//                + "LEFT JOIN rm_program_planning_unit ppu ON s.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
+//                + "WHERE s.PROGRAM_ID IN (SELECT ts.PROGRAM_ID FROM tmp_shipment_w_orders ts WHERE ts.PROGRAM_ID IS NOT NULL GROUP BY ts.PROGRAM_ID) AND st.ACTIVE
     private final String insertIntoBatch = "INSERT IGNORE INTO rm_batch_info "
             + "SELECT NULL,?,?,s.`BATCH_NO`,s.`EXPIRY_DATE`,?,null,0 FROM rm_erp_shipment s "
             + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? ";
@@ -309,7 +317,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
         String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         String filepath, fileList = "", fileList1 = "";
 
-        File dir = new File(QAT_FILE_PATH+CATALOG_FILE_PATH);
+        File dir = new File(QAT_FILE_PATH + CATALOG_FILE_PATH);
         FileFilter fileFilter = new WildcardFileFilter("order_data_*.xml");
         File[] files = dir.listFiles(fileFilter);
 //        logger.info("Going to start product catalogue import");
@@ -611,6 +619,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                                     //Found Update shipment
                                     int versionId = this.jdbcTemplate.queryForObject(getVersionIdOrderNoPrimeLineNo, Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
                                     this.jdbcTemplate.update(updateShipmentBasedOnOnderNoPrimeLineNo, curDate, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), erpOrderDTO.getShipmentId(), versionId);
+                                    this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
                                 } else {
                                     //Insert into shipment table
                                     params1 = new MapSqlParameterSource();
@@ -638,6 +647,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 
                                     //Shipment trans batch info
                                     this.jdbcTemplate.update(insertIntoShipmentTransBatchInfo, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
+                                    this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
                                 }
 
                             } else {
@@ -671,8 +681,10 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                                 }
                                 //insert Into Shipment Trans Batch Info
                                 this.jdbcTemplate.update(insertIntoShipmentTransBatchInfo, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
+                                this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
                             }
-                        } else {
+                        } // manual tagging--------------------------------------------------------------
+                        else {
                             // Find manually tagged shipment id
                             logger.info("Going to check manual tagging---Order No" + erpOrderDTO.getOrderNo() + " Prime line no---" + erpOrderDTO.getPrimeLineNo());
                             sql = "SELECT m.`SHIPMENT_ID` FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=?;";
@@ -701,6 +713,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                                         //Found Update shipment
                                         // Update shipment trans
                                         this.jdbcTemplate.update(updateShipmentTransManuallyTagged, curDate, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), erpOrderDTO.getShipmentId());
+                                        this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
                                     } else {
                                         //Not found-Insert shipment
                                         //Shipment Trans
@@ -718,6 +731,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 
                                         //Insert Into Shipment Trans Batch Info
                                         this.jdbcTemplate.update(insertIntoShipmentTransBatchInfo, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
+                                        this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
                                     }
                                 } else {
                                     sql = "UPDATE rm_shipment_trans st SET st.`ERP_FLAG`=1 WHERE st.`SHIPMENT_ID`=?;";
@@ -753,6 +767,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                                     System.out.println("manual tagging shipment trans---" + shipmentTransId);
                                     //insert Into Shipment Trans Batch Info
                                     this.jdbcTemplate.update(insertIntoShipmentTransBatchInfo, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
+                                    this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
                                 }
                             }
 
@@ -764,10 +779,10 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 
                 }
                 logger.info("Order/Shipment file imported successfully");
-                File directory = new File(QAT_FILE_PATH+BKP_CATALOG_FILE_PATH);
+                File directory = new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH);
                 if (directory.isDirectory()) {
-                    fXmlFile.renameTo(new File(QAT_FILE_PATH+BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
-                    fXmlFile1.renameTo(new File(QAT_FILE_PATH+BKP_CATALOG_FILE_PATH + fXmlFile1.getName()));
+                    fXmlFile.renameTo(new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
+                    fXmlFile1.renameTo(new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH + fXmlFile1.getName()));
                     logger.info("Order/Shipment files moved into processed folder");
                 } else {
                     subjectParam = new String[]{"Order/Shipment", "Backup directory does not exists"};
