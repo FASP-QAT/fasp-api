@@ -401,7 +401,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //        sqlString = "DROP TABLE IF EXISTS `tmp_inventory`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_inventory` ( "
-//                        sqlString = "CREATE TABLE `tmp_inventory` ( "
+                //                        sqlString = "CREATE TABLE `tmp_inventory` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `INVENTORY_ID` INT UNSIGNED NULL, "
                 + "  `INVENTORY_DATE` DATE NOT NULL, "
@@ -429,7 +429,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //        sqlString = "DROP TABLE IF EXISTS `tmp_inventory_batch_info`";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "CREATE TEMPORARY TABLE `tmp_inventory_batch_info` ( "
-//                        sqlString = "CREATE TABLE `tmp_inventory_batch_info` ( "
+                //                        sqlString = "CREATE TABLE `tmp_inventory_batch_info` ( "
                 + "  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, "
                 + "  `PARENT_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `INVENTORY_TRANS_BATCH_INFO_ID` INT(10) UNSIGNED NULL, "
