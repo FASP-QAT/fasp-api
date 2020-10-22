@@ -56,6 +56,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -1449,24 +1450,29 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     int batchId = 0;
                     if (bd.getBatchId() < 0) {
                         // This is a new Batch so check if it has just been created if not then create it
-                        batchId = newBatchSubstituteMap.getOrDefault(bd.getBatchId(), 0);
+                        batchId = newBatchSubstituteMap.getOrDefault(nsp.getPlanningUnitId(), 0);
                         if (batchId == 0) {
+                            String sql = "SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.PROGRAM_ID=:programId AND bi.PLANNING_UNIT_ID=:planningUnitId AND DATE(bi.CREATED_DATE)=DATE(:curDate)";
                             Map<String, Object> newBatchParams = new HashMap<>();
                             newBatchParams.put("programId", msp.getProgramId());
                             newBatchParams.put("planningUnitId", nsp.getPlanningUnitId());
                             newBatchParams.put("transDate", nsp.getTransDate());
                             newBatchParams.put("curDate", nsp.getTransDate());
-                            String sql = "INSERT INTO `rm_batch_info` SELECT "
-                                    + "    null, "
-                                    + "    ppu.PROGRAM_ID, "
-                                    + "    ppu.PLANNING_UNIT_ID, "
-                                    + "    CONCAT(LPAD(ppu.PROGRAM_ID, 6,'0'), LPAD(ppu.PLANNING_UNIT_ID, 8,'0'), date_format(CONCAT(LEFT(ADDDATE(:transDate, INTERVAL ppu.SHELF_LIFE MONTH),7),'-01'), '%y%m%d'), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1)), "
-                                    + "    CONCAT(LEFT(ADDDATE(:transDate, INTERVAL ppu.SHELF_LIFE MONTH),7),'-01'), "
-                                    + "    :curDate, "
-                                    + "    null, 1 FROM rm_program_planning_unit ppu where ppu.PROGRAM_ID=:programId AND ppu.PLANNING_UNIT_ID=:planningUnitId";
-                            this.namedParameterJdbcTemplate.update(sql, newBatchParams);
-                            batchId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
-                            newBatchSubstituteMap.put(bd.getBatchId(), batchId);
+                            try {
+                                batchId = this.namedParameterJdbcTemplate.queryForObject(sql, newBatchParams, Integer.class);
+                            } catch (EmptyResultDataAccessException erda) {
+                                sql = "INSERT INTO `rm_batch_info` SELECT "
+                                        + "    null, "
+                                        + "    ppu.PROGRAM_ID, "
+                                        + "    ppu.PLANNING_UNIT_ID, "
+                                        + "    CONCAT('QAT',LPAD(ppu.PROGRAM_ID, 6,'0'), LPAD(ppu.PLANNING_UNIT_ID, 8,'0'), date_format(CONCAT(LEFT(ADDDATE(:transDate, INTERVAL ppu.SHELF_LIFE MONTH),7),'-01'), '%y%m%d'), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1)), "
+                                        + "    CONCAT(LEFT(ADDDATE(:transDate, INTERVAL ppu.SHELF_LIFE MONTH),7),'-01'), "
+                                        + "    :curDate, "
+                                        + "    null, 1 FROM rm_program_planning_unit ppu where ppu.PROGRAM_ID=:programId AND ppu.PLANNING_UNIT_ID=:planningUnitId";
+                                this.namedParameterJdbcTemplate.update(sql, newBatchParams);
+                                batchId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+                            }
+                            newBatchSubstituteMap.put(nsp.getPlanningUnitId(), batchId);
                         }
                         bd.setBatchId(batchId);
                         bd.setExpiryDate(this.jdbcTemplate.queryForObject("SELECT EXPIRY_DATE FROM rm_batch_info WHERE BATCH_ID=?", String.class, bd.getBatchId()));

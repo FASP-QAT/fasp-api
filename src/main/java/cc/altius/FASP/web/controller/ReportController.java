@@ -62,6 +62,7 @@ public class ReportController {
     private final Logger logger = LoggerFactory.getLogger(ReportController.class);
 
     // Report no 1
+    // Reports -> Program Catalog
     /**
      * <pre>
      * Sample JSON {"productCategoryId": -1, "tracerCategoryId": -1, "programId": 2028 }
@@ -86,6 +87,7 @@ public class ReportController {
     }
 
     // Report no 2
+    // Reports -> Consumption Reports -> Consumption (Forecast vs Actual)
     /**
      * <pre>
      * Sample JSON
@@ -115,6 +117,7 @@ public class ReportController {
     }
 
     // Report no 3
+    // Reports -> Consumption Reports -> Consumption (Global)
     // Global Report
     /**
      * <pre>
@@ -133,6 +136,7 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/globalConsumption")
     public ResponseEntity getGlobalConsumption(@RequestBody GlobalConsumptionInput gci, Authentication auth) {
         try {
@@ -145,6 +149,7 @@ public class ReportController {
     }
 
     // Report no 4
+    // Reports -> Consumption Reports -> Forecast Error (Monthly)
     /**
      * <pre>
      * Sample JSON
@@ -164,6 +169,7 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/forecastMetricsMonthly")
     public ResponseEntity getForecastMetricsMonthly(@RequestBody ForecastMetricsMonthlyInput fmi, Authentication auth) {
         try {
@@ -177,6 +183,7 @@ public class ReportController {
 
     // Report no 5
     // Global Report
+    // Reports -> Consumption Reports -> Forecast Error (by Planning Unit)
     /**
      * <pre>
      * Sample JSON
@@ -197,6 +204,7 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/forecastMetricsComparision")
     public ResponseEntity getForecastMetricsComparision(@RequestBody ForecastMetricsComparisionInput fmi, Authentication auth) {
         try {
@@ -210,6 +218,7 @@ public class ReportController {
     }
 
     // Report no 7
+    // Reports -> Inventory Reports -> Warehouse Capacity (by Program)
     /**
      * <pre>
      * Sample JSON
@@ -224,6 +233,7 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/warehouseCapacityReport")
     public ResponseEntity getwarehouseCapacityReport(@RequestBody WarehouseCapacityInput wci, Authentication auth) {
         try {
@@ -236,6 +246,7 @@ public class ReportController {
     }
 
     // Report no 8
+    // Reports -> Inventory Reports -> Cost of Inventory
     /**
      * <pre>
      * Sample JSON
@@ -253,6 +264,7 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/costOfInventory")
     public ResponseEntity getCostOfInventory(@RequestBody CostOfInventoryInput cii, Authentication auth) {
         try {
@@ -265,6 +277,7 @@ public class ReportController {
     }
 
     // Report no 9
+    // Reports -> Inventory Reports -> Inventory Turns
     /**
      * <pre>
      * Sample JSON
@@ -281,6 +294,7 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/inventoryTurns")
     public ResponseEntity getInventoryTurns(@RequestBody CostOfInventoryInput it, Authentication auth) {
         try {
@@ -292,7 +306,7 @@ public class ReportController {
         }
     }
 
-    // Report no 1-
+    // Report no 11
     /**
      * <pre>
      * Sample JSON
