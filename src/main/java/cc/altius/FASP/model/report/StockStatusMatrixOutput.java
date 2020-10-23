@@ -20,6 +20,8 @@ public class StockStatusMatrixOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
     @JsonView(Views.ReportView.class)
+    private int tracerCategoryId;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject unit;
     @JsonView(Views.ReportView.class)
     private int minMonthsOfStock;
@@ -60,6 +62,14 @@ public class StockStatusMatrixOutput implements Serializable {
 
     public void setPlanningUnit(SimpleObject planningUnit) {
         this.planningUnit = planningUnit;
+    }
+
+    public int getTracerCategoryId() {
+        return tracerCategoryId;
+    }
+
+    public void setTracerCategoryId(int tracerCategoryId) {
+        this.tracerCategoryId = tracerCategoryId;
     }
 
     public SimpleCodeObject getUnit() {
