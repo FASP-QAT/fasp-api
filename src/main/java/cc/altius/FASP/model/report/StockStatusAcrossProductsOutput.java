@@ -6,6 +6,8 @@
 package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,7 +19,9 @@ import java.util.Objects;
  */
 public class StockStatusAcrossProductsOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
+    @JsonView(Views.ReportView.class)
     private List<StockStatusAcrossProductsForProgram> programData;
 
     public StockStatusAcrossProductsOutput() {
