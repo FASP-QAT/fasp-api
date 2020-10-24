@@ -89,8 +89,6 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 //            LEFT JOIN rm_program_planning_unit ppu ON ppu.`PROGRAM_ID`=rs.`PROGRAM_ID` AND ppu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID`
 //            WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=?
 //            GROUP BY s.`BATCH_NO`
-    
-    
 //    INSERT INTO `rm_batch_info` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `BATCH_NO`, `EXPIRY_DATE`, `CREATED_DATE`, `TMP_ID`, `AUTO_GENERATED`) "
 //                + "SELECT s.PROGRAM_ID, st.PLANNING_UNIT_ID, CONCAT(LPAD(s.PROGRAM_ID, 6,'0'), LPAD(st.PLANNING_UNIT_ID, 8,'0'), date_format(CONCAT(LEFT(ADDDATE(COALESCE(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE), INTERVAL ppu.SHELF_LIFE MONTH),7),'-01'), '%y%m%d'), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1), SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1)) `BATCH_NO`,    CONCAT(LEFT(ADDDATE(COALESCE(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE), INTERVAL ppu.SHELF_LIFE MONTH),7),'-01') `EXPIRY_DATE`, ?, st.`SHIPMENT_TRANS_ID`, 1 FROM  rm_shipment s "
 //                + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID=1 "
@@ -229,7 +227,8 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 
     private final String isShipmentErpLinked = "SELECT st.`ERP_FLAG` FROM rm_shipment_trans st "
             + " LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-            + " WHERE st.`SHIPMENT_ID`=? AND s.`PARENT_SHIPMENT_ID` IS NULL "
+            + " WHERE st.`SHIPMENT_ID`=? "
+            //+ " AND s.`PARENT_SHIPMENT_ID` IS NULL "
             + " ORDER BY st.`VERSION_ID` DESC "
             + " LIMIT 1;";
 
@@ -284,7 +283,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
             + "s.`SHIPMENT_ID`,1,:createdDate,1,:lastModifiedDate,s.`MAX_VERSION_ID`,NULL "
             + "FROM rm_shipment s "
             + "WHERE s.`SHIPMENT_ID`=:shipmentId;";
-
+    //Shipped qty
     private final String insertIntoShipmentTransBatchInfo = "INSERT INTO rm_shipment_trans_batch_info SELECT NULL,?,b.`BATCH_ID`,SUM(s.`DELIVERED_QTY`) FROM rm_erp_shipment s "
             + "LEFT JOIN rm_batch_info b ON b.`BATCH_NO`=s.`BATCH_NO` AND b.`PROGRAM_ID`=? AND b.`PLANNING_UNIT_ID`=? "
             + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? "
@@ -298,16 +297,19 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
             + "st.`SHIPMENT_QTY`=eo.`QTY`,st.`RATE`=eo.`PRICE`, "
             + "st.`PRODUCT_COST`=(eo.`QTY`*eo.`PRICE`),st.`SHIPMENT_MODE`=eo.`SHIP_BY`, "
             + "st.`FREIGHT_COST`=eo.`SHIPPING_COST`, "
-            + "st.`PLANNED_DATE`=NULL, "
-            + "st.`SUBMITTED_DATE`=NULL, "
-            + "st.`APPROVED_DATE`=NULL, "
-            + "st.`SHIPPED_DATE`=NULL, "
-            + "st.`ARRIVED_DATE`=NULL, "
-            + "st.`RECEIVED_DATE`=NULL, "
+            + "st.`SUBMITTED_DATE`=COALESCE(eo.`PARENT_CREATED_DATE`,eo.`ORDER_ENTRY_DATE`), "
+            + "st.`APPROVED_DATE`=eo.`ORDERD_DATE`, "
+            + "st.`SHIPPED_DATE`=MIN(es.`ACTUAL_SHIPMENT_DATE`), "
+            + "st.`ARRIVED_DATE`=IF(sm.`SHIPMENT_STATUS_ID`=21,?,NULL), "
+            + "st.`RECEIVED_DATE`=MIN(es.`ACTUAL_DELIVERY_DATE`), "
             + "st.`LAST_MODIFIED_BY`=1, "
             + "st.`LAST_MODIFIED_DATE`=?, "
             + "st.`SHIPMENT_STATUS_ID`=sm.`SHIPMENT_STATUS_ID` "
             + "WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`SHIPMENT_ID`=?;";
+
+    private final String deactivateParentAndMarkErpLinked = "UPDATE rm_shipment_trans st "
+            + "SET st.`ERP_FLAG`=1,st.`ACTIVE`=0 "
+            + "WHERE st.`SHIPMENT_ID`=? AND st.`VERSION_ID`=?";
 
     @Override
     @Transactional
@@ -606,13 +608,13 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                         + " LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
                         + "WHERE e.`FLAG`=1;";
                 List<ErpOrderDTO> erpOrderDTOList = this.jdbcTemplate.query(sql, new ErpOrderDTORowMapper());
-
+                int versionId = 0;
                 logger.info("erpOrderDTO---" + erpOrderDTOList.size());
                 for (ErpOrderDTO erpOrderDTO : erpOrderDTOList) {
                     try {
-                        // Shipment id found
-                        System.out.println("shipment id found---" + erpOrderDTO.getShipmentId());
+                        // Shipment id found in file
                         if (erpOrderDTO.getShipmentId() != 0) {
+                            System.out.println("shipment id found in file---" + erpOrderDTO.getShipmentId());
                             // Get program id
                             programId = this.jdbcTemplate.queryForObject(getProgramId, Integer.class, erpOrderDTO.getShipmentId());
 
@@ -620,7 +622,9 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                             planningUnitId = this.jdbcTemplate.queryForObject(getPlanningUnitId, Integer.class, erpOrderDTO.getErpOrderId());
 
                             // Batch info
-                            // Autogenerated 1-QAT generated 0-Others
+                            // Autogenerated 
+                            // 1-QAT generated 
+                            // 0-Others
                             this.jdbcTemplate.update(insertIntoBatch, programId, planningUnitId, curDate, erpOrderDTO.getErpOrderId());
 
                             //Check ERP linked
@@ -630,17 +634,17 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                                 found = this.jdbcTemplate.queryForObject(hasChildShipments, Integer.class, erpOrderDTO.getShipmentId(), erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
                                 if (found > 0) {
                                     //Found Update shipment
-                                    int versionId = this.jdbcTemplate.queryForObject(getVersionIdOrderNoPrimeLineNo, Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
-                                    this.jdbcTemplate.update(updateShipmentBasedOnOnderNoPrimeLineNo, curDate, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), erpOrderDTO.getShipmentId(), versionId);
+                                    versionId = this.jdbcTemplate.queryForObject(getVersionIdOrderNoPrimeLineNo, Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
+                                    this.jdbcTemplate.update(updateShipmentBasedOnOnderNoPrimeLineNo, curDate, curDate, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), erpOrderDTO.getShipmentId(), versionId);
                                     this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
                                 } else {
                                     //Insert into shipment table
                                     params1 = new MapSqlParameterSource();
-                                    params1.addValue("qty", erpOrderDTO.getQuantity());
+//                                    params1.addValue("qty", erpOrderDTO.getQuantity());
                                     params1.addValue("createdDate", curDate);
                                     params1.addValue("lastModifiedDate", curDate);
                                     params1.addValue("shipmentId", erpOrderDTO.getShipmentId());
-                                    namedParameterJdbcTemplate.update(createNewEntryInShipmentTable, params1, keyHolder1);
+                                    namedParameterJdbcTemplate.update(createNewEntryInShipmentTableDiff, params1, keyHolder1);
                                     if (keyHolder1.getKey() != null) {
                                         shipmentId = keyHolder1.getKey().intValue();
                                     }
@@ -660,19 +664,17 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 
                                     //Shipment trans batch info
                                     this.jdbcTemplate.update(insertIntoShipmentTransBatchInfo, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
-                                    int versionId = this.jdbcTemplate.queryForObject(getMaxVersionFromShipmentTable, Integer.class, shipmentId);
+                                    versionId = this.jdbcTemplate.queryForObject(getMaxVersionFromShipmentTable, Integer.class, shipmentId);
                                     this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
                                 }
 
                             } else {
                                 // Not erp linked
                                 sql = "SELECT MAX(st1.`VERSION_ID`) FROM rm_shipment_trans st1 WHERE st1.`SHIPMENT_ID`=?";
-                                int versionId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId());
+                                versionId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId());
                                 System.out.println("version id---" + versionId);
-                                sql = "UPDATE rm_shipment_trans st "
-                                        + "SET st.`ERP_FLAG`=1,st.`ACTIVE`=0 "
-                                        + "WHERE st.`SHIPMENT_ID`=? AND st.`VERSION_ID`=?";
-                                this.jdbcTemplate.update(sql, erpOrderDTO.getShipmentId(), versionId);
+
+                                this.jdbcTemplate.update(deactivateParentAndMarkErpLinked, erpOrderDTO.getShipmentId(), versionId);
                                 //Shipment Table
                                 params1.addValue("createdDate", curDate);
                                 params1.addValue("lastModifiedDate", curDate);
@@ -701,7 +703,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                         else {
                             // Find manually tagged shipment id
                             logger.info("Going to check manual tagging---Order No" + erpOrderDTO.getOrderNo() + " Prime line no---" + erpOrderDTO.getPrimeLineNo());
-                            sql = "SELECT m.`SHIPMENT_ID` FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=?;";
+                            sql = "SELECT m.`SHIPMENT_ID` FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
                             try {
                                 shipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
                             } catch (Exception e) {
@@ -719,21 +721,33 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                                 // Is ERP linked
                                 isErpLinked = this.jdbcTemplate.queryForObject(isShipmentErpLinked, Boolean.class, shipmentId);
                                 if (isErpLinked) {
-                                    sql = "SELECT COUNT(*) FROM rm_shipment_trans st "
-                                            + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-                                            + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ACTIVE` AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=?;";
-                                    found = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId(), erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
+//                                    sql = "SELECT COUNT(*) FROM rm_shipment_trans st "
+//                                            + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+//                                            + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ACTIVE` AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=?;";
+                                    found = this.jdbcTemplate.queryForObject(hasChildShipments, Integer.class, erpOrderDTO.getShipmentId(), erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
                                     if (found > 0) {
                                         //Found Update shipment
                                         // Update shipment trans
-                                        this.jdbcTemplate.update(updateShipmentTransManuallyTagged, curDate, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), erpOrderDTO.getShipmentId());
-                                        int versionId = this.jdbcTemplate.queryForObject(getVersionIdOrderNoPrimeLineNo, Integer.class, shipmentId);
+                                        versionId = this.jdbcTemplate.queryForObject(getVersionIdOrderNoPrimeLineNo, Integer.class, shipmentId);
+                                        this.jdbcTemplate.update(updateShipmentBasedOnOnderNoPrimeLineNo, curDate, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), shipmentId, versionId);
                                         this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
                                     } else {
                                         //Not found-Insert shipment
+                                        //Insert into shipment table
+                                        params1 = new MapSqlParameterSource();
+//                                    params1.addValue("qty", erpOrderDTO.getQuantity());
+                                        params1.addValue("createdDate", curDate);
+                                        params1.addValue("lastModifiedDate", curDate);
+                                        params1.addValue("shipmentId", shipmentId);
+                                        namedParameterJdbcTemplate.update(createNewEntryInShipmentTableDiff, params1, keyHolder1);
+                                        int newShipId = 0;
+                                        if (keyHolder1.getKey() != null) {
+                                            newShipId = keyHolder1.getKey().intValue();
+                                        }
+
                                         //Shipment Trans
                                         params1 = new MapSqlParameterSource();
-                                        params1.addValue("shipmentId", shipmentId);
+                                        params1.addValue("shipmentId", newShipId);
                                         params1.addValue("shipmentId1", shipmentId);
                                         params1.addValue("CURDATE", curDate);
                                         params1.addValue("CURDATE1", curDate);
@@ -746,21 +760,22 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
 
                                         //Insert Into Shipment Trans Batch Info
                                         this.jdbcTemplate.update(insertIntoShipmentTransBatchInfo, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
-                                        int versionId = this.jdbcTemplate.queryForObject(getMaxVersionFromShipmentTable, Integer.class, shipmentId);
+                                        versionId = this.jdbcTemplate.queryForObject(getMaxVersionFromShipmentTable, Integer.class, shipmentId);
                                         this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
                                     }
                                 } else {
-                                    sql = "UPDATE rm_shipment_trans st SET st.`ERP_FLAG`=1 WHERE st.`SHIPMENT_ID`=?;";
-                                    this.jdbcTemplate.update(sql, shipmentId);
+                                    sql = "SELECT MAX(st1.`VERSION_ID`) FROM rm_shipment_trans st1 WHERE st1.`SHIPMENT_ID`=?";
+                                    versionId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId());
+                                    this.jdbcTemplate.update(deactivateParentAndMarkErpLinked, shipmentId, versionId);
                                     //Shipment Table
                                     params1 = new MapSqlParameterSource();
-                                    params1.addValue("qty", erpOrderDTO.getQuantity());
+//                                    params1.addValue("qty", erpOrderDTO.getQuantity());
                                     params1.addValue("createdDate", curDate);
                                     params1.addValue("lastModifiedDate", curDate);
                                     params1.addValue("shipmentId", shipmentId);
                                     System.out.println("params1 manual tagging ---" + params1);
                                     System.out.println("createNewEntryInShipmentTable manual tagging ---" + createNewEntryInShipmentTable);
-                                    namedParameterJdbcTemplate.update(createNewEntryInShipmentTable, params1, keyHolder1);
+                                    namedParameterJdbcTemplate.update(createNewEntryInShipmentTableDiff, params1, keyHolder1);
                                     int newShipid = 0;
                                     if (keyHolder1.getKey() != null) {
                                         System.out.println("inside mt shipment");
@@ -783,7 +798,7 @@ public class ImportArtemisDataDaoImpl implements ImportArtemisDataDao {
                                     System.out.println("manual tagging shipment trans---" + shipmentTransId);
                                     //insert Into Shipment Trans Batch Info
                                     this.jdbcTemplate.update(insertIntoShipmentTransBatchInfo, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
-                                    int versionId = this.jdbcTemplate.queryForObject(getMaxVersionFromShipmentTable, Integer.class, newShipid);
+                                    versionId = this.jdbcTemplate.queryForObject(getMaxVersionFromShipmentTable, Integer.class, newShipid);
                                     this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
                                 }
                             }

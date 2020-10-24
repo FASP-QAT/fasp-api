@@ -16,6 +16,7 @@ import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -206,10 +207,12 @@ public class ProgramDataRestController {
     }
 
     /**
-     * Sample JSON [{"programId":2535,"versionId":3},{"programId":2001,"versionId":5}]
+     * Sample JSON
+     * [{"programId":2535,"versionId":3},{"programId":2001,"versionId":5}]
+     *
      * @param programVersionList
      * @param auth
-     * @return 
+     * @return
      */
     @PostMapping("/programData/checkNewerVersions")
     public ResponseEntity checkNewerVersions(@RequestBody List<ProgramIdAndVersionId> programVersionList, Authentication auth) {

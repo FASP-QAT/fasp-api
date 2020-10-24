@@ -7,6 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -15,16 +17,27 @@ import java.io.Serializable;
  */
 public class ProgramLeadTimesOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject country;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject program;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject procurementAgent;
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
+    @JsonView(Views.ReportView.class)
     private double plannedToSubmittedLeadTime;
+    @JsonView(Views.ReportView.class)
     private double submittedToApprovedLeadTime;
+    @JsonView(Views.ReportView.class)
     private double approvedToShippedLeadTime;
+    @JsonView(Views.ReportView.class)
     private double shippedToArrivedByAirLeadTime;
+    @JsonView(Views.ReportView.class)
     private double shippedToArrivedBySeaLeadTime;
+    @JsonView(Views.ReportView.class)
     private double arrivedToDeliveredLeadTime;
+    @JsonView(Views.ReportView.class)
     private Double localProcurementAgentLeadTime;
 
     public SimpleCodeObject getCountry() {

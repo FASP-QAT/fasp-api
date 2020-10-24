@@ -8,6 +8,8 @@ package cc.altius.FASP.model.report;
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -19,18 +21,27 @@ import java.util.Date;
  */
 public class BudgetReportOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject budget;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject currency;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject fundingSource;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject program;
+    @JsonView(Views.ReportView.class)
     private double budgetAmt;
+    @JsonView(Views.ReportView.class)
     private double plannedBudgetAmt;
+    @JsonView(Views.ReportView.class)
     private double orderedBudgetAmt;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView(Views.ReportView.class)
     private Date startDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView(Views.ReportView.class)
     private Date stopDate;
 
     public SimpleCodeObject getBudget() {
@@ -105,6 +116,7 @@ public class BudgetReportOutput implements Serializable {
         this.stopDate = stopDate;
     }
 
+    @JsonView(Views.ReportView.class)
     public double getRemainingBudgetAmtUsd() {
         return (this.budgetAmt - this.orderedBudgetAmt - this.plannedBudgetAmt);
     }

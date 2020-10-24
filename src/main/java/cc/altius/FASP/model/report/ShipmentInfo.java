@@ -7,6 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -15,10 +17,15 @@ import java.io.Serializable;
  */
 public class ShipmentInfo implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private int shipmentId;
+    @JsonView(Views.ReportView.class)
     private int shipmentQty;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject fundingSource;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject procurementAgent;
+    @JsonView(Views.ReportView.class)
     private SimpleObject shipmentStatus;
 
     public ShipmentInfo() {
