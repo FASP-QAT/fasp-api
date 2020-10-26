@@ -7,6 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -15,14 +17,23 @@ import java.io.Serializable;
  */
 public class StockStatusOverTimeOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private String dt;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject program;
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
+    @JsonView(Views.ReportView.class)
     private Integer stock;
+    @JsonView(Views.ReportView.class)
     private Integer consumptionQty;
+    @JsonView(Views.ReportView.class)
     private Boolean actualConsumption;
+    @JsonView(Views.ReportView.class)
     private Double amc;
+    @JsonView(Views.ReportView.class)
     private int amcMonthCount;
+    @JsonView(Views.ReportView.class)
     private Double mos;
 
     public String getDt() {

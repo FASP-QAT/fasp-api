@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.List;
 
@@ -14,8 +16,11 @@ import java.util.List;
  */
 public class ShipmentOverviewOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     List<ShipmentOverviewFundingSourceSplit> fundingSourceSplit;
+    @JsonView(Views.ReportView.class)
     List<ShipmentOverviewPlanningUnitSplit> planningUnitSplit;
+    @JsonView(Views.ReportView.class)
     List<ShipmentOverviewProcurementAgentSplit> procurementAgentSplit;
 
     public List<ShipmentOverviewFundingSourceSplit> getFundingSourceSplit() {

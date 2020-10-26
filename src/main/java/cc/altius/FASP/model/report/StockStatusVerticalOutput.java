@@ -7,6 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -23,18 +25,31 @@ public class StockStatusVerticalOutput implements Serializable {
     
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView(Views.ReportView.class)
     private Date dt;
+    @JsonView(Views.ReportView.class)
     private Integer openingBalance;
+    @JsonView(Views.ReportView.class)
     private Boolean actualConsumption;
+    @JsonView(Views.ReportView.class)
     private Integer consumptionQty;
+    @JsonView(Views.ReportView.class)
     private Integer shipmentQty;
+    @JsonView(Views.ReportView.class)
     private List<ShipmentInfo> shipmentInfo;
+    @JsonView(Views.ReportView.class)
     private Integer adjustment;
+    @JsonView(Views.ReportView.class)
     private Integer expiredStock;
+    @JsonView(Views.ReportView.class)
     private Integer closingBalance;
+    @JsonView(Views.ReportView.class)
     private Double amc;
+    @JsonView(Views.ReportView.class)
     private Double mos;
+    @JsonView(Views.ReportView.class)
     private int minMos;
+    @JsonView(Views.ReportView.class)
     private int maxMos;
 
     public StockStatusVerticalOutput() {
