@@ -11,10 +11,10 @@ import cc.altius.FASP.model.DTO.ExportProgramDataDTO;
 import cc.altius.FASP.model.DTO.rowMapper.ExportOrderDataDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ExportProgramDataDTORowMapper;
 import cc.altius.utils.DateUtils;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
+import java.util.TimeZone;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -39,24 +39,33 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
     @Override
     public List<ExportProgramDataDTO> exportProgramData() {
         Calendar cal = Calendar.getInstance();
+        TimeZone tz = TimeZone.getTimeZone("EST");
+        cal.setTimeZone(tz);
         cal.add(Calendar.DATE, -1);
-        String yesterday = new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime()) + " 00:00:00";
-        String today = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMD) + " 23:59:59";
+//        est 10 pm
+        String yesterday = new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime()) + " 21:00:00";
+        String today = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMD) + " 21:00:00";
 
         String sql = "SELECT p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_EN `PROGRAM_NAME`, c.COUNTRY_CODE2, ha.LABEL_EN `TECHNICAL_AREA_NAME`,p.`ACTIVE`   "
                 + "FRom vw_program p LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + "LEFT JOIN vw_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID"
+                + "LEFT JOIN vw_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
                 + "WHERE p.`LAST_MODIFIED_DATE` BETWEEN ? AND ?;";
+        System.out.println("yesterday---" + yesterday);
+        System.out.println("today---" + today);
         return this.jdbcTemplate.query(sql, new ExportProgramDataDTORowMapper(), yesterday, today);
     }
 
     @Override
     public List<ExportOrderDataDTO> exportOrderData() {
         Calendar cal = Calendar.getInstance();
+        TimeZone tz = TimeZone.getTimeZone("EST");
+        cal.setTimeZone(tz);
         cal.add(Calendar.DATE, -1);
-        String yesterday = new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime()) + " 00:00:00";
-        String today = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMD) + " 23:59:59";
+//        est 10 pm
+        String yesterday = new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime()) + " 21:00:00";
+        String today = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMD) + " 21:00:00";
+
         String sql = "SELECT s1.SHIPMENT_ID, papu.SKU_CODE, s1.PROGRAM_ID, pa.PROCUREMENT_AGENT_CODE, st.SHIPMENT_QTY, "
                 + " COALESCE(st.`RECEIVED_DATE`,st.EXPECTED_DELIVERY_DATE)  AS EXPECTED_DELIVERY_DATE,tc.`TRACER_CATEGORY_ID`,ltc.`LABEL_EN` AS TRACER_CATEGORY_DESC,st.`ACTIVE` "
                 + " FROM "
@@ -75,6 +84,8 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
                 + " LEFT JOIN rm_tracer_category tc ON tc.`TRACER_CATEGORY_ID`=fu.`TRACER_CATEGORY_ID` "
                 + " LEFT JOIN ap_label ltc ON ltc.`LABEL_ID`=tc.`LABEL_ID` "
                 + " WHERE st.PROCUREMENT_AGENT_ID = 1 AND st.`LAST_MODIFIED_DATE` BETWEEN ? AND ?;";
+        System.out.println("yesterday---" + yesterday);
+        System.out.println("today---" + today);
         return this.jdbcTemplate.query(sql, new ExportOrderDataDTORowMapper(), yesterday, today);
     }
 

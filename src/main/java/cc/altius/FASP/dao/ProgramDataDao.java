@@ -11,6 +11,7 @@ import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ReviewedProblem;
 import cc.altius.FASP.model.Shipment;
@@ -54,8 +55,6 @@ public interface ProgramDataDao {
     public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException;
 
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp);
-
-    public List<ProgramVersion> getProgramVersionForARTMIS(int realmId);
 
     public int updateSentToARTMISFlag(String programVersionIds);
 

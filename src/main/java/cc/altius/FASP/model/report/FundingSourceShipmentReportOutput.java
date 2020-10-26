@@ -7,6 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -15,6 +17,7 @@ import java.io.Serializable;
  */
 public class FundingSourceShipmentReportOutput extends ShipmentReportOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject fundingSource;
 
     public FundingSourceShipmentReportOutput(SimpleObject planningUnit, int qty, double productCost, double freightPerc, double freightCost) {

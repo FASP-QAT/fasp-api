@@ -19,7 +19,7 @@ public class AnnualShipmentCostInput {
 
     private int programId;
     private int versionId;
-    private int planningUnitId;
+    private String[] planningUnitIds;
     private String[] procurementAgentIds;
     private String[] fundingSourceIds;
     private String[] shipmentStatusIds;
@@ -47,12 +47,12 @@ public class AnnualShipmentCostInput {
         this.versionId = versionId;
     }
 
-    public int getPlanningUnitId() {
-        return planningUnitId;
+    public String[] getPlanningUnitIds() {
+        return planningUnitIds;
     }
 
-    public void setPlanningUnitId(int planningUnitId) {
-        this.planningUnitId = planningUnitId;
+    public void setPlanningUnitIds(String[] planningUnitIds) {
+        this.planningUnitIds = planningUnitIds;
     }
 
     public String[] getProcurementAgentIds() {
@@ -135,6 +135,19 @@ public class AnnualShipmentCostInput {
         } else {
             String opt = String.join("','", this.shipmentStatusIds);
             if (this.shipmentStatusIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
+    
+    public String getPlanningUnitIdString() {
+        if (this.planningUnitIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.planningUnitIds);
+            if (this.planningUnitIds.length > 0) {
                 return "'" + opt + "'";
             } else {
                 return opt;

@@ -6,6 +6,8 @@
 package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -14,8 +16,11 @@ import java.io.Serializable;
  */
 public class ShipmentGlobalDemandCountryShipmentSplit implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject country;
+    @JsonView(Views.ReportView.class)
     private int plannedShipmentAmt;
+    @JsonView(Views.ReportView.class)
     private int orderedShipmentAmt;
 
     public SimpleCodeObject getCountry() {

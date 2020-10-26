@@ -9,6 +9,8 @@ import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -20,24 +22,41 @@ import java.util.Date;
  */
 public class ShipmentDetailsList implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private int shipmentId;
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
+    @JsonView(Views.ReportView.class)
     private SimpleObject forecastingUnit;
+    @JsonView(Views.ReportView.class)
     private int multiplier;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject procurementAgent;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject fundingSource;
+    @JsonView(Views.ReportView.class)
     private SimpleObject shipmentStatus;
+    @JsonView(Views.ReportView.class)
     private long shipmentQty;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView(Views.ReportView.class)
     private Date expectedDeliveryDate;
+    @JsonView(Views.ReportView.class)
     private double productCost;
+    @JsonView(Views.ReportView.class)
     private double freightCost;
+    @JsonView(Views.ReportView.class)
     private double totalCost;
+    @JsonView(Views.ReportView.class)
     private String orderNo;
+    @JsonView(Views.ReportView.class)
     private boolean emergencyOrder;
+    @JsonView(Views.ReportView.class)
     private boolean localProcurement;
+    @JsonView(Views.ReportView.class)
     private boolean erpFlag;
+    @JsonView(Views.ReportView.class)
     private String notes;
 
     public int getShipmentId() {
