@@ -1148,7 +1148,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     @Transactional
     public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList) {
-        String programVersionUpdateSql = "UPDATE rm_program_version pv SET pv.VERSION_STATUS_ID=:versionStatusId, pv.NOTES=:notes, pv.LAST_MODIFIED_DATE=:curDate, pv.LAST_MODIFIED_BY=:curUser WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId";
+        String programVersionUpdateSql = "UPDATE rm_program_version pv SET pv.VERSION_STATUS_ID=:versionStatusId, "
+                + "pv.NOTES=:notes, pv.LAST_MODIFIED_DATE=:curDate, "
+                + "pv.LAST_MODIFIED_BY=:curUser ";
+
+        if (versionStatusId == 2) {
+            programVersionUpdateSql += ",pv.`SENT_TO_ARTMIS`=1 ";
+        }
+        programVersionUpdateSql += " WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId;";
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
