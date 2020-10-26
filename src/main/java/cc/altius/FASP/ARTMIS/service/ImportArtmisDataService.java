@@ -13,8 +13,8 @@ import org.xml.sax.SAXException;
  *
  * @author altius
  */
-public interface ImportArtemisDataService {
+public interface ImportArtmisDataService {
 
-    public void importOrderAndShipmentData(String orderDataFilePath, String shipmentDataFilePath) throws ParserConfigurationException, SAXException, IOException;
+    public void importOrderAndShipmentData() throws ParserConfigurationException, SAXException, IOException;
 
 }

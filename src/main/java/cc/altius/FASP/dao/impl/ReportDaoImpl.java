@@ -441,7 +441,8 @@ public class ReportDaoImpl implements ReportDao {
         params.put("programId", sspi.getProgramId());
         params.put("versionId", sspi.getVersionId());
         params.put("includePlannedShipments", sspi.isIncludePlannedShipments());
-        String sql = "CALL getStockStatusForProgram(:programId, :versionId, :dt, :includePlannedShipments)";
+        params.put("tracerCategoryIds", sspi.getTracerCategoryIdString());
+        String sql = "CALL getStockStatusForProgram(:programId, :versionId, :dt, :tracerCategoryIds, :includePlannedShipments)";
         return this.namedParameterJdbcTemplate.query(sql, params, new StockStatusForProgramOutputRowMapper());
     }
 
