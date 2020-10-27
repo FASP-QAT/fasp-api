@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.QuantimedImportDTO;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,5 +15,5 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface QuantimedImportService {
     
-    public QuantimedImportDTO importForecastData(MultipartFile file, String programId);
+    public QuantimedImportDTO importForecastData(MultipartFile file, String programId, CustomUserDetails curUser);
 }
