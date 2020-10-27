@@ -629,7 +629,7 @@ public class ProgramDaoImpl implements ProgramDao {
      *
      * @param programId
      * @param page Page no is the pagination value that you want to see. Starts
-     * from 0 which is shown by default. Everytime the user clicks on More...
+     * from 0 which is shown by default. Every time the user clicks on More...
      * you should increment the pagination for that Page and return it
      * @param curUser
      * @return

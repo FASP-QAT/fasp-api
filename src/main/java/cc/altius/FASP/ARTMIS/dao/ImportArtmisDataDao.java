@@ -17,6 +17,6 @@ import org.xml.sax.SAXException;
  */
 public interface ImportArtmisDataDao {
 
-//    public void importOrderAndShipmentData(File orderFile) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, Exception;
+    public void importOrderAndShipmentData(File orderFile, File shipmentFile) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, Exception;
     
 }

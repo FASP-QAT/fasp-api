@@ -5,8 +5,7 @@
  */
 package cc.altius.FASP.ARTMIS.service.impl;
 
-import cc.altius.FASP.model.EmailTemplate;
-import cc.altius.FASP.model.Emailer;
+import cc.altius.FASP.ARTMIS.dao.ImportArtmisDataDao;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.utils.DateUtils;
 import java.io.File;
@@ -33,8 +32,8 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 @Service
 public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
 
-//    @Autowired
-//    private ImportArtmisDataDao importArtemisDataDao;
+    @Autowired
+    private ImportArtmisDataDao importArtmisDataDao;
     @Autowired
     private EmailService emailService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -47,6 +46,7 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
     @Value("${email.ccList}")
     private String ccList;
     private static final String ERR_CODE_NO_FILE_FOUND = "No Order file found for import";
+    private static final String ERR_CODE_NO_SHIPMENT_FILE_FOUND = "No Shipment file found for import";
     private static final String ERR_CODE_NO_DIRECTORY = "Directory not found";
     private static final String ERR_CODE_XML_ERROR = "Error occurred while trying to read XML file";
     private static final String ERR_CODE_IO_EXCEPTION = "IO Exception";
@@ -60,26 +60,32 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
         FileFilter fileFilter = new WildcardFileFilter("order_data_*.xml");
         String errorCode = "";
         String exceptionMessage = "";
-        String fileName = "";
+        String orderFileName = "";
         String[] subjectParam, bodyParam;
 
         File dir = new File(QAT_FILE_PATH + CATALOG_FILE_PATH);
         if (dir.isDirectory()) {
             File[] files = dir.listFiles(fileFilter);
             if (files.length > 0) {
-                for (File file : files) {
-                    fileName = file.getName();
+                for (File orderFile : files) {
+                    orderFileName = orderFile.getName();
+
                     try {
-//                        this.importArtemisDataDao.importOrderAndShipmentData(file);
-//                    } catch (SAXException e) {
-//                        errorCode = ERR_CODE_XML_ERROR;
-//                        exceptionMessage = e.getMessage();
-//                    } catch (FileNotFoundException e) {
-//                        errorCode = ERR_CODE_NO_DIRECTORY;
-//                        exceptionMessage = e.getMessage();
-//                    } catch (IOException e) {
-//                        errorCode = ERR_CODE_IO_EXCEPTION;
-//                        exceptionMessage = e.getMessage();
+                        File shipmentFile = new File(QAT_FILE_PATH + CATALOG_FILE_PATH + "/shipment_data_" + orderFileName.substring(11));
+                        if (shipmentFile.exists() && shipmentFile.isFile()) {
+                            this.importArtmisDataDao.importOrderAndShipmentData(orderFile, shipmentFile);
+                        } else {
+                            errorCode = ERR_CODE_NO_SHIPMENT_FILE_FOUND;
+                        }
+                    } catch (SAXException e) {
+                        errorCode = ERR_CODE_XML_ERROR;
+                        exceptionMessage = e.getMessage();
+                    } catch (FileNotFoundException e) {
+                        errorCode = ERR_CODE_NO_DIRECTORY;
+                        exceptionMessage = e.getMessage();
+                    } catch (IOException e) {
+                        errorCode = ERR_CODE_IO_EXCEPTION;
+                        exceptionMessage = e.getMessage();
                     } catch (BadSqlGrammarException | DataIntegrityViolationException e) {
                         errorCode = ERR_CODE_SQL_EXCEPTION;
                         exceptionMessage = e.getMessage();
@@ -97,18 +103,19 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
         } else {
             errorCode = ERR_CODE_NO_DIRECTORY;
         }
-
-        if (!errorCode.isEmpty()) {
-            errorCode += " " + fileName;
-            subjectParam = new String[]{"Order/Shipment", errorCode};
-            bodyParam = new String[]{"Order/Shipment", date, errorCode, exceptionMessage};
-            logger.info(errorCode + " " + exceptionMessage);
-            EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
-            Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-            int emailerId = this.emailService.saveEmail(emailer);
-            emailer.setEmailerId(emailerId);
-            this.emailService.sendMail(emailer);
-        }
+        System.out.println("errorCode = " + errorCode);
+        System.out.println("exceptionMessage = " + exceptionMessage);
+//        if (!errorCode.isEmpty()) {
+//            errorCode += " " + fileName;
+//            subjectParam = new String[]{"Order/Shipment", errorCode};
+//            bodyParam = new String[]{"Order/Shipment", date, errorCode, exceptionMessage};
+//            logger.info(errorCode + " " + exceptionMessage);
+//            EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
+//            Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+//            int emailerId = this.emailService.saveEmail(emailer);
+//            emailer.setEmailerId(emailerId);
+//            this.emailService.sendMail(emailer);
+//        }
     }
 
 }
