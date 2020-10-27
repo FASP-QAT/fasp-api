@@ -23,6 +23,7 @@ public class StockStatusForProgramInput implements Serializable {
     private Date dt;
     private int programId;
     private int versionId;
+    private String[] tracerCategoryIds;
     private boolean includePlannedShipments;
 
     public Date getDt() {
@@ -56,6 +57,26 @@ public class StockStatusForProgramInput implements Serializable {
     public void setIncludePlannedShipments(boolean includePlannedShipments) {
         this.includePlannedShipments = includePlannedShipments;
     }
+
+    public String[] getTracerCategoryIds() {
+        return tracerCategoryIds;
+    }
+
+    public void setTracerCategoryIds(String[] tracerCategoryIds) {
+        this.tracerCategoryIds = tracerCategoryIds;
+    }
     
+    public String getTracerCategoryIdString() {
+        if (this.tracerCategoryIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.tracerCategoryIds);
+            if (this.tracerCategoryIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
     
 }
