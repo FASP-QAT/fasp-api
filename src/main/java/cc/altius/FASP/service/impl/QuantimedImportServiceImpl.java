@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service.impl;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.QuantimedImportDTO;
 import cc.altius.FASP.model.DTO.QuantimedImportProductDTO;
 import cc.altius.FASP.model.DTO.QuantimedImportRecordDTO;
@@ -49,7 +50,7 @@ public class QuantimedImportServiceImpl implements QuantimedImportService {
     private final org.slf4j.Logger logger = LoggerFactory.getLogger(this.getClass());    
 
     @Override
-    public QuantimedImportDTO importForecastData(MultipartFile file, String programId) {
+    public QuantimedImportDTO importForecastData(MultipartFile file, String programId, CustomUserDetails curUser) {
         String extension = "";
         QuantimedImportDTO importDTO = new QuantimedImportDTO();
         List<QuantimedImportProductDTO> productDTOs = new LinkedList<>();
@@ -67,7 +68,7 @@ public class QuantimedImportServiceImpl implements QuantimedImportService {
         } else {
 
             try {
-                File file1 = new File(QAT_FILE_PATH+QMED_FILE_PATH + file.getOriginalFilename());
+                File file1 = new File(QAT_FILE_PATH+QMED_FILE_PATH + curUser.getUserId() + "_" +file.getOriginalFilename());
                 file.transferTo(file1);
                 DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
                 DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
