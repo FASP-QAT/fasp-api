@@ -55,8 +55,6 @@ public interface ProgramDataDao {
 
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp);
 
-    public List<ProgramVersion> getProgramVersionForARTMIS(int realmId);
-
     public int updateSentToARTMISFlag(String programVersionIds);
 
     public List<Shipment> getShipmentListForSync(int programId, int versionId, String lastSyncDate);

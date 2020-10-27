@@ -6,6 +6,7 @@
 package cc.altius.FASP.ARTMIS.controller;
 
 import cc.altius.FASP.ARTMIS.service.ExportArtmisDataService;
+import cc.altius.FASP.model.DTO.ExportOrderDataDTO;
 import cc.altius.FASP.model.DTO.ExportProgramDataDTO;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
@@ -26,6 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.BadSqlGrammarException;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -45,10 +47,17 @@ public class ExportProgramCsv {
     private String QAT_FILE_PATH;
     @Value("${exportSupplyPlanFilePath}")
     private String EXPORT_SUPPLY_PLAN_FILE_PATH;
+    @Value("${email.toList}")
+    private String toList;
+    @Value("${email.ccList}")
+    private String ccList;
 
     @RequestMapping(value = "exportProductData")
-//    @Scheduled(cron = "00 */05 * * * *")
+//    @Scheduled(cron = "0 0 21 * * MON-FRI",zone="EST")
+//    @Scheduled(cron = "00 */02 * * * *")
     public void exportProductData() {
+        System.out.println("schedular started---");
+        logger.info("--------------Program Id schedular started---------------");
         EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(4);
         String[] subjectParam = new String[]{};
         String[] bodyParam = null;
@@ -62,23 +71,46 @@ public class ExportProgramCsv {
             List<ExportProgramDataDTO> exportProgramData = this.exportArtmisDataService.exportProgramData();
             System.out.println("exportProgramData---" + exportProgramData);
 
-            File directory = new File(QAT_FILE_PATH+EXPORT_SUPPLY_PLAN_FILE_PATH);
+            File directory = new File(QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH);
 
             if (directory.isDirectory()) {
-                Gson gson = new GsonBuilder().serializeNulls().setPrettyPrinting().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
-                Type typeList = new TypeToken<List<ExportProgramDataDTO>>() {
-                }.getType();
-                json = gson.toJson(exportProgramData, typeList);
-                path = QAT_FILE_PATH+EXPORT_SUPPLY_PLAN_FILE_PATH + "QAT_Programs_" + curDate + ".csv";
+                path = QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH + "QAT_Programs_" + curDate + ".csv";
                 FileWriter fileWriter = new FileWriter(path);
-                fileWriter.write(json);
+                fileWriter.append("PROGRAM_ID");
+                fileWriter.append(',');
+                fileWriter.append("PROGRAM_CODE");
+                fileWriter.append(',');
+                fileWriter.append("PROGRAM_NAME");
+                fileWriter.append(',');
+                fileWriter.append("COUNTRY_CODE2");
+                fileWriter.append(',');
+                fileWriter.append("TECHNICAL_AREA_NAME");
+                fileWriter.append(',');
+                fileWriter.append("ACTIVE");
+                fileWriter.append('\n');
+
+                for (ExportProgramDataDTO e : exportProgramData) {
+                    fileWriter.append(Integer.toString(e.getProgramId()));
+                    fileWriter.append(',');
+                    fileWriter.append(e.getProgramCode());
+                    fileWriter.append(',');
+                    fileWriter.append(e.getProgramName());
+                    fileWriter.append(',');
+                    fileWriter.append(e.getCountryCode2());
+                    fileWriter.append(',');
+                    fileWriter.append(e.getTechnicalArea());
+                    fileWriter.append(',');
+                    fileWriter.append((e.isProgramActive() ? "1" : "0"));
+                    fileWriter.append('\n');
+                }
+//                fileWriter.write(json);
                 fileWriter.flush();
                 fileWriter.close();
                 logger.info("Export qat program data successful");
             } else {
                 subjectParam = new String[]{"QAT Program Data", "Directory does not exists"};
                 bodyParam = new String[]{"QAT Program Data", date, "Directory does not exists", "Directory does not exists"};
-                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
                 this.emailService.sendMail(emailer);
@@ -87,7 +119,7 @@ public class ExportProgramCsv {
         } catch (FileNotFoundException e) {
             subjectParam = new String[]{"QAT Program Data", "File not found"};
             bodyParam = new String[]{"QAT Program Data", date, "File not found", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -95,7 +127,7 @@ public class ExportProgramCsv {
         } catch (IOException e) {
             subjectParam = new String[]{"QAT Program Data", "Input/Output error"};
             bodyParam = new String[]{"QAT Program Data", date, "Input/Output error", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -103,7 +135,7 @@ public class ExportProgramCsv {
         } catch (BadSqlGrammarException e) {
             subjectParam = new String[]{"QAT Program Data", "SQL Exception"};
             bodyParam = new String[]{"QAT Program Data", date, "SQL Exception", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -111,7 +143,7 @@ public class ExportProgramCsv {
         } catch (Exception e) {
             subjectParam = new String[]{"QAT Program Data", e.getClass().getName().toString()};
             bodyParam = new String[]{"QAT Program Data", date, e.getClass().getName().toString(), e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);

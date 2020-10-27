@@ -6,6 +6,8 @@
 package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -14,10 +16,15 @@ import java.io.Serializable;
  */
 public class ShipmentReportOutput implements Serializable {
     
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
+    @JsonView(Views.ReportView.class)
     private int qty;
+    @JsonView(Views.ReportView.class)
     private double productCost;
+    @JsonView(Views.ReportView.class)
     private double freightPerc;
+    @JsonView(Views.ReportView.class)
     private double freightCost;
 
     public ShipmentReportOutput(SimpleObject planningUnit, int qty, double productCost, double freightPerc, double freightCost) {
@@ -68,6 +75,7 @@ public class ShipmentReportOutput implements Serializable {
         this.freightCost = freightCost;
     }
 
+    @JsonView(Views.ReportView.class)
     public double getTotalCost() {
         return this.freightCost + this.productCost;
     }

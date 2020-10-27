@@ -7,6 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -20,13 +22,21 @@ public class ShipmentDetailsMonth implements Serializable {
 
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView(Views.ReportView.class)
     private Date dt;
+    @JsonView(Views.ReportView.class)
     private double plannedCost;
+    @JsonView(Views.ReportView.class)
     private double submittedCost;
+    @JsonView(Views.ReportView.class)
     private double approvedCost;
+    @JsonView(Views.ReportView.class)
     private double shippedCost;
+    @JsonView(Views.ReportView.class)
     private double arrivedCost;
+    @JsonView(Views.ReportView.class)
     private double receivedCost;
+    @JsonView(Views.ReportView.class)
     private double onholdCost;
 
     public Date getDt() {

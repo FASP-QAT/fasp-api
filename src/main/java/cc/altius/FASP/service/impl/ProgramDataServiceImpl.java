@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.utils.DateUtils;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
@@ -118,11 +120,6 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public List<ProgramVersion> getProgramVersionForARTMIS(int realmId) {
-        return this.programDataDao.getProgramVersionForARTMIS(realmId);
-    }
-
-    @Override
     public int updateSentToARTMISFlag(String programVersionIds) {
         return this.programDataDao.updateSentToARTMISFlag(programVersionIds);
     }
@@ -140,10 +137,17 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public boolean checkNewerVersions(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
         boolean newer = false;
+        ListMultimap<Integer, Integer> programMap = LinkedListMultimap.create();
         for (ProgramIdAndVersionId pv : programVersionList) {
-            Program p = this.programService.getProgramById(pv.getProgramId(), curUser);
-            if (p.getCurrentVersion().getVersionId()>pv.getVersionId()) {
-                newer = true;
+            programMap.put(pv.getProgramId(), pv.getVersionId());
+        }
+        for (int programId : programMap.keySet()) {
+            Integer versionId = programMap.get(programId).stream().mapToInt(v -> v).max().orElse(-1);
+            if (versionId != -1) {
+                Program p = this.programService.getProgramById(programId, curUser);
+                if (p.getCurrentVersion().getVersionId() > versionId) {
+                    newer = true;
+                }
             }
         }
         return newer;

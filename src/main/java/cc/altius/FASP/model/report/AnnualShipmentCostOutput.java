@@ -7,6 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -16,9 +18,13 @@ import java.util.Map;
  */
 public class AnnualShipmentCostOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     SimpleCodeObject procurementAgent;
+    @JsonView(Views.ReportView.class)
     SimpleCodeObject fundingSource;
+    @JsonView(Views.ReportView.class)
     SimpleObject planningUnit;
+    @JsonView(Views.ReportView.class)
     Map<String, Double> shipmentAmt;
 
     public SimpleCodeObject getProcurementAgent() {

@@ -6,6 +6,8 @@
 package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -14,14 +16,23 @@ import java.io.Serializable;
  */
 public class ForecastMetricsComparisionOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private SimpleObject program;
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
+    @JsonView(Views.ReportView.class)
     private Integer actualConsumption;
+    @JsonView(Views.ReportView.class)
     private Integer forecastedConsumption;
+    @JsonView(Views.ReportView.class)
     private Integer diffConsumptionTotal;
+    @JsonView(Views.ReportView.class)
     private Integer actualConsumptionTotal;
+    @JsonView(Views.ReportView.class)
     private int monthCount;
+    @JsonView(Views.ReportView.class)
     private Double forecastError;
+    @JsonView(Views.ReportView.class)
     private Boolean actual;
 
     public SimpleObject getProgram() {
@@ -96,6 +107,7 @@ public class ForecastMetricsComparisionOutput implements Serializable {
         this.actual = actual;
     }
 
+    @JsonView(Views.ReportView.class)
     public String getMessage() {
         if (this.monthCount == 0) {
             return "static.reports.forecastMetrics.noConsumptionAcrossPeriod";

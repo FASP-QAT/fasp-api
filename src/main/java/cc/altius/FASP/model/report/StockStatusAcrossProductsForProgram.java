@@ -6,6 +6,8 @@
 package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -14,12 +16,19 @@ import java.io.Serializable;
  */
 public class StockStatusAcrossProductsForProgram implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject program;
+    @JsonView(Views.ReportView.class)
     private Double amc;
+    @JsonView(Views.ReportView.class)
     private int amcCount;
+    @JsonView(Views.ReportView.class)
     private Integer finalClosingBalance;
+    @JsonView(Views.ReportView.class)
     private Double mos;
+    @JsonView(Views.ReportView.class)
     private int minMos;
+    @JsonView(Views.ReportView.class)
     private int maxMos;
 
     public SimpleCodeObject getProgram() {
@@ -78,6 +87,7 @@ public class StockStatusAcrossProductsForProgram implements Serializable {
         this.maxMos = maxMos;
     }
 
+    @JsonView(Views.ReportView.class)
     public String getOutputString() {
         if (mos == null || mos == 0) {
             return "OUT";
