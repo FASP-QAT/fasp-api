@@ -38,7 +38,7 @@ public class RealmProblemRowMapper implements RowMapper<RealmProblem> {
         RealmProblem rp = new RealmProblem();
         rp.setRealmProblemId(rs.getInt(prefix + "REALM_PROBLEM_ID"));
         rp.setRealm(new SimpleCodeObject(rs.getInt(prefix + "REALM_ID"), new LabelRowMapper(prefix + "REALM_").mapRow(rs, i), rs.getString(prefix + "REALM_CODE")));
-        rp.setProblem(new Problem(rs.getInt(prefix + "PROBLEM_ID"), new LabelRowMapper(prefix + "PROBLEM_").mapRow(rs, i), rs.getString(prefix + "ACTION_URL"), new LabelRowMapper(prefix + "ACTION_").mapRow(rs, i)));
+        rp.setProblem(new Problem(rs.getInt(prefix + "PROBLEM_ID"), new LabelRowMapper(prefix + "PROBLEM_").mapRow(rs, i), new SimpleObject(rs.getInt("PROBLEM_CATEGORY_ID"), new LabelRowMapper(prefix+"PROBLEM_CATEGORY_").mapRow(rs, i)), rs.getString(prefix + "ACTION_URL"), new LabelRowMapper(prefix + "ACTION_").mapRow(rs, i)));
         rp.setCriticality(new Criticality(rs.getInt(prefix + "CRITICALITY_ID"), new LabelRowMapper(prefix + "CRITICALITY_").mapRow(rs, i), rs.getString(prefix + "COLOR_HTML_CODE")));
         rp.setData1(rs.getString(prefix + "DATA1"));
         rp.setData2(rs.getString(prefix + "DATA2"));

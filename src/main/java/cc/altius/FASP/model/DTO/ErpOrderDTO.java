@@ -16,6 +16,16 @@ public class ErpOrderDTO {
 
     private int erpOrderId;
     private int shipmentId;
+    private int programId;
+    private int versionId;
+    private int planningUnitId;
+    private Integer procurementUnitId;
+    private Integer supplierId;
+    private Integer manualTaggingId;
+    private Boolean shipmentActive;
+    private Boolean shipmentErpFlag;
+    private Integer shipmentParentShipmentId;
+    private Integer shipmentShipmentId;
     private int quantity;
     private String orderNo;
     private int primeLineNo;
@@ -48,6 +58,94 @@ public class ErpOrderDTO {
 
     public void setShipmentId(int shipmentId) {
         this.shipmentId = shipmentId;
+    }
+
+    public int getProgramId() {
+        return programId;
+    }
+
+    public void setProgramId(int programId) {
+        this.programId = programId;
+    }
+
+    public int getVersionId() {
+        return versionId;
+    }
+
+    public void setVersionId(int versionId) {
+        this.versionId = versionId;
+    }
+
+    public int getPlanningUnitId() {
+        return planningUnitId;
+    }
+
+    public void setPlanningUnitId(int planningUnitId) {
+        this.planningUnitId = planningUnitId;
+    }
+
+    public Integer getProcurementUnitId() {
+        return procurementUnitId;
+    }
+
+    public void setProcurementUnitId(Integer procurementUnitId) {
+        this.procurementUnitId = procurementUnitId;
+    }
+
+    public Integer getSupplierId() {
+        return supplierId;
+    }
+
+    public void setSupplierId(Integer supplierId) {
+        this.supplierId = supplierId;
+    }
+
+    public Integer getManualTaggingId() {
+        return manualTaggingId;
+    }
+
+    public void setManualTaggingId(Integer manualTaggingId) {
+        this.manualTaggingId = manualTaggingId;
+    }
+
+    public Boolean getShipmentActive() {
+        return shipmentActive;
+    }
+
+    public void setShipmentActive(Boolean shipmentActive) {
+        this.shipmentActive = shipmentActive;
+    }
+
+    public Boolean getShipmentErpFlag() {
+        return shipmentErpFlag;
+    }
+
+    public void setShipmentErpFlag(Boolean shipmentErpFlag) {
+        this.shipmentErpFlag = shipmentErpFlag;
+    }
+
+    public boolean isShipmentErpFlag() {
+        if (this.shipmentErpFlag == null) {
+            return false;
+        } else {
+            return this.shipmentErpFlag;
+        }
+    }
+
+    public Integer getShipmentParentShipmentId() {
+        return shipmentParentShipmentId;
+    }
+
+    public void setShipmentParentShipmentId(Integer shipmentParentShipmentId) {
+        this.shipmentParentShipmentId = shipmentParentShipmentId;
+    }
+
+    public Integer getShipmentShipmentId() {
+        return shipmentShipmentId;
+    }
+
+    public void setShipmentShipmentId(Integer shipmentShipmentId) {
+        this.shipmentShipmentId = shipmentShipmentId;
     }
 
     public int getQuantity() {
@@ -186,7 +284,10 @@ public class ErpOrderDTO {
         this.notes = notes;
     }
 
-    @Override
+    public boolean isManual() {
+        return this.manualTaggingId != null;
+    }
+
     public String toString() {
         return "ErpOrderDTO{" + "erpOrderId=" + erpOrderId + ", shipmentId=" + shipmentId + ", quantity=" + quantity + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", roNo=" + roNo + ", roPrimeLineNo=" + roPrimeLineNo + ", orderType=" + orderType + ", planningUnitSkuCode=" + planningUnitSkuCode + ", procurementUnitSkuCode=" + procurementUnitSkuCode + ", currentEstimatedDeliveryDate=" + currentEstimatedDeliveryDate + ", supplierName=" + supplierName + ", price=" + price + ", shippingCost=" + shippingCost + ", status=" + status + ", reason=" + reason + ", recipentCountry=" + recipentCountry + ", planningUnitLabel=" + planningUnitLabel + ", notes=" + notes + '}';
     }

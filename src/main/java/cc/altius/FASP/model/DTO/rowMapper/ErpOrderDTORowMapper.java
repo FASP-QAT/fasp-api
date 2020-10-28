@@ -22,6 +22,30 @@ public class ErpOrderDTORowMapper implements RowMapper<ErpOrderDTO> {
         ErpOrderDTO e = new ErpOrderDTO();
         e.setErpOrderId(rs.getInt("ERP_ORDER_ID"));
         e.setShipmentId(rs.getInt("SHIPMENT_ID"));
+        e.setProgramId(rs.getInt("PROGRAM_ID"));
+        e.setVersionId(rs.getInt("VERSION_ID"));
+        e.setPlanningUnitId(rs.getInt("PLANNING_UNIT_ID"));
+        e.setProcurementUnitId(rs.getInt("PROCUREMENT_UNIT_ID"));
+        e.setManualTaggingId(rs.getInt("MANUAL_TAGGING_ID"));
+        if(rs.wasNull()) {
+            e.setManualTaggingId(null);
+        }
+        e.setShipmentActive(rs.getBoolean("ACTIVE"));
+        if (rs.wasNull()) {
+            e.setShipmentActive(null);
+        }
+        e.setShipmentErpFlag(rs.getBoolean("ERP_FLAG"));
+        if(rs.wasNull()) {
+            e.setShipmentErpFlag(null);
+        }
+        e.setShipmentParentShipmentId(rs.getInt("PARENT_SHIPMENT_ID"));
+        if (rs.wasNull()) {
+            e.setShipmentParentShipmentId(null);
+        }
+        e.setShipmentShipmentId(rs.getInt("SHIPMENT_SHIPMENT_ID"));
+        if (rs.wasNull()) {
+            e.setShipmentShipmentId(null);
+        }
         e.setQuantity(rs.getInt("QTY"));
         e.setOrderNo(rs.getString("ORDER_NO"));
         e.setPrimeLineNo(rs.getInt("PRIME_LINE_NO"));
