@@ -51,4 +51,9 @@ public class ProblemServiceImpl implements ProblemService {
         return this.problemDao.getProblemCriticalityForSync(lastModifiedDate, curUser);
     }
 
+    @Override
+    public List<SimpleObject> getProblemCategoryForSync(String lastModifiedDate, CustomUserDetails curUser) {
+        return this.problemDao.getProblemCategoryForSync(lastModifiedDate, curUser);
+    }
+
 }

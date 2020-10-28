@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateTimeDeserializer;
 import cc.altius.FASP.framework.JsonDateTimeSerializer;
 import com.fasterxml.jackson.annotation.JsonView;
