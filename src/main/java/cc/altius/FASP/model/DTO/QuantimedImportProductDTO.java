@@ -23,7 +23,16 @@ public class QuantimedImportProductDTO implements Serializable {
     private String lowestUnitMeasure;
     private String quantificationFactor;
     private String programPlanningUnitId;
+    private int multiplier;
 
+    public int getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(int multiplier) {
+        this.multiplier = multiplier;
+    }
+    
     public String getProductName() {
         return productName;
     }

@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.JiraServiceDeskIssuesDTO;
 import cc.altius.FASP.service.JiraServiceDeskApiService;
 import cc.altius.FASP.service.UserService;
 import com.google.gson.JsonArray;
@@ -114,19 +115,25 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
     }
 
     @Override
-    public String openIssues(CustomUserDetails curUser) {
+    public JiraServiceDeskIssuesDTO getIssuesSummary(CustomUserDetails curUser) {
 
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response;
-        String totalOpenIssue = "0";
+        
         String jiraAccountId = "";
+        JiraServiceDeskIssuesDTO issuesDTO = new JiraServiceDeskIssuesDTO();
         jiraAccountId = this.userService.getUserJiraAccountId(curUser.getUserId());
 
         if (jiraAccountId != null && !jiraAccountId.equals("")) {
-            StringBuilder jqlSearchString = new StringBuilder("");
-            jqlSearchString.append("project=").append(JIRA_PROJECT_NAME)
+            StringBuilder jqlSearchString_Open = new StringBuilder("");
+            jqlSearchString_Open.append("project=").append(JIRA_PROJECT_NAME)
                     .append(" AND reporter=").append(jiraAccountId)
-                    .append(" AND status=Open");
+                    .append(" AND (status='Open' OR status='Work in progress')");
+            
+            StringBuilder jqlSearchString_Done = new StringBuilder("");
+            jqlSearchString_Done.append("project=").append(JIRA_PROJECT_NAME)
+                    .append(" AND reporter=").append(jiraAccountId)
+                    .append(" AND status=Done");
 
 //            System.out.println("URL : " + jqlSearchString.toString());
 
@@ -134,24 +141,34 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
             headers.setContentType(MediaType.APPLICATION_JSON);
 
             JSONObject obj = new JSONObject();           
-            obj.put("jql", jqlSearchString.toString());
+            obj.put("jql", jqlSearchString_Open.toString());
             obj.put("maxResults", 100);
-            HttpEntity<String> entity = new HttpEntity<String>(obj.toJSONString(), headers);
+            HttpEntity<String> entity_Open = new HttpEntity<String>(obj.toJSONString(), headers);
             
             response = restTemplate.exchange(
-                    JIRA_API_URL + "/search", HttpMethod.POST, entity, String.class);
+                    JIRA_API_URL + "/search", HttpMethod.POST, entity_Open, String.class);
 
             if (response.getStatusCode() == HttpStatus.OK) {
                 JsonObject jsonObject = JsonParser.parseString​(response.getBody()).getAsJsonObject();
                 JsonElement element = jsonObject.get("total");
-                totalOpenIssue = element.getAsString();
-                return totalOpenIssue;
-            } else {
-                return totalOpenIssue;
-            }          
-        } else {
-            return totalOpenIssue;
-        }
+                issuesDTO.setOpenIssues(element.getAsInt());                
+            }    
+            
+            obj.put("jql", jqlSearchString_Done.toString());            
+            HttpEntity<String> entity_Done = new HttpEntity<String>(obj.toJSONString(), headers);
+            
+            response = restTemplate.exchange(
+                    JIRA_API_URL + "/search", HttpMethod.POST, entity_Done, String.class);
+            
+            if (response.getStatusCode() == HttpStatus.OK) {
+                JsonObject jsonObject = JsonParser.parseString​(response.getBody()).getAsJsonObject();
+                JsonElement element = jsonObject.get("total");
+                issuesDTO.setAddressedIssues(element.getAsInt());                       
+            }
+            
+        } 
+        
+        return issuesDTO;
     }
 
     private String getUserJiraAccountId(CustomUserDetails curUser) {

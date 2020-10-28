@@ -85,7 +85,7 @@ public class JiraServiceDeskApiController {
     public ResponseEntity getOpenIssue(Authentication auth) {
         try {            
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());            
-            return new ResponseEntity(this.jiraServiceDeskApiService.openIssues(curUser), HttpStatus.OK);            
+            return new ResponseEntity(this.jiraServiceDeskApiService.getIssuesSummary(curUser), HttpStatus.OK);            
         } catch (Exception e) {
             logger.error("Error while creating issue", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
