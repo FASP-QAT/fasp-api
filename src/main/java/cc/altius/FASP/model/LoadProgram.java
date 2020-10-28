@@ -15,15 +15,23 @@ import java.util.List;
 public class LoadProgram implements Serializable {
 
     private SimpleCodeObject program;
+    private SimpleCodeObject realmCountry;
+    private SimpleCodeObject healthArea;
+    private SimpleCodeObject organisation;
     private List<LoadVersion> versionList;
-    private int pagination;
+    private int currentPage;
+    private int maxPages;
 
     public LoadProgram() {
     }
 
-    public LoadProgram(SimpleCodeObject program) {
+    public LoadProgram(SimpleCodeObject program, SimpleCodeObject realmCountry, SimpleCodeObject healthArea, SimpleCodeObject organisation, int maxCount) {
         this.program = program;
-        this.pagination = 0;
+        this.realmCountry = realmCountry;
+        this.healthArea = healthArea;
+        this.organisation = organisation;
+        this.currentPage = 0;
+        this.maxPages = (maxCount-1)/5;
     }
 
     public SimpleCodeObject getProgram() {
@@ -34,6 +42,30 @@ public class LoadProgram implements Serializable {
         this.program = program;
     }
 
+    public SimpleCodeObject getRealmCountry() {
+        return realmCountry;
+    }
+
+    public void setRealmCountry(SimpleCodeObject realmCountry) {
+        this.realmCountry = realmCountry;
+    }
+
+    public SimpleCodeObject getHealthArea() {
+        return healthArea;
+    }
+
+    public void setHealthArea(SimpleCodeObject healthArea) {
+        this.healthArea = healthArea;
+    }
+
+    public SimpleCodeObject getOrganisation() {
+        return organisation;
+    }
+
+    public void setOrganisation(SimpleCodeObject organisation) {
+        this.organisation = organisation;
+    }
+
     public List<LoadVersion> getVersionList() {
         return versionList;
     }
@@ -42,12 +74,20 @@ public class LoadProgram implements Serializable {
         this.versionList = versionList;
     }
 
-    public int getPagination() {
-        return pagination;
+    public int getCurrentPage() {
+        return currentPage;
     }
 
-    public void setPagination(int pagination) {
-        this.pagination = pagination;
+    public void setCurrentPage(int currentPage) {
+        this.currentPage = currentPage;
+    }
+
+    public int getMaxPages() {
+        return maxPages;
+    }
+
+    public void setMaxPages(int maxPages) {
+        this.maxPages = maxPages;
     }
 
 }
