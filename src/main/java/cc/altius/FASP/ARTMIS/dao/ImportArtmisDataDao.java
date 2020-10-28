@@ -5,10 +5,9 @@
  */
 package cc.altius.FASP.ARTMIS.dao;
 
-import cc.altius.FASP.model.Shipment;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 
@@ -16,8 +15,8 @@ import org.xml.sax.SAXException;
  *
  * @author altius
  */
-public interface ImportArtemisDataDao {
+public interface ImportArtmisDataDao {
 
-    public void importOrderAndShipmentData(String orderDataFilePath, String shipmentDataFilePath) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, Exception;
+    public void importOrderAndShipmentData(File orderFile, File shipmentFile) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, Exception;
     
 }

@@ -39,8 +39,6 @@ public interface ProgramDataService {
 
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId);
 
-    public List<ProgramVersion> getProgramVersionForARTMIS(int realmId);
-
     public int updateSentToARTMISFlag(String programVersionIds);
 
     public SupplyPlan getSupplyPlan(int programId, int versionId);

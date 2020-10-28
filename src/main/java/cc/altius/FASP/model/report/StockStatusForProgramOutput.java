@@ -8,6 +8,8 @@ package cc.altius.FASP.model.report;
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -19,14 +21,23 @@ import java.util.Date;
  */
 public class StockStatusForProgramOutput implements Serializable {
     
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
+    @JsonView(Views.ReportView.class)
+    private SimpleObject tracerCategory;
+    @JsonView(Views.ReportView.class)
     private int minMos;
+    @JsonView(Views.ReportView.class)
     private int maxMos;
+    @JsonView(Views.ReportView.class)
     private Integer stock;
+    @JsonView(Views.ReportView.class)
     private Double amc;
+    @JsonView(Views.ReportView.class)
     private Double mos;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView(Views.ReportView.class)
     private Date lastStockCount;
 
     public SimpleObject getPlanningUnit() {
@@ -35,6 +46,14 @@ public class StockStatusForProgramOutput implements Serializable {
 
     public void setPlanningUnit(SimpleObject planningUnit) {
         this.planningUnit = planningUnit;
+    }
+
+    public SimpleObject getTracerCategory() {
+        return tracerCategory;
+    }
+
+    public void setTracerCategory(SimpleObject tracerCategory) {
+        this.tracerCategory = tracerCategory;
     }
 
     public int getMinMos() {

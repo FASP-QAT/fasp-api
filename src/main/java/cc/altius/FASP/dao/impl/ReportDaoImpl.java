@@ -413,11 +413,11 @@ public class ReportDaoImpl implements ReportDao {
         params.put("procurementAgentIds", asci.getProcurementAgentIdString());
         params.put("programId", asci.getProgramId());
         params.put("versionId", asci.getVersionId());
-        params.put("planningUnitId", asci.getPlanningUnitId());
+        params.put("planningUnitIds", asci.getPlanningUnitIdString());
         params.put("fundingSourceIds", asci.getFundingSourceIdString());
         params.put("shipmentStatusIds", asci.getShipmentStatusIdString());
         params.put("reportBasedOn", asci.getReportBasedOn());
-        return this.namedParameterJdbcTemplate.query("CALL annualShipmentCost(:programId, :versionId, :procurementAgentIds, :planningUnitId, :fundingSourceIds, :shipmentStatusIds, :startDate, :stopDate, :reportBasedOn)", params, new AnnualShipmentCostOutputRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL annualShipmentCost(:programId, :versionId, :procurementAgentIds, :planningUnitIds, :fundingSourceIds, :shipmentStatusIds, :startDate, :stopDate, :reportBasedOn)", params, new AnnualShipmentCostOutputRowMapper());
     }
 
     // Report no 24
@@ -441,7 +441,8 @@ public class ReportDaoImpl implements ReportDao {
         params.put("programId", sspi.getProgramId());
         params.put("versionId", sspi.getVersionId());
         params.put("includePlannedShipments", sspi.isIncludePlannedShipments());
-        String sql = "CALL getStockStatusForProgram(:programId, :versionId, :dt, :includePlannedShipments)";
+        params.put("tracerCategoryIds", sspi.getTracerCategoryIdString());
+        String sql = "CALL getStockStatusForProgram(:programId, :versionId, :dt, :tracerCategoryIds, :includePlannedShipments)";
         return this.namedParameterJdbcTemplate.query(sql, params, new StockStatusForProgramOutputRowMapper());
     }
 

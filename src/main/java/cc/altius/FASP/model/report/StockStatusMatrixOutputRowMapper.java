@@ -23,6 +23,7 @@ public class StockStatusMatrixOutputRowMapper implements RowMapper<StockStatusMa
         StockStatusMatrixOutput ssmo = new StockStatusMatrixOutput();
         ssmo.setYear(rs.getInt("YR"));
         ssmo.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
+        ssmo.setTracerCategoryId(rs.getInt("TRACER_CATEGORY_ID"));
         ssmo.setUnit(new SimpleCodeObject(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, i), rs.getString("UNIT_CODE")));
         ssmo.setMinMonthsOfStock(rs.getInt("MIN_MONTHS_OF_STOCK"));
         ssmo.setReorderFrequency(rs.getInt("REORDER_FREQUENCY_IN_MONTHS"));

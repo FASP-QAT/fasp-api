@@ -8,6 +8,8 @@ package cc.altius.FASP.model.report;
 import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -16,9 +18,13 @@ import java.io.Serializable;
  */
 public class ExpiredStockOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject program;
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
+    @JsonView(Views.ReportView.class)
     private Batch batchInfo;
+    @JsonView(Views.ReportView.class)
     private int expiredQty;
 
     public SimpleCodeObject getProgram() {

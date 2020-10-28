@@ -6,6 +6,8 @@
 package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.Map;
 
@@ -15,9 +17,13 @@ import java.util.Map;
  */
 public class ShipmentOverviewProcurementAgentSplit implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
+    @JsonView(Views.ReportView.class)
     private int multiplier;
+    @JsonView(Views.ReportView.class)
     private Map<String, Integer> procurementAgentQty;
+    @JsonView(Views.ReportView.class)
     private int total;
 
     public SimpleObject getPlanningUnit() {

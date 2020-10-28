@@ -29,7 +29,6 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import org.springframework.security.access.AccessDeniedException;
 
@@ -118,11 +117,6 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp) {
         return this.programDataDao.updateSupplyPlanBatchInfo(sp);
-    }
-
-    @Override
-    public List<ProgramVersion> getProgramVersionForARTMIS(int realmId) {
-        return this.programDataDao.getProgramVersionForARTMIS(realmId);
     }
 
     @Override

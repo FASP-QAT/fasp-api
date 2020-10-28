@@ -9,6 +9,8 @@ import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -20,17 +22,25 @@ import java.util.Date;
  */
 public class StockAdjustmentReportOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private SimpleObject program;
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView(Views.ReportView.class)
     private Date inventoryDate;
+    @JsonView(Views.ReportView.class)
     private int stockAdjustemntQty;
+    @JsonView(Views.ReportView.class)
     private SimpleObject dataSource;
+    @JsonView(Views.ReportView.class)
     private BasicUser lastModifiedBy;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView(Views.ReportView.class)
     private Date lastModifiedDate;
+    @JsonView(Views.ReportView.class)
     private String notes;
 
     public SimpleObject getProgram() {
