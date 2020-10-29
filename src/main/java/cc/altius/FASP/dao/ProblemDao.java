@@ -27,4 +27,6 @@ public interface ProblemDao {
     public List<ProblemStatus> getProblemStatusForSync(String lastModifiedDate, CustomUserDetails curUser);
     
     public List<SimpleObject> getProblemCriticalityForSync(String lastModifiedDate, CustomUserDetails curUser);
+    
+    public List<SimpleObject> getProblemCategoryForSync(String lastModifiedDate, CustomUserDetails curUser);
 }

@@ -35,6 +35,7 @@ public class ProblemDaoImpl implements ProblemDao {
     private static final String problemMasterSql = "SELECT  "
             + "rp.REALM_PROBLEM_ID, r.REALM_ID, r.REALM_CODE, r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_SP `REALM_LABEL_SP`, r.LABEL_PR `REALM_LABEL_PR`, "
             + "p.PROBLEM_ID, p.LABEL_ID `PROBLEM_LABEL_ID`, p.LABEL_EN `PROBLEM_LABEL_EN`, p.LABEL_FR `PROBLEM_LABEL_FR`, p.LABEL_SP `PROBLEM_LABEL_SP`, p.LABEL_PR `PROBLEM_LABEL_PR`, "
+            + "pcat.PROBLEM_CATEGORY_ID `PROBLEM_CATEGORY_ID`, pcat.LABEL_ID `PROBLEM_CATEGORY_LABEL_ID`, pcat.LABEL_EN `PROBLEM_CATEGORY_LABEL_EN`, pcat.LABEL_FR `PROBLEM_CATEGORY_LABEL_FR`, pcat.LABEL_SP `PROBLEM_CATEGORY_LABEL_SP`, pcat.LABEL_PR `PROBLEM_CATEGORY_LABEL_PR`, "
             + "p.ACTION_URL,p.ACTION_LABEL_ID,p.ACTION_LABEL_EN,p.ACTION_LABEL_FR,p.ACTION_LABEL_SP,p.ACTION_LABEL_PR, "
             + "rp.DATA1, rp.DATA2, rp.DATA3, "
             + "pc.CRITICALITY_ID, pc.COLOR_HTML_CODE, pc.LABEL_ID `CRITICALITY_LABEL_ID`, pc.LABEL_EN `CRITICALITY_LABEL_EN`, pc.LABEL_FR `CRITICALITY_LABEL_FR`, pc.LABEL_SP `CRITICALITY_LABEL_SP`, pc.LABEL_PR `CRITICALITY_LABEL_PR`, "
@@ -42,6 +43,7 @@ public class ProblemDaoImpl implements ProblemDao {
             + "rp.ACTIVE, cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, rp.CREATED_DATE, lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME, rp.LAST_MODIFIED_DATE "
             + "FROM rm_realm_problem rp  "
             + "LEFT JOIN vw_problem p ON p.PROBLEM_ID=rp.PROBLEM_ID "
+            + "LEFT JOIN vw_problem_category pcat ON p.PROBLEM_CATEGORY_ID=pcat.PROBLEM_CATEGORY_ID "
             + "LEFT JOIN vw_problem_criticality pc ON pc.CRITICALITY_ID=rp.CRITICALITY_ID "
             + "LEFT JOIN us_user cb ON rp.CREATED_BY=cb.USER_ID "
             + "LEFT JOIN us_user lmb ON rp.LAST_MODIFIED_BY=lmb.USER_ID "
@@ -77,6 +79,7 @@ public class ProblemDaoImpl implements ProblemDao {
                 + "     pt.PROBLEM_TYPE_ID, pt.LABEL_ID `PROBLEM_TYPE_LABEL_ID`, pt.LABEL_EN `PROBLEM_TYPE_LABEL_EN`, pt.LABEL_FR `PROBLEM_TYPE_LABEL_FR`, pt.LABEL_SP `PROBLEM_TYPE_LABEL_SP`, pt.LABEL_PR `PROBLEM_TYPE_LABEL_PR`, "
                 + "     rp.REALM_PROBLEM_ID `RP_REALM_PROBLEM_ID`, r.REALM_ID `RP_REALM_ID`, r.REALM_CODE `RP_REALM_CODE`, r.LABEL_ID `RP_REALM_LABEL_ID`, r.LABEL_EN `RP_REALM_LABEL_EN`, r.LABEL_FR `RP_REALM_LABEL_FR`, r.LABEL_SP `RP_REALM_LABEL_SP`, r.LABEL_PR `RP_REALM_LABEL_PR`, "
                 + "	p.PROBLEM_ID `RP_PROBLEM_ID`, p.LABEL_ID `RP_PROBLEM_LABEL_ID`, p.LABEL_EN `RP_PROBLEM_LABEL_EN`, p.LABEL_FR `RP_PROBLEM_LABEL_FR`, p.LABEL_SP `RP_PROBLEM_LABEL_SP`, p.LABEL_PR `RP_PROBLEM_LABEL_PR`, p.`ACTION_URL` `RP_ACTION_URL`, "
+                + "	pcat.PROBLEM_CATEGORY_ID `RP_PROBLEM_CATEGORY_ID`, pcat.LABEL_ID `RP_PROBLEM_CATEGORY_LABEL_ID`, pcat.LABEL_EN `RP_PROBLEM_CATEGORY_LABEL_EN`, pcat.LABEL_FR `RP_PROBLEM_CATEGORY_LABEL_FR`, pcat.LABEL_SP `RP_PROBLEM_CATEGORY_LABEL_SP`, pcat.LABEL_PR `RP_PROBLEM_CATEGORY_LABEL_PR`, "
                 + "     p.ACTION_LABEL_ID `RP_ACTION_LABEL_ID`, p.ACTION_LABEL_EN `RP_ACTION_LABEL_EN`, p.ACTION_LABEL_FR `RP_ACTION_LABEL_FR`, p.ACTION_LABEL_SP `RP_ACTION_LABEL_SP`, p.ACTION_LABEL_PR `RP_ACTION_LABEL_PR`,"
                 + "     pc.CRITICALITY_ID `RP_CRITICALITY_ID`, pc.COLOR_HTML_CODE `RP_COLOR_HTML_CODE`, pc.LABEL_ID `RP_CRITICALITY_LABEL_ID`, pc.LABEL_EN `RP_CRITICALITY_LABEL_EN`, pc.LABEL_FR `RP_CRITICALITY_LABEL_FR`, pc.LABEL_SP `RP_CRITICALITY_LABEL_SP`, pc.LABEL_PR `RP_CRITICALITY_LABEL_PR`, "
                 + "     rp.DATA1 `RP_DATA1`, rp.DATA2 `RP_DATA2`, rp.DATA3 `RP_DATA3`, "
@@ -89,6 +92,7 @@ public class ProblemDaoImpl implements ProblemDao {
                 + "     LEFT JOIN rm_realm_problem rp ON prr.REALM_PROBLEM_ID=rp.REALM_PROBLEM_ID "
                 + "     LEFT JOIN vw_problem_type ptrp ON rp.PROBLEM_TYPE_ID=ptrp.PROBLEM_TYPE_ID "
                 + "     LEFT JOIN vw_problem p ON p.PROBLEM_ID=rp.PROBLEM_ID "
+                + "     LEFT JOIN vw_problem_category pcat ON p.PROBLEM_CATEGORY_ID=pcat.PROBLEM_CATEGORY_ID "
                 + "     LEFT JOIN vw_problem_criticality pc ON pc.CRITICALITY_ID=rp.CRITICALITY_ID "
                 + "     LEFT JOIN vw_problem_type pt ON prr.PROBLEM_TYPE_ID=pt.PROBLEM_TYPE_ID "
                 + "     LEFT JOIN vw_problem_status ps ON prr.PROBLEM_STATUS_ID=ps.PROBLEM_STATUS_ID "
@@ -115,6 +119,11 @@ public class ProblemDaoImpl implements ProblemDao {
         return this.namedParameterJdbcTemplate.query(sql, params, new RealmProblemRowMapper());
     }
 
+    @Override
+    public List<SimpleObject> getProblemCategoryForSync(String lastModifiedDate, CustomUserDetails curUser) {
+        return this.namedParameterJdbcTemplate.query("SELECT pc.PROBLEM_CATEGORY_ID `ID`, pc.LABEL_ID, pc.LABEL_EN, pc.LABEL_FR, pc.LABEL_SP, pc.LABEL_PR FROM vw_problem_category pc", new SimpleObjectRowMapper());
+    }
+    
     @Override
     public List<ProblemStatus> getProblemStatusForSync(String lastModifiedDate, CustomUserDetails curUser) {
         return this.namedParameterJdbcTemplate.query("SELECT ps.PROBLEM_STATUS_ID `ID`, ps.LABEL_ID, ps.LABEL_EN, ps.LABEL_FR, ps.LABEL_SP, ps.LABEL_PR, ps.USER_MANAGED FROM vw_problem_status ps", new ProblemStatusRowMapper());
