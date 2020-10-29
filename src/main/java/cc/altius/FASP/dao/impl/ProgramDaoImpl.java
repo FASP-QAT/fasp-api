@@ -512,9 +512,9 @@ public class ProgramDaoImpl implements ProgramDao {
         String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
         int count = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
         if (count > 0) {
-            reason = "Order no. and prime line no. already tagged.";
+            reason = "static.mt.orderNoAlreadyTagged";
         } else {
-            sql = "SELECT  IF(o.`PROGRAM_ID`=?,IF(sm.`SHIPMENT_STATUS_ID`!=7,IF(pu.`PROCUREMENT_AGENT_PLANNING_UNIT_ID` IS NOT NULL,\"\",\"Planning unit not matching\"),\"Shipment already delivered\"),\"Program does not match\") AS REASON "
+            sql = "SELECT  IF(o.`PROGRAM_ID`=?,IF(sm.`SHIPMENT_STATUS_ID`!=7,IF(pu.`PROCUREMENT_AGENT_PLANNING_UNIT_ID` IS NOT NULL,\"\",\"static.mt.planningUnitNotMatch\"),\"static.mt.shipentDelivered\"),\"static.mt.programNotMatch\") AS REASON "
                     + " FROM rm_erp_order o "
                     + " LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE "
                     + " FROM rm_realm_country rc "
@@ -605,8 +605,8 @@ public class ProgramDaoImpl implements ProgramDao {
                 this.jdbcTemplate.update(sql, shipmentId1, curUser.getUserId(), curDate, shipmentId1);
             }
         }
-        sql = "UPDATE rm_manual_tagging m SET m.`ACTIVE`=0,m.`NOTES`=? WHERE m.`SHIPMENT_ID`=?;";
-        this.jdbcTemplate.update(sql, erpOrderDTO.getNotes(), erpOrderDTO.getShipmentId());
+        sql = "UPDATE rm_manual_tagging m SET m.`ACTIVE`=0,m.`NOTES`=?,m.`LAST_MODIFIED_DATE`=?,m.`LAST_MODIFIED_BY`=? WHERE m.`SHIPMENT_ID`=?;";
+        this.jdbcTemplate.update(sql, erpOrderDTO.getNotes(), curDate, curUser.getUserId(), erpOrderDTO.getShipmentId());
 
     }
 

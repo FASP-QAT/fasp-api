@@ -144,6 +144,7 @@ public class SyncRestController {
             masters.setBudgetList(this.budgetService.getBudgetListForSync(lastSyncDate, curUser));
             masters.setProblemStatusList(this.problemService.getProblemStatusForSync(lastSyncDate, curUser));
             masters.setProblemCriticalityList(this.problemService.getProblemCriticalityForSync(lastSyncDate, curUser));
+            masters.setProblemCategoryList(this.problemService.getProblemCategoryForSync(lastSyncDate, curUser));
             masters.setRealmProblemList(this.problemService.getProblemListForSync(lastSyncDate, curUser));
             return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
