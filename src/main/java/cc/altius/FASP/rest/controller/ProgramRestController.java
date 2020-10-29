@@ -292,7 +292,7 @@ public class ProgramRestController {
             return new ResponseEntity(this.programService.getOrderDetailsByOrderNoAndPrimeLineNo(programId, planningUnitId, orderNo, primeLineNo), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);
-            return new ResponseEntity("", HttpStatus.NOT_FOUND);
+            return new ResponseEntity(new ResponseCode("static.mt.noDetailsFound"), HttpStatus.NOT_FOUND);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
