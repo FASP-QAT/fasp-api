@@ -306,7 +306,7 @@ public class ProgramRestController {
     public ResponseEntity linkShipmentWithARTMIS(@RequestBody ErpOrderDTO erpOrderDTO, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            int result = this.programService.linkShipmentWithARTMIS(erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), erpOrderDTO.getShipmentId(), curUser);
+            int result = this.programService.linkShipmentWithARTMIS(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), curUser);
             System.out.println("result---" + result);
             return new ResponseEntity(result, HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
