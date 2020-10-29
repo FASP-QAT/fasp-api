@@ -40,6 +40,8 @@ public class ProblemReport implements Serializable {
     @JsonView(Views.InternalView.class)
     private String data5;
     @JsonView(Views.InternalView.class)
+    private SimpleObject problemCategory;
+    @JsonView(Views.InternalView.class)
     private SimpleObject problemStatus;
     @JsonView(Views.InternalView.class)
     private SimpleObject problemType;
@@ -142,6 +144,14 @@ public class ProblemReport implements Serializable {
 
     public void setProblemStatus(SimpleObject problemStatus) {
         this.problemStatus = problemStatus;
+    }
+
+    public SimpleObject getProblemCategory() {
+        return problemCategory;
+    }
+
+    public void setProblemCategory(SimpleObject problemCategory) {
+        this.problemCategory = problemCategory;
     }
 
     public SimpleObject getProblemType() {
