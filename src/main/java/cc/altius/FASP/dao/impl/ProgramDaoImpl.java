@@ -10,9 +10,11 @@ import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
+import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingDTORowMapper;
+import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingOrderDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.LoadProgram;
@@ -507,14 +509,14 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo) {
+    public ManualTaggingOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo) {
         String reason = "";
         String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
         int count = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
         if (count > 0) {
-            reason = "Order no. and prime line no. already tagged.";
+            reason = "static.mt.orderNoAlreadyTagged";
         } else {
-            sql = "SELECT  IF(o.`PROGRAM_ID`=?,IF(sm.`SHIPMENT_STATUS_ID`!=7,IF(pu.`PROCUREMENT_AGENT_PLANNING_UNIT_ID` IS NOT NULL,\"\",\"Planning unit not matching\"),\"Shipment already delivered\"),\"Program does not match\") AS REASON "
+            sql = "SELECT  IF(o.`PROGRAM_ID`=?,IF(sm.`SHIPMENT_STATUS_ID`!=7,IF(pu.`PROCUREMENT_AGENT_PLANNING_UNIT_ID` IS NOT NULL,\"\",\"static.mt.planningUnitNotMatch\"),\"static.mt.shipentDelivered\"),\"static.mt.programNotMatch\") AS REASON "
                     + " FROM rm_erp_order o "
                     + " LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE "
                     + " FROM rm_realm_country rc "
@@ -533,7 +535,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + " LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
                 + " LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
                 + " WHERE e.ORDER_NO=? AND e.PRIME_LINE_NO=?; ";
-        ErpOrderDTO erpOrderDTO = this.jdbcTemplate.queryForObject(sql, new ErpOrderDTORowMapper(), orderNo, primeLineNo);
+        ManualTaggingOrderDTO erpOrderDTO = this.jdbcTemplate.queryForObject(sql, new ManualTaggingOrderDTORowMapper(), orderNo, primeLineNo);
         erpOrderDTO.setReason(reason);
         return erpOrderDTO;
     }
@@ -562,7 +564,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public void delinkShipment(ErpOrderDTO erpOrderDTO, CustomUserDetails curUser) {
+    public void delinkShipment(ManualTaggingOrderDTO erpOrderDTO, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sql = "SELECT st.`ERP_FLAG` FROM rm_shipment_trans st "
                 + "WHERE st.`SHIPMENT_ID`=? AND st.`ACTIVE` ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
@@ -605,8 +607,8 @@ public class ProgramDaoImpl implements ProgramDao {
                 this.jdbcTemplate.update(sql, shipmentId1, curUser.getUserId(), curDate, shipmentId1);
             }
         }
-        sql = "UPDATE rm_manual_tagging m SET m.`ACTIVE`=0,m.`NOTES`=? WHERE m.`SHIPMENT_ID`=?;";
-        this.jdbcTemplate.update(sql, erpOrderDTO.getNotes(), erpOrderDTO.getShipmentId());
+        sql = "UPDATE rm_manual_tagging m SET m.`ACTIVE`=0,m.`NOTES`=?,m.`LAST_MODIFIED_DATE`=?,m.`LAST_MODIFIED_BY`=? WHERE m.`SHIPMENT_ID`=?;";
+        this.jdbcTemplate.update(sql, erpOrderDTO.getNotes(), curDate, curUser.getUserId(), erpOrderDTO.getShipmentId());
 
     }
 

@@ -49,6 +49,7 @@ public class ProblemReportResultSetExtractor implements ResultSetExtractor<List<
                 }
                 pr.setData5(rs.getString("DATA5"));
                 pr.setProblemStatus(new SimpleObject(rs.getInt("PROBLEM_STATUS_ID"), new LabelRowMapper("PROBLEM_STATUS_").mapRow(rs, 1)));
+                pr.setProblemCategory(new SimpleObject(rs.getInt("PROBLEM_CATEGORY_ID"), new LabelRowMapper("PROBLEM_CATEGORY_").mapRow(rs, 1)));
                 pr.setProblemType(new SimpleObject(rs.getInt("PROBLEM_TYPE_ID"), new LabelRowMapper("PROBLEM_TYPE_").mapRow(rs, 1)));
                 pr.setRealmProblem(new RealmProblemRowMapper("RP_", true).mapRow(rs, 1));
                 pr.setReviewed(rs.getBoolean("REVIEWED"));

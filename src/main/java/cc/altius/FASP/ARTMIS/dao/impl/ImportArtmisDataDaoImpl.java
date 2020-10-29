@@ -442,9 +442,10 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
             // ##############################################################
             // Completed till here
             // ##############################################################
-            sqlString = "SELECT e.ERP_ORDER_ID, e.SHIPMENT_ID, e.ORDER_NO, e.PRIME_LINE_NO ,pu.`LABEL_ID`,IFNULL(pu.`LABEL_EN`,'') AS LABEL_EN, pu.`LABEL_FR`,pu.`LABEL_PR`,pu.`LABEL_SP`, "
+/*            sqlString = "SELECT e.ERP_ORDER_ID, e.SHIPMENT_ID, e.ORDER_NO, e.PRIME_LINE_NO ,pu.`LABEL_ID`,IFNULL(pu.`LABEL_EN`,'') AS LABEL_EN, pu.`LABEL_FR`,pu.`LABEL_PR`,pu.`LABEL_SP`, "
                     + "e.QTY, e.RO_NO, e.RO_PRIME_LINE_NO, e.ORDER_TYPE, e.PLANNING_UNIT_SKU_CODE, e.PROCUREMENT_UNIT_SKU_CODE, e.CURRENT_ESTIMATED_DELIVERY_DATE, e.SUPPLIER_NAME, e.PRICE, e.SHIPPING_COST, e.STATUS, e.RECPIENT_COUNTRY, "
                     + "COALESCE(s.PROGRAM_ID, s1.PROGRAM_ID) `PROGRAM_ID`, st.VERSION_ID, COALESCE(s.SHIPMENT_ID, s1.SHIPMENT_ID) `SHIPMENT_SHIPMENT_ID`, pu.PLANNING_UNIT_ID, papu2.PROCUREMENT_UNIT_ID, pu2.SUPPLIER_ID, mt.MANUAL_TAGGING_ID, st.ACTIVE, st.ERP_FLAG, sm1.PARENT_SHIPMENT_ID "
+                    + "st.FUNDING_SOURCE_ID "
                     + "FROM rm_erp_order e "
                     + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` AND papu.`PROCUREMENT_AGENT_ID`=1 "
                     + "LEFT JOIN vw_planning_unit pu ON papu.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
@@ -464,18 +465,18 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
             for (ErpOrderDTO erpOrderDTO : erpOrderDTOList) {
                 try {
                     // Shipment id found in file
-                    logger.info("Active - " + erpOrderDTO.getShipmentActive());
-                    logger.info("ERP Flag - " + erpOrderDTO.getShipmentErpFlag());
-                    logger.info("ParentShipmentId - " + erpOrderDTO.getShipmentParentShipmentId());
-                    logger.info("Shipment Id - " + erpOrderDTO.getShipmentId());
-                    logger.info("ManualTagging Id - " + erpOrderDTO.getManualTaggingId());
-                    if (erpOrderDTO.isShipmentErpFlag() && erpOrderDTO.getShipmentParentShipmentId() != null) {
+                    logger.info("Active - " + erpOrderDTO.getShActive());
+                    logger.info("ERP Flag - " + erpOrderDTO.getShErpFlag());
+                    logger.info("ParentShipmentId - " + erpOrderDTO.getShParentShipmentId());
+                    logger.info("Shipment Id - " + erpOrderDTO.getShShipmentId());
+                    logger.info("ManualTagging - " + erpOrderDTO.isManualTagging());
+                    if (erpOrderDTO.isShErpFlag() && erpOrderDTO.getShParentShipmentId() != null) {
                         // The ERP Flag is true and the Parent Shipment Id exists
                         // Find all Shipments whose Parent Shipment Id is :parentShipmentId and :orderNo and :primeLineNo are matching
                         params.clear();
-                        params.put("parentShipmentId", erpOrderDTO.getShipmentParentShipmentId());
-                        params.put("orderNo", erpOrderDTO.getOrderNo());
-                        params.put("primeLineNo", erpOrderDTO.getPrimeLineNo());
+                        params.put("parentShipmentId", erpOrderDTO.getShParentShipmentId());
+                        params.put("orderNo", erpOrderDTO.getEoOrderNo());
+                        params.put("primeLineNo", erpOrderDTO.getEoPrimeLineNo());
                         sqlString = "SELECT  st.SHIPMENT_TRANS_ID "
                                 + "    FROM rm_shipment s "
                                 + "LEFT JOIN (SELECT s.SHIPMENT_ID, MAX(st.VERSION_ID) MAX_VERSION_ID FROM rm_shipment s left join rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID WHERE s.PARENT_SHIPMENT_ID=:parentShipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo group by st.SHIPMENT_ID) sm ON sm.SHIPMENT_ID=s.SHIPMENT_ID "
@@ -488,19 +489,19 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                             // Create a new Shipment with Parent Shipment Id = :shipmentId and OrderNo=:orderNo and PrimeLineNo=:primeLineNo
                             // All other details to be taken from ARTMIS
                             params.clear();
-                            params.put("PROGRAM_ID", erpOrderDTO.getProgramId());
+                            params.put("PROGRAM_ID", erpOrderDTO.getShProgramId());
                             params.put("SUGGESTED_QTY", null);
                             params.put("CURRENCY_ID", 1); // USD as default from ARTMIS
                             params.put("CONVERSION_RATE_TO_USD", 1);
-                            params.put("PARENT_SHIPMENT_ID", erpOrderDTO.getShipmentId());
+                            params.put("PARENT_SHIPMENT_ID", erpOrderDTO.getShShipmentId());
                             params.put("CREATED_BY", 1); //Default auto user in QAT
                             params.put("CREATED_DATE", curDate);
-                            params.put("MAX_VERSION_ID", erpOrderDTO.getVersionId()); // Same as the Current Version that is already present
+                            params.put("MAX_VERSION_ID", erpOrderDTO.getShVersionId()); // Same as the Current Version that is already present
                             SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment").usingGeneratedKeyColumns("SHIPMENT_ID");
                             int newShipmentId = si.executeAndReturnKey(params).intValue();
                             params.clear();
                             params.put("SHIPMENT_ID", newShipmentId);
-                            params.put("PLANNING_UNIT_ID", erpOrderDTO.getPlanningUnitId());
+                            params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
                             params.put("PROCUREMENT_AGENT_ID", 1); // USAID since it is fixed for the ARTMIS import
                             
                             params.put("ACTIVE", true);
@@ -508,7 +509,6 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                             params.put("LOCAL_PROCUREMENT", false);
                             
                             
-                            params.put("PLANNING_UNIT_ID", erpOrderDTO.getPlanningUnitId());
                         }
 
                     } else {
@@ -521,7 +521,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 } catch (Exception e) {
 
                 }
-            }
+            }*/
 
 //                        // Check if contains child shipments
 //                        sqlString = "SELECT COUNT(*) FROM rm_shipment_trans st LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` AND st.`VERSION_ID`=(SELECT MAX(stt.`VERSION_ID`) FROM rm_shipment_trans stt WHERE stt.`SHIPMENT_ID`=st.`SHIPMENT_ID`) "
