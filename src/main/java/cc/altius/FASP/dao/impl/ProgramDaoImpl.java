@@ -534,7 +534,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + " LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
                 + " WHERE e.ORDER_NO=? AND e.PRIME_LINE_NO=?; ";
         ErpOrderDTO erpOrderDTO = this.jdbcTemplate.queryForObject(sql, new ErpOrderDTORowMapper(), orderNo, primeLineNo);
-        erpOrderDTO.setReason(reason);
+        erpOrderDTO.setUsReason(reason);
         return erpOrderDTO;
     }
 
@@ -566,10 +566,10 @@ public class ProgramDaoImpl implements ProgramDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sql = "SELECT st.`ERP_FLAG` FROM rm_shipment_trans st "
                 + "WHERE st.`SHIPMENT_ID`=? AND st.`ACTIVE` ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
-        Integer erpFlag = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId());
+        Integer erpFlag = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShShipmentId());
         if (erpFlag == 1) {
             sql = "SELECT s.`PARENT_SHIPMENT_ID` FROM rm_shipment s WHERE s.`SHIPMENT_ID`=?;";
-            int parentShipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId());
+            int parentShipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShShipmentId());
 //            String sql1 = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=s.`MAX_VERSION_ID`+1 WHERE s.`SHIPMENT_ID`=?;";
 //            this.jdbcTemplate.update(sql1, parentShipmentId);
             sql = "INSERT INTO rm_shipment_trans "
@@ -606,7 +606,7 @@ public class ProgramDaoImpl implements ProgramDao {
             }
         }
         sql = "UPDATE rm_manual_tagging m SET m.`ACTIVE`=0,m.`NOTES`=? WHERE m.`SHIPMENT_ID`=?;";
-        this.jdbcTemplate.update(sql, erpOrderDTO.getNotes(), erpOrderDTO.getShipmentId());
+        this.jdbcTemplate.update(sql, erpOrderDTO.getUsNotes(), erpOrderDTO.getShShipmentId());
 
     }
 

@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.model.DTO;
 
-import cc.altius.FASP.model.Label;
 import java.util.Date;
 
 /**
@@ -14,282 +13,349 @@ import java.util.Date;
  */
 public class ErpOrderDTO {
 
-    private int erpOrderId;
-    private int shipmentId;
-    private int programId;
-    private int versionId;
-    private int planningUnitId;
-    private Integer procurementUnitId;
-    private Integer supplierId;
-    private Integer manualTaggingId;
-    private Boolean shipmentActive;
-    private Boolean shipmentErpFlag;
-    private Integer shipmentParentShipmentId;
-    private Integer shipmentShipmentId;
-    private int quantity;
-    private String orderNo;
-    private int primeLineNo;
-    private String roNo;
-    private String roPrimeLineNo;
-    private String orderType;
-    private String planningUnitSkuCode;
-    private String procurementUnitSkuCode;
-    private Date currentEstimatedDeliveryDate;
-    private String supplierName;
-    private double price;
-    private double shippingCost;
-    private String status;
-    private String reason;
-    private String recipentCountry;
-    private Label planningUnitLabel;
-    private String notes;
+    private int eoErpOrderId;
+    private String eoRoNo;
+    private String eoRoPrimeLineNo;
+    private String eoOrderNo;
+    private int eoPrimeLineNo;
+    private String eoOrderType;
+    private Date eoCreatedDate;
+    private String eoParentRo;
+    private Date eoParentCreatedDate;
+    private String eoPlanningUnitSkuCode;
+    private int eoPlanningUnitId; // Cannot be 0
+    private String eoProcurementUnitSkuCode;
+    private Integer eoProcurementUnitId;
+    private Integer eoSupplierId;
+    private int eoQty;
+    private Date eoOrderedDate;
+    private Date eoCurrentEstimatedDeliveryDate;
+    private Date eoReqDeliveryDate;
+    private Date eoAgreedDeliveryDate;
+    private String eoSupplierName;
+    private double eoPrice;
+    private double eoShippingCost;
+    private String eoShipBy;
+    private String eoRecipentName;
+    private String eoRecipentCountry;
+    private String eoStatus;
 
-    public int getErpOrderId() {
-        return erpOrderId;
+    private boolean manualTagging;
+
+    private int shProgramId; // Cannot be 0
+    private int shShipmentId; // Cannot be 0
+    private int shVersionId; // Cannot be 0
+    private Boolean shActive; // Cannot be null
+    private Boolean shErpFlag;
+    private Integer shParentShipmentId;
+    private int shFundingSourceId;
+    private int shProcurementAgentId;
+
+    private String usNotes; // Used to save the User entered notes
+    private String usReason; // Used to return the reason the Order could not be found
+
+    public int getEoErpOrderId() {
+        return eoErpOrderId;
     }
 
-    public void setErpOrderId(int erpOrderId) {
-        this.erpOrderId = erpOrderId;
+    public void setEoErpOrderId(int eoErpOrderId) {
+        this.eoErpOrderId = eoErpOrderId;
     }
 
-    public int getShipmentId() {
-        return shipmentId;
+    public String getEoRoNo() {
+        return eoRoNo;
     }
 
-    public void setShipmentId(int shipmentId) {
-        this.shipmentId = shipmentId;
+    public void setEoRoNo(String eoRoNo) {
+        this.eoRoNo = eoRoNo;
     }
 
-    public int getProgramId() {
-        return programId;
+    public String getEoRoPrimeLineNo() {
+        return eoRoPrimeLineNo;
     }
 
-    public void setProgramId(int programId) {
-        this.programId = programId;
+    public void setEoRoPrimeLineNo(String eoRoPrimeLineNo) {
+        this.eoRoPrimeLineNo = eoRoPrimeLineNo;
     }
 
-    public int getVersionId() {
-        return versionId;
+    public String getEoOrderNo() {
+        return eoOrderNo;
     }
 
-    public void setVersionId(int versionId) {
-        this.versionId = versionId;
+    public void setEoOrderNo(String eoOrderNo) {
+        this.eoOrderNo = eoOrderNo;
     }
 
-    public int getPlanningUnitId() {
-        return planningUnitId;
+    public int getEoPrimeLineNo() {
+        return eoPrimeLineNo;
     }
 
-    public void setPlanningUnitId(int planningUnitId) {
-        this.planningUnitId = planningUnitId;
+    public void setEoPrimeLineNo(int eoPrimeLineNo) {
+        this.eoPrimeLineNo = eoPrimeLineNo;
     }
 
-    public Integer getProcurementUnitId() {
-        return procurementUnitId;
+    public String getEoOrderType() {
+        return eoOrderType;
     }
 
-    public void setProcurementUnitId(Integer procurementUnitId) {
-        this.procurementUnitId = procurementUnitId;
+    public void setEoOrderType(String eoOrderType) {
+        this.eoOrderType = eoOrderType;
     }
 
-    public Integer getSupplierId() {
-        return supplierId;
+    public Date getEoCreatedDate() {
+        return eoCreatedDate;
     }
 
-    public void setSupplierId(Integer supplierId) {
-        this.supplierId = supplierId;
+    public void setEoCreatedDate(Date eoCreatedDate) {
+        this.eoCreatedDate = eoCreatedDate;
     }
 
-    public Integer getManualTaggingId() {
-        return manualTaggingId;
+    public String getEoParentRo() {
+        return eoParentRo;
     }
 
-    public void setManualTaggingId(Integer manualTaggingId) {
-        this.manualTaggingId = manualTaggingId;
+    public void setEoParentRo(String eoParentRo) {
+        this.eoParentRo = eoParentRo;
     }
 
-    public Boolean getShipmentActive() {
-        return shipmentActive;
+    public Date getEoParentCreatedDate() {
+        return eoParentCreatedDate;
     }
 
-    public void setShipmentActive(Boolean shipmentActive) {
-        this.shipmentActive = shipmentActive;
+    public void setEoParentCreatedDate(Date eoParentCreatedDate) {
+        this.eoParentCreatedDate = eoParentCreatedDate;
     }
 
-    public Boolean getShipmentErpFlag() {
-        return shipmentErpFlag;
+    public String getEoPlanningUnitSkuCode() {
+        return eoPlanningUnitSkuCode;
     }
 
-    public void setShipmentErpFlag(Boolean shipmentErpFlag) {
-        this.shipmentErpFlag = shipmentErpFlag;
+    public void setEoPlanningUnitSkuCode(String eoPlanningUnitSkuCode) {
+        this.eoPlanningUnitSkuCode = eoPlanningUnitSkuCode;
     }
 
-    public boolean isShipmentErpFlag() {
-        if (this.shipmentErpFlag == null) {
+    public int getEoPlanningUnitId() {
+        return eoPlanningUnitId;
+    }
+
+    public void setEoPlanningUnitId(int eoPlanningUnitId) {
+        this.eoPlanningUnitId = eoPlanningUnitId;
+    }
+
+    public String getEoProcurementUnitSkuCode() {
+        return eoProcurementUnitSkuCode;
+    }
+
+    public void setEoProcurementUnitSkuCode(String eoProcurementUnitSkuCode) {
+        this.eoProcurementUnitSkuCode = eoProcurementUnitSkuCode;
+    }
+
+    public Integer getEoProcurementUnitId() {
+        return eoProcurementUnitId;
+    }
+
+    public void setEoProcurementUnitId(Integer eoProcurementUnitId) {
+        this.eoProcurementUnitId = eoProcurementUnitId;
+    }
+
+    public Integer getEoSupplierId() {
+        return eoSupplierId;
+    }
+
+    public void setEoSupplierId(Integer eoSupplierId) {
+        this.eoSupplierId = eoSupplierId;
+    }
+
+    public int getEoQty() {
+        return eoQty;
+    }
+
+    public void setEoQty(int eoQty) {
+        this.eoQty = eoQty;
+    }
+
+    public Date getEoOrderedDate() {
+        return eoOrderedDate;
+    }
+
+    public void setEoOrderedDate(Date eoOrderedDate) {
+        this.eoOrderedDate = eoOrderedDate;
+    }
+
+    public Date getEoCurrentEstimatedDeliveryDate() {
+        return eoCurrentEstimatedDeliveryDate;
+    }
+
+    public void setEoCurrentEstimatedDeliveryDate(Date eoCurrentEstimatedDeliveryDate) {
+        this.eoCurrentEstimatedDeliveryDate = eoCurrentEstimatedDeliveryDate;
+    }
+
+    public Date getEoReqDeliveryDate() {
+        return eoReqDeliveryDate;
+    }
+
+    public void setEoReqDeliveryDate(Date eoReqDeliveryDate) {
+        this.eoReqDeliveryDate = eoReqDeliveryDate;
+    }
+
+    public Date getEoAgreedDeliveryDate() {
+        return eoAgreedDeliveryDate;
+    }
+
+    public void setEoAgreedDeliveryDate(Date eoAgreedDeliveryDate) {
+        this.eoAgreedDeliveryDate = eoAgreedDeliveryDate;
+    }
+
+    public String getEoSupplierName() {
+        return eoSupplierName;
+    }
+
+    public void setEoSupplierName(String eoSupplierName) {
+        this.eoSupplierName = eoSupplierName;
+    }
+
+    public double getEoPrice() {
+        return eoPrice;
+    }
+
+    public void setEoPrice(double eoPrice) {
+        this.eoPrice = eoPrice;
+    }
+
+    public double getEoShippingCost() {
+        return eoShippingCost;
+    }
+
+    public void setEoShippingCost(double eoShippingCost) {
+        this.eoShippingCost = eoShippingCost;
+    }
+
+    public String getEoShipBy() {
+        return eoShipBy;
+    }
+
+    public void setEoShipBy(String eoShipBy) {
+        this.eoShipBy = eoShipBy;
+    }
+
+    public String getEoRecipentName() {
+        return eoRecipentName;
+    }
+
+    public void setEoRecipentName(String eoRecipentName) {
+        this.eoRecipentName = eoRecipentName;
+    }
+
+    public String getEoRecipentCountry() {
+        return eoRecipentCountry;
+    }
+
+    public void setEoRecipentCountry(String eoRecipentCountry) {
+        this.eoRecipentCountry = eoRecipentCountry;
+    }
+
+    public String getEoStatus() {
+        return eoStatus;
+    }
+
+    public void setEoStatus(String eoStatus) {
+        this.eoStatus = eoStatus;
+    }
+
+    public int getShProgramId() {
+        return shProgramId;
+    }
+
+    public void setShProgramId(int shProgramId) {
+        this.shProgramId = shProgramId;
+    }
+
+    public int getShShipmentId() {
+        return shShipmentId;
+    }
+
+    public void setShShipmentId(int shShipmentId) {
+        this.shShipmentId = shShipmentId;
+    }
+
+    public boolean isManualTagging() {
+        return manualTagging;
+    }
+
+    public void setManualTagging(boolean manualTagging) {
+        this.manualTagging = manualTagging;
+    }
+
+    public int getShVersionId() {
+        return shVersionId;
+    }
+
+    public void setShVersionId(int shVersionId) {
+        this.shVersionId = shVersionId;
+    }
+
+    public Boolean getShActive() {
+        return shActive;
+    }
+
+    public void setShActive(Boolean shActive) {
+        this.shActive = shActive;
+    }
+
+    public Boolean getShErpFlag() {
+        return shErpFlag;
+    }
+
+    public void setShErpFlag(Boolean shErpFlag) {
+        this.shErpFlag = shErpFlag;
+    }
+
+    public boolean isShErpFlag() {
+        if (this.shErpFlag == null) {
             return false;
         } else {
-            return this.shipmentErpFlag;
+            return this.shErpFlag;
         }
     }
 
-    public Integer getShipmentParentShipmentId() {
-        return shipmentParentShipmentId;
+    public Integer getShParentShipmentId() {
+        return shParentShipmentId;
     }
 
-    public void setShipmentParentShipmentId(Integer shipmentParentShipmentId) {
-        this.shipmentParentShipmentId = shipmentParentShipmentId;
+    public void setShParentShipmentId(Integer shParentShipmentId) {
+        this.shParentShipmentId = shParentShipmentId;
     }
 
-    public Integer getShipmentShipmentId() {
-        return shipmentShipmentId;
+    public int getShFundingSourceId() {
+        return shFundingSourceId;
     }
 
-    public void setShipmentShipmentId(Integer shipmentShipmentId) {
-        this.shipmentShipmentId = shipmentShipmentId;
+    public void setShFundingSourceId(int shFundingSourceId) {
+        this.shFundingSourceId = shFundingSourceId;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public int getShProcurementAgentId() {
+        return shProcurementAgentId;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setShProcurementAgentId(int shProcurementAgentId) {
+        this.shProcurementAgentId = shProcurementAgentId;
     }
 
-    public String getOrderNo() {
-        return orderNo;
+    public String getUsNotes() {
+        return usNotes;
     }
 
-    public void setOrderNo(String orderNo) {
-        this.orderNo = orderNo;
+    public void setUsNotes(String usNotes) {
+        this.usNotes = usNotes;
     }
 
-    public int getPrimeLineNo() {
-        return primeLineNo;
+    public String getUsReason() {
+        return usReason;
     }
 
-    public void setPrimeLineNo(int primeLineNo) {
-        this.primeLineNo = primeLineNo;
-    }
-
-    public String getRoNo() {
-        return roNo;
-    }
-
-    public void setRoNo(String roNo) {
-        this.roNo = roNo;
-    }
-
-    public String getRoPrimeLineNo() {
-        return roPrimeLineNo;
-    }
-
-    public void setRoPrimeLineNo(String roPrimeLineNo) {
-        this.roPrimeLineNo = roPrimeLineNo;
-    }
-
-    public String getOrderType() {
-        return orderType;
-    }
-
-    public void setOrderType(String orderType) {
-        this.orderType = orderType;
-    }
-
-    public String getPlanningUnitSkuCode() {
-        return planningUnitSkuCode;
-    }
-
-    public void setPlanningUnitSkuCode(String planningUnitSkuCode) {
-        this.planningUnitSkuCode = planningUnitSkuCode;
-    }
-
-    public String getProcurementUnitSkuCode() {
-        return procurementUnitSkuCode;
-    }
-
-    public void setProcurementUnitSkuCode(String procurementUnitSkuCode) {
-        this.procurementUnitSkuCode = procurementUnitSkuCode;
-    }
-
-    public Date getCurrentEstimatedDeliveryDate() {
-        return currentEstimatedDeliveryDate;
-    }
-
-    public void setCurrentEstimatedDeliveryDate(Date currentEstimatedDeliveryDate) {
-        this.currentEstimatedDeliveryDate = currentEstimatedDeliveryDate;
-    }
-
-    public String getSupplierName() {
-        return supplierName;
-    }
-
-    public void setSupplierName(String supplierName) {
-        this.supplierName = supplierName;
-    }
-
-    public double getPrice() {
-        return price;
-    }
-
-    public void setPrice(double price) {
-        this.price = price;
-    }
-
-    public double getShippingCost() {
-        return shippingCost;
-    }
-
-    public void setShippingCost(double shippingCost) {
-        this.shippingCost = shippingCost;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getReason() {
-        return reason;
-    }
-
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
-
-    public String getRecipentCountry() {
-        return recipentCountry;
-    }
-
-    public void setRecipentCountry(String recipentCountry) {
-        this.recipentCountry = recipentCountry;
-    }
-
-    public Label getPlanningUnitLabel() {
-        return planningUnitLabel;
-    }
-
-    public void setPlanningUnitLabel(Label planningUnitLabel) {
-        this.planningUnitLabel = planningUnitLabel;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
-    public boolean isManual() {
-        return this.manualTaggingId != null;
-    }
-
-    public String toString() {
-        return "ErpOrderDTO{" + "erpOrderId=" + erpOrderId + ", shipmentId=" + shipmentId + ", quantity=" + quantity + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", roNo=" + roNo + ", roPrimeLineNo=" + roPrimeLineNo + ", orderType=" + orderType + ", planningUnitSkuCode=" + planningUnitSkuCode + ", procurementUnitSkuCode=" + procurementUnitSkuCode + ", currentEstimatedDeliveryDate=" + currentEstimatedDeliveryDate + ", supplierName=" + supplierName + ", price=" + price + ", shippingCost=" + shippingCost + ", status=" + status + ", reason=" + reason + ", recipentCountry=" + recipentCountry + ", planningUnitLabel=" + planningUnitLabel + ", notes=" + notes + '}';
+    public void setUsReason(String usReason) {
+        this.usReason = usReason;
     }
 
 }
