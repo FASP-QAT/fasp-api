@@ -7,6 +7,7 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
+import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramInitialize;
@@ -303,10 +304,10 @@ public class ProgramRestController {
     }
 
     @PostMapping("/linkShipmentWithARTMIS/")
-    public ResponseEntity linkShipmentWithARTMIS(@RequestBody ErpOrderDTO erpOrderDTO, Authentication auth) {
+    public ResponseEntity linkShipmentWithARTMIS(@RequestBody ManualTaggingOrderDTO erpOrderDTO, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            int result = this.programService.linkShipmentWithARTMIS(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), curUser);
+            int result = this.programService.linkShipmentWithARTMIS(erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), erpOrderDTO.getShipmentId(), curUser);
             System.out.println("result---" + result);
             return new ResponseEntity(result, HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
@@ -339,7 +340,7 @@ public class ProgramRestController {
     }
 
     @PostMapping("/delinkShipment/")
-    public ResponseEntity delinkShipment(@RequestBody ErpOrderDTO erpOrderDTO, Authentication auth) {
+    public ResponseEntity delinkShipment(@RequestBody ManualTaggingOrderDTO erpOrderDTO, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.programService.delinkShipment(erpOrderDTO, curUser);
