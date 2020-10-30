@@ -993,7 +993,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     }
                 }
                 if (updatedProblemActionRowLevel) {
-                    sqlString = "UPDATE rm_problem_report pr SET pr.PROBLEM_STATUS_ID=:PROBLEM_STATUS_ID, pr.LAST_MODIFIED_BY=:LAST_MODIFIED_BY, pr.LAST_MODIFIED_DATE=:LAST_MODIFIED_DATE WHERE pr.PROBLEM_REPORT_ID=:PROBLEM_REPORT_ID AND (pr.PROBLEM_STATUS_ID!=:PROBLEM_STATUS_ID OR pr.LAST_MODIFIED_BY!=:LAST_MODIFIED_BY OR pr.LAST_MODIFIED_DATE!=:LAST_MODIFIED_DATE)";
+//                    sqlString = "UPDATE rm_problem_report pr SET pr.PROBLEM_STATUS_ID=:PROBLEM_STATUS_ID, pr.LAST_MODIFIED_BY=:LAST_MODIFIED_BY, pr.LAST_MODIFIED_DATE=:LAST_MODIFIED_DATE WHERE pr.PROBLEM_REPORT_ID=:PROBLEM_REPORT_ID AND (pr.PROBLEM_STATUS_ID!=:PROBLEM_STATUS_ID OR pr.LAST_MODIFIED_BY!=:LAST_MODIFIED_BY OR pr.LAST_MODIFIED_DATE!=:LAST_MODIFIED_DATE)";
+                    sqlString = "UPDATE rm_problem_report pr \n"
+                            + "SET pr.PROBLEM_STATUS_ID=:PROBLEM_STATUS_ID, \n"
+                            + "pr.REVIEWED=:REVIWED,\n"
+                            + "pr.LAST_MODIFIED_BY=:LAST_MODIFIED_BY, \n"
+                            + "pr.LAST_MODIFIED_DATE=:LAST_MODIFIED_DATE \n"
+                            + "WHERE pr.PROBLEM_REPORT_ID=:PROBLEM_REPORT_ID \n"
+                            + "AND (pr.PROBLEM_STATUS_ID!=:PROBLEM_STATUS_ID OR pr.REVIEWED!=:REVIWED OR pr.LAST_MODIFIED_BY!=:LAST_MODIFIED_BY OR pr.LAST_MODIFIED_DATE!=:LAST_MODIFIED_DATE);";
                     this.namedParameterJdbcTemplate.update(sqlString, tp);
                 }
             }
