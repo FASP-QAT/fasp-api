@@ -17,6 +17,8 @@ import java.util.Objects;
  */
 public class SimplifiedSupplyPlan implements Serializable {
 
+    @JsonView({Views.ArtmisView.class})
+    private int supplyPlanId;
     @JsonView({Views.ArtmisView.class,Views.InternalView.class})
     private int programId;
     @JsonView({Views.ArtmisView.class,Views.InternalView.class})
@@ -110,7 +112,8 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.batchDetails = new LinkedList<>();
     }
 
-    public SimplifiedSupplyPlan(int programId, int versionId, int planningUnitId, String transDate) {
+    public SimplifiedSupplyPlan(int supplyPlanId, int programId, int versionId, int planningUnitId, String transDate) {
+        this.supplyPlanId = supplyPlanId;
         this.programId = programId;
         this.versionId = versionId;
         this.planningUnitId = planningUnitId;
@@ -118,6 +121,14 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.batchDetails = new LinkedList<>();
     }
 
+    public int getSupplyPlanId() {
+        return supplyPlanId;
+    }
+
+    public void setSupplyPlanId(int supplyPlanId) {
+        this.supplyPlanId = supplyPlanId;
+    }
+    
     public int getProgramId() {
         return programId;
     }

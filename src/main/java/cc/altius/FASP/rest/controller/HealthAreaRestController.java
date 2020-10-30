@@ -93,7 +93,21 @@ public class HealthAreaRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    @GetMapping("/healthArea/realmCountryId/{realmCountryId}")
+    public ResponseEntity getHealthAreaByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.healthAreaService.getHealthAreaListByRealmCountry(realmCountryId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to get Health Area list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (Exception e) {
+            logger.error("Error while trying to get Health Area list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 //    @GetMapping("/healthArea/program/realmId/{realmId}")
 //    public ResponseEntity getHealthAreaForRealmCountry(@PathVariable("realmId") int realmId, Authentication auth) {
 //        try {
@@ -110,7 +124,6 @@ public class HealthAreaRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
     @GetMapping("/healthArea/realmId/{realmId}")
     public ResponseEntity getHealthAreaByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -183,7 +196,6 @@ public class HealthAreaRestController {
         }
     }
 
-    
     @GetMapping("/healthArea/getDisplayName/realmId/{realmId}/name/{name}")
     public ResponseEntity getHealthAreaDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
         try {
@@ -194,8 +206,7 @@ public class HealthAreaRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    
+
     @GetMapping(value = "/sync/healthArea/{lastSyncDate}")
     public ResponseEntity getHealthAreaListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {

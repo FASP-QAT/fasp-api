@@ -13,7 +13,9 @@ import cc.altius.FASP.model.rowMapper.OrganisationResultSetExtractor;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import cc.altius.FASP.dao.OrganisationDao;
+import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.rowMapper.HealthAreaListResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.SuggestedDisplayName;
 import java.util.HashMap;
@@ -149,6 +151,18 @@ public class OrganisationDaoImpl implements OrganisationDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlListString, params, "o", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new OrganisationListResultSetExtractor());
+    }
+
+    @Override
+    public List<Organisation> getOrganisationListByRealmCountry(int realmCountryId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addUserAclForOrganisation(sqlStringBuilder, params, "o", curUser);
+        this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
+        sqlStringBuilder.append(" AND oc.ACTIVE AND o.ACTIVE AND oc.REALM_COUNTRY_ID=:realmCountryId");
+        params.put("realmCountryId", realmCountryId);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new OrganisationListResultSetExtractor());
     }
 
