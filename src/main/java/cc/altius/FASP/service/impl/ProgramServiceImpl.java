@@ -98,8 +98,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<Program> getProgramList(CustomUserDetails curUser) {
-        return this.programDao.getProgramList(curUser);
+    public List<Program> getProgramList(CustomUserDetails curUser, boolean active) {
+        return this.programDao.getProgramList(curUser, active);
     }
 
     @Override

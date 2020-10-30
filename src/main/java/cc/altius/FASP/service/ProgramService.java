@@ -28,7 +28,7 @@ public interface ProgramService {
 
     public int updateProgram(Program p, CustomUserDetails curUser);
 
-    public List<Program> getProgramList(CustomUserDetails curUser);
+    public List<Program> getProgramList(CustomUserDetails curUser, boolean active);
 
     public List<Program> getProgramListForProgramIds(String[] programIds, CustomUserDetails curUser);
 

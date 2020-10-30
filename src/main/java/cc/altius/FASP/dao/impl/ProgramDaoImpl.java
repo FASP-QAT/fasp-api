@@ -11,7 +11,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
-import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTORowMapper;
+import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTOResultSetExtractor;
 import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
 import cc.altius.FASP.model.LabelConstants;
@@ -330,12 +330,14 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<Program> getProgramList(CustomUserDetails curUser) {
+    public List<Program> getProgramList(CustomUserDetails curUser, boolean active) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(" AND p.ACTIVE ").append(this.sqlOrderBy);
+        if (active) {
+            sqlStringBuilder.append(" AND p.ACTIVE ").append(this.sqlOrderBy);
+        }
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramListResultSetExtractor());
     }
 

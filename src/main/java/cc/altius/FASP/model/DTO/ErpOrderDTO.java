@@ -5,7 +5,11 @@
  */
 package cc.altius.FASP.model.DTO;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Locale;
 
 /**
  *
@@ -24,6 +28,7 @@ public class ErpOrderDTO {
     private Date eoParentCreatedDate;
     private String eoPlanningUnitSkuCode;
     private int eoPlanningUnitId; // Cannot be 0
+    private int eoShelfLife;
     private String eoProcurementUnitSkuCode;
     private Integer eoProcurementUnitId;
     private Integer eoSupplierId;
@@ -39,6 +44,10 @@ public class ErpOrderDTO {
     private String eoRecipentName;
     private String eoRecipentCountry;
     private String eoStatus;
+    private int shShipmentStatusId;
+    private Date eoActualShippedDate;
+    private Date eoActualDeliveryDate;
+    List<ErpShipmentDTO> eoShipmentList;
 
     private boolean manualTagging;
 
@@ -48,12 +57,19 @@ public class ErpOrderDTO {
     private Boolean shActive; // Cannot be null
     private Boolean shErpFlag;
     private Integer shParentShipmentId;
-    private int shFundingSourceId;
-    private int shProcurementAgentId;
+    private Integer shFundingSourceId;
+    private Integer shProcurementAgentId;
+    private Integer shBudgetId;
+    private Boolean shAccountFlag;
+    private Integer shDataSourceId;
+    
 
-    private String usNotes; // Used to save the User entered notes
-    private String usReason; // Used to return the reason the Order could not be found
+    public ErpOrderDTO() {
+        this.eoShipmentList = new LinkedList<>();
+    }
 
+    
+    
     public int getEoErpOrderId() {
         return eoErpOrderId;
     }
@@ -140,6 +156,14 @@ public class ErpOrderDTO {
 
     public void setEoPlanningUnitId(int eoPlanningUnitId) {
         this.eoPlanningUnitId = eoPlanningUnitId;
+    }
+
+    public int getEoShelfLife() {
+        return eoShelfLife;
+    }
+
+    public void setEoShelfLife(int eoShelfLife) {
+        this.eoShelfLife = eoShelfLife;
     }
 
     public String getEoProcurementUnitSkuCode() {
@@ -262,6 +286,14 @@ public class ErpOrderDTO {
         this.eoStatus = eoStatus;
     }
 
+    public int getShShipmentStatusId() {
+        return shShipmentStatusId;
+    }
+
+    public void setShShipmentStatusId(int shShipmentStatusId) {
+        this.shShipmentStatusId = shShipmentStatusId;
+    }
+
     public int getShProgramId() {
         return shProgramId;
     }
@@ -326,36 +358,106 @@ public class ErpOrderDTO {
         this.shParentShipmentId = shParentShipmentId;
     }
 
-    public int getShFundingSourceId() {
+    public Integer getShFundingSourceId() {
         return shFundingSourceId;
     }
 
-    public void setShFundingSourceId(int shFundingSourceId) {
+    public void setShFundingSourceId(Integer shFundingSourceId) {
         this.shFundingSourceId = shFundingSourceId;
     }
 
-    public int getShProcurementAgentId() {
+    public Integer getShProcurementAgentId() {
         return shProcurementAgentId;
     }
 
-    public void setShProcurementAgentId(int shProcurementAgentId) {
+    public void setShProcurementAgentId(Integer shProcurementAgentId) {
         this.shProcurementAgentId = shProcurementAgentId;
     }
 
-    public String getUsNotes() {
-        return usNotes;
+    public Integer getShBudgetId() {
+        return shBudgetId;
     }
 
-    public void setUsNotes(String usNotes) {
-        this.usNotes = usNotes;
+    public void setShBudgetId(Integer shBudgetId) {
+        this.shBudgetId = shBudgetId;
     }
 
-    public String getUsReason() {
-        return usReason;
+    public Date getEoActualShippedDate() {
+        return eoActualShippedDate;
     }
 
-    public void setUsReason(String usReason) {
-        this.usReason = usReason;
+    public void setEoActualShippedDate(Date eoActualShippedDate) {
+        this.eoActualShippedDate = eoActualShippedDate;
+    }
+
+    public Date getEoActualDeliveryDate() {
+        return eoActualDeliveryDate;
+    }
+
+    public void setEoActualDeliveryDate(Date eoActualDeliveryDate) {
+        this.eoActualDeliveryDate = eoActualDeliveryDate;
+    }
+
+    public List<ErpShipmentDTO> getEoShipmentList() {
+        return eoShipmentList;
+    }
+
+    public void setEoShipmentList(List<ErpShipmentDTO> eoShipmentList) {
+        this.eoShipmentList = eoShipmentList;
+    }
+
+    public Boolean getShAccountFlag() {
+        return shAccountFlag;
+    }
+
+    public void setShAccountFlag(Boolean shAccountFlag) {
+        this.shAccountFlag = shAccountFlag;
+    }
+
+    public Integer getShDataSourceId() {
+        return shDataSourceId;
+    }
+
+    public void setShDataSourceId(Integer shDataSourceId) {
+        this.shDataSourceId = shDataSourceId;
+    }
+
+    public Date getCalculatedExpiryDate() {
+        Date dt = null;
+        if (this.eoActualDeliveryDate !=null) {
+            dt = this.eoActualShippedDate;
+        } else {
+            dt = this.eoCurrentEstimatedDeliveryDate;
+        }
+        Calendar c = Calendar.getInstance();
+        c.setTime(dt);
+        c.add(Calendar.MONTH, this.eoShelfLife);
+        return c.getTime();
+    }
+    
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 29 * hash + this.eoErpOrderId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ErpOrderDTO other = (ErpOrderDTO) obj;
+        if (this.eoErpOrderId != other.eoErpOrderId) {
+            return false;
+        }
+        return true;
     }
 
 }
