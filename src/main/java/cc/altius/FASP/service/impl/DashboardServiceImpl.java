@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.DashboardDao;
+import cc.altius.FASP.model.DashboardUser;
 import cc.altius.FASP.service.DashboardService;
 import java.util.List;
 import java.util.Map;
@@ -33,12 +34,12 @@ public class DashboardServiceImpl implements DashboardService {
     }
 
     @Override
-    public List<Map<String, Object>> getUserListForApplicationLevelAdmin() {
+    public List<DashboardUser> getUserListForApplicationLevelAdmin() {
         return this.dashboardDao.getUserListForApplicationLevelAdmin();
     }
 
     @Override
-    public List<Map<String, Object>> getUserListForRealmLevelAdmin(int realmId) {
+    public List<DashboardUser> getUserListForRealmLevelAdmin(int realmId) {
         return this.dashboardDao.getUserListForRealmLevelAdmin(realmId);
     }
 
