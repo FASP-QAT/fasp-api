@@ -56,4 +56,9 @@ public class ProblemServiceImpl implements ProblemService {
         return this.problemDao.getProblemCategoryForSync(lastModifiedDate, curUser);
     }
 
+    @Override
+    public List<ProblemReport> getProblemReportListForSync(int programId, int versionId, String lastSyncDate) {
+        return this.problemDao.getProblemReportListForSync(programId, versionId, lastSyncDate);
+    }
+
 }
