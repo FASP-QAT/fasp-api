@@ -24,7 +24,7 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
     public List<SimplifiedSupplyPlan> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<SimplifiedSupplyPlan> spList = new LinkedList<>();
         while (rs.next()) {
-            SimplifiedSupplyPlan sp = new SimplifiedSupplyPlan(rs.getInt("PROGRAM_ID"), rs.getInt("VERSION_ID"), rs.getInt("PLANNING_UNIT_ID"), rs.getString("TRANS_DATE"));
+            SimplifiedSupplyPlan sp = new SimplifiedSupplyPlan(rs.getInt("SUPPLY_PLAN_ID"), rs.getInt("PROGRAM_ID"), rs.getInt("VERSION_ID"), rs.getInt("PLANNING_UNIT_ID"), rs.getString("TRANS_DATE"));
             int idx = spList.indexOf(sp);
             if (idx == -1) {
                 sp.setOpeningBalance(rs.getInt("OPENING_BALANCE"));

@@ -93,6 +93,20 @@ public class OrganisationRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @GetMapping("/organisation/realmCountryId/{realmCountryId}")
+    public ResponseEntity getOrganisationByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.organisationService.getOrganisationListByRealmCountry(realmCountryId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to get Organisation list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (Exception e) {
+            logger.error("Error while trying to get Organisation list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/organisation/realmId/{realmId}")
     public ResponseEntity getOrganisationByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {

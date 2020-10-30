@@ -1300,7 +1300,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("programId", programId);
         params.put("versionId", versionId);
         String sqlString = "SELECT  "
-                + "    spa.`PROGRAM_ID`, spa.`VERSION_ID`, "
+                + "    spa.`SUPPLY_PLAN_AMC_ID` `SUPPLY_PLAN_ID`, spa.`PROGRAM_ID`, spa.`VERSION_ID`, "
                 + "    spa.`PLANNING_UNIT_ID`, spa.`TRANS_DATE`,  "
                 + "    spa.`OPENING_BALANCE`, spa.`OPENING_BALANCE_WPS`, "
                 + "    spa.`ACTUAL` `ACTUAL_FLAG`, IF(spa.`ACTUAL`, spa.`ACTUAL_CONSUMPTION_QTY`, spa.`FORECASTED_CONSUMPTION_QTY`) `CONSUMPTION_QTY`, "

@@ -8,11 +8,11 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
+import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
-import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingDTORowMapper;
+import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingOrderDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.LoadProgram;
@@ -330,12 +330,14 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<Program> getProgramList(CustomUserDetails curUser) {
+    public List<Program> getProgramList(CustomUserDetails curUser, boolean active) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(" AND p.ACTIVE ").append(this.sqlOrderBy);
+        if (active) {
+            sqlStringBuilder.append(" AND p.ACTIVE ").append(this.sqlOrderBy);
+        }
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramListResultSetExtractor());
     }
 
@@ -507,7 +509,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo) {
+    public ManualTaggingOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo) {
         String reason = "";
         String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
         int count = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
@@ -533,8 +535,8 @@ public class ProgramDaoImpl implements ProgramDao {
                 + " LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
                 + " LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
                 + " WHERE e.ORDER_NO=? AND e.PRIME_LINE_NO=?; ";
-        ErpOrderDTO erpOrderDTO = this.jdbcTemplate.queryForObject(sql, new ErpOrderDTORowMapper(), orderNo, primeLineNo);
-        erpOrderDTO.setUsReason(reason);
+        ManualTaggingOrderDTO erpOrderDTO = this.jdbcTemplate.queryForObject(sql, new ManualTaggingOrderDTORowMapper(), orderNo, primeLineNo);
+        erpOrderDTO.setReason(reason);
         return erpOrderDTO;
     }
 
@@ -562,14 +564,14 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public void delinkShipment(ErpOrderDTO erpOrderDTO, CustomUserDetails curUser) {
+    public void delinkShipment(ManualTaggingOrderDTO erpOrderDTO, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sql = "SELECT st.`ERP_FLAG` FROM rm_shipment_trans st "
                 + "WHERE st.`SHIPMENT_ID`=? AND st.`ACTIVE` ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
-        Integer erpFlag = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShShipmentId());
+        Integer erpFlag = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId());
         if (erpFlag == 1) {
             sql = "SELECT s.`PARENT_SHIPMENT_ID` FROM rm_shipment s WHERE s.`SHIPMENT_ID`=?;";
-            int parentShipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShShipmentId());
+            int parentShipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId());
 //            String sql1 = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=s.`MAX_VERSION_ID`+1 WHERE s.`SHIPMENT_ID`=?;";
 //            this.jdbcTemplate.update(sql1, parentShipmentId);
             sql = "INSERT INTO rm_shipment_trans "
@@ -606,7 +608,7 @@ public class ProgramDaoImpl implements ProgramDao {
             }
         }
         sql = "UPDATE rm_manual_tagging m SET m.`ACTIVE`=0,m.`NOTES`=?,m.`LAST_MODIFIED_DATE`=?,m.`LAST_MODIFIED_BY`=? WHERE m.`SHIPMENT_ID`=?;";
-        this.jdbcTemplate.update(sql, erpOrderDTO.getUsNotes(), curDate, curUser.getUserId(), erpOrderDTO.getShShipmentId());
+        this.jdbcTemplate.update(sql, erpOrderDTO.getNotes(), curDate, curUser.getUserId(), erpOrderDTO.getShipmentId());
 
     }
 

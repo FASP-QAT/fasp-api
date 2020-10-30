@@ -6,10 +6,12 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.HealthAreaDao;
+import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.HealthAreaService;
 import java.util.List;
@@ -27,6 +29,8 @@ public class HealthAreaServiceImpl implements HealthAreaService {
 
     @Autowired
     private HealthAreaDao healthAreaDao;
+    @Autowired
+    private RealmCountryDao realmCountryDao;
     @Autowired
     private RealmDao realmDao;
     @Autowired
@@ -54,6 +58,15 @@ public class HealthAreaServiceImpl implements HealthAreaService {
     @Override
     public List<HealthArea> getHealthAreaList(CustomUserDetails curUser) {
         return this.healthAreaDao.getHealthAreaList(curUser);
+    }
+
+    @Override
+    public List<HealthArea> getHealthAreaListByRealmCountry(int realmCountryId, CustomUserDetails curUser) {
+        RealmCountry rc = this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
+        if (rc == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
+        return this.healthAreaDao.getHealthAreaListByRealmCountry(realmCountryId, curUser);
     }
 
     @Override

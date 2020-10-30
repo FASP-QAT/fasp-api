@@ -20,6 +20,8 @@ public interface HealthAreaDao {
     public int updateHealthArea(HealthArea h, CustomUserDetails CurUser);
 
     public List<HealthArea> getHealthAreaList(CustomUserDetails curUser);
+    
+    public List<HealthArea> getHealthAreaListByRealmCountry(int realmCountryId, CustomUserDetails curUser);
 
     public List<HealthArea> getHealthAreaForActiveProgramsList(int realmId, CustomUserDetails curUser);
 

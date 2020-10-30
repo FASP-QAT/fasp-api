@@ -23,7 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.SAXException;
 import cc.altius.FASP.ARTMIS.dao.ImportArtmisDataDao;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
-import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTORowMapper;
+import cc.altius.FASP.model.DTO.ErpShipmentDTO;
+import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTOListResultSetExtractor;
 import cc.altius.utils.DateUtils;
 import java.io.FileReader;
 import java.util.Date;
@@ -457,8 +458,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     + "LEFT JOIN rm_procurement_agent_procurement_unit papu2 ON e.PROCUREMENT_UNIT_SKU_CODE=LEFT(papu2.SKU_CODE,15) AND papu2.PROCUREMENT_AGENT_ID=1 "
                     + "LEFT JOIN rm_procurement_unit pu2 ON papu2.PROCUREMENT_UNIT_ID=pu2.PROCUREMENT_UNIT_ID "
                     + "WHERE e.`FLAG`=1 AND (e.SHIPMENT_ID IS NOT NULL OR mt.ACTIVE)";
-            List<ErpOrderDTO> erpOrderDTOList = this.jdbcTemplate.query(sqlString, new ErpOrderDTORowMapper());
-//            int versionId = 0;
+            List<ErpOrderDTO> erpOrderDTOList = this.jdbcTemplate.query(sqlString, new ErpOrderDTOListResultSetExtractor());
             logger.info("");
             logger.info("");
             logger.info("erpOrderDTO---" + erpOrderDTOList.size());
@@ -484,6 +484,8 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                 + "WHERE s.PARENT_SHIPMENT_ID=:parentShipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo";
                         try {
                             int shipmentTransId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+                            // TODO shipment found therefore update it with all the information
+
                         } catch (EmptyResultDataAccessException erda) {
                             // Counldn't find a record that matches the Order no and Prime Line no so go ahead and
                             // Create a new Shipment with Parent Shipment Id = :shipmentId and OrderNo=:orderNo and PrimeLineNo=:primeLineNo
@@ -499,237 +501,139 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                             params.put("MAX_VERSION_ID", erpOrderDTO.getShVersionId()); // Same as the Current Version that is already present
                             SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment").usingGeneratedKeyColumns("SHIPMENT_ID");
                             int newShipmentId = si.executeAndReturnKey(params).intValue();
+                            SimpleJdbcInsert sit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans").usingGeneratedKeyColumns("SHIPMENT_TRANS_ID");
                             params.clear();
                             params.put("SHIPMENT_ID", newShipmentId);
                             params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
-                            params.put("PROCUREMENT_AGENT_ID", 1); // USAID since it is fixed for the ARTMIS import
-                            
+                            params.put("PROCUREMENT_AGENT_ID", erpOrderDTO.getShProcurementAgentId());
+                            params.put("FUNDING_SOURCE_ID", erpOrderDTO.getShFundingSourceId());
+                            params.put("BUDGET_ID", erpOrderDTO.getShBudgetId());
+                            params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getEoCurrentEstimatedDeliveryDate());
+                            params.put("PROCUREMENT_UNIT_ID", erpOrderDTO.getEoProcurementUnitId());
+                            params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
+                            params.put("SHIPMENT_QTY", erpOrderDTO.getEoQty());
+                            params.put("RATE", erpOrderDTO.getEoPrice());
+                            params.put("PRODUCT_COST", erpOrderDTO.getEoQty() * erpOrderDTO.getEoPrice());
+                            params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
+                            params.put("FREIGHT_COST", erpOrderDTO.getEoShippingCost());
+                            params.put("PLANNED_DATE", erpOrderDTO.getEoCreatedDate());
+                            params.put("SUBMITTED_DATE", erpOrderDTO.getEoCreatedDate());
+                            params.put("APPROVED_DATE", erpOrderDTO.getEoOrderedDate());
+                            params.put("SHIPPED_DATE", erpOrderDTO.getEoActualShippedDate());
+                            params.put("ARRIVED_DATE", null);
+                            params.put("RECEIVED_DATE", erpOrderDTO.getEoActualDeliveryDate());
+                            params.put("SHIPMENT_STATUS_ID", erpOrderDTO.getShShipmentStatusId());
+                            params.put("NOTES", "Auto created from ERP data");
+                            params.put("ERP_FLAG", 1);
+                            params.put("ORDER_NO", erpOrderDTO.getEoOrderNo());
+                            params.put("PRIME_LINE_NO", erpOrderDTO.getEoPrimeLineNo());
+                            params.put("ACCOUNT_FLAG", erpOrderDTO.getShAccountFlag());
+                            params.put("EMERGENCY_ORDER", false);   // Cannot determine 
+                            params.put("LOCAL_PROCUREMENT", false); // Cannot determine
+                            params.put("LAST_MODIFIED_BY", 1); // Default user
+                            params.put("DATA_SOURCE_ID", erpOrderDTO.getShDataSourceId());
+                            params.put("LAST_MODIFIED_DATE", curDate);
+                            params.put("VERSION_ID", erpOrderDTO.getShVersionId());
                             params.put("ACTIVE", true);
-                            params.put("ERP_FLAG", true);
-                            params.put("LOCAL_PROCUREMENT", false);
-                            
-                            
+                            int shipmentTransId = sit.executeAndReturnKey(params).intValue();
+                            for (ErpShipmentDTO es : erpOrderDTO.getEoShipmentList()) {
+                                // Insert into Batch info for each record
+                                SimpleJdbcInsert sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_batch_info");
+                                params.clear();
+                                params.put("PROGRAM_ID", erpOrderDTO.getShProgramId());
+                                params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
+                                params.put("BATCH_NO", es.getBatchNo());
+                                params.put("EXPIRY_DATE", (es.getExpiryDate() == null ? erpOrderDTO.getCalculatedExpiryDate() : es.getExpiryDate()));
+                                params.put("CREATED_DATE", erpOrderDTO.getEoActualDeliveryDate());
+                                params.put("AUTO_GENERATED", es.isAutoGenerated());
+                                int batchId = sib.executeAndReturnKey(params).intValue();
+                                params.clear();
+                                sib = null;
+                                sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_transaction_batch_info");
+                                params.put("SHIPMENT_TRANS_ID", shipmentTransId);
+                                params.put("BATCH_ID", batchId);
+                                params.put("BATCH_SHIPMENT_QTY", es.getBatchQty());
+                                sib.execute(params);
+                            }
                         }
 
                     } else {
                         // This is a new Link request coming through
                         // So make the Shipment, Active = fasle and ERPFlag = true
                         // Create a new Shipment with Parent Shipment Id = :shipmentId and OrderNo=:orderNo and PrimeLineNo=:primeLineNo
-                        // All other details to be taken from ARTMIS
-
+                        // All other details to be taken from ARTMIS + Current Shipment
+                        // TODO Update queries here
+                        params.clear();
+                        params.put("PROGRAM_ID", erpOrderDTO.getShProgramId());
+                        params.put("SUGGESTED_QTY", null);
+                        params.put("CURRENCY_ID", 1); // USD as default from ARTMIS
+                        params.put("CONVERSION_RATE_TO_USD", 1);
+                        params.put("PARENT_SHIPMENT_ID", erpOrderDTO.getShShipmentId());
+                        params.put("CREATED_BY", 1); //Default auto user in QAT
+                        params.put("CREATED_DATE", curDate);
+                        params.put("MAX_VERSION_ID", erpOrderDTO.getShVersionId()); // Same as the Current Version that is already present
+                        SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment").usingGeneratedKeyColumns("SHIPMENT_ID");
+                        int newShipmentId = si.executeAndReturnKey(params).intValue();
+                        SimpleJdbcInsert sit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans").usingGeneratedKeyColumns("SHIPMENT_TRANS_ID");
+                        params.clear();
+                        params.put("SHIPMENT_ID", newShipmentId);
+                        params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
+                        params.put("PROCUREMENT_AGENT_ID", erpOrderDTO.getShProcurementAgentId());
+                        params.put("FUNDING_SOURCE_ID", erpOrderDTO.getShFundingSourceId());
+                        params.put("BUDGET_ID", erpOrderDTO.getShBudgetId());
+                        params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getEoCurrentEstimatedDeliveryDate());
+                        params.put("PROCUREMENT_UNIT_ID", erpOrderDTO.getEoProcurementUnitId());
+                        params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
+                        params.put("SHIPMENT_QTY", erpOrderDTO.getEoQty());
+                        params.put("RATE", erpOrderDTO.getEoPrice());
+                        params.put("PRODUCT_COST", erpOrderDTO.getEoQty() * erpOrderDTO.getEoPrice());
+                        params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
+                        params.put("FREIGHT_COST", erpOrderDTO.getEoShippingCost());
+                        params.put("PLANNED_DATE", erpOrderDTO.getEoCreatedDate());
+                        params.put("SUBMITTED_DATE", erpOrderDTO.getEoCreatedDate());
+                        params.put("APPROVED_DATE", erpOrderDTO.getEoOrderedDate());
+                        params.put("SHIPPED_DATE", erpOrderDTO.getEoActualShippedDate());
+                        params.put("ARRIVED_DATE", null);
+                        params.put("RECEIVED_DATE", erpOrderDTO.getEoActualDeliveryDate());
+                        params.put("SHIPMENT_STATUS_ID", erpOrderDTO.getShShipmentStatusId());
+                        params.put("NOTES", "Auto created from ERP data");
+                        params.put("ERP_FLAG", 1);
+                        params.put("ORDER_NO", erpOrderDTO.getEoOrderNo());
+                        params.put("PRIME_LINE_NO", erpOrderDTO.getEoPrimeLineNo());
+                        params.put("ACCOUNT_FLAG", erpOrderDTO.getShAccountFlag());
+                        params.put("EMERGENCY_ORDER", false);   // Cannot determine 
+                        params.put("LOCAL_PROCUREMENT", false); // Cannot determine
+                        params.put("LAST_MODIFIED_BY", 1); // Default user
+                        params.put("DATA_SOURCE_ID", erpOrderDTO.getShDataSourceId());
+                        params.put("LAST_MODIFIED_DATE", curDate);
+                        params.put("VERSION_ID", erpOrderDTO.getShVersionId());
+                        params.put("ACTIVE", true);
+                        int shipmentTransId = sit.executeAndReturnKey(params).intValue();
+                        for (ErpShipmentDTO es : erpOrderDTO.getEoShipmentList()) {
+                            // Insert into Batch info for each record
+                            SimpleJdbcInsert sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_batch_info");
+                            params.clear();
+                            params.put("PROGRAM_ID", erpOrderDTO.getShProgramId());
+                            params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
+                            params.put("BATCH_NO", es.getBatchNo());
+                            params.put("EXPIRY_DATE", (es.getExpiryDate() == null ? erpOrderDTO.getCalculatedExpiryDate() : es.getExpiryDate()));
+                            params.put("CREATED_DATE", erpOrderDTO.getEoActualDeliveryDate());
+                            params.put("AUTO_GENERATED", es.isAutoGenerated());
+                            int batchId = sib.executeAndReturnKey(params).intValue();
+                            params.clear();
+                            sib = null;
+                            sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_transaction_batch_info");
+                            params.put("SHIPMENT_TRANS_ID", shipmentTransId);
+                            params.put("BATCH_ID", batchId);
+                            params.put("BATCH_SHIPMENT_QTY", es.getBatchQty());
+                            sib.execute(params);
+                        }
                     }
                 } catch (Exception e) {
+                    logger.info("Error occurred while trying to import Shipment ", e);
 
                 }
             }*/
-
-//                        // Check if contains child shipments
-//                        sqlString = "SELECT COUNT(*) FROM rm_shipment_trans st LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` AND st.`VERSION_ID`=(SELECT MAX(stt.`VERSION_ID`) FROM rm_shipment_trans stt WHERE stt.`SHIPMENT_ID`=st.`SHIPMENT_ID`) "
-//                                + " WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ACTIVE` AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=?";
-//                        found = this.jdbcTemplate.queryForObject(hasChildShipments, Integer.class, erpOrderDTO.getShipmentId(), erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
-//                        if (found > 0) {
-//                            //Found Update shipment
-//                            versionId = this.jdbcTemplate.queryForObject(getVersionIdOrderNoPrimeLineNo, Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
-//                            this.jdbcTemplate.update(updateShipmentBasedOnOnderNoPrimeLineNo, curDate, curDate, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), erpOrderDTO.getShipmentId(), versionId);
-//                            this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
-//                        } else {
-//                            //Insert into shipment table
-//                            params1 = new MapSqlParameterSource();
-////                                    params1.addValue("qty", erpOrderDTO.getQuantity());
-//                            params1.addValue("createdDate", curDate);
-//                            params1.addValue("lastModifiedDate", curDate);
-//                            params1.addValue("shipmentId", erpOrderDTO.getShipmentId());
-//                            namedParameterJdbcTemplate.update(createNewEntryInShipmentTableDiff, params1, keyHolder1);
-//                            if (keyHolder1.getKey() != null) {
-//                                shipmentId = keyHolder1.getKey().intValue();
-//                            }
-//
-//                            //Shipment Trans
-//                            params1 = new MapSqlParameterSource();
-//                            params1.addValue("shipmentId1", erpOrderDTO.getShipmentId());
-//                            params1.addValue("shipmentId", shipmentId);
-//                            params1.addValue("CURDATE", curDate);
-//                            params1.addValue("CURDATE1", curDate);
-//                            params1.addValue("orderNo", erpOrderDTO.getOrderNo());
-//                            params1.addValue("primeLineNo", erpOrderDTO.getPrimeLineNo());
-//                            namedParameterJdbcTemplate.update(createNewEntryIntoShipmentTrans, params1, keyHolder2);
-//                            if (keyHolder2.getKey() != null) {
-//                                shipmentTransId = keyHolder2.getKey().intValue();
-//                            }
-//
-//                            //Shipment trans batch info
-//                            this.jdbcTemplate.update(insertIntoShipmentTransBatchInfo, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
-//                            versionId = this.jdbcTemplate.queryForObject(getMaxVersionFromShipmentTable, Integer.class, shipmentId);
-//                            this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
-//                        }
-//
-//                    } else {
-//                        // Not erp linked
-//                        sql = "SELECT MAX(st1.`VERSION_ID`) FROM rm_shipment_trans st1 WHERE st1.`SHIPMENT_ID`=?";
-//                        versionId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId());
-//                        System.out.println("version id---" + versionId);
-//
-//                        this.jdbcTemplate.update(deactivateParentAndMarkErpLinked, erpOrderDTO.getShipmentId(), versionId);
-//                        //Shipment Table
-//                        params1.addValue("createdDate", curDate);
-//                        params1.addValue("lastModifiedDate", curDate);
-//                        params1.addValue("shipmentId", erpOrderDTO.getShipmentId());
-//                        namedParameterJdbcTemplate.update(createNewEntryInShipmentTableDiff, params1, keyHolder1);
-//                        if (keyHolder1.getKey() != null) {
-//                            shipmentId = keyHolder1.getKey().intValue();
-//                        }
-//                        //Shipment Trans
-//                        params1 = new MapSqlParameterSource();
-//                        params1.addValue("shipmentId", shipmentId);
-//                        params1.addValue("shipmentId1", erpOrderDTO.getShipmentId());
-//                        params1.addValue("CURDATE", curDate);
-//                        params1.addValue("CURDATE1", curDate);
-//                        params1.addValue("orderNo", erpOrderDTO.getOrderNo());
-//                        params1.addValue("primeLineNo", erpOrderDTO.getPrimeLineNo());
-//                        namedParameterJdbcTemplate.update(createNewEntryIntoShipmentTrans, params1, keyHolder2);
-//                        if (keyHolder2.getKey() != null) {
-//                            shipmentTransId = keyHolder2.getKey().intValue();
-//                        }
-//                        //insert Into Shipment Trans Batch Info
-//                        this.jdbcTemplate.update(insertIntoShipmentTransBatchInfo, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
-//                        this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
-//                    }
-//                } // manual tagging--------------------------------------------------------------
-//                else {
-//                    // Find manually tagged shipment id
-//                    logger.info("Going to check manual tagging---Order No" + erpOrderDTO.getOrderNo() + " Prime line no---" + erpOrderDTO.getPrimeLineNo());
-//                    sql = "SELECT m.`SHIPMENT_ID` FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
-//                    try {
-//                        shipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
-//                    } catch (Exception e) {
-//                        shipmentId = 0;
-//                    }
-//                    logger.info("Manual tagging shipment id---" + shipmentId);
-//                    if (shipmentId != 0) {
-//                        // get program id
-//                        programId = this.jdbcTemplate.queryForObject(getProgramId, Integer.class, shipmentId);
-//                        //Get planning unit
-//                        planningUnitId = this.jdbcTemplate.queryForObject(getPlanningUnitId, Integer.class, erpOrderDTO.getErpOrderId());
-//
-//                        // Insert into batch
-//                        this.jdbcTemplate.update(insertIntoBatch, programId, planningUnitId, curDate, erpOrderDTO.getErpOrderId());
-//                        // Is ERP linked
-//                        isErpLinked = this.jdbcTemplate.queryForObject(isShipmentErpLinked, Boolean.class, shipmentId);
-//                        if (isErpLinked) {
-////                                    sql = "SELECT COUNT(*) FROM rm_shipment_trans st "
-////                                            + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-////                                            + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ACTIVE` AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=?;";
-//                            found = this.jdbcTemplate.queryForObject(hasChildShipments, Integer.class, erpOrderDTO.getShipmentId(), erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
-//                            if (found > 0) {
-//                                //Found Update shipment
-//                                // Update shipment trans
-//                                versionId = this.jdbcTemplate.queryForObject(getVersionIdOrderNoPrimeLineNo, Integer.class, shipmentId);
-//                                this.jdbcTemplate.update(updateShipmentBasedOnOnderNoPrimeLineNo, curDate, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), shipmentId, versionId);
-//                                this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
-//                            } else {
-//                                //Not found-Insert shipment
-//                                //Insert into shipment table
-//                                params1 = new MapSqlParameterSource();
-////                                    params1.addValue("qty", erpOrderDTO.getQuantity());
-//                                params1.addValue("createdDate", curDate);
-//                                params1.addValue("lastModifiedDate", curDate);
-//                                params1.addValue("shipmentId", shipmentId);
-//                                namedParameterJdbcTemplate.update(createNewEntryInShipmentTableDiff, params1, keyHolder1);
-//                                int newShipId = 0;
-//                                if (keyHolder1.getKey() != null) {
-//                                    newShipId = keyHolder1.getKey().intValue();
-//                                }
-//
-//                                //Shipment Trans
-//                                params1 = new MapSqlParameterSource();
-//                                params1.addValue("shipmentId", newShipId);
-//                                params1.addValue("shipmentId1", shipmentId);
-//                                params1.addValue("CURDATE", curDate);
-//                                params1.addValue("CURDATE1", curDate);
-//                                params1.addValue("orderNo", erpOrderDTO.getOrderNo());
-//                                params1.addValue("primeLineNo", erpOrderDTO.getPrimeLineNo());
-//                                namedParameterJdbcTemplate.update(createNewEntryIntoShipmentTrans, params1, keyHolder2);
-//                                if (keyHolder2.getKey() != null) {
-//                                    shipmentTransId = keyHolder2.getKey().intValue();
-//                                }
-//
-//                                //Insert Into Shipment Trans Batch Info
-//                                this.jdbcTemplate.update(insertIntoShipmentTransBatchInfo, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
-//                                versionId = this.jdbcTemplate.queryForObject(getMaxVersionFromShipmentTable, Integer.class, shipmentId);
-//                                this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
-//                            }
-//                        } else {
-//                            sql = "SELECT MAX(st1.`VERSION_ID`) FROM rm_shipment_trans st1 WHERE st1.`SHIPMENT_ID`=?";
-//                            versionId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId());
-//                            this.jdbcTemplate.update(deactivateParentAndMarkErpLinked, shipmentId, versionId);
-//                            //Shipment Table
-//                            params1 = new MapSqlParameterSource();
-////                                    params1.addValue("qty", erpOrderDTO.getQuantity());
-//                            params1.addValue("createdDate", curDate);
-//                            params1.addValue("lastModifiedDate", curDate);
-//                            params1.addValue("shipmentId", shipmentId);
-//                            System.out.println("params1 manual tagging ---" + params1);
-//                            System.out.println("createNewEntryInShipmentTable manual tagging ---" + createNewEntryInShipmentTable);
-//                            namedParameterJdbcTemplate.update(createNewEntryInShipmentTableDiff, params1, keyHolder1);
-//                            int newShipid = 0;
-//                            if (keyHolder1.getKey() != null) {
-//                                System.out.println("inside mt shipment");
-//                                newShipid = keyHolder1.getKey().intValue();
-//                            }
-//                            System.out.println("my manual tagging shipment id---" + shipmentId);
-//                            //Shipment Trans
-//                            params1 = new MapSqlParameterSource();
-//                            params1.addValue("shipmentId", newShipid);
-//                            params1.addValue("shipmentId1", shipmentId);
-//                            params1.addValue("CURDATE", curDate);
-//                            params1.addValue("CURDATE1", curDate);
-//                            params1.addValue("orderNo", erpOrderDTO.getOrderNo());
-//                            params1.addValue("primeLineNo", erpOrderDTO.getPrimeLineNo());
-//                            System.out.println("params1---------" + params1);
-//                            namedParameterJdbcTemplate.update(createNewEntryIntoShipmentTrans, params1, keyHolder2);
-//                            if (keyHolder2.getKey() != null) {
-//                                shipmentTransId = keyHolder2.getKey().intValue();
-//                            }
-//                            System.out.println("manual tagging shipment trans---" + shipmentTransId);
-//                            //insert Into Shipment Trans Batch Info
-//                            this.jdbcTemplate.update(insertIntoShipmentTransBatchInfo, shipmentTransId, programId, planningUnitId, erpOrderDTO.getErpOrderId());
-//                            versionId = this.jdbcTemplate.queryForObject(getMaxVersionFromShipmentTable, Integer.class, newShipid);
-//                            this.programDataDaoImpl.getNewSupplyPlanList(programId, versionId, true);
-//                        }
-//                    }
-//
-//                }
-//            } catch (Exception e) {
-//                logger.info("Error occured while creating shipment---" + e);
-//                e.printStackTrace();
-//            }
-//
-//        }
-//
-//        logger.info(
-//                "Order/Shipment file imported successfully");
-//        File directory = new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH);
-//
-//        if (directory.isDirectory()) {
-//            fXmlFile.renameTo(new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
-//            fXmlFile1.renameTo(new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH + fXmlFile1.getName()));
-//            logger.info("Order/Shipment files moved into processed folder");
-//        } else {
-//            subjectParam = new String[]{"Order/Shipment", "Backup directory does not exists"};
-//            bodyParam = new String[]{"Order/Shipment", date, "Backup directory does not exists", "Backup directory does not exists"};
-//            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-//            int emailerId = this.emailService.saveEmail(emailer);
-//            emailer.setEmailerId(emailerId);
-//            this.emailService.sendMail(emailer);
-//            logger.error("Backup directory does not exists");
-//        }
-//    }
-//}
-//}
-//    SELECT * FROM rm_shipment_trans st 
-//LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID`
-//WHERE s.`PROGRAM_ID`=1 AND st.`PLANNING_UNIT_ID`=1191
-//ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1
         }
     }
 }

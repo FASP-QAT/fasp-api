@@ -155,6 +155,19 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addUserAclForHealthArea(sqlStringBuilder, params, "ha", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new HealthAreaListResultSetExtractor());
+    }
+
+    @Override
+    public List<HealthArea> getHealthAreaListByRealmCountry(int realmCountryId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addUserAclForHealthArea(sqlStringBuilder, params, "ha", curUser);
+        this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
+        sqlStringBuilder.append(" AND hac.ACTIVE AND ha.ACTIVE AND hac.REALM_COUNTRY_ID=:realmCountryId");
+        params.put("realmCountryId", realmCountryId);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new HealthAreaListResultSetExtractor());
     }
 

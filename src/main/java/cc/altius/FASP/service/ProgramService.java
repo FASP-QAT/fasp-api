@@ -8,6 +8,7 @@ package cc.altius.FASP.service;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
+import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
@@ -28,7 +29,7 @@ public interface ProgramService {
 
     public int updateProgram(Program p, CustomUserDetails curUser);
 
-    public List<Program> getProgramList(CustomUserDetails curUser);
+    public List<Program> getProgramList(CustomUserDetails curUser, boolean active);
 
     public List<Program> getProgramListForProgramIds(String[] programIds, CustomUserDetails curUser);
 
@@ -54,13 +55,13 @@ public interface ProgramService {
 
     public List<ManualTaggingDTO> getShipmentListForManualTagging(int programId, int planningUnitId);
 
-    public ErpOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo);
+    public ManualTaggingOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo);
 
     public int linkShipmentWithARTMIS(String orderNo, int primeLineNo, int shipmentId, CustomUserDetails curUser);
 
     public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId);
 
-    public void delinkShipment(ErpOrderDTO erpOrderDTO, CustomUserDetails curUser);
+    public void delinkShipment(ManualTaggingOrderDTO erpOrderDTO, CustomUserDetails curUser);
     
     public List<LoadProgram> getLoadProgram(CustomUserDetails curUser);
     

@@ -7,6 +7,7 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
+import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramInitialize;
@@ -96,7 +97,18 @@ public class ProgramRestController {
     public ResponseEntity getProgram(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramList(curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getProgramList(curUser, true), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping("/program/all")
+    public ResponseEntity getProgramAll(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getProgramList(curUser, false), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -303,10 +315,10 @@ public class ProgramRestController {
     }
 
     @PostMapping("/linkShipmentWithARTMIS/")
-    public ResponseEntity linkShipmentWithARTMIS(@RequestBody ErpOrderDTO erpOrderDTO, Authentication auth) {
+    public ResponseEntity linkShipmentWithARTMIS(@RequestBody ManualTaggingOrderDTO erpOrderDTO, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            int result = this.programService.linkShipmentWithARTMIS(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), curUser);
+            int result = this.programService.linkShipmentWithARTMIS(erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), erpOrderDTO.getShipmentId(), curUser);
             System.out.println("result---" + result);
             return new ResponseEntity(result, HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
@@ -339,7 +351,7 @@ public class ProgramRestController {
     }
 
     @PostMapping("/delinkShipment/")
-    public ResponseEntity delinkShipment(@RequestBody ErpOrderDTO erpOrderDTO, Authentication auth) {
+    public ResponseEntity delinkShipment(@RequestBody ManualTaggingOrderDTO erpOrderDTO, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.programService.delinkShipment(erpOrderDTO, curUser);

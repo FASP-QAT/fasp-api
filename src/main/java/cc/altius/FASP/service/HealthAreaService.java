@@ -21,7 +21,9 @@ public interface HealthAreaService {
 
     public List<HealthArea> getHealthAreaList(CustomUserDetails curUser);
     
-    public List<HealthArea> getHealthAreaForActiveProgramsList(int realmCountryId, CustomUserDetails curUser);
+    public List<HealthArea> getHealthAreaListByRealmCountry(int realmCountryId, CustomUserDetails curUser);
+    
+    public List<HealthArea> getHealthAreaForActiveProgramsList(int realmId, CustomUserDetails curUser);
 
     public List<HealthArea> getHealthAreaListByRealmId(int realmId, CustomUserDetails curUser);
 
