@@ -49,17 +49,30 @@ public class ErpOrderDTOListResultSetExtractor implements ResultSetExtractor<Lis
                 e.setEoRecipentName(rs.getString("RECPIENT_NAME"));
                 e.setEoRecipentCountry(rs.getString("RECPIENT_COUNTRY"));
                 e.setEoStatus(rs.getString("STATUS"));
+                e.setEoShipmentStatusId(rs.getInt("SHIPMENT_STATUS_ID"));
+                if (rs.wasNull()) {
+                    e.setEoShipmentStatusId(null);
+                }
                 e.setEoPlanningUnitId(rs.getInt("PLANNING_UNIT_ID"));
+                e.setEoShelfLife(rs.getInt("SHELF_LIFE"));
                 e.setEoProcurementUnitId(rs.getInt("PROCUREMENT_UNIT_ID"));
                 e.setEoSupplierId(rs.getInt("SUPPLIER_ID"));
                 e.setShProgramId(rs.getInt("PROGRAM_ID"));
                 e.setShShipmentId(rs.getInt("SHIPMENT_ID"));
                 e.setShVersionId(rs.getInt("VERSION_ID"));
-                e.setManualTagging(rs.getBoolean("MANUAL_TAGGING_ID"));
+                e.setManualTagging(rs.getBoolean("MANUAL_TAGGING"));
 
                 e.setShProgramId(rs.getInt("PROGRAM_ID"));
                 e.setShShipmentId(rs.getInt("SHIPMENT_ID"));
                 e.setShVersionId(rs.getInt("VERSION_ID"));
+                e.setShShipmentTransId(rs.getInt("SHIPMENT_TRANS_ID"));
+                if (rs.wasNull()) {
+                    e.setShShipmentTransId(null);
+                }
+                e.setShDataSourceId(rs.getInt("DATA_SOURCE_ID"));
+                if (rs.wasNull()) {
+                    e.setShDataSourceId(null);
+                }
                 e.setShActive(rs.getBoolean("ACTIVE"));
                 if (rs.wasNull()) {
                     e.setShActive(null);
@@ -88,7 +101,7 @@ public class ErpOrderDTOListResultSetExtractor implements ResultSetExtractor<Lis
                 if (rs.wasNull()) {
                     e.setShAccountFlag(Boolean.TRUE);
                 }
-                e.setEoActualShippedDate(rs.getDate("ACTUAL_SHIPPED_DATE"));
+                e.setEoActualShipmentDate(rs.getDate("ACTUAL_SHIPMENT_DATE"));
                 e.setEoActualDeliveryDate(rs.getDate("ACTUAL_DELIVERY_DATE"));
                 eList.add(e);
             }
