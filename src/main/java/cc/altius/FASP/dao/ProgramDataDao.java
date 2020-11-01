@@ -51,7 +51,7 @@ public interface ProgramDataDao {
 
     public SupplyPlan getSupplyPlan(int programId, int versionId);
 
-    public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException;
+    public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild, boolean returnSupplyPlan) throws ParseException;
 
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp);
 
@@ -62,5 +62,7 @@ public interface ProgramDataDao {
     public List<Batch> getBatchListForSync(int programId, int versionId, String lastSyncDate);
 
     public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId);
+    
+    public int getLatestVersionForProgram(int programId);
 
 }

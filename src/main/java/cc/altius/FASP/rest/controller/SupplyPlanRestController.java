@@ -5,13 +5,23 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.service.ProgramDataService;
+import cc.altius.FASP.service.ProgramService;
+import cc.altius.FASP.service.UserService;
 import java.util.Date;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -28,6 +38,12 @@ public class SupplyPlanRestController {
 
     @Autowired
     private ProgramDataService programDataService;
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private ProgramService programService;
+    
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 //    @GetMapping("/supplyPlan/programId/{programId}/versionId/{versionId}")
 //    @ResponseBody
@@ -43,20 +59,35 @@ public class SupplyPlanRestController {
 //        System.out.println(new Date());
 //        return new ResponseEntity(simplifiedSupplyPlan, HttpStatus.OK);
 //    }
-
     @GetMapping("/newSupplyPlan/programId/{programId}/versionId/{versionId}/rebuild/{rebuild}")
     @ResponseBody
-    public ResponseEntity buildNewSupplyPlan(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "rebuild", required = false) boolean rebuild) {
+    public ResponseEntity buildNewSupplyPlan(
+            @PathVariable(value = "programId", required = true) int programId,
+            @PathVariable(value = "versionId", required = true) int versionId,
+            @PathVariable(value = "rebuild", required = false) boolean rebuild,
+            Authentication auth
+    ) {
         try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            Program p = this.programService.getProgramById(programId, curUser);
+            if (versionId == -1) {
+                versionId = p.getCurrentVersion().getVersionId();
+            }
             System.out.println("Starting supply plan build for ProgramId:" + programId + " versionId:" + versionId + " rebuild:" + rebuild);
             System.out.println(new Date());
-            List<SimplifiedSupplyPlan> spList = this.programDataService.getNewSupplyPlanList(programId, versionId, rebuild);
+            List<SimplifiedSupplyPlan> spList = this.programDataService.getNewSupplyPlanList(programId, versionId, rebuild, true);
             System.out.println("Completed Supply plan build");
             System.out.println(new Date());
             return new ResponseEntity(spList, HttpStatus.OK);
+        } catch (EmptyResultDataAccessException erda) {
+            logger.error("Error while trying to rebuild Supply Plan", erda);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to rebuild Supply Plan", ae);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity(HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.error("Error while trying to rebuild Supply Plan", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
         }
     }
 }

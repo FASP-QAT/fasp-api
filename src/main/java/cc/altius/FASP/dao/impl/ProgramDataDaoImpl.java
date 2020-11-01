@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.dao.impl;
 
+import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.Batch;
@@ -77,6 +78,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private ProgramDao programDao;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -1376,7 +1379,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     @Transactional
-    public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException {
+    public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild, boolean returnSupplyPlan) throws ParseException {
         Map<Integer, Integer> newBatchSubstituteMap = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
@@ -1529,7 +1532,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 //            msp.printSupplyPlan();
         }
 
-        return getSimplifiedSupplyPlan(programId, versionId);
+        if (returnSupplyPlan) {
+            return getSimplifiedSupplyPlan(programId, versionId);
+        } else {
+            return new LinkedList<>();
+        }
     }
 
     @Override
@@ -1554,6 +1561,23 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("programId", programId);
         params.put("lastSyncDate", lastSyncDate);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new BatchRowMapper());
+    }
+
+    @Override
+    public int getLatestVersionForProgram(int programId) {
+        String sqlString = "SELECT p.CURRENT_VERSION_ID FROM rm_program p WHERE p.PROGRAM_ID=:programId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        try {
+            Integer versionId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+            if (versionId == null) {
+                return -1;
+            } else {
+                return versionId;
+            }
+        } catch (Exception e) {
+            return -1;
+        }
     }
 
 }

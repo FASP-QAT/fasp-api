@@ -5,8 +5,6 @@
  */
 package cc.altius.FASP.ARTMIS.dao.impl;
 
-import cc.altius.FASP.dao.impl.ProgramDataDaoImpl;
-import cc.altius.FASP.service.EmailService;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,7 +13,6 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
@@ -30,6 +27,7 @@ import cc.altius.utils.DateUtils;
 import java.io.FileReader;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.xml.parsers.DocumentBuilder;
@@ -40,6 +38,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -62,120 +61,20 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
-    @Value("${qat.filePath}")
-    private String QAT_FILE_PATH;
-    @Value("${catalogFilePath}")
-    private String CATALOG_FILE_PATH;
-    @Value("${catalogBkpFilePath}")
-    private String BKP_CATALOG_FILE_PATH;
-    @Value("${email.toList}")
-    private String toList;
-    @Value("${email.ccList}")
-    private String ccList;
-
-    @Autowired
-    private EmailService emailService;
-    @Autowired
-    private ProgramDataDaoImpl programDataDaoImpl;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private final String getPlanningUnitId = "SELECT pu.`PLANNING_UNIT_ID` "
-            + "FROM rm_erp_order o "
-            + "LEFT JOIN rm_procurement_agent_planning_unit pu ON LEFT(pu.`SKU_CODE`,12)=o.`PLANNING_UNIT_SKU_CODE` AND pu.`PROCUREMENT_AGENT_ID`=1  "
-            + "WHERE o.`ERP_ORDER_ID`=?; ";
-
-    private final String isShipmentErpLinked = "SELECT st.`ERP_FLAG` FROM rm_shipment_trans st "
-            + " LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-            + " WHERE st.`SHIPMENT_ID`=? "
-            //+ " AND s.`PARENT_SHIPMENT_ID` IS NULL "
-            + " ORDER BY st.`VERSION_ID` DESC "
-            + " LIMIT 1;";
-
-    private final String getVersionIdOrderNoPrimeLineNo = "SELECT MAX(stt.`VERSION_ID`) FROM rm_shipment_trans stt WHERE stt.`ORDER_NO`=? AND stt.`PRIME_LINE_NO`=?;";
-    private final String getMaxVersionFromShipmentTable = "SELECT s.`MAX_VERSION_ID` FROM rm_shipment s WHERE s.`SHIPMENT_ID`=?;";
-    private final String updateShipmentBasedOnOnderNoPrimeLineNo = "UPDATE rm_shipment_trans st "
-            + "LEFT JOIN rm_erp_order eo ON eo.`ORDER_NO`=st.`ORDER_NO`  AND st.`PRIME_LINE_NO`=eo.`PRIME_LINE_NO` "
-            + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=eo.`STATUS`"
-            + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-            + "LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=eo.`ERP_ORDER_ID` "
-            + "SET "
-            + "st.`EXPECTED_DELIVERY_DATE`=eo.`CURRENT_ESTIMATED_DELIVERY_DATE`, "
-            + "st.`SHIPMENT_QTY`=eo.`QTY`,st.`RATE`=eo.`PRICE`, "
-            + "st.`PRODUCT_COST`=(eo.`QTY`*eo.`PRICE`),st.`SHIPMENT_MODE`=eo.`SHIP_BY`, "
-            + "st.`FREIGHT_COST`=eo.`SHIPPING_COST`, "
-            + "st.`SUBMITTED_DATE`=COALESCE(eo.`PARENT_CREATED_DATE`,eo.`ORDER_ENTRY_DATE`), "
-            + "st.`APPROVED_DATE`=eo.`ORDERD_DATE`, "
-            + "st.`SHIPPED_DATE`=MIN(es.`ACTUAL_SHIPMENT_DATE`), "
-            + "st.`ARRIVED_DATE`=IF(sm.`SHIPMENT_STATUS_ID`=21,?,NULL), "
-            + "st.`RECEIVED_DATE`=MIN(es.`ACTUAL_DELIVERY_DATE`), "
-            + "st.`LAST_MODIFIED_BY`=1, "
-            + "st.`LAST_MODIFIED_DATE`=?, "
-            + "st.`SHIPMENT_STATUS_ID`=sm.`SHIPMENT_STATUS_ID` "
-            + "WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND s.`PARENT_SHIPMENT_ID`=? AND st.`VERSION_ID`=?;";
-
-    private final String createNewEntryInShipmentTable = "INSERT INTO  rm_shipment "
-            + "SELECT  NULL,s.`PROGRAM_ID`,:qty,s.`CURRENCY_ID`,s.`CONVERSION_RATE_TO_USD`, "
-            + "s.`SHIPMENT_ID`,1,:createdDate,1,:lastModifiedDate,s.`MAX_VERSION_ID`,NULL "
-            + "FROM rm_shipment s "
-            + "WHERE s.`SHIPMENT_ID`=:shipmentId;";
-
-    private final String createNewEntryIntoShipmentTrans = "INSERT INTO rm_shipment_trans "
-            + "SELECT NULL,:shipmentId,st.`PLANNING_UNIT_ID`,st.`PROCUREMENT_AGENT_ID`,st.`FUNDING_SOURCE_ID`,st.`BUDGET_ID`, "
-            + "COALESCE(eo.`CURRENT_ESTIMATED_DELIVERY_DATE`,st.`EXPECTED_DELIVERY_DATE`),st.`PROCUREMENT_UNIT_ID` ,st.`SUPPLIER_ID`,eo.`QTY`,eo.`PRICE`,(eo.`QTY`*eo.`PRICE`),eo.`SHIP_BY`,eo.`SHIPPING_COST`, "
-            + "st.`PLANNED_DATE`,COALESCE(eo.`PARENT_CREATED_DATE`,eo.`ORDER_ENTRY_DATE`,st.`SUBMITTED_DATE`),COALESCE(eo.`ORDERD_DATE`,st.`APPROVED_DATE`),IFNULL(MIN(es.`ACTUAL_SHIPMENT_DATE`),NULL),IF(sm.`SHIPMENT_STATUS_ID`=21,:CURDATE,NULL),IFNULL(MIN(es.`ACTUAL_DELIVERY_DATE`),NULL),sm.`SHIPMENT_STATUS_ID`,NULL,1, "
-            + "eo.`ORDER_NO`,eo.`PRIME_LINE_NO`,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,st.`LOCAL_PROCUREMENT`,1,st.`DATA_SOURCE_ID`,:CURDATE1,s.`MAX_VERSION_ID`,1 "
-            + "FROM rm_shipment_trans st "
-            + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-            + "LEFT JOIN rm_erp_order eo ON eo.`ORDER_NO`=:orderNo AND eo.`PRIME_LINE_NO`=:primeLineNo "
-            + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=eo.`STATUS` "
-            + "LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=eo.`ERP_ORDER_ID` "
-            + "WHERE st.`SHIPMENT_ID`=:shipmentId1 "
-            + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
-
-    private final String createNewEntryInShipmentTableDiff = "INSERT INTO  rm_shipment "
-            + "SELECT  NULL,s.`PROGRAM_ID`,s.`SUGGESTED_QTY`,s.`CURRENCY_ID`,s.`CONVERSION_RATE_TO_USD`, "
-            + "s.`SHIPMENT_ID`,1,:createdDate,1,:lastModifiedDate,s.`MAX_VERSION_ID`,NULL "
-            + "FROM rm_shipment s "
-            + "WHERE s.`SHIPMENT_ID`=:shipmentId;";
-    //Shipped qty
-    private final String insertIntoShipmentTransBatchInfo = "INSERT INTO rm_shipment_trans_batch_info SELECT NULL,?,b.`BATCH_ID`,SUM(s.`DELIVERED_QTY`) FROM rm_erp_shipment s "
-            + "LEFT JOIN rm_batch_info b ON b.`BATCH_NO`=s.`BATCH_NO` AND b.`PROGRAM_ID`=? AND b.`PLANNING_UNIT_ID`=? "
-            + "WHERE s.`FLAG`=1 AND s.`ERP_ORDER_ID`=? "
-            + "GROUP BY s.`BATCH_NO`;";
-
-    private final String updateShipmentTransManuallyTagged = "UPDATE rm_shipment_trans st "
-            + "LEFT JOIN rm_erp_order eo ON eo.`ORDER_NO`=st.`ORDER_NO`  AND st.`PRIME_LINE_NO`=eo.`PRIME_LINE_NO` "
-            + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=eo.`STATUS` "
-            + "SET "
-            + "st.`EXPECTED_DELIVERY_DATE`=eo.`CURRENT_ESTIMATED_DELIVERY_DATE`, "
-            + "st.`SHIPMENT_QTY`=eo.`QTY`,st.`RATE`=eo.`PRICE`, "
-            + "st.`PRODUCT_COST`=(eo.`QTY`*eo.`PRICE`),st.`SHIPMENT_MODE`=eo.`SHIP_BY`, "
-            + "st.`FREIGHT_COST`=eo.`SHIPPING_COST`, "
-            + "st.`SUBMITTED_DATE`=COALESCE(eo.`PARENT_CREATED_DATE`,eo.`ORDER_ENTRY_DATE`), "
-            + "st.`APPROVED_DATE`=eo.`ORDERD_DATE`, "
-            + "st.`SHIPPED_DATE`=MIN(es.`ACTUAL_SHIPMENT_DATE`), "
-            + "st.`ARRIVED_DATE`=IF(sm.`SHIPMENT_STATUS_ID`=21,?,NULL), "
-            + "st.`RECEIVED_DATE`=MIN(es.`ACTUAL_DELIVERY_DATE`), "
-            + "st.`LAST_MODIFIED_BY`=1, "
-            + "st.`LAST_MODIFIED_DATE`=?, "
-            + "st.`SHIPMENT_STATUS_ID`=sm.`SHIPMENT_STATUS_ID` "
-            + "WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`SHIPMENT_ID`=?;";
-
-    private final String deactivateParentAndMarkErpLinked = "UPDATE rm_shipment_trans st "
-            + "SET st.`ERP_FLAG`=1,st.`ACTIVE`=0 "
-            + "WHERE st.`SHIPMENT_ID`=? AND st.`VERSION_ID`=?";
-
     @Override
-//    @Transactional
-    public void importOrderAndShipmentData(File orderFile, File shipmentFile) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException {
+    @Transactional
+    public List<Integer> importOrderAndShipmentData(File orderFile, File shipmentFile) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException {
+        List<Integer> programList = new LinkedList<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         logger.info("Starting import of " + orderFile.getName() + " and " + shipmentFile.getName());
-//        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_erp_order";
-        String sqlString = "DROP TABLE IF EXISTS tmp_erp_order";
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_erp_order";
+//        String sqlString = "DROP TABLE IF EXISTS tmp_erp_order";
         this.jdbcTemplate.execute(sqlString);
         // Create ERO oder table
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_erp_order` ( "
-        sqlString = "CREATE TABLE `tmp_erp_order` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_erp_order` ( "
+                //        sqlString = "CREATE TABLE `tmp_erp_order` ( "
                 + "  `TEMP_ID` int(11) NOT NULL AUTO_INCREMENT, "
                 + "  `RO_NO` varchar(45) COLLATE utf8_bin NOT NULL, "
                 + "  `RO_PRIME_LINE_NO` int(11) NOT NULL, "
@@ -281,11 +180,11 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
             logger.info("Successfully inserted into tmp_erp_order records---" + rows1.length);
         }
 
-//        sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_erp_shipment";
-        sqlString = "DROP TABLE IF EXISTS tmp_erp_shipment";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_erp_shipment";
+//        sqlString = "DROP TABLE IF EXISTS tmp_erp_shipment";
         this.jdbcTemplate.execute(sqlString);
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_erp_shipment` ( "
-        sqlString = "CREATE TABLE `tmp_erp_shipment` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_erp_shipment` ( "
+                //        sqlString = "CREATE TABLE `tmp_erp_shipment` ( "
                 + "  `TEMP_SHIPMENT_ID` int(11) NOT NULL AUTO_INCREMENT, "
                 + "  `KN_SHIPMENT_NO` varchar(45) COLLATE utf8_bin NOT NULL, "
                 + "  `ORDER_NO` varchar(45) COLLATE utf8_bin DEFAULT NULL, "
@@ -486,6 +385,8 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
             for (ErpOrderDTO erpOrderDTO : erpOrderDTOList) {
                 try {
                     // Shipment id found in file
+                    logger.info("Order no - " + erpOrderDTO.getEoOrderNo());
+                    logger.info("Prime line no - " + erpOrderDTO.getEoPrimeLineNo());
                     logger.info("Active - " + erpOrderDTO.getShActive());
                     logger.info("ERP Flag - " + erpOrderDTO.getShErpFlag());
                     logger.info("ParentShipmentId - " + erpOrderDTO.getShParentShipmentId());
@@ -642,50 +543,6 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                     }
                                 }
                             }
-//                            
-//                                    
-//                                    // Insert into Batch info for each record
-//                                    SimpleJdbcInsert sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
-//                                    params.clear();
-//                                    params.put("PROGRAM_ID", erpOrderDTO.getShProgramId());
-//                                    params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
-//                                    params.put("BATCH_NO", (es.isAutoGenerated() ? erpOrderDTO.getAutoGeneratedBatchNo() : es.getBatchNo()));
-//                                    params.put("EXPIRY_DATE", (es.isAutoGenerated() || es.getExpiryDate() == null ? erpOrderDTO.getCalculatedExpiryDate() : es.getExpiryDate()));
-//                                    params.put("CREATED_DATE", (erpOrderDTO.getEoActualDeliveryDate() == null ? erpOrderDTO.getEoCurrentEstimatedDeliveryDate() : erpOrderDTO.getEoActualDeliveryDate()));
-//                                    params.put("AUTO_GENERATED", es.isAutoGenerated());
-//                                    int batchId = sib.executeAndReturnKey(params).intValue();
-//                                    logger.info("Batch " + params.get("BATCH_NO") + " created with Exp dt " + params.get("EXPIRY_DATE"));
-//                                    params.clear();
-//                                    sib = null;
-//                                    sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans_batch_info");
-//                                    params.put("SHIPMENT_TRANS_ID", shipmentTransId);
-//                                    params.put("BATCH_ID", batchId);
-//                                    params.put("BATCH_SHIPMENT_QTY", es.getBatchQty());
-//                                    sib.execute(params);
-//                                    logger.info("Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
-//                                }
-//                            } else {
-//                                // Insert into Batch info for each record
-//                                logger.info("No Batch information exists so creating one automatically");
-//                                SimpleJdbcInsert sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
-//                                params.clear();
-//                                params.put("PROGRAM_ID", erpOrderDTO.getShProgramId());
-//                                params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
-//                                params.put("BATCH_NO", erpOrderDTO.getAutoGeneratedBatchNo());
-//                                params.put("EXPIRY_DATE", erpOrderDTO.getCalculatedExpiryDate());
-//                                params.put("CREATED_DATE", (erpOrderDTO.getEoActualDeliveryDate() == null ? erpOrderDTO.getEoCurrentEstimatedDeliveryDate() : erpOrderDTO.getEoActualDeliveryDate()));
-//                                params.put("AUTO_GENERATED", true);
-//                                int batchId = sib.executeAndReturnKey(params).intValue();
-//                                logger.info("Batch " + params.get("BATCH_NO") + " created with Exp dt " + params.get("EXPIRY_DATE"));
-//                                params.clear();
-//                                sib = null;
-//                                sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans_batch_info");
-//                                params.put("SHIPMENT_TRANS_ID", shipmentTransId);
-//                                params.put("BATCH_ID", batchId);
-//                                params.put("BATCH_SHIPMENT_QTY", erpOrderDTO.getEoQty());
-//                                sib.execute(params);
-//                                logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
-//                            }
                         } catch (EmptyResultDataAccessException erda) {
                             // Counldn't find a record that matches the Order no and Prime Line no so go ahead and
                             logger.info("Couldn't find a Shipment Trans so this is a new record going ahead with creation");
@@ -896,11 +753,14 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                             logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                         }
                     }
+                    if (programList.indexOf(erpOrderDTO.getShProgramId()) == -1) {
+                        programList.add(erpOrderDTO.getShProgramId());
+                    }
                 } catch (Exception e) {
                     logger.info("Error occurred while trying to import Shipment ", e);
-
                 }
             }
         }
+        return programList;
     }
 }

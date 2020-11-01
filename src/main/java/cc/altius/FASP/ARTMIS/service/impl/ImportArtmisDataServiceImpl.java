@@ -22,7 +22,13 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 import cc.altius.FASP.ARTMIS.service.ImportArtmisDataService;
+import cc.altius.FASP.dao.ProgramDataDao;
+import cc.altius.FASP.model.EmailTemplate;
+import cc.altius.FASP.model.Emailer;
 import java.io.FileFilter;
+import java.text.ParseException;
+import java.util.LinkedList;
+import java.util.List;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 
 /**
@@ -34,6 +40,8 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
 
     @Autowired
     private ImportArtmisDataDao importArtmisDataDao;
+    @Autowired
+    private ProgramDataDao programDataDao;
     @Autowired
     private EmailService emailService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -64,16 +72,21 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
         String[] subjectParam, bodyParam;
 
         File dir = new File(QAT_FILE_PATH + CATALOG_FILE_PATH);
+        List<Integer> programList = new LinkedList<>();
         if (dir.isDirectory()) {
             File[] files = dir.listFiles(fileFilter);
             if (files.length > 0) {
                 for (File orderFile : files) {
                     orderFileName = orderFile.getName();
-
                     try {
                         File shipmentFile = new File(QAT_FILE_PATH + CATALOG_FILE_PATH + "/shipment_data_" + orderFileName.substring(11));
                         if (shipmentFile.exists() && shipmentFile.isFile()) {
-                            this.importArtmisDataDao.importOrderAndShipmentData(orderFile, shipmentFile);
+                            List<Integer> newList = this.importArtmisDataDao.importOrderAndShipmentData(orderFile, shipmentFile);
+                            newList.forEach(p -> {
+                                if (programList.indexOf(p) == -1) {
+                                    programList.add(p);
+                                }
+                            });
                         } else {
                             errorCode = ERR_CODE_NO_SHIPMENT_FILE_FOUND;
                         }
@@ -103,19 +116,31 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
         } else {
             errorCode = ERR_CODE_NO_DIRECTORY;
         }
-        System.out.println("errorCode = " + errorCode);
-        System.out.println("exceptionMessage = " + exceptionMessage);
-//        if (!errorCode.isEmpty()) {
-//            errorCode += " " + fileName;
-//            subjectParam = new String[]{"Order/Shipment", errorCode};
-//            bodyParam = new String[]{"Order/Shipment", date, errorCode, exceptionMessage};
-//            logger.info(errorCode + " " + exceptionMessage);
-//            EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
-//            Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-//            int emailerId = this.emailService.saveEmail(emailer);
-//            emailer.setEmailerId(emailerId);
-//            this.emailService.sendMail(emailer);
-//        }
+        logger.info("errorCode = " + errorCode);
+        logger.info("exceptionMessage = " + exceptionMessage);
+        if (!errorCode.isEmpty()) {
+            errorCode += " " + orderFileName;
+            subjectParam = new String[]{"Order/Shipment - ", errorCode};
+            bodyParam = new String[]{"Order/Shipment", date, errorCode, exceptionMessage};
+            logger.info(errorCode + " " + exceptionMessage);
+            EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
+            Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+            int emailerId = this.emailService.saveEmail(emailer);
+            emailer.setEmailerId(emailerId);
+            this.emailService.sendMail(emailer);
+            logger.info("Email sent out for error");
+        }
+        logger.info("Going to rebuild Supply Plans for any Programs that were updated");
+        programList.forEach(p -> {
+            try {
+                int versionId = this.programDataDao.getLatestVersionForProgram(p);
+                logger.info("Going to rebuild Supply plan for Program " + p + " Version " + versionId);
+                this.programDataDao.getNewSupplyPlanList(p, -1, true, false);
+                logger.info("Supply plan rebuilt");
+            } catch (ParseException ex) {
+                logger.info("Could not rebuild supply plan", ex);
+            }
+        });
     }
 
 }
