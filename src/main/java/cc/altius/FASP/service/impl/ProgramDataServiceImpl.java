@@ -70,7 +70,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
             Version version = this.programDataDao.saveProgramData(programData, curUser);
             try {
-                getNewSupplyPlanList(programData.getProgramId(), version.getVersionId(), true);
+                getNewSupplyPlanList(programData.getProgramId(), version.getVersionId(), true, false);
                 return version;
             } catch (ParseException pe) {
                 throw new CouldNotSaveException(pe.getMessage());
@@ -110,8 +110,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
     
     @Override
-    public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException {
-        return this.programDataDao.getNewSupplyPlanList(programId, versionId, rebuild);
+    public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild, boolean returnSupplyPlan) throws ParseException {
+        return this.programDataDao.getNewSupplyPlanList(programId, versionId, rebuild, returnSupplyPlan);
     }
     
     @Override

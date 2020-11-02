@@ -1723,7 +1723,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         }
 
         try {
-            this.ProgramDataDaoImpl.getNewSupplyPlanList(programId, version.getVersionId(), true);
+            this.ProgramDataDaoImpl.getNewSupplyPlanList(programId, version.getVersionId(), true, false);
         } catch (ParseException ex) {
             Logger.getLogger(PipelineDbDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }

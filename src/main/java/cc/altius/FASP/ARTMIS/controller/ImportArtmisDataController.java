@@ -23,13 +23,9 @@ public class ImportArtmisDataController {
     @Autowired
     private ImportArtmisDataService importArtmisDataService;
 
-    @GetMapping(value = "/api/importShipmentData")
+    @GetMapping(value = "/importShipmentData")
 //    @Scheduled(cron = "00 */05 * * * *")
     public void importArtemisData() throws ParserConfigurationException, SAXException, IOException {
-//        String orderDataFilePath = "/home/altius/Documents/FASP/New ARTMIS Files/order_data_202005211301.xml";
-//        String shipmentDataFilePath = "/home/altius/Documents/FASP/New ARTMIS Files/shipment_data_202005211314.xml";
-        System.out.println("Inside the Controller");
         this.importArtmisDataService.importOrderAndShipmentData();
-
     }
 }

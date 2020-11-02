@@ -24,6 +24,7 @@ public class StockStatusAcrossProductsInput implements Serializable {
     private Date dt;
     private String[] tracerCategoryIds;
     private String[] realmCountryIds;
+    private String[] programIds;
     private boolean useApprovedSupplyPlanOnly;
 
     public int getRealmId() {
@@ -58,12 +59,33 @@ public class StockStatusAcrossProductsInput implements Serializable {
         this.realmCountryIds = realmCountryIds;
     }
 
+    public String[] getProgramIds() {
+        return programIds;
+    }
+
+    public void setProgramIds(String[] programIds) {
+        this.programIds = programIds;
+    }
+
     public String getRealmCountryIdsString() {
         if (this.realmCountryIds == null) {
             return "";
         } else {
             String opt = String.join("','", this.realmCountryIds);
             if (this.realmCountryIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
+    
+    public String getProgramIdsString() {
+        if (this.programIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.programIds);
+            if (this.programIds.length > 0) {
                 return "'" + opt + "'";
             } else {
                 return opt;
