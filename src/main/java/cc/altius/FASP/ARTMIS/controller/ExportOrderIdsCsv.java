@@ -7,19 +7,14 @@ package cc.altius.FASP.ARTMIS.controller;
 
 import cc.altius.FASP.ARTMIS.service.ExportArtmisDataService;
 import cc.altius.FASP.model.DTO.ExportOrderDataDTO;
-import cc.altius.FASP.model.DTO.ExportProgramDataDTO;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.utils.DateUtils;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import org.slf4j.Logger;
@@ -27,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.BadSqlGrammarException;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
@@ -52,7 +46,7 @@ public class ExportOrderIdsCsv {
     @Value("${email.ccList}")
     private String ccList;
 
-    @RequestMapping(value = "exportOrderData")
+    @RequestMapping(value = "/exportOrderData")
 //    @Scheduled(cron = "0 0 21 * * MON-FRI",zone="EST")
 //    @Scheduled(cron = "00 */02 * * * *")
     public void exportProductData() {
@@ -68,10 +62,8 @@ public class ExportOrderIdsCsv {
             String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMD);
             String path, json;
             List<ExportOrderDataDTO> exportOrderDataDT = this.exportArtmisDataService.exportOrderData();
-            System.out.println("ExportOrderDataDT---" + exportOrderDataDT);
-
+            System.out.println("ExportOrderDataDT --- " + exportOrderDataDT);
             File directory = new File(QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH);
-
             if (directory.isDirectory()) {
                 path = QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH + "QAT_Orders_" + curDate + ".csv";
                 FileWriter fileWriter = new FileWriter(path);
@@ -105,7 +97,7 @@ public class ExportOrderIdsCsv {
                     fileWriter.append(',');
                     fileWriter.append(Integer.toString(e.getShipmentQty()));
                     fileWriter.append(',');
-                    fileWriter.append(DateUtils.convertDateToString(e.getExpectedDeliveryDate(), DateUtils.YMD));
+                    fileWriter.append(DateUtils.formatDate(e.getExpectedDeliveryDate(), DateUtils.YMD));
                     fileWriter.append(',');
                     fileWriter.append(Integer.toString(e.getTracerCategoryId()));
                     fileWriter.append(',');

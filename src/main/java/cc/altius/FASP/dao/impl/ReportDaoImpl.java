@@ -367,7 +367,7 @@ public class ReportDaoImpl implements ReportDao {
         sql = "CALL shipmentOverview_ProcurementAgentSplit(:curUser, :realmId, :startDate, :stopDate, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
         soo.setProcurementAgentSplit(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewProcurementAgentSplitRowMapper()));
         return soo;
-    }   
+    }
 
     // Report no 21
     @Override
@@ -477,6 +477,9 @@ public class ReportDaoImpl implements ReportDao {
         sb.append(" AND ppu.ACTIVE AND p.ACTIVE ");
         if (ssap.getRealmCountryIds().length > 0) {
             sb.append(" AND p.REALM_COUNTRY_ID in (" + ssap.getRealmCountryIdsString() + ") ");
+        }
+        if (ssap.getProgramIds().length > 0) {
+            sb.append(" AND p.PROGRAM_ID IN (" + ssap.getProgramIdsString() + ") ");
         }
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", ssap.getRealmId());
