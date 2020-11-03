@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.model.DTO;
 
+import java.util.Date;
+
 /**
  *
  * @author altius
@@ -17,6 +19,7 @@ public class ExportProgramDataDTO {
     private String countryCode2;
     private String technicalArea;
     private boolean programActive;
+    private Date lastModifiedDate;
 
     public int getProgramId() {
         return programId;
@@ -64,6 +67,14 @@ public class ExportProgramDataDTO {
 
     public void setProgramActive(boolean programActive) {
         this.programActive = programActive;
+    }
+
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     @Override

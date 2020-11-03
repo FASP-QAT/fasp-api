@@ -16,11 +16,13 @@ import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -65,7 +67,12 @@ public class ExportProgramCsv {
         try {
             String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMD);
             String path;
-            List<ExportProgramDataDTO> exportProgramData = this.exportArtmisDataService.exportProgramData();
+            Date lastDate;
+            lastDate = this.exportArtmisDataService.getLastDate("ARTMIS", "QAT_Programs");
+            if (lastDate == null) {
+                lastDate = DateUtils.getDateFromString("2020-01-01 00:00:00", DateUtils.YMDHMS);
+            }
+            List<ExportProgramDataDTO> exportProgramData = this.exportArtmisDataService.exportProgramData(lastDate);
             logger.info("Found " + exportProgramData.size() + " records");
             sb.append("Found " + exportProgramData.size() + " records").append(br);
             File directory = new File(QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH);
@@ -85,6 +92,7 @@ public class ExportProgramCsv {
                 fileWriter.append("ACTIVE");
                 fileWriter.append('\n');
                 int cnt = 0;
+                Date maxDate = lastDate;
                 for (ExportProgramDataDTO e : exportProgramData) {
                     fileWriter.append(Integer.toString(e.getProgramId()));
                     fileWriter.append(',');
@@ -98,11 +106,16 @@ public class ExportProgramCsv {
                     fileWriter.append(',');
                     fileWriter.append((e.isProgramActive() ? "1" : "0"));
                     fileWriter.append('\n');
+                    cnt++;
+                    if (DateUtils.compareDate(e.getLastModifiedDate(), maxDate) > 0) {
+                        maxDate = e.getLastModifiedDate();
+                    }
                 }
                 fileWriter.flush();
                 fileWriter.close();
                 logger.info(cnt + " records written to the file");
                 sb.append(cnt).append(" records written to the file").append(br);
+                this.exportArtmisDataService.updateLastDate("ARTMIS", "QAT_Programs", maxDate);
                 logger.info("Export QAT Programs job successfully completed");
                 sb.append("Export QAT Programs job successfully completed").append(br);
             } else {

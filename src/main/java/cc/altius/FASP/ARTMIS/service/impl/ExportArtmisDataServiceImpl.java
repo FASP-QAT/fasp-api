@@ -9,6 +9,7 @@ import cc.altius.FASP.ARTMIS.dao.ExportArtmisDataDao;
 import cc.altius.FASP.ARTMIS.service.ExportArtmisDataService;
 import cc.altius.FASP.model.DTO.ExportOrderDataDTO;
 import cc.altius.FASP.model.DTO.ExportProgramDataDTO;
+import java.util.Date;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,13 +25,23 @@ public class ExportArtmisDataServiceImpl implements ExportArtmisDataService {
     private ExportArtmisDataDao exportArtmisDataDao;
 
     @Override
-    public List<ExportProgramDataDTO> exportProgramData() {
-        return this.exportArtmisDataDao.exportProgramData();
+    public List<ExportProgramDataDTO> exportProgramData(Date lastDate) {
+        return this.exportArtmisDataDao.exportProgramData(lastDate);
     }
 
     @Override
-    public List<ExportOrderDataDTO> exportOrderData() {
-        return this.exportArtmisDataDao.exportOrderData();
+    public List<ExportOrderDataDTO> exportOrderData(Date lastDate) {
+        return this.exportArtmisDataDao.exportOrderData(lastDate);
+    }
+
+    @Override
+    public Date getLastDate(String erpCode, String jobName) {
+        return this.exportArtmisDataDao.getLastDate(erpCode, jobName);
+    }
+
+    @Override
+    public boolean updateLastDate(String erpCode, String jobName, Date lastDate) {
+        return this.exportArtmisDataDao.updateLastDate(erpCode, jobName, lastDate);
     }
 
 }

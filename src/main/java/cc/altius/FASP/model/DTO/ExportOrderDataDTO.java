@@ -22,6 +22,7 @@ public class ExportOrderDataDTO {
     private int tracerCategoryId;
     private String tracerCategoryDesc;
     private boolean active;
+    private Date lastModifiedDate;
 
     public int getShipmentId() {
         return shipmentId;
@@ -93,6 +94,14 @@ public class ExportOrderDataDTO {
 
     public void setActive(boolean active) {
         this.active = active;
+    }
+
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     @Override

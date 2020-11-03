@@ -28,6 +28,7 @@ public class ExportOrderDataDTORowMapper implements RowMapper<ExportOrderDataDTO
         e.setTracerCategoryId(rs.getInt("TRACER_CATEGORY_ID"));
         e.setTracerCategoryDesc(rs.getString("TRACER_CATEGORY_DESC"));
         e.setActive(rs.getBoolean("ACTIVE"));
+        e.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
         return e;
     }
 
