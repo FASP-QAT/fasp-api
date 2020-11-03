@@ -5,17 +5,11 @@
  */
 package cc.altius.FASP.service;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import javax.xml.parsers.ParserConfigurationException;
-import org.springframework.jdbc.BadSqlGrammarException;
-import org.xml.sax.SAXException;
-
 /**
  *
  * @author altius
  */
 public interface ImportProductCatalogueService {
 
-    public void importProductCatalogue() throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException;
+    public String importProductCatalogue();
 }

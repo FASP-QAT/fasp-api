@@ -66,27 +66,21 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
         String yesterday = new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime()) + " 21:00:00";
         String today = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMD) + " 21:00:00";
 
-        String sql = "SELECT s1.SHIPMENT_ID, papu.SKU_CODE, s1.PROGRAM_ID, pa.PROCUREMENT_AGENT_CODE, st.SHIPMENT_QTY, "
-                + " COALESCE(st.`RECEIVED_DATE`,st.EXPECTED_DELIVERY_DATE)  AS EXPECTED_DELIVERY_DATE,tc.`TRACER_CATEGORY_ID`,ltc.`LABEL_EN` AS TRACER_CATEGORY_DESC,st.`ACTIVE` "
-                + " FROM "
-                + " ( "
-                + " SELECT s.SHIPMENT_ID, s.PROGRAM_ID, MAX(st.SHIPMENT_TRANS_ID) SHIPMENT_TRANS_ID, s.MAX_VERSION_ID "
-                + " FROM rm_shipment s "
-                + " LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID=s.MAX_VERSION_ID "
-                + " LEFT JOIN vw_program p ON s.PROGRAM_ID=p.PROGRAM_ID "
-                + " GROUP BY s.SHIPMENT_ID "
-                + " ) s1 "
-                + " LEFT JOIN rm_shipment_trans st ON s1.SHIPMENT_TRANS_ID=st.SHIPMENT_TRANS_ID "
-                + " LEFT JOIN vw_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID "
-                + " LEFT JOIN rm_procurement_agent_planning_unit papu ON pa.PROCUREMENT_AGENT_ID=papu.PROCUREMENT_AGENT_ID AND st.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID "
-                + " LEFT JOIN rm_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID` "
-                + " LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID` "
-                + " LEFT JOIN rm_tracer_category tc ON tc.`TRACER_CATEGORY_ID`=fu.`TRACER_CATEGORY_ID` "
-                + " LEFT JOIN ap_label ltc ON ltc.`LABEL_ID`=tc.`LABEL_ID` "
-                + " WHERE st.PROCUREMENT_AGENT_ID = 1 AND st.`LAST_MODIFIED_DATE` BETWEEN ? AND ?;";
+        String sql = "SELECT "
+                + "    s.SHIPMENT_ID, papu.SKU_CODE, s.PROGRAM_ID, pa.PROCUREMENT_AGENT_CODE, st.SHIPMENT_QTY, "
+                + "    COALESCE(st.`RECEIVED_DATE`,st.EXPECTED_DELIVERY_DATE)  AS `EXPECTED_DELIVERY_DATE`,  "
+                + "    tc.`TRACER_CATEGORY_ID`, tc.`LABEL_EN` AS TRACER_CATEGORY_DESC, st.`ACTIVE`, st.LAST_MODIFIED_DATE "
+                + "FROM rm_shipment s  "
+                + "LEFT JOIN rm_shipment_trans st on s.`SHIPMENT_ID`=st.`SHIPMENT_ID` AND s.`MAX_VERSION_ID`=st.`VERSION_ID` "
+                + "LEFT JOIN vw_procurement_agent pa ON st.`PROCUREMENT_AGENT_ID`=pa.`PROCUREMENT_AGENT_ID`  "
+                + "LEFT JOIN rm_procurement_agent_planning_unit papu ON pa.`PROCUREMENT_AGENT_ID`=papu.`PROCUREMENT_AGENT_ID` AND st.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID`  "
+                + "LEFT JOIN rm_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID`  "
+                + "LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`  "
+                + "LEFT JOIN vw_tracer_category tc ON tc.`TRACER_CATEGORY_ID`=fu.`TRACER_CATEGORY_ID`  "
+                + "WHERE s.`LAST_MODIFIED_DATE`>?";
         System.out.println("yesterday---" + yesterday);
         System.out.println("today---" + today);
-        return this.jdbcTemplate.query(sql, new ExportOrderDataDTORowMapper(), yesterday, today);
+        return this.jdbcTemplate.query(sql, new ExportOrderDataDTORowMapper(), yesterday);
     }
 
 }

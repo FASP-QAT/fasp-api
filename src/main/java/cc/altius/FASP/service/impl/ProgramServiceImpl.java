@@ -193,7 +193,7 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     @Transactional
     public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) {
-        String programCode = this.realmCountryService.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser).getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(program.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(program.getOrganisation().getId(), curUser).getOrganisationCode();
+        String programCode = this.realmCountryService.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser).getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(program.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(program.getOrganisation().getId(), curUser).getOrganisationCode() + (!program.getProgramCode().isBlank() ? "-" + program.getProgramCode() : "");
         program.setProgramCode(programCode);
         int programId = this.programDao.addProgram(program, curUser);
         for (ProgramPlanningUnit ppu : program.getProgramPlanningUnits()) {
