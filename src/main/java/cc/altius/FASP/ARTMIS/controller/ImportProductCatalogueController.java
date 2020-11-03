@@ -11,6 +11,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.xml.sax.SAXException;
 
 /**
@@ -24,10 +25,11 @@ public class ImportProductCatalogueController {
     private ImportProductCatalogueService importProductCatalogueService;
 
     @RequestMapping(value = "importProductCatalog")
+    @ResponseBody
 //    @Scheduled(cron = "00 */05 * * * *")
-    public void importProductcatalogue() throws ParserConfigurationException, SAXException, IOException {
+    public String importProductcatalogue() throws ParserConfigurationException, SAXException, IOException {
 //        String orderDataFilePath = "/home/akil/Documents/Altius/Software/FHI360/Artmis Data Import";
-        this.importProductCatalogueService.importProductCatalogue();
+        return this.importProductCatalogueService.importProductCatalogue();
 
     }
 }

@@ -67,6 +67,9 @@ public class ProgramServiceImpl implements ProgramService {
                 p.getOrganisation().getId(),
                 0)) {
             String programCode = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser).getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
+            if (p.getProgramCode() != null && !p.getProgramCode().isBlank()) {
+                programCode += "-" + p.getProgramCode();
+            }
             p.setProgramCode(programCode);
             return this.programDao.addProgram(p, curUser);
         } else {
@@ -194,6 +197,9 @@ public class ProgramServiceImpl implements ProgramService {
     @Transactional
     public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) {
         String programCode = this.realmCountryService.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser).getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(program.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(program.getOrganisation().getId(), curUser).getOrganisationCode();
+        if (program.getProgramCode()!=null && !program.getProgramCode().isBlank()) {
+            programCode += "-"+program.getProgramCode();
+        }
         program.setProgramCode(programCode);
         int programId = this.programDao.addProgram(program, curUser);
         for (ProgramPlanningUnit ppu : program.getProgramPlanningUnits()) {

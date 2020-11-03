@@ -670,10 +670,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `PROCUREMENT_UNIT_ID` INT(10) UNSIGNED NULL, "
                 + "  `SUPPLIER_ID` INT(10) UNSIGNED NULL, "
                 + "  `SHIPMENT_QTY` INT(10) UNSIGNED NULL, "
-                + "  `RATE` DECIMAL(12,2) NOT NULL, "
-                + "  `PRODUCT_COST` DECIMAL(12,2) UNSIGNED NOT NULL, "
+                + "  `RATE` DECIMAL(12,4) NOT NULL, "
+                + "  `PRODUCT_COST` DECIMAL(12,4) UNSIGNED NOT NULL, "
                 + "  `SHIPMENT_MODE` VARCHAR(4) NOT NULL, "
-                + "  `FREIGHT_COST` DECIMAL(12,2) UNSIGNED NOT NULL, "
+                + "  `FREIGHT_COST` DECIMAL(12,4) UNSIGNED NOT NULL, "
                 + "  `PLANNED_DATE` DATE NULL, "
                 + "  `SUBMITTED_DATE` DATE NULL, "
                 + "  `APPROVED_DATE` DATE NULL, "
@@ -760,8 +760,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("SHIPMENT_STATUS_ID", s.getShipmentStatus().getId());
             tp.put("DATA_SOURCE_ID", s.getDataSource().getId());
             tp.put("NOTES", s.getNotes());
-            tp.put("ORDER_NO", s.getOrderNo());
-            tp.put("PRIME_LINE_NO", s.getPrimeLineNo());
+            tp.put("ORDER_NO", (s.getOrderNo() == null || s.getOrderNo().isBlank() ? null : s.getOrderNo()));
+            tp.put("PRIME_LINE_NO", (s.getPrimeLineNo() == null || s.getPrimeLineNo().isBlank() ? null : s.getPrimeLineNo()));
             tp.put("CREATED_BY", s.getCreatedBy().getUserId());
             tp.put("CREATED_DATE", s.getCreatedDate());
             tp.put("LAST_MODIFIED_BY", s.getLastModifiedBy().getUserId());

@@ -103,6 +103,7 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/")
                 //Other Stuff You want to Ignore
                 .and().ignoring().antMatchers("/actuator/**")
+                .and().ignoring().antMatchers("/favicon.ico**")
                 .and().ignoring().antMatchers("/actuator**")
                 .and().ignoring().antMatchers("/actuator/info")
                 .and().ignoring().antMatchers("/browser**")
@@ -117,6 +118,8 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //                .and().ignoring().antMatchers("/api/user/**")
                 .and().ignoring().antMatchers("/api/updateExpiredPassword/**")
                 .and().ignoring().antMatchers("/exportSupplyPlan/**")
+                .and().ignoring().antMatchers("/exportProgramData/**")
+                .and().ignoring().antMatchers("/exportOrderData/**")
                 .and().ignoring().antMatchers("/importShipmentData/**")
                 .and().ignoring().antMatchers("/importProductCatalog/**")
                 .and().ignoring().antMatchers("/jira/syncJiraAccountIds/**");

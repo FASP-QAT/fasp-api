@@ -17,7 +17,7 @@ import org.xml.sax.SAXException;
  */
 public interface ImportProductCatalogueDao {
 
-    public void importProductCatalogue() throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException;
+    public void importProductCatalogue(StringBuilder sb) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException;
 
-    public void rollBackAutoIncrement();
+    public void rollBackAutoIncrement(StringBuilder sb);
 }
