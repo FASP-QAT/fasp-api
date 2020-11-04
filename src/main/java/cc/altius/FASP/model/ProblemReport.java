@@ -48,6 +48,10 @@ public class ProblemReport implements Serializable {
     @JsonView(Views.InternalView.class)
     private boolean reviewed;
     @JsonView(Views.InternalView.class)
+    private String reviewNotes;
+    @JsonView(Views.InternalView.class)
+    private Date reviewedDate;
+    @JsonView(Views.InternalView.class)
     private BasicUser createdBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
@@ -168,6 +172,22 @@ public class ProblemReport implements Serializable {
 
     public void setReviewed(boolean reviewed) {
         this.reviewed = reviewed;
+    }
+
+    public String getReviewNotes() {
+        return reviewNotes;
+    }
+
+    public void setReviewNotes(String reviewNotes) {
+        this.reviewNotes = reviewNotes;
+    }
+
+    public Date getReviewedDate() {
+        return reviewedDate;
+    }
+
+    public void setReviewedDate(Date reviewedDate) {
+        this.reviewedDate = reviewedDate;
     }
 
     public BasicUser getCreatedBy() {

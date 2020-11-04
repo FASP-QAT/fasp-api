@@ -53,6 +53,8 @@ public class ProblemReportResultSetExtractor implements ResultSetExtractor<List<
                 pr.setProblemType(new SimpleObject(rs.getInt("PROBLEM_TYPE_ID"), new LabelRowMapper("PROBLEM_TYPE_").mapRow(rs, 1)));
                 pr.setRealmProblem(new RealmProblemRowMapper("RP_", true).mapRow(rs, 1));
                 pr.setReviewed(rs.getBoolean("REVIEWED"));
+                pr.setReviewNotes(rs.getString("REVIEW_NOTES"));
+                pr.setReviewedDate(rs.getDate("REVIEWED_DATE"));
                 pr.setCreatedBy(new BasicUser(rs.getInt("CB_USER_ID"), rs.getString("CB_USERNAME")));
                 pr.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
                 pr.setLastModifiedBy(new BasicUser(rs.getInt("LMB_USER_ID"), rs.getString("LMB_USERNAME")));
