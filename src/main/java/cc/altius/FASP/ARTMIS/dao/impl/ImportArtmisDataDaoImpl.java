@@ -25,6 +25,8 @@ import cc.altius.FASP.model.DTO.rowMapper.ErpBatchDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTOListResultSetExtractor;
 import cc.altius.utils.DateUtils;
 import java.io.FileReader;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -35,6 +37,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -198,6 +201,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 + "  `EXTERNAL_STATUS_STAGE` varchar(45) COLLATE utf8_bin DEFAULT NULL, "
                 + "  `ACTUAL_SHIPMENT_DATE` varchar(45) COLLATE utf8_bin DEFAULT NULL, "
                 + "  `ACTUAL_DELIVERY_DATE` varchar(45) COLLATE utf8_bin DEFAULT NULL, "
+                + "  `ARRIVAL_AT_DESTINATION_DATE` varchar(45) COLLATE utf8_bin DEFAULT NULL, "
                 + "  `STATUS` int(11) DEFAULT NULL, "
                 + "  PRIMARY KEY (`TEMP_SHIPMENT_ID`), "
                 + "  UNIQUE KEY `TEMP_SHIPMENT_ID_UNIQUE` (`TEMP_SHIPMENT_ID`) "
@@ -222,10 +226,10 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
             x = 0;
             sqlString = "INSERT INTO tmp_erp_shipment (`KN_SHIPMENT_NO`, `ORDER_NO`, `PRIME_LINE_NO`, `BATCH_NO`, `ITEM_ID`, "
                     + "`EXPIRATION_DATE`, `SHIPPED_QUANTITY`, `DELIVERED_QUANTITY`, `STATUS_NAME`, `EXTERNAL_STATUS_STAGE`, "
-                    + "`ACTUAL_SHIPMENT_DATE`, `ACTUAL_DELIVERY_DATE`) "
+                    + "`ACTUAL_SHIPMENT_DATE`, `ACTUAL_DELIVERY_DATE`, `ARRIVAL_AT_DESTINATION_DATE`) "
                     + "VALUES (:KN_SHIPMENT_NO, :ORDER_NO, :PRIME_LINE_NO, :BATCH_NO, :ITEM_ID, "
                     + ":EXPIRATION_DATE, :SHIPPED_QUANTITY, :DELIVERED_QUANTITY, :STATUS_NAME, :EXTERNAL_STATUS_STAGE, "
-                    + ":ACTUAL_SHIPMENT_DATE, :ACTUAL_DELIVERY_DATE)";
+                    + ":ACTUAL_SHIPMENT_DATE, :ACTUAL_DELIVERY_DATE, :ARRIVAL_AT_DESTINATION_DATE)";
             for (int temp2 = 0; temp2 < nList2.getLength(); temp2++) {
                 Node nNode1 = nList2.item(temp2);
                 if (nNode1.getNodeType() == Node.ELEMENT_NODE) {
@@ -242,6 +246,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     map.put("EXTERNAL_STATUS_STAGE", dataRecordElement.getElementsByTagName("external_status_stage").item(0).getTextContent());
                     map.put("ACTUAL_SHIPMENT_DATE", dataRecordElement.getElementsByTagName("actual_shipment_date").item(0).getTextContent().isBlank() ? null : dataRecordElement.getElementsByTagName("actual_shipment_date").item(0).getTextContent());
                     map.put("ACTUAL_DELIVERY_DATE", dataRecordElement.getElementsByTagName("actual_delivery_date").item(0).getTextContent().isBlank() ? null : dataRecordElement.getElementsByTagName("actual_delivery_date").item(0).getTextContent());
+                    map.put("ARRIVAL_AT_DESTINATION_DATE", dataRecordElement.getElementsByTagName("arrival_at_destination_date").item(0).getTextContent().isBlank() ? null : dataRecordElement.getElementsByTagName("arrival_at_destination_date").item(0).getTextContent());
                     batchParams[x] = new MapSqlParameterSource(map);
                     x++;
                 }
@@ -317,6 +322,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     + " s.`DELIVERED_QTY`=t.`DELIVERED_QUANTITY`, "
                     + " s.`ACTUAL_SHIPMENT_DATE`=IFNULL(CONCAT(LEFT(t.`ACTUAL_SHIPMENT_DATE`,10),' ',REPLACE(MID(t.`ACTUAL_SHIPMENT_DATE`,12,8),'.',':')),NULL), "
                     + " s.`ACTUAL_DELIVERY_DATE`=IFNULL(CONCAT(LEFT(t.`ACTUAL_DELIVERY_DATE`,10),' ',REPLACE(MID(t.`ACTUAL_DELIVERY_DATE`,12,8),'.',':')),NULL), "
+                    + " s.`ARRIVAL_AT_DESTINATION_DATE`=IFNULL(CONCAT(LEFT(t.`ARRIVAL_AT_DESTINATION_DATE`,10),' ',REPLACE(MID(t.`ARRIVAL_AT_DESTINATION_DATE`,12,8),'.',':')),NULL), "
                     + " s.`STATUS`=t.`EXTERNAL_STATUS_STAGE` "
                     + " WHERE s.ERP_SHIPMENT_ID IS NOT NULL";
             rows = this.namedParameterJdbcTemplate.update(sqlString, params);
@@ -326,20 +332,43 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
             //Insert into erp shipment table
             sqlString = "INSERT IGNORE INTO rm_erp_shipment (KN_SHIPMENT_NO, ORDER_NO, PRIME_LINE_NO, BATCH_NO, "
                     + "EXPIRY_DATE, PROCUREMENT_UNIT_SKU_CODE, SHIPPED_QTY, DELIVERED_QTY, ACTUAL_SHIPMENT_DATE, "
-                    + "ACTUAL_DELIVERY_DATE, STATUS, LAST_MODIFIED_DATE, FLAG)"
+                    + "ACTUAL_DELIVERY_DATE, ARRIVAL_AT_DESTINATION_DATE, STATUS, LAST_MODIFIED_DATE, FLAG)"
                     + "SELECT t.KN_SHIPMENT_NO, t.ORDER_NO, t.PRIME_LINE_NO, t.BATCH_NO,"
                     + "DATE_FORMAT(t.EXPIRATION_DATE,'%Y-%m-%d %H:%i:%s'), IF(LENGTH(t.ITEM_ID)=15,t.ITEM_ID, null), t.SHIPPED_QUANTITY, t.DELIVERED_QUANTITY, DATE_FORMAT(t.ACTUAL_SHIPMENT_DATE,'%Y-%m-%d %H:%i:%s'), "
-                    + "DATE_FORMAT(t.ACTUAL_DELIVERY_DATE,'%Y-%m-%d %H:%i:%s'), t.EXTERNAL_STATUS_STAGE, :curDate, 1 "
+                    + "DATE_FORMAT(t.ACTUAL_DELIVERY_DATE,'%Y-%m-%d %H:%i:%s'), DATE_FORMAT(t.ARRIVAL_AT_DESTINATION_DATE,'%Y-%m-%d %H:%i:%s'), t.EXTERNAL_STATUS_STAGE, :curDate, 1 "
                     + "FROM  tmp_erp_shipment t "
                     + "LEFT JOIN rm_erp_shipment s ON t.`KN_SHIPMENT_NO`=s.`KN_SHIPMENT_NO` AND t.`ORDER_NO`=s.`ORDER_NO` AND t.`PRIME_LINE_NO`=s.`PRIME_LINE_NO` AND t.`BATCH_NO`=s.`BATCH_NO` "
                     + "WHERE s.FLAG IS NULL OR s.FLAG=0";
             rows = this.namedParameterJdbcTemplate.update(sqlString, params);
             logger.info("No of rows inserted into rm_erp_shipment---" + rows);
 
-            //TODO-Not sure what this does
             sqlString = "UPDATE rm_erp_shipment t LEFT JOIN rm_erp_order o ON o.`ORDER_NO`=t.`ORDER_NO` AND o.`PRIME_LINE_NO`=t.`PRIME_LINE_NO` SET t.`ERP_ORDER_ID`=o.`ERP_ORDER_ID`;";
             rows = this.namedParameterJdbcTemplate.update(sqlString, params);
             logger.info("update erp order id in erp shipment table---" + rows);
+            
+            sqlString = "SELECT eo.SUPPLIER_NAME FROM rm_erp_order eo LEFT JOIN vw_supplier s on eo.SUPPLIER_NAME=s.LABEL_EN WHERE s.SUPPLIER_ID IS NULL AND eo.SUPPLIER_NAME!='' group by eo.SUPPLIER_NAME";
+            List<String> supplierList = this.jdbcTemplate.query(sqlString, new RowMapper<String>() {
+                @Override
+                public String mapRow(ResultSet rs, int i) throws SQLException {
+                    return rs.getString("SUPPLIER_NAME");
+                }
+            });
+            params.clear();
+            params.put("curDate", curDate);
+            params.put("supplierName", "");
+            params.put("supLabelId", 0);
+            rows = 0;
+            for (String sup : supplierList) {
+                sqlString = "INSERT INTO `ap_label` (`LABEL_EN`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `SOURCE_ID`) VALUES (:supplierName, 1, :curDate, 1, :curDate, 33)"; // Supplier
+                params.replace("supplierName", sup);
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+                int supplierId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+                params.replace("supLabelId", supplierId);
+                sqlString = "INSERT INTO `rm_supplier` (`REALM_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, :supLabelId, 1, 1, :curDate, 1, :curDate)";
+                this.namedParameterJdbcTemplate.update(sqlString, params);
+                rows ++;
+            }
+            logger.info("Additional Suppliers created "+ rows);
 
             // ##############################################################
             // Completed till here
@@ -351,7 +380,8 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     + "    eo.PROCUREMENT_UNIT_SKU_CODE, eo.QTY, eo.ORDERD_DATE, eo.CURRENT_ESTIMATED_DELIVERY_DATE, eo.REQ_DELIVERY_DATE,  "
                     + "    eo.AGREED_DELIVERY_DATE, eo.SUPPLIER_NAME, eo.PRICE, eo.SHIPPING_COST, eo.SHIP_BY,  "
                     + "    eo.RECPIENT_NAME, eo.RECPIENT_COUNTRY, eo.`STATUS`, ssm.SHIPMENT_STATUS_ID, eo.MANUAL_TAGGING, "
-                    + "    MAX(es.ACTUAL_DELIVERY_DATE) `ACTUAL_DELIVERY_DATE`, MAX(es.ACTUAL_SHIPMENT_DATE) `ACTUAL_SHIPMENT_DATE` , es.BATCH_NO, COALESCE(es.DELIVERED_QTY, es.SHIPPED_QTY) `BATCH_QTY`, "
+                    + "    MIN(es.ACTUAL_DELIVERY_DATE) `ACTUAL_DELIVERY_DATE`, MIN(es.ACTUAL_SHIPMENT_DATE) `ACTUAL_SHIPMENT_DATE`, MIN(es.ARRIVAL_AT_DESTINATION_DATE) `ARRIVAL_AT_DESTINATION_DATE`, "
+                    + "    es.BATCH_NO, COALESCE(es.DELIVERED_QTY, es.SHIPPED_QTY) `BATCH_QTY`, "
                     + "    pu.PLANNING_UNIT_ID, papu2.PROCUREMENT_UNIT_ID, pu2.SUPPLIER_ID, ppu.SHELF_LIFE, "
                     + "    sh.SHIPMENT_ID, sh.PROGRAM_ID, sh.PARENT_SHIPMENT_ID, "
                     + "    st.SHIPMENT_TRANS_ID, st.VERSION_ID, st.FUNDING_SOURCE_ID, st.PROCUREMENT_AGENT_ID, st.BUDGET_ID, st.ACTIVE, st.ERP_FLAG, st.ACCOUNT_FLAG, st.DATA_SOURCE_ID "
@@ -421,7 +451,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                     + "WHERE st.SHIPMENT_TRANS_ID=:shipmentTransId";
                             params.clear();
                             params.put("shipmentTransId", shipmentTransId);
-                            params.put("expectedDeliveryDate", erpOrderDTO.getEoCurrentEstimatedDeliveryDate());
+                            params.put("expectedDeliveryDate", erpOrderDTO.getExpectedDeliveryDate());
                             params.put("freightCost", erpOrderDTO.getEoShippingCost());
                             params.put("productCost", erpOrderDTO.getEoPrice() * erpOrderDTO.getEoQty());
                             params.put("price", erpOrderDTO.getEoPrice());
@@ -433,7 +463,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                             params.put("submittedDate", erpOrderDTO.getEoCreatedDate());
                             params.put("approvedDate", erpOrderDTO.getEoOrderedDate());
                             params.put("shippedDate", erpOrderDTO.getEoActualShipmentDate());
-                            params.put("arrivedDate", null);
+                            params.put("arrivedDate", erpOrderDTO.getEoArrivalAtDestinationDate());
                             params.put("receivedDate", erpOrderDTO.getEoActualDeliveryDate());
                             params.put("curDate", curDate);
                             params.put("notes", "Auto updated from ERP Data");
@@ -518,7 +548,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                             params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
                                             params.put("BATCH_NO", (es.isAutoGenerated() ? erpOrderDTO.getAutoGeneratedBatchNo() : es.getBatchNo()));
                                             params.put("EXPIRY_DATE", (es.isAutoGenerated() || es.getExpiryDate() == null ? erpOrderDTO.getCalculatedExpiryDate() : es.getExpiryDate()));
-                                            params.put("CREATED_DATE", (erpOrderDTO.getEoActualDeliveryDate() == null ? erpOrderDTO.getEoCurrentEstimatedDeliveryDate() : erpOrderDTO.getEoActualDeliveryDate()));
+                                            params.put("CREATED_DATE", (erpOrderDTO.getEoActualDeliveryDate() == null ? erpOrderDTO.getExpectedDeliveryDate() : erpOrderDTO.getEoActualDeliveryDate()));
                                             params.put("AUTO_GENERATED", es.isAutoGenerated());
                                             int batchId = sib.executeAndReturnKey(params).intValue();
                                             logger.info("Batch " + params.get("BATCH_NO") + " created with Exp dt " + params.get("EXPIRY_DATE"));
@@ -569,7 +599,10 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                             params.put("PROCUREMENT_AGENT_ID", erpOrderDTO.getShProcurementAgentId());
                             params.put("FUNDING_SOURCE_ID", erpOrderDTO.getShFundingSourceId());
                             params.put("BUDGET_ID", erpOrderDTO.getShBudgetId());
-                            params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getEoCurrentEstimatedDeliveryDate());
+                            params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getExpectedDeliveryDate());
+                            if (erpOrderDTO.getExpectedDeliveryDate()== null) {
+                                System.out.println("erpOrderDTO->" + erpOrderDTO.getEoOrderNo());
+                            }
                             params.put("PROCUREMENT_UNIT_ID", erpOrderDTO.getEoProcurementUnitId());
                             params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
                             params.put("SHIPMENT_QTY", erpOrderDTO.getEoQty());
@@ -581,9 +614,13 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                             params.put("SUBMITTED_DATE", erpOrderDTO.getEoCreatedDate());
                             params.put("APPROVED_DATE", erpOrderDTO.getEoOrderedDate());
                             params.put("SHIPPED_DATE", erpOrderDTO.getEoActualShipmentDate());
-                            params.put("ARRIVED_DATE", null);
+                            params.put("ARRIVED_DATE", erpOrderDTO.getEoArrivalAtDestinationDate());
                             params.put("RECEIVED_DATE", erpOrderDTO.getEoActualDeliveryDate());
                             params.put("SHIPMENT_STATUS_ID", erpOrderDTO.getEoShipmentStatusId());
+                            if (erpOrderDTO.getEoShipmentStatusId()==null) {
+                                System.out.println("erpOrderDTO->" + erpOrderDTO.getEoOrderNo());
+                                System.out.println("erpOrderDTO.status->" + erpOrderDTO.getEoStatus());
+                            }
                             params.put("NOTES", "Auto created from ERP data");
                             params.put("ERP_FLAG", 1);
                             params.put("ORDER_NO", erpOrderDTO.getEoOrderNo());
@@ -596,6 +633,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                             params.put("LAST_MODIFIED_DATE", curDate);
                             params.put("VERSION_ID", erpOrderDTO.getShVersionId());
                             params.put("ACTIVE", true);
+                            System.out.println("SupplierId="+erpOrderDTO.getEoSupplierId());
                             int shipmentTransId = sit.executeAndReturnKey(params).intValue();
                             logger.info("Shipment Trans Id " + shipmentTransId + " created");
                             if (!erpOrderDTO.getEoShipmentList().isEmpty()) {
@@ -608,7 +646,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                     params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
                                     params.put("BATCH_NO", (es.isAutoGenerated() ? erpOrderDTO.getAutoGeneratedBatchNo() : es.getBatchNo()));
                                     params.put("EXPIRY_DATE", (es.isAutoGenerated() || es.getExpiryDate() == null ? erpOrderDTO.getCalculatedExpiryDate() : es.getExpiryDate()));
-                                    params.put("CREATED_DATE", (erpOrderDTO.getEoActualDeliveryDate() == null ? erpOrderDTO.getEoCurrentEstimatedDeliveryDate() : erpOrderDTO.getEoActualDeliveryDate()));
+                                    params.put("CREATED_DATE", (erpOrderDTO.getEoActualDeliveryDate() == null ? erpOrderDTO.getExpectedDeliveryDate() : erpOrderDTO.getEoActualDeliveryDate()));
                                     params.put("AUTO_GENERATED", es.isAutoGenerated());
                                     int batchId = sib.executeAndReturnKey(params).intValue();
                                     logger.info("Batch " + params.get("BATCH_NO") + " created with Exp dt " + params.get("EXPIRY_DATE"));
@@ -630,7 +668,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                 params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
                                 params.put("BATCH_NO", erpOrderDTO.getAutoGeneratedBatchNo());
                                 params.put("EXPIRY_DATE", erpOrderDTO.getCalculatedExpiryDate());
-                                params.put("CREATED_DATE", (erpOrderDTO.getEoActualDeliveryDate() == null ? erpOrderDTO.getEoCurrentEstimatedDeliveryDate() : erpOrderDTO.getEoActualDeliveryDate()));
+                                params.put("CREATED_DATE", (erpOrderDTO.getEoActualDeliveryDate() == null ? erpOrderDTO.getExpectedDeliveryDate() : erpOrderDTO.getEoActualDeliveryDate()));
                                 params.put("AUTO_GENERATED", true);
                                 int batchId = sib.executeAndReturnKey(params).intValue();
                                 logger.info("Batch " + params.get("BATCH_NO") + " created with Exp dt " + params.get("EXPIRY_DATE"));
@@ -678,7 +716,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                         params.put("PROCUREMENT_AGENT_ID", erpOrderDTO.getShProcurementAgentId());
                         params.put("FUNDING_SOURCE_ID", erpOrderDTO.getShFundingSourceId());
                         params.put("BUDGET_ID", erpOrderDTO.getShBudgetId());
-                        params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getEoCurrentEstimatedDeliveryDate());
+                        params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getExpectedDeliveryDate());
                         params.put("PROCUREMENT_UNIT_ID", erpOrderDTO.getEoProcurementUnitId());
                         params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
                         params.put("SHIPMENT_QTY", erpOrderDTO.getEoQty());
@@ -690,7 +728,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                         params.put("SUBMITTED_DATE", erpOrderDTO.getEoCreatedDate());
                         params.put("APPROVED_DATE", erpOrderDTO.getEoOrderedDate());
                         params.put("SHIPPED_DATE", erpOrderDTO.getEoActualShipmentDate());
-                        params.put("ARRIVED_DATE", null);
+                        params.put("ARRIVED_DATE", erpOrderDTO.getEoArrivalAtDestinationDate());
                         params.put("RECEIVED_DATE", erpOrderDTO.getEoActualDeliveryDate());
                         params.put("SHIPMENT_STATUS_ID", erpOrderDTO.getEoShipmentStatusId());
                         params.put("NOTES", "Auto created from ERP data");
@@ -717,7 +755,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                 params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
                                 params.put("BATCH_NO", (es.isAutoGenerated() ? erpOrderDTO.getAutoGeneratedBatchNo() : es.getBatchNo()));
                                 params.put("EXPIRY_DATE", (es.isAutoGenerated() || es.getExpiryDate() == null ? erpOrderDTO.getCalculatedExpiryDate() : es.getExpiryDate()));
-                                params.put("CREATED_DATE", (erpOrderDTO.getEoActualDeliveryDate() == null ? erpOrderDTO.getEoCurrentEstimatedDeliveryDate() : erpOrderDTO.getEoActualDeliveryDate()));
+                                params.put("CREATED_DATE", (erpOrderDTO.getEoActualDeliveryDate() == null ? erpOrderDTO.getExpectedDeliveryDate() : erpOrderDTO.getEoActualDeliveryDate()));
                                 params.put("AUTO_GENERATED", es.isAutoGenerated());
                                 int batchId = sib.executeAndReturnKey(params).intValue();
                                 logger.info("Batch " + params.get("BATCH_NO") + " created with Exp dt " + params.get("EXPIRY_DATE"));
@@ -739,7 +777,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                             params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
                             params.put("BATCH_NO", erpOrderDTO.getAutoGeneratedBatchNo());
                             params.put("EXPIRY_DATE", erpOrderDTO.getCalculatedExpiryDate());
-                            params.put("CREATED_DATE", (erpOrderDTO.getEoActualDeliveryDate() == null ? erpOrderDTO.getEoCurrentEstimatedDeliveryDate() : erpOrderDTO.getEoActualDeliveryDate()));
+                            params.put("CREATED_DATE", (erpOrderDTO.getEoActualDeliveryDate() == null ? erpOrderDTO.getExpectedDeliveryDate() : erpOrderDTO.getEoActualDeliveryDate()));
                             params.put("AUTO_GENERATED", true);
                             int batchId = sib.executeAndReturnKey(params).intValue();
                             logger.info("Batch " + params.get("BATCH_NO") + " created with Exp dt " + params.get("EXPIRY_DATE"));

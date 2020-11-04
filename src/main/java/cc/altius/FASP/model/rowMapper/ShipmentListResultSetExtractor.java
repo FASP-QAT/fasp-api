@@ -42,6 +42,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
                 s = sList.get(idx);
             }
             s.setShipmentId(rs.getInt("SHIPMENT_ID"));
+            s.setParentShipmentId(rs.getInt("PARENT_SHIPMENT_ID"));
             s.setPlanningUnit(
                     new SimplePlanningUnitObject(
                             rs.getInt("PLANNING_UNIT_ID"),

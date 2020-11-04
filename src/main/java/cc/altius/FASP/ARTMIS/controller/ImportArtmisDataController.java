@@ -24,6 +24,7 @@ public class ImportArtmisDataController {
     private ImportArtmisDataService importArtmisDataService;
 
     @GetMapping(value = "/importShipmentData")
+    
 //    @Scheduled(cron = "00 */05 * * * *")
     public void importArtemisData() throws ParserConfigurationException, SAXException, IOException {
         this.importArtmisDataService.importOrderAndShipmentData();

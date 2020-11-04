@@ -56,7 +56,13 @@ public class ErpOrderDTOListResultSetExtractor implements ResultSetExtractor<Lis
                 e.setEoPlanningUnitId(rs.getInt("PLANNING_UNIT_ID"));
                 e.setEoShelfLife(rs.getInt("SHELF_LIFE"));
                 e.setEoProcurementUnitId(rs.getInt("PROCUREMENT_UNIT_ID"));
+                if (rs.wasNull()) {
+                    e.setEoProcurementUnitId(null);
+                }
                 e.setEoSupplierId(rs.getInt("SUPPLIER_ID"));
+                if (rs.wasNull()) {
+                    e.setEoSupplierId(null);
+                }
                 e.setShProgramId(rs.getInt("PROGRAM_ID"));
                 e.setShShipmentId(rs.getInt("SHIPMENT_ID"));
                 e.setShVersionId(rs.getInt("VERSION_ID"));
@@ -103,6 +109,7 @@ public class ErpOrderDTOListResultSetExtractor implements ResultSetExtractor<Lis
                 }
                 e.setEoActualShipmentDate(rs.getDate("ACTUAL_SHIPMENT_DATE"));
                 e.setEoActualDeliveryDate(rs.getDate("ACTUAL_DELIVERY_DATE"));
+                e.setEoArrivalAtDestinationDate(rs.getDate("ARRIVAL_AT_DESTINATION_DATE"));
                 eList.add(e);
             }
             int eIdx = eList.indexOf(e);

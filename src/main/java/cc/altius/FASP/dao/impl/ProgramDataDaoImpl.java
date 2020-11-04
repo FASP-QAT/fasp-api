@@ -1384,6 +1384,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
+        if (versionId == -1) {
+            String sqlString = "SELECT p.CURRENT_VERSION_ID FROM rm_program p WHERE p.PROGRAM_ID=:programId";
+            versionId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+            params.replace("versionId", versionId);
+        }
         if (rebuild == true) {
             MasterSupplyPlan msp = new MasterSupplyPlan(programId, versionId);
             String sqlString = "CALL buildNewSupplyPlanRegion(:programId, :versionId)";
