@@ -10,7 +10,6 @@ import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
@@ -19,6 +18,7 @@ import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
@@ -66,12 +66,13 @@ public class ProgramServiceImpl implements ProgramService {
                 p.getHealthArea().getId(),
                 p.getOrganisation().getId(),
                 0)) {
-            String programCode = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser).getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
+            RealmCountry rc= this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
+            String programCode = rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
             if (p.getProgramCode() != null && !p.getProgramCode().isBlank()) {
                 programCode += "-" + p.getProgramCode();
             }
             p.setProgramCode(programCode);
-            return this.programDao.addProgram(p, curUser);
+            return this.programDao.addProgram(p, rc.getRealm().getRealmId(), curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -196,12 +197,13 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     @Transactional
     public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) {
-        String programCode = this.realmCountryService.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser).getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(program.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(program.getOrganisation().getId(), curUser).getOrganisationCode();
+        RealmCountry rc = this.realmCountryService.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser);
+        String programCode = rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(program.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(program.getOrganisation().getId(), curUser).getOrganisationCode();
         if (program.getProgramCode()!=null && !program.getProgramCode().isBlank()) {
             programCode += "-"+program.getProgramCode();
         }
         program.setProgramCode(programCode);
-        int programId = this.programDao.addProgram(program, curUser);
+        int programId = this.programDao.addProgram(program, rc.getRealm().getRealmId(), curUser);
         for (ProgramPlanningUnit ppu : program.getProgramPlanningUnits()) {
             ppu.getProgram().setId(programId);
         }

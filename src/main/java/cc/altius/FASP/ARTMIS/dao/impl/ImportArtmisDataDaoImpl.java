@@ -71,7 +71,9 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
     public List<Integer> importOrderAndShipmentData(File orderFile, File shipmentFile) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException {
         List<Integer> programList = new LinkedList<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        logger.info("################################################################################################");
         logger.info("Starting import of " + orderFile.getName() + " and " + shipmentFile.getName());
+        logger.info("################################################################################################");
         String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_erp_order";
 //        String sqlString = "DROP TABLE IF EXISTS tmp_erp_order";
         this.jdbcTemplate.execute(sqlString);
@@ -161,7 +163,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     map.put("RECIPIENT_NAME", dataRecordElement.getElementsByTagName("recipient_name").item(0).getTextContent());
                     map.put("RECIPIENT_COUNTRY", dataRecordElement.getElementsByTagName("recipient_country").item(0).getTextContent());
                     map.put("PROGRAM_ID", (dataRecordElement.getElementsByTagName("qat_program_id").item(0).getTextContent() != null && dataRecordElement.getElementsByTagName("qat_program_id").item(0).getTextContent() != "" ? dataRecordElement.getElementsByTagName("qat_program_id").item(0).getTextContent() : null));
-                    map.put("SHIPMENT_ID", (dataRecordElement.getElementsByTagName("qat_shipment_id").item(0).getTextContent() != null && dataRecordElement.getElementsByTagName("qat_shipment_id").item(0).getTextContent() != "" ? dataRecordElement.getElementsByTagName("qat_shipment_id").item(0).getTextContent() : null));
+                    map.put("SHIPMENT_ID", (dataRecordElement.getElementsByTagName("qat_shipment_id").item(0).getTextContent() != null && dataRecordElement.getElementsByTagName("qat_shipment_id").item(0).getTextContent() != "" && !dataRecordElement.getElementsByTagName("qat_shipment_id").item(0).getTextContent().equals("-99") ? dataRecordElement.getElementsByTagName("qat_shipment_id").item(0).getTextContent() : null));
                     batchParams[x] = new MapSqlParameterSource(map);
                     x++;
                 }
@@ -303,7 +305,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     + " t.PARENT_RO, DATE_FORMAT(t.PARENT_ORDER_ENTRY_DATE,'%Y-%m-%d %H:%i:%s'), LEFT(t.ITEM_ID, 12), IF(LENGTH(t.ITEM_ID)=15,t.ITEM_ID,NULL), t.ORDERED_QTY,"
                     + " IFNULL(DATE_FORMAT(t.PO_RELEASED_FOR_FULFILLMENT_DATE,'%Y-%m-%d'),NULL), IFNULL(DATE_FORMAT(t.LATEST_ESTIMATED_DELIVERY_DATE,'%Y-%m-%d'),NULL), IFNULL(DATE_FORMAT(t.REQ_DELIVERY_DATE,'%Y-%m-%d'),NULL), IFNULL(DATE_FORMAT(t.REVISED_AGREED_DELIVERY_DATE,'%Y-%m-%d'),NULL), t.ITEM_SUPPLIER_NAME, "
                     + " t.UNIT_PRICE,COALESCE(t.TOTAL_ACTUAL_FREIGHT_COST,t.FREIGHT_ESTIMATE,SHIPPING_CHARGES), t.CARRIER_SERVICE_CODE, t.RECIPIENT_NAME, t.RECIPIENT_COUNTRY,"
-                    + " t.STATUS_NAME, 1, :curDate, 1, NULL, t.PROGRAM_ID, t.SHIPMENT_ID, DATE_FORMAT(t.ORDER_ENTRY_DATE,'%Y-%m-%d') "
+                    + " t.EXTERNAL_STATUS_STAGE, 1, :curDate, 1, NULL, t.PROGRAM_ID, t.SHIPMENT_ID, DATE_FORMAT(t.ORDER_ENTRY_DATE,'%Y-%m-%d') "
                     + " FROM tmp_erp_order t "
                     + " LEFT JOIN rm_erp_order o ON t.`ORDER_NO`=o.`ORDER_NO` AND t.`PRIME_LINE_NO`=o.`PRIME_LINE_NO` "
                     + " WHERE o.FLAG IS NULL OR o.FLAG=0";
@@ -345,7 +347,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
             sqlString = "UPDATE rm_erp_shipment t LEFT JOIN rm_erp_order o ON o.`ORDER_NO`=t.`ORDER_NO` AND o.`PRIME_LINE_NO`=t.`PRIME_LINE_NO` SET t.`ERP_ORDER_ID`=o.`ERP_ORDER_ID`;";
             rows = this.namedParameterJdbcTemplate.update(sqlString, params);
             logger.info("update erp order id in erp shipment table---" + rows);
-            
+
             sqlString = "SELECT eo.SUPPLIER_NAME FROM rm_erp_order eo LEFT JOIN vw_supplier s on eo.SUPPLIER_NAME=s.LABEL_EN WHERE s.SUPPLIER_ID IS NULL AND eo.SUPPLIER_NAME!='' group by eo.SUPPLIER_NAME";
             List<String> supplierList = this.jdbcTemplate.query(sqlString, new RowMapper<String>() {
                 @Override
@@ -366,9 +368,9 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 params.replace("supLabelId", supplierId);
                 sqlString = "INSERT INTO `rm_supplier` (`REALM_ID`, `LABEL_ID`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, :supLabelId, 1, 1, :curDate, 1, :curDate)";
                 this.namedParameterJdbcTemplate.update(sqlString, params);
-                rows ++;
+                rows++;
             }
-            logger.info("Additional Suppliers created "+ rows);
+            logger.info("Additional Suppliers created " + rows);
 
             // ##############################################################
             // Completed till here
@@ -600,9 +602,6 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                             params.put("FUNDING_SOURCE_ID", erpOrderDTO.getShFundingSourceId());
                             params.put("BUDGET_ID", erpOrderDTO.getShBudgetId());
                             params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getExpectedDeliveryDate());
-                            if (erpOrderDTO.getExpectedDeliveryDate()== null) {
-                                System.out.println("erpOrderDTO->" + erpOrderDTO.getEoOrderNo());
-                            }
                             params.put("PROCUREMENT_UNIT_ID", erpOrderDTO.getEoProcurementUnitId());
                             params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
                             params.put("SHIPMENT_QTY", erpOrderDTO.getEoQty());
@@ -617,10 +616,6 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                             params.put("ARRIVED_DATE", erpOrderDTO.getEoArrivalAtDestinationDate());
                             params.put("RECEIVED_DATE", erpOrderDTO.getEoActualDeliveryDate());
                             params.put("SHIPMENT_STATUS_ID", erpOrderDTO.getEoShipmentStatusId());
-                            if (erpOrderDTO.getEoShipmentStatusId()==null) {
-                                System.out.println("erpOrderDTO->" + erpOrderDTO.getEoOrderNo());
-                                System.out.println("erpOrderDTO.status->" + erpOrderDTO.getEoStatus());
-                            }
                             params.put("NOTES", "Auto created from ERP data");
                             params.put("ERP_FLAG", 1);
                             params.put("ORDER_NO", erpOrderDTO.getEoOrderNo());
@@ -633,7 +628,6 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                             params.put("LAST_MODIFIED_DATE", curDate);
                             params.put("VERSION_ID", erpOrderDTO.getShVersionId());
                             params.put("ACTIVE", true);
-                            System.out.println("SupplierId="+erpOrderDTO.getEoSupplierId());
                             int shipmentTransId = sit.executeAndReturnKey(params).intValue();
                             logger.info("Shipment Trans Id " + shipmentTransId + " created");
                             if (!erpOrderDTO.getEoShipmentList().isEmpty()) {
@@ -799,6 +793,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 }
             }
         }
+        logger.info("--------------------------------------------------------------------------------------");
         return programList;
     }
 }

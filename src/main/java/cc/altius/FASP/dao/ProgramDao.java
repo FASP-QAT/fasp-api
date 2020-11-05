@@ -6,7 +6,6 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
@@ -24,7 +23,7 @@ public interface ProgramDao {
 
     public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser);
 
-    public int addProgram(Program p, CustomUserDetails curUser);
+    public int addProgram(Program p, int realmId, CustomUserDetails curUser);
 
     public int updateProgram(Program p, CustomUserDetails curUser);
 

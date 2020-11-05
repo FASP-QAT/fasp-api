@@ -153,11 +153,12 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     @Transactional
-    public int addProgram(Program p, CustomUserDetails curUser) {
+    public int addProgram(Program p, int realmId, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         int labelId = this.labelDao.addLabel(p.getLabel(), LabelConstants.RM_PROGRAM, curUser.getUserId());
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program").usingGeneratedKeyColumns("PROGRAM_ID");
+        params.put("REALM_ID", realmId);
         params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
         params.put("ORGANISATION_ID", p.getOrganisation().getId());
         params.put("HEALTH_AREA_ID", p.getHealthArea().getId());
