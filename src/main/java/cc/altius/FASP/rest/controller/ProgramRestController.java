@@ -21,6 +21,7 @@ import java.util.LinkedList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -55,6 +56,9 @@ public class ProgramRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.programService.addProgram(program, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (DuplicateKeyException d) {
+            logger.error("Error while trying to add Program", d);
+            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Program", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
@@ -271,6 +275,9 @@ public class ProgramRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.programService.addProgramInitialize(program, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (DuplicateKeyException d) {
+            logger.error("Error while trying to add Program", d);
+            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Program", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);

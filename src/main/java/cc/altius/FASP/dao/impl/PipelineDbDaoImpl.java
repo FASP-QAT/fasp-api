@@ -13,6 +13,7 @@ import cc.altius.FASP.dao.PipelineDbDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.pipeline.QatTempProgram;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.Version;
@@ -1303,13 +1304,15 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     @Transactional
     public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser) {
         QatTempProgram p = this.getQatTempProgram(curUser, pipelineId);
-        String programCode = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser).getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
+        RealmCountry rc = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
+        String programCode = rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode() + p.getProgramCode();
         p.setProgramCode(programCode);
         Map<String, Object> params = new HashMap<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         int labelId = this.labelDao.addLabel(p.getLabel(), LabelConstants.RM_PROGRAM, curUser.getUserId());
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program").usingGeneratedKeyColumns("PROGRAM_ID");
         params.put("PROGRAM_CODE", p.getProgramCode());
+        params.put("REALM_ID", rc.getRealm().getRealmId());
         params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
         params.put("ORGANISATION_ID", p.getOrganisation().getId());
         params.put("HEALTH_AREA_ID", p.getHealthArea().getId());
