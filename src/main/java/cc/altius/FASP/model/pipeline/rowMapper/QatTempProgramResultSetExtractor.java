@@ -33,6 +33,7 @@ public class QatTempProgramResultSetExtractor implements ResultSetExtractor<QatT
         while (rs.next()) {
             if (isFirst) {
                 p.setProgramId(rs.getInt("PROGRAM_ID"));
+                p.setProgramCode(rs.getString("PROGRAM_CODE"));
                 p.setRealmCountry(
                         new RealmCountry(
                                 rs.getInt("REALM_COUNTRY_ID"),
@@ -98,6 +99,5 @@ public class QatTempProgramResultSetExtractor implements ResultSetExtractor<QatT
             return null;
         }
     }
-
 
 }
