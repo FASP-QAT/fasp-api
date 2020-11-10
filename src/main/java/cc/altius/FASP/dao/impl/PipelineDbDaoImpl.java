@@ -105,7 +105,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     private RealmCountryDao realmCountryDao;
 
     public String sqlListString = "SELECT  "
-            + "      p.ARRIVED_TO_DELIVERED_LEAD_TIME,p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME,p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME,"
+            + "      p.PROGRAM_CODE,p.ARRIVED_TO_DELIVERED_LEAD_TIME,p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME,p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME,"
             + "     p.PROGRAM_ID, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME,"// p.DRAFT_TO_SUBMITTED_LEAD_TIME,"
             + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME, p.APPROVED_TO_SHIPPED_LEAD_TIME, p.DELIVERED_TO_RECEIVED_LEAD_TIME, p.MONTHS_IN_PAST_FOR_AMC, p.MONTHS_IN_FUTURE_FOR_AMC,p.SHELF_LIFE, "
             + "     p.PROGRAM_NOTES, pm.USERNAME `PROGRAM_MANAGER_USERNAME`, pm.USER_ID `PROGRAM_MANAGER_USER_ID`, "
@@ -699,6 +699,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
 //        int labelId = this.labelDao.addLabel(p.getLabel(), curUser.getUserId());
         int labelId = this.addQatTempLabel(p.getLabel(), curUser.getUserId());
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("qat_temp_program").usingGeneratedKeyColumns("PROGRAM_ID");
+        params.put("PROGRAM_CODE", p.getProgramCode());
         params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
         params.put("ORGANISATION_ID", p.getOrganisation().getId());
         params.put("HEALTH_AREA_ID", p.getHealthArea().getId());
@@ -796,7 +797,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "m.MethodName as PIPELINE_PRODUCT_CATEGORY, "
                 + "p.PIPELINE_PRODUCT_ID, "
                 + "p.PLANNING_UNIT_ID,p.MULTIPLIER, "
-                + "COALESCE(p.REORDER_FREQUENCY_IN_MONTHS,ap.ProductMaxMonths-ap.ProductMinMonths)REORDER_FREQUENCY_IN_MONTHS, "
+                + "COALESCE(p.REORDER_FREQUENCY_IN_MONTHS,ap.ProdDesStock-ap.ProductMinMonths)REORDER_FREQUENCY_IN_MONTHS, "
                 + "p.MIN_MONTHS_OF_STOCK, "
                 + "fu.PRODUCT_CATEGORY_ID,  "
                 + " COALESCE(p.LOCAL_PROCUREMENT_LEAD_TIME,-1) LOCAL_PROCUREMENT_LEAD_TIME, "
@@ -820,8 +821,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     + "  p.ProductMinMonths as MIN_MONTHS_OF_STOCK,\n"
                     + "  if(pu.PLANNING_UNIT_ID IS NULL,p.ProductName,pu.PLANNING_UNIT_ID) as PLANNING_UNIT_ID,\n"
                     + "  if(fu.FORECASTING_UNIT_ID IS NULL,'',fu.PRODUCT_CATEGORY_ID) as PRODUCT_CATEGORY_ID,\n"
-                    +"   (p.ProdDesStock-p.ProductMinMonths) as REORDER_FREQUENCY_IN_MONTHS,\n"
-//                    + "  (p.ProductMaxMonths-p.ProductMinMonths) as REORDER_FREQUENCY_IN_MONTHS,\n"
+                    + "   (p.ProdDesStock-p.ProductMinMonths) as REORDER_FREQUENCY_IN_MONTHS,\n"
+                    //                    + "  (p.ProductMaxMonths-p.ProductMinMonths) as REORDER_FREQUENCY_IN_MONTHS,\n"
                     + "  '-1' as LOCAL_PROCUREMENT_LEAD_TIME,\n"
                     + "  COALESCE(qtp.SHELF_LIFE,'') as SHELF_LIFE,\n"
                     + "  IFNULL(price.UnitPrice,-1) as CATALOG_PRICE,\n"
@@ -1304,8 +1305,9 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     @Transactional
     public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser) {
         QatTempProgram p = this.getQatTempProgram(curUser, pipelineId);
+        String pCode = p.getProgramCode();
         RealmCountry rc = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
-        String programCode = rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode() + p.getProgramCode();
+        String programCode = !"".equals(pCode) ? rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode() + "-" + p.getProgramCode() : rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
         p.setProgramCode(programCode);
         Map<String, Object> params = new HashMap<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);

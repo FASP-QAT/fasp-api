@@ -41,7 +41,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
-import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -107,6 +106,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 + "  `RECIPIENT_NAME` varchar(100) COLLATE utf8_bin DEFAULT NULL, "
                 + "  `RECIPIENT_COUNTRY` varchar(100) COLLATE utf8_bin DEFAULT NULL, "
                 + "  `STATUS` int(11) DEFAULT NULL, "
+                + "  `CHANGE_CODE` int(11) NOT NULL, "
                 + "  `PROGRAM_ID` int(11) DEFAULT NULL, "
                 + "  `SHIPMENT_ID` int(11) DEFAULT NULL, "
                 + "  PRIMARY KEY (`TEMP_ID`), "
@@ -163,6 +163,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     map.put("CARRIER_SERVICE_CODE", dataRecordElement.getElementsByTagName("carrier_service_code").item(0).getTextContent());
                     map.put("RECIPIENT_NAME", dataRecordElement.getElementsByTagName("recipient_name").item(0).getTextContent());
                     map.put("RECIPIENT_COUNTRY", dataRecordElement.getElementsByTagName("recipient_country").item(0).getTextContent());
+                    map.put("CHANGE_CODE", dataRecordElement.getElementsByTagName("change_code").item(0).getTextContent());
                     map.put("PROGRAM_ID", (dataRecordElement.getElementsByTagName("qat_program_id").item(0).getTextContent() != null && dataRecordElement.getElementsByTagName("qat_program_id").item(0).getTextContent() != "" ? dataRecordElement.getElementsByTagName("qat_program_id").item(0).getTextContent() : null));
                     map.put("SHIPMENT_ID", (dataRecordElement.getElementsByTagName("qat_shipment_id").item(0).getTextContent() != null && dataRecordElement.getElementsByTagName("qat_shipment_id").item(0).getTextContent() != "" && !dataRecordElement.getElementsByTagName("qat_shipment_id").item(0).getTextContent().equals("-99") ? dataRecordElement.getElementsByTagName("qat_shipment_id").item(0).getTextContent() : null));
                     batchParams[x] = new MapSqlParameterSource(map);
@@ -174,13 +175,13 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     + "`PO_RELEASED_FOR_FULFILLMENT_DATE`, `LATEST_ESTIMATED_DELIVERY_DATE`, `REQ_DELIVERY_DATE`, `REVISED_AGREED_DELIVERY_DATE`, `ITEM_SUPPLIER_NAME`, "
                     + "`UNIT_PRICE`, `STATUS_NAME`, `EXTERNAL_STATUS_STAGE`, `SHIPPING_CHARGES`, `FREIGHT_ESTIMATE`, "
                     + "`TOTAL_ACTUAL_FREIGHT_COST`, `CARRIER_SERVICE_CODE`, `RECIPIENT_NAME`, `RECIPIENT_COUNTRY`, "
-                    + "`PROGRAM_ID`, `SHIPMENT_ID`) VALUES "
+                    + "`CHANGE_CODE`, `PROGRAM_ID`, `SHIPMENT_ID`) VALUES "
                     + "(:RO_NO, :RO_PRIME_LINE_NO, :ORDER_NO, :PRIME_LINE_NO, :ORDER_TYPE_IND, "
                     + ":ORDER_ENTRY_DATE, :PARENT_RO, :PARENT_ORDER_ENTRY_DATE, :ITEM_ID, :ORDERED_QTY, "
                     + ":PO_RELEASED_FOR_FULFILLMENT_DATE, :LATEST_ESTIMATED_DELIVERY_DATE, :REQ_DELIVERY_DATE, :REVISED_AGREED_DELIVERY_DATE, :ITEM_SUPPLIER_NAME, "
                     + ":UNIT_PRICE, :STATUS_NAME, :EXTERNAL_STATUS_STAGE, :SHIPPING_CHARGES, :FREIGHT_ESTIMATE, "
                     + ":TOTAL_ACTUAL_FREIGHT_COST, :CARRIER_SERVICE_CODE, :RECIPIENT_NAME, :RECIPIENT_COUNTRY, "
-                    + ":PROGRAM_ID, :SHIPMENT_ID)";
+                    + ":CHANGE_CODE, :PROGRAM_ID, :SHIPMENT_ID)";
             SqlParameterSource[] batchSqlParams = ArrayUtils.toArray(batchParams);
             rows1 = this.namedParameterJdbcTemplate.batchUpdate(sqlString, batchSqlParams);
             logger.info("Successfully inserted into tmp_erp_order records---" + rows1.length);
@@ -206,6 +207,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 + "  `ACTUAL_DELIVERY_DATE` varchar(45) COLLATE utf8_bin DEFAULT NULL, "
                 + "  `ARRIVAL_AT_DESTINATION_DATE` varchar(45) COLLATE utf8_bin DEFAULT NULL, "
                 + "  `STATUS` int(11) DEFAULT NULL, "
+                + "  `CHANGE_CODE` int(11) NOT NULL, "
                 + "  PRIMARY KEY (`TEMP_SHIPMENT_ID`), "
                 + "  UNIQUE KEY `TEMP_SHIPMENT_ID_UNIQUE` (`TEMP_SHIPMENT_ID`) "
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
@@ -229,10 +231,10 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
             x = 0;
             sqlString = "INSERT INTO tmp_erp_shipment (`KN_SHIPMENT_NO`, `ORDER_NO`, `PRIME_LINE_NO`, `BATCH_NO`, `ITEM_ID`, "
                     + "`EXPIRATION_DATE`, `SHIPPED_QUANTITY`, `DELIVERED_QUANTITY`, `STATUS_NAME`, `EXTERNAL_STATUS_STAGE`, "
-                    + "`ACTUAL_SHIPMENT_DATE`, `ACTUAL_DELIVERY_DATE`, `ARRIVAL_AT_DESTINATION_DATE`) "
+                    + "`ACTUAL_SHIPMENT_DATE`, `ACTUAL_DELIVERY_DATE`, `ARRIVAL_AT_DESTINATION_DATE`, `CHANGE_CODE`) "
                     + "VALUES (:KN_SHIPMENT_NO, :ORDER_NO, :PRIME_LINE_NO, :BATCH_NO, :ITEM_ID, "
                     + ":EXPIRATION_DATE, :SHIPPED_QUANTITY, :DELIVERED_QUANTITY, :STATUS_NAME, :EXTERNAL_STATUS_STAGE, "
-                    + ":ACTUAL_SHIPMENT_DATE, :ACTUAL_DELIVERY_DATE, :ARRIVAL_AT_DESTINATION_DATE)";
+                    + ":ACTUAL_SHIPMENT_DATE, :ACTUAL_DELIVERY_DATE, :ARRIVAL_AT_DESTINATION_DATE, :CHANGE_CODE)";
             for (int temp2 = 0; temp2 < nList2.getLength(); temp2++) {
                 Node nNode1 = nList2.item(temp2);
                 if (nNode1.getNodeType() == Node.ELEMENT_NODE) {
@@ -250,6 +252,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     map.put("ACTUAL_SHIPMENT_DATE", dataRecordElement.getElementsByTagName("actual_shipment_date").item(0).getTextContent().isBlank() ? null : dataRecordElement.getElementsByTagName("actual_shipment_date").item(0).getTextContent());
                     map.put("ACTUAL_DELIVERY_DATE", dataRecordElement.getElementsByTagName("actual_delivery_date").item(0).getTextContent().isBlank() ? null : dataRecordElement.getElementsByTagName("actual_delivery_date").item(0).getTextContent());
                     map.put("ARRIVAL_AT_DESTINATION_DATE", dataRecordElement.getElementsByTagName("arrival_at_destination_date").item(0).getTextContent().isBlank() ? null : dataRecordElement.getElementsByTagName("arrival_at_destination_date").item(0).getTextContent());
+                    map.put("CHANGE_CODE", dataRecordElement.getElementsByTagName("change_code").item(0).getTextContent());
                     batchParams[x] = new MapSqlParameterSource(map);
                     x++;
                 }
@@ -301,12 +304,12 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 + "`PARENT_RO`, `PARENT_CREATED_DATE`, `PLANNING_UNIT_SKU_CODE`, `PROCUREMENT_UNIT_SKU_CODE`, `QTY`, "
                 + "`ORDERD_DATE`, `CURRENT_ESTIMATED_DELIVERY_DATE`, `REQ_DELIVERY_DATE`, `AGREED_DELIVERY_DATE`, `SUPPLIER_NAME`, "
                 + "`PRICE`, `SHIPPING_COST`, `SHIP_BY`, `RECPIENT_NAME`, `RECPIENT_COUNTRY`, "
-                + "`STATUS`, `PROCUREMENT_AGENT_ID`, `LAST_MODIFIED_DATE`, `FLAG`, `VERSION_ID`, `PROGRAM_ID`, `SHIPMENT_ID`, `CREATED_DATE`, `FILE_NAME`) "
+                + "`STATUS`, `CHANGE_CODE`, `PROCUREMENT_AGENT_ID`, `LAST_MODIFIED_DATE`, `FLAG`, `VERSION_ID`, `PROGRAM_ID`, `SHIPMENT_ID`, `CREATED_DATE`, `FILE_NAME`) "
                 + " SELECT t.RO_NO, t.RO_PRIME_LINE_NO, t.ORDER_NO, t.PRIME_LINE_NO, t.ORDER_TYPE_IND,"
                 + " t.PARENT_RO, DATE_FORMAT(t.PARENT_ORDER_ENTRY_DATE,'%Y-%m-%d %H:%i:%s'), LEFT(t.ITEM_ID, 12), IF(LENGTH(t.ITEM_ID)=15,t.ITEM_ID,NULL), t.ORDERED_QTY,"
                 + " IFNULL(DATE_FORMAT(t.PO_RELEASED_FOR_FULFILLMENT_DATE,'%Y-%m-%d'),NULL), IFNULL(DATE_FORMAT(t.LATEST_ESTIMATED_DELIVERY_DATE,'%Y-%m-%d'),NULL), IFNULL(DATE_FORMAT(t.REQ_DELIVERY_DATE,'%Y-%m-%d'),NULL), IFNULL(DATE_FORMAT(t.REVISED_AGREED_DELIVERY_DATE,'%Y-%m-%d'),NULL), t.ITEM_SUPPLIER_NAME, "
                 + " t.UNIT_PRICE,COALESCE(t.TOTAL_ACTUAL_FREIGHT_COST,t.SHIPPING_CHARGES,t.FREIGHT_ESTIMATE), t.CARRIER_SERVICE_CODE, t.RECIPIENT_NAME, t.RECIPIENT_COUNTRY,"
-                + " t.EXTERNAL_STATUS_STAGE, 1, :curDate, 1, NULL, t.PROGRAM_ID, t.SHIPMENT_ID, DATE_FORMAT(t.ORDER_ENTRY_DATE,'%Y-%m-%d'), :orderFileName "
+                + " t.EXTERNAL_STATUS_STAGE, t.CHANGE_CODE, 1, :curDate, 1, NULL, t.PROGRAM_ID, t.SHIPMENT_ID, DATE_FORMAT(t.ORDER_ENTRY_DATE,'%Y-%m-%d'), :orderFileName "
                 + " FROM tmp_erp_order t ";
         int rows = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info("No of rows inserted into rm_erp_order---" + rows);
@@ -333,10 +336,10 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
         //Insert into erp shipment table
         sqlString = "INSERT INTO rm_erp_shipment (KN_SHIPMENT_NO, ORDER_NO, PRIME_LINE_NO, BATCH_NO, "
                 + "EXPIRY_DATE, PROCUREMENT_UNIT_SKU_CODE, SHIPPED_QTY, DELIVERED_QTY, ACTUAL_SHIPMENT_DATE, "
-                + "ACTUAL_DELIVERY_DATE, ARRIVAL_AT_DESTINATION_DATE, STATUS, LAST_MODIFIED_DATE, FLAG, FILE_NAME)"
+                + "ACTUAL_DELIVERY_DATE, ARRIVAL_AT_DESTINATION_DATE, STATUS, CHANGE_CODE, LAST_MODIFIED_DATE, FLAG, FILE_NAME)"
                 + "SELECT t.KN_SHIPMENT_NO, t.ORDER_NO, t.PRIME_LINE_NO, t.BATCH_NO,"
                 + "DATE_FORMAT(t.EXPIRATION_DATE,'%Y-%m-%d %H:%i:%s'), IF(LENGTH(t.ITEM_ID)=15,t.ITEM_ID, null), t.SHIPPED_QUANTITY, t.DELIVERED_QUANTITY, DATE_FORMAT(t.ACTUAL_SHIPMENT_DATE,'%Y-%m-%d %H:%i:%s'), "
-                + "DATE_FORMAT(t.ACTUAL_DELIVERY_DATE,'%Y-%m-%d %H:%i:%s'), DATE_FORMAT(t.ARRIVAL_AT_DESTINATION_DATE,'%Y-%m-%d %H:%i:%s'), t.EXTERNAL_STATUS_STAGE, :curDate, 1, :shipmentFileName "
+                + "DATE_FORMAT(t.ACTUAL_DELIVERY_DATE,'%Y-%m-%d %H:%i:%s'), DATE_FORMAT(t.ARRIVAL_AT_DESTINATION_DATE,'%Y-%m-%d %H:%i:%s'), t.EXTERNAL_STATUS_STAGE, t.CHANGE_CODE, :curDate, 1, :shipmentFileName "
                 + "FROM  tmp_erp_shipment t";
         rows = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info("No of rows inserted into rm_erp_shipment---" + rows);
@@ -378,7 +381,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 + "    eo.ORDER_TYPE, eo.CREATED_DATE, eo.PARENT_RO, eo.PARENT_CREATED_DATE, eo.PLANNING_UNIT_SKU_CODE,  "
                 + "    eo.PROCUREMENT_UNIT_SKU_CODE, eo.QTY, eo.ORDERD_DATE, eo.CURRENT_ESTIMATED_DELIVERY_DATE, eo.REQ_DELIVERY_DATE,  "
                 + "    eo.AGREED_DELIVERY_DATE, eo.SUPPLIER_NAME, eo.PRICE, eo.SHIPPING_COST, eo.SHIP_BY,  "
-                + "    eo.RECPIENT_NAME, eo.RECPIENT_COUNTRY, eo.`STATUS`, ssm.SHIPMENT_STATUS_ID, eo.MANUAL_TAGGING, "
+                + "    eo.RECPIENT_NAME, eo.RECPIENT_COUNTRY, eo.`STATUS`, eo.`CHANGE_CODE`, ssm.SHIPMENT_STATUS_ID, eo.MANUAL_TAGGING, "
                 + "    MIN(es.ACTUAL_DELIVERY_DATE) `ACTUAL_DELIVERY_DATE`, MIN(es.ACTUAL_SHIPMENT_DATE) `ACTUAL_SHIPMENT_DATE`, MIN(es.ARRIVAL_AT_DESTINATION_DATE) `ARRIVAL_AT_DESTINATION_DATE`, "
                 + "    es.BATCH_NO, COALESCE(es.DELIVERED_QTY, es.SHIPPED_QTY) `BATCH_QTY`, "
                 + "    pu.PLANNING_UNIT_ID, papu2.PROCUREMENT_UNIT_ID, pu2.SUPPLIER_ID, ppu.SHELF_LIFE, "
@@ -390,12 +393,12 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 + "        e.ORDER_TYPE, e.CREATED_DATE, e.PARENT_RO, e.PARENT_CREATED_DATE, e.PLANNING_UNIT_SKU_CODE,  "
                 + "        e.PROCUREMENT_UNIT_SKU_CODE, e.QTY, e.ORDERD_DATE, e.CURRENT_ESTIMATED_DELIVERY_DATE, e.REQ_DELIVERY_DATE,  "
                 + "        e.AGREED_DELIVERY_DATE, e.SUPPLIER_NAME, e.PRICE, e.SHIPPING_COST, e.SHIP_BY, IF(mt.MANUAL_TAGGING_ID IS not null, true, false) `MANUAL_TAGGING`, "
-                + "        e.RECPIENT_NAME, e.RECPIENT_COUNTRY, e.STATUS, COALESCE(e.PROGRAM_ID, mts.PROGRAM_ID) `PROGRAM_ID`, COALESCE(e.SHIPMENT_ID, mt.SHIPMENT_ID) `SHIPMENT_ID` "
+                + "        e.RECPIENT_NAME, e.RECPIENT_COUNTRY, e.STATUS, e.CHANGE_CODE, COALESCE(e.PROGRAM_ID, mts.PROGRAM_ID) `PROGRAM_ID`, COALESCE(e.SHIPMENT_ID, mt.SHIPMENT_ID) `SHIPMENT_ID` "
                 + "    FROM rm_erp_order e   "
                 + "    LEFT JOIN rm_shipment s ON e.SHIPMENT_ID=s.SHIPMENT_ID  "
                 + "    LEFT JOIN rm_manual_tagging mt ON e.ORDER_NO=mt.ORDER_NO AND e.PRIME_LINE_NO=mt.PRIME_LINE_NO and mt.ACTIVE "
                 + "    LEFT JOIN rm_shipment mts ON mt.SHIPMENT_ID=mts.SHIPMENT_ID   "
-                + "    WHERE e.`FILE_NAME`=:orderFileName AND (e.SHIPMENT_ID IS NOT NULL OR mt.MANUAL_TAGGING_ID IS NOT NULL AND s.SHIPMENT_ID IS NOT null) "
+                + "    WHERE e.`FILE_NAME`=:orderFileName AND (e.SHIPMENT_ID IS NOT NULL OR mt.MANUAL_TAGGING_ID IS NOT NULL) AND (s.SHIPMENT_ID IS NOT null OR mts.SHIPMENT_ID IS NOT NULL)  "
                 + ") eo "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=eo.`PLANNING_UNIT_SKU_CODE` AND papu.`PROCUREMENT_AGENT_ID`=1   "
                 + "LEFT JOIN vw_planning_unit pu ON papu.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID`   "
@@ -424,12 +427,23 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 logger.info("ERP Flag - " + erpOrderDTO.getShErpFlag());
                 logger.info("ParentShipmentId - " + erpOrderDTO.getShParentShipmentId());
                 logger.info("Shipment Id - " + erpOrderDTO.getShShipmentId());
+                logger.info("Change code - " + erpOrderDTO.getEoChangeCode());
                 logger.info("ManualTagging - " + erpOrderDTO.isManualTagging());
                 if (erpOrderDTO.getShProgramId() == 0 || erpOrderDTO.getShShipmentId() == 0) {
                     logger.info("Either Program Id is 0 or Shipment Id is 0 so skipping this record");
-                    continue;
-                }
-                if (erpOrderDTO.isShErpFlag() && erpOrderDTO.getShParentShipmentId() == null) {
+                } else if (erpOrderDTO.getEoChangeCode() == 2) {
+                    // This is the Delete code so go ahead and delete this Order
+                    logger.info("Change code is 2 so therefore delete this line item where shipmentId=" + erpOrderDTO.getShShipmentId());
+                    sqlString = "UPDATE rm_shipment s LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID SET st.ACTIVE=0, st.LAST_MODIFIED_BY=1, st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate WHERE s.PARENT_SHIPMENT_ID=:shipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo AND st.ACTIVE AND st.ERP_FLAG";
+                    params.clear();
+                    params.put("shipmentId", erpOrderDTO.getShShipmentId());
+                    params.put("orderNo", erpOrderDTO.getEoOrderNo());
+                    params.put("primeLineNo", erpOrderDTO.getEoPrimeLineNo());
+                    params.put("curDate", curDate);
+                    rows = this.namedParameterJdbcTemplate.update(sqlString, params);
+                    logger.info(rows + " rows updated");
+
+                } else if (erpOrderDTO.isShErpFlag() && erpOrderDTO.getShParentShipmentId() == null) {
                     // The ERP Flag is true and the Parent Shipment Id is null
                     logger.info("ERP Flag is true and Parent Shipment Id is null");
                     // Find all Shipments whose Parent Shipment Id is :parentShipmentId and :orderNo and :primeLineNo are matching
@@ -441,7 +455,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                             + "    FROM rm_shipment s "
                             + "LEFT JOIN (SELECT s.SHIPMENT_ID, MAX(st.VERSION_ID) MAX_VERSION_ID FROM rm_shipment s left join rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID WHERE s.PARENT_SHIPMENT_ID=:parentShipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo group by st.SHIPMENT_ID) sm ON sm.SHIPMENT_ID=s.SHIPMENT_ID "
                             + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID=sm.MAX_VERSION_ID "
-                            + "WHERE s.PARENT_SHIPMENT_ID=:parentShipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo";
+                            + "WHERE s.PARENT_SHIPMENT_ID=:parentShipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo AND st.ERP_FLAG=1 AND st.ACTIVE";
                     try {
                         logger.info("Trying to see if the ShipmentTrans exists with the same orderNo, primeLineNo and parentShipmentId");
                         int shipmentTransId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);

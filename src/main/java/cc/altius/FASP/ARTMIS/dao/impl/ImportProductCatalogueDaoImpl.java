@@ -89,7 +89,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     @Value("${email.ccList}")
     private String ccList;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static final String br = "<br/>";
+    private static final String br = "\n<br/>";
 
     @Override
     @Transactional

@@ -18,8 +18,8 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
 public class FileSortTest {
 
     public static void main(String[] args) {
-        File dir = new File("/home/ubuntu/ARTMIS/");
-        FileFilter fileFilter = new WildcardFileFilter("item_data_*.xml");
+        File dir = new File("/home/ubuntu/QAT/ARTMIS/");
+        FileFilter fileFilter = new WildcardFileFilter("item_data*.xml");
         File[] files = dir.listFiles(fileFilter);
         Arrays.sort(files, new FileNameComparator());
         for (File f : files) {
