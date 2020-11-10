@@ -22,6 +22,9 @@ public class PplPrograminfoRowMapper implements RowMapper<PplPrograminfo> {
         pi.setCountryname(rs.getString("CountryName"));
         pi.setNote(rs.getString("Note"));
         pi.setProgramname(rs.getString("ProgramName"));
+        pi.setDefaultleadtimeorder(rs.getDouble("DefaultLeadTimeOrder"));
+        pi.setDefaultleadtimeplan(rs.getDouble("DefaultLeadTimePlan"));
+        pi.setDefaultleadtimeship(rs.getDouble("DefaultLeadTimeShip"));
         return pi;
     }
     
