@@ -607,7 +607,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
 
     @Override
     public PplPrograminfo getPipelineProgramInfoById(int pipelineId, CustomUserDetails curUser) {
-        String sql = "SELECT If(rc.REALM_COUNTRY_ID IS NULL,ap.CountryName,rc.REALM_COUNTRY_ID) as CountryName,ap.Note,ap.ProgramName  "
+        String sql = "SELECT If(rc.REALM_COUNTRY_ID IS NULL,ap.CountryName,rc.REALM_COUNTRY_ID) as CountryName,ap.Note,ap.ProgramName,ap.DefaultLeadTimeOrder,ap.DefaultLeadTimePlan,ap.DefaultLeadTimeShip   "
                 + "FROM fasp.adb_programinfo ap "
                 + "left join ap_label al on upper(al.LABEL_EN)=upper(ap.CountryName)  "
                 + "OR upper(al.LABEL_FR)=upper(ap.CountryName) OR upper(al.LABEL_SP)=upper(ap.CountryName)  "
