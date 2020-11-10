@@ -49,6 +49,7 @@ public class ErpOrderDTOListResultSetExtractor implements ResultSetExtractor<Lis
                 e.setEoRecipentName(rs.getString("RECPIENT_NAME"));
                 e.setEoRecipentCountry(rs.getString("RECPIENT_COUNTRY"));
                 e.setEoStatus(rs.getString("STATUS"));
+                e.setEoChangeCode(rs.getInt("CHANGE_CODE"));
                 e.setEoShipmentStatusId(rs.getInt("SHIPMENT_STATUS_ID"));
                 if (rs.wasNull()) {
                     e.setEoShipmentStatusId(null);
