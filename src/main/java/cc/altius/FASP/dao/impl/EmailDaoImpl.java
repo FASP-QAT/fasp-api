@@ -142,6 +142,7 @@ public class EmailDaoImpl implements EmailDao {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(from));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailer.getToSend()));
+            message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(emailer.getCcToSend()));
             message.setSubject(emailer.getSubject());
             message.setContent(emailer.getBody(),"text/html");
             Transport.send(message);
