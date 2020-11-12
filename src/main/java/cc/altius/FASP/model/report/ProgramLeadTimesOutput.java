@@ -26,17 +26,17 @@ public class ProgramLeadTimesOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
     @JsonView(Views.ReportView.class)
-    private double plannedToSubmittedLeadTime;
+    private Double plannedToSubmittedLeadTime;
     @JsonView(Views.ReportView.class)
-    private double submittedToApprovedLeadTime;
+    private Double submittedToApprovedLeadTime;
     @JsonView(Views.ReportView.class)
-    private double approvedToShippedLeadTime;
+    private Double approvedToShippedLeadTime;
     @JsonView(Views.ReportView.class)
-    private double shippedToArrivedByAirLeadTime;
+    private Double shippedToArrivedByAirLeadTime;
     @JsonView(Views.ReportView.class)
-    private double shippedToArrivedBySeaLeadTime;
+    private Double shippedToArrivedBySeaLeadTime;
     @JsonView(Views.ReportView.class)
-    private double arrivedToDeliveredLeadTime;
+    private Double arrivedToDeliveredLeadTime;
     @JsonView(Views.ReportView.class)
     private Double localProcurementAgentLeadTime;
 
@@ -72,51 +72,51 @@ public class ProgramLeadTimesOutput implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public double getPlannedSubmittedLeadTime() {
+    public Double getPlannedToSubmittedLeadTime() {
         return plannedToSubmittedLeadTime;
     }
 
-    public void setPlannedToSubmittedLeadTime(double plannedToSubmittedLeadTime) {
+    public void setPlannedToSubmittedLeadTime(Double plannedToSubmittedLeadTime) {
         this.plannedToSubmittedLeadTime = plannedToSubmittedLeadTime;
     }
 
-    public double getSubmittedToApprovedLeadTime() {
+    public Double getSubmittedToApprovedLeadTime() {
         return submittedToApprovedLeadTime;
     }
 
-    public void setSubmittedToApprovedLeadTime(double submittedToApprovedLeadTime) {
+    public void setSubmittedToApprovedLeadTime(Double submittedToApprovedLeadTime) {
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
     }
 
-    public double getApprovedToShippedLeadTime() {
+    public Double getApprovedToShippedLeadTime() {
         return approvedToShippedLeadTime;
     }
 
-    public void setApprovedToShippedLeadTime(double approvedToShippedLeadTime) {
+    public void setApprovedToShippedLeadTime(Double approvedToShippedLeadTime) {
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
     }
 
-    public double getShippedToArrivedByAirLeadTime() {
+    public Double getShippedToArrivedByAirLeadTime() {
         return shippedToArrivedByAirLeadTime;
     }
 
-    public void setShippedToArrivedByAirLeadTime(double shippedToArrivedByAirLeadTime) {
+    public void setShippedToArrivedByAirLeadTime(Double shippedToArrivedByAirLeadTime) {
         this.shippedToArrivedByAirLeadTime = shippedToArrivedByAirLeadTime;
     }
 
-    public double getShippedToArrivedBySeaLeadTime() {
+    public Double getShippedToArrivedBySeaLeadTime() {
         return shippedToArrivedBySeaLeadTime;
     }
 
-    public void setShippedToArrivedBySeaLeadTime(double shippedToArrivedBySeaLeadTime) {
+    public void setShippedToArrivedBySeaLeadTime(Double shippedToArrivedBySeaLeadTime) {
         this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
     }
 
-    public double getArrivedToDeliveredLeadTime() {
+    public Double getArrivedToDeliveredLeadTime() {
         return arrivedToDeliveredLeadTime;
     }
 
-    public void setArrivedToDeliveredLeadTime(double arrivedToDeliveredLeadTime) {
+    public void setArrivedToDeliveredLeadTime(Double arrivedToDeliveredLeadTime) {
         this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
     }
 
@@ -128,12 +128,33 @@ public class ProgramLeadTimesOutput implements Serializable {
         this.localProcurementAgentLeadTime = localProcurementAgentLeadTime;
     }
 
-    public double getTotalSeaLeadTime() {
-        return this.plannedToSubmittedLeadTime + this.submittedToApprovedLeadTime + this.approvedToShippedLeadTime + this.shippedToArrivedBySeaLeadTime + this.arrivedToDeliveredLeadTime;
+    @JsonView(Views.ReportView.class)
+    public Double getTotalSeaLeadTime() {
+        double d = (this.plannedToSubmittedLeadTime == null ? 0 : this.plannedToSubmittedLeadTime)
+                + (this.submittedToApprovedLeadTime == null ? 0 : this.submittedToApprovedLeadTime)
+                + (this.approvedToShippedLeadTime == null ? 0 : this.approvedToShippedLeadTime)
+                + (this.shippedToArrivedBySeaLeadTime == null ? 0 : this.shippedToArrivedBySeaLeadTime)
+                + (this.arrivedToDeliveredLeadTime == null ? 0 : this.arrivedToDeliveredLeadTime);
+        if (d == 0) {
+            return null;
+        } else {
+            return d;
+        }
     }
 
-    public double getTotalAirLeadTime() {
-        return this.plannedToSubmittedLeadTime + this.submittedToApprovedLeadTime + this.approvedToShippedLeadTime + this.shippedToArrivedByAirLeadTime + this.arrivedToDeliveredLeadTime;
+    @JsonView(Views.ReportView.class)
+    public Double getTotalAirLeadTime() {
+        double d = (this.plannedToSubmittedLeadTime != null ? this.plannedToSubmittedLeadTime : 0)
+                + (this.submittedToApprovedLeadTime != null ? this.submittedToApprovedLeadTime : 0)
+                + (this.approvedToShippedLeadTime != null ? this.approvedToShippedLeadTime : 0)
+                + (this.shippedToArrivedByAirLeadTime != null ? this.shippedToArrivedByAirLeadTime : 0)
+                + (this.arrivedToDeliveredLeadTime != null ? this.arrivedToDeliveredLeadTime : 0
+        );
+        if (d == 0) {
+            return null;
+        } else {
+            return d;
+        }
     }
 
     @Override
