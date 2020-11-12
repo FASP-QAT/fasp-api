@@ -128,7 +128,6 @@ public class EmailDaoImpl implements EmailDao {
             props.setProperty("mail.smtp.socketFactory.port", "587");
             props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
 
-
 //            props.setProperty("mail.transport.protocol", "smtp");
             props.setProperty("mail.user", from);
             props.setProperty("mail.password", password);
@@ -142,9 +141,11 @@ public class EmailDaoImpl implements EmailDao {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(from));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailer.getToSend()));
-            message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(emailer.getCcToSend()));
+            if (emailer.getCcToSend() != null && emailer.getCcToSend() != "") {
+                message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(emailer.getCcToSend()));
+            }
             message.setSubject(emailer.getSubject());
-            message.setContent(emailer.getBody(),"text/html");
+            message.setContent(emailer.getBody(), "text/html");
             Transport.send(message);
             status = 1; //1 for success
             attempts++;
