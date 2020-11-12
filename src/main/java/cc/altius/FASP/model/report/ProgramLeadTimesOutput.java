@@ -135,4 +135,10 @@ public class ProgramLeadTimesOutput implements Serializable {
     public double getTotalAirLeadTime() {
         return this.plannedToSubmittedLeadTime + this.submittedToApprovedLeadTime + this.approvedToShippedLeadTime + this.shippedToArrivedByAirLeadTime + this.arrivedToDeliveredLeadTime;
     }
+
+    @Override
+    public String toString() {
+        return "ProgramLeadTimesOutput{" + "country=" + country + ", program=" + program + ", procurementAgent=" + procurementAgent + ", planningUnit=" + planningUnit + ", plannedToSubmittedLeadTime=" + plannedToSubmittedLeadTime + ", submittedToApprovedLeadTime=" + submittedToApprovedLeadTime + ", approvedToShippedLeadTime=" + approvedToShippedLeadTime + ", shippedToArrivedByAirLeadTime=" + shippedToArrivedByAirLeadTime + ", shippedToArrivedBySeaLeadTime=" + shippedToArrivedBySeaLeadTime + ", arrivedToDeliveredLeadTime=" + arrivedToDeliveredLeadTime + ", localProcurementAgentLeadTime=" + localProcurementAgentLeadTime + '}';
+    }
+
 }
