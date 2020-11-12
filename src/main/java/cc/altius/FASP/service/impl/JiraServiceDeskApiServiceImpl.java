@@ -239,7 +239,7 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
         HttpEntity<String> entity = new HttpEntity<String>("", headers);
 
         response = restTemplate.exchange(
-                JIRA_SERVICE_DESK_API_URL + "/servicedesk/2/customer", HttpMethod.GET, entity, String.class);
+                JIRA_SERVICE_DESK_API_URL + "/servicedesk/" + JIRA_PROJECT_NAME + "/customer", HttpMethod.GET, entity, String.class);
         
         if (response.getStatusCode() == HttpStatus.OK) {
 

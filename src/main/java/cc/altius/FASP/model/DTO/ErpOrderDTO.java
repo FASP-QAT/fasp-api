@@ -45,6 +45,7 @@ public class ErpOrderDTO {
     private String eoRecipentName;
     private String eoRecipentCountry;
     private String eoStatus;
+    private int eoChangeCode;
     private Integer eoShipmentStatusId;
     private Date eoActualShipmentDate;
     private Date eoActualDeliveryDate;
@@ -284,6 +285,14 @@ public class ErpOrderDTO {
 
     public void setEoStatus(String eoStatus) {
         this.eoStatus = eoStatus;
+    }
+
+    public int getEoChangeCode() {
+        return eoChangeCode;
+    }
+
+    public void setEoChangeCode(int eoChangeCode) {
+        this.eoChangeCode = eoChangeCode;
     }
 
     public Integer getEoShipmentStatusId() {

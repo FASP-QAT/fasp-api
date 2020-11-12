@@ -114,18 +114,19 @@ public class EmailDaoImpl implements EmailDao {
         int status = 0;
         String reason = null;
         int attempts = emailer.getAttempts();
-        String from = "fasptestemail@gmail.com";
-        String password = "pass123%$";
+        String from = "QAT_noreply@quantificationanalytics.org";
+//        String from = "fasptestemail@gmail.com";
+        String password = "#RockyMountains#";
+//        String password = "pass123%$";
         try {
             Properties props = System.getProperties();
             props.setProperty("mail.smtp.starttls.enable", "true");
-            props.setProperty("mail.host", "smtp.gmail.com");
+            props.setProperty("mail.host", "smtp.office365.com");
             props.setProperty("mail.smtp.port", "587");
 //            props.setProperty("mail.smtp.port", "587");
             props.setProperty("mail.smtp.auth", "true");
             props.setProperty("mail.smtp.socketFactory.port", "587");
             props.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
-
 
 //            props.setProperty("mail.transport.protocol", "smtp");
             props.setProperty("mail.user", from);
@@ -140,8 +141,11 @@ public class EmailDaoImpl implements EmailDao {
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(from));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(emailer.getToSend()));
+            if (emailer.getCcToSend() != null && emailer.getCcToSend() != "") {
+                message.setRecipients(Message.RecipientType.CC, InternetAddress.parse(emailer.getCcToSend()));
+            }
             message.setSubject(emailer.getSubject());
-            message.setContent(emailer.getBody(),"text/html");
+            message.setContent(emailer.getBody(), "text/html");
             Transport.send(message);
             status = 1; //1 for success
             attempts++;

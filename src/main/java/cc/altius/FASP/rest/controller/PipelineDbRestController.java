@@ -34,6 +34,7 @@ import cc.altius.FASP.model.pipeline.QatTempFundingSource;
 import cc.altius.FASP.model.pipeline.QatTempProcurementAgent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 
 /**
  *
@@ -242,6 +243,9 @@ public class PipelineDbRestController {
         CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
         try {
             return new ResponseEntity(this.pipelineDbService.finalSaveProgramData(pipelineId, curUser), HttpStatus.OK);
+        } catch (DuplicateKeyException d) {
+            logger.error("Error while trying to add Program", d);
+            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
             logger.error("/api//", e);
             return new ResponseEntity(new ResponseCode(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);

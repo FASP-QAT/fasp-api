@@ -41,6 +41,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
     private String QAT_FILE_PATH;
     @Value("${catalogFilePath}")
     private String CATALOG_FILE_PATH;
+    private static final String br = "\n<br/>";
 
     @Override
     @Transactional
@@ -49,7 +50,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         String[] subjectParam = new String[]{};
         String[] bodyParam = null;
         StringBuilder sb = new StringBuilder();
-        String br = "<br/>";
+        
         logger.info("-------------- Import ARTMIS Product Catalog job started ---------------");
         sb.append("-------------- Import ARTMIS Product Catalog job started ---------------").append(br);
         Emailer emailer = new Emailer();

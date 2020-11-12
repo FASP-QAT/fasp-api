@@ -25,8 +25,10 @@ import cc.altius.FASP.ARTMIS.service.ImportArtmisDataService;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
+import cc.altius.FASP.utils.FileNameComparator;
 import java.io.FileFilter;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
@@ -75,6 +77,7 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
         List<Integer> programList = new LinkedList<>();
         if (dir.isDirectory()) {
             File[] files = dir.listFiles(fileFilter);
+            Arrays.sort(files, new FileNameComparator());
             if (files.length > 0) {
                 for (File orderFile : files) {
                     orderFileName = orderFile.getName();
