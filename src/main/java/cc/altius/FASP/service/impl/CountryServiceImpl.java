@@ -48,4 +48,13 @@ public class CountryServiceImpl implements CountryService {
         return this.countryDao.getCountryListForSync(lastSyncDate);
     }
 
+    @Override
+    public List<Country> getCountryListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.countryDao.getCountryListForSyncProgram(programIdsString, curUser);
+        } else {
+            return null;
+        }
+    }
+
 }

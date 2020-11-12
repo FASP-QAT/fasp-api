@@ -105,4 +105,13 @@ public class ProcurementUnitServiceImpl implements ProcurementUnitService {
         return this.procurementUnitDao.getProcurementUnitListForSync(lastSyncDate, curUser);
     }
 
+    @Override
+    public List<ProcurementUnit> getProcurementUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.procurementUnitDao.getProcurementUnitListForSyncProgram(programIdsString, curUser);
+        } else {
+            return null;
+        }
+    }
+
 }

@@ -168,6 +168,15 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
+    public List<PlanningUnit> getPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.planningUnitDao.getPlanningUnitListForSyncProgram(programIdsString, curUser);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public List<PlanningUnit> getPlanningUnitListForProductCategory(int productCategoryId, boolean active, CustomUserDetails curUser) {
 
         if (productCategoryId != 0) {

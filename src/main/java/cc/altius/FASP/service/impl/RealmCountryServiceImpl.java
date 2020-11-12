@@ -140,8 +140,26 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     }
 
     @Override
+    public List<RealmCountry> getRealmCountryListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 1) {
+            return this.realmCountryDao.getRealmCountryListForSyncProgram(programIdsString, curUser);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.realmCountryDao.getRealmCountryPlanningUnitListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
+    public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.realmCountryDao.getRealmCountryPlanningUnitListForSync(programIdsString, curUser);
+        } else {
+            return null;
+        }
     }
 
 }

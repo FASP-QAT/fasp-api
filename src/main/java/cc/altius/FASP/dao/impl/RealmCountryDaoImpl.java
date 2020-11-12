@@ -299,12 +299,26 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
     }
 
     @Override
+    public List<RealmCountry> getRealmCountryListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        sqlStringBuilder.append(" ORDER BY c.COUNTRY_CODE");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
+    }
+
+    @Override
     public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForRealmCountryPlanningUnit).append(" AND rcpu.LAST_MODIFIED_DATE>:lastSyncDate ");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryPlanningUnitRowMapper());
+    }
+
+    @Override
+    public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
 }
