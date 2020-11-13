@@ -14,9 +14,9 @@ import java.io.Serializable;
  */
 public class RealmCountry extends BaseModel implements Serializable {
 
-    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private int realmCountryId;
-    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private Country country;
     @JsonView(Views.InternalView.class)
     private Realm realm;

@@ -14,9 +14,9 @@ import com.fasterxml.jackson.annotation.JsonView;
  */
 public class Region extends BaseModel {
 
-    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private int regionId;
-    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private Label label;
     @JsonView(Views.InternalView.class)
     private RealmCountry realmCountry;

@@ -17,7 +17,7 @@ public class Label extends BaseModel {
 
     @JsonView(Views.InternalView.class)
     private Integer labelId;
-    @JsonView({Views.ArtmisView.class, Views.InternalView.class, Views.ReportView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class})
     private String label_en;
     @JsonView({Views.InternalView.class, Views.ReportView.class})
     private String label_sp;

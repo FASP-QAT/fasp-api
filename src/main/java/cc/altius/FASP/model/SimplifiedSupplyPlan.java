@@ -17,95 +17,95 @@ import java.util.Objects;
  */
 public class SimplifiedSupplyPlan implements Serializable {
 
-    @JsonView({Views.ArtmisView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class})
     private int supplyPlanId;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int programId;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int versionId;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int planningUnitId;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private String transDate;
 
     // Is null if there is no Consumption reported.
     // Is true if the Consumption reported is Actual Consumption
     // Is false if the Consumption reported is Forecasted Consumption
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private Boolean actualFlag;
     // Is null if there is no Consumption reported
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private Integer consumptionQty;
     // Is 0 if there is no Shipment in that period
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int receivedShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int shippedShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int approvedShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int submittedShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int plannedShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int onholdShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int receivedErpShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int shippedErpShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int approvedErpShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int submittedErpShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int plannedErpShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int onholdErpShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int stockQty;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int adjustmentQty;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int regionCount;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int regionCountForStock;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private Double amc;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int amcCount;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double minStock;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double minStockMoS;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double maxStock;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double maxStockMoS;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private List<SimpleBatchQuantity> batchDetails;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int expiredStock;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int expiredStockWps;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int unmetDemand;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int unmetDemandWps;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int openingBalance;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int openingBalanceWps;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int closingBalance;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int closingBalanceWps;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int nationalAdjustment;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int nationalAdjustmentWps;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private Double mos;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private Double mosWps;
 
     public SimplifiedSupplyPlan() {

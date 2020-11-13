@@ -14,11 +14,11 @@ import java.io.Serializable;
  */
 public class ShipmentBatchInfo implements Serializable {
 
-    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private int shipmentTransBatchInfoId;
-    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private Batch batch;
-    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private int shipmentQty;
 
     public int getShipmentTransBatchInfoId() {

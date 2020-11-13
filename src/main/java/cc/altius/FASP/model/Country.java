@@ -16,11 +16,11 @@ public class Country extends BaseModel implements Serializable {
 
     @JsonView(Views.InternalView.class)
     private int countryId;
-    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private String countryCode;
-    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private String countryCode2;
-    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private Label label;
     @JsonView(Views.InternalView.class)
     private SimpleObject currency;

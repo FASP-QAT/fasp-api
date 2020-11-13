@@ -15,6 +15,10 @@ public class Views {
         
     }
     
+    public interface GfpVanView {
+        
+    }
+    
     public interface InternalView {
         
     }
