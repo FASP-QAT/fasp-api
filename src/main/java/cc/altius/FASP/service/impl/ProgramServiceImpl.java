@@ -273,7 +273,7 @@ public class ProgramServiceImpl implements ProgramService {
         if (programIdsString.length() > 0) {
             return this.programDao.getProgramPlanningUnitListForSyncProgram(programIdsString, curUser);
         } else {
-            return null;
+            return new LinkedList<>();
         }
     }
 
