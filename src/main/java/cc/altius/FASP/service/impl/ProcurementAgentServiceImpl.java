@@ -14,6 +14,7 @@ import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProcurementAgentService;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -143,7 +144,7 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
         if (programIdsString.length() > 0) {
             return this.procurementAgentDao.getProcurementAgentPlanningUnitListForSyncProgram(programIdsString, curUser);
         } else {
-            return null;
+            return new LinkedList<>();
         }
     }
 
@@ -152,7 +153,7 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
         if (programIdsString.length() > 0) {
             return this.procurementAgentDao.getProcurementAgentProcurementUnitListForSyncProgram(programIdsString, curUser);
         } else {
-            return null;
+            return new LinkedList<>();
         }
     }
 

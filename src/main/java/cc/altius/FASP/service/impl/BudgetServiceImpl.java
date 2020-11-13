@@ -15,6 +15,7 @@ import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.BudgetService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmService;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
@@ -93,7 +94,7 @@ public class BudgetServiceImpl implements BudgetService {
         if (programIdsString.length()>0) {
             return this.budgetDao.getBudgetListForSyncProgram(programIdsString, curUser);
         } else {
-            return null;
+            return new LinkedList<>();
         }
     }
 

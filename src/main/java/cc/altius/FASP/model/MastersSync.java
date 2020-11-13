@@ -6,7 +6,6 @@
 package cc.altius.FASP.model;
 
 import cc.altius.utils.TreeUtils.Node;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
 import java.util.List;
 
@@ -14,7 +13,6 @@ import java.util.List;
  *
  * @author akil
  */
-@JsonInclude(JsonInclude.Include.NON_NULL)
 public class MastersSync implements Serializable {
 
     private List<Country> countryList;

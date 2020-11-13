@@ -14,6 +14,7 @@ import cc.altius.FASP.model.ProcurementUnit;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProcurementUnitService;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -110,7 +111,7 @@ public class ProcurementUnitServiceImpl implements ProcurementUnitService {
         if (programIdsString.length() > 0) {
             return this.procurementUnitDao.getProcurementUnitListForSyncProgram(programIdsString, curUser);
         } else {
-            return null;
+            return new LinkedList<>();
         }
     }
 

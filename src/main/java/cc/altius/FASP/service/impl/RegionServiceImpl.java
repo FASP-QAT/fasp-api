@@ -12,6 +12,7 @@ import cc.altius.FASP.model.Region;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.RegionService;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -97,7 +98,7 @@ public class RegionServiceImpl implements RegionService {
         if (programIdsString.length() > 0) {
             return this.regionDao.getRegionListForSyncProgram(programIdsString, curUser);
         } else {
-            return null;
+            return new LinkedList<>();
         }
     }
 
