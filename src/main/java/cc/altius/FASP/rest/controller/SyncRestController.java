@@ -131,7 +131,7 @@ public class SyncRestController {
             masters.setOrganisationList(this.organisationService.getOrganisationListForSync(lastSyncDate, curUser));
             masters.setFundingSourceList(this.fundingSourceService.getFundingSourceListForSync(lastSyncDate, curUser));
             masters.setProcurementAgentList(this.procurementAgentService.getProcurementAgentListForSync(lastSyncDate, curUser));
-//            masters.setSupplierList(this.supplierService.getSupplierListForSync(lastSyncDate, curUser));
+            masters.setSupplierList(this.supplierService.getSupplierListForSync(lastSyncDate, curUser));
             masters.setForecastingUnitList(this.forecastingUnitService.getForecastingUnitListForSync(lastSyncDate, curUser));
             masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSync(lastSyncDate, curUser));
             masters.setProcurementUnitList(this.procurementUnitService.getProcurementUnitListForSync(lastSyncDate, curUser));
