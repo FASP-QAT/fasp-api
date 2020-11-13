@@ -97,8 +97,7 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
         }
         return this.procurementAgentDao.saveProcurementAgentPlanningUnit(procurementAgentPlanningUnits, curUser);
     }
-    
-    
+
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser) {
         ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(procurementAgentId, curUser);
         if (pa != null && this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
@@ -137,6 +136,24 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     @Override
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.procurementAgentDao.getProcurementAgentProcurementUnitListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
+    public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.procurementAgentDao.getProcurementAgentPlanningUnitListForSyncProgram(programIdsString, curUser);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.procurementAgentDao.getProcurementAgentProcurementUnitListForSyncProgram(programIdsString, curUser);
+        } else {
+            return null;
+        }
     }
 
 }

@@ -156,7 +156,7 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     @Override
     public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
         if (programIdsString.length() > 0) {
-            return this.realmCountryDao.getRealmCountryPlanningUnitListForSync(programIdsString, curUser);
+            return this.realmCountryDao.getRealmCountryPlanningUnitListForSyncProgram(programIdsString, curUser);
         } else {
             return null;
         }

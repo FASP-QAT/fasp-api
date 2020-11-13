@@ -8,7 +8,6 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.MastersSync;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.report.ProgramLeadTimesInput;
 import cc.altius.FASP.service.BudgetService;
 import cc.altius.FASP.service.CountryService;
 import cc.altius.FASP.service.CurrencyService;
@@ -132,7 +131,7 @@ public class SyncRestController {
             masters.setOrganisationList(this.organisationService.getOrganisationListForSync(lastSyncDate, curUser));
             masters.setFundingSourceList(this.fundingSourceService.getFundingSourceListForSync(lastSyncDate, curUser));
             masters.setProcurementAgentList(this.procurementAgentService.getProcurementAgentListForSync(lastSyncDate, curUser));
-            masters.setSupplierList(this.supplierService.getSupplierListForSync(lastSyncDate, curUser));
+//            masters.setSupplierList(this.supplierService.getSupplierListForSync(lastSyncDate, curUser));
             masters.setForecastingUnitList(this.forecastingUnitService.getForecastingUnitListForSync(lastSyncDate, curUser));
             masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSync(lastSyncDate, curUser));
             masters.setProcurementUnitList(this.procurementUnitService.getProcurementUnitListForSync(lastSyncDate, curUser));
@@ -179,37 +178,67 @@ public class SyncRestController {
             String programIdsString = getProgramIds(programIds);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             MastersSync masters = new MastersSync();
-            masters.setCountryList(this.countryService.getCountryListForSyncProgram(programIdsString, curUser));
-//            masters.setCurrencyList(this.currencyService.getCurrencyListForSync(lastSyncDate));
-//            masters.setDimensionList(this.dimensionService.getDimensionListForSync(lastSyncDate));
-//            masters.setLanguageList(this.languageService.getLanguageListForSync(lastSyncDate));
-//            masters.setShipmentStatusList(this.shipmentStatusService.getShipmentStatusListForSync(lastSyncDate, curUser));
-//            masters.setUnitList(this.unitService.getUnitListForSync(lastSyncDate));
-//            masters.setDataSourceTypeList(this.dataSourceTypeService.getDataSourceTypeListForSync(lastSyncDate, curUser));
-//            masters.setDataSourceList(this.dataSourceService.getDataSourceListForSync(lastSyncDate, curUser));
-//            masters.setTracerCategoryList(this.tracerCategoryService.getTracerCategoryListForSync(lastSyncDate, curUser));
-//            masters.setProductCategoryList(this.productCategoryService.getProductCategoryListForSync(lastSyncDate, curUser));
-//            masters.setRealmList(this.realmService.getRealmListForSync(lastSyncDate, curUser));
-//            masters.setHealthAreaList(this.healthAreaService.getHealthAreaListForSync(lastSyncDate, curUser));
-//            masters.setOrganisationList(this.organisationService.getOrganisationListForSync(lastSyncDate, curUser));
-//            masters.setFundingSourceList(this.fundingSourceService.getFundingSourceListForSync(lastSyncDate, curUser));
-//            masters.setProcurementAgentList(this.procurementAgentService.getProcurementAgentListForSync(lastSyncDate, curUser));
+            masters.setCountryList(this.countryService.getCountryListForSyncProgram(programIdsString, curUser));//programIds
+//            System.out.println("Country -> " + masters.getCountryList().size());
+            masters.setCurrencyList(this.currencyService.getCurrencyListForSync(lastSyncDate));
+//            System.out.println("Currency -> " + masters.getCurrencyList().size());
+            masters.setDimensionList(this.dimensionService.getDimensionListForSync(lastSyncDate));
+//            System.out.println("Dimension -> " + masters.getDimensionList().size());
+            masters.setLanguageList(this.languageService.getLanguageListForSync(lastSyncDate));
+//            System.out.println("Language -> " + masters.getLanguageList().size());
+            masters.setShipmentStatusList(this.shipmentStatusService.getShipmentStatusListForSync(lastSyncDate, curUser));
+//            System.out.println("ShipmentStatus -> " + masters.getShipmentStatusList().size());
+            masters.setUnitList(this.unitService.getUnitListForSync(lastSyncDate));
+//            System.out.println("Unit -> " + masters.getUnitList().size());
+            masters.setDataSourceTypeList(this.dataSourceTypeService.getDataSourceTypeListForSync(lastSyncDate, curUser));
+//            System.out.println("DataSourceType -> " + masters.getDataSourceTypeList().size());
+            masters.setDataSourceList(this.dataSourceService.getDataSourceListForSync(lastSyncDate, curUser));
+//            System.out.println("DataSource -> " + masters.getDataSourceList().size());
+            masters.setTracerCategoryList(this.tracerCategoryService.getTracerCategoryListForSync(lastSyncDate, curUser));
+//            System.out.println("TracerCategory -> " + masters.getTracerCategoryList().size());
+            masters.setProductCategoryList(this.productCategoryService.getProductCategoryListForSync(lastSyncDate, curUser));
+//            System.out.println("ProductCategory -> " + masters.getProductCategoryList().size());
+            masters.setRealmList(this.realmService.getRealmListForSync(lastSyncDate, curUser));
+//            System.out.println("Realm -> " + masters.getRealmList().size());
+            masters.setHealthAreaList(this.healthAreaService.getHealthAreaListForSync(lastSyncDate, curUser));
+//            System.out.println("HealthArea -> " + masters.getHealthAreaList().size());
+            masters.setOrganisationList(this.organisationService.getOrganisationListForSync(lastSyncDate, curUser));
+//            System.out.println("Organisation -> " + masters.getOrganisationList().size());
+            masters.setFundingSourceList(this.fundingSourceService.getFundingSourceListForSync(lastSyncDate, curUser));
+//            System.out.println("FundingSource -> " + masters.getFundingSourceList().size());
+            masters.setProcurementAgentList(this.procurementAgentService.getProcurementAgentListForSync(lastSyncDate, curUser));
+//            System.out.println("ProcurementAgent -> " + masters.getProcurementAgentList().size());
 //            masters.setSupplierList(this.supplierService.getSupplierListForSync(lastSyncDate, curUser));
             masters.setForecastingUnitList(this.forecastingUnitService.getForecastingUnitListForSyncProgram(programIdsString, curUser)); // programIds, 
+//            System.out.println("ForecastingUnit -> " + masters.getForecastingUnitList().size());
             masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSyncProgram(programIdsString, curUser)); //programIds, 
+//            System.out.println("PlanningUnit -> " + masters.getPlanningUnitList().size());
             masters.setProcurementUnitList(this.procurementUnitService.getProcurementUnitListForSyncProgram(programIdsString, curUser));//programIds, 
+//            System.out.println("ProcurementUnit -> " + masters.getProcurementUnitList().size());
             masters.setRealmCountryList(this.realmCountryService.getRealmCountryListForSyncProgram(programIdsString, curUser));//programIds, 
-//            masters.setRealmCountryPlanningUnitList(this.realmCountryService.getRealmCountryPlanningUnitListForSyncProgram(lastSyncDate, curUser));//programIds, 
-//            masters.setProcurementAgentPlanningUnitList(this.procurementAgentService.getProcurementAgentPlanningUnitListForSync(lastSyncDate, curUser));//programIds, 
-//            masters.setProcurementAgentProcurementUnitList(this.procurementAgentService.getProcurementAgentProcurementUnitListForSync(lastSyncDate, curUser));//programIds, 
-//            masters.setProgramList(this.programService.getProgramListForSync(lastSyncDate, curUser));//programIds, 
-//            masters.setProgramPlanningUnitList(this.programService.getProgramPlanningUnitListForSync(lastSyncDate, curUser));//programIds, 
-//            masters.setRegionList(this.regionService.getRegionListForSync(lastSyncDate, curUser));//programIds, 
-//            masters.setBudgetList(this.budgetService.getBudgetListForSync(lastSyncDate, curUser));//programIds, 
-//            masters.setProblemStatusList(this.problemService.getProblemStatusForSync(lastSyncDate, curUser));
-//            masters.setProblemCriticalityList(this.problemService.getProblemCriticalityForSync(lastSyncDate, curUser));
-//            masters.setProblemCategoryList(this.problemService.getProblemCategoryForSync(lastSyncDate, curUser));
-//            masters.setRealmProblemList(this.problemService.getProblemListForSync(lastSyncDate, curUser));
+//            System.out.println("RealmCountry -> " + masters.getRealmCountryList().size());
+            masters.setRealmCountryPlanningUnitList(this.realmCountryService.getRealmCountryPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
+//            System.out.println("RealmCountryPlanningUnit -> " + masters.getRealmCountryPlanningUnitList().size());
+            masters.setProcurementAgentPlanningUnitList(this.procurementAgentService.getProcurementAgentPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
+//            System.out.println("ProcurementAgentPlanningUnit -> " + masters.getProcurementAgentPlanningUnitList().size());
+            masters.setProcurementAgentProcurementUnitList(this.procurementAgentService.getProcurementAgentProcurementUnitListForSyncProgram(programIdsString, curUser));//programIds, 
+//            System.out.println("ProcurementAgentProcurementUnit -> " + masters.getProcurementAgentProcurementUnitList().size());
+            masters.setProgramList(this.programService.getProgramListForSyncProgram(programIdsString, curUser));//programIds, 
+//            System.out.println("Program -> " + masters.getProgramList().size());
+            masters.setProgramPlanningUnitList(this.programService.getProgramPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
+//            System.out.println("ProgramPlanningUnit -> " + masters.getProgramPlanningUnitList().size());
+            masters.setRegionList(this.regionService.getRegionListForSyncProgram(programIdsString, curUser));//programIds, 
+//            System.out.println("Region -> " + masters.getRegionList().size());
+            masters.setBudgetList(this.budgetService.getBudgetListForSyncProgram(programIdsString, curUser));//programIds, 
+//            System.out.println("Budget -> " + masters.getBudgetList().size());
+            masters.setProblemStatusList(this.problemService.getProblemStatusForSync(lastSyncDate, curUser));
+//            System.out.println("ProblemStatus -> " + masters.getProblemStatusList().size());
+            masters.setProblemCriticalityList(this.problemService.getProblemCriticalityForSync(lastSyncDate, curUser));
+//            System.out.println("ProblemCriticality -> " + masters.getProblemCriticalityList().size());
+            masters.setProblemCategoryList(this.problemService.getProblemCategoryForSync(lastSyncDate, curUser));
+//            System.out.println("ProblemCategory -> " + masters.getProblemCategoryList().size());
+            masters.setRealmProblemList(this.problemService.getProblemListForSync(lastSyncDate, curUser));
+//            System.out.println("RealmProblem -> " + masters.getRealmProblemList().size());
             return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);

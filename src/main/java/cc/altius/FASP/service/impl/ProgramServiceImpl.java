@@ -66,7 +66,7 @@ public class ProgramServiceImpl implements ProgramService {
                 p.getHealthArea().getId(),
                 p.getOrganisation().getId(),
                 0)) {
-            RealmCountry rc= this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
+            RealmCountry rc = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
             String programCode = rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
             if (p.getProgramCode() != null && !p.getProgramCode().isBlank()) {
                 programCode += "-" + p.getProgramCode();
@@ -199,8 +199,8 @@ public class ProgramServiceImpl implements ProgramService {
     public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) {
         RealmCountry rc = this.realmCountryService.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser);
         String programCode = rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(program.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(program.getOrganisation().getId(), curUser).getOrganisationCode();
-        if (program.getProgramCode()!=null && !program.getProgramCode().isBlank()) {
-            programCode += "-"+program.getProgramCode();
+        if (program.getProgramCode() != null && !program.getProgramCode().isBlank()) {
+            programCode += "-" + program.getProgramCode();
         }
         program.setProgramCode(programCode);
         int programId = this.programDao.addProgram(program, rc.getRealm().getRealmId(), curUser);
@@ -257,6 +257,24 @@ public class ProgramServiceImpl implements ProgramService {
             throw new AccessDeniedException("Access denied");
         }
         return this.programDao.validateProgramCode(realmId, programId, programCode, curUser);
+    }
+
+    @Override
+    public List<Program> getProgramListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.programDao.getProgramListForSyncProgram(programIdsString, curUser);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<ProgramPlanningUnit> getProgramPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.programDao.getProgramPlanningUnitListForSyncProgram(programIdsString, curUser);
+        } else {
+            return null;
+        }
     }
 
 }

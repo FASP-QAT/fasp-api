@@ -6,6 +6,7 @@
 package cc.altius.FASP.model;
 
 import cc.altius.utils.TreeUtils.Node;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import java.io.Serializable;
 import java.util.List;
 
@@ -13,6 +14,7 @@ import java.util.List;
  *
  * @author akil
  */
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class MastersSync implements Serializable {
 
     private List<Country> countryList;
@@ -31,7 +33,7 @@ public class MastersSync implements Serializable {
     private List<Organisation> organisationList;
     private List<FundingSource> fundingSourceList;
     private List<ProcurementAgent> procurementAgentList;
-    private List<Supplier> supplierList;
+//    private List<Supplier> supplierList;
     private List<ForecastingUnit> forecastingUnitList;
     private List<PlanningUnit> planningUnitList;
     private List<ProcurementUnit> procurementUnitList;
@@ -46,7 +48,6 @@ public class MastersSync implements Serializable {
     private List<SimpleObject> problemCategoryList;
     private List<RealmProblem> realmProblemList;
     private List<Budget> budgetList;
-
 
     public List<Country> getCountryList() {
         return countryList;
@@ -176,13 +177,13 @@ public class MastersSync implements Serializable {
         this.procurementAgentList = procurementAgentList;
     }
 
-    public List<Supplier> getSupplierList() {
-        return supplierList;
-    }
-
-    public void setSupplierList(List<Supplier> supplierList) {
-        this.supplierList = supplierList;
-    }
+//    public List<Supplier> getSupplierList() {
+//        return supplierList;
+//    }
+//
+//    public void setSupplierList(List<Supplier> supplierList) {
+//        this.supplierList = supplierList;
+//    }
 
     public List<ForecastingUnit> getForecastingUnitList() {
         return forecastingUnitList;
@@ -295,6 +296,5 @@ public class MastersSync implements Serializable {
     public void setBudgetList(List<Budget> budgetList) {
         this.budgetList = budgetList;
     }
-    
-    
+
 }

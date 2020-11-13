@@ -10,7 +10,6 @@ import cc.altius.FASP.dao.FundingSourceDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.FundingSource;
-import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.BudgetService;
@@ -87,6 +86,15 @@ public class BudgetServiceImpl implements BudgetService {
     @Override
     public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.budgetDao.getBudgetListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
+    public List<Budget> getBudgetListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length()>0) {
+            return this.budgetDao.getBudgetListForSyncProgram(programIdsString, curUser);
+        } else {
+            return null;
+        }
     }
 
 }
