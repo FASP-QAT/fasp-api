@@ -19,11 +19,11 @@ import java.util.Date;
  */
 public class Version implements Serializable {
 
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int versionId;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private SimpleObject versionType;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private SimpleObject versionStatus;
     @JsonView(Views.InternalView.class)
     private String notes;
