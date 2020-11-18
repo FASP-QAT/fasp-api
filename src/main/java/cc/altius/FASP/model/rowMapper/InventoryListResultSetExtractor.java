@@ -51,6 +51,7 @@ public class InventoryListResultSetExtractor implements ResultSetExtractor<List<
                                     new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, 1))
                     )));
             i.setMultiplier(rs.getDouble("MULTIPLIER"));
+            i.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
             i.setAdjustmentQty(rs.getDouble("ADJUSTMENT_QTY"));
             if (rs.wasNull()) {
                 i.setAdjustmentQty(null);

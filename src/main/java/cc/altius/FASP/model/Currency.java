@@ -15,7 +15,7 @@ public class Currency extends BaseModel {
     
     @JsonView(Views.InternalView.class)
     private int currencyId;
-    @JsonView({Views.ArtmisView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private String currencyCode;
     @JsonView(Views.InternalView.class)
     private Label label;

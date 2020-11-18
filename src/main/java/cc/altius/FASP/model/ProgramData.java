@@ -15,59 +15,60 @@ import java.util.List;
  */
 public class ProgramData extends BaseModel implements Serializable {
 
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int programId;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private String programCode;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private RealmCountry realmCountry;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private SimpleCodeObject organisation;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private SimpleCodeObject healthArea;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private Label label;
+    @JsonView({Views.InternalView.class})
     private BasicUser programManager;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private String programNotes;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double airFreightPerc;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double seaFreightPerc;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double plannedToSubmittedLeadTime;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double submittedToApprovedLeadTime;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double approvedToShippedLeadTime;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double shippedToArrivedByAirLeadTime;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double shippedToArrivedBySeaLeadTime;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double arrivedToDeliveredLeadTime;
     @JsonView(Views.InternalView.class)
     private SimpleObject versionType;
     @JsonView(Views.InternalView.class)
     private SimpleObject versionStatus;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private String notes;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private List<Region> regionList;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private Version currentVersion;
     private List<Version> versionList;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private List<Consumption> consumptionList;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private List<Inventory> inventoryList;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private List<Shipment> shipmentList;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private List<Batch> batchInfoList;
     @JsonView(Views.InternalView.class)
     private List<ProblemReport> problemReportList;
-    @JsonView({Views.ArtmisView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private List<SimplifiedSupplyPlan> supplyPlan;
     @JsonView(Views.InternalView.class)
     private int requestedProgramVersion;
