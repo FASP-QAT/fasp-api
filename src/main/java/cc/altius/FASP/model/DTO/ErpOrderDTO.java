@@ -5,7 +5,12 @@
  */
 package cc.altius.FASP.model.DTO;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  *
@@ -13,163 +18,505 @@ import java.util.Date;
  */
 public class ErpOrderDTO {
 
-    private int erpOrderId;
-    private int shipmentId;
-    private int quantity;
-    private String orderNo;
-    private int primeLineNo;
-    private String roNo;
-    private String roPrimeLineNo;
-    private String orderType;
-    private String planningUnitSkuCode;
-    private String procurementUnitSkuCode;
-    private Date currentEstimatedDeliveryDate;
-    private String supplierName;
-    private double price;
-    private double shippingCost;
-    private String status;
-    private String reason;
-    private String recipentCountry;
+    private int eoErpOrderId;
+    private String eoRoNo;
+    private String eoRoPrimeLineNo;
+    private String eoOrderNo;
+    private int eoPrimeLineNo;
+    private String eoOrderType;
+    private Date eoCreatedDate;
+    private String eoParentRo;
+    private Date eoParentCreatedDate;
+    private String eoPlanningUnitSkuCode;
+    private int eoPlanningUnitId; // Cannot be 0
+    private int eoShelfLife;
+    private String eoProcurementUnitSkuCode;
+    private Integer eoProcurementUnitId;
+    private Integer eoSupplierId;
+    private int eoQty;
+    private Date eoOrderedDate;
+    private Date eoCurrentEstimatedDeliveryDate;
+    private Date eoReqDeliveryDate;
+    private Date eoAgreedDeliveryDate;
+    private String eoSupplierName;
+    private double eoPrice;
+    private double eoShippingCost;
+    private String eoShipBy;
+    private String eoRecipentName;
+    private String eoRecipentCountry;
+    private String eoStatus;
+    private int eoChangeCode;
+    private Integer eoShipmentStatusId;
+    private Date eoActualShipmentDate;
+    private Date eoActualDeliveryDate;
+    private Date eoArrivalAtDestinationDate;
+    List<ErpShipmentDTO> eoShipmentList;
 
-    public int getErpOrderId() {
-        return erpOrderId;
+    private boolean manualTagging;
+
+    private int shProgramId; // Cannot be 0
+    private int shShipmentId; // Cannot be 0
+    private int shVersionId; // Cannot be 0
+    private Integer shShipmentTransId; // Cannot be null
+    private Boolean shActive; // Cannot be null
+    private Boolean shErpFlag;
+    private Integer shParentShipmentId;
+    private Integer shFundingSourceId;
+    private Integer shProcurementAgentId;
+    private Integer shBudgetId;
+    private Boolean shAccountFlag;
+    private Integer shDataSourceId;
+
+    public ErpOrderDTO() {
+        this.eoShipmentList = new LinkedList<>();
     }
 
-    public void setErpOrderId(int erpOrderId) {
-        this.erpOrderId = erpOrderId;
+    public int getEoErpOrderId() {
+        return eoErpOrderId;
     }
 
-    public int getShipmentId() {
-        return shipmentId;
+    public void setEoErpOrderId(int eoErpOrderId) {
+        this.eoErpOrderId = eoErpOrderId;
     }
 
-    public void setShipmentId(int shipmentId) {
-        this.shipmentId = shipmentId;
+    public String getEoRoNo() {
+        return eoRoNo;
     }
 
-    public int getQuantity() {
-        return quantity;
+    public void setEoRoNo(String eoRoNo) {
+        this.eoRoNo = eoRoNo;
     }
 
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public String getEoRoPrimeLineNo() {
+        return eoRoPrimeLineNo;
     }
 
-    public String getOrderNo() {
-        return orderNo;
+    public void setEoRoPrimeLineNo(String eoRoPrimeLineNo) {
+        this.eoRoPrimeLineNo = eoRoPrimeLineNo;
     }
 
-    public void setOrderNo(String orderNo) {
-        this.orderNo = orderNo;
+    public String getEoOrderNo() {
+        return eoOrderNo;
     }
 
-    public int getPrimeLineNo() {
-        return primeLineNo;
+    public void setEoOrderNo(String eoOrderNo) {
+        this.eoOrderNo = eoOrderNo;
     }
 
-    public void setPrimeLineNo(int primeLineNo) {
-        this.primeLineNo = primeLineNo;
+    public int getEoPrimeLineNo() {
+        return eoPrimeLineNo;
     }
 
-    public String getRoNo() {
-        return roNo;
+    public void setEoPrimeLineNo(int eoPrimeLineNo) {
+        this.eoPrimeLineNo = eoPrimeLineNo;
     }
 
-    public void setRoNo(String roNo) {
-        this.roNo = roNo;
+    public String getEoOrderType() {
+        return eoOrderType;
     }
 
-    public String getRoPrimeLineNo() {
-        return roPrimeLineNo;
+    public void setEoOrderType(String eoOrderType) {
+        this.eoOrderType = eoOrderType;
     }
 
-    public void setRoPrimeLineNo(String roPrimeLineNo) {
-        this.roPrimeLineNo = roPrimeLineNo;
+    public Date getEoCreatedDate() {
+        return eoCreatedDate;
     }
 
-    public String getOrderType() {
-        return orderType;
+    public void setEoCreatedDate(Date eoCreatedDate) {
+        this.eoCreatedDate = eoCreatedDate;
     }
 
-    public void setOrderType(String orderType) {
-        this.orderType = orderType;
+    public String getEoParentRo() {
+        return eoParentRo;
     }
 
-    public String getPlanningUnitSkuCode() {
-        return planningUnitSkuCode;
+    public void setEoParentRo(String eoParentRo) {
+        this.eoParentRo = eoParentRo;
     }
 
-    public void setPlanningUnitSkuCode(String planningUnitSkuCode) {
-        this.planningUnitSkuCode = planningUnitSkuCode;
+    public Date getEoParentCreatedDate() {
+        return eoParentCreatedDate;
     }
 
-    public String getProcurementUnitSkuCode() {
-        return procurementUnitSkuCode;
+    public void setEoParentCreatedDate(Date eoParentCreatedDate) {
+        this.eoParentCreatedDate = eoParentCreatedDate;
     }
 
-    public void setProcurementUnitSkuCode(String procurementUnitSkuCode) {
-        this.procurementUnitSkuCode = procurementUnitSkuCode;
+    public String getEoPlanningUnitSkuCode() {
+        return eoPlanningUnitSkuCode;
     }
 
-    public Date getCurrentEstimatedDeliveryDate() {
-        return currentEstimatedDeliveryDate;
+    public void setEoPlanningUnitSkuCode(String eoPlanningUnitSkuCode) {
+        this.eoPlanningUnitSkuCode = eoPlanningUnitSkuCode;
     }
 
-    public void setCurrentEstimatedDeliveryDate(Date currentEstimatedDeliveryDate) {
-        this.currentEstimatedDeliveryDate = currentEstimatedDeliveryDate;
+    public int getEoPlanningUnitId() {
+        return eoPlanningUnitId;
     }
 
-    public String getSupplierName() {
-        return supplierName;
+    public void setEoPlanningUnitId(int eoPlanningUnitId) {
+        this.eoPlanningUnitId = eoPlanningUnitId;
     }
 
-    public void setSupplierName(String supplierName) {
-        this.supplierName = supplierName;
+    public int getEoShelfLife() {
+        return eoShelfLife;
     }
 
-    public double getPrice() {
-        return price;
+    public void setEoShelfLife(int eoShelfLife) {
+        this.eoShelfLife = eoShelfLife;
     }
 
-    public void setPrice(double price) {
-        this.price = price;
+    public String getEoProcurementUnitSkuCode() {
+        return eoProcurementUnitSkuCode;
     }
 
-    public double getShippingCost() {
-        return shippingCost;
+    public void setEoProcurementUnitSkuCode(String eoProcurementUnitSkuCode) {
+        this.eoProcurementUnitSkuCode = eoProcurementUnitSkuCode;
     }
 
-    public void setShippingCost(double shippingCost) {
-        this.shippingCost = shippingCost;
+    public Integer getEoProcurementUnitId() {
+        return eoProcurementUnitId;
     }
 
-    public String getStatus() {
-        return status;
+    public void setEoProcurementUnitId(Integer eoProcurementUnitId) {
+        this.eoProcurementUnitId = eoProcurementUnitId;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
+    public Integer getEoSupplierId() {
+        return eoSupplierId;
     }
 
-    public String getReason() {
-        return reason;
+    public void setEoSupplierId(Integer eoSupplierId) {
+        this.eoSupplierId = eoSupplierId;
     }
 
-    public void setReason(String reason) {
-        this.reason = reason;
+    public int getEoQty() {
+        return eoQty;
     }
 
-    public String getRecipentCountry() {
-        return recipentCountry;
+    public void setEoQty(int eoQty) {
+        this.eoQty = eoQty;
     }
 
-    public void setRecipentCountry(String recipentCountry) {
-        this.recipentCountry = recipentCountry;
+    public Date getEoOrderedDate() {
+        return eoOrderedDate;
+    }
+
+    public void setEoOrderedDate(Date eoOrderedDate) {
+        this.eoOrderedDate = eoOrderedDate;
+    }
+
+    public Date getEoCurrentEstimatedDeliveryDate() {
+        return eoCurrentEstimatedDeliveryDate;
+    }
+
+    public void setEoCurrentEstimatedDeliveryDate(Date eoCurrentEstimatedDeliveryDate) {
+        this.eoCurrentEstimatedDeliveryDate = eoCurrentEstimatedDeliveryDate;
+    }
+
+    public Date getEoReqDeliveryDate() {
+        return eoReqDeliveryDate;
+    }
+
+    public void setEoReqDeliveryDate(Date eoReqDeliveryDate) {
+        this.eoReqDeliveryDate = eoReqDeliveryDate;
+    }
+
+    public Date getEoAgreedDeliveryDate() {
+        return eoAgreedDeliveryDate;
+    }
+
+    public void setEoAgreedDeliveryDate(Date eoAgreedDeliveryDate) {
+        this.eoAgreedDeliveryDate = eoAgreedDeliveryDate;
+    }
+
+    public String getEoSupplierName() {
+        return eoSupplierName;
+    }
+
+    public void setEoSupplierName(String eoSupplierName) {
+        this.eoSupplierName = eoSupplierName;
+    }
+
+    public double getEoPrice() {
+        return eoPrice;
+    }
+
+    public void setEoPrice(double eoPrice) {
+        this.eoPrice = eoPrice;
+    }
+
+    public double getEoShippingCost() {
+        return eoShippingCost;
+    }
+
+    public void setEoShippingCost(double eoShippingCost) {
+        this.eoShippingCost = eoShippingCost;
+    }
+
+    public String getEoShipBy() {
+        return eoShipBy;
+    }
+
+    public void setEoShipBy(String eoShipBy) {
+        this.eoShipBy = eoShipBy;
+    }
+
+    public String getEoRecipentName() {
+        return eoRecipentName;
+    }
+
+    public void setEoRecipentName(String eoRecipentName) {
+        this.eoRecipentName = eoRecipentName;
+    }
+
+    public String getEoRecipentCountry() {
+        return eoRecipentCountry;
+    }
+
+    public void setEoRecipentCountry(String eoRecipentCountry) {
+        this.eoRecipentCountry = eoRecipentCountry;
+    }
+
+    public String getEoStatus() {
+        return eoStatus;
+    }
+
+    public void setEoStatus(String eoStatus) {
+        this.eoStatus = eoStatus;
+    }
+
+    public int getEoChangeCode() {
+        return eoChangeCode;
+    }
+
+    public void setEoChangeCode(int eoChangeCode) {
+        this.eoChangeCode = eoChangeCode;
+    }
+
+    public Integer getEoShipmentStatusId() {
+        return eoShipmentStatusId;
+    }
+
+    public void setEoShipmentStatusId(Integer eoShipmentStatusId) {
+        this.eoShipmentStatusId = eoShipmentStatusId;
+    }
+
+    public int getShProgramId() {
+        return shProgramId;
+    }
+
+    public void setShProgramId(int shProgramId) {
+        this.shProgramId = shProgramId;
+    }
+
+    public int getShShipmentId() {
+        return shShipmentId;
+    }
+
+    public void setShShipmentId(int shShipmentId) {
+        this.shShipmentId = shShipmentId;
+    }
+
+    public boolean isManualTagging() {
+        return manualTagging;
+    }
+
+    public void setManualTagging(boolean manualTagging) {
+        this.manualTagging = manualTagging;
+    }
+
+    public Integer getShShipmentTransId() {
+        return shShipmentTransId;
+    }
+
+    public void setShShipmentTransId(Integer shShipmentTransId) {
+        this.shShipmentTransId = shShipmentTransId;
+    }
+
+    public int getShVersionId() {
+        return shVersionId;
+    }
+
+    public void setShVersionId(int shVersionId) {
+        this.shVersionId = shVersionId;
+    }
+
+    public Boolean getShActive() {
+        return shActive;
+    }
+
+    public void setShActive(Boolean shActive) {
+        this.shActive = shActive;
+    }
+
+    public Boolean getShErpFlag() {
+        return shErpFlag;
+    }
+
+    public void setShErpFlag(Boolean shErpFlag) {
+        this.shErpFlag = shErpFlag;
+    }
+
+    public boolean isShErpFlag() {
+        if (this.shErpFlag == null) {
+            return false;
+        } else {
+            return this.shErpFlag;
+        }
+    }
+
+    public Integer getShParentShipmentId() {
+        return shParentShipmentId;
+    }
+
+    public void setShParentShipmentId(Integer shParentShipmentId) {
+        this.shParentShipmentId = shParentShipmentId;
+    }
+
+    public Integer getShFundingSourceId() {
+        return shFundingSourceId;
+    }
+
+    public void setShFundingSourceId(Integer shFundingSourceId) {
+        this.shFundingSourceId = shFundingSourceId;
+    }
+
+    public Integer getShProcurementAgentId() {
+        return shProcurementAgentId;
+    }
+
+    public void setShProcurementAgentId(Integer shProcurementAgentId) {
+        this.shProcurementAgentId = shProcurementAgentId;
+    }
+
+    public Integer getShBudgetId() {
+        return shBudgetId;
+    }
+
+    public void setShBudgetId(Integer shBudgetId) {
+        this.shBudgetId = shBudgetId;
+    }
+
+    public Date getEoActualShipmentDate() {
+        return eoActualShipmentDate;
+    }
+
+    public void setEoActualShipmentDate(Date eoActualShipmentDate) {
+        this.eoActualShipmentDate = eoActualShipmentDate;
+    }
+
+    public Date getEoActualDeliveryDate() {
+        return eoActualDeliveryDate;
+    }
+
+    public void setEoActualDeliveryDate(Date eoActualDeliveryDate) {
+        this.eoActualDeliveryDate = eoActualDeliveryDate;
+    }
+
+    public Date getEoArrivalAtDestinationDate() {
+        return eoArrivalAtDestinationDate;
+    }
+
+    public void setEoArrivalAtDestinationDate(Date eoArrivalAtDestinationDate) {
+        this.eoArrivalAtDestinationDate = eoArrivalAtDestinationDate;
+    }
+
+    public List<ErpShipmentDTO> getEoShipmentList() {
+        return eoShipmentList;
+    }
+
+    public void setEoShipmentList(List<ErpShipmentDTO> eoShipmentList) {
+        this.eoShipmentList = eoShipmentList;
+    }
+
+    public Boolean getShAccountFlag() {
+        return shAccountFlag;
+    }
+
+    public void setShAccountFlag(Boolean shAccountFlag) {
+        this.shAccountFlag = shAccountFlag;
+    }
+
+    public Integer getShDataSourceId() {
+        return shDataSourceId;
+    }
+
+    public void setShDataSourceId(Integer shDataSourceId) {
+        this.shDataSourceId = shDataSourceId;
+    }
+
+    public Date getCalculatedExpiryDate() {
+        Date dt = null;
+        if (this.eoActualDeliveryDate != null) {
+            dt = this.eoActualShipmentDate;
+        } else {
+            dt = getExpectedDeliveryDate();
+        }
+        Calendar c = Calendar.getInstance();
+        c.setTime(dt);
+        c.set(Calendar.DATE, 1);
+        c.add(Calendar.MONTH, this.eoShelfLife);
+        return c.getTime();
+    }
+
+    public Date getExpectedDeliveryDate() {
+        if (this.eoCurrentEstimatedDeliveryDate != null) {
+            return this.eoCurrentEstimatedDeliveryDate;
+        } else if (this.eoAgreedDeliveryDate != null) {
+            return this.eoAgreedDeliveryDate;
+        } else if (this.eoReqDeliveryDate != null) {
+            return this.eoReqDeliveryDate;
+        } else {
+            return null;
+        }
+    }
+
+    public String getAutoGeneratedBatchNo() {
+        /* CONCAT(
+        'QAT',
+        LPAD(s.PROGRAM_ID, 6,'0'), 
+        LPAD(st.PLANNING_UNIT_ID, 8,'0'), 
+        date_format(CONCAT(LEFT(ADDDATE(COALESCE(st.RECEIVED_DATE,st.EXPECTED_DELIVERY_DATE), INTERVAL ppu.SHELF_LIFE MONTH),7),'-01'), '%y%m%d'), 
+        SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1), 
+        SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1), 
+        SUBSTRING('ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', RAND()*36+1, 1))
+         */
+        String rndStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+        StringBuilder sb = new StringBuilder("QAT")
+                .append(StringUtils.leftPad(Integer.toString(this.shProgramId), 6, '0'))
+                .append(StringUtils.leftPad(Integer.toString(this.eoPlanningUnitId), 8, '0'))
+                .append(new SimpleDateFormat("yyMMdd").format(this.getCalculatedExpiryDate()))
+                .append(rndStr.charAt((int) ((Math.random() * 36))))
+                .append(rndStr.charAt((int) ((Math.random() * 36))))
+                .append(rndStr.charAt((int) ((Math.random() * 36))));
+        return sb.toString();
     }
 
     @Override
-    public String toString() {
-        return "ErpOrderDTO{" + "erpOrderId=" + erpOrderId + ", shipmentId=" + shipmentId + ", quantity=" + quantity + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", roNo=" + roNo + ", roPrimeLineNo=" + roPrimeLineNo + ", orderType=" + orderType + ", planningUnitSkuCode=" + planningUnitSkuCode + ", procurementUnitSkuCode=" + procurementUnitSkuCode + ", currentEstimatedDeliveryDate=" + currentEstimatedDeliveryDate + ", supplierName=" + supplierName + ", price=" + price + ", shippingCost=" + shippingCost + ", status=" + status + ", reason=" + reason + ", recipentCountry=" + recipentCountry + '}';
+    public int hashCode() {
+        int hash = 5;
+        hash = 29 * hash + this.eoErpOrderId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ErpOrderDTO other = (ErpOrderDTO) obj;
+        if (this.eoErpOrderId != other.eoErpOrderId) {
+            return false;
+        }
+        return true;
     }
 
 }

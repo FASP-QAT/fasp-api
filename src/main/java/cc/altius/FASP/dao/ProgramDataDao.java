@@ -10,9 +10,9 @@ import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Inventory;
-import cc.altius.FASP.model.MasterSupplyPlan;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
+import cc.altius.FASP.model.ReviewedProblem;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
@@ -45,24 +45,24 @@ public interface ProgramDataDao {
 
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser);
 
-    public Version updateProgramVersion(int programId, int versionId, int versionStatusId,String notes, CustomUserDetails curUser);
+    public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList);
 
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId);
 
     public SupplyPlan getSupplyPlan(int programId, int versionId);
-    
-    public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild) throws ParseException;
+
+    public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild, boolean returnSupplyPlan) throws ParseException;
 
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp);
 
-    public List<ProgramVersion> getProgramVersionForARTMIS(int realmId);
-
     public int updateSentToARTMISFlag(String programVersionIds);
-    
+
     public List<Shipment> getShipmentListForSync(int programId, int versionId, String lastSyncDate);
-    
+
     public List<Batch> getBatchListForSync(int programId, int versionId, String lastSyncDate);
-    
+
     public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId);
+    
+    public int getLatestVersionForProgram(int programId);
 
 }

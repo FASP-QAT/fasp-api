@@ -73,13 +73,13 @@ public class ProblemRestController implements Serializable {
         }
     }
 
-    @GetMapping(value = "/sync/problem/realm/{realmId}/lastSyncDate/{lastSyncDate}")
-    public ResponseEntity getProblemListForSync(@PathVariable("realmId") int realmId, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+    @GetMapping(value = "/sync/problem/lastSyncDate/{lastSyncDate}")
+    public ResponseEntity getProblemListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.problemService.getProblemListForSync(1, lastSyncDate, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.problemService.getProblemListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing realmProblems", p);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
@@ -96,6 +96,22 @@ public class ProblemRestController implements Serializable {
             sdf.parse(lastSyncDate);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.problemService.getProblemStatusForSync(lastSyncDate, curUser), HttpStatus.OK);
+        } catch (ParseException p) {
+            logger.error("Error while listing problemStatus", p);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (Exception e) {
+            logger.error("Error while listing problemStatus", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping(value = "/sync/problemCategory/{lastSyncDate}")
+    public ResponseEntity getProblemCategoryListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.parse(lastSyncDate);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.problemService.getProblemCategoryForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing problemStatus", p);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);

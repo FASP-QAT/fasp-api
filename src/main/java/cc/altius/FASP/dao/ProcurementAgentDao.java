@@ -39,5 +39,7 @@ public interface ProcurementAgentDao {
 
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
 
+    public String getDisplayName(int realmId, String name, CustomUserDetails curUser);
+            
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

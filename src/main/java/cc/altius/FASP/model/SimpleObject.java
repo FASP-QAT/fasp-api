@@ -5,13 +5,17 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 /**
  *
  * @author akil
  */
 public class SimpleObject {
 
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class})
     private Integer id;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class})
     private Label label;
 
     public SimpleObject() {

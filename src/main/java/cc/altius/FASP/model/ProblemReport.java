@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateTimeDeserializer;
 import cc.altius.FASP.framework.JsonDateTimeSerializer;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -20,25 +21,49 @@ import java.util.List;
  */
 public class ProblemReport implements Serializable {
 
+    @JsonView(Views.InternalView.class)
     private int problemReportId;
+    @JsonView(Views.InternalView.class)
     private SimpleCodeObject program;
+    @JsonView(Views.InternalView.class)
     private int versionId;
+    @JsonView(Views.InternalView.class)
     private RealmProblem realmProblem;
+    @JsonView(Views.InternalView.class)
     private String dt;
+    @JsonView(Views.InternalView.class)
     private SimpleObject region;
+    @JsonView(Views.InternalView.class)
     private SimpleObject planningUnit;
+    @JsonView(Views.InternalView.class)
     private Integer shipmentId;
+    @JsonView(Views.InternalView.class)
     private String data5;
+    @JsonView(Views.InternalView.class)
+    private SimpleObject problemCategory;
+    @JsonView(Views.InternalView.class)
     private SimpleObject problemStatus;
+    @JsonView(Views.InternalView.class)
     private SimpleObject problemType;
+    @JsonView(Views.InternalView.class)
+    private boolean reviewed;
+    @JsonView(Views.InternalView.class)
+    private String reviewNotes;
+    @JsonView(Views.InternalView.class)
+    private Date reviewedDate;
+    @JsonView(Views.InternalView.class)
     private BasicUser createdBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.InternalView.class)
     private Date createdDate;
+    @JsonView(Views.InternalView.class)
     private BasicUser lastModifiedBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.InternalView.class)
     private Date lastModifiedDate;
+    @JsonView(Views.InternalView.class)
     private List<ProblemReportTrans> problemTransList;
 
     public ProblemReport() {
@@ -125,12 +150,44 @@ public class ProblemReport implements Serializable {
         this.problemStatus = problemStatus;
     }
 
+    public SimpleObject getProblemCategory() {
+        return problemCategory;
+    }
+
+    public void setProblemCategory(SimpleObject problemCategory) {
+        this.problemCategory = problemCategory;
+    }
+
     public SimpleObject getProblemType() {
         return problemType;
     }
 
     public void setProblemType(SimpleObject problemType) {
         this.problemType = problemType;
+    }
+
+    public boolean isReviewed() {
+        return reviewed;
+    }
+
+    public void setReviewed(boolean reviewed) {
+        this.reviewed = reviewed;
+    }
+
+    public String getReviewNotes() {
+        return reviewNotes;
+    }
+
+    public void setReviewNotes(String reviewNotes) {
+        this.reviewNotes = reviewNotes;
+    }
+
+    public Date getReviewedDate() {
+        return reviewedDate;
+    }
+
+    public void setReviewedDate(Date reviewedDate) {
+        this.reviewedDate = reviewedDate;
     }
 
     public BasicUser getCreatedBy() {

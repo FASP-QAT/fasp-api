@@ -44,54 +44,39 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
     @Autowired
     private AclService aclService;
 
-    private final String sqlListString = "SELECT"
-            + "    pru.PROCUREMENT_UNIT_ID, prul.LABEL_ID, prul.LABEL_EN, prul.LABEL_FR, prul.LABEL_SP, prul.LABEL_PR,"
-            + "    s.SUPPLIER_ID, sl.LABEL_ID `SUPPLIER_LABEL_ID`, sl.LABEL_EN `SUPPLIER_LABEL_EN`, sl.LABEL_FR `SUPPLIER_LABEL_FR`, sl.LABEL_SP `SUPPLIER_LABEL_SP`, sl.LABEL_PR `SUPPLIER_LABEL_PR`,"
-            + "    u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `UNIT_LABEL_ID`, ul.LABEL_EN `UNIT_LABEL_EN`, ul.LABEL_FR `UNIT_LABEL_FR`, ul.LABEL_SP `UNIT_LABEL_SP`, ul.LABEL_PR `UNIT_LABEL_PR`,"
-            + "    pu.PLANNING_UNIT_ID, pu.MULTIPLIER `PLANNING_UNIT_MULTIPLIER`, fu.FORECASTING_UNIT_ID, "
-            + "    pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
-            + "    ful.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, ful.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, ful.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, ful.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, ful.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, "
-            + "    fugl.LABEL_ID `GENERIC_LABEL_ID`, fugl.LABEL_EN `GENERIC_LABEL_EN`, fugl.LABEL_FR `GENERIC_LABEL_FR`, fugl.LABEL_PR `GENERIC_LABEL_PR`, fugl.LABEL_SP `GENERIC_LABEL_SP`, "
-            + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
-            + "    pc.PRODUCT_CATEGORY_ID, pcl.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pcl.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pcl.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pcl.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pcl.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, "
-            + "    tc.TRACER_CATEGORY_ID, tcl.LABEL_ID `TRACER_CATEGORY_LABEL_ID`, tcl.LABEL_EN `TRACER_CATEGORY_LABEL_EN`, tcl.LABEL_FR `TRACER_CATEGORY_LABEL_FR`, tcl.LABEL_PR `TRACER_CATEGORY_LABEL_PR`, tcl.LABEL_SP `TRACER_CATEGORY_LABEL_SP`, "
-            + "    puu.UNIT_ID `PLANNING_UNIT_UNIT_ID`, puu.UNIT_CODE `PLANNING_UNIT_UNIT_CODE`, puul.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puul.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puul.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puul.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puul.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`, "
-            + "    pru.HEIGHT_QTY, pru.WIDTH_QTY, pru.LENGTH_QTY, pru.WEIGHT_QTY, pru.LABELING, pru.MULTIPLIER,pru.UNITS_PER_CASE,pru.UNITS_PER_PALLET, pru.UNITS_PER_CONTAINER, pru.LABELING,"
-            + "    hu.UNIT_ID  `HEIGHT_UNIT_ID`, hu.UNIT_CODE  `HEIGHT_UNIT_CODE`, hul.LABEL_ID  `HEIGHT_UNIT_LABEL_ID`, hul.LABEL_EN  `HEIGHT_UNIT_LABEL_EN`, hul.LABEL_FR  `HEIGHT_UNIT_LABEL_FR`, hul.LABEL_PR  `HEIGHT_UNIT_LABEL_PR`, hul.LABEL_SP  `HEIGHT_UNIT_LABEL_SP`, "
-            + "    lu.UNIT_ID  `LENGTH_UNIT_ID`, lu.UNIT_CODE  `LENGTH_UNIT_CODE`, lul.LABEL_ID  `LENGTH_UNIT_LABEL_ID`, lul.LABEL_EN  `LENGTH_UNIT_LABEL_EN`, lul.LABEL_FR  `LENGTH_UNIT_LABEL_FR`, lul.LABEL_PR  `LENGTH_UNIT_LABEL_PR`, lul.LABEL_SP  `LENGTH_UNIT_LABEL_SP`, "
-            + "    wu.UNIT_ID   `WIDTH_UNIT_ID`, wu.UNIT_CODE   `WIDTH_UNIT_CODE`, wul.LABEL_ID   `WIDTH_UNIT_LABEL_ID`, wul.LABEL_EN   `WIDTH_UNIT_LABEL_EN`, wul.LABEL_FR   `WIDTH_UNIT_LABEL_FR`, wul.LABEL_PR   `WIDTH_UNIT_LABEL_PR`, wul.LABEL_SP   `WIDTH_UNIT_LABEL_SP`, "
-            + "    weu.UNIT_ID `WEIGHT_UNIT_ID`, weu.UNIT_CODE `WEIGHT_UNIT_CODE`, weul.LABEL_ID `WEIGHT_UNIT_LABEL_ID`, weul.LABEL_EN `WEIGHT_UNIT_LABEL_EN`, weul.LABEL_FR `WEIGHT_UNIT_LABEL_FR`, weul.LABEL_PR `WEIGHT_UNIT_LABEL_PR`, weul.LABEL_SP `WEIGHT_UNIT_LABEL_SP`,"
-            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pru.ACTIVE, pru.CREATED_DATE, pru.LAST_MODIFIED_DATE  "
-            + " FROM rm_procurement_unit pru"
-            + " LEFT JOIN ap_label prul ON pru.LABEL_ID=prul.LABEL_ID"
-            + " LEFT JOIN rm_supplier s ON pru.SUPPLIER_ID=s.SUPPLIER_ID"
-            + " LEFT JOIN ap_label sl ON s.LABEL_ID=sl.LABEL_ID"
-            + " LEFT JOIN ap_unit u ON pru.UNIT_ID=u.UNIT_ID"
-            + " LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID"
-            + " LEFT JOIN rm_planning_unit pu ON pru.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID"
-            + " LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID"
-            + " LEFT JOIN rm_forecasting_unit fu on pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
-            + " LEFT JOIN ap_label ful ON fu.LABEL_ID=ful.LABEL_ID  "
-            + " LEFT JOIN ap_label fugl ON fu.GENERIC_LABEL_ID=fugl.LABEL_ID  "
-            + " LEFT JOIN rm_realm r ON fu.REALM_ID=r.REALM_ID  "
-            + " LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID  "
-            + " LEFT JOIN rm_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID  "
-            + " LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID  "
-            + " LEFT JOIN rm_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID  "
-            + " LEFT JOIN ap_label tcl ON tc.LABEL_ID=tcl.LABEL_ID  "
-            + " LEFT JOIN ap_unit puu ON pu.UNIT_ID=puu.UNIT_ID "
-            + " LEFT JOIN ap_label puul ON puu.LABEL_ID=puul.LABEL_ID"
-            + " LEFT JOIN ap_unit hu ON pru.HEIGHT_UNIT_ID=hu.UNIT_ID"
-            + " LEFT JOIN ap_label hul ON hu.LABEL_ID=hul.LABEL_ID"
-            + " LEFT JOIN ap_unit lu ON pru.LENGTH_UNIT_ID=lu.UNIT_ID"
-            + " LEFT JOIN ap_label lul ON lu.LABEL_ID=lul.LABEL_ID"
-            + " LEFT JOIN ap_unit wu ON pru.WIDTH_UNIT_ID=wu.UNIT_ID"
-            + " LEFT JOIN ap_label wul ON wu.LABEL_ID=wul.LABEL_ID"
-            + " LEFT JOIN ap_unit weu ON pru.WEIGHT_UNIT_ID=weu.UNIT_ID"
-            + " LEFT JOIN ap_label weul ON weu.LABEL_ID=weul.LABEL_ID"
-            + " LEFT JOIN us_user cb ON pru.CREATED_BY=cb.USER_ID  "
-            + " LEFT JOIN us_user lmb ON pru.LAST_MODIFIED_BY=lmb.USER_ID"
-            + " WHERE TRUE ";
+    private final String sqlListString = "SELECT "
+            + "    pru.PROCUREMENT_UNIT_ID, pru.LABEL_ID, pru.LABEL_EN, pru.LABEL_FR, pru.LABEL_SP, pru.LABEL_PR, "
+            + "    s.SUPPLIER_ID, s.LABEL_ID `SUPPLIER_LABEL_ID`, s.LABEL_EN `SUPPLIER_LABEL_EN`, s.LABEL_FR `SUPPLIER_LABEL_FR`, s.LABEL_SP `SUPPLIER_LABEL_SP`, s.LABEL_PR `SUPPLIER_LABEL_PR`, "
+            + "    u.UNIT_ID, u.UNIT_CODE, u.LABEL_ID `UNIT_LABEL_ID`, u.LABEL_EN `UNIT_LABEL_EN`, u.LABEL_FR `UNIT_LABEL_FR`, u.LABEL_SP `UNIT_LABEL_SP`, u.LABEL_PR `UNIT_LABEL_PR`, "
+            + "    pu.PLANNING_UNIT_ID, pu.MULTIPLIER `PLANNING_UNIT_MULTIPLIER`, fu.FORECASTING_UNIT_ID,  "
+            + "    pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`,  "
+            + "    fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`,  "
+            + "    fugl.LABEL_ID `GENERIC_LABEL_ID`, fugl.LABEL_EN `GENERIC_LABEL_EN`, fugl.LABEL_FR `GENERIC_LABEL_FR`, fugl.LABEL_PR `GENERIC_LABEL_PR`, fugl.LABEL_SP `GENERIC_LABEL_SP`,  "
+            + "    r.REALM_ID, r.REALM_CODE, r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_PR `REALM_LABEL_PR`, r.LABEL_SP `REALM_LABEL_SP`,  "
+            + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`,  "
+            + "    tc.TRACER_CATEGORY_ID, tc.LABEL_ID `TRACER_CATEGORY_LABEL_ID`, tc.LABEL_EN `TRACER_CATEGORY_LABEL_EN`, tc.LABEL_FR `TRACER_CATEGORY_LABEL_FR`, tc.LABEL_PR `TRACER_CATEGORY_LABEL_PR`, tc.LABEL_SP `TRACER_CATEGORY_LABEL_SP`,  "
+            + "    puu.UNIT_ID `PLANNING_UNIT_UNIT_ID`, puu.UNIT_CODE `PLANNING_UNIT_UNIT_CODE`, puu.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puu.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puu.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puu.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puu.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`,  "
+            + "    pru.HEIGHT_QTY, pru.WIDTH_QTY, pru.LENGTH_QTY, pru.WEIGHT_QTY, pru.VOLUME_QTY, pru.LABELING, pru.MULTIPLIER, pru.UNITS_PER_CASE, pru.UNITS_PER_PALLET_EURO1, pru.UNITS_PER_PALLET_EURO2, pru.UNITS_PER_CONTAINER, pru.LABELING, "
+            + "    lu.UNIT_ID  `LENGTH_UNIT_ID`, lu.UNIT_CODE  `LENGTH_UNIT_CODE`, lu.LABEL_ID  `LENGTH_UNIT_LABEL_ID`, lu.LABEL_EN  `LENGTH_UNIT_LABEL_EN`, lu.LABEL_FR  `LENGTH_UNIT_LABEL_FR`, lu.LABEL_PR  `LENGTH_UNIT_LABEL_PR`, lu.LABEL_SP  `LENGTH_UNIT_LABEL_SP`,  "
+            + "    weu.UNIT_ID `WEIGHT_UNIT_ID`, weu.UNIT_CODE `WEIGHT_UNIT_CODE`, weu.LABEL_ID `WEIGHT_UNIT_LABEL_ID`, weu.LABEL_EN `WEIGHT_UNIT_LABEL_EN`, weu.LABEL_FR `WEIGHT_UNIT_LABEL_FR`, weu.LABEL_PR `WEIGHT_UNIT_LABEL_PR`, weu.LABEL_SP `WEIGHT_UNIT_LABEL_SP`, "
+            + "    vu.UNIT_ID `VOLUME_UNIT_ID`, vu.UNIT_CODE `VOLUME_UNIT_CODE`, vu.LABEL_ID `VOLUME_UNIT_LABEL_ID`, vu.LABEL_EN `VOLUME_UNIT_LABEL_EN`, vu.LABEL_FR `VOLUME_UNIT_LABEL_FR`, vu.LABEL_PR `VOLUME_UNIT_LABEL_PR`, vu.LABEL_SP `VOLUME_UNIT_LABEL_SP`, "
+            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pru.ACTIVE, pru.CREATED_DATE, pru.LAST_MODIFIED_DATE   "
+            + " FROM vw_procurement_unit pru "
+            + " LEFT JOIN vw_supplier s ON pru.SUPPLIER_ID=s.SUPPLIER_ID "
+            + " LEFT JOIN vw_unit u ON pru.UNIT_ID=u.UNIT_ID "
+            + " LEFT JOIN vw_planning_unit pu ON pru.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+            + " LEFT JOIN vw_forecasting_unit fu on pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID  "
+            + " LEFT JOIN vw_unit fugl ON fu.GENERIC_LABEL_ID=fugl.LABEL_ID "
+            + " LEFT JOIN vw_realm r ON fu.REALM_ID=r.REALM_ID   "
+            + " LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID   "
+            + " LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID   "
+            + " LEFT JOIN vw_unit puu ON pu.UNIT_ID=puu.UNIT_ID  "
+            + " LEFT JOIN vw_unit lu ON pru.LENGTH_UNIT_ID=lu.UNIT_ID "
+            + " LEFT JOIN vw_unit weu ON pru.WEIGHT_UNIT_ID=weu.UNIT_ID "
+            + " LEFT JOIN vw_unit vu ON pru.VOLUME_UNIT_ID=vu.UNIT_ID "
+            + " LEFT JOIN us_user cb ON pru.CREATED_BY=cb.USER_ID   "
+            + " LEFT JOIN us_user lmb ON pru.LAST_MODIFIED_BY=lmb.USER_ID "
+            + " WHERE TRUE";
 
     @Override
     public List<ProcurementUnit> getProcurementUnitList(boolean active, CustomUserDetails curUser) {
@@ -145,16 +130,17 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("MULTIPLIER", procurementUnit.getMultiplier());
         params.put("SUPPLIER_ID", procurementUnit.getSupplier().getId());
         params.put("HEIGHT_QTY", procurementUnit.getHeightQty());
-        params.put("HEIGHT_UNIT_ID", (procurementUnit.getHeightUnit().getId() == null ? null : procurementUnit.getHeightUnit().getId()));
         params.put("WIDTH_QTY", procurementUnit.getWidthQty());
-        params.put("WIDTH_UNIT_ID", (procurementUnit.getWidthUnit().getId() == null ? null : procurementUnit.getWidthUnit().getId()));
         params.put("LENGTH_QTY", procurementUnit.getLengthQty());
         params.put("LENGTH_UNIT_ID", (procurementUnit.getLengthUnit().getId() == null ? null : procurementUnit.getLengthUnit().getId()));
         params.put("WEIGHT_QTY", procurementUnit.getWeightQty());
         params.put("WEIGHT_UNIT_ID", (procurementUnit.getWeightUnit().getId() == null ? null : procurementUnit.getWeightUnit().getId()));
+        params.put("VOLUME_QTY", procurementUnit.getVolumeQty());
+        params.put("VOLUME_UNIT_ID", (procurementUnit.getVolumeUnit().getId() == null ? null : procurementUnit.getVolumeUnit().getId()));
         params.put("LABELING", procurementUnit.getLabeling());
         params.put("UNITS_PER_CASE", procurementUnit.getUnitsPerCase());
-        params.put("UNITS_PER_PALLET", procurementUnit.getUnitsPerPallet());
+        params.put("UNITS_PER_PALLET_EURO1", procurementUnit.getUnitsPerPalletEuro1());
+        params.put("UNITS_PER_PALLET_EURO2", procurementUnit.getUnitsPerPalletEuro1());
         params.put("UNITS_PER_CONTAINER", procurementUnit.getUnitsPerContainer());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
@@ -172,31 +158,34 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
                 + "    pru.MULTIPLIER=:multiplier, "
                 + "    pru.UNIT_ID=:unitId, "
                 + "    pru.HEIGHT_QTY=:heightQty, "
-                + "    pru.HEIGHT_UNIT_ID=:heightUnitId, "
                 + "    pru.LENGTH_QTY=:lengthQty, "
                 + "    pru.LENGTH_UNIT_ID=:lengthUnitId, "
                 + "    pru.WIDTH_QTY=:widthQty, "
-                + "    pru.WIDTH_UNIT_ID=:widthUnitId, "
                 + "    pru.WEIGHT_QTY=:weightQty, "
                 + "    pru.WEIGHT_UNIT_ID=:weightUnitId, "
+                + "    pru.VOLUME_QTY=:volumeQty, "
+                + "    pru.VOLUME_UNIT_ID=:volumeUnitId, "
                 + "    pru.UNITS_PER_CASE=:unitsPerCase, "
-                + "    pru.UNITS_PER_PALLET=:unitsPerPallet, "
+                + "    pru.UNITS_PER_PALLET_EURO1=:unitsPerPalletEuro1, "
+                + "    pru.UNITS_PER_PALLET_EURO2=:unitsPerPalletEuro2, "
                 + "    pru.UNITS_PER_CONTAINER=:unitsPerContainer, "
                 + "    pru.LABELING=:labeling, "
                 + "    pru.ACTIVE=:active, "
                 + "    pru.LAST_MODIFIED_BY=IF(pru.MULTIPLIER!=:multiplier OR pru.UNIT_ID!=:unitId "
-                + "         OR pru.HEIGHT_QTY!=:heightQty OR pru.HEIGHT_UNIT_ID!=:heightUnitId "
+                + "         OR pru.HEIGHT_QTY!=:heightQty "
                 + "         OR pru.LENGTH_QTY!=:lengthQty OR pru.LENGTH_UNIT_ID!=:lengthUnitId "
-                + "         OR pru.WIDTH_QTY!=:widthQty OR pru.WIDTH_UNIT_ID!=:widthUnitId "
+                + "         OR pru.WIDTH_QTY!=:widthQty "
                 + "         OR pru.WEIGHT_QTY!=:weightQty OR pru.WEIGHT_UNIT_ID!=:weightUnitId "
-                + "         OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELING!=:labeling "
+                + "         OR pru.VOLUME_QTY!=:volumeQty OR pru.VOLUME_UNIT_ID!=:volumeUnitId "
+                + "         OR pru.UNITS_PER_CASE!=:unitsPerCase OR pru.UNITS_PER_PALLET_EURO1!=:unitsPerPalletEuro1 OR pru.UNITS_PER_PALLET_EURO2!=:unitsPerPalletEuro2 OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELING!=:labeling "
                 + "         OR pru.ACTIVE!=:active,:curUser, pru.LAST_MODIFIED_BY), "
                 + "    pru.LAST_MODIFIED_DATE=IF(pru.MULTIPLIER!=:multiplier OR pru.UNIT_ID!=:unitId "
-                + "         OR pru.HEIGHT_QTY!=:heightQty OR pru.HEIGHT_UNIT_ID!=:heightUnitId "
+                + "         OR pru.HEIGHT_QTY!=:heightQty "
                 + "         OR pru.LENGTH_QTY!=:lengthQty OR pru.LENGTH_UNIT_ID!=:lengthUnitId "
-                + "         OR pru.WIDTH_QTY!=:widthQty OR pru.WIDTH_UNIT_ID!=:widthUnitId "
+                + "         OR pru.WIDTH_QTY!=:widthQty "
                 + "         OR pru.WEIGHT_QTY!=:weightQty OR pru.WEIGHT_UNIT_ID!=:weightUnitId "
-                + "         OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELING!=:labeling "
+                + "         OR pru.VOLUME_QTY!=:volumeQty OR pru.VOLUME_UNIT_ID!=:volumeUnitId "
+                + "         OR pru.UNITS_PER_CASE!=:unitsPerCase OR pru.UNITS_PER_PALLET_EURO1!=:unitsPerPalletEuro1 OR pru.UNITS_PER_PALLET_EURO2!=:unitsPerPalletEuro2 OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELING!=:labeling "
                 + "         OR pru.ACTIVE!=:active,:curDate, pru.LAST_MODIFIED_DATE), "
                 + "    prul.LABEL_EN=:labelEn, "
                 + "    prul.LAST_MODIFIED_BY=IF(prul.LABEL_EN=:labelEn,:curUser, prul.LAST_MODIFIED_BY), "
@@ -207,15 +196,16 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("multiplier", procurementUnit.getMultiplier());
         params.put("unitId", procurementUnit.getUnit().getId());
         params.put("heightQty", procurementUnit.getHeightQty());
-        params.put("heightUnitId", (procurementUnit.getHeightUnit().getId() == null || procurementUnit.getHeightUnit().getId() == 0 ? null : procurementUnit.getHeightUnit().getId()));
         params.put("lengthQty", procurementUnit.getLengthQty());
         params.put("lengthUnitId", (procurementUnit.getLengthUnit().getId() == null || procurementUnit.getLengthUnit().getId() == 0 ? null : procurementUnit.getLengthUnit().getId()));
         params.put("widthQty", procurementUnit.getWidthQty());
-        params.put("widthUnitId", (procurementUnit.getWidthUnit().getId() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
         params.put("weightQty", procurementUnit.getWeightQty());
-        params.put("weightUnitId", (procurementUnit.getWidthUnit().getId() == null || procurementUnit.getWidthUnit().getId() == 0 ? null : procurementUnit.getWidthUnit().getId()));
+        params.put("weightUnitId", (procurementUnit.getWeightUnit().getId() == null || procurementUnit.getWeightUnit().getId() == 0 ? null : procurementUnit.getWeightUnit().getId()));
+        params.put("volumeQty", procurementUnit.getVolumeQty());
+        params.put("volumeUnitId", (procurementUnit.getVolumeUnit().getId() == null || procurementUnit.getVolumeUnit().getId() == 0 ? null : procurementUnit.getVolumeUnit().getId()));
         params.put("unitsPerCase", procurementUnit.getUnitsPerCase());
-        params.put("unitsPerPallet", procurementUnit.getUnitsPerPallet());
+        params.put("unitsPerPalletEuro1", procurementUnit.getUnitsPerPalletEuro1());
+        params.put("unitsPerPalletEuro2", procurementUnit.getUnitsPerPalletEuro2());
         params.put("unitsPerContainer", procurementUnit.getUnitsPerContainer());
         params.put("labeling", procurementUnit.getLabeling());
         params.put("active", procurementUnit.isActive());

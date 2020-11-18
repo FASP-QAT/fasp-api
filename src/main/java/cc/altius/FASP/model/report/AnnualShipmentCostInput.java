@@ -19,10 +19,10 @@ public class AnnualShipmentCostInput {
 
     private int programId;
     private int versionId;
-    private int planningUnitId;
-    private int procurementAgentId;
-    private int fundingSourceId;
-    private int shipmentStatusId;
+    private String[] planningUnitIds;
+    private String[] procurementAgentIds;
+    private String[] fundingSourceIds;
+    private String[] shipmentStatusIds;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
@@ -47,36 +47,36 @@ public class AnnualShipmentCostInput {
         this.versionId = versionId;
     }
 
-    public int getPlanningUnitId() {
-        return planningUnitId;
+    public String[] getPlanningUnitIds() {
+        return planningUnitIds;
     }
 
-    public void setPlanningUnitId(int planningUnitId) {
-        this.planningUnitId = planningUnitId;
+    public void setPlanningUnitIds(String[] planningUnitIds) {
+        this.planningUnitIds = planningUnitIds;
     }
 
-    public int getProcurementAgentId() {
-        return procurementAgentId;
+    public String[] getProcurementAgentIds() {
+        return procurementAgentIds;
     }
 
-    public void setProcurementAgentId(int procurementAgentId) {
-        this.procurementAgentId = procurementAgentId;
+    public void setProcurementAgentIds(String[] procurementAgentIds) {
+        this.procurementAgentIds = procurementAgentIds;
     }
 
-    public int getFundingSourceId() {
-        return fundingSourceId;
+    public String[] getFundingSourceIds() {
+        return fundingSourceIds;
     }
 
-    public void setFundingSourceId(int fundingSourceId) {
-        this.fundingSourceId = fundingSourceId;
+    public void setFundingSourceIds(String[] fundingSourceIds) {
+        this.fundingSourceIds = fundingSourceIds;
     }
 
-    public int getShipmentStatusId() {
-        return shipmentStatusId;
+    public String[] getShipmentStatusIds() {
+        return shipmentStatusIds;
     }
 
-    public void setShipmentStatusId(int shipmentStatusId) {
-        this.shipmentStatusId = shipmentStatusId;
+    public void setShipmentStatusIds(String[] shipmentStatusIds) {
+        this.shipmentStatusIds = shipmentStatusIds;
     }
 
     public Date getStartDate() {
@@ -103,4 +103,55 @@ public class AnnualShipmentCostInput {
         this.reportBasedOn = reportBasedOn;
     }
 
+    public String getProcurementAgentIdString() {
+        if (this.procurementAgentIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.procurementAgentIds);
+            if (this.procurementAgentIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
+    
+    public String getFundingSourceIdString() {
+        if (this.fundingSourceIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.fundingSourceIds);
+            if (this.fundingSourceIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
+    
+    public String getShipmentStatusIdString() {
+        if (this.shipmentStatusIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.shipmentStatusIds);
+            if (this.shipmentStatusIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
+    
+    public String getPlanningUnitIdString() {
+        if (this.planningUnitIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.planningUnitIds);
+            if (this.planningUnitIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
 }

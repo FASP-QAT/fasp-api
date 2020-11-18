@@ -113,7 +113,6 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
 
     @Override
     public int updatePlanningUnit(PlanningUnit planningUnit, CustomUserDetails curUser) {
-        System.out.println("planningUnit---" + planningUnit);
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sqlString = "UPDATE rm_planning_unit pu LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
                 + "SET  "
@@ -300,7 +299,10 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     public List<PlanningUnit> getPlanningUnitListForProductCategory(String productCategorySortOrder, boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        sqlStringBuilder.append(" AND pc.SORT_ORDER LIKE CONCAT(:productCategorySortOrder, '%')");
+        sqlStringBuilder
+                .append(" AND r.REALM_ID=:realmId")
+                .append(" AND pc.SORT_ORDER LIKE CONCAT(:productCategorySortOrder, '%')");
+        params.put("realmId", curUser.getRealm().getRealmId());
         params.put("productCategorySortOrder", productCategorySortOrder);
         if (active) {
             sqlStringBuilder.append(" AND pu.ACTIVE=:active ");

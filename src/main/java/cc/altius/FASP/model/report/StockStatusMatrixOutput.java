@@ -7,6 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -15,24 +17,44 @@ import java.io.Serializable;
  */
 public class StockStatusMatrixOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
+    @JsonView(Views.ReportView.class)
+    private int tracerCategoryId;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject unit;
+    @JsonView(Views.ReportView.class)
     private int minMonthsOfStock;
+    @JsonView(Views.ReportView.class)
     private int reorderFrequency;
+    @JsonView(Views.ReportView.class)
     private int multiplier;
+    @JsonView(Views.ReportView.class)
     private int year;
-    private double jan;
-    private double feb;
-    private double mar;
-    private double apr;
-    private double may;
-    private double jun;
-    private double jul;
-    private double aug;
-    private double sep;
-    private double oct;
-    private double nov;
-    private double dec;
+    @JsonView(Views.ReportView.class)
+    private Double jan;
+    @JsonView(Views.ReportView.class)
+    private Double feb;
+    @JsonView(Views.ReportView.class)
+    private Double mar;
+    @JsonView(Views.ReportView.class)
+    private Double apr;
+    @JsonView(Views.ReportView.class)
+    private Double may;
+    @JsonView(Views.ReportView.class)
+    private Double jun;
+    @JsonView(Views.ReportView.class)
+    private Double jul;
+    @JsonView(Views.ReportView.class)
+    private Double aug;
+    @JsonView(Views.ReportView.class)
+    private Double sep;
+    @JsonView(Views.ReportView.class)
+    private Double oct;
+    @JsonView(Views.ReportView.class)
+    private Double nov;
+    @JsonView(Views.ReportView.class)
+    private Double dec;
 
     public SimpleObject getPlanningUnit() {
         return planningUnit;
@@ -40,6 +62,14 @@ public class StockStatusMatrixOutput implements Serializable {
 
     public void setPlanningUnit(SimpleObject planningUnit) {
         this.planningUnit = planningUnit;
+    }
+
+    public int getTracerCategoryId() {
+        return tracerCategoryId;
+    }
+
+    public void setTracerCategoryId(int tracerCategoryId) {
+        this.tracerCategoryId = tracerCategoryId;
     }
 
     public SimpleCodeObject getUnit() {
@@ -82,100 +112,101 @@ public class StockStatusMatrixOutput implements Serializable {
         this.year = year;
     }
 
-    public double getJan() {
+    public Double getJan() {
         return jan;
     }
 
-    public void setJan(double jan) {
+    public void setJan(Double jan) {
         this.jan = jan;
     }
 
-    public double getFeb() {
+    public Double getFeb() {
         return feb;
     }
 
-    public void setFeb(double feb) {
+    public void setFeb(Double feb) {
         this.feb = feb;
     }
 
-    public double getMar() {
+    public Double getMar() {
         return mar;
     }
 
-    public void setMar(double mar) {
+    public void setMar(Double mar) {
         this.mar = mar;
     }
 
-    public double getApr() {
+    public Double getApr() {
         return apr;
     }
 
-    public void setApr(double apr) {
+    public void setApr(Double apr) {
         this.apr = apr;
     }
 
-    public double getMay() {
+    public Double getMay() {
         return may;
     }
 
-    public void setMay(double may) {
+    public void setMay(Double may) {
         this.may = may;
     }
 
-    public double getJun() {
+    public Double getJun() {
         return jun;
     }
 
-    public void setJun(double jun) {
+    public void setJun(Double jun) {
         this.jun = jun;
     }
 
-    public double getJul() {
+    public Double getJul() {
         return jul;
     }
 
-    public void setJul(double jul) {
+    public void setJul(Double jul) {
         this.jul = jul;
     }
 
-    public double getAug() {
+    public Double getAug() {
         return aug;
     }
 
-    public void setAug(double aug) {
+    public void setAug(Double aug) {
         this.aug = aug;
     }
 
-    public double getSep() {
+    public Double getSep() {
         return sep;
     }
 
-    public void setSep(double sep) {
+    public void setSep(Double sep) {
         this.sep = sep;
     }
 
-    public double getOct() {
+    public Double getOct() {
         return oct;
     }
 
-    public void setOct(double oct) {
+    public void setOct(Double oct) {
         this.oct = oct;
     }
 
-    public double getNov() {
+    public Double getNov() {
         return nov;
     }
 
-    public void setNov(double nov) {
+    public void setNov(Double nov) {
         this.nov = nov;
     }
 
-    public double getDec() {
+    public Double getDec() {
         return dec;
     }
 
-    public void setDec(double dec) {
+    public void setDec(Double dec) {
         this.dec = dec;
     }
+
     
 }

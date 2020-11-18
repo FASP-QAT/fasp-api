@@ -21,6 +21,7 @@ public class StockStatusForProgramOutputRowMapper implements RowMapper<StockStat
     public StockStatusForProgramOutput mapRow(ResultSet rs, int i) throws SQLException {
         StockStatusForProgramOutput sspo = new StockStatusForProgramOutput();
         sspo.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
+        sspo.setTracerCategory(new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TRACER_CATEGORY_").mapRow(rs, i)));
         sspo.setMinMos(rs.getInt("MIN_MONTHS_OF_STOCK"));
         sspo.setMaxMos(rs.getInt("MAX_MONTHS_OF_STOCK"));
         sspo.setMos(rs.getDouble("MoS"));

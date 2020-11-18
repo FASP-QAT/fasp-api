@@ -15,6 +15,8 @@ import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
+import cc.altius.FASP.model.report.ExpiredStockInput;
+import cc.altius.FASP.model.report.ExpiredStockOutput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
@@ -55,7 +57,6 @@ import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.service.ReportService;
 import java.util.List;
-import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -68,11 +69,6 @@ public class ReportServiceImpl implements ReportService {
 
     @Autowired
     ReportDao reportDao;
-
-    @Override
-    public List<Map<String, Object>> getConsumptionData(int realmId, int productcategoryId, int planningUnitId, String StartDate, String endDate) {
-        return this.reportDao.getConsumptionData(realmId, productcategoryId, planningUnitId, StartDate, endDate);
-    }
 
     @Override
     public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm) {
@@ -130,6 +126,11 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
+    public List<ExpiredStockOutput> getExpiredStock(ExpiredStockInput esi, CustomUserDetails curUser) {
+        return this.reportDao.getExpiredStock(esi, curUser);
+    }
+
+    @Override
     public List<StockAdjustmentReportOutput> getStockAdjustmentReport(StockAdjustmentReportInput si, CustomUserDetails curUser) {
         return this.reportDao.getStockAdjustmentReport(si, curUser);
     }
@@ -170,7 +171,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     @Override
-    public List<ShipmentDetailsOutput> getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) {
+    public ShipmentDetailsOutput getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) {
         return this.reportDao.getShipmentDetails(sd, curUser);
     }
 
@@ -196,7 +197,7 @@ public class ReportServiceImpl implements ReportService {
         for (StockStatusAcrossProductsOutput s : ssapList) {
             for (StockStatusAcrossProductsForProgram progData : s.getProgramData()) {
                 s.getProgramData().remove(progData);
-                StockStatusAcrossProductsForProgram sData = this.reportDao.getStockStatusAcrossProductsProgramData(progData.getProgram().getId(), s.getPlanningUnit().getId(), ssap.getDt());
+                StockStatusAcrossProductsForProgram sData = this.reportDao.getStockStatusAcrossProductsProgramData(progData.getProgram().getId(), s.getPlanningUnit().getId(), ssap.getDt(), ssap.isUseApprovedSupplyPlanOnly());
                 s.getProgramData().add(sData);
             }
         }

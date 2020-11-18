@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,16 +14,14 @@ import java.io.Serializable;
  */
 public class RealmCountry extends BaseModel implements Serializable {
 
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private int realmCountryId;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private Country country;
+    @JsonView(Views.InternalView.class)
     private Realm realm;
+    @JsonView(Views.InternalView.class)
     private Currency defaultCurrency;
-//    private Unit palletUnit;
-//    private double airFreightPercentage;
-//    private double seaFreightPercentage;
-//    private double shippedToArrivedByAirLeadTime;
-//    private double shippedToArrivedBySeaLeadTime;
-//    private double arrivedToDeliveredLeadTime;
 
     public RealmCountry() {
     }
@@ -69,54 +68,6 @@ public class RealmCountry extends BaseModel implements Serializable {
     public void setDefaultCurrency(Currency defaultCurrency) {
         this.defaultCurrency = defaultCurrency;
     }
-
-//    public Unit getPalletUnit() {
-//        return palletUnit;
-//    }
-//
-//    public void setPalletUnit(Unit palletUnit) {
-//        this.palletUnit = palletUnit;
-//    }
-//
-//    public double getAirFreightPercentage() {
-//        return airFreightPercentage;
-//    }
-//
-//    public void setAirFreightPercentage(double airFreightPercentage) {
-//        this.airFreightPercentage = airFreightPercentage;
-//    }
-//
-//    public double getSeaFreightPercentage() {
-//        return seaFreightPercentage;
-//    }
-//
-//    public void setSeaFreightPercentage(double seaFreightPercentage) {
-//        this.seaFreightPercentage = seaFreightPercentage;
-//    }
-//
-//    public double getShippedToArrivedByAirLeadTime() {
-//        return shippedToArrivedByAirLeadTime;
-//    }
-//
-//    public void setShippedToArrivedByAirLeadTime(double shippedToArrivedByAirLeadTime) {
-//        this.shippedToArrivedByAirLeadTime = shippedToArrivedByAirLeadTime;
-//    }
-//
-//    public double getShippedToArrivedBySeaLeadTime() {
-//        return shippedToArrivedBySeaLeadTime;
-//    }
-//
-//    public void setShippedToArrivedBySeaLeadTime(double shippedToArrivedBySeaLeadTime) {
-//        this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
-//    }
-//
-//    public double getArrivedToDeliveredLeadTime() {
-//        return arrivedToDeliveredLeadTime;
-//    }
-//
-//    public void setArrivedToDeliveredLeadTime(double arrivedToDeliveredLeadTime) {
-//        this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
-//    }
 
     @Override
     public int hashCode() {

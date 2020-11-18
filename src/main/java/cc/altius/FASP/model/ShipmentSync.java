@@ -18,6 +18,7 @@ public class ShipmentSync implements Serializable {
     private int versionId;
     private List<Shipment> shipmentList;
     private List<Batch> batchInfoList;
+    private List<ProblemReport> problemReportList;
 
     public int getProgramId() {
         return programId;
@@ -49,6 +50,14 @@ public class ShipmentSync implements Serializable {
 
     public void setBatchInfoList(List<Batch> batchInfoList) {
         this.batchInfoList = batchInfoList;
+    }
+
+    public List<ProblemReport> getProblemReportList() {
+        return problemReportList;
+    }
+
+    public void setProblemReportList(List<ProblemReport> problemReportList) {
+        this.problemReportList = problemReportList;
     }
 
 }

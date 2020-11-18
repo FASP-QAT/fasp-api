@@ -7,6 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -23,18 +25,31 @@ public class StockStatusVerticalOutput implements Serializable {
     
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView(Views.ReportView.class)
     private Date dt;
-    private int openingBalance;
+    @JsonView(Views.ReportView.class)
+    private Integer openingBalance;
+    @JsonView(Views.ReportView.class)
     private Boolean actualConsumption;
-    private int consumptionQty;
-    private int shipmentQty;
+    @JsonView(Views.ReportView.class)
+    private Integer consumptionQty;
+    @JsonView(Views.ReportView.class)
+    private Integer shipmentQty;
+    @JsonView(Views.ReportView.class)
     private List<ShipmentInfo> shipmentInfo;
-    private int adjustment;
-    private int expiredStock;
-    private int closingBalance;
-    private double amc;
-    private double mos;
+    @JsonView(Views.ReportView.class)
+    private Integer adjustment;
+    @JsonView(Views.ReportView.class)
+    private Integer expiredStock;
+    @JsonView(Views.ReportView.class)
+    private Integer closingBalance;
+    @JsonView(Views.ReportView.class)
+    private Double amc;
+    @JsonView(Views.ReportView.class)
+    private Double mos;
+    @JsonView(Views.ReportView.class)
     private int minMos;
+    @JsonView(Views.ReportView.class)
     private int maxMos;
 
     public StockStatusVerticalOutput() {
@@ -49,11 +64,11 @@ public class StockStatusVerticalOutput implements Serializable {
         this.dt = dt;
     }
 
-    public int getOpeningBalance() {
+    public Integer getOpeningBalance() {
         return openingBalance;
     }
 
-    public void setOpeningBalance(int openingBalance) {
+    public void setOpeningBalance(Integer openingBalance) {
         this.openingBalance = openingBalance;
     }
 
@@ -65,60 +80,59 @@ public class StockStatusVerticalOutput implements Serializable {
         this.actualConsumption = actualConsumption;
     }
 
-    public int getConsumptionQty() {
+    public Integer getConsumptionQty() {
         return consumptionQty;
     }
 
-    public void setConsumptionQty(int consumptionQty) {
+    public void setConsumptionQty(Integer consumptionQty) {
         this.consumptionQty = consumptionQty;
     }
 
-    public int getShipmentQty() {
+    public Integer getShipmentQty() {
         return shipmentQty;
     }
 
-    public void setShipmentQty(int shipmentQty) {
+    public void setShipmentQty(Integer shipmentQty) {
         this.shipmentQty = shipmentQty;
     }
 
-
-    public int getAdjustment() {
+    public Integer getAdjustment() {
         return adjustment;
     }
 
-    public void setAdjustment(int adjustment) {
+    public void setAdjustment(Integer adjustment) {
         this.adjustment = adjustment;
     }
 
-    public int getExpiredStock() {
+    public Integer getExpiredStock() {
         return expiredStock;
     }
 
-    public void setExpiredStock(int expiredStock) {
+    public void setExpiredStock(Integer expiredStock) {
         this.expiredStock = expiredStock;
     }
 
-    public int getClosingBalance() {
+    public Integer getClosingBalance() {
         return closingBalance;
     }
 
-    public void setClosingBalance(int closingBalance) {
+    public void setClosingBalance(Integer closingBalance) {
         this.closingBalance = closingBalance;
     }
 
-    public double getAmc() {
+    public Double getAmc() {
         return amc;
     }
 
-    public void setAmc(double amc) {
+    public void setAmc(Double amc) {
         this.amc = amc;
     }
 
-    public double getMos() {
+    public Double getMos() {
         return mos;
     }
 
-    public void setMos(double mos) {
+    public void setMos(Double mos) {
         this.mos = mos;
     }
 
@@ -169,6 +183,11 @@ public class StockStatusVerticalOutput implements Serializable {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "StockStatusVerticalOutput{" + "dt=" + dt + ", openingBalance=" + openingBalance + ", actualConsumption=" + actualConsumption + ", consumptionQty=" + consumptionQty + ", shipmentQty=" + shipmentQty + ", shipmentInfo=" + shipmentInfo + ", adjustment=" + adjustment + ", expiredStock=" + expiredStock + ", closingBalance=" + closingBalance + ", amc=" + amc + ", mos=" + mos + ", minMos=" + minMos + ", maxMos=" + maxMos + '}';
     }
     
 }

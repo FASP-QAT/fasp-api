@@ -19,6 +19,10 @@ public class ExportOrderDataDTO {
     private String procurementAgentCode;
     private int shipmentQty;
     private Date expectedDeliveryDate;
+    private int tracerCategoryId;
+    private String tracerCategoryDesc;
+    private boolean active;
+    private Date lastModifiedDate;
 
     public int getShipmentId() {
         return shipmentId;
@@ -66,6 +70,38 @@ public class ExportOrderDataDTO {
 
     public void setExpectedDeliveryDate(Date expectedDeliveryDate) {
         this.expectedDeliveryDate = expectedDeliveryDate;
+    }
+
+    public int getTracerCategoryId() {
+        return tracerCategoryId;
+    }
+
+    public void setTracerCategoryId(int tracerCategoryId) {
+        this.tracerCategoryId = tracerCategoryId;
+    }
+
+    public String getTracerCategoryDesc() {
+        return tracerCategoryDesc;
+    }
+
+    public void setTracerCategoryDesc(String tracerCategoryDesc) {
+        this.tracerCategoryDesc = tracerCategoryDesc;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public Date getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(Date lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     @Override

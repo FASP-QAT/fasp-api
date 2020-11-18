@@ -18,27 +18,31 @@ public class FileNameComparator implements Comparator<File> {
     public int compare(File o1, File o2) {
         long n1 = extractNumber(o1.getName());
         long n2 = extractNumber(o2.getName());
-        if (n1 > n2) {
-            return 1;
-        } else if (n1 == n2) {
-            return 0;
+        if (n1 == -1 || n2 == -1) {
+            return o1.getName().compareTo(o2.getName());
         } else {
-            return -1;
+            if (n1 > n2) {
+                return 1;
+            } else if (n2 > n1) {
+                return -1;
+            } else {
+                return 0;
+            }
         }
-//        return n1 - n2;
     }
 
     private long extractNumber(String name) {
         long i = 0;
-        try {
-            int s = name.lastIndexOf('_') + 1;
-            int e = name.lastIndexOf('.');
-            String number = name.substring(s, e);
-            i = Long.parseLong(number);
-        } catch (Exception e) {
-            i = 0; // if filename does not match the format
-            // then default to 0
+        StringBuilder sb = new StringBuilder();
+        for (int x = 0; x < name.length(); x++) {
+            if (name.charAt(x) >= '0' && name.charAt(x) <= '9') {
+                sb.append(name.charAt(x));
+            }
         }
-        return i;
+        if (sb.length() > 0) {
+            return Long.parseLong(sb.toString());
+        } else {
+            return -1;
+        }
     }
 }

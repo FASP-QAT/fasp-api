@@ -16,7 +16,7 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author akil
  */
-public class ProgramLeadTimesOutputRowMapper implements RowMapper<ProgramLeadTimesOutput>{
+public class ProgramLeadTimesOutputRowMapper implements RowMapper<ProgramLeadTimesOutput> {
 
     @Override
     public ProgramLeadTimesOutput mapRow(ResultSet rs, int i) throws SQLException {
@@ -26,13 +26,34 @@ public class ProgramLeadTimesOutputRowMapper implements RowMapper<ProgramLeadTim
         plt.setProcurementAgent(new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, i), rs.getString("PROCUREMENT_AGENT_CODE")));
         plt.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
         plt.setPlannedToSubmittedLeadTime(rs.getDouble("PLANNED_TO_SUBMITTED_LEAD_TIME"));
+        if (rs.wasNull()) {
+            plt.setPlannedToSubmittedLeadTime(null);
+        }
         plt.setSubmittedToApprovedLeadTime(rs.getDouble("SUBMITTED_TO_APPROVED_LEAD_TIME"));
+        if (rs.wasNull()) {
+            plt.setSubmittedToApprovedLeadTime(null);
+        }
         plt.setApprovedToShippedLeadTime(rs.getDouble("APPROVED_TO_SHIPPED_LEAD_TIME"));
+        if (rs.wasNull()) {
+            plt.setApprovedToShippedLeadTime(null);
+        }
         plt.setShippedToArrivedByAirLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME"));
+        if (rs.wasNull()) {
+            plt.setShippedToArrivedByAirLeadTime(null);
+        }
         plt.setShippedToArrivedBySeaLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME"));
+        if (rs.wasNull()) {
+            plt.setShippedToArrivedBySeaLeadTime(null);
+        }
         plt.setArrivedToDeliveredLeadTime(rs.getDouble("ARRIVED_TO_DELIVERED_LEAD_TIME"));
+        if (rs.wasNull()) {
+            plt.setArrivedToDeliveredLeadTime(null);
+        }
         plt.setLocalProcurementAgentLeadTime(rs.getDouble("LOCAL_PROCUREMENT_LEAD_TIME"));
+        if (rs.wasNull()) {
+            plt.setLocalProcurementAgentLeadTime(null);
+        }
         return plt;
     }
-    
+
 }

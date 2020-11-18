@@ -86,8 +86,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Role> getRoleList() {
-        return this.userDao.getRoleList();
+    public List<Role> getRoleList(CustomUserDetails curUser) {
+        return this.userDao.getRoleList(curUser);
     }
 
     @Override
@@ -229,6 +229,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public int acceptUserAgreement(int userId) {
         return this.userDao.acceptUserAgreement(userId);
+    }
+
+    @Override
+    public int addUserJiraAccountId(int userId, String jiraCustomerAccountId) {
+        return this.userDao.addUserJiraAccountId(userId, jiraCustomerAccountId);
+    }
+
+    @Override
+    public String getUserJiraAccountId(int userId) {
+        return this.userDao.getUserJiraAccountId(userId);
+    }
+
+    @Override
+    public List<String> getUserListForUpdateJiraAccountId() {
+        return this.userDao.getUserListForUpdateJiraAccountId();
+    }
+
+    @Override
+    public void updateUserJiraAccountId(String emailAddress, String jiraAccountId) {
+        this.userDao.updateUserJiraAccountId(emailAddress, jiraAccountId);
     }
 
 }

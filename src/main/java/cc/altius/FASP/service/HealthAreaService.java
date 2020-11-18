@@ -20,6 +20,10 @@ public interface HealthAreaService {
     public int updateHealthArea(HealthArea h, CustomUserDetails CurUser);
 
     public List<HealthArea> getHealthAreaList(CustomUserDetails curUser);
+    
+    public List<HealthArea> getHealthAreaListByRealmCountry(int realmCountryId, CustomUserDetails curUser);
+    
+    public List<HealthArea> getHealthAreaForActiveProgramsList(int realmId, CustomUserDetails curUser);
 
     public List<HealthArea> getHealthAreaListByRealmId(int realmId, CustomUserDetails curUser);
 
@@ -27,5 +31,7 @@ public interface HealthAreaService {
 
     public List<HealthArea> getHealthAreaListForProgramByRealmId(int realmId, CustomUserDetails curUser);
 
+    public String getDisplayName(int realmId, String name, CustomUserDetails curUser);
+    
     public List<HealthArea> getHealthAreaListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentBatchInfo;
@@ -41,6 +42,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
                 s = sList.get(idx);
             }
             s.setShipmentId(rs.getInt("SHIPMENT_ID"));
+            s.setParentShipmentId(rs.getInt("PARENT_SHIPMENT_ID"));
             s.setPlanningUnit(
                     new SimplePlanningUnitObject(
                             rs.getInt("PLANNING_UNIT_ID"),
@@ -68,6 +70,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             s.setProcurementUnit(new SimpleObject(rs.getInt("PROCUREMENT_UNIT_ID"), new LabelRowMapper("PROCUREMENT_UNIT_").mapRow(rs, 1)));
             s.setSupplier(new SimpleObject(rs.getInt("SUPPLIER_ID"), new LabelRowMapper("SUPPLIER_").mapRow(rs, 1)));
             s.setShipmentQty(rs.getInt("SHIPMENT_QTY"));
+            s.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
             s.setRate(rs.getDouble("RATE"));
             s.setProductCost(rs.getDouble("PRODUCT_COST"));
             s.setShipmentMode(rs.getString("SHIPMENT_MODE"));
@@ -86,6 +89,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             s.setOrderNo(rs.getString("ORDER_NO"));
             s.setPrimeLineNo(rs.getString("PRIME_LINE_NO"));
             s.setEmergencyOrder(rs.getBoolean("EMERGENCY_ORDER"));
+            s.setLocalProcurement(rs.getBoolean("LOCAL_PROCUREMENT"));
             s.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
             s.setVersionId(rs.getInt("VERSION_ID"));
             s.setActive(rs.getBoolean("ACTIVE"));
@@ -95,8 +99,10 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
                     new LabelRowMapper("SHIPMENT_CURRENCY_").mapRow(rs, 1),
                     rs.getDouble("SHIPMENT_CONVERSION_RATE_TO_USD")
             ));
-            s.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
+            s.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
             s.setLastModifiedDate(rs.getTimestamp("LAST_MODIFIED_DATE"));
+            s.setCreatedBy(new BasicUser(rs.getInt("CB_USER_ID"), rs.getString("CB_USERNAME")));
+            s.setLastModifiedBy(new BasicUser(rs.getInt("LMB_USER_ID"), rs.getString("LMB_USERNAME")));
             ShipmentBatchInfo sbi = new ShipmentBatchInfoRowMapper().mapRow(rs, 1);
             if (sbi != null && s.getBatchInfoList().indexOf(sbi) == -1) {
                 s.getBatchInfoList().add(sbi);

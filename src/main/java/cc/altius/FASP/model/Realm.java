@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,12 +14,18 @@ import java.io.Serializable;
  */
 public class Realm extends BaseModel implements Serializable {
 
+    @JsonView(Views.InternalView.class)
     private Integer realmId;
+    @JsonView(Views.InternalView.class)
     private Label label;
+    @JsonView(Views.InternalView.class)
     private String realmCode;
     private boolean defaultRealm;
+    @JsonView(Views.InternalView.class)
     private int minMosMinGaurdrail;
+    @JsonView(Views.InternalView.class)
     private int minMosMaxGaurdrail;
+    @JsonView(Views.InternalView.class)
     private int maxMosMaxGaurdrail;
     private boolean active;
 

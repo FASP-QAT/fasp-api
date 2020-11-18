@@ -7,6 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -20,9 +22,12 @@ public class ConsumptionForecastVsActualOutput implements Serializable {
 
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class})
     private Date transDate;
-    private int actualConsumption;
-    private int forecastedConsumption;
+    @JsonView({Views.ReportView.class})
+    private Integer actualConsumption;
+    @JsonView({Views.ReportView.class})
+    private Integer forecastedConsumption;
 
     public Date getTransDate() {
         return transDate;
@@ -32,19 +37,19 @@ public class ConsumptionForecastVsActualOutput implements Serializable {
         this.transDate = transDate;
     }
 
-    public int getActualConsumption() {
+    public Integer getActualConsumption() {
         return actualConsumption;
     }
 
-    public void setActualConsumption(int actualConsumption) {
+    public void setActualConsumption(Integer actualConsumption) {
         this.actualConsumption = actualConsumption;
     }
 
-    public int getForecastedConsumption() {
+    public Integer getForecastedConsumption() {
         return forecastedConsumption;
     }
 
-    public void setForecastedConsumption(int forecastedConsumption) {
+    public void setForecastedConsumption(Integer forecastedConsumption) {
         this.forecastedConsumption = forecastedConsumption;
     }
 

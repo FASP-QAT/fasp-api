@@ -43,15 +43,16 @@ public class ProcurementUnitRowMapper implements RowMapper<ProcurementUnit> {
                 new SimpleObject(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, rowNum)),
                 rs.getDouble("MULTIPLIER"));
         pu.setHeightQty(rs.getDouble("HEIGHT_QTY"));
-        pu.setHeightUnit(new SimpleObject(rs.getInt("HEIGHT_UNIT_ID"), new LabelRowMapper("HEIGHT_UNIT_").mapRow(rs, rowNum)));
         pu.setWidthQty(rs.getDouble("WIDTH_QTY"));
-        pu.setWidthUnit(new SimpleObject(rs.getInt("WIDTH_UNIT_ID"), new LabelRowMapper("WIDTH_UNIT_").mapRow(rs, rowNum)));
         pu.setLengthQty(rs.getDouble("LENGTH_QTY"));
         pu.setLengthUnit(new SimpleObject(rs.getInt("LENGTH_UNIT_ID"), new LabelRowMapper("LENGTH_UNIT_").mapRow(rs, rowNum)));
         pu.setWeightQty(rs.getDouble("WEIGHT_QTY"));
         pu.setWeightUnit(new SimpleObject(rs.getInt("WEIGHT_UNIT_ID"), new LabelRowMapper("WEIGHT_UNIT_").mapRow(rs, rowNum)));
+        pu.setVolumeQty(rs.getDouble("VOLUME_QTY"));
+        pu.setVolumeUnit(new SimpleObject(rs.getInt("VOLUME_UNIT_ID"), new LabelRowMapper("VOLUME_UNIT_").mapRow(rs, rowNum)));
         pu.setUnitsPerCase(rs.getDouble("UNITS_PER_CASE"));
-        pu.setUnitsPerPallet(rs.getDouble("UNITS_PER_PALLET"));
+        pu.setUnitsPerPalletEuro1(rs.getDouble("UNITS_PER_PALLET_EURO1"));
+        pu.setUnitsPerPalletEuro2(rs.getDouble("UNITS_PER_PALLET_EURO2"));
         pu.setUnitsPerContainer(rs.getDouble("UNITS_PER_CONTAINER"));
         pu.setLabeling(rs.getString("LABELING"));
         pu.setSupplier(new SimpleObject(rs.getInt("SUPPLIER_ID"), new LabelRowMapper("SUPPLIER_").mapRow(rs, rowNum)));

@@ -21,11 +21,15 @@ public interface OrganisationService {
     public int updateOrganisation(Organisation organisation, CustomUserDetails curUser);
 
     public List<Organisation> getOrganisationList(CustomUserDetails curUser);
+    
+    public List<Organisation> getOrganisationListByRealmCountry(int realmCountryId, CustomUserDetails curUser);
 
     public List<Organisation> getOrganisationListByRealmId(int realmId, CustomUserDetails curUser);
 
     public Organisation getOrganisationById(int organisationId, CustomUserDetails curUser);
 
+    public String getDisplayName(int realmId, String name, CustomUserDetails curUser);
+    
     public List<Organisation> getOrganisationListForSync(String lastSyncDate, CustomUserDetails curUser);
 
 }

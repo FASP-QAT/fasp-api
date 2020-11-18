@@ -12,6 +12,7 @@ import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.rowMapper.FundingSourceRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -49,6 +50,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
             + "    fs.FUNDING_SOURCE_ID, fs.FUNDING_SOURCE_CODE, "
             + "    fsl.`LABEL_ID`, fsl.`LABEL_EN`, fsl.`LABEL_FR`, fsl.`LABEL_PR`, fsl.`LABEL_SP`,  "
             + "    r.REALM_ID, rl.`LABEL_ID` `REALM_LABEL_ID`, rl.`LABEL_EN` `REALM_LABEL_EN` , rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE,  "
+            + "    fs.ALLOWED_IN_BUDGET, "
             + "    fs.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fs.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, fs.LAST_MODIFIED_DATE  "
             + "FROM rm_funding_source fs  "
             + "LEFT JOIN ap_label fsl ON fs.`LABEL_ID`=fsl.`LABEL_ID`  "
@@ -68,6 +70,7 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
         params.put("REALM_ID", f.getRealm().getId());
         int labelId = this.labelDao.addLabel(f.getLabel(), LabelConstants.RM_FUNDING_SOURCE, curUser.getUserId());
         params.put("LABEL_ID", labelId);
+        params.put("ALLOWED_IN_BUDGET", true);
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
@@ -85,9 +88,10 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
         params.put("curUser", curUser.getUserId());
         params.put("fundingSourceCode", f.getFundingSourceCode());
         params.put("fundingSourceId", f.getFundingSourceId());
+        params.put("allowedInBudget", f.isAllowedInBudget());
         params.put("active", f.isActive());
         params.put("labelEn", f.getLabel().getLabel_en());
-        return this.namedParameterJdbcTemplate.update("UPDATE rm_funding_source fs LEFT JOIN ap_label fsl on fs.LABEL_ID=fsl.LABEL_ID SET fs.`FUNDING_SOURCE_CODE`=:fundingSourceCode, fs.`ACTIVE`=:active, fs.`LAST_MODIFIED_BY`=:curUser, fs.`LAST_MODIFIED_DATE`=:curDate, fsl.LABEL_EN=:labelEn, fsl.LAST_MODIFIED_BY=:curUser, fsl.LAST_MODIFIED_DATE=:curDate WHERE fs.FUNDING_SOURCE_ID=:fundingSourceId", params);
+        return this.namedParameterJdbcTemplate.update("UPDATE rm_funding_source fs LEFT JOIN ap_label fsl on fs.LABEL_ID=fsl.LABEL_ID SET fs.`FUNDING_SOURCE_CODE`=:fundingSourceCode, fs.`ALLOWED_IN_BUDGET`=:allowedInBudget, fs.`ACTIVE`=:active, fs.`LAST_MODIFIED_BY`=:curUser, fs.`LAST_MODIFIED_DATE`=:curDate, fsl.LABEL_EN=:labelEn, fsl.LAST_MODIFIED_BY=:curUser, fsl.LAST_MODIFIED_DATE=:curDate WHERE fs.FUNDING_SOURCE_ID=:fundingSourceId", params);
     }
 
     @Override
@@ -126,4 +130,15 @@ public class FundingSourceDaoImpl implements FundingSourceDao {
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new FundingSourceRowMapper());
     }
 
+    @Override
+    public String getDisplayName(int realmId, String name, CustomUserDetails curUser) {
+        String extractedName = SuggestedDisplayName.getAlphaNumericString(name, SuggestedDisplayName.FUNDING_SOURCE_LENGTH);
+        String sqlString = "SELECT COUNT(*) CNT FROM rm_funding_source fs WHERE fs.REALM_ID=:realmId AND UPPER(LEFT(fs.FUNDING_SOURCE_CODE,:len))=:extractedName";
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        params.put("len", extractedName.length());
+        params.put("extractedName", extractedName);
+        int cnt = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        return SuggestedDisplayName.getFinalDisplayName(extractedName, cnt);
+    }
 }

@@ -8,10 +8,12 @@ package cc.altius.FASP.web.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.model.report.AnnualShipmentCostInput;
 import cc.altius.FASP.model.report.BudgetReportInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
+import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
@@ -28,13 +30,18 @@ import cc.altius.FASP.model.report.StockStatusOverTimeInput;
 import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
+import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.service.ReportService;
+import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
+import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -49,44 +56,42 @@ public class ReportController {
 
     @Autowired
     private ReportService reportService;
+    @Autowired
+    private UserService userService;
 
-    @RequestMapping(value = "/consumption/{realmId}/{programId}/{planningUnitId}/{startDate}/{endDate}")
-    public ResponseEntity getConsumptionData(@PathVariable("realmId") int realmId, @PathVariable("programId") int programId, @PathVariable("planningUnitId") int planningUnitId, @PathVariable("startDate") String startDate, @PathVariable("endDate") String endDate, Authentication auth) {
-        try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.reportService.getConsumptionData(realmId, programId, planningUnitId, startDate, endDate), HttpStatus.OK);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-
-    }
+    private final Logger logger = LoggerFactory.getLogger(ReportController.class);
 
     // Report no 1
+    // Reports -> Program Catalog
     /**
      * <pre>
-     * Sample JSON {"productCategoryId": -1, "tracerCategoryId": -1, "programId": 3 }
+     * Sample JSON {"productCategoryId": -1, "tracerCategoryId": -1, "programId": 2028 }
      * -- Program Id must be a valid Program Id, cannot be -1 (Any)      *
      * -- TracerCategory and ProductCategory are used as Filters for the report and can be = -1 which means Any
      * -- Return the list of Program-Planning Units and their corresponding fields
      * </pre>
+     * @param ProgramProductCatalogInput
+     * @param auth Authentication object from JWT
+     * @return ProgramProductCatalogOutput
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/programProductCatalog")
     public ResponseEntity getProgramProductCatalog(@RequestBody ProgramProductCatalogInput ppc, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getProgramProductCatalog(ppc, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/programProductCatalog", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 2
+    // Reports -> Consumption Reports -> Consumption (Forecast vs Actual)
     /**
      * <pre>
      * Sample JSON
-     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitId":152, "reportView":1}
+     * {"programId":2535, "versionId":1, "startDate":"2019-01-01", "stopDate":"2019-12-01", "planningUnitId":778, "reportView":1}
      * -- programId must be a single Program cannot be muti-program select or -1 for all programs
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
      * -- planningUnitId must be a valid PlanningUnitId
@@ -95,26 +100,29 @@ public class ReportController {
      * -- reportView = 2 - Data is reported in terms of Forecasting Unit
      * </pre>
      *
-     * @param ppc
-     * @param auth
-     * @return
+     * @param ConsumptionForecastVsActualInput
+     * @param auth Authentication object from JWT
+     * @return ConsumptionForecastVsActualOutput
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/consumptionForecastVsActual")
     public ResponseEntity getConsumptionForecastVsActual(@RequestBody ConsumptionForecastVsActualInput ppc, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getConsumptionForecastVsActual(ppc, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/consumptionForecastVsActual", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 3
+    // Reports -> Consumption Reports -> Consumption (Global)
+    // Global Report
     /**
      * <pre>
      * Sample JSON
-     * { "realmId": 1, "realmCountryIds": [ 1, 2], "programIds": [1, 3], "planningUnitIds": [157, 152, 1190], "startDate": "2019-10-01", "stopDate": "2020-07-01", "reportView": 1}
+     * { "realmId": 1, "realmCountryIds": [5,51], "programIds": [2028,2029,2535], "planningUnitIds": [778,2692], "startDate": "2019-01-01", "stopDate": "2019-12-01", "reportView": 1, "useApprovedSupplyPlanOnly":0}
      * -- realmId must be a valid realm that you want to run this Global report for
      * -- RealmCountryIds is the list of Countries that you want to run the report for. Empty means all Countries
      * -- ProgramIds is the list of Programs that you want to run the report for. Empty means all Programs
@@ -128,22 +136,24 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/globalConsumption")
     public ResponseEntity getGlobalConsumption(@RequestBody GlobalConsumptionInput gci, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getGlobalConsumption(gci, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/globalConsumption", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 4
+    // Reports -> Consumption Reports -> Forecast Error (Monthly)
     /**
      * <pre>
      * Sample JSON
-     * { "startDate":"2019-10-01", "stopDate":"2020-07-01", "programId":3, "versionId":2, "planningUnitId":152, "previousMonths":5}
+     * { "programId": 2003, "versionId":2, "planningUnitId": 772, "startDate": "2020-01-01", "stopDate": "2020-05-01", "previousMonths": 6}
      * -- startDate and stopDate are the range that you want to run the report for
      * -- programId must be a single Program cannot be muti-program select or -1 for all programs
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
@@ -159,22 +169,25 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/forecastMetricsMonthly")
-    public ResponseEntity getForecastMetricsMonthls(@RequestBody ForecastMetricsMonthlyInput fmi, Authentication auth) {
+    public ResponseEntity getForecastMetricsMonthly(@RequestBody ForecastMetricsMonthlyInput fmi, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getForecastMetricsMonthly(fmi, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/forecastMetricsMonthly", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 5
+    // Global Report
+    // Reports -> Consumption Reports -> Forecast Error (by Planning Unit)
     /**
      * <pre>
      * Sample JSON
-     * { "realmId":1, "realmCountryIds":[1,2], "programIds":[1,3], "planningUnitIds":[157,152,1190], "startDate":"2020-02-01", "previousMonths":5}
+     * { "realmId":1, "realmCountryIds":[2,5], "programIds":[2003,2028], "planningUnitIds":[772,2692], "startDate":"2020-03-01", "previousMonths":5}
      * -- realmId since it is a Global report need to include Realm
      * -- startDate - date that the report is to be run for
      * -- realmCountryIds list of countries that we need to run the report for
@@ -191,19 +204,21 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/forecastMetricsComparision")
     public ResponseEntity getForecastMetricsComparision(@RequestBody ForecastMetricsComparisionInput fmi, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getForecastMetricsComparision(fmi, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/forecastMetricsComparision", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
 
     // Report no 7
+    // Reports -> Inventory Reports -> Warehouse Capacity (by Program)
     /**
      * <pre>
      * Sample JSON
@@ -218,18 +233,20 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/warehouseCapacityReport")
     public ResponseEntity getwarehouseCapacityReport(@RequestBody WarehouseCapacityInput wci, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getWarehouseCapacityReport(wci, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/warehouseCapacityReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 8
+    // Reports -> Inventory Reports -> Cost of Inventory
     /**
      * <pre>
      * Sample JSON
@@ -247,18 +264,20 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/costOfInventory")
     public ResponseEntity getCostOfInventory(@RequestBody CostOfInventoryInput cii, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getCostOfInventory(cii, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/costOfInventory", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 9
+    // Reports -> Inventory Reports -> Inventory Turns
     /**
      * <pre>
      * Sample JSON
@@ -275,18 +294,50 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/inventoryTurns")
     public ResponseEntity getInventoryTurns(@RequestBody CostOfInventoryInput it, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getInventoryTurns(it, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/inventoryTurns", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Report no 11
+    // Reports -> Inventory Reports -> Expiries
+    /**
+     * <pre>
+     * Sample JSON
+     * {"programId":2535, "versionId":1, "startDt":"2017-01-01", "stopDt":"2021-12-01", "includePlannedShipments":1}
+     * -- programId cannot be -1 (All) it must be a valid ProgramId
+     * -- versionId can be -1 or a valid VersionId for that Program. If it is -1 then the last committed Version is automatically taken.
+     * -- StartDate is the start date that you want to run the report for
+     * -- StopDate is the stop date that you want to run the report for
+     * -- Include Planned Shipments = 1 menas that Shipments that are in the Planned stages will also be considered in the report
+     * -- Include Planned Shipments = 0 means that Shipments that are in the Planned stages will not be considered in the report
+     * </pre>
+     *
+     * @param it
+     * @param auth
+     * @return
+     */
+    @JsonView(Views.ReportView.class)
+    @RequestMapping(value = "/expiredStock")
+    public ResponseEntity getExpiredStock(@RequestBody ExpiredStockInput esi, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.reportService.getExpiredStock(esi, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("/api/report/expiredStock", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 12
+    // Reports -> Inventory Reports -> Stock Adjustment
     /**
      * <pre>
      * Sample JSON
@@ -301,13 +352,14 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/stockAdjustmentReport")
     public ResponseEntity getStockAdjustmentReport(@RequestBody StockAdjustmentReportInput si, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getStockAdjustmentReport(si, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/stockAdjustmentReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -333,18 +385,21 @@ public class ReportController {
      * @param auth
      * @return
      */
+    // Report -> Shipment Reports -> Shipment Cost Details (Procurement Agent view)
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/procurementAgentShipmentReport")
     public ResponseEntity getProcurementAgentShipmentReport(@RequestBody ProcurementAgentShipmentReportInput pari, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getProcurementAgentShipmentReport(pari, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/procurementAgentShipmentReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 14
+    // Report -> Shipment Reports -> Procurement Agent Lead Times
     /**
      * <pre>
      * Sample JSON
@@ -358,18 +413,20 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/programLeadTimes")
     public ResponseEntity getProgramLeadTimes(@RequestBody ProgramLeadTimesInput plt, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getProgramLeadTimes(plt, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/programLeadTimes", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 15
+    // Report -> Shipment Reports -> Shipment Cost Details (Funding Source view)
     /**
      * <pre>
      * Sample JSON
@@ -389,18 +446,20 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/fundingSourceShipmentReport")
     public ResponseEntity getFundingSourceShipmentReport(@RequestBody FundingSourceShipmentReportInput fsri, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getFundingSourceShipmentReport(fsri, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/fundingSourceShipmentReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 16
+    // Supply Planning -> Supply Plan Report
     /**
      * <pre>
      * Sample JSON
@@ -414,18 +473,21 @@ public class ReportController {
     // ActualConsumption = 0 -- Forecasted Consumption
     // ActualConsumption = 1 -- Actual Consumption
     // ActualConsumption = null -- No consumption data
+//    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
-            return new ResponseEntity(this.reportService.getStockStatusVertical(ssv, curUser), HttpStatus.OK);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            List<StockStatusVerticalOutput> ssvoList = this.reportService.getStockStatusVertical(ssv, curUser);
+            return new ResponseEntity(ssvoList, HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/stockStatusVertical", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 17
+    // Reports -> Stock Status -> Stock Status Over Time
     /**
      * <pre>
      * Sample JSON
@@ -443,18 +505,20 @@ public class ReportController {
     // ActualConsumption = 0 -- Forecasted Consumption
     // ActualConsumption = 1 -- Actual Consumption
     // ActualConsumption = null -- No consumption data
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/stockStatusOverTime")
     public ResponseEntity getStockStatusOverTime(@RequestBody StockStatusOverTimeInput ssot, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getStockStatusOverTime(ssot, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/stockStatusOverTime", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 18
+    // Reports -> Stock Status -> Stock Status Matrix
     /**
      * <pre>
      * Sample JSON
@@ -473,13 +537,14 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/stockStatusMatrix")
     public ResponseEntity getStockStatusMatrix(@RequestBody StockStatusMatrixInput ssm, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getStockStatusMatrix(ssm), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/stockStatusMatrix", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
@@ -501,62 +566,71 @@ public class ReportController {
      * @param auth
      * @return
      */
+    // Report -> Shipment Reports -> Shipment Details
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/shipmentDetails")
     public ResponseEntity getShipmentDetails(@RequestBody ShipmentDetailsInput sd, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getShipmentDetails(sd, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/shipmentDetails", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 20
+    // Report -> Shipment Reports -> Shipments Overview
+    // Global Report
     /**
      * <pre>
      * Sample JSON
-     * {"realmId":1,  "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":[158], "fundingSourceIds":[], "procurementAgentIds":[]}
+     * {"curUser":20, "realmId":1,  "startDate":"2019-10-01", "stopDate":"2021-07-01", "shipmentStatusIds":[],"planningUnitIds":[], "fundingSourceIds":[], "procurementAgentIds":[], "useApprovedSupplyPlansOnly":0}
      * </pre>
      *
      * @param so
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/shipmentOverview")
     public ResponseEntity getShipmentOverview(@RequestBody ShipmentOverviewInput so, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getShipmentOverview(so, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/shipmentOverview", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 21
+    // Report -> Shipment Reports -> Shipments (Global)
+    // Global Report
     /**
      * <pre>
      * Sample JSON
-     * {"realmId":1,  "startDate":"2019-10-01", "stopDate":"2020-07-01", "realmCountryIds":[1,2,3], "planningUnitId":158, "fundingSourceIds":[], "fundingSourceProcurementAgentIds":[], "reportView":1}
+     * {"curUser": 20,"realmId": 1,"realmCountryIds": [5,51],"programIds": [2028,2029,2535],"planningUnitId": 2692,"startDate": 2019-01-01","stopDate": "2019-12-01","fundingSourceProcurementAgentIds": [],"reportView": 1,"useApprovedSupplyPlanOnly": 0,"includePlannedShipments": 1}
      * </pre>
      *
      * @param sgd
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/shipmentGlobalDemand")
     public ResponseEntity getShipmentGlobalDemand(@RequestBody ShipmentGlobalDemandInput sgd, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getShipmentGlobalDemand(sgd, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/shipmentGlobalDemand", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 22
+    // Report -> Shipment Reports -> Shipment Cost Overview
     /**
      * <pre>
      * Sample JSON
@@ -572,13 +646,14 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/annualShipmentCost")
     public ResponseEntity getAnnualShipmentCost(@RequestBody AnnualShipmentCostInput asci, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getAnnualShipmentCost(asci, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/annualShipmentCost", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -602,22 +677,25 @@ public class ReportController {
      * @param auth
      * @return
      */
+    // Report -> Shipment Reports -> Shipment Cost Details (Planning Unit view)
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/aggregateShipmentByProduct")
     public ResponseEntity getAggregateShipmentByProduct(@RequestBody ShipmentReportInput fsri, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getAggregateShipmentByProduct(fsri, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/aggregateShipmentByProduct", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 28
+    // Reports -> Stock Status -> Stock Status Snapshot
     /**
      * <pre>
      * Sample JSON
-     * {"programId":3, "versionId":2, "dt":"2019-10-01", "includePlannedShipments":1}
+     * {"programId":2028, "versionId":1, "dt":"2019-10-01", "includePlannedShipments":1, "tracerCategoryIds":[]}
      * -- programId must be a single Program cannot be muti-program select or -1 for all programs
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
      * -- dt is the month for which you want to run the report
@@ -634,41 +712,46 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/stockStatusForProgram")
     public ResponseEntity getStockStatusForProgram(@RequestBody StockStatusForProgramInput sspi, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getStockStatusForProgram(sspi, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/stockStatusForProgram", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     // Report no 29
+    // Report -> Shipment Reports -> Budget reports
     /**
-     * Sample JSON 
-     * {"programId":3, "versionId":2}
+     * Sample JSON {"programId":2028, "versionId":1, "startDate":"2019-01-01", "stopDate":"2021-12-01", "fundingSourceIds":[], "shippingStatusIds":[]}
+     *
      * @param br
      * @param auth
-     * @return 
+     * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/budgetReport")
     public ResponseEntity getBudgetReport(@RequestBody BudgetReportInput br, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getBudgetReport(br, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/budgetReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     // Report no 30
+    // Reports -> Stock Status -> Stock Status Snapshot (Global)
+    // Global Report
     /**
      * <pre>
      * Sample JSON
-     * {"realmId":1, "tracerCategoryId":-1, "dt":"2019-10-01", "realmCountryIds":[1,2,3]}
+     * {    "curUser": 20,    "realmId": 1,    "realmCountryIds": [        5,        51    ],    "tracerCategoryIds":[], "dt":"2020-09-01"}
      * -- programId must be a single Program cannot be muti-program select or -1 for all programs
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
      * -- dt is the month for which you want to run the report
@@ -685,13 +768,14 @@ public class ReportController {
      * @param auth
      * @return
      */
+    @JsonView(Views.ReportView.class)
     @RequestMapping(value = "/stockStatusAcrossProducts")
     public ResponseEntity getStockStatusAcrossProducts(@RequestBody StockStatusAcrossProductsInput ssap, Authentication auth) {
         try {
-            CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.reportService.getStockStatusAcrossProducts(ssap, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api/report/stockStatusAcrossProducts", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -7,6 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -15,18 +17,25 @@ import java.io.Serializable;
  */
 public class ShipmentInfo implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private int shipmentId;
+    @JsonView(Views.ReportView.class)
     private int shipmentQty;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject fundingSource;
+    @JsonView(Views.ReportView.class)
+    private SimpleCodeObject procurementAgent;
+    @JsonView(Views.ReportView.class)
     private SimpleObject shipmentStatus;
 
     public ShipmentInfo() {
     }
 
-    public ShipmentInfo(int shipmentId, int shipmentQty, SimpleCodeObject fundingSource, SimpleObject shipmentStatus) {
+    public ShipmentInfo(int shipmentId, int shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus) {
         this.shipmentId = shipmentId;
         this.shipmentQty = shipmentQty;
         this.fundingSource = fundingSource;
+        this.procurementAgent = procurementAgent;
         this.shipmentStatus = shipmentStatus;
     }
 
@@ -60,6 +69,14 @@ public class ShipmentInfo implements Serializable {
 
     public void setShipmentStatus(SimpleObject shipmentStatus) {
         this.shipmentStatus = shipmentStatus;
+    }
+
+    public SimpleCodeObject getProcurementAgent() {
+        return procurementAgent;
+    }
+
+    public void setProcurementAgent(SimpleCodeObject procurementAgent) {
+        this.procurementAgent = procurementAgent;
     }
 
     @Override

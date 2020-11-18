@@ -48,6 +48,7 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
     private String refreshPath;
 
     private final Logger logger = LoggerFactory.getLogger(UserRestController.class);
+
     @Autowired
     public void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
         auth
@@ -73,12 +74,13 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .exceptionHandling().authenticationEntryPoint(jwtUnAuthorizedResponseAuthenticationEntryPoint).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-//                .antMatchers("/api/healthArea/**").access("hasRole('ROLE_BF_UPDATE_REALM_MASTER')")
-//                .antMatchers("/api/organisation/**").access("hasRole('ROLE_BF_UPDATE_REALM_MASTER')")
-//                .antMatchers("/api/unit/**").access("hasRole('ROLE_BF_UPDATE_APPL_MASTER')")
-//                .antMatchers(HttpMethod.POST, "/api/realm/**").access("hasAnyRole('ROLE_BF_UPDATE_APPL_MASTER')")
-//                .antMatchers(HttpMethod.PUT, "/api/realm/**").access("hasAnyRole('ROLE_BF_UPDATE_APPL_MASTER', 'ROLE_BF_UPDATE_REALM_MASTER')")
-//                .antMatchers("/api/realmCountry/**").access("hasRole('ROLE_BF_UPDATE_REALM_MASTER')")
+//                .antMatchers("/actuator/info").permitAll()
+                //                .antMatchers("/api/healthArea/**").access("hasRole('ROLE_BF_UPDATE_REALM_MASTER')")
+                //                .antMatchers("/api/organisation/**").access("hasRole('ROLE_BF_UPDATE_REALM_MASTER')")
+                //                .antMatchers("/api/unit/**").access("hasRole('ROLE_BF_UPDATE_APPL_MASTER')")
+                //                .antMatchers(HttpMethod.POST, "/api/realm/**").access("hasAnyRole('ROLE_BF_UPDATE_APPL_MASTER')")
+                //                .antMatchers(HttpMethod.PUT, "/api/realm/**").access("hasAnyRole('ROLE_BF_UPDATE_APPL_MASTER', 'ROLE_BF_UPDATE_REALM_MASTER')")
+                //                .antMatchers("/api/realmCountry/**").access("hasRole('ROLE_BF_UPDATE_REALM_MASTER')")
                 .anyRequest().authenticated();
 
         httpSecurity
@@ -101,21 +103,28 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.GET, "/")
                 //Other Stuff You want to Ignore
                 .and().ignoring().antMatchers("/actuator/**")
+                .and().ignoring().antMatchers("/favicon.ico**")
                 .and().ignoring().antMatchers("/actuator**")
+                .and().ignoring().antMatchers("/actuator/info")
                 .and().ignoring().antMatchers("/browser**")
-//                .and().ignoring().antMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources", "/swagger-resources/configuration/security", "/swagger-ui.html**", "/swagger-resources/configuration/ui")
+                .and().ignoring().antMatchers("/file**")
+                .and().ignoring().antMatchers("/file/**")
+                //                .and().ignoring().antMatchers("/v2/api-docs", "/configuration/ui", "/swagger-resources", "/swagger-resources/configuration/security", "/swagger-ui.html**", "/swagger-resources/configuration/ui")
                 .and().ignoring().antMatchers("/api/locales/*/**")
                 .and().ignoring().antMatchers("/api/forgotPassword/**")
                 .and().ignoring().antMatchers("/api/getForgotPasswordToken/**")
                 .and().ignoring().antMatchers("/api/confirmForgotPasswordToken/**")
                 .and().ignoring().antMatchers("/api/updatePassword/**")
-//                .and().ignoring().antMatchers("/api/user/**")
+                //                .and().ignoring().antMatchers("/api/user/**")
                 .and().ignoring().antMatchers("/api/updateExpiredPassword/**")
                 .and().ignoring().antMatchers("/exportSupplyPlan/**")
+                .and().ignoring().antMatchers("/exportProgramData/**")
+                .and().ignoring().antMatchers("/exportOrderData/**")
                 .and().ignoring().antMatchers("/importShipmentData/**")
-                .and().ignoring().antMatchers("/importProductCatalog/**");
+                .and().ignoring().antMatchers("/importProductCatalog/**")
+                .and().ignoring().antMatchers("/jira/syncJiraAccountIds/**");
     }
-    
+
 //    @EventListener
 //    public void authSuccessEventListener(AuthenticationSuccessEvent authorizedEvent){
 //        authorizedEvent.

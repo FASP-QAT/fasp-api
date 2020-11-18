@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateTimeDeserializer;
 import cc.altius.FASP.framework.JsonDateTimeSerializer;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -18,12 +19,19 @@ import java.util.Date;
  */
 public class ProblemReportTrans implements Serializable {
 
+    @JsonView(Views.InternalView.class)
     private int problemReportTransId;
+    @JsonView(Views.InternalView.class)
     private SimpleObject problemStatus;
+    @JsonView(Views.InternalView.class)
     private String notes;
+    @JsonView(Views.InternalView.class)
+    private boolean reviewed;
+    @JsonView(Views.InternalView.class)
     private BasicUser createdBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.InternalView.class)
     private Date createdDate;
 
     public int getProblemReportTransId() {
@@ -48,6 +56,14 @@ public class ProblemReportTrans implements Serializable {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public boolean isReviewed() {
+        return reviewed;
+    }
+
+    public void setReviewed(boolean reviewed) {
+        this.reviewed = reviewed;
     }
 
     public BasicUser getCreatedBy() {

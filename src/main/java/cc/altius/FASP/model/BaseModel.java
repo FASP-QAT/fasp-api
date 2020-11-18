@@ -5,7 +5,11 @@
  */
 package cc.altius.FASP.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateTimeSerializer;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -15,15 +19,20 @@ import java.util.Date;
  */
 public class BaseModel implements Serializable {
 
-    @JsonIgnore
-    private transient BasicUser createdBy;
-    @JsonIgnore
-    private transient Date createdDate;
-    @JsonIgnore
-    private transient BasicUser lastModifiedBy;
-    @JsonIgnore
-    private transient Date lastModifiedDate;
-    private transient boolean active;
+    @JsonView(Views.IgnoreView.class)
+    private BasicUser createdBy;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.IgnoreView.class)
+    private Date createdDate;
+    @JsonView(Views.IgnoreView.class)
+    private BasicUser lastModifiedBy;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.IgnoreView.class)
+    private Date lastModifiedDate;
+    @JsonView(Views.IgnoreView.class)
+    private boolean active;
 
     public BasicUser getCreatedBy() {
         return createdBy;

@@ -39,6 +39,10 @@ public class RegionServiceImpl implements RegionService {
             if (r.getRegionId() == 0) {
                 RealmCountry rc = this.realmCountryService.getRealmCountryById(r.getRealmCountry().getRealmCountryId(), curUser);
                 if (this.aclService.checkRealmAccessForUser(curUser, rc.getRealm().getRealmId())) {
+                    r.setRealmCountry(rc);
+                    if (r.getGln()!=null && r.getGln().isEmpty()) {
+                        r.setGln(null);
+                    }
                     this.regionDao.addRegion(r, curUser);
                     rowsUpdated++;
                 } else {
@@ -47,6 +51,9 @@ public class RegionServiceImpl implements RegionService {
             } else {
                 Region region = this.getRegionById(r.getRegionId(), curUser);
                 if (this.aclService.checkRealmAccessForUser(curUser, region.getRealmCountry().getRealm().getRealmId())) {
+                    if (r.getGln()!=null && r.getGln().isEmpty()) {
+                        r.setGln(null);
+                    }
                     this.regionDao.updateRegion(r, curUser);
                     rowsUpdated++;
                 } else {

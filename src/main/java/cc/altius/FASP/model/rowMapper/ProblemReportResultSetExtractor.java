@@ -49,8 +49,12 @@ public class ProblemReportResultSetExtractor implements ResultSetExtractor<List<
                 }
                 pr.setData5(rs.getString("DATA5"));
                 pr.setProblemStatus(new SimpleObject(rs.getInt("PROBLEM_STATUS_ID"), new LabelRowMapper("PROBLEM_STATUS_").mapRow(rs, 1)));
+                pr.setProblemCategory(new SimpleObject(rs.getInt("PROBLEM_CATEGORY_ID"), new LabelRowMapper("PROBLEM_CATEGORY_").mapRow(rs, 1)));
                 pr.setProblemType(new SimpleObject(rs.getInt("PROBLEM_TYPE_ID"), new LabelRowMapper("PROBLEM_TYPE_").mapRow(rs, 1)));
                 pr.setRealmProblem(new RealmProblemRowMapper("RP_", true).mapRow(rs, 1));
+                pr.setReviewed(rs.getBoolean("REVIEWED"));
+                pr.setReviewNotes(rs.getString("REVIEW_NOTES"));
+                pr.setReviewedDate(rs.getDate("REVIEWED_DATE"));
                 pr.setCreatedBy(new BasicUser(rs.getInt("CB_USER_ID"), rs.getString("CB_USERNAME")));
                 pr.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
                 pr.setLastModifiedBy(new BasicUser(rs.getInt("LMB_USER_ID"), rs.getString("LMB_USERNAME")));
@@ -65,6 +69,7 @@ public class ProblemReportResultSetExtractor implements ResultSetExtractor<List<
             prt.setCreatedBy(new BasicUser(rs.getInt("CBT_USER_ID"), rs.getString("CBT_USERNAME")));
             prt.setCreatedDate(rs.getTimestamp("TRANS_CREATED_DATE"));
             prt.setProblemStatus(new SimpleObject(rs.getInt("PROBLEM_STATUS_TRANS_ID"), new LabelRowMapper("PROBLEM_STATUS_TRANS_").mapRow(rs, 1)));
+            prt.setReviewed(rs.getBoolean("PROBLEM_REPORT_TRANS_REVIEWED"));
             pr.getProblemTransList().add(prt);
         }
         return prList;

@@ -6,6 +6,8 @@
 package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -14,10 +16,16 @@ import java.io.Serializable;
  */
 public class CostOfInventoryOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
+    @JsonView(Views.ReportView.class)
     private double cost;
+    @JsonView(Views.ReportView.class)
     private int stock;
+    @JsonView(Views.ReportView.class)
     private double catalogPrice;
+    @JsonView(Views.ReportView.class)
+    private boolean calculated;
 
     public SimpleObject getPlanningUnit() {
         return planningUnit;
@@ -49,6 +57,14 @@ public class CostOfInventoryOutput implements Serializable {
 
     public void setCatalogPrice(double catalogPrice) {
         this.catalogPrice = catalogPrice;
+    }
+
+    public boolean isCalculated() {
+        return calculated;
+    }
+
+    public void setCalculated(boolean calculated) {
+        this.calculated = calculated;
     }
 
 }

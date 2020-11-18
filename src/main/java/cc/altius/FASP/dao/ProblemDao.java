@@ -7,6 +7,7 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProblemReport;
+import cc.altius.FASP.model.ProblemStatus;
 import cc.altius.FASP.model.RealmProblem;
 import cc.altius.FASP.model.SimpleObject;
 import java.util.List;
@@ -21,9 +22,13 @@ public interface ProblemDao {
     
     public List<ProblemReport> getProblemReportList(int programId, int versionId, CustomUserDetails curUser);
     
-    public List<RealmProblem> getProblemListForSync(int realmId, String lastModifiedDate, CustomUserDetails curUser);
+    public List<RealmProblem> getProblemListForSync(String lastModifiedDate, CustomUserDetails curUser);
     
-    public List<SimpleObject> getProblemStatusForSync(String lastModifiedDate, CustomUserDetails curUser);
+    public List<ProblemStatus> getProblemStatusForSync(String lastModifiedDate, CustomUserDetails curUser);
     
     public List<SimpleObject> getProblemCriticalityForSync(String lastModifiedDate, CustomUserDetails curUser);
+    
+    public List<SimpleObject> getProblemCategoryForSync(String lastModifiedDate, CustomUserDetails curUser);
+    
+    public List<ProblemReport> getProblemReportListForSync(int programId, int versionId, String lastSyncDate);
 }

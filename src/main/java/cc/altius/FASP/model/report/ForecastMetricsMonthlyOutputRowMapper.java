@@ -19,6 +19,7 @@ public class ForecastMetricsMonthlyOutputRowMapper implements RowMapper<Forecast
     public ForecastMetricsMonthlyOutput mapRow(ResultSet rs, int i) throws SQLException {
         ForecastMetricsMonthlyOutput fmo = new ForecastMetricsMonthlyOutput();
         fmo.setMonth(rs.getDate("MONTH"));
+        fmo.setMonthCount(rs.getInt("MONTH_COUNT"));
         fmo.setActualConsumptionHistory(rs.getInt("ACTUAL_CONSUMPTION_HISTORY"));
         if (rs.wasNull()) {
             fmo.setActualConsumptionHistory(null);
@@ -38,6 +39,10 @@ public class ForecastMetricsMonthlyOutputRowMapper implements RowMapper<Forecast
         fmo.setForecastedConsumption(rs.getInt("FORECASTED_CONSUMPTION"));
         if (rs.wasNull()) {
             fmo.setForecastedConsumption(null);
+        }
+        fmo.setActual(rs.getBoolean("ACTUAL"));
+        if(rs.wasNull()) {
+            fmo.setActual(null);
         }
         return fmo;
     }

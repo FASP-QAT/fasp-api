@@ -24,7 +24,7 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
     public List<SimplifiedSupplyPlan> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<SimplifiedSupplyPlan> spList = new LinkedList<>();
         while (rs.next()) {
-            SimplifiedSupplyPlan sp = new SimplifiedSupplyPlan(rs.getInt("PROGRAM_ID"), rs.getInt("VERSION_ID"), rs.getInt("PLANNING_UNIT_ID"), rs.getString("TRANS_DATE"));
+            SimplifiedSupplyPlan sp = new SimplifiedSupplyPlan(rs.getInt("SUPPLY_PLAN_ID"), rs.getInt("PROGRAM_ID"), rs.getInt("VERSION_ID"), rs.getInt("PLANNING_UNIT_ID"), rs.getString("TRANS_DATE"));
             int idx = spList.indexOf(sp);
             if (idx == -1) {
                 sp.setOpeningBalance(rs.getInt("OPENING_BALANCE"));
@@ -62,9 +62,18 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
                 sp.setNationalAdjustment(rs.getInt("NATIONAL_ADJUSTMENT"));
                 sp.setNationalAdjustmentWps(rs.getInt("NATIONAL_ADJUSTMENT_WPS"));
                 sp.setAmc(rs.getDouble("AMC"));
+                if (rs.wasNull()) {
+                    sp.setAmc(null);
+                }
                 sp.setAmcCount(rs.getInt("AMC_COUNT"));
                 sp.setMos(rs.getDouble("MOS"));
+                if (rs.wasNull()) {
+                    sp.setMos(null);
+                }
                 sp.setMosWps(rs.getDouble("MOS_WPS"));
+                if (rs.wasNull()) {
+                    sp.setMosWps(null);
+                }
                 sp.setMinStockMoS(rs.getDouble("MIN_STOCK_MOS"));
                 sp.setMinStock(rs.getDouble("MIN_STOCK_QTY"));
                 sp.setMaxStockMoS(rs.getDouble("MAX_STOCK_MOS"));
@@ -75,7 +84,7 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
             sp = spList.get(idx);
             Integer batchId = rs.getInt("BATCH_ID");
             if (!rs.wasNull()) {
-                SimpleBatchQuantity sb = new SimpleBatchQuantity(batchId, rs.getString("BATCH_NO"), rs.getDate("EXPIRY_DATE"), rs.getBoolean("AUTO_GENERATED"), rs.getInt("BATCH_CLOSING_BALANCE"), rs.getInt("BATCH_CLOSING_BALANCE_WPS"), rs.getInt("BATCH_EXPIRED_STOCK"), rs.getInt("BATCH_EXPIRED_STOCK_WPS"));
+                SimpleBatchQuantity sb = new SimpleBatchQuantity(batchId, rs.getString("BATCH_NO"), rs.getDate("EXPIRY_DATE"), rs.getBoolean("AUTO_GENERATED"), rs.getInt("BATCH_CLOSING_BALANCE"), rs.getInt("BATCH_CLOSING_BALANCE_WPS"), rs.getInt("BATCH_EXPIRED_STOCK"), rs.getInt("BATCH_EXPIRED_STOCK_WPS"), rs.getDate("BATCH_CREATED_DATE"));
                 sp.getBatchDetails().add(sb);
             }
         }

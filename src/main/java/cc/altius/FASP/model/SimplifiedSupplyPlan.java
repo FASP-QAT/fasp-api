@@ -5,12 +5,8 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
@@ -21,59 +17,103 @@ import java.util.Objects;
  */
 public class SimplifiedSupplyPlan implements Serializable {
 
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class})
+    private int supplyPlanId;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int programId;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int versionId;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int planningUnitId;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private String transDate;
 
     // Is null if there is no Consumption reported.
     // Is true if the Consumption reported is Actual Consumption
     // Is false if the Consumption reported is Forecasted Consumption
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private Boolean actualFlag;
     // Is null if there is no Consumption reported
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private Integer consumptionQty;
     // Is 0 if there is no Shipment in that period
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int receivedShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int shippedShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int approvedShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int submittedShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int plannedShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int onholdShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int receivedErpShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int shippedErpShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int approvedErpShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int submittedErpShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int plannedErpShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int onholdErpShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int stockQty;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int adjustmentQty;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int regionCount;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int regionCountForStock;
-    private double amc;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    private Double amc;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int amcCount;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double minStock;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double minStockMoS;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double maxStock;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private double maxStockMoS;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private List<SimpleBatchQuantity> batchDetails;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int expiredStock;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int expiredStockWps;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int unmetDemand;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int unmetDemandWps;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int openingBalance;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int openingBalanceWps;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int closingBalance;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int closingBalanceWps;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int nationalAdjustment;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
     private int nationalAdjustmentWps;
-    private double mos;
-    private double mosWps;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    private Double mos;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    private Double mosWps;
 
     public SimplifiedSupplyPlan() {
         this.batchDetails = new LinkedList<>();
     }
 
-    public SimplifiedSupplyPlan(int programId, int versionId, int planningUnitId, String transDate) {
+    public SimplifiedSupplyPlan(int supplyPlanId, int programId, int versionId, int planningUnitId, String transDate) {
+        this.supplyPlanId = supplyPlanId;
         this.programId = programId;
         this.versionId = versionId;
         this.planningUnitId = planningUnitId;
@@ -81,6 +121,14 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.batchDetails = new LinkedList<>();
     }
 
+    public int getSupplyPlanId() {
+        return supplyPlanId;
+    }
+
+    public void setSupplyPlanId(int supplyPlanId) {
+        this.supplyPlanId = supplyPlanId;
+    }
+    
     public int getProgramId() {
         return programId;
     }
@@ -129,10 +177,12 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.consumptionQty = consumptionQty;
     }
 
+    @JsonView({Views.InternalView.class})
     public int getShipmentTotalQty() {
         return getManualTotalQty() + getErpTotalQty();
     }
 
+    @JsonView({Views.InternalView.class})
     public int getManualTotalQty() {
         return this.plannedShipmentsTotalData + this.submittedShipmentsTotalData + this.approvedShipmentsTotalData + this.shippedShipmentsTotalData + this.receivedShipmentsTotalData + this.onholdShipmentsTotalData;
     }
@@ -185,6 +235,7 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.onholdShipmentsTotalData = onholdShipmentsTotalData;
     }
 
+    @JsonView({Views.InternalView.class})
     public int getErpTotalQty() {
         return this.plannedErpShipmentsTotalData + this.submittedErpShipmentsTotalData + this.approvedErpShipmentsTotalData + this.shippedErpShipmentsTotalData + this.receivedErpShipmentsTotalData + this.onholdErpShipmentsTotalData;
     }
@@ -269,11 +320,11 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.regionCountForStock = regionCountForStock;
     }
 
-    public double getAmc() {
+    public Double getAmc() {
         return amc;
     }
 
-    public void setAmc(double amc) {
+    public void setAmc(Double amc) {
         this.amc = amc;
     }
 
@@ -405,19 +456,19 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.nationalAdjustmentWps = nationalAdjustmentWps;
     }
 
-    public double getMos() {
+    public Double getMos() {
         return mos;
     }
 
-    public void setMos(double mos) {
+    public void setMos(Double mos) {
         this.mos = mos;
     }
 
-    public double getMosWps() {
+    public Double getMosWps() {
         return mosWps;
     }
 
-    public void setMosWps(double mosWps) {
+    public void setMosWps(Double mosWps) {
         this.mosWps = mosWps;
     }
 

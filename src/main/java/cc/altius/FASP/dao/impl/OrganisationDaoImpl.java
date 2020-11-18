@@ -13,8 +13,11 @@ import cc.altius.FASP.model.rowMapper.OrganisationResultSetExtractor;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import cc.altius.FASP.dao.OrganisationDao;
+import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.rowMapper.HealthAreaListResultSetExtractor;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.SuggestedDisplayName;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -152,6 +155,18 @@ public class OrganisationDaoImpl implements OrganisationDao {
     }
 
     @Override
+    public List<Organisation> getOrganisationListByRealmCountry(int realmCountryId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addUserAclForOrganisation(sqlStringBuilder, params, "o", curUser);
+        this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
+        sqlStringBuilder.append(" AND oc.ACTIVE AND o.ACTIVE AND oc.REALM_COUNTRY_ID=:realmCountryId");
+        params.put("realmCountryId", realmCountryId);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new OrganisationListResultSetExtractor());
+    }
+
+    @Override
     public List<Organisation> getOrganisationListByRealmId(int realmId, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
@@ -169,6 +184,18 @@ public class OrganisationDaoImpl implements OrganisationDao {
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new OrganisationResultSetExtractor());
     }
 
+    @Override
+    public String getDisplayName(int realmId, String name, CustomUserDetails curUser) {
+        String extractedName = SuggestedDisplayName.getAlphaNumericString(name, SuggestedDisplayName.ORGANISATION_LENGTH);
+        String sqlString = "SELECT COUNT(*) CNT FROM rm_organisation pa WHERE pa.REALM_ID=:realmId AND UPPER(LEFT(pa.ORGANISATION_CODE,:len))=:extractedName";
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        params.put("len", extractedName.length());
+        params.put("extractedName", extractedName);
+        int cnt = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        return SuggestedDisplayName.getFinalDisplayName(extractedName, cnt);
+    }
+    
     @Override
     public List<Organisation> getOrganisationListForSync(String lastSyncDate, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND o.LAST_MODIFIED_DATE>:lastSyncDate ");

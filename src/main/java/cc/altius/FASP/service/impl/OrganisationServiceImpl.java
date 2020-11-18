@@ -6,11 +6,13 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.OrganisationDao;
+import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.RealmDao;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.OrganisationService;
 import java.util.List;
@@ -28,6 +30,8 @@ public class OrganisationServiceImpl implements OrganisationService {
 
     @Autowired
     private OrganisationDao organisationDao;
+    @Autowired
+    private RealmCountryDao realmCountryDao;
     @Autowired
     private RealmDao realmDao;
     @Autowired
@@ -58,6 +62,15 @@ public class OrganisationServiceImpl implements OrganisationService {
     }
 
     @Override
+    public List<Organisation> getOrganisationListByRealmCountry(int realmCountryId, CustomUserDetails curUser) {
+        RealmCountry rc = this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
+        if (rc == null) {
+            throw new EmptyResultDataAccessException(1);
+        }
+        return this.organisationDao.getOrganisationListByRealmCountry(realmCountryId, curUser);
+    }
+
+    @Override
     public List<Organisation> getOrganisationListByRealmId(int realmId, CustomUserDetails curUser) {
         Realm r = this.realmDao.getRealmById(realmId, curUser);
         if (r == null) {
@@ -78,6 +91,11 @@ public class OrganisationServiceImpl implements OrganisationService {
         } else {
             throw new EmptyResultDataAccessException(1);
         }
+    }
+
+    @Override
+    public String getDisplayName(int realmId, String name, CustomUserDetails curUser) {
+        return this.organisationDao.getDisplayName(realmId, name, curUser);
     }
 
     @Override

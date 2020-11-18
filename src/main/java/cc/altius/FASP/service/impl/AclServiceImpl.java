@@ -27,34 +27,12 @@ public class AclServiceImpl implements AclService {
     @Override
     public boolean checkAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, int healthAreaId, int organisationId, int programId) {
         logger.info("Going to check if userId:" + curUser.getUserId() + " has access to RealmId:" + realmId + ", realmCountryId:" + realmCountryId + ", healthAreaId:" + healthAreaId + ", organisationId:" + organisationId + ", programId:" + programId);
-        // Before committing just make sure that this User has the rights to Add to this Realm
-//        String sql = "SELECT REALM_ID FROM us_user u WHERE u.USER_ID=?";
         if (curUser.getRealm().getRealmId() != -1 && curUser.getRealm().getRealmId() != realmId) {
             // Is not an Application level user and also does not have access to this Realm
             logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " so cannot get access");
             return false;
         }
         logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " Realm check passed");
-
-//        sql = "SELECT "
-//                + "acl.USER_ID, "
-//                + "acl.`REALM_COUNTRY_ID` `REALM_COUNTRY_ID`, acl_country_lb.`LABEL_ID` `COUNTRY_LABEL_ID`, acl_country_lb.`LABEL_EN` `COUNTRY_LABEL_EN`, acl_country_lb.`LABEL_FR` `COUNTRY_LABEL_FR`, acl_country_lb.`LABEL_SP` `COUNTRY_LABEL_SP`, acl_country_lb.`LABEL_PR` `COUNTRY_LABEL_PR`, "
-//                + "acl.`HEALTH_AREA_ID` `HEALTH_AREA_ID`, acl_health_area_lb.`LABEL_ID` `HEALTH_AREA_LABEL_ID`, acl_health_area_lb.`LABEL_EN` `HEALTH_AREA_LABEL_EN`, acl_health_area_lb.`LABEL_FR` `HEALTH_AREA_LABEL_FR`, acl_health_area_lb.`LABEL_SP` `HEALTH_AREA_LABEL_SP`, acl_health_area_lb.`LABEL_PR` `HEALTH_AREA_LABEL_PR`, "
-//                + "acl.`ORGANISATION_ID` `ORGANISATION_ID`, acl_organisation_lb.`LABEL_ID` `ORGANISATION_LABEL_ID`, acl_organisation_lb.`LABEL_EN` `ORGANISATION_LABEL_EN`, acl_organisation_lb.`LABEL_FR` `ORGANISATION_LABEL_FR`, acl_organisation_lb.`LABEL_SP` `ORGANISATION_LABEL_SP`, acl_organisation_lb.`LABEL_PR` `ORGANISATION_LABEL_PR`, "
-//                + "acl.`PROGRAM_ID` `PROGRAM_ID`, acl_program_lb.`LABEL_ID` `PROGRAM_LABEL_ID`, acl_program_lb.`LABEL_EN` `PROGRAM_LABEL_EN`, acl_program_lb.`LABEL_FR` `PROGRAM_LABEL_FR`, acl_program_lb.`LABEL_SP` `PROGRAM_LABEL_SP`, acl_program_lb.`LABEL_PR` `PROGRAM_LABEL_PR` "
-//                + "FROM us_user_acl acl "
-//                + "LEFT JOIN rm_realm_country acl_realm_country ON acl.`REALM_COUNTRY_ID`=acl_realm_country.`REALM_COUNTRY_ID` "
-//                + "LEFT JOIN ap_country acl_country ON acl_realm_country.`COUNTRY_ID`=acl_country.`COUNTRY_ID` "
-//                + "LEFT JOIN ap_label acl_country_lb ON acl_country.`LABEL_ID`=acl_country_lb.`LABEL_ID` "
-//                + "LEFT JOIN rm_health_area acl_health_area ON acl.`HEALTH_AREA_ID`=acl_health_area.`HEALTH_AREA_ID` "
-//                + "LEFT JOIN ap_label acl_health_area_lb ON acl_health_area.`LABEL_ID`=acl_health_area_lb.`LABEL_ID` "
-//                + "LEFT JOIN rm_organisation acl_organisation ON acl.`ORGANISATION_ID`=acl_organisation.`ORGANISATION_ID` "
-//                + "LEFT JOIN ap_label acl_organisation_lb ON acl_organisation.`LABEL_ID`=acl_organisation_lb.`LABEL_ID` "
-//                + "LEFT JOIN rm_program acl_program ON acl.`PROGRAM_ID`=acl_program.`PROGRAM_ID` "
-//                + "LEFT JOIN ap_label acl_program_lb on acl_program.`LABEL_ID`=acl_program_lb.`LABEL_ID`"
-//                + "WHERE acl.USER_ID=?";
-//        List<UserAcl> userAcl = curUser.getAclList();
-//                this.jdbcTemplate.query(sql, new UserAclRowMapper(), userId);
         boolean hasAccess = false;
         for (UserAcl acl : curUser.getAclList()) {
             logger.info(acl.toString());
@@ -134,7 +112,7 @@ public class AclServiceImpl implements AclService {
         }
         return sqlString;
     }
-    
+
     @Override
     public void addUserAclForRealm(StringBuilder sb, Map<String, Object> params, String realmAlias, int realmId, CustomUserDetails curUser) {
         if (realmId != -1) {
@@ -151,17 +129,13 @@ public class AclServiceImpl implements AclService {
         }
     }
 
+    @Override
     public void addFullAclForProgram(StringBuilder sb, Map<String, Object> params, String programAlias, CustomUserDetails curUser) {
         int count = 1;
-        boolean isFirst = true;
         StringBuilder localSb = new StringBuilder();
+        localSb.append(" AND (FALSE ");
         for (UserAcl userAcl : curUser.getAclList()) {
-            if(isFirst) {
-                localSb.append(" AND (");
-            } else {
-                localSb.append(" OR ");
-            }
-            localSb.append("(")
+            localSb.append(" OR (")
                     .append("(").append(programAlias).append(".PROGRAM_ID IS NULL OR :realmCountryId").append(count).append("=-1 OR ").append(programAlias).append(".REALM_COUNTRY_ID=:realmCountryId").append(count).append(")")
                     .append("AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :healthAreaId").append(count).append("=-1 OR ").append(programAlias).append(".HEALTH_AREA_ID=:healthAreaId").append(count).append(")")
                     .append("AND (").append(programAlias).append(".PROGRAM_ID IS NULL OR :organisationId").append(count).append("=-1 OR ").append(programAlias).append(".ORGANISATION_ID=:organisationId").append(count).append(")")
@@ -172,11 +146,57 @@ public class AclServiceImpl implements AclService {
             params.put("organisationId" + count, userAcl.getOrganisationId());
             params.put("programId" + count, userAcl.getProgramId());
             count++;
-            isFirst = false;
         }
-        if (!params.isEmpty()) {
-            localSb.append(")");
-        }
+        localSb.append(")");
         sb.append(localSb);
     }
+
+    @Override
+    public void addUserAclForHealthArea(StringBuilder sb, Map<String, Object> params, String haAlias, CustomUserDetails curUser) {
+        int count = 1;
+        StringBuilder localSb = new StringBuilder();
+        localSb.append(" AND (FALSE ");
+        for (UserAcl userAcl : curUser.getAclList()) {
+            localSb.append(" OR (")
+                    .append("(").append(haAlias).append(".HEALTH_AREA_ID IS NULL OR :healthAreaIdHa").append(count).append("=-1 OR ").append(haAlias).append(".HEALTH_AREA_ID=:healthAreaIdHa").append(count).append(")")
+                    .append(")");
+            params.put("healthAreaIdHa" + count, userAcl.getHealthAreaId());
+            count++;
+        }
+        localSb.append(")");
+        sb.append(localSb);
+    }
+
+    @Override
+    public void addUserAclForOrganisation(StringBuilder sb, Map<String, Object> params, String oAlias, CustomUserDetails curUser) {
+        int count = 1;
+        StringBuilder localSb = new StringBuilder();
+        localSb.append(" AND (FALSE ");
+        for (UserAcl userAcl : curUser.getAclList()) {
+            localSb.append(" OR (")
+                    .append("(").append(oAlias).append(".ORGANISATION_ID IS NULL OR :organisationIdO").append(count).append("=-1 OR ").append(oAlias).append(".ORGANISATION_ID=:organisationIdO").append(count).append(")")
+                    .append(")");
+            params.put("organisationIdO" + count, userAcl.getOrganisationId());
+            count++;
+        }
+            localSb.append(")");
+        sb.append(localSb);
+    }
+
+    @Override
+    public void addUserAclForRealmCountry(StringBuilder sb, Map<String, Object> params, String rcAlias, CustomUserDetails curUser) {
+        int count = 1;
+        StringBuilder localSb = new StringBuilder();
+        localSb.append(" AND (FALSE ");
+        for (UserAcl userAcl : curUser.getAclList()) {
+            localSb.append(" OR (")
+                    .append("(").append(rcAlias).append(".REALM_COUNTRY_ID IS NULL OR :realmCountryIdRc").append(count).append("=-1 OR ").append(rcAlias).append(".REALM_COUNTRY_ID=:realmCountryIdRc").append(count).append(")")
+                    .append(")");
+            params.put("realmCountryIdRc" + count, userAcl.getRealmCountryId());
+            count++;
+        }
+            localSb.append(")");
+        sb.append(localSb);
+    }
+
 }

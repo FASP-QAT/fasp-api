@@ -22,8 +22,10 @@ public class StockStatusAcrossProductsInput implements Serializable {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date dt;
-    private int tracerCategoryId;
+    private String[] tracerCategoryIds;
     private String[] realmCountryIds;
+    private String[] programIds;
+    private boolean useApprovedSupplyPlanOnly;
 
     public int getRealmId() {
         return realmId;
@@ -41,12 +43,12 @@ public class StockStatusAcrossProductsInput implements Serializable {
         this.dt = dt;
     }
 
-    public int getTracerCategoryId() {
-        return tracerCategoryId;
+    public String[] getTracerCategoryIds() {
+        return tracerCategoryIds;
     }
 
-    public void setTracerCategoryId(int tracerCategoryId) {
-        this.tracerCategoryId = tracerCategoryId;
+    public void setTracerCategoryIds(String[] tracerCategoryIds) {
+        this.tracerCategoryIds = tracerCategoryIds;
     }
 
     public String[] getRealmCountryIds() {
@@ -55,6 +57,14 @@ public class StockStatusAcrossProductsInput implements Serializable {
 
     public void setRealmCountryIds(String[] realmCountryIds) {
         this.realmCountryIds = realmCountryIds;
+    }
+
+    public String[] getProgramIds() {
+        return programIds;
+    }
+
+    public void setProgramIds(String[] programIds) {
+        this.programIds = programIds;
     }
 
     public String getRealmCountryIdsString() {
@@ -69,5 +79,38 @@ public class StockStatusAcrossProductsInput implements Serializable {
             }
         }
     }
+    
+    public String getProgramIdsString() {
+        if (this.programIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.programIds);
+            if (this.programIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
 
+    public boolean isUseApprovedSupplyPlanOnly() {
+        return useApprovedSupplyPlanOnly;
+    }
+
+    public void setUseApprovedSupplyPlanOnly(boolean useApprovedSupplyPlanOnly) {
+        this.useApprovedSupplyPlanOnly = useApprovedSupplyPlanOnly;
+    }
+
+    public String getTracerCategoryIdsString() {
+        if (this.tracerCategoryIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.tracerCategoryIds);
+            if (this.tracerCategoryIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
 }

@@ -7,6 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -15,15 +17,24 @@ import java.io.Serializable;
  */
 public class StockStatusOverTimeOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private String dt;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject program;
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
-    private int stock;
-    private int consumptionQty;
+    @JsonView(Views.ReportView.class)
+    private Integer stock;
+    @JsonView(Views.ReportView.class)
+    private Integer consumptionQty;
+    @JsonView(Views.ReportView.class)
     private Boolean actualConsumption;
-    private double amc;
+    @JsonView(Views.ReportView.class)
+    private Double amc;
+    @JsonView(Views.ReportView.class)
     private int amcMonthCount;
-    private double mos;
+    @JsonView(Views.ReportView.class)
+    private Double mos;
 
     public String getDt() {
         return dt;
@@ -49,29 +60,38 @@ public class StockStatusOverTimeOutput implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public int getStock() {
+    public Integer getStock() {
         return stock;
     }
 
-    public void setStock(int stock) {
+    public void setStock(Integer stock) {
         this.stock = stock;
     }
 
-    public int getConsumptionQty() {
+    public Integer getConsumptionQty() {
         return consumptionQty;
     }
 
-    public void setConsumptionQty(int consumptionQty) {
+    public void setConsumptionQty(Integer consumptionQty) {
         this.consumptionQty = consumptionQty;
     }
 
-    public double getAmc() {
+    public Double getAmc() {
         return amc;
     }
 
-    public void setAmc(double amc) {
+    public void setAmc(Double amc) {
         this.amc = amc;
     }
+
+    public Double getMos() {
+        return mos;
+    }
+
+    public void setMos(Double mos) {
+        this.mos = mos;
+    }
+
 
     public int getAmcMonthCount() {
         return amcMonthCount;
@@ -79,14 +99,6 @@ public class StockStatusOverTimeOutput implements Serializable {
 
     public void setAmcMonthCount(int amcMonthCount) {
         this.amcMonthCount = amcMonthCount;
-    }
-
-    public double getMos() {
-        return mos;
-    }
-
-    public void setMos(double mos) {
-        this.mos = mos;
     }
 
     // 0 - Forecasted

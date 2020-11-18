@@ -27,7 +27,6 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
@@ -51,6 +50,7 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -78,6 +78,8 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     @Autowired
     private EmailService emailService;
 
+    @Value("${qat.filePath}")
+    private String QAT_FILE_PATH;
     @Value("${catalogFilePath}")
     private String CATALOG_FILE_PATH;
     @Value("${catalogBkpFilePath}")
@@ -87,10 +89,11 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     @Value("${email.ccList}")
     private String ccList;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final String br = "\n<br/>";
 
     @Override
-//    @Transactional
-    public void importProductCatalogue() throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException {
+    @Transactional
+    public void importProductCatalogue(StringBuilder sb) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException {
         EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
         String[] subjectParam;
         String[] bodyParam;
@@ -98,15 +101,17 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
         String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         String fileList = "";
-        File dir = new File(CATALOG_FILE_PATH);
+        File dir = new File(QAT_FILE_PATH + CATALOG_FILE_PATH);
         FileFilter fileFilter = new WildcardFileFilter("item_data_*.xml");
         File[] files = dir.listFiles(fileFilter);
         String sqlString;
         Arrays.sort(files, new FileNameComparator());
         logger.info("Going to start product catalogue import");
+        sb.append("Going to start product catalogue import").append(br);
         for (int i = 0; i < files.length; i++) {
             fileList += " " + files[i];
             logger.info("File names---" + files[i]);
+            sb.append("File names---" + files[i]).append(br);
         }
         if (files.length < 1) {
             subjectParam = new String[]{"Product Catalogue", "File not found"};
@@ -116,6 +121,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
             logger.info("File not found");
+            sb.append("File not found").append(br);
         } else {
             for (File fXmlFile : files) {
                 String extension = "";
@@ -131,6 +137,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     emailer.setEmailerId(emailerId);
                     this.emailService.sendMail(emailer);
                     logger.error("File is not an xml");
+                    sb.append("File is not an xml").append(br);
                 } else {
                     DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
                     DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -142,17 +149,23 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     Map<String, Object> map = new HashedMap<String, Object>();
                     int x = 0;
                     logger.info("######################################################################");
+                    sb.append("######################################################################");
                     logger.info("Starting import for file " + fXmlFile.getName());
+                    sb.append("Starting import for file ").append(fXmlFile.getName()).append(br);
                     logger.info("######################################################################");
+                    sb.append("######################################################################");
                     logger.info("Going to drop tmp_product_catalog");
-//                sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_product_catalog`";
-                    sqlString = "DROP TABLE IF EXISTS `tmp_product_catalog`";
+                    sb.append("Going to drop tmp_product_catalog").append(br);
+                    sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_product_catalog`";
+//                    sqlString = "DROP TABLE IF EXISTS `tmp_product_catalog`";
                     this.jdbcTemplate.execute(sqlString);
                     logger.info("Successfully droped tmp_product_catalog");
+                    sb.append("Successfully droped tmp_product_catalog").append(br);
 
                     logger.info("Going to create tmp_product_catalog");
-//                sqlString = "CREATE TEMPORARY TABLE `tmp_product_catalog` ( "
-                    sqlString = "CREATE TABLE `tmp_product_catalog` ( "
+                    sb.append("Going to create tmp_product_catalog").append(br);
+                    sqlString = "CREATE TEMPORARY TABLE `tmp_product_catalog` ( "
+                            //                    sqlString = "CREATE TABLE `tmp_product_catalog` ( "
                             + "  `TaskOrder` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                             + "  `CommodityCouncil` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                             + "  `Subcategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
@@ -228,8 +241,10 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
                     this.jdbcTemplate.execute(sqlString);
                     logger.info("Successfully created tmp_product_catalog");
+                    sb.append("Successfully created tmp_product_catalog").append(br);
 
                     logger.info("Going to insert into tmp_product_catalog");
+                    sb.append("Going to insert into tmp_product_catalog").append(br);
                     sqlString = "INSERT INTO tmp_product_catalog VALUES(:taskOrderLongDescription,:commodityCouncilLongDesc,"
                             + ":commoditySubcatLongDesc,:productTracerCat,"
                             + ":productBuyable,:productIdNoPack,:productNameNoPack,"
@@ -342,22 +357,27 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     }
                     int[] rows1 = namedParameterJdbcTemplate.batchUpdate(sqlString, batchParams);
                     logger.info("Successfully inserted into tmp_product_catalog records---" + rows1.length);
+                    sb.append("Successfully inserted into tmp_product_catalog records---").append(rows1.length).append(br);
                     sqlString = "DELETE tpc.* FROM tmp_product_catalog tpc where tpc.TaskOrder ='UNKNOWN'";
                     int dRows = this.jdbcTemplate.update(sqlString);
                     logger.info("Delted rows from tmp_product_catalog because the TaskOrder was UNKNOWN ---" + dRows);
+                    sb.append("Delted rows from tmp_product_catalog because the TaskOrder was UNKNOWN ---").append(dRows).append(br);
                     sqlString = "SELECT COUNT(*) FROM tmp_product_catalog;";
-                    logger.info("Total rows inserted in tmp_product_catalog---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-                    pullUnit();
-                    pullTracerCategory();
-                    pullProductCategory();
-                    pullForecastingUnit();
-                    pullPlanningUnit();
-                    pullSupplier();
-                    pullProcurementUnit();
-                    File directory = new File(BKP_CATALOG_FILE_PATH);
+                    int tmpCnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+                    logger.info("Total rows inserted in tmp_product_catalog---" + tmpCnt);
+                    sb.append("Total rows inserted in tmp_product_catalog---").append(tmpCnt).append(br);
+                    pullUnit(sb);
+                    pullTracerCategory(sb);
+                    pullProductCategory(sb);
+                    pullForecastingUnit(sb);
+                    pullPlanningUnit(sb);
+                    pullSupplier(sb);
+                    pullProcurementUnit(sb);
+                    File directory = new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH);
                     if (directory.isDirectory()) {
-                        fXmlFile.renameTo(new File(BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
+                        fXmlFile.renameTo(new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
                         logger.info("Product catalog file moved to processed folder successfully");
+                        sb.append("Product catalog file moved to processed folder successfully").append(br);
                     } else {
                         subjectParam = new String[]{"Product Catalogue", "Backup directory does not exists"};
                         bodyParam = new String[]{"Product Catalogue", date, "Backup directory does not exists", "Backup directory does not exists"};
@@ -366,27 +386,34 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         emailer.setEmailerId(emailerId);
                         this.emailService.sendMail(emailer);
                         logger.error("Backup directory does not exists");
+                        sb.append("Backup directory does not exists").append(br);
                     }
                     logger.info("######################################################################");
+                    sb.append("######################################################################").append(br);
                     logger.info("Completed import for file " + fXmlFile.getName());
+                    sb.append("Completed import for file ").append(fXmlFile.getName()).append(br);
                     logger.info("######################################################################");
+                    sb.append("######################################################################").append(br);
                 }
             }
         }
     }
 
-//    @Transactional
-    private void pullUnit() {
+    @Transactional
+    private void pullUnit(StringBuilder sb) {
         // --------------------------Unit Table-----------------------
         logger.info("------------------------------- Unit ------------------------------------");
-
+        sb.append("------------------------------- Unit ------------------------------------").append(br);
         logger.info("Going to drop tmp_unit");
+        sb.append("Going to drop tmp_unit").append(br);
         String sqlString = "DROP TABLE IF EXISTS `tmp_unit`";
         this.jdbcTemplate.execute(sqlString);
 
         logger.info("Successfully droped tmp_unit");
+        sb.append("Successfully droped tmp_unit").append(br);
         logger.info("Going to create tmp_unit");
-        sqlString = "CREATE TABLE `tmp_unit` ( "
+        sb.append("Going to create tmp_unit").append(br);
+        sqlString = "CREATE TEMPORARY TABLE `tmp_unit` ( "
                 + " `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + " `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
                 + " `UNIT_ID` int (10) unsigned DEFAULT NULL, "
@@ -398,24 +425,37 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + " ) ENGINE = InnoDB DEFAULT CHARSET = utf8 COLLATE = utf8_bin";
         this.jdbcTemplate.execute(sqlString);
         logger.info("Successfully created tmp_unit");
+        sb.append("Successfully created tmp_unit").append(br);
 
         sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, BaseUnit, NULL, NULL, NULL, 0 FROM tmp_product_catalog WHERE BaseUnit IS NOT NULL AND BaseUnit != '' GROUP BY BaseUnit";
-        logger.info(sqlString + " -> " + this.jdbcTemplate.update(sqlString));
+        int cnt = this.jdbcTemplate.update(sqlString);
+        logger.info(sqlString + " -> " + cnt);
+        sb.append(sqlString).append(" -> ").append(cnt).append(br);
+
         sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, OrderUOM, NULL, NULL, NULL, 0  FROM tmp_product_catalog WHERE OrderUOM IS NOT NULL AND OrderUOM != '' GROUP BY OrderUOM";
-        logger.info(sqlString + " -> " + this.jdbcTemplate.update(sqlString));
+        cnt = this.jdbcTemplate.update(sqlString);
+        logger.info(sqlString + " -> " + cnt);
+        sb.append(sqlString).append(" -> ").append(cnt).append(br);
         sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, WeightUOM, NULL, NULL, NULL, 0 FROM tmp_product_catalog WHERE WeightUOM IS NOT NULL AND WeightUOM != '' GROUP BY WeightUOM";
-        logger.info(sqlString + " -> " + this.jdbcTemplate.update(sqlString));
+        cnt = this.jdbcTemplate.update(sqlString);
+        logger.info(sqlString + " -> " + cnt);
+        sb.append(sqlString).append(" -> ").append(cnt).append(br);
         sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, HeightUOM, NULL, NULL, NULL, 0 FROM tmp_product_catalog WHERE HeightUOM IS NOT NULL AND HeightUOM != '' GROUP BY HeightUOM";
-        logger.info(sqlString + " -> " + this.jdbcTemplate.update(sqlString));
+        cnt = this.jdbcTemplate.update(sqlString);
+        logger.info(sqlString + " -> " + cnt);
+        sb.append(sqlString).append(" -> ").append(cnt).append(br);
 
         sqlString = "SELECT COUNT(*) FROM tmp_unit;";
-        logger.info("Total rows inserted in tmp_unit---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
+        cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+        logger.info("Total rows inserted in tmp_unit---" + cnt);
+        sb.append("Total rows inserted in tmp_unit---").append(cnt).append(br);
 
         sqlString = "UPDATE tmp_unit tu "
                 + "LEFT JOIN vw_unit u ON tu.LABEL = u.LABEL_EN OR tu.LABEL=u.UNIT_CODE "
                 + "SET tu.UNIT_ID = u.UNIT_ID, tu.FOUND=1 WHERE u.UNIT_ID IS NOT NULL";
         int rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " matched with the ap_unit table");
+        sb.append(rows).append(" matched with the ap_unit table").append(br);
 
         logger.info("Setting the Dimension for any new rows to 3 - Eaches, rows updated:" + this.jdbcTemplate.update("UPDATE tmp_unit tu SET tu.DIMENSION_ID=3 WHERE tu.UNIT_ID IS NULL and tu.FOUND=0"));
 
@@ -451,27 +491,32 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         for (Unit u : this.jdbcTemplate.query(sqlString, new UnitRowMapper())) {
             labelParams.replace("LABEL_EN", u.getLabel().getLabel_en());
             u.getLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
-            unitParams.replace("UNIT_CODE", u.getUnitCode());
+            unitParams.replace("UNIT_CODE", u.getUnitCode().length() > 20 ? u.getUnitCode().substring(0, 19) : u.getUnitCode());
             unitParams.replace("DIMENSION_ID", u.getDimension().getId());
             unitParams.replace("LABEL_ID", u.getLabel().getLabelId());
             siUnit.execute(unitParams);
         }
 
         sqlString = "SELECT COUNT(*) FROM ap_unit;";
-        logger.info("Total rows available in ap_unit---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
+        cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+        logger.info("Total rows available in ap_unit---" + cnt);
+        sb.append("Total rows available in ap_unit---").append(cnt).append(br);
     }
 
-//    @Transactional
-    private void pullTracerCategory() {
+    @Transactional
+    private void pullTracerCategory(StringBuilder sb) {
         logger.info("------------------------------- Tracer Category ------------------------------------");
+        sb.append("------------------------------- Tracer Category ------------------------------------").append(br);
         int max = 0;
 
         // Step 1 - Drop the table if it exists
-        String sqlString = "DROP TABLE IF EXISTS `tmp_tracer_category`";
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_tracer_category`";
+//        String sqlString = "DROP TABLE IF EXISTS `tmp_tracer_category`";
         this.jdbcTemplate.update(sqlString);
 
         // Step 2 - Create the tmp table
-        sqlString = "CREATE TABLE `tmp_tracer_category` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_tracer_category` ( "
+//        sqlString = "CREATE TABLE `tmp_tracer_category` ( "
                 + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + "  `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
                 + "  `TRACER_CATEGORY_ID` int(10) unsigned DEFAULT NULL, "
@@ -486,6 +531,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         sqlString = "INSERT INTO tmp_tracer_category SELECT NULL, TracerCategory, NULL, NULL, 0 FROM tmp_product_catalog WHERE TracerCategory IS NOT NULL AND TracerCategory != '' GROUP BY TracerCategory";
         int rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " inserted into the tmp_tracer_category table");
+        sb.append(rows).append(" inserted into the tmp_tracer_category table").append(br);
 
         // Step 4 Match those records that are already present in the main tracer_category table
         sqlString = "UPDATE tmp_tracer_category ttc "
@@ -495,6 +541,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
         rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " existing labels found");
+        sb.append(rows).append(" existing labels found").append(br);
 
         // Step 5 Get the max count on the label table so that you can now work on data that you insert from here on
         sqlString = "SELECT "
@@ -532,21 +579,25 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         }
 
         sqlString = "SELECT COUNT(*) FROM rm_tracer_category;";
-        logger.info("Total rows available in rm_tracer_category ---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
-
+        int cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+        logger.info("Total rows available in rm_tracer_category ---" + cnt);
+        sb.append("Total rows available in rm_tracer_category ---").append(cnt).append(br);
     }
 
-//    @Transactional
-    private void pullProductCategory() {
+    @Transactional
+    private void pullProductCategory(StringBuilder sb) {
         //------------Product Category-------------------------
         logger.info("------------------------------- Product Category ------------------------------------");
+        sb.append("------------------------------- Product Category ------------------------------------").append(br);
 
         // Step 1: See if there are any new Commodity Councils
         String sqlString = "SELECT tpc.CommodityCouncil FROM tmp_product_catalog tpc LEFT JOIN vw_product_category pc ON pc.REALM_ID=1 AND tpc.CommodityCouncil=right(pc.LABEL_EN, length(pc.LABEL_EN)-locate(\":\", pc.LABEL_EN)-1) WHERE pc.PRODUCT_CATEGORY_ID is null group by tpc.CommodityCouncil";
         logger.info("Checking if there are any new Commodity Councils");
+        sb.append("Checking if there are any new Commodity Councils").append(br);
         List<String> newProductCategoryList = this.jdbcTemplate.queryForList(sqlString, String.class);
         if (newProductCategoryList.size() > 0) {
             logger.info("New Commodity Council found so proceeding to enter those into the Product Category table");
+            sb.append("New Commodity Council found so proceeding to enter those into the Product Category table").append(br);
             for (String pc : newProductCategoryList) {
                 // Step 2: Get the highest CC (Commodity Council no in Product Category Table
                 sqlString = "SELECT max(cast(right(left(pc.LABEL_EN, locate(':', pc.LABEL_EN)-1), length(left(pc.LABEL_EN, locate(':', pc.LABEL_EN)))-3) as UNSIGNED)) `maxCc` FROM vw_product_category pc where pc.REALM_ID=1 AND length(pc.SORT_ORDER)=5";
@@ -562,6 +613,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 this.jdbcTemplate.update(sqlString, labelId, sortOrder);
                 int productCategoryId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
                 logger.info("Added " + newCc + " to the Product Category table");
+                sb.append("Added ").append(newCc).append(" to the Product Category table").append(br);
                 // Step 5: Now find all the SubCategories that are from the new CC and insert them
                 sqlString = "SELECT tpc.Subcategory FROM tmp_product_catalog tpc where tpc.CommodityCouncil=? group by tpc.Subcategory";
                 List<String> subCategoryList = this.jdbcTemplate.queryForList(sqlString, String.class, pc);
@@ -576,10 +628,12 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     this.jdbcTemplate.update(sqlString, labelId, productCategoryId, sortOrder + "." + String.format("%02d", cnt));
                     cnt++;
                     logger.info("Added " + sc + " under " + newCc + " to the ProductCategory table");
+                    sb.append("Added ").append(sc).append(" under ").append(newCc).append(" to the ProductCategory table").append(br);
                 }
             }
             // Step 9: Now find any new SubCategory that is not present in the ProductCategory table 
             logger.info("Checking if there are any new Subcategories that are not present in the Product Category table");
+            sb.append("Checking if there are any new Subcategories that are not present in the Product Category table").append(br);
             sqlString = "SELECT tpc.Subcategory, pc2.SORT_ORDER, pc2.LABEL_EN, pc2.PRODUCT_CATEGORY_ID FROM tmp_product_catalog tpc LEFT JOIN vw_product_category pc1 ON pc1.REALM_ID=1 and pc1.LABEL_EN=tpc.Subcategory  LEFT JOIN vw_product_category pc2 ON pc2.REALM_ID=1 AND tpc.CommodityCouncil=right(pc2.LABEL_EN, length(pc2.LABEL_EN)-locate(':', pc2.LABEL_EN)-1) WHERE pc1.PRODUCT_CATEGORY_ID IS NULL  group by tpc.Subcategory order by pc2.PRODUCT_CATEGORY_ID, tpc.Subcategory";
             List<Map<String, Object>> subCategoryList = this.jdbcTemplate.queryForList(sqlString);
             for (Map<String, Object> sc : subCategoryList) {
@@ -592,22 +646,24 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 sqlString = "INSERT INTO `rm_product_category` (`REALM_ID`, `LABEL_ID`, `PARENT_PRODUCT_CATEGORY_ID`, `SORT_ORDER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, ?, ?, ?, 1, 1, now(), 1, now())";
                 this.jdbcTemplate.update(sqlString, labelId, sc.get("PRODUCT_CATEGORY_ID"), sc.get("SORT_ORDER") + "." + String.format("%02d", maxCnt));
                 logger.info("Added " + sc.get("Subcategory") + " under " + sc.get("LABEL_EN") + " to the ProductCategory table");
+                sb.append("Added ").append(sc.get("Subcategory")).append(" under ").append(sc.get("LABEL_EN")).append(" to the ProductCategory table").append(br);
             }
         }
     }
 
-//    @Transactional
-    private void pullForecastingUnit() {
+    @Transactional
+    private void pullForecastingUnit(StringBuilder sb) {
         logger.info("------------------------------- Forecasting Unit ------------------------------------");
+        sb.append("------------------------------- Forecasting Unit ------------------------------------").append(br);
         //------------Forcasting Unit--------------------------
         // Step 1 - Drop the table if it exists
-//        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
-        String sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
+//        String sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
         this.jdbcTemplate.update(sqlString);
 
         // Step 2 - Create Temporary Table
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
-        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
+                //        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
                 + "    `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
                 + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,   "
@@ -635,6 +691,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, ProductNameNoPack, null, IF(TRIM(INN)='',null,TRIM(INN)), null, BaseUnit, CommodityCouncil, Subcategory, TracerCategory, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' group by tpc.ProductIDNoPack";
         int rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " inserted into the tmp_label for ProductNameNoPack");
+        sb.append(rows).append(" inserted into the tmp_label for ProductNameNoPack").append(br);
 
         // Step 4 Match those records that are already present in the main forecasting_unit table
         sqlString = "update tmp_forecasting_unit tfu LEFT JOIN vw_forecasting_unit fu ON tfu.LABEL=fu.LABEL_EN "
@@ -642,6 +699,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "where fu.FORECASTING_UNIT_ID is not null AND fu.REALM_ID=1";
         rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " Forecasting units found");
+        sb.append(rows).append(" Forecasting units found").append(br);
 
         sqlString = "SELECT null FORECASTING_UNIT_ID, 1 REALM_ID, null `REALM_LABEL_ID`, null REALM_CODE, null `REALM_LABEL_EN`,null `REALM_LABEL_FR`,null `REALM_LABEL_SP`,null `REALM_LABEL_PR`, "
                 + " fu.LABEL_ID, fu.LABEL `LABEL_EN`, null `LABEL_FR`, null `LABEL_SP`, null `LABEL_PR`, "
@@ -711,9 +769,11 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     siForecastingUnit.execute(forecastingUnitParams);
                 } else {
                     logger.info("Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + "because either the ProductCategory or TracerCategory is not provided");
+                    sb.append("Skipping the Forecasting Unit ").append(fu.getLabel().getLabel_en()).append("because either the ProductCategory or TracerCategory is not provided").append(br);
                 }
             } catch (Exception e) {
                 logger.info("Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + " because there was an error " + e.getMessage());
+                sb.append("Skipping the Forecasting Unit ").append(fu.getLabel().getLabel_en()).append(" because there was an error ").append(e.getMessage()).append(br);
             }
         }
 
@@ -726,6 +786,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + " null UNIT_ID, fu.UNIT_LABEL_EN UNIT_CODE, null UNIT_LABEL_ID, fu.UNIT_LABEL_EN UNIT_LABEL_EN, null UNIT_LABEL_FR, null UNIT_LABEL_SP, null UNIT_LABEL_PR, "
                 + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
                 + "FROM tmp_forecasting_unit fu where fu.FOUND=1";
+        int rowCount = 0;
         for (ForecastingUnit fu : this.jdbcTemplate.query(sqlStringUpdate, new ForecastingUnitRowMapper())) {
             try {
                 sqlStringUpdate = "UPDATE ap_label l "
@@ -747,36 +808,31 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         + "f.`ACTIVE`=TRUE,"
                         + "f.`GENERIC_LABEL_ID`=lg.`LABEL_ID` "
                         + "WHERE tf.`ID`=?;";
-                System.out.println("rows updated---" + this.jdbcTemplate.update(sqlStringUpdate, curUserId, curDate, fu.getForecastingUnitId()));
-//                forecastingUnitParams.clear();
-////                forecastingUnitParams.put("forcastingUnitLabel", fu.getLabel().getLabel_en());
-//                forecastingUnitParams.put("lastModifiedBy", fu.getLabel().getLabel_en());
-//                forecastingUnitParams.put("lastModifiedDate", fu.getLabel().getLabel_en());
-//                forecastingUnitParams.put("productCategoryId", fu.getLabel().getLabel_en());
-//                forecastingUnitParams.put("tracerCategoryId", fu.getLabel().getLabel_en());
-////                forecastingUnitParams.put("genericLabelId", fu.getLabel().getLabel_en());
-//                forecastingUnitParams.put("unitId", fu.getLabel().getLabel_en());
-//                forecastingUnitParams.put("forcastingUnitId", fu.getForecastingUnitId());
-
+                rowCount += this.jdbcTemplate.update(sqlStringUpdate, curUserId, curDate, fu.getForecastingUnitId());
             } catch (Exception e) {
                 logger.info("Error while updating Forecasting Unit " + fu.getLabel() + " because there was an error " + e.getMessage());
+                sb.append("Error while updating Forecasting Unit ").append(fu.getLabel()).append(" because there was an error ").append(e.getMessage()).append(br);
             }
         }
+        logger.info("Rows updated - " + rowCount);
+        sb.append("Rows updated - ").append(rowCount).append(br);
         //Update end
         sqlString = "SELECT COUNT(*) FROM rm_forecasting_unit";
-        logger.info("Total rows available in rm_forecasting_unit ---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
+        int cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+        logger.info("Total rows available in rm_forecasting_unit ---" + cnt);
+        sb.append("Total rows available in rm_forecasting_unit ---").append(cnt).append(br);
     }
 
-//    @Transactional
-    private void pullPlanningUnit() {
-        // -----------------------Planning Unit-----------------
+    @Transactional
+    private void pullPlanningUnit(StringBuilder sb) {
         logger.info("------------------------------- Planning Unit ------------------------------------");
-//        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_planning_unit";
-        String sqlString = "DROP TABLE IF EXISTS tmp_planning_unit";
+        sb.append("------------------------------- Planning Unit ------------------------------------").append(br);
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_planning_unit";
+//        String sqlString = "DROP TABLE IF EXISTS tmp_planning_unit";
         this.jdbcTemplate.update(sqlString);
 
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_planning_unit` (   "
-        sqlString = "CREATE TABLE `tmp_planning_unit` (   "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_planning_unit` (   "
+                //        sqlString = "CREATE TABLE `tmp_planning_unit` (   "
                 + "     `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "     `PLANNING_UNIT_ID` int (10) unsigned DEFAULT NULL,   "
                 + "     `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
@@ -807,6 +863,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         sqlString = "Insert into tmp_planning_unit SELECT null, null, ProductName, if(NoofBaseUnits='', null, NoofBaseUnits), OrderUOM, trim(ProductID), tpc.ProductNameNoPack, if(tpc.EstPrice='',null,tpc.EstPrice), if(PlanningUnitMOQ='', null,PlanningUnitMOQ), if(Euro1='',null,Euro1), if(Euro2='',null,Euro2), if(PlanningUnitsperContainer='',null,PlanningUnitsperContainer), if(PlanningUnitVolumem3='',null,PlanningUnitVolumem3), if(PlanningUnitWeightkg='',null,PlanningUnitWeightkg), 0, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductName IS NOT NULL AND tpc.ProductName != '' and tpc.OrderUOM!='' AND tpc.OrderUOM is not null group by tpc.ProductName";
         int rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " rows instered into the tmp planningUnit table");
+        sb.append(rows).append(" rows instered into the tmp planningUnit table").append(br);
 
 //        // Step 1.1 Find Duplicate SKU's in the same file
 //        sqlString = "UPDATE tmp_planning_unit tpu LEFT JOIN (SELECT SKU_CODE, min(tpu.ID) MIN_ID FROM tmp_planning_unit tpu group by tpu.SKU_CODE HAVING count(*)>1) m ON tpu.ID=m.MIN_ID SET tpu.DUPLICATE = 1 WHERE m.MIN_ID IS NOT NULL";
@@ -816,6 +873,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         sqlString = "UPDATE tmp_planning_unit tpu LEFT JOIN rm_procurement_agent_planning_unit papu ON tpu.SKU_CODE=papu.SKU_CODE LEFT JOIN rm_planning_unit pu ON papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID SET tpu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID, tpu.FOUND=1 WHERE fu.REALM_ID = 1 AND papu.PLANNING_UNIT_ID IS NOT NULL AND tpu.DUPLICATE=0";
         rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " Planning units matched");
+        sb.append(rows).append(" Planning units matched").append(br);
 
         sqlString = "SELECT tpu.*, u.UNIT_ID, fu.FORECASTING_UNIT_ID FROM tmp_planning_unit tpu LEFT JOIN vw_unit u ON u.UNIT_CODE=tpu.UNIT OR u.LABEL_EN=tpu.UNIT LEFT JOIN vw_forecasting_unit fu ON tpu.FORECASTING_UNIT=fu.LABEL_EN AND fu.REALM_ID=1 where tpu.FOUND=0 AND tpu.DUPLICATE=0";
         SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
@@ -866,6 +924,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     labelParams.replace("LABEL_EN", pu.getLabel());
                     if (pu.getSkuCode().equals("100123XUZ0G6P")) {
                         logger.info("Found planning unit for insert into rm_planning_unit - 100123XUZ0G6P with ID = " + pu.getId() + " Duplicate flag=" + pu.isDuplicate());
+                        sb.append("Found planning unit for insert into rm_planning_unit - 100123XUZ0G6P with ID = ").append(pu.getId()).append(" Duplicate flag=").append(pu.isDuplicate()).append(br);
                     }
                     int labelId = siLabel.executeAndReturnKey(labelParams).intValue();
                     planningUnitParams.replace("LABEL_ID", labelId);
@@ -887,9 +946,11 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     siPapu.execute(papuParams);
                 } else {
                     logger.info("Skipping the Planning Unit " + pu.getSkuCode() + " since there is no ForecastingUnit defined");
+                    sb.append("Skipping the Planning Unit ").append(pu.getSkuCode()).append(" since there is no ForecastingUnit defined").append(br);
                 }
             } catch (Exception e) {
                 logger.info("Skipping the Planning Unit " + pu.getSkuCode() + " because there was an error " + e.getMessage());
+                sb.append("Skipping the Planning Unit ").append(pu.getSkuCode()).append(" because there was an error ").append(e.getMessage()).append(br);
             }
         }
 
@@ -921,22 +982,28 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 this.jdbcTemplate.update(sqlString, pu.getPlanningUnitId());
             } catch (Exception e) {
                 logger.info("Error while updating the Planning Unit " + pu.getSkuCode() + " because there was an error " + e.getMessage());
+                sb.append("Error while updating the Planning Unit ").append(pu.getSkuCode()).append(" because there was an error ").append(e.getMessage()).append(br);
             }
         }
         // Update planning unit end
 
         sqlString = "select count(*) from rm_planning_unit;";
-        logger.info("No of rows after insertion in rm_planning_unit --" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
+        int cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+        logger.info("No of rows after insertion in rm_planning_unit --" + cnt);
+        sb.append("No of rows after insertion in rm_planning_unit --").append(cnt).append(br);
     }
 
-//    @Transactional
-    private void pullSupplier() {
+    @Transactional
+    private void pullSupplier(StringBuilder sb) {
         //------------Supplier----------------
         logger.info("------------------------------- Suppliers ------------------------------------");
-        String sqlString = "DROP TABLE IF EXISTS `tmp_supplier`";
+        sb.append("------------------------------- Suppliers ------------------------------------").append(br);
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_supplier`";
+//        String sqlString = "DROP TABLE IF EXISTS `tmp_supplier`";
         this.jdbcTemplate.execute(sqlString);
 
-        sqlString = "CREATE TABLE `tmp_supplier` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_supplier` ( "
+                //        sqlString = "CREATE TABLE `tmp_supplier` ( "
                 + " `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + " `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
                 + " `SUPPLIER_ID` int (10) unsigned DEFAULT NULL, "
@@ -952,8 +1019,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "FROM tmp_product_catalog tpc "
                 + "WHERE Supplier IS NOT NULL AND Supplier != '' "
                 + "GROUP BY Supplier;";
-
-        logger.info("No of rows inserted into tmp_supplier---" + this.jdbcTemplate.update(sqlString));
+        int cnt = this.jdbcTemplate.update(sqlString);
+        logger.info("No of rows inserted into tmp_supplier---" + cnt);
+        sb.append("No of rows inserted into tmp_supplier---").append(cnt).append(br);
 
         sqlString = "UPDATE tmp_supplier ts "
                 + "LEFT JOIN vw_supplier s ON ts.`LABEL` = s.`LABEL_EN` "
@@ -993,19 +1061,22 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
             siSupplier.execute(supplierParams);
         }
         sqlString = "SELECT COUNT(*) FROM rm_supplier";
-        logger.info("Total rows available in rm_supplier---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
+        cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+        logger.info("Total rows available in rm_supplier---" + cnt);
+        sb.append("Total rows available in rm_supplier---").append(cnt).append(br);
     }
 
-//    @Transactional
-    private void pullProcurementUnit() {
+    @Transactional
+    private void pullProcurementUnit(StringBuilder sb) {
         //----------Procurement Unit---------------
         logger.info("------------------------------- Procurement Unit ------------------------------------");
-//        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_procurement_unit";
-        String sqlString = "DROP TABLE IF EXISTS tmp_procurement_unit";
+        sb.append("------------------------------- Procurement Unit ------------------------------------").append(br);
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_procurement_unit";
+//        String sqlString = "DROP TABLE IF EXISTS tmp_procurement_unit";
         this.jdbcTemplate.update(sqlString);
 
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_procurement_unit` (  "
-        sqlString = "CREATE TABLE `tmp_procurement_unit` (  "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_procurement_unit` (  "
+                //        sqlString = "CREATE TABLE `tmp_procurement_unit` (  "
                 + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
                 + "    `PROCUREMENT_UNIT_ID` int(10) UNSIGNED DEFAULT NULL,  "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
@@ -1013,16 +1084,17 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "    `UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `PLANNING_UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `SUPPLIER_ID` int (10) unsigned DEFAULT NULL, "
-                + "    `WIDTH_UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `WIDTH` decimal (12,4) unsigned DEFAULT NULL, "
                 + "    `LENGTH_UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `LENGTH` decimal (12,4) unsigned DEFAULT NULL, "
-                + "    `HEIGHT_UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `HEIGHT` decimal (12,4) unsigned DEFAULT NULL, "
+                + "    `VOLUME_UNIT_ID` int (10) unsigned DEFAULT NULL, "
+                + "    `VOLUME` decimal (12,4) unsigned DEFAULT NULL, "
                 + "    `WEIGHT_UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `WEIGHT` decimal (12,4) unsigned DEFAULT NULL, "
                 + "    `UNITS_PER_CASE` INT (10) UNSIGNED DEFAULT NULL, "
-                + "    `UNITS_PER_PALLET` INT (10) UNSIGNED DEFAULT NULL, "
+                + "    `UNITS_PER_PALLET_EURO1` INT (10) UNSIGNED DEFAULT NULL, "
+                + "    `UNITS_PER_PALLET_EURO2` INT (10) UNSIGNED DEFAULT NULL, "
                 + "    `UNITS_PER_CONTAINER` int (10) unsigned DEFAULT NULL, "
                 + "    `LABELLING` Varchar(200) DEFAULT NULL, "
                 + "    `SKU_CODE` Varchar(200) DEFAULT NULL, "
@@ -1035,8 +1107,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "     INDEX `idx_procurementUnit2` (`PROCUREMENT_UNIT_ID` ASC), "
                 + "     INDEX `idx_procurementUnit3` (`UNIT_ID` ASC), "
                 + "     INDEX `idx_procurementUnit4` (`PLANNING_UNIT_ID` ASC), "
-                + "     INDEX `idx_procurementUnit5` (`WIDTH_UNIT_ID` ASC), "
-                + "     INDEX `idx_procurementUnit6` (`HEIGHT_UNIT_ID` ASC), "
+                + "     INDEX `idx_procurementUnit5` (`VOLUME_UNIT_ID` ASC), "
                 + "     INDEX `idx_procurementUnit7` (`LENGTH_UNIT_ID` ASC), "
                 + "     INDEX `idx_procurementUnit8` (`WEIGHT_UNIT_ID` ASC), "
                 + "     INDEX `idx_procurementUnit9` (`FOUND` ASC)"
@@ -1048,15 +1119,15 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         // Step 1 - Insert into the tmp_procurement table
         sqlString = "INSERT INTO `tmp_procurement_unit` ( "
                 + "     `ID`,`LABEL`,`PROCUREMENT_UNIT_ID`,`MULTIPLIER`,`UNIT_ID`, "
-                + "     `PLANNING_UNIT_ID`,`SUPPLIER_ID`,`WIDTH_UNIT_ID`,`WIDTH`,`LENGTH_UNIT_ID`, "
-                + "     `LENGTH`,`HEIGHT_UNIT_ID`,`HEIGHT`,`WEIGHT_UNIT_ID`,`WEIGHT`, "
-                + "     `UNITS_PER_CASE`,`UNITS_PER_PALLET`,`UNITS_PER_CONTAINER`,`LABELLING`,`SKU_CODE`, "
+                + "     `PLANNING_UNIT_ID`,`SUPPLIER_ID`,`WIDTH`,`LENGTH_UNIT_ID`, `LENGTH`,"
+                + "     `HEIGHT`, `WEIGHT_UNIT_ID`, `WEIGHT`, `VOLUME_UNIT_ID`, `VOLUME`, "
+                + "     `UNITS_PER_CASE`,`UNITS_PER_PALLET_EURO1`,`UNITS_PER_PALLET_EURO2`, `UNITS_PER_CONTAINER`,`LABELLING`,`SKU_CODE`, "
                 + "     `GTIN`,`VENDOR_PRICE`,`APPROVED_TO_SHIPPED_LEAD_TIME`,`FOUND`) "
                 + "SELECT  "
                 + "     null,tpc.ItemName,null,1,u.UNIT_ID, "
-                + "     papu.PLANNING_UNIT_ID, s.SUPPLIER_ID, uh.UNIT_ID, IF(tpc.Width='', NULL, tpc.Width), uh.UNIT_ID, "
-                + "     IF(tpc.Length='', NULL, tpc.Length), uh.UNIT_ID, IF(tpc.Height='', NULL, tpc.Height), uw.UNIT_ID, IF(tpc.Weight='', NULL, tpc.Weight), "
-                + "     IF(tpc.UnitsperCase='', NULL, tpc.UnitsperCase), IF(tpc.UnitsperPallet='', NULL, tpc.UnitsperPallet), IF(tpc.UnitsperContainer='', NULL, tpc.UnitsperContainer), IF(tpc.Labeling='', NULL, tpc.Labeling), tpc.ItemID, "
+                + "     papu.PLANNING_UNIT_ID, s.SUPPLIER_ID, IF(tpc.Width='', NULL, tpc.Width), uh.UNIT_ID, IF(tpc.Length='', NULL, tpc.Length), "
+                + "     IF(tpc.Height='', NULL, tpc.Height), uw.UNIT_ID, IF(tpc.Weight='', NULL, tpc.Weight), null, null, "
+                + "     IF(tpc.UnitsperCase='', NULL, tpc.UnitsperCase), IF(tpc.UnitsperPallet='', NULL, tpc.UnitsperPallet), null, IF(tpc.UnitsperContainer='', NULL, tpc.UnitsperContainer), IF(tpc.Labeling='', NULL, tpc.Labeling), tpc.ItemID, "
                 + "     IF(tpc.GTIN='', NULL, tpc.GTIN), IF(tpc.EstPrice='',null, tpc.EstPrice), ?, 0 "
                 + "FROM tmp_product_catalog tpc  "
                 + "LEFT JOIN vw_unit uh ON tpc.HeightUOM=uh.LABEL_EN OR tpc.HeightUOM=uh.UNIT_CODE "
@@ -1068,11 +1139,13 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "WHERE tpc.ItemID!=''AND tpc.ItemID is not NULL AND length(tpc.ItemID)=15";
         int rows = this.jdbcTemplate.update(sqlString, approvedToShipppedLeadTime);
         logger.info(rows + " rows inserted into the tmp_procurement table");
+        sb.append(rows).append(" rows inserted into the tmp_procurement table").append(br);
 
         // Step 2 - Find already existing procurement_units based on SKU_CODE
         sqlString = "update tmp_procurement_unit tpu LEFT JOIN rm_procurement_agent_procurement_unit papu ON tpu.SKU_CODE=papu.SKU_CODE and papu.PROCUREMENT_AGENT_ID=1 set tpu.PROCUREMENT_UNIT_ID=papu.PROCUREMENT_UNIT_ID, tpu.FOUND=1 where papu.PROCUREMENT_UNIT_ID is not null";
         rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " procurment units already existed");
+        sb.append(rows).append(" procurment units already existed").append(br);
 
         sqlString = "SELECT tpu.* FROM tmp_procurement_unit tpu WHERE tpu.FOUND=0";
         SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
@@ -1102,15 +1175,16 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         procurementUnitParams.put("MULTIPLIER", 0);
         procurementUnitParams.put("SUPPLIER_ID", 0);
         procurementUnitParams.put("WIDTH_QTY", 0);
-        procurementUnitParams.put("WIDTH_UNIT_ID", 0);
         procurementUnitParams.put("HEIGHT_QTY", 0);
-        procurementUnitParams.put("HEIGHT_UNIT_ID", 0);
         procurementUnitParams.put("LENGTH_QTY", 0);
         procurementUnitParams.put("LENGTH_UNIT_ID", 0);
         procurementUnitParams.put("WEIGHT_QTY", 0);
         procurementUnitParams.put("WEIGHT_UNIT_ID", 0);
+        procurementUnitParams.put("VOLUME_QTY", 0);
+        procurementUnitParams.put("VOLUME_UNIT_ID", 0);
         procurementUnitParams.put("UNITS_PER_CASE", 0);
-        procurementUnitParams.put("UNITS_PER_PALLET", 0);
+        procurementUnitParams.put("UNITS_PER_PALLET_EURO1", 0);
+        procurementUnitParams.put("UNITS_PER_PALLET_EURO2", 0);
         procurementUnitParams.put("UNITS_PER_CONTAINER", 0);
         procurementUnitParams.put("LABELLING", "");
 
@@ -1140,15 +1214,16 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         procurementUnitParams.replace("MULTIPLIER", pu.getMultiplier());
                         procurementUnitParams.replace("SUPPLIER_ID", pu.getSupplierId());
                         procurementUnitParams.replace("WIDTH_QTY", pu.getWidth());
-                        procurementUnitParams.replace("WIDTH_UNIT_ID", pu.getWidthUnitId());
                         procurementUnitParams.replace("HEIGHT_QTY", pu.getHeight());
-                        procurementUnitParams.replace("HEIGHT_UNIT_ID", pu.getHeightUnitId());
                         procurementUnitParams.replace("LENGTH_QTY", pu.getLength());
                         procurementUnitParams.replace("LENGTH_UNIT_ID", pu.getLengthUnitId());
                         procurementUnitParams.replace("WEIGHT_QTY", pu.getWeight());
                         procurementUnitParams.replace("WEIGHT_UNIT_ID", pu.getWeightUnitId());
+                        procurementUnitParams.replace("VOLUME_QTY", pu.getVolume());
+                        procurementUnitParams.replace("VOLUME_UNIT_ID", pu.getVolumeUnitId());
                         procurementUnitParams.replace("UNITS_PER_CASE", pu.getUnitsPerCase());
-                        procurementUnitParams.replace("UNITS_PER_PALLET", pu.getUnitsPerPallet());
+                        procurementUnitParams.replace("UNITS_PER_PALLET_EURO1", pu.getUnitsPerPalletEuro1());
+                        procurementUnitParams.replace("UNITS_PER_PALLET_EURO2", pu.getUnitsPerPalletEuro2());
                         procurementUnitParams.replace("UNITS_PER_CONTAINER", pu.getUnitsPerContainer());
                         procurementUnitParams.replace("LABELLING", pu.getLabelling());
                         pu.setProcurementUnitId(siProcurementUnit.executeAndReturnKey(procurementUnitParams).intValue());
@@ -1161,12 +1236,15 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         siPapu.execute(papuParams);
                     } else {
                         logger.info("Skipping the Procurement Unit " + pu.getSkuCode() + " since there is no Supplier Id defined");
+                        sb.append("Skipping the Procurement Unit ").append(pu.getSkuCode()).append(" since there is no Supplier Id defined").append(br);
                     }
                 } else {
                     logger.info("Skipping the Procurement Unit " + pu.getSkuCode() + " since there is no PlanningUnit defined");
+                    sb.append("Skipping the Procurement Unit ").append(pu.getSkuCode()).append(" since there is no PlanningUnit defined").append(br);
                 }
             } catch (Exception e) {
                 logger.info("Skipping the Procurement Unit " + pu.getSkuCode() + " because there was an error " + e.getMessage());
+                sb.append("Skipping the Procurement Unit ").append(pu.getSkuCode()).append(" because there was an error ").append(e.getMessage()).append(br);
             }
         }
 
@@ -1180,16 +1258,17 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "l.`LAST_MODIFIED_DATE` = IF(l.`LABEL_EN`!=tpu.`LABEL`, now(), l.`LAST_MODIFIED_DATE`), "
                 + "pu.`UNIT_ID` = tpu.UNIT_ID, "
                 + "pu.`SUPPLIER_ID` = tpu.`SUPPLIER_ID`, "
-                + "pu.`WIDTH_UNIT_ID` = tpu.`WEIGHT_UNIT_ID`, "
                 + "pu.`WIDTH_QTY` = tpu.`WIDTH`, "
-                + "pu.`HEIGHT_UNIT_ID` = tpu.`HEIGHT_UNIT_ID`, "
                 + "pu.`HEIGHT_QTY` = tpu.`HEIGHT`, "
-                + "pu.`LENGTH_UNIT_ID` = tpu.`HEIGHT_UNIT_ID`, "
+                + "pu.`LENGTH_UNIT_ID` = tpu.`LENGTH_UNIT_ID`, "
                 + "pu.`LENGTH_QTY` = tpu.`LENGTH`, "
-                + "pu.`WEIGHT_UNIT_ID` = tpu.`WIDTH_UNIT_ID`, "
+                + "pu.`WEIGHT_UNIT_ID` = tpu.`WEIGHT_UNIT_ID`, "
                 + "pu.`WEIGHT_QTY` = tpu.`WEIGHT`, "
+                + "pu.`VOLUME_UNIT_ID` = tpu.`VOLUME_UNIT_ID`, "
+                + "pu.`VOLUME_QTY` = tpu.`VOLUME`, "
                 + "pu.`UNITS_PER_CASE` = tpu.`UNITS_PER_CASE`, "
-                + "pu.`UNITS_PER_PALLET` = tpu.`UNITS_PER_PALLET`, "
+                + "pu.`UNITS_PER_PALLET_EURO1` = tpu.`UNITS_PER_PALLET_EURO1`, "
+                + "pu.`UNITS_PER_PALLET_EURO2` = tpu.`UNITS_PER_PALLET_EURO2`, "
                 + "pu.`UNITS_PER_CONTAINER` = tpu.`UNITS_PER_CONTAINER`, "
                 + "pu.`LABELING` = tpu.`LABELLING`, "
                 + "pu.`LAST_MODIFIED_BY` =  "
@@ -1198,16 +1277,17 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "         l.`LABEL_EN`!= tpu.`LABEL` "
                 + "         OR pu.`UNIT_ID` != tpu.`UNIT_ID` "
                 + "         OR pu.`SUPPLIER_ID` != tpu.`SUPPLIER_ID` "
-                + "         OR pu.`WIDTH_UNIT_ID` != tpu.`WEIGHT_UNIT_ID` "
-                + "         OR pu.`WIDTH_QTY` != tpu.`WIDTH` "
-                + "         OR pu.`HEIGHT_UNIT_ID` != tpu.`HEIGHT_UNIT_ID` "
+                + "         OR pu.`LENGTH_UNIT_ID` != tpu.`LENGTH_UNIT_ID` "
                 + "         OR pu.`HEIGHT_QTY` != tpu.`HEIGHT` "
-                + "         OR pu.`LENGTH_UNIT_ID` != tpu.`HEIGHT_UNIT_ID` "
                 + "         OR pu.`LENGTH_QTY` != tpu.`LENGTH` "
-                + "         OR pu.`WEIGHT_UNIT_ID` != tpu.`WIDTH_UNIT_ID` "
+                + "         OR pu.`WIDTH_QTY` != tpu.`WIDTH` "
+                + "         OR pu.`WEIGHT_UNIT_ID` != tpu.`WEIGHT_UNIT_ID` "
                 + "         OR pu.`WEIGHT_QTY` != tpu.`WEIGHT` "
+                + "         OR pu.`VOLUME_UNIT_ID` != tpu.`VOLUME_UNIT_ID` "
+                + "         OR pu.`VOLUME_QTY` != tpu.`VOLUME` "
                 + "         OR pu.`UNITS_PER_CASE` != tpu.`UNITS_PER_CASE` "
-                + "         OR pu.`UNITS_PER_PALLET` != tpu.`UNITS_PER_PALLET` "
+                + "         OR pu.`UNITS_PER_PALLET_EURO1` != tpu.`UNITS_PER_PALLET_EURO1` "
+                + "         OR pu.`UNITS_PER_PALLET_EURO2` != tpu.`UNITS_PER_PALLET_EURO2` "
                 + "         OR pu.`UNITS_PER_CONTAINER` != tpu.`UNITS_PER_CONTAINER` "
                 + "         OR pu.`LABELING` != tpu.`LABELLING` "
                 + "        ), 1, pu.`LAST_MODIFIED_BY`), "
@@ -1217,16 +1297,17 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "         l.`LABEL_EN`!= tpu.`LABEL` "
                 + "         OR pu.`UNIT_ID` != tpu.`UNIT_ID` "
                 + "         OR pu.`SUPPLIER_ID` != tpu.`SUPPLIER_ID` "
-                + "         OR pu.`WIDTH_UNIT_ID` != tpu.`WEIGHT_UNIT_ID` "
-                + "         OR pu.`WIDTH_QTY` != tpu.`WIDTH` "
-                + "         OR pu.`HEIGHT_UNIT_ID` != tpu.`HEIGHT_UNIT_ID` "
+                + "         OR pu.`LENGTH_UNIT_ID` != tpu.`LENGTH_UNIT_ID` "
                 + "         OR pu.`HEIGHT_QTY` != tpu.`HEIGHT` "
-                + "         OR pu.`LENGTH_UNIT_ID` != tpu.`HEIGHT_UNIT_ID` "
                 + "         OR pu.`LENGTH_QTY` != tpu.`LENGTH` "
-                + "         OR pu.`WEIGHT_UNIT_ID` != tpu.`WIDTH_UNIT_ID` "
+                + "         OR pu.`WIDTH_QTY` != tpu.`WIDTH` "
+                + "         OR pu.`WEIGHT_UNIT_ID` != tpu.`WEIGHT_UNIT_ID` "
                 + "         OR pu.`WEIGHT_QTY` != tpu.`WEIGHT` "
+                + "         OR pu.`VOLUME_UNIT_ID` != tpu.`VOLUME_UNIT_ID` "
+                + "         OR pu.`VOLUME_QTY` != tpu.`VOLUME` "
                 + "         OR pu.`UNITS_PER_CASE` != tpu.`UNITS_PER_CASE` "
-                + "         OR pu.`UNITS_PER_PALLET` != tpu.`UNITS_PER_PALLET` "
+                + "         OR pu.`UNITS_PER_PALLET_EURO1` != tpu.`UNITS_PER_PALLET_EURO1` "
+                + "         OR pu.`UNITS_PER_PALLET_EURO2` != tpu.`UNITS_PER_PALLET_EURO2` "
                 + "         OR pu.`UNITS_PER_CONTAINER` != tpu.`UNITS_PER_CONTAINER` "
                 + "         OR pu.`LABELING` != tpu.`LABELLING` "
                 + "        ), now(), pu.`LAST_MODIFIED_DATE`), "
@@ -1237,12 +1318,15 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlUpdate);
 
         sqlString = "select count(*) from rm_procurement_unit;";
-        logger.info("No of rows after insertion in rm_procurement_unit --" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
+        int cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+        logger.info("No of rows after insertion in rm_procurement_unit --" + cnt);
+        sb.append("No of rows after insertion in rm_procurement_unit --").append(cnt).append(br);
     }
 
     @Override
-    public void rollBackAutoIncrement() {
+    public void rollBackAutoIncrement(StringBuilder sb) {
         logger.error("Rolling back AutoIncrement");
+        sb.append("Rolling back AutoIncrement").append(br);
         String sqlString = "ALTER TABLE ap_label AUTO_INCREMENT = 1";
         this.jdbcTemplate.update(sqlString);
         sqlString = "ALTER TABLE ap_unit AUTO_INCREMENT = 1";

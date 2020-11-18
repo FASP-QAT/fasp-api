@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,9 +14,13 @@ import java.io.Serializable;
  */
 public class InventoryBatchInfo implements Serializable {
 
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private int inventoryTransBatchInfoId;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private Batch batch;
-    private int adjustmentQty;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
+    private Integer adjustmentQty;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private Integer actualQty;
 
     public int getInventoryTransBatchInfoId() {
@@ -34,11 +39,11 @@ public class InventoryBatchInfo implements Serializable {
         this.batch = batch;
     }
 
-    public int getAdjustmentQty() {
+    public Integer getAdjustmentQty() {
         return adjustmentQty;
     }
 
-    public void setAdjustmentQty(int adjustmentQty) {
+    public void setAdjustmentQty(Integer adjustmentQty) {
         this.adjustmentQty = adjustmentQty;
     }
 

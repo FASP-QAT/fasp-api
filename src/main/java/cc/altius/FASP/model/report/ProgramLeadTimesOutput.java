@@ -7,6 +7,8 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -15,17 +17,28 @@ import java.io.Serializable;
  */
 public class ProgramLeadTimesOutput implements Serializable {
 
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject country;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject program;
+    @JsonView(Views.ReportView.class)
     private SimpleCodeObject procurementAgent;
+    @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
-    private double plannedToSubmittedLeadTime;
-    private double submittedToApprovedLeadTime;
-    private double approvedToShippedLeadTime;
-    private double shippedToArrivedByAirLeadTime;
-    private double shippedToArrivedBySeaLeadTime;
-    private double arrivedToDeliveredLeadTime;
-    private double localProcurementAgentLeadTime;
+    @JsonView(Views.ReportView.class)
+    private Double plannedToSubmittedLeadTime;
+    @JsonView(Views.ReportView.class)
+    private Double submittedToApprovedLeadTime;
+    @JsonView(Views.ReportView.class)
+    private Double approvedToShippedLeadTime;
+    @JsonView(Views.ReportView.class)
+    private Double shippedToArrivedByAirLeadTime;
+    @JsonView(Views.ReportView.class)
+    private Double shippedToArrivedBySeaLeadTime;
+    @JsonView(Views.ReportView.class)
+    private Double arrivedToDeliveredLeadTime;
+    @JsonView(Views.ReportView.class)
+    private Double localProcurementAgentLeadTime;
 
     public SimpleCodeObject getCountry() {
         return country;
@@ -59,67 +72,88 @@ public class ProgramLeadTimesOutput implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public double getPlannedSubmittedLeadTime() {
+    public Double getPlannedToSubmittedLeadTime() {
         return plannedToSubmittedLeadTime;
     }
 
-    public void setPlannedToSubmittedLeadTime(double plannedToSubmittedLeadTime) {
+    public void setPlannedToSubmittedLeadTime(Double plannedToSubmittedLeadTime) {
         this.plannedToSubmittedLeadTime = plannedToSubmittedLeadTime;
     }
 
-    public double getSubmittedToApprovedLeadTime() {
+    public Double getSubmittedToApprovedLeadTime() {
         return submittedToApprovedLeadTime;
     }
 
-    public void setSubmittedToApprovedLeadTime(double submittedToApprovedLeadTime) {
+    public void setSubmittedToApprovedLeadTime(Double submittedToApprovedLeadTime) {
         this.submittedToApprovedLeadTime = submittedToApprovedLeadTime;
     }
 
-    public double getApprovedToShippedLeadTime() {
+    public Double getApprovedToShippedLeadTime() {
         return approvedToShippedLeadTime;
     }
 
-    public void setApprovedToShippedLeadTime(double approvedToShippedLeadTime) {
+    public void setApprovedToShippedLeadTime(Double approvedToShippedLeadTime) {
         this.approvedToShippedLeadTime = approvedToShippedLeadTime;
     }
 
-    public double getShippedToArrivedByAirLeadTime() {
+    public Double getShippedToArrivedByAirLeadTime() {
         return shippedToArrivedByAirLeadTime;
     }
 
-    public void setShippedToArrivedByAirLeadTime(double shippedToArrivedByAirLeadTime) {
+    public void setShippedToArrivedByAirLeadTime(Double shippedToArrivedByAirLeadTime) {
         this.shippedToArrivedByAirLeadTime = shippedToArrivedByAirLeadTime;
     }
 
-    public double getShippedToArrivedBySeaLeadTime() {
+    public Double getShippedToArrivedBySeaLeadTime() {
         return shippedToArrivedBySeaLeadTime;
     }
 
-    public void setShippedToArrivedBySeaLeadTime(double shippedToArrivedBySeaLeadTime) {
+    public void setShippedToArrivedBySeaLeadTime(Double shippedToArrivedBySeaLeadTime) {
         this.shippedToArrivedBySeaLeadTime = shippedToArrivedBySeaLeadTime;
     }
 
-    public double getArrivedToDeliveredLeadTime() {
+    public Double getArrivedToDeliveredLeadTime() {
         return arrivedToDeliveredLeadTime;
     }
 
-    public void setArrivedToDeliveredLeadTime(double arrivedToDeliveredLeadTime) {
+    public void setArrivedToDeliveredLeadTime(Double arrivedToDeliveredLeadTime) {
         this.arrivedToDeliveredLeadTime = arrivedToDeliveredLeadTime;
     }
 
-    public double getLocalProcurementAgentLeadTime() {
+    public Double getLocalProcurementAgentLeadTime() {
         return localProcurementAgentLeadTime;
     }
 
-    public void setLocalProcurementAgentLeadTime(double localProcurementAgentLeadTime) {
+    public void setLocalProcurementAgentLeadTime(Double localProcurementAgentLeadTime) {
         this.localProcurementAgentLeadTime = localProcurementAgentLeadTime;
     }
 
-    public double getTotalSeaLeadTime() {
-        return this.plannedToSubmittedLeadTime + this.submittedToApprovedLeadTime + this.approvedToShippedLeadTime + this.shippedToArrivedBySeaLeadTime + this.arrivedToDeliveredLeadTime;
+    @JsonView(Views.ReportView.class)
+    public Double getTotalSeaLeadTime() {
+        double d = (this.plannedToSubmittedLeadTime == null ? 0 : this.plannedToSubmittedLeadTime)
+                + (this.submittedToApprovedLeadTime == null ? 0 : this.submittedToApprovedLeadTime)
+                + (this.approvedToShippedLeadTime == null ? 0 : this.approvedToShippedLeadTime)
+                + (this.shippedToArrivedBySeaLeadTime == null ? 0 : this.shippedToArrivedBySeaLeadTime)
+                + (this.arrivedToDeliveredLeadTime == null ? 0 : this.arrivedToDeliveredLeadTime);
+        if (d == 0) {
+            return null;
+        } else {
+            return d;
+        }
     }
 
-    public double getTotalAirLeadTime() {
-        return this.plannedToSubmittedLeadTime + this.submittedToApprovedLeadTime + this.approvedToShippedLeadTime + this.shippedToArrivedByAirLeadTime + this.arrivedToDeliveredLeadTime;
+    @JsonView(Views.ReportView.class)
+    public Double getTotalAirLeadTime() {
+        double d = (this.plannedToSubmittedLeadTime != null ? this.plannedToSubmittedLeadTime : 0)
+                + (this.submittedToApprovedLeadTime != null ? this.submittedToApprovedLeadTime : 0)
+                + (this.approvedToShippedLeadTime != null ? this.approvedToShippedLeadTime : 0)
+                + (this.shippedToArrivedByAirLeadTime != null ? this.shippedToArrivedByAirLeadTime : 0)
+                + (this.arrivedToDeliveredLeadTime != null ? this.arrivedToDeliveredLeadTime : 0
+        );
+        if (d == 0) {
+            return null;
+        } else {
+            return d;
+        }
     }
 }

@@ -7,23 +7,41 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.EmailTemplate;
+import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.Views;
+import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.UserService;
+import cc.altius.utils.DateUtils;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -37,15 +55,62 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api")
 public class ProgramDataRestController {
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private final Logger logger = LoggerFactory.getLogger(ProgramDataRestController.class);
 
     @Autowired
     private ProgramDataService programDataService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private EmailService emailService;
+    @Value("${qat.filePath}")
+    private String QAT_FILE_PATH;
+    @Value("${exportSupplyPlanFilePath}")
+    private String EXPORT_SUPPLY_PLAN_FILE_PATH;
+    @Value("${email.toList}")
+    private String toList;
+    @Value("${email.ccList}")
+    private String ccList;
 
+    @JsonView(Views.InternalView.class)
     @GetMapping("/programData/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getProgramData(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to get ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @JsonView(Views.ArtmisView.class)
+    @GetMapping("/programData/artmis/programId/{programId}/versionId/{versionId}")
+    public ResponseEntity getProgramDataArtmis(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to get ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @JsonView(Views.GfpVanView.class)
+    @GetMapping("/programData/gfpvan/programId/{programId}/versionId/{versionId}")
+    public ResponseEntity getProgramDataGfpVan(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser), HttpStatus.OK);
@@ -117,7 +182,6 @@ public class ProgramDataRestController {
             @PathVariable(value = "stopDate", required = true) String stopDate,
             Authentication auth) {
         try {
-            System.out.println("versionTypeId---"+versionTypeId);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programDataService.getProgramVersionList(programId, versionId, realmCountryId, healthAreaId, organisationId, versionTypeId, versionStatusId, startDate, stopDate, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
@@ -132,11 +196,78 @@ public class ProgramDataRestController {
         }
     }
 
-    @PutMapping("/programVersion/programId/{programId}/versionId/{versionId}/versionStatusId/{versionStatusId}/{notes}")
-    public ResponseEntity updateProgramVersion(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "versionStatusId", required = true) int versionStatusId, @PathVariable(value = "notes", required = true) String notes, Authentication auth) {
+    @PutMapping("/programVersion/programId/{programId}/versionId/{versionId}/versionStatusId/{versionStatusId}")
+    public ResponseEntity updateProgramVersion(@RequestBody UpdateProgramVersion updateProgramVersion, @PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "versionStatusId", required = true) int versionStatusId, Authentication auth) {
+        EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(4);
+        String[] subjectParam = new String[]{};
+        String[] bodyParam = null;
+        Emailer emailer = new Emailer();
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
+        String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.updateProgramVersion(programId, versionId, versionStatusId, notes, curUser), HttpStatus.OK);
+            //Generate supply plan files
+            if (versionStatusId == 2) {
+                File directory = new File(QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH);
+                if (directory.isDirectory()) {
+                    try {
+                        ProgramData programData = this.programDataService.getProgramData(programId, versionId, curUser);
+                        ObjectMapper mapper = new ObjectMapper();
+                        String json = mapper
+                                .writerWithView(Views.ArtmisView.class)
+                                .writeValueAsString(programData);
+                        System.out.println("json---" + json);
+                        String path = QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH + "QAT_SupplyPlan_" + StringUtils.leftPad(Integer.toString(programData.getProgramId()), 8, "0") + ".json";
+                        FileWriter fileWriter = new FileWriter(path);
+                        fileWriter.write(json);
+                        fileWriter.flush();
+                        fileWriter.close();
+                        logger.info("Export supply plan successful");
+                    } catch (FileNotFoundException e) {
+                        subjectParam = new String[]{"supply plan", "File not found"};
+                        bodyParam = new String[]{"supply plan", date, "File not found", e.getMessage()};
+                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                        int emailerId = this.emailService.saveEmail(emailer);
+                        emailer.setEmailerId(emailerId);
+                        this.emailService.sendMail(emailer);
+                        logger.error("File not found exception occured", e);
+                    } catch (IOException e) {
+                        subjectParam = new String[]{"supply plan", "Input/Output error"};
+                        bodyParam = new String[]{"supply plan", date, "Input/Output error", e.getMessage()};
+                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                        int emailerId = this.emailService.saveEmail(emailer);
+                        emailer.setEmailerId(emailerId);
+                        this.emailService.sendMail(emailer);
+                        logger.error("IO exception occured", e);
+                    } catch (BadSqlGrammarException e) {
+                        subjectParam = new String[]{"supply plan", "SQL Exception"};
+                        bodyParam = new String[]{"supply plan", date, "SQL Exception", e.getMessage()};
+                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                        int emailerId = this.emailService.saveEmail(emailer);
+                        emailer.setEmailerId(emailerId);
+                        this.emailService.sendMail(emailer);
+                        logger.error("SQL exception occured", e);
+                    } catch (Exception e) {
+                        subjectParam = new String[]{"supply plan", e.getClass().getName().toString()};
+                        bodyParam = new String[]{"supply plan", date, e.getClass().getName().toString(), e.getMessage()};
+                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                        int emailerId = this.emailService.saveEmail(emailer);
+                        emailer.setEmailerId(emailerId);
+                        this.emailService.sendMail(emailer);
+                        logger.error("Export supply plan exception occured", e);
+                    }
+                } else {
+                    subjectParam = new String[]{"supply plan", "Directory does not exists"};
+                    bodyParam = new String[]{"supply plan", date, "Directory does not exists", "Directory does not exists"};
+                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                    int emailerId = this.emailService.saveEmail(emailer);
+                    emailer.setEmailerId(emailerId);
+                    this.emailService.sendMail(emailer);
+                    logger.error("Directory does not exists");
+                }
+
+            }
+            return new ResponseEntity(this.programDataService.updateProgramVersion(programId, versionId, versionStatusId, updateProgramVersion.getNotes(), curUser, updateProgramVersion.getReviewedProblemList()), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to update ProgramVersion", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
@@ -180,4 +311,27 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * Sample JSON
+     * [{"programId":2535,"versionId":3},{"programId":2001,"versionId":5}]
+     *
+     * @param programVersionList
+     * @param auth
+     * @return
+     */
+    @PostMapping("/programData/checkNewerVersions")
+    public ResponseEntity checkNewerVersions(@RequestBody List<ProgramIdAndVersionId> programVersionList, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programDataService.checkNewerVersions(programVersionList, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to check ProgramVersion", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to check ProgramVersion", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

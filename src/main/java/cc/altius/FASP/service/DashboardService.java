@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service;
 
+import cc.altius.FASP.model.DashboardUser;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +19,7 @@ public interface DashboardService {
 
     Map<String, Object> getRealmLevelDashboard(int realmId);
 
-    List<Map<String, Object>> getUserListForApplicationLevelAdmin();
+    List<DashboardUser> getUserListForApplicationLevelAdmin();
 
-    List<Map<String, Object>> getUserListForRealmLevelAdmin(int realmId);
+    List<DashboardUser> getUserListForRealmLevelAdmin(int realmId);
 }

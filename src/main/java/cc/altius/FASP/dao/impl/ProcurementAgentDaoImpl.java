@@ -16,9 +16,9 @@ import cc.altius.FASP.model.rowMapper.ProcurementAgentPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentProcurementUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +53,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
     @Autowired
     private AclService aclService;
 
-    private String sqlListString = " SELECT pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.COLOR_HTML_CODE, pa.SUBMITTED_TO_APPROVED_LEAD_TIME, pa.APPROVED_TO_SHIPPED_LEAD_TIME, pa.LOCAL_PROCUREMENT_AGENT, "
+    private String sqlListString = " SELECT pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.COLOR_HTML_CODE, pa.SUBMITTED_TO_APPROVED_LEAD_TIME, pa.APPROVED_TO_SHIPPED_LEAD_TIME, "
             + " r.REALM_ID, r.REALM_CODE, "
             + " pal.`LABEL_ID` ,pal.`LABEL_EN`, pal.`LABEL_FR`, pal.`LABEL_PR`, pal.`LABEL_SP`,"
             + " rl.`LABEL_ID` `REALM_LABEL_ID` ,rl.`LABEL_EN` `REALM_LABEL_EN`, rl.`LABEL_FR` `REALM_LABEL_FR`, rl.`LABEL_PR` `REALM_LABEL_PR`, rl.`LABEL_SP` `REALM_LABEL_SP`,"
@@ -79,7 +79,6 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         params.put("LABEL_ID", labelId);
         params.put("SUBMITTED_TO_APPROVED_LEAD_TIME", p.getSubmittedToApprovedLeadTime());
         params.put("APPROVED_TO_SHIPPED_LEAD_TIME", p.getApprovedToShippedLeadTime());
-        params.put("LOCAL_PROCUREMENT_AGENT", p.isLocalProcurementAgent());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
@@ -364,6 +363,18 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentProcurementUnitRowMapper());
     }
 
+    @Override
+    public String getDisplayName(int realmId, String name, CustomUserDetails curUser) {
+        String extractedName = SuggestedDisplayName.getAlphaNumericString(name, SuggestedDisplayName.PROCUREMENT_AGENT_LENGTH);
+        String sqlString = "SELECT COUNT(*) CNT FROM rm_procurement_agent pa WHERE pa.REALM_ID=:realmId AND UPPER(LEFT(pa.PROCUREMENT_AGENT_CODE,:len))=:extractedName";
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        params.put("len", extractedName.length());
+        params.put("extractedName", extractedName);
+        int cnt = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
+        return SuggestedDisplayName.getFinalDisplayName(extractedName, cnt);
+    }
+    
     @Override
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT papu.PROCUREMENT_AGENT_PLANNING_UNIT_ID, "

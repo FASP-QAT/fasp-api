@@ -13,14 +13,26 @@ import java.io.Serializable;
  */
 public class ProcurementAgentShipmentReportInput extends ShipmentReportInput implements Serializable {
 
-    private int procurementAgentId;
+    private String[] procurementAgentIds;
 
-    public int getProcurementAgentId() {
-        return procurementAgentId;
+    public String[] getProcurementAgentIds() {
+        return procurementAgentIds;
     }
 
-    public void setProcurementAgentId(int procurementAgentId) {
-        this.procurementAgentId = procurementAgentId;
+    public void setProcurementAgentIds(String[] procurementAgentIds) {
+        this.procurementAgentIds = procurementAgentIds;
     }
 
+    public String getProcurementAgentIdString() {
+        if (this.procurementAgentIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.procurementAgentIds);
+            if (this.procurementAgentIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
 }

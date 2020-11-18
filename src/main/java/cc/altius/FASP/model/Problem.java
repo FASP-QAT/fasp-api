@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -13,17 +14,24 @@ import java.io.Serializable;
  */
 public class Problem extends BaseModel implements Serializable {
 
+    @JsonView(Views.InternalView.class)
     private int problemId;
+    @JsonView(Views.InternalView.class)
     private Label label;
+    @JsonView(Views.InternalView.class)
+    private SimpleObject problemCategory;
+    @JsonView(Views.InternalView.class)
     private String actionUrl;
+    @JsonView(Views.InternalView.class)
     private Label actionLabel;
 
     public Problem() {
     }
 
-    public Problem(int problemId, Label label, String actionUrl, Label actionLabel) {
+    public Problem(int problemId, Label label, SimpleObject problemCategory, String actionUrl, Label actionLabel) {
         this.problemId = problemId;
         this.label = label;
+        this.problemCategory = problemCategory;
         this.actionUrl = actionUrl;
         this.actionLabel = actionLabel;
         setActive(true);
@@ -45,6 +53,14 @@ public class Problem extends BaseModel implements Serializable {
         this.label = label;
     }
 
+    public SimpleObject getProblemCategory() {
+        return problemCategory;
+    }
+
+    public void setProblemCategory(SimpleObject problemCategory) {
+        this.problemCategory = problemCategory;
+    }
+
     public String getActionUrl() {
         return actionUrl;
     }
@@ -60,5 +76,5 @@ public class Problem extends BaseModel implements Serializable {
     public void setActionLabel(Label actionLabel) {
         this.actionLabel = actionLabel;
     }
-    
+
 }

@@ -16,8 +16,6 @@ import cc.altius.FASP.model.pipeline.QatTempShipment;
 import cc.altius.FASP.service.PipelineDbService;
 import cc.altius.FASP.service.UserService;
 import java.io.IOException;
-import java.util.Arrays;
-import static jxl.biff.BaseCellFeatures.logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
@@ -34,6 +32,9 @@ import org.springframework.web.bind.annotation.RestController;
 import cc.altius.FASP.model.pipeline.QatTempDataSource;
 import cc.altius.FASP.model.pipeline.QatTempFundingSource;
 import cc.altius.FASP.model.pipeline.QatTempProcurementAgent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 
 /**
  *
@@ -47,6 +48,7 @@ public class PipelineDbRestController {
     private PipelineDbService pipelineDbService;
     @Autowired
     private UserService userService;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @PostMapping(path = "/pipelineJson/{fileName}")
     public ResponseEntity postOrganisation(@RequestBody Pipeline pipeline,@PathVariable("fileName") String fileName, Authentication auth) throws IOException {
@@ -61,7 +63,7 @@ public class PipelineDbRestController {
             }
             
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api//", e);
             return new ResponseEntity(new ResponseCode("incorrectformat"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -231,7 +233,7 @@ public class PipelineDbRestController {
         try {
             return new ResponseEntity(this.pipelineDbService.saveShipmentData(pipelineId, shipments, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api//", e);
             return new ResponseEntity(new ResponseCode("incorrectformat"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -241,8 +243,11 @@ public class PipelineDbRestController {
         CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
         try {
             return new ResponseEntity(this.pipelineDbService.finalSaveProgramData(pipelineId, curUser), HttpStatus.OK);
+        } catch (DuplicateKeyException d) {
+            logger.error("Error while trying to add Program", d);
+            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("/api//", e);
             return new ResponseEntity(new ResponseCode(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -358,6 +363,18 @@ public class PipelineDbRestController {
         } catch (Exception e) {
             logger.error("Error while trying to list ProcurementAgent", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @PutMapping(path = "/pipeline/realmCountryPlanningUnit/{pipelineId}")
+    public ResponseEntity createRealmCountryPlanningUnits(@PathVariable("pipelineId") int pipelineId, Authentication auth) throws IOException {
+        CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+        try {
+            this.pipelineDbService.createRealmCountryPlanningUnits(pipelineId, curUser);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"),HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("/api//", e);
+            return new ResponseEntity(new ResponseCode(e.getMessage()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -24,8 +24,9 @@ import cc.altius.FASP.model.rowMapper.RoleListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.RoleResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.UserResultSetExtractor;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -81,6 +82,7 @@ public class UserDaoImpl implements UserDao {
             + "      `user`.`ACTIVE`, `user`.`EMAIL_ID`, `user`.`EXPIRES_ON`, "
             + "      role.`ROLE_ID`, role_lb.`LABEL_ID` `ROLE_LABEL_ID`, role_lb.`LABEL_EN` `ROLE_LABEL_EN`, role_lb.`LABEL_FR` `ROLE_LABEL_FR`, role_lb.`LABEL_SP` `ROLE_LABEL_SP`, role_lb.`LABEL_PR` `ROLE_LABEL_PR`, "
             + "      bf.`BUSINESS_FUNCTION_ID`, "
+            + "      acl.USER_ACL_ID, "
             + "      acl.`REALM_COUNTRY_ID` `ACL_REALM_COUNTRY_ID`, acl_country_lb.`LABEL_ID` `ACL_REALM_LABEL_ID`, acl_country_lb.`LABEL_EN` `ACL_REALM_LABEL_EN`, acl_country_lb.`LABEL_FR` `ACL_REALM_LABEL_FR`, acl_country_lb.`LABEL_SP` `ACL_REALM_LABEL_SP`, acl_country_lb.`LABEL_PR` `ACL_REALM_LABEL_PR`, "
             + "      acl.`HEALTH_AREA_ID` `ACL_HEALTH_AREA_ID`, acl_health_area_lb.`LABEL_ID` `ACL_HEALTH_AREA_LABEL_ID`, acl_health_area_lb.`LABEL_EN` `ACL_HEALTH_AREA_LABEL_EN`, acl_health_area_lb.`LABEL_FR` `ACL_HEALTH_AREA_LABEL_FR`, acl_health_area_lb.`LABEL_SP` `ACL_HEALTH_AREA_LABEL_SP`, acl_health_area_lb.`LABEL_PR` `ACL_HEALTH_AREA_LABEL_PR`, "
             + "      acl.`ORGANISATION_ID` `ACL_ORGANISATION_ID`, acl_organisation_lb.`LABEL_ID` `ACL_ORGANISATION_LABEL_ID`, acl_organisation_lb.`LABEL_EN` `ACL_ORGANISATION_LABEL_EN`, acl_organisation_lb.`LABEL_FR` `ACL_ORGANISATION_LABEL_FR`, acl_organisation_lb.`LABEL_SP` `ACL_ORGANISATION_LABEL_SP`, acl_organisation_lb.`LABEL_PR` `ACL_ORGANISATION_LABEL_PR`, "
@@ -268,7 +270,7 @@ public class UserDaoImpl implements UserDao {
             Map<String, Object> params = new HashMap<>();
             params.put("emailId", emailId);
             params.put("curDate", curDate);
-            String sqlString = "UPDATE `us_user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=:curDate WHERE EMAIL_ID=:emailId";
+            String sqlString = "UPDATE `us_user` SET FAILED_ATTEMPTS=0,LAST_LOGIN_DATE=:curDate WHERE LOWER(EMAIL_ID)=LOWER(:emailId)";
             return this.namedParameterJdbcTemplate.update(sqlString, params);
         } catch (DataAccessException e) {
             return 0;
@@ -278,7 +280,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int updateFailedAttemptsByUserId(String emailId) {
         try {
-            String sqlQuery = "UPDATE `us_user` SET FAILED_ATTEMPTS=FAILED_ATTEMPTS+1 WHERE EMAIL_ID=:emailId";
+            String sqlQuery = "UPDATE `us_user` SET FAILED_ATTEMPTS=FAILED_ATTEMPTS+1 WHERE LOWER(EMAIL_ID)=LOWER(:emailId)";
             Map<String, Object> params = new HashMap<>();
             params.put("emailId", emailId);
             return this.namedParameterJdbcTemplate.update(sqlQuery, params);
@@ -300,12 +302,29 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public List<Role> getRoleList() {
-        String sql = " SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID`,c.`CAN_CREATE_ROLE` FROM us_role "
-                + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID` "
-                + "LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=us_role.`ROLE_ID` "
-                + "LEFT JOIN us_can_create_role c ON c.`ROLE_ID`=us_role.`ROLE_ID` ORDER BY lb.`LABEL_EN` ASC";
-        return this.namedParameterJdbcTemplate.query(sql, new RoleListResultSetExtractor());
+    public List<Role> getRoleList(CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder();
+//        sb.append(" SELECT us_role.*,lb.`LABEL_ID`,lb.`LABEL_EN`,lb.`LABEL_FR`,lb.`LABEL_PR`,lb.`LABEL_SP`, rb.`BUSINESS_FUNCTION_ID`,c.`CAN_CREATE_ROLE` FROM us_role "
+//                + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID` "
+//                + "LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=us_role.`ROLE_ID` "
+//                + "LEFT JOIN us_can_create_role c ON c.`ROLE_ID`=us_role.`ROLE_ID` WHERE 1 ");
+        sb.append("SELECT c.`CAN_CREATE_ROLE`,r.`ROLE_ID`,lb.*,rb.`BUSINESS_FUNCTION_ID` "
+                + " FROM us_can_create_role c "
+                + " LEFT JOIN us_role r ON r.`ROLE_ID`=c.`CAN_CREATE_ROLE` "
+                + " LEFT JOIN ap_label lb ON lb.`LABEL_ID`=r.`LABEL_ID` "
+                + " LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=r.`ROLE_ID` WHERE 1 ");
+        String role[] = new String[curUser.getRoles().size()];
+        for (int i = 0; i < curUser.getRoles().size(); i++) {
+            role[i] = curUser.getRoles().get(i).getRoleId();
+        }
+        if (Arrays.asList(role).contains("ROLE_APPLICATION_ADMIN")) {
+            sb.append("AND c.`ROLE_ID`=\"ROLE_APPLICATION_ADMIN\"");
+
+        } else if (Arrays.asList(role).contains("ROLE_REALM_ADMIN")) {
+            sb.append("AND c.`ROLE_ID`=\"ROLE_REALM_ADMIN\"");
+        }
+        sb.append(" ORDER BY lb.`LABEL_EN` ASC ");
+        return this.namedParameterJdbcTemplate.query(sb.toString(), new RoleListResultSetExtractor());
     }
 
     @Override
@@ -507,7 +526,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int updatePassword(String emailId, String token, String newPassword, int offset) {
         Date offsetDate = DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, offset);
-        String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn, FAILED_ATTEMPTS=0 WHERE us_user.EMAIL_ID=:emailId";
+        String sqlString = "UPDATE us_user SET PASSWORD=:hash, EXPIRES_ON=:expiresOn, FAILED_ATTEMPTS=0 WHERE LOWER(us_user.EMAIL_ID)=LOWER(:emailId)";
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
         params.put("hash", newPassword);
@@ -650,7 +669,7 @@ public class UserDaoImpl implements UserDao {
     public EmailUser getEmailUserByEmailId(String emailId) {
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
-        return this.namedParameterJdbcTemplate.queryForObject("SELECT USERNAME, USER_ID, EMAIL_ID FROM us_user WHERE EMAIL_ID=:emailId", params, new EmailUserRowMapper());
+        return this.namedParameterJdbcTemplate.queryForObject("SELECT USERNAME, USER_ID, EMAIL_ID FROM us_user WHERE LOWER(EMAIL_ID)=LOWER(:emailId)", params, new EmailUserRowMapper());
     }
 
     @Override
@@ -658,7 +677,7 @@ public class UserDaoImpl implements UserDao {
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
         params.put("token", token);
-        return this.namedParameterJdbcTemplate.queryForObject("SELECT fpt.*, u.USERNAME FROM us_forgot_password_token fpt LEFT JOIN us_user u on fpt.USER_ID=u.USER_ID WHERE fpt.token=:token AND u.EMAIL_ID=:emailId", params, new ForgotPasswordTokenRowMapper());
+        return this.namedParameterJdbcTemplate.queryForObject("SELECT fpt.*, u.USERNAME FROM us_forgot_password_token fpt LEFT JOIN us_user u on fpt.USER_ID=u.USER_ID WHERE fpt.token=:token AND LOWER(u.EMAIL_ID)=LOWER(:emailId)", params, new ForgotPasswordTokenRowMapper());
     }
 
     @Override
@@ -667,7 +686,7 @@ public class UserDaoImpl implements UserDao {
         params.put("username", username);
         params.put("token", token);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_TRIGGERED_DATE=:curDate WHERE u.EMAIL_ID=:username AND fpt.TOKEN=:token", params);
+        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_TRIGGERED_DATE=:curDate WHERE LOWER(u.EMAIL_ID)=LOWER(:username) AND fpt.TOKEN=:token", params);
     }
 
     @Override
@@ -676,7 +695,7 @@ public class UserDaoImpl implements UserDao {
         params.put("emailId", emailId);
         params.put("token", token);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_COMPLETION_DATE=:curDate WHERE u.EMAIL_ID=:emailId AND fpt.TOKEN=:token", params);
+        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_COMPLETION_DATE=:curDate WHERE LOWER(u.EMAIL_ID)=LOWER(:emailId) AND fpt.TOKEN=:token", params);
     }
 
     @Override
@@ -752,7 +771,7 @@ public class UserDaoImpl implements UserDao {
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
         params.put("syncexpiresOn", DateUtils.getCurrentDateObject(DateUtils.EST));
-        return this.namedParameterJdbcTemplate.update("update us_user u set u.SYNC_EXPIRES_ON=:syncexpiresOn where u.EMAIL_ID=:emailId;", params);
+        return this.namedParameterJdbcTemplate.update("update us_user u set u.SYNC_EXPIRES_ON=:syncexpiresOn where LOWER(u.EMAIL_ID)=LOWER(:emailId)", params);
     }
 
     @Override
@@ -770,6 +789,37 @@ public class UserDaoImpl implements UserDao {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sql = "UPDATE us_user u SET u.`AGREEMENT_ACCEPTED`=1,u.`LAST_LOGIN_DATE`=?,u.`LAST_MODIFIED_BY`=? WHERE u.`USER_ID`=?;";
         return this.jdbcTemplate.update(sql, curDate, userId, userId);
+    }
+
+    @Override
+    public int addUserJiraAccountId(int userId, String jiraCustomerAccountId) {
+        String sql = "UPDATE us_user u SET u.`JIRA_ACCOUNT_ID`=? WHERE u.`USER_ID`=?;";
+        return this.jdbcTemplate.update(sql, jiraCustomerAccountId, userId);
+    }
+
+    @Override
+    public String getUserJiraAccountId(int userId) {
+        String sql = "SELECT u.`JIRA_ACCOUNT_ID` FROM us_user u WHERE u.`USER_ID`=?;";
+        try {
+            return this.jdbcTemplate.queryForObject(sql, String.class, userId);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    public List<String> getUserListForUpdateJiraAccountId(){
+        String sql = "SELECT DISTINCT(u.`EMAIL_ID`) FROM us_user u WHERE u.`JIRA_ACCOUNT_ID` IS NULL OR u.`JIRA_ACCOUNT_ID` = '';";
+        try {
+            return this.jdbcTemplate.queryForList(sql, String.class);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public void updateUserJiraAccountId(String emailAddress, String jiraAccountId) {
+        String sql = "UPDATE us_user u SET u.`JIRA_ACCOUNT_ID`=? WHERE u.`EMAIL_ID`=?;";
+        this.jdbcTemplate.update(sql, jiraAccountId, emailAddress);
     }
 
 }
