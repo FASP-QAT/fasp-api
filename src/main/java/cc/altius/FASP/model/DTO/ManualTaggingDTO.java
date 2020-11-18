@@ -7,6 +7,8 @@ package cc.altius.FASP.model.DTO;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.model.Label;
+import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -31,6 +33,8 @@ public class ManualTaggingDTO implements Serializable {
     private SimpleCodeObject budget;
     private int shipmentQty;
     private double productCost;
+    private String orderNo;
+    private SimpleObject planningUnit;
 
     public int getShipmentId() {
         return shipmentId;
@@ -104,10 +108,25 @@ public class ManualTaggingDTO implements Serializable {
         this.productCost = productCost;
     }
 
+    public String getOrderNo() {
+        return orderNo;
+    }
+
+    public void setOrderNo(String orderNo) {
+        this.orderNo = orderNo;
+    }
+
+    public SimpleObject getPlanningUnit() {
+        return planningUnit;
+    }
+
+    public void setPlanningUnit(SimpleObject planningUnit) {
+        this.planningUnit = planningUnit;
+    }
+
     @Override
     public String toString() {
-        return "ManualTaggingDTO{" + "shipmentId=" + shipmentId + ", shipmentTransId=" + shipmentTransId + ", expectedDeliveryDate=" + expectedDeliveryDate + ", shipmentStatus=" + shipmentStatus + ", procurementAgent=" + procurementAgent + ", budget=" + budget + ", shipmentQty=" + shipmentQty + ", productCost=" + productCost + '}';
+        return "ManualTaggingDTO{" + "shipmentId=" + shipmentId + ", shipmentTransId=" + shipmentTransId + ", expectedDeliveryDate=" + expectedDeliveryDate + ", shipmentStatus=" + shipmentStatus + ", procurementAgent=" + procurementAgent + ", fundingSource=" + fundingSource + ", budget=" + budget + ", shipmentQty=" + shipmentQty + ", productCost=" + productCost + ", orderNo=" + orderNo + ", planningUnit=" + planningUnit + '}';
     }
-    
-    
+
 }

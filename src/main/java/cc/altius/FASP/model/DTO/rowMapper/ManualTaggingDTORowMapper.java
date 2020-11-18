@@ -18,7 +18,7 @@ import org.springframework.jdbc.core.RowMapper;
  * @author altius
  */
 public class ManualTaggingDTORowMapper implements RowMapper<ManualTaggingDTO> {
-
+    
     @Override
     public ManualTaggingDTO mapRow(ResultSet rs, int rows) throws SQLException {
         ManualTaggingDTO m = new ManualTaggingDTO();
@@ -31,7 +31,9 @@ public class ManualTaggingDTORowMapper implements RowMapper<ManualTaggingDTO> {
         m.setProductCost(rs.getDouble("PRODUCT_COST"));
         m.setShipmentId(rs.getInt("SHIPMENT_ID"));
         m.setShipmentTransId(rs.getInt("SHIPMENT_TRANS_ID"));
+        m.setOrderNo(rs.getString("ORDER_NO"));
+        m.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, rows)));
         return m;
     }
-
+    
 }
