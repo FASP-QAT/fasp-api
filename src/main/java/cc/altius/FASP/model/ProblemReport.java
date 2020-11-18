@@ -49,6 +49,8 @@ public class ProblemReport implements Serializable {
     private boolean reviewed;
     @JsonView(Views.InternalView.class)
     private String reviewNotes;
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
     @JsonView(Views.InternalView.class)
     private Date reviewedDate;
     @JsonView(Views.InternalView.class)
