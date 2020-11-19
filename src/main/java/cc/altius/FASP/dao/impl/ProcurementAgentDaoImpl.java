@@ -12,6 +12,7 @@ import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
+import cc.altius.FASP.model.rowMapper.PlanningUnitTracerCategoryRowMapper;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentProcurementUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProcurementAgentRowMapper;
@@ -173,6 +174,25 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         }
         params.put("procurementAgentId", procurementAgentId);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentPlanningUnitRowMapper());
+    }
+
+    @Override
+    public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForTracerCategory(int procurementAgentId, int planningUnitId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(" SELECT pu.PLANNING_UNIT_ID, pul.LABEL_ID, pul.LABEL_EN, pul.LABEL_FR, pul.LABEL_PR, pul.LABEL_SP,papu.SKU_CODE "
+                + " FROM rm_procurement_agent_planning_unit papu  "
+                + " LEFT JOIN rm_planning_unit pu ON papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + " LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID` "
+                + " LEFT JOIN rm_tracer_category tc ON tc.`TRACER_CATEGORY_ID`=fu.`TRACER_CATEGORY_ID` "
+                + " LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
+                + " WHERE papu.PROCUREMENT_AGENT_ID=:procurementAgentId  AND pu.`ACTIVE` AND papu.`ACTIVE` AND tc.`TRACER_CATEGORY_ID`=(SELECT t.`TRACER_CATEGORY_ID` FROM rm_planning_unit p "
+                + " LEFT JOIN rm_forecasting_unit f ON f.`FORECASTING_UNIT_ID`=p.`FORECASTING_UNIT_ID` "
+                + " LEFT JOIN rm_tracer_category t ON t.`TRACER_CATEGORY_ID`=f.`TRACER_CATEGORY_ID` "
+                + " WHERE p.`PLANNING_UNIT_ID`=:planningUnitId); ");
+        Map<String, Object> params = new HashMap<>();
+//        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
+        params.put("procurementAgentId", procurementAgentId);
+        params.put("planningUnitId", planningUnitId);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new PlanningUnitTracerCategoryRowMapper());
     }
 
     @Override
@@ -374,7 +394,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         int cnt = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
         return SuggestedDisplayName.getFinalDisplayName(extractedName, cnt);
     }
-    
+
     @Override
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT papu.PROCUREMENT_AGENT_PLANNING_UNIT_ID, "
