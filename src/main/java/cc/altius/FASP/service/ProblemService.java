@@ -31,4 +31,6 @@ public interface ProblemService {
     public List<SimpleObject> getProblemCategoryForSync(String lastModifiedDate, CustomUserDetails curUser);
 
     public List<ProblemReport> getProblemReportListForSync(int programId, int versionId, String lastSyncDate);
+    
+    public List<ProblemStatus> getProblemStatus(CustomUserDetails curUser);
 }

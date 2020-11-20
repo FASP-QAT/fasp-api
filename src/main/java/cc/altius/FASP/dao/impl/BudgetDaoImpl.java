@@ -126,11 +126,11 @@ public class BudgetDaoImpl implements BudgetDao {
         return this.namedParameterJdbcTemplate.update("UPDATE rm_budget b "
                 + "LEFT JOIN ap_label bl ON b.LABEL_ID=bl.LABEL_ID SET "
                 + "bl.`LABEL_EN`=:labelEn, "
-                + "bl.`LAST_MODIFIED_BY`=IF(bl.`LABEL_EN`!=:labelEn, :curUser, bl.LAST_MODIFIED_BY), "
-                + "bl.`LAST_MODIFIED_DATE`=IF(bl.`LABEL_EN`!=:labelEn, :curDate, bl.LAST_MODIFIED_DATE), "
+                + "bl.`LAST_MODIFIED_BY`=:curUser, "
+                + "bl.`LAST_MODIFIED_DATE`=:curDate, "
                 + "b.`BUDGET_CODE`=:budgetCode, b.`BUDGET_AMT`=:budgetAmt, b.`START_DATE`=:startDate, b.`STOP_DATE`=:stopDate, b.ACTIVE=:active, b.NOTES=:notes, "
-                + "b.LAST_MODIFIED_BY=IF(b.BUDGET_CODE!=:budgetCode OR b.BUDGET_AMT!=:budgetAmt OR b.NOTES!=:notes OR b.START_DATE!=:startDate OR b.STOP_DATE!=:stopDate OR b.ACTIVE!=:active, :curUser, b.LAST_MODIFIED_BY), "
-                + "b.LAST_MODIFIED_DATE=IF(b.BUDGET_CODE!=:budgetCode OR b.BUDGET_AMT!=:budgetAmt OR b.NOTES!=:notes  OR b.START_DATE!=:startDate OR b.STOP_DATE!=:stopDate OR b.ACTIVE!=:active, :curDate, b.LAST_MODIFIED_DATE) "
+                + "b.LAST_MODIFIED_BY=:curUser, "
+                + "b.LAST_MODIFIED_DATE=:curDate "
                 + "WHERE b.BUDGET_ID=:budgetId", params);
     }
 

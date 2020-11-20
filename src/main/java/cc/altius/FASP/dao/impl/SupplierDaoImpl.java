@@ -80,11 +80,11 @@ public class SupplierDaoImpl implements SupplierDao {
         String sqlString = "UPDATE rm_supplier m LEFT JOIN ap_label ml ON m.LABEL_ID=ml.LABEL_ID "
                 + "SET  "
                 + "m.`ACTIVE`=:active, "
-                + "m.`LAST_MODIFIED_BY`=IF(m.`ACTIVE`!=:active, :curUser, m.LAST_MODIFIED_BY), "
-                + "m.`LAST_MODIFIED_DATE`=IF(m.`ACTIVE`!=:active, :curDate, m.LAST_MODIFIED_DATE), "
+                + "m.`LAST_MODIFIED_BY`=:curUser, "
+                + "m.`LAST_MODIFIED_DATE`=:curDate, "
                 + "ml.LABEL_EN=:labelEn, "
-                + "ml.`LAST_MODIFIED_BY`=IF(ml.LABEL_EN!=:labelEn, :curUser, ml.LAST_MODIFIED_BY), "
-                + "ml.`LAST_MODIFIED_DATE`=IF(ml.LABEL_EN!=:labelEn, :curDate, ml.LAST_MODIFIED_DATE) "
+                + "ml.`LAST_MODIFIED_BY`=:curUser, "
+                + "ml.`LAST_MODIFIED_DATE`=:curDate "
                 + " WHERE m.`SUPPLIER_ID`=:supplierId";
         Map<String, Object> params = new HashMap<>();
         params.put("supplierId", m.getSupplierId());

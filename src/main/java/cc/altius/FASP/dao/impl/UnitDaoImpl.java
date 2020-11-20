@@ -84,11 +84,11 @@ public class UnitDaoImpl implements UnitDao {
         return this.namedParameterJdbcTemplate.update("UPDATE ap_unit u LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID SET "
                 + "u.UNIT_CODE=:unitCode, "
                 + "u.ACTIVE=:active, "
-                + "u.LAST_MODIFIED_BY=IF(u.UNIT_CODE!=:unitCode OR u.ACTIVE!=:active, :curUser,u.LAST_MODIFIED_BY), "
-                + "u.LAST_MODIFIED_DATE=IF(u.UNIT_CODE!=:unitCode OR u.ACTIVE!=:active, :curDate,u.LAST_MODIFIED_DATE), "
+                + "u.LAST_MODIFIED_BY=:curUser, "
+                + "u.LAST_MODIFIED_DATE=:curDate, "
                 + "ul.LABEL_EN=:labelEn,  "
-                + "ul.LAST_MODIFIED_BY=IF(ul.LABEL_EN!=:labelEn, :curUser,ul.LAST_MODIFIED_BY), "
-                + "ul.LAST_MODIFIED_DATE=IF(ul.LABEL_EN!=:labelEn, :curDate,ul.LAST_MODIFIED_DATE) "
+                + "ul.LAST_MODIFIED_BY=:curUser, "
+                + "ul.LAST_MODIFIED_DATE=:curDate "
                 + "WHERE u.UNIT_ID=:unitId", params);
     }
 

@@ -37,13 +37,13 @@ public class TicketDaoImpl implements TicketDao {
     @Override
     public List<Ticket> getTicketList() {
         String sql = "SELECT tt.*,ttt.`ACTIVE`,ttt.`LABEL_ID` `TICKET_TYPE_LABEL_ID`,al.`LABEL_EN` `TICKET_TYPE_LABEL_EN`,al.`LABEL_FR` `TICKET_TYPE_LABEL_FR`,al.`LABEL_SP` `TICKET_TYPE_LABEL_SP`,al.`LABEL_PR` `TICKET_TYPE_LABEL_PR`,"
-                + "ttt.`TICKET_LEVEL`,\n"
+                + "ttt.`TICKET_LEVEL`, "
                 + "tts.`TICKET_STATUS_ID`,tts.`LABEL_ID` `TICKET_STATUS_LABEL_ID`,alTwo.`LABEL_EN` `TICKET_STATUS_LABEL_EN`,alTwo.`LABEL_FR` `TICKET_STATUS_LABEL_FR`,alTwo.`LABEL_SP` `TICKET_STATUS_LABEL_SP`,alTwo.`LABEL_PR` `TICKET_STATUS_LABEL_PR`,"
-                + "ttt.`TICKET_LEVEL`\n"
-                + "FROM tk_ticket tt \n"
-                + "LEFT JOIN tk_ticket_type ttt ON ttt.`TICKET_TYPE_ID`=tt.`TICKET_TYPE_ID`\n"
-                + "LEFT JOIN ap_label al ON al.`LABEL_ID`=ttt.`LABEL_ID`\n"
-                + "LEFT JOIN tk_ticket_status tts ON tts.`TICKET_STATUS_ID`=tt.`TICKET_STATUS_ID`\n"
+                + "ttt.`TICKET_LEVEL` "
+                + "FROM tk_ticket tt  "
+                + "LEFT JOIN tk_ticket_type ttt ON ttt.`TICKET_TYPE_ID`=tt.`TICKET_TYPE_ID` "
+                + "LEFT JOIN ap_label al ON al.`LABEL_ID`=ttt.`LABEL_ID` "
+                + "LEFT JOIN tk_ticket_status tts ON tts.`TICKET_STATUS_ID`=tt.`TICKET_STATUS_ID` "
                 + "LEFT JOIN ap_label alTwo ON alTwo.`LABEL_ID`=tts.`LABEL_ID`;";
         return this.jdbcTemplate.query(sql, new TicketRowMapper());
     }
@@ -58,7 +58,7 @@ public class TicketDaoImpl implements TicketDao {
         params.put("curUser", curUser);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         NamedParameterJdbcTemplate nm = new NamedParameterJdbcTemplate(this.jdbcTemplate);
-        return nm.update("UPDATE tk_ticket tt SET tt.`NOTES`=:note ,tt.`TICKET_STATUS_ID`=:statusId,tt.`LAST_MODIFIED_BY`=:curUser,tt.`LAST_MODIFIED_DATE`=:curDate \n"
+        return nm.update("UPDATE tk_ticket tt SET tt.`NOTES`=:note ,tt.`TICKET_STATUS_ID`=:statusId,tt.`LAST_MODIFIED_BY`=:curUser,tt.`LAST_MODIFIED_DATE`=:curDate  "
                 + " WHERE tt.`TICKET_ID`=:ticketId AND tt.`REFFERENCE_ID`=:reffrenceId", params);
     }
 

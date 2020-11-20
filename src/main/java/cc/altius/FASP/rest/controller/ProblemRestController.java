@@ -32,13 +32,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api")
 public class ProblemRestController implements Serializable {
-
+    
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private ProblemService problemService;
     @Autowired
     private UserService userService;
-
+    
     @GetMapping("/problem/realmId/{realmId}")
     public ResponseEntity getProblmeByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
@@ -55,7 +55,7 @@ public class ProblemRestController implements Serializable {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @GetMapping("/problemReport/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getProblmeReport(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
@@ -72,7 +72,7 @@ public class ProblemRestController implements Serializable {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @GetMapping(value = "/sync/problem/lastSyncDate/{lastSyncDate}")
     public ResponseEntity getProblemListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
@@ -88,7 +88,7 @@ public class ProblemRestController implements Serializable {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @GetMapping(value = "/sync/problemStatus/{lastSyncDate}")
     public ResponseEntity getProblemStatusListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
@@ -104,7 +104,7 @@ public class ProblemRestController implements Serializable {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @GetMapping(value = "/sync/problemCategory/{lastSyncDate}")
     public ResponseEntity getProblemCategoryListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
@@ -120,5 +120,16 @@ public class ProblemRestController implements Serializable {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
+    @GetMapping(value = "/problemStatus")
+    public ResponseEntity getProblemStatusList(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.problemService.getProblemStatus(curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while listing problemStatus", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
 }
