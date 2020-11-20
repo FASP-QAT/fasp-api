@@ -107,21 +107,11 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                 + " pa.SUBMITTED_TO_APPROVED_LEAD_TIME=:submittedToApprovedLeadTime, "
                 + " pa.APPROVED_TO_SHIPPED_LEAD_TIME=:approvedToShippedLeadTime, "
                 + " pa.ACTIVE=:active, "
-                + " pa.LAST_MODIFIED_BY=IF("
-                + "     pa.PROCUREMENT_AGENT_CODE!=:procurementAgentCode OR "
-                + "     pa.COLOR_HTML_CODE!=:colorHtmlCode OR "
-                + "     pa.SUBMITTED_TO_APPROVED_LEAD_TIME!=:submittedToApprovedLeadTime OR "
-                + "     pa.APPROVED_TO_SHIPPED_LEAD_TIME!=:approvedToShippedLeadTime OR "
-                + "     pa.ACTIVE!=:active, :curUser, pa.LAST_MODIFIED_BY), "
-                + " pa.LAST_MODIFIED_DATE=IF("
-                + "     pa.PROCUREMENT_AGENT_CODE!=:procurementAgentCode OR "
-                + "     pa.COLOR_HTML_CODE!=:colorHtmlCode OR "
-                + "     pa.SUBMITTED_TO_APPROVED_LEAD_TIME!=:submittedToApprovedLeadTime OR "
-                + "     pa.APPROVED_TO_SHIPPED_LEAD_TIME!=:approvedToShippedLeadTime OR "
-                + "     pa.ACTIVE!=:active, :curDate, pa.LAST_MODIFIED_DATE), "
+                + " pa.LAST_MODIFIED_BY=:curUser, "
+                + " pa.LAST_MODIFIED_DATE=:curDate, "
                 + " pal.LABEL_EN=:labelEn, "
-                + " pal.LAST_MODIFIED_BY=IF(pal.LABEL_EN!=:labelEn, :curUser, pal.LAST_MODIFIED_BY), "
-                + " pal.LAST_MODIFIED_DATE=IF(pal.LABEL_EN!=:labelEn, :curDate, pal.LAST_MODIFIED_DATE) "
+                + " pal.LAST_MODIFIED_BY=:curUser, "
+                + " pal.LAST_MODIFIED_DATE=:curDate "
                 + " WHERE pa.PROCUREMENT_AGENT_ID=:procurementAgentId", params);
     }
 
@@ -240,9 +230,9 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                     + "papu.VOLUME=:volume, "
                     + "papu.WEIGHT=:weight, "
                     + "papu.CATALOG_PRICE=:catalogPrice, "
-                    + " papu.ACTIVE=:active, "
-                    + "papu.LAST_MODIFIED_DATE=IF(papu.ACTIVE!=:active OR papu.MOQ!=:moq OR papu.SKU_CODE!=:skuCode OR papu.UNITS_PER_CONTAINER!=:unitsPerContainer OR papu.UNITS_PER_PALLET_EURO1!=:unitsPerPalletEuro1 OR papu.UNITS_PER_PALLET_EURO2!=:unitsPerPalletEuro2 OR papu.VOLUME!=:volume OR papu.WEIGHT!=:weight, :curDate, papu.LAST_MODIFIED_DATE), "
-                    + "papu.LAST_MODIFIED_BY=IF(papu.ACTIVE!=:active OR papu.MOQ!=:moq OR papu.SKU_CODE!=:skuCode OR papu.UNITS_PER_CONTAINER!=:unitsPerContainer OR papu.UNITS_PER_PALLET_EURO1!=:unitsPerPalletEuro1 OR papu.UNITS_PER_PALLET_EURO2!=:unitsPerPalletEuro2 OR papu.VOLUME!=:volume OR papu.WEIGHT!=:weight, :curUser, papu.LAST_MODIFIED_BY) "
+                    + "papu.ACTIVE=:active, "
+                    + "papu.LAST_MODIFIED_DATE=:curDate, "
+                    + "papu.LAST_MODIFIED_BY=:curUser "
                     + "WHERE papu.PROCUREMENT_AGENT_PLANNING_UNIT_ID=:procurementAgentPlanningUnitId";
             rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
         }
@@ -325,8 +315,8 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                     + "papu.APPROVED_TO_SHIPPED_LEAD_TIME=:approvedToShippedLeadTime, "
                     + "papu.GTIN=:gtin, "
                     + "papu.ACTIVE=:active, "
-                    + "papu.LAST_MODIFIED_DATE=IF(papu.ACTIVE!=:active OR papu.SKU_CODE!=:skuCode OR papu.VENDOR_PRICE!=:vendorPrice OR papu.APPROVED_TO_SHIPPED_LEAD_TIME!=:approvedToShippedLeadTime OR papu.GTIN!=:gtin, :curDate, papu.LAST_MODIFIED_DATE), "
-                    + "papu.LAST_MODIFIED_BY=IF(papu.ACTIVE!=:active OR papu.SKU_CODE!=:skuCode OR papu.VENDOR_PRICE!=:vendorPrice OR papu.APPROVED_TO_SHIPPED_LEAD_TIME!=:approvedToShippedLeadTime OR papu.GTIN!=:gtin, :curUser, papu.LAST_MODIFIED_BY) "
+                    + "papu.LAST_MODIFIED_DATE=:curDate, "
+                    + "papu.LAST_MODIFIED_BY=:curUser "
                     + "WHERE papu.PROCUREMENT_AGENT_PROCUREMENT_UNIT_ID=:procurementAgentProcurementUnitId";
             rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
         }

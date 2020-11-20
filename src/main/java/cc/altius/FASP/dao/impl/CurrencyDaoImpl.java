@@ -76,12 +76,12 @@ public class CurrencyDaoImpl implements CurrencyDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sqlString = "UPDATE ap_currency cu LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
                 + "SET  "
-                + "	cu.CURRENCY_CODE=:currencyCode, cu.CONVERSION_RATE_TO_USD=:conversionRateToUsd, cu.ACTIVE=:active,cu.IS_SYNC=:isSync, "
-                + "	cu.LAST_MODIFIED_BY = IF(cu.CURRENCY_CODE!=:currencyCode OR cu.CONVERSION_RATE_TO_USD!=:conversionRateToUsd OR cu.ACTIVE!=:active OR cu.IS_SYNC=:isSync, :curUser, cu.LAST_MODIFIED_BY), "
-                + "    cu.LAST_MODIFIED_DATE = IF(cu.CURRENCY_CODE!=:currencyCode OR cu.CONVERSION_RATE_TO_USD!=:conversionRateToUsd OR cu.ACTIVE!=:active OR cu.IS_SYNC=:isSync, :curDate, cu.LAST_MODIFIED_DATE), "
+                + "    cu.CURRENCY_CODE=:currencyCode, cu.CONVERSION_RATE_TO_USD=:conversionRateToUsd, cu.ACTIVE=:active,cu.IS_SYNC=:isSync, "
+                + "    cu.LAST_MODIFIED_BY = :curUser, "
+                + "    cu.LAST_MODIFIED_DATE = :curDate, "
                 + "    cul.LABEL_EN=:label_en,  "
-                + "    cu.LAST_MODIFIED_BY = IF(cul.LABEL_EN!=:label_en, :curUser, cu.LAST_MODIFIED_BY), "
-                + "    cu.LAST_MODIFIED_DATE = IF(cul.LABEL_EN!=:label_en, :curDate, cu.LAST_MODIFIED_DATE) "
+                + "    cul.LAST_MODIFIED_BY = :curUser, "
+                + "    cul.LAST_MODIFIED_DATE = :curDate  "
                 + "WHERE cu.CURRENCY_ID=:currencyId";
         Map<String, Object> params = new HashMap<>();
         params.put("isSync", currency.isIsSync());

@@ -12,6 +12,7 @@ import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.ProcurementUnit;
 import cc.altius.FASP.model.rowMapper.ProcurementUnitRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -171,25 +172,11 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
                 + "    pru.UNITS_PER_CONTAINER=:unitsPerContainer, "
                 + "    pru.LABELING=:labeling, "
                 + "    pru.ACTIVE=:active, "
-                + "    pru.LAST_MODIFIED_BY=IF(pru.MULTIPLIER!=:multiplier OR pru.UNIT_ID!=:unitId "
-                + "         OR pru.HEIGHT_QTY!=:heightQty "
-                + "         OR pru.LENGTH_QTY!=:lengthQty OR pru.LENGTH_UNIT_ID!=:lengthUnitId "
-                + "         OR pru.WIDTH_QTY!=:widthQty "
-                + "         OR pru.WEIGHT_QTY!=:weightQty OR pru.WEIGHT_UNIT_ID!=:weightUnitId "
-                + "         OR pru.VOLUME_QTY!=:volumeQty OR pru.VOLUME_UNIT_ID!=:volumeUnitId "
-                + "         OR pru.UNITS_PER_CASE!=:unitsPerCase OR pru.UNITS_PER_PALLET_EURO1!=:unitsPerPalletEuro1 OR pru.UNITS_PER_PALLET_EURO2!=:unitsPerPalletEuro2 OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELING!=:labeling "
-                + "         OR pru.ACTIVE!=:active,:curUser, pru.LAST_MODIFIED_BY), "
-                + "    pru.LAST_MODIFIED_DATE=IF(pru.MULTIPLIER!=:multiplier OR pru.UNIT_ID!=:unitId "
-                + "         OR pru.HEIGHT_QTY!=:heightQty "
-                + "         OR pru.LENGTH_QTY!=:lengthQty OR pru.LENGTH_UNIT_ID!=:lengthUnitId "
-                + "         OR pru.WIDTH_QTY!=:widthQty "
-                + "         OR pru.WEIGHT_QTY!=:weightQty OR pru.WEIGHT_UNIT_ID!=:weightUnitId "
-                + "         OR pru.VOLUME_QTY!=:volumeQty OR pru.VOLUME_UNIT_ID!=:volumeUnitId "
-                + "         OR pru.UNITS_PER_CASE!=:unitsPerCase OR pru.UNITS_PER_PALLET_EURO1!=:unitsPerPalletEuro1 OR pru.UNITS_PER_PALLET_EURO2!=:unitsPerPalletEuro2 OR pru.UNITS_PER_CONTAINER!=:unitsPerContainer OR pru.LABELING!=:labeling "
-                + "         OR pru.ACTIVE!=:active,:curDate, pru.LAST_MODIFIED_DATE), "
+                + "    pru.LAST_MODIFIED_BY=:curUser, "
+                + "    pru.LAST_MODIFIED_DATE=:curDate, "
                 + "    prul.LABEL_EN=:labelEn, "
-                + "    prul.LAST_MODIFIED_BY=IF(prul.LABEL_EN=:labelEn,:curUser, prul.LAST_MODIFIED_BY), "
-                + "    prul.LAST_MODIFIED_DATE=IF(prul.LABEL_EN=:labelEn,:curDate, prul.LAST_MODIFIED_DATE) "
+                + "    prul.LAST_MODIFIED_BY=:curUser, "
+                + "    prul.LAST_MODIFIED_DATE=:curDate "
                 + "WHERE pru.PROCUREMENT_UNIT_ID=:procurementUnitId";
         Map<String, Object> params = new HashMap<>();
         params.put("procurementUnitId", procurementUnit.getProcurementUnitId());
@@ -212,6 +199,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("labelEn", procurementUnit.getLabel().getLabel_en());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
+        System.out.println(LogUtils.buildStringForLog(sqlString, params));
         return this.namedParameterJdbcTemplate.update(sqlString, params);
     }
 
