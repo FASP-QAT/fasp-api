@@ -82,11 +82,11 @@ public class CountryDaoImpl implements CountryDao {
         String sqlString = "UPDATE ap_country c LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
                 + "SET  "
                 + "    c.COUNTRY_CODE=:countryCode, c.COUNTRY_CODE2=:countryCode2, c.CURRENCY_ID=:currencyId, c.ACTIVE=:active, "
-                + "    c.LAST_MODIFIED_BY=IF(c.COUNTRY_CODE!=:countryCode OR c.COUNTRY_CODE2!=:countryCode2 OR c.CURRENCY_ID!=:currencyId OR c.ACTIVE!=:active,:curUser,c.LAST_MODIFIED_BY), "
-                + "    c.LAST_MODIFIED_DATE=IF(c.COUNTRY_CODE!=:countryCode OR c.CURRENCY_ID!=:currencyId OR c.ACTIVE!=:active,:curDate,c.LAST_MODIFIED_DATE), "
+                + "    c.LAST_MODIFIED_BY=:curUser, "
+                + "    c.LAST_MODIFIED_DATE=:curDate, "
                 + "    cl.LABEL_EN=:label_en,  "
-                + "    cl.LAST_MODIFIED_BY=IF(cl.LABEL_EN!=:label_en, :curUser, cl.LAST_MODIFIED_BY), "
-                + "    c.LAST_MODIFIED_DATE=IF(cl.LABEL_EN!=:label_en, :curDate, cl.LAST_MODIFIED_DATE) "
+                + "    cl.LAST_MODIFIED_BY=:curUser, "
+                + "    cl.LAST_MODIFIED_DATE=:curDate "
                 + "WHERE c.COUNTRY_ID=:countryId";
         Map<String, Object> params = new HashMap<>();
         params.put("countryId", country.getCountryId());

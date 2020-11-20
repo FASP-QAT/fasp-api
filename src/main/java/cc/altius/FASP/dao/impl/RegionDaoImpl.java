@@ -85,11 +85,11 @@ public class RegionDaoImpl implements RegionDao {
                 + "re.`ACTIVE`=:active, "
                 + "re.`GLN`=:gln, "
                 + "re.`CAPACITY_CBM`=:capacityCbm, "
-                + "re.`LAST_MODIFIED_BY`=IF(re.`ACTIVE`!=:active OR re.`GLN`!=:gln OR re.`CAPACITY_CBM`!=:capacityCbm, :curUser, re.LAST_MODIFIED_BY), "
-                + "re.`LAST_MODIFIED_DATE`=IF(re.`ACTIVE`!=:active OR re.`GLN`!=:gln OR re.`CAPACITY_CBM`!=:capacityCbm, :curDate, re.LAST_MODIFIED_DATE), "
+                + "re.`LAST_MODIFIED_BY`=:curUser, "
+                + "re.`LAST_MODIFIED_DATE`=:curDate, "
                 + "rel.LABEL_EN=:labelEn, "
-                + "rel.`LAST_MODIFIED_BY`=IF(rel.LABEL_EN!=:labelEn, :curUser, rel.LAST_MODIFIED_BY), "
-                + "rel.`LAST_MODIFIED_DATE`=IF(rel.LABEL_EN!=:labelEn, :curDate, rel.LAST_MODIFIED_DATE) "
+                + "rel.`LAST_MODIFIED_BY`=:curUser, "
+                + "rel.`LAST_MODIFIED_DATE`=:curDate "
                 + "WHERE re.`REGION_ID`=:regionId;";
         Map<String, Object> map = new HashMap<>();
         map.put("labelEn", region.getLabel().getLabel_en());

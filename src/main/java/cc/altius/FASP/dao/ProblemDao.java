@@ -19,16 +19,18 @@ import java.util.List;
 public interface ProblemDao {
 
     public List<RealmProblem> getProblemListByRealmId(int realmId, CustomUserDetails curUser);
-    
+
     public List<ProblemReport> getProblemReportList(int programId, int versionId, CustomUserDetails curUser);
-    
+
     public List<RealmProblem> getProblemListForSync(String lastModifiedDate, CustomUserDetails curUser);
-    
+
     public List<ProblemStatus> getProblemStatusForSync(String lastModifiedDate, CustomUserDetails curUser);
-    
+
     public List<SimpleObject> getProblemCriticalityForSync(String lastModifiedDate, CustomUserDetails curUser);
-    
+
     public List<SimpleObject> getProblemCategoryForSync(String lastModifiedDate, CustomUserDetails curUser);
-    
+
     public List<ProblemReport> getProblemReportListForSync(int programId, int versionId, String lastSyncDate);
+
+    public List<ProblemStatus> getProblemStatus(CustomUserDetails curUser);
 }

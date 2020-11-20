@@ -231,35 +231,11 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime, "
                 + "p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime, "
                 + "p.ACTIVE=:active,"
-                + "p.LAST_MODIFIED_BY=IF("
-                + "     p.PROGRAM_MANAGER_USER_ID!=:programManagerUserId OR "
-                + "     p.PROGRAM_NOTES!=:programNotes OR "
-                + "     p.AIR_FREIGHT_PERC!=:airFreightPerc OR "
-                + "     p.SEA_FREIGHT_PERC!=:seaFreightPerc OR "
-                + "     p.PLANNED_TO_SUBMITTED_LEAD_TIME!=:plannedToSubmittedLeadTime OR "
-                + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME!=:submittedToApprovedLeadTime OR "
-                + "     p.APPROVED_TO_SHIPPED_LEAD_TIME!=:approvedToShippedLeadTime OR "
-                + "     p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=:shippedToArrivedBySeaLeadTime OR "
-                + "     p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime OR "
-                + "     p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime OR "
-                + "     p.ACTIVE!=:active, "
-                + ":curUser, p.LAST_MODIFIED_BY), "
-                + "p.LAST_MODIFIED_DATE=IF("
-                + "     p.PROGRAM_MANAGER_USER_ID!=:programManagerUserId OR "
-                + "     p.PROGRAM_NOTES!=:programNotes OR "
-                + "     p.AIR_FREIGHT_PERC!=:airFreightPerc OR "
-                + "     p.SEA_FREIGHT_PERC!=:seaFreightPerc OR "
-                + "     p.PLANNED_TO_SUBMITTED_LEAD_TIME!=:plannedToSubmittedLeadTime OR "
-                + "     p.SUBMITTED_TO_APPROVED_LEAD_TIME!=:submittedToApprovedLeadTime OR "
-                + "     p.APPROVED_TO_SHIPPED_LEAD_TIME!=:approvedToShippedLeadTime OR "
-                + "     p.SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME=:shippedToArrivedBySeaLeadTime OR "
-                + "     p.SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME=:shippedToArrivedByAirLeadTime OR "
-                + "     p.ARRIVED_TO_DELIVERED_LEAD_TIME=:arrivedToDeliveredLeadTime OR "
-                + "     p.ACTIVE!=:active, "
-                + ":curDate, p.LAST_MODIFIED_DATE), "
+                + "p.LAST_MODIFIED_BY=:curUser, "
+                + "p.LAST_MODIFIED_DATE=:curDate, "
                 + "pl.LABEL_EN=:labelEn, "
-                + "pl.LAST_MODIFIED_BY=IF(pl.LABEL_EN!=:labelEn, :curUser, pl.LAST_MODIFIED_BY), "
-                + "pl.LAST_MODIFIED_DATE=IF(pl.LABEL_EN!=:labelEn, :curDate, pl.LAST_MODIFIED_DATE) "
+                + "pl.LAST_MODIFIED_BY=:curUser, "
+                + "pl.LAST_MODIFIED_DATE=:curDate "
                 + "WHERE p.PROGRAM_ID=:programId";
         int rows = this.namedParameterJdbcTemplate.update(sqlString, params);
         params.clear();
@@ -425,11 +401,7 @@ public class ProgramDaoImpl implements ProgramDao {
         }
         if (updateList.size() > 0) {
             SqlParameterSource[] updateParams = new SqlParameterSource[updateList.size()];
-            String sqlString = "UPDATE "
-                    + "rm_program_planning_unit ppu SET ppu.MIN_MONTHS_OF_STOCK=:minMonthsOfStock,ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.LOCAL_PROCUREMENT_LEAD_TIME=:localProcurementLeadTime, ppu.SHELF_LIFE=:shelfLife, ppu.CATALOG_PRICE=:catalogPrice, ppu.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, ppu.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, ppu.ACTIVE=:active, "
-                    + "ppu.LAST_MODIFIED_DATE=IF(ppu.ACTIVE!=:active OR ppu.REORDER_FREQUENCY_IN_MONTHS!=:reorderFrequencyInMonths OR ppu.LOCAL_PROCUREMENT_LEAD_TIME!=:localProcurementLeadTime OR ppu.SHELF_LIFE!=:shelfLife OR ppu.CATALOG_PRICE!=:catalogPrice OR ppu.MONTHS_IN_PAST_FOR_AMC!=:monthsInPastForAmc OR ppu.MONTHS_IN_FUTURE_FOR_AMC!=:monthsInFutureForAmc, :curDate, ppu.LAST_MODIFIED_DATE), "
-                    + "ppu.LAST_MODIFIED_BY=IF  (ppu.ACTIVE!=:active OR ppu.REORDER_FREQUENCY_IN_MONTHS!=:reorderFrequencyInMonths OR ppu.LOCAL_PROCUREMENT_LEAD_TIME!=:localProcurementLeadTime OR ppu.SHELF_LIFE!=:shelfLife OR ppu.CATALOG_PRICE!=:catalogPrice OR ppu.MONTHS_IN_PAST_FOR_AMC!=:monthsInPastForAmc OR ppu.MONTHS_IN_FUTURE_FOR_AMC!=:monthsInFutureForAmc, :curUser, ppu.LAST_MODIFIED_BY) "
-                    + "WHERE ppu.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId";
+            String sqlString = "UPDATE rm_program_planning_unit ppu SET ppu.MIN_MONTHS_OF_STOCK=:minMonthsOfStock,ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.LOCAL_PROCUREMENT_LEAD_TIME=:localProcurementLeadTime, ppu.SHELF_LIFE=:shelfLife, ppu.CATALOG_PRICE=:catalogPrice, ppu.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, ppu.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, ppu.ACTIVE=:active, ppu.LAST_MODIFIED_DATE=:curDate, ppu.LAST_MODIFIED_BY=:curUser WHERE ppu.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId";
             rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
         }
         return rowsEffected;

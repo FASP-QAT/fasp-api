@@ -145,4 +145,9 @@ public class ProblemDaoImpl implements ProblemDao {
         return this.namedParameterJdbcTemplate.query(sql, params, new ProblemReportResultSetExtractor());
     }
 
+    @Override
+    public List<ProblemStatus> getProblemStatus(CustomUserDetails curUser) {
+        return this.namedParameterJdbcTemplate.query("SELECT ps.PROBLEM_STATUS_ID `ID`, ps.LABEL_ID, ps.LABEL_EN, ps.LABEL_FR, ps.LABEL_SP, ps.LABEL_PR, ps.USER_MANAGED FROM vw_problem_status ps", new ProblemStatusRowMapper());
+    }
+
 }
