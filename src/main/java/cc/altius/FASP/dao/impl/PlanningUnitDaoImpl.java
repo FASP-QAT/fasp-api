@@ -119,11 +119,11 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
                 + "    pu.MULTIPLIER=:multiplier, "
                 + "    pu.UNIT_ID=:unitId, "
                 + "    pu.ACTIVE=:active, "
-                + "    pu.LAST_MODIFIED_BY=IF(pu.MULTIPLIER!=:multiplier OR pu.UNIT_ID!=:unitId OR pu.ACTIVE!=:active,:curUser, pu.LAST_MODIFIED_BY), "
-                + "    pu.LAST_MODIFIED_DATE=IF(pu.MULTIPLIER!=:multiplier OR pu.UNIT_ID!=:unitId OR pu.ACTIVE!=:active,:curDate, pu.LAST_MODIFIED_DATE), "
+                + "    pu.LAST_MODIFIED_BY=:curUser, "
+                + "    pu.LAST_MODIFIED_DATE=:curDate, "
                 + "    pul.LABEL_EN=:labelEn, "
-                + "    pul.LAST_MODIFIED_BY=IF(pul.LABEL_EN=:labelEn,:curUser, pul.LAST_MODIFIED_BY), "
-                + "    pul.LAST_MODIFIED_DATE=IF(pul.LABEL_EN=:labelEn,:curDate, pul.LAST_MODIFIED_DATE) "
+                + "    pul.LAST_MODIFIED_BY=:curUser, "
+                + "    pul.LAST_MODIFIED_DATE=:curDate "
                 + "WHERE pu.PLANNING_UNIT_ID=:planningUnitId";
         Map<String, Object> params = new HashMap<>();
         params.put("planningUnitId", planningUnit.getPlanningUnitId());
@@ -137,17 +137,15 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
 
         if (!planningUnit.isActive()) {
             // Program planning unit
-            sqlString = "UPDATE rm_program_planning_unit p SET p.`ACTIVE`=0 WHERE p.`PLANNING_UNIT_ID`=?;";
-            this.jdbcTemplate.update(sqlString, planningUnit.getPlanningUnitId());
+            sqlString = "UPDATE rm_program_planning_unit p SET p.`ACTIVE`=0,p.LAST_MODIFIED_DATE=:curDate, p.LAST_MODIFIED_BY=:curUser WHERE p.`PLANNING_UNIT_ID`=:planningUnitId";
+            this.namedParameterJdbcTemplate.update(sqlString, params);
             // Procurement agent planning unit
-            sqlString = "UPDATE rm_procurement_agent_planning_unit p SET p.`ACTIVE`=0 WHERE p.`PLANNING_UNIT_ID`=?;";
-            this.jdbcTemplate.update(sqlString, planningUnit.getPlanningUnitId());
+            sqlString = "UPDATE rm_procurement_agent_planning_unit p SET p.`ACTIVE`=0,p.LAST_MODIFIED_DATE=:curDate, p.LAST_MODIFIED_BY=:curUser WHERE p.`PLANNING_UNIT_ID`=:planningUnitId";
+            this.namedParameterJdbcTemplate.update(sqlString, params);
             // Procurement unit and procurement agent procurement unit
-            sqlString = "UPDATE rm_procurement_unit p "
-                    + "LEFT JOIN rm_procurement_agent_procurement_unit pu ON pu.`PROCUREMENT_UNIT_ID`=p.`PROCUREMENT_UNIT_ID` "
-                    + "SET p.`ACTIVE`=0,pu.`ACTIVE`=0 "
-                    + "WHERE p.`PLANNING_UNIT_ID`=?;";
-            this.jdbcTemplate.update(sqlString, planningUnit.getPlanningUnitId());
+            sqlString = "UPDATE rm_procurement_unit p LEFT JOIN rm_procurement_agent_procurement_unit pu ON pu.`PROCUREMENT_UNIT_ID`=p.`PROCUREMENT_UNIT_ID` SET p.`ACTIVE`=0, pu.`ACTIVE`=0,p.LAST_MODIFIED_DATE=:curDate, p.LAST_MODIFIED_BY=:curUser,pu.LAST_MODIFIED_DATE=:curDate, pu.LAST_MODIFIED_BY=:curUser "
+                    + "WHERE p.`PLANNING_UNIT_ID`=:planningUnitId";
+            this.namedParameterJdbcTemplate.update(sqlString, params);
         }
         return rows;
     }
@@ -278,8 +276,8 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
             SqlParameterSource[] updateParams = new SqlParameterSource[updateList.size()];
             String sqlString = "UPDATE "
                     + "rm_planning_unit_capacity puc SET puc.START_DATE=:startDate, puc.STOP_DATE=:stopDate, puc.CAPACITY=:capacity, puc.ACTIVE=:active, "
-                    + "puc.LAST_MODIFIED_DATE=IF(puc.ACTIVE!=:active OR puc.START_DATE!=:startDate OR puc.STOP_DATE!=:stopDate OR puc.CAPACITY!=:capacity, :curDate, puc.LAST_MODIFIED_DATE), "
-                    + "puc.LAST_MODIFIED_BY=IF(puc.ACTIVE!=:active OR puc.START_DATE!=:startDate OR puc.STOP_DATE!=:stopDate OR puc.CAPACITY!=:capacity, :curUser, puc.LAST_MODIFIED_BY) "
+                    + "puc.LAST_MODIFIED_DATE=:curDate, "
+                    + "puc.LAST_MODIFIED_BY=:curUser "
                     + "WHERE puc.PLANNING_UNIT_CAPACITY_ID=:planningUnitCapacityId";
             rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
         }

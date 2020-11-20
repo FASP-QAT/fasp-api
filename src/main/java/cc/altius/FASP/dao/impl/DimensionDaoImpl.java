@@ -72,11 +72,11 @@ public class DimensionDaoImpl implements DimensionDao {
         String sqlString = "UPDATE ap_dimension d LEFT JOIN ap_label dl ON d.LABEL_ID=dl.LABEL_ID "
                 + "SET  "
                 + "	d.ACTIVE=:active, "
-                + "	d.LAST_MODIFIED_BY = IF(d.ACTIVE!=:active, :curUser, d.LAST_MODIFIED_BY), "
-                + "    d.LAST_MODIFIED_DATE = IF(d.ACTIVE!=:active, :curDate, d.LAST_MODIFIED_DATE), "
+                + "	d.LAST_MODIFIED_BY = :curUser, "
+                + "    d.LAST_MODIFIED_DATE = :curDate, "
                 + "    dl.LABEL_EN=:label_en,  "
-                + "    dl.LAST_MODIFIED_BY = IF(dl.LABEL_EN!=:label_en, :curUser, dl.LAST_MODIFIED_BY), "
-                + "    dl.LAST_MODIFIED_DATE = IF(dl.LABEL_EN!=:label_en, :curDate, dl.LAST_MODIFIED_DATE) "
+                + "    dl.LAST_MODIFIED_BY = :curUser, "
+                + "    dl.LAST_MODIFIED_DATE = :curDate "
                 + "WHERE d.DIMENSION_ID=:dimensionId";
         Map<String, Object> params = new HashMap<>();
         params.put("active", dimension.isActive());
