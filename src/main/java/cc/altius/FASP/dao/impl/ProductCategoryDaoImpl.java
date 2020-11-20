@@ -14,7 +14,6 @@ import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.rowMapper.ProductCategoryRowMapper;
 import cc.altius.FASP.model.rowMapper.TreeExtendedProductCategoryResultSetExtractor;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import cc.altius.utils.TreeUtils.Node;
 import cc.altius.utils.TreeUtils.Tree;
@@ -100,11 +99,11 @@ public class ProductCategoryDaoImpl implements ProductCategoryDao {
                 + "pc.SORT_ORDER=:sortOrder, "
                 + "pc.`PARENT_PRODUCT_CATEGORY_ID`=:parent, "
                 + "pc.ACTIVE=:active, "
-                + "pc.LAST_MODIFIED_BY=IF(pcl.LABEL_EN!=:labelEn OR pc.`PARENT_PRODUCT_CATEGORY_ID`!=:parent OR pc.SORT_ORDER!=:sortOrder OR pc.ACTIVE!=:active, :curUser, pc.LAST_MODIFIED_BY), "
-                + "pc.LAST_MODIFIED_DATE=IF(pcl.LABEL_EN!=:labelEn OR pc.`PARENT_PRODUCT_CATEGORY_ID`!=:parent OR pc.SORT_ORDER!=:sortOrder OR pc.ACTIVE!=:active, :curDate, pc.LAST_MODIFIED_DATE), "
+                + "pc.LAST_MODIFIED_BY=:curUser, "
+                + "pc.LAST_MODIFIED_DATE=:curDate, "
                 + "pcl.LABEL_EN=:labelEn, "
-                + "pcl.LAST_MODIFIED_BY=IF(pcl.LABEL_EN!=:labelEn, :curUser, pcl.LAST_MODIFIED_BY), "
-                + "pcl.LAST_MODIFIED_DATE=IF(pcl.LABEL_EN!=:labelEn, :curDate, pcl.LAST_MODIFIED_DATE) "
+                + "pcl.LAST_MODIFIED_BY=:curUser, "
+                + "pcl.LAST_MODIFIED_DATE=:curDate "
                 + "WHERE PRODUCT_CATEGORY_ID=:productCategoryId ";
         Map<String, Object> params = new HashMap<>();
         params.put("productCategoryId", productCategory.getPayload().getProductCategoryId());

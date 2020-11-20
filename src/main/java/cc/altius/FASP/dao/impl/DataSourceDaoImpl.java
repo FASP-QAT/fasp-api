@@ -12,7 +12,6 @@ import cc.altius.FASP.model.DataSource;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.rowMapper.DataSourceRowMapper;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.HashMap;
 import java.util.List;
@@ -89,11 +88,11 @@ public class DataSourceDaoImpl implements DataSourceDao {
         String sqlString = "UPDATE rm_data_source ds LEFT JOIN ap_label dsl ON ds.LABEL_ID=dsl.LABEL_ID "
                 + "SET  "
                 + "  ds.ACTIVE=:active, "
-                + "  ds.LAST_MODIFIED_BY = IF(ds.ACTIVE!=:active, :curUser, ds.LAST_MODIFIED_BY), "
-                + "  ds.LAST_MODIFIED_DATE = IF(ds.ACTIVE!=:active, :curDate, ds.LAST_MODIFIED_DATE), "
+                + "  ds.LAST_MODIFIED_BY = :curUser, "
+                + "  ds.LAST_MODIFIED_DATE = :curDate, "
                 + "  dsl.LABEL_EN=:label_en,  "
-                + "  dsl.LAST_MODIFIED_BY = IF(dsl.LABEL_EN!=:label_en, :curUser, dsl.LAST_MODIFIED_BY), "
-                + "  dsl.LAST_MODIFIED_DATE = IF(dsl.LABEL_EN!=:label_en, :curDate, dsl.LAST_MODIFIED_DATE) "
+                + "  dsl.LAST_MODIFIED_BY = :curUser, "
+                + "  dsl.LAST_MODIFIED_DATE = :curDate "
                 + "WHERE ds.DATA_SOURCE_ID=:dataSourceId";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("active", dataSource.isActive());

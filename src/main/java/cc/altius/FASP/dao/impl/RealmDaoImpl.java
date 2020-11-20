@@ -103,13 +103,11 @@ public class RealmDaoImpl implements RealmDao {
                 + "r.MIN_MOS_MAX_GAURDRAIL=:minMosMaxGaurdrail,"
                 + "r.MAX_MOS_MAX_GAURDRAIL=:maxMosMaxGaurdrail,"
                 + "r.ACTIVE=:active, "
-                + "r.LAST_MODIFIED_BY=IF("
-                + "     r.REALM_CODE!=:realmCode OR r.ACTIVE=:active OR r.DEFAULT_REALM!=:default OR r.MIN_MOS_MIN_GAURDRAIL!=:minMosMinGaurdrail OR r.MIN_MOS_MAX_GAURDRAIL!=:minMosMaxGaurdrail OR r.MAX_MOS_MAX_GAURDRAIL!=:maxMosMaxGaurdrail, :curUser, r.LAST_MODIFIED_BY), "
-                + "r.LAST_MODIFIED_DATE=IF("
-                + "     r.REALM_CODE!=:realmCode OR r.ACTIVE=:active OR r.DEFAULT_REALM!=:default OR r.MIN_MOS_MIN_GAURDRAIL!=:minMosMinGaurdrail OR r.MIN_MOS_MAX_GAURDRAIL!=:minMosMaxGaurdrail OR r.MAX_MOS_MAX_GAURDRAIL!=:maxMosMaxGaurdrail, :curDate, r.LAST_MODIFIED_DATE), "
+                + "r.LAST_MODIFIED_BY=:curUser, "
+                + "r.LAST_MODIFIED_DATE=:curDate, "
                 + "rl.LABEL_EN=:labelEn, "
-                + "rl.LAST_MODIFIED_BY=IF(rl.LABEL_EN!=:labelEn, :curUser, rl.LAST_MODIFIED_BY), "
-                + "rl.LAST_MODIFIED_DATE=IF(rl.LABEL_EN!=:labelEn, :curDate, rl.LAST_MODIFIED_DATE) "
+                + "rl.LAST_MODIFIED_BY=:curUser, "
+                + "rl.LAST_MODIFIED_DATE=:curDate "
                 + "WHERE r.REALM_ID=:realmId", params);
         if (r.isDefaultRealm()) {
             this.namedParameterJdbcTemplate.update("UPDATE rm_realm SET DEFAULT_REALM=0 WHERE REALM_ID!=:realmId", params);

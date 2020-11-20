@@ -100,14 +100,14 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
                 + "    fu.PRODUCT_CATEGORY_ID=:productCategoryId, "
                 + "    fu.TRACER_CATEGORY_ID=:tracerCategoryId, "
                 + "    fu.ACTIVE=:active, "
-                + "    fu.LAST_MODIFIED_BY=IF(fu.PRODUCT_CATEGORY_ID!=:productCategoryId OR fu.TRACER_CATEGORY_ID!=:tracerCategoryId OR fu.ACTIVE!=:active,:curUser, fu.LAST_MODIFIED_BY), "
-                + "    fu.LAST_MODIFIED_DATE=IF(fu.PRODUCT_CATEGORY_ID!=:productCategoryId OR fu.TRACER_CATEGORY_ID!=:tracerCategoryId OR fu.ACTIVE!=:active,:curDate, fu.LAST_MODIFIED_DATE), "
+                + "    fu.LAST_MODIFIED_BY=:curUser, "
+                + "    fu.LAST_MODIFIED_DATE=:curDate, "
                 + "    ful.LABEL_EN=:labelEn, "
-                + "    ful.LAST_MODIFIED_BY=IF(ful.LABEL_EN=:labelEn,:curUser, fu.LAST_MODIFIED_BY), "
-                + "    ful.LAST_MODIFIED_DATE=IF(ful.LABEL_EN=:labelEn,:curDate, fu.LAST_MODIFIED_DATE), "
+                + "    ful.LAST_MODIFIED_BY=:curUser, "
+                + "    ful.LAST_MODIFIED_DATE=:curDate, "
                 + "    pgl.LABEL_EN=:genericLabelEn, "
-                + "    pgl.LAST_MODIFIED_BY=IF(pgl.LABEL_EN=:genericLabelEn,:curUser, fu.LAST_MODIFIED_BY), "
-                + "    pgl.LAST_MODIFIED_DATE=IF(pgl.LABEL_EN=:genericLabelEn,:curDate, fu.LAST_MODIFIED_DATE) "
+                + "    pgl.LAST_MODIFIED_BY=:curUser, "
+                + "    pgl.LAST_MODIFIED_DATE=:curDate "
                 + "WHERE fu.FORECASTING_UNIT_ID=:forecastingUnitId";
         Map<String, Object> params = new HashMap<>();
         params.put("forecastingUnitId", forecastingUnit.getForecastingUnitId());
