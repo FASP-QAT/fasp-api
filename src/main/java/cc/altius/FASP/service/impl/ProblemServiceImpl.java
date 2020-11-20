@@ -61,4 +61,9 @@ public class ProblemServiceImpl implements ProblemService {
         return this.problemDao.getProblemReportListForSync(programId, versionId, lastSyncDate);
     }
 
+    @Override
+    public List<ProblemStatus> getProblemStatus(CustomUserDetails curUser) {
+        return this.problemDao.getProblemStatus(curUser);
+    }
+
 }
