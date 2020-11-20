@@ -88,8 +88,8 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     }
 
     @Override
-    public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForTracerCategory(int procurementAgentId, int planningUnitId, CustomUserDetails curUser) {
-        return this.procurementAgentDao.getProcurementAgentPlanningUnitListForTracerCategory(procurementAgentId, planningUnitId, curUser);
+    public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForTracerCategory(int procurementAgentId, int planningUnitId, String term, CustomUserDetails curUser) {
+        return this.procurementAgentDao.getProcurementAgentPlanningUnitListForTracerCategory(procurementAgentId, planningUnitId, term, curUser);
     }
 
     @Override

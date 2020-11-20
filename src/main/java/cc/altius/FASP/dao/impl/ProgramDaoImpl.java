@@ -722,13 +722,15 @@ public class ProgramDaoImpl implements ProgramDao {
             sb.append("SELECT e.`ERP_ORDER_ID`,e.`RO_NO` AS LABEL FROM rm_erp_order e "
                     + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` AND papu.`PROCUREMENT_AGENT_ID`=1 "
                     + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                    + "WHERE e.`PROGRAM_ID`=? AND papu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7 AND e.`RO_NO` LIKE '%").append(term).append("%' GROUP BY e.`RO_NO`");
+                    + "LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` AND mt.ACTIVE "
+                    + "WHERE mt.`MANUAL_TAGGING_ID` IS NULL AND e.`PROGRAM_ID`=? AND papu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7 AND e.`RO_NO` LIKE '%").append(term).append("%' GROUP BY e.`RO_NO`");
         }
         if (searchId == 2) {
             sb.append("SELECT e.`ERP_ORDER_ID`,e.`ORDER_NO` AS LABEL FROM rm_erp_order e "
                     + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` AND papu.`PROCUREMENT_AGENT_ID`=1 "
                     + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                    + "WHERE e.`PROGRAM_ID`=? AND papu.`PLANNING_UNIT_ID`=?  AND sm.`SHIPMENT_STATUS_ID` !=7 AND  e.`ORDER_NO` LIKE '%").append(term).append("%' GROUP BY e.`ORDER_NO`");
+                    + "LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` AND mt.ACTIVE "
+                    + "WHERE mt.`MANUAL_TAGGING_ID` IS NULL AND e.`PROGRAM_ID`=? AND papu.`PLANNING_UNIT_ID`=?  AND sm.`SHIPMENT_STATUS_ID` !=7 AND  e.`ORDER_NO` LIKE '%").append(term).append("%' GROUP BY e.`ORDER_NO`");
         }
         return this.jdbcTemplate.query(sb.toString(), new ErpOrderAutocompleteDTORowMapper(), programId, planningUnitId);
     }

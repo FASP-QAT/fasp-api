@@ -33,6 +33,7 @@ public class ManualTaggingDTORowMapper implements RowMapper<ManualTaggingDTO> {
         m.setShipmentTransId(rs.getInt("SHIPMENT_TRANS_ID"));
         m.setOrderNo(rs.getString("ORDER_NO"));
         m.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, rows)));
+        m.setSkuCode(rs.getString("SKU_CODE"));
         return m;
     }
     

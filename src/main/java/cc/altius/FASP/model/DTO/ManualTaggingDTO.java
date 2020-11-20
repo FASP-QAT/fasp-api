@@ -35,6 +35,7 @@ public class ManualTaggingDTO implements Serializable {
     private double productCost;
     private String orderNo;
     private SimpleObject planningUnit;
+    private String skuCode;
 
     public int getShipmentId() {
         return shipmentId;
@@ -124,9 +125,17 @@ public class ManualTaggingDTO implements Serializable {
         this.planningUnit = planningUnit;
     }
 
+    public String getSkuCode() {
+        return skuCode;
+    }
+
+    public void setSkuCode(String skuCode) {
+        this.skuCode = skuCode;
+    }
+
     @Override
     public String toString() {
-        return "ManualTaggingDTO{" + "shipmentId=" + shipmentId + ", shipmentTransId=" + shipmentTransId + ", expectedDeliveryDate=" + expectedDeliveryDate + ", shipmentStatus=" + shipmentStatus + ", procurementAgent=" + procurementAgent + ", fundingSource=" + fundingSource + ", budget=" + budget + ", shipmentQty=" + shipmentQty + ", productCost=" + productCost + ", orderNo=" + orderNo + ", planningUnit=" + planningUnit + '}';
+        return "ManualTaggingDTO{" + "shipmentId=" + shipmentId + ", shipmentTransId=" + shipmentTransId + ", expectedDeliveryDate=" + expectedDeliveryDate + ", shipmentStatus=" + shipmentStatus + ", procurementAgent=" + procurementAgent + ", fundingSource=" + fundingSource + ", budget=" + budget + ", shipmentQty=" + shipmentQty + ", productCost=" + productCost + ", orderNo=" + orderNo + ", planningUnit=" + planningUnit + ", skuCode=" + skuCode + '}';
     }
 
 }
