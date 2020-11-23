@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.service.AclService;
+import java.util.Arrays;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -179,7 +180,7 @@ public class AclServiceImpl implements AclService {
             params.put("organisationIdO" + count, userAcl.getOrganisationId());
             count++;
         }
-            localSb.append(")");
+        localSb.append(")");
         sb.append(localSb);
     }
 
@@ -195,7 +196,7 @@ public class AclServiceImpl implements AclService {
             params.put("realmCountryIdRc" + count, userAcl.getRealmCountryId());
             count++;
         }
-            localSb.append(")");
+        localSb.append(")");
         sb.append(localSb);
     }
 

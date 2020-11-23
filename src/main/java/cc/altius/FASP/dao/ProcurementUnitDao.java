@@ -28,4 +28,6 @@ public interface ProcurementUnitDao {
     public ProcurementUnit getProcurementUnitById(int procurementUnitId, CustomUserDetails curUser);
 
     public List<ProcurementUnit> getProcurementUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
+    
+    public List<ProcurementUnit> getProcurementUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 }

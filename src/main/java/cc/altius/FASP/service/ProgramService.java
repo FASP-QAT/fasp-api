@@ -6,6 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
@@ -55,17 +56,23 @@ public interface ProgramService {
 
     public List<ManualTaggingDTO> getShipmentListForManualTagging(int programId, int planningUnitId);
 
-    public ManualTaggingOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo);
+    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int searchId, int programId, int planningUnitId);
 
-    public int linkShipmentWithARTMIS(String orderNo, int primeLineNo, int shipmentId, CustomUserDetails curUser);
+    public int linkShipmentWithARTMIS(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser);
 
     public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId);
 
     public void delinkShipment(ManualTaggingOrderDTO erpOrderDTO, CustomUserDetails curUser);
-    
+
     public List<LoadProgram> getLoadProgram(CustomUserDetails curUser);
-    
+
     public LoadProgram getLoadProgram(int programId, int page, CustomUserDetails curUser);
-    
+
     public boolean validateProgramCode(int realmId, int programId, String programCode, CustomUserDetails curUser);
+    
+    public List<Program> getProgramListForSyncProgram(String programIdsString, CustomUserDetails curUser);
+ 
+    public List<ProgramPlanningUnit> getProgramPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser);
+
+    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int searchId, int programId, int planningUnitId);
 }

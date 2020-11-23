@@ -9,6 +9,7 @@ import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
@@ -65,4 +66,7 @@ public interface ProgramDataDao {
     
     public int getLatestVersionForProgram(int programId);
 
+    public List<ProgramIntegrationDTO> getSupplyPlanToExportList();
+
+    public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId);
 }

@@ -7,6 +7,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
@@ -27,6 +28,8 @@ public interface ProgramDataService {
 
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser);
 
+    public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
+
     public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
     public List<SimpleObject> getVersionTypeList();
@@ -42,12 +45,16 @@ public interface ProgramDataService {
     public int updateSentToARTMISFlag(String programVersionIds);
 
     public SupplyPlan getSupplyPlan(int programId, int versionId);
-    
+
     public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild, boolean returnSupplyPlan) throws ParseException;
-    
+
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp);
 
-    public ShipmentSync getShipmentListForSync(int programId, int versionId, String lastSyncDate, CustomUserDetails curUser);
-    
+    public ShipmentSync getShipmentListForSync(int programId, int versionId,int userId ,String lastSyncDate, CustomUserDetails curUser);
+
     public boolean checkNewerVersions(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
+
+    public List<ProgramIntegrationDTO> getSupplyPlanToExportList();
+
+    public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId);
 }
