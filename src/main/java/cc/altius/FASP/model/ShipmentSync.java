@@ -16,9 +16,18 @@ public class ShipmentSync implements Serializable {
 
     private int programId;
     private int versionId;
+    private int userId;
     private List<Shipment> shipmentList;
     private List<Batch> batchInfoList;
     private List<ProblemReport> problemReportList;
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
 
     public int getProgramId() {
         return programId;

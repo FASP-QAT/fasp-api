@@ -33,6 +33,7 @@ public class ManualTaggingOrderDTO {
     private String recipentCountry;
     private Label planningUnitLabel;
     private String notes;
+    private float conversionFactor;
 
     public int getErpOrderId() {
         return erpOrderId;
@@ -186,9 +187,17 @@ public class ManualTaggingOrderDTO {
         this.notes = notes;
     }
 
+    public float getConversionFactor() {
+        return conversionFactor;
+    }
+
+    public void setConversionFactor(float conversionFactor) {
+        this.conversionFactor = conversionFactor;
+    }
+
     @Override
     public String toString() {
-        return "ManualTaggingOrderDTO{" + "erpOrderId=" + erpOrderId + ", shipmentId=" + shipmentId + ", quantity=" + quantity + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", roNo=" + roNo + ", roPrimeLineNo=" + roPrimeLineNo + ", orderType=" + orderType + ", planningUnitSkuCode=" + planningUnitSkuCode + ", procurementUnitSkuCode=" + procurementUnitSkuCode + ", currentEstimatedDeliveryDate=" + currentEstimatedDeliveryDate + ", supplierName=" + supplierName + ", price=" + price + ", shippingCost=" + shippingCost + ", status=" + status + ", reason=" + reason + ", recipentCountry=" + recipentCountry + ", planningUnitLabel=" + planningUnitLabel + ", notes=" + notes + '}';
+        return "ManualTaggingOrderDTO{" + "erpOrderId=" + erpOrderId + ", shipmentId=" + shipmentId + ", quantity=" + quantity + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", roNo=" + roNo + ", roPrimeLineNo=" + roPrimeLineNo + ", orderType=" + orderType + ", planningUnitSkuCode=" + planningUnitSkuCode + ", procurementUnitSkuCode=" + procurementUnitSkuCode + ", currentEstimatedDeliveryDate=" + currentEstimatedDeliveryDate + ", supplierName=" + supplierName + ", price=" + price + ", shippingCost=" + shippingCost + ", status=" + status + ", reason=" + reason + ", recipentCountry=" + recipentCountry + ", planningUnitLabel=" + planningUnitLabel + ", notes=" + notes + ", conversionFactor=" + conversionFactor + '}';
     }
 
 }

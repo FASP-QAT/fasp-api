@@ -156,4 +156,10 @@ public class ProgramLeadTimesOutput implements Serializable {
             return d;
         }
     }
+
+    @Override
+    public String toString() {
+        return "ProgramLeadTimesOutput{" + "country=" + country + ", program=" + program + ", procurementAgent=" + procurementAgent + ", planningUnit=" + planningUnit + ", plannedToSubmittedLeadTime=" + plannedToSubmittedLeadTime + ", submittedToApprovedLeadTime=" + submittedToApprovedLeadTime + ", approvedToShippedLeadTime=" + approvedToShippedLeadTime + ", shippedToArrivedByAirLeadTime=" + shippedToArrivedByAirLeadTime + ", shippedToArrivedBySeaLeadTime=" + shippedToArrivedBySeaLeadTime + ", arrivedToDeliveredLeadTime=" + arrivedToDeliveredLeadTime + ", localProcurementAgentLeadTime=" + localProcurementAgentLeadTime + '}';
+    }
+
 }

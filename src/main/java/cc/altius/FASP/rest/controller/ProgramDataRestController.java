@@ -316,13 +316,13 @@ public class ProgramDataRestController {
         }
     }
 
-    @GetMapping("/programData/shipmentSync/programId/{programId}/versionId/{versionId}/lastSyncDate/{lastSyncDate}")
-    public ResponseEntity shipmentSync(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+    @GetMapping("/programData/shipmentSync/programId/{programId}/versionId/{versionId}/userId/{userId}/lastSyncDate/{lastSyncDate}")
+    public ResponseEntity shipmentSync(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, @PathVariable(value = "userId", required = true) int userId, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.getShipmentListForSync(programId, versionId, lastSyncDate, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programDataService.getShipmentListForSync(programId, versionId,userId, lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while getting Sync list for Shipments", p);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);

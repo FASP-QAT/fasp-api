@@ -50,7 +50,7 @@ public interface ProgramDataService {
 
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp);
 
-    public ShipmentSync getShipmentListForSync(int programId, int versionId, String lastSyncDate, CustomUserDetails curUser);
+    public ShipmentSync getShipmentListForSync(int programId, int versionId,int userId ,String lastSyncDate, CustomUserDetails curUser);
 
     public boolean checkNewerVersions(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
 

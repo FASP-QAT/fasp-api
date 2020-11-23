@@ -66,4 +66,10 @@ public class ProgramLeadTimesInput implements Serializable {
             }
         }
     }
+
+    @Override
+    public String toString() {
+        return "ProgramLeadTimesInput{" + "programId=" + programId + ", planningUnitIds=" + planningUnitIds + ", procurementAgentIds=" + procurementAgentIds + '}';
+    }
+
 }
