@@ -222,3 +222,5 @@ DELIMITER ;
 
 
 UPDATE ap_problem_status SET LABEL_ID=1128 WHERE PROBLEM_STATUS_ID=4;
+
+update ap_problem p left join ap_label l on p.ACTION_LABEL_ID=l.LABEL_ID set p.LAST_MODIFIED_DATE=now(),l.LABEL_EN='Please re-evaluate shipment dates/quantities  , which is overstocked for <%DT%> months within the next 7-18 months (lead time window). We recommend to delay/cancel or decrease quantity in shipment(s)' where p.PROBLEM_ID=19;
