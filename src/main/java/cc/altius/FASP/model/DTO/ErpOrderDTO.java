@@ -50,6 +50,7 @@ public class ErpOrderDTO {
     private Date eoActualShipmentDate;
     private Date eoActualDeliveryDate;
     private Date eoArrivalAtDestinationDate;
+    private float conversionFactor;
     List<ErpShipmentDTO> eoShipmentList;
 
     private boolean manualTagging;
@@ -445,6 +446,14 @@ public class ErpOrderDTO {
 
     public void setShDataSourceId(Integer shDataSourceId) {
         this.shDataSourceId = shDataSourceId;
+    }
+
+    public float getConversionFactor() {
+        return conversionFactor;
+    }
+
+    public void setConversionFactor(float conversionFactor) {
+        this.conversionFactor = conversionFactor;
     }
 
     public Date getCalculatedExpiryDate() {

@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
@@ -222,13 +223,13 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public ManualTaggingOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo) {
-        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(programId, planningUnitId, orderNo, primeLineNo);
+    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int searchId, int programId, int planningUnitId) {
+        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(roNoOrderNo, searchId, programId, planningUnitId);
     }
 
     @Override
-    public int linkShipmentWithARTMIS(String orderNo, int primeLineNo, int shipmentId, CustomUserDetails curUser) {
-        return this.programDao.linkShipmentWithARTMIS(orderNo, primeLineNo, shipmentId, curUser);
+    public int linkShipmentWithARTMIS(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser) {
+        return this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO, curUser);
     }
 
     @Override
@@ -275,6 +276,11 @@ public class ProgramServiceImpl implements ProgramService {
         } else {
             return new LinkedList<>();
         }
+    }
+
+    @Override
+    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int searchId, int programId, int planningUnitId) {
+        return this.programDao.getErpOrderSearchData(term, searchId, programId, planningUnitId);
     }
 
 }

@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
@@ -51,9 +52,9 @@ public interface ProgramDao {
 
     public List<ManualTaggingDTO> getShipmentListForManualTagging(int programId, int planningUnitId);
 
-    public ManualTaggingOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo);
+    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int searchId, int programId, int planningUnitId);
 
-    public int linkShipmentWithARTMIS(String orderNo, int primeLineNo, int shipmentId, CustomUserDetails curUser);
+    public int linkShipmentWithARTMIS(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser);
 
     public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId);
 
@@ -68,4 +69,7 @@ public interface ProgramDao {
     public List<Program> getProgramListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnit> getProgramPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser);
+
+    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int searchId, int programId, int planningUnitId);
+
 }

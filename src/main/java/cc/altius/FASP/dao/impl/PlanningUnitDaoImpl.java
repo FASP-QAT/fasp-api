@@ -13,6 +13,7 @@ import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.rowMapper.PlanningUnitCapacityRowMapper;
 import cc.altius.FASP.model.rowMapper.PlanningUnitRowMapper;
+import cc.altius.FASP.model.rowMapper.PlanningUnitTracerCategoryRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -64,6 +65,33 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
             + " LEFT JOIN us_user cb ON pu.CREATED_BY=cb.USER_ID  "
             + " LEFT JOIN us_user lmb ON pu.LAST_MODIFIED_BY=lmb.USER_ID "
             + " WHERE TRUE ";
+
+    private String sqlListStringTc = "SELECT pu.PLANNING_UNIT_ID, pu.MULTIPLIER, fu.FORECASTING_UNIT_ID, "
+            + "	pul.LABEL_ID, pul.LABEL_EN, pul.LABEL_FR, pul.LABEL_PR, pul.LABEL_SP, "
+            + "    ful.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, ful.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, ful.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, ful.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, ful.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, "
+            + "    fugl.LABEL_ID `GENERIC_LABEL_ID`, fugl.LABEL_EN `GENERIC_LABEL_EN`, fugl.LABEL_FR `GENERIC_LABEL_FR`, fugl.LABEL_PR `GENERIC_LABEL_PR`, fugl.LABEL_SP `GENERIC_LABEL_SP`, "
+            + "    r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
+            + "    pc.PRODUCT_CATEGORY_ID, pcl.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pcl.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pcl.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pcl.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pcl.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, "
+            + "    tc.TRACER_CATEGORY_ID, tcl.LABEL_ID `TRACER_CATEGORY_LABEL_ID`, tcl.LABEL_EN `TRACER_CATEGORY_LABEL_EN`, tcl.LABEL_FR `TRACER_CATEGORY_LABEL_FR`, tcl.LABEL_PR `TRACER_CATEGORY_LABEL_PR`, tcl.LABEL_SP `TRACER_CATEGORY_LABEL_SP`, "
+            + "    u.UNIT_ID, u.UNIT_CODE, ul.LABEL_ID `UNIT_LABEL_ID`, ul.LABEL_EN `UNIT_LABEL_EN`, ul.LABEL_FR `UNIT_LABEL_FR`, ul.LABEL_PR `UNIT_LABEL_PR`, ul.LABEL_SP `UNIT_LABEL_SP`, "
+            + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pu.ACTIVE, pu.CREATED_DATE, pu.LAST_MODIFIED_DATE,papu.`SKU_CODE`  "
+            + " FROM rm_planning_unit pu "
+            + " LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID "
+            + " LEFT JOIN rm_forecasting_unit fu on pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+            + " LEFT JOIN ap_label ful ON fu.LABEL_ID=ful.LABEL_ID  "
+            + " LEFT JOIN ap_label fugl ON fu.GENERIC_LABEL_ID=fugl.LABEL_ID  "
+            + " LEFT JOIN rm_realm r ON fu.REALM_ID=r.REALM_ID  "
+            + " LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID  "
+            + " LEFT JOIN rm_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID  "
+            + " LEFT JOIN ap_label pcl ON pc.LABEL_ID=pcl.LABEL_ID  "
+            + " LEFT JOIN rm_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID  "
+            + " LEFT JOIN ap_label tcl ON tc.LABEL_ID=tcl.LABEL_ID  "
+            + " LEFT JOIN ap_unit u ON pu.UNIT_ID=u.UNIT_ID "
+            + " LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID  "
+            + " LEFT JOIN us_user cb ON pu.CREATED_BY=cb.USER_ID  "
+            + " LEFT JOIN us_user lmb ON pu.LAST_MODIFIED_BY=lmb.USER_ID "
+            + " LEFT JOIN rm_procurement_agent_planning_unit papu ON papu.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` AND papu.`PROCUREMENT_AGENT_ID`=:procurementAgentId"
+            + " WHERE TRUE AND papu.`SKU_CODE` IS NOT NULL AND papu.`SKU_CODE` !='' ";
 
     private final String sqlPlanningUnitCapacityListString = "SELECT  "
             + "     puc.PLANNING_UNIT_CAPACITY_ID, puc.START_DATE, puc.STOP_DATE, puc.CAPACITY, "
