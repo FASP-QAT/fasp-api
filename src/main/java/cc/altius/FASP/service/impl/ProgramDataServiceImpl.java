@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
@@ -172,6 +173,16 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             }
         }
         return newer;
+    }
+
+    @Override
+    public List<ProgramIntegrationDTO> getSupplyPlanToExportList() {
+        return this.programDataDao.getSupplyPlanToExportList();
+    }
+
+    @Override
+    public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId) {
+        return this.programDataDao.updateSupplyPlanAsExported(programVersionTransId, integrationId);
     }
 
 }
