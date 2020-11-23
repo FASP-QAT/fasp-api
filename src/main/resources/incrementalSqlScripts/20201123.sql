@@ -1,3 +1,7 @@
+DROP TABLE IF EXISTS rm_integration_program_completed;
+DROP TABLE IF EXISTS rm_integration_program;
+DROP TABLE IF EXISTS ap_integration;
+DROP TABLE IF EXISTS ap_integration_view;
 CREATE TABLE `fasp`.`ap_integration_view` (
   `INTEGRATION_VIEW_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `INTEGRATION_VIEW_DESC` VARCHAR(45) NOT NULL,
@@ -87,7 +91,6 @@ INSERT INTO rm_integration_program VALUES
     (null, 2, 2030, 2, 2, 1, 1, now(), 1, now()),
     (null, 2, 2137, 2, 2, 1, 1, now(), 1, now()),
     (null, 2, 2535, 2, 2, 1, 1, now(), 1, now());
-
 
 CREATE TABLE `fasp`.`rm_integration_program_completed` (
   `PROGRAM_VERSION_TRANS_ID` INT(10) UNSIGNED NOT NULL,
