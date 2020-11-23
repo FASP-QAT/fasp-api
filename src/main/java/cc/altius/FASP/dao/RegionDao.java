@@ -26,5 +26,7 @@ public interface RegionDao {
     public List<Region> getRegionListByRealmCountryId(int realmCountryId, CustomUserDetails curUser);
     
     public List<Region> getRegionListForSync(String lastSyncDate, CustomUserDetails curUser);
+    
+    public List<Region> getRegionListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 
 }

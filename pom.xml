@@ -10,7 +10,11 @@
     </parent>
     <groupId>cc.altius.FASP.rest.webservice</groupId>
     <artifactId>FASP</artifactId>
+<<<<<<< HEAD
     <version>DEV.0.1215</version>
+=======
+    <version>DEV.0.1209</version>
+>>>>>>> optimizedMasterSync
 
     <name>QAT</name>
     <description>Quantification Analytics Tool</description>

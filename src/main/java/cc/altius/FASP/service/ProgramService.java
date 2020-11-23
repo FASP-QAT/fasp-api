@@ -69,6 +69,10 @@ public interface ProgramService {
     public LoadProgram getLoadProgram(int programId, int page, CustomUserDetails curUser);
 
     public boolean validateProgramCode(int realmId, int programId, String programCode, CustomUserDetails curUser);
+    
+    public List<Program> getProgramListForSyncProgram(String programIdsString, CustomUserDetails curUser);
+ 
+    public List<ProgramPlanningUnit> getProgramPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 
     public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int searchId, int programId, int planningUnitId);
 }

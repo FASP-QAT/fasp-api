@@ -24,5 +24,7 @@ public interface CountryService {
     public int updateCountry(Country country, CustomUserDetails curUser);
 
     public List<Country> getCountryListForSync(String dtLastSyncDate);
+    
+    public List<Country> getCountryListForSyncProgram(String programIds, CustomUserDetails curUser);
 
 }
