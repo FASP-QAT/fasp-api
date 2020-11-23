@@ -539,8 +539,9 @@ public class ProgramDaoImpl implements ProgramDao {
                     + " AND pu.`PROCUREMENT_AGENT_ID`=1 "
                     + " LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
                     + " LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
-                    + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                    + " WHERE e.RO_NO=? AND e.`PROGRAM_ID`=? AND pu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7; ";
+                    + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS`"
+                    + " LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
+                    + " WHERE e.RO_NO=? AND e.`PROGRAM_ID`=? AND pu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7 AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0); ";
         } else if (searchId == 2) {
             sql = "SELECT e.*,l.`LABEL_ID`,IF(l.`LABEL_EN` IS NOT NULL,l.`LABEL_EN`,'') AS LABEL_EN,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP` FROM rm_erp_order e "
                     + " LEFT JOIN rm_procurement_agent_planning_unit pu ON LEFT(pu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
@@ -548,7 +549,8 @@ public class ProgramDaoImpl implements ProgramDao {
                     + " LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
                     + " LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
                     + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                    + " WHERE e.ORDER_NO=? AND e.`PROGRAM_ID`=? AND pu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7; ";
+                    + " LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
+                    + " WHERE e.ORDER_NO=? AND e.`PROGRAM_ID`=? AND pu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7 AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0); ";
         }
         return this.jdbcTemplate.query(sql, new ManualTaggingOrderDTORowMapper(), roNoOrderNo, programId, planningUnitId);
 //        erpOrderDTO.setReason(reason);
@@ -722,15 +724,15 @@ public class ProgramDaoImpl implements ProgramDao {
             sb.append("SELECT e.`ERP_ORDER_ID`,e.`RO_NO` AS LABEL FROM rm_erp_order e "
                     + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` AND papu.`PROCUREMENT_AGENT_ID`=1 "
                     + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                    + "LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` AND mt.ACTIVE "
-                    + "WHERE mt.`MANUAL_TAGGING_ID` IS NULL AND e.`PROGRAM_ID`=? AND papu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7 AND e.`RO_NO` LIKE '%").append(term).append("%' GROUP BY e.`RO_NO`");
+                    + "LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
+                    + "WHERE (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) AND e.`PROGRAM_ID`=? AND papu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7 AND e.`RO_NO` LIKE '%").append(term).append("%' GROUP BY e.`RO_NO`");
         }
         if (searchId == 2) {
             sb.append("SELECT e.`ERP_ORDER_ID`,e.`ORDER_NO` AS LABEL FROM rm_erp_order e "
                     + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` AND papu.`PROCUREMENT_AGENT_ID`=1 "
                     + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                    + "LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` AND mt.ACTIVE "
-                    + "WHERE mt.`MANUAL_TAGGING_ID` IS NULL AND e.`PROGRAM_ID`=? AND papu.`PLANNING_UNIT_ID`=?  AND sm.`SHIPMENT_STATUS_ID` !=7 AND  e.`ORDER_NO` LIKE '%").append(term).append("%' GROUP BY e.`ORDER_NO`");
+                    + "LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
+                    + "WHERE (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) AND e.`PROGRAM_ID`=? AND papu.`PLANNING_UNIT_ID`=?  AND sm.`SHIPMENT_STATUS_ID` !=7 AND  e.`ORDER_NO` LIKE '%").append(term).append("%' GROUP BY e.`ORDER_NO`");
         }
         return this.jdbcTemplate.query(sb.toString(), new ErpOrderAutocompleteDTORowMapper(), programId, planningUnitId);
     }

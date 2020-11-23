@@ -71,6 +71,7 @@ public class ErpOrderDTOListResultSetExtractor implements ResultSetExtractor<Lis
 
                 e.setShProgramId(rs.getInt("PROGRAM_ID"));
                 e.setShShipmentId(rs.getInt("SHIPMENT_ID"));
+                e.setConversionFactor(rs.getFloat("CONVERSION_FACTOR"));
                 e.setShVersionId(rs.getInt("VERSION_ID"));
                 e.setShShipmentTransId(rs.getInt("SHIPMENT_TRANS_ID"));
                 if (rs.wasNull()) {
