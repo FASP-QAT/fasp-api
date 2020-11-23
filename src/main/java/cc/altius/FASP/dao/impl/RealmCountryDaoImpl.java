@@ -72,7 +72,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
             + " LEFT JOIN us_user cb ON rc.CREATED_BY=cb.USER_ID "
             + " LEFT JOIN us_user lmb ON rc.LAST_MODIFIED_BY=lmb.USER_ID ";
 
-    private final String sqlListString = this.sqlListStringBase + " WHERE TRUE ";
+    private final String sqlListString = this.sqlListStringBase + " WHERE TRUE AND c.ACTIVE ";
 
     private final String sqlListForProgramString = "SELECT  "
             + "     rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, c.LABEL_ID `COUNTRY_LABEL_ID`, c.COUNTRY_CODE, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_SP `COUNTRY_LABEL_SP`, c.LABEL_PR `COUNTRY_LABEL_PR`, "
@@ -86,7 +86,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
             + "LEFT JOIN rm_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
             + "LEFT JOIN us_user cb ON ha.CREATED_BY=cb.USER_ID  "
             + "LEFT JOIN us_user lmb ON ha.LAST_MODIFIED_BY=lmb.USER_ID  "
-            + "WHERE r.REALM_ID=:realmId AND r.ACTIVE and rc.ACTIVE AND p.ACTIVE AND ha.ACTIVE AND hac.ACTIVE ";
+            + "WHERE r.REALM_ID=:realmId AND r.ACTIVE AND c.ACTIVE AND rc.ACTIVE AND p.ACTIVE AND ha.ACTIVE AND hac.ACTIVE ";
 
 
     private final String sqlListStringForRealmCountryPlanningUnit = " SELECT rcpu.REALM_COUNTRY_PLANNING_UNIT_ID,   "
@@ -108,7 +108,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
             + "      LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
             + "      LEFT JOIN us_user cb ON rcpu.CREATED_BY=cb.USER_ID "
             + "      LEFT JOIN us_user lmb ON rcpu.LAST_MODIFIED_BY=lmb.USER_ID "
-            + "      WHERE TRUE ";
+            + "      WHERE TRUE AND c.ACTIVE AND rc.ACTIVE ";
 
     @Override
     @Transactional(propagation = Propagation.NESTED)

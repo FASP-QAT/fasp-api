@@ -29,6 +29,7 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.security.access.AccessDeniedException;
 
@@ -61,6 +62,25 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
         pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId));
         return pd;
+    }
+    
+    @Override
+    public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
+        List<ProgramData> programDataList = new LinkedList<>();
+        programVersionList.forEach(pv -> {
+            ProgramData pd = new ProgramData(this.programService.getProgramById(pv.getProgramId(), curUser));
+            pd.setRequestedProgramVersion(pv.getVersionId());
+            pd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), pv.getVersionId()));
+            int versionId = pd.getCurrentVersion().getVersionId();
+            pd.setConsumptionList(this.programDataDao.getConsumptionList(pv.getProgramId(), versionId));
+            pd.setInventoryList(this.programDataDao.getInventoryList(pv.getProgramId(), versionId));
+            pd.setShipmentList(this.programDataDao.getShipmentList(pv.getProgramId(), versionId));
+            pd.setBatchInfoList(this.programDataDao.getBatchList(pv.getProgramId(), versionId));
+            pd.setProblemReportList(this.problemService.getProblemReportList(pv.getProgramId(), versionId, curUser));
+            pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId));
+            programDataList.add(pd);
+        });
+        return programDataList;
     }
     
     @Override
@@ -125,10 +145,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
     
     @Override
-    public ShipmentSync getShipmentListForSync(int programId, int versionId, String lastSyncDate, CustomUserDetails curUser) {
+    public ShipmentSync getShipmentListForSync(int programId, int versionId, int userId, String lastSyncDate, CustomUserDetails curUser) {
         ShipmentSync ss = new ShipmentSync();
         ss.setProgramId(programId);
         ss.setVersionId(versionId);
+        ss.setUserId(userId);
         ss.setShipmentList(this.programDataDao.getShipmentListForSync(programId, versionId, lastSyncDate));
         ss.setBatchInfoList(this.programDataDao.getBatchListForSync(programId, versionId, lastSyncDate));
         ss.setProblemReportList(this.problemService.getProblemReportListForSync(programId, versionId, lastSyncDate));
