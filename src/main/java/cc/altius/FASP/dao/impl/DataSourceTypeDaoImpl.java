@@ -79,11 +79,11 @@ public class DataSourceTypeDaoImpl implements DataSourceTypeDao {
         String sqlString = "UPDATE rm_data_source_type dst LEFT JOIN ap_label dstl ON dst.LABEL_ID=dstl.LABEL_ID "
                 + "SET  "
                 + "  dst.ACTIVE=:active, "
-                + "  dst.LAST_MODIFIED_BY = IF(dst.ACTIVE!=:active, :curUser, dst.LAST_MODIFIED_BY), "
-                + "  dst.LAST_MODIFIED_DATE = IF(dst.ACTIVE!=:active, :curDate, dst.LAST_MODIFIED_DATE), "
+                + "  dst.LAST_MODIFIED_BY = :curUser, "
+                + "  dst.LAST_MODIFIED_DATE = :curDate, "
                 + "  dstl.LABEL_EN=:label_en,  "
-                + "  dstl.LAST_MODIFIED_BY = IF(dstl.LABEL_EN!=:label_en, :curUser, dstl.LAST_MODIFIED_BY), "
-                + "  dstl.LAST_MODIFIED_DATE = IF(dstl.LABEL_EN!=:label_en, :curDate, dstl.LAST_MODIFIED_DATE) "
+                + "  dstl.LAST_MODIFIED_BY = :curUser, "
+                + "  dstl.LAST_MODIFIED_DATE = :curDate "
                 + "WHERE dst.DATA_SOURCE_TYPE_ID=:dataSourceTypeId";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("active", dataSourceType.isActive());

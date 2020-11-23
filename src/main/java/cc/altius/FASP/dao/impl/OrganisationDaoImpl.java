@@ -120,11 +120,11 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 + "SET "
                 + "o.ACTIVE=:active, "
                 + "o.ORGANISATION_CODE=:organisationCode,"
-                + "o.LAST_MODIFIED_BY=IF(o.ACTIVE!=:active OR o.ORGANISATION_CODE!=:organisationCode, :curUser, o.LAST_MODIFIED_BY), "
-                + "o.LAST_MODIFIED_DATE=IF(o.ACTIVE!=:active OR o.ORGANISATION_CODE!=:organisationCode, :curDate, o.LAST_MODIFIED_DATE), "
+                + "o.LAST_MODIFIED_BY=:curUser, "
+                + "o.LAST_MODIFIED_DATE=:curDate, "
                 + "ol.LABEL_EN=:labelEn, "
-                + "ol.LAST_MODIFIED_BY=IF(ol.LABEL_EN!=:labelEn, :curUser, ol.LAST_MODIFIED_BY), "
-                + "ol.LAST_MODIFIED_DATE=IF(ol.LABEL_EN!=:labelEn, :curDate, ol.LAST_MODIFIED_DATE) "
+                + "ol.LAST_MODIFIED_BY=:curUser, "
+                + "ol.LAST_MODIFIED_DATE=:curDate "
                 + "WHERE o.ORGANISATION_ID=:organisationId", params);
         this.namedParameterJdbcTemplate.update("DELETE FROM rm_organisation_country WHERE ORGANISATION_ID=:organisationId", params);
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_organisation_country");

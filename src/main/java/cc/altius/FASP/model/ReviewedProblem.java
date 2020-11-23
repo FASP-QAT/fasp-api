@@ -16,6 +16,7 @@ public class ReviewedProblem implements Serializable {
     private int problemReportId;
     private boolean reviewed;
     private String notes;
+    private SimpleObject problemStatus;
 
     public int getProblemReportId() {
         return problemReportId;
@@ -40,6 +41,13 @@ public class ReviewedProblem implements Serializable {
     public void setNotes(String notes) {
         this.notes = notes;
     }
-    
-    
+
+    public SimpleObject getProblemStatus() {
+        return problemStatus;
+    }
+
+    public void setProblemStatus(SimpleObject problemStatus) {
+        this.problemStatus = problemStatus;
+    }
+
 }
