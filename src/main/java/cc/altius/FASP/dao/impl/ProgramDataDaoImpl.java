@@ -1600,10 +1600,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "    ip.PROGRAM_ID=pv.PROGRAM_ID AND  "
                 + "    (ip.VERSION_TYPE_ID=pvt.VERSION_TYPE_ID OR ip.VERSION_TYPE_ID IS NULL) AND  "
                 + "    (ip.VERSION_STATUS_ID=pvt.VERSION_STATUS_ID OR ip.VERSION_STATUS_ID IS NULL) "
-                + "LEFT JOIN ap_integration i ON ip.INTEGRAION_ID=i.INTEGRATION_ID "
+                + "LEFT JOIN ap_integration i ON ip.INTEGRATION_ID=i.INTEGRATION_ID "
                 + "LEFT JOIN ap_integration_view iv ON i.INTEGRATION_VIEW_ID=iv.INTEGRATION_VIEW_ID "
                 + "LEFT JOIN rm_integration_program_completed ipc ON i.INTEGRATION_ID=ipc.INTEGRATION_ID AND pvt.PROGRAM_VERSION_TRANS_ID=ipc.PROGRAM_VERSION_TRANS_ID "
-                + "WHERE pvt.INTEGRATION_COMPLETED=0 AND ip.INTEGRATION_PROGRAM_ID IS NOT NULL AND ipc.COMPLETED_DATE IS NULL";
+                + "WHERE ip.INTEGRATION_PROGRAM_ID IS NOT NULL AND ipc.COMPLETED_DATE IS NULL";
         return this.jdbcTemplate.query(sqlString, new ProgramIntegrationDTORowMapper());
     }
 

@@ -7,6 +7,7 @@ package cc.altius.FASP.model.DTO;
 
 import cc.altius.utils.DateUtils;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -27,7 +28,8 @@ public class ProgramIntegrationDTO implements Serializable {
     private String folderName;
     private int integrationViewId;
     private String integrationViewName;
-    
+    private static final SimpleDateFormat YMDHMS = new SimpleDateFormat("yyMMddHHmmss");
+
     public int getProgramVersionTransId() {
         return programVersionTransId;
     }
@@ -126,10 +128,18 @@ public class ProgramIntegrationDTO implements Serializable {
 
     public String getFinalFileName(Date curDate) {
         String fn = this.fileName;
-        fn.replaceAll("<%PROGRAM_CODE%>", this.programCode);
-        fn.replaceAll("<%PROGRAM_ID%>", String.format("%08d", this.programId));
-        fn.replaceAll("<%VERSION_ID%>", String.format("%06d", this.versionId));
-        fn.replaceAll("<%YMDHMS%>", DateUtils.formatDate(curDate, DateUtils.YMDHMS));
+        fn = replaceString(fn, "<%PROGRAM_CODE%>", this.programCode);
+        fn = replaceString(fn, "<%PROGRAM_ID%>", String.format("%08d", this.programId));
+        fn = replaceString(fn, "<%VERSION_ID%>", String.format("%06d", this.versionId));
+        fn = replaceString(fn, "<%YMDHMS%>", YMDHMS.format(curDate));
         return fn;
+    }
+
+    private String replaceString(String originalString, String searchString, String replaceWith) {
+        int i = originalString.indexOf(searchString);
+        if (i > -1) {
+            originalString = originalString.substring(0, i) + replaceWith + originalString.substring(i + searchString.length(), originalString.length());
+        }
+        return originalString;
     }
 }
