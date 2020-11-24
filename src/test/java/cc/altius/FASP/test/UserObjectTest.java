@@ -38,8 +38,8 @@ public class UserObjectTest {
         user.setUserId(1);
         user.setLastLoginDate(new Date());
         LinkedList<UserAcl> aclList = new LinkedList<>();
-        aclList.add(new UserAcl(1, 1, 1, 1, -1));
-        aclList.add(new UserAcl(1, 2, -1, -1, -1));
+        aclList.add(new UserAcl(1, 1, 1, 1, -1, ""));
+        aclList.add(new UserAcl(1, 2, -1, -1, -1, ""));
         user.setUserAclList(aclList);
         Gson gson = new Gson();
         Type type = new TypeToken<User>() {}.getType();

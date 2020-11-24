@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.CountryDao;
 import cc.altius.FASP.model.Country;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.service.CountryService;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,15 @@ public class CountryServiceImpl implements CountryService {
     @Override
     public List<Country> getCountryListForSync(String lastSyncDate) {
         return this.countryDao.getCountryListForSync(lastSyncDate);
+    }
+
+    @Override
+    public List<Country> getCountryListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.countryDao.getCountryListForSyncProgram(programIdsString, curUser);
+        } else {
+            return new LinkedList<>();
+        }
     }
 
 }

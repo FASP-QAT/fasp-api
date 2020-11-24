@@ -10,6 +10,7 @@ import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.PlanningUnitService;
+import cc.altius.FASP.service.ProcurementAgentService;
 import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -41,6 +42,8 @@ public class PlanningUnitRestController {
 
     @Autowired
     private PlanningUnitService planningUnitService;
+    @Autowired
+    private ProcurementAgentService procurementAgentService;
     @Autowired
     private UserService userService;
 
@@ -285,6 +288,23 @@ public class PlanningUnitRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             logger.error("Error while trying to list PlanningUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/getPlanningUnitByTracerCategory/planningUnitId/{planningUnitId}/{procurementAgentId}/{term}")
+    public ResponseEntity getPlanningUnitByTracerCategory(@PathVariable("planningUnitId") int planningUnitId, @PathVariable("procurementAgentId") int procurementAgentId, @PathVariable("term") String term, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitListForTracerCategory(procurementAgentId, planningUnitId, term, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

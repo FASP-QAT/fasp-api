@@ -7,6 +7,7 @@ package cc.altius.FASP.service;
 
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
@@ -52,4 +53,8 @@ public interface ProgramDataService {
     public ShipmentSync getShipmentListForSync(int programId, int versionId,int userId ,String lastSyncDate, CustomUserDetails curUser);
 
     public boolean checkNewerVersions(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
+
+    public List<ProgramIntegrationDTO> getSupplyPlanToExportList();
+
+    public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId);
 }

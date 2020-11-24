@@ -12,6 +12,7 @@ import cc.altius.FASP.model.Region;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.RegionService;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -40,7 +41,7 @@ public class RegionServiceImpl implements RegionService {
                 RealmCountry rc = this.realmCountryService.getRealmCountryById(r.getRealmCountry().getRealmCountryId(), curUser);
                 if (this.aclService.checkRealmAccessForUser(curUser, rc.getRealm().getRealmId())) {
                     r.setRealmCountry(rc);
-                    if (r.getGln()!=null && r.getGln().isEmpty()) {
+                    if (r.getGln() != null && r.getGln().isEmpty()) {
                         r.setGln(null);
                     }
                     this.regionDao.addRegion(r, curUser);
@@ -51,7 +52,7 @@ public class RegionServiceImpl implements RegionService {
             } else {
                 Region region = this.getRegionById(r.getRegionId(), curUser);
                 if (this.aclService.checkRealmAccessForUser(curUser, region.getRealmCountry().getRealm().getRealmId())) {
-                    if (r.getGln()!=null && r.getGln().isEmpty()) {
+                    if (r.getGln() != null && r.getGln().isEmpty()) {
                         r.setGln(null);
                     }
                     this.regionDao.updateRegion(r, curUser);
@@ -90,6 +91,15 @@ public class RegionServiceImpl implements RegionService {
     @Override
     public List<Region> getRegionListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.regionDao.getRegionListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
+    public List<Region> getRegionListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.regionDao.getRegionListForSyncProgram(programIdsString, curUser);
+        } else {
+            return new LinkedList<>();
+        }
     }
 
 }

@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
@@ -66,7 +67,7 @@ public class ProgramServiceImpl implements ProgramService {
                 p.getHealthArea().getId(),
                 p.getOrganisation().getId(),
                 0)) {
-            RealmCountry rc= this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
+            RealmCountry rc = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
             String programCode = rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
             if (p.getProgramCode() != null && !p.getProgramCode().isBlank()) {
                 programCode += "-" + p.getProgramCode();
@@ -199,8 +200,8 @@ public class ProgramServiceImpl implements ProgramService {
     public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) {
         RealmCountry rc = this.realmCountryService.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser);
         String programCode = rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(program.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(program.getOrganisation().getId(), curUser).getOrganisationCode();
-        if (program.getProgramCode()!=null && !program.getProgramCode().isBlank()) {
-            programCode += "-"+program.getProgramCode();
+        if (program.getProgramCode() != null && !program.getProgramCode().isBlank()) {
+            programCode += "-" + program.getProgramCode();
         }
         program.setProgramCode(programCode);
         int programId = this.programDao.addProgram(program, rc.getRealm().getRealmId(), curUser);
@@ -222,13 +223,13 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public ManualTaggingOrderDTO getOrderDetailsByOrderNoAndPrimeLineNo(int programId, int planningUnitId, String orderNo, int primeLineNo) {
-        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(programId, planningUnitId, orderNo, primeLineNo);
+    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int searchId, int programId, int planningUnitId) {
+        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(roNoOrderNo, searchId, programId, planningUnitId);
     }
 
     @Override
-    public int linkShipmentWithARTMIS(String orderNo, int primeLineNo, int shipmentId, CustomUserDetails curUser) {
-        return this.programDao.linkShipmentWithARTMIS(orderNo, primeLineNo, shipmentId, curUser);
+    public int linkShipmentWithARTMIS(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser) {
+        return this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO, curUser);
     }
 
     @Override
@@ -257,6 +258,29 @@ public class ProgramServiceImpl implements ProgramService {
             throw new AccessDeniedException("Access denied");
         }
         return this.programDao.validateProgramCode(realmId, programId, programCode, curUser);
+    }
+
+    @Override
+    public List<Program> getProgramListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.programDao.getProgramListForSyncProgram(programIdsString, curUser);
+        } else {
+            return new LinkedList<>();
+        }
+    }
+
+    @Override
+    public List<ProgramPlanningUnit> getProgramPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.programDao.getProgramPlanningUnitListForSyncProgram(programIdsString, curUser);
+        } else {
+            return new LinkedList<>();
+        }
+    }
+
+    @Override
+    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int searchId, int programId, int planningUnitId) {
+        return this.programDao.getErpOrderSearchData(term, searchId, programId, planningUnitId);
     }
 
 }

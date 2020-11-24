@@ -16,6 +16,7 @@ import cc.altius.FASP.service.ForecastingUnitService;
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.Realm;
+import java.util.LinkedList;
 
 /**
  *
@@ -80,5 +81,14 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     public List<ForecastingUnit> getForecastingUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.forecastingUnitDao.getForecastingUnitListForSync(lastSyncDate, curUser);
     }
-    
+
+    @Override
+    public List<ForecastingUnit> getForecastingUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.forecastingUnitDao.getForecastingUnitListForSyncProgram(programIdsString, curUser);
+        } else {
+            return new LinkedList<>();
+        }
+    }
+
 }

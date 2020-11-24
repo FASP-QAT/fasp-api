@@ -14,6 +14,7 @@ import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProcurementAgentService;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -88,6 +89,11 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     }
 
     @Override
+    public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForTracerCategory(int procurementAgentId, int planningUnitId, String term, CustomUserDetails curUser) {
+        return this.procurementAgentDao.getProcurementAgentPlanningUnitListForTracerCategory(procurementAgentId, planningUnitId, term, curUser);
+    }
+
+    @Override
     public int saveProcurementAgentPlanningUnit(ProcurementAgentPlanningUnit[] procurementAgentPlanningUnits, CustomUserDetails curUser) {
         for (ProcurementAgentPlanningUnit papu : procurementAgentPlanningUnits) {
             ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(papu.getProcurementAgent().getId(), curUser);
@@ -97,8 +103,7 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
         }
         return this.procurementAgentDao.saveProcurementAgentPlanningUnit(procurementAgentPlanningUnits, curUser);
     }
-    
-    
+
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser) {
         ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(procurementAgentId, curUser);
         if (pa != null && this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
@@ -137,6 +142,24 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     @Override
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.procurementAgentDao.getProcurementAgentProcurementUnitListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
+    public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.procurementAgentDao.getProcurementAgentPlanningUnitListForSyncProgram(programIdsString, curUser);
+        } else {
+            return new LinkedList<>();
+        }
+    }
+
+    @Override
+    public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.procurementAgentDao.getProcurementAgentProcurementUnitListForSyncProgram(programIdsString, curUser);
+        } else {
+            return new LinkedList<>();
+        }
     }
 
 }
