@@ -1135,9 +1135,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "pv.NOTES=:notes, pv.LAST_MODIFIED_DATE=:curDate, "
                 + "pv.LAST_MODIFIED_BY=:curUser ";
 
-        if (versionStatusId == 2) {
-            programVersionUpdateSql += ",pv.`SENT_TO_ARTMIS`=1 ";
-        }
+//        if (versionStatusId == 2) {
+//            programVersionUpdateSql += ",pv.`SENT_TO_ARTMIS`=1 ";
+//        }
         programVersionUpdateSql += " WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId;";
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
