@@ -261,6 +261,24 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
+    public List<Program> getProgramListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.programDao.getProgramListForSyncProgram(programIdsString, curUser);
+        } else {
+            return new LinkedList<>();
+        }
+    }
+
+    @Override
+    public List<ProgramPlanningUnit> getProgramPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.programDao.getProgramPlanningUnitListForSyncProgram(programIdsString, curUser);
+        } else {
+            return new LinkedList<>();
+        }
+    }
+
+    @Override
     public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int searchId, int programId, int planningUnitId) {
         return this.programDao.getErpOrderSearchData(term, searchId, programId, planningUnitId);
     }

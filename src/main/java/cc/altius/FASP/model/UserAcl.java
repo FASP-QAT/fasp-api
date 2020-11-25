@@ -22,19 +22,21 @@ public class UserAcl implements Serializable {
     private Label organisationName;
     private int programId;
     private Label programName;
+    private String lastModifiedDate;
 
     public UserAcl() {
     }
 
-    public UserAcl(int userId, int realmCountryId, int healthAreaId, int organisationId, int programId) {
+    public UserAcl(int userId, int realmCountryId, int healthAreaId, int organisationId, int programId, String lastModifiedDate) {
         this.userId = userId;
         this.setRealmCountryId(realmCountryId);
         this.setHealthAreaId(healthAreaId);
         this.setOrganisationId(organisationId);
         this.setProgramId(programId);
+        this.lastModifiedDate = this.lastModifiedDate;
     }
 
-    public UserAcl(int userId, int realmCountryId, Label countryName, int healthAreaId, Label healthAreaName, int organisationId, Label organisationName, int programId, Label programName) {
+    public UserAcl(int userId, int realmCountryId, Label countryName, int healthAreaId, Label healthAreaName, int organisationId, Label organisationName, int programId, Label programName, String lastModifiedDate) {
         this.userId = userId;
         this.setRealmCountryId(realmCountryId);
         this.setHealthAreaId(healthAreaId);
@@ -44,6 +46,7 @@ public class UserAcl implements Serializable {
         this.healthAreaName = healthAreaName;
         this.organisationName = organisationName;
         this.programName = programName;
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     public int getUserId() {
@@ -116,6 +119,14 @@ public class UserAcl implements Serializable {
 
     public void setProgramName(Label programName) {
         this.programName = programName;
+    }
+
+    public String getLastModifiedDate() {
+        return lastModifiedDate;
+    }
+
+    public void setLastModifiedDate(String lastModifiedDate) {
+        this.lastModifiedDate = lastModifiedDate;
     }
 
     @Override
