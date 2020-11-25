@@ -387,7 +387,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 + "    es.BATCH_NO, COALESCE(es.DELIVERED_QTY, es.SHIPPED_QTY) `BATCH_QTY`, "
                 + "    pu.PLANNING_UNIT_ID, papu2.PROCUREMENT_UNIT_ID, pu2.SUPPLIER_ID, ppu.SHELF_LIFE, "
                 + "    sh.SHIPMENT_ID, sh.PROGRAM_ID, sh.PARENT_SHIPMENT_ID, "
-                + "    st.SHIPMENT_TRANS_ID, st.VERSION_ID, st.FUNDING_SOURCE_ID, st.PROCUREMENT_AGENT_ID, st.BUDGET_ID, st.ACTIVE, st.ERP_FLAG, st.ACCOUNT_FLAG, st.DATA_SOURCE_ID "
+                + "    st.SHIPMENT_TRANS_ID, st.VERSION_ID, st.FUNDING_SOURCE_ID, st.PROCUREMENT_AGENT_ID, st.BUDGET_ID, st.ACTIVE, st.ERP_FLAG, st.ACCOUNT_FLAG, st.DATA_SOURCE_ID,eo.CONVERSION_FACTOR "
                 + "FROM ( "
                 + "    SELECT  "
                 + "        e.ERP_ORDER_ID, e.RO_NO, e.RO_PRIME_LINE_NO, e.ORDER_NO, e.PRIME_LINE_NO , "
@@ -422,6 +422,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
             try {
                 // Shipment id found in file
                 logger.info("-----------------------------------------------------------");
+                logger.info("ERP Order - " + erpOrderDTO);
                 logger.info("Order no - " + erpOrderDTO.getEoOrderNo());
                 logger.info("Prime line no - " + erpOrderDTO.getEoPrimeLineNo());
                 logger.info("Active - " + erpOrderDTO.getShActive());
@@ -430,13 +431,18 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 logger.info("Shipment Id - " + erpOrderDTO.getShShipmentId());
                 logger.info("Change code - " + erpOrderDTO.getEoChangeCode());
                 logger.info("ManualTagging - " + erpOrderDTO.isManualTagging());
+                logger.info("Program Id - " + erpOrderDTO.getShProgramId());
+                logger.info("Shipment id - " + erpOrderDTO.getShShipmentId());
                 if (erpOrderDTO.getShProgramId() == 0 || erpOrderDTO.getShShipmentId() == 0) {
+                    System.out.println("---------------1--------------");
                     logger.info("Either Program Id is 0 or Shipment Id is 0 so skipping this record");
                 } else if (erpOrderDTO.getEoChangeCode() == 2) {
+                    System.out.println("---------------2--------------");
                     // This is the Delete code so go ahead and delete this Order
                     logger.info("Change code is 2 so therefore delete this line item where shipmentId=" + erpOrderDTO.getShShipmentId());
-                    sqlString = "UPDATE rm_shipment s LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID SET st.ACTIVE=0, st.LAST_MODIFIED_BY=1, st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate WHERE s.PARENT_SHIPMENT_ID=:shipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo AND st.ACTIVE AND st.ERP_FLAG";
+                    sqlString = "UPDATE rm_shipment s LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID SET st.`PLANNING_UNIT_ID`=:planningUnitId,st.ACTIVE=0, st.LAST_MODIFIED_BY=1, st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate WHERE s.PARENT_SHIPMENT_ID=:shipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo AND st.ACTIVE AND st.ERP_FLAG";
                     params.clear();
+                    params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
                     params.put("shipmentId", erpOrderDTO.getShShipmentId());
                     params.put("orderNo", erpOrderDTO.getEoOrderNo());
                     params.put("primeLineNo", erpOrderDTO.getEoPrimeLineNo());
@@ -445,6 +451,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     logger.info(rows + " rows updated");
 
                 } else if (erpOrderDTO.isShErpFlag() && erpOrderDTO.getShParentShipmentId() == null) {
+                    System.out.println("---------------3--------------");
                     // The ERP Flag is true and the Parent Shipment Id is null
                     logger.info("ERP Flag is true and Parent Shipment Id is null");
                     // Find all Shipments whose Parent Shipment Id is :parentShipmentId and :orderNo and :primeLineNo are matching
@@ -469,16 +476,17 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                 + "    st.SHIPMENT_STATUS_ID=:shipmentStatusId, st.SUPPLIER_ID=:supplierId, st.PLANNED_DATE=:plannedDate, "
                                 + "    st.SUBMITTED_DATE=:submittedDate, st.APPROVED_DATE=:approvedDate, st.SHIPPED_DATE=:shippedDate, "
                                 + "    st.ARRIVED_DATE=:arrivedDate, st.RECEIVED_DATE=:receivedDate, st.LAST_MODIFIED_BY=1, "
-                                + "    st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate, st.NOTES=:notes "
+                                + "    st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate, st.NOTES=:notes,st.`PLANNING_UNIT_ID`=:planningUnitId "
                                 + "WHERE st.SHIPMENT_TRANS_ID=:shipmentTransId";
                         params.clear();
+                        params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
                         params.put("shipmentTransId", shipmentTransId);
                         params.put("expectedDeliveryDate", erpOrderDTO.getExpectedDeliveryDate());
                         params.put("freightCost", erpOrderDTO.getEoShippingCost());
                         params.put("productCost", erpOrderDTO.getEoPrice() * erpOrderDTO.getEoQty());
                         params.put("price", erpOrderDTO.getEoPrice());
                         params.put("shipBy", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
-                        params.put("qty", erpOrderDTO.getEoQty());
+                        params.put("qty", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (erpOrderDTO.getEoQty() * erpOrderDTO.getConversionFactor()) : erpOrderDTO.getEoQty()));
                         params.put("shipmentStatusId", erpOrderDTO.getEoShipmentStatusId());
                         params.put("supplierId", erpOrderDTO.getEoSupplierId());
                         params.put("plannedDate", erpOrderDTO.getEoCreatedDate());
@@ -624,7 +632,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                         params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getExpectedDeliveryDate());
                         params.put("PROCUREMENT_UNIT_ID", erpOrderDTO.getEoProcurementUnitId());
                         params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
-                        params.put("SHIPMENT_QTY", erpOrderDTO.getEoQty());
+                        params.put("SHIPMENT_QTY", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (erpOrderDTO.getEoQty() * erpOrderDTO.getConversionFactor()) : erpOrderDTO.getEoQty()));
                         params.put("RATE", erpOrderDTO.getEoPrice());
                         params.put("PRODUCT_COST", erpOrderDTO.getEoQty() * erpOrderDTO.getEoPrice());
                         params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
@@ -698,13 +706,15 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     }
 
                 } else {
+                    System.out.println("---------------4--------------");
                     // This is a new Link request coming through
                     // So make the Shipment, Active = fasle and ERPFlag = true
                     logger.info("This is a first time linking attempt");
                     // Create a new Shipment with Parent Shipment Id = :shipmentId and OrderNo=:orderNo and PrimeLineNo=:primeLineNo
                     // All other details to be taken from ARTMIS + Current Shipment
-                    sqlString = "UPDATE rm_shipment_trans st LEFT JOIN rm_shipment s ON st.SHIPMENT_ID=s.SHIPMENT_ID SET st.ERP_FLAG=1, st.ACTIVE=0, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate, st.LAST_MODIFIED_BY=1, st.LAST_MODIFIED_DATE=:curDate WHERE st.SHIPMENT_TRANS_ID=:shipmentTransId";
+                    sqlString = "UPDATE rm_shipment_trans st LEFT JOIN rm_shipment s ON st.SHIPMENT_ID=s.SHIPMENT_ID SET st.`PLANNING_UNIT_ID`=:planningUnitId,st.ERP_FLAG=1, st.ACTIVE=0, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate, st.LAST_MODIFIED_BY=1, st.LAST_MODIFIED_DATE=:curDate WHERE st.SHIPMENT_TRANS_ID=:shipmentTransId";
                     params.clear();
+                    params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
                     params.put("curDate", curDate);
                     params.put("shipmentTransId", erpOrderDTO.getShShipmentTransId());
                     this.namedParameterJdbcTemplate.update(sqlString, params);
@@ -733,7 +743,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getExpectedDeliveryDate());
                     params.put("PROCUREMENT_UNIT_ID", erpOrderDTO.getEoProcurementUnitId());
                     params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
-                    params.put("SHIPMENT_QTY", erpOrderDTO.getEoQty());
+                    params.put("SHIPMENT_QTY", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (erpOrderDTO.getEoQty() * erpOrderDTO.getConversionFactor()) : erpOrderDTO.getEoQty()));
                     params.put("RATE", erpOrderDTO.getEoPrice());
                     params.put("PRODUCT_COST", erpOrderDTO.getEoQty() * erpOrderDTO.getEoPrice());
                     params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
@@ -805,6 +815,8 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                         logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                     }
                 }
+                System.out.println("erpOrderDTO.getShProgramId()---"+erpOrderDTO.getShProgramId());
+                System.out.println("programList----"+programList);
                 if (programList.indexOf(erpOrderDTO.getShProgramId()) == -1) {
                     programList.add(erpOrderDTO.getShProgramId());
                 }
