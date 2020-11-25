@@ -1383,7 +1383,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    @Transactional
+//    @Transactional
     public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild, boolean returnSupplyPlan) throws ParseException {
         Map<Integer, Integer> newBatchSubstituteMap = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
