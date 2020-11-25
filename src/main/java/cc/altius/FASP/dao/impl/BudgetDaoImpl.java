@@ -64,7 +64,7 @@ public class BudgetDaoImpl implements BudgetDao {
             + "LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID "
             + "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID AND st.SHIPMENT_STATUS_ID!=8 AND st.ACCOUNT_FLAG=1 AND st.ACTIVE AND st.BUDGET_ID=b.BUDGET_ID "
             + "WHERE TRUE ";
-    private final String sqlGroupByString = "GROUP BY b.BUDGET_ID ";
+    private final String sqlGroupByString = " GROUP BY b.BUDGET_ID ";
 
     @Override
     @Transactional
