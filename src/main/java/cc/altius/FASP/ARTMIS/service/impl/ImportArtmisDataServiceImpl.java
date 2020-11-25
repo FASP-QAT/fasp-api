@@ -134,8 +134,10 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
             logger.info("Email sent out for error");
         }
         logger.info("Going to rebuild Supply Plans for any Programs that were updated");
+        System.out.println("programList----"+programList);
         programList.forEach(p -> {
             try {
+                System.out.println("p-----------"+p);
                 int versionId = this.programDataDao.getLatestVersionForProgram(p);
                 logger.info("Going to rebuild Supply plan for Program " + p + " Version " + versionId);
                 this.programDataDao.getNewSupplyPlanList(p, -1, true, false);

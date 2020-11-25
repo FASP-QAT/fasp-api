@@ -177,7 +177,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                 + " WHERE papu.PROCUREMENT_AGENT_ID=:procurementAgentId  AND pu.`ACTIVE` AND papu.`ACTIVE` AND tc.`TRACER_CATEGORY_ID`=(SELECT t.`TRACER_CATEGORY_ID` FROM rm_planning_unit p "
                 + " LEFT JOIN rm_forecasting_unit f ON f.`FORECASTING_UNIT_ID`=p.`FORECASTING_UNIT_ID` "
                 + " LEFT JOIN rm_tracer_category t ON t.`TRACER_CATEGORY_ID`=f.`TRACER_CATEGORY_ID` "
-                + " WHERE p.`PLANNING_UNIT_ID`=:planningUnitId) AND (pul.`LABEL_EN` LIKE '%").append(term).append("%' OR papu.`SKU_CODE` LIKE '%").append(term).append("%')");
+                + " WHERE p.`PLANNING_UNIT_ID`=:planningUnitId) AND (UPPER(pul.`LABEL_EN`) LIKE '%").append(term).append("%' OR UPPER(papu.`SKU_CODE`) LIKE '%").append(term).append("%')");
         Map<String, Object> params = new HashMap<>();
 //        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
         params.put("procurementAgentId", procurementAgentId);
