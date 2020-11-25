@@ -41,6 +41,7 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
+import org.springframework.transaction.annotation.Transactional;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -66,7 +67,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
-//    @Transactional
+    @Transactional
     public List<Integer> importOrderAndShipmentData(File orderFile, File shipmentFile) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException {
         List<Integer> programList = new LinkedList<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
@@ -74,12 +75,12 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
         logger.info("################################################################################################");
         logger.info("Starting import of " + orderFile.getName() + " and " + shipmentFile.getName());
         logger.info("################################################################################################");
-//        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_erp_order";
-        String sqlString = "DROP TABLE IF EXISTS tmp_erp_order";
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_erp_order";
+//        String sqlString = "DROP TABLE IF EXISTS tmp_erp_order";
         this.jdbcTemplate.execute(sqlString);
         // Create ERO oder table
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_erp_order` ( "
-        sqlString = "CREATE TABLE `tmp_erp_order` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_erp_order` ( "
+//        sqlString = "CREATE TABLE `tmp_erp_order` ( "
                 + "  `TEMP_ID` int(11) NOT NULL AUTO_INCREMENT, "
                 + "  `RO_NO` varchar(45) COLLATE utf8_bin NOT NULL, "
                 + "  `RO_PRIME_LINE_NO` int(11) NOT NULL, "
@@ -187,11 +188,11 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
             logger.info("Successfully inserted into tmp_erp_order records---" + rows1.length);
         }
 
-//        sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_erp_shipment";
-        sqlString = "DROP TABLE IF EXISTS tmp_erp_shipment";
+        sqlString = "DROP TEMPORARY TABLE IF EXISTS tmp_erp_shipment";
+//        sqlString = "DROP TABLE IF EXISTS tmp_erp_shipment";
         this.jdbcTemplate.execute(sqlString);
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_erp_shipment` ( "
-        sqlString = "CREATE TABLE `tmp_erp_shipment` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_erp_shipment` ( "
+//        sqlString = "CREATE TABLE `tmp_erp_shipment` ( "
                 + "  `TEMP_SHIPMENT_ID` int(11) NOT NULL AUTO_INCREMENT, "
                 + "  `KN_SHIPMENT_NO` varchar(45) COLLATE utf8_bin NOT NULL, "
                 + "  `ORDER_NO` varchar(45) COLLATE utf8_bin DEFAULT NULL, "
@@ -381,7 +382,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 + "    eo.ORDER_TYPE, eo.CREATED_DATE, eo.PARENT_RO, eo.PARENT_CREATED_DATE, eo.PLANNING_UNIT_SKU_CODE,  "
                 + "    eo.PROCUREMENT_UNIT_SKU_CODE, eo.QTY, eo.ORDERD_DATE, eo.CURRENT_ESTIMATED_DELIVERY_DATE, eo.REQ_DELIVERY_DATE,  "
                 + "    eo.AGREED_DELIVERY_DATE, eo.SUPPLIER_NAME, eo.PRICE, eo.SHIPPING_COST, eo.SHIP_BY,  "
-                + "    eo.RECPIENT_NAME, eo.RECPIENT_COUNTRY, eo.`STATUS`, eo.`CHANGE_CODE`, ssm.SHIPMENT_STATUS_ID, eo.MANUAL_TAGGING, "
+                + "    eo.RECPIENT_NAME, eo.RECPIENT_COUNTRY, eo.`STATUS`, eo.`CHANGE_CODE`, ssm.SHIPMENT_STATUS_ID, eo.MANUAL_TAGGING, eo.CONVERSION_FACTOR, "
                 + "    MIN(es.ACTUAL_DELIVERY_DATE) `ACTUAL_DELIVERY_DATE`, MIN(es.ACTUAL_SHIPMENT_DATE) `ACTUAL_SHIPMENT_DATE`, MIN(es.ARRIVAL_AT_DESTINATION_DATE) `ARRIVAL_AT_DESTINATION_DATE`, "
                 + "    es.BATCH_NO, COALESCE(es.DELIVERED_QTY, es.SHIPPED_QTY) `BATCH_QTY`, "
                 + "    pu.PLANNING_UNIT_ID, papu2.PROCUREMENT_UNIT_ID, pu2.SUPPLIER_ID, ppu.SHELF_LIFE, "
@@ -392,7 +393,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 + "        e.ERP_ORDER_ID, e.RO_NO, e.RO_PRIME_LINE_NO, e.ORDER_NO, e.PRIME_LINE_NO , "
                 + "        e.ORDER_TYPE, e.CREATED_DATE, e.PARENT_RO, e.PARENT_CREATED_DATE, e.PLANNING_UNIT_SKU_CODE,  "
                 + "        e.PROCUREMENT_UNIT_SKU_CODE, e.QTY, e.ORDERD_DATE, e.CURRENT_ESTIMATED_DELIVERY_DATE, e.REQ_DELIVERY_DATE,  "
-                + "        e.AGREED_DELIVERY_DATE, e.SUPPLIER_NAME, e.PRICE, e.SHIPPING_COST, e.SHIP_BY, IF(mt.MANUAL_TAGGING_ID IS not null, true, false) `MANUAL_TAGGING`, "
+                + "        e.AGREED_DELIVERY_DATE, e.SUPPLIER_NAME, e.PRICE, e.SHIPPING_COST, e.SHIP_BY, IF(mt.MANUAL_TAGGING_ID IS not null, true, false) `MANUAL_TAGGING`, IF(mt.MANUAL_TAGGING_ID IS not null, mt.CONVERSION_FACTOR, 1) `CONVERSION_FACTOR`, "
                 + "        e.RECPIENT_NAME, e.RECPIENT_COUNTRY, e.STATUS, e.CHANGE_CODE, COALESCE(e.PROGRAM_ID, mts.PROGRAM_ID) `PROGRAM_ID`, COALESCE(e.SHIPMENT_ID, mt.SHIPMENT_ID) `SHIPMENT_ID` "
                 + "    FROM rm_erp_order e   "
                 + "    LEFT JOIN rm_shipment s ON e.SHIPMENT_ID=s.SHIPMENT_ID  "
