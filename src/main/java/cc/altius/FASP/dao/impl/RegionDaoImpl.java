@@ -107,6 +107,7 @@ public class RegionDaoImpl implements RegionDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        sqlStringBuilder.append(" AND c.ACTIVE AND rc.ACTIVE");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RegionRowMapper());
     }
 
