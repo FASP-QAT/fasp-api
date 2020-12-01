@@ -34,6 +34,15 @@ public class FileController {
     private String PIPELINE_CONVERTOR_WINDOWS;
     @Value("${qat.userGuideFileName}")
     private String QAT_USER_GUIDE;
+    @Value("${qat.consumptionDataEntryTemplate}")
+    private String CONSUMPTION_DATA_ENTRY_TEMPLATE;
+    @Value("${qat.inventoryDataEntryTemplate}")
+    private String INVENTORY_DATA_ENTRY_TEMPLATE;
+    @Value("${qat.adjustmentsDataEntryTemplate}")
+    private String ADJUSTMENT_DATA_ENTRY_TEMPLATE;
+    @Value("${qat.shipmentDataEntryTemplate}")
+    private String SHIPMENT_DATA_ENTRY_TEMPLATE;
+    
 
     @GetMapping("/file/{fileName}")
     public byte[] getFile(@PathVariable("fileName") String fileName, HttpServletResponse response, Authentication auth) throws FileNotFoundException, IOException {
@@ -57,6 +66,30 @@ public class FileController {
                 response.setStatus(HttpServletResponse.SC_OK);
                 fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + PIPELINE_CONVERTOR_WINDOWS));
                 break;
+            case "consumptionDataEntryTemplate":
+                response.setContentType("application/pdf");
+                response.setHeader("Content-Disposition", "attachment;filename=" + CONSUMPTION_DATA_ENTRY_TEMPLATE);
+                response.setStatus(HttpServletResponse.SC_OK);
+                fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + CONSUMPTION_DATA_ENTRY_TEMPLATE));
+                break;
+            case "inventoryDataEntryTemplate":
+                response.setContentType("application/pdf");
+                response.setHeader("Content-Disposition", "attachment;filename=" + INVENTORY_DATA_ENTRY_TEMPLATE);
+                response.setStatus(HttpServletResponse.SC_OK);
+                fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + INVENTORY_DATA_ENTRY_TEMPLATE));
+                break;    
+            case "adjustmentsDataEntryTemplate":
+                response.setContentType("application/pdf");
+                response.setHeader("Content-Disposition", "attachment;filename=" + ADJUSTMENT_DATA_ENTRY_TEMPLATE);
+                response.setStatus(HttpServletResponse.SC_OK);
+                fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + ADJUSTMENT_DATA_ENTRY_TEMPLATE));
+                break;
+            case "shipmentDataEntryTemplate":
+                response.setContentType("application/pdf");
+                response.setHeader("Content-Disposition", "attachment;filename=" + SHIPMENT_DATA_ENTRY_TEMPLATE);
+                response.setStatus(HttpServletResponse.SC_OK);
+                fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + SHIPMENT_DATA_ENTRY_TEMPLATE));
+                break;    
         }
         return IOUtils.toByteArray(fin);
     }

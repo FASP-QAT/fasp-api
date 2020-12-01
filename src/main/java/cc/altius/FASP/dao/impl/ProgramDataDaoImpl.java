@@ -1051,7 +1051,25 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 }
                 return version;
             } else {
-                return new Version(0, null, null, null, null, null, null, null);
+                if (programData.getCurrentVersion().getVersionType().getId().equals(programData.getVersionType().getId())) {
+                    return new Version(0, null, null, null, null, null, null, null);
+                } else {
+                    params.put("programId", programData.getProgramId());
+                    params.put("curUser", curUser.getUserId());
+                    params.put("curDate", curDate);
+                    params.put("versionTypeId", programData.getVersionType().getId());
+                    params.put("versionStatusId", programData.getVersionStatus().getId());
+                    params.put("notes", programData.getNotes());
+                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
+                    try {
+                        version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+                        logger.info(version + " is the new version no");
+                    } catch (Exception e) {
+                        logger.info("Failed to get a new version no for this program");
+                        throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
+                    }
+                    return version;
+                }
             }
         } else {
             return version;
@@ -1522,7 +1540,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "LEFT JOIN ( "
                     + "    SELECT spa.PROGRAM_ID, spa.VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH), ADDDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_FUTURE_FOR_AMC-1 MONTH), "
                     + "        SUM(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
-                    + "        AVG(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC, COUNT(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
+                    + "        ROUND(AVG(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY))) AMC, COUNT(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
                     + "    FROM rm_supply_plan_amc spa  "
                     + "    LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND spa.PROGRAM_ID=ppu.PROGRAM_ID "
                     + "    LEFT JOIN rm_supply_plan_amc spa2 ON  "
@@ -1535,8 +1553,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "SET  "
                     + "    spa.AMC=amc.AMC,  "
                     + "    spa.AMC_COUNT=amc.AMC_COUNT,  "
-                    + "    spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE/amc.AMC), "
-                    + "    spa.MOS_WPS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE_WPS/amc.AMC), "
+                    + "    spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, 0, spa.CLOSING_BALANCE/amc.AMC), "
+                    + "    spa.MOS_WPS=IF(amc.AMC IS NULL OR amc.AMC=0, 0, spa.CLOSING_BALANCE_WPS/amc.AMC), "
                     + "    spa.MIN_STOCK_MOS = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, IF(ppu.MIN_MONTHS_OF_STOCK>r.MIN_MOS_MAX_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)), "
                     + "    spa.MAX_STOCK_MOS = IF(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS>r.MAX_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS), "
                     + "    spa.MIN_STOCK_QTY = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, IF(ppu.MIN_MONTHS_OF_STOCK>r.MIN_MOS_MAX_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)) * amc.AMC, "
