@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.dao.impl;
 
-import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.Batch;
@@ -80,8 +79,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     @Autowired
     private AclService aclService;
-    @Autowired
-    private ProgramDao programDao;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -1401,7 +1398,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-//    @Transactional
+    @Transactional
     public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild, boolean returnSupplyPlan) throws ParseException {
         System.out.println("programId---" + programId);
         System.out.println("versionId---" + versionId);
