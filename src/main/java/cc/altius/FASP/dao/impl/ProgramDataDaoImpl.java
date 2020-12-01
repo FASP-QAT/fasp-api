@@ -1403,6 +1403,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
 //    @Transactional
     public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild, boolean returnSupplyPlan) throws ParseException {
+        System.out.println("programId---" + programId);
+        System.out.println("versionId---" + versionId);
+        System.out.println("rebuild---" + rebuild);
+        System.out.println("returnSupplyPlan---" + returnSupplyPlan);
         Map<Integer, Integer> newBatchSubstituteMap = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
@@ -1561,6 +1565,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
 
         if (returnSupplyPlan) {
+            System.out.println("get simplified supply plan list-----------");
             return getSimplifiedSupplyPlan(programId, versionId);
         } else {
             return new LinkedList<>();
