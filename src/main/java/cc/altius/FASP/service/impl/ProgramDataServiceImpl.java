@@ -25,11 +25,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
-import cc.altius.utils.DateUtils;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import org.springframework.security.access.AccessDeniedException;
@@ -87,8 +85,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
         Program p = this.programService.getProgramById(programData.getProgramId(), curUser);
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
+            programData.setCurrentVersion(p.getCurrentVersion());
             Version version = this.programDataDao.saveProgramData(programData, curUser);
             try {
                 getNewSupplyPlanList(programData.getProgramId(), version.getVersionId(), true, false);
