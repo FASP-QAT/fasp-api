@@ -964,7 +964,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("DATA4", pr.getShipmentId()); // ShipmentId
             tp.put("DATA5", pr.getData5());
 //            tp.put("REVIWED", pr.isReviewed());
-            tp.put("REVIWED", programData.getVersionType().getId()==2 && (pr.getProblemStatus().getId() == 3 || pr.getProblemStatus().getId() == 1) ? false : pr.isReviewed());
+            tp.put("REVIWED", programData.getVersionType().getId() == 2 && (pr.getProblemStatus().getId() == 3 || pr.getProblemStatus().getId() == 1) ? false : pr.isReviewed());
             tp.put("CREATED_BY", pr.getCreatedBy().getUserId());
             tp.put("CREATED_DATE", pr.getCreatedDate());
             tp.put("LAST_MODIFIED_BY", pr.getLastModifiedBy().getUserId());
@@ -980,7 +980,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     transParams.put("PROBLEM_STATUS_ID", prt.getProblemStatus().getId());
                     transParams.put("NOTES", prt.getNotes());
 //                    transParams.put("REVIEWED", prt.isReviewed());
-                    transParams.put("REVIEWED", programData.getVersionType().getId()==2 && (prt.getProblemStatus().getId() == 3 || prt.getProblemStatus().getId() == 1) ? false : prt.isReviewed());
+                    transParams.put("REVIEWED", programData.getVersionType().getId() == 2 && (prt.getProblemStatus().getId() == 3 || prt.getProblemStatus().getId() == 1) ? false : prt.isReviewed());
                     transParams.put("CREATED_BY", prt.getCreatedBy().getUserId());
                     transParams.put("CREATED_DATE", prt.getCreatedDate());
                     this.namedParameterJdbcTemplate.update("INSERT INTO `rm_problem_report_trans` (`PROBLEM_REPORT_ID`, `PROBLEM_STATUS_ID`, `NOTES`, `REVIEWED`, `CREATED_BY`, `CREATED_DATE`) VALUES (:PROBLEM_REPORT_ID, :PROBLEM_STATUS_ID, :NOTES, :REVIEWED, :CREATED_BY, :CREATED_DATE)", transParams);
@@ -992,7 +992,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         transParams.put("PROBLEM_REPORT_ID", pr.getProblemReportId());
                         transParams.put("PROBLEM_STATUS_ID", prt.getProblemStatus().getId());
                         transParams.put("NOTES", prt.getNotes());
-                        transParams.put("REVIEWED", programData.getVersionType().getId()==2 && (prt.getProblemStatus().getId() == 3 || prt.getProblemStatus().getId() == 1) ? false : prt.isReviewed());
+                        transParams.put("REVIEWED", programData.getVersionType().getId() == 2 && (prt.getProblemStatus().getId() == 3 || prt.getProblemStatus().getId() == 1) ? false : prt.isReviewed());
                         transParams.put("CREATED_BY", prt.getCreatedBy().getUserId());
                         transParams.put("CREATED_DATE", prt.getCreatedDate());
                         this.namedParameterJdbcTemplate.update("INSERT INTO `rm_problem_report_trans` (`PROBLEM_REPORT_ID`, `PROBLEM_STATUS_ID`, `NOTES`, `REVIEWED`, `CREATED_BY`, `CREATED_DATE`) VALUES (:PROBLEM_REPORT_ID, :PROBLEM_STATUS_ID, :NOTES, :REVIEWED, :CREATED_BY, :CREATED_DATE)", transParams);
@@ -1385,6 +1385,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
 //    @Transactional
     public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild, boolean returnSupplyPlan) throws ParseException {
+        System.out.println("programId---" + programId);
+        System.out.println("versionId---" + versionId);
+        System.out.println("rebuild---" + rebuild);
+        System.out.println("returnSupplyPlan---" + returnSupplyPlan);
         Map<Integer, Integer> newBatchSubstituteMap = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
@@ -1543,6 +1547,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
 
         if (returnSupplyPlan) {
+            System.out.println("get simplified supply plan list-----------");
             return getSimplifiedSupplyPlan(programId, versionId);
         } else {
             return new LinkedList<>();

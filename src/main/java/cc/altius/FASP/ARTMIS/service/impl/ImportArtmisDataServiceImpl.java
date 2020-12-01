@@ -55,6 +55,8 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
     private String toList;
     @Value("${email.ccList}")
     private String ccList;
+    @Value("${catalogBkpFilePath}")
+    private String BKP_CATALOG_FILE_PATH;
     private static final String ERR_CODE_NO_FILE_FOUND = "No Order file found for import";
     private static final String ERR_CODE_NO_SHIPMENT_FILE_FOUND = "No Shipment file found for import";
     private static final String ERR_CODE_NO_DIRECTORY = "Directory not found";
@@ -90,6 +92,14 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
                                     programList.add(p);
                                 }
                             });
+
+                            File directory = new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH);
+                            System.out.println("directory--------------" + directory.getPath());
+                            if (directory.isDirectory()) {
+                                orderFile.renameTo(new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH + orderFile.getName()));
+                                shipmentFile.renameTo(new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH + shipmentFile.getName()));
+                                logger.info("Order/Shipment files moved into processed folder-Orderfile--->" + orderFile.getName() + " Shipment File--->" + shipmentFile.getName());
+                            }
                         } else {
                             errorCode = ERR_CODE_NO_SHIPMENT_FILE_FOUND;
                         }
@@ -134,14 +144,16 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
             logger.info("Email sent out for error");
         }
         logger.info("Going to rebuild Supply Plans for any Programs that were updated");
-        System.out.println("programList----"+programList);
+        System.out.println("programList----" + programList);
         programList.forEach(p -> {
             try {
-                System.out.println("p-----------"+p);
+                System.out.println("p-----------" + p);
                 int versionId = this.programDataDao.getLatestVersionForProgram(p);
                 logger.info("Going to rebuild Supply plan for Program " + p + " Version " + versionId);
                 this.programDataDao.getNewSupplyPlanList(p, -1, true, false);
                 logger.info("Supply plan rebuilt");
+                // Move to processed folder
+
             } catch (ParseException ex) {
                 logger.info("Could not rebuild supply plan", ex);
             }
