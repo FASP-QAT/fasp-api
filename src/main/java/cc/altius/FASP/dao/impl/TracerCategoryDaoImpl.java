@@ -136,6 +136,36 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
     }
 
     @Override
+    public List<TracerCategory> getTracerCategoryListForRealm(int realmId, String[] programIds, boolean active, CustomUserDetails curUser) {
+        String programIdsString = "";
+        if (programIds == null) {
+            programIdsString = "";
+        } else {
+            String opt = String.join("','", programIds);
+            if (programIds.length > 0) {
+                programIdsString = "'" + opt + "'";
+            } else {
+                programIdsString = opt;
+            }
+        }
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND m.REALM_ID=:realmId ")
+                .append("AND m.TRACER_CATEGORY_ID IN (SELECT fu.TRACER_CATEGORY_ID FROM rm_program_planning_unit ppu LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID WHERE TRUE ");
+        if (programIds !=null && programIds.length>0) {
+            sqlStringBuilder.append(" AND ppu.PROGRAM_ID in (").append(programIdsString).append(")");
+        }
+        sqlStringBuilder.append(" GROUP BY fu.TRACER_CATEGORY_ID) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", realmId);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
+        if (active) {
+            sqlStringBuilder.append(" AND m.ACTIVE ");
+        }
+        sqlStringBuilder.append(" ORDER BY ml.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
+    }
+
+    @Override
     public TracerCategory getTracerCategoryById(int tracerCategoryId, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND m.`TRACER_CATEGORY_ID`=:tracerCategoryId ");
         Map<String, Object> params = new HashMap<>();

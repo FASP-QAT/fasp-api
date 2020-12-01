@@ -92,7 +92,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     private static final String br = "\n<br/>";
 
     @Override
-    @Transactional
+//    @Transactional
     public void importProductCatalogue(StringBuilder sb) throws ParserConfigurationException, SAXException, IOException, FileNotFoundException, BadSqlGrammarException {
         EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
         String[] subjectParam;
@@ -139,254 +139,263 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     logger.error("File is not an xml");
                     sb.append("File is not an xml").append(br);
                 } else {
-                    DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                    Document doc = dBuilder.parse(fXmlFile);
-                    doc.getDocumentElement().normalize();
-
-                    NodeList nList1 = doc.getElementsByTagName("itemdata");
-                    MapSqlParameterSource[] batchParams = new MapSqlParameterSource[nList1.getLength()];
-                    Map<String, Object> map = new HashedMap<String, Object>();
-                    int x = 0;
                     logger.info("######################################################################");
                     sb.append("######################################################################");
                     logger.info("Starting import for file " + fXmlFile.getName());
                     sb.append("Starting import for file ").append(fXmlFile.getName()).append(br);
                     logger.info("######################################################################");
                     sb.append("######################################################################");
-                    logger.info("Going to drop tmp_product_catalog");
-                    sb.append("Going to drop tmp_product_catalog").append(br);
-                    sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_product_catalog`";
-//                    sqlString = "DROP TABLE IF EXISTS `tmp_product_catalog`";
-                    this.jdbcTemplate.execute(sqlString);
-                    logger.info("Successfully droped tmp_product_catalog");
-                    sb.append("Successfully droped tmp_product_catalog").append(br);
-
-                    logger.info("Going to create tmp_product_catalog");
-                    sb.append("Going to create tmp_product_catalog").append(br);
-                    sqlString = "CREATE TEMPORARY TABLE `tmp_product_catalog` ( "
-                            //                    sqlString = "CREATE TABLE `tmp_product_catalog` ( "
-                            + "  `TaskOrder` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `CommodityCouncil` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Subcategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `TracerCategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `ProductActive` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `ProductIDNoPack` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `ProductNameNoPack` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `ProductID` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `ProductName` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `OrderUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `PackSize` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `NoofBaseUnits` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `BaseUnit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `L5DataTrusteeCode` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `UNSPSC` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `INN` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Controlled` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Route` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Form` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `QACategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `QACriteria` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug1Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug1Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug1Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug1Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug1Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug2Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug2Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug2Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug2Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug2Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug3Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug3Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug3Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug3Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug3Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug4Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug4Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug4Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug4Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Drug4Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `USAIDARVTier` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            //                        + "  `ProductAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `PlanningUnitMOQ` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `PlanningUnitsperPallet` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `PlanningUnitsperContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `PlanningUnitVolumem3` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `PlanningUnitWeightkg` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `ItemID` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `ItemName` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Supplier` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `WeightUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Weight` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `HeightUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Height` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            //                        + "  `LengthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Length` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            //                        + "  `WidthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Width` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `GTIN` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Labeling` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `ItemAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `UnitsperCase` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `UnitsperPallet` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            //                        + "  `PalletsPerContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `UnitsperContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `EstPrice` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Euro1` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  `Euro2` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
-                            + "  KEY `idxProductNameNoPack` (`ProductNameNoPack`), "
-                            + "  KEY `idxProductName` (`ProductName`), "
-                            + "  KEY `idxItemName` (`ItemName`) "
-                            + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
-                    this.jdbcTemplate.execute(sqlString);
-                    logger.info("Successfully created tmp_product_catalog");
-                    sb.append("Successfully created tmp_product_catalog").append(br);
-
-                    logger.info("Going to insert into tmp_product_catalog");
-                    sb.append("Going to insert into tmp_product_catalog").append(br);
-                    sqlString = "INSERT INTO tmp_product_catalog VALUES(:taskOrderLongDescription,:commodityCouncilLongDesc,"
-                            + ":commoditySubcatLongDesc,:productTracerCat,"
-                            + ":productBuyable,:productIdNoPack,:productNameNoPack,"
-                            + ":productId,:productName,:itemUom,"
-                            + ":productPackSize,:productBaseUnitMult,:productBaseUnit,"
-                            + ":productDataTrusteeProductIdentifier,:productUnspsc,"
-                            + ":productInternationalNonproprietaryName,:productControlledItemWho,"
-                            + ":productAdministrationRoute,:productDosageForm,:productQaEligibilityCategory,"
-                            + ":productQaEligibilityCriteria,:productDrug1Name,:productDrug1Abbr,:productDrug1Strength,:productDrug1Measure,:productDrug1Unit,"
-                            + ":productDrug2Name,:productDrug2Abbr,:productDrug2Strength,:productDrug2Measure,:productDrug2Unit,"
-                            + ":productDrug3Name,:productDrug3Abbr,:productDrug3Strength,:productDrug3Measure,:productDrug3Unit,"
-                            + ":productDrug4Name,:productDrug4Abbr,:productDrug4Strength,:productDrug4Measure,:productDrug4Unit,"
-                            + ":usaidArvTier,:planningUnitMoq,:planningUnitPallet,:planningUnitsPerContainer,"
-                            + ":planningUnitVolumeM3,:planningUnitWeightKg,:itemId,:itemName,:itemSupplierName,:itemWeightUom,"
-                            + ":itemWeight,:itemSizeMeasureH,:itemHeight,:itemLength,:itemWidth,"
-                            + ":itemManufacturerGtinUpc,:itemLabelLanguages,:itemBuyable,:itemUnitsPerCase,:itemNumOfUnitsPallet,"
-                            + ":unitsPerContainer,:wcsCataloguePrice,:euro1,:euro2);";
-                    for (int temp2 = 0; temp2 < nList1.getLength(); temp2++) {
-                        Node nNode1 = nList1.item(temp2);
-                        if (nNode1.getNodeType() == Node.ELEMENT_NODE) {
-                            Element dataRecordElement = (Element) nNode1;
-                            map.put("taskOrderLongDescription", dataRecordElement.getElementsByTagName("task_order_long_description").item(0).getTextContent());
-                            map.put("commodityCouncilLongDesc", dataRecordElement.getElementsByTagName("commodity_council_long_desc").item(0).getTextContent());
-                            map.put("commoditySubcatLongDesc", dataRecordElement.getElementsByTagName("commodity_subcat_long_desc").item(0).getTextContent());
-                            map.put("productTracerCat", dataRecordElement.getElementsByTagName("product_tracer_cat").item(0).getTextContent());
-                            map.put("productBuyable", dataRecordElement.getElementsByTagName("product_buyable").item(0).getTextContent());
-                            map.put("productIdNoPack", dataRecordElement.getElementsByTagName("product_id_no_pack").item(0).getTextContent());
-                            map.put("productNameNoPack", dataRecordElement.getElementsByTagName("product_name_no_pack").item(0).getTextContent());
-                            map.put("productId", dataRecordElement.getElementsByTagName("product_id").item(0).getTextContent());
-                            map.put("productName", dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent());
-                            map.put("itemUom", dataRecordElement.getElementsByTagName("item_uom").item(0).getTextContent());
-                            map.put("productPackSize", dataRecordElement.getElementsByTagName("product_pack_size").item(0).getTextContent());
-                            map.put("productBaseUnitMult", dataRecordElement.getElementsByTagName("product_base_unit_mult").item(0).getTextContent());
-                            map.put("productBaseUnit", dataRecordElement.getElementsByTagName("product_base_unit").item(0).getTextContent());
-                            map.put("productDataTrusteeProductIdentifier", dataRecordElement.getElementsByTagName("product_data_trustee_product_identifier").item(0).getTextContent());
-                            map.put("productUnspsc", dataRecordElement.getElementsByTagName("product_unspsc").item(0).getTextContent());
-                            map.put("productInternationalNonproprietaryName", dataRecordElement.getElementsByTagName("product_international_nonproprietary_name").item(0).getTextContent());
-                            map.put("productControlledItemWho", dataRecordElement.getElementsByTagName("product_controlled_item_who").item(0).getTextContent());
-                            map.put("productAdministrationRoute", dataRecordElement.getElementsByTagName("product_administration_route").item(0).getTextContent());
-                            map.put("productDosageForm", dataRecordElement.getElementsByTagName("product_dosage_form").item(0).getTextContent());
-                            map.put("productQaEligibilityCategory", dataRecordElement.getElementsByTagName("product_qa_eligibility_category").item(0).getTextContent());
-                            map.put("productQaEligibilityCriteria", dataRecordElement.getElementsByTagName("product_qa_eligibility_criteria").item(0).getTextContent());
-                            map.put("productDrug1Name", dataRecordElement.getElementsByTagName("product_drug_1_name").item(0).getTextContent());
-                            map.put("productDrug1Abbr", dataRecordElement.getElementsByTagName("product_drug_1_abbreviation").item(0).getTextContent());
-                            map.put("productDrug1Strength", dataRecordElement.getElementsByTagName("product_drug_1_strength").item(0).getTextContent());
-                            map.put("productDrug1Measure", dataRecordElement.getElementsByTagName("product_drug_1_measure").item(0).getTextContent());
-                            map.put("productDrug1Unit", dataRecordElement.getElementsByTagName("product_drug_1_unit").item(0).getTextContent());
-
-                            map.put("productDrug2Name", dataRecordElement.getElementsByTagName("product_drug_2_name").item(0).getTextContent());
-                            map.put("productDrug2Abbr", dataRecordElement.getElementsByTagName("product_drug_2_abbreviation").item(0).getTextContent());
-                            map.put("productDrug2Strength", dataRecordElement.getElementsByTagName("product_drug_2_strength").item(0).getTextContent());
-                            map.put("productDrug2Measure", dataRecordElement.getElementsByTagName("product_drug_2_measure").item(0).getTextContent());
-                            map.put("productDrug2Unit", dataRecordElement.getElementsByTagName("product_drug_2_unit").item(0).getTextContent());
-
-                            map.put("productDrug3Name", dataRecordElement.getElementsByTagName("product_drug_3_name").item(0).getTextContent());
-                            map.put("productDrug3Abbr", dataRecordElement.getElementsByTagName("product_drug_3_abbreviation").item(0).getTextContent());
-                            map.put("productDrug3Strength", dataRecordElement.getElementsByTagName("product_drug_3_strength").item(0).getTextContent());
-                            map.put("productDrug3Measure", dataRecordElement.getElementsByTagName("product_drug_3_measure").item(0).getTextContent());
-                            map.put("productDrug3Unit", dataRecordElement.getElementsByTagName("product_drug_3_unit").item(0).getTextContent());
-
-                            map.put("productDrug4Name", dataRecordElement.getElementsByTagName("product_drug_4_name").item(0).getTextContent());
-                            map.put("productDrug4Abbr", dataRecordElement.getElementsByTagName("product_drug_4_abbreviation").item(0).getTextContent());
-                            map.put("productDrug4Strength", dataRecordElement.getElementsByTagName("product_drug_4_strength").item(0).getTextContent());
-                            map.put("productDrug4Measure", dataRecordElement.getElementsByTagName("product_drug_4_measure").item(0).getTextContent());
-                            map.put("productDrug4Unit", dataRecordElement.getElementsByTagName("product_drug_4_unit").item(0).getTextContent());
-
-                            map.put("usaidArvTier", dataRecordElement.getElementsByTagName("usaid_arv_tier").item(0).getTextContent());
-
-                            map.put("planningUnitMoq", dataRecordElement.getElementsByTagName("planning_unit_moq").item(0).getTextContent());
-                            String planningUnitPerPallet = dataRecordElement.getElementsByTagName("planning_unit_per_pallet").item(0).getTextContent();
-                            map.put("planningUnitPallet", planningUnitPerPallet);
-
-                            // To be used once ARTMIS confirm that they have implemented the split till then stick to Euro 1 only
-                            try {
-                                String[] noOfPallets = planningUnitPerPallet.split("\\|");
-                                String euro1 = (noOfPallets[0].split("-")[1] != null && noOfPallets[0].split("-")[1] != "" ? noOfPallets[0].split("-")[1] : "0");
-                                String euro2 = (noOfPallets[1].split("-")[1] != null && noOfPallets[1].split("-")[1] != "" ? noOfPallets[1].split("-")[1] : "0");
-                                map.put("euro1", euro1);
-                                map.put("euro2", euro2);
-                            } catch (Exception e) {
-                                map.put("euro1", planningUnitPerPallet);
-                                map.put("euro2", null);
-                            }
-
-                            map.put("planningUnitsPerContainer", dataRecordElement.getElementsByTagName("planning_unit_per_container").item(0).getTextContent());
-                            map.put("planningUnitVolumeM3", dataRecordElement.getElementsByTagName("planning_unit_volume_m3").item(0).getTextContent());
-                            map.put("planningUnitWeightKg", dataRecordElement.getElementsByTagName("planning_unit_weight_kg").item(0).getTextContent());
-                            map.put("itemId", dataRecordElement.getElementsByTagName("item_id").item(0).getTextContent());
-                            map.put("itemName", dataRecordElement.getElementsByTagName("item_name").item(0).getTextContent());
-                            map.put("itemSupplierName", dataRecordElement.getElementsByTagName("item_supplier_name").item(0).getTextContent());
-                            map.put("itemWeightUom", dataRecordElement.getElementsByTagName("item_weight_uom").item(0).getTextContent());
-                            map.put("itemWeight", dataRecordElement.getElementsByTagName("item_weight").item(0).getTextContent());
-                            map.put("itemSizeMeasureH", dataRecordElement.getElementsByTagName("item_sizemeasure").item(0).getTextContent());
-                            map.put("itemHeight", dataRecordElement.getElementsByTagName("item_height").item(0).getTextContent());
-//                        map.put("itemSizeMeasureL", dataRecordElement.getElementsByTagName("ITEM_SIZEMEASURE").item(1).getTextContent());
-                            map.put("itemLength", dataRecordElement.getElementsByTagName("item_length").item(0).getTextContent());
-//                        map.put("itemSizeMeasureW", dataRecordElement.getElementsByTagName("ITEM_SIZEMEASURE").item(2).getTextContent());
-                            map.put("itemWidth", dataRecordElement.getElementsByTagName("item_width").item(0).getTextContent());
-                            map.put("itemManufacturerGtinUpc", dataRecordElement.getElementsByTagName("item_manufacturer_gtin_upc").item(0).getTextContent());
-                            map.put("itemLabelLanguages", dataRecordElement.getElementsByTagName("item_label_languages").item(0).getTextContent());
-                            map.put("itemBuyable", dataRecordElement.getElementsByTagName("item_buyable").item(0).getTextContent());
-                            map.put("itemUnitsPerCase", dataRecordElement.getElementsByTagName("item_units_per_case").item(0).getTextContent());
-                            map.put("itemNumOfUnitsPallet", dataRecordElement.getElementsByTagName("item_num_of_units_pallet").item(0).getTextContent());
-//                        map.put("itemNumOfPalletsContainer", dataRecordElement.getElementsByTagName("ITEM_NUM_OF_PALLETS_CONTAINER").item(0).getTextContent());
-                            map.put("unitsPerContainer", dataRecordElement.getElementsByTagName("units_per_container").item(0).getTextContent());
-                            map.put("wcsCataloguePrice", dataRecordElement.getElementsByTagName("wcs_catalog_price").item(0).getTextContent());
-                            batchParams[x] = new MapSqlParameterSource(map);
-                            x++;
-                        }
-                    }
-                    int[] rows1 = namedParameterJdbcTemplate.batchUpdate(sqlString, batchParams);
-                    logger.info("Successfully inserted into tmp_product_catalog records---" + rows1.length);
-                    sb.append("Successfully inserted into tmp_product_catalog records---").append(rows1.length).append(br);
-                    sqlString = "DELETE tpc.* FROM tmp_product_catalog tpc where tpc.TaskOrder ='UNKNOWN'";
-                    int dRows = this.jdbcTemplate.update(sqlString);
-                    logger.info("Delted rows from tmp_product_catalog because the TaskOrder was UNKNOWN ---" + dRows);
-                    sb.append("Delted rows from tmp_product_catalog because the TaskOrder was UNKNOWN ---").append(dRows).append(br);
-                    sqlString = "SELECT COUNT(*) FROM tmp_product_catalog;";
-                    int tmpCnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-                    logger.info("Total rows inserted in tmp_product_catalog---" + tmpCnt);
-                    sb.append("Total rows inserted in tmp_product_catalog---").append(tmpCnt).append(br);
-                    pullUnit(sb);
-                    pullTracerCategory(sb);
-                    pullProductCategory(sb);
-                    pullForecastingUnit(sb);
-                    pullPlanningUnit(sb);
-                    pullSupplier(sb);
-                    pullProcurementUnit(sb);
-                    File directory = new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH);
-                    if (directory.isDirectory()) {
-                        fXmlFile.renameTo(new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
-                        logger.info("Product catalog file moved to processed folder successfully");
-                        sb.append("Product catalog file moved to processed folder successfully").append(br);
+                    if (fXmlFile.length() == 0) {
+                        sb.append("Skipping file since it is empty ").append(fXmlFile.getName()).append(br);
+                        logger.info("Skipping file since it is empty " + fXmlFile.getName());
                     } else {
-                        subjectParam = new String[]{"Product Catalogue", "Backup directory does not exists"};
-                        bodyParam = new String[]{"Product Catalogue", date, "Backup directory does not exists", "Backup directory does not exists"};
-                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-                        int emailerId = this.emailService.saveEmail(emailer);
-                        emailer.setEmailerId(emailerId);
-                        this.emailService.sendMail(emailer);
-                        logger.error("Backup directory does not exists");
-                        sb.append("Backup directory does not exists").append(br);
+                        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+                        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+                        Document doc = dBuilder.parse(fXmlFile);
+                        doc.getDocumentElement().normalize();
+
+                        NodeList nList1 = doc.getElementsByTagName("itemdata");
+                        MapSqlParameterSource[] batchParams = new MapSqlParameterSource[nList1.getLength()];
+                        Map<String, Object> map = new HashedMap<String, Object>();
+                        int x = 0;
+                        logger.info("Going to drop tmp_product_catalog");
+                        sb.append("Going to drop tmp_product_catalog").append(br);
+//                    sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_product_catalog`";
+                        sqlString = "DROP TABLE IF EXISTS `tmp_product_catalog`";
+                        this.jdbcTemplate.execute(sqlString);
+                        logger.info("Successfully droped tmp_product_catalog");
+                        sb.append("Successfully droped tmp_product_catalog").append(br);
+
+                        logger.info("Going to create tmp_product_catalog");
+                        sb.append("Going to create tmp_product_catalog").append(br);
+//                    sqlString = "CREATE TEMPORARY TABLE `tmp_product_catalog` ( "
+                        sqlString = "CREATE TABLE `tmp_product_catalog` ( "
+                                + "  `TaskOrder` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `CommodityCouncil` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Subcategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `TracerCategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ProductActive` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ProductIDNoPack` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ProductNameNoPack` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ProductID` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ProductName` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `OrderUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `PackSize` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `NoofBaseUnits` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `BaseUnit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `L5DataTrusteeCode` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `UNSPSC` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `INN` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Controlled` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Route` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Form` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `QACategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `QACriteria` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug1Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug1Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug1Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug1Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug1Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug2Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug2Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug2Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug2Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug2Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug3Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug3Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug3Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug3Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug3Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug4Name` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug4Abbr` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug4Qty` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug4Meas` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Drug4Unit` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `USAIDARVTier` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                //                        + "  `ProductAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `PlanningUnitMOQ` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `PlanningUnitsperPallet` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `PlanningUnitsperContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `PlanningUnitVolumem3` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `PlanningUnitWeightkg` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ItemID` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ItemName` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Supplier` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `WeightUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Weight` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `HeightUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Height` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                //                        + "  `LengthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Length` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                //                        + "  `WidthUOM` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Width` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `GTIN` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Labeling` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `ItemAvailable` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `UnitsperCase` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `UnitsperPallet` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                //                        + "  `PalletsPerContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `UnitsperContainer` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `EstPrice` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Euro1` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  `Euro2` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
+                                + "  KEY `idxProductNameNoPack` (`ProductNameNoPack`), "
+                                + "  KEY `idxProductName` (`ProductName`), "
+                                + "  KEY `idxItemName` (`ItemName`) "
+                                + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
+                        this.jdbcTemplate.execute(sqlString);
+                        logger.info("Successfully created tmp_product_catalog");
+                        sb.append("Successfully created tmp_product_catalog").append(br);
+
+                        logger.info("Going to insert into tmp_product_catalog");
+                        sb.append("Going to insert into tmp_product_catalog").append(br);
+                        sqlString = "INSERT INTO tmp_product_catalog VALUES(:taskOrderLongDescription,:commodityCouncilLongDesc,"
+                                + ":commoditySubcatLongDesc,:productTracerCat,"
+                                + ":productBuyable,:productIdNoPack,:productNameNoPack,"
+                                + ":productId,:productName,:itemUom,"
+                                + ":productPackSize,:productBaseUnitMult,:productBaseUnit,"
+                                + ":productDataTrusteeProductIdentifier,:productUnspsc,"
+                                + ":productInternationalNonproprietaryName,:productControlledItemWho,"
+                                + ":productAdministrationRoute,:productDosageForm,:productQaEligibilityCategory,"
+                                + ":productQaEligibilityCriteria,:productDrug1Name,:productDrug1Abbr,:productDrug1Strength,:productDrug1Measure,:productDrug1Unit,"
+                                + ":productDrug2Name,:productDrug2Abbr,:productDrug2Strength,:productDrug2Measure,:productDrug2Unit,"
+                                + ":productDrug3Name,:productDrug3Abbr,:productDrug3Strength,:productDrug3Measure,:productDrug3Unit,"
+                                + ":productDrug4Name,:productDrug4Abbr,:productDrug4Strength,:productDrug4Measure,:productDrug4Unit,"
+                                + ":usaidArvTier,:planningUnitMoq,:planningUnitPallet,:planningUnitsPerContainer,"
+                                + ":planningUnitVolumeM3,:planningUnitWeightKg,:itemId,:itemName,:itemSupplierName,:itemWeightUom,"
+                                + ":itemWeight,:itemSizeMeasureH,:itemHeight,:itemLength,:itemWidth,"
+                                + ":itemManufacturerGtinUpc,:itemLabelLanguages,:itemBuyable,:itemUnitsPerCase,:itemNumOfUnitsPallet,"
+                                + ":unitsPerContainer,:wcsCataloguePrice,:euro1,:euro2);";
+                        for (int temp2 = 0; temp2 < nList1.getLength(); temp2++) {
+                            Node nNode1 = nList1.item(temp2);
+                            if (nNode1.getNodeType() == Node.ELEMENT_NODE) {
+                                Element dataRecordElement = (Element) nNode1;
+                                map.put("taskOrderLongDescription", dataRecordElement.getElementsByTagName("task_order_long_description").item(0).getTextContent());
+                                map.put("commodityCouncilLongDesc", dataRecordElement.getElementsByTagName("commodity_council_long_desc").item(0).getTextContent());
+                                map.put("commoditySubcatLongDesc", dataRecordElement.getElementsByTagName("commodity_subcat_long_desc").item(0).getTextContent());
+                                map.put("productTracerCat", dataRecordElement.getElementsByTagName("product_tracer_cat").item(0).getTextContent());
+                                map.put("productBuyable", dataRecordElement.getElementsByTagName("product_buyable").item(0).getTextContent());
+                                map.put("productIdNoPack", dataRecordElement.getElementsByTagName("product_id_no_pack").item(0).getTextContent());
+                                map.put("productNameNoPack", dataRecordElement.getElementsByTagName("product_name_no_pack").item(0).getTextContent());
+                                map.put("productId", dataRecordElement.getElementsByTagName("product_id").item(0).getTextContent());
+                                map.put("productName", dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent());
+                                map.put("itemUom", dataRecordElement.getElementsByTagName("item_uom").item(0).getTextContent());
+                                map.put("productPackSize", dataRecordElement.getElementsByTagName("product_pack_size").item(0).getTextContent());
+                                map.put("productBaseUnitMult", dataRecordElement.getElementsByTagName("product_base_unit_mult").item(0).getTextContent());
+                                map.put("productBaseUnit", dataRecordElement.getElementsByTagName("product_base_unit").item(0).getTextContent());
+                                map.put("productDataTrusteeProductIdentifier", dataRecordElement.getElementsByTagName("product_data_trustee_product_identifier").item(0).getTextContent());
+                                map.put("productUnspsc", dataRecordElement.getElementsByTagName("product_unspsc").item(0).getTextContent());
+                                map.put("productInternationalNonproprietaryName", dataRecordElement.getElementsByTagName("product_international_nonproprietary_name").item(0).getTextContent());
+                                map.put("productControlledItemWho", dataRecordElement.getElementsByTagName("product_controlled_item_who").item(0).getTextContent());
+                                map.put("productAdministrationRoute", dataRecordElement.getElementsByTagName("product_administration_route").item(0).getTextContent());
+                                map.put("productDosageForm", dataRecordElement.getElementsByTagName("product_dosage_form").item(0).getTextContent());
+                                map.put("productQaEligibilityCategory", dataRecordElement.getElementsByTagName("product_qa_eligibility_category").item(0).getTextContent());
+                                map.put("productQaEligibilityCriteria", dataRecordElement.getElementsByTagName("product_qa_eligibility_criteria").item(0).getTextContent());
+                                map.put("productDrug1Name", dataRecordElement.getElementsByTagName("product_drug_1_name").item(0).getTextContent());
+                                map.put("productDrug1Abbr", dataRecordElement.getElementsByTagName("product_drug_1_abbreviation").item(0).getTextContent());
+                                map.put("productDrug1Strength", dataRecordElement.getElementsByTagName("product_drug_1_strength").item(0).getTextContent());
+                                map.put("productDrug1Measure", dataRecordElement.getElementsByTagName("product_drug_1_measure").item(0).getTextContent());
+                                map.put("productDrug1Unit", dataRecordElement.getElementsByTagName("product_drug_1_unit").item(0).getTextContent());
+
+                                map.put("productDrug2Name", dataRecordElement.getElementsByTagName("product_drug_2_name").item(0).getTextContent());
+                                map.put("productDrug2Abbr", dataRecordElement.getElementsByTagName("product_drug_2_abbreviation").item(0).getTextContent());
+                                map.put("productDrug2Strength", dataRecordElement.getElementsByTagName("product_drug_2_strength").item(0).getTextContent());
+                                map.put("productDrug2Measure", dataRecordElement.getElementsByTagName("product_drug_2_measure").item(0).getTextContent());
+                                map.put("productDrug2Unit", dataRecordElement.getElementsByTagName("product_drug_2_unit").item(0).getTextContent());
+
+                                map.put("productDrug3Name", dataRecordElement.getElementsByTagName("product_drug_3_name").item(0).getTextContent());
+                                map.put("productDrug3Abbr", dataRecordElement.getElementsByTagName("product_drug_3_abbreviation").item(0).getTextContent());
+                                map.put("productDrug3Strength", dataRecordElement.getElementsByTagName("product_drug_3_strength").item(0).getTextContent());
+                                map.put("productDrug3Measure", dataRecordElement.getElementsByTagName("product_drug_3_measure").item(0).getTextContent());
+                                map.put("productDrug3Unit", dataRecordElement.getElementsByTagName("product_drug_3_unit").item(0).getTextContent());
+
+                                map.put("productDrug4Name", dataRecordElement.getElementsByTagName("product_drug_4_name").item(0).getTextContent());
+                                map.put("productDrug4Abbr", dataRecordElement.getElementsByTagName("product_drug_4_abbreviation").item(0).getTextContent());
+                                map.put("productDrug4Strength", dataRecordElement.getElementsByTagName("product_drug_4_strength").item(0).getTextContent());
+                                map.put("productDrug4Measure", dataRecordElement.getElementsByTagName("product_drug_4_measure").item(0).getTextContent());
+                                map.put("productDrug4Unit", dataRecordElement.getElementsByTagName("product_drug_4_unit").item(0).getTextContent());
+
+                                map.put("usaidArvTier", dataRecordElement.getElementsByTagName("usaid_arv_tier").item(0).getTextContent());
+
+                                map.put("planningUnitMoq", dataRecordElement.getElementsByTagName("planning_unit_moq").item(0).getTextContent());
+                                String planningUnitPerPallet = dataRecordElement.getElementsByTagName("planning_unit_per_pallet").item(0).getTextContent();
+                                map.put("planningUnitPallet", planningUnitPerPallet);
+
+                                // To be used once ARTMIS confirm that they have implemented the split till then stick to Euro 1 only
+                                try {
+                                    String[] noOfPallets = planningUnitPerPallet.split("\\|");
+                                    String euro1 = (noOfPallets[0].split("-")[1] != null && noOfPallets[0].split("-")[1] != "" ? noOfPallets[0].split("-")[1] : "0");
+                                    String euro2 = (noOfPallets[1].split("-")[1] != null && noOfPallets[1].split("-")[1] != "" ? noOfPallets[1].split("-")[1] : "0");
+                                    map.put("euro1", euro1);
+                                    map.put("euro2", euro2);
+                                } catch (Exception e) {
+                                    map.put("euro1", planningUnitPerPallet);
+                                    map.put("euro2", null);
+                                }
+
+                                map.put("planningUnitsPerContainer", dataRecordElement.getElementsByTagName("planning_unit_per_container").item(0).getTextContent());
+                                map.put("planningUnitVolumeM3", dataRecordElement.getElementsByTagName("planning_unit_volume_m3").item(0).getTextContent());
+                                map.put("planningUnitWeightKg", dataRecordElement.getElementsByTagName("planning_unit_weight_kg").item(0).getTextContent());
+                                map.put("itemId", dataRecordElement.getElementsByTagName("item_id").item(0).getTextContent());
+                                map.put("itemName", dataRecordElement.getElementsByTagName("item_name").item(0).getTextContent());
+                                map.put("itemSupplierName", dataRecordElement.getElementsByTagName("item_supplier_name").item(0).getTextContent());
+                                map.put("itemWeightUom", dataRecordElement.getElementsByTagName("item_weight_uom").item(0).getTextContent());
+                                map.put("itemWeight", dataRecordElement.getElementsByTagName("item_weight").item(0).getTextContent());
+                                map.put("itemSizeMeasureH", dataRecordElement.getElementsByTagName("item_sizemeasure").item(0).getTextContent());
+                                map.put("itemHeight", dataRecordElement.getElementsByTagName("item_height").item(0).getTextContent());
+//                        map.put("itemSizeMeasureL", dataRecordElement.getElementsByTagName("ITEM_SIZEMEASURE").item(1).getTextContent());
+                                map.put("itemLength", dataRecordElement.getElementsByTagName("item_length").item(0).getTextContent());
+//                        map.put("itemSizeMeasureW", dataRecordElement.getElementsByTagName("ITEM_SIZEMEASURE").item(2).getTextContent());
+                                map.put("itemWidth", dataRecordElement.getElementsByTagName("item_width").item(0).getTextContent());
+                                map.put("itemManufacturerGtinUpc", dataRecordElement.getElementsByTagName("item_manufacturer_gtin_upc").item(0).getTextContent());
+                                map.put("itemLabelLanguages", dataRecordElement.getElementsByTagName("item_label_languages").item(0).getTextContent());
+                                map.put("itemBuyable", dataRecordElement.getElementsByTagName("item_buyable").item(0).getTextContent());
+                                map.put("itemUnitsPerCase", dataRecordElement.getElementsByTagName("item_units_per_case").item(0).getTextContent());
+                                map.put("itemNumOfUnitsPallet", dataRecordElement.getElementsByTagName("item_num_of_units_pallet").item(0).getTextContent());
+//                        map.put("itemNumOfPalletsContainer", dataRecordElement.getElementsByTagName("ITEM_NUM_OF_PALLETS_CONTAINER").item(0).getTextContent());
+                                map.put("unitsPerContainer", dataRecordElement.getElementsByTagName("units_per_container").item(0).getTextContent());
+                                map.put("wcsCataloguePrice", dataRecordElement.getElementsByTagName("wcs_catalog_price").item(0).getTextContent());
+                                batchParams[x] = new MapSqlParameterSource(map);
+                                x++;
+                            }
+                        }
+                        int[] rows1 = namedParameterJdbcTemplate.batchUpdate(sqlString, batchParams);
+                        logger.info("Successfully inserted into tmp_product_catalog records---" + rows1.length);
+                        sb.append("Successfully inserted into tmp_product_catalog records---").append(rows1.length).append(br);
+                        sqlString = "DELETE tpc.* FROM tmp_product_catalog tpc where tpc.TaskOrder ='UNKNOWN'";
+                        int dRows = this.jdbcTemplate.update(sqlString);
+                        logger.info("Delted rows from tmp_product_catalog because the TaskOrder was UNKNOWN ---" + dRows);
+                        sb.append("Delted rows from tmp_product_catalog because the TaskOrder was UNKNOWN ---").append(dRows).append(br);
+                        sqlString = "DELETE tpc.* FROM tmp_product_catalog tpc where length(trim(tpc.ProductID)) !=13";
+                        dRows = this.jdbcTemplate.update(sqlString);
+                        logger.info("Delted rows from tmp_product_catalog because the ProductId len is not 13 ---" + dRows);
+                        sb.append("Delted rows from tmp_product_catalog because the ProductId len is not 13 ---").append(dRows).append(br);
+                        sqlString = "SELECT COUNT(*) FROM tmp_product_catalog;";
+                        int tmpCnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+                        logger.info("Total rows inserted in tmp_product_catalog---" + tmpCnt);
+                        sb.append("Total rows inserted in tmp_product_catalog---").append(tmpCnt).append(br);
+                        pullUnit(sb);
+                        pullTracerCategory(sb);
+                        pullProductCategory(sb);
+                        pullForecastingUnit(sb);
+                        pullPlanningUnit(sb);
+                        pullSupplier(sb);
+                        pullProcurementUnit(sb);
+                        File directory = new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH);
+                        if (directory.isDirectory()) {
+                            fXmlFile.renameTo(new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
+                            logger.info("Product catalog file moved to processed folder successfully");
+                            sb.append("Product catalog file moved to processed folder successfully").append(br);
+                        } else {
+                            subjectParam = new String[]{"Product Catalogue", "Backup directory does not exists"};
+                            bodyParam = new String[]{"Product Catalogue", date, "Backup directory does not exists", "Backup directory does not exists"};
+                            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                            int emailerId = this.emailService.saveEmail(emailer);
+                            emailer.setEmailerId(emailerId);
+                            this.emailService.sendMail(emailer);
+                            logger.error("Backup directory does not exists");
+                            sb.append("Backup directory does not exists").append(br);
+                        }
                     }
                     logger.info("######################################################################");
                     sb.append("######################################################################").append(br);
@@ -394,6 +403,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     sb.append("Completed import for file ").append(fXmlFile.getName()).append(br);
                     logger.info("######################################################################");
                     sb.append("######################################################################").append(br);
+
                 }
             }
         }
@@ -516,9 +526,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
         // Step 2 - Create the tmp table
         sqlString = "CREATE TEMPORARY TABLE `tmp_tracer_category` ( "
-//        sqlString = "CREATE TABLE `tmp_tracer_category` ( "
+                //        sqlString = "CREATE TABLE `tmp_tracer_category` ( "
                 + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
-                + "  `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
+                + "  `LABEL` varchar(255) COLLATE utf8_bin NOT NULL, "
                 + "  `TRACER_CATEGORY_ID` int(10) unsigned DEFAULT NULL, "
                 + "  `LABEL_ID` int (10) unsigned DEFAULT NULL, "
                 + "  `FOUND` tinyint(1) unsigned default 0,"
