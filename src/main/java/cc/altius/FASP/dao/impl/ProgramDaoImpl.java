@@ -84,8 +84,6 @@ public class ProgramDaoImpl implements ProgramDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private ProgramDataService programDataService;
 
     public String sqlListString = "SELECT   "
             + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME,  "
@@ -989,8 +987,8 @@ public class ProgramDaoImpl implements ProgramDao {
                             logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                         }
                     }
-                    logger.info("Going to get new supply plan list ");
-                    this.programDataService.getNewSupplyPlanList(erpOrderDTO.getShProgramId(), -1, true, false);
+//                    logger.info("Going to get new supply plan list ");
+//                    this.programDataService.getNewSupplyPlanList(erpOrderDTO.getShProgramId(), -1, true, false);
                 } catch (Exception e) {
                     logger.info("Error occurred while trying to import Shipment ", e);
                 }
