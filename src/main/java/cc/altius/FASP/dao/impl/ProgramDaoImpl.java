@@ -987,7 +987,7 @@ public class ProgramDaoImpl implements ProgramDao {
                             logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                         }
                     }
-                   
+                     
                 } catch (Exception e) {
                     logger.info("Error occurred while trying to import Shipment ", e);
                 }
