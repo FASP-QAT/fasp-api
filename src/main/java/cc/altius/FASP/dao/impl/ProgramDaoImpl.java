@@ -84,7 +84,6 @@ public class ProgramDaoImpl implements ProgramDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
     public String sqlListString = "SELECT   "
             + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME,  "
             + "     cpv.VERSION_ID `CV_VERSION_ID`, cpv.NOTES `CV_VERSION_NOTES`, cpv.CREATED_DATE `CV_CREATED_DATE`, cpvcb.USER_ID `CV_CB_USER_ID`, cpvcb.USERNAME `CV_CB_USERNAME`, cpv.LAST_MODIFIED_DATE `CV_LAST_MODIFIED_DATE`, cpvlmb.USER_ID `CV_LMB_USER_ID`, cpvlmb.USERNAME `CV_LMB_USERNAME`,  "
@@ -549,6 +548,7 @@ public class ProgramDaoImpl implements ProgramDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         int rows;
+        System.out.println("conversion factor---" + manualTaggingOrderDTO.getConversionFactor());
         String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
         int count = this.jdbcTemplate.queryForObject(sql, Integer.class, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
         if (count == 0) {
@@ -987,8 +987,7 @@ public class ProgramDaoImpl implements ProgramDao {
                             logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                         }
                     }
-//                    logger.info("Going to get new supply plan list ");
-//                    this.programDataService.getNewSupplyPlanList(erpOrderDTO.getShProgramId(), -1, true, false);
+                     
                 } catch (Exception e) {
                     logger.info("Error occurred while trying to import Shipment ", e);
                 }
