@@ -138,7 +138,7 @@ public class CountryDaoImpl implements CountryDao {
                 + "LEFT JOIN vw_currency cu ON c.CURRENCY_ID=cu.CURRENCY_ID "
                 + "LEFT JOIN us_user cb ON c.CREATED_BY=cb.USER_ID "
                 + "LEFT JOIN us_user lmb ON c.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") ");
+                + "WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") AND c.COUNTRY_ID IS NOT NULL ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new CountryRowMapper());

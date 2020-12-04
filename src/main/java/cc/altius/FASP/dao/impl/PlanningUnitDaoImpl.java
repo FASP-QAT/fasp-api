@@ -335,7 +335,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
                 + " LEFT JOIN vw_unit u ON pu.UNIT_ID=u.UNIT_ID "
                 + " LEFT JOIN us_user cb ON pu.CREATED_BY=cb.USER_ID  "
                 + " LEFT JOIN us_user lmb ON pu.LAST_MODIFIED_BY=lmb.USER_ID "
-                + " WHERE p.PROGRAM_ID IN (").append(programIdsString).append(")");
+                + " WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") AND pu.`PLANNING_UNIT_ID`  IS NOT NULL ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);

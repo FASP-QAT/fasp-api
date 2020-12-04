@@ -212,7 +212,7 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
                 + "LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID "
                 + "LEFT JOIN us_user cb ON fu.CREATED_BY=cb.USER_ID "
                 + "LEFT JOIN us_user lmb ON fu.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") ");
+                + "WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") AND fu.`FORECASTING_UNIT_ID`  IS NOT NULL ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
