@@ -154,7 +154,7 @@ public class RegionDaoImpl implements RegionDao {
                 + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
                 + " LEFT JOIN us_user cb ON re.CREATED_BY=cb.USER_ID  "
                 + " LEFT JOIN us_user lmb ON re.LAST_MODIFIED_BY=lmb.USER_ID  "
-                + " WHERE TRUE AND p.PROGRAM_ID IN (").append(programIdsString).append(")");
+                + " WHERE TRUE AND p.PROGRAM_ID IN (").append(programIdsString).append(") AND re.`REGION_ID`  IS NOT NULL ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);

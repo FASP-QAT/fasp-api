@@ -259,7 +259,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
                 + " LEFT JOIN vw_unit vu ON pru.VOLUME_UNIT_ID=vu.UNIT_ID  "
                 + " LEFT JOIN us_user cb ON pru.CREATED_BY=cb.USER_ID    "
                 + " LEFT JOIN us_user lmb ON pru.LAST_MODIFIED_BY=lmb.USER_ID  "
-                + " WHERE p.PROGRAM_ID in (").append(programIdsString).append(")");
+                + " WHERE p.PROGRAM_ID in (").append(programIdsString).append(") AND pru.`PROCUREMENT_UNIT_ID`  IS NOT NULL ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
