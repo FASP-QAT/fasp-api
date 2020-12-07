@@ -306,7 +306,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                 + " LEFT JOIN vw_unit un ON rc.PALLET_UNIT_ID=un.UNIT_ID  "
                 + " LEFT JOIN us_user cb ON rc.CREATED_BY=cb.USER_ID  "
                 + " LEFT JOIN us_user lmb ON rc.LAST_MODIFIED_BY=lmb.USER_ID "
-                + " WHERE p.PROGRAM_ID IN (").append(programIdsString).append(")");
+                + " WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") AND rc.`REALM_COUNTRY_ID`  IS NOT NULL ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
@@ -341,7 +341,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                 + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN us_user cb ON rcpu.CREATED_BY=cb.USER_ID  "
                 + "LEFT JOIN us_user lmb ON rcpu.LAST_MODIFIED_BY=lmb.USER_ID  "
-                + " WHERE p.PROGRAM_ID IN (").append(programIdsString).append(")");
+                + " WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") AND rcpu.`REALM_COUNTRY_PLANNING_UNIT_ID`  IS NOT NULL ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);

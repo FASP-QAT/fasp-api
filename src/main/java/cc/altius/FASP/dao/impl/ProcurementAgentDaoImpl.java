@@ -421,7 +421,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                 + " LEFT JOIN vw_procurement_agent pa ON pa.PROCUREMENT_AGENT_ID=papu.PROCUREMENT_AGENT_ID  "
                 + " LEFT JOIN us_user cb ON papu.CREATED_BY=cb.USER_ID   "
                 + " LEFT JOIN us_user lmb ON papu.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") ");
+                + "WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") AND papu.`PROCUREMENT_AGENT_PROCUREMENT_UNIT_ID`  IS NOT NULL  ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
@@ -443,7 +443,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                 + " LEFT JOIN vw_procurement_agent pa ON pa.PROCUREMENT_AGENT_ID=papu.PROCUREMENT_AGENT_ID  "
                 + " LEFT JOIN us_user cb ON papu.CREATED_BY=cb.USER_ID   "
                 + " LEFT JOIN us_user lmb ON papu.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") ");
+                + "WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") AND papu.`PROCUREMENT_AGENT_PLANNING_UNIT_ID`  IS NOT NULL  ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
