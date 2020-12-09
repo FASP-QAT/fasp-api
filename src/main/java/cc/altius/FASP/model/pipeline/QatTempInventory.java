@@ -15,8 +15,8 @@ public class QatTempInventory {
     private String dataSourceId;
     private String regionId;
     private String inventoryDate;
-    private int inventory;
-    private int manualAdjustment;
+    private long inventory;
+    private long manualAdjustment;
     private String notes;
     private boolean active;
     private int realmCountryPlanningUnitId;
@@ -89,18 +89,19 @@ public class QatTempInventory {
         this.inventoryDate = inventoryDate;
     }
 
-     public int getInventory() {
+    public long getInventory() {
         return inventory;
     }
 
-    public void setInventory(int inventory) {
+    public void setInventory(long inventory) {
         this.inventory = inventory;
     }
-    public int getManualAdjustment() {
+
+    public long getManualAdjustment() {
         return manualAdjustment;
     }
 
-    public void setManualAdjustment(int manualAdjustment) {
+    public void setManualAdjustment(long manualAdjustment) {
         this.manualAdjustment = manualAdjustment;
     }
 
