@@ -223,4 +223,48 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementUnitRowMapper());
     }
 
+    @Override
+    public List<ProcurementUnit> getProcurementUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT  "
+                + "    pru.PROCUREMENT_UNIT_ID, pru.LABEL_ID, pru.LABEL_EN, pru.LABEL_FR, pru.LABEL_SP, pru.LABEL_PR,  "
+                + "    s.SUPPLIER_ID, s.LABEL_ID `SUPPLIER_LABEL_ID`, s.LABEL_EN `SUPPLIER_LABEL_EN`, s.LABEL_FR `SUPPLIER_LABEL_FR`, s.LABEL_SP `SUPPLIER_LABEL_SP`, s.LABEL_PR `SUPPLIER_LABEL_PR`,  "
+                + "    u.UNIT_ID, u.UNIT_CODE, u.LABEL_ID `UNIT_LABEL_ID`, u.LABEL_EN `UNIT_LABEL_EN`, u.LABEL_FR `UNIT_LABEL_FR`, u.LABEL_SP `UNIT_LABEL_SP`, u.LABEL_PR `UNIT_LABEL_PR`,  "
+                + "    pu.PLANNING_UNIT_ID, pu.MULTIPLIER `PLANNING_UNIT_MULTIPLIER`, fu.FORECASTING_UNIT_ID,   "
+                + "    pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`,   "
+                + "    fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`,   "
+                + "    fugl.LABEL_ID `GENERIC_LABEL_ID`, fugl.LABEL_EN `GENERIC_LABEL_EN`, fugl.LABEL_FR `GENERIC_LABEL_FR`, fugl.LABEL_PR `GENERIC_LABEL_PR`, fugl.LABEL_SP `GENERIC_LABEL_SP`,   "
+                + "    r.REALM_ID, r.REALM_CODE, r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_PR `REALM_LABEL_PR`, r.LABEL_SP `REALM_LABEL_SP`,   "
+                + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`,   "
+                + "    tc.TRACER_CATEGORY_ID, tc.LABEL_ID `TRACER_CATEGORY_LABEL_ID`, tc.LABEL_EN `TRACER_CATEGORY_LABEL_EN`, tc.LABEL_FR `TRACER_CATEGORY_LABEL_FR`, tc.LABEL_PR `TRACER_CATEGORY_LABEL_PR`, tc.LABEL_SP `TRACER_CATEGORY_LABEL_SP`,   "
+                + "    puu.UNIT_ID `PLANNING_UNIT_UNIT_ID`, puu.UNIT_CODE `PLANNING_UNIT_UNIT_CODE`, puu.LABEL_ID `PLANNING_UNIT_UNIT_LABEL_ID`, puu.LABEL_EN `PLANNING_UNIT_UNIT_LABEL_EN`, puu.LABEL_FR `PLANNING_UNIT_UNIT_LABEL_FR`, puu.LABEL_PR `PLANNING_UNIT_UNIT_LABEL_PR`, puu.LABEL_SP `PLANNING_UNIT_UNIT_LABEL_SP`,   "
+                + "    pru.HEIGHT_QTY, pru.WIDTH_QTY, pru.LENGTH_QTY, pru.WEIGHT_QTY, pru.VOLUME_QTY, pru.LABELING, pru.MULTIPLIER, pru.UNITS_PER_CASE, pru.UNITS_PER_PALLET_EURO1, pru.UNITS_PER_PALLET_EURO2, pru.UNITS_PER_CONTAINER, pru.LABELING,  "
+                + "    lu.UNIT_ID  `LENGTH_UNIT_ID`, lu.UNIT_CODE  `LENGTH_UNIT_CODE`, lu.LABEL_ID  `LENGTH_UNIT_LABEL_ID`, lu.LABEL_EN  `LENGTH_UNIT_LABEL_EN`, lu.LABEL_FR  `LENGTH_UNIT_LABEL_FR`, lu.LABEL_PR  `LENGTH_UNIT_LABEL_PR`, lu.LABEL_SP  `LENGTH_UNIT_LABEL_SP`,   "
+                + "    weu.UNIT_ID `WEIGHT_UNIT_ID`, weu.UNIT_CODE `WEIGHT_UNIT_CODE`, weu.LABEL_ID `WEIGHT_UNIT_LABEL_ID`, weu.LABEL_EN `WEIGHT_UNIT_LABEL_EN`, weu.LABEL_FR `WEIGHT_UNIT_LABEL_FR`, weu.LABEL_PR `WEIGHT_UNIT_LABEL_PR`, weu.LABEL_SP `WEIGHT_UNIT_LABEL_SP`,  "
+                + "    vu.UNIT_ID `VOLUME_UNIT_ID`, vu.UNIT_CODE `VOLUME_UNIT_CODE`, vu.LABEL_ID `VOLUME_UNIT_LABEL_ID`, vu.LABEL_EN `VOLUME_UNIT_LABEL_EN`, vu.LABEL_FR `VOLUME_UNIT_LABEL_FR`, vu.LABEL_PR `VOLUME_UNIT_LABEL_PR`, vu.LABEL_SP `VOLUME_UNIT_LABEL_SP`,  "
+                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pru.ACTIVE, pru.CREATED_DATE, pru.LAST_MODIFIED_DATE    "
+                + " FROM rm_program p "
+                + " LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID "
+                + " LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID  "
+                + " LEFT JOIN vw_procurement_unit pru ON pu.PLANNING_UNIT_ID=pru.PLANNING_UNIT_ID "
+                + " LEFT JOIN vw_supplier s ON pru.SUPPLIER_ID=s.SUPPLIER_ID  "
+                + " LEFT JOIN vw_unit u ON pru.UNIT_ID=u.UNIT_ID  "
+                + " LEFT JOIN vw_forecasting_unit fu on pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID   "
+                + " LEFT JOIN vw_unit fugl ON fu.GENERIC_LABEL_ID=fugl.LABEL_ID  "
+                + " LEFT JOIN vw_realm r ON fu.REALM_ID=r.REALM_ID    "
+                + " LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID    "
+                + " LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID    "
+                + " LEFT JOIN vw_unit puu ON pu.UNIT_ID=puu.UNIT_ID   "
+                + " LEFT JOIN vw_unit lu ON pru.LENGTH_UNIT_ID=lu.UNIT_ID  "
+                + " LEFT JOIN vw_unit weu ON pru.WEIGHT_UNIT_ID=weu.UNIT_ID  "
+                + " LEFT JOIN vw_unit vu ON pru.VOLUME_UNIT_ID=vu.UNIT_ID  "
+                + " LEFT JOIN us_user cb ON pru.CREATED_BY=cb.USER_ID    "
+                + " LEFT JOIN us_user lmb ON pru.LAST_MODIFIED_BY=lmb.USER_ID  "
+                + " WHERE p.PROGRAM_ID in (").append(programIdsString).append(") AND pru.`PROCUREMENT_UNIT_ID`  IS NOT NULL ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" GROUP BY pru.PROCUREMENT_UNIT_ID");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementUnitRowMapper());
+    }
+
 }

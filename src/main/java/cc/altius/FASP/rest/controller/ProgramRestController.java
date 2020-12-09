@@ -6,13 +6,14 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.service.PlanningUnitService;
+import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
@@ -27,6 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -49,6 +51,11 @@ public class ProgramRestController {
     private ProgramService programService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private PlanningUnitService planningUnitService;
+
+    @Autowired
+    private ProgramDataService programDataService;
 
     @PostMapping(path = "/program")
     public ResponseEntity postProgram(@RequestBody Program program, Authentication auth) {
@@ -107,7 +114,7 @@ public class ProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/program/all")
     public ResponseEntity getProgramAll(Authentication auth) {
         try {
@@ -304,11 +311,29 @@ public class ProgramRestController {
         }
     }
 
-    @GetMapping("/orderDetails/{programId}/{planningUnitId}/{orderNo}/{primeLineNo}")
-    public ResponseEntity getOrderDetailsByOrderNoAndPrimeLineNo(@PathVariable("programId") int programId, @PathVariable("planningUnitId") int planningUnitId, @PathVariable("orderNo") String orderNo, @PathVariable("primeLineNo") int primeLineNo, Authentication auth) {
+    @GetMapping("/searchErpOrderData/{term}/{searchId}/{programId}/{erpPlanningUnitId}")
+    public ResponseEntity searchErpOrderData(@PathVariable("term") String term, @PathVariable("searchId") int searchId, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getOrderDetailsByOrderNoAndPrimeLineNo(programId, planningUnitId, orderNo, primeLineNo), HttpStatus.OK);
+            System.out.println("term---------------------------------->" + term);
+            return new ResponseEntity(this.programService.getErpOrderSearchData(term, searchId, programId, planningUnitId), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/orderDetails/{roNoOrderNo}/{searchId}/{programId}/{erpPlanningUnitId}")
+    public ResponseEntity getOrderDetailsByOrderNoAndPrimeLineNo(@PathVariable("roNoOrderNo") String roNoOrderNo, @PathVariable("searchId") int searchId, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getOrderDetailsByOrderNoAndPrimeLineNo(roNoOrderNo, searchId, programId, planningUnitId), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);
             return new ResponseEntity(new ResponseCode("static.mt.noDetailsFound"), HttpStatus.NOT_FOUND);
@@ -322,11 +347,14 @@ public class ProgramRestController {
     }
 
     @PostMapping("/linkShipmentWithARTMIS/")
+    @Transactional
     public ResponseEntity linkShipmentWithARTMIS(@RequestBody ManualTaggingOrderDTO erpOrderDTO, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            int result = this.programService.linkShipmentWithARTMIS(erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo(), erpOrderDTO.getShipmentId(), curUser);
+            int result = this.programService.linkShipmentWithARTMIS(erpOrderDTO, curUser);
             System.out.println("result---" + result);
+            logger.info("Going to get new supply plan list ");
+            this.programDataService.getNewSupplyPlanList(erpOrderDTO.getProgramId(), -1, true, false);
             return new ResponseEntity(result, HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);
@@ -362,6 +390,8 @@ public class ProgramRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.programService.delinkShipment(erpOrderDTO, curUser);
+            logger.info("Going to get new supply plan list ");
+            this.programDataService.getNewSupplyPlanList(erpOrderDTO.getProgramId(), -1, true, false);
             return new ResponseEntity(new ResponseCode("success"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);

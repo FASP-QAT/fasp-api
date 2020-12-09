@@ -24,5 +24,7 @@ public List<Country> getCountryList(boolean active, CustomUserDetails curUser);
     public int updateCountry(Country country, CustomUserDetails curUser);
 
     public List<Country> getCountryListForSync(String lastSyncDate);
+    
+    public List<Country> getCountryListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 
 }

@@ -7,7 +7,6 @@ package cc.altius.FASP.ARTMIS.controller;
 
 import cc.altius.FASP.ARTMIS.service.ExportArtmisDataService;
 import cc.altius.FASP.model.DTO.ExportOrderDataDTO;
-import cc.altius.FASP.model.DTO.ExportProgramDataDTO;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.service.EmailService;
@@ -23,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;

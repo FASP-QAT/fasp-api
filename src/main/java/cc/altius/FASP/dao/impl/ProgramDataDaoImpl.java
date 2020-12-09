@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.dao.impl;
 
-import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.Batch;
@@ -13,6 +12,8 @@ import cc.altius.FASP.model.BatchData;
 import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.ConsumptionBatchInfo;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
+import cc.altius.FASP.model.DTO.rowMapper.ProgramIntegrationDTORowMapper;
 import cc.altius.FASP.model.IdByAndDate;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.InventoryBatchInfo;
@@ -78,8 +79,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     @Autowired
     private AclService aclService;
-    @Autowired
-    private ProgramDao programDao;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -962,7 +961,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("DATA4", pr.getShipmentId()); // ShipmentId
             tp.put("DATA5", pr.getData5());
 //            tp.put("REVIWED", pr.isReviewed());
-            tp.put("REVIWED", pr.getProblemStatus().getId() == 3 ? false : pr.isReviewed());
+            tp.put("REVIWED", programData.getVersionType().getId() == 2 && (pr.getProblemStatus().getId() == 3 || pr.getProblemStatus().getId() == 1) ? false : pr.isReviewed());
             tp.put("CREATED_BY", pr.getCreatedBy().getUserId());
             tp.put("CREATED_DATE", pr.getCreatedDate());
             tp.put("LAST_MODIFIED_BY", pr.getLastModifiedBy().getUserId());
@@ -978,7 +977,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     transParams.put("PROBLEM_STATUS_ID", prt.getProblemStatus().getId());
                     transParams.put("NOTES", prt.getNotes());
 //                    transParams.put("REVIEWED", prt.isReviewed());
-                    transParams.put("REVIEWED", prt.getProblemStatus().getId() == 3 || prt.getProblemStatus().getId() == 1 ? false : prt.isReviewed());
+                    transParams.put("REVIEWED", programData.getVersionType().getId() == 2 && (prt.getProblemStatus().getId() == 3 || prt.getProblemStatus().getId() == 1) ? false : prt.isReviewed());
                     transParams.put("CREATED_BY", prt.getCreatedBy().getUserId());
                     transParams.put("CREATED_DATE", prt.getCreatedDate());
                     this.namedParameterJdbcTemplate.update("INSERT INTO `rm_problem_report_trans` (`PROBLEM_REPORT_ID`, `PROBLEM_STATUS_ID`, `NOTES`, `REVIEWED`, `CREATED_BY`, `CREATED_DATE`) VALUES (:PROBLEM_REPORT_ID, :PROBLEM_STATUS_ID, :NOTES, :REVIEWED, :CREATED_BY, :CREATED_DATE)", transParams);
@@ -990,7 +989,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         transParams.put("PROBLEM_REPORT_ID", pr.getProblemReportId());
                         transParams.put("PROBLEM_STATUS_ID", prt.getProblemStatus().getId());
                         transParams.put("NOTES", prt.getNotes());
-                        transParams.put("REVIEWED", prt.isReviewed());
+                        transParams.put("REVIEWED", programData.getVersionType().getId() == 2 && (prt.getProblemStatus().getId() == 3 || prt.getProblemStatus().getId() == 1) ? false : prt.isReviewed());
                         transParams.put("CREATED_BY", prt.getCreatedBy().getUserId());
                         transParams.put("CREATED_DATE", prt.getCreatedDate());
                         this.namedParameterJdbcTemplate.update("INSERT INTO `rm_problem_report_trans` (`PROBLEM_REPORT_ID`, `PROBLEM_STATUS_ID`, `NOTES`, `REVIEWED`, `CREATED_BY`, `CREATED_DATE`) VALUES (:PROBLEM_REPORT_ID, :PROBLEM_STATUS_ID, :NOTES, :REVIEWED, :CREATED_BY, :CREATED_DATE)", transParams);
@@ -999,12 +998,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 }
                 if (updatedProblemActionRowLevel) {
 //                    sqlString = "UPDATE rm_problem_report pr SET pr.PROBLEM_STATUS_ID=:PROBLEM_STATUS_ID, pr.LAST_MODIFIED_BY=:LAST_MODIFIED_BY, pr.LAST_MODIFIED_DATE=:LAST_MODIFIED_DATE WHERE pr.PROBLEM_REPORT_ID=:PROBLEM_REPORT_ID AND (pr.PROBLEM_STATUS_ID!=:PROBLEM_STATUS_ID OR pr.LAST_MODIFIED_BY!=:LAST_MODIFIED_BY OR pr.LAST_MODIFIED_DATE!=:LAST_MODIFIED_DATE)";
-                    sqlString = "UPDATE rm_problem_report pr \n"
-                            + "SET pr.PROBLEM_STATUS_ID=:PROBLEM_STATUS_ID, \n"
-                            + "pr.REVIEWED=:REVIWED,\n"
-                            + "pr.LAST_MODIFIED_BY=:LAST_MODIFIED_BY, \n"
-                            + "pr.LAST_MODIFIED_DATE=:LAST_MODIFIED_DATE \n"
-                            + "WHERE pr.PROBLEM_REPORT_ID=:PROBLEM_REPORT_ID \n"
+                    sqlString = "UPDATE rm_problem_report pr  "
+                            + "SET pr.PROBLEM_STATUS_ID=:PROBLEM_STATUS_ID,  "
+                            + "pr.REVIEWED=:REVIWED, "
+                            + "pr.LAST_MODIFIED_BY=:LAST_MODIFIED_BY,  "
+                            + "pr.LAST_MODIFIED_DATE=:LAST_MODIFIED_DATE  "
+                            + "WHERE pr.PROBLEM_REPORT_ID=:PROBLEM_REPORT_ID  "
                             + "AND (pr.PROBLEM_STATUS_ID!=:PROBLEM_STATUS_ID OR pr.REVIEWED!=:REVIWED OR pr.LAST_MODIFIED_BY!=:LAST_MODIFIED_BY OR pr.LAST_MODIFIED_DATE!=:LAST_MODIFIED_DATE);";
                     this.namedParameterJdbcTemplate.update(sqlString, tp);
                 }
@@ -1049,7 +1048,25 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 }
                 return version;
             } else {
-                return new Version(0, null, null, null, null, null, null, null);
+                if (programData.getCurrentVersion().getVersionType().getId().equals(programData.getVersionType().getId())) {
+                    return new Version(0, null, null, null, null, null, null, null);
+                } else {
+                    params.put("programId", programData.getProgramId());
+                    params.put("curUser", curUser.getUserId());
+                    params.put("curDate", curDate);
+                    params.put("versionTypeId", programData.getVersionType().getId());
+                    params.put("versionStatusId", programData.getVersionStatus().getId());
+                    params.put("notes", programData.getNotes());
+                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
+                    try {
+                        version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
+                        logger.info(version + " is the new version no");
+                    } catch (Exception e) {
+                        logger.info("Failed to get a new version no for this program");
+                        throw new CouldNotSaveException("Could not save Shipment Batch data - " + e.getMessage());
+                    }
+                    return version;
+                }
             }
         } else {
             return version;
@@ -1133,9 +1150,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "pv.NOTES=:notes, pv.LAST_MODIFIED_DATE=:curDate, "
                 + "pv.LAST_MODIFIED_BY=:curUser ";
 
-        if (versionStatusId == 2) {
-            programVersionUpdateSql += ",pv.`SENT_TO_ARTMIS`=1 ";
-        }
+//        if (versionStatusId == 2) {
+//            programVersionUpdateSql += ",pv.`SENT_TO_ARTMIS`=1 ";
+//        }
         programVersionUpdateSql += " WHERE pv.PROGRAM_ID=:programId AND pv.VERSION_ID=:versionId;";
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
@@ -1516,7 +1533,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "LEFT JOIN ( "
                     + "    SELECT spa.PROGRAM_ID, spa.VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH), ADDDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_FUTURE_FOR_AMC-1 MONTH), "
                     + "        SUM(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
-                    + "        AVG(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC, COUNT(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
+                    + "        ROUND(AVG(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY))) AMC, COUNT(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
                     + "    FROM rm_supply_plan_amc spa  "
                     + "    LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND spa.PROGRAM_ID=ppu.PROGRAM_ID "
                     + "    LEFT JOIN rm_supply_plan_amc spa2 ON  "
@@ -1529,8 +1546,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "SET  "
                     + "    spa.AMC=amc.AMC,  "
                     + "    spa.AMC_COUNT=amc.AMC_COUNT,  "
-                    + "    spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE/amc.AMC), "
-                    + "    spa.MOS_WPS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE_WPS/amc.AMC), "
+                    + "    spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, 0, spa.CLOSING_BALANCE/amc.AMC), "
+                    + "    spa.MOS_WPS=IF(amc.AMC IS NULL OR amc.AMC=0, 0, spa.CLOSING_BALANCE_WPS/amc.AMC), "
                     + "    spa.MIN_STOCK_MOS = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, IF(ppu.MIN_MONTHS_OF_STOCK>r.MIN_MOS_MAX_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)), "
                     + "    spa.MAX_STOCK_MOS = IF(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS>r.MAX_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS), "
                     + "    spa.MIN_STOCK_QTY = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, IF(ppu.MIN_MONTHS_OF_STOCK>r.MIN_MOS_MAX_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)) * amc.AMC, "
@@ -1541,6 +1558,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
 
         if (returnSupplyPlan) {
+            System.out.println("get simplified supply plan list-----------");
             return getSimplifiedSupplyPlan(programId, versionId);
         } else {
             return new LinkedList<>();
@@ -1586,6 +1604,33 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         } catch (Exception e) {
             return -1;
         }
+    }
+
+    @Override
+    public List<ProgramIntegrationDTO> getSupplyPlanToExportList() {
+        String sqlString = "SELECT pvt.PROGRAM_VERSION_TRANS_ID, pv.PROGRAM_ID, p.PROGRAM_CODE, pv.VERSION_ID, pv.VERSION_TYPE_ID, pv.VERSION_STATUS_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, i.FILE_NAME, i.FOLDER_LOCATION, i.INTEGRATION_VIEW_ID, iv.INTEGRATION_VIEW_NAME "
+                + "FROM rm_program_version_trans pvt  "
+                + "LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
+                + "LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN rm_integration_program ip ON  "
+                + "    ip.PROGRAM_ID=pv.PROGRAM_ID AND  "
+                + "    (ip.VERSION_TYPE_ID=pvt.VERSION_TYPE_ID OR ip.VERSION_TYPE_ID IS NULL) AND  "
+                + "    (ip.VERSION_STATUS_ID=pvt.VERSION_STATUS_ID OR ip.VERSION_STATUS_ID IS NULL) "
+                + "LEFT JOIN ap_integration i ON ip.INTEGRATION_ID=i.INTEGRATION_ID "
+                + "LEFT JOIN ap_integration_view iv ON i.INTEGRATION_VIEW_ID=iv.INTEGRATION_VIEW_ID "
+                + "LEFT JOIN rm_integration_program_completed ipc ON i.INTEGRATION_ID=ipc.INTEGRATION_ID AND pvt.PROGRAM_VERSION_TRANS_ID=ipc.PROGRAM_VERSION_TRANS_ID "
+                + "WHERE ip.INTEGRATION_PROGRAM_ID IS NOT NULL AND ipc.COMPLETED_DATE IS NULL";
+        return this.jdbcTemplate.query(sqlString, new ProgramIntegrationDTORowMapper());
+    }
+
+    @Override
+    public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params = new HashMap<>();
+        params.put("programVersionTransId", programVersionTransId);
+        params.put("integrationId", integrationId);
+        params.put("curDate", curDate);
+        return (this.namedParameterJdbcTemplate.update("INSERT INTO rm_integration_program_completed VALUES (:programVersionTransId, :integrationId, :curDate) ", params) == 1);
     }
 
 }

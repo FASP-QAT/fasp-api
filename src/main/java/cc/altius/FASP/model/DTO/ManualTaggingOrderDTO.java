@@ -6,6 +6,7 @@
 package cc.altius.FASP.model.DTO;
 
 import cc.altius.FASP.model.Label;
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -33,6 +34,8 @@ public class ManualTaggingOrderDTO {
     private String recipentCountry;
     private Label planningUnitLabel;
     private String notes;
+    private BigDecimal conversionFactor;
+    private int programId;
 
     public int getErpOrderId() {
         return erpOrderId;
@@ -186,9 +189,25 @@ public class ManualTaggingOrderDTO {
         this.notes = notes;
     }
 
+    public BigDecimal getConversionFactor() {
+        return conversionFactor;
+    }
+
+    public void setConversionFactor(BigDecimal conversionFactor) {
+        this.conversionFactor = conversionFactor;
+    }
+
+    public int getProgramId() {
+        return programId;
+    }
+
+    public void setProgramId(int programId) {
+        this.programId = programId;
+    }
+
     @Override
     public String toString() {
-        return "ManualTaggingOrderDTO{" + "erpOrderId=" + erpOrderId + ", shipmentId=" + shipmentId + ", quantity=" + quantity + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", roNo=" + roNo + ", roPrimeLineNo=" + roPrimeLineNo + ", orderType=" + orderType + ", planningUnitSkuCode=" + planningUnitSkuCode + ", procurementUnitSkuCode=" + procurementUnitSkuCode + ", currentEstimatedDeliveryDate=" + currentEstimatedDeliveryDate + ", supplierName=" + supplierName + ", price=" + price + ", shippingCost=" + shippingCost + ", status=" + status + ", reason=" + reason + ", recipentCountry=" + recipentCountry + ", planningUnitLabel=" + planningUnitLabel + ", notes=" + notes + '}';
+        return "ManualTaggingOrderDTO{" + "erpOrderId=" + erpOrderId + ", shipmentId=" + shipmentId + ", quantity=" + quantity + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", roNo=" + roNo + ", roPrimeLineNo=" + roPrimeLineNo + ", orderType=" + orderType + ", planningUnitSkuCode=" + planningUnitSkuCode + ", procurementUnitSkuCode=" + procurementUnitSkuCode + ", currentEstimatedDeliveryDate=" + currentEstimatedDeliveryDate + ", supplierName=" + supplierName + ", price=" + price + ", shippingCost=" + shippingCost + ", status=" + status + ", reason=" + reason + ", recipentCountry=" + recipentCountry + ", planningUnitLabel=" + planningUnitLabel + ", notes=" + notes + ", conversionFactor=" + conversionFactor + ", programId=" + programId + '}';
     }
 
 }

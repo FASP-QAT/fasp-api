@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -53,7 +52,7 @@ public class ExportProgramCsv {
     @ResponseBody
 //    @Scheduled(cron = "0 0 21 * * MON-FRI",zone="EST")
 //    @Scheduled(cron = "00 */02 * * * *")
-    public String exportProductData() {
+    public String exportProgramCsv() {
         StringBuilder sb = new StringBuilder("");
         String br = "<br/>";
         logger.info("-------------- Export QAT Programs job started ---------------");

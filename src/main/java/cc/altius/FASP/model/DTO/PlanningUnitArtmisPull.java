@@ -56,7 +56,7 @@ public class PlanningUnitArtmisPull implements Serializable {
 
     public Double getMultiplier() {
         return multiplier;
-    }
+}
 
     public void setMultiplier(Double multiplier) {
         this.multiplier = multiplier;

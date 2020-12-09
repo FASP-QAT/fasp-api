@@ -11,6 +11,8 @@ import cc.altius.FASP.model.Country;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.rowMapper.CountryRowMapper;
+import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,6 +34,8 @@ public class CountryDaoImpl implements CountryDao {
 
     @Autowired
     private LabelDao labelDao;
+    @Autowired
+    private AclService aclService;
 
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -43,14 +47,12 @@ public class CountryDaoImpl implements CountryDao {
     }
 
     private final String sqlListString = "SELECT c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2, "
-            + "	cl.LABEL_ID, cl.LABEL_EN, cl.LABEL_FR, cl.LABEL_PR, cl.LABEL_SP, "
+            + "	c.LABEL_ID, c.LABEL_EN, c.LABEL_FR, c.LABEL_PR, c.LABEL_SP, "
             + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CONVERSION_RATE_TO_USD, "
-            + "    cul.LABEL_ID `CURRENCY_LABEL_ID`, cul.LABEL_EN `CURRENCY_LABEL_EN`, cul.LABEL_FR `CURRENCY_LABEL_FR`, cul.LABEL_PR `CURRENCY_LABEL_PR`, cul.LABEL_SP `CURRENCY_LABEL_SP`, "
+            + "    cu.LABEL_ID `CURRENCY_LABEL_ID`, cu.LABEL_EN `CURRENCY_LABEL_EN`, cu.LABEL_FR `CURRENCY_LABEL_FR`, cu.LABEL_PR `CURRENCY_LABEL_PR`, cu.LABEL_SP `CURRENCY_LABEL_SP`, "
             + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, c.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, c.LAST_MODIFIED_DATE, c.ACTIVE  "
-            + "FROM ap_country c  "
-            + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
-            + "LEFT JOIN ap_currency cu ON c.CURRENCY_ID=cu.CURRENCY_ID "
-            + "LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
+            + "FROM vw_country c  "
+            + "LEFT JOIN vw_currency cu ON c.CURRENCY_ID=cu.CURRENCY_ID "
             + "LEFT JOIN us_user cb ON c.CREATED_BY=cb.USER_ID "
             + "LEFT JOIN us_user lmb ON c.LAST_MODIFIED_BY=lmb.USER_ID "
             + "WHERE TRUE ";
@@ -114,12 +116,31 @@ public class CountryDaoImpl implements CountryDao {
         params.put("countryId", countryId);
         return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new CountryRowMapper());
     }
-    
+
     @Override
     public List<Country> getCountryListForSync(String lastSyncDate) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND c.LAST_MODIFIED_DATE>=:lastSyncDate");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new CountryRowMapper());
+    }
+
+    @Override
+    public List<Country> getCountryListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2, "
+                + "	c.LABEL_ID, c.LABEL_EN, c.LABEL_FR, c.LABEL_PR, c.LABEL_SP, "
+                + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CONVERSION_RATE_TO_USD, "
+                + "    cu.LABEL_ID `CURRENCY_LABEL_ID`, cu.LABEL_EN `CURRENCY_LABEL_EN`, cu.LABEL_FR `CURRENCY_LABEL_FR`, cu.LABEL_PR `CURRENCY_LABEL_PR`, cu.LABEL_SP `CURRENCY_LABEL_SP`, "
+                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, c.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, c.LAST_MODIFIED_DATE, c.ACTIVE  "
+                + "FROM rm_program p "
+                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                + "LEFT JOIN vw_currency cu ON c.CURRENCY_ID=cu.CURRENCY_ID "
+                + "LEFT JOIN us_user cb ON c.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON c.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") AND c.COUNTRY_ID IS NOT NULL ");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new CountryRowMapper());
     }
 

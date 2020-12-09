@@ -50,6 +50,7 @@ public class ErpOrderDTO {
     private Date eoActualShipmentDate;
     private Date eoActualDeliveryDate;
     private Date eoArrivalAtDestinationDate;
+    private float conversionFactor;
     List<ErpShipmentDTO> eoShipmentList;
 
     private boolean manualTagging;
@@ -447,6 +448,14 @@ public class ErpOrderDTO {
         this.shDataSourceId = shDataSourceId;
     }
 
+    public float getConversionFactor() {
+        return conversionFactor;
+    }
+
+    public void setConversionFactor(float conversionFactor) {
+        this.conversionFactor = conversionFactor;
+    }
+
     public Date getCalculatedExpiryDate() {
         Date dt = null;
         if (this.eoActualDeliveryDate != null) {
@@ -517,6 +526,11 @@ public class ErpOrderDTO {
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "ErpOrderDTO{" + "eoErpOrderId=" + eoErpOrderId + ", eoRoNo=" + eoRoNo + ", eoRoPrimeLineNo=" + eoRoPrimeLineNo + ", eoOrderNo=" + eoOrderNo + ", eoPrimeLineNo=" + eoPrimeLineNo + ", eoOrderType=" + eoOrderType + ", eoCreatedDate=" + eoCreatedDate + ", eoParentRo=" + eoParentRo + ", eoParentCreatedDate=" + eoParentCreatedDate + ", eoPlanningUnitSkuCode=" + eoPlanningUnitSkuCode + ", eoPlanningUnitId=" + eoPlanningUnitId + ", eoShelfLife=" + eoShelfLife + ", eoProcurementUnitSkuCode=" + eoProcurementUnitSkuCode + ", eoProcurementUnitId=" + eoProcurementUnitId + ", eoSupplierId=" + eoSupplierId + ", eoQty=" + eoQty + ", eoOrderedDate=" + eoOrderedDate + ", eoCurrentEstimatedDeliveryDate=" + eoCurrentEstimatedDeliveryDate + ", eoReqDeliveryDate=" + eoReqDeliveryDate + ", eoAgreedDeliveryDate=" + eoAgreedDeliveryDate + ", eoSupplierName=" + eoSupplierName + ", eoPrice=" + eoPrice + ", eoShippingCost=" + eoShippingCost + ", eoShipBy=" + eoShipBy + ", eoRecipentName=" + eoRecipentName + ", eoRecipentCountry=" + eoRecipentCountry + ", eoStatus=" + eoStatus + ", eoChangeCode=" + eoChangeCode + ", eoShipmentStatusId=" + eoShipmentStatusId + ", eoActualShipmentDate=" + eoActualShipmentDate + ", eoActualDeliveryDate=" + eoActualDeliveryDate + ", eoArrivalAtDestinationDate=" + eoArrivalAtDestinationDate + ", conversionFactor=" + conversionFactor + ", eoShipmentList=" + eoShipmentList + ", manualTagging=" + manualTagging + ", shProgramId=" + shProgramId + ", shShipmentId=" + shShipmentId + ", shVersionId=" + shVersionId + ", shShipmentTransId=" + shShipmentTransId + ", shActive=" + shActive + ", shErpFlag=" + shErpFlag + ", shParentShipmentId=" + shParentShipmentId + ", shFundingSourceId=" + shFundingSourceId + ", shProcurementAgentId=" + shProcurementAgentId + ", shBudgetId=" + shBudgetId + ", shAccountFlag=" + shAccountFlag + ", shDataSourceId=" + shDataSourceId + '}';
     }
 
 }

@@ -26,4 +26,6 @@ public interface RegionService {
     public List<Region> getRegionListByRealmCountryId(int realmCountryId, CustomUserDetails curUser);
     
     public List<Region> getRegionListForSync(String lastSyncDate, CustomUserDetails curUser);
+    
+    public List<Region> getRegionListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 }

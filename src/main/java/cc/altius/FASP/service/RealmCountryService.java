@@ -34,7 +34,11 @@ public interface RealmCountryService {
     public List<RealmCountryHealthArea> getRealmCountryListByRealmIdForActivePrograms(int realmId, CustomUserDetails curUser);
 
     public List<RealmCountry> getRealmCountryListForSync(String lastSyncDate, CustomUserDetails curUser);
+    
+    public List<RealmCountry> getRealmCountryListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 
     public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
+    
+    public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 
 }

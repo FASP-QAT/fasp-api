@@ -14,6 +14,7 @@ import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.RealmCountryHealthArea;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.RealmCountryService;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
@@ -140,8 +141,26 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     }
 
     @Override
+    public List<RealmCountry> getRealmCountryListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 1) {
+            return this.realmCountryDao.getRealmCountryListForSyncProgram(programIdsString, curUser);
+        } else {
+            return new LinkedList<>();
+        }
+    }
+
+    @Override
     public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.realmCountryDao.getRealmCountryPlanningUnitListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
+    public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        if (programIdsString.length() > 0) {
+            return this.realmCountryDao.getRealmCountryPlanningUnitListForSyncProgram(programIdsString, curUser);
+        } else {
+            return new LinkedList<>();
+        }
     }
 
 }

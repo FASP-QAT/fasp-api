@@ -28,5 +28,7 @@ public interface BudgetDao {
     public Budget getBudgetById(int BudgetId, CustomUserDetails curUser);
 
     public List<Budget> getBudgetListForSync(String lastSyncDate, CustomUserDetails curUser);
+    
+    public List<Budget> getBudgetListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 
 }
