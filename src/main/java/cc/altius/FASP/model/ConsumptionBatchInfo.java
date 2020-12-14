@@ -14,12 +14,12 @@ import java.io.Serializable;
  */
 public class ConsumptionBatchInfo implements Serializable {
 
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private int consumptionTransBatchInfoId;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Batch batch;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
-    private int consumptionQty;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private double consumptionQty;
 
     public int getConsumptionTransBatchInfoId() {
         return consumptionTransBatchInfoId;
@@ -29,11 +29,11 @@ public class ConsumptionBatchInfo implements Serializable {
         this.consumptionTransBatchInfoId = consumptionTransBatchInfoId;
     }
 
-    public int getConsumptionQty() {
+    public double getConsumptionQty() {
         return consumptionQty;
     }
 
-    public void setConsumptionQty(int consumptionQty) {
+    public void setConsumptionQty(double consumptionQty) {
         this.consumptionQty = consumptionQty;
     }
 

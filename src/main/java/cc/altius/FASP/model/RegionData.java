@@ -12,10 +12,10 @@ package cc.altius.FASP.model;
 public class RegionData {
 
     private int regionId;
-    private Integer forecastedConsumption;
-    private Integer actualConsumption;
-    private Integer stock;
-    private Integer adjustment;
+    private Long forecastedConsumption;
+    private Long actualConsumption;
+    private Long stock;
+    private Long adjustment;
 
     public RegionData() {
     }
@@ -28,35 +28,35 @@ public class RegionData {
         this.regionId = regionId;
     }
 
-    public Integer getForecastedConsumption() {
+    public Long getForecastedConsumption() {
         return forecastedConsumption;
     }
 
-    public void setForecastedConsumption(Integer forecastedConsumption) {
+    public void setForecastedConsumption(Long forecastedConsumption) {
         this.forecastedConsumption = forecastedConsumption;
     }
 
-    public Integer getActualConsumption() {
+    public Long getActualConsumption() {
         return actualConsumption;
     }
 
-    public void setActualConsumption(Integer actualConsumption) {
+    public void setActualConsumption(Long actualConsumption) {
         this.actualConsumption = actualConsumption;
     }
 
-    public Integer getStock() {
+    public Long getStock() {
         return stock;
     }
 
-    public void setStock(Integer stock) {
+    public void setStock(Long stock) {
         this.stock = stock;
     }
 
-    public Integer getAdjustment() {
+    public Long getAdjustment() {
         return adjustment;
     }
 
-    public void setAdjustment(Integer adjustment) {
+    public void setAdjustment(Long adjustment) {
         this.adjustment = adjustment;
     }
 

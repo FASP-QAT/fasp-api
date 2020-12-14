@@ -53,7 +53,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
                                     new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, 1))))
             );
             s.setExpectedDeliveryDate(rs.getString("EXPECTED_DELIVERY_DATE"));
-            s.setSuggestedQty(rs.getInt("SUGGESTED_QTY"));
+            s.setSuggestedQty(rs.getLong("SUGGESTED_QTY"));
             s.setProcurementAgent(new SimpleProcurementAgentObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, 1), rs.getString("PROCUREMENT_AGENT_CODE"), rs.getString("COLOR_HTML_CODE")));
             s.setFundingSource(new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, 1), rs.getString("FUNDING_SOURCE_CODE")));
             s.setBudget(new SimpleBudgetObject(
@@ -69,7 +69,7 @@ public class ShipmentListResultSetExtractor implements ResultSetExtractor<List<S
             ));
             s.setProcurementUnit(new SimpleObject(rs.getInt("PROCUREMENT_UNIT_ID"), new LabelRowMapper("PROCUREMENT_UNIT_").mapRow(rs, 1)));
             s.setSupplier(new SimpleObject(rs.getInt("SUPPLIER_ID"), new LabelRowMapper("SUPPLIER_").mapRow(rs, 1)));
-            s.setShipmentQty(rs.getInt("SHIPMENT_QTY"));
+            s.setShipmentQty(rs.getLong("SHIPMENT_QTY"));
             s.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
             s.setRate(rs.getDouble("RATE"));
             s.setProductCost(rs.getDouble("PRODUCT_COST"));
