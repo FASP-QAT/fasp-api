@@ -110,7 +110,7 @@ public class ErpOrderDTOResultSetExtractor implements ResultSetExtractor<ErpOrde
                 es.setBatchQty(e.getEoQty());
                 es.setBatchNo("TEMP");
             } else {
-                es.setBatchQty(rs.getInt("BATCH_QTY"));
+                es.setBatchQty(rs.getLong("BATCH_QTY"));
                 e.getEoShipmentList().add(es);
             }
         }

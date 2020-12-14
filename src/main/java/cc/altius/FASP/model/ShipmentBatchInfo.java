@@ -19,7 +19,7 @@ public class ShipmentBatchInfo implements Serializable {
     @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private Batch batch;
     @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
-    private int shipmentQty;
+    private long shipmentQty;
 
     public int getShipmentTransBatchInfoId() {
         return shipmentTransBatchInfoId;
@@ -37,11 +37,11 @@ public class ShipmentBatchInfo implements Serializable {
         this.batch = batch;
     }
 
-    public int getShipmentQty() {
+    public long getShipmentQty() {
         return shipmentQty;
     }
 
-    public void setShipmentQty(int shipmentQty) {
+    public void setShipmentQty(long shipmentQty) {
         this.shipmentQty = shipmentQty;
     }
 
