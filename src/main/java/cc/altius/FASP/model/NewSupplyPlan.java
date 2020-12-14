@@ -26,41 +26,41 @@ public class NewSupplyPlan implements Serializable {
     private int planningUnitId;
     private String transDate;
     private int shelfLife;
-    private Integer actualConsumptionQty;
-    private Integer forecastedConsumptionQty;
-    private Integer finalConsumptionQty;
+    private Long actualConsumptionQty;
+    private Long forecastedConsumptionQty;
+    private Long finalConsumptionQty;
     private boolean actualConsumptionFlag;
-    private int plannedShipmentsTotalData;
-    private int submittedShipmentsTotalData;
-    private int approvedShipmentsTotalData;
-    private int shippedShipmentsTotalData;
-    private int receivedShipmentsTotalData;
-    private int onholdShipmentsTotalData;
-    private int plannedErpShipmentsTotalData;
-    private int submittedErpShipmentsTotalData;
-    private int approvedErpShipmentsTotalData;
-    private int shippedErpShipmentsTotalData;
-    private int receivedErpShipmentsTotalData;
-    private int onholdErpShipmentsTotalData;
-    private Integer finalAdjustmentQty;
-    private Integer adjustmentQty;
-    private Integer stockQty;
+    private long plannedShipmentsTotalData;
+    private long submittedShipmentsTotalData;
+    private long approvedShipmentsTotalData;
+    private long shippedShipmentsTotalData;
+    private long receivedShipmentsTotalData;
+    private long onholdShipmentsTotalData;
+    private long plannedErpShipmentsTotalData;
+    private long submittedErpShipmentsTotalData;
+    private long approvedErpShipmentsTotalData;
+    private long shippedErpShipmentsTotalData;
+    private long receivedErpShipmentsTotalData;
+    private long onholdErpShipmentsTotalData;
+    private Long finalAdjustmentQty;
+    private Long adjustmentQty;
+    private Long stockQty;
     private int regionCountForStock;
     private int regionCount;
 
-    private int openingBalance;
-    private int expiredStock;
-    private int expectedStock;
-    private int nationalAdjustment;
-    private int closingBalance;
-    private int unmetDemand;
+    private long openingBalance;
+    private long expiredStock;
+    private long expectedStock;
+    private long nationalAdjustment;
+    private long closingBalance;
+    private long unmetDemand;
 
-    private int openingBalanceWps;
-    private int expiredStockWps;
-    private int expectedStockWps;
-    private int nationalAdjustmentWps;
-    private int closingBalanceWps;
-    private int unmetDemandWps;
+    private long openingBalanceWps;
+    private long expiredStockWps;
+    private long expectedStockWps;
+    private long nationalAdjustmentWps;
+    private long closingBalanceWps;
+    private long unmetDemandWps;
     private int newBatchCounter;
 
     private List<RegionData> regionDataList;
@@ -105,11 +105,11 @@ public class NewSupplyPlan implements Serializable {
         this.transDate = transDate;
     }
 
-    public Integer getActualConsumptionQty() {
+    public Long getActualConsumptionQty() {
         return actualConsumptionQty;
     }
 
-    public void addActualConsumptionQty(Integer actualConsumptionQty) {
+    public void addActualConsumptionQty(Long actualConsumptionQty) {
         if (actualConsumptionQty != null) {
             if (this.actualConsumptionQty == null) {
                 this.actualConsumptionQty = actualConsumptionQty;
@@ -119,11 +119,11 @@ public class NewSupplyPlan implements Serializable {
         }
     }
 
-    public Integer getForecastedConsumptionQty() {
+    public Long getForecastedConsumptionQty() {
         return forecastedConsumptionQty;
     }
 
-    public void addForecastedConsumptionQty(Integer forecastedConsumptionQty) {
+    public void addForecastedConsumptionQty(Long forecastedConsumptionQty) {
         if (forecastedConsumptionQty != null) {
             if (this.forecastedConsumptionQty == null) {
                 this.forecastedConsumptionQty = forecastedConsumptionQty;
@@ -141,35 +141,35 @@ public class NewSupplyPlan implements Serializable {
         this.actualConsumptionFlag = actualConsumptionFlag;
     }
 
-    public Integer getFinalConsumptionQty() {
+    public Long getFinalConsumptionQty() {
         return finalConsumptionQty;
     }
 
-    public void setFinalConsumptionQty(Integer finalConsumptionQty) {
+    public void setFinalConsumptionQty(Long finalConsumptionQty) {
         this.finalConsumptionQty = finalConsumptionQty;
     }
 
-    public Integer getAdjustmentQty() {
+    public Long getAdjustmentQty() {
         return adjustmentQty;
     }
 
-    public void setAdjustmentQty(Integer adjustmentQty) {
+    public void setAdjustmentQty(Long adjustmentQty) {
         this.adjustmentQty = adjustmentQty;
     }
 
-    public Integer getStockQty() {
+    public Long getStockQty() {
         return stockQty;
     }
 
-    public void setStockQty(Integer stockQty) {
+    public void setStockQty(Long stockQty) {
         this.stockQty = stockQty;
     }
 
-    public Integer getFinalAdjustmentQty() {
+    public Long getFinalAdjustmentQty() {
         return finalAdjustmentQty;
     }
 
-    public void setFinalAdjustmentQty(Integer finalAdjustmentQty) {
+    public void setFinalAdjustmentQty(Long finalAdjustmentQty) {
         this.finalAdjustmentQty = finalAdjustmentQty;
     }
 
@@ -189,208 +189,208 @@ public class NewSupplyPlan implements Serializable {
         this.regionCount = regionCount;
     }
 
-    public int getReceivedShipmentsTotalData() {
+    public long getReceivedShipmentsTotalData() {
         return receivedShipmentsTotalData;
     }
 
-    public void addReceivedShipmentsTotalData(int receivedShipmentsTotalData) {
+    public void addReceivedShipmentsTotalData(long receivedShipmentsTotalData) {
         this.receivedShipmentsTotalData += receivedShipmentsTotalData;
     }
 
-    public int getShippedShipmentsTotalData() {
+    public long getShippedShipmentsTotalData() {
         return shippedShipmentsTotalData;
     }
 
-    public void addShippedShipmentsTotalData(int shippedShipmentsTotalData) {
+    public void addShippedShipmentsTotalData(long shippedShipmentsTotalData) {
         this.shippedShipmentsTotalData += shippedShipmentsTotalData;
     }
 
-    public int getApprovedShipmentsTotalData() {
+    public long getApprovedShipmentsTotalData() {
         return approvedShipmentsTotalData;
     }
 
-    public void addApprovedShipmentsTotalData(int approvedShipmentsTotalData) {
+    public void addApprovedShipmentsTotalData(long approvedShipmentsTotalData) {
         this.approvedShipmentsTotalData += approvedShipmentsTotalData;
     }
 
-    public int getSubmittedShipmentsTotalData() {
+    public long getSubmittedShipmentsTotalData() {
         return submittedShipmentsTotalData;
     }
 
-    public void addSubmittedShipmentsTotalData(int submittedShipmentsTotalData) {
+    public void addSubmittedShipmentsTotalData(long submittedShipmentsTotalData) {
         this.submittedShipmentsTotalData += submittedShipmentsTotalData;
     }
 
-    public int getPlannedShipmentsTotalData() {
+    public long getPlannedShipmentsTotalData() {
         return plannedShipmentsTotalData;
     }
 
-    public void addPlannedShipmentsTotalData(int plannedShipmentsTotalData) {
+    public void addPlannedShipmentsTotalData(long plannedShipmentsTotalData) {
         this.plannedShipmentsTotalData += plannedShipmentsTotalData;
     }
 
-    public int getOnholdShipmentsTotalData() {
+    public long getOnholdShipmentsTotalData() {
         return onholdShipmentsTotalData;
     }
 
-    public void addOnholdShipmentsTotalData(int onholdShipmentsTotalData) {
+    public void addOnholdShipmentsTotalData(long onholdShipmentsTotalData) {
         this.onholdShipmentsTotalData += onholdShipmentsTotalData;
     }
 
-    public int getReceivedErpShipmentsTotalData() {
+    public long getReceivedErpShipmentsTotalData() {
         return receivedErpShipmentsTotalData;
     }
 
-    public void addReceivedErpShipmentsTotalData(int receivedErpShipmentsTotalData) {
+    public void addReceivedErpShipmentsTotalData(long receivedErpShipmentsTotalData) {
         this.receivedErpShipmentsTotalData += receivedErpShipmentsTotalData;
     }
 
-    public int getShippedErpShipmentsTotalData() {
+    public long getShippedErpShipmentsTotalData() {
         return shippedErpShipmentsTotalData;
     }
 
-    public void addShippedErpShipmentsTotalData(int shippedErpShipmentsTotalData) {
+    public void addShippedErpShipmentsTotalData(long shippedErpShipmentsTotalData) {
         this.shippedErpShipmentsTotalData += shippedErpShipmentsTotalData;
     }
 
-    public int getApprovedErpShipmentsTotalData() {
+    public long getApprovedErpShipmentsTotalData() {
         return approvedErpShipmentsTotalData;
     }
 
-    public void addApprovedErpShipmentsTotalData(int approvedErpShipmentsTotalData) {
+    public void addApprovedErpShipmentsTotalData(long approvedErpShipmentsTotalData) {
         this.approvedErpShipmentsTotalData += approvedErpShipmentsTotalData;
     }
 
-    public int getSubmittedErpShipmentsTotalData() {
+    public long getSubmittedErpShipmentsTotalData() {
         return submittedErpShipmentsTotalData;
     }
 
-    public void addSubmittedErpShipmentsTotalData(int submittedErpShipmentsTotalData) {
+    public void addSubmittedErpShipmentsTotalData(long submittedErpShipmentsTotalData) {
         this.submittedErpShipmentsTotalData += submittedErpShipmentsTotalData;
     }
 
-    public int getPlannedErpShipmentsTotalData() {
+    public long getPlannedErpShipmentsTotalData() {
         return plannedErpShipmentsTotalData;
     }
 
-    public void addPlannedErpShipmentsTotalData(int plannedErpShipmentsTotalData) {
+    public void addPlannedErpShipmentsTotalData(long plannedErpShipmentsTotalData) {
         this.plannedErpShipmentsTotalData += plannedErpShipmentsTotalData;
     }
 
-    public int getOnholdErpShipmentsTotalData() {
+    public long getOnholdErpShipmentsTotalData() {
         return onholdErpShipmentsTotalData;
     }
 
-    public void addOnholdErpShipmentsTotalData(int onholdErpShipmentsTotalData) {
+    public void addOnholdErpShipmentsTotalData(long onholdErpShipmentsTotalData) {
         this.onholdErpShipmentsTotalData += onholdErpShipmentsTotalData;
     }
 
-    public int getManualShipmentTotal() {
+    public long getManualShipmentTotal() {
         return this.plannedShipmentsTotalData + this.getManualShipmentTotalWps();
     }
 
-    public int getManualShipmentTotalWps() {
+    public long getManualShipmentTotalWps() {
         return this.submittedShipmentsTotalData + this.approvedShipmentsTotalData + this.shippedShipmentsTotalData + this.receivedShipmentsTotalData + this.onholdShipmentsTotalData;
     }
 
-    public int getErpShipmentTotal() {
+    public long getErpShipmentTotal() {
         return this.plannedErpShipmentsTotalData + getErpShipmentTotalWps();
     }
 
-    public int getErpShipmentTotalWps() {
+    public long getErpShipmentTotalWps() {
         return this.submittedErpShipmentsTotalData + this.approvedErpShipmentsTotalData + this.shippedErpShipmentsTotalData + this.receivedErpShipmentsTotalData + this.onholdErpShipmentsTotalData;
     }
 
-    public int getExpiredStock() {
+    public long getExpiredStock() {
         return expiredStock;
     }
 
-    public void setExpiredStock(int expiredStock) {
+    public void setExpiredStock(long expiredStock) {
         this.expiredStock = expiredStock;
     }
 
-    public int getExpiredStockWps() {
+    public long getExpiredStockWps() {
         return expiredStockWps;
     }
 
-    public void setExpiredStockWps(int expiredStockWps) {
+    public void setExpiredStockWps(long expiredStockWps) {
         this.expiredStockWps = expiredStockWps;
     }
 
-    public int getExpectedStock() {
+    public long getExpectedStock() {
         return expectedStock;
     }
 
-    public int getExpectedStockWps() {
+    public long getExpectedStockWps() {
         return expectedStockWps;
     }
 
     public void updateExpectedStock() {
-        this.expectedStock = this.openingBalance - this.expiredStock + (getManualShipmentTotal() + getErpShipmentTotal()) - Optional.ofNullable(this.finalConsumptionQty).orElse(0) + Optional.ofNullable(this.finalAdjustmentQty).orElse(0);
-        this.expectedStockWps = this.openingBalanceWps - this.expiredStockWps + (getManualShipmentTotalWps() + getErpShipmentTotalWps()) - Optional.ofNullable(this.finalConsumptionQty).orElse(0) + Optional.ofNullable(this.finalAdjustmentQty).orElse(0);
+        this.expectedStock = this.openingBalance - this.expiredStock + (getManualShipmentTotal() + getErpShipmentTotal()) - Optional.ofNullable(this.finalConsumptionQty).orElse(0L) + Optional.ofNullable(this.finalAdjustmentQty).orElse(0L);
+        this.expectedStockWps = this.openingBalanceWps - this.expiredStockWps + (getManualShipmentTotalWps() + getErpShipmentTotalWps()) - Optional.ofNullable(this.finalConsumptionQty).orElse(0L) + Optional.ofNullable(this.finalAdjustmentQty).orElse(0L);
     }
 
-    public int getNationalAdjustment() {
+    public long getNationalAdjustment() {
         return nationalAdjustment;
     }
 
-    public int getNationalAdjustmentWps() {
+    public long getNationalAdjustmentWps() {
         return nationalAdjustmentWps;
     }
 
     public void updateNationalAdjustment() {
-        if ((this.regionCountForStock == this.regionCount && this.expectedStock != Optional.ofNullable(this.stockQty).orElse(0).intValue())
-                || (this.regionCountForStock > 0 && this.regionCountForStock != this.regionCount && Optional.ofNullable(this.stockQty).orElse(0).intValue() > this.expectedStock)
+        if ((this.regionCountForStock == this.regionCount && this.expectedStock != Optional.ofNullable(this.stockQty).orElse(0L).longValue())
+                || (this.regionCountForStock > 0 && this.regionCountForStock != this.regionCount && Optional.ofNullable(this.stockQty).orElse(0L).longValue() > this.expectedStock)
                 || (this.regionCountForStock > 0 && this.expectedStock < 0)) {
-            this.nationalAdjustment = Optional.ofNullable(this.stockQty).orElse(0) - this.expectedStock;
+            this.nationalAdjustment = Optional.ofNullable(this.stockQty).orElse(0L) - this.expectedStock;
         }
 
-        if ((this.regionCountForStock == this.regionCount && this.expectedStockWps != Optional.ofNullable(this.stockQty).orElse(0).intValue())
-                || (this.regionCountForStock > 0 && this.regionCountForStock != this.regionCount && Optional.ofNullable(this.stockQty).orElse(0).intValue() > this.expectedStockWps)
+        if ((this.regionCountForStock == this.regionCount && this.expectedStockWps != Optional.ofNullable(this.stockQty).orElse(0L).longValue())
+                || (this.regionCountForStock > 0 && this.regionCountForStock != this.regionCount && Optional.ofNullable(this.stockQty).orElse(0L).longValue() > this.expectedStockWps)
                 || (this.regionCountForStock > 0 && this.expectedStockWps < 0)) {
-            this.nationalAdjustmentWps = Optional.ofNullable(this.stockQty).orElse(0) - this.expectedStockWps;
+            this.nationalAdjustmentWps = Optional.ofNullable(this.stockQty).orElse(0L) - this.expectedStockWps;
         }
     }
 
-    public int getOpeningBalance() {
+    public long getOpeningBalance() {
         return openingBalance;
     }
 
-    public void setOpeningBalance(int openingBalance) {
+    public void setOpeningBalance(long openingBalance) {
         this.openingBalance = openingBalance;
     }
 
-    public int getOpeningBalanceWps() {
+    public long getOpeningBalanceWps() {
         return openingBalanceWps;
     }
 
-    public void setOpeningBalanceWps(int openingBalanceWps) {
+    public void setOpeningBalanceWps(long openingBalanceWps) {
         this.openingBalanceWps = openingBalanceWps;
     }
 
-    public int getClosingBalance() {
+    public long getClosingBalance() {
         return closingBalance;
     }
 
-    public int getClosingBalanceWps() {
+    public long getClosingBalanceWps() {
         return closingBalanceWps;
     }
 
     public void updateClosingBalance() {
         if (this.regionCountForStock == this.regionCount) {
-            this.closingBalance = Optional.ofNullable(this.stockQty).orElse(0);
+            this.closingBalance = Optional.ofNullable(this.stockQty).orElse(0L);
         } else {
-            this.closingBalance = Math.max(Optional.ofNullable(this.stockQty).orElse(0), Math.max(this.expectedStock + this.nationalAdjustment, 0));
+            this.closingBalance = Math.max(Optional.ofNullable(this.stockQty).orElse(0L), Math.max(this.expectedStock + this.nationalAdjustment, 0));
         }
 
         if (this.regionCountForStock == this.regionCount) {
-            this.closingBalanceWps = Optional.ofNullable(this.stockQty).orElse(0);
+            this.closingBalanceWps = Optional.ofNullable(this.stockQty).orElse(0L);
         } else {
-            this.closingBalanceWps = Math.max(Optional.ofNullable(this.stockQty).orElse(0), Math.max(this.expectedStockWps + this.nationalAdjustmentWps, 0));
+            this.closingBalanceWps = Math.max(Optional.ofNullable(this.stockQty).orElse(0L), Math.max(this.expectedStockWps + this.nationalAdjustmentWps, 0));
         }
     }
 
-    public int getUnmetDemand() {
+    public long getUnmetDemand() {
         return unmetDemand;
     }
 
@@ -408,7 +408,7 @@ public class NewSupplyPlan implements Serializable {
         }
     }
 
-    public int getUnmetDemandWps() {
+    public long getUnmetDemandWps() {
         return unmetDemandWps;
     }
 
@@ -428,7 +428,7 @@ public class NewSupplyPlan implements Serializable {
         this.batchDataList = batchDataList;
     }
 
-    public void addFinalConsumptionQty(Integer consumption) {
+    public void addFinalConsumptionQty(Long consumption) {
         if (consumption != null) {
             if (this.finalConsumptionQty != null) {
                 this.finalConsumptionQty += consumption;
@@ -438,7 +438,7 @@ public class NewSupplyPlan implements Serializable {
         }
     }
 
-    public void addStockQty(Integer stock) {
+    public void addStockQty(Long stock) {
         if (stock != null) {
             if (this.stockQty == null) {
                 this.stockQty = stock;
@@ -448,7 +448,7 @@ public class NewSupplyPlan implements Serializable {
         }
     }
 
-    public void addAdjustmentQty(Integer adjustment) {
+    public void addAdjustmentQty(Long adjustment) {
         if (adjustment != null) {
             if (this.adjustmentQty == null) {
                 this.adjustmentQty = adjustment;
@@ -461,7 +461,7 @@ public class NewSupplyPlan implements Serializable {
         }
     }
 
-    private void addFinalAdjustmentQty(Integer adjustemnt) {
+    private void addFinalAdjustmentQty(Long adjustemnt) {
         if (adjustemnt != null) {
             if (this.finalAdjustmentQty == null) {
                 this.finalAdjustmentQty = adjustemnt;
@@ -488,39 +488,39 @@ public class NewSupplyPlan implements Serializable {
         return sdf.format(c.getTime());
     }
 
-    public void addOpeningBalance(int ob) {
+    public void addOpeningBalance(long ob) {
         this.openingBalance += ob;
     }
 
-    public void addOpeningBalanceWps(int ob) {
+    public void addOpeningBalanceWps(long ob) {
         this.openingBalanceWps += ob;
     }
 
     public void updateExpiredStock() {
         this.batchDataList.forEach(bd -> {
             if (bd.getExpiryDate() != null && DateUtils.compareDates(bd.getExpiryDate(), this.transDate) <= 0) {
-                bd.setExpiredStock(Optional.ofNullable(bd.getShipment()).orElse(0) + bd.getOpeningBalance());
-                this.expiredStock = Optional.ofNullable(this.expiredStock).orElse(0) + bd.getExpiredStock();
-                bd.setExpiredStockWps(Optional.ofNullable(bd.getShipmentWps()).orElse(0) + bd.getOpeningBalanceWps());
-                this.expiredStockWps = Optional.ofNullable(this.expiredStockWps).orElse(0) + bd.getExpiredStockWps();
+                bd.setExpiredStock(Optional.ofNullable(bd.getShipment()).orElse(0L) + bd.getOpeningBalance());
+                this.expiredStock = Optional.ofNullable(this.expiredStock).orElse(0L) + bd.getExpiredStock();
+                bd.setExpiredStockWps(Optional.ofNullable(bd.getShipmentWps()).orElse(0L) + bd.getOpeningBalanceWps());
+                this.expiredStockWps = Optional.ofNullable(this.expiredStockWps).orElse(0L) + bd.getExpiredStockWps();
             }
         });
     }
 
     public void updateBatchData() {
-        int periodConsumption = Optional.ofNullable(this.finalConsumptionQty).orElse(0) - Optional.ofNullable(this.finalAdjustmentQty).orElse(0) - Optional.ofNullable(this.nationalAdjustment).orElse(0);
-        int periodConsumptionWps = Optional.ofNullable(this.finalConsumptionQty).orElse(0) - Optional.ofNullable(this.finalAdjustmentQty).orElse(0) - Optional.ofNullable(this.nationalAdjustmentWps).orElse(0);
+        long periodConsumption = Optional.ofNullable(this.finalConsumptionQty).orElse(0L) - Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) - Optional.ofNullable(this.nationalAdjustment).orElse(0L);
+        long periodConsumptionWps = Optional.ofNullable(this.finalConsumptionQty).orElse(0L) - Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) - Optional.ofNullable(this.nationalAdjustmentWps).orElse(0L);
         // draw down from the Batches that you have
         for (BatchData bd : this.getBatchDataList().stream().sorted(new ComparatorBatchData()).collect(Collectors.toList())) {
             bd.setUnallocatedConsumption(periodConsumption);
             bd.setUnallocatedConsumptionWps(periodConsumptionWps);
             if (periodConsumption > 0) {
-                int tempCB
+                long tempCB
                         = bd.getOpeningBalance()
                         - bd.getExpiredStock()
-                        + Optional.ofNullable(bd.getShipment()).orElse(0)
-                        - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0) : 0)
-                        + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0) : 0);
+                        + Optional.ofNullable(bd.getShipment()).orElse(0L)
+                        - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0L) : 0)
+                        + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0);
                 if (tempCB > periodConsumption) {
                     bd.setCalculatedConsumption(periodConsumption);
                     bd.setClosingBalance(tempCB - periodConsumption);
@@ -532,32 +532,32 @@ public class NewSupplyPlan implements Serializable {
                 }
             } else if (periodConsumption == 0) {
                 bd.setCalculatedConsumption(0);
-                int tempCB
+                long tempCB
                         = bd.getOpeningBalance()
                         - bd.getExpiredStock()
-                        + Optional.ofNullable(bd.getShipment()).orElse(0)
-                        - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0) : 0)
-                        + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0) : 0);
+                        + Optional.ofNullable(bd.getShipment()).orElse(0L)
+                        - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0L) : 0)
+                        + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0);
                 bd.setClosingBalance(tempCB - periodConsumption);
-            } else if (bd.getOpeningBalance() - bd.getExpiredStock() + Optional.ofNullable(bd.getShipment()).orElse(0) > 0) {
+            } else if (bd.getOpeningBalance() - bd.getExpiredStock() + Optional.ofNullable(bd.getShipment()).orElse(0L) > 0) {
                 bd.setCalculatedConsumption(0 - periodConsumption);
-                int tempCB
+                long tempCB
                         = bd.getOpeningBalance()
                         - bd.getExpiredStock()
-                        + Optional.ofNullable(bd.getShipment()).orElse(0)
-                        - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0) : 0)
-                        + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0) : 0);
+                        + Optional.ofNullable(bd.getShipment()).orElse(0L)
+                        - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0L) : 0)
+                        + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0);
                 bd.setClosingBalance(tempCB - periodConsumption);
                 periodConsumption = 0;
             }
 
             if (periodConsumptionWps > 0) {
-                int tempCB
+                long tempCB
                         = bd.getOpeningBalanceWps()
                         - bd.getExpiredStockWps()
-                        + Optional.ofNullable(bd.getShipmentWps()).orElse(0)
-                        - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0) : 0)
-                        + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0) : 0);
+                        + Optional.ofNullable(bd.getShipmentWps()).orElse(0L)
+                        - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0L) : 0)
+                        + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0);
                 if (tempCB > periodConsumptionWps) {
                     bd.setCalculatedConsumptionWps(periodConsumptionWps);
                     bd.setClosingBalanceWps(tempCB - periodConsumptionWps);
@@ -569,21 +569,21 @@ public class NewSupplyPlan implements Serializable {
                 }
             } else if (periodConsumptionWps == 0) {
                 bd.setCalculatedConsumptionWps(0);
-                int tempCB
+                long tempCB
                         = bd.getOpeningBalanceWps()
                         - bd.getExpiredStockWps()
-                        + Optional.ofNullable(bd.getShipmentWps()).orElse(0)
-                        - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0) : 0)
-                        + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0) : 0);
+                        + Optional.ofNullable(bd.getShipmentWps()).orElse(0L)
+                        - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0L) : 0)
+                        + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0);
                 bd.setClosingBalanceWps(tempCB - periodConsumptionWps);
-            } else if (bd.getOpeningBalanceWps() - bd.getExpiredStockWps() + Optional.ofNullable(bd.getShipmentWps()).orElse(0) > 0) {
+            } else if (bd.getOpeningBalanceWps() - bd.getExpiredStockWps() + Optional.ofNullable(bd.getShipmentWps()).orElse(0L) > 0) {
                 bd.setCalculatedConsumptionWps(0 - periodConsumptionWps);
-                int tempCB
+                long tempCB
                         = bd.getOpeningBalanceWps()
                         - bd.getExpiredStockWps()
-                        + Optional.ofNullable(bd.getShipmentWps()).orElse(0)
-                        - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0) : 0)
-                        + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0) : 0);
+                        + Optional.ofNullable(bd.getShipmentWps()).orElse(0L)
+                        - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0L) : 0)
+                        + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0);
                 bd.setClosingBalanceWps(tempCB - periodConsumptionWps);
                 periodConsumptionWps = 0;
             }
@@ -610,17 +610,17 @@ public class NewSupplyPlan implements Serializable {
     public void removeUnusedBatches() {
         List<BatchData> removeList = new LinkedList<>();
         this.getBatchDataList().stream().filter(bd -> (bd.getOpeningBalance() == 0
-                && Optional.ofNullable(bd.getShipment()).orElse(0) == 0
-                && Optional.ofNullable(bd.getActualConsumption()).orElse(0) == 0
-                && Optional.ofNullable(bd.getStock()).orElse(0) == 0
-                && Optional.ofNullable(bd.getCalculatedConsumption()).orElse(0) == 0
-                && Optional.ofNullable(bd.getClosingBalance()).orElse(0) == 0
+                && Optional.ofNullable(bd.getShipment()).orElse(0L) == 0
+                && Optional.ofNullable(bd.getActualConsumption()).orElse(0L) == 0
+                && Optional.ofNullable(bd.getStock()).orElse(0L) == 0
+                && Optional.ofNullable(bd.getCalculatedConsumption()).orElse(0L) == 0
+                && Optional.ofNullable(bd.getClosingBalance()).orElse(0L) == 0
                 && bd.getOpeningBalanceWps() == 0
-                && Optional.ofNullable(bd.getShipmentWps()).orElse(0) == 0
-                && Optional.ofNullable(bd.getActualConsumption()).orElse(0) == 0
-                && Optional.ofNullable(bd.getStock()).orElse(0) == 0
-                && Optional.ofNullable(bd.getCalculatedConsumptionWps()).orElse(0) == 0
-                && Optional.ofNullable(bd.getClosingBalanceWps()).orElse(0) == 0)
+                && Optional.ofNullable(bd.getShipmentWps()).orElse(0L) == 0
+                && Optional.ofNullable(bd.getActualConsumption()).orElse(0L) == 0
+                && Optional.ofNullable(bd.getStock()).orElse(0L) == 0
+                && Optional.ofNullable(bd.getCalculatedConsumptionWps()).orElse(0L) == 0
+                && Optional.ofNullable(bd.getClosingBalanceWps()).orElse(0L) == 0)
         ).forEachOrdered(bd -> {
             removeList.add(bd);
         });
