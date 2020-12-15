@@ -107,6 +107,7 @@ public class RegionDaoImpl implements RegionDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        sqlStringBuilder.append(" AND c.ACTIVE AND rc.ACTIVE");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RegionRowMapper());
     }
 
@@ -153,7 +154,7 @@ public class RegionDaoImpl implements RegionDao {
                 + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
                 + " LEFT JOIN us_user cb ON re.CREATED_BY=cb.USER_ID  "
                 + " LEFT JOIN us_user lmb ON re.LAST_MODIFIED_BY=lmb.USER_ID  "
-                + " WHERE TRUE AND p.PROGRAM_ID IN (").append(programIdsString).append(")");
+                + " WHERE TRUE AND p.PROGRAM_ID IN (").append(programIdsString).append(") AND re.`REGION_ID`  IS NOT NULL ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);

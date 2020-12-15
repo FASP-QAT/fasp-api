@@ -56,6 +56,7 @@ import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.service.ReportService;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -194,14 +195,17 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public List<StockStatusAcrossProductsOutput> getStockStatusAcrossProducts(StockStatusAcrossProductsInput ssap, CustomUserDetails curUser) {
         List<StockStatusAcrossProductsOutput> ssapList = this.reportDao.getStockStatusAcrossProductsBasicInfo(ssap, curUser);
+        List<StockStatusAcrossProductsOutput> finalList = new LinkedList<>(); 
         for (StockStatusAcrossProductsOutput s : ssapList) {
+            StockStatusAcrossProductsOutput m = new StockStatusAcrossProductsOutput();
+            m.setPlanningUnit(s.getPlanningUnit());
+            finalList.add(m);
             for (StockStatusAcrossProductsForProgram progData : s.getProgramData()) {
-                s.getProgramData().remove(progData);
                 StockStatusAcrossProductsForProgram sData = this.reportDao.getStockStatusAcrossProductsProgramData(progData.getProgram().getId(), s.getPlanningUnit().getId(), ssap.getDt(), ssap.isUseApprovedSupplyPlanOnly());
-                s.getProgramData().add(sData);
+                m.getProgramData().add(sData);
             }
         }
-        return ssapList;
+        return finalList;
     }
 
 }

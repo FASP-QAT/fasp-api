@@ -1,0 +1,2 @@
+ALTER TABLE `fasp`.`rm_realm_country_planning_unit` CHANGE COLUMN `MULTIPLIER` `MULTIPLIER` DECIMAL(16,6) UNSIGNED NOT NULL ;
+
