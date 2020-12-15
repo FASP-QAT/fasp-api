@@ -1935,8 +1935,13 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     }
 
     @Override
-    public void createRealmCountryPlanningUnits(int pipelineId, CustomUserDetails curUser) {
-        String sql = "insert into rm_realm_country_planning_unit (SELECT null,qtpu.PLANNING_UNIT_ID,qtp.REALM_COUNTRY_ID,rpu.LABEL_ID\n"
+    @Transactional
+    public void createRealmCountryPlanningUnits(int pipelineId, CustomUserDetails curUser,int realmCountryId) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        String sql = "update rm_realm_country r set r.ACTIVE=1,r.LAST_MODIFIED_BY=?,r.LAST_MODIFIED_DATE=? where r.REALM_COUNTRY_ID=? and r.ACTIVE=0";
+        this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, realmCountryId);
+
+        String sql1 = "insert into rm_realm_country_planning_unit (SELECT null,qtpu.PLANNING_UNIT_ID,qtp.REALM_COUNTRY_ID,rpu.LABEL_ID\n"
                 + ",concat(ac.COUNTRY_CODE2,\"-\",rha.HEALTH_AREA_CODE,\"-\",qtpu.PIPELINE_PRODUCT_ID,\"-\",qtpu.PLANNING_UNIT_ID) \n"
                 + ",1,1,null,1,1,now(),1,now() \n"
                 + "FROM fasp.qat_temp_program_planning_unit qtpu \n"
@@ -1948,7 +1953,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "left join ap_country ac on ac.COUNTRY_ID=rrc.COUNTRY_ID\n"
                 + "left join fasp.rm_health_area rha on rha.HEALTH_AREA_ID=qtp.HEALTH_AREA_ID\n"
                 + "where qtpu.PIPELINE_ID=? and rcpu.REALM_COUNTRY_PLANNING_UNIT_ID is null);";
-        this.jdbcTemplate.update(sql, pipelineId);
+        this.jdbcTemplate.update(sql1, pipelineId);
     }
 
 }
