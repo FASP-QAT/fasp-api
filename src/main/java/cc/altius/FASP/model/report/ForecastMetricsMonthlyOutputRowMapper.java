@@ -20,11 +20,11 @@ public class ForecastMetricsMonthlyOutputRowMapper implements RowMapper<Forecast
         ForecastMetricsMonthlyOutput fmo = new ForecastMetricsMonthlyOutput();
         fmo.setMonth(rs.getDate("MONTH"));
         fmo.setMonthCount(rs.getInt("MONTH_COUNT"));
-        fmo.setActualConsumptionHistory(rs.getInt("ACTUAL_CONSUMPTION_HISTORY"));
+        fmo.setActualConsumptionHistory(rs.getLong("ACTUAL_CONSUMPTION_HISTORY"));
         if (rs.wasNull()) {
             fmo.setActualConsumptionHistory(null);
         }
-        fmo.setDiffConsumptionHistory(rs.getInt("DIFF_CONSUMPTION_HISTORY"));
+        fmo.setDiffConsumptionHistory(rs.getLong("DIFF_CONSUMPTION_HISTORY"));
         if (rs.wasNull()) {
             fmo.setDiffConsumptionHistory(null);
         }
@@ -32,11 +32,11 @@ public class ForecastMetricsMonthlyOutputRowMapper implements RowMapper<Forecast
         if (rs.wasNull()) {
             fmo.setForecastError(null);
         }
-        fmo.setActualConsumption(rs.getInt("ACTUAL_CONSUMPTION"));
+        fmo.setActualConsumption(rs.getLong("ACTUAL_CONSUMPTION"));
         if (rs.wasNull()) {
             fmo.setActualConsumption(null);
         }
-        fmo.setForecastedConsumption(rs.getInt("FORECASTED_CONSUMPTION"));
+        fmo.setForecastedConsumption(rs.getLong("FORECASTED_CONSUMPTION"));
         if (rs.wasNull()) {
             fmo.setForecastedConsumption(null);
         }

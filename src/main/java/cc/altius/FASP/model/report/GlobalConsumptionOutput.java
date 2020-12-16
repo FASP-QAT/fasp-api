@@ -50,15 +50,15 @@ public class GlobalConsumptionOutput implements Serializable {
         this.countryConsumption = countryConsumption;
     }
 
-    public int getTotalForecastedConsumption() {
-        return this.countryConsumption.values().stream().map(x -> x.getForecastedConsumption()).reduce(0, Integer::sum);
+    public long getTotalForecastedConsumption() {
+        return this.countryConsumption.values().stream().map(x -> x.getForecastedConsumption()).reduce((long)0, Long::sum);
     }
 
-    public int getTotalActualConsumption() {
-        return this.countryConsumption.values().stream().map(x -> x.getActualConsumption()).reduce(0, Integer::sum);
+    public long getTotalActualConsumption() {
+        return this.countryConsumption.values().stream().map(x -> x.getActualConsumption()).reduce((long)0, Long::sum);
     }
 
-    public int getTotalConsumption() {
+    public long getTotalConsumption() {
         return this.getTotalForecastedConsumption() + this.getTotalActualConsumption();
     }
 

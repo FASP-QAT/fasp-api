@@ -21,7 +21,7 @@ public class InventoryTurnsOutputRowMapper implements RowMapper<InventoryTurnsOu
     public InventoryTurnsOutput mapRow(ResultSet rs, int i) throws SQLException {
         return new InventoryTurnsOutput(
                 new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper().mapRow(rs, i)), 
-                rs.getInt("TOTAL_CONSUMPTION"), 
+                rs.getLong("TOTAL_CONSUMPTION"), 
                 rs.getDouble("AVG_STOCK"),
                 rs.getInt("NO_OF_MONTHS"),
                 rs.getDouble("INVENTORY_TURNS"));

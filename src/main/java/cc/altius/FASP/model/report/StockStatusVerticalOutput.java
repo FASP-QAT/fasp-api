@@ -28,21 +28,21 @@ public class StockStatusVerticalOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Date dt;
     @JsonView(Views.ReportView.class)
-    private Integer openingBalance;
+    private Long openingBalance;
     @JsonView(Views.ReportView.class)
     private Boolean actualConsumption;
     @JsonView(Views.ReportView.class)
-    private Integer consumptionQty;
+    private Long consumptionQty;
     @JsonView(Views.ReportView.class)
-    private Integer shipmentQty;
+    private Long shipmentQty;
     @JsonView(Views.ReportView.class)
     private List<ShipmentInfo> shipmentInfo;
     @JsonView(Views.ReportView.class)
-    private Integer adjustment;
+    private Long adjustment;
     @JsonView(Views.ReportView.class)
-    private Integer expiredStock;
+    private Long expiredStock;
     @JsonView(Views.ReportView.class)
-    private Integer closingBalance;
+    private Long closingBalance;
     @JsonView(Views.ReportView.class)
     private Double amc;
     @JsonView(Views.ReportView.class)
@@ -64,11 +64,11 @@ public class StockStatusVerticalOutput implements Serializable {
         this.dt = dt;
     }
 
-    public Integer getOpeningBalance() {
+    public Long getOpeningBalance() {
         return openingBalance;
     }
 
-    public void setOpeningBalance(Integer openingBalance) {
+    public void setOpeningBalance(Long openingBalance) {
         this.openingBalance = openingBalance;
     }
 
@@ -80,43 +80,43 @@ public class StockStatusVerticalOutput implements Serializable {
         this.actualConsumption = actualConsumption;
     }
 
-    public Integer getConsumptionQty() {
+    public Long getConsumptionQty() {
         return consumptionQty;
     }
 
-    public void setConsumptionQty(Integer consumptionQty) {
+    public void setConsumptionQty(Long consumptionQty) {
         this.consumptionQty = consumptionQty;
     }
 
-    public Integer getShipmentQty() {
+    public Long getShipmentQty() {
         return shipmentQty;
     }
 
-    public void setShipmentQty(Integer shipmentQty) {
+    public void setShipmentQty(Long shipmentQty) {
         this.shipmentQty = shipmentQty;
     }
 
-    public Integer getAdjustment() {
+    public Long getAdjustment() {
         return adjustment;
     }
 
-    public void setAdjustment(Integer adjustment) {
+    public void setAdjustment(Long adjustment) {
         this.adjustment = adjustment;
     }
 
-    public Integer getExpiredStock() {
+    public Long getExpiredStock() {
         return expiredStock;
     }
 
-    public void setExpiredStock(Integer expiredStock) {
+    public void setExpiredStock(Long expiredStock) {
         this.expiredStock = expiredStock;
     }
 
-    public Integer getClosingBalance() {
+    public Long getClosingBalance() {
         return closingBalance;
     }
 
-    public void setClosingBalance(Integer closingBalance) {
+    public void setClosingBalance(Long closingBalance) {
         this.closingBalance = closingBalance;
     }
 

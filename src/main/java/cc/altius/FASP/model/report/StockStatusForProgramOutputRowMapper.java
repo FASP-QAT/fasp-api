@@ -28,7 +28,7 @@ public class StockStatusForProgramOutputRowMapper implements RowMapper<StockStat
         if (rs.wasNull()) {
             sspo.setMos(null);
         }
-        sspo.setStock(rs.getInt("STOCK"));
+        sspo.setStock(rs.getLong("STOCK"));
         if (rs.wasNull()) {
             sspo.setStock(null);
         }

@@ -21,9 +21,9 @@ public class StockStatusAcrossProductsForProgram implements Serializable {
     @JsonView(Views.ReportView.class)
     private Double amc;
     @JsonView(Views.ReportView.class)
-    private int amcCount;
+    private long amcCount;
     @JsonView(Views.ReportView.class)
-    private Integer finalClosingBalance;
+    private Long finalClosingBalance;
     @JsonView(Views.ReportView.class)
     private Double mos;
     @JsonView(Views.ReportView.class)
@@ -47,19 +47,19 @@ public class StockStatusAcrossProductsForProgram implements Serializable {
         this.amc = amc;
     }
 
-    public int getAmcCount() {
+    public long getAmcCount() {
         return amcCount;
     }
 
-    public void setAmcCount(int amcCount) {
+    public void setAmcCount(long amcCount) {
         this.amcCount = amcCount;
     }
 
-    public Integer getFinalClosingBalance() {
+    public Long getFinalClosingBalance() {
         return finalClosingBalance;
     }
 
-    public void setFinalClosingBalance(Integer finalClosingBalance) {
+    public void setFinalClosingBalance(Long finalClosingBalance) {
         this.finalClosingBalance = finalClosingBalance;
     }
 
