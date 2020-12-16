@@ -34,9 +34,13 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                 if (rs.wasNull()) {
                     ssv.setActualConsumption(null);
                 }
-                ssv.setConsumptionQty(rs.getInt("CONSUMPTION_QTY"));
+                ssv.setActualConsumptionQty(rs.getInt("ACTUAL_CONSUMPTION_QTY"));
                 if (rs.wasNull()) {
-                    ssv.setConsumptionQty(null);
+                    ssv.setActualConsumptionQty(null);
+                }
+                ssv.setForecastedConsumptionQty(rs.getInt("FORECASTED_CONSUMPTION_QTY"));
+                if (rs.wasNull()) {
+                    ssv.setForecastedConsumptionQty(null);
                 }
                 ssv.setShipmentQty(rs.getInt("SQTY"));
                 if (rs.wasNull()) {

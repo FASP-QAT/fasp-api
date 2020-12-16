@@ -32,7 +32,9 @@ public class StockStatusVerticalOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Boolean actualConsumption;
     @JsonView(Views.ReportView.class)
-    private Integer consumptionQty;
+    private Integer actualConsumptionQty;
+    @JsonView(Views.ReportView.class)
+    private Integer forecastedConsumptionQty;
     @JsonView(Views.ReportView.class)
     private Integer shipmentQty;
     @JsonView(Views.ReportView.class)
@@ -80,12 +82,20 @@ public class StockStatusVerticalOutput implements Serializable {
         this.actualConsumption = actualConsumption;
     }
 
-    public Integer getConsumptionQty() {
-        return consumptionQty;
+    public Integer getActualConsumptionQty() {
+        return actualConsumptionQty;
     }
 
-    public void setConsumptionQty(Integer consumptionQty) {
-        this.consumptionQty = consumptionQty;
+    public void setActualConsumptionQty(Integer actualConsumptionQty) {
+        this.actualConsumptionQty = actualConsumptionQty;
+    }
+
+    public Integer getForecastedConsumptionQty() {
+        return forecastedConsumptionQty;
+    }
+
+    public void setForecastedConsumptionQty(Integer forecastedConsumptionQty) {
+        this.forecastedConsumptionQty = forecastedConsumptionQty;
     }
 
     public Integer getShipmentQty() {
@@ -185,9 +195,4 @@ public class StockStatusVerticalOutput implements Serializable {
         return true;
     }
 
-    @Override
-    public String toString() {
-        return "StockStatusVerticalOutput{" + "dt=" + dt + ", openingBalance=" + openingBalance + ", actualConsumption=" + actualConsumption + ", consumptionQty=" + consumptionQty + ", shipmentQty=" + shipmentQty + ", shipmentInfo=" + shipmentInfo + ", adjustment=" + adjustment + ", expiredStock=" + expiredStock + ", closingBalance=" + closingBalance + ", amc=" + amc + ", mos=" + mos + ", minMos=" + minMos + ", maxMos=" + maxMos + '}';
-    }
-    
 }

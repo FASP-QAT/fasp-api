@@ -366,11 +366,11 @@ public class PipelineDbRestController {
         }
     }
     
-    @PutMapping(path = "/pipeline/realmCountryPlanningUnit/{pipelineId}")
-    public ResponseEntity createRealmCountryPlanningUnits(@PathVariable("pipelineId") int pipelineId, Authentication auth) throws IOException {
+    @PutMapping(path = "/pipeline/realmCountryPlanningUnit/{pipelineId}/{realmCountryId}")
+    public ResponseEntity createRealmCountryPlanningUnits(@PathVariable("pipelineId") int pipelineId,@PathVariable("realmCountryId") int realmCountryId ,Authentication auth) throws IOException {
         CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
         try {
-            this.pipelineDbService.createRealmCountryPlanningUnits(pipelineId, curUser);
+            this.pipelineDbService.createRealmCountryPlanningUnits(pipelineId, curUser,realmCountryId);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"),HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api//", e);
