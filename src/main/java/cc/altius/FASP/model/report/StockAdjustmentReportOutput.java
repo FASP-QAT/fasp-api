@@ -31,7 +31,7 @@ public class StockAdjustmentReportOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Date inventoryDate;
     @JsonView(Views.ReportView.class)
-    private int stockAdjustemntQty;
+    private long stockAdjustemntQty;
     @JsonView(Views.ReportView.class)
     private SimpleObject dataSource;
     @JsonView(Views.ReportView.class)
@@ -67,11 +67,11 @@ public class StockAdjustmentReportOutput implements Serializable {
         this.inventoryDate = inventoryDate;
     }
 
-    public int getStockAdjustemntQty() {
+    public long getStockAdjustemntQty() {
         return stockAdjustemntQty;
     }
 
-    public void setStockAdjustemntQty(int stockAdjustemntQty) {
+    public void setStockAdjustemntQty(long stockAdjustemntQty) {
         this.stockAdjustemntQty = stockAdjustemntQty;
     }
 
