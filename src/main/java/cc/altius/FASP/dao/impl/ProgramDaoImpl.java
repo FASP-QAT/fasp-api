@@ -84,7 +84,6 @@ public class ProgramDaoImpl implements ProgramDao {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-
     public String sqlListString = "SELECT   "
             + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME,  "
             + "     cpv.VERSION_ID `CV_VERSION_ID`, cpv.NOTES `CV_VERSION_NOTES`, cpv.CREATED_DATE `CV_CREATED_DATE`, cpvcb.USER_ID `CV_CB_USER_ID`, cpvcb.USERNAME `CV_CB_USERNAME`, cpv.LAST_MODIFIED_DATE `CV_LAST_MODIFIED_DATE`, cpvlmb.USER_ID `CV_LMB_USER_ID`, cpvlmb.USERNAME `CV_LMB_USERNAME`,  "
@@ -517,9 +516,14 @@ public class ProgramDaoImpl implements ProgramDao {
                     + " AND pu.`PROCUREMENT_AGENT_ID`=1 "
                     + " LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
                     + " LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
+                    + " LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE "
+                    + "	FROM rm_realm_country rc "
+                    + " LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                    + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=e.RECPIENT_COUNTRY "
+                    + " LEFT JOIN rm_program pm ON pm.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND pm.`PROGRAM_ID`=?                      "
                     + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS`"
                     + " LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                    + " WHERE e.RO_NO=? AND e.`PROGRAM_ID`=? AND pu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7 AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) "
+                    + " WHERE e.RO_NO=? AND pu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7 AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) "
                     + " GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`); ";
         } else if (searchId == 2) {
             sql = " SELECT e.*,l.`LABEL_ID`,IF(l.`LABEL_EN` IS NOT NULL,l.`LABEL_EN`,'') AS LABEL_EN,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP` FROM rm_erp_order e "
@@ -534,14 +538,17 @@ public class ProgramDaoImpl implements ProgramDao {
                     + " AND pu.`PROCUREMENT_AGENT_ID`=1 "
                     + " LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
                     + " LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
+                    + " LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE "
+                    + "	FROM rm_realm_country rc "
+                    + " LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                    + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=e.RECPIENT_COUNTRY "
+                    + " LEFT JOIN rm_program pm ON pm.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND pm.`PROGRAM_ID`=?                      "
                     + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
                     + " LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                    + " WHERE e.`ORDER_NO`=? AND e.`PROGRAM_ID`=? AND pu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7 AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) "
+                    + " WHERE e.`ORDER_NO`=? AND pu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7 AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) "
                     + " GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`); ";
         }
-        return this.jdbcTemplate.query(sql, new ManualTaggingOrderDTORowMapper(), roNoOrderNo, programId, planningUnitId);
-//        erpOrderDTO.setReason(reason);
-//        return erpOrderDTO;
+        return this.jdbcTemplate.query(sql, new ManualTaggingOrderDTORowMapper(), programId, roNoOrderNo, planningUnitId);
     }
 
     @Override
@@ -549,6 +556,7 @@ public class ProgramDaoImpl implements ProgramDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         int rows;
+        System.out.println("conversion factor---" + manualTaggingOrderDTO.getConversionFactor());
         String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
         int count = this.jdbcTemplate.queryForObject(sql, Integer.class, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
         if (count == 0) {
@@ -987,8 +995,7 @@ public class ProgramDaoImpl implements ProgramDao {
                             logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                         }
                     }
-//                    logger.info("Going to get new supply plan list ");
-//                    this.programDataService.getNewSupplyPlanList(erpOrderDTO.getShProgramId(), -1, true, false);
+
                 } catch (Exception e) {
                     logger.info("Error occurred while trying to import Shipment ", e);
                 }
@@ -1012,49 +1019,29 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
+    @Transactional
     public void delinkShipment(ManualTaggingOrderDTO erpOrderDTO, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        String sql = "SELECT st.`ERP_FLAG` FROM rm_shipment_trans st "
-                + "WHERE st.`SHIPMENT_ID`=? AND st.`ACTIVE` ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
-        Integer erpFlag = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId());
-        if (erpFlag == 1) {
-            sql = "SELECT s.`PARENT_SHIPMENT_ID` FROM rm_shipment s WHERE s.`SHIPMENT_ID`=?;";
-            int parentShipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, erpOrderDTO.getShipmentId());
-//            String sql1 = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=s.`MAX_VERSION_ID`+1 WHERE s.`SHIPMENT_ID`=?;";
-//            this.jdbcTemplate.update(sql1, parentShipmentId);
-            sql = "INSERT INTO rm_shipment_trans "
-                    + "SELECT NULL,?,st.`PLANNING_UNIT_ID`,st.`PROCUREMENT_AGENT_ID` ,st.`FUNDING_SOURCE_ID`, "
-                    + "st.`BUDGET_ID`,st.`EXPECTED_DELIVERY_DATE`,st.`PROCUREMENT_UNIT_ID`,st.`SUPPLIER_ID`, "
-                    + "st.`SHIPMENT_QTY`,st.`RATE`,st.`PRODUCT_COST`,st.`SHIPMENT_MODE`,st.`FREIGHT_COST`, "
-                    + "st.`PLANNED_DATE`,st.`SUBMITTED_DATE`,st.`APPROVED_DATE`,st.`SHIPPED_DATE`, "
-                    + "st.`ARRIVED_DATE`,st.`RECEIVED_DATE`,st.`SHIPMENT_STATUS_ID`,st.`NOTES`, "
-                    + "0,NULL,NULL,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,st.`LOCAL_PROCUREMENT`,?,st.`DATA_SOURCE_ID`,?,s.`MAX_VERSION_ID`,1 "
-                    + "FROM rm_shipment_trans st "
-                    + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-                    + "WHERE st.`SHIPMENT_ID`=? "
-                    + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
-            this.jdbcTemplate.update(sql, parentShipmentId, curUser.getUserId(), curDate, parentShipmentId);
+        String sql;
+        int maxTransId;
+        int parentShipmentId = erpOrderDTO.getShipmentId();
 
-            sql = "SELECT s.`SHIPMENT_ID` FROM rm_shipment s WHERE s.`PARENT_SHIPMENT_ID`=?;";
-            List<Integer> shipmentIdList = this.jdbcTemplate.queryForList(sql, Integer.class, parentShipmentId);
-            for (int shipmentId1 : shipmentIdList) {
-//                sql1 = "UPDATE rm_shipment s SET s.`MAX_VERSION_ID`=s.`MAX_VERSION_ID`+1 WHERE s.`SHIPMENT_ID`=?;";
-//                this.jdbcTemplate.update(sql1, shipmentId1);
+        maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=?", Integer.class, parentShipmentId);
 
-                sql = "INSERT INTO rm_shipment_trans "
-                        + "SELECT NULL,?,st.`PLANNING_UNIT_ID`,st.`PROCUREMENT_AGENT_ID` ,st.`FUNDING_SOURCE_ID`, "
-                        + "st.`BUDGET_ID`,st.`EXPECTED_DELIVERY_DATE`,st.`PROCUREMENT_UNIT_ID`,st.`SUPPLIER_ID`, "
-                        + "st.`SHIPMENT_QTY`,st.`RATE`,st.`PRODUCT_COST`,st.`SHIPMENT_MODE`,st.`FREIGHT_COST`, "
-                        + "st.`PLANNED_DATE`,st.`SUBMITTED_DATE`,st.`APPROVED_DATE`,st.`SHIPPED_DATE`, "
-                        + "st.`ARRIVED_DATE`,st.`RECEIVED_DATE`,st.`SHIPMENT_STATUS_ID`,st.`NOTES`, "
-                        + "0,st.`ORDER_NO`,st.`PRIME_LINE_NO`,st.`ACCOUNT_FLAG`,st.`EMERGENCY_ORDER`,st.`LOCAL_PROCUREMENT`,?,st.`DATA_SOURCE_ID`,?,s.`MAX_VERSION_ID`,0 "
-                        + "FROM rm_shipment_trans st "
-                        + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-                        + "WHERE st.`SHIPMENT_ID`=? "
-                        + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
-                this.jdbcTemplate.update(sql, shipmentId1, curUser.getUserId(), curDate, shipmentId1);
-            }
+        sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=1,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=? "
+                + "WHERE `SHIPMENT_TRANS_ID`=?;";
+        this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, maxTransId);
+
+        sql = "SELECT s.`SHIPMENT_ID` FROM rm_shipment s WHERE s.`PARENT_SHIPMENT_ID`=?;";
+        List<Integer> shipmentIdList = this.jdbcTemplate.queryForList(sql, Integer.class, parentShipmentId);
+        for (int shipmentId1 : shipmentIdList) {
+            maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=?", Integer.class, shipmentId1);
+
+            sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=? "
+                    + "WHERE `SHIPMENT_TRANS_ID`=?;";
+            this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, maxTransId);
         }
+//        }
         sql = "UPDATE rm_manual_tagging m SET m.`ACTIVE`=0,m.`NOTES`=?,m.`LAST_MODIFIED_DATE`=?,m.`LAST_MODIFIED_BY`=? WHERE m.`SHIPMENT_ID`=?;";
         this.jdbcTemplate.update(sql, erpOrderDTO.getNotes(), curDate, curUser.getUserId(), erpOrderDTO.getShipmentId());
 
@@ -1160,7 +1147,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<ProgramPlanningUnit> getProgramPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForProgramPlanningUnit).append(" AND ppu.PROGRAM_ID IN (").append(programIdsString).append(") ");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForProgramPlanningUnit).append(" AND ppu.PROGRAM_ID IN (").append(programIdsString).append(") AND ppu.`PROGRAM_PLANNING_UNIT_ID`  IS NOT NULL  ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "pg", curUser);
@@ -1175,15 +1162,25 @@ public class ProgramDaoImpl implements ProgramDao {
             sb.append("SELECT e.`ERP_ORDER_ID`,e.`RO_NO` AS LABEL FROM rm_erp_order e "
                     + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` AND papu.`PROCUREMENT_AGENT_ID`=1 "
                     + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
+                    + "LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE "
+                    + "FROM rm_realm_country rc "
+                    + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                    + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=e.RECPIENT_COUNTRY "
+                    + "LEFT JOIN rm_program p ON p.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND p.`PROGRAM_ID`=? "
                     + "LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                    + "WHERE (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) AND e.`PROGRAM_ID`=? AND papu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7 AND e.`RO_NO` LIKE '%").append(term).append("%' GROUP BY e.`RO_NO`");
+                    + "WHERE (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) AND p.`REALM_COUNTRY_ID` IS NOT NULL AND papu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7 AND e.`RO_NO` LIKE '%").append(term).append("%' GROUP BY e.`RO_NO`");
         }
         if (searchId == 2) {
             sb.append("SELECT e.`ERP_ORDER_ID`,e.`ORDER_NO` AS LABEL FROM rm_erp_order e "
                     + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` AND papu.`PROCUREMENT_AGENT_ID`=1 "
                     + "LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
+                    + "LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE "
+                    + "FROM rm_realm_country rc "
+                    + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                    + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=e.RECPIENT_COUNTRY "
+                    + "LEFT JOIN rm_program p ON p.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND p.`PROGRAM_ID`=? "
                     + "LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                    + "WHERE (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) AND e.`PROGRAM_ID`=? AND papu.`PLANNING_UNIT_ID`=?  AND sm.`SHIPMENT_STATUS_ID` !=7 AND  e.`ORDER_NO` LIKE '%").append(term).append("%' GROUP BY e.`ORDER_NO`");
+                    + "WHERE (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) AND p.`REALM_COUNTRY_ID` IS NOT NULL AND papu.`PLANNING_UNIT_ID`=?  AND sm.`SHIPMENT_STATUS_ID` !=7 AND  e.`ORDER_NO` LIKE '%").append(term).append("%' GROUP BY e.`ORDER_NO`");
         }
         return this.jdbcTemplate.query(sb.toString(), new ErpOrderAutocompleteDTORowMapper(), programId, planningUnitId);
     }

@@ -1,0 +1,5 @@
+ALTER TABLE `fasp`.`rm_problem_report_trans` CHANGE COLUMN `NOTES` `NOTES` TEXT CHARACTER SET 'utf8' NULL DEFAULT NULL ;
+
+ALTER TABLE `fasp`.`rm_budget` CHANGE COLUMN `BUDGET_AMT` `BUDGET_AMT` DECIMAL(24,4) UNSIGNED NOT NULL COMMENT 'The total Budget amt approved for this Budget' ;
+
+ALTER TABLE `fasp`.`rm_shipment_trans` CHANGE COLUMN `ORDER_NO` `ORDER_NO` VARCHAR(25) CHARACTER SET 'utf8' NULL DEFAULT NULL ;

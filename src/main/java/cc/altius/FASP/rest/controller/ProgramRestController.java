@@ -13,6 +13,7 @@ import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.PlanningUnitService;
+import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
@@ -27,6 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -51,6 +53,9 @@ public class ProgramRestController {
     private UserService userService;
     @Autowired
     private PlanningUnitService planningUnitService;
+
+    @Autowired
+    private ProgramDataService programDataService;
 
     @PostMapping(path = "/program")
     public ResponseEntity postProgram(@RequestBody Program program, Authentication auth) {
@@ -342,11 +347,14 @@ public class ProgramRestController {
     }
 
     @PostMapping("/linkShipmentWithARTMIS/")
+    @Transactional
     public ResponseEntity linkShipmentWithARTMIS(@RequestBody ManualTaggingOrderDTO erpOrderDTO, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             int result = this.programService.linkShipmentWithARTMIS(erpOrderDTO, curUser);
             System.out.println("result---" + result);
+            logger.info("Going to get new supply plan list ");
+            this.programDataService.getNewSupplyPlanList(erpOrderDTO.getProgramId(), -1, true, false);
             return new ResponseEntity(result, HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);
@@ -382,6 +390,8 @@ public class ProgramRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.programService.delinkShipment(erpOrderDTO, curUser);
+            logger.info("Going to get new supply plan list ");
+            this.programDataService.getNewSupplyPlanList(erpOrderDTO.getProgramId(), -1, true, false);
             return new ResponseEntity(new ResponseCode("success"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);
