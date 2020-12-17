@@ -1,3 +1,10 @@
+UPDATE `rm_realm_problem` SET `ACTIVE`='0' WHERE `REALM_PROBLEM_ID`='5';
+UPDATE `rm_realm_problem` SET `ACTIVE`='0' WHERE `REALM_PROBLEM_ID`='6';
+UPDATE `rm_realm_problem` SET `ACTIVE`='0' WHERE `REALM_PROBLEM_ID`='7';
+UPDATE `rm_realm_problem` SET `DATA3`='18,3' WHERE `REALM_PROBLEM_ID`='11';
+UPDATE `rm_realm_problem` SET `DATA3`='23' WHERE `REALM_PROBLEM_ID`='13';
+UPDATE `rm_realm_problem` SET `DATA3`='26' WHERE `REALM_PROBLEM_ID`='14';
+
 USE `fasp`;
 DROP procedure IF EXISTS `buildNewSupplyPlanRegion`;
 
@@ -406,6 +413,11 @@ DELIMITER ;
 
 
 
+USE `fasp`;
+DROP procedure IF EXISTS `forecastMetricsComparision`;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `forecastMetricsComparision`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_START_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT, VAR_PLANNING_UNIT_IDS TEXT, VAR_PREVIOUS_MONTHS INT(10), VAR_APPROVED_SUPPLY_PLAN_ONLY TINYINT(1))
 BEGIN
 
@@ -532,7 +544,9 @@ BEGIN
 
     PREPARE S1 FROM @sqlString;
     EXECUTE S1;
-END
+END$$
+
+DELIMITER ;
 
 
 
