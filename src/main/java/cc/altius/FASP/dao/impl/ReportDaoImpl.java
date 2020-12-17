@@ -472,7 +472,7 @@ public class ReportDaoImpl implements ReportDao {
                 + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
                 + "WHERE "
-                + "rc.REALM_ID = :realmId ");
+                + "rc.REALM_ID = :realmId AND ppu.ACTIVE AND pu.ACTIVE ");
         if (ssap.getTracerCategoryIds().length > 0) {
             sb.append(" AND fu.TRACER_CATEGORY_ID IN (" + ssap.getTracerCategoryIdsString() + ")");
         }
