@@ -1397,10 +1397,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         return sp;
     }
 
+    /*newBatchSubstituteMap takes ExpiryDate and Planning Unit as key*/
     @Override
     @Transactional
     public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild, boolean returnSupplyPlan) throws ParseException {
-        Map<Integer, Integer> newBatchSubstituteMap = new HashMap<>();
+        Map<String, Integer> newBatchSubstituteMap = new HashMap<>();
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
@@ -1461,14 +1462,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     int batchId = 0;
                     if (bd.getBatchId() < 0) {
                         // This is a new Batch so check if it has just been created if not then create it
-                        batchId = newBatchSubstituteMap.getOrDefault(nsp.getPlanningUnitId(), 0);
+                        batchId = newBatchSubstituteMap.getOrDefault(bd.getExpiryDate() + "-" + nsp.getPlanningUnitId(), 0);
                         if (batchId == 0) {
-                            String sql = "SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.PROGRAM_ID=:programId AND bi.PLANNING_UNIT_ID=:planningUnitId AND DATE(bi.CREATED_DATE)=DATE(:curDate)";
+                            String sql = "SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.PROGRAM_ID=:programId AND bi.PLANNING_UNIT_ID=:planningUnitId AND DATE(bi.CREATED_DATE)=DATE(:curDate) AND bi.EXPIRY_DATE=:expiryDate";
                             Map<String, Object> newBatchParams = new HashMap<>();
                             newBatchParams.put("programId", msp.getProgramId());
                             newBatchParams.put("planningUnitId", nsp.getPlanningUnitId());
                             newBatchParams.put("transDate", nsp.getTransDate());
                             newBatchParams.put("curDate", nsp.getTransDate());
+                            newBatchParams.put("expiryDate", bd.getExpiryDate());
                             try {
                                 batchId = this.namedParameterJdbcTemplate.queryForObject(sql, newBatchParams, Integer.class);
                             } catch (EmptyResultDataAccessException erda) {
@@ -1483,7 +1485,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 this.namedParameterJdbcTemplate.update(sql, newBatchParams);
                                 batchId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
                             }
-                            newBatchSubstituteMap.put(nsp.getPlanningUnitId(), batchId);
+                            newBatchSubstituteMap.put(bd.getExpiryDate() + "-" + nsp.getPlanningUnitId(), batchId);
                         }
                         bd.setBatchId(batchId);
                         bd.setExpiryDate(this.jdbcTemplate.queryForObject("SELECT EXPIRY_DATE FROM rm_batch_info WHERE BATCH_ID=?", String.class, bd.getBatchId()));
