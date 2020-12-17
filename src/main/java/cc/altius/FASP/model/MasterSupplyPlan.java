@@ -21,18 +21,22 @@ import java.util.logging.Logger;
  */
 public class MasterSupplyPlan implements Serializable {
 
+    /* introduced newBatchCounter in this class */
     private int programId;
     private int versionId;
+    private int newBatchCounter;
     private List<NewSupplyPlan> nspList;
     private static final String REGION_FILE = "/home/akil/Desktop/region.txt";
     private static final String BATCH_FILE = "/home/akil/Desktop/batch.txt";
 
     public MasterSupplyPlan() {
+        this.newBatchCounter = -1;
     }
 
     public MasterSupplyPlan(int programId, int versionId) {
         this.programId = programId;
         this.versionId = versionId;
+        this.newBatchCounter = -1;
     }
 
     public int getProgramId() {
@@ -41,6 +45,14 @@ public class MasterSupplyPlan implements Serializable {
 
     public int getVersionId() {
         return versionId;
+    }
+
+    public int getNewBatchCounter() {
+        return newBatchCounter;
+    }
+
+    public void setNewBatchCounter(int newBatchCounter) {
+        this.newBatchCounter = newBatchCounter;
     }
 
     public List<NewSupplyPlan> getNspList() {
@@ -103,7 +115,7 @@ public class MasterSupplyPlan implements Serializable {
     public void printSupplyPlan() {
         StringBuilder regionString = new StringBuilder()
                 .append("PlngUnt").append("\t")
-                .append("TransDate").append("\t")
+                .append("TrnsDt").append("\t")
                 .append("OB").append("\t")
                 .append("OBW").append("\t")
                 .append("Exp").append("\t")
@@ -125,8 +137,8 @@ public class MasterSupplyPlan implements Serializable {
                 .append("UnmetW").append("\r\n");
         StringBuilder batchString = new StringBuilder()
                 .append("PlngUnt").append("\t")
-                .append("TrnsDt").append("\t")
-                .append("BtchId").append("\t")
+                .append("TrnsDt").append("\t\t")
+                .append("BtchId").append("\t\t")
                 .append("ExpDt").append("\t")
                 .append("OB").append("\t")
                 .append("OBW").append("\t")
@@ -225,7 +237,7 @@ public class MasterSupplyPlan implements Serializable {
             // Opening Balance is already set with Regions
             // Shipments are set through the ResultSetExtractor
             // Expired stock is already set with the Regions
-            nsp.updateBatchData();   // handles both All and WPS
+            setNewBatchCounter(nsp.updateBatchData(this.newBatchCounter));   // handles both All and WPS
             nsp.removeUnusedBatches();   // handles both All and WPS
             nsp.getBatchDataList().forEach(bd -> {
                 bd.setUseActualConsumption(nsp.isActualConsumptionFlag());
