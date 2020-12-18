@@ -16,12 +16,12 @@ import org.springframework.web.multipart.MultipartFile;
  * @author altius
  */
 public interface JiraServiceDeskApiService {
-    
+
     public ResponseEntity addIssue(String jsonData, CustomUserDetails curUser);
-    
-    public ResponseEntity addIssueAttachment(MultipartFile file, String issueId);      
-    
+
+    public ResponseEntity addIssueAttachment(MultipartFile file, String issueId);
+
     public JiraServiceDeskIssuesDTO getIssuesSummary(CustomUserDetails curUser);
-    
-    public String syncUserJiraAccountId();
+
+    public String syncUserJiraAccountId(String emailId);
 }
