@@ -14,6 +14,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
@@ -196,20 +197,18 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
 
         HttpEntity<String> entity = new HttpEntity<String>(obj.toJSONString(), headers);
 
-        response = restTemplate.exchange(
+        try {
+            response = restTemplate.exchange(
                 JIRA_SERVICE_DESK_API_URL + "/customer", HttpMethod.POST, entity, String.class);
-
-        if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
-
             JsonObject jsonObject = JsonParser.parseString​(response.getBody()).getAsJsonObject();
             JsonElement element = jsonObject.get("accountId");
             accountId = element.getAsString();
             this.userService.addUserJiraAccountId(curUser.getUserId(), accountId);
             return accountId;
-
-        } else {
-            return "";
-        }
+        } catch (Exception e) {            
+            this.syncUserJiraAccountId(curUser.getEmailId());
+            return this.userService.getUserJiraAccountId(curUser.getUserId());
+        }               
     }
 
     private HttpHeaders getCommonHeaders() {
@@ -224,7 +223,7 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
     }
 
     @Override
-    public String syncUserJiraAccountId() {
+    public String syncUserJiraAccountId(String emailId) {
                 
         RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<String> response;  
@@ -248,7 +247,12 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
             total = element.getAsInt();
             
             if(total > 0) {
-                List<String> userEmails = this.userService.getUserListForUpdateJiraAccountId();
+                List<String> userEmails = new ArrayList<>();
+                if(!emailId.equals("")) {
+                    userEmails.add(emailId);
+                } else {
+                    userEmails = this.userService.getUserListForUpdateJiraAccountId();
+                }
                 jsonArray = jsonObject.getAsJsonArray("values");                
                 sb.append("{");
                 for(int i=0 ; i < total ; i++) {
