@@ -359,7 +359,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<SimpleObject> getPlanningUnitListForProgramIds(String programIds, CustomUserDetails curUser) {
-        String sql = "SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM rm_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE p.PROGRAM_ID IN (" + programIds + ") AND ppu.PROGRAM_ID IS NOT NULL";
+        String sql = "SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM rm_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE p.PROGRAM_ID IN (" + programIds + ") AND ppu.PROGRAM_ID IS NOT NULL AND ppu.ACTIVE AND pu.ACTIVE";
         Map<String, Object> params = new HashMap<>();
         params.put("programIds", programIds);
         return this.namedParameterJdbcTemplate.query(sql, params, new SimpleObjectRowMapper());
@@ -523,7 +523,7 @@ public class ProgramDaoImpl implements ProgramDao {
                     + " LEFT JOIN rm_program pm ON pm.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND pm.`PROGRAM_ID`=?                      "
                     + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS`"
                     + " LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                    + " WHERE e.RO_NO=? AND pu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7 AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) "
+                    + " WHERE e.RO_NO=? AND pu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` NOT IN (7,8) AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) "
                     + " GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`); ";
         } else if (searchId == 2) {
             sql = " SELECT e.*,l.`LABEL_ID`,IF(l.`LABEL_EN` IS NOT NULL,l.`LABEL_EN`,'') AS LABEL_EN,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP` FROM rm_erp_order e "
@@ -545,7 +545,7 @@ public class ProgramDaoImpl implements ProgramDao {
                     + " LEFT JOIN rm_program pm ON pm.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND pm.`PROGRAM_ID`=?                      "
                     + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
                     + " LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                    + " WHERE e.`ORDER_NO`=? AND pu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7 AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) "
+                    + " WHERE e.`ORDER_NO`=? AND pu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` NOT IN (7,8) AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) "
                     + " GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`); ";
         }
         return this.jdbcTemplate.query(sql, new ManualTaggingOrderDTORowMapper(), programId, roNoOrderNo, planningUnitId);
@@ -1168,7 +1168,7 @@ public class ProgramDaoImpl implements ProgramDao {
                     + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=e.RECPIENT_COUNTRY "
                     + "LEFT JOIN rm_program p ON p.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND p.`PROGRAM_ID`=? "
                     + "LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                    + "WHERE (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) AND p.`REALM_COUNTRY_ID` IS NOT NULL AND papu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` !=7 AND e.`RO_NO` LIKE '%").append(term).append("%' GROUP BY e.`RO_NO`");
+                    + "WHERE (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) AND p.`REALM_COUNTRY_ID` IS NOT NULL AND papu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` NOT IN (7,8) AND e.`RO_NO` LIKE '%").append(term).append("%' GROUP BY e.`RO_NO`");
         }
         if (searchId == 2) {
             sb.append("SELECT e.`ERP_ORDER_ID`,e.`ORDER_NO` AS LABEL FROM rm_erp_order e "
@@ -1180,7 +1180,7 @@ public class ProgramDaoImpl implements ProgramDao {
                     + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=e.RECPIENT_COUNTRY "
                     + "LEFT JOIN rm_program p ON p.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND p.`PROGRAM_ID`=? "
                     + "LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                    + "WHERE (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) AND p.`REALM_COUNTRY_ID` IS NOT NULL AND papu.`PLANNING_UNIT_ID`=?  AND sm.`SHIPMENT_STATUS_ID` !=7 AND  e.`ORDER_NO` LIKE '%").append(term).append("%' GROUP BY e.`ORDER_NO`");
+                    + "WHERE (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) AND p.`REALM_COUNTRY_ID` IS NOT NULL AND papu.`PLANNING_UNIT_ID`=?  AND sm.`SHIPMENT_STATUS_ID` NOT IN (7,8) AND  e.`ORDER_NO` LIKE '%").append(term).append("%' GROUP BY e.`ORDER_NO`");
         }
         return this.jdbcTemplate.query(sb.toString(), new ErpOrderAutocompleteDTORowMapper(), programId, planningUnitId);
     }

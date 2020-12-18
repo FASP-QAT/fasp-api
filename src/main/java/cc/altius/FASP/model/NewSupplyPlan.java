@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
  */
 public class NewSupplyPlan implements Serializable {
 
+    /* new batch counter comes frmo MasterSupplyPlan*/
     private int planningUnitId;
     private String transDate;
     private int shelfLife;
@@ -61,7 +62,7 @@ public class NewSupplyPlan implements Serializable {
     private int nationalAdjustmentWps;
     private int closingBalanceWps;
     private int unmetDemandWps;
-    private int newBatchCounter;
+//    private int newBatchCounter;
 
     private List<RegionData> regionDataList;
     private List<BatchData> batchDataList;
@@ -69,7 +70,7 @@ public class NewSupplyPlan implements Serializable {
     public NewSupplyPlan() {
         this.regionDataList = new LinkedList<>();
         this.batchDataList = new LinkedList<>();
-        this.newBatchCounter = -1;
+//        this.newBatchCounter = -1;
     }
 
     public NewSupplyPlan(int planningUnitId, String transDate) {
@@ -77,7 +78,7 @@ public class NewSupplyPlan implements Serializable {
         this.transDate = transDate;
         this.regionDataList = new LinkedList<>();
         this.batchDataList = new LinkedList<>();
-        this.newBatchCounter = -1;
+//        this.newBatchCounter = -1;
     }
 
     public NewSupplyPlan(int planningUnitId, String transDate, int shelfLife) {
@@ -86,7 +87,7 @@ public class NewSupplyPlan implements Serializable {
         this.shelfLife = shelfLife;
         this.regionDataList = new LinkedList<>();
         this.batchDataList = new LinkedList<>();
-        this.newBatchCounter = -1;
+//        this.newBatchCounter = -1;
     }
 
     public int getPlanningUnitId() {
@@ -507,7 +508,7 @@ public class NewSupplyPlan implements Serializable {
         });
     }
 
-    public void updateBatchData() {
+    public int updateBatchData(int newBatchCounter) {
         int periodConsumption = Optional.ofNullable(this.finalConsumptionQty).orElse(0) - Optional.ofNullable(this.finalAdjustmentQty).orElse(0) - Optional.ofNullable(this.nationalAdjustment).orElse(0);
         int periodConsumptionWps = Optional.ofNullable(this.finalConsumptionQty).orElse(0) - Optional.ofNullable(this.finalAdjustmentQty).orElse(0) - Optional.ofNullable(this.nationalAdjustmentWps).orElse(0);
         // draw down from the Batches that you have
@@ -591,7 +592,7 @@ public class NewSupplyPlan implements Serializable {
         if (periodConsumption < 0 || periodConsumptionWps < 0) {
             System.out.println("We need to create a new Batch for periodConsumptionWps:" + periodConsumptionWps + " PlanningUnitId:" + this.planningUnitId + " transDate:" + this.transDate);
             BatchData bdNew = new BatchData();
-            bdNew.setBatchId(this.newBatchCounter);
+            bdNew.setBatchId(newBatchCounter);
             bdNew.setShelfLife(this.shelfLife);
             bdNew.setExpiryDate(this.calculateExpiryDate(this.transDate));
             bdNew.setOpeningBalance(0);
@@ -603,8 +604,9 @@ public class NewSupplyPlan implements Serializable {
             bdNew.setAllRegionsReportedStock(this.isAllRegionsReportedStock());
             bdNew.setUseAdjustment(this.isUseAdjustment());
             this.batchDataList.add(bdNew);
-            this.newBatchCounter--;
+            newBatchCounter--;
         }
+        return newBatchCounter;
     }
 
     public void removeUnusedBatches() {

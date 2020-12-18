@@ -87,7 +87,8 @@ public class ProblemDaoImpl implements ProblemDao {
             + "     LEFT JOIN rm_problem_report_trans prt ON prr.PROBLEM_REPORT_ID=prt.PROBLEM_REPORT_ID "
             + "     LEFT JOIN vw_problem_status pst ON prt.PROBLEM_STATUS_ID=pst.PROBLEM_STATUS_ID "
             + "     LEFT JOIN us_user cbt ON prt.CREATED_BY=cbt.USER_ID "
-            + "WHERE prr.PROGRAM_ID=:programId AND prr.VERSION_ID<=:versionId ";
+            + "     LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=prog.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+            + "WHERE prr.PROGRAM_ID=:programId AND prr.VERSION_ID<=:versionId AND pu.ACTIVE AND ppu.ACTIVE ";
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -105,7 +106,7 @@ public class ProblemDaoImpl implements ProblemDao {
 
     @Override
     public List<ProblemReport> getProblemReportList(int programId, int versionId, CustomUserDetails curUser) {
-        String sql = this.problemReportSql + "ORDER BY prr.PROBLEM_REPORT_ID, prt.PROBLEM_REPORT_TRANS_ID";
+        String sql = this.problemReportSql + " ORDER BY prr.PROBLEM_REPORT_ID, prt.PROBLEM_REPORT_TRANS_ID";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
