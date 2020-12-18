@@ -1575,3 +1575,4 @@ END$$
 
 DELIMITER ;
 
+ALTER TABLE `rm_budget` DROP INDEX `unq_budgetCode` , ADD UNIQUE INDEX `unq_budgetCode` (`BUDGET_CODE` ASC, `PROGRAM_ID` ASC);

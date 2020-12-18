@@ -1,8 +1,13 @@
+USE `fasp`;
+DROP procedure IF EXISTS `stockStatusReportVertical`;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `stockStatusReportVertical`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_ID INT(10))
 BEGIN
 	-- %%%%%%%%%%%%%%%%%%%%%
         -- Report no 16
-	-- %%%%%%%%%%%%%%%%%%%%%
+	-- %%%%%%%%%%%%%%%%%%%%% 
 	
         SET @startDate = VAR_START_DATE;
 	SET @stopDate = VAR_STOP_DATE;
@@ -60,8 +65,17 @@ BEGIN
         mn.MONTH BETWEEN @startDate AND @stopDate
     ORDER BY mn.MONTH;
     
-END
+END$$
 
+DELIMITER ;
+
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `forecastMetricsComparision`;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `forecastMetricsComparision`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_START_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT, VAR_PLANNING_UNIT_IDS TEXT, VAR_PREVIOUS_MONTHS INT(10), VAR_APPROVED_SUPPLY_PLAN_ONLY TINYINT(1))
 BEGIN
 
@@ -70,26 +84,26 @@ BEGIN
 	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
 	-- realmId since it is a Global report need to include Realm
-        -- startDate - date that the report is to be run for
-        -- realmCountryIds list of countries that we need to run the report for
-        -- programIds is the list of programs that we need to run the report for
-        -- planningUnitIds is the list of planningUnits that we need to run the report for
-        -- previousMonths is the number of months that the calculation should go in the past for (excluding the current month) calculation of WAPE formulae
-        -- current month is always included in the calculation
-        -- only consider those months that have both a Forecasted and Actual consumption
-        -- WAPE Formulae
-        -- ((Abs(actual consumption month 1-forecasted consumption month 1)+ Abs(actual consumption month 2-forecasted consumption month 2)+ Abs(actual consumption month 3-forecasted consumption month 3)+ Abs(actual consumption month 4-forecasted consumption month 4)+ Abs(actual consumption month 5-forecasted consumption month 5)+ Abs(actual consumption month 6-forecasted consumption month 6)) / (Sum of all actual consumption in the last 6 months)) 
+    -- startDate - date that the report is to be run for
+    -- realmCountryIds list of countries that we need to run the report for
+    -- programIds is the list of programs that we need to run the report for
+    -- planningUnitIds is the list of planningUnits that we need to run the report for
+    -- previousMonths is the number of months that the calculation should go in the past for (excluding the current month) calculation of WAPE formulae
+    -- current month is always included in the calculation
+    -- only consider those months that have both a Forecasted and Actual consumption
+    -- WAPE Formulae
+    -- ((Abs(actual consumption month 1-forecasted consumption month 1)+ Abs(actual consumption month 2-forecasted consumption month 2)+ Abs(actual consumption month 3-forecasted consumption month 3)+ Abs(actual consumption month 4-forecasted consumption month 4)+ Abs(actual consumption month 5-forecasted consumption month 5)+ Abs(actual consumption month 6-forecasted consumption month 6)) / (Sum of all actual consumption in the last 6 months)) 
 
 	DECLARE curRealmCountryId INT;
-        DECLARE curHealthAreaId INT;
-        DECLARE curOrganisationId INT;
-        DECLARE curProgramId INT;
+    DECLARE curHealthAreaId INT;
+    DECLARE curOrganisationId INT;
+    DECLARE curProgramId INT;
 	DECLARE done INT DEFAULT FALSE;
 	DECLARE cursor_acl CURSOR FOR SELECT acl.REALM_COUNTRY_ID, acl.HEALTH_AREA_ID, acl.ORGANISATION_ID, acl.PROGRAM_ID FROM us_user_acl acl WHERE acl.USER_ID=VAR_USER_ID;
 	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
     
-        SET @aclSqlString = CONCAT("       AND (FALSE ");
-        OPEN cursor_acl;
+    SET @aclSqlString = CONCAT("       AND (FALSE ");
+    OPEN cursor_acl;
 	read_loop: LOOP
         FETCH cursor_acl INTO curRealmCountryId, curHealthAreaId, curOrganisationId, curProgramId;
         IF done THEN
@@ -174,7 +188,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "    GROUP BY ppu.PROGRAM_ID, ppu.PLANNING_UNIT_ID ");
     SET @sqlString = CONCAT(@sqlString, ") c2 ON spa.PROGRAM_ID=c2.PROGRAM_ID AND spa.TRANS_DATE=c2.TRANS_DATE AND spa.PLANNING_UNIT_ID=c2.PLANNING_UNIT_ID ");
     SET @sqlString = CONCAT(@sqlString, "WHERE ");
-    SET @sqlString = CONCAT(@sqlString, "    TRUE ");
+    SET @sqlString = CONCAT(@sqlString, "    TRUE AND ppu.ACTIVE AND pu.ACTIVE ");
     IF LENGTH(VAR_PROGRAM_IDS)>0 THEN
 		SET @sqlString = CONCAT(@sqlString, "       AND ppu.PROGRAM_ID IN (",VAR_PROGRAM_IDS,") ");
     END IF;
@@ -188,4 +202,7 @@ BEGIN
 
     PREPARE S1 FROM @sqlString;
     EXECUTE S1;
-END
+END$$
+
+DELIMITER ;
+
