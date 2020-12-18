@@ -1576,3 +1576,6 @@ END$$
 DELIMITER ;
 
 ALTER TABLE `rm_budget` DROP INDEX `unq_budgetCode` , ADD UNIQUE INDEX `unq_budgetCode` (`BUDGET_CODE` ASC, `PROGRAM_ID` ASC);
+
+delete from rm_problem_report_trans where PROBLEM_REPORT_ID in (select PROBLEM_REPORT_ID from fasp.rm_problem_report  where REALM_PROBLEM_ID in (11,13,14));
+delete from fasp.rm_problem_report  where REALM_PROBLEM_ID in (11,13,14);
