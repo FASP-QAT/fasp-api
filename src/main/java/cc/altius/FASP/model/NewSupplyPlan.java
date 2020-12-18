@@ -396,16 +396,18 @@ public class NewSupplyPlan implements Serializable {
     }
 
     public void updateUnmetDemand() {
-        if (this.closingBalance == 0) {
-            this.unmetDemand = 0 - this.expectedStock;
-        } else {
-            this.unmetDemand = 0;
-        }
+        if (!isAllRegionsReportedStock()) {
+            if (this.closingBalance == 0) {
+                this.unmetDemand = 0 - this.expectedStock;
+            } else {
+                this.unmetDemand = 0;
+            }
 
-        if (this.closingBalanceWps == 0) {
-            this.unmetDemandWps = 0 - this.expectedStockWps;
-        } else {
-            this.unmetDemandWps = 0;
+            if (this.closingBalanceWps == 0) {
+                this.unmetDemandWps = 0 - this.expectedStockWps;
+            } else {
+                this.unmetDemandWps = 0;
+            }
         }
     }
 
