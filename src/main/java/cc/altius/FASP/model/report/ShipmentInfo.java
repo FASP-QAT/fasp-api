@@ -20,7 +20,7 @@ public class ShipmentInfo implements Serializable {
     @JsonView(Views.ReportView.class)
     private int shipmentId;
     @JsonView(Views.ReportView.class)
-    private int shipmentQty;
+    private long shipmentQty;
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject fundingSource;
     @JsonView(Views.ReportView.class)
@@ -31,7 +31,7 @@ public class ShipmentInfo implements Serializable {
     public ShipmentInfo() {
     }
 
-    public ShipmentInfo(int shipmentId, int shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus) {
+    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus) {
         this.shipmentId = shipmentId;
         this.shipmentQty = shipmentQty;
         this.fundingSource = fundingSource;
@@ -47,11 +47,11 @@ public class ShipmentInfo implements Serializable {
         this.shipmentId = shipmentId;
     }
 
-    public int getShipmentQty() {
+    public long getShipmentQty() {
         return shipmentQty;
     }
 
-    public void setShipmentQty(int shipmentQty) {
+    public void setShipmentQty(long shipmentQty) {
         this.shipmentQty = shipmentQty;
     }
 
