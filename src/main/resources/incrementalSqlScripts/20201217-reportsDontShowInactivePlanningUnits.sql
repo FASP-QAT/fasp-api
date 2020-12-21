@@ -1,3 +1,13 @@
+UPDATE rm_program p SET p.ORGANISATION_ID=1, p.PROGRAM_CODE='ETH-LAB-MOH' WHERE p.PROGRAM_ID=2137;
+
+-- QAT-362 changes for swapping the Planning Unit around
+UPDATE rm_program_planning_unit ppu set ppu.PLANNING_UNIT_ID=1073 WHERE ppu.PROGRAM_ID=2034 AND ppu.PLANNING_UNIT_ID=1074;
+UPDATE rm_realm_country_planning_unit rcpu SET rcpu.PLANNING_UNIT_ID=1073 WHERE rcpu.REALM_COUNTRY_ID=6 AND rcpu.REALM_COUNTRY_PLANNING_UNIT_ID=57;
+UPDATE rm_consumption c LEFT JOIN rm_consumption_trans ct ON c.CONSUMPTION_ID=ct.CONSUMPTION_ID SET ct.PLANNING_UNIT_ID=1073 WHERE c.PROGRAM_ID=2034 AND ct.PLANNING_UNIT_ID=1074;
+UPDATE rm_shipment s LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID LEFT JOIN rm_shipment_trans_batch_info stbi ON st.SHIPMENT_TRANS_ID=stbi.SHIPMENT_TRANS_ID LEFT JOIN rm_batch_info bi ON stbi.BATCH_ID=bi.BATCH_ID SET st.PLANNING_UNIT_ID=1073, bi.PLANNING_UNIT_ID=1073 WHERE s.PROGRAM_ID=2034 AND st.PLANNING_UNIT_ID=1074;
+UPDATE rm_problem_report pr SET pr.DATA3=1073 WHERE pr.PROGRAM_ID=2034 AND pr.DATA3=1074;
+-- 
+
 UPDATE `rm_realm_problem` SET `ACTIVE`='0' WHERE `REALM_PROBLEM_ID`='5';
 UPDATE `rm_realm_problem` SET `ACTIVE`='0' WHERE `REALM_PROBLEM_ID`='6';
 UPDATE `rm_realm_problem` SET `ACTIVE`='0' WHERE `REALM_PROBLEM_ID`='7';
@@ -239,7 +249,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID  ");
     SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_unit u ON pu.UNIT_ID=u.UNIT_ID ");
     SET @sqlString = CONCAT(@sqlString, "WHERE ");
-    SET @sqlString = CONCAT(@sqlString, "    mn.MONTH BETWEEN @startDate and @stopDate ppu.ACTIVE AND pu.ACTIVE ");
+    SET @sqlString = CONCAT(@sqlString, "    mn.MONTH BETWEEN @startDate and @stopDate AND ppu.ACTIVE AND pu.ACTIVE ");
     IF LENGTH(VAR_PLANNING_UNIT_IDS)>0 THEN
         SET @sqlString = CONCAT(@sqlString, "    AND ppu.PLANNING_UNIT_ID IN (",VAR_PLANNING_UNIT_IDS,") ");
     END IF;
@@ -249,6 +259,7 @@ BEGIN
 END$$
 
 DELIMITER ;
+
 
 
 
@@ -624,6 +635,7 @@ BEGIN
 	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID ");
 	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID<=pv.VERSION_ID ");
     SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_program_planning_unit ppu ON pv.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
 	SET @sqlString = CONCAT(@sqlString, "	WHERE ");
 	SET @sqlString = CONCAT(@sqlString, "		rc.REALM_ID=@realmId AND ppu.ACTIVE AND pu.ACTIVE");
     IF LENGTH(VAR_REALM_COUNTRY_IDS)>0 THEN
@@ -653,6 +665,7 @@ BEGIN
 END$$
 
 DELIMITER ;
+
 
 
 
@@ -730,6 +743,7 @@ BEGIN
 	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID ");
 	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID<=p.CURRENT_VERSION_ID ");
     SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_program_planning_unit ppu ON pv.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
 	SET @sqlString = CONCAT(@sqlString, "	WHERE ");
 	SET @sqlString = CONCAT(@sqlString, "		rc.REALM_ID=@realmId AND ppu.ACTIVE AND pu.ACTIVE");
     IF LENGTH(VAR_REALM_COUNTRY_IDS)>0 THEN
@@ -756,11 +770,13 @@ BEGIN
 	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN vw_planning_unit pu ON s1.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
 	SET @sqlString = CONCAT(@sqlString, "	GROUP BY pu.PLANNING_UNIT_ID");
  
- PREPARE S1 FROM @sqlString;
+ PREPARE S1 FROM @sqlString; 
  EXECUTE S1;
 END$$
 
 DELIMITER ;
+
+
 
 
 
@@ -852,6 +868,7 @@ BEGIN
 	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID ");
 	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID<=p.CURRENT_VERSION_ID ");
     SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_program_planning_unit ppu ON pv.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
 	SET @sqlString = CONCAT(@sqlString, "	WHERE ");
 	SET @sqlString = CONCAT(@sqlString, "		rc.REALM_ID=@realmId AND ppu.ACTIVE AND pu.ACTIVE");
         IF LENGTH(VAR_REALM_COUNTRY_IDS)>0 THEN
@@ -883,6 +900,83 @@ END$$
 
 DELIMITER ;
 
+
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `shipmentDetails`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentDetails`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT)
+BEGIN
+
+	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    -- Report no 19
+    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    -- Only Month and Year will be considered for StartDate and StopDate
+    -- Only a single ProgramId can be selected
+    -- VersionId can be a valid Version Id for the Program or -1 for last submitted VersionId
+    -- PlanningUnitIds is the list of Planning Units you want to run the report for. 
+    -- Empty PlanningUnitIds means you want to run the report for all the Planning Units in that Program
+
+	SET @startDate = VAR_START_DATE;
+	SET @stopDate = VAR_STOP_DATE;
+	SET @programId = VAR_PROGRAM_ID;
+	SET @versionId = VAR_VERSION_ID;
+    
+    IF @versionId = -1 THEN
+		SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
+	END IF;
+    
+	SET @sqlString = "";
+    SET @sqlString = CONCAT(@sqlString, "SELECT ");
+	SET @sqlString = CONCAT(@sqlString, "	pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, ");
+	SET @sqlString = CONCAT(@sqlString, "	fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, ");
+	SET @sqlString = CONCAT(@sqlString, "	pu.MULTIPLIER, ");
+	SET @sqlString = CONCAT(@sqlString, "	s.SHIPMENT_ID, ");
+	SET @sqlString = CONCAT(@sqlString, "	pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, ");
+	SET @sqlString = CONCAT(@sqlString, "	fs.FUNDING_SOURCE_ID, fs.FUNDING_SOURCE_CODE, fs.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fs.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fs.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fs.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fs.LABEL_PR `FUNDING_SOURCE_LABEL_PR`, ");
+	SET @sqlString = CONCAT(@sqlString, "	ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SHIPMENT_STATUS_LABEL_ID`, ss.LABEL_EN `SHIPMENT_STATUS_LABEL_EN`, ss.LABEL_FR `SHIPMENT_STATUS_LABEL_FR`, ss.LABEL_SP `SHIPMENT_STATUS_LABEL_SP`, ss.LABEL_PR `SHIPMENT_STATUS_LABEL_PR`, ");
+	SET @sqlString = CONCAT(@sqlString, "	st.SHIPMENT_QTY, st.ORDER_NO, st.LOCAL_PROCUREMENT, st.ERP_FLAG, st.EMERGENCY_ORDER, ");
+	SET @sqlString = CONCAT(@sqlString, "	COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) `EDD`, ");
+	SET @sqlString = CONCAT(@sqlString, "	(IFNULL(st.PRODUCT_COST,0) * s.CONVERSION_RATE_TO_USD) `PRODUCT_COST`, ");
+	SET @sqlString = CONCAT(@sqlString, "	(IFNULL(st.FREIGHT_COST,0) * s.CONVERSION_RATE_TO_USD) `FREIGHT_COST`, ");
+	SET @sqlString = CONCAT(@sqlString, "	(IFNULL(st.PRODUCT_COST,0) * s.CONVERSION_RATE_TO_USD + IFNULL(st.FREIGHT_COST,0) * s.CONVERSION_RATE_TO_USD) `TOTAL_COST`, ");
+	SET @sqlString = CONCAT(@sqlString, "	st.NOTES ");
+	SET @sqlString = CONCAT(@sqlString, "FROM ");
+	SET @sqlString = CONCAT(@sqlString, "	( ");
+	SET @sqlString = CONCAT(@sqlString, "	SELECT ");
+	SET @sqlString = CONCAT(@sqlString, "		s.SHIPMENT_ID, MAX(st.VERSION_ID) MAX_VERSION_ID, s.CONVERSION_RATE_TO_USD ");
+	SET @sqlString = CONCAT(@sqlString, "	FROM rm_shipment s ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	WHERE ");
+	SET @sqlString = CONCAT(@sqlString, "		s.PROGRAM_ID=@programId ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.VERSION_ID<=@versionId ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.SHIPMENT_TRANS_ID IS NOT NULL ");
+	SET @sqlString = CONCAT(@sqlString, "	GROUP BY s.SHIPMENT_ID ");
+	SET @sqlString = CONCAT(@sqlString, ") AS s ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_shipment_status ss on st.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_procurement_agent pa on st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_program_planning_unit ppu ON st.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "WHERE ");
+	SET @sqlString = CONCAT(@sqlString, "	st.ACTIVE AND ppu.ACTUVE AND pu.ACTIVE");
+	SET @sqlString = CONCAT(@sqlString, "	AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
+	IF LENGTH(VAR_PLANNING_UNIT_IDS) > 0 THEN
+		SET @sqlString = CONCAT(@sqlString, "	AND (st.PLANNING_UNIT_ID in (",VAR_PLANNING_UNIT_IDS,")) ");
+    END IF;
+-- 	SET @sqlString = CONCAT(@sqlString, "GROUP BY st.PLANNING_UNIT_ID, COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE)");
+    
+    PREPARE S1 FROM @sqlString;
+    EXECUTE S1;
+END$$
+
+DELIMITER ;
 
 
 
@@ -1574,6 +1668,659 @@ EXECUTE s2;
 END$$
 
 DELIMITER ;
+
+
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `shipmentGlobalDemand_CountryShipmentSplit`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_CountryShipmentSplit`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_REPORT_VIEW INT(10), VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS VARCHAR(255), VAR_PLANNING_UNIT_ID INT(10), VAR_APPROVED_SUPPLY_PLAN_ONLY TINYINT(1), VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT(1))
+BEGIN
+	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    -- Report no 21 Part 4
+    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+	DECLARE curRealmCountryId INT;
+    DECLARE curHealthAreaId INT;
+    DECLARE curOrganisationId INT;
+    DECLARE curProgramId INT;
+	DECLARE done INT DEFAULT FALSE;
+	DECLARE cursor_acl CURSOR FOR SELECT acl.REALM_COUNTRY_ID, acl.HEALTH_AREA_ID, acl.ORGANISATION_ID, acl.PROGRAM_ID FROM us_user_acl acl WHERE acl.USER_ID=VAR_USER_ID;
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
+    SET @aclSqlString = CONCAT("       AND (FALSE ");
+    OPEN cursor_acl;
+	read_loop: LOOP
+        FETCH cursor_acl INTO curRealmCountryId, curHealthAreaId, curOrganisationId, curProgramId;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        -- For each loop build the sql for acl
+        SET @aclSqlString = CONCAT(@aclSqlString,"       OR (");
+        SET @aclSqlString = CONCAT(@aclSqlString,"           (p.PROGRAM_ID IS NULL OR ",IFNULL(curRealmCountryId,-1),"=-1 OR p.REALM_COUNTRY_ID=",IFNULL(curRealmCountryId,-1),")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curHealthAreaId,-1)  ,"=-1 OR p.HEALTH_AREA_ID="  ,IFNULL(curHealthAreaId,-1)  ,")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curOrganisationId,-1),"=-1 OR p.ORGANISATION_ID=" ,IFNULL(curOrganisationId,-1),")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curProgramId,-1)     ,"=-1 OR p.PROGRAM_ID="      ,IFNULL(curProgramId,-1)     ,")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       )");
+    END LOOP;
+    CLOSE cursor_acl;
+    SET @aclSqlString = CONCAT(@aclSqlString, ") ");
+    
+    SET @realmId = VAR_REALM_ID;
+	SET @startDate = VAR_START_DATE;
+	SET @stopDate = VAR_STOP_DATE;
+	SET @reportView = VAR_REPORT_VIEW;
+	SET @planningUnitId = VAR_PLANNING_UNIT_ID;
+    SET @sqlStringFSPA = "";
+    SET @approvedSupplyPlanOnly = VAR_APPROVED_SUPPLY_PLAN_ONLY;
+    SET @includePlannedShipments = VAR_INCLUDE_PLANNED_SHIPMENTS;
+    
+	SET @sqlString = "";
+    SET @sqlString = CONCAT(@sqlString, "SELECT ");
+	SET @sqlString = CONCAT(@sqlString, "	rc.REALM_COUNTRY_ID, c.COUNTRY_CODE, c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_SP `COUNTRY_LABEL_SP`, c.LABEL_PR `COUNTRY_LABEL_PR`, ");
+ 	SET @sqlString = CONCAT(@sqlString, "	SUM(IF(s1.SHIPMENT_STATUS_ID IN (1,2,3,9), s1.AMOUNT, 0)) `PLANNED_SHIPMENT_AMT`, SUM(IF(s1.SHIPMENT_STATUS_ID IN (4,5,6,7), s1.AMOUNT, 0)) `ORDERED_SHIPMENT_AMT` ");
+	SET @sqlString = CONCAT(@sqlString, "FROM ");
+	SET @sqlString = CONCAT(@sqlString, "	( ");
+	SET @sqlString = CONCAT(@sqlString, "	SELECT s.SHIPMENT_ID, rc.REALM_COUNTRY_ID, st.SHIPMENT_STATUS_ID, IF(@reportView=1, st.FUNDING_SOURCE_ID,st.PROCUREMENT_AGENT_ID) `FUNDING_SOURCE_PROCUREMENT_AGENT_ID`, (IFNULL(st.PRODUCT_COST * s.CONVERSION_RATE_TO_USD,0) + IFNULL(st.FREIGHT_COST * s.CONVERSION_RATE_TO_USD,0)) `AMOUNT` ");
+	SET @sqlString = CONCAT(@sqlString, "	FROM (");
+	SET @sqlString = CONCAT(@sqlString, "	    SELECT p.PROGRAM_ID, MAX(pv.VERSION_ID) VERSION_ID FROM rm_program p LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	    WHERE p.ACTIVE ");
+    SET @sqlString = CONCAT(@sqlString, @aclSqlString);
+    IF @approvedSupplyPlanOnly=1 THEN 
+        SET @sqlString = CONCAT(@sqlString, "	    AND pv.VERSION_TYPE_ID=2 and pv.VERSION_STATUS_ID=2 ");
+    END IF;
+    SET @sqlString = CONCAT(@sqlString, "	    GROUP BY p.PROGRAM_ID) pv ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID<=p.CURRENT_VERSION_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_program_planning_unit ppu ON pv.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	WHERE ");
+	SET @sqlString = CONCAT(@sqlString, "		rc.REALM_ID=@realmId ");
+	SET @sqlString = CONCAT(@sqlString, "		AND s.SHIPMENT_ID IS NOT NULL ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.ACTIVE AND ppu.ACTIVE AND pu.ACTIVE ");
+	SET @sqlString = CONCAT(@sqlString, "		AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.SHIPMENT_STATUS_ID != 8 ");
+    IF @includePlannedShipments = 0 THEN
+        SET @sqlString = CONCAT(@sqlString, "		AND st.SHIPMENT_STATUS_ID != 1 ");
+    END IF;
+	SET @sqlString = CONCAT(@sqlString, "		AND st.PLANNING_UNIT_ID = @planningUnitId ");
+    IF LENGTH(VAR_REALM_COUNTRY_IDS) > 0 THEN
+		SET @sqlString = CONCAT(@sqlString, "		AND rc.REALM_COUNTRY_ID IN (",VAR_REALM_COUNTRY_IDS,") ");
+    END IF;
+    IF LENGTH(VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS) > 0 THEN
+		IF @reportView = 1 THEN 
+			SET @sqlString = CONCAT(@sqlString, "		AND st.FUNDING_SOURCE_ID IN (",VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS,") ");
+        ELSE
+			SET @sqlString = CONCAT(@sqlString, "		AND st.PROCUREMENT_AGENT_ID IN (",VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS,") ");
+        END IF;
+    END IF;
+	SET @sqlString = CONCAT(@sqlString, "	GROUP BY s.SHIPMENT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	) AS s1 ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_realm_country rc ON s1.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID ");
+	SET @sqlString = CONCAT(@sqlString, "GROUP BY s1.REALM_COUNTRY_ID");
+    
+    PREPARE S1 FROM @sqlString;
+    EXECUTE S1;
+    
+END$$
+
+DELIMITER ;
+
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `shipmentGlobalDemand_FundingSourceCountrySplit`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_FundingSourceCountrySplit`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_REPORT_VIEW INT(10), VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS VARCHAR(255), VAR_PLANNING_UNIT_ID INT(10), VAR_APPROVED_SUPPLY_PLAN_ONLY TINYINT(1), VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT(1))
+BEGIN
+	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    -- Report no 21 Part 3 for FundingSource
+    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+	
+    DECLARE curRealmCountryId INT;
+    DECLARE curHealthAreaId INT;
+    DECLARE curOrganisationId INT;
+    DECLARE curProgramId INT;
+    DECLARE fspaId INT(10) DEFAULT 0;
+    DECLARE fspaCode VARCHAR(10) DEFAULT '';
+    DECLARE done INT DEFAULT FALSE;
+	DECLARE cursor_acl CURSOR FOR SELECT acl.REALM_COUNTRY_ID, acl.HEALTH_AREA_ID, acl.ORGANISATION_ID, acl.PROGRAM_ID FROM us_user_acl acl WHERE acl.USER_ID=VAR_USER_ID;
+	DECLARE fspa_cursor CURSOR FOR SELECT FUNDING_SOURCE_ID, FUNDING_SOURCE_CODE FROM rm_funding_source WHERE REALM_ID=VAR_REALM_ID;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
+    SET @aclSqlString = CONCAT("       AND (FALSE ");
+    OPEN cursor_acl;
+	read_loop: LOOP
+        FETCH cursor_acl INTO curRealmCountryId, curHealthAreaId, curOrganisationId, curProgramId;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        -- For each loop build the sql for acl
+        SET @aclSqlString = CONCAT(@aclSqlString,"       OR (");
+        SET @aclSqlString = CONCAT(@aclSqlString,"           (p.PROGRAM_ID IS NULL OR ",IFNULL(curRealmCountryId,-1),"=-1 OR p.REALM_COUNTRY_ID=",IFNULL(curRealmCountryId,-1),")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curHealthAreaId,-1)  ,"=-1 OR p.HEALTH_AREA_ID="  ,IFNULL(curHealthAreaId,-1)  ,")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curOrganisationId,-1),"=-1 OR p.ORGANISATION_ID=" ,IFNULL(curOrganisationId,-1),")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curProgramId,-1)     ,"=-1 OR p.PROGRAM_ID="      ,IFNULL(curProgramId,-1)     ,")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       )");
+    END LOOP;
+    CLOSE cursor_acl;
+    SET @aclSqlString = CONCAT(@aclSqlString, ") ");
+    
+    
+	SET @realmId = VAR_REALM_ID;
+	SET @startDate = VAR_START_DATE;
+	SET @stopDate = VAR_STOP_DATE;
+	SET @reportView = VAR_REPORT_VIEW;
+	SET @planningUnitId = VAR_PLANNING_UNIT_ID;
+    SET @sqlStringFSPA = "";
+    SET @approvedSupplyPlanOnly = VAR_APPROVED_SUPPLY_PLAN_ONLY;
+    SET @includePlannedShipments = VAR_INCLUDE_PLANNED_SHIPMENTS;
+    SET done = 0;
+    OPEN fspa_cursor;
+    getFSPA: LOOP
+		FETCH fspa_cursor into fspaId, fspaCode;
+        IF done THEN 
+			LEAVE getFSPA;
+		END IF;
+		SET @sqlStringFSPA= CONCAT(@sqlStringFSPA, " ,SUM(IF(s1.FUNDING_SOURCE_PROCUREMENT_AGENT_ID=",fspaId,", s1.AMOUNT, 0)) `FSPA_",fspaCode,"` ");
+	END LOOP getFSPA;
+    
+	SET @sqlString = "";
+    SET @sqlString = CONCAT(@sqlString, "SELECT ");
+	SET @sqlString = CONCAT(@sqlString, "	rc.REALM_COUNTRY_ID, c.COUNTRY_CODE, c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_SP `COUNTRY_LABEL_SP`, c.LABEL_PR `COUNTRY_LABEL_PR` ");
+ 	SET @sqlString = CONCAT(@sqlString, @sqlStringFSPA);
+	SET @sqlString = CONCAT(@sqlString, "FROM ");
+	SET @sqlString = CONCAT(@sqlString, "	( ");
+	SET @sqlString = CONCAT(@sqlString, "	SELECT s.SHIPMENT_ID, rc.REALM_COUNTRY_ID, IF(@reportView=1, st.FUNDING_SOURCE_ID,st.PROCUREMENT_AGENT_ID) `FUNDING_SOURCE_PROCUREMENT_AGENT_ID`, (IFNULL(st.PRODUCT_COST * s.CONVERSION_RATE_TO_USD,0) + IFNULL(st.FREIGHT_COST * s.CONVERSION_RATE_TO_USD,0)) `AMOUNT` ");
+	SET @sqlString = CONCAT(@sqlString, "	FROM ");
+    SET @sqlString = CONCAT(@sqlString, "	    ( ");
+    SET @sqlString = CONCAT(@sqlString, "	    SELECT p.PROGRAM_ID, MAX(pv.VERSION_ID) VERSION_ID FROM rm_program p LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID WHERE p.ACTIVE ");
+    SET @sqlString = CONCAT(@sqlString, @aclSqlString);
+    IF @approvedSupplyPlanOnly=1 THEN 
+        SET @sqlString = CONCAT(@sqlString, "	    AND pv.VERSION_TYPE_ID=2 and pv.VERSION_STATUS_ID=2 ");
+    END IF;
+    SET @sqlString = CONCAT(@sqlString, "	    GROUP BY p.PROGRAM_ID) pv ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID<=p.CURRENT_VERSION_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_program_planning_unit ppu ON pv.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	WHERE ");
+	SET @sqlString = CONCAT(@sqlString, "		rc.REALM_ID=@realmId ");
+	SET @sqlString = CONCAT(@sqlString, "		AND s.SHIPMENT_ID IS NOT NULL ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.ACTIVE AND ppu.ACTIVE AND pu.ACTIVE ");
+	SET @sqlString = CONCAT(@sqlString, "		AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.SHIPMENT_STATUS_ID != 8 ");
+    IF @includePlannedShipments = 0 THEN
+        SET @sqlString = CONCAT(@sqlString, "		AND st.SHIPMENT_STATUS_ID != 1 ");
+    END IF;
+	SET @sqlString = CONCAT(@sqlString, "		AND st.PLANNING_UNIT_ID = @planningUnitId ");
+    IF LENGTH(VAR_REALM_COUNTRY_IDS) > 0 THEN
+		SET @sqlString = CONCAT(@sqlString, "		AND rc.REALM_COUNTRY_ID IN (",VAR_REALM_COUNTRY_IDS,") ");
+    END IF;
+    IF LENGTH(VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS) > 0 THEN
+		SET @sqlString = CONCAT(@sqlString, "		AND st.FUNDING_SOURCE_ID IN (",VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS,") ");
+    END IF;
+	SET @sqlString = CONCAT(@sqlString, "	GROUP BY s.SHIPMENT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	) AS s1 ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_realm_country rc ON s1.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID ");
+	SET @sqlString = CONCAT(@sqlString, "GROUP BY s1.REALM_COUNTRY_ID");
+    
+    PREPARE S1 FROM @sqlString;
+    EXECUTE S1;
+    
+END$$
+
+DELIMITER ;
+
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `shipmentGlobalDemand_FundingSourceDateSplit`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_FundingSourceDateSplit`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_REPORT_VIEW INT(10), VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS VARCHAR(255), VAR_PLANNING_UNIT_ID INT(10), VAR_APPROVED_SUPPLY_PLAN_ONLY TINYINT(1), VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT(1))
+BEGIN
+	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    -- Report no 21 Part 2 for FundingSource
+    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    DECLARE curRealmCountryId INT;
+    DECLARE curHealthAreaId INT;
+    DECLARE curOrganisationId INT;
+    DECLARE curProgramId INT;
+	DECLARE finished INTEGER DEFAULT 0;
+    DECLARE fspaId INT(10) DEFAULT 0;
+    DECLARE fspaCode VARCHAR(10) DEFAULT '';
+    DECLARE done INT DEFAULT FALSE;
+	DECLARE cursor_acl CURSOR FOR SELECT acl.REALM_COUNTRY_ID, acl.HEALTH_AREA_ID, acl.ORGANISATION_ID, acl.PROGRAM_ID FROM us_user_acl acl WHERE acl.USER_ID=VAR_USER_ID;
+    DECLARE fspa_cursor CURSOR FOR SELECT FUNDING_SOURCE_ID, FUNDING_SOURCE_CODE FROM rm_funding_source WHERE REALM_ID=VAR_REALM_ID;
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
+    SET @aclSqlString = CONCAT("       AND (FALSE ");
+    OPEN cursor_acl;
+	read_loop: LOOP
+        FETCH cursor_acl INTO curRealmCountryId, curHealthAreaId, curOrganisationId, curProgramId;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        -- For each loop build the sql for acl
+        SET @aclSqlString = CONCAT(@aclSqlString,"       OR (");
+        SET @aclSqlString = CONCAT(@aclSqlString,"           (p.PROGRAM_ID IS NULL OR ",IFNULL(curRealmCountryId,-1),"=-1 OR p.REALM_COUNTRY_ID=",IFNULL(curRealmCountryId,-1),")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curHealthAreaId,-1)  ,"=-1 OR p.HEALTH_AREA_ID="  ,IFNULL(curHealthAreaId,-1)  ,")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curOrganisationId,-1),"=-1 OR p.ORGANISATION_ID=" ,IFNULL(curOrganisationId,-1),")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curProgramId,-1)     ,"=-1 OR p.PROGRAM_ID="      ,IFNULL(curProgramId,-1)     ,")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       )");
+    END LOOP;
+    CLOSE cursor_acl;
+    SET @aclSqlString = CONCAT(@aclSqlString, ") ");
+	
+    SET @realmId = VAR_REALM_ID;
+	SET @startDate = VAR_START_DATE;
+	SET @stopDate = VAR_STOP_DATE;
+	SET @reportView = VAR_REPORT_VIEW;
+	SET @planningUnitId = VAR_PLANNING_UNIT_ID;
+    SET @sqlStringFSPA = "";
+    SET @approvedSupplyPlanOnly = VAR_APPROVED_SUPPLY_PLAN_ONLY;
+    SET @includePlannedShipments = VAR_INCLUDE_PLANNED_SHIPMENTS;
+
+    SET done = 0;
+    OPEN fspa_cursor;
+    getFSPA: LOOP
+		FETCH fspa_cursor into fspaId, fspaCode;
+        IF done THEN 
+			LEAVE getFSPA;
+		END IF;
+		SET @sqlStringFSPA= CONCAT(@sqlStringFSPA, " ,SUM(IF(s1.FUNDING_SOURCE_PROCUREMENT_AGENT_ID=",fspaId,", s1.AMOUNT, 0)) `FSPA_",fspaCode,"` ");
+	END LOOP getFSPA;
+    
+	SET @sqlString = "";
+    SET @sqlString = CONCAT(@sqlString, "SELECT ");
+	SET @sqlString = CONCAT(@sqlString, "	CONCAT(LEFT(s1.EDD,7),'-01') `TRANS_DATE` ");
+ 	SET @sqlString = CONCAT(@sqlString, @sqlStringFSPA);
+	SET @sqlString = CONCAT(@sqlString, "FROM ");
+	SET @sqlString = CONCAT(@sqlString, "	( ");
+	SET @sqlString = CONCAT(@sqlString, "	SELECT s.SHIPMENT_ID, COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) `EDD`, rc.REALM_COUNTRY_ID, IF(@reportView=1, st.FUNDING_SOURCE_ID,st.PROCUREMENT_AGENT_ID) `FUNDING_SOURCE_PROCUREMENT_AGENT_ID`, (IFNULL(st.PRODUCT_COST * s.CONVERSION_RATE_TO_USD,0) + IFNULL(st.FREIGHT_COST * s.CONVERSION_RATE_TO_USD,0)) `AMOUNT` ");
+	SET @sqlString = CONCAT(@sqlString, "	FROM (");
+	SET @sqlString = CONCAT(@sqlString, "	    SELECT p.PROGRAM_ID, MAX(pv.VERSION_ID) VERSION_ID FROM rm_program p LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	    WHERE p.ACTIVE ");
+    SET @sqlString = CONCAT(@sqlString, @aclSqlString); 
+    IF @approvedSupplyPlanOnly=1 THEN 
+        SET @sqlString = CONCAT(@sqlString, "	    AND pv.VERSION_TYPE_ID=2 and pv.VERSION_STATUS_ID=2 ");
+    END IF;
+    SET @sqlString = CONCAT(@sqlString, "	    GROUP BY p.PROGRAM_ID) pv ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID<=p.CURRENT_VERSION_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_program_planning_unit ppu ON pv.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	WHERE ");
+	SET @sqlString = CONCAT(@sqlString, "		rc.REALM_ID=@realmId ");
+	SET @sqlString = CONCAT(@sqlString, "		AND s.SHIPMENT_ID IS NOT NULL ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.ACTIVE AND ppu.ACTIVE AND pu.ACTIVE ");
+	SET @sqlString = CONCAT(@sqlString, "		AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.SHIPMENT_STATUS_ID != 8 ");
+    IF @includePlannedShipments = 0 THEN
+        SET @sqlString = CONCAT(@sqlString, "		AND st.SHIPMENT_STATUS_ID != 1 ");
+    END IF;
+	SET @sqlString = CONCAT(@sqlString, "		AND st.PLANNING_UNIT_ID = @planningUnitId ");
+    IF LENGTH(VAR_REALM_COUNTRY_IDS) > 0 THEN
+		SET @sqlString = CONCAT(@sqlString, "		AND rc.REALM_COUNTRY_ID IN (",VAR_REALM_COUNTRY_IDS,") ");
+    END IF;
+    IF LENGTH(VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS) > 0 THEN
+		SET @sqlString = CONCAT(@sqlString, "		AND st.FUNDING_SOURCE_ID IN (",VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS,") ");
+    END IF;
+	SET @sqlString = CONCAT(@sqlString, "	GROUP BY s.SHIPMENT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	) AS s1 ");
+	SET @sqlString = CONCAT(@sqlString, "GROUP BY LEFT(s1.EDD,7)");
+    
+    PREPARE S1 FROM @sqlString;
+    EXECUTE S1;
+    
+END$$
+
+DELIMITER ;
+
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `shipmentGlobalDemand_ProcurementAgentCountrySplit`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_ProcurementAgentCountrySplit`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_REPORT_VIEW INT(10), VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS VARCHAR(255), VAR_PLANNING_UNIT_ID INT(10), VAR_APPROVED_SUPPLY_PLAN_ONLY TINYINT(1), VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT(1))
+BEGIN
+	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    -- Report no 21 Part 3 for ProcurementAgent
+    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+	DECLARE curRealmCountryId INT;
+    DECLARE curHealthAreaId INT;
+    DECLARE curOrganisationId INT;
+    DECLARE curProgramId INT;
+    DECLARE fspaId INT(10) DEFAULT 0;
+    DECLARE fspaCode VARCHAR(10) DEFAULT '';
+	DECLARE done INT DEFAULT FALSE;
+	DECLARE cursor_acl CURSOR FOR SELECT acl.REALM_COUNTRY_ID, acl.HEALTH_AREA_ID, acl.ORGANISATION_ID, acl.PROGRAM_ID FROM us_user_acl acl WHERE acl.USER_ID=VAR_USER_ID;
+	DECLARE fspa_cursor CURSOR FOR SELECT PROCUREMENT_AGENT_ID, PROCUREMENT_AGENT_CODE FROM rm_procurement_agent WHERE REALM_ID=VAR_REALM_ID;
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
+    SET @aclSqlString = CONCAT("       AND (FALSE ");
+    OPEN cursor_acl;
+	read_loop: LOOP
+        FETCH cursor_acl INTO curRealmCountryId, curHealthAreaId, curOrganisationId, curProgramId;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        -- For each loop build the sql for acl
+        SET @aclSqlString = CONCAT(@aclSqlString,"       OR (");
+        SET @aclSqlString = CONCAT(@aclSqlString,"           (p.PROGRAM_ID IS NULL OR ",IFNULL(curRealmCountryId,-1),"=-1 OR p.REALM_COUNTRY_ID=",IFNULL(curRealmCountryId,-1),")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curHealthAreaId,-1)  ,"=-1 OR p.HEALTH_AREA_ID="  ,IFNULL(curHealthAreaId,-1)  ,")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curOrganisationId,-1),"=-1 OR p.ORGANISATION_ID=" ,IFNULL(curOrganisationId,-1),")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curProgramId,-1)     ,"=-1 OR p.PROGRAM_ID="      ,IFNULL(curProgramId,-1)     ,")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       )");
+    END LOOP;
+    CLOSE cursor_acl;
+    SET @aclSqlString = CONCAT(@aclSqlString, ") ");
+
+	SET @realmId = VAR_REALM_ID;
+	SET @startDate = VAR_START_DATE;
+	SET @stopDate = VAR_STOP_DATE;
+	SET @reportView = VAR_REPORT_VIEW;
+	SET @planningUnitId = VAR_PLANNING_UNIT_ID;
+    SET @sqlStringFSPA = "";
+    SET @approvedSupplyPlanOnly = VAR_APPROVED_SUPPLY_PLAN_ONLY;
+    SET @includePlannedShipments = VAR_INCLUDE_PLANNED_SHIPMENTS;
+    
+    SET done = 0;
+    OPEN fspa_cursor;
+    getFSPA: LOOP
+		FETCH fspa_cursor into fspaId, fspaCode;
+        IF done THEN 
+			LEAVE getFSPA;
+		END IF;
+		SET @sqlStringFSPA= CONCAT(@sqlStringFSPA, " ,SUM(IF(s1.FUNDING_SOURCE_PROCUREMENT_AGENT_ID=",fspaId,", s1.AMOUNT, 0)) `FSPA_",fspaCode,"` ");
+	END LOOP getFSPA;
+    
+	SET @sqlString = "";
+    SET @sqlString = CONCAT(@sqlString, "SELECT ");
+	SET @sqlString = CONCAT(@sqlString, "	rc.REALM_COUNTRY_ID, c.COUNTRY_CODE, c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_SP `COUNTRY_LABEL_SP`, c.LABEL_PR `COUNTRY_LABEL_PR` ");
+ 	SET @sqlString = CONCAT(@sqlString, @sqlStringFSPA);
+	SET @sqlString = CONCAT(@sqlString, "FROM ");
+	SET @sqlString = CONCAT(@sqlString, "	( ");
+	SET @sqlString = CONCAT(@sqlString, "	SELECT s.SHIPMENT_ID, rc.REALM_COUNTRY_ID, IF(@reportView=1, st.FUNDING_SOURCE_ID,st.PROCUREMENT_AGENT_ID) `FUNDING_SOURCE_PROCUREMENT_AGENT_ID`, (IFNULL(st.PRODUCT_COST * s.CONVERSION_RATE_TO_USD,0) + IFNULL(st.FREIGHT_COST * s.CONVERSION_RATE_TO_USD,0)) `AMOUNT` ");
+	SET @sqlString = CONCAT(@sqlString, "	FROM (");
+	SET @sqlString = CONCAT(@sqlString, "	    SELECT p.PROGRAM_ID, MAX(pv.VERSION_ID) VERSION_ID FROM rm_program p LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	    WHERE p.ACTIVE ");
+    SET @sqlString = CONCAT(@sqlString, @aclSqlString);
+    IF @approvedSupplyPlanOnly=1 THEN 
+        SET @sqlString = CONCAT(@sqlString, "	    AND pv.VERSION_TYPE_ID=2 and pv.VERSION_STATUS_ID=2 ");
+    END IF;
+    SET @sqlString = CONCAT(@sqlString, "	    GROUP BY p.PROGRAM_ID) pv ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID<=p.CURRENT_VERSION_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_program_planning_unit ppu ON pv.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	WHERE ");
+	SET @sqlString = CONCAT(@sqlString, "		rc.REALM_ID=@realmId ");
+	SET @sqlString = CONCAT(@sqlString, "		AND s.SHIPMENT_ID IS NOT NULL ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.ACTIVE AND ppu.ACTIVE AND pu.ACTIVE ");
+	SET @sqlString = CONCAT(@sqlString, "		AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.SHIPMENT_STATUS_ID != 8 ");
+    IF @includePlannedShipments = 0 THEN
+        SET @sqlString = CONCAT(@sqlString, "		AND st.SHIPMENT_STATUS_ID != 1 ");
+    END IF;
+	SET @sqlString = CONCAT(@sqlString, "		AND st.PLANNING_UNIT_ID = @planningUnitId ");
+    IF LENGTH(VAR_REALM_COUNTRY_IDS) > 0 THEN
+		SET @sqlString = CONCAT(@sqlString, "		AND rc.REALM_COUNTRY_ID IN (",VAR_REALM_COUNTRY_IDS,") ");
+    END IF;
+    IF LENGTH(VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS) > 0 THEN
+		SET @sqlString = CONCAT(@sqlString, "		AND st.PROCUREMENT_AGENT_ID IN (",VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS,") ");
+    END IF;
+	SET @sqlString = CONCAT(@sqlString, "	GROUP BY s.SHIPMENT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	) AS s1 ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_realm_country rc ON s1.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID ");
+	SET @sqlString = CONCAT(@sqlString, "GROUP BY s1.REALM_COUNTRY_ID");
+    
+    PREPARE S1 FROM @sqlString;
+    EXECUTE S1;
+    
+END$$
+
+DELIMITER ;
+
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `shipmentGlobalDemand_ProcurementAgentDateSplit`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_ProcurementAgentDateSplit`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_REPORT_VIEW INT(10), VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS VARCHAR(255), VAR_PLANNING_UNIT_ID INT(10), VAR_APPROVED_SUPPLY_PLAN_ONLY TINYINT(1), VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT(1))
+BEGIN
+	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    -- Report no 21 Part 2 for ProcurementAgent
+    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    DECLARE curRealmCountryId INT;
+    DECLARE curHealthAreaId INT;
+    DECLARE curOrganisationId INT;
+    DECLARE curProgramId INT;
+	DECLARE fspaId INT(10) DEFAULT 0;
+    DECLARE fspaCode VARCHAR(10) DEFAULT '';
+    DECLARE done INT DEFAULT FALSE;
+	DECLARE cursor_acl CURSOR FOR SELECT acl.REALM_COUNTRY_ID, acl.HEALTH_AREA_ID, acl.ORGANISATION_ID, acl.PROGRAM_ID FROM us_user_acl acl WHERE acl.USER_ID=VAR_USER_ID;
+    DECLARE fspa_cursor CURSOR FOR SELECT PROCUREMENT_AGENT_ID, PROCUREMENT_AGENT_CODE FROM rm_procurement_agent WHERE REALM_ID=VAR_REALM_ID;
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
+    SET @aclSqlString = CONCAT("       AND (FALSE ");
+    OPEN cursor_acl;
+	read_loop: LOOP
+        FETCH cursor_acl INTO curRealmCountryId, curHealthAreaId, curOrganisationId, curProgramId;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        -- For each loop build the sql for acl
+        SET @aclSqlString = CONCAT(@aclSqlString,"       OR (");
+        SET @aclSqlString = CONCAT(@aclSqlString,"           (p.PROGRAM_ID IS NULL OR ",IFNULL(curRealmCountryId,-1),"=-1 OR p.REALM_COUNTRY_ID=",IFNULL(curRealmCountryId,-1),")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curHealthAreaId,-1)  ,"=-1 OR p.HEALTH_AREA_ID="  ,IFNULL(curHealthAreaId,-1)  ,")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curOrganisationId,-1),"=-1 OR p.ORGANISATION_ID=" ,IFNULL(curOrganisationId,-1),")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curProgramId,-1)     ,"=-1 OR p.PROGRAM_ID="      ,IFNULL(curProgramId,-1)     ,")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       )");
+    END LOOP;
+    CLOSE cursor_acl;
+    SET @aclSqlString = CONCAT(@aclSqlString, ") ");
+    
+	SET @realmId = VAR_REALM_ID;
+	SET @startDate = VAR_START_DATE;
+	SET @stopDate = VAR_STOP_DATE;
+	SET @reportView = VAR_REPORT_VIEW;
+	SET @planningUnitId = VAR_PLANNING_UNIT_ID;
+    SET @sqlStringFSPA = "";
+    SET @approvedSupplyPlanOnly = VAR_APPROVED_SUPPLY_PLAN_ONLY;
+    SET @includePlannedShipments = VAR_INCLUDE_PLANNED_SHIPMENTS;
+    
+    SET done = 0;
+    OPEN fspa_cursor;
+    getFSPA: LOOP
+		FETCH fspa_cursor into fspaId, fspaCode;
+        IF done THEN 
+			LEAVE getFSPA;
+		END IF;
+		SET @sqlStringFSPA= CONCAT(@sqlStringFSPA, " ,SUM(IF(s1.FUNDING_SOURCE_PROCUREMENT_AGENT_ID=",fspaId,", s1.AMOUNT, 0)) `FSPA_",fspaCode,"` ");
+	END LOOP getFSPA;
+    
+	SET @sqlString = "";
+    SET @sqlString = CONCAT(@sqlString, "SELECT ");
+	SET @sqlString = CONCAT(@sqlString, "	CONCAT(LEFT(s1.EDD,7),'-01') `TRANS_DATE` ");
+ 	SET @sqlString = CONCAT(@sqlString, @sqlStringFSPA);
+	SET @sqlString = CONCAT(@sqlString, "FROM ");
+	SET @sqlString = CONCAT(@sqlString, "	( ");
+	SET @sqlString = CONCAT(@sqlString, "	SELECT s.SHIPMENT_ID, COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) `EDD`, rc.REALM_COUNTRY_ID, IF(@reportView=1, st.FUNDING_SOURCE_ID,st.PROCUREMENT_AGENT_ID) `FUNDING_SOURCE_PROCUREMENT_AGENT_ID`, (IFNULL(st.PRODUCT_COST * s.CONVERSION_RATE_TO_USD,0) + IFNULL(st.FREIGHT_COST * s.CONVERSION_RATE_TO_USD,0)) `AMOUNT` ");
+	SET @sqlString = CONCAT(@sqlString, "	FROM (");
+	SET @sqlString = CONCAT(@sqlString, "	    SELECT p.PROGRAM_ID, MAX(pv.VERSION_ID) VERSION_ID FROM rm_program p LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	    WHERE p.ACTIVE ");
+    SET @sqlString = CONCAT(@sqlString, @aclSqlString);
+    IF @approvedSupplyPlanOnly=1 THEN 
+        SET @sqlString = CONCAT(@sqlString, "	    AND pv.VERSION_TYPE_ID=2 and pv.VERSION_STATUS_ID=2 ");
+    END IF;
+    SET @sqlString = CONCAT(@sqlString, "	    GROUP BY p.PROGRAM_ID) pv ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID<=p.CURRENT_VERSION_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_program_planning_unit ppu ON pv.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	WHERE ");
+	SET @sqlString = CONCAT(@sqlString, "		rc.REALM_ID=@realmId ");
+	SET @sqlString = CONCAT(@sqlString, "		AND s.SHIPMENT_ID IS NOT NULL ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.ACTIVE AND ppu.ACTIVE AND pu.ACTIVE ");
+	SET @sqlString = CONCAT(@sqlString, "		AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.SHIPMENT_STATUS_ID != 8 ");
+    IF @includePlannedShipments = 0 THEN
+        SET @sqlString = CONCAT(@sqlString, "		AND st.SHIPMENT_STATUS_ID != 1 ");
+    END IF;
+	SET @sqlString = CONCAT(@sqlString, "		AND st.PLANNING_UNIT_ID = @planningUnitId ");
+    IF LENGTH(VAR_REALM_COUNTRY_IDS) > 0 THEN
+		SET @sqlString = CONCAT(@sqlString, "		AND rc.REALM_COUNTRY_ID IN (",VAR_REALM_COUNTRY_IDS,") ");
+    END IF;
+    IF LENGTH(VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS) > 0 THEN
+		SET @sqlString = CONCAT(@sqlString, "		AND st.PROCUREMENT_AGENT_ID IN (",VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS,") ");
+    END IF;
+	SET @sqlString = CONCAT(@sqlString, "	GROUP BY s.SHIPMENT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	) AS s1 ");
+	SET @sqlString = CONCAT(@sqlString, "GROUP BY LEFT(s1.EDD,7)");
+    
+    PREPARE S1 FROM @sqlString;
+    EXECUTE S1;
+    
+END$$
+
+DELIMITER ;
+
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `shipmentGlobalDemand_ShipmentList`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_ShipmentList`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REALM_COUNTRY_IDS TEXT, VAR_REPORT_VIEW INT(10), VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS VARCHAR(255), VAR_PLANNING_UNIT_ID INT(10), VAR_APPROVED_SUPPLY_PLAN_ONLY TINYINT(1), VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT(1))
+BEGIN
+	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    -- Report no 21 Part 1
+    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+	DECLARE curRealmCountryId INT;
+    DECLARE curHealthAreaId INT;
+    DECLARE curOrganisationId INT;
+    DECLARE curProgramId INT;
+	DECLARE done INT DEFAULT FALSE;
+	DECLARE cursor_acl CURSOR FOR SELECT acl.REALM_COUNTRY_ID, acl.HEALTH_AREA_ID, acl.ORGANISATION_ID, acl.PROGRAM_ID FROM us_user_acl acl WHERE acl.USER_ID=VAR_USER_ID;
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
+    SET @aclSqlString = CONCAT("       AND (FALSE ");
+    OPEN cursor_acl;
+	read_loop: LOOP
+        FETCH cursor_acl INTO curRealmCountryId, curHealthAreaId, curOrganisationId, curProgramId;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        -- For each loop build the sql for acl
+        SET @aclSqlString = CONCAT(@aclSqlString,"       OR (");
+        SET @aclSqlString = CONCAT(@aclSqlString,"           (p.PROGRAM_ID IS NULL OR ",IFNULL(curRealmCountryId,-1),"=-1 OR p.REALM_COUNTRY_ID=",IFNULL(curRealmCountryId,-1),")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curHealthAreaId,-1)  ,"=-1 OR p.HEALTH_AREA_ID="  ,IFNULL(curHealthAreaId,-1)  ,")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curOrganisationId,-1),"=-1 OR p.ORGANISATION_ID=" ,IFNULL(curOrganisationId,-1),")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curProgramId,-1)     ,"=-1 OR p.PROGRAM_ID="      ,IFNULL(curProgramId,-1)     ,")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       )");
+    END LOOP;
+    CLOSE cursor_acl;
+    SET @aclSqlString = CONCAT(@aclSqlString, ") ");
+    
+    SET @realmId = VAR_REALM_ID;
+	SET @startDate = VAR_START_DATE;
+	SET @stopDate = VAR_STOP_DATE;
+	SET @reportView = VAR_REPORT_VIEW;
+	SET @planningUnitId = VAR_PLANNING_UNIT_ID;
+    SET @approvedSupplyPlanOnly = VAR_APPROVED_SUPPLY_PLAN_ONLY;
+    SET @includePlannedShipments = VAR_INCLUDE_PLANNED_SHIPMENTS;
+    
+	SET @sqlString = "";
+    
+	SET @sqlString = CONCAT(@sqlString, "SELECT ");
+	SET @sqlString = CONCAT(@sqlString, "	CONCAT(LEFT(s1.EDD,7),'-01') `TRANS_DATE`, s1.REALM_COUNTRY_ID, c.COUNTRY_CODE, c.LABEL_ID `COUNTRY_LABEL_ID`, c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_SP `COUNTRY_LABEL_SP`, c.LABEL_PR `COUNTRY_LABEL_PR`, ");
+	SET @sqlString = CONCAT(@sqlString, "	SUM(s1.AMOUNT) `AMOUNT`, ");
+	SET @sqlString = CONCAT(@sqlString, "	IF(@reportView=1, fs.FUNDING_SOURCE_ID, pa.PROCUREMENT_AGENT_ID) `FUNDING_SOURCE_PROCUREMENT_AGENT_ID`, IF(@reportView=1, fs.FUNDING_SOURCE_CODE, pa.PROCUREMENT_AGENT_CODE) `FUNDING_SOURCE_PROCUREMENT_AGENT_CODE`, IF(@reportView=1, fs.LABEL_ID, pa.LABEL_ID) `FUNDING_SOURCE_PROCUREMENT_AGENT_LABEL_ID`, IF(@reportView=1, fs.LABEL_EN, pa.LABEL_EN) `FUNDING_SOURCE_PROCUREMENT_AGENT_LABEL_EN`, IF(@reportView=1, fs.LABEL_FR, pa.LABEL_FR) `FUNDING_SOURCE_PROCUREMENT_AGENT_LABEL_FR`, IF(@reportView=1, fs.LABEL_SP, pa.LABEL_SP) `FUNDING_SOURCE_PROCUREMENT_AGENT_LABEL_SP`, IF(@reportView=1, fs.LABEL_PR, pa.LABEL_PR) `FUNDING_SOURCE_PROCUREMENT_AGENT_LABEL_PR`, ");
+	SET @sqlString = CONCAT(@sqlString, "	ss.SHIPMENT_STATUS_ID, ss.LABEL_ID `SHIPMENT_STATUS_LABEL_ID`, ss.LABEL_EN `SHIPMENT_STATUS_LABEL_EN`, ss.LABEL_FR `SHIPMENT_STATUS_LABEL_FR`, ss.LABEL_SP `SHIPMENT_STATUS_LABEL_SP`, ss.LABEL_PR `SHIPMENT_STATUS_LABEL_PR` ");
+	SET @sqlString = CONCAT(@sqlString, "FROM ");
+	SET @sqlString = CONCAT(@sqlString, "	( ");
+	SET @sqlString = CONCAT(@sqlString, "	SELECT s.SHIPMENT_ID, COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) `EDD`, rc.REALM_COUNTRY_ID, IF(@reportView=1, st.FUNDING_SOURCE_ID,st.PROCUREMENT_AGENT_ID) `FUNDING_SOURCE_PROCUREMENT_AGENT_ID`, (IFNULL(st.PRODUCT_COST * s.CONVERSION_RATE_TO_USD,0) + IFNULL(st.FREIGHT_COST * s.CONVERSION_RATE_TO_USD,0)) `AMOUNT`, st.SHIPMENT_STATUS_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	FROM ");
+    SET @sqlString = CONCAT(@sqlString, "	    ( ");
+    SET @sqlString = CONCAT(@sqlString, "       SELECT p.PROGRAM_ID, MAX(pv.VERSION_ID) VERSION_ID FROM rm_program p LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID WHERE TRUE ");
+    SET @sqlString = CONCAT(@sqlString, @aclSqlString);
+    IF @approvedSupplyPlanOnly THEN
+        SET @sqlString = CONCAT(@sqlString, "       AND pv.VERSION_TYPE_ID=2 and pv.VERSION_STATUS_ID=2 ");
+    END IF;
+    SET @sqlString = CONCAT(@sqlString, "       GROUP BY p.PROGRAM_ID) pv ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment s ON p.PROGRAM_ID=s.PROGRAM_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND st.VERSION_ID<=p.CURRENT_VERSION_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_program_planning_unit ppu ON pv.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	WHERE ");
+	SET @sqlString = CONCAT(@sqlString, "		rc.REALM_ID=@realmId ");
+	SET @sqlString = CONCAT(@sqlString, "		AND s.SHIPMENT_ID IS NOT NULL ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.ACTIVE AND ppu.ACTIVE AND pu.ACTIVE ");
+	SET @sqlString = CONCAT(@sqlString, "		AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.SHIPMENT_STATUS_ID != 8 ");
+    IF @includePlannedShipments = 0 THEN
+        SET @sqlString = CONCAT(@sqlString, "		AND st.SHIPMENT_STATUS_ID != 1 ");
+    END IF;
+	SET @sqlString = CONCAT(@sqlString, "		AND st.PLANNING_UNIT_ID = @planningUnitId ");
+    IF LENGTH(VAR_REALM_COUNTRY_IDS) > 0 THEN 
+		SET @sqlString = CONCAT(@sqlString, "		AND rc.REALM_COUNTRY_ID IN (",VAR_REALM_COUNTRY_IDS,") ");
+    END IF;
+    IF LENGTH(VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS) > 0 THEN
+		IF @reportView = 1 THEN 
+			SET @sqlString = CONCAT(@sqlString, "		AND st.FUNDING_SOURCE_ID IN (",VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS,") ");
+        ELSE
+			SET @sqlString = CONCAT(@sqlString, "		AND st.PROCUREMENT_AGENT_ID IN (",VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS,") ");
+        END IF;
+    END IF;
+	SET @sqlString = CONCAT(@sqlString, "	GROUP BY s.SHIPMENT_ID ");
+	SET @sqlString = CONCAT(@sqlString, ") AS s1 ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_realm_country rc ON rc.REALM_COUNTRY_ID = s1.REALM_COUNTRY_ID ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_funding_source fs ON s1.FUNDING_SOURCE_PROCUREMENT_AGENT_ID=fs.FUNDING_SOURCE_ID ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_procurement_agent pa ON s1.FUNDING_SOURCE_PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_shipment_status ss ON s1.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID ");
+	SET @sqlString = CONCAT(@sqlString, "GROUP BY MONTH(s1.EDD)");
+    
+    PREPARE S1 FROM @sqlString;
+    EXECUTE S1;
+END$$
+
+DELIMITER ;
+
+
 
 ALTER TABLE `rm_budget` DROP INDEX `unq_budgetCode` , ADD UNIQUE INDEX `unq_budgetCode` (`BUDGET_CODE` ASC, `PROGRAM_ID` ASC);
 
