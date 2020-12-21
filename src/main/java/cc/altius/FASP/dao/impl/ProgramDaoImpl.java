@@ -309,13 +309,9 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public List<Program> getProgramList(CustomUserDetails curUser, boolean active) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
-        System.out.println("-------3-------");
         Map<String, Object> params = new HashMap<>();
-        System.out.println("-------4-------");
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
-        System.out.println("-------5-------");
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        System.out.println("-------6-------");
         if (active) {
             sqlStringBuilder.append(" AND p.ACTIVE ").append(this.sqlOrderBy);
         }
@@ -363,7 +359,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<SimpleObject> getPlanningUnitListForProgramIds(String programIds, CustomUserDetails curUser) {
-        String sql = "SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM rm_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE p.PROGRAM_ID IN (" + programIds + ") AND ppu.PROGRAM_ID IS NOT NULL";
+        String sql = "SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM rm_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE p.PROGRAM_ID IN (" + programIds + ") AND ppu.PROGRAM_ID IS NOT NULL AND ppu.ACTIVE AND pu.ACTIVE";
         Map<String, Object> params = new HashMap<>();
         params.put("programIds", programIds);
         return this.namedParameterJdbcTemplate.query(sql, params, new SimpleObjectRowMapper());

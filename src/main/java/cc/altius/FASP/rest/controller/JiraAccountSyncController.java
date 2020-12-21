@@ -28,7 +28,7 @@ public class JiraAccountSyncController {
     @GetMapping("/jira/syncJiraAccountIds")
     public String syncUserJiraAccountId(HttpServletResponse response) throws FileNotFoundException, IOException {
         
-        String result =  this.jiraServiceDeskApiService.syncUserJiraAccountId();
+        String result =  this.jiraServiceDeskApiService.syncUserJiraAccountId("");
         
         return result;
     }
