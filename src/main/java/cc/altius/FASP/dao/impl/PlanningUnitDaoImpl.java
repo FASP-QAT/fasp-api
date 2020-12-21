@@ -355,6 +355,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
             sqlStringBuilder.append(" AND pu.ACTIVE=:active ");
             params.put("active", active);
         }
+        sqlStringBuilder.append(" ORDER BY pu.LABEL_EN");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new PlanningUnitRowMapper());
     }
 
