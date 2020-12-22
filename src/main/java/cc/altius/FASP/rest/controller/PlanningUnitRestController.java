@@ -292,7 +292,7 @@ public class PlanningUnitRestController {
         }
     }
     
-    @GetMapping("/planningUnit/productCategory/{productCategoryId}")
+    @GetMapping("/planningUnit/productCategory/{productCategoryId}/active")
     public ResponseEntity getPlanningUnitForproductCategory(@PathVariable(value = "productCategoryId", required = true) int productCategoryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
