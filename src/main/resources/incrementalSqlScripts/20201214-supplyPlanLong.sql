@@ -696,8 +696,6 @@ END$$
 DELIMITER ;
 
 
--- Supply Plan Long Changes(decimal(12,4) changes to decimal(24,4) & (int(10) changes to bigint(20)
-
 ALTER TABLE `rm_consumption_trans`
 CHANGE COLUMN `CONSUMPTION_QTY` `CONSUMPTION_QTY` DECIMAL(24,4) NOT NULL,
 CHANGE COLUMN `CONSUMPTION_RCPU_QTY` `CONSUMPTION_RCPU_QTY` DECIMAL(24,4) NOT NULL ;
