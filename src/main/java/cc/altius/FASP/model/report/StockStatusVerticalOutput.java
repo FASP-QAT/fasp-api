@@ -36,6 +36,8 @@ public class StockStatusVerticalOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Long forecastedConsumptionQty;
     @JsonView(Views.ReportView.class)
+    private Long finalConsumptionQty;
+    @JsonView(Views.ReportView.class)
     private Long shipmentQty;
     @JsonView(Views.ReportView.class)
     private List<ShipmentInfo> shipmentInfo;
@@ -96,6 +98,14 @@ public class StockStatusVerticalOutput implements Serializable {
 
     public void setForecastedConsumptionQty(Long forecastedConsumptionQty) {
         this.forecastedConsumptionQty = forecastedConsumptionQty;
+    }
+
+    public Long getFinalConsumptionQty() {
+        return finalConsumptionQty;
+    }
+
+    public void setFinalConsumptionQty(Long finalConsumptionQty) {
+        this.finalConsumptionQty = finalConsumptionQty;
     }
 
     public Long getShipmentQty() {
