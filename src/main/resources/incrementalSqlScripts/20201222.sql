@@ -6,7 +6,7 @@ USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `stockStatusReportVertical`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_ID INT(10))
 BEGIN
 	-- %%%%%%%%%%%%%%%%%%%%%
-        -- Report no 16
+    -- Report no 16
 	-- %%%%%%%%%%%%%%%%%%%%%
 	
     SET @startDate = VAR_START_DATE;
@@ -15,7 +15,7 @@ BEGIN
 	SET @versionId = VAR_VERSION_ID;
 	SET @planningUnitId = VAR_PLANNING_UNIT_ID;
 
-	IF @versionId = -1 THEN
+	IF @versionId = -1 THEN 
 		SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
 	END IF;
     
@@ -23,6 +23,7 @@ BEGIN
         s2.`TRANS_DATE`, 
         COALESCE(s2.`FINAL_OPENING_BALANCE`, @prvMonthClosingBal) `FINAL_OPENING_BALANCE`,
         s2.`ACTUAL_CONSUMPTION_QTY`, s2.`FORECASTED_CONSUMPTION_QTY`, 
+        IF(s2.`ACTUAL`, s2.`ACTUAL_CONSUMPTION_QTY`,s2.`FORECASTED_CONSUMPTION_QTY`) `FINAL_CONSUMPTION_QTY`,
         s2.`ACTUAL`,
         s2.`SQTY` ,
         s2.`ADJUSTMENT`,
