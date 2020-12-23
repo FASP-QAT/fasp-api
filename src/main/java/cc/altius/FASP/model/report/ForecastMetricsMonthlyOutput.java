@@ -25,15 +25,15 @@ public class ForecastMetricsMonthlyOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Date month;
     @JsonView(Views.ReportView.class)
-    private Integer diffConsumptionHistory;
+    private Long diffConsumptionHistory;
     @JsonView(Views.ReportView.class)
-    private Integer actualConsumptionHistory;
+    private Long actualConsumptionHistory;
     @JsonView(Views.ReportView.class)
     private Double forecastError;
     @JsonView(Views.ReportView.class)
-    private Integer actualConsumption;
+    private Long actualConsumption;
     @JsonView(Views.ReportView.class)
-    private Integer forecastedConsumption;
+    private Long forecastedConsumption;
     @JsonView(Views.ReportView.class)
     private Boolean actual;
     @JsonView(Views.ReportView.class)
@@ -47,19 +47,19 @@ public class ForecastMetricsMonthlyOutput implements Serializable {
         this.month = month;
     }
 
-    public Integer getDiffConsumptionHistory() {
+    public Long getDiffConsumptionHistory() {
         return diffConsumptionHistory;
     }
 
-    public void setDiffConsumptionHistory(Integer diffConsumptionHistory) {
+    public void setDiffConsumptionHistory(Long diffConsumptionHistory) {
         this.diffConsumptionHistory = diffConsumptionHistory;
     }
 
-    public Integer getActualConsumptionHistory() {
+    public Long getActualConsumptionHistory() {
         return actualConsumptionHistory;
     }
 
-    public void setActualConsumptionHistory(Integer actualConsumptionHistory) {
+    public void setActualConsumptionHistory(Long actualConsumptionHistory) {
         this.actualConsumptionHistory = actualConsumptionHistory;
     }
 
@@ -71,19 +71,19 @@ public class ForecastMetricsMonthlyOutput implements Serializable {
         this.forecastError = forecastError;
     }
 
-    public Integer getActualConsumption() {
+    public Long getActualConsumption() {
         return actualConsumption;
     }
 
-    public void setActualConsumption(Integer actualConsumption) {
+    public void setActualConsumption(Long actualConsumption) {
         this.actualConsumption = actualConsumption;
     }
 
-    public Integer getForecastedConsumption() {
+    public Long getForecastedConsumption() {
         return forecastedConsumption;
     }
 
-    public void setForecastedConsumption(Integer forecastedConsumption) {
+    public void setForecastedConsumption(Long forecastedConsumption) {
         this.forecastedConsumption = forecastedConsumption;
     }
 

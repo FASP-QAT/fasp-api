@@ -26,7 +26,7 @@ public class ShipmentGlobalDemandDateSplit implements Serializable {
     @JsonView(Views.ReportView.class)
     private Date transDate;
     @JsonView(Views.ReportView.class)
-    private Map<String, Integer> amount;
+    private Map<String, Long> amount;
 
     public Date getTransDate() {
         return transDate;
@@ -36,11 +36,11 @@ public class ShipmentGlobalDemandDateSplit implements Serializable {
         this.transDate = transDate;
     }
 
-    public Map<String, Integer> getAmount() {
+    public Map<String, Long> getAmount() {
         return amount;
     }
 
-    public void setAmount(Map<String, Integer> amount) {
+    public void setAmount(Map<String, Long> amount) {
         this.amount = amount;
     }
 

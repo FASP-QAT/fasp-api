@@ -37,23 +37,23 @@ public class NewSupplyPlanBatchResultSetExtractor implements ResultSetExtractor<
             }
             BatchData bd = new BatchData();
             bd.setBatchId(rs.getInt("BATCH_ID"));
-            if(rs.wasNull()) {
+            if (rs.wasNull()) {
                 bd.setBatchId(null);
             }
             bd.setExpiryDate(rs.getString("EXPIRY_DATE"));
             bd.setShelfLife(rs.getInt("SHELF_LIFE"));
-            bd.setActualConsumption(rs.getInt("ACTUAL_CONSUMPTION"));
-            if(rs.wasNull()) {
+            bd.setActualConsumption(rs.getLong("ACTUAL_CONSUMPTION"));
+            if (rs.wasNull()) {
                 bd.setActualConsumption(null);
             }
-            bd.setShipment(rs.getInt("SHIPMENT"));
-            bd.setShipmentWps(rs.getInt("SHIPMENT_WPS"));
-            bd.setAdjustment(rs.getInt("ADJUSTMENT"));
-            if(rs.wasNull()) {
+            bd.setShipment(rs.getLong("SHIPMENT"));
+            bd.setShipmentWps(rs.getLong("SHIPMENT_WPS"));
+            bd.setAdjustment(rs.getLong("ADJUSTMENT"));
+            if (rs.wasNull()) {
                 bd.setAdjustment(null);
             }
-            bd.setStock(rs.getInt("STOCK"));
-            if(rs.wasNull()) {
+            bd.setStock(rs.getLong("STOCK"));
+            if (rs.wasNull()) {
                 bd.setStock(null);
             }
             bd.setAllRegionsReportedStock(nsp.isAllRegionsReportedStock());

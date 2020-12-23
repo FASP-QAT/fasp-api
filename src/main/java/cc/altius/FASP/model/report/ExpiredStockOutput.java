@@ -25,7 +25,7 @@ public class ExpiredStockOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Batch batchInfo;
     @JsonView(Views.ReportView.class)
-    private int expiredQty;
+    private long expiredQty;
 
     public SimpleCodeObject getProgram() {
         return program;
@@ -51,11 +51,11 @@ public class ExpiredStockOutput implements Serializable {
         this.batchInfo = batchInfo;
     }
 
-    public int getExpiredQty() {
+    public long getExpiredQty() {
         return expiredQty;
     }
 
-    public void setExpiredQty(int expiredQty) {
+    public void setExpiredQty(long expiredQty) {
         this.expiredQty = expiredQty;
     }
 

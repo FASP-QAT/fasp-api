@@ -17,95 +17,95 @@ import java.util.Objects;
  */
 public class SimplifiedSupplyPlan implements Serializable {
 
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class})
     private int supplyPlanId;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private int programId;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private int versionId;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private int planningUnitId;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private String transDate;
 
     // Is null if there is no Consumption reported.
     // Is true if the Consumption reported is Actual Consumption
     // Is false if the Consumption reported is Forecasted Consumption
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Boolean actualFlag;
     // Is null if there is no Consumption reported
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private Integer consumptionQty;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private Long consumptionQty;
     // Is 0 if there is no Shipment in that period
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int receivedShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int shippedShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int approvedShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int submittedShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int plannedShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int onholdShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int receivedErpShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int shippedErpShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int approvedErpShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int submittedErpShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int plannedErpShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int onholdErpShipmentsTotalData;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int stockQty;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int adjustmentQty;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long receivedShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long shippedShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long approvedShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long submittedShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long plannedShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long onholdShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long receivedErpShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long shippedErpShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long approvedErpShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long submittedErpShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long plannedErpShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long onholdErpShipmentsTotalData;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long stockQty;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long adjustmentQty;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private int regionCount;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private int regionCountForStock;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Double amc;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private int amcCount;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double minStock;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double minStockMoS;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double maxStock;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double maxStockMoS;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private List<SimpleBatchQuantity> batchDetails;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int expiredStock;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int expiredStockWps;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int unmetDemand;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int unmetDemandWps;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int openingBalance;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int openingBalanceWps;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int closingBalance;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int closingBalanceWps;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int nationalAdjustment;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
-    private int nationalAdjustmentWps;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long expiredStock;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long expiredStockWps;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long unmetDemand;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long unmetDemandWps;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long openingBalance;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long openingBalanceWps;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long closingBalance;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long closingBalanceWps;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long nationalAdjustment;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private long nationalAdjustmentWps;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Double mos;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class,Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Double mosWps;
 
     public SimplifiedSupplyPlan() {
@@ -128,7 +128,7 @@ public class SimplifiedSupplyPlan implements Serializable {
     public void setSupplyPlanId(int supplyPlanId) {
         this.supplyPlanId = supplyPlanId;
     }
-    
+
     public int getProgramId() {
         return programId;
     }
@@ -169,138 +169,138 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.actualFlag = actualFlag;
     }
 
-    public Integer getConsumptionQty() {
+    public Long getConsumptionQty() {
         return consumptionQty;
     }
 
-    public void setConsumptionQty(Integer consumptionQty) {
+    public void setConsumptionQty(Long consumptionQty) {
         this.consumptionQty = consumptionQty;
     }
 
     @JsonView({Views.InternalView.class})
-    public int getShipmentTotalQty() {
+    public long getShipmentTotalQty() {
         return getManualTotalQty() + getErpTotalQty();
     }
 
     @JsonView({Views.InternalView.class})
-    public int getManualTotalQty() {
+    public long getManualTotalQty() {
         return this.plannedShipmentsTotalData + this.submittedShipmentsTotalData + this.approvedShipmentsTotalData + this.shippedShipmentsTotalData + this.receivedShipmentsTotalData + this.onholdShipmentsTotalData;
     }
 
-    public int getReceivedShipmentsTotalData() {
+    public long getReceivedShipmentsTotalData() {
         return receivedShipmentsTotalData;
     }
 
-    public void setReceivedShipmentsTotalData(int receivedShipmentsTotalData) {
+    public void setReceivedShipmentsTotalData(long receivedShipmentsTotalData) {
         this.receivedShipmentsTotalData = receivedShipmentsTotalData;
     }
 
-    public int getShippedShipmentsTotalData() {
+    public long getShippedShipmentsTotalData() {
         return shippedShipmentsTotalData;
     }
 
-    public void setShippedShipmentsTotalData(int shippedShipmentsTotalData) {
+    public void setShippedShipmentsTotalData(long shippedShipmentsTotalData) {
         this.shippedShipmentsTotalData = shippedShipmentsTotalData;
     }
 
-    public int getApprovedShipmentsTotalData() {
+    public long getApprovedShipmentsTotalData() {
         return approvedShipmentsTotalData;
     }
 
-    public void setApprovedShipmentsTotalData(int approvedShipmentsTotalData) {
+    public void setApprovedShipmentsTotalData(long approvedShipmentsTotalData) {
         this.approvedShipmentsTotalData = approvedShipmentsTotalData;
     }
 
-    public int getSubmittedShipmentsTotalData() {
+    public long getSubmittedShipmentsTotalData() {
         return submittedShipmentsTotalData;
     }
 
-    public void setSubmittedShipmentsTotalData(int submittedShipmentsTotalData) {
+    public void setSubmittedShipmentsTotalData(long submittedShipmentsTotalData) {
         this.submittedShipmentsTotalData = submittedShipmentsTotalData;
     }
 
-    public int getPlannedShipmentsTotalData() {
+    public long getPlannedShipmentsTotalData() {
         return plannedShipmentsTotalData;
     }
 
-    public void setPlannedShipmentsTotalData(int plannedShipmentsTotalData) {
+    public void setPlannedShipmentsTotalData(long plannedShipmentsTotalData) {
         this.plannedShipmentsTotalData = plannedShipmentsTotalData;
     }
 
-    public int getOnholdShipmentsTotalData() {
+    public long getOnholdShipmentsTotalData() {
         return onholdShipmentsTotalData;
     }
 
-    public void setOnholdShipmentsTotalData(int onholdShipmentsTotalData) {
+    public void setOnholdShipmentsTotalData(long onholdShipmentsTotalData) {
         this.onholdShipmentsTotalData = onholdShipmentsTotalData;
     }
 
     @JsonView({Views.InternalView.class})
-    public int getErpTotalQty() {
+    public long getErpTotalQty() {
         return this.plannedErpShipmentsTotalData + this.submittedErpShipmentsTotalData + this.approvedErpShipmentsTotalData + this.shippedErpShipmentsTotalData + this.receivedErpShipmentsTotalData + this.onholdErpShipmentsTotalData;
     }
 
-    public int getReceivedErpShipmentsTotalData() {
+    public long getReceivedErpShipmentsTotalData() {
         return receivedErpShipmentsTotalData;
     }
 
-    public void setReceivedErpShipmentsTotalData(int receivedErpShipmentsTotalData) {
+    public void setReceivedErpShipmentsTotalData(long receivedErpShipmentsTotalData) {
         this.receivedErpShipmentsTotalData = receivedErpShipmentsTotalData;
     }
 
-    public int getShippedErpShipmentsTotalData() {
+    public long getShippedErpShipmentsTotalData() {
         return shippedErpShipmentsTotalData;
     }
 
-    public void setShippedErpShipmentsTotalData(int shippedErpShipmentsTotalData) {
+    public void setShippedErpShipmentsTotalData(long shippedErpShipmentsTotalData) {
         this.shippedErpShipmentsTotalData = shippedErpShipmentsTotalData;
     }
 
-    public int getApprovedErpShipmentsTotalData() {
+    public long getApprovedErpShipmentsTotalData() {
         return approvedErpShipmentsTotalData;
     }
 
-    public void setApprovedErpShipmentsTotalData(int approvedErpShipmentsTotalData) {
+    public void setApprovedErpShipmentsTotalData(long approvedErpShipmentsTotalData) {
         this.approvedErpShipmentsTotalData = approvedErpShipmentsTotalData;
     }
 
-    public int getSubmittedErpShipmentsTotalData() {
+    public long getSubmittedErpShipmentsTotalData() {
         return submittedErpShipmentsTotalData;
     }
 
-    public void setSubmittedErpShipmentsTotalData(int submittedErpShipmentsTotalData) {
+    public void setSubmittedErpShipmentsTotalData(long submittedErpShipmentsTotalData) {
         this.submittedErpShipmentsTotalData = submittedErpShipmentsTotalData;
     }
 
-    public int getPlannedErpShipmentsTotalData() {
+    public long getPlannedErpShipmentsTotalData() {
         return plannedErpShipmentsTotalData;
     }
 
-    public void setPlannedErpShipmentsTotalData(int plannedErpShipmentsTotalData) {
+    public void setPlannedErpShipmentsTotalData(long plannedErpShipmentsTotalData) {
         this.plannedErpShipmentsTotalData = plannedErpShipmentsTotalData;
     }
 
-    public int getOnholdErpShipmentsTotalData() {
+    public long getOnholdErpShipmentsTotalData() {
         return onholdErpShipmentsTotalData;
     }
 
-    public void setOnholdErpShipmentsTotalData(int onholdErpShipmentsTotalData) {
+    public void setOnholdErpShipmentsTotalData(long onholdErpShipmentsTotalData) {
         this.onholdErpShipmentsTotalData = onholdErpShipmentsTotalData;
     }
 
-    public int getStockQty() {
+    public long getStockQty() {
         return stockQty;
     }
 
-    public void setStockQty(int stockQty) {
+    public void setStockQty(long stockQty) {
         this.stockQty = stockQty;
     }
 
-    public int getAdjustmentQty() {
+    public long getAdjustmentQty() {
         return adjustmentQty;
     }
 
-    public void setAdjustmentQty(int adjustmentQty) {
+    public void setAdjustmentQty(long adjustmentQty) {
         this.adjustmentQty = adjustmentQty;
     }
 
@@ -376,83 +376,83 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.batchDetails = batchDetails;
     }
 
-    public int getExpiredStock() {
+    public long getExpiredStock() {
         return expiredStock;
     }
 
-    public void setExpiredStock(int expiredStock) {
+    public void setExpiredStock(long expiredStock) {
         this.expiredStock = expiredStock;
     }
 
-    public int getExpiredStockWps() {
+    public long getExpiredStockWps() {
         return expiredStockWps;
     }
 
-    public void setExpiredStockWps(int expiredStockWps) {
+    public void setExpiredStockWps(long expiredStockWps) {
         this.expiredStockWps = expiredStockWps;
     }
 
-    public int getUnmetDemand() {
+    public long getUnmetDemand() {
         return unmetDemand;
     }
 
-    public void setUnmetDemand(int unmetDemand) {
+    public void setUnmetDemand(long unmetDemand) {
         this.unmetDemand = unmetDemand;
     }
 
-    public int getUnmetDemandWps() {
+    public long getUnmetDemandWps() {
         return unmetDemandWps;
     }
 
-    public void setUnmetDemandWps(int unmetDemandWps) {
+    public void setUnmetDemandWps(long unmetDemandWps) {
         this.unmetDemandWps = unmetDemandWps;
     }
 
-    public int getOpeningBalance() {
+    public long getOpeningBalance() {
         return openingBalance;
     }
 
-    public void setOpeningBalance(int openingBalance) {
+    public void setOpeningBalance(long openingBalance) {
         this.openingBalance = openingBalance;
     }
 
-    public int getOpeningBalanceWps() {
+    public long getOpeningBalanceWps() {
         return openingBalanceWps;
     }
 
-    public void setOpeningBalanceWps(int openingBalanceWps) {
+    public void setOpeningBalanceWps(long openingBalanceWps) {
         this.openingBalanceWps = openingBalanceWps;
     }
 
-    public int getClosingBalance() {
+    public long getClosingBalance() {
         return closingBalance;
     }
 
-    public void setClosingBalance(int closingBalance) {
+    public void setClosingBalance(long closingBalance) {
         this.closingBalance = closingBalance;
     }
 
-    public int getClosingBalanceWps() {
+    public long getClosingBalanceWps() {
         return closingBalanceWps;
     }
 
-    public void setClosingBalanceWps(int closingBalanceWps) {
+    public void setClosingBalanceWps(long closingBalanceWps) {
         this.closingBalanceWps = closingBalanceWps;
     }
 
-    public int getNationalAdjustment() {
+    public long getNationalAdjustment() {
         return nationalAdjustment;
     }
 
-    public void setNationalAdjustment(int nationalAdjustment) {
+    public void setNationalAdjustment(long nationalAdjustment) {
         this.nationalAdjustment = nationalAdjustment;
     }
 
-    public int getNationalAdjustmentWps() {
+    public long getNationalAdjustmentWps() {
         return nationalAdjustmentWps;
     }
 
-    public void setNationalAdjustmentWps(int nationalAdjustmentWps) {
+    public void setNationalAdjustmentWps(long nationalAdjustmentWps) {
         this.nationalAdjustmentWps = nationalAdjustmentWps;
     }
 

@@ -14,14 +14,14 @@ import java.io.Serializable;
  */
 public class InventoryBatchInfo implements Serializable {
 
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private int inventoryTransBatchInfoId;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Batch batch;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
-    private Integer adjustmentQty;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
-    private Integer actualQty;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private Double adjustmentQty;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    private Double actualQty;
 
     public int getInventoryTransBatchInfoId() {
         return inventoryTransBatchInfoId;
@@ -39,19 +39,19 @@ public class InventoryBatchInfo implements Serializable {
         this.batch = batch;
     }
 
-    public Integer getAdjustmentQty() {
+    public Double getAdjustmentQty() {
         return adjustmentQty;
     }
 
-    public void setAdjustmentQty(Integer adjustmentQty) {
+    public void setAdjustmentQty(Double adjustmentQty) {
         this.adjustmentQty = adjustmentQty;
     }
 
-    public Integer getActualQty() {
+    public Double getActualQty() {
         return actualQty;
     }
 
-    public void setActualQty(Integer actualQty) {
+    public void setActualQty(Double actualQty) {
         this.actualQty = actualQty;
     }
 

@@ -29,7 +29,7 @@ public class ShipmentGlobalDemandShipmentList implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject country;
     @JsonView(Views.ReportView.class)
-    private int amount;
+    private long amount;
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject fundingSourceProcurementAgent;
     @JsonView(Views.ReportView.class)
@@ -51,11 +51,11 @@ public class ShipmentGlobalDemandShipmentList implements Serializable {
         this.country = country;
     }
 
-    public int getAmount() {
+    public long getAmount() {
         return amount;
     }
 
-    public void setAmount(int amount) {
+    public void setAmount(long amount) {
         this.amount = amount;
     }
 

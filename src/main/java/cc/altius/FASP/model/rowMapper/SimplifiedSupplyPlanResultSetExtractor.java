@@ -27,40 +27,40 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
             SimplifiedSupplyPlan sp = new SimplifiedSupplyPlan(rs.getInt("SUPPLY_PLAN_ID"), rs.getInt("PROGRAM_ID"), rs.getInt("VERSION_ID"), rs.getInt("PLANNING_UNIT_ID"), rs.getString("TRANS_DATE"));
             int idx = spList.indexOf(sp);
             if (idx == -1) {
-                sp.setOpeningBalance(rs.getInt("OPENING_BALANCE"));
-                sp.setOpeningBalanceWps(rs.getInt("OPENING_BALANCE_WPS"));
+                sp.setOpeningBalance(rs.getLong("OPENING_BALANCE"));
+                sp.setOpeningBalanceWps(rs.getLong("OPENING_BALANCE_WPS"));
                 sp.setActualFlag(rs.getBoolean("ACTUAL_FLAG"));
                 if (rs.wasNull()) {
                     sp.setActualFlag(null);
                 }
-                sp.setConsumptionQty(rs.getInt("CONSUMPTION_QTY"));
+                sp.setConsumptionQty(rs.getLong("CONSUMPTION_QTY"));
                 if (rs.wasNull()) {
                     sp.setConsumptionQty(null);
                 }
-                sp.setAdjustmentQty(rs.getInt("ADJUSTMENT_MULTIPLIED_QTY"));
-                sp.setStockQty(rs.getInt("STOCK_MULTIPLIED_QTY"));
+                sp.setAdjustmentQty(rs.getLong("ADJUSTMENT_MULTIPLIED_QTY"));
+                sp.setStockQty(rs.getLong("STOCK_MULTIPLIED_QTY"));
                 sp.setRegionCount(rs.getInt("REGION_COUNT"));
                 sp.setRegionCountForStock(rs.getInt("REGION_COUNT_FOR_STOCK"));
-                sp.setPlannedShipmentsTotalData(rs.getInt("MANUAL_PLANNED_SHIPMENT_QTY"));
-                sp.setSubmittedShipmentsTotalData(rs.getInt("MANUAL_SUBMITTED_SHIPMENT_QTY"));
-                sp.setApprovedShipmentsTotalData(rs.getInt("MANUAL_APPROVED_SHIPMENT_QTY"));
-                sp.setShippedShipmentsTotalData(rs.getInt("MANUAL_SHIPPED_SHIPMENT_QTY"));
-                sp.setReceivedShipmentsTotalData(rs.getInt("MANUAL_RECEIVED_SHIPMENT_QTY"));
-                sp.setOnholdShipmentsTotalData(rs.getInt("MANUAL_ONHOLD_SHIPMENT_QTY"));
-                sp.setPlannedErpShipmentsTotalData(rs.getInt("ERP_PLANNED_SHIPMENT_QTY"));
-                sp.setSubmittedErpShipmentsTotalData(rs.getInt("ERP_SUBMITTED_SHIPMENT_QTY"));
-                sp.setApprovedErpShipmentsTotalData(rs.getInt("ERP_APPROVED_SHIPMENT_QTY"));
-                sp.setShippedErpShipmentsTotalData(rs.getInt("ERP_SHIPPED_SHIPMENT_QTY"));
-                sp.setReceivedErpShipmentsTotalData(rs.getInt("ERP_RECEIVED_SHIPMENT_QTY"));
-                sp.setOnholdErpShipmentsTotalData(rs.getInt("ERP_ONHOLD_SHIPMENT_QTY"));
-                sp.setExpiredStock(rs.getInt("EXPIRED_STOCK"));
-                sp.setExpiredStockWps(rs.getInt("EXPIRED_STOCK_WPS"));
-                sp.setClosingBalance(rs.getInt("CLOSING_BALANCE"));
-                sp.setClosingBalanceWps(rs.getInt("CLOSING_BALANCE_WPS"));
-                sp.setUnmetDemand(rs.getInt("UNMET_DEMAND"));
-                sp.setUnmetDemandWps(rs.getInt("UNMET_DEMAND_WPS"));
-                sp.setNationalAdjustment(rs.getInt("NATIONAL_ADJUSTMENT"));
-                sp.setNationalAdjustmentWps(rs.getInt("NATIONAL_ADJUSTMENT_WPS"));
+                sp.setPlannedShipmentsTotalData(rs.getLong("MANUAL_PLANNED_SHIPMENT_QTY"));
+                sp.setSubmittedShipmentsTotalData(rs.getLong("MANUAL_SUBMITTED_SHIPMENT_QTY"));
+                sp.setApprovedShipmentsTotalData(rs.getLong("MANUAL_APPROVED_SHIPMENT_QTY"));
+                sp.setShippedShipmentsTotalData(rs.getLong("MANUAL_SHIPPED_SHIPMENT_QTY"));
+                sp.setReceivedShipmentsTotalData(rs.getLong("MANUAL_RECEIVED_SHIPMENT_QTY"));
+                sp.setOnholdShipmentsTotalData(rs.getLong("MANUAL_ONHOLD_SHIPMENT_QTY"));
+                sp.setPlannedErpShipmentsTotalData(rs.getLong("ERP_PLANNED_SHIPMENT_QTY"));
+                sp.setSubmittedErpShipmentsTotalData(rs.getLong("ERP_SUBMITTED_SHIPMENT_QTY"));
+                sp.setApprovedErpShipmentsTotalData(rs.getLong("ERP_APPROVED_SHIPMENT_QTY"));
+                sp.setShippedErpShipmentsTotalData(rs.getLong("ERP_SHIPPED_SHIPMENT_QTY"));
+                sp.setReceivedErpShipmentsTotalData(rs.getLong("ERP_RECEIVED_SHIPMENT_QTY"));
+                sp.setOnholdErpShipmentsTotalData(rs.getLong("ERP_ONHOLD_SHIPMENT_QTY"));
+                sp.setExpiredStock(rs.getLong("EXPIRED_STOCK"));
+                sp.setExpiredStockWps(rs.getLong("EXPIRED_STOCK_WPS"));
+                sp.setClosingBalance(rs.getLong("CLOSING_BALANCE"));
+                sp.setClosingBalanceWps(rs.getLong("CLOSING_BALANCE_WPS"));
+                sp.setUnmetDemand(rs.getLong("UNMET_DEMAND"));
+                sp.setUnmetDemandWps(rs.getLong("UNMET_DEMAND_WPS"));
+                sp.setNationalAdjustment(rs.getLong("NATIONAL_ADJUSTMENT"));
+                sp.setNationalAdjustmentWps(rs.getLong("NATIONAL_ADJUSTMENT_WPS"));
                 sp.setAmc(rs.getDouble("AMC"));
                 if (rs.wasNull()) {
                     sp.setAmc(null);
@@ -84,7 +84,7 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
             sp = spList.get(idx);
             Integer batchId = rs.getInt("BATCH_ID");
             if (!rs.wasNull()) {
-                SimpleBatchQuantity sb = new SimpleBatchQuantity(batchId, rs.getString("BATCH_NO"), rs.getDate("EXPIRY_DATE"), rs.getBoolean("AUTO_GENERATED"), rs.getInt("BATCH_CLOSING_BALANCE"), rs.getInt("BATCH_CLOSING_BALANCE_WPS"), rs.getInt("BATCH_EXPIRED_STOCK"), rs.getInt("BATCH_EXPIRED_STOCK_WPS"), rs.getDate("BATCH_CREATED_DATE"));
+                SimpleBatchQuantity sb = new SimpleBatchQuantity(batchId, rs.getString("BATCH_NO"), rs.getDate("EXPIRY_DATE"), rs.getBoolean("AUTO_GENERATED"), rs.getLong("BATCH_CLOSING_BALANCE"), rs.getLong("BATCH_CLOSING_BALANCE_WPS"), rs.getLong("BATCH_EXPIRED_STOCK"), rs.getLong("BATCH_EXPIRED_STOCK_WPS"), rs.getDate("BATCH_CREATED_DATE"));
                 sp.getBatchDetails().add(sb);
             }
         }

@@ -19,7 +19,7 @@ public class InventoryTurnsOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
     @JsonView(Views.ReportView.class)
-    private int totalConsumption;
+    private long totalConsumption;
     @JsonView(Views.ReportView.class)
     private double avergeStock;
     @JsonView(Views.ReportView.class)
@@ -30,7 +30,7 @@ public class InventoryTurnsOutput implements Serializable {
     public InventoryTurnsOutput() {
     }
 
-    public InventoryTurnsOutput(SimpleObject planningUnit, int totalConsumption, double avergeStock, int noOfMonths, double inventoryTurns) {
+    public InventoryTurnsOutput(SimpleObject planningUnit, long totalConsumption, double avergeStock, int noOfMonths, double inventoryTurns) {
         this.planningUnit = planningUnit;
         this.totalConsumption = totalConsumption;
         this.avergeStock = avergeStock;
@@ -46,11 +46,11 @@ public class InventoryTurnsOutput implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public int getTotalConsumption() {
+    public long getTotalConsumption() {
         return totalConsumption;
     }
 
-    public void setTotalConsumption(int totalConsumption) {
+    public void setTotalConsumption(long totalConsumption) {
         this.totalConsumption = totalConsumption;
     }
 

@@ -18,27 +18,27 @@ public class BatchData implements Serializable {
     private Integer batchId;
     private String expiryDate;
     private int shelfLife;
-    private Integer actualConsumption;
-    private int shipment;
-    private int shipmentWps;
-    private Integer adjustment;
-    private Integer stock;
+    private Long actualConsumption;
+    private long shipment;
+    private long shipmentWps;
+    private Long adjustment;
+    private Long stock;
 
     private boolean allRegionsReportedStock;
     private boolean useAdjustment;
     private boolean useActualConsumption;
 
-    private int openingBalance;
-    private int expiredStock;
-    private int unallocatedConsumption;
-    private int calculatedConsumption;
-    private int closingBalance;
+    private long openingBalance;
+    private long expiredStock;
+    private long unallocatedConsumption;
+    private long calculatedConsumption;
+    private long closingBalance;
 
-    private int openingBalanceWps;
-    private int expiredStockWps;
-    private int unallocatedConsumptionWps;
-    private int calculatedConsumptionWps;
-    private int closingBalanceWps;
+    private long openingBalanceWps;
+    private long expiredStockWps;
+    private long unallocatedConsumptionWps;
+    private long calculatedConsumptionWps;
+    private long closingBalanceWps;
 
     public BatchData() {
     }
@@ -76,43 +76,43 @@ public class BatchData implements Serializable {
         this.shelfLife = shelfLife;
     }
 
-    public Integer getActualConsumption() {
+    public Long getActualConsumption() {
         return actualConsumption;
     }
 
-    public void setActualConsumption(Integer actualConsumption) {
+    public void setActualConsumption(Long actualConsumption) {
         this.actualConsumption = actualConsumption;
     }
 
-    public int getShipment() {
+    public long getShipment() {
         return shipment;
     }
 
-    public void setShipment(int shipment) {
+    public void setShipment(long shipment) {
         this.shipment = shipment;
     }
-    
-    public int getShipmentWps() {
+
+    public long getShipmentWps() {
         return shipmentWps;
     }
 
-    public void setShipmentWps(int shipmentWps) {
+    public void setShipmentWps(long shipmentWps) {
         this.shipmentWps = shipmentWps;
     }
 
-    public Integer getAdjustment() {
+    public Long getAdjustment() {
         return adjustment;
     }
 
-    public void setAdjustment(Integer adjustment) {
+    public void setAdjustment(Long adjustment) {
         this.adjustment = adjustment;
     }
 
-    public Integer getStock() {
+    public Long getStock() {
         return stock;
     }
 
-    public void setStock(Integer stock) {
+    public void setStock(Long stock) {
         this.stock = stock;
     }
 
@@ -140,87 +140,85 @@ public class BatchData implements Serializable {
         this.useActualConsumption = useActualConsumption;
     }
 
-    public int getOpeningBalance() {
+    public long getOpeningBalance() {
         return openingBalance;
     }
 
-    public void setOpeningBalance(int openingBalance) {
+    public void setOpeningBalance(long openingBalance) {
         this.openingBalance = openingBalance;
     }
 
-    public int getExpiredStock() {
+    public long getExpiredStock() {
         return expiredStock;
     }
 
-    public void setExpiredStock(int expiredStock) {
+    public void setExpiredStock(long expiredStock) {
         this.expiredStock = expiredStock;
     }
 
-    public int getCalculatedConsumption() {
+    public long getCalculatedConsumption() {
         return calculatedConsumption;
     }
 
-    public void setCalculatedConsumption(int calculatedConsumption) {
+    public void setCalculatedConsumption(long calculatedConsumption) {
         this.calculatedConsumption = calculatedConsumption;
     }
 
-    public int getClosingBalance() {
+    public long getClosingBalance() {
         return closingBalance;
     }
 
-    public void setClosingBalance(int closingBalance) {
+    public void setClosingBalance(long closingBalance) {
         this.closingBalance = closingBalance;
     }
 
-    public int getUnallocatedConsumption() {
+    public long getUnallocatedConsumption() {
         return unallocatedConsumption;
     }
 
-    public void setUnallocatedConsumption(int unallocatedConsumption) {
+    public void setUnallocatedConsumption(long unallocatedConsumption) {
         this.unallocatedConsumption = unallocatedConsumption;
     }
 
-    public int getOpeningBalanceWps() {
+    public long getOpeningBalanceWps() {
         return openingBalanceWps;
     }
 
-    public void setOpeningBalanceWps(int openingBalanceWps) {
+    public void setOpeningBalanceWps(long openingBalanceWps) {
         this.openingBalanceWps = openingBalanceWps;
     }
 
-    public int getExpiredStockWps() {
+    public long getExpiredStockWps() {
         return expiredStockWps;
     }
 
-    public void setExpiredStockWps(int expiredStockWps) {
+    public void setExpiredStockWps(long expiredStockWps) {
         this.expiredStockWps = expiredStockWps;
     }
 
-    public int getUnallocatedConsumptionWps() {
+    public long getUnallocatedConsumptionWps() {
         return unallocatedConsumptionWps;
     }
 
-    public void setUnallocatedConsumptionWps(int unallocatedConsumptionWps) {
+    public void setUnallocatedConsumptionWps(long unallocatedConsumptionWps) {
         this.unallocatedConsumptionWps = unallocatedConsumptionWps;
     }
 
-    public int getCalculatedConsumptionWps() {
+    public long getCalculatedConsumptionWps() {
         return calculatedConsumptionWps;
     }
 
-    public void setCalculatedConsumptionWps(int calculatedConsumptionWps) {
+    public void setCalculatedConsumptionWps(long calculatedConsumptionWps) {
         this.calculatedConsumptionWps = calculatedConsumptionWps;
     }
 
-    public int getClosingBalanceWps() {
+    public long getClosingBalanceWps() {
         return closingBalanceWps;
     }
 
-    public void setClosingBalanceWps(int closingBalanceWps) {
+    public void setClosingBalanceWps(long closingBalanceWps) {
         this.closingBalanceWps = closingBalanceWps;
     }
-    
-    
 
     @Override
     public int hashCode() {

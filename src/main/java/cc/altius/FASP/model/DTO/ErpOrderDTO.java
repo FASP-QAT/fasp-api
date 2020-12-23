@@ -33,7 +33,7 @@ public class ErpOrderDTO {
     private String eoProcurementUnitSkuCode;
     private Integer eoProcurementUnitId;
     private Integer eoSupplierId;
-    private int eoQty;
+    private long eoQty;
     private Date eoOrderedDate;
     private Date eoCurrentEstimatedDeliveryDate;
     private Date eoReqDeliveryDate;
@@ -192,11 +192,11 @@ public class ErpOrderDTO {
         this.eoSupplierId = eoSupplierId;
     }
 
-    public int getEoQty() {
+    public long getEoQty() {
         return eoQty;
     }
 
-    public void setEoQty(int eoQty) {
+    public void setEoQty(long eoQty) {
         this.eoQty = eoQty;
     }
 

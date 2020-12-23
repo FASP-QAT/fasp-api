@@ -21,9 +21,9 @@ public class ShipmentOverviewPlanningUnitSplit implements Serializable {
     @JsonView(Views.ReportView.class)
     private int multiplier;
     @JsonView(Views.ReportView.class)
-    private int plannedShipmentQty;
+    private long plannedShipmentQty;
     @JsonView(Views.ReportView.class)
-    private int orderedShipmentQty;
+    private long orderedShipmentQty;
 
     public SimpleObject getPlanningUnit() {
         return planningUnit;
@@ -41,19 +41,19 @@ public class ShipmentOverviewPlanningUnitSplit implements Serializable {
         this.multiplier = multiplier;
     }
 
-    public int getPlannedShipmentQty() {
+    public long getPlannedShipmentQty() {
         return plannedShipmentQty;
     }
 
-    public void setPlannedShipmentQty(int plannedShipmentQty) {
+    public void setPlannedShipmentQty(long plannedShipmentQty) {
         this.plannedShipmentQty = plannedShipmentQty;
     }
 
-    public int getOrderedShipmentQty() {
+    public long getOrderedShipmentQty() {
         return orderedShipmentQty;
     }
 
-    public void setOrderedShipmentQty(int orderedShipmentQty) {
+    public void setOrderedShipmentQty(long orderedShipmentQty) {
         this.orderedShipmentQty = orderedShipmentQty;
     }
 

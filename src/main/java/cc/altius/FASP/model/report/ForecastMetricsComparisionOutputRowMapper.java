@@ -23,19 +23,19 @@ public class ForecastMetricsComparisionOutputRowMapper implements RowMapper<Fore
         ForecastMetricsComparisionOutput fmo = new ForecastMetricsComparisionOutput();
         fmo.setProgram(new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, i), rs.getString("PROGRAM_CODE")));
         fmo.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
-        fmo.setDiffConsumptionTotal(rs.getInt("DIFF_CONSUMPTION_TOTAL"));
+        fmo.setDiffConsumptionTotal(rs.getLong("DIFF_CONSUMPTION_TOTAL"));
         if (rs.wasNull()) {
             fmo.setDiffConsumptionTotal(null);
         }
-        fmo.setActualConsumptionTotal(rs.getInt("ACTUAL_CONSUMPTION_TOTAL"));
+        fmo.setActualConsumptionTotal(rs.getLong("ACTUAL_CONSUMPTION_TOTAL"));
         if (rs.wasNull()) {
             fmo.setActualConsumptionTotal(null);
         }
-        fmo.setActualConsumption(rs.getInt("ACTUAL_CONSUMPTION"));
+        fmo.setActualConsumption(rs.getLong("ACTUAL_CONSUMPTION"));
         if (rs.wasNull()) {
             fmo.setActualConsumption(null);
         }
-        fmo.setForecastedConsumption(rs.getInt("FORECASTED_CONSUMPTION"));
+        fmo.setForecastedConsumption(rs.getLong("FORECASTED_CONSUMPTION"));
         if (rs.wasNull()) {
             fmo.setForecastedConsumption(null);
         }

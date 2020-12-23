@@ -20,7 +20,7 @@ public class ProcurementAgentShipmentReportOutput extends ShipmentReportOutput i
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject procurementAgent;
 
-    public ProcurementAgentShipmentReportOutput(SimpleObject planningUnit, int qty, double productCost, double freightPerc, double freightCost) {
+    public ProcurementAgentShipmentReportOutput(SimpleObject planningUnit, long qty, double productCost, double freightPerc, double freightCost) {
         super(planningUnit, qty, productCost, freightPerc, freightCost);
     }
 

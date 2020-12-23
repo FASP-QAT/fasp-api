@@ -25,7 +25,7 @@ public class ExpiredStockOutputRowMapper implements RowMapper<ExpiredStockOutput
         es.setProgram(new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, i), rs.getString("PROGRAM_CODE")));
         es.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, i)));
         es.setBatchInfo(new Batch(rs.getInt("BATCH_ID"), rs.getInt("PLANNING_UNIT_ID"), rs.getString("BATCH_NO"), rs.getBoolean("AUTO_GENERATED"), rs.getDate("EXPIRY_DATE"), rs.getTimestamp("CREATED_DATE")));
-        es.setExpiredQty(rs.getInt("EXPIRED_STOCK"));
+        es.setExpiredQty(rs.getLong("EXPIRED_STOCK"));
         return es;
     }
 

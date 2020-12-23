@@ -3,7 +3,7 @@ DROP procedure IF EXISTS `getConsumptionData`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getConsumptionData`(PROGRAM_ID INT(10), VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getConsumptionData`(PROGRAM_ID INT(10), VERSION_ID INT (10))
 BEGIN
 	SET @programId = PROGRAM_ID; 
     SET @versionId = VERSION_ID;
@@ -52,7 +52,7 @@ DROP procedure IF EXISTS `getInventoryData`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getInventoryData`(PROGRAM_ID INT(10), VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getInventoryData`(PROGRAM_ID INT(10), VERSION_ID INT (10))
 BEGIN
 	SET @programId = PROGRAM_ID; 
     SET @versionId = VERSION_ID;
@@ -119,7 +119,7 @@ DROP procedure IF EXISTS `getShipmentData`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentData`(PROGRAM_ID INT(10), VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentData`(PROGRAM_ID INT(10), VERSION_ID INT (10))
 BEGIN
 	SET @programId = PROGRAM_ID;
     SET @versionId = VERSION_ID;

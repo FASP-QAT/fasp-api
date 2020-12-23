@@ -29,32 +29,36 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
             ssv.setDt(rs.getDate("TRANS_DATE"));
             int index = ssvList.indexOf(ssv);
             if (index == -1) {
-                ssv.setOpeningBalance(rs.getInt("FINAL_OPENING_BALANCE"));
+                ssv.setOpeningBalance(rs.getLong("FINAL_OPENING_BALANCE"));
                 ssv.setActualConsumption(rs.getBoolean("ACTUAL"));
                 if (rs.wasNull()) {
                     ssv.setActualConsumption(null);
                 }
-                ssv.setActualConsumptionQty(rs.getInt("ACTUAL_CONSUMPTION_QTY"));
+                ssv.setActualConsumptionQty(rs.getLong("ACTUAL_CONSUMPTION_QTY"));
                 if (rs.wasNull()) {
                     ssv.setActualConsumptionQty(null);
                 }
-                ssv.setForecastedConsumptionQty(rs.getInt("FORECASTED_CONSUMPTION_QTY"));
+                ssv.setForecastedConsumptionQty(rs.getLong("FORECASTED_CONSUMPTION_QTY"));
                 if (rs.wasNull()) {
                     ssv.setForecastedConsumptionQty(null);
                 }
-                ssv.setShipmentQty(rs.getInt("SQTY"));
+                ssv.setFinalConsumptionQty(rs.getLong("FINAL_CONSUMPTION_QTY"));
+                if (rs.wasNull()) {
+                    ssv.setFinalConsumptionQty(null);
+                }
+                ssv.setShipmentQty(rs.getLong("SQTY"));
                 if (rs.wasNull()) {
                     ssv.setShipmentQty(null);
                 }
-                ssv.setAdjustment(rs.getInt("ADJUSTMENT"));
+                ssv.setAdjustment(rs.getLong("ADJUSTMENT"));
                 if (rs.wasNull()) {
                     ssv.setAdjustment(null);
                 }
-                ssv.setExpiredStock(rs.getInt("EXPIRED_STOCK"));
+                ssv.setExpiredStock(rs.getLong("EXPIRED_STOCK"));
                 if (rs.wasNull()) {
                     ssv.setExpiredStock(null);
                 }
-                ssv.setClosingBalance(rs.getInt("FINAL_CLOSING_BALANCE"));
+                ssv.setClosingBalance(rs.getLong("FINAL_CLOSING_BALANCE"));
                 if (rs.wasNull()) {
                     ssv.setClosingBalance(null);
                 }
@@ -76,7 +80,7 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
             if (!rs.wasNull()) {
                 ShipmentInfo si = new ShipmentInfo(
                         rs.getInt("SHIPMENT_ID"),
-                        rs.getInt("SHIPMENT_QTY"),
+                        rs.getLong("SHIPMENT_QTY"),
                         new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, index), rs.getString("FUNDING_SOURCE_CODE")),
                         new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, index), rs.getString("PROCUREMENT_AGENT_CODE")),
                         new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, index))

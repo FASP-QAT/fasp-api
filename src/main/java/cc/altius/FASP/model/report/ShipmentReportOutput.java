@@ -19,7 +19,7 @@ public class ShipmentReportOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleObject planningUnit;
     @JsonView(Views.ReportView.class)
-    private int qty;
+    private long qty;
     @JsonView(Views.ReportView.class)
     private double productCost;
     @JsonView(Views.ReportView.class)
@@ -27,7 +27,7 @@ public class ShipmentReportOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private double freightCost;
 
-    public ShipmentReportOutput(SimpleObject planningUnit, int qty, double productCost, double freightPerc, double freightCost) {
+    public ShipmentReportOutput(SimpleObject planningUnit, long qty, double productCost, double freightPerc, double freightCost) {
         this.planningUnit = planningUnit;
         this.qty = qty;
         this.productCost = productCost;
@@ -43,11 +43,11 @@ public class ShipmentReportOutput implements Serializable {
         this.planningUnit = planningUnit;
     }
 
-    public int getQty() {
+    public long getQty() {
         return qty;
     }
 
-    public void setQty(int qty) {
+    public void setQty(long qty) {
         this.qty = qty;
     }
 
