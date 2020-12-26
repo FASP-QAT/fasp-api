@@ -129,12 +129,12 @@ public class JiraServiceDeskApiServiceImpl implements JiraServiceDeskApiService 
             StringBuilder jqlSearchString_Open = new StringBuilder("");
             jqlSearchString_Open.append("project=").append(JIRA_PROJECT_NAME)
                     .append(" AND reporter=").append(jiraAccountId)
-                    .append(" AND (status='Open' OR status='Work in progress')");
+                    .append(" AND (statusCategory='To Do' OR statusCategory='In Progress')");
             
             StringBuilder jqlSearchString_Done = new StringBuilder("");
             jqlSearchString_Done.append("project=").append(JIRA_PROJECT_NAME)
                     .append(" AND reporter=").append(jiraAccountId)
-                    .append(" AND status=Done");
+                    .append(" AND statusCategory='Done'");
 
 //            System.out.println("URL : " + jqlSearchString.toString());
 
