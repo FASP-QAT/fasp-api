@@ -310,19 +310,25 @@ public class UserDaoImpl implements UserDao {
 //                + "LEFT JOIN ap_label lb ON lb.`LABEL_ID`=us_role.`LABEL_ID` "
 //                + "LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=us_role.`ROLE_ID` "
 //                + "LEFT JOIN us_can_create_role c ON c.`ROLE_ID`=us_role.`ROLE_ID` WHERE 1 ");
-        sb.append("SELECT c.`CAN_CREATE_ROLE`,r.`ROLE_ID`,lb.*,rb.`BUSINESS_FUNCTION_ID` "
-                + " FROM us_can_create_role c "
-                + " LEFT JOIN us_role r ON r.`ROLE_ID`=c.`CAN_CREATE_ROLE` "
+//        sb.append("SELECT c.`CAN_CREATE_ROLE`,r.`ROLE_ID`,lb.*,rb.`BUSINESS_FUNCTION_ID` "
+//                + " FROM us_can_create_role c "
+//                + " LEFT JOIN us_role r ON r.`ROLE_ID`=c.`CAN_CREATE_ROLE` "
+//                + " LEFT JOIN ap_label lb ON lb.`LABEL_ID`=r.`LABEL_ID` "
+//                + " LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=r.`ROLE_ID` WHERE 1 ");
+        sb.append("SELECT c.`CAN_CREATE_ROLE`,r.`ROLE_ID`,lb.*,rb.`BUSINESS_FUNCTION_ID` FROM us_role r "
                 + " LEFT JOIN ap_label lb ON lb.`LABEL_ID`=r.`LABEL_ID` "
-                + " LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=r.`ROLE_ID` WHERE 1 ");
+                + " LEFT JOIN us_role_business_function rb ON rb.`ROLE_ID`=r.`ROLE_ID` "
+                + " LEFT JOIN us_can_create_role c ON c.`CAN_CREATE_ROLE`=r.`ROLE_ID` "
+                + " WHERE 1 ");
         String role[] = new String[curUser.getRoles().size()];
         for (int i = 0; i < curUser.getRoles().size(); i++) {
             role[i] = curUser.getRoles().get(i).getRoleId();
         }
-        if (Arrays.asList(role).contains("ROLE_APPLICATION_ADMIN")) {
-            sb.append("AND c.`ROLE_ID`=\"ROLE_APPLICATION_ADMIN\"");
-
-        } else if (Arrays.asList(role).contains("ROLE_REALM_ADMIN")) {
+//        if (Arrays.asList(role).contains("ROLE_APPLICATION_ADMIN")) {
+//            sb.append("AND c.`ROLE_ID`=\"ROLE_APPLICATION_ADMIN\"");
+//
+//        } else 
+        if (Arrays.asList(role).contains("ROLE_REALM_ADMIN")) {
             sb.append("AND c.`ROLE_ID`=\"ROLE_REALM_ADMIN\"");
         }
         sb.append(" ORDER BY lb.`LABEL_EN` ASC ");
@@ -592,8 +598,12 @@ public class UserDaoImpl implements UserDao {
                 paramList[i] = new MapSqlParameterSource(params);
                 i++;
             }
+
             si.executeBatch(paramList);
+
         }
+        String sql = "INSERT INTO us_can_create_role  VALUES (\"ROLE_APPLICATION_ADMIN\",?);";
+        this.jdbcTemplate.update(sql, roleId);
         return (rows1 == 1 && result.length > 0 ? 1 : 0);
     }
 
@@ -655,6 +665,13 @@ public class UserDaoImpl implements UserDao {
                 i++;
             }
             si.executeBatch(paramList);
+
+        }
+
+        if (!role.getRoleId().equals("ROLE_APPLICATION_ADMIN")) {
+            sql = "INSERT IGNORE INTO us_can_create_role  VALUES (\"ROLE_APPLICATION_ADMIN\",?);";
+            this.jdbcTemplate.update(sql, role.getRoleId());
+
         }
         return 1;
     }

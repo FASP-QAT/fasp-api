@@ -103,11 +103,12 @@ public class DashboardDaoImpl implements DashboardDao {
     @Override
     public List<DashboardUser> getUserListForRealmLevelAdmin(int realmId) {
         String sql = "SELECT l.*,COUNT(DISTINCT(u.`USER_ID`)) AS COUNT FROM us_role r "
-                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=r.`LABEL_ID` "
-                + "LEFT JOIN us_user_role ur ON ur.`ROLE_ID`=r.`ROLE_ID` "
-                + "LEFT JOIN us_user u ON u.`USER_ID`=ur.`USER_ID` AND u.`ACTIVE` AND u.`REALM_ID`=? "
-                + "WHERE r.`ROLE_ID` != 'ROLE_APPLICATION_ADMIN' "
-                + "GROUP BY r.`ROLE_ID`;";
+                + " LEFT JOIN us_can_create_role c ON c.`CAN_CREATE_ROLE`=r.`ROLE_ID` "
+                + " LEFT JOIN ap_label l ON l.`LABEL_ID`=r.`LABEL_ID` "
+                + " LEFT JOIN us_user_role ur ON ur.`ROLE_ID`=r.`ROLE_ID` "
+                + " LEFT JOIN us_user u ON u.`USER_ID`=ur.`USER_ID` AND u.`ACTIVE` AND u.`REALM_ID`=? "
+                + " WHERE c.`ROLE_ID`=\"ROLE_REALM_ADMIN\" "
+                + " GROUP BY r.`ROLE_ID`;";
         return this.jdbcTemplate.query(sql, new DashboardUserRowMapper(), realmId);
     }
 

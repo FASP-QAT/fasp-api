@@ -218,6 +218,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params;
         for (RealmCountryPlanningUnit rcpu : realmCountryPlanningUnits) {
+            System.out.println("------------rcpu-------------"+rcpu);
             if (rcpu.getRealmCountryPlanningUnitId() == 0) {
                 // Insert
                 params = new HashMap<>();

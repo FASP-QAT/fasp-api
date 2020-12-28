@@ -90,11 +90,9 @@ public class RealmCountryPlanningUnit extends BaseModel implements Serializable 
 //    public String getGtin() {
 //        return gtin;
 //    }
-
 //    public void setGtin(String gtin) {
 //        this.gtin = gtin;
 //    }
-
     @Override
     public int hashCode() {
         int hash = 7;
@@ -118,6 +116,11 @@ public class RealmCountryPlanningUnit extends BaseModel implements Serializable 
             return false;
         }
         return true;
+    }
+
+    @Override
+    public String toString() {
+        return "RealmCountryPlanningUnit{" + "realmCountryPlanningUnitId=" + realmCountryPlanningUnitId + ", realmCountry=" + realmCountry + ", planningUnit=" + planningUnit + ", skuCode=" + skuCode + ", label=" + label + ", multiplier=" + multiplier + ", unit=" + unit + '}';
     }
 
 }
