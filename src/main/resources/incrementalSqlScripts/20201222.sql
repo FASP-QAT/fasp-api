@@ -1,5 +1,5 @@
 USE `fasp`;
-DROP procedure IF EXISTS `stockStatusReportVertical`;
+    DROP procedure IF EXISTS `stockStatusReportVertical`;
 
 DELIMITER $$
 USE `fasp`$$
@@ -9,7 +9,7 @@ BEGIN
     -- Report no 16
 	-- %%%%%%%%%%%%%%%%%%%%%
 	
-    SET @startDate = VAR_START_DATE;
+        SET @startDate = VAR_START_DATE;
 	SET @stopDate = VAR_STOP_DATE;
 	SET @programId = VAR_PROGRAM_ID;
 	SET @versionId = VAR_VERSION_ID;
@@ -50,8 +50,16 @@ BEGIN
         sma.CLOSING_BALANCE `FINAL_CLOSING_BALANCE`,
         sma.AMC,
         sma.MOS `MoS`,
-        sma.MIN_STOCK_MOS `MIN_MONTHS_OF_STOCK`,
-        sma.MAX_STOCK_MOS `MAX_MONTHS_OF_STOCK`,
+        IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK) `MIN_MONTHS_OF_STOCK`, 
+        IF(
+            IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, 
+            r.MIN_MOS_MAX_GAURDRAIL, 
+            IF(
+                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS>r.MAX_MOS_MAX_GAURDRAIL,
+                r.MAX_MOS_MAX_GAURDRAIL,
+                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS
+            )
+        ) `MAX_MONTHS_OF_STOCK`,
         sh.SHIPMENT_ID, sh.SHIPMENT_QTY, 
         fs.FUNDING_SOURCE_ID, fs.FUNDING_SOURCE_CODE, fs.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fs.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fs.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fs.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fs.LABEL_PR `FUNDING_SOURCE_LABEL_PR`, 
         pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, 
@@ -81,6 +89,10 @@ BEGIN
         LEFT JOIN vw_funding_source fs ON sh.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID
         LEFT JOIN vw_procurement_agent pa ON sh.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID
         LEFT JOIN vw_shipment_status ss ON sh.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID
+        LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=@programId AND ppu.PLANNING_UNIT_ID=@planningUnitId
+        LEFT JOIN rm_program p ON p.PROGRAM_ID=@programId
+        LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID
+        LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID
     WHERE
         mn.MONTH BETWEEN @startDate AND @stopDate
     ORDER BY mn.MONTH) AS s2;
@@ -88,6 +100,9 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+
+
 
 USE `fasp`;
 DROP procedure IF EXISTS `buildNewSupplyPlanRegion`;
@@ -278,7 +293,7 @@ BEGIN
 	END IF;
     
 	SET @sqlString = "";
-    SET @sqlString = CONCAT(@sqlString, "SELECT ");
+        SET @sqlString = CONCAT(@sqlString, "SELECT ");
 	SET @sqlString = CONCAT(@sqlString, "	pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, ");
 	SET @sqlString = CONCAT(@sqlString, "	fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, ");
 	SET @sqlString = CONCAT(@sqlString, "	pu.MULTIPLIER, ");
@@ -309,15 +324,15 @@ BEGIN
 	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_procurement_agent pa on st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID ");
 	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID ");
 	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
-    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_program_planning_unit ppu ON st.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
+        SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=@programId AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID ");
 	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID ");
 	SET @sqlString = CONCAT(@sqlString, "WHERE ");
-	SET @sqlString = CONCAT(@sqlString, "	st.ACTIVE AND ppu.ACTIVE AND pu.ACTIVE");
+	SET @sqlString = CONCAT(@sqlString, "	st.ACTIVE AND ppu.ACTIVE AND pu.ACTIVE AND st.SHIPMENT_STATUS_ID!=8 ");
 	SET @sqlString = CONCAT(@sqlString, "	AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
 	IF LENGTH(VAR_PLANNING_UNIT_IDS) > 0 THEN
 		SET @sqlString = CONCAT(@sqlString, "	AND (st.PLANNING_UNIT_ID in (",VAR_PLANNING_UNIT_IDS,")) ");
-    END IF;
--- 	SET @sqlString = CONCAT(@sqlString, "GROUP BY st.PLANNING_UNIT_ID, COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE)");
+        END IF;
+	SET @sqlString = CONCAT(@sqlString, "GROUP BY s.SHIPMENT_ID");
     
     PREPARE S1 FROM @sqlString;
     EXECUTE S1;
@@ -325,3 +340,184 @@ END$$
 
 DELIMITER ;
 
+
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `shipmentDetailsFundingSource`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentDetailsFundingSource`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT, VAR_REPORT_VIEW INT(10))
+BEGIN
+
+	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    -- Report no 19 b
+    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    -- Only Month and Year will be considered for StartDate and StopDate
+    -- Only a single ProgramId can be selected
+    -- VersionId can be a valid Version Id for the Program or -1 for last submitted VersionId
+    -- PlanningUnitIds is the list of Planning Units you want to run the report for. 
+    -- Empty PlanningUnitIds means you want to run the report for all the Planning Units in that Program
+
+	SET @startDate = VAR_START_DATE;
+	SET @stopDate = VAR_STOP_DATE;
+	SET @programId = VAR_PROGRAM_ID;
+	SET @versionId = VAR_VERSION_ID;
+    SET @reportView = VAR_REPORT_VIEW;
+    
+    IF @versionId = -1 THEN
+		SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
+	END IF;
+    
+	SET @sqlString = "";
+    SET @sqlString = CONCAT(@sqlString, "SELECT ");
+	SET @sqlString = CONCAT(@sqlString, "	fs.FUNDING_SOURCE_ID, fs.FUNDING_SOURCE_CODE, fs.LABEL_ID `FUNDING_SOURCE_LABEL_ID`, fs.LABEL_EN `FUNDING_SOURCE_LABEL_EN`, fs.LABEL_FR `FUNDING_SOURCE_LABEL_FR`, fs.LABEL_SP `FUNDING_SOURCE_LABEL_SP`, fs.LABEL_PR `FUNDING_SOURCE_LABEL_PR`, ");
+	SET @sqlString = CONCAT(@sqlString, "	COUNT(st.SHIPMENT_ID) `ORDER_COUNT`, ");
+    SET @sqlString = CONCAT(@sqlString, "	IF(@reportView=1, SUM(st.SHIPMENT_QTY), SUM(st.SHIPMENT_QTY*pu.MULTIPLIER)) `QUANTITY`, ");
+    SET @sqlString = CONCAT(@sqlString, "	SUM((IFNULL(st.PRODUCT_COST,0) + IFNULL(st.FREIGHT_COST,0)) * s.CONVERSION_RATE_TO_USD) `COST` ");
+	SET @sqlString = CONCAT(@sqlString, "FROM ");
+	SET @sqlString = CONCAT(@sqlString, "	( ");
+	SET @sqlString = CONCAT(@sqlString, "	SELECT ");
+	SET @sqlString = CONCAT(@sqlString, "		s.SHIPMENT_ID, MAX(st.VERSION_ID) MAX_VERSION_ID, s.CONVERSION_RATE_TO_USD ");
+	SET @sqlString = CONCAT(@sqlString, "	FROM rm_shipment s ");
+	SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "	WHERE ");
+	SET @sqlString = CONCAT(@sqlString, "		s.PROGRAM_ID=@programId ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.VERSION_ID<=@versionId ");
+	SET @sqlString = CONCAT(@sqlString, "		AND st.SHIPMENT_TRANS_ID IS NOT NULL ");
+	SET @sqlString = CONCAT(@sqlString, "	GROUP BY s.SHIPMENT_ID ");
+	SET @sqlString = CONCAT(@sqlString, ") AS s ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_shipment s1 ON s.SHIPMENT_ID=s1.SHIPMENT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_shipment_status ss on st.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID ");
+	SET @sqlString = CONCAT(@sqlString, "LEFT JOIN vw_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN rm_program_planning_unit ppu ON s1.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID ");
+	SET @sqlString = CONCAT(@sqlString, "WHERE ");
+	SET @sqlString = CONCAT(@sqlString, "	st.ACTIVE AND ppu.ACTIVE AND pu.ACTIVE ");
+	SET @sqlString = CONCAT(@sqlString, "	AND st.SHIPMENT_STATUS_ID!=8 ");
+	SET @sqlString = CONCAT(@sqlString, "	AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
+	IF LENGTH(VAR_PLANNING_UNIT_IDS) > 0 THEN
+		SET @sqlString = CONCAT(@sqlString, "	AND (st.PLANNING_UNIT_ID in (",VAR_PLANNING_UNIT_IDS,")) ");
+    END IF;
+    SET @sqlString = CONCAT(@sqlString, " GROUP BY st.FUNDING_SOURCE_ID"); 
+    
+    PREPARE S1 FROM @sqlString;
+    EXECUTE S1;
+END$$
+
+DELIMITER ;
+
+
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `shipmentDetailsMonth`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentDetailsMonth`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT)
+BEGIN
+
+	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    -- Report no 19 c
+    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    
+    -- Only Month and Year will be considered for StartDate and StopDate
+    -- Only a single ProgramId can be selected
+    -- VersionId can be a valid Version Id for the Program or -1 for last submitted VersionId
+    -- PlanningUnitIds is the list of Planning Units you want to run the report for. 
+    -- Empty PlanningUnitIds means you want to run the report for all the Planning Units in that Program
+
+	SET @startDate = VAR_START_DATE;
+	SET @stopDate = VAR_STOP_DATE;
+	SET @programId = VAR_PROGRAM_ID;
+	SET @versionId = VAR_VERSION_ID; 
+    
+    IF @versionId = -1 THEN
+		SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
+	END IF;
+    
+    SET @sqlString = "";
+    SET @sqlString = CONCAT(@sqlString, "SELECT ");
+    SET @sqlString = CONCAT(@sqlString, "   mn.MONTH, ");
+    SET @sqlString = CONCAT(@sqlString, "   SUM(IFNULL(s1.`PLANNED_COST`,0)) `PLANNED_COST`, ");
+    SET @sqlString = CONCAT(@sqlString, "   SUM(IFNULL(s1.`SUBMITTED_COST`,0)) `SUBMITTED_COST`, ");
+    SET @sqlString = CONCAT(@sqlString, "   SUM(IFNULL(s1.`APPROVED_COST`,0)) `APPROVED_COST`, ");
+    SET @sqlString = CONCAT(@sqlString, "   SUM(IFNULL(s1.`SHIPPED_COST`,0)) `SHIPPED_COST`, ");
+    SET @sqlString = CONCAT(@sqlString, "   SUM(IFNULL(s1.`ARRIVED_COST`,0)) `ARRIVED_COST`, ");
+    SET @sqlString = CONCAT(@sqlString, "   SUM(IFNULL(s1.`RECEIVED_COST`,0)) `RECEIVED_COST`, ");
+    SET @sqlString = CONCAT(@sqlString, "   SUM(IFNULL(s1.`ONHOLD_COST`,0)) `ONHOLD_COST` ");
+    SET @sqlString = CONCAT(@sqlString, "FROM mn ");
+    SET @sqlString = CONCAT(@sqlString, "LEFT JOIN ");
+    SET @sqlString = CONCAT(@sqlString, "   ( ");
+    SET @sqlString = CONCAT(@sqlString, "   SELECT ");
+    SET @sqlString = CONCAT(@sqlString, "       CONCAT(LEFT(COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE),7),'-01') `DT`, ");
+    SET @sqlString = CONCAT(@sqlString, "       IF(st.SHIPMENT_STATUS_ID=1, (IFNULL(st.PRODUCT_COST,0) + IFNULL(st.FREIGHT_COST,0)) * s.CONVERSION_RATE_TO_USD, 0) `PLANNED_COST`, ");
+    SET @sqlString = CONCAT(@sqlString, "       IF(st.SHIPMENT_STATUS_ID=3, (IFNULL(st.PRODUCT_COST,0) + IFNULL(st.FREIGHT_COST,0)) * s.CONVERSION_RATE_TO_USD, 0) `SUBMITTED_COST`, ");
+    SET @sqlString = CONCAT(@sqlString, "       IF(st.SHIPMENT_STATUS_ID=4, (IFNULL(st.PRODUCT_COST,0) + IFNULL(st.FREIGHT_COST,0)) * s.CONVERSION_RATE_TO_USD, 0) `APPROVED_COST`, ");
+    SET @sqlString = CONCAT(@sqlString, "       IF(st.SHIPMENT_STATUS_ID=5, (IFNULL(st.PRODUCT_COST,0) + IFNULL(st.FREIGHT_COST,0)) * s.CONVERSION_RATE_TO_USD, 0) `SHIPPED_COST`, ");
+    SET @sqlString = CONCAT(@sqlString, "       IF(st.SHIPMENT_STATUS_ID=6, (IFNULL(st.PRODUCT_COST,0) + IFNULL(st.FREIGHT_COST,0)) * s.CONVERSION_RATE_TO_USD, 0) `ARRIVED_COST`, ");
+    SET @sqlString = CONCAT(@sqlString, "       IF(st.SHIPMENT_STATUS_ID=7, (IFNULL(st.PRODUCT_COST,0) + IFNULL(st.FREIGHT_COST,0)) * s.CONVERSION_RATE_TO_USD, 0) `RECEIVED_COST`, ");
+    SET @sqlString = CONCAT(@sqlString, "       IF(st.SHIPMENT_STATUS_ID=8, (IFNULL(st.PRODUCT_COST,0) + IFNULL(st.FREIGHT_COST,0)) * s.CONVERSION_RATE_TO_USD, 0) `ONHOLD_COST`, ");
+    SET @sqlString = CONCAT(@sqlString, "       s1.SHIPMENT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "    FROM ");
+    SET @sqlString = CONCAT(@sqlString, "        ( ");
+    SET @sqlString = CONCAT(@sqlString, "        SELECT ");
+    SET @sqlString = CONCAT(@sqlString, "            s.SHIPMENT_ID, MAX(st.VERSION_ID) MAX_VERSION_ID, s.CONVERSION_RATE_TO_USD ");
+    SET @sqlString = CONCAT(@sqlString, "        FROM rm_shipment s ");
+    SET @sqlString = CONCAT(@sqlString, "        LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "        WHERE ");
+    SET @sqlString = CONCAT(@sqlString, "            s.PROGRAM_ID=@programId ");
+    SET @sqlString = CONCAT(@sqlString, "            AND st.VERSION_ID<=@versionId ");
+    SET @sqlString = CONCAT(@sqlString, "            AND st.SHIPMENT_TRANS_ID IS NOT NULL ");
+    SET @sqlString = CONCAT(@sqlString, "        GROUP BY s.SHIPMENT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "    ) AS s ");
+    SET @sqlString = CONCAT(@sqlString, "    LEFT JOIN rm_shipment s1 ON s.SHIPMENT_ID=s1.SHIPMENT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "    LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID ");
+    SET @sqlString = CONCAT(@sqlString, "    LEFT JOIN vw_shipment_status ss on st.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID ");
+    SET @sqlString = CONCAT(@sqlString, "    LEFT JOIN vw_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID ");
+    SET @sqlString = CONCAT(@sqlString, "    LEFT JOIN vw_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "    LEFT JOIN rm_program_planning_unit ppu ON s1.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID ");
+    SET @sqlString = CONCAT(@sqlString, "    WHERE ");
+    SET @sqlString = CONCAT(@sqlString, "        st.ACTIVE  AND ppu.ACTIVE AND pu.ACTIVE ");
+    SET @sqlString = CONCAT(@sqlString, "        AND st.SHIPMENT_STATUS_ID!=8 ");
+    IF LENGTH(VAR_PLANNING_UNIT_IDS) > 0 THEN
+		SET @sqlString = CONCAT(@sqlString, "	    AND (st.PLANNING_UNIT_ID in (",VAR_PLANNING_UNIT_IDS,")) ");
+    END IF;
+    SET @sqlString = CONCAT(@sqlString, "        AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
+    SET @sqlString = CONCAT(@sqlString, ") AS s1 ON mn.MONTH =s1.DT ");
+    SET @sqlString = CONCAT(@sqlString, "WHERE mn.MONTH BETWEEN @startDate AND @stopDate ");
+    SET @sqlString = CONCAT(@sqlString, "GROUP BY mn.MONTH");
+    
+    PREPARE S1 FROM @sqlString;
+    EXECUTE S1;
+END$$
+
+DELIMITER ;
+
+
+
+
+UPDATE `rm_realm_problem` SET `ACTIVE`='0' , `LAST_MODIFIED_DATE`=now() WHERE `REALM_PROBLEM_ID`='5';
+UPDATE `rm_realm_problem` SET `ACTIVE`='0' , `LAST_MODIFIED_DATE`=now() WHERE `REALM_PROBLEM_ID`='6';
+UPDATE `rm_realm_problem` SET `ACTIVE`='0' , `LAST_MODIFIED_DATE`=now() WHERE `REALM_PROBLEM_ID`='7';
+UPDATE `rm_realm_problem` SET `DATA3`='18,3',`LAST_MODIFIED_DATE`=now() WHERE `REALM_PROBLEM_ID`='11';
+UPDATE `rm_realm_problem` SET `DATA3`='23' , `LAST_MODIFIED_DATE`=now() WHERE `REALM_PROBLEM_ID`='13';
+UPDATE `rm_realm_problem` SET `DATA3`='26' , `LAST_MODIFIED_DATE`=now() WHERE `REALM_PROBLEM_ID`='14';
+
+delete prt.* from rm_problem_report_trans prt where  prt.PROBLEM_REPORT_ID in (
+select pr.PROBLEM_REPORT_ID from rm_problem_report pr
+left join rm_realm_problem rrp on rrp.REALM_PROBLEM_ID=pr.REALM_PROBLEM_ID
+left join ap_problem ap on ap.PROBLEM_ID=rrp.PROBLEM_ID
+where pr.DATA4 in (select rst.SHIPMENT_ID from rm_shipment_trans rst where rst.SHIPMENT_STATUS_ID=8 or rst.ACTIVE=0 group by rst.SHIPMENT_ID)
+and ap.PROBLEM_ID in (3,4));
+
+
+delete pr.* from rm_problem_report pr
+left join rm_realm_problem rrp on rrp.REALM_PROBLEM_ID=pr.REALM_PROBLEM_ID
+left join ap_problem ap on ap.PROBLEM_ID=rrp.PROBLEM_ID
+where pr.DATA4 in (select rst.SHIPMENT_ID from rm_shipment_trans rst where rst.SHIPMENT_STATUS_ID=8 or rst.ACTIVE=0 group by rst.SHIPMENT_ID)
+and ap.PROBLEM_ID in (3,4);
