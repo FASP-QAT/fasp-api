@@ -1,5 +1,5 @@
 USE `fasp`;
-DROP procedure IF EXISTS `stockStatusReportVertical`;
+    DROP procedure IF EXISTS `stockStatusReportVertical`;
 
 DELIMITER $$
 USE `fasp`$$
@@ -332,7 +332,7 @@ BEGIN
 	IF LENGTH(VAR_PLANNING_UNIT_IDS) > 0 THEN
 		SET @sqlString = CONCAT(@sqlString, "	AND (st.PLANNING_UNIT_ID in (",VAR_PLANNING_UNIT_IDS,")) ");
     END IF;
--- 	SET @sqlString = CONCAT(@sqlString, "GROUP BY st.PLANNING_UNIT_ID, COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE)");
+ 	SET @sqlString = CONCAT(@sqlString, "GROUP BY st.PLANNING_UNIT_ID, COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE)");
     
     PREPARE S1 FROM @sqlString;
     EXECUTE S1;
@@ -395,3 +395,17 @@ UPDATE `rm_realm_problem` SET `ACTIVE`='0' , `LAST_MODIFIED_DATE`=now() WHERE `R
 UPDATE `rm_realm_problem` SET `DATA3`='18,3',`LAST_MODIFIED_DATE`=now() WHERE `REALM_PROBLEM_ID`='11';
 UPDATE `rm_realm_problem` SET `DATA3`='23' , `LAST_MODIFIED_DATE`=now() WHERE `REALM_PROBLEM_ID`='13';
 UPDATE `rm_realm_problem` SET `DATA3`='26' , `LAST_MODIFIED_DATE`=now() WHERE `REALM_PROBLEM_ID`='14';
+
+delete prt.* from rm_problem_report_trans prt where  prt.PROBLEM_REPORT_ID in (
+select pr.PROBLEM_REPORT_ID from rm_problem_report pr
+left join rm_realm_problem rrp on rrp.REALM_PROBLEM_ID=pr.REALM_PROBLEM_ID
+left join ap_problem ap on ap.PROBLEM_ID=rrp.PROBLEM_ID
+where pr.DATA4 in (select rst.SHIPMENT_ID from rm_shipment_trans rst where rst.SHIPMENT_STATUS_ID=8 or rst.ACTIVE=0 group by rst.SHIPMENT_ID)
+and ap.PROBLEM_ID in (3,4));
+
+
+delete pr.* from rm_problem_report pr
+left join rm_realm_problem rrp on rrp.REALM_PROBLEM_ID=pr.REALM_PROBLEM_ID
+left join ap_problem ap on ap.PROBLEM_ID=rrp.PROBLEM_ID
+where pr.DATA4 in (select rst.SHIPMENT_ID from rm_shipment_trans rst where rst.SHIPMENT_STATUS_ID=8 or rst.ACTIVE=0 group by rst.SHIPMENT_ID)
+and ap.PROBLEM_ID in (3,4);
