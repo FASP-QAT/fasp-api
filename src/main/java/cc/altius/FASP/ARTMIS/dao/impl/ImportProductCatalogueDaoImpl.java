@@ -148,6 +148,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     if (fXmlFile.length() == 0) {
                         sb.append("Skipping file since it is empty ").append(fXmlFile.getName()).append(br);
                         logger.info("Skipping file since it is empty " + fXmlFile.getName());
+                        fXmlFile.renameTo(new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
+                        logger.info("Product catalog file moved to processed folder successfully");
+                        sb.append("Product catalog file moved to processed folder successfully").append(br);
                     } else {
                         DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
                         DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
@@ -160,7 +163,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         int x = 0;
                         logger.info("Going to drop tmp_product_catalog");
                         sb.append("Going to drop tmp_product_catalog").append(br);
-                    sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_product_catalog`";
+                        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_product_catalog`";
 //                        sqlString = "DROP TABLE IF EXISTS `tmp_product_catalog`";
                         this.jdbcTemplate.execute(sqlString);
                         logger.info("Successfully droped tmp_product_catalog");
@@ -168,8 +171,8 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
                         logger.info("Going to create tmp_product_catalog");
                         sb.append("Going to create tmp_product_catalog").append(br);
-                    sqlString = "CREATE TEMPORARY TABLE `tmp_product_catalog` ( "
-//                        sqlString = "CREATE TABLE `tmp_product_catalog` ( "
+                        sqlString = "CREATE TEMPORARY TABLE `tmp_product_catalog` ( "
+                                //                        sqlString = "CREATE TABLE `tmp_product_catalog` ( "
                                 + "  `TaskOrder` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `CommodityCouncil` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `Subcategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
@@ -425,7 +428,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         logger.info("Going to create tmp_unit");
         sb.append("Going to create tmp_unit").append(br);
         sqlString = "CREATE TEMPORARY TABLE `tmp_unit` ( "
-//        sqlString = "CREATE TABLE `tmp_unit` ( "
+                //        sqlString = "CREATE TABLE `tmp_unit` ( "
                 + " `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + " `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
                 + " `UNIT_ID` int (10) unsigned DEFAULT NULL, "
@@ -528,7 +531,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
         // Step 2 - Create the tmp table
         sqlString = "CREATE TEMPORARY TABLE `tmp_tracer_category` ( "
-//        sqlString = "CREATE TABLE `tmp_tracer_category` ( "
+                //        sqlString = "CREATE TABLE `tmp_tracer_category` ( "
                 + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + "  `LABEL` varchar(255) COLLATE utf8_bin NOT NULL, "
                 + "  `TRACER_CATEGORY_ID` int(10) unsigned DEFAULT NULL, "
@@ -675,7 +678,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
         // Step 2 - Create Temporary Table
         sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
-//        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
+                //        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
                 + "    `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
                 + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,   "
@@ -847,7 +850,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
 
         sqlString = "CREATE TEMPORARY TABLE `tmp_planning_unit` (   "
-//        sqlString = "CREATE TABLE `tmp_planning_unit` (   "
+                //        sqlString = "CREATE TABLE `tmp_planning_unit` (   "
                 + "     `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "     `PLANNING_UNIT_ID` int (10) unsigned DEFAULT NULL,   "
                 + "     `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
@@ -1014,7 +1017,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.execute(sqlString);
 
         sqlString = "CREATE TEMPORARY TABLE `tmp_supplier` ( "
-//        sqlString = "CREATE TABLE `tmp_supplier` ( "
+                //        sqlString = "CREATE TABLE `tmp_supplier` ( "
                 + " `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + " `LABEL` varchar(200) COLLATE utf8_bin NOT NULL, "
                 + " `SUPPLIER_ID` int (10) unsigned DEFAULT NULL, "
@@ -1087,7 +1090,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
 
         sqlString = "CREATE TEMPORARY TABLE `tmp_procurement_unit` (  "
-//        sqlString = "CREATE TABLE `tmp_procurement_unit` (  "
+                //        sqlString = "CREATE TABLE `tmp_procurement_unit` (  "
                 + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
                 + "    `PROCUREMENT_UNIT_ID` int(10) UNSIGNED DEFAULT NULL,  "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
