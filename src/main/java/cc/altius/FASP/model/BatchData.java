@@ -30,14 +30,18 @@ public class BatchData implements Serializable {
 
     private long openingBalance;
     private long expiredStock;
-    private long unallocatedConsumption;
-    private long calculatedConsumption;
+    private long unallocatedFEFO;
+    private long unallocatedLEFO;
+    private long calculatedFEFO;
+    private long calculatedLEFO;
     private long closingBalance;
 
     private long openingBalanceWps;
     private long expiredStockWps;
-    private long unallocatedConsumptionWps;
-    private long calculatedConsumptionWps;
+    private long unallocatedFEFOWps;
+    private long unallocatedLEFOWps;
+    private long calculatedFEFOWps;
+    private long calculatedLEFOWps;
     private long closingBalanceWps;
 
     public BatchData() {
@@ -156,28 +160,12 @@ public class BatchData implements Serializable {
         this.expiredStock = expiredStock;
     }
 
-    public long getCalculatedConsumption() {
-        return calculatedConsumption;
-    }
-
-    public void setCalculatedConsumption(long calculatedConsumption) {
-        this.calculatedConsumption = calculatedConsumption;
-    }
-
     public long getClosingBalance() {
         return closingBalance;
     }
 
     public void setClosingBalance(long closingBalance) {
         this.closingBalance = closingBalance;
-    }
-
-    public long getUnallocatedConsumption() {
-        return unallocatedConsumption;
-    }
-
-    public void setUnallocatedConsumption(long unallocatedConsumption) {
-        this.unallocatedConsumption = unallocatedConsumption;
     }
 
     public long getOpeningBalanceWps() {
@@ -196,28 +184,76 @@ public class BatchData implements Serializable {
         this.expiredStockWps = expiredStockWps;
     }
 
-    public long getUnallocatedConsumptionWps() {
-        return unallocatedConsumptionWps;
-    }
-
-    public void setUnallocatedConsumptionWps(long unallocatedConsumptionWps) {
-        this.unallocatedConsumptionWps = unallocatedConsumptionWps;
-    }
-
-    public long getCalculatedConsumptionWps() {
-        return calculatedConsumptionWps;
-    }
-
-    public void setCalculatedConsumptionWps(long calculatedConsumptionWps) {
-        this.calculatedConsumptionWps = calculatedConsumptionWps;
-    }
-
     public long getClosingBalanceWps() {
         return closingBalanceWps;
     }
 
     public void setClosingBalanceWps(long closingBalanceWps) {
         this.closingBalanceWps = closingBalanceWps;
+    }
+
+    public long getUnallocatedFEFO() {
+        return unallocatedFEFO;
+    }
+
+    public void setUnallocatedFEFO(long unallocatedFEFO) {
+        this.unallocatedFEFO = unallocatedFEFO;
+    }
+
+    public long getUnallocatedLEFO() {
+        return unallocatedLEFO;
+    }
+
+    public void setUnallocatedLEFO(long unallocatedLEFO) {
+        this.unallocatedLEFO = unallocatedLEFO;
+    }
+
+    public long getCalculatedFEFO() {
+        return calculatedFEFO;
+    }
+
+    public void setCalculatedFEFO(long calculatedFEFO) {
+        this.calculatedFEFO = calculatedFEFO;
+    }
+
+    public long getCalculatedLEFO() {
+        return calculatedLEFO;
+    }
+
+    public void setCalculatedLEFO(long calculatedLEFO) {
+        this.calculatedLEFO = calculatedLEFO;
+    }
+
+    public long getUnallocatedFEFOWps() {
+        return unallocatedFEFOWps;
+    }
+
+    public void setUnallocatedFEFOWps(long unallocatedFEFOWps) {
+        this.unallocatedFEFOWps = unallocatedFEFOWps;
+    }
+
+    public long getUnallocatedLEFOWps() {
+        return unallocatedLEFOWps;
+    }
+
+    public void setUnallocatedLEFOWps(long unallocatedLEFOWps) {
+        this.unallocatedLEFOWps = unallocatedLEFOWps;
+    }
+
+    public long getCalculatedFEFOWps() {
+        return calculatedFEFOWps;
+    }
+
+    public void setCalculatedFEFOWps(long calculatedFEFOWps) {
+        this.calculatedFEFOWps = calculatedFEFOWps;
+    }
+
+    public long getCalculatedLEFOWps() {
+        return calculatedLEFOWps;
+    }
+
+    public void setCalculatedLEFOWps(long calculatedLEFOWps) {
+        this.calculatedLEFOWps = calculatedLEFOWps;
     }
 
     @Override
@@ -251,3 +287,4 @@ public class BatchData implements Serializable {
     }
 
 }
+
