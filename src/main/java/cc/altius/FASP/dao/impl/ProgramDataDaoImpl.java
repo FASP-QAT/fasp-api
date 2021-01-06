@@ -1509,8 +1509,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     b1.addValue("OPENING_BALANCE_WPS", bd.getOpeningBalanceWps());
                     b1.addValue("EXPIRED_STOCK", bd.getExpiredStock());
                     b1.addValue("EXPIRED_STOCK_WPS", bd.getExpiredStockWps());
-//                    b1.addValue("CALCULATED_CONSUMPTION", bd.getCalculatedConsumption());
-//                    b1.addValue("CALCULATED_CONSUMPTION_WPS", bd.getCalculatedConsumptionWps());
+                    b1.addValue("CALCULATED_CONSUMPTION", bd.getCalculatedConsumption());
+                    b1.addValue("CALCULATED_CONSUMPTION_WPS", bd.getCalculatedConsumptionWps());
                     b1.addValue("CLOSING_BALANCE", bd.getClosingBalance());
                     b1.addValue("CLOSING_BALANCE_WPS", bd.getClosingBalanceWps());
                     batchParams.add(b1);
@@ -1570,7 +1570,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     + "                         ) * amc.AMC "
                     + "WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
             this.namedParameterJdbcTemplate.update(sqlString, params);
-            msp.printSupplyPlan();
+//            msp.printSupplyPlan();
         }
 
         if (returnSupplyPlan) {

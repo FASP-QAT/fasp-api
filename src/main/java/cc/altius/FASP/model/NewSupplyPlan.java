@@ -62,6 +62,7 @@ public class NewSupplyPlan implements Serializable {
     private long nationalAdjustmentWps;
     private long closingBalanceWps;
     private long unmetDemandWps;
+//    private int newBatchCounter;
 
     private List<RegionData> regionDataList;
     private List<BatchData> batchDataList;
@@ -69,6 +70,7 @@ public class NewSupplyPlan implements Serializable {
     public NewSupplyPlan() {
         this.regionDataList = new LinkedList<>();
         this.batchDataList = new LinkedList<>();
+//        this.newBatchCounter = -1;
     }
 
     public NewSupplyPlan(int planningUnitId, String transDate) {
@@ -76,6 +78,7 @@ public class NewSupplyPlan implements Serializable {
         this.transDate = transDate;
         this.regionDataList = new LinkedList<>();
         this.batchDataList = new LinkedList<>();
+//        this.newBatchCounter = -1;
     }
 
     public NewSupplyPlan(int planningUnitId, String transDate, int shelfLife) {
@@ -84,6 +87,7 @@ public class NewSupplyPlan implements Serializable {
         this.shelfLife = shelfLife;
         this.regionDataList = new LinkedList<>();
         this.batchDataList = new LinkedList<>();
+//        this.newBatchCounter = -1;
     }
 
     public int getPlanningUnitId() {
@@ -424,59 +428,7 @@ public class NewSupplyPlan implements Serializable {
     }
 
     public void setBatchDataList(List<BatchData> batchDataList) {
-        this.batchDataList = batchDataList.stream().sorted(new ComparatorBatchData()).collect(Collectors.toList());
-    }
-
-    private int getSizeOfBatchDataList() {
-        return this.getBatchDataList().size();
-    }
-
-    private int getNextBatchDataIndexForFEFO(int prevIndex) {
-        int curIndex = 0;
-        if (prevIndex == -1) { // is the first request
-            if (getSizeOfBatchDataList() > curIndex) {
-                // there is one batch
-                return curIndex;
-            } else {
-                // no batch available
-                return -1;
-            }
-        } else {
-            curIndex = prevIndex + 1;
-            if (getSizeOfBatchDataList() > curIndex) {
-                // there is one more batch
-                return curIndex;
-            } else {
-                // no batch available
-                return -1;
-            }
-        }
-    }
-
-    private int getNextBatchDataIndexForLEFO(int prevIndex) {
-        int curIndex = 0;
-        if (prevIndex == -1) { // is the first request
-            if (getSizeOfBatchDataList() > curIndex) {
-                // there is one batch
-                return curIndex;
-            } else {
-                // no batch available
-                return -1;
-            }
-        } else {
-            curIndex = prevIndex - 1;
-            if (curIndex >= 0) {
-                // there is one more batch
-                return curIndex;
-            } else {
-                // no batch available
-                return -1;
-            }
-        }
-    }
-
-    private BatchData getBatchData(int index) {
-        return this.batchDataList.get(index);
+        this.batchDataList = batchDataList;
     }
 
     public void addFinalConsumptionQty(Long consumption) {
@@ -558,14 +510,13 @@ public class NewSupplyPlan implements Serializable {
         });
     }
 
-    /*
     public int updateBatchData(int newBatchCounter) {
         long periodConsumption = Optional.ofNullable(this.finalConsumptionQty).orElse(0L) - Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) - Optional.ofNullable(this.nationalAdjustment).orElse(0L);
         long periodConsumptionWps = Optional.ofNullable(this.finalConsumptionQty).orElse(0L) - Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) - Optional.ofNullable(this.nationalAdjustmentWps).orElse(0L);
         // draw down from the Batches that you have
         for (BatchData bd : this.getBatchDataList().stream().sorted(new ComparatorBatchData()).collect(Collectors.toList())) {
-//            bd.setUnallocatedConsumption(periodConsumption);
-//            bd.setUnallocatedConsumptionWps(periodConsumptionWps);
+            bd.setUnallocatedConsumption(periodConsumption);
+            bd.setUnallocatedConsumptionWps(periodConsumptionWps);
             if (periodConsumption > 0) {
                 long tempCB
                         = bd.getOpeningBalance()
@@ -574,16 +525,16 @@ public class NewSupplyPlan implements Serializable {
                         - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0L) : 0)
                         + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0);
                 if (tempCB > periodConsumption) {
-//                    bd.setCalculatedConsumption(periodConsumption);
+                    bd.setCalculatedConsumption(periodConsumption);
                     bd.setClosingBalance(tempCB - periodConsumption);
                     periodConsumption = 0;
                 } else {
-//                    bd.setCalculatedConsumption(tempCB);
+                    bd.setCalculatedConsumption(tempCB);
                     bd.setClosingBalance(0);
                     periodConsumption -= tempCB;
                 }
             } else if (periodConsumption == 0) {
-//                bd.setCalculatedConsumption(0);
+                bd.setCalculatedConsumption(0);
                 long tempCB
                         = bd.getOpeningBalance()
                         - bd.getExpiredStock()
@@ -592,7 +543,7 @@ public class NewSupplyPlan implements Serializable {
                         + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0);
                 bd.setClosingBalance(tempCB - periodConsumption);
             } else if (bd.getOpeningBalance() - bd.getExpiredStock() + Optional.ofNullable(bd.getShipment()).orElse(0L) > 0) {
-//                bd.setCalculatedConsumption(0 - periodConsumption);
+                bd.setCalculatedConsumption(0 - periodConsumption);
                 long tempCB
                         = bd.getOpeningBalance()
                         - bd.getExpiredStock()
@@ -611,16 +562,16 @@ public class NewSupplyPlan implements Serializable {
                         - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0L) : 0)
                         + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0);
                 if (tempCB > periodConsumptionWps) {
-//                    bd.setCalculatedConsumptionWps(periodConsumptionWps);
+                    bd.setCalculatedConsumptionWps(periodConsumptionWps);
                     bd.setClosingBalanceWps(tempCB - periodConsumptionWps);
                     periodConsumptionWps = 0;
                 } else {
-//                    bd.setCalculatedConsumptionWps(tempCB);
+                    bd.setCalculatedConsumptionWps(tempCB);
                     bd.setClosingBalanceWps(0);
                     periodConsumptionWps -= tempCB;
                 }
             } else if (periodConsumptionWps == 0) {
-//                bd.setCalculatedConsumptionWps(0);
+                bd.setCalculatedConsumptionWps(0);
                 long tempCB
                         = bd.getOpeningBalanceWps()
                         - bd.getExpiredStockWps()
@@ -629,7 +580,7 @@ public class NewSupplyPlan implements Serializable {
                         + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0);
                 bd.setClosingBalanceWps(tempCB - periodConsumptionWps);
             } else if (bd.getOpeningBalanceWps() - bd.getExpiredStockWps() + Optional.ofNullable(bd.getShipmentWps()).orElse(0L) > 0) {
-//                bd.setCalculatedConsumptionWps(0 - periodConsumptionWps);
+                bd.setCalculatedConsumptionWps(0 - periodConsumptionWps);
                 long tempCB
                         = bd.getOpeningBalanceWps()
                         - bd.getExpiredStockWps()
@@ -648,91 +599,10 @@ public class NewSupplyPlan implements Serializable {
             bdNew.setExpiryDate(this.calculateExpiryDate(this.transDate));
             bdNew.setOpeningBalance(0);
             bdNew.setOpeningBalanceWps(0);
-//            bdNew.setCalculatedConsumption(0 - periodConsumption);
-//            bdNew.setCalculatedConsumptionWps(0 - periodConsumptionWps);
+            bdNew.setCalculatedConsumption(0 - periodConsumption);
+            bdNew.setCalculatedConsumptionWps(0 - periodConsumptionWps);
             bdNew.setClosingBalance(0 - periodConsumption);
             bdNew.setClosingBalanceWps(0 - periodConsumptionWps);
-            bdNew.setAllRegionsReportedStock(this.isAllRegionsReportedStock());
-            bdNew.setUseAdjustment(this.isUseAdjustment());
-            this.batchDataList.add(bdNew);
-            newBatchCounter--;
-        }
-        return newBatchCounter;
-    }*/
-    public int updateBatchData(int newBatchCounter) {
-        System.out.println(this.transDate);
-        this.getBatchDataList().forEach(bd -> bd.setTempCB(bd.getOpeningBalance()
-                - bd.getExpiredStock()
-                + Optional.ofNullable(bd.getShipment()).orElse(0L)
-                - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0L) : 0)
-                + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0)));
-
-        this.getBatchDataList().forEach(bd -> bd.setTempCBWps(bd.getOpeningBalanceWps()
-                - bd.getExpiredStock()
-                + Optional.ofNullable(bd.getShipment()).orElse(0L)
-                - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0L) : 0)
-                + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0)));
-
-        long unallocatedConsumption = Optional.ofNullable(this.finalConsumptionQty).orElse(0L); // FEFO
-        long unallocatedAdjustmentNegative = - Math.min(0, Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // LEFO
-        long unallocatedAdjustmentPositive = Math.max(0, Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // FEFO
-        int index = -1;
-        while (unallocatedAdjustmentPositive > 0) {
-            index = getNextBatchDataIndexForFEFO(index);
-            if (index == -1) {
-                break;
-            }
-            BatchData bd = getBatchData(index);
-            bd.setClosingBalance(bd.getClosingBalance()+unallocatedAdjustmentPositive);
-            unallocatedAdjustmentPositive = 0;
-        }
-        
-        index = -1;
-        while (unallocatedConsumption > 0) {
-            index = getNextBatchDataIndexForFEFO(index);
-            if (index == -1) {
-                break;
-            }
-            BatchData bd = getBatchData(index);
-            if (bd.getClosingBalance() >= unallocatedConsumption) {
-                // use up all the unallocatedConsumption
-                bd.setClosingBalance(bd.getClosingBalance() - unallocatedConsumption);
-                unallocatedConsumption = 0;
-            } else {
-                unallocatedConsumption-=bd.getClosingBalance();
-                bd.setClosingBalance(0);
-            }
-        }
-        
-        index = -1;
-        while (unallocatedAdjustmentNegative > 0) {
-            index = getNextBatchDataIndexForLEFO(index);
-            if (index == -1) {
-                break;
-            }
-            BatchData bd = getBatchData(index);
-            if (bd.getClosingBalance() >= unallocatedAdjustmentNegative) {
-                // use up all the unallocatedAdjustmentNegative
-                bd.setClosingBalance(bd.getClosingBalance() - unallocatedAdjustmentNegative);
-                unallocatedAdjustmentNegative = 0;
-            } else {
-                unallocatedAdjustmentNegative-=bd.getClosingBalance();
-                bd.setClosingBalance(0);
-            }
-        }
-        
-        if (unallocatedAdjustmentPositive > 0) {
-            System.out.println("We need to create a new Batch for unallocatedAdjustmentPositive:" + unallocatedAdjustmentPositive + " PlanningUnitId:" + this.planningUnitId + " transDate:" + this.transDate);
-            BatchData bdNew = new BatchData();
-            bdNew.setBatchId(newBatchCounter);
-            bdNew.setShelfLife(this.shelfLife);
-            bdNew.setExpiryDate(this.calculateExpiryDate(this.transDate));
-            bdNew.setOpeningBalance(0);
-            bdNew.setOpeningBalanceWps(0);
-//            bdNew.setCalculatedConsumption(0 - periodConsumption);
-//            bdNew.setCalculatedConsumptionWps(0 - periodConsumptionWps);
-            bdNew.setClosingBalance(unallocatedAdjustmentPositive);
-//            bdNew.setClosingBalanceWps(0 - periodConsumptionWps);
             bdNew.setAllRegionsReportedStock(this.isAllRegionsReportedStock());
             bdNew.setUseAdjustment(this.isUseAdjustment());
             this.batchDataList.add(bdNew);
@@ -747,13 +617,13 @@ public class NewSupplyPlan implements Serializable {
                 && Optional.ofNullable(bd.getShipment()).orElse(0L) == 0
                 && Optional.ofNullable(bd.getActualConsumption()).orElse(0L) == 0
                 && Optional.ofNullable(bd.getStock()).orElse(0L) == 0
-                //                && Optional.ofNullable(bd.getCalculatedConsumption()).orElse(0L) == 0
+                && Optional.ofNullable(bd.getCalculatedConsumption()).orElse(0L) == 0
                 && Optional.ofNullable(bd.getClosingBalance()).orElse(0L) == 0
                 && bd.getOpeningBalanceWps() == 0
                 && Optional.ofNullable(bd.getShipmentWps()).orElse(0L) == 0
                 && Optional.ofNullable(bd.getActualConsumption()).orElse(0L) == 0
                 && Optional.ofNullable(bd.getStock()).orElse(0L) == 0
-                //                && Optional.ofNullable(bd.getCalculatedConsumptionWps()).orElse(0L) == 0
+                && Optional.ofNullable(bd.getCalculatedConsumptionWps()).orElse(0L) == 0
                 && Optional.ofNullable(bd.getClosingBalanceWps()).orElse(0L) == 0)
         ).forEachOrdered(bd -> {
             removeList.add(bd);

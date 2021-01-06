@@ -30,20 +30,14 @@ public class BatchData implements Serializable {
 
     private long openingBalance;
     private long expiredStock;
-//    private long unallocatedConsumption;
-//    private long unallocatedAdjustment;
-//    private long calculatedConsumption;
-//    private long calculatedAdjustment;
-    private long tempCB;
+    private long unallocatedConsumption;
+    private long calculatedConsumption;
     private long closingBalance;
 
     private long openingBalanceWps;
     private long expiredStockWps;
-//    private long unallocatedConsumptionWps;
-//    private long unallocatedAdjustmentWps;
-//    private long calculatedConsumptionWps;
-//    private long calculatedAdjustmentWps;
-    private long tempCBWps;
+    private long unallocatedConsumptionWps;
+    private long calculatedConsumptionWps;
     private long closingBalanceWps;
 
     public BatchData() {
@@ -162,13 +156,13 @@ public class BatchData implements Serializable {
         this.expiredStock = expiredStock;
     }
 
-//    public long getCalculatedConsumption() {
-//        return calculatedConsumption;
-//    }
-//
-//    public void setCalculatedConsumption(long calculatedConsumption) {
-//        this.calculatedConsumption = calculatedConsumption;
-//    }
+    public long getCalculatedConsumption() {
+        return calculatedConsumption;
+    }
+
+    public void setCalculatedConsumption(long calculatedConsumption) {
+        this.calculatedConsumption = calculatedConsumption;
+    }
 
     public long getClosingBalance() {
         return closingBalance;
@@ -178,13 +172,13 @@ public class BatchData implements Serializable {
         this.closingBalance = closingBalance;
     }
 
-//    public long getUnallocatedConsumption() {
-//        return unallocatedConsumption;
-//    }
-//
-//    public void setUnallocatedConsumption(long unallocatedConsumption) {
-//        this.unallocatedConsumption = unallocatedConsumption;
-//    }
+    public long getUnallocatedConsumption() {
+        return unallocatedConsumption;
+    }
+
+    public void setUnallocatedConsumption(long unallocatedConsumption) {
+        this.unallocatedConsumption = unallocatedConsumption;
+    }
 
     public long getOpeningBalanceWps() {
         return openingBalanceWps;
@@ -202,21 +196,21 @@ public class BatchData implements Serializable {
         this.expiredStockWps = expiredStockWps;
     }
 
-//    public long getUnallocatedConsumptionWps() {
-//        return unallocatedConsumptionWps;
-//    }
-//
-//    public void setUnallocatedConsumptionWps(long unallocatedConsumptionWps) {
-//        this.unallocatedConsumptionWps = unallocatedConsumptionWps;
-//    }
-//
-//    public long getCalculatedConsumptionWps() {
-//        return calculatedConsumptionWps;
-//    }
-//
-//    public void setCalculatedConsumptionWps(long calculatedConsumptionWps) {
-//        this.calculatedConsumptionWps = calculatedConsumptionWps;
-//    }
+    public long getUnallocatedConsumptionWps() {
+        return unallocatedConsumptionWps;
+    }
+
+    public void setUnallocatedConsumptionWps(long unallocatedConsumptionWps) {
+        this.unallocatedConsumptionWps = unallocatedConsumptionWps;
+    }
+
+    public long getCalculatedConsumptionWps() {
+        return calculatedConsumptionWps;
+    }
+
+    public void setCalculatedConsumptionWps(long calculatedConsumptionWps) {
+        this.calculatedConsumptionWps = calculatedConsumptionWps;
+    }
 
     public long getClosingBalanceWps() {
         return closingBalanceWps;
@@ -226,55 +220,6 @@ public class BatchData implements Serializable {
         this.closingBalanceWps = closingBalanceWps;
     }
 
-//    public long getUnallocatedAdjustment() {
-//        return unallocatedAdjustment;
-//    }
-//
-//    public void setUnallocatedAdjustment(long unallocatedAdjustment) {
-//        this.unallocatedAdjustment = unallocatedAdjustment;
-//    }
-
-//    public long getCalculatedAdjustment() {
-//        return calculatedAdjustment;
-//    }
-//
-//    public void setCalculatedAdjustment(long calculatedAdjustment) {
-//        this.calculatedAdjustment = calculatedAdjustment;
-//    }
-//
-//    public long getUnallocatedAdjustmentWps() {
-//        return unallocatedAdjustmentWps;
-//    }
-//
-//    public void setUnallocatedAdjustmentWps(long unallocatedAdjustmentWps) {
-//        this.unallocatedAdjustmentWps = unallocatedAdjustmentWps;
-//    }
-//
-//    public long getCalculatedAdjustmentWps() {
-//        return calculatedAdjustmentWps;
-//    }
-//
-//    public void setCalculatedAdjustmentWps(long calculatedAdjustmentWps) {
-//        this.calculatedAdjustmentWps = calculatedAdjustmentWps;
-//    }
-
-    public long getTempCB() {
-        return tempCB;
-    }
-
-    public void setTempCB(long tempCB) {
-        this.tempCB = tempCB;
-    }
-
-    public long getTempCBWps() {
-        return tempCBWps;
-    }
-
-    public void setTempCBWps(long tempCBWps) {
-        this.tempCBWps = tempCBWps;
-    }
-
-    
     @Override
     public int hashCode() {
         int hash = 7;

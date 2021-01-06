@@ -152,10 +152,10 @@ public class MasterSupplyPlan implements Serializable {
                 .append("Stock").append("\t")
                 .append("UseAdj").append("\t")
                 .append("Adj").append("\t")
-//                .append("UnalC").append("\t")
-//                .append("UnalCW").append("\t")
-//                .append("CaclC").append("\t")
-//                .append("CaclCW").append("\t")
+                .append("UnalC").append("\t")
+                .append("UnalCW").append("\t")
+                .append("CaclC").append("\t")
+                .append("CaclCW").append("\t")
                 .append("CB").append("\t")
                 .append("CBW").append("\r\n");
         this.nspList.forEach(nsp -> {
@@ -177,10 +177,10 @@ public class MasterSupplyPlan implements Serializable {
                         .append(bd.getStock()).append("\t")
                         .append(bd.isUseAdjustment()).append("\t")
                         .append(bd.getAdjustment()).append("\t")
-//                        .append(bd.getUnallocatedConsumption()).append("\t")
-//                        .append(bd.getUnallocatedConsumptionWps()).append("\t")
-//                        .append(bd.getCalculatedConsumption()).append("\t")
-//                        .append(bd.getCalculatedConsumptionWps()).append("\t")
+                        .append(bd.getUnallocatedConsumption()).append("\t")
+                        .append(bd.getUnallocatedConsumptionWps()).append("\t")
+                        .append(bd.getCalculatedConsumption()).append("\t")
+                        .append(bd.getCalculatedConsumptionWps()).append("\t")
                         .append(bd.getClosingBalance()).append("\t")
                         .append(bd.getClosingBalanceWps()).append("\r\n");
             });
@@ -222,7 +222,6 @@ public class MasterSupplyPlan implements Serializable {
 
     public void buildPlan() throws ParseException {
         for (NewSupplyPlan nsp : this.nspList) {
-            System.out.println(nsp.getTransDate() + " " + nsp.getPlanningUnitId());
             // For Regions
             updateOpeningBalance(nsp); // handles both All and WPS
             // Shipments are already stored from the ResultSetExtractor
