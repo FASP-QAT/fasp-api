@@ -379,13 +379,17 @@ public class UserRestController {
     @PostMapping("/confirmForgotPasswordToken")
     public ResponseEntity confirmForgotPasswordToken(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
+            System.out.println("Reset password 1-----------" + user);
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getEmailId(), user.getToken());
+            System.out.println("Reset password 2-----------" + fpt);
             auditLogger.info("Confirm forgot password has been triggered for Username:" + user.getUsername(), request.getRemoteAddr());
             if (fpt.isValidForTriggering()) {
+                System.out.println("Reset password inside if-----------" + fpt);
                 this.userService.updateTriggeredDateForForgotPasswordToken(user.getEmailId(), user.getToken());
                 auditLogger.info("Token is valid and reset can proceed");
                 return new ResponseEntity(HttpStatus.OK);
             } else {
+                System.out.println("Reset password inside else-----------" + fpt);
                 this.userService.updateCompletionDateForForgotPasswordToken(user.getEmailId(), user.getToken());
                 auditLogger.info("Token is not valid or has expired");
                 return new ResponseEntity(new ResponseCode(fpt.inValidReasonForTriggering()), HttpStatus.FORBIDDEN);
@@ -399,21 +403,28 @@ public class UserRestController {
     @PostMapping("/updatePassword")
     public ResponseEntity updatePaassword(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
+            System.out.println("Reset update password---" + user);
             auditLogger.info("Update password triggered for Username: " + user.getUsername(), request.getRemoteAddr());
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getEmailId(), user.getToken());
+            System.out.println("fpt---" + fpt);
             if (fpt.isValidForCompletion()) {
+                System.out.println("Inside main if");
                 // Go ahead and reset the password
                 CustomUserDetails curUser = this.userService.getCustomUserByEmailId(user.getEmailId());
+                System.out.println("cur user---" + curUser);
                 BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
                 if (bcrypt.matches(user.getPassword(), curUser.getPassword())) {
+                    System.out.println("Bcrypt password matched");
                     auditLogger.info("Failed to reset the password because New password is same as current password");
                     return new ResponseEntity(new ResponseCode("static.message.user.previousPasswordSame"), HttpStatus.PRECONDITION_FAILED);
                 } else {
+                    System.out.println("inside sub else");
                     this.userService.updatePassword(user.getEmailId(), user.getToken(), user.getHashPassword(), 90);
                     auditLogger.info("Password has now been updated successfully for Username: " + user.getUsername());
                     return new ResponseEntity(new ResponseCode("static.message.passwordSuccess"), HttpStatus.OK);
                 }
             } else {
+                System.out.println("inside main else");
                 auditLogger.info("Failed to reset the password invlaid Token");
                 return new ResponseEntity(new ResponseCode(fpt.inValidReasonForCompletion()), HttpStatus.FORBIDDEN);
             }
@@ -509,9 +520,9 @@ public class UserRestController {
         try {
 //            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
 //            System.out.println("cur user---"+curUser);
-auditLogger.info("auth 1: " + (CustomUserDetails) auth.getPrincipal());
-auditLogger.info("auth 2: " + auth);
-auditLogger.info("auth 3: " + ((CustomUserDetails) auth.getPrincipal()).getUserId());
+            auditLogger.info("auth 1: " + (CustomUserDetails) auth.getPrincipal());
+            auditLogger.info("auth 2: " + auth);
+            auditLogger.info("auth 3: " + ((CustomUserDetails) auth.getPrincipal()).getUserId());
 //            auditLogger.info("Update agreement for Username: " + curUser);
             this.userService.acceptUserAgreement(((CustomUserDetails) auth.getPrincipal()).getUserId());
 //            auditLogger.info("Agreement updated successfully for Username: " + curUser.getUsername());
