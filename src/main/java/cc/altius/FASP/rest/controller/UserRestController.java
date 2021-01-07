@@ -379,6 +379,7 @@ public class UserRestController {
     @PostMapping("/confirmForgotPasswordToken")
     public ResponseEntity confirmForgotPasswordToken(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
+            System.out.println("------------------------------------------------------Reset password ----------------------------------------------------");
             System.out.println("Reset password 1-----------" + user);
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getEmailId(), user.getToken());
             System.out.println("Reset password 2-----------" + fpt);
