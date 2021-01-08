@@ -7,6 +7,7 @@ package cc.altius.FASP.model.report;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -27,6 +28,8 @@ public class StockStatusVerticalOutput implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     @JsonView(Views.ReportView.class)
     private Date dt;
+    @JsonView(Views.ReportView.class)
+    private SimpleObject planningUnit;
     @JsonView(Views.ReportView.class)
     private Long openingBalance;
     @JsonView(Views.ReportView.class)
@@ -66,6 +69,14 @@ public class StockStatusVerticalOutput implements Serializable {
 
     public void setDt(Date dt) {
         this.dt = dt;
+    }
+
+    public SimpleObject getPlanningUnit() {
+        return planningUnit;
+    }
+
+    public void setPlanningUnit(SimpleObject planningUnit) {
+        this.planningUnit = planningUnit;
     }
 
     public Long getOpeningBalance() {

@@ -27,6 +27,7 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
         while (rs.next()) {
             StockStatusVerticalOutput ssv = new StockStatusVerticalOutput();
             ssv.setDt(rs.getDate("TRANS_DATE"));
+            ssv.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, 1)));
             int index = ssvList.indexOf(ssv);
             if (index == -1) {
                 ssv.setOpeningBalance(rs.getLong("FINAL_OPENING_BALANCE"));
