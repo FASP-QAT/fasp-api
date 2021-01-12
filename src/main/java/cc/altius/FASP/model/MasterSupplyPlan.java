@@ -152,10 +152,16 @@ public class MasterSupplyPlan implements Serializable {
                 .append("Stock").append("\t")
                 .append("UseAdj").append("\t")
                 .append("Adj").append("\t")
-                .append("UnalC").append("\t")
-                .append("UnalCW").append("\t")
-                .append("CaclC").append("\t")
-                .append("CaclCW").append("\t")
+                .append("UnFE").append("\t")
+                .append("CaFE").append("\t")
+                .append("UnLE").append("\t")
+                .append("CaLE").append("\t")
+                .append("UnFEW").append("\t")
+                .append("CaFEW").append("\t")
+                .append("UnLEW").append("\t")
+                .append("CaLEW").append("\t")
+//                .append("UnalCW").append("\t")
+//                .append("CaclCW").append("\t")
                 .append("CB").append("\t")
                 .append("CBW").append("\r\n");
         this.nspList.forEach(nsp -> {
@@ -177,10 +183,14 @@ public class MasterSupplyPlan implements Serializable {
                         .append(bd.getStock()).append("\t")
                         .append(bd.isUseAdjustment()).append("\t")
                         .append(bd.getAdjustment()).append("\t")
-                        .append(bd.getUnallocatedConsumption()).append("\t")
-                        .append(bd.getUnallocatedConsumptionWps()).append("\t")
-                        .append(bd.getCalculatedConsumption()).append("\t")
-                        .append(bd.getCalculatedConsumptionWps()).append("\t")
+                        .append(bd.getUnallocatedFEFO()).append("\t")
+                        .append(bd.getCalculatedFEFO()).append("\t")
+                        .append(bd.getUnallocatedLEFO()).append("\t")
+                        .append(bd.getCalculatedLEFO()).append("\t")
+                        .append(bd.getUnallocatedFEFOWps()).append("\t")
+                        .append(bd.getCalculatedFEFOWps()).append("\t")
+                        .append(bd.getUnallocatedLEFOWps()).append("\t")
+                        .append(bd.getCalculatedLEFOWps()).append("\t")
                         .append(bd.getClosingBalance()).append("\t")
                         .append(bd.getClosingBalanceWps()).append("\r\n");
             });
@@ -222,13 +232,14 @@ public class MasterSupplyPlan implements Serializable {
 
     public void buildPlan() throws ParseException {
         for (NewSupplyPlan nsp : this.nspList) {
+            System.out.println(nsp.getTransDate() + " " + nsp.getPlanningUnitId());
             // For Regions
-            updateOpeningBalance(nsp); // handles both All and WPS
+            updateOpeningBalance(nsp); // handles both All and WPS // Also copies Opening Balance and Batch info from the previous month
             // Shipments are already stored from the ResultSetExtractor
-            nsp.updateExpiredStock(); // handles both All and WPS
+            nsp.updateExpiredStock(); // handles both All and WPS, updates the Batch wise Expired stock
             // Final Consumption is done from the ResultSetExtractor
             // Final Adjustment is done from the ResultSetExtractor
-            nsp.updateExpectedStock(); // handles both All and WPS
+            nsp.updateExpectedStock(); // handles both All and WPS //?? Should we update this for Batches as well
             nsp.updateNationalAdjustment();  // handles both All and WPS
             nsp.updateClosingBalance();  // handles both All and WPS
             nsp.updateUnmetDemand();  // handles both All and WPS
@@ -248,3 +259,4 @@ public class MasterSupplyPlan implements Serializable {
     }
 
 }
+
