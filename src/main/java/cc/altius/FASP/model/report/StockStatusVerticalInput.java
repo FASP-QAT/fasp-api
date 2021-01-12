@@ -27,6 +27,7 @@ public class StockStatusVerticalInput implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
     private int planningUnitId;
+    private boolean allPlanningUnits;
 
     public int getProgramId() {
         return programId;
@@ -66,6 +67,14 @@ public class StockStatusVerticalInput implements Serializable {
 
     public void setPlanningUnitId(int planningUnitId) {
         this.planningUnitId = planningUnitId;
+    }
+
+    public boolean isAllPlanningUnits() {
+        return allPlanningUnits;
+    }
+
+    public void setAllPlanningUnits(boolean allPlanningUnits) {
+        this.allPlanningUnits = allPlanningUnits;
     }
 
     @Override
