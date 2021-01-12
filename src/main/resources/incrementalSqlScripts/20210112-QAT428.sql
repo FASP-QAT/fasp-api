@@ -3,7 +3,7 @@ DROP procedure IF EXISTS `shipmentGlobalDemand_ShipmentList`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`%`@`%` PROCEDURE `shipmentGlobalDemand_ShipmentList`(
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_ShipmentList`(
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
     VAR_START_DATE DATE, 
