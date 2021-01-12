@@ -45,6 +45,7 @@ import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplifiedSupplyPlanResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SupplyPlanResultSetExtractor;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -1416,6 +1417,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             List<NewSupplyPlan> spList = this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanRegionResultSetExtractor());
             sqlString = "CALL buildNewSupplyPlanBatch(:programId, :versionId)";
             msp.setNspList(this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanBatchResultSetExtractor(spList)));
+            // Build the Supply Plan over here
             msp.buildPlan();
             // Store the data in rm_supply_plan_amc and rm_supply_plan_batch_info
             List<MapSqlParameterSource> amcParams = new LinkedList<>();
@@ -1459,12 +1461,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 a1.addValue("UNMET_DEMAND_WPS", nsp.getUnmetDemandWps());
                 amcParams.add(a1);
                 for (BatchData bd : nsp.getBatchDataList()) {
-                    int batchId = 0;
+                    int batchId;
                     if (bd.getBatchId() < 0) {
                         // This is a new Batch so check if it has just been created if not then create it
                         batchId = newBatchSubstituteMap.getOrDefault(bd.getExpiryDate() + "-" + nsp.getPlanningUnitId(), 0);
                         if (batchId == 0) {
-                            String sql = "SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.PROGRAM_ID=:programId AND bi.PLANNING_UNIT_ID=:planningUnitId AND DATE(bi.CREATED_DATE)=DATE(:curDate) AND bi.EXPIRY_DATE=:expiryDate";
+                            String sql = "SELECT bi.BATCH_ID BATCH_ID FROM rm_batch_info bi WHERE bi.PROGRAM_ID=:programId AND bi.PLANNING_UNIT_ID=:planningUnitId AND DATE(bi.CREATED_DATE)=DATE(:curDate) AND bi.EXPIRY_DATE=:expiryDate ORDER BY bi.BATCH_ID DESC LIMIT 1";
                             Map<String, Object> newBatchParams = new HashMap<>();
                             newBatchParams.put("programId", msp.getProgramId());
                             newBatchParams.put("planningUnitId", nsp.getPlanningUnitId());
@@ -1472,6 +1474,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             newBatchParams.put("curDate", nsp.getTransDate());
                             newBatchParams.put("expiryDate", bd.getExpiryDate());
                             try {
+                                System.out.println(LogUtils.buildStringForLog(sql, newBatchParams));
                                 batchId = this.namedParameterJdbcTemplate.queryForObject(sql, newBatchParams, Integer.class);
                             } catch (EmptyResultDataAccessException erda) {
                                 sql = "INSERT INTO `rm_batch_info` SELECT "
@@ -1509,8 +1512,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     b1.addValue("OPENING_BALANCE_WPS", bd.getOpeningBalanceWps());
                     b1.addValue("EXPIRED_STOCK", bd.getExpiredStock());
                     b1.addValue("EXPIRED_STOCK_WPS", bd.getExpiredStockWps());
-                    b1.addValue("CALCULATED_CONSUMPTION", bd.getCalculatedConsumption());
-                    b1.addValue("CALCULATED_CONSUMPTION_WPS", bd.getCalculatedConsumptionWps());
+                    b1.addValue("CALCULATED_CONSUMPTION", bd.getCalculatedFEFO()+bd.getCalculatedLEFO());
+                    b1.addValue("CALCULATED_CONSUMPTION_WPS", bd.getCalculatedFEFOWps()+bd.getCalculatedLEFOWps());
                     b1.addValue("CLOSING_BALANCE", bd.getClosingBalance());
                     b1.addValue("CLOSING_BALANCE_WPS", bd.getClosingBalanceWps());
                     batchParams.add(b1);
@@ -1527,55 +1530,56 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             batchParams.toArray(batchParamsArray);
             si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_batch_qty");
             si.executeBatch(batchParamsArray);
-            sqlString = "UPDATE rm_supply_plan_amc spa  "
-                    + "LEFT JOIN rm_program_planning_unit ppu ON spa.PROGRAM_ID=ppu.PROGRAM_ID AND spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
-                    + "LEFT JOIN rm_program p ON spa.PROGRAM_ID=p.PROGRAM_ID "
-                    + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                    + "LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
-                    + "LEFT JOIN ( "
-                    + "    SELECT spa.PROGRAM_ID, spa.VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH), ADDDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_FUTURE_FOR_AMC-1 MONTH), "
-                    + "        SUM(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
-                    + "        ROUND(AVG(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY))) AMC, COUNT(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
-                    + "    FROM rm_supply_plan_amc spa  "
-                    + "    LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND spa.PROGRAM_ID=ppu.PROGRAM_ID "
-                    + "    LEFT JOIN rm_supply_plan_amc spa2 ON  "
-                    + "        spa.PROGRAM_ID=spa2.PROGRAM_ID  "
-                    + "        AND spa.VERSION_ID=spa2.VERSION_ID "
-                    + "        AND spa.PLANNING_UNIT_ID=spa2.PLANNING_UNIT_ID  "
-                    + "        AND spa2.TRANS_DATE BETWEEN SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH) AND ADDDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_FUTURE_FOR_AMC-1 MONTH) "
-                    + "    WHERE spa.PROGRAM_ID=@programId AND spa.VERSION_ID=@versionId "
-                    + "GROUP BY spa.PLANNING_UNIT_ID, spa.TRANS_DATE) amc ON spa.PROGRAM_ID=amc.PROGRAM_ID AND spa.VERSION_ID=amc.VERSION_ID AND spa.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID AND spa.TRANS_DATE=amc.TRANS_DATE "
-                    + "SET  "
-                    + "    spa.AMC=amc.AMC,  "
-                    + "    spa.AMC_COUNT=amc.AMC_COUNT,  "
-                    + "    spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, 0, spa.CLOSING_BALANCE/amc.AMC), "
-                    + "    spa.MOS_WPS=IF(amc.AMC IS NULL OR amc.AMC=0, 0, spa.CLOSING_BALANCE_WPS/amc.AMC), "
-                    + "    spa.MIN_STOCK_MOS = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK), "
-                    + "    spa.MAX_STOCK_MOS = IF("
-                    + "                             IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL,"
-                    + "                             r.MIN_MOS_MAX_GAURDRAIL, "
-                    + "                             IF ("
-                    + "                                 IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)>r.MAX_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, "
-                    + "                                 IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS"
-                    + "                             ) "
-                    + "                         ), "
-                    + "    spa.MIN_STOCK_QTY = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK) * amc.AMC, "
-                    + "    spa.MAX_STOCK_QTY = IF("
-                    + "                             IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL,"
-                    + "                             r.MIN_MOS_MAX_GAURDRAIL, "
-                    + "                             IF ("
-                    + "                                 IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)>r.MAX_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, "
-                    + "                                 IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS"
-                    + "                             ) "
-                    + "                         ) * amc.AMC, "
-                    + "WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
+            sqlString = "UPDATE rm_supply_plan_amc spa "
+                    + "    LEFT JOIN rm_program_planning_unit ppu ON spa.PROGRAM_ID=ppu.PROGRAM_ID AND spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
+                    + "    LEFT JOIN rm_program p ON spa.PROGRAM_ID=p.PROGRAM_ID "
+                    + "    LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                    + "    LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
+                    + "    LEFT JOIN ( "
+                    + "        SELECT spa.PROGRAM_ID, spa.VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH), ADDDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_FUTURE_FOR_AMC-1 MONTH), "
+                    + "            SUM(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
+                    + "            ROUND(AVG(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY))) AMC, COUNT(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
+                    + "        FROM rm_supply_plan_amc spa "
+                    + "        LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND spa.PROGRAM_ID=ppu.PROGRAM_ID "
+                    + "        LEFT JOIN (SELECT * FROM rm_supply_plan_amc spa2 WHERE spa2.PROGRAM_ID=@programId and spa2.VERSION_ID=@versionId) spa2 ON "
+                    + "            spa.PLANNING_UNIT_ID=spa2.PLANNING_UNIT_ID "
+                    + "            AND spa2.TRANS_DATE BETWEEN SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH) AND ADDDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_FUTURE_FOR_AMC-1 MONTH) "
+                    + "        WHERE spa.PROGRAM_ID=@programId AND spa.VERSION_ID=@versionId "
+                    + "        GROUP BY spa.PLANNING_UNIT_ID, spa.TRANS_DATE "
+                    + "    ) amc ON spa.PROGRAM_ID=amc.PROGRAM_ID AND spa.VERSION_ID=amc.VERSION_ID AND spa.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID AND spa.TRANS_DATE=amc.TRANS_DATE "
+                    + "    SET "
+                    + "        spa.AMC=amc.AMC, "
+                    + "        spa.AMC_COUNT=amc.AMC_COUNT, "
+                    + "        spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, 0, spa.CLOSING_BALANCE/amc.AMC), "
+                    + "        spa.MOS_WPS=IF(amc.AMC IS NULL OR amc.AMC=0, 0, spa.CLOSING_BALANCE_WPS/amc.AMC), "
+                    + "        spa.MIN_STOCK_MOS = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK), "
+                    + "        spa.MAX_STOCK_MOS = IF( "
+                    + "                                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, "
+                    + "                                r.MIN_MOS_MAX_GAURDRAIL, "
+                    + "                                IF ( "
+                    + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)>r.MAX_MOS_MAX_GAURDRAIL, "
+                    + "                                    r.MAX_MOS_MAX_GAURDRAIL, "
+                    + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS "
+                    + "                                ) "
+                    + "                            ), "
+                    + "        spa.MIN_STOCK_QTY = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK) * amc.AMC, "
+                    + "        spa.MAX_STOCK_QTY = IF( "
+                    + "                                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, "
+                    + "                                r.MIN_MOS_MAX_GAURDRAIL, "
+                    + "                                IF ( "
+                    + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)>r.MAX_MOS_MAX_GAURDRAIL, "
+                    + "                                    r.MAX_MOS_MAX_GAURDRAIL, "
+                    + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS "
+                    + "                                ) "
+                    + "                            ) * amc.AMC "
+                    + "        WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
             this.namedParameterJdbcTemplate.update(sqlString, params);
 //            msp.printSupplyPlan();
         }
 
         if (returnSupplyPlan) {
-            System.out.println("get simplified supply plan list-----------");
-            return getSimplifiedSupplyPlan(programId, versionId);
+            List<SimplifiedSupplyPlan> sp = getSimplifiedSupplyPlan(programId, versionId);
+            return sp;
         } else {
             return new LinkedList<>();
         }
