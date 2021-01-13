@@ -22,7 +22,7 @@ public class ManualTaggingDTORowMapper implements RowMapper<ManualTaggingDTO> {
     @Override
     public ManualTaggingDTO mapRow(ResultSet rs, int rows) throws SQLException {
         ManualTaggingDTO m = new ManualTaggingDTO();
-        m.setExpectedDeliveryDate(rs.getString("EXPECTED_DELIVERY_DATE"));
+        m.setExpectedDeliveryDate(rs.getTimestamp("EXPECTED_DELIVERY_DATE"));
         m.setShipmentStatus(new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, 1)));
         m.setProcurementAgent(new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, rows), rs.getString("PROCUREMENT_AGENT_CODE")));
         m.setFundingSource(new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, rows), rs.getString("FUNDING_SOURCE_CODE")));
