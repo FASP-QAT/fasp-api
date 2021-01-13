@@ -25,7 +25,7 @@ public class ManualTaggingOrderDTO {
     private String orderType;
     private String planningUnitSkuCode;
     private String procurementUnitSkuCode;
-    private Date currentEstimatedDeliveryDate;
+    private String currentEstimatedDeliveryDate;
     private String supplierName;
     private double price;
     private double shippingCost;
@@ -117,11 +117,11 @@ public class ManualTaggingOrderDTO {
         this.procurementUnitSkuCode = procurementUnitSkuCode;
     }
 
-    public Date getCurrentEstimatedDeliveryDate() {
+    public String getCurrentEstimatedDeliveryDate() {
         return currentEstimatedDeliveryDate;
     }
 
-    public void setCurrentEstimatedDeliveryDate(Date currentEstimatedDeliveryDate) {
+    public void setCurrentEstimatedDeliveryDate(String currentEstimatedDeliveryDate) {
         this.currentEstimatedDeliveryDate = currentEstimatedDeliveryDate;
     }
 
