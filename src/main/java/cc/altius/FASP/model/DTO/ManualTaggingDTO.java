@@ -24,9 +24,9 @@ public class ManualTaggingDTO implements Serializable {
 
     private int shipmentId;
     private int shipmentTransId;
-//    @JsonDeserialize(using = JsonDateDeserializer.class)
-//    @JsonSerialize(using = JsonDateSerializer.class)
-    private String expectedDeliveryDate;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    private Date expectedDeliveryDate;
     private SimpleObject shipmentStatus;
     private SimpleCodeObject procurementAgent;
     private SimpleCodeObject fundingSource;
@@ -53,11 +53,11 @@ public class ManualTaggingDTO implements Serializable {
         this.shipmentTransId = shipmentTransId;
     }
 
-    public String getExpectedDeliveryDate() {
+    public Date getExpectedDeliveryDate() {
         return expectedDeliveryDate;
     }
 
-    public void setExpectedDeliveryDate(String expectedDeliveryDate) {
+    public void setExpectedDeliveryDate(Date expectedDeliveryDate) {
         this.expectedDeliveryDate = expectedDeliveryDate;
     }
 
