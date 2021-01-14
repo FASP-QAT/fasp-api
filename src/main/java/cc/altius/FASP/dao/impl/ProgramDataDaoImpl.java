@@ -1186,6 +1186,32 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
 
         }
+
+        if (versionStatusId == 2) {
+            paramsList.clear();
+            System.out.println("in if");
+            problemReportUpdateSql = "UPDATE rm_problem_report pr set pr.PROBLEM_STATUS_ID=1, pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
+            problemReportTransInsertSql = "INSERT INTO rm_problem_report_trans SELECT null, :problemReportId, 1, :reviewed, :notes, :curUser, :curDate FROM rm_problem_report pr WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
+            for (ReviewedProblem rp : reviewedProblemList) {
+                if (rp.getProblemStatus().getId() == 3) {
+                    System.out.println(" in Problem status" + rp.getProblemReportId());
+                    Map<String, Object> updateParams = new HashMap<>();
+                    updateParams.put("reviewed", rp.isReviewed());
+                    updateParams.put("curUser", curUser.getUserId());
+                    updateParams.put("curDate", curDate);
+                    updateParams.put("notes", rp.getNotes());
+                    updateParams.put("problemStatusId", rp.getProblemStatus().getId());
+                    updateParams.put("problemReportId", rp.getProblemReportId());
+                    paramsList.add(new MapSqlParameterSource(updateParams));
+                }
+            }
+            if (paramsList.size() > 0) {
+                SqlParameterSource[] updateArray = new SqlParameterSource[paramsList.size()];
+                this.namedParameterJdbcTemplate.batchUpdate(problemReportUpdateSql, paramsList.toArray(updateArray));
+                this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
+
+            }
+        }
         return this.getVersionInfo(programId, versionId);
     }
 
@@ -1512,8 +1538,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     b1.addValue("OPENING_BALANCE_WPS", bd.getOpeningBalanceWps());
                     b1.addValue("EXPIRED_STOCK", bd.getExpiredStock());
                     b1.addValue("EXPIRED_STOCK_WPS", bd.getExpiredStockWps());
-                    b1.addValue("CALCULATED_CONSUMPTION", bd.getCalculatedFEFO()+bd.getCalculatedLEFO());
-                    b1.addValue("CALCULATED_CONSUMPTION_WPS", bd.getCalculatedFEFOWps()+bd.getCalculatedLEFOWps());
+                    b1.addValue("CALCULATED_CONSUMPTION", bd.getCalculatedFEFO() + bd.getCalculatedLEFO());
+                    b1.addValue("CALCULATED_CONSUMPTION_WPS", bd.getCalculatedFEFOWps() + bd.getCalculatedLEFOWps());
                     b1.addValue("CLOSING_BALANCE", bd.getClosingBalance());
                     b1.addValue("CLOSING_BALANCE_WPS", bd.getClosingBalanceWps());
                     batchParams.add(b1);
