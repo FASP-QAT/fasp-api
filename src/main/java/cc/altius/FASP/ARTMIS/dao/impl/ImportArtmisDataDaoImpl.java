@@ -80,7 +80,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
         this.jdbcTemplate.execute(sqlString);
         // Create ERO oder table
         sqlString = "CREATE TEMPORARY TABLE `tmp_erp_order` ( "
-//        sqlString = "CREATE TABLE `tmp_erp_order` ( "
+                //        sqlString = "CREATE TABLE `tmp_erp_order` ( "
                 + "  `TEMP_ID` int(11) NOT NULL AUTO_INCREMENT, "
                 + "  `RO_NO` varchar(45) COLLATE utf8_bin NOT NULL, "
                 + "  `RO_PRIME_LINE_NO` int(11) NOT NULL, "
@@ -192,7 +192,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
 //        sqlString = "DROP TABLE IF EXISTS tmp_erp_shipment";
         this.jdbcTemplate.execute(sqlString);
         sqlString = "CREATE TEMPORARY TABLE `tmp_erp_shipment` ( "
-//        sqlString = "CREATE TABLE `tmp_erp_shipment` ( "
+                //        sqlString = "CREATE TABLE `tmp_erp_shipment` ( "
                 + "  `TEMP_SHIPMENT_ID` int(11) NOT NULL AUTO_INCREMENT, "
                 + "  `KN_SHIPMENT_NO` varchar(45) COLLATE utf8_bin NOT NULL, "
                 + "  `ORDER_NO` varchar(45) COLLATE utf8_bin DEFAULT NULL, "
@@ -385,7 +385,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 + "    eo.RECPIENT_NAME, eo.RECPIENT_COUNTRY, eo.`STATUS`, eo.`CHANGE_CODE`, ssm.SHIPMENT_STATUS_ID, eo.MANUAL_TAGGING, eo.CONVERSION_FACTOR, "
                 + "    MIN(es.ACTUAL_DELIVERY_DATE) `ACTUAL_DELIVERY_DATE`, MIN(es.ACTUAL_SHIPMENT_DATE) `ACTUAL_SHIPMENT_DATE`, MIN(es.ARRIVAL_AT_DESTINATION_DATE) `ARRIVAL_AT_DESTINATION_DATE`, "
                 + "    es.BATCH_NO, COALESCE(es.DELIVERED_QTY, es.SHIPPED_QTY) `BATCH_QTY`, es.`EXPIRY_DATE`, "
-                + "    pu.PLANNING_UNIT_ID, papu2.PROCUREMENT_UNIT_ID, pu2.SUPPLIER_ID, ppu.SHELF_LIFE, "
+                + "    st.PLANNING_UNIT_ID, papu2.PROCUREMENT_UNIT_ID, pu2.SUPPLIER_ID, ppu.SHELF_LIFE, "
                 + "    sh.SHIPMENT_ID, sh.PROGRAM_ID, sh.PARENT_SHIPMENT_ID, "
                 + "    st.SHIPMENT_TRANS_ID, st.VERSION_ID, st.FUNDING_SOURCE_ID, st.PROCUREMENT_AGENT_ID, st.BUDGET_ID, st.ACTIVE, st.ERP_FLAG, st.ACCOUNT_FLAG, st.DATA_SOURCE_ID,eo.CONVERSION_FACTOR "
                 + "FROM ( "
@@ -440,9 +440,9 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     System.out.println("---------------2--------------");
                     // This is the Delete code so go ahead and delete this Order
                     logger.info("Change code is 2 so therefore delete this line item where shipmentId=" + erpOrderDTO.getShShipmentId());
-                    sqlString = "UPDATE rm_shipment s LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID SET st.`PLANNING_UNIT_ID`=:planningUnitId,st.ACTIVE=0, st.LAST_MODIFIED_BY=1, st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate WHERE s.PARENT_SHIPMENT_ID=:shipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo AND st.ACTIVE AND st.ERP_FLAG";
+                    sqlString = "UPDATE rm_shipment s LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID SET st.ACTIVE=0, st.LAST_MODIFIED_BY=1, st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate WHERE s.PARENT_SHIPMENT_ID=:shipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo AND st.ACTIVE AND st.ERP_FLAG";
                     params.clear();
-                    params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
+//                    params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
                     params.put("shipmentId", erpOrderDTO.getShShipmentId());
                     params.put("orderNo", erpOrderDTO.getEoOrderNo());
                     params.put("primeLineNo", erpOrderDTO.getEoPrimeLineNo());
@@ -476,10 +476,10 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                 + "    st.SHIPMENT_STATUS_ID=:shipmentStatusId, st.SUPPLIER_ID=:supplierId, st.PLANNED_DATE=:plannedDate, "
                                 + "    st.SUBMITTED_DATE=:submittedDate, st.APPROVED_DATE=:approvedDate, st.SHIPPED_DATE=:shippedDate, "
                                 + "    st.ARRIVED_DATE=:arrivedDate, st.RECEIVED_DATE=:receivedDate, st.LAST_MODIFIED_BY=1, "
-                                + "    st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate, st.NOTES=:notes,st.`PLANNING_UNIT_ID`=:planningUnitId "
+                                + "    st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate, st.NOTES=:notes "
                                 + "WHERE st.SHIPMENT_TRANS_ID=:shipmentTransId";
                         params.clear();
-                        params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
+//                        params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
                         params.put("shipmentTransId", shipmentTransId);
                         params.put("expectedDeliveryDate", erpOrderDTO.getExpectedDeliveryDate());
                         params.put("freightCost", erpOrderDTO.getEoShippingCost());
@@ -712,9 +712,10 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     logger.info("This is a first time linking attempt");
                     // Create a new Shipment with Parent Shipment Id = :shipmentId and OrderNo=:orderNo and PrimeLineNo=:primeLineNo
                     // All other details to be taken from ARTMIS + Current Shipment
-                    sqlString = "UPDATE rm_shipment_trans st LEFT JOIN rm_shipment s ON st.SHIPMENT_ID=s.SHIPMENT_ID SET st.`PLANNING_UNIT_ID`=:planningUnitId,st.ERP_FLAG=1, st.ACTIVE=0, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate, st.LAST_MODIFIED_BY=1, st.LAST_MODIFIED_DATE=:curDate WHERE st.SHIPMENT_TRANS_ID=:shipmentTransId";
+//                    sqlString = "UPDATE rm_shipment_trans st LEFT JOIN rm_shipment s ON st.SHIPMENT_ID=s.SHIPMENT_ID SET st.`PLANNING_UNIT_ID`=:planningUnitId,st.ERP_FLAG=1, st.ACTIVE=0, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate, st.LAST_MODIFIED_BY=1, st.LAST_MODIFIED_DATE=:curDate WHERE st.SHIPMENT_TRANS_ID=:shipmentTransId";
+                    sqlString = "UPDATE rm_shipment_trans st LEFT JOIN rm_shipment s ON st.SHIPMENT_ID=s.SHIPMENT_ID SET st.ERP_FLAG=1, st.ACTIVE=0, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate, st.LAST_MODIFIED_BY=1, st.LAST_MODIFIED_DATE=:curDate WHERE st.SHIPMENT_TRANS_ID=:shipmentTransId";
                     params.clear();
-                    params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
+//                    params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
                     params.put("curDate", curDate);
                     params.put("shipmentTransId", erpOrderDTO.getShShipmentTransId());
                     this.namedParameterJdbcTemplate.update(sqlString, params);
@@ -815,8 +816,8 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                         logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                     }
                 }
-                System.out.println("erpOrderDTO.getShProgramId()---"+erpOrderDTO.getShProgramId());
-                System.out.println("programList----"+programList);
+                System.out.println("erpOrderDTO.getShProgramId()---" + erpOrderDTO.getShProgramId());
+                System.out.println("programList----" + programList);
                 if (programList.indexOf(erpOrderDTO.getShProgramId()) == -1) {
                     programList.add(erpOrderDTO.getShProgramId());
                 }
