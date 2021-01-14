@@ -1188,6 +1188,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
 
         if (versionStatusId == 2) {
+            paramsList.clear();
             System.out.println("in if");
             problemReportUpdateSql = "UPDATE rm_problem_report pr set pr.PROBLEM_STATUS_ID=1, pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
             problemReportTransInsertSql = "INSERT INTO rm_problem_report_trans SELECT null, :problemReportId, 1, :reviewed, :notes, :curUser, :curDate FROM rm_problem_report pr WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
