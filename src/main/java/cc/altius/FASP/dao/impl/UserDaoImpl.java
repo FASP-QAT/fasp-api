@@ -846,4 +846,10 @@ public class UserDaoImpl implements UserDao {
         this.jdbcTemplate.update(sql, jiraAccountId, emailAddress);
     }
 
+    @Override
+    public String getEmailByUserId(int userId) {
+        String sql = "select u.EMAIL_ID from us_user u where u.USER_ID=?;";
+        return this.jdbcTemplate.queryForObject(sql,String.class ,userId);
+    }
+
 }

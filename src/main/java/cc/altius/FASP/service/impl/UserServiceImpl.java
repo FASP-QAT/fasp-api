@@ -251,4 +251,9 @@ public class UserServiceImpl implements UserService {
         this.userDao.updateUserJiraAccountId(emailAddress, jiraAccountId);
     }
 
+    @Override
+    public String getEmailByUserId(int userId) {
+        return this.userDao.getEmailByUserId(userId);
+    }
+
 }

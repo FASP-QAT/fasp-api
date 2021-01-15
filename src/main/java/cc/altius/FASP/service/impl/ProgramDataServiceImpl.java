@@ -9,6 +9,8 @@ import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
+import cc.altius.FASP.model.EmailTemplate;
+import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
@@ -20,11 +22,13 @@ import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.ProblemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
+import cc.altius.FASP.service.UserService;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
@@ -47,6 +51,10 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     private ProblemService problemService;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private EmailService emailService;
+    @Autowired
+    private UserService userService;
 
     @Override
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser) {
@@ -90,6 +98,23 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             Version version = this.programDataDao.saveProgramData(programData, curUser);
             try {
                 getNewSupplyPlanList(programData.getProgramId(), version.getVersionId(), true, false);
+                String ccEmailId=this.userService.getEmailByUserId(programData.getProgramManager().getUserId());
+//                System.out.println("ccToemail===>"+ccEmailId);
+                if (programData.getVersionType().getId() == 2) {
+                    String emails = this.programDataDao.getSupplyPlanReviewerEmialList(programData.getRealmCountry().getRealmCountryId());
+//                    System.out.println("emails===>" + emails);
+                    EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(6);
+                    String[] subjectParam = new String[]{};
+                    String[] bodyParam = null;
+                    Emailer emailer = new Emailer();
+                    subjectParam = new String[]{};
+                    bodyParam = new String[]{programData.getProgramCode(),String.valueOf(version.getVersionId())};
+                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "shubham.y@altius.cc,harshana.c@altius.cc", "palash.n@altius.cc,dolly.c@altius.cc", subjectParam, bodyParam);
+                    int emailerId = this.emailService.saveEmail(emailer);
+                    emailer.setEmailerId(emailerId);
+                    this.emailService.sendMail(emailer);
+                }
+
                 return version;
             } catch (ParseException pe) {
                 throw new CouldNotSaveException(pe.getMessage());
