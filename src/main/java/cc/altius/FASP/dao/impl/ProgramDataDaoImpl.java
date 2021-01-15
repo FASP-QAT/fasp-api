@@ -14,6 +14,8 @@ import cc.altius.FASP.model.ConsumptionBatchInfo;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramIntegrationDTORowMapper;
+import cc.altius.FASP.model.EmailTemplate;
+import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.IdByAndDate;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.InventoryBatchInfo;
@@ -21,6 +23,7 @@ import cc.altius.FASP.model.MasterSupplyPlan;
 import cc.altius.FASP.model.NewSupplyPlan;
 import cc.altius.FASP.model.ProblemReport;
 import cc.altius.FASP.model.ProblemReportTrans;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ReviewedProblem;
@@ -45,7 +48,12 @@ import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplifiedSupplyPlanResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SupplyPlanResultSetExtractor;
 import cc.altius.FASP.service.AclService;
+
 import cc.altius.FASP.utils.LogUtils;
+
+import cc.altius.FASP.service.EmailService;
+import cc.altius.FASP.service.ProgramService;
+
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -80,6 +88,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private EmailService emailService;
+    @Autowired
+    private ProgramService programService;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -1186,15 +1198,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
 
         }
-
         if (versionStatusId == 2) {
             paramsList.clear();
-            System.out.println("in if");
+//            System.out.println("in if");
             problemReportUpdateSql = "UPDATE rm_problem_report pr set pr.PROBLEM_STATUS_ID=1, pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
             problemReportTransInsertSql = "INSERT INTO rm_problem_report_trans SELECT null, :problemReportId, 1, :reviewed, :notes, :curUser, :curDate FROM rm_problem_report pr WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
             for (ReviewedProblem rp : reviewedProblemList) {
                 if (rp.getProblemStatus().getId() == 3) {
-                    System.out.println(" in Problem status" + rp.getProblemReportId());
+//                    System.out.println(" in Problem status" + rp.getProblemReportId());
                     Map<String, Object> updateParams = new HashMap<>();
                     updateParams.put("reviewed", rp.isReviewed());
                     updateParams.put("curUser", curUser.getUserId());
@@ -1212,6 +1223,28 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
             }
         }
+
+        if (versionStatusId != 1) {
+            Program program = this.programService.getProgramById(programId, curUser);
+            String emailSql = "select u.EMAIL_ID from us_user u where u.USER_ID \n"
+                    + "in (select v.CREATED_BY from rm_program_version v where v.PROGRAM_ID=? and v.VERSION_ID=?);";
+            String emailTo = this.jdbcTemplate.queryForObject(emailSql, String.class, programId, versionId);
+            String versionStatusSql = "select vvs.LABEL_EN from vw_version_status vvs where vvs.VERSION_STATUS_ID=?";
+            String versionStatus = this.jdbcTemplate.queryForObject(versionStatusSql, String.class, versionStatusId);
+
+            EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(5);
+            String[] subjectParam = new String[]{};
+            String[] bodyParam = null;
+            Emailer emailer = new Emailer();
+            subjectParam = new String[]{};
+            bodyParam = new String[]{program.getProgramCode(), String.valueOf(versionId), versionStatus};
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), emailTo, "", subjectParam, bodyParam);
+            int emailerId = this.emailService.saveEmail(emailer);
+            emailer.setEmailerId(emailerId);
+            this.emailService.sendMail(emailer);
+        }
+
+
         return this.getVersionInfo(programId, versionId);
     }
 
@@ -1677,6 +1710,17 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("integrationId", integrationId);
         params.put("curDate", curDate);
         return (this.namedParameterJdbcTemplate.update("INSERT INTO rm_integration_program_completed VALUES (:programVersionTransId, :integrationId, :curDate) ", params) == 1);
+    }
+
+    @Override
+    public String getSupplyPlanReviewerEmialList(int realmCountryId) {
+        String sql = "select group_concat(u.EMAIL_ID)\n"
+                + "from us_user u\n"
+                + "left join us_user_role ur on u.USER_ID=ur.USER_ID\n"
+                + "left join us_user_acl ua on ua.USER_ID=u.USER_ID\n"
+                + "where ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER' and\n"
+                + "(ua.REALM_COUNTRY_ID is null OR ua.REALM_COUNTRY_ID=?)";
+        return this.jdbcTemplate.queryForObject(sql, String.class, realmCountryId);
     }
 
 }
