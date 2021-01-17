@@ -8,23 +8,10 @@
  * Created: 15-Jan-2021
  */
 
+DROP procedure IF EXISTS `stockStatusMatrix`;
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `stockStatusMatrix`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_PLANNING_UNIT_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT(1))
 BEGIN
-	
-	
-	
- 
-	
-    
-    
-    
-	
-    
-    
-    
-    
-
-	SET @programId = VAR_PROGRAM_ID;
+SET @programId = VAR_PROGRAM_ID;
 	SET @versionId = VAR_VERSION_ID;
 	SET @startDate = VAR_START_DATE;
 	SET @stopDate = VAR_STOP_DATE;
@@ -68,6 +55,6 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "GROUP BY ppu.PLANNING_UNIT_ID, YEAR(mn.MONTH)");
     PREPARE S1 FROM @sqlString;
     EXECUTE S1;
-END
+END$$
 
-
+DELIMITER ;
