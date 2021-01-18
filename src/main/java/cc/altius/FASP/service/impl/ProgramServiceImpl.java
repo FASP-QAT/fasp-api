@@ -283,4 +283,9 @@ public class ProgramServiceImpl implements ProgramService {
         return this.programDao.getErpOrderSearchData(term, searchId, programId, planningUnitId);
     }
 
+    @Override
+    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) {
+        return this.programDao.getSupplyPlanReviewerList(programId, curUser);
+    }
+
 }
