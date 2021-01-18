@@ -7,7 +7,6 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProgramDao;
-import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ErpBatchDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
@@ -37,16 +36,14 @@ import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.service.ProgramDataService;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1185,6 +1182,33 @@ public class ProgramDaoImpl implements ProgramDao {
                     + "WHERE (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) AND p.`REALM_COUNTRY_ID` IS NOT NULL AND papu.`PLANNING_UNIT_ID`=?  AND sm.`SHIPMENT_STATUS_ID` NOT IN (7,8) AND  e.`ORDER_NO` LIKE '%").append(term).append("%' GROUP BY e.`ORDER_NO`");
         }
         return this.jdbcTemplate.query(sb.toString(), new ErpOrderAutocompleteDTORowMapper(), programId, planningUnitId);
+    }
+
+    @Override
+    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) {
+        Program p = this.getProgramById(programId, curUser);
+        StringBuilder sb = new StringBuilder();
+        sb.append("SELECT u.EMAIL_ID "
+                + "FROM us_user u "
+                + "LEFT JOIN us_user_role ur ON u.USER_ID=ur.USER_ID "
+                + "LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID "
+                + "LEFT JOIN rm_program p ON p.PROGRAM_ID=:programId "
+                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "WHERE "
+                + "     ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER' "
+                + "     AND u.ACTIVE AND rc.REALM_ID=:realmId "
+                + "     AND (acl.REALM_COUNTRY_ID IS NULL OR acl.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID) "
+                + "     AND (acl.PROGRAM_ID IS NULL OR acl.PROGRAM_ID=p.PROGRAM_ID) "
+                + "     AND (acl.HEALTH_AREA_ID IS NULL OR acl.HEALTH_AREA_ID=p.HEALTH_AREA_ID) "
+                + "     AND (acl.ORGANISATION_ID IS NULL OR acl.ORGANISATION_ID=p.ORGANISATION_ID) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("realmId", p.getRealmCountry().getRealm().getRealmId());
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        System.out.println(sb.toString());
+        System.out.println(params);
+        List<String> emailList = this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, String.class);
+        return StringUtils.join(emailList, ",");
     }
 
 }
