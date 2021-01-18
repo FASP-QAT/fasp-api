@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service.impl;
 
+import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -55,6 +56,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     private EmailService emailService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ProgramDao programDao;
 
     @Override
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser) {
@@ -101,7 +104,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                 String ccEmailId=this.userService.getEmailByUserId(programData.getProgramManager().getUserId());
 //                System.out.println("ccToemail===>"+ccEmailId);
                 if (programData.getVersionType().getId() == 2) {
-                    String emails = this.programDataDao.getSupplyPlanReviewerEmialList(programData.getRealmCountry().getRealmCountryId());
+                    String emails = this.programDao.getSupplyPlanReviewerList(programData.getProgramId(),curUser);
 //                    System.out.println("emails===>" + emails);
                     EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(6);
                     String[] subjectParam = new String[]{};
