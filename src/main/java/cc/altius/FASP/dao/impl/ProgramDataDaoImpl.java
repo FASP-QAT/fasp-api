@@ -1195,6 +1195,27 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
 
         }
+        
+        if (versionStatusId == 2) {
+            paramsList.clear();
+            String sql = "SELECT p.PROBLEM_REPORT_ID FROM rm_problem_report p where p.PROGRAM_ID=? and p.VERSION_ID<=? and p.PROBLEM_STATUS_ID=3;";
+            List<Integer> problemReportIds = this.jdbcTemplate.queryForList(sql, Integer.class, programId, versionId);
+            problemReportUpdateSql = "UPDATE rm_problem_report pr set pr.PROBLEM_STATUS_ID=1, pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
+            problemReportTransInsertSql = "INSERT INTO rm_problem_report_trans SELECT null, :problemReportId, 1,pr.REVIEWED , pr.REVIEW_NOTES, :curUser, :curDate FROM rm_problem_report pr WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
+            for (Integer rp : problemReportIds) {
+                Map<String, Object> updateParams = new HashMap<>();
+                updateParams.put("curUser", curUser.getUserId());
+                updateParams.put("curDate", curDate);
+                updateParams.put("problemReportId", rp);
+                paramsList.add(new MapSqlParameterSource(updateParams));
+            }
+            if (paramsList.size() > 0) {
+                SqlParameterSource[] updateArray = new SqlParameterSource[paramsList.size()];
+                this.namedParameterJdbcTemplate.batchUpdate(problemReportUpdateSql, paramsList.toArray(updateArray));
+                this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
+
+            }
+        }
 
         if (versionStatusId != 1) {
             Program program = this.programService.getProgramById(programId, curUser);
@@ -1542,8 +1563,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     b1.addValue("OPENING_BALANCE_WPS", bd.getOpeningBalanceWps());
                     b1.addValue("EXPIRED_STOCK", bd.getExpiredStock());
                     b1.addValue("EXPIRED_STOCK_WPS", bd.getExpiredStockWps());
-                    b1.addValue("CALCULATED_CONSUMPTION", bd.getCalculatedFEFO()+bd.getCalculatedLEFO());
-                    b1.addValue("CALCULATED_CONSUMPTION_WPS", bd.getCalculatedFEFOWps()+bd.getCalculatedLEFOWps());
+                    b1.addValue("CALCULATED_CONSUMPTION", bd.getCalculatedFEFO() + bd.getCalculatedLEFO());
+                    b1.addValue("CALCULATED_CONSUMPTION_WPS", bd.getCalculatedFEFOWps() + bd.getCalculatedLEFOWps());
                     b1.addValue("CLOSING_BALANCE", bd.getClosingBalance());
                     b1.addValue("CLOSING_BALANCE_WPS", bd.getClosingBalanceWps());
                     batchParams.add(b1);
