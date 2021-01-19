@@ -1180,3 +1180,15 @@ END$$
 
 DELIMITER ;
 
+
+-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    -- For shipment overview label script
+-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.fundingSourceUsdAmount','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'* The funding source amount is in USD');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'* Le montant de la source de financement est en USD');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'* El monto de la fuente de financiamiento está en USD');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'* O valor da fonte de financiamento é em USD');
