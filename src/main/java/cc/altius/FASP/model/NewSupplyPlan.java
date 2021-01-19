@@ -660,6 +660,9 @@ public class NewSupplyPlan implements Serializable {
         return newBatchCounter;
     }*/
     public int updateBatchData(int newBatchCounter) {
+        if (this.planningUnitId == 2246 && this.transDate.equals("2020-12-01")) {
+            System.out.println("Reached the target");
+        }
         long unallocatedFEFO = Optional.ofNullable(this.finalConsumptionQty).orElse(0L) - Math.max(0, Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // FEFO
         long unallocatedLEFO = 0L - Math.min(0, Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // LEFO
         long unallocatedFEFOWps = Optional.ofNullable(this.finalConsumptionQty).orElse(0L) - Math.max(0, Optional.ofNullable(this.finalAdjustmentQty).orElse(0L) + Optional.ofNullable(this.nationalAdjustment).orElse(0L)); // FEFO
@@ -672,7 +675,7 @@ public class NewSupplyPlan implements Serializable {
                     - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0L) : 0)
                     + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0);
             bd.setUnallocatedFEFO(unallocatedFEFO);
-            if (tempCB >= unallocatedFEFO) { // There is equal or more stock than Consumption 
+            if (tempCB >= unallocatedFEFO && DateUtils.compareDates(bd.getExpiryDate(), this.transDate) > 0) { // There is equal or more stock than Consumption 
                 bd.setClosingBalance(tempCB - unallocatedFEFO);
                 bd.setCalculatedFEFO(unallocatedFEFO);
                 unallocatedFEFO = 0;
@@ -708,7 +711,7 @@ public class NewSupplyPlan implements Serializable {
                     - (bd.isUseActualConsumption() ? Optional.ofNullable(bd.getActualConsumption()).orElse(0L) : 0)
                     + (bd.isUseAdjustment() ? Optional.ofNullable(bd.getAdjustment()).orElse(0L) : 0);
             bd.setUnallocatedFEFOWps(unallocatedFEFOWps);
-            if (tempCB >= unallocatedFEFOWps) { // There is equal or more stock than Consumption 
+            if (tempCB >= unallocatedFEFOWps && DateUtils.compareDates(bd.getExpiryDate(), this.transDate) > 0) { // There is equal or more stock than Consumption 
                 bd.setClosingBalanceWps(tempCB - unallocatedFEFOWps);
                 bd.setCalculatedFEFOWps(unallocatedFEFOWps);
                 unallocatedFEFOWps = 0;

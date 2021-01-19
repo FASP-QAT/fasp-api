@@ -93,4 +93,6 @@ public interface UserDao {
     public List<String> getUserListForUpdateJiraAccountId();
     
     public void updateUserJiraAccountId(String emailAddress, String jiraAccountId);
+    
+    public String getEmailByUserId(int userId);
 }
