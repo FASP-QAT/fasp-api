@@ -382,13 +382,13 @@ public class UserRestController {
             logger.info("------------------------------------------------------ Reset password Start ----------------------------------------------------");
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getEmailId(), user.getToken());
             auditLogger.info("Confirm forgot password has been triggered for EmailId:" + user.getEmailId() + " with ForgotPasswordToken:" + fpt, request.getRemoteAddr());
-            if (fpt.isValidForTriggering()) {
-                logger.info("fpt.isValidForTriggering()=true");
+            if (fpt.isValidForCompletion()) {
+                logger.info("fpt.isValidForCompletion()=true");
                 auditLogger.info("Token is valid and reset can proceed");
-                this.userService.updateTriggeredDateForForgotPasswordToken(user.getEmailId(), user.getToken());
+//                this.userService.updateTriggeredDateForForgotPasswordToken(user.getEmailId(), user.getToken());
                 return new ResponseEntity(HttpStatus.OK);
             } else {
-                logger.info("fpt.isValidForTriggering()=true");
+                logger.info("fpt.isValidForCompletion()=true");
                 auditLogger.info("Token is not valid or has expired");
                 this.userService.updateCompletionDateForForgotPasswordToken(user.getEmailId(), user.getToken());
                 return new ResponseEntity(new ResponseCode(fpt.inValidReasonForTriggering()), HttpStatus.FORBIDDEN);
