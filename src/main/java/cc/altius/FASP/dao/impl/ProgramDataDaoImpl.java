@@ -48,12 +48,9 @@ import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplifiedSupplyPlanResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SupplyPlanResultSetExtractor;
 import cc.altius.FASP.service.AclService;
-
 import cc.altius.FASP.utils.LogUtils;
-
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.ProgramService;
-
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -1238,7 +1235,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
         }
-
 
         return this.getVersionInfo(programId, versionId);
     }

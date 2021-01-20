@@ -101,18 +101,19 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             Version version = this.programDataDao.saveProgramData(programData, curUser);
             try {
                 getNewSupplyPlanList(programData.getProgramId(), version.getVersionId(), true, false);
-                String ccEmailId=this.userService.getEmailByUserId(programData.getProgramManager().getUserId());
+                String ccEmailId = this.userService.getEmailByUserId(programData.getProgramManager().getUserId());
 //                System.out.println("ccToemail===>"+ccEmailId);
                 if (programData.getVersionType().getId() == 2) {
-                    String emails = this.programDao.getSupplyPlanReviewerList(programData.getProgramId(),curUser);
+                    String emails = this.programDao.getSupplyPlanReviewerList(programData.getProgramId(), curUser);
 //                    System.out.println("emails===>" + emails);
                     EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(6);
                     String[] subjectParam = new String[]{};
                     String[] bodyParam = null;
                     Emailer emailer = new Emailer();
                     subjectParam = new String[]{};
-                    bodyParam = new String[]{programData.getProgramCode(),String.valueOf(version.getVersionId())};
-                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "shubham.y@altius.cc,harshana.c@altius.cc", "palash.n@altius.cc,dolly.c@altius.cc", subjectParam, bodyParam);
+                    bodyParam = new String[]{programData.getProgramCode(), String.valueOf(version.getVersionId())};
+//                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "shubham.y@altius.cc,harshana.c@altius.cc", "palash.n@altius.cc,dolly.c@altius.cc", subjectParam, bodyParam);
+                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), emails, ccEmailId, subjectParam, bodyParam);
                     int emailerId = this.emailService.saveEmail(emailer);
                     emailer.setEmailerId(emailerId);
                     this.emailService.sendMail(emailer);
