@@ -693,7 +693,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public ForgotPasswordToken getForgotPasswordToken(String emailId, String token) {
-        System.out.println("Reset password get forgot password token---getForgotPasswordToken---"+emailId+"token---"+token);
+        logger.info("Reset password get forgot password token---getForgotPasswordToken---" + emailId + ", token---" + token);
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
         params.put("token", token);
@@ -701,25 +701,26 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void updateTriggeredDateForForgotPasswordToken(String username, String token) {
-        System.out.println("Inside updateTriggeredDateForForgotPasswordToken--- Username" + username + "token---" + token);
-        Map<String, Object> params = new HashMap<>();
-        params.put("username", username);
-        params.put("token", token);
-        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        System.out.println("params---" + params);
-        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_TRIGGERED_DATE=:curDate WHERE LOWER(u.EMAIL_ID)=LOWER(:username) AND fpt.TOKEN=:token", params);
-    }
-
-    @Override
-    public void updateCompletionDateForForgotPasswordToken(String emailId, String token) {
-        System.out.println("Reset password updateCompletionDateForForgotPasswordToken---Email id---" + emailId + "token---" + token);
+    public void updateTriggeredDateForForgotPasswordToken(String emailId, String token) {
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
         params.put("token", token);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        System.out.println("params---" + params);
-        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_COMPLETION_DATE=:curDate WHERE LOWER(u.EMAIL_ID)=LOWER(:emailId) AND fpt.TOKEN=:token", params);
+        logger.info("Going to update the TokenTriggeredDate for EmailId:" + emailId + ", token:" + token);
+        int rowsUpdated = this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_TRIGGERED_DATE=:curDate WHERE LOWER(u.EMAIL_ID)=LOWER(:emailId) AND fpt.TOKEN=:token", params);
+        logger.info(rowsUpdated + " rows updated for the TokenTriggeredDate for EmailId:" + emailId + ", token:" + token);
+    }
+
+    @Override
+    public void updateCompletionDateForForgotPasswordToken(String emailId, String token) {
+        logger.info("Reset password updateCompletionDateForForgotPasswordToken---Email id---" + emailId + ", token---" + token);
+        Map<String, Object> params = new HashMap<>();
+        params.put("emailId", emailId);
+        params.put("token", token);
+        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
+        logger.info("Going to update the TokenCompletionDate for EmailId:" + emailId + ", token:" + token);
+        int rowsUpdated = this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_COMPLETION_DATE=:curDate WHERE LOWER(u.EMAIL_ID)=LOWER(:emailId) AND fpt.TOKEN=:token", params);
+        logger.info(rowsUpdated + " rows updated for the TokenCompletionDate for EmailId:" + emailId + ", token:" + token);
     }
 
     @Override

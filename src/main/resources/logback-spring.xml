@@ -62,7 +62,7 @@
         </rollingPolicy>
     </appender>
     
-<!--    <appender name="SpringBootDb" class="ch.qos.logback.classic.db.DBAppender">
+    <!--    <appender name="SpringBootDb" class="ch.qos.logback.classic.db.DBAppender">
         <connectionSource class="ch.qos.logback.core.db.DataSourceConnectionSource">
             <dataSource class="com.zaxxer.hikari.HikariDataSource">
                 <driverClassName>com.mysql.cj.jdbc.Driver</driverClassName>
@@ -80,17 +80,17 @@
     </root>
    
     <logger name="com.zaxxer.hikari" level="error" additivity="false">
-        <appender-ref ref="RootConsole" />
+        <appender-ref ref="RootFile" />
     </logger>
     
     <logger name="org.springframework" level="info" additivity="false">
-        <appender-ref ref="RootConsole" />
+        <appender-ref ref="RootFile" />
         <!--<appender-ref ref="SpringBootFile" />-->
     </logger>
     
     <!-- LOG "cc.altius.sb*" at INFO level -->
     <logger name="cc.altius.FASP" level="debug" additivity="false">
-        <appender-ref ref="RootConsole" />
+        <appender-ref ref="RootFile" />
         <appender-ref ref="SpringBootFile" />
     </logger>
     
@@ -98,12 +98,13 @@
     <logger name="cc.altius.FASP.web.controller.UserController" level="info" additivity="false">
         <!--<appender-ref ref="SpringBootDb" />-->
         <!--<appender-ref ref="SpringBootFile" />-->
-        <appender-ref ref="RootConsole" />
+        <appender-ref ref="RootFile" />
     </logger>
+    
     <logger name="cc.altius.FASP.ARTMIS" level="info" additivity="false">
         <!--<appender-ref ref="SpringBootDb" />-->
         <appender-ref ref="ARTMISFile" />
-        <appender-ref ref="RootConsole" />
+        <appender-ref ref="RootFile" />
     </logger>
- 
+    
 </configuration>

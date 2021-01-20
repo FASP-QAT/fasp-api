@@ -379,20 +379,18 @@ public class UserRestController {
     @PostMapping("/confirmForgotPasswordToken")
     public ResponseEntity confirmForgotPasswordToken(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
-            System.out.println("------------------------------------------------------Reset password ----------------------------------------------------");
-            System.out.println("Reset password 1-----------" + user);
+            logger.info("------------------------------------------------------ Reset password Start ----------------------------------------------------");
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getEmailId(), user.getToken());
-            System.out.println("Reset password 2-----------" + fpt);
-            auditLogger.info("Confirm forgot password has been triggered for Username:" + user.getUsername(), request.getRemoteAddr());
+            auditLogger.info("Confirm forgot password has been triggered for EmailId:" + user.getEmailId() + " with ForgotPasswordToken:" + fpt, request.getRemoteAddr());
             if (fpt.isValidForTriggering()) {
-                System.out.println("Reset password inside if-----------" + fpt);
-                this.userService.updateTriggeredDateForForgotPasswordToken(user.getEmailId(), user.getToken());
+                logger.info("fpt.isValidForTriggering()=true");
                 auditLogger.info("Token is valid and reset can proceed");
+                this.userService.updateTriggeredDateForForgotPasswordToken(user.getEmailId(), user.getToken());
                 return new ResponseEntity(HttpStatus.OK);
             } else {
-                System.out.println("Reset password inside else-----------" + fpt);
-                this.userService.updateCompletionDateForForgotPasswordToken(user.getEmailId(), user.getToken());
+                logger.info("fpt.isValidForTriggering()=true");
                 auditLogger.info("Token is not valid or has expired");
+                this.userService.updateCompletionDateForForgotPasswordToken(user.getEmailId(), user.getToken());
                 return new ResponseEntity(new ResponseCode(fpt.inValidReasonForTriggering()), HttpStatus.FORBIDDEN);
             }
         } catch (Exception e) {
@@ -402,30 +400,28 @@ public class UserRestController {
     }
 
     @PostMapping("/updatePassword")
-    public ResponseEntity updatePaassword(@RequestBody EmailUser user, HttpServletRequest request) {
+    public ResponseEntity updatePassword(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
-            System.out.println("Reset update password---" + user);
-            auditLogger.info("Update password triggered for Username: " + user.getUsername(), request.getRemoteAddr());
+            auditLogger.info("Update password triggered for Email: " + user.getEmailId(), request.getRemoteAddr());
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getEmailId(), user.getToken());
-            System.out.println("fpt---" + fpt);
+            logger.info("ForgotPasswordToken is " + fpt);
             if (fpt.isValidForCompletion()) {
-                System.out.println("Inside main if");
+                logger.info("fpt.isValidForCompletion()=true");
                 // Go ahead and reset the password
                 CustomUserDetails curUser = this.userService.getCustomUserByEmailId(user.getEmailId());
-                System.out.println("cur user---" + curUser);
+                logger.info("Current userL " + curUser);
                 BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
                 if (bcrypt.matches(user.getPassword(), curUser.getPassword())) {
-                    System.out.println("Bcrypt password matched");
                     auditLogger.info("Failed to reset the password because New password is same as current password");
                     return new ResponseEntity(new ResponseCode("static.message.user.previousPasswordSame"), HttpStatus.PRECONDITION_FAILED);
                 } else {
-                    System.out.println("inside sub else");
+                    logger.info("Password provided is valid and we can proceed");
                     this.userService.updatePassword(user.getEmailId(), user.getToken(), user.getHashPassword(), 90);
                     auditLogger.info("Password has now been updated successfully for Username: " + user.getUsername());
                     return new ResponseEntity(new ResponseCode("static.message.passwordSuccess"), HttpStatus.OK);
                 }
             } else {
-                System.out.println("inside main else");
+                logger.info("fpt.isValidForCompletion()=false");
                 auditLogger.info("Failed to reset the password invlaid Token");
                 return new ResponseEntity(new ResponseCode(fpt.inValidReasonForCompletion()), HttpStatus.FORBIDDEN);
             }
