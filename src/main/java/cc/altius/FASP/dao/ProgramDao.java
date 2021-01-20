@@ -72,4 +72,5 @@ public interface ProgramDao {
 
     public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int searchId, int programId, int planningUnitId);
 
+    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser);
 }
