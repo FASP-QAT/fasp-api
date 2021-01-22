@@ -57,6 +57,11 @@ public class EmailUser extends BasicUser {
         } else {
             return null;
         }
-        
     }
+
+    @Override
+    public String toString() {
+        return "EmailUser{" + "emailId=" + emailId + ", token=" + token + ", password=" + password + '}';
+    }
+    
 }
