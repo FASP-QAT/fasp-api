@@ -740,7 +740,7 @@ public class NewSupplyPlan implements Serializable {
             }
         }
 
-        if (unallocatedFEFO != 0 || unallocatedFEFOWps != 0) {
+        if (unallocatedFEFO < 0 || unallocatedFEFOWps < 0) {
             System.out.println("We need to create a new Batch for unallocatedFEFO:" + unallocatedFEFO + " PlanningUnitId:" + this.planningUnitId + " transDate:" + this.transDate);
             BatchData bdNew = new BatchData();
             bdNew.setBatchId(newBatchCounter);
@@ -748,12 +748,12 @@ public class NewSupplyPlan implements Serializable {
             bdNew.setExpiryDate(this.calculateExpiryDate(this.transDate));
             bdNew.setOpeningBalance(0);
             bdNew.setOpeningBalanceWps(0);
-            bdNew.setUnallocatedFEFO(unallocatedFEFO);
-            bdNew.setCalculatedFEFO(unallocatedFEFO);
-            bdNew.setUnallocatedFEFOWps(unallocatedFEFOWps);
-            bdNew.setCalculatedFEFOWps(unallocatedFEFOWps);
-            bdNew.setClosingBalance(0 - unallocatedFEFO);
-            bdNew.setClosingBalanceWps(0 - unallocatedFEFOWps);
+            bdNew.setUnallocatedFEFO(unallocatedFEFO < 0 ? unallocatedFEFO : 0);
+            bdNew.setCalculatedFEFO(unallocatedFEFO < 0 ? unallocatedFEFO : 0);
+            bdNew.setUnallocatedFEFOWps(unallocatedFEFOWps < 0 ? unallocatedFEFOWps : 0);
+            bdNew.setCalculatedFEFOWps(unallocatedFEFOWps < 0 ? unallocatedFEFOWps : 0);
+            bdNew.setClosingBalance(unallocatedFEFO < 0 ? 0 - unallocatedFEFO : 0);
+            bdNew.setClosingBalanceWps(unallocatedFEFOWps < 0 ? 0 - unallocatedFEFOWps : 0);
             bdNew.setAllRegionsReportedStock(this.isAllRegionsReportedStock());
             bdNew.setUseAdjustment(this.isUseAdjustment());
             this.batchDataList.add(bdNew);
