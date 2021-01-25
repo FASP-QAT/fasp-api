@@ -810,6 +810,14 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public int updateUserLanguageByEmailId(String emailId, String languageCode) {
+        String sql;
+        sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`EMAIL_ID`=?;";
+        int userId = this.jdbcTemplate.queryForObject(sql, Integer.class, emailId);
+        return this.updateUserLanguage(userId, languageCode);
+    }
+
+    @Override
     public int acceptUserAgreement(int userId) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sql = "UPDATE us_user u SET u.`AGREEMENT_ACCEPTED`=1,u.`LAST_LOGIN_DATE`=?,u.`LAST_MODIFIED_BY`=? WHERE u.`USER_ID`=?;";
@@ -850,7 +858,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public String getEmailByUserId(int userId) {
         String sql = "select u.EMAIL_ID from us_user u where u.USER_ID=?;";
-        return this.jdbcTemplate.queryForObject(sql,String.class ,userId);
+        return this.jdbcTemplate.queryForObject(sql, String.class, userId);
     }
 
 }

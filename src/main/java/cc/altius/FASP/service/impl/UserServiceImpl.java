@@ -231,6 +231,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public int updateUserLanguageByEmailId(String emailId, String languageCode) {
+        return this.userDao.updateUserLanguageByEmailId(emailId, languageCode);
+    }
+
+    @Override
     public int acceptUserAgreement(int userId) {
         return this.userDao.acceptUserAgreement(userId);
     }
