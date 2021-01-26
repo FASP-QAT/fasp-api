@@ -557,12 +557,13 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "includePlannedShipments":1}
+     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":[], "reportView":1}
      * -- Only Month and Year will be considered for StartDate and StopDate
      * -- Only a single ProgramId can be selected
      * -- VersionId can be a valid Version Id for the Program or -1 for last submitted VersionId
      * -- PlanningUnitIds is the list of Planning Units you want to run the report for.
      * -- Empty PlanningUnitIds means you want to run the report for all the Planning Units in that Program
+     * -- Report view 1 = Planning Units, 2 = Forecasting Units
      * </pre>
      *
      * @param sd
