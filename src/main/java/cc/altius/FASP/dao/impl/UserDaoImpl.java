@@ -693,6 +693,7 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public ForgotPasswordToken getForgotPasswordToken(String emailId, String token) {
+        logger.info("Reset password get forgot password token---getForgotPasswordToken---" + emailId + ", token---" + token);
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
         params.put("token", token);
@@ -700,21 +701,26 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public void updateTriggeredDateForForgotPasswordToken(String username, String token) {
-        Map<String, Object> params = new HashMap<>();
-        params.put("username", username);
-        params.put("token", token);
-        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_TRIGGERED_DATE=:curDate WHERE LOWER(u.EMAIL_ID)=LOWER(:username) AND fpt.TOKEN=:token", params);
-    }
-
-    @Override
-    public void updateCompletionDateForForgotPasswordToken(String emailId, String token) {
+    public void updateTriggeredDateForForgotPasswordToken(String emailId, String token) {
         Map<String, Object> params = new HashMap<>();
         params.put("emailId", emailId);
         params.put("token", token);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_COMPLETION_DATE=:curDate WHERE LOWER(u.EMAIL_ID)=LOWER(:emailId) AND fpt.TOKEN=:token", params);
+        logger.info("Going to update the TokenTriggeredDate for EmailId:" + emailId + ", token:" + token);
+        int rowsUpdated = this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_TRIGGERED_DATE=:curDate WHERE LOWER(u.EMAIL_ID)=LOWER(:emailId) AND fpt.TOKEN=:token", params);
+        logger.info(rowsUpdated + " rows updated for the TokenTriggeredDate for EmailId:" + emailId + ", token:" + token);
+    }
+
+    @Override
+    public void updateCompletionDateForForgotPasswordToken(String emailId, String token) {
+        logger.info("Reset password updateCompletionDateForForgotPasswordToken---Email id---" + emailId + ", token---" + token);
+        Map<String, Object> params = new HashMap<>();
+        params.put("emailId", emailId);
+        params.put("token", token);
+        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
+        logger.info("Going to update the TokenCompletionDate for EmailId:" + emailId + ", token:" + token);
+        int rowsUpdated = this.namedParameterJdbcTemplate.update("UPDATE us_forgot_password_token fpt LEFT JOIN us_user u ON fpt.USER_ID=u.USER_ID SET fpt.TOKEN_COMPLETION_DATE=COALESCE(fpt.TOKEN_COMPLETION_DATE,:curDate) WHERE LOWER(u.EMAIL_ID)=LOWER(:emailId) AND fpt.TOKEN=:token", params);
+        logger.info(rowsUpdated + " rows updated for the TokenCompletionDate for EmailId:" + emailId + ", token:" + token);
     }
 
     @Override
@@ -804,6 +810,14 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
+    public int updateUserLanguageByEmailId(String emailId, String languageCode) {
+        String sql;
+        sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`EMAIL_ID`=?;";
+        int userId = this.jdbcTemplate.queryForObject(sql, Integer.class, emailId);
+        return this.updateUserLanguage(userId, languageCode);
+    }
+
+    @Override
     public int acceptUserAgreement(int userId) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sql = "UPDATE us_user u SET u.`AGREEMENT_ACCEPTED`=1,u.`LAST_LOGIN_DATE`=?,u.`LAST_MODIFIED_BY`=? WHERE u.`USER_ID`=?;";
@@ -844,7 +858,7 @@ public class UserDaoImpl implements UserDao {
     @Override
     public String getEmailByUserId(int userId) {
         String sql = "select u.EMAIL_ID from us_user u where u.USER_ID=?;";
-        return this.jdbcTemplate.queryForObject(sql,String.class ,userId);
+        return this.jdbcTemplate.queryForObject(sql, String.class, userId);
     }
 
 }
