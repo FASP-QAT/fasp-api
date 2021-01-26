@@ -67,6 +67,10 @@ public class JwtAuthenticationRestController {
             logger.info("JWT Token generated successfully for Username: " + authenticationRequest.getUsername());
             this.userService.resetFailedAttemptsByUsername(authenticationRequest.getUsername());
             this.userService.updateSuncExpiresOn(authenticationRequest.getUsername());
+            logger.info("Langage changed flag---: " + authenticationRequest.isLanguageChanged());
+            if (authenticationRequest.isLanguageChanged()) {
+                this.userService.updateUserLanguageByEmailId(authenticationRequest.getUsername(), authenticationRequest.getLanguageCode());
+            }
         } catch (BadCredentialsException e) {
             this.userService.updateFailedAttemptsByUserId(authenticationRequest.getUsername());
             logger.info("JWT Token generation failed because of BadCredentials for Username: " + authenticationRequest.getUsername());
