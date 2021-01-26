@@ -28,7 +28,7 @@ UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Remova todas as reme
 
 
 USE `fasp`;
-DROP procedure IF EXISTS `procurementAgentShipmentReport`;
+DROP PROCEDURE IF EXISTS `procurementAgentShipmentReport`;
 
 DELIMITER $$
 USE `fasp`$$
@@ -101,7 +101,7 @@ DELIMITER ;
 
 
 USE `fasp`;
-DROP procedure IF EXISTS `fundingSourceShipmentReport`;
+DROP PROCEDURE IF EXISTS `fundingSourceShipmentReport`;
 
 DELIMITER $$
 USE `fasp`$$
@@ -173,7 +173,11 @@ END$$
 DELIMITER ;
 
 
+USE `fasp`;
+DROP PROCEDURE IF EXISTS `aggregateShipmentByProduct`;
 
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `aggregateShipmentByProduct`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT, VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT)
 BEGIN
 	
@@ -231,4 +235,6 @@ BEGIN
     
     PREPARE s1 FROM @sqlString;
     EXECUTE s1;
-END
+END$$
+
+DELIMITER ;
