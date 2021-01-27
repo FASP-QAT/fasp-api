@@ -218,7 +218,7 @@ public class ReportDaoImpl implements ReportDao {
         return this.namedParameterJdbcTemplate.query(sql, params, new InventoryTurnsOutputRowMapper());
     }
 
-    // Report no 10
+    // Report no 11
     @Override
     public List<ExpiredStockOutput> getExpiredStock(ExpiredStockInput es, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
