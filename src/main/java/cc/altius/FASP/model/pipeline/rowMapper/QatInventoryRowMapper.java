@@ -14,7 +14,7 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author altius
  */
-public class QatInventoryRowMapper implements RowMapper<QatTempInventory>{
+public class QatInventoryRowMapper implements RowMapper<QatTempInventory> {
 
     @Override
     public QatTempInventory mapRow(ResultSet rs, int arg1) throws SQLException {
@@ -22,7 +22,13 @@ public class QatInventoryRowMapper implements RowMapper<QatTempInventory>{
         i.setDataSourceId(rs.getString("DATA_SOURCE_ID"));
         i.setInventoryDate(rs.getString("INVENTORY_DATE"));
         i.setInventory(rs.getLong("ACTUAL_QTY"));
+        if (rs.wasNull()) {
+            i.setInventory(null);
+        }
         i.setManualAdjustment(rs.getLong("ADJUSTMENT_QTY"));
+        if (rs.wasNull()) {
+            i.setManualAdjustment(null);
+        }
         i.setNotes(rs.getString("NOTES"));
         i.setPlanningUnitId(rs.getString("PLANNING_UNIT_ID"));
         i.setRegionId(rs.getString("REGION_ID"));
@@ -30,5 +36,5 @@ public class QatInventoryRowMapper implements RowMapper<QatTempInventory>{
         i.setMultiplier(rs.getDouble("MULTIPLIER"));
         return i;
     }
-    
+
 }
