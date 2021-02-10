@@ -85,17 +85,20 @@
     
     <logger name="org.springframework" level="info" additivity="false">
         <appender-ref ref="RootFile" />
+        <appender-ref ref="RootConsole" />
         <!--<appender-ref ref="SpringBootFile" />-->
     </logger>
     
     <!-- LOG "cc.altius.sb*" at INFO level -->
     <logger name="cc.altius.FASP" level="debug" additivity="false">
         <appender-ref ref="RootFile" />
+        <appender-ref ref="RootConsole" />
         <appender-ref ref="SpringBootFile" />
     </logger>
     
     <!-- LOG "cc.altius.FASP.web.controller.UserController" at INFO level -->
     <logger name="cc.altius.FASP.web.controller.UserController" level="info" additivity="false">
+        <appender-ref ref="RootConsole" />
         <!--<appender-ref ref="SpringBootDb" />-->
         <!--<appender-ref ref="SpringBootFile" />-->
         <appender-ref ref="RootFile" />
@@ -105,6 +108,7 @@
         <!--<appender-ref ref="SpringBootDb" />-->
         <appender-ref ref="ARTMISFile" />
         <appender-ref ref="RootFile" />
+        <appender-ref ref="RootConsole" />
     </logger>
     
 </configuration>
