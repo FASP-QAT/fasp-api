@@ -10,8 +10,11 @@ import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Unit;
 import cc.altius.FASP.service.UnitService;
 import cc.altius.FASP.service.UserService;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/unit")
 public class UnitRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -43,8 +46,68 @@ public class UnitRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/unit")
-    public ResponseEntity postUnit(@RequestBody Unit unit, Authentication auth) {
+    /**
+     * API used to get the complete Unit list.
+     *
+     * @param auth
+     * @return returns the complete list of Units
+     */
+    @GetMapping("/")
+    @Operation(description = "API used to get the complete Unit list.", summary = "Get Unit list", tags = ("unit"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Unit list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Unit list")
+    public ResponseEntity getUnit(Authentication auth) {
+        try {
+            return new ResponseEntity(this.unitService.getUnitList(), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Unit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    /**
+     * API used to get the Unit for a specific UnitId
+     *
+     * @param unitId UnitId that you want the Unit
+     * Object for
+     * @param auth
+     * @return returns the Unit object based on
+     * UnitId specified
+     */
+    @GetMapping(value = "/{unitId}")
+    @Operation(description = "API used to get the Unit for a specific UnitId", summary = "Get Unit for a UnitId", tags = ("unit"))
+    @Parameters(
+            @Parameter(name = "unitId", description = "UnitId that you want to the Unit for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Unit")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the UnitId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Unit")
+    public ResponseEntity getUnit(@PathVariable("unitId") int unitId, Authentication auth) {
+        try {
+            return new ResponseEntity(this.unitService.getUnitById(unitId), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list Unit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Unit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    /**
+     * API used to add a Unit
+     *
+     * @param unit Unit object that you want to add
+     * @param auth
+     * @return returns a Success code if the operation was successful
+     */
+    @PostMapping(value = "/")
+    @Operation(description = "API used to add a Unit", summary = "Add Unit", tags = ("unit"))
+    @Parameters(
+            @Parameter(name = "unit", description = "The Unit object that you want to add"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not unique")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    public ResponseEntity addUnit(@RequestBody Unit unit, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.unitService.addUnit(unit, curUser);
@@ -58,8 +121,21 @@ public class UnitRestController {
         }
     }
 
-    @PutMapping(path = "/unit")
-    public ResponseEntity putUnit(@RequestBody Unit unit, Authentication auth) {
+    /**
+     * API used to update a Unit
+     *
+     * @param unit Unit object that you want to update
+     * @param auth
+     * @return returns a Success code if the operation was successful
+     */
+    @PutMapping(path = "/")
+    @Operation(description = "API used to update a Unit", summary = "Update Unit", tags = ("unit"))
+    @Parameters(
+            @Parameter(name = "unit", description = "The Unit object that you want to update"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not unique")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    public ResponseEntity updateUnit(@RequestBody Unit unit, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.unitService.updateUnit(unit, curUser);
@@ -70,44 +146,6 @@ public class UnitRestController {
         } catch (Exception e) {
             logger.error("Error while trying to add Unit", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/unit")
-    public ResponseEntity getUnit(Authentication auth) {
-        try {
-            return new ResponseEntity(this.unitService.getUnitList(), HttpStatus.OK);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Unit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/unit/{unitId}")
-    public ResponseEntity getUnit(@PathVariable("unitId") int unitId, Authentication auth) {
-        try {
-            return new ResponseEntity(this.unitService.getUnitById(unitId), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to list Unit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logger.error("Error while trying to list Unit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping(value = "/sync/unit/{lastSyncDate}")
-    public ResponseEntity getUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.parse(lastSyncDate);
-            return new ResponseEntity(this.unitService.getUnitListForSync(lastSyncDate), HttpStatus.OK);
-        } catch (ParseException p) {
-            logger.error("Error while listing unit", p);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-        } catch (Exception e) {
-            logger.error("Error while listing unit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

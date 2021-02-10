@@ -37,22 +37,6 @@ public class ShipmentStatusRestController {
     @Autowired
     private UserService userService;
 
-    @GetMapping(value = "/sync/shipmentStatus/{lastSyncDate}")
-    public ResponseEntity getShipmentStatusListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.shipmentStatusService.getShipmentStatusListForSync(lastSyncDate, curUser), HttpStatus.OK);
-        } catch (ParseException p) {
-            logger.error("Error while listing Shipment status", p);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-        } catch (Exception e) {
-            logger.error("Error while listing Shipment status", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping(value = "/getShipmentStatusListActive")
     public ResponseEntity getShipmentStatusListActive(Authentication auth) {
         try {

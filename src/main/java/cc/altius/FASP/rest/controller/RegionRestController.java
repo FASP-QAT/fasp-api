@@ -10,8 +10,11 @@ import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.RegionService;
 import cc.altius.FASP.service.UserService;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +37,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/region")
 public class RegionRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -44,42 +47,17 @@ public class RegionRestController {
     @Autowired
     private UserService userService;
 
-//    @PostMapping(value = "/region")
-//    public ResponseEntity addRegion(@RequestBody Region region, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            this.regionService.addRegion(region, curUser);
-//            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
-//        } catch (AccessDeniedException e) {
-//            logger.error("Error while trying to add Region", e);
-//            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
-//        } catch (DuplicateKeyException e) {
-//            logger.error("Error while trying to add Region", e);
-//            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to add Region", e);
-//            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-    @PutMapping(path = "/region")
-    public ResponseEntity putRegion(@RequestBody Region[] regions, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            this.regionService.saveRegions(regions, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to update Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
-        } catch (DuplicateKeyException e) {
-            logger.error("Error while trying to update Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
-        } catch (Exception e) {
-            logger.error("Error while trying to update Region", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/region")
+    /**
+     * API used to get the complete Region list.
+     *
+     * @param auth
+     * @return returns the complete list of Regions
+     */
+    @GetMapping("/")
+    @Operation(description = "API used to get the complete Region list.", summary = "Get Region list", tags = ("region"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Region list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Region list")
     public ResponseEntity getRegion(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -93,8 +71,24 @@ public class RegionRestController {
         }
     }
 
-    @GetMapping("/region/{regionId}")
-    public ResponseEntity getRegion(@PathVariable("regionId") int regionId, Authentication auth) {
+    /**
+     * API used to get the Region for a specific RegionId
+     *
+     * @param regionId RegionId that you want the Region
+     * Object for
+     * @param auth
+     * @return returns the Region object based on
+     * RegionId specified
+     */
+    @GetMapping(value = "/{regionId}")
+    @Operation(description = "API used to get the Region for a specific RegionId", summary = "Get Region for a RegionId", tags = ("region"))
+    @Parameters(
+            @Parameter(name = "regionId", description = "RegionId that you want to the Region for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Region")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the RegionId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Region")
+    public ResponseEntity getRegionById(@PathVariable("regionId") int regionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.regionService.getRegionById(regionId, curUser), HttpStatus.OK);
@@ -110,7 +104,21 @@ public class RegionRestController {
         }
     }
 
-    @GetMapping("/region/realmCountryId/{realmCountryId}")
+    /**
+     * API used to get the Region list for a RealmCountry
+     *
+     * @param realmCountryId RealmCountryId that you want the Region List from
+     * @param auth
+     * @return returns the complete list of Regions
+     */
+    @GetMapping("/realmCountryId/{realmCountryId}")
+    @Operation(description = "API used to get the complete Region list for a RealmCountry", summary = "Get Region list for a RealmCountry", tags = ("region"))
+    @Parameters(
+            @Parameter(name = "realmCountryId", description = "RealmCountryId that you want the Region list for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Region list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the RealmId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Region list")
     public ResponseEntity getRegionByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -127,19 +135,35 @@ public class RegionRestController {
         }
     }
 
-    @GetMapping(value = "/sync/region/{lastSyncDate}")
-    public ResponseEntity getRegionListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+    /**
+     * API used to update Regions
+     *
+     * @param regions Array of Regions that you want to update
+     * @param auth
+     * @return returns a Success code if the operation was successful
+     */
+    @PutMapping(path = "/")
+    @Operation(description = "API used to update a Region", summary = "Update Region", tags = ("region"))
+    @Parameters(
+            @Parameter(name = "regions", description = "The array of Regions that you want to update"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not unique")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    public ResponseEntity putRegion(@RequestBody Region[] regions, Authentication auth) {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.parse(lastSyncDate);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.regionService.getRegionListForSync(lastSyncDate, curUser), HttpStatus.OK);
-        } catch (ParseException p) {
-            logger.error("Error while listing region", p);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+            this.regionService.saveRegions(regions, curUser);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to update Region", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (DuplicateKeyException e) {
+            logger.error("Error while trying to update Region", e);
+            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
-            logger.error("Error while listing region", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.error("Error while trying to update Region", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

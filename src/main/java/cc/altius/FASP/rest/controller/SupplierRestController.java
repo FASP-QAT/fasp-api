@@ -25,8 +25,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import cc.altius.FASP.service.SupplierService;
 import cc.altius.FASP.service.UserService;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 
 /**
  *
@@ -43,37 +46,16 @@ public class SupplierRestController {
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/supplier")
-    public ResponseEntity postSupplier(@RequestBody Supplier supplier, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            this.supplierService.addSupplier(supplier, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
-        } catch (AccessDeniedException ae) {
-            logger.error("Error while trying to add Supplier", ae);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to add Supplier", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @PutMapping(path = "/supplier")
-    public ResponseEntity putSupplier(@RequestBody Supplier supplier, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            this.supplierService.updateSupplier(supplier, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
-        } catch (AccessDeniedException ae) {
-            logger.error("Error while trying to add Supplier", ae);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to add Supplier", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/supplier")
+    /**
+     * API used to get the complete Supplier list.
+     *
+     * @param auth
+     * @return returns the complete list of Suppliers
+     */
+    @GetMapping("/")
+    @Operation(description = "API used to get the complete Supplier list.", summary = "Get Supplier list", tags = ("supplier"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Supplier list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Supplier list")
     public ResponseEntity getSupplier(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -84,7 +66,23 @@ public class SupplierRestController {
         }
     }
 
-    @GetMapping("/supplier/{supplierId}")
+    /**
+     * API used to get the Supplier for a specific SupplierId
+     *
+     * @param supplierId SupplierId that you want the Supplier
+     * Object for
+     * @param auth
+     * @return returns the Supplier object based on
+     * SupplierId specified
+     */
+    @GetMapping(value = "/{supplierId}")
+    @Operation(description = "API used to get the Supplier for a specific SupplierId", summary = "Get Supplier for a SupplierId", tags = ("supplier"))
+    @Parameters(
+            @Parameter(name = "supplierId", description = "SupplierId that you want to the Supplier for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Supplier")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the SupplierId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Supplier")
     public ResponseEntity getSupplier(@PathVariable("supplierId") int supplierId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -101,7 +99,21 @@ public class SupplierRestController {
         }
     }
 
-    @GetMapping("/supplier/realmId/{realmId}")
+    /**
+     * API used to get the Supplier list for a Realm
+     *
+     * @param realmId RealmId that you want the Supplier List from
+     * @param auth
+     * @return returns the complete list of Suppliers
+     */
+    @GetMapping("/realmId/{realmId}")
+    @Operation(description = "API used to get the complete Supplier list for a Realm", summary = "Get Supplier list for Realm", tags = ("supplier"))
+    @Parameters(
+            @Parameter(name = "realmId", description = "RealmId that you want the Supplier list for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Supplier list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the RealmId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Supplier list")
     public ResponseEntity getSupplierForRealm(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -118,19 +130,60 @@ public class SupplierRestController {
         }
     }
 
-    @GetMapping(value = "/sync/supplier/{lastSyncDate}")
-    public ResponseEntity getSupplierListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+    /**
+     * API used to add a Supplier
+     *
+     * @param supplier Supplier object that you want to add
+     * @param auth
+     * @return returns a Success code if the operation was successful
+     */
+    @PostMapping(value = "/")
+    @Operation(description = "API used to add a Supplier", summary = "Add Supplier", tags = ("supplier"))
+    @Parameters(
+            @Parameter(name = "supplier", description = "The Supplier object that you want to add"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    public ResponseEntity addSupplier(@RequestBody Supplier supplier, Authentication auth) {
         try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.parse(lastSyncDate);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.supplierService.getSupplierListForSync(lastSyncDate, curUser), HttpStatus.OK);
-        } catch (ParseException p) {
-            logger.error("Error while listing supplier", p);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+            this.supplierService.addSupplier(supplier, curUser);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to add Supplier", ae);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            logger.error("Error while listing supplier", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            logger.error("Error while trying to add Supplier", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    /**
+     * API used to update Suppliers
+     *
+     * @param supplier Object of Supplier that you want to update
+     * @param auth
+     * @return returns a Success code if the operation was successful
+     */
+    @PutMapping(path = "/")
+    @Operation(description = "API used to update a Supplier", summary = "Update Supplier", tags = ("supplier"))
+    @Parameters(
+            @Parameter(name = "supplier", description = "The Supplier object that you want to update"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    public ResponseEntity updateSupplier(@RequestBody Supplier supplier, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            this.supplierService.updateSupplier(supplier, curUser);
+            return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to add Supplier", ae);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to add Supplier", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 }

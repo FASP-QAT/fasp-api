@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,7 +32,7 @@ public class LabelController {
     @Autowired
     private LabelService labelService;
 
-    @RequestMapping(value = "/getDatabaseLabelsListAll")
+    @GetMapping(value = "/getDatabaseLabelsListAll")
     public ResponseEntity getDatabaseLabelsList(Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
@@ -43,7 +43,7 @@ public class LabelController {
         }
 
     }
-    @RequestMapping(value = "/getStaticLabelsListAll")
+    @GetMapping(value = "/getStaticLabelsListAll")
     public ResponseEntity getStaticLabelsList() {
         try {
             return new ResponseEntity(this.labelService.getStaticLabelsList(), HttpStatus.OK);

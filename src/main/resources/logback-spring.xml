@@ -81,16 +81,19 @@
    
     <logger name="com.zaxxer.hikari" level="error" additivity="false">
         <appender-ref ref="RootFile" />
+        <appender-ref ref="RootConsole" />
     </logger>
     
     <logger name="org.springframework" level="info" additivity="false">
         <appender-ref ref="RootFile" />
+        <appender-ref ref="RootConsole" />
         <!--<appender-ref ref="SpringBootFile" />-->
     </logger>
     
     <!-- LOG "cc.altius.sb*" at INFO level -->
     <logger name="cc.altius.FASP" level="debug" additivity="false">
         <appender-ref ref="RootFile" />
+        <appender-ref ref="RootConsole" />
         <appender-ref ref="SpringBootFile" />
     </logger>
     
@@ -99,12 +102,14 @@
         <!--<appender-ref ref="SpringBootDb" />-->
         <!--<appender-ref ref="SpringBootFile" />-->
         <appender-ref ref="RootFile" />
+        <appender-ref ref="RootConsole" />
     </logger>
     
     <logger name="cc.altius.FASP.ARTMIS" level="info" additivity="false">
         <!--<appender-ref ref="SpringBootDb" />-->
         <appender-ref ref="ARTMISFile" />
         <appender-ref ref="RootFile" />
+        <appender-ref ref="RootConsole" />
     </logger>
     
 </configuration>

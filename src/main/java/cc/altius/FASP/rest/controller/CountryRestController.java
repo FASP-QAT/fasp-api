@@ -10,8 +10,11 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.CountryService;
 import cc.altius.FASP.service.UserService;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/country")
 public class CountryRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -42,7 +45,17 @@ public class CountryRestController {
     @Autowired
     private UserService userService;
 
-    @GetMapping(value = "/country")
+    /**
+     * API used to get the complete Country list. Will only return those
+     * Countries that are marked Active.
+     *
+     * @param auth
+     * @return returns the complete list of active Countries
+     */
+    @GetMapping("/")
+    @Operation(description = "API used to get the complete Country list. Will only return those Countries that are marked Active.", summary = "Get active Country list", tags = ("country"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Country list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Country list")
     public ResponseEntity getCountryList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -53,7 +66,16 @@ public class CountryRestController {
         }
     }
 
-    @GetMapping(value = "/country/all")
+    /**
+     * API used to get the complete Country list. 
+     *
+     * @param auth
+     * @return returns the complete list of Countries
+     */
+    @GetMapping("/all")
+    @Operation(description = "API used to get the complete Country list.", summary = "Get Country list", tags = ("country"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Country list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Country list")
     public ResponseEntity getCountryListAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -64,7 +86,20 @@ public class CountryRestController {
         }
     }
 
-    @GetMapping(value = "/country/{countryId}")
+    /**
+     * API used to get the Country for a specific CountryId
+     *
+     * @param countryId CountryId that you want the Country Object for
+     * @param auth
+     * @return returns the list the Country object based on CountryId specified
+     */
+    @GetMapping(value = "/{countryId}")
+    @Operation(description = "API used to get the Country for a specific CountryId", summary = "Get Country for a CountryId", tags = ("country"))
+    @Parameters(
+            @Parameter(name = "countryId", description = "CountryId that you want to the Country for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Country")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the CountryId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Country")
     public ResponseEntity getCountryById(@PathVariable("countryId") int countryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -78,7 +113,20 @@ public class CountryRestController {
         }
     }
 
-    @PostMapping(value = "/country")
+    /**
+     * API used to add a Country
+     *
+     * @param country Country object that you want to add
+     * @param auth
+     * @return returns a Success code if the operation was successful
+     */
+    @PostMapping(value = "/")
+    @Operation(description = "API used to add a Country", summary = "Add Country", tags = ("country"))
+    @Parameters(
+            @Parameter(name = "country", description = "The Country object that you want to add"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the Country Code supplied is not unique")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity addCountry(@RequestBody(required = true) Country country, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -99,8 +147,21 @@ public class CountryRestController {
 
     }
 
-    @PutMapping(value = "/country")
-    public ResponseEntity editCountry(@RequestBody(required = true) Country country, Authentication auth) {
+    /**
+     * API used to update a Country
+     *
+     * @param country Country object that you want to update
+     * @param auth
+     * @return returns a Success code if the operation was successful
+     */
+    @PutMapping(path = "/")
+    @Operation(description = "API used to update a Country", summary = "Update Country", tags = ("country"))
+    @Parameters(
+            @Parameter(name = "country", description = "The Country object that you want to update"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the CountryCode supplied is not unique")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    public ResponseEntity updateCountry(@RequestBody(required = true) Country country, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             int updatedId = this.countryService.updateCountry(country, curUser);
@@ -119,18 +180,4 @@ public class CountryRestController {
         }
     }
 
-    @GetMapping(value = "/sync/country/{lastSyncDate}")
-    public ResponseEntity getCountryListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.parse(lastSyncDate);
-            return new ResponseEntity(this.countryService.getCountryListForSync(lastSyncDate), HttpStatus.OK);
-        } catch (ParseException p) {
-            logger.error("Error while listing country", p);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-        } catch (Exception e) {
-            logger.error("Error while listing country", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
 }

@@ -5,6 +5,11 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -42,10 +47,20 @@ public class FileController {
     private String ADJUSTMENT_DATA_ENTRY_TEMPLATE;
     @Value("${qat.shipmentDataEntryTemplate}")
     private String SHIPMENT_DATA_ENTRY_TEMPLATE;
-    
 
+    /**
+     *
+     * @param fileName Name of file that the user wants to get from the Server
+     * @return Returns the byte array of the file that was requested
+     * @throws FileNotFoundException if the file was not found
+     * @throws IOException if there was an error in reading the file from the
+     * server
+     */
+    @Operation(description = "Returns the byte stream of the file that was requested", summary = "Get file from Server", tags = ("File"))
+    @Parameters(@Parameter(name = "fileName", description = "Name of file that the user wants to get from the Server"))
+    @ApiResponse(content = @Content(mediaType = "application/octet-stream"), responseCode = "200", description = "Returns the byte array of the file that was requested")
     @GetMapping("/file/{fileName}")
-    public byte[] getFile(@PathVariable("fileName") String fileName, HttpServletResponse response, Authentication auth) throws FileNotFoundException, IOException {
+    public byte[] getFile(@PathVariable(name = "fileName") String fileName, HttpServletResponse response, Authentication auth) throws FileNotFoundException, IOException {
         FileInputStream fin = null;
         switch (fileName) {
             case "qatUserGuide":
@@ -77,7 +92,7 @@ public class FileController {
                 response.setHeader("Content-Disposition", "attachment;filename=" + INVENTORY_DATA_ENTRY_TEMPLATE);
                 response.setStatus(HttpServletResponse.SC_OK);
                 fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + INVENTORY_DATA_ENTRY_TEMPLATE));
-                break;    
+                break;
             case "adjustmentsDataEntryTemplate":
                 response.setContentType("application/pdf");
                 response.setHeader("Content-Disposition", "attachment;filename=" + ADJUSTMENT_DATA_ENTRY_TEMPLATE);
@@ -89,7 +104,7 @@ public class FileController {
                 response.setHeader("Content-Disposition", "attachment;filename=" + SHIPMENT_DATA_ENTRY_TEMPLATE);
                 response.setStatus(HttpServletResponse.SC_OK);
                 fin = new FileInputStream(new File(QAT_FILE_PATH + QAT_ADDITIONAL_FILES + SHIPMENT_DATA_ENTRY_TEMPLATE));
-                break;    
+                break;
         }
         return IOUtils.toByteArray(fin);
     }
