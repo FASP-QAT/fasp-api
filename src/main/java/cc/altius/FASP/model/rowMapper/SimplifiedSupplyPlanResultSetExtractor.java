@@ -25,6 +25,7 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
         List<SimplifiedSupplyPlan> spList = new LinkedList<>();
         while (rs.next()) {
             SimplifiedSupplyPlan sp = new SimplifiedSupplyPlan(rs.getInt("SUPPLY_PLAN_ID"), rs.getInt("PROGRAM_ID"), rs.getInt("VERSION_ID"), rs.getInt("PLANNING_UNIT_ID"), rs.getString("TRANS_DATE"));
+            sp.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
             int idx = spList.indexOf(sp);
             if (idx == -1) {
                 sp.setOpeningBalance(rs.getLong("OPENING_BALANCE"));
