@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/dashboard")
 public class DashboardRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -35,7 +35,7 @@ public class DashboardRestController {
     private UserService userService;
     
 
-    @GetMapping(value = "/applicationLevelDashboard")
+    @GetMapping(value = "/application")
     public ResponseEntity applicationLevelDashboard(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -46,7 +46,7 @@ public class DashboardRestController {
         }
     }
 
-    @GetMapping(value = "/realmLevelDashboard/{realmId}")
+    @GetMapping(value = "/realmId/{realmId}")
     public ResponseEntity realmLevelDashboard(@PathVariable("realmId") int realmId,Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -57,7 +57,7 @@ public class DashboardRestController {
         }
     }
 
-    @GetMapping(value = "/applicationLevelDashboardUserList")
+    @GetMapping(value = "/application/user")
     public ResponseEntity applicationLevelDashboardUserList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -68,7 +68,7 @@ public class DashboardRestController {
         }
     }
 
-    @GetMapping(value = "/realmLevelDashboardUserList/{realmId}")
+    @GetMapping(value = "/realmId/{realmId}/user")
     public ResponseEntity realmLevelDashboardUserList(@PathVariable("realmId") int realmId,Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

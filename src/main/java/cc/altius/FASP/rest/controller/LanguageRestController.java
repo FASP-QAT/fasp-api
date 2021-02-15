@@ -10,8 +10,11 @@ import cc.altius.FASP.model.Language;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.LanguageService;
 import cc.altius.FASP.service.UserService;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/language")
 public class LanguageRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -43,12 +46,16 @@ public class LanguageRestController {
     @Autowired
     private UserService userService;
 
-    @GetMapping("/locales/{languageCode}")
-    ResponseEntity getLanguageJson(@PathVariable("languageCode") String languageCode) {
-        return new ResponseEntity(this.languageService.getLanguageJsonForStaticLabels(languageCode), HttpStatus.OK);
-    }
-
-    @GetMapping(value = "/language")
+    /**
+     * API used to get the list of Languages. Returns only those Languages that are marked as Active
+     *
+     * @param auth
+     * @return returns the list of Languages
+     */
+    @GetMapping("/")
+    @Operation(description = "API used to get the Language list. Returns only those Languages that are marked as Active", summary = "Get Language list", tags = ("language"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Language list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Language list")
     public ResponseEntity getLanguageList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -59,7 +66,16 @@ public class LanguageRestController {
         }
     }
 
-    @GetMapping(value = "/language/all")
+    /**
+     * API used to get the complete Language list.
+     *
+     * @param auth
+     * @return returns the complete list of Languages
+     */
+    @GetMapping("/all")
+    @Operation(description = "API used to get the complete Language list.", summary = "Get Language list", tags = ("language"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Language list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Language list")
     public ResponseEntity getLanguageListAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -70,7 +86,20 @@ public class LanguageRestController {
         }
     }
 
-    @GetMapping(value = "/language/{languageId}")
+    /**
+     * API used to get the Language for a specific LanguageId
+     *
+     * @param languageId LanguageId that you want the Language Object for
+     * @param auth
+     * @return returns the Language object based on LanguageId specified
+     */
+    @GetMapping(value = "/{languageId}")
+    @Operation(description = "API used to get the Language for a specific LanguageId", summary = "Get Language for a LanguageId", tags = ("language"))
+    @Parameters(
+            @Parameter(name = "languageId", description = "LanguageId that you want to the Language for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Language")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the LanguageId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Language")
     public ResponseEntity getLanguageById(@PathVariable("languageId") int languageId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -84,7 +113,20 @@ public class LanguageRestController {
         }
     }
 
-    @PostMapping(value = "/language")
+    /**
+     * API used to add a Language
+     *
+     * @param language Language object that you want to add
+     * @param auth
+     * @return returns a Success code if the operation was successful
+     */
+    @PostMapping(value = "/")
+    @Operation(description = "API used to add a Language", summary = "Add Language", tags = ("language"))
+    @Parameters(
+            @Parameter(name = "language", description = "The Language object that you want to add"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not unique")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity addLanguage(@RequestBody(required = true) Language language, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -105,8 +147,22 @@ public class LanguageRestController {
 
     }
 
-    @PutMapping(value = "/language")
-    public ResponseEntity editLanguage(@RequestBody(required = true) Language language, Authentication auth) {
+    /**
+     * API used to update a Language
+     *
+     * @param language Language object that you want to update
+     * @param auth
+     * @return returns a Success code if the operation was successful
+     */
+    @PutMapping(path = "/")
+    @Operation(description = "API used to update a Language", summary = "Update Language", tags = ("language"))
+    @Parameters(
+            @Parameter(name = "language", description = "The Language object that you want to update"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not unique")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    public ResponseEntity updateLanguage(@RequestBody(required = true) Language language, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             int updatedId = this.languageService.editLanguage(language, curUser);
@@ -122,21 +178,6 @@ public class LanguageRestController {
         } catch (Exception e) {
             logger.error("Error while updating language", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping(value = "/sync/language/{lastSyncDate}")
-    public ResponseEntity getLanguageListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.parse(lastSyncDate);
-            return new ResponseEntity(this.languageService.getLanguageListForSync(lastSyncDate), HttpStatus.OK);
-        } catch (ParseException p) {
-            logger.error("Error while listing language", p);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-        } catch (Exception e) {
-            logger.error("Error while listing language", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

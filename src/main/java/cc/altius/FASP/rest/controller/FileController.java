@@ -56,7 +56,7 @@ public class FileController {
      * @throws IOException if there was an error in reading the file from the
      * server
      */
-    @Operation(description = "Returns the byte stream of the file that was requested", summary = "Get file from Server", tags = ("File"))
+    @Operation(description = "Returns the byte stream of the file that was requested", summary = "Get file from Server", tags = ("file"))
     @Parameters(@Parameter(name = "fileName", description = "Name of file that the user wants to get from the Server"))
     @ApiResponse(content = @Content(mediaType = "application/octet-stream"), responseCode = "200", description = "Returns the byte array of the file that was requested")
     @GetMapping("/file/{fileName}")

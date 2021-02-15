@@ -9,10 +9,12 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.JiraServiceDeskApiService;
 import cc.altius.FASP.service.UserService;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -30,29 +32,32 @@ import org.springframework.web.multipart.MultipartFile;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/jira")
 public class JiraServiceDeskApiController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    
 
     @Autowired
     private JiraServiceDeskApiService jiraServiceDeskApiService;
     @Autowired
     private UserService userService;
 
-    @PostMapping(value = "/ticket/addIssue")
+    @GetMapping("/syncJiraAccountIds")
+    public String syncUserJiraAccountId(HttpServletResponse response) throws FileNotFoundException, IOException {
+        return this.jiraServiceDeskApiService.syncUserJiraAccountId("");
+    }
+
+    @PostMapping(value = "/jira/addIssue")
     public ResponseEntity addIssue(@RequestBody(required = true) String jsonData, Authentication auth) {
-        try {            
+        try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             ResponseEntity<String> response;
             response = this.jiraServiceDeskApiService.addIssue(jsonData, curUser);
-            if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {                
+            if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
                 return new ResponseEntity(response.getBody(), HttpStatus.OK);
-            } else {                
+            } else {
                 return new ResponseEntity(response.getBody(), HttpStatus.INTERNAL_SERVER_ERROR);
-            }                        
-
+            }
         } catch (Exception e) {
             logger.error("Error while creating issue", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -60,10 +65,10 @@ public class JiraServiceDeskApiController {
 
     }
 
-    @PostMapping(value = "/ticket/addIssueAttachment/{issueId}")
+    @PostMapping(value = "/addIssueAttachment/{issueId}")
     public ResponseEntity addIssueAttachment(@RequestParam("file") MultipartFile file, @PathVariable("issueId") String issueId, Authentication auth) {
         String message = "";
-        try {            
+        try {
             ResponseEntity<String> response;
             response = this.jiraServiceDeskApiService.addIssueAttachment(file, issueId);
             if (response.getStatusCode() == HttpStatus.OK || response.getStatusCode() == HttpStatus.CREATED) {
@@ -73,23 +78,21 @@ public class JiraServiceDeskApiController {
                 message = "Could not upload the file: " + file.getOriginalFilename() + "!";
                 return new ResponseEntity(new ResponseCode(message), HttpStatus.INTERNAL_SERVER_ERROR);
             }
-
-        } catch (Exception e) {     
+        } catch (Exception e) {
             logger.error("Error while upload the file", e);
             message = "Could not upload the file: " + file.getOriginalFilename() + "!";
             return new ResponseEntity(new ResponseCode(message), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-    }     
-    
-    @GetMapping(value = "/ticket/openIssues")
+    }
+
+    @GetMapping(value = "/openIssues")
     public ResponseEntity getOpenIssue(Authentication auth) {
-        try {            
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());            
-            return new ResponseEntity(this.jiraServiceDeskApiService.getIssuesSummary(curUser), HttpStatus.OK);            
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.jiraServiceDeskApiService.getIssuesSummary(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while creating issue", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
-
     }
 }

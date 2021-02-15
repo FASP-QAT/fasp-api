@@ -54,7 +54,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
  * @author akil
  */
 @Controller
-@RequestMapping("/api")
+@RequestMapping("/api/sync")
 public class SyncRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -110,7 +110,7 @@ public class SyncRestController {
     @Autowired
     private UserService userService;
 
-    @GetMapping(value = "/sync/allMasters/{lastSyncDate}")
+    @GetMapping(value = "/allMasters/{lastSyncDate}")
     public ResponseEntity getAllMastersForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -171,7 +171,7 @@ public class SyncRestController {
         }
     }
 
-    @PostMapping(value = "/sync/allMasters/forPrograms/{lastSyncDate}")
+    @PostMapping(value = "/allMasters/forPrograms/{lastSyncDate}")
     public ResponseEntity getAllMastersForSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
