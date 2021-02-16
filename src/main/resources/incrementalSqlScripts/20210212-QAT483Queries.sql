@@ -100,6 +100,22 @@ truncate table rm_problem_report_trans;
 truncate table rm_problem_report;
 SET FOREIGN_KEY_CHECKS=1;
 
+update rm_realm_problem rrp set rrp.CRITICALITY_ID=2 where rrp.PROBLEM_ID=23;
+
 update rm_realm_problem rrp set rrp.LAST_MODIFIED_DATE=now();
 
 
+INSERT INTO `ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.qpl.noMonths','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No months');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pas de mois');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'No meses');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Sem meses');-- pr
+
+
+INSERT INTO `ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.qpl.notPresent','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'not present');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'pas présent');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'no presente');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'não presente');-- pr
