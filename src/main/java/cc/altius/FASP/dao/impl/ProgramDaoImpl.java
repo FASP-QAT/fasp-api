@@ -509,7 +509,7 @@ public class ProgramDaoImpl implements ProgramDao {
                     + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
                     + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID` "
                     + " LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                    + " WHERE e.`ERP_ORDER_ID` IN (SELECT MAX(e.`ERP_ORDER_ID`)  AS ERP_ORDER_ID FROM rm_erp_order e "
+                    + " WHERE e.`ERP_ORDER_ID` IN (SELECT MAX(a.`ERP_ORDER_ID`) FROM (SELECT MAX(e.`ERP_ORDER_ID`)  AS ERP_ORDER_ID,sm.`SHIPMENT_STATUS_ID` FROM rm_erp_order e "
                     + " LEFT JOIN rm_procurement_agent_planning_unit pu ON LEFT(pu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
                     + " AND pu.`PROCUREMENT_AGENT_ID`=1 "
                     + " LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
@@ -521,8 +521,11 @@ public class ProgramDaoImpl implements ProgramDao {
                     + " LEFT JOIN rm_program pm ON pm.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND pm.`PROGRAM_ID`=?                      "
                     + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS`"
                     + " LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                    + " WHERE e.RO_NO=? AND pu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` NOT IN (7,8) AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) "
-                    + " GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`) GROUP BY e.`ERP_ORDER_ID`; ";
+                    + " WHERE e.RO_NO=? AND pu.`PLANNING_UNIT_ID`=? "
+                    //                    + " AND sm.`SHIPMENT_STATUS_ID` NOT IN (7,8) "
+                    + " AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) "
+                    + " GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`)  a "
+                    + " WHERE a.SHIPMENT_STATUS_ID NOT IN (7,8) ) GROUP BY e.`ERP_ORDER_ID`; ";
         } else if (searchId == 2) {
             sql = " SELECT e.`ERP_ORDER_ID`,e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`,e.`SHIPMENT_ID`,e.`PLANNING_UNIT_SKU_CODE`,e.`PROCUREMENT_UNIT_SKU_CODE`,e.`ORDER_TYPE`,e.`QTY`,e.`SUPPLIER_NAME`,e.`PRICE`,e.`SHIPPING_COST`,e.`RECPIENT_COUNTRY`,e.`STATUS`,l.`LABEL_ID`,IF(l.`LABEL_EN` IS NOT NULL,l.`LABEL_EN`,'') AS LABEL_EN,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,COALESCE(MIN(es.ACTUAL_DELIVERY_DATE),e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS CURRENT_ESTIMATED_DELIVERY_DATE FROM rm_erp_order e "
                     + " LEFT JOIN rm_procurement_agent_planning_unit pu ON LEFT(pu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
@@ -532,7 +535,7 @@ public class ProgramDaoImpl implements ProgramDao {
                     + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
                     + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID` "
                     + " LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                    + " WHERE e.`ERP_ORDER_ID` IN (SELECT MAX(e.`ERP_ORDER_ID`)  AS ERP_ORDER_ID FROM rm_erp_order e "
+                    + " WHERE e.`ERP_ORDER_ID` IN (SELECT MAX(a.`ERP_ORDER_ID`) FROM (SELECT MAX(e.`ERP_ORDER_ID`)  AS ERP_ORDER_ID,sm.`SHIPMENT_STATUS_ID` FROM rm_erp_order e "
                     + " LEFT JOIN rm_procurement_agent_planning_unit pu ON LEFT(pu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
                     + " AND pu.`PROCUREMENT_AGENT_ID`=1 "
                     + " LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
@@ -544,8 +547,11 @@ public class ProgramDaoImpl implements ProgramDao {
                     + " LEFT JOIN rm_program pm ON pm.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND pm.`PROGRAM_ID`=?                      "
                     + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
                     + " LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                    + " WHERE e.`ORDER_NO`=? AND pu.`PLANNING_UNIT_ID`=? AND sm.`SHIPMENT_STATUS_ID` NOT IN (7,8) AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) "
-                    + " GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`) GROUP BY e.`ERP_ORDER_ID`; ";
+                    + " WHERE e.`ORDER_NO`=? AND pu.`PLANNING_UNIT_ID`=? "
+//                    + " AND sm.`SHIPMENT_STATUS_ID` NOT IN (7,8) "
+                    + " AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) "
+                    + " GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`) a "
+                    + " WHERE a.SHIPMENT_STATUS_ID NOT IN (7,8) ) GROUP BY e.`ERP_ORDER_ID`; ";
         }
         return this.jdbcTemplate.query(sql, new ManualTaggingOrderDTORowMapper(), programId, roNoOrderNo, planningUnitId);
     }
