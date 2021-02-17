@@ -229,7 +229,12 @@ public class ProgramServiceImpl implements ProgramService {
 
     @Override
     public int linkShipmentWithARTMIS(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser) {
-        return this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO, curUser);
+        try {
+            return this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO, curUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     @Override
