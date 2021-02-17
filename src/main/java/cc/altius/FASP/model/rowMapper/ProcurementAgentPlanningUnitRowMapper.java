@@ -27,31 +27,31 @@ public class ProcurementAgentPlanningUnitRowMapper implements RowMapper<Procurem
         );
         papu.setSkuCode(rs.getString("SKU_CODE"));
         papu.setCatalogPrice(rs.getDouble("CATALOG_PRICE"));
-        if(rs.wasNull()) {
+        if (rs.wasNull()) {
             papu.setCatalogPrice(null);
         }
         papu.setMoq(rs.getInt("MOQ"));
-        if(rs.wasNull()) {
+        if (rs.wasNull()) {
             papu.setMoq(null);
         }
         papu.setUnitsPerPalletEuro1(rs.getInt("UNITS_PER_PALLET_EURO1"));
-        if(rs.wasNull()) {
+        if (rs.wasNull()) {
             papu.setUnitsPerPalletEuro1(null);
         }
         papu.setUnitsPerPalletEuro2(rs.getInt("UNITS_PER_PALLET_EURO2"));
-        if(rs.wasNull()) {
+        if (rs.wasNull()) {
             papu.setUnitsPerPalletEuro2(null);
         }
         papu.setUnitsPerContainer(rs.getInt("UNITS_PER_CONTAINER"));
-        if(rs.wasNull()) {
+        if (rs.wasNull()) {
             papu.setUnitsPerContainer(null);
         }
         papu.setVolume(rs.getDouble("VOLUME"));
-        if(rs.wasNull()) {
+        if (rs.wasNull()) {
             papu.setVolume(null);
         }
         papu.setWeight(rs.getDouble("WEIGHT"));
-        if(rs.wasNull()) {
+        if (rs.wasNull()) {
             papu.setWeight(null);
         }
         papu.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
