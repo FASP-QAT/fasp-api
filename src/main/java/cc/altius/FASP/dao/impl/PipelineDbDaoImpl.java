@@ -1214,8 +1214,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     //                    + "i.ProductID,"
                     + "qtp.PLANNING_UNIT_ID as PLANNING_UNIT_ID,"
                     + "i.InvNote as NOTES,"
-                    + "if(InvTransferFlag=0,i.InvAmount,0) as ACTUAL_QTY , "
-                    + "if(InvTransferFlag=1,i.InvAmount,0) as ADJUSTMENT_QTY , "
+                    + "if(InvTransferFlag=0,i.InvAmount,null) as ACTUAL_QTY , "
+                    + "if(InvTransferFlag=1,i.InvAmount,null) as ADJUSTMENT_QTY , "
                     + "date_format(CONCAT(i.Period),\"%Y-%m-%d\") as INVENTORY_DATE,'' as REGION_ID,  "
                     + " COALESCE(rcpu.REALM_COUNTRY_PLANNING_UNIT_ID,0) as REALM_COUNTRY_PLANNING_UNIT_ID,"
                     + " COALESCE(rcpu.MULTIPLIER,1) as MULTIPLIER "
@@ -1936,7 +1936,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
 
     @Override
     @Transactional
-    public void createRealmCountryPlanningUnits(int pipelineId, CustomUserDetails curUser,int realmCountryId) {
+    public void createRealmCountryPlanningUnits(int pipelineId, CustomUserDetails curUser, int realmCountryId) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sql = "update rm_realm_country r set r.ACTIVE=1,r.LAST_MODIFIED_BY=?,r.LAST_MODIFIED_DATE=? where r.REALM_COUNTRY_ID=? and r.ACTIVE=0";
         this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, realmCountryId);
