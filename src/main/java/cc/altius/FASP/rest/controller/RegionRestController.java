@@ -12,6 +12,7 @@ import cc.altius.FASP.service.RegionService;
 import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,11 +111,11 @@ public class RegionRestController {
         }
     }
 
-    @GetMapping("/region/realmCountryId/{realmCountryId}")
-    public ResponseEntity getRegionByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
+    @GetMapping("/region/realmCountryIds")
+    public ResponseEntity getRegionByRealmCountry(@RequestBody List<Integer> realmCountryIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.regionService.getRegionListByRealmCountryId(realmCountryId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.regionService.getRegionListByRealmCountryIds(realmCountryIds, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Region", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
