@@ -104,17 +104,20 @@ public class RegionRestController {
     }
 
     /**
-     * API used to get the Region list for a RealmCountry
+     * API used to get the Region list for a list of RealmCountry Ids. Empty
+     * list means you want the complete list of Regions
      *
-     * @param realmCountryIds RealmCountryId that you want the Region List from
+     * @param realmCountryIds List of RealmCountryIds that you want the Region
+     * List from
      * @param auth
-     * @return returns the complete list of Regions
+     * @return returns the complete list of Regions, based on the
+     * RealmCountryIds that were passed
      */
     @GetMapping("/realmCountryIds")
-    @Operation(description = "API used to get the complete Region list for a RealmCountry", summary = "Get Region list for a RealmCountry", tags = ("region"))
+    @Operation(description = "API used to get the Region list for a list of RealmCountry Ids. Empty list means you want the complete list of Regions", summary = "Get Region list based on RealmCountry list", tags = ("region"))
     @Parameters(
             @Parameter(name = "realmCountryIds", description = "List of RealmCountryIds that you want the Region list for"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Region list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Region list based on the RealmCountry list that was passed")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the RealmId specified does not exist")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Region list")
