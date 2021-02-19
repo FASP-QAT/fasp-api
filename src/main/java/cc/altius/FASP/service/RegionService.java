@@ -23,7 +23,7 @@ public interface RegionService {
 
     public Region getRegionById(int regionId, CustomUserDetails curUser);
 
-    public List<Region> getRegionListByRealmCountryIds(List<Integer> realmCountryIds, CustomUserDetails curUser);
+    public List<Region> getRegionListByRealmCountryId(int realmCountryId, CustomUserDetails curUser);
     
     public List<Region> getRegionListForSync(String lastSyncDate, CustomUserDetails curUser);
     

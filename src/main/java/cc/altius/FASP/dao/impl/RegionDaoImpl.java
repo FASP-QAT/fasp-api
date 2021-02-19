@@ -113,13 +113,12 @@ public class RegionDaoImpl implements RegionDao {
     }
 
     @Override
-    public List<Region> getRegionListByRealmCountryIds(List<Integer> realmCountryIds, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND FIND_IN_SET(re.REALM_COUNTRY_ID, :realmCountryIds)");
+    public List<Region> getRegionListByRealmCountryId(int realmCountryId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND re.REALM_COUNTRY_ID=:realmCountryId");
         Map<String, Object> params = new HashMap<>();
-        params.put("realmCountryIds", realmCountryIds.toString().replace("[", "").replace("]", "").replace(" ",""));
+        params.put("realmCountryId", realmCountryId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addUserAclForRealmCountry(sqlStringBuilder, params, "rc", curUser);
-        sqlStringBuilder.append(" ORDER BY c.COUNTRY_CODE, re.REGION_ID");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RegionRowMapper());
     }
 

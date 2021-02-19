@@ -76,25 +76,13 @@ public class RegionServiceImpl implements RegionService {
     }
 
     @Override
-    public List<Region> getRegionListByRealmCountryIds(List<Integer> realmCountryIds, CustomUserDetails curUser) {
-        int realmId = -1;
-        for (int realmCountryId : realmCountryIds) {
-            RealmCountry rc = this.realmCountryService.getRealmCountryById(realmCountryId, curUser);
-            if (rc == null) {
-                throw new EmptyResultDataAccessException(1);
-            }
-            if (realmId == -1) {
-                realmId = rc.getRealm().getRealmId();
-            }
-            if (realmId != rc.getRealm().getRealmId()) {
-                throw new EmptyResultDataAccessException(1);
-            }
+    public List<Region> getRegionListByRealmCountryId(int realmCountryId, CustomUserDetails curUser) {
+        RealmCountry rc = this.realmCountryService.getRealmCountryById(realmCountryId, curUser);
+        if (rc == null) {
+            throw new EmptyResultDataAccessException(1);
         }
-        if (realmId == -1) {
-            return null;
-        }
-        if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
-            return this.regionDao.getRegionListByRealmCountryIds(realmCountryIds, curUser);
+        if (this.aclService.checkRealmAccessForUser(curUser, rc.getRealm().getRealmId())) {
+            return this.regionDao.getRegionListByRealmCountryId(realmCountryId, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }

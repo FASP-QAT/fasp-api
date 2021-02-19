@@ -31,6 +31,7 @@ import cc.altius.FASP.model.report.StockStatusForProgramInput;
 import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.model.report.StockStatusVerticalOutput;
+import cc.altius.FASP.model.report.WarehouseByCountryInput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.service.ReportService;
 import cc.altius.FASP.service.UserService;
@@ -39,9 +40,12 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -76,7 +80,7 @@ public class ReportRestController {
      * @return ProgramProductCatalogOutput
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/programProductCatalog")
+    @PostMapping(value = "/programProductCatalog")
     public ResponseEntity getProgramProductCatalog(@RequestBody ProgramProductCatalogInput ppc, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -106,7 +110,7 @@ public class ReportRestController {
      * @return ConsumptionForecastVsActualOutput
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/consumptionForecastVsActual")
+    @PostMapping(value = "/consumptionForecastVsActual")
     public ResponseEntity getConsumptionForecastVsActual(@RequestBody ConsumptionForecastVsActualInput ppc, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -138,7 +142,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/globalConsumption")
+    @PostMapping(value = "/globalConsumption")
     public ResponseEntity getGlobalConsumption(@RequestBody GlobalConsumptionInput gci, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -171,7 +175,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/forecastMetricsMonthly")
+    @PostMapping(value = "/forecastMetricsMonthly")
     public ResponseEntity getForecastMetricsMonthly(@RequestBody ForecastMetricsMonthlyInput fmi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -206,7 +210,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/forecastMetricsComparision")
+    @PostMapping(value = "/forecastMetricsComparision")
     public ResponseEntity getForecastMetricsComparision(@RequestBody ForecastMetricsComparisionInput fmi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -235,7 +239,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/warehouseCapacityReport")
+    @PostMapping(value = "/warehouseCapacityReport")
     public ResponseEntity getwarehouseCapacityReport(@RequestBody WarehouseCapacityInput wci, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -243,6 +247,35 @@ public class ReportRestController {
         } catch (Exception e) {
             logger.error("/api/report/warehouseCapacityReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    //Report no 
+    // Reports -> Inventory Reports -> Warehouse Capcity (By Country)
+    /**
+     * <pre>
+     * Sample JSON
+     * { "realmCountryIds":[51,16,6]}
+     * -- RealmCountryIds is the list of RealmCountryIds that you want to run the report for
+     * -- RealmCountryIds blank means you want to run it for all RealmCountryIds
+     * -- List of all the Regions for the RealmCountryIds selected and their capacity
+     * </pre>
+     */
+    @JsonView(Views.ReportView.class)
+    @PostMapping("/warehouseByCountry")
+    public ResponseEntity getWarehouseByCountry(@RequestBody WarehouseByCountryInput wbc, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.reportService.getWarehouseByCountryReport(wbc, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list Region", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (DataAccessException e) {
+            logger.error("Error while trying to list Region", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Region", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -266,7 +299,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/costOfInventory")
+    @PostMapping(value = "/costOfInventory")
     public ResponseEntity getCostOfInventory(@RequestBody CostOfInventoryInput cii, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -296,7 +329,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/inventoryTurns")
+    @PostMapping(value = "/inventoryTurns")
     public ResponseEntity getInventoryTurns(@RequestBody CostOfInventoryInput it, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -326,7 +359,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/expiredStock")
+    @PostMapping(value = "/expiredStock")
     public ResponseEntity getExpiredStock(@RequestBody ExpiredStockInput esi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -354,7 +387,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/stockAdjustmentReport")
+    @PostMapping(value = "/stockAdjustmentReport")
     public ResponseEntity getStockAdjustmentReport(@RequestBody StockAdjustmentReportInput si, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -388,7 +421,7 @@ public class ReportRestController {
      */
     // Report -> Shipment Reports -> Shipment Cost Details (Procurement Agent view)
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/procurementAgentShipmentReport")
+    @PostMapping(value = "/procurementAgentShipmentReport")
     public ResponseEntity getProcurementAgentShipmentReport(@RequestBody ProcurementAgentShipmentReportInput pari, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -415,7 +448,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/programLeadTimes")
+    @PostMapping(value = "/programLeadTimes")
     public ResponseEntity getProgramLeadTimes(@RequestBody ProgramLeadTimesInput plt, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -450,7 +483,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/fundingSourceShipmentReport")
+    @PostMapping(value = "/fundingSourceShipmentReport")
     public ResponseEntity getFundingSourceShipmentReport(@RequestBody FundingSourceShipmentReportInput fsri, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -477,7 +510,7 @@ public class ReportRestController {
     // ActualConsumption = 1 -- Actual Consumption
     // ActualConsumption = null -- No consumption data
 //    @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/stockStatusVertical")
+    @PostMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -509,7 +542,7 @@ public class ReportRestController {
     // ActualConsumption = 1 -- Actual Consumption
     // ActualConsumption = null -- No consumption data
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/stockStatusOverTime")
+    @PostMapping(value = "/stockStatusOverTime")
     public ResponseEntity getStockStatusOverTime(@RequestBody StockStatusOverTimeInput ssot, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -541,7 +574,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/stockStatusMatrix")
+    @PostMapping(value = "/stockStatusMatrix")
     public ResponseEntity getStockStatusMatrix(@RequestBody StockStatusMatrixInput ssm, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -572,7 +605,7 @@ public class ReportRestController {
      */
     // Report -> Shipment Reports -> Shipment Details
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/shipmentDetails")
+    @PostMapping(value = "/shipmentDetails")
     public ResponseEntity getShipmentDetails(@RequestBody ShipmentDetailsInput sd, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -597,7 +630,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/shipmentOverview")
+    @PostMapping(value = "/shipmentOverview")
     public ResponseEntity getShipmentOverview(@RequestBody ShipmentOverviewInput so, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -622,7 +655,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/shipmentGlobalDemand")
+    @PostMapping(value = "/shipmentGlobalDemand")
     public ResponseEntity getShipmentGlobalDemand(@RequestBody ShipmentGlobalDemandInput sgd, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -651,7 +684,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/annualShipmentCost")
+    @PostMapping(value = "/annualShipmentCost")
     public ResponseEntity getAnnualShipmentCost(@RequestBody AnnualShipmentCostInput asci, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -683,7 +716,7 @@ public class ReportRestController {
      */
     // Report -> Shipment Reports -> Shipment Cost Details (Planning Unit view)
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/aggregateShipmentByProduct")
+    @PostMapping(value = "/aggregateShipmentByProduct")
     public ResponseEntity getAggregateShipmentByProduct(@RequestBody ShipmentReportInput fsri, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -717,7 +750,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/stockStatusForProgram")
+    @PostMapping(value = "/stockStatusForProgram")
     public ResponseEntity getStockStatusForProgram(@RequestBody StockStatusForProgramInput sspi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -739,7 +772,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/budgetReport")
+    @PostMapping(value = "/budgetReport")
     public ResponseEntity getBudgetReport(@RequestBody BudgetReportInput br, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -774,7 +807,7 @@ public class ReportRestController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @RequestMapping(value = "/stockStatusAcrossProducts")
+    @PostMapping(value = "/stockStatusAcrossProducts")
     public ResponseEntity getStockStatusAcrossProducts(@RequestBody StockStatusAcrossProductsInput ssap, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
