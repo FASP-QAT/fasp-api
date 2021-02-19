@@ -25,6 +25,8 @@ public class SimplifiedSupplyPlan implements Serializable {
     private int versionId;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private int planningUnitId;
+    @JsonView({Views.GfpVanView.class})
+    private double conversionFactor;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private String transDate;
 
@@ -470,6 +472,14 @@ public class SimplifiedSupplyPlan implements Serializable {
 
     public void setMosWps(Double mosWps) {
         this.mosWps = mosWps;
+    }
+
+    public double getConversionFactor() {
+        return conversionFactor;
+    }
+
+    public void setConversionFactor(double conversionFactor) {
+        this.conversionFactor = conversionFactor;
     }
 
     @Override
