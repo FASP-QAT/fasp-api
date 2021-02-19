@@ -296,6 +296,7 @@ public class ProgramRestController {
 
     @GetMapping("/manualTagging/{programId}/{planningUnitId}")
     public ResponseEntity getShipmentListForManualTagging(@PathVariable("programId") int programId, @PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
+        System.out.println("planningUnitId--------"+planningUnitId);
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getShipmentListForManualTagging(programId, planningUnitId), HttpStatus.OK);
