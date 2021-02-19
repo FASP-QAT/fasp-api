@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,11 +75,9 @@ public class RegionRestController {
     /**
      * API used to get the Region for a specific RegionId
      *
-     * @param regionId RegionId that you want the Region
-     * Object for
+     * @param regionId RegionId that you want the Region Object for
      * @param auth
-     * @return returns the Region object based on
-     * RegionId specified
+     * @return returns the Region object based on RegionId specified
      */
     @GetMapping(value = "/{regionId}")
     @Operation(description = "API used to get the Region for a specific RegionId", summary = "Get Region for a RegionId", tags = ("region"))
@@ -107,22 +106,22 @@ public class RegionRestController {
     /**
      * API used to get the Region list for a RealmCountry
      *
-     * @param realmCountryId RealmCountryId that you want the Region List from
+     * @param realmCountryIds RealmCountryId that you want the Region List from
      * @param auth
      * @return returns the complete list of Regions
      */
-    @GetMapping("/realmCountryId/{realmCountryId}")
+    @GetMapping("/realmCountryIds")
     @Operation(description = "API used to get the complete Region list for a RealmCountry", summary = "Get Region list for a RealmCountry", tags = ("region"))
     @Parameters(
-            @Parameter(name = "realmCountryId", description = "RealmCountryId that you want the Region list for"))
+            @Parameter(name = "realmCountryIds", description = "List of RealmCountryIds that you want the Region list for"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Region list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the RealmId specified does not exist")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Region list")
-    public ResponseEntity getRegionByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
+    public ResponseEntity getRegionByRealmCountry(@RequestBody List<Integer> realmCountryIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.regionService.getRegionListByRealmCountryId(realmCountryId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.regionService.getRegionListByRealmCountryIds(realmCountryIds, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Region", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
