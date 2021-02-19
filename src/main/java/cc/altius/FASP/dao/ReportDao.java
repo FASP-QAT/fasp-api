@@ -52,11 +52,12 @@ import cc.altius.FASP.model.report.StockStatusMatrixInput;
 import cc.altius.FASP.model.report.StockStatusMatrixOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.model.report.StockStatusVerticalOutput;
+import cc.altius.FASP.model.report.WarehouseByCountryInput;
+import cc.altius.FASP.model.report.WarehouseByCountryOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -81,6 +82,9 @@ public interface ReportDao {
 
     // Report no 7
     public List<WarehouseCapacityOutput> getWarehouseCapacityReport(WarehouseCapacityInput wci, CustomUserDetails curUser);
+    
+    // Report no
+    public List<WarehouseByCountryOutput> getWarehouseByCountryReport(WarehouseByCountryInput wci, CustomUserDetails curUser);
 
     // Report no 8
     public List<CostOfInventoryOutput> getCostOfInventory(CostOfInventoryInput cii, CustomUserDetails curUser);

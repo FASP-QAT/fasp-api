@@ -111,11 +111,11 @@ public class RegionRestController {
         }
     }
 
-    @GetMapping("/region/realmCountryIds")
-    public ResponseEntity getRegionByRealmCountry(@RequestBody List<Integer> realmCountryIds, Authentication auth) {
+    @GetMapping("/region/realmCountryId/{realmCountryId}")
+    public ResponseEntity getRegionByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.regionService.getRegionListByRealmCountryIds(realmCountryIds, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.regionService.getRegionListByRealmCountryId(realmCountryId, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Region", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
@@ -127,6 +127,7 @@ public class RegionRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
 
     @GetMapping(value = "/sync/region/{lastSyncDate}")
     public ResponseEntity getRegionListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {

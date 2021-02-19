@@ -83,6 +83,9 @@ import cc.altius.FASP.model.report.StockStatusMatrixOutputRowMapper;
 import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.StockStatusVerticalOutputRowMapper;
+import cc.altius.FASP.model.report.WarehouseByCountryInput;
+import cc.altius.FASP.model.report.WarehouseByCountryOutput;
+import cc.altius.FASP.model.report.WarehouseByCountryOutputRowMapper;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutputResultSetExtractor;
@@ -193,6 +196,16 @@ public class ReportDaoImpl implements ReportDao {
         params.put("programIds", wci.getProgramIdString());
         params.put("curUser", curUser.getUserId());
         return this.namedParameterJdbcTemplate.query("CALL warehouseCapacityReport(:curUser, :realmId, :realmCountryIds, :programIds)", params, new WarehouseCapacityOutputResultSetExtractor());
+    }
+    
+    // Report 
+    @Override
+    public List<WarehouseByCountryOutput> getWarehouseByCountryReport(WarehouseByCountryInput wci, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", curUser.getRealm().getRealmId());
+        params.put("realmCountryIds", wci.getRealmCountryIdString());
+        params.put("curUser", curUser.getUserId());
+        return this.namedParameterJdbcTemplate.query("CALL warehouseByCountryReport(:curUser, :realmId, :realmCountryIds)", params, new WarehouseByCountryOutputRowMapper());
     }
 
     // Report no 8
