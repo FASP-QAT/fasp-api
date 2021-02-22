@@ -47,7 +47,9 @@ BEGIN
     SET @planningUnitId = VAR_PLANNING_UNIT_ID;
     SET @approvedSupplyPlanOnly = VAR_APPROVED_SUPPLY_PLAN_ONLY;
     SET @includePlannedShipments = VAR_INCLUDE_PLANNED_SHIPMENTS;
-    
+    SET @realmCountryIds =  VAR_REALM_COUNTRY_IDS;
+    SET @fundingSourceProcurementAgentIds = VAR_FUNDING_SOURCE_PROCUREMENT_AGENT_IDS;
+
     SET @sqlString = "";
     
     SET @sqlString = CONCAT(@sqlString, "SELECT ");
