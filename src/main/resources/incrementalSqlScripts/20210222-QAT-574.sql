@@ -1,3 +1,8 @@
+USE `fasp`;
+DROP procedure IF EXISTS `budgetReport`;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `budgetReport`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_FUNDING_SOURCE_IDS TEXT)
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -62,5 +67,9 @@ BEGIN
     
     PREPARE S1 FROM @sqlString;
     EXECUTE S1;
-    
-END
+     
+END$$
+
+DELIMITER ;
+
+
