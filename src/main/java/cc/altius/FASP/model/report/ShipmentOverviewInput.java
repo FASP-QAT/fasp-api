@@ -97,67 +97,42 @@ public class ShipmentOverviewInput implements Serializable {
     }
 
     public String getRealmCountryIdsString() {
-        if (this.realmCountryIds == null) {
+        if (this.realmCountryIds == null || this.realmCountryIds.length == 0) {
             return "";
         } else {
-            String opt = String.join("','", this.realmCountryIds);
-            if (this.realmCountryIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
+            return String.join(",", this.realmCountryIds);
         }
     }
 
     public String getProgramIdsString() {
-        if (this.programIds == null) {
+        if (this.programIds == null || this.programIds.length == 0) {
             return "";
         } else {
-            String opt = String.join("','", this.programIds);
-            if (this.programIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
+            return String.join(",", this.programIds);
         }
     }
 
     public String getPlanningUnitIdsString() {
-        if (this.planningUnitIds == null) {
+        if (this.planningUnitIds == null || this.planningUnitIds.length == 0) {
             return "";
         } else {
-            String opt = String.join("','", this.planningUnitIds);
-            if (this.planningUnitIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
+            return String.join(",", this.planningUnitIds);
         }
     }
 
     public String getFundingSourceIdsString() {
-        if (this.fundingSourceIds == null) {
+        if (this.fundingSourceIds == null || this.fundingSourceIds.length == 0) {
             return "";
         } else {
-            String opt = String.join("','", this.fundingSourceIds);
-            if (this.fundingSourceIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
+            return String.join(",", this.fundingSourceIds);
         }
     }
 
     public String getShipmentStatusIdsString() {
-        if (this.shipmentStatusIds == null) {
+        if (this.shipmentStatusIds == null || this.shipmentStatusIds.length == 0) {
             return "";
         } else {
-            String opt = String.join("','", this.shipmentStatusIds);
-            if (this.shipmentStatusIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
+            return String.join(",", this.shipmentStatusIds);
         }
     }
 
