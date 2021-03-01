@@ -1,12 +1,12 @@
 CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getStockStatusForProgram`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_DT DATE, VAR_TRACER_CATEGORY_IDS TEXT, VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT(1))
 BEGIN
-	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	-- Report no 28
-	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    -- Report no 28
+    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-	-- programId must be a single Program cannot be muti-program select or -1 for all programs
+    -- programId must be a single Program cannot be muti-program select or -1 for all programs
     -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
-	-- dt is the month for which you want to run the report
+    -- dt is the month for which you want to run the report
     -- includePlannedShipments = 1 means that you want to include the shipments that are still in the Planned stage while running this report.
     -- includePlannedShipments = 0 means that you want to exclude the shipments that are still in the Planned stage while running this report.
     -- AMC is calculated based on the MonthsInPastForAMC and MonthsInFutureForAMC from the Program setup
@@ -16,14 +16,14 @@ BEGIN
     -- MaxMonthsOfStock is Min of Min of MinMonthOfStock+ReorderFrequency and 15
     -- tracerCategoryIds is a list of the Tracer Category Ids that the user wants to run the report for. Empty will indicate they want to run it for all Tracer Categories.
     
-	SET @programId = VAR_PROGRAM_ID;
-	SET @versionId = VAR_VERSION_ID;
-	SET @dt = VAR_DT;
-	SET @includePlannedShipments = VAR_INCLUDE_PLANNED_SHIPMENTS;
+    SET @programId = VAR_PROGRAM_ID;
+    SET @versionId = VAR_VERSION_ID;
+    SET @dt = VAR_DT;
+    SET @includePlannedShipments = VAR_INCLUDE_PLANNED_SHIPMENTS;
     
     IF @versionId = -1 THEN
-		SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
-	END IF;
+	SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
+    END IF;
     
     SET @sqlString = "";
     SET @sqlString = CONCAT(@sqlString, "SELECT ");
