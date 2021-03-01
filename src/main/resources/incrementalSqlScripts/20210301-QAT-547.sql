@@ -8,10 +8,10 @@
  * Created: 01-Mar-2021
  */
 
-UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Projected Inventory = Opening balance + Adjustments + Shipments in account - Consumptions - Expired stock' WHERE `STATIC_LABEL_LANGUAGE_ID`='6105';
-UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Inventario proyectado = Saldo inicial + Ajustes + Envíos en cuenta - Consumos - Stock vencido' WHERE `STATIC_LABEL_LANGUAGE_ID`='6106';
-UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Inventaire projeté = solde d`ouverture + ajustements + livraisons en compte - consommations - stock périmé' WHERE `STATIC_LABEL_LANGUAGE_ID`='6107';
-UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Estoque projetado = saldo inicial + ajustes + embarques na conta - consumos - estoque expirado' WHERE `STATIC_LABEL_LANGUAGE_ID`='6108';
+UPDATE `ap_static_label_languages` SET `LABEL_TEXT`='Projected Inventory = Opening balance + Adjustments + Shipments in account - Consumptions - Expired stock' WHERE `STATIC_LABEL_LANGUAGE_ID`='6105';
+UPDATE `ap_static_label_languages` SET `LABEL_TEXT`='Inventario proyectado = Saldo inicial + Ajustes + Envíos en cuenta - Consumos - Stock vencido' WHERE `STATIC_LABEL_LANGUAGE_ID`='6106';
+UPDATE `ap_static_label_languages` SET `LABEL_TEXT`='Inventaire projeté = solde d`ouverture + ajustements + livraisons en compte - consommations - stock périmé' WHERE `STATIC_LABEL_LANGUAGE_ID`='6107';
+UPDATE `ap_static_label_languages` SET `LABEL_TEXT`='Estoque projetado = saldo inicial + ajustes + embarques na conta - consumos - estoque expirado' WHERE `STATIC_LABEL_LANGUAGE_ID`='6108';
 
 INSERT INTO `ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlanFormula.na','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
