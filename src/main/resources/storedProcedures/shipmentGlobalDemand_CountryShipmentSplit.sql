@@ -92,7 +92,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN vw_procurement_agent pa ON st.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID  ");
     SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN vw_shipment_status ss ON st.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID  ");
     SET @sqlString = CONCAT(@sqlString, "	WHERE ");
-    SET @sqlString = CONCAT(@sqlString, "	    st.ACTIVE AND st.SHIPMENT_STATUS_ID != 8 ");
+    SET @sqlString = CONCAT(@sqlString, "	    st.ACTIVE AND st.ACCOUNT_FLAG AND st.SHIPMENT_STATUS_ID != 8 ");
     SET @sqlString = CONCAT(@sqlString, "	    AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
     IF @includePlannedShipments = 0 THEN
         SET @sqlString = CONCAT(@sqlString, "		AND st.SHIPMENT_STATUS_ID != 1 ");
