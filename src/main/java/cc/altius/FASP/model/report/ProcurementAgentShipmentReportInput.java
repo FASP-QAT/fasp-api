@@ -27,12 +27,7 @@ public class ProcurementAgentShipmentReportInput extends ShipmentReportInput imp
         if (this.procurementAgentIds == null) {
             return "";
         } else {
-            String opt = String.join("','", this.procurementAgentIds);
-            if (this.procurementAgentIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
+            return String.join(",", this.procurementAgentIds);
         }
     }
 }
