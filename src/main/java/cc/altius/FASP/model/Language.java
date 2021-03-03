@@ -16,6 +16,7 @@ public class Language extends BaseModel implements Serializable {
     private Integer languageId;
     private String languageName;
     private String languageCode;
+    private String countryCode;
 
     public Language() {
     }
@@ -24,10 +25,11 @@ public class Language extends BaseModel implements Serializable {
         this.languageId = languageId;
     }
 
-    public Language(Integer languageId, String languageName, String languageCode) {
+    public Language(Integer languageId, String languageName, String languageCode, String countryCode) {
         this.languageId = languageId;
         this.languageName = languageName;
         this.languageCode = languageCode;
+        this.countryCode = countryCode;
     }
 
     public Integer getLanguageId() {
@@ -54,9 +56,17 @@ public class Language extends BaseModel implements Serializable {
         this.languageCode = languageCode;
     }
 
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
+
     @Override
     public String toString() {
-        return "Language{" + "languageId=" + languageId + ", languageName=" + languageName + '}';
+        return "Language{" + "languageId=" + languageId + ", languageName=" + languageName + ", languageCode=" + languageCode + ", countryCode=" + countryCode + '}';
     }
 
 }

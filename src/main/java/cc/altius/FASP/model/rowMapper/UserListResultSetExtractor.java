@@ -41,7 +41,7 @@ public class UserListResultSetExtractor implements ResultSetExtractor<List<User>
                 user.setPhoneNumber(rs.getString("PHONE"));
                 user.setPassword(rs.getString("PASSWORD"));
                 user.setRealm(new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")));
-                user.setLanguage(new Language(rs.getInt("LANGUAGE_ID"), rs.getString("LANGUAGE_NAME"), rs.getString("LANGUAGE_CODE")));
+                user.setLanguage(new Language(rs.getInt("LANGUAGE_ID"), rs.getString("LANGUAGE_NAME"), rs.getString("LANGUAGE_CODE"),rs.getString("COUNTRY_CODE")));
                 user.setFaildAttempts(rs.getInt("FAILED_ATTEMPTS"));
                 user.setLastLoginDate(rs.getTimestamp("LAST_LOGIN_DATE"));
                 user.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
