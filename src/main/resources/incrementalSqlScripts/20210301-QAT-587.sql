@@ -3,7 +3,7 @@ DROP procedure IF EXISTS `procurementAgentShipmentReport`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `procurementAgentShipmentReport`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROCUREMENT_AGENT_IDS VARCHAR(255), VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT, VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `procurementAgentShipmentReport`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROCUREMENT_AGENT_IDS VARCHAR(255), VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT, VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT)
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     -- Report no 13
@@ -78,7 +78,7 @@ DROP procedure IF EXISTS `fundingSourceShipmentReport`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `fundingSourceShipmentReport`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_FUNDING_SOURCE_IDS VARCHAR(255), VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT, VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `fundingSourceShipmentReport`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_FUNDING_SOURCE_IDS VARCHAR(255), VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT, VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT)
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     -- Report no 15
@@ -153,7 +153,7 @@ DROP procedure IF EXISTS `shipmentDetails`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentDetails`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentDetails`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT)
 BEGIN
 
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -230,7 +230,7 @@ DROP procedure IF EXISTS `shipmentOverview_fundingSourceSplit`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentOverview_fundingSourceSplit`(
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentOverview_fundingSourceSplit`(
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10),  
     VAR_START_DATE DATE, 
@@ -349,7 +349,7 @@ DROP procedure IF EXISTS `shipmentOverview_planningUnitSplit`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentOverview_planningUnitSplit`(
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentOverview_planningUnitSplit`(
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
     VAR_START_DATE DATE, 
@@ -467,7 +467,7 @@ DROP procedure IF EXISTS `shipmentOverview_procurementAgentSplit`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentOverview_procurementAgentSplit`(
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentOverview_procurementAgentSplit`(
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
     VAR_START_DATE DATE, 
@@ -634,7 +634,7 @@ DROP procedure IF EXISTS `shipmentGlobalDemand_CountryShipmentSplit`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_CountryShipmentSplit`(
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentGlobalDemand_CountryShipmentSplit`(
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
     VAR_START_DATE DATE, 
@@ -753,7 +753,7 @@ DROP procedure IF EXISTS `shipmentGlobalDemand_FundingSourceCountrySplit`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_FundingSourceCountrySplit`(VAR_USER_ID INT(10), 
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentGlobalDemand_FundingSourceCountrySplit`(VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
     VAR_START_DATE DATE, 
     VAR_STOP_DATE DATE, 
@@ -927,7 +927,7 @@ DROP procedure IF EXISTS `shipmentGlobalDemand_FundingSourceDateSplit`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_FundingSourceDateSplit`(
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentGlobalDemand_FundingSourceDateSplit`(
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
     VAR_START_DATE DATE, 
@@ -1102,7 +1102,7 @@ DROP procedure IF EXISTS `shipmentGlobalDemand_ProcurementAgentCountrySplit`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_ProcurementAgentCountrySplit`(
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentGlobalDemand_ProcurementAgentCountrySplit`(
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
     VAR_START_DATE DATE, 
@@ -1277,7 +1277,7 @@ DROP procedure IF EXISTS `shipmentGlobalDemand_ProcurementAgentDateSplit`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_ProcurementAgentDateSplit`(
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentGlobalDemand_ProcurementAgentDateSplit`(
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
     VAR_START_DATE DATE, 
@@ -1452,7 +1452,7 @@ DROP procedure IF EXISTS `shipmentGlobalDemand_ShipmentList`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentGlobalDemand_ShipmentList`(
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentGlobalDemand_ShipmentList`(
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
     VAR_START_DATE DATE, 
@@ -1573,7 +1573,7 @@ DROP procedure IF EXISTS `annualShipmentCost`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `annualShipmentCost`(VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_PROCUREMENT_AGENT_IDS TEXT, VAR_PLANNING_UNIT_IDS TEXT, VAR_FUNDING_SOURCE_IDS TEXT, VAR_SHIPMENT_STATUS_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REPORT_BASED_ON INT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `annualShipmentCost`(VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_PROCUREMENT_AGENT_IDS TEXT, VAR_PLANNING_UNIT_IDS TEXT, VAR_FUNDING_SOURCE_IDS TEXT, VAR_SHIPMENT_STATUS_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REPORT_BASED_ON INT)
 BEGIN
 
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1683,7 +1683,7 @@ DROP procedure IF EXISTS `aggregateShipmentByProduct`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `aggregateShipmentByProduct`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT, VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `aggregateShipmentByProduct`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT, VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT)
 BEGIN
 	
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1751,7 +1751,7 @@ DROP procedure IF EXISTS `budgetReport`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `budgetReport`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_FUNDING_SOURCE_IDS TEXT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `budgetReport`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_FUNDING_SOURCE_IDS TEXT)
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     -- Report no 29
