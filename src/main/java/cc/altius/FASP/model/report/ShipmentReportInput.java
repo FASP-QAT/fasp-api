@@ -73,12 +73,7 @@ public class ShipmentReportInput implements Serializable {
         if (this.planningUnitIds == null) {
             return "";
         } else {
-            String opt = String.join("','", this.planningUnitIds);
-            if (this.planningUnitIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
+            return String.join(",", this.planningUnitIds);
         }
     }
 
