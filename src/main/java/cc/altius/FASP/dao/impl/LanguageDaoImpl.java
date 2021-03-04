@@ -5,8 +5,10 @@
  */
 package cc.altius.FASP.dao.impl;
 
+import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.LanguageDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.Language;
 import cc.altius.FASP.model.LabelJson;
 import cc.altius.FASP.model.rowMapper.LanguageRowMapper;
@@ -40,20 +42,23 @@ public class LanguageDaoImpl implements LanguageDao {
         this.dataSource = dataSource;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
+    @Autowired
+    private LabelDao labelDao;
 
-    private final String sqlListString = "SELECT la.LANGUAGE_ID, la.LANGUAGE_CODE,la.COUNTRY_CODE, la.LANGUAGE_NAME, "
-            + "cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, la.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, la.LAST_MODIFIED_DATE, la.ACTIVE  "
-            + "FROM ap_language la  "
-            + "LEFT JOIN us_user cb ON la.CREATED_BY=cb.USER_ID "
-            + "LEFT JOIN us_user lmb ON la.LAST_MODIFIED_BY=lmb.USER_ID "
-            + "WHERE TRUE ";
+    private final String sqlListString = "SELECT la.LANGUAGE_ID, la.LANGUAGE_CODE,la.COUNTRY_CODE, ll.`LABEL_ID`,ll.`LABEL_EN`,ll.`LABEL_FR`,ll.`LABEL_PR`,ll.`LABEL_SP` , "
+            + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, la.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, la.LAST_MODIFIED_DATE, la.ACTIVE  "
+            + " FROM ap_language la  "
+            + " LEFT JOIN us_user cb ON la.CREATED_BY=cb.USER_ID "
+            + " LEFT JOIN us_user lmb ON la.LAST_MODIFIED_BY=lmb.USER_ID "
+            + " LEFT JOIN ap_label ll ON ll.`LABEL_ID`=la.`LABEL_ID` "
+            + " WHERE TRUE ";
 
     @Override
     public int addLanguage(Language language, CustomUserDetails curUser) {
         SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("ap_language").usingGeneratedKeyColumns("LANGUAGE_ID");
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
+        int insertedLabelRowId = this.labelDao.addLabel(language.getLabel(), LabelConstants.AP_LANGUAGE, curUser.getUserId());
         Map<String, Object> map = new HashedMap<>();
-        map.put("LANGUAGE_NAME", language.getLanguageName());
         map.put("LANGUAGE_CODE", language.getLanguageCode());
         map.put("COUNTRY_CODE", language.getCountryCode());
         map.put("ACTIVE", 1);
@@ -68,11 +73,13 @@ public class LanguageDaoImpl implements LanguageDao {
     @Override
     public int editLanguage(Language language, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
-        String sql = "UPDATE ap_language la SET la.`LANGUAGE_NAME`=:languageName, la.`LANGUAGE_CODE`=:languageCode,la.`COUNTRY_CODE`=:countryCode, la.`ACTIVE`=:active,"
+        String sql = "UPDATE ap_language la "
+                + " LEFT JOIN ap_label l ON l.`LABEL_ID`=la.`LABEL_ID` "
+                + " SET l.`LABEL_EN`=:label, la.`LANGUAGE_CODE`=:languageCode,la.`COUNTRY_CODE`=:countryCode, la.`ACTIVE`=:active,"
                 + " la.`LAST_MODIFIED_BY`=:lastModifiedBy,la.`LAST_MODIFIED_DATE`=:lastModifiedDate"
                 + " WHERE la.`LANGUAGE_ID`=:languageId";
         Map<String, Object> map = new HashMap<>();
-        map.put("languageName", language.getLanguageName());
+        map.put("label", language.getLabel().getLabel_en());
         map.put("languageCode", language.getLanguageCode());
         map.put("countryCode", language.getCountryCode());
         map.put("active", language.isActive());

@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class Language extends BaseModel implements Serializable {
 
     private Integer languageId;
-    private String languageName;
+    private Label label;
     private String languageCode;
     private String countryCode;
 
@@ -25,9 +25,9 @@ public class Language extends BaseModel implements Serializable {
         this.languageId = languageId;
     }
 
-    public Language(Integer languageId, String languageName, String languageCode, String countryCode) {
+    public Language(Integer languageId, Label label, String languageCode, String countryCode) {
         this.languageId = languageId;
-        this.languageName = languageName;
+        this.label = label;
         this.languageCode = languageCode;
         this.countryCode = countryCode;
     }
@@ -40,12 +40,12 @@ public class Language extends BaseModel implements Serializable {
         this.languageId = languageId;
     }
 
-    public String getLanguageName() {
-        return languageName;
+    public Label getLabel() {
+        return label;
     }
 
-    public void setLanguageName(String languageName) {
-        this.languageName = languageName;
+    public void setLabel(Label label) {
+        this.label = label;
     }
 
     public String getLanguageCode() {
@@ -66,7 +66,7 @@ public class Language extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "Language{" + "languageId=" + languageId + ", languageName=" + languageName + ", languageCode=" + languageCode + ", countryCode=" + countryCode + '}';
+        return "Language{" + "languageId=" + languageId + ", label=" + label + ", languageCode=" + languageCode + ", countryCode=" + countryCode + '}';
     }
 
 }
