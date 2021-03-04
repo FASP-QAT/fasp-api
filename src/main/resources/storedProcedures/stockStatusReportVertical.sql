@@ -1,20 +1,20 @@
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `stockStatusReportVertical`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_ID INT(10))
 BEGIN
-	-- %%%%%%%%%%%%%%%%%%%%%
+    -- %%%%%%%%%%%%%%%%%%%%%
     -- Report no 16
-	-- %%%%%%%%%%%%%%%%%%%%%
+    -- %%%%%%%%%%%%%%%%%%%%%
 	
     SET @startDate = VAR_START_DATE;
-	SET @stopDate = VAR_STOP_DATE;
-	SET @programId = VAR_PROGRAM_ID;
-	SET @versionId = VAR_VERSION_ID;
-	SET @planningUnitId = VAR_PLANNING_UNIT_ID;
+    SET @stopDate = VAR_STOP_DATE;
+    SET @programId = VAR_PROGRAM_ID;
+    SET @versionId = VAR_VERSION_ID;
+    SET @planningUnitId = VAR_PLANNING_UNIT_ID;
 
-	IF @versionId = -1 THEN 
-		SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
-	END IF;
+    IF @versionId = -1 THEN 
+	SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
+    END IF;
     
-	SELECT 
+    SELECT 
         s2.`TRANS_DATE`, 
         s2.`PLANNING_UNIT_ID`, s2.`PLANNING_UNIT_LABEL_ID`, s2.`PLANNING_UNIT_LABEL_EN`, s2.`PLANNING_UNIT_LABEL_FR`, s2.`PLANNING_UNIT_LABEL_SP`, s2.`PLANNING_UNIT_LABEL_PR`,
         COALESCE(s2.`FINAL_OPENING_BALANCE`, @prvMonthClosingBal) `FINAL_OPENING_BALANCE`,

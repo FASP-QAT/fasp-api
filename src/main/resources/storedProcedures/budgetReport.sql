@@ -48,7 +48,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "		GROUP BY s.SHIPMENT_ID ");
     SET @sqlString = CONCAT(@sqlString, "	) s1 ");
     SET @sqlString = CONCAT(@sqlString, "	LEFT JOIN rm_shipment_trans st ON s1.SHIPMENT_ID=st.SHIPMENT_ID AND s1.MAX_VERSION_ID=st.VERSION_ID ");
-    SET @sqlString = CONCAT(@sqlString, "	WHERE st.ACTIVE AND st.SHIPMENT_STATUS_ID !=8 ");
+    SET @sqlString = CONCAT(@sqlString, "	WHERE st.ACTIVE AND st.ACCOUNT_FLAG AND st.SHIPMENT_STATUS_ID !=8 ");
     SET @sqlString = CONCAT(@sqlString, "	GROUP BY st.BUDGET_ID ");
     SET @sqlString = CONCAT(@sqlString, ") as ua ON ua.BUDGET_ID=b.BUDGET_ID ");
     SET @sqlString = CONCAT(@sqlString, "WHERE ");

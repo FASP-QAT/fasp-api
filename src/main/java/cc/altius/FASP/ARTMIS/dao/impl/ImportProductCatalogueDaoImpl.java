@@ -672,13 +672,13 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         sb.append("------------------------------- Forecasting Unit ------------------------------------").append(br);
         //------------Forcasting Unit--------------------------
         // Step 1 - Drop the table if it exists
-//        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
-        String sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
+//        String sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
         this.jdbcTemplate.update(sqlString);
 
         // Step 2 - Create Temporary Table
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
-        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
+//        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
                 + "    `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
                 + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,   "
@@ -861,7 +861,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
 
         sqlString = "CREATE TEMPORARY TABLE `tmp_planning_unit` (   "
-                //        sqlString = "CREATE TABLE `tmp_planning_unit` (   "
+//                        sqlString = "CREATE TABLE `tmp_planning_unit` (   "
                 + "     `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "     `PLANNING_UNIT_ID` int (10) unsigned DEFAULT NULL,   "
                 + "     `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
@@ -874,8 +874,8 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "     `UNITS_PER_PALLET_EURO1` INT(10) UNSIGNED DEFAULT NULL, "
                 + "     `UNITS_PER_PALLET_EURO2` INT(10) UNSIGNED DEFAULT NULL, "
                 + "     `UNITS_PER_CONTAINER` INT(10) UNSIGNED DEFAULT NULL, "
-                + "     `VOLUME` DECIMAL(14,4) UNSIGNED DEFAULT NULL, "
-                + "     `WEIGHT` DECIMAL(14,4) UNSIGNED DEFAULT NULL, "
+                + "     `VOLUME` DECIMAL(18,6) UNSIGNED DEFAULT NULL, "
+                + "     `WEIGHT` DECIMAL(18,6) UNSIGNED DEFAULT NULL, "
                 + "     `FOUND` tinyint(1) unsigned default null, "
                 + "     `DUPLICATE` tinyint(1) unsigned default null, "
                 + "    PRIMARY KEY (`ID`), "
@@ -1109,14 +1109,14 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "    `UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `PLANNING_UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `SUPPLIER_ID` int (10) unsigned DEFAULT NULL, "
-                + "    `WIDTH` decimal (14,4) unsigned DEFAULT NULL, "
+                + "    `WIDTH` decimal (16,6) unsigned DEFAULT NULL, "
                 + "    `LENGTH_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                + "    `LENGTH` decimal (14,4) unsigned DEFAULT NULL, "
-                + "    `HEIGHT` decimal (14,4) unsigned DEFAULT NULL, "
+                + "    `LENGTH` decimal (16,6) unsigned DEFAULT NULL, "
+                + "    `HEIGHT` decimal (16,6) unsigned DEFAULT NULL, "
                 + "    `VOLUME_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                + "    `VOLUME` decimal (14,4) unsigned DEFAULT NULL, "
+                + "    `VOLUME` decimal (16,6) unsigned DEFAULT NULL, "
                 + "    `WEIGHT_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                + "    `WEIGHT` decimal (14,4) unsigned DEFAULT NULL, "
+                + "    `WEIGHT` decimal (16,6) unsigned DEFAULT NULL, "
                 + "    `UNITS_PER_CASE` INT (10) UNSIGNED DEFAULT NULL, "
                 + "    `UNITS_PER_PALLET_EURO1` INT (10) UNSIGNED DEFAULT NULL, "
                 + "    `UNITS_PER_PALLET_EURO2` INT (10) UNSIGNED DEFAULT NULL, "
