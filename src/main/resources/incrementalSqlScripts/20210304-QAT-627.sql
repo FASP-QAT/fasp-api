@@ -1,4 +1,19 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `annualShipmentCost`(VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_PROCUREMENT_AGENT_IDS TEXT, VAR_PLANNING_UNIT_IDS TEXT, VAR_FUNDING_SOURCE_IDS TEXT, VAR_SHIPMENT_STATUS_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REPORT_BASED_ON INT)
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ * Author:  altius
+ * Created: 04-Mar-2021
+ */
+
+USE `fasp`;
+DROP procedure IF EXISTS `annualShipmentCost`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `annualShipmentCost`(VAR_PROGRAM_ID INT, VAR_VERSION_ID INT, VAR_PROCUREMENT_AGENT_IDS TEXT, VAR_PLANNING_UNIT_IDS TEXT, VAR_FUNDING_SOURCE_IDS TEXT, VAR_SHIPMENT_STATUS_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REPORT_BASED_ON INT)
 BEGIN
 
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -97,4 +112,6 @@ BEGIN
     -- select @sql1;
     PREPARE s1 FROM @sql1;
     EXECUTE s1;
-END
+END$$
+
+DELIMITER ;
