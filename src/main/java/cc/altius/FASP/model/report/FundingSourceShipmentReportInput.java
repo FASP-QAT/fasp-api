@@ -27,12 +27,7 @@ public class FundingSourceShipmentReportInput extends ShipmentReportInput implem
         if (this.fundingSourceIds == null) {
             return "";
         } else {
-            String opt = String.join("','", this.fundingSourceIds);
-            if (this.fundingSourceIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
+            return String.join(",", this.fundingSourceIds);
         }
     }
 }
