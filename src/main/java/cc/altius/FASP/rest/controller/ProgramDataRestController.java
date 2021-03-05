@@ -339,5 +339,18 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @GetMapping("/programData/getLatestVersionForProgram/{programId}")
+    public ResponseEntity getLatestVersionForProgram(@PathVariable(value = "programId", required = true) int programId){
+        try {
+            return new ResponseEntity(this.programDataService.getLatestVersionForProgram(programId), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get latest version for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get latest version for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }
