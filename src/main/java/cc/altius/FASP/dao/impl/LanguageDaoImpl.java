@@ -59,6 +59,7 @@ public class LanguageDaoImpl implements LanguageDao {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         int insertedLabelRowId = this.labelDao.addLabel(language.getLabel(), LabelConstants.AP_LANGUAGE, curUser.getUserId());
         Map<String, Object> map = new HashedMap<>();
+        map.put("LABEL_ID", insertedLabelRowId);
         map.put("LANGUAGE_CODE", language.getLanguageCode());
         map.put("COUNTRY_CODE", language.getCountryCode());
         map.put("ACTIVE", 1);
