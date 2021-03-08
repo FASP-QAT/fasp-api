@@ -20,6 +20,7 @@ import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.SuggestedDisplayName;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -39,21 +40,21 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
-    
+
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
-    
+
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
-    
+
     @Autowired
     private LabelDao labelDao;
     @Autowired
     private AclService aclService;
-    
+
     private String sqlListString = " SELECT pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.COLOR_HTML_CODE, pa.SUBMITTED_TO_APPROVED_LEAD_TIME, pa.APPROVED_TO_SHIPPED_LEAD_TIME, "
             + " r.REALM_ID, r.REALM_CODE, "
             + " pal.`LABEL_ID` ,pal.`LABEL_EN`, pal.`LABEL_FR`, pal.`LABEL_PR`, pal.`LABEL_SP`,"
@@ -66,7 +67,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
             + "  LEFT JOIN us_user cb ON pa.CREATED_BY=cb.USER_ID "
             + "  LEFT JOIN us_user lmb ON pa.LAST_MODIFIED_BY=lmb.USER_ID "
             + "  WHERE TRUE ";
-    
+
     @Override
     @Transactional
     public int addProcurementAgent(ProcurementAgent p, CustomUserDetails curUser) {
@@ -87,7 +88,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         params.put("LAST_MODIFIED_DATE", curDate);
         return si.executeAndReturnKey(params).intValue();
     }
-    
+
     @Override
     @Transactional
     public int updateProcurementAgent(ProcurementAgent p, CustomUserDetails curUser) {
@@ -115,7 +116,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                 + " pal.LAST_MODIFIED_DATE=:curDate "
                 + " WHERE pa.PROCUREMENT_AGENT_ID=:procurementAgentId", params);
     }
-    
+
     @Override
     public List<ProcurementAgent> getProcurementAgentList(boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
@@ -123,7 +124,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentRowMapper());
     }
-    
+
     @Override
     public List<ProcurementAgent> getProcurementAgentByRealm(int realmId, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
@@ -132,7 +133,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", realmId, curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentRowMapper());
     }
-    
+
     @Override
     public ProcurementAgent getProcurementAgentById(int procurementAgentId, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND pa.PROCUREMENT_AGENT_ID=:procurementAgentId ");
@@ -141,7 +142,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
         return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new ProcurementAgentRowMapper());
     }
-    
+
     @Override
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT papu.PROCUREMENT_AGENT_PLANNING_UNIT_ID, "
@@ -165,7 +166,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         params.put("procurementAgentId", procurementAgentId);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentPlanningUnitRowMapper());
     }
-    
+
     @Override
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForTracerCategory(int procurementAgentId, int planningUnitId, String term, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(" SELECT pu.PLANNING_UNIT_ID, pul.LABEL_ID, pul.LABEL_EN, pul.LABEL_FR, pul.LABEL_PR, pul.LABEL_SP,papu.SKU_CODE "
@@ -184,7 +185,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         params.put("planningUnitId", planningUnitId);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new PlanningUnitTracerCategoryRowMapper());
     }
-    
+
     @Override
     public int saveProcurementAgentPlanningUnit(ProcurementAgentPlanningUnit[] procurementAgentPlanningUnits, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_procurement_agent_planning_unit");
@@ -193,7 +194,9 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         int rowsEffected = 0;
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params;
+        System.out.println("procurementAgentPlanningUnits----" + Arrays.toString(procurementAgentPlanningUnits));
         for (ProcurementAgentPlanningUnit papu : procurementAgentPlanningUnits) {
+            System.out.println("papu------" + papu);
             if (papu.getProcurementAgentPlanningUnitId() == 0) {
                 // Insert
                 params = new HashMap<>();
@@ -258,7 +261,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         }
         return rowsEffected;
     }
-    
+
     @Override
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT papu.PROCUREMENT_AGENT_PROCUREMENT_UNIT_ID, "
@@ -282,7 +285,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         params.put("procurementAgentId", procurementAgentId);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentProcurementUnitRowMapper());
     }
-    
+
     @Override
     public int saveProcurementAgentProcurementUnit(ProcurementAgentProcurementUnit[] procurementAgentProcurementUnits, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_procurement_agent_procurement_unit");
@@ -342,7 +345,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         }
         return rowsEffected;
     }
-    
+
     @Override
     public List<ProcurementAgent> getProcurementAgentListForSync(String lastSyncDate, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND pa.LAST_MODIFIED_DATE>:lastSyncDate ");
@@ -351,7 +354,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentRowMapper());
     }
-    
+
     @Override
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitListForSync(String lastSyncDate, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT papu.PROCUREMENT_AGENT_PROCUREMENT_UNIT_ID, "
@@ -372,7 +375,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProcurementAgentProcurementUnitRowMapper());
     }
-    
+
     @Override
     public String getDisplayName(int realmId, String name, CustomUserDetails curUser) {
         String extractedName = SuggestedDisplayName.getAlphaNumericString(name, SuggestedDisplayName.PROCUREMENT_AGENT_LENGTH);

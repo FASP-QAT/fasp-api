@@ -176,6 +176,10 @@ public class UserServiceImpl implements UserService {
 //            if (emailTemplateId == 1) {
 //                bodyParam = new String[]{HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
 //            } else if (emailTemplateId == 2) {
+            System.out.println("emailId---" + emailId);
+            System.out.println("HOST_URL---" + HOST_URL);
+            System.out.println("PASSWORD_RESET_URL---" + PASSWORD_RESET_URL);
+            System.out.println("token---" + token);
             bodyParam = new String[]{emailId, HOST_URL, PASSWORD_RESET_URL, emailId, token};
 //            }
             Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);
@@ -227,6 +231,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public int updateUserLanguageByEmailId(String emailId, String languageCode) {
+        return this.userDao.updateUserLanguageByEmailId(emailId, languageCode);
+    }
+
+    @Override
     public int acceptUserAgreement(int userId) {
         return this.userDao.acceptUserAgreement(userId);
     }
@@ -249,6 +258,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUserJiraAccountId(String emailAddress, String jiraAccountId) {
         this.userDao.updateUserJiraAccountId(emailAddress, jiraAccountId);
+    }
+
+    @Override
+    public String getEmailByUserId(int userId) {
+        return this.userDao.getEmailByUserId(userId);
     }
 
 }

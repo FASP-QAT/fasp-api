@@ -75,4 +75,6 @@ public interface ProgramService {
     public List<ProgramPlanningUnit> getProgramPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 
     public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int searchId, int programId, int planningUnitId);
+    
+    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser);
 }

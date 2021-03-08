@@ -84,13 +84,17 @@ public interface UserDao {
 
     public int updateUserLanguage(int userId, String languageCode);
 
+    public int updateUserLanguageByEmailId(String emailId, String languageCode);
+
     public int acceptUserAgreement(int userId);
-    
+
     public int addUserJiraAccountId(int userId, String jiraCustomerAccountId);
-    
+
     public String getUserJiraAccountId(int userId);
-    
+
     public List<String> getUserListForUpdateJiraAccountId();
-    
+
     public void updateUserJiraAccountId(String emailAddress, String jiraAccountId);
+
+    public String getEmailByUserId(int userId);
 }

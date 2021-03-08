@@ -14,6 +14,8 @@ import cc.altius.FASP.model.ConsumptionBatchInfo;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramIntegrationDTORowMapper;
+import cc.altius.FASP.model.EmailTemplate;
+import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.IdByAndDate;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.InventoryBatchInfo;
@@ -21,6 +23,7 @@ import cc.altius.FASP.model.MasterSupplyPlan;
 import cc.altius.FASP.model.NewSupplyPlan;
 import cc.altius.FASP.model.ProblemReport;
 import cc.altius.FASP.model.ProblemReportTrans;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ReviewedProblem;
@@ -45,6 +48,9 @@ import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplifiedSupplyPlanResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SupplyPlanResultSetExtractor;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.LogUtils;
+import cc.altius.FASP.service.EmailService;
+import cc.altius.FASP.service.ProgramService;
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -79,6 +85,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private EmailService emailService;
+    @Autowired
+    private ProgramService programService;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -1185,6 +1195,48 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
 
         }
+        
+        if (versionStatusId == 2) {
+            paramsList.clear();
+            String sql = "SELECT p.PROBLEM_REPORT_ID FROM rm_problem_report p where p.PROGRAM_ID=? and p.VERSION_ID<=? and p.PROBLEM_STATUS_ID=3;";
+            List<Integer> problemReportIds = this.jdbcTemplate.queryForList(sql, Integer.class, programId, versionId);
+            problemReportUpdateSql = "UPDATE rm_problem_report pr set pr.PROBLEM_STATUS_ID=1, pr.LAST_MODIFIED_BY=:curUser, pr.LAST_MODIFIED_DATE=:curDate WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
+            problemReportTransInsertSql = "INSERT INTO rm_problem_report_trans SELECT null, :problemReportId, 1,pr.REVIEWED , pr.REVIEW_NOTES, :curUser, :curDate FROM rm_problem_report pr WHERE pr.PROBLEM_REPORT_ID=:problemReportId";
+            for (Integer rp : problemReportIds) {
+                Map<String, Object> updateParams = new HashMap<>();
+                updateParams.put("curUser", curUser.getUserId());
+                updateParams.put("curDate", curDate);
+                updateParams.put("problemReportId", rp);
+                paramsList.add(new MapSqlParameterSource(updateParams));
+            }
+            if (paramsList.size() > 0) {
+                SqlParameterSource[] updateArray = new SqlParameterSource[paramsList.size()];
+                this.namedParameterJdbcTemplate.batchUpdate(problemReportUpdateSql, paramsList.toArray(updateArray));
+                this.namedParameterJdbcTemplate.batchUpdate(problemReportTransInsertSql, updateArray);
+
+            }
+        }
+
+        if (versionStatusId != 1) {
+            Program program = this.programService.getProgramById(programId, curUser);
+            String emailSql = "select u.EMAIL_ID from us_user u where u.USER_ID \n"
+                    + "in (select v.CREATED_BY from rm_program_version v where v.PROGRAM_ID=? and v.VERSION_ID=?);";
+            String emailTo = this.jdbcTemplate.queryForObject(emailSql, String.class, programId, versionId);
+            String versionStatusSql = "select vvs.LABEL_EN from vw_version_status vvs where vvs.VERSION_STATUS_ID=?";
+            String versionStatus = this.jdbcTemplate.queryForObject(versionStatusSql, String.class, versionStatusId);
+
+            EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(5);
+            String[] subjectParam = new String[]{};
+            String[] bodyParam = null;
+            Emailer emailer = new Emailer();
+            subjectParam = new String[]{};
+            bodyParam = new String[]{program.getProgramCode(), String.valueOf(versionId), versionStatus};
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), emailTo, "", subjectParam, bodyParam);
+            int emailerId = this.emailService.saveEmail(emailer);
+            emailer.setEmailerId(emailerId);
+            this.emailService.sendMail(emailer);
+        }
+
         return this.getVersionInfo(programId, versionId);
     }
 
@@ -1331,7 +1383,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("versionId", versionId);
         String sqlString = "SELECT  "
                 + "    spa.`SUPPLY_PLAN_AMC_ID` `SUPPLY_PLAN_ID`, spa.`PROGRAM_ID`, spa.`VERSION_ID`, "
-                + "    spa.`PLANNING_UNIT_ID`, spa.`TRANS_DATE`,  "
+                + "    spa.`PLANNING_UNIT_ID`, pu.`MULTIPLIER` `CONVERSION_FACTOR`, spa.`TRANS_DATE`,  "
                 + "    spa.`OPENING_BALANCE`, spa.`OPENING_BALANCE_WPS`, "
                 + "    spa.`ACTUAL` `ACTUAL_FLAG`, IF(spa.`ACTUAL`, spa.`ACTUAL_CONSUMPTION_QTY`, spa.`FORECASTED_CONSUMPTION_QTY`) `CONSUMPTION_QTY`, "
                 + "    spa.`ADJUSTMENT_MULTIPLIED_QTY`, spa.`STOCK_MULTIPLIED_QTY`, "
@@ -1345,6 +1397,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "    spa.`AMC`, spa.`AMC_COUNT`, spa.`MOS`, spa.`MOS_WPS`, spa.`MIN_STOCK_MOS`, spa.`MIN_STOCK_QTY`, spa.`MAX_STOCK_MOS`, spa.`MAX_STOCK_QTY`, "
                 + "    b2.`BATCH_ID`, b2.`BATCH_NO`, b2.`EXPIRY_DATE`, b2.`AUTO_GENERATED`, b2.`BATCH_CLOSING_BALANCE`, b2.`BATCH_CLOSING_BALANCE_WPS`, b2.`BATCH_EXPIRED_STOCK`, b2.`BATCH_EXPIRED_STOCK_WPS`, bi.CREATED_DATE `BATCH_CREATED_DATE` "
                 + "FROM rm_supply_plan_amc spa  "
+                + "LEFT JOIN rm_planning_unit pu ON spa.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN (SELECT spbq.`PLANNING_UNIT_ID`, spbq.`TRANS_DATE`, spbq.`BATCH_ID`, bi.`BATCH_NO`, bi.`EXPIRY_DATE`, bi.`AUTO_GENERATED`, SUM(spbq.`CLOSING_BALANCE`) `BATCH_CLOSING_BALANCE`, SUM(spbq.`CLOSING_BALANCE_WPS`) `BATCH_CLOSING_BALANCE_WPS`, SUM(spbq.`EXPIRED_STOCK_WPS`) `BATCH_EXPIRED_STOCK_WPS`, SUM(spbq.`EXPIRED_STOCK`) `BATCH_EXPIRED_STOCK`  FROM rm_supply_plan_batch_qty spbq LEFT JOIN rm_batch_info bi ON spbq.`BATCH_ID`=bi.`BATCH_ID` WHERE spbq.`PROGRAM_ID`=:programId and spbq.`VERSION_ID`=:versionId GROUP by spbq.`PLANNING_UNIT_ID`, spbq.`TRANS_DATE`, spbq.`BATCH_ID`) b2 ON spa.`PLANNING_UNIT_ID`=b2.`PLANNING_UNIT_ID` AND spa.`TRANS_DATE`=b2.`TRANS_DATE` "
                 + "LEFT JOIN rm_batch_info bi ON b2.BATCH_ID=bi.BATCH_ID "
                 + "WHERE spa.`PROGRAM_ID`=:programId AND spa.`VERSION_ID`=:versionId ";
@@ -1416,6 +1469,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             List<NewSupplyPlan> spList = this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanRegionResultSetExtractor());
             sqlString = "CALL buildNewSupplyPlanBatch(:programId, :versionId)";
             msp.setNspList(this.namedParameterJdbcTemplate.query(sqlString, params, new NewSupplyPlanBatchResultSetExtractor(spList)));
+            // Build the Supply Plan over here
             msp.buildPlan();
             // Store the data in rm_supply_plan_amc and rm_supply_plan_batch_info
             List<MapSqlParameterSource> amcParams = new LinkedList<>();
@@ -1459,12 +1513,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 a1.addValue("UNMET_DEMAND_WPS", nsp.getUnmetDemandWps());
                 amcParams.add(a1);
                 for (BatchData bd : nsp.getBatchDataList()) {
-                    int batchId = 0;
+                    int batchId;
                     if (bd.getBatchId() < 0) {
                         // This is a new Batch so check if it has just been created if not then create it
                         batchId = newBatchSubstituteMap.getOrDefault(bd.getExpiryDate() + "-" + nsp.getPlanningUnitId(), 0);
                         if (batchId == 0) {
-                            String sql = "SELECT bi.BATCH_ID FROM rm_batch_info bi WHERE bi.PROGRAM_ID=:programId AND bi.PLANNING_UNIT_ID=:planningUnitId AND DATE(bi.CREATED_DATE)=DATE(:curDate) AND bi.EXPIRY_DATE=:expiryDate";
+                            String sql = "SELECT bi.BATCH_ID BATCH_ID FROM rm_batch_info bi WHERE bi.PROGRAM_ID=:programId AND bi.PLANNING_UNIT_ID=:planningUnitId AND DATE(bi.CREATED_DATE)=DATE(:curDate) AND bi.EXPIRY_DATE=:expiryDate ORDER BY bi.BATCH_ID DESC LIMIT 1";
                             Map<String, Object> newBatchParams = new HashMap<>();
                             newBatchParams.put("programId", msp.getProgramId());
                             newBatchParams.put("planningUnitId", nsp.getPlanningUnitId());
@@ -1472,6 +1526,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             newBatchParams.put("curDate", nsp.getTransDate());
                             newBatchParams.put("expiryDate", bd.getExpiryDate());
                             try {
+                                System.out.println(LogUtils.buildStringForLog(sql, newBatchParams));
                                 batchId = this.namedParameterJdbcTemplate.queryForObject(sql, newBatchParams, Integer.class);
                             } catch (EmptyResultDataAccessException erda) {
                                 sql = "INSERT INTO `rm_batch_info` SELECT "
@@ -1509,8 +1564,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     b1.addValue("OPENING_BALANCE_WPS", bd.getOpeningBalanceWps());
                     b1.addValue("EXPIRED_STOCK", bd.getExpiredStock());
                     b1.addValue("EXPIRED_STOCK_WPS", bd.getExpiredStockWps());
-                    b1.addValue("CALCULATED_CONSUMPTION", bd.getCalculatedConsumption());
-                    b1.addValue("CALCULATED_CONSUMPTION_WPS", bd.getCalculatedConsumptionWps());
+                    b1.addValue("CALCULATED_CONSUMPTION", bd.getCalculatedFEFO() + bd.getCalculatedLEFO());
+                    b1.addValue("CALCULATED_CONSUMPTION_WPS", bd.getCalculatedFEFOWps() + bd.getCalculatedLEFOWps());
                     b1.addValue("CLOSING_BALANCE", bd.getClosingBalance());
                     b1.addValue("CLOSING_BALANCE_WPS", bd.getClosingBalanceWps());
                     batchParams.add(b1);
@@ -1527,55 +1582,56 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             batchParams.toArray(batchParamsArray);
             si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_supply_plan_batch_qty");
             si.executeBatch(batchParamsArray);
-            sqlString = "UPDATE rm_supply_plan_amc spa  "
-                    + "LEFT JOIN rm_program_planning_unit ppu ON spa.PROGRAM_ID=ppu.PROGRAM_ID AND spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
-                    + "LEFT JOIN rm_program p ON spa.PROGRAM_ID=p.PROGRAM_ID "
-                    + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                    + "LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
-                    + "LEFT JOIN ( "
-                    + "    SELECT spa.PROGRAM_ID, spa.VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH), ADDDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_FUTURE_FOR_AMC-1 MONTH), "
-                    + "        SUM(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
-                    + "        ROUND(AVG(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY))) AMC, COUNT(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
-                    + "    FROM rm_supply_plan_amc spa  "
-                    + "    LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND spa.PROGRAM_ID=ppu.PROGRAM_ID "
-                    + "    LEFT JOIN rm_supply_plan_amc spa2 ON  "
-                    + "        spa.PROGRAM_ID=spa2.PROGRAM_ID  "
-                    + "        AND spa.VERSION_ID=spa2.VERSION_ID "
-                    + "        AND spa.PLANNING_UNIT_ID=spa2.PLANNING_UNIT_ID  "
-                    + "        AND spa2.TRANS_DATE BETWEEN SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH) AND ADDDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_FUTURE_FOR_AMC-1 MONTH) "
-                    + "    WHERE spa.PROGRAM_ID=@programId AND spa.VERSION_ID=@versionId "
-                    + "GROUP BY spa.PLANNING_UNIT_ID, spa.TRANS_DATE) amc ON spa.PROGRAM_ID=amc.PROGRAM_ID AND spa.VERSION_ID=amc.VERSION_ID AND spa.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID AND spa.TRANS_DATE=amc.TRANS_DATE "
-                    + "SET  "
-                    + "    spa.AMC=amc.AMC,  "
-                    + "    spa.AMC_COUNT=amc.AMC_COUNT,  "
-                    + "    spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, 0, spa.CLOSING_BALANCE/amc.AMC), "
-                    + "    spa.MOS_WPS=IF(amc.AMC IS NULL OR amc.AMC=0, 0, spa.CLOSING_BALANCE_WPS/amc.AMC), "
-                    + "    spa.MIN_STOCK_MOS = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK), "
-                    + "    spa.MAX_STOCK_MOS = IF("
-                    + "                             IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL,"
-                    + "                             r.MIN_MOS_MAX_GAURDRAIL, "
-                    + "                             IF ("
-                    + "                                 IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)>r.MAX_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, "
-                    + "                                 IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS"
-                    + "                             ) "
-                    + "                         ), "
-                    + "    spa.MIN_STOCK_QTY = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK) * amc.AMC, "
-                    + "    spa.MAX_STOCK_QTY = IF("
-                    + "                             IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL,"
-                    + "                             r.MIN_MOS_MAX_GAURDRAIL, "
-                    + "                             IF ("
-                    + "                                 IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)>r.MAX_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, "
-                    + "                                 IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS"
-                    + "                             ) "
-                    + "                         ) * amc.AMC, "
-                    + "WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
+            sqlString = "UPDATE rm_supply_plan_amc spa "
+                    + "    LEFT JOIN rm_program_planning_unit ppu ON spa.PROGRAM_ID=ppu.PROGRAM_ID AND spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID "
+                    + "    LEFT JOIN rm_program p ON spa.PROGRAM_ID=p.PROGRAM_ID "
+                    + "    LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                    + "    LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
+                    + "    LEFT JOIN ( "
+                    + "        SELECT spa.PROGRAM_ID, spa.VERSION_ID, spa.PLANNING_UNIT_ID, spa.TRANS_DATE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC, SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH), ADDDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_FUTURE_FOR_AMC-1 MONTH), "
+                    + "            SUM(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_SUM, "
+                    + "            ROUND(AVG(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY))) AMC, COUNT(IF(spa2.ACTUAL, spa2.ACTUAL_CONSUMPTION_QTY,spa2.FORECASTED_CONSUMPTION_QTY)) AMC_COUNT "
+                    + "        FROM rm_supply_plan_amc spa "
+                    + "        LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND spa.PROGRAM_ID=ppu.PROGRAM_ID "
+                    + "        LEFT JOIN (SELECT * FROM rm_supply_plan_amc spa2 WHERE spa2.PROGRAM_ID=@programId and spa2.VERSION_ID=@versionId) spa2 ON "
+                    + "            spa.PLANNING_UNIT_ID=spa2.PLANNING_UNIT_ID "
+                    + "            AND spa2.TRANS_DATE BETWEEN SUBDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_PAST_FOR_AMC MONTH) AND ADDDATE(spa.TRANS_DATE, INTERVAL ppu.MONTHS_IN_FUTURE_FOR_AMC-1 MONTH) "
+                    + "        WHERE spa.PROGRAM_ID=@programId AND spa.VERSION_ID=@versionId "
+                    + "        GROUP BY spa.PLANNING_UNIT_ID, spa.TRANS_DATE "
+                    + "    ) amc ON spa.PROGRAM_ID=amc.PROGRAM_ID AND spa.VERSION_ID=amc.VERSION_ID AND spa.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID AND spa.TRANS_DATE=amc.TRANS_DATE "
+                    + "    SET "
+                    + "        spa.AMC=amc.AMC, "
+                    + "        spa.AMC_COUNT=amc.AMC_COUNT, "
+                    + "        spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, 0, spa.CLOSING_BALANCE/amc.AMC), "
+                    + "        spa.MOS_WPS=IF(amc.AMC IS NULL OR amc.AMC=0, 0, spa.CLOSING_BALANCE_WPS/amc.AMC), "
+                    + "        spa.MIN_STOCK_MOS = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK), "
+                    + "        spa.MAX_STOCK_MOS = IF( "
+                    + "                                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, "
+                    + "                                r.MIN_MOS_MAX_GAURDRAIL, "
+                    + "                                IF ( "
+                    + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)>r.MAX_MOS_MAX_GAURDRAIL, "
+                    + "                                    r.MAX_MOS_MAX_GAURDRAIL, "
+                    + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS "
+                    + "                                ) "
+                    + "                            ), "
+                    + "        spa.MIN_STOCK_QTY = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK) * amc.AMC, "
+                    + "        spa.MAX_STOCK_QTY = IF( "
+                    + "                                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, "
+                    + "                                r.MIN_MOS_MAX_GAURDRAIL, "
+                    + "                                IF ( "
+                    + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)>r.MAX_MOS_MAX_GAURDRAIL, "
+                    + "                                    r.MAX_MOS_MAX_GAURDRAIL, "
+                    + "                                    IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS "
+                    + "                                ) "
+                    + "                            ) * amc.AMC "
+                    + "        WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
             this.namedParameterJdbcTemplate.update(sqlString, params);
 //            msp.printSupplyPlan();
         }
 
         if (returnSupplyPlan) {
-            System.out.println("get simplified supply plan list-----------");
-            return getSimplifiedSupplyPlan(programId, versionId);
+            List<SimplifiedSupplyPlan> sp = getSimplifiedSupplyPlan(programId, versionId);
+            return sp;
         } else {
             return new LinkedList<>();
         }
@@ -1647,6 +1703,17 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("integrationId", integrationId);
         params.put("curDate", curDate);
         return (this.namedParameterJdbcTemplate.update("INSERT INTO rm_integration_program_completed VALUES (:programVersionTransId, :integrationId, :curDate) ", params) == 1);
+    }
+
+    @Override
+    public String getSupplyPlanReviewerEmialList(int realmCountryId) {
+        String sql = "select group_concat(u.EMAIL_ID)\n"
+                + "from us_user u\n"
+                + "left join us_user_role ur on u.USER_ID=ur.USER_ID\n"
+                + "left join us_user_acl ua on ua.USER_ID=u.USER_ID\n"
+                + "where ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER' and\n"
+                + "(ua.REALM_COUNTRY_ID is null OR ua.REALM_COUNTRY_ID=?)";
+        return this.jdbcTemplate.queryForObject(sql, String.class, realmCountryId);
     }
 
 }

@@ -1,0 +1,37 @@
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockStatusForProgramPlanningUnit`(VAR_PROGRAM_ID INT (10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_ID INT (10), VAR_DT DATE, VAR_APPROVED_SUPPLY_PLAN_ONLY TINYINT(1))
+BEGIN
+
+	SET @programId = VAR_PROGRAM_ID;
+    SET @versionId = VAR_VERSION_ID;
+	SET @dt = VAR_DT;
+    SET @planningUnitId = VAR_PLANNING_UNIT_ID;
+    SET @approvedSupplyPlanOnly = VAR_APPROVED_SUPPLY_PLAN_ONLY;
+    
+    IF @approvedSupplyPlanOnly=1 THEN 
+        SELECT IF(@versionId=-1, MAX(pv.VERSION_ID), @versionId) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId AND pv.VERSION_STATUS_ID=2 AND pv.VERSION_TYPE_ID=2;
+    ELSE 
+        SELECT IF(@versionId=-1, MAX(pv.VERSION_ID), @versionId) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
+    END IF;
+    
+    SELECT 
+        p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`,
+        amc.AMC, amc.AMC_COUNT, amc.CLOSING_BALANCE, amc.MOS, 
+        IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK) `MIN_STOCK_MOS`, 
+        IF(
+            IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS<r.MIN_MOS_MAX_GAURDRAIL, 
+            r.MIN_MOS_MAX_GAURDRAIL, 
+            IF(
+                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS>r.MAX_MOS_MAX_GAURDRAIL,
+                r.MAX_MOS_MAX_GAURDRAIL,
+                IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)+ppu.REORDER_FREQUENCY_IN_MONTHS
+            )
+        ) `MAX_STOCK_MOS`
+    FROM rm_program_planning_unit ppu 
+    LEFT JOIN rm_supply_plan_amc amc ON amc.PROGRAM_ID=ppu.PROGRAM_ID AND amc.VERSION_ID=@versionId AND amc.TRANS_DATE=@dt AND ppu.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID
+    LEFT JOIN vw_program p ON ppu.PROGRAM_ID=p.PROGRAM_ID
+    LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID
+    LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID
+    WHERE 			
+        ppu.PROGRAM_ID=@programId 
+        AND ppu.PLANNING_UNIT_ID=@planningUnitId;
+END

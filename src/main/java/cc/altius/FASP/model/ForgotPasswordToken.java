@@ -79,22 +79,26 @@ public class ForgotPasswordToken implements Serializable {
     }
 
     public String inValidReasonForTriggering() {
-        logger.error("tokenTriggeredDate----" + tokenTriggeredDate);
-        logger.error("tokenCompletionDate---" + tokenCompletionDate);
+        logger.info("tokenTriggeredDate----" + tokenTriggeredDate);
+        logger.info("tokenCompletionDate---" + tokenCompletionDate);
         if (this.tokenTriggeredDate != null || this.tokenCompletionDate != null) {
+            logger.info("Either tokenTriggeredDate is not null or  tokenCompletionDate is not null");
             return "static.message.user.forgotPasswordTokenUsed";
         }
         Calendar allowedTriggerDate = Calendar.getInstance();
         allowedTriggerDate.setTime(this.tokenGenerationDate);
         allowedTriggerDate.add(Calendar.MINUTE, 15);
+        logger.info("allowedTriggerDate---" + allowedTriggerDate);
         Calendar curDate = Calendar.getInstance();
         curDate.setTime(DateUtils.getCurrentDateObject(DateUtils.EST));
         logger.error("allowed trigger date---" + allowedTriggerDate.getTime());
         logger.error("cur date---" + curDate.getTime());
         logger.error("difference---" + DateUtils.compareDate(allowedTriggerDate.getTime(), curDate.getTime()));
         if (DateUtils.compareDate(allowedTriggerDate.getTime(), curDate.getTime()) == 1) {
+            logger.info("compare date inside if");
             return "";
         } else {
+            logger.info("compare dates inside else");
             return "static.message.user.forgotPasswordTokenUsed";
         }
     }
@@ -104,20 +108,39 @@ public class ForgotPasswordToken implements Serializable {
     }
 
     public String inValidReasonForCompletion() {
-        if (this.tokenTriggeredDate == null) {
-            return "static.message.user.invalidToken";
-        } else if (this.tokenCompletionDate != null) {
+//        if (this.tokenTriggeredDate == null) {
+//            logger.info("this.tokenTriggeredDate---" + this.tokenTriggeredDate);
+//            System.out.println("inside if token");
+//            return "static.message.user.invalidToken";
+//        } else 
+//            
+        if (this.tokenCompletionDate != null) {
+            System.out.println("inside else if token");
+            logger.info("this.tokenCompletionDate---" + this.tokenCompletionDate);
             return "static.message.user.forgotPasswordTokenUsed";
         }
         Calendar allowedCompletionDate = Calendar.getInstance();
-        allowedCompletionDate.setTime(this.tokenTriggeredDate);
-        allowedCompletionDate.add(Calendar.MINUTE, 3);
+//        allowedCompletionDate.setTime(this.tokenTriggeredDate);
+        allowedCompletionDate.setTime(this.tokenGenerationDate);
+        allowedCompletionDate.add(Calendar.MINUTE, 15);
+        logger.info("allowedCompletionDate---" + allowedCompletionDate);
         Calendar curDate = Calendar.getInstance();
         curDate.setTime(DateUtils.getCurrentDateObject(DateUtils.EST));
+        logger.info("curDate---" + curDate);
         if (DateUtils.compareDate(allowedCompletionDate.getTime(), curDate.getTime()) == 1) {
+            logger.info("compare date d inside if---");
+            System.out.println("compare date");
             return "";
         } else {
+            System.out.println("compare date ");
+            logger.info("compare date d inside else---");
             return "static.message.user.TokenExpired";
         }
     }
+
+    @Override
+    public String toString() {
+        return "ForgotPasswordToken{" + "logger=" + logger + ", userId=" + userId + ", username=" + username + ", token=" + token + ", tokenGenerationDate=" + tokenGenerationDate + ", tokenTriggeredDate=" + tokenTriggeredDate + ", tokenCompletionDate=" + tokenCompletionDate + '}';
+    }
+
 }
