@@ -15,12 +15,12 @@ import org.springframework.jdbc.core.RowMapper;
  * @author altius
  */
 public class LanguageRowMapper implements RowMapper<Language> {
-
+    
     @Override
     public Language mapRow(ResultSet rs, int i) throws SQLException {
-        Language l = new Language(rs.getInt("LANGUAGE_ID"), rs.getString("LANGUAGE_NAME"), rs.getString("LANGUAGE_CODE"));
+        Language l = new Language(rs.getInt("LANGUAGE_ID"), new LabelRowMapper("").mapRow(rs, i), rs.getString("LANGUAGE_CODE"), rs.getString("COUNTRY_CODE"));
         l.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return l;
     }
-
+    
 }
