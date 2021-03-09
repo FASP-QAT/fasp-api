@@ -8,8 +8,10 @@ package cc.altius.FASP.ARTMIS.dao.impl;
 import cc.altius.FASP.ARTMIS.dao.ExportArtmisDataDao;
 import cc.altius.FASP.model.DTO.ExportOrderDataDTO;
 import cc.altius.FASP.model.DTO.ExportProgramDataDTO;
+import cc.altius.FASP.model.DTO.ExportShipmentLinkingDTO;
 import cc.altius.FASP.model.DTO.rowMapper.ExportOrderDataDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ExportProgramDataDTORowMapper;
+import cc.altius.FASP.model.DTO.rowMapper.ExportShipmentLinkingDTORowMapper;
 import cc.altius.utils.DateUtils;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -80,6 +82,19 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
     public boolean updateLastDate(String erpCode, String jobName, Date lastDate) {
         String sqlString = "UPDATE ap_export SET LAST_DATE = ? WHERE ERP_CODE=? AND JOB_NAME=?";
         return (this.jdbcTemplate.update(sqlString, lastDate, erpCode, jobName) == 1);
+    }
+
+    @Override
+    public List<ExportShipmentLinkingDTO> exportShipmentLinkingData(Date lastDate) {
+        String sql = "SELECT s.`PROGRAM_ID`,l.`LABEL_EN`,m.`SHIPMENT_ID`,b.RO_NO,m.`ORDER_NO`,m.`PRIME_LINE_NO`,m.`ACTIVE`,m.`LAST_MODIFIED_DATE` FROM rm_manual_tagging m "
+                + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=m.`SHIPMENT_ID` "
+                + "LEFT JOIN rm_program p ON p.`PROGRAM_ID`=s.`PROGRAM_ID` "
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
+                + "LEFT JOIN (SELECT a.* FROM ( "
+                + "SELECT o.`ERP_ORDER_ID`,o.`RO_NO`,o.`ORDER_NO`,o.`PRIME_LINE_NO` FROM rm_erp_order o "
+                + "ORDER BY o.`ERP_ORDER_ID` DESC) AS a "
+                + "GROUP BY a.RO_NO,a.ORDER_NO,a.PRIME_LINE_NO ) AS b ON b.ORDER_NO=m.`ORDER_NO` AND b.PRIME_LINE_NO =m.`PRIME_LINE_NO`;";
+        return this.jdbcTemplate.query(sql, new ExportShipmentLinkingDTORowMapper());
     }
 
 }
