@@ -46,5 +46,6 @@ public class LabelConstants implements Serializable {
     public static final int RM_PROCUREMENT_UNIT = 31;
     public static final int RM_REALM_COUNTRY_PLANNING_UNIT = 32;
     public static final int RM_SUPPLIER = 33;
+    public static final int AP_LANGUAGE = 35;
 
 }
