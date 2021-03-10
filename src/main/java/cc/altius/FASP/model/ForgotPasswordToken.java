@@ -122,7 +122,7 @@ public class ForgotPasswordToken implements Serializable {
         Calendar allowedCompletionDate = Calendar.getInstance();
 //        allowedCompletionDate.setTime(this.tokenTriggeredDate);
         allowedCompletionDate.setTime(this.tokenGenerationDate);
-        allowedCompletionDate.add(Calendar.MINUTE, 15);
+        allowedCompletionDate.add(Calendar.HOUR, 24);
         logger.info("allowedCompletionDate---" + allowedCompletionDate);
         Calendar curDate = Calendar.getInstance();
         curDate.setTime(DateUtils.getCurrentDateObject(DateUtils.EST));
