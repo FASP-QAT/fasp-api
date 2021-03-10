@@ -79,7 +79,7 @@ public class ExportShipmentLinkingCsv {
             sb.append("Found " + exportShipmentLinkingData.size() + " records").append(br);
             File directory = new File(QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH);
             if (directory.isDirectory()) {
-                path = QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH + "QAT_Shimpent_Linking_" + curDate + ".csv";
+                path = QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH + "QAT_Shipment_Linking_" + curDate + ".csv";
                 FileWriter fileWriter = new FileWriter(path);
                 fileWriter.append("PROGRAM_ID");
                 fileWriter.append(',');
@@ -101,8 +101,6 @@ public class ExportShipmentLinkingCsv {
                     fileWriter.append(Integer.toString(e.getProgramId()));
                     fileWriter.append(',');
                     fileWriter.append(e.getProgramName());
-                    fileWriter.append(',');
-                    fileWriter.append(Integer.toString(e.getProgramId()));
                     fileWriter.append(',');
                     fileWriter.append(Integer.toString(e.getParentShipmentId()));
                     fileWriter.append(',');
