@@ -94,6 +94,7 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
                 + "SELECT o.`ERP_ORDER_ID`,o.`RO_NO`,o.`ORDER_NO`,o.`PRIME_LINE_NO` FROM rm_erp_order o "
                 + "ORDER BY o.`ERP_ORDER_ID` DESC) AS a "
                 + "GROUP BY a.RO_NO,a.ORDER_NO,a.PRIME_LINE_NO ) AS b ON b.ORDER_NO=m.`ORDER_NO` AND b.PRIME_LINE_NO =m.`PRIME_LINE_NO`;";
+        System.out.println("list-------" + this.jdbcTemplate.query(sql, new ExportShipmentLinkingDTORowMapper()));
         return this.jdbcTemplate.query(sql, new ExportShipmentLinkingDTORowMapper());
     }
 
