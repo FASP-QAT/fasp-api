@@ -113,12 +113,14 @@ public class LabelDaoImpl implements LabelDao {
             this.jdbcTemplate.update(sql, staticLabelDTO.getStaticLabelId());
             String sql1 = "INSERT INTO ap_static_label_languages VALUES  (NULL,?,?,?)";
             for (StaticLabelLanguagesDTO staticLabelLanguagesDTO : staticLabelDTO.getStaticLabelLanguages()) {
-                Object[] valuesInsert = new Object[]{
-                    staticLabelDTO.getStaticLabelId(),
-                    staticLabelLanguagesDTO.getLanguageId(),
-                    staticLabelLanguagesDTO.getLabelText()
-                };
-                batchInsert.add(valuesInsert);
+                if (staticLabelLanguagesDTO.getLabelText() != "") {
+                    Object[] valuesInsert = new Object[]{
+                        staticLabelDTO.getStaticLabelId(),
+                        staticLabelLanguagesDTO.getLanguageId(),
+                        staticLabelLanguagesDTO.getLabelText()
+                    };
+                    batchInsert.add(valuesInsert);
+                }
             }
             this.jdbcTemplate.batchUpdate(sql1, batchInsert);
         }
