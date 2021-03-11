@@ -626,6 +626,9 @@ DELETE FROM `fasp`.`us_role_business_function` WHERE `BUSINESS_FUNCTION_ID`='ROL
 DELETE FROM `fasp`.`us_business_function` WHERE `BUSINESS_FUNCTION_ID`='ROLE_BF_PRODUCT_CATEGORY';
 DELETE FROM `fasp`.`us_role_business_function` WHERE `BUSINESS_FUNCTION_ID`='ROLE_BF_PRODUCT_CATEGORY';
 
+DELETE FROM `fasp`.`us_business_function` WHERE `BUSINESS_FUNCTION_ID`='ROLE_BF_FUNDER_REPORT';
+DELETE FROM `fasp`.`us_role_business_function` WHERE `BUSINESS_FUNCTION_ID`='ROLE_BF_FUNDER_REPORT';
+
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Label Translation' WHERE `LABEL_ID`=45;
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Load Progarm ' WHERE `LABEL_ID`=76;
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Delete Local Program' WHERE `LABEL_ID`=1119;
