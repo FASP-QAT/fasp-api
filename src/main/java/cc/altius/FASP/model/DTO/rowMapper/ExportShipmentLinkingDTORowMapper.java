@@ -20,6 +20,7 @@ public class ExportShipmentLinkingDTORowMapper implements RowMapper<ExportShipme
     public ExportShipmentLinkingDTO mapRow(ResultSet rs, int arg1) throws SQLException {
         ExportShipmentLinkingDTO e = new ExportShipmentLinkingDTO();
         e.setProgramId(rs.getInt(("PROGRAM_ID")));
+        e.setManualTaggingId(rs.getInt("MANUAL_TAGGING_ID"));
         e.setProgramName(rs.getString("LABEL_EN"));
         e.setParentShipmentId(rs.getInt("SHIPMENT_ID"));
         e.setRoNo(rs.getString("RO_NO"));

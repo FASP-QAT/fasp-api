@@ -67,7 +67,7 @@ public class ExportShipmentLinkingCsv {
         String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         try {
             String curDate = simpleDateFormat1.format(DateUtils.getCurrentDateObject(DateUtils.EST));
-            System.out.println("new date format----"+simpleDateFormat1.format(DateUtils.getCurrentDateObject(DateUtils.EST)));
+            System.out.println("new date format----" + simpleDateFormat1.format(DateUtils.getCurrentDateObject(DateUtils.EST)));
             String path;
             Date lastDate;
             lastDate = this.exportArtmisDataService.getLastDate("ARTMIS", "QAT_Shipment_Linking");
@@ -81,6 +81,8 @@ public class ExportShipmentLinkingCsv {
             if (directory.isDirectory()) {
                 path = QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH + "QAT_Shipment_Linking_" + curDate + ".csv";
                 FileWriter fileWriter = new FileWriter(path);
+                fileWriter.append("MANUAL_TAGGING_ID");
+                fileWriter.append(',');
                 fileWriter.append("PROGRAM_ID");
                 fileWriter.append(',');
                 fileWriter.append("PROGRAM_NAME");
@@ -98,6 +100,8 @@ public class ExportShipmentLinkingCsv {
                 int cnt = 0;
                 Date maxDate = lastDate;
                 for (ExportShipmentLinkingDTO e : exportShipmentLinkingData) {
+                    fileWriter.append(Integer.toString(e.getManualTaggingId()));
+                    fileWriter.append(',');
                     fileWriter.append(Integer.toString(e.getProgramId()));
                     fileWriter.append(',');
                     fileWriter.append(e.getProgramName());
