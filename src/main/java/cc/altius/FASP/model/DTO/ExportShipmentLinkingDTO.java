@@ -14,6 +14,7 @@ import java.util.Date;
 public class ExportShipmentLinkingDTO {
 
     private int programId;
+    private int manualTaggingId;
     private String programName;
     private int parentShipmentId;
     private String roNo;
@@ -28,6 +29,14 @@ public class ExportShipmentLinkingDTO {
 
     public void setProgramId(int programId) {
         this.programId = programId;
+    }
+
+    public int getManualTaggingId() {
+        return manualTaggingId;
+    }
+
+    public void setManualTaggingId(int manualTaggingId) {
+        this.manualTaggingId = manualTaggingId;
     }
 
     public String getProgramName() {
@@ -88,7 +97,7 @@ public class ExportShipmentLinkingDTO {
 
     @Override
     public String toString() {
-        return "ExportShipmentLinkingDTO{" + "programId=" + programId + ", programName=" + programName + ", parentShipmentId=" + parentShipmentId + ", roNo=" + roNo + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", active=" + active + ", lastModifiedDate=" + lastModifiedDate + '}';
+        return "ExportShipmentLinkingDTO{" + "programId=" + programId + ", manualTaggingId=" + manualTaggingId + ", programName=" + programName + ", parentShipmentId=" + parentShipmentId + ", roNo=" + roNo + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", active=" + active + ", lastModifiedDate=" + lastModifiedDate + '}';
     }
 
 }

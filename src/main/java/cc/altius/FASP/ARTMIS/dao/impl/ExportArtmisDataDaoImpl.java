@@ -86,7 +86,7 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
 
     @Override
     public List<ExportShipmentLinkingDTO> exportShipmentLinkingData(Date lastDate) {
-        String sql = "SELECT s.`PROGRAM_ID`,l.`LABEL_EN`,m.`SHIPMENT_ID`,b.RO_NO,m.`ORDER_NO`,m.`PRIME_LINE_NO`,m.`ACTIVE`,m.`LAST_MODIFIED_DATE` FROM rm_manual_tagging m "
+        String sql = "SELECT s.`PROGRAM_ID`,m.`MANUAL_TAGGING_ID`,l.`LABEL_EN`,m.`SHIPMENT_ID`,b.RO_NO,m.`ORDER_NO`,m.`PRIME_LINE_NO`,m.`ACTIVE`,m.`LAST_MODIFIED_DATE` FROM rm_manual_tagging m "
                 + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=m.`SHIPMENT_ID` "
                 + "LEFT JOIN rm_program p ON p.`PROGRAM_ID`=s.`PROGRAM_ID` "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
