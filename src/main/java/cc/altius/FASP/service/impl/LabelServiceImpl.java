@@ -40,8 +40,8 @@ public class LabelServiceImpl implements LabelService {
     }
 
     @Override
-    public boolean saveStaticLabels(List<String> label, CustomUserDetails curUser) {
-        return this.labelDao.saveStaticLabels(label, curUser);
+    public boolean saveStaticLabels(List<StaticLabelDTO> staticLabelList, CustomUserDetails curUser) {
+        return this.labelDao.saveStaticLabels(staticLabelList, curUser);
     }
 
 }

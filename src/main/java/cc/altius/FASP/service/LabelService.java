@@ -22,5 +22,5 @@ public interface LabelService {
     
     public List<StaticLabelDTO> getStaticLabelsList();
     
-    public boolean saveStaticLabels(List<String> label,CustomUserDetails curUser);
+    public boolean saveStaticLabels(List<StaticLabelDTO> staticLabelList,CustomUserDetails curUser);
 }
