@@ -638,5 +638,5 @@ UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Add Realm' WHERE `LABEL_ID`=53;
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='List Procurement Unit' WHERE `LABEL_ID`=1126;
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Update Program Info' WHERE `LABEL_ID`=430;
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Link ERP Shipments' WHERE `LABEL_ID`=1110;
-UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Link ERP Shipments' WHERE `LABEL_ID`=1111;
+UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Update ERP Shipments' WHERE `LABEL_ID`=1111;
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Supply Planning' WHERE `LABEL_ID`=78;
