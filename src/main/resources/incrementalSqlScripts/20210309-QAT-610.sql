@@ -642,3 +642,5 @@ UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Update Program Info' WHERE `LABEL_ID`=4
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Link ERP Shipments' WHERE `LABEL_ID`=1110;
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Update ERP Shipments' WHERE `LABEL_ID`=1111;
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Supply Planning' WHERE `LABEL_ID`=78;
+
+SET FOREIGN_KEY_CHECKS = 1;
