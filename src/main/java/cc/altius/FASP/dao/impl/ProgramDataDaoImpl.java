@@ -692,7 +692,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  `SHIPMENT_STATUS_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `DATA_SOURCE_ID` INT(10) UNSIGNED NOT NULL, "
                 + "  `NOTES` TEXT NULL, "
-                + "  `ORDER_NO` VARCHAR(25) NULL, "
+                + "  `ORDER_NO` VARCHAR(50) NULL, "
                 + "  `PRIME_LINE_NO` VARCHAR(10) NULL, "
                 + "  `CREATED_BY` INT UNSIGNED NOT NULL, "
                 + "  `CREATED_DATE` DATETIME NOT NULL, "

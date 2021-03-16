@@ -213,4 +213,9 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         return this.programDataDao.updateSupplyPlanAsExported(programVersionTransId, integrationId);
     }
 
+    @Override
+    public int getLatestVersionForProgram(int programId) {
+        return this.programDataDao.getLatestVersionForProgram(programId);
+    }
+
 }
