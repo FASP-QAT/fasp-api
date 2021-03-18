@@ -57,4 +57,6 @@ public interface ProgramDataService {
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList();
 
     public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId);
+    
+    public int getLatestVersionForProgram(int programId);
 }
