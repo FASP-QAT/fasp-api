@@ -69,3 +69,5 @@ END$$
 
 DELIMITER ;
 
+
+update rm_supply_plan_amc rspa set rspa.MOS=null,rspa.MOS_WPS=null where rspa.AMC=0;
