@@ -101,6 +101,26 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
             + "LEFT JOIN us_user lmb ON rcpu.LAST_MODIFIED_BY=lmb.USER_ID "
             + "WHERE TRUE AND c.ACTIVE AND rc.ACTIVE ";
 
+    private final String sqlListStringForRealmCountryPlanningUnitByProgram = "SELECT rcpu.REALM_COUNTRY_PLANNING_UNIT_ID, "
+            + "              rc.REALM_COUNTRY_ID, c.LABEL_ID `REALM_COUNTRY_LABEL_ID`, c.LABEL_EN `REALM_COUNTRY_LABEL_EN`, c.LABEL_FR `REALM_COUNTRY_LABEL_FR`, c.LABEL_PR `REALM_COUNTRY_LABEL_PR`, c.LABEL_SP `REALM_COUNTRY_LABEL_SP`, "
+            + "              pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, "
+            + "              rcpu.SKU_CODE, rcpu.MULTIPLIER, "
+            + "              rcpu.LABEL_ID, rcpu.LABEL_EN, rcpu.LABEL_FR, rcpu.LABEL_SP, rcpu.LABEL_PR, "
+            + "              u.UNIT_ID, u.UNIT_CODE, u.LABEL_ID `UNIT_LABEL_ID`, u.LABEL_EN `UNIT_LABEL_EN`, u.LABEL_FR `UNIT_LABEL_FR`, u.LABEL_SP  `UNIT_LABEL_SP`, u.LABEL_PR  `UNIT_LABEL_PR`, "
+            + "              rcpu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, rcpu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, rcpu.LAST_MODIFIED_DATE "
+            + "FROM rm_program p "
+            + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID "
+            + "LEFT JOIN vw_realm_country_planning_unit rcpu ON ppu.PLANNING_UNIT_ID=rcpu.PLANNING_UNIT_ID AND p.REALM_COUNTRY_ID=rcpu.REALM_COUNTRY_ID "
+            + "LEFT JOIN rm_realm_country rc  ON rc.REALM_COUNTRY_ID=rcpu.REALM_COUNTRY_ID "
+            + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+            + "LEFT JOIN ap_label rcpul ON rcpu.LABEL_ID=rcpul.LABEL_ID "
+            + "LEFT JOIN vw_planning_unit pu ON rcpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+            + "LEFT JOIN vw_unit u ON rcpu.UNIT_ID=u.UNIT_ID "
+            + "LEFT JOIN us_user cb ON rcpu.CREATED_BY=cb.USER_ID "
+            + "LEFT JOIN us_user lmb ON rcpu.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "WHERE TRUE AND c.ACTIVE AND rc.ACTIVE AND ppu.ACTIVE AND p.ACTIVE ";
+    
+
     @Override
     @Transactional(propagation = Propagation.NESTED)
     public int addRealmCountry(RealmCountry realmCountry, CustomUserDetails curUser) {
@@ -197,6 +217,29 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
     }
 
     @Override
+    public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForProgramList(String[] programIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForRealmCountryPlanningUnitByProgram).append(" AND p.PROGRAM_ID IN (").append(getProgramIdString(programIds)).append(")");
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        System.out.println(sqlStringBuilder.toString());
+        System.out.println(params);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryPlanningUnitRowMapper());
+    }
+    
+    public String getProgramIdString(String[] programIds) {
+        if (programIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", programIds);
+            if (programIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
+
+    @Override
     public List<RealmCountryHealthArea> getRealmCountryListByRealmIdForActivePrograms(int realmId, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
@@ -218,7 +261,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params;
         for (RealmCountryPlanningUnit rcpu : realmCountryPlanningUnits) {
-            System.out.println("------------rcpu-------------"+rcpu);
+            System.out.println("------------rcpu-------------" + rcpu);
             if (rcpu.getRealmCountryPlanningUnitId() == 0) {
                 // Insert
                 params = new HashMap<>();
