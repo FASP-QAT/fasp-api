@@ -1017,6 +1017,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             + "AND (pr.PROBLEM_STATUS_ID!=:PROBLEM_STATUS_ID OR pr.REVIEWED!=:REVIWED OR pr.LAST_MODIFIED_BY!=:LAST_MODIFIED_BY OR pr.LAST_MODIFIED_DATE!=:LAST_MODIFIED_DATE);";
                     this.namedParameterJdbcTemplate.update(sqlString, tp);
                 }
+                
+                sqlString="UPDATE rm_problem_report pr  "
+                           + "SET pr.DATA5=:DATA5,  "
+                           + "pr.DATA1=:DATA1, "
+                           + "pr.LAST_MODIFIED_BY=:LAST_MODIFIED_BY,  "
+                           + "pr.LAST_MODIFIED_DATE=:LAST_MODIFIED_DATE  "
+                           + "WHERE pr.PROBLEM_REPORT_ID=:PROBLEM_REPORT_ID  "
+                           + "AND (pr.DATA5!=:DATA5 OR pr.DATA1!=:DATA1 OR pr.LAST_MODIFIED_BY!=:LAST_MODIFIED_BY OR pr.LAST_MODIFIED_DATE!=:LAST_MODIFIED_DATE);";
+               this.namedParameterJdbcTemplate.update(sqlString, tp);
             }
             updatedProblemAction |= updatedProblemActionRowLevel;
         }
