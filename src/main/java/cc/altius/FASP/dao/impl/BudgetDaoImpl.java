@@ -105,12 +105,13 @@ public class BudgetDaoImpl implements BudgetDao {
         params.put("curDate", curDate);
         params.put("labelEn", b.getLabel().getLabel_en());
         params.put("notes", b.getNotes());
+        params.put("fundingSourceId",b.getFundingSource().getFundingSourceId());
         return this.namedParameterJdbcTemplate.update("UPDATE rm_budget b "
                 + "LEFT JOIN ap_label bl ON b.LABEL_ID=bl.LABEL_ID SET "
                 + "bl.`LABEL_EN`=:labelEn, "
                 + "bl.`LAST_MODIFIED_BY`=:curUser, "
                 + "bl.`LAST_MODIFIED_DATE`=:curDate, "
-                + "b.`BUDGET_CODE`=:budgetCode, b.`BUDGET_AMT`=:budgetAmt, b.`START_DATE`=:startDate, b.`STOP_DATE`=:stopDate, b.ACTIVE=:active, b.NOTES=:notes, "
+                + "b.`BUDGET_CODE`=:budgetCode, b.`BUDGET_AMT`=:budgetAmt, b.`START_DATE`=:startDate, b.`STOP_DATE`=:stopDate, b.ACTIVE=:active, b.NOTES=:notes,b.FUNDING_SOURCE_ID=:fundingSourceId, "
                 + "b.LAST_MODIFIED_BY=:curUser, "
                 + "b.LAST_MODIFIED_DATE=:curDate "
                 + "WHERE b.BUDGET_ID=:budgetId", params);
