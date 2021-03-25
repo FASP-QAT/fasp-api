@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class IntegrationProgram extends BaseModel implements Serializable {
 
     private int integrationProgramId;
-    private SimpleObject integration;
+    private Integration integration;
     private SimpleObject program;
     private SimpleObject versionType;
     private SimpleObject versionStatus;
@@ -27,11 +27,11 @@ public class IntegrationProgram extends BaseModel implements Serializable {
         this.integrationProgramId = integrationProgramId;
     }
 
-    public SimpleObject getIntegration() {
+    public Integration getIntegration() {
         return integration;
     }
 
-    public void setIntegration(SimpleObject integration) {
+    public void setIntegration(Integration integration) {
         this.integration = integration;
     }
 
