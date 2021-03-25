@@ -40,13 +40,13 @@ public class UserManualRestController {
             this.userManualService.uploadUserManual(file);
             return new ResponseEntity(HttpStatus.OK);
         } catch (AccessDeniedException e) {
-            logger.error("Error while trying to add Budget", e);
+            logger.error("Error while trying to upload user manual", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
         } catch (EmptyResultDataAccessException e) {
-            logger.error("Error while trying to add Budget", e);
+            logger.error("Error while trying to upload user manual", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
-            logger.error("Error while trying to add Budget", e);
+            logger.error("Error while trying to upload user manual", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
