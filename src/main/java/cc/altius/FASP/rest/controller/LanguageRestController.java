@@ -129,6 +129,7 @@ public class LanguageRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity addLanguage(@RequestBody(required = true) Language language, Authentication auth) {
         try {
+            System.out.println("language---"+language);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             int languageId = this.languageService.addLanguage(language, curUser);
             if (languageId > 0) {

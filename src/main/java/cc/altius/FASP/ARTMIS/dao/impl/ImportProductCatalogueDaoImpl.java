@@ -678,7 +678,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
         // Step 2 - Create Temporary Table
         sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
-                //        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
+//        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
                 + "    `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
                 + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,   "
@@ -705,7 +705,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
 
         // Step 3 insert into the tmp_label the ProductNameNoPack
-        sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, ProductNameNoPack, null, IF(TRIM(INN)='',null,TRIM(INN)), null, BaseUnit, CommodityCouncil, Subcategory, TracerCategory, 0, null FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' group by tpc.ProductIDNoPack";
+        sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, ProductNameNoPack, null, IF(TRIM(INN)='',null,TRIM(INN)), null, BaseUnit, CommodityCouncil, Subcategory, TracerCategory, 0, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' group by tpc.ProductIDNoPack";
         int rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " inserted into the tmp_label for ProductNameNoPack");
         sb.append(rows).append(" inserted into the tmp_label for ProductNameNoPack").append(br);
@@ -729,10 +729,11 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
         sqlString = "SELECT GENERIC_LABEL FROM tmp_forecasting_unit tfu WHERE tfu.GENERIC_LABEL_ID IS NULL AND tfu.GENERIC_LABEL IS NOT NULL AND tfu.GENERIC_LABEL !=''";
         // Step 4a Create Generic names that did not match
+        sb.append("generic name---" + this.jdbcTemplate.queryForList(sqlString, String.class));
         for (String genericLabel : this.jdbcTemplate.queryForList(sqlString, String.class)) {
             // Step 6: Insert into the label table
             sqlString = "INSERT INTO `ap_label` (`LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `SOURCE_ID`) VALUES (? , null, null, null, 1, now(), 1, now(), 29)";
-            this.jdbcTemplate.update(sqlString, genericLabel);
+            sb.append("ap_label---" + this.jdbcTemplate.update(sqlString, genericLabel));
             int labelId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
             sqlString = "update tmp_forecasting_unit tfu "
                     + "set tfu.GENERIC_LABEL_ID = ? "
@@ -776,19 +777,24 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
 
         for (ForecastingUnit fu : this.jdbcTemplate.query(sqlString, new ForecastingUnitRowMapper())) {
             try {
-                sqlString = "SELECT UNIT_ID FROM vw_unit u WHERE u.UNIT_CODE=? OR u.LABEL_EN=?";
+                sqlString = "SELECT UNIT_ID FROM vw_unit u WHERE u.UNIT_CODE=? OR u.LABEL_EN=? LIMIT 1";
+                logger.info("unit id code---" + fu.getUnit().getCode());
+                logger.info("unit id---" + fu.getUnit().getLabel().getLabel_en());
+                logger.info("unit id---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getUnit().getCode(), fu.getUnit().getLabel().getLabel_en()));
                 fu.getUnit().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getUnit().getCode(), fu.getUnit().getLabel().getLabel_en()));
                 forecastingUnitParams.replace("UNIT_ID", fu.getUnit().getId());
-
+                sb.append("----------fu 1--------------");
                 sqlString = "SELECT SORT_ORDER FROM vw_product_category pc WHERE pc.REALM_ID=1 AND pc.LABEL_EN LIKE '%" + fu.getProductCategory().getLabel().getLabel_fr() + "' AND length(pc.SORT_ORDER)=5";
                 String sortOrder = this.jdbcTemplate.queryForObject(sqlString, String.class);
+                sb.append("----------fu 2--------------");
                 sqlString = "SELECT PRODUCT_CATEGORY_ID FROM vw_product_category pc WHERE pc.REALM_ID=1 AND pc.LABEL_EN=? AND pc.SORT_ORDER LIKE '" + sortOrder + "%'";
                 fu.getProductCategory().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getProductCategory().getLabel().getLabel_en()));
                 forecastingUnitParams.replace("PRODUCT_CATEGORY_ID", fu.getProductCategory().getId());
-
+                sb.append("----------fu 3--------------");
                 sqlString = "SELECT TRACER_CATEGORY_ID FROM vw_tracer_category tc WHERE tc.REALM_ID=1 AND tc.LABEL_EN=?";
                 fu.getTracerCategory().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getTracerCategory().getLabel().getLabel_en()));
                 forecastingUnitParams.replace("TRACER_CATEGORY_ID", fu.getTracerCategory().getId());
+                sb.append("----------fu 4--------------");
                 if (fu.getProductCategory().getId() != null
                         && fu.getTracerCategory().getId() != null
                         && fu.getProductCategory().getId() != 0
@@ -798,19 +804,24 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     fu.getLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
                     forecastingUnitParams.replace("LABEL_ID", fu.getLabel().getLabelId());
                     if (fu.getGenericLabel().getLabel_en() != null) {
+                        sb.append("----------fu 5--------------");
                         labelParams.replace("SOURCE_ID", 29);
                         labelParams.replace("LABEL_EN", fu.getGenericLabel().getLabel_en());
                         fu.getGenericLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
                         forecastingUnitParams.replace("GENERIC_LABEL_ID", fu.getGenericLabel().getLabelId());
                     } else {
+                        sb.append("----------fu 6--------------");
                         forecastingUnitParams.replace("GENERIC_LABEL_ID", null);
                     }
+                    sb.append("----------fu 7--------------");
                     siForecastingUnit.execute(forecastingUnitParams);
+                    sb.append("----------fu 8--------------");
                 } else {
                     logger.info("Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + "because either the ProductCategory or TracerCategory is not provided");
                     sb.append("Skipping the Forecasting Unit ").append(fu.getLabel().getLabel_en()).append("because either the ProductCategory or TracerCategory is not provided").append(br);
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 logger.info("Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + " because there was an error " + e.getMessage());
                 sb.append("Skipping the Forecasting Unit ").append(fu.getLabel().getLabel_en()).append(" because there was an error ").append(e.getMessage()).append(br);
             }
@@ -850,7 +861,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
 
         sqlString = "CREATE TEMPORARY TABLE `tmp_planning_unit` (   "
-                //        sqlString = "CREATE TABLE `tmp_planning_unit` (   "
+//                        sqlString = "CREATE TABLE `tmp_planning_unit` (   "
                 + "     `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "     `PLANNING_UNIT_ID` int (10) unsigned DEFAULT NULL,   "
                 + "     `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
@@ -863,8 +874,8 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "     `UNITS_PER_PALLET_EURO1` INT(10) UNSIGNED DEFAULT NULL, "
                 + "     `UNITS_PER_PALLET_EURO2` INT(10) UNSIGNED DEFAULT NULL, "
                 + "     `UNITS_PER_CONTAINER` INT(10) UNSIGNED DEFAULT NULL, "
-                + "     `VOLUME` DECIMAL(14,4) UNSIGNED DEFAULT NULL, "
-                + "     `WEIGHT` DECIMAL(14,4) UNSIGNED DEFAULT NULL, "
+                + "     `VOLUME` DECIMAL(18,6) UNSIGNED DEFAULT NULL, "
+                + "     `WEIGHT` DECIMAL(18,6) UNSIGNED DEFAULT NULL, "
                 + "     `FOUND` tinyint(1) unsigned default null, "
                 + "     `DUPLICATE` tinyint(1) unsigned default null, "
                 + "    PRIMARY KEY (`ID`), "
@@ -1098,14 +1109,14 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "    `UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `PLANNING_UNIT_ID` int (10) unsigned DEFAULT NULL, "
                 + "    `SUPPLIER_ID` int (10) unsigned DEFAULT NULL, "
-                + "    `WIDTH` decimal (14,4) unsigned DEFAULT NULL, "
+                + "    `WIDTH` decimal (16,6) unsigned DEFAULT NULL, "
                 + "    `LENGTH_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                + "    `LENGTH` decimal (14,4) unsigned DEFAULT NULL, "
-                + "    `HEIGHT` decimal (14,4) unsigned DEFAULT NULL, "
+                + "    `LENGTH` decimal (16,6) unsigned DEFAULT NULL, "
+                + "    `HEIGHT` decimal (16,6) unsigned DEFAULT NULL, "
                 + "    `VOLUME_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                + "    `VOLUME` decimal (14,4) unsigned DEFAULT NULL, "
+                + "    `VOLUME` decimal (16,6) unsigned DEFAULT NULL, "
                 + "    `WEIGHT_UNIT_ID` int (10) unsigned DEFAULT NULL, "
-                + "    `WEIGHT` decimal (14,4) unsigned DEFAULT NULL, "
+                + "    `WEIGHT` decimal (16,6) unsigned DEFAULT NULL, "
                 + "    `UNITS_PER_CASE` INT (10) UNSIGNED DEFAULT NULL, "
                 + "    `UNITS_PER_PALLET_EURO1` INT (10) UNSIGNED DEFAULT NULL, "
                 + "    `UNITS_PER_PALLET_EURO2` INT (10) UNSIGNED DEFAULT NULL, "

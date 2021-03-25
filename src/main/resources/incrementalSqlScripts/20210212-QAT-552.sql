@@ -12,7 +12,7 @@
     UPDATE rm_problem_report pr SET pr.DATA3=@newPlanningUnitId where pr.PROGRAM_ID=@programId AND pr.DATA3=@oldPlanningUnitId;
     
     SET @newPlanningUnitId = 6363;
-    SET @oldPlanningUnitId = 3869;
+    SET @oldPlanningUnitId = 3872;
     UPDATE rm_program_planning_unit ppu SET ppu.PLANNING_UNIT_ID=@newPlanningUnitId, ppu.LAST_MODIFIED_DATE=@dt WHERE ppu.PROGRAM_ID=@programId and ppu.PLANNING_UNIT_ID=@oldPlanningUnitId;
     UPDATE rm_realm_country_planning_unit rcpu SET rcpu.PLANNING_UNIT_ID=@newPlanningUnitId, rcpu.LAST_MODIFIED_DATE=@dt WHERE rcpu.REALM_COUNTRY_ID=51 and rcpu.PLANNING_UNIT_ID=@oldPlanningUnitId;
     UPDATE rm_consumption c LEFT JOIN rm_consumption_trans ct ON c.CONSUMPTION_ID=ct.CONSUMPTION_ID SET ct.PLANNING_UNIT_ID=@newPlanningUnitId WHERE c.PROGRAM_ID=@programId AND ct.PLANNING_UNIT_ID=@oldPlanningUnitId;
