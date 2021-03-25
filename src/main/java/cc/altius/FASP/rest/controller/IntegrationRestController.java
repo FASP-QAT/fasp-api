@@ -166,4 +166,24 @@ public class IntegrationRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    /**
+     * API used to get the complete Integration View list.
+     *
+     * @param auth
+     * @return returns the complete list of IntegrationViews
+     */
+    @GetMapping("/viewList")
+    @Operation(description = "API used to get the complete Integration View list.", summary = "Get Integration View list", tags = ("integration"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Integration View list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration list")
+    public ResponseEntity getIntegrationView(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.integrationService.getIntegrationViewList(curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Integrations", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

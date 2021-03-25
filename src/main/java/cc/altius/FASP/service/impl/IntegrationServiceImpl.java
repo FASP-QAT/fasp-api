@@ -8,6 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.IntegrationDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Integration;
+import cc.altius.FASP.model.IntegrationView;
 import cc.altius.FASP.service.IntegrationService;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +42,11 @@ public class IntegrationServiceImpl implements IntegrationService {
     @Override
     public Integration getIntegrationById(int integrationId, CustomUserDetails curUser) {
         return this.integrationDao.getIntegrationById(integrationId, curUser);
+    }
+
+    @Override
+    public List<IntegrationView> getIntegrationViewList(CustomUserDetails curUser) {
+        return this.integrationDao.getIntegrationViewList(curUser);
     }
     
 }

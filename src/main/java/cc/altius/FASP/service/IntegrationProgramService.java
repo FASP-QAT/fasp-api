@@ -15,12 +15,14 @@ import java.util.List;
  */
 public interface IntegrationProgramService {
 
-    public int addIntegrationProgram(IntegrationProgram integrationProgram, CustomUserDetails curUser);
+//    public int addIntegrationProgram(IntegrationProgram integrationProgram, CustomUserDetails curUser);
 
-    public int updateIntegrationProgram(IntegrationProgram integrationProgram, CustomUserDetails curUser);
+    public int updateIntegrationProgram(IntegrationProgram[] integrationPrograms, CustomUserDetails curUser);
     
     public List<IntegrationProgram> getIntegrationProgramList(CustomUserDetails curUser);
 
     public IntegrationProgram getIntegrationProgramById(int integrationProgramId, CustomUserDetails curUser);
+    
+    public List<IntegrationProgram> getIntegrationProgramListForProgramId(int programId, CustomUserDetails curUser);
    
 }

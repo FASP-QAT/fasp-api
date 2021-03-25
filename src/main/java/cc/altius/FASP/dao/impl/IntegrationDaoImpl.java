@@ -8,7 +8,9 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.IntegrationDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Integration;
+import cc.altius.FASP.model.IntegrationView;
 import cc.altius.FASP.model.rowMapper.IntegrationRowMapper;
+import cc.altius.FASP.model.rowMapper.IntegrationViewRowMapper;
 import cc.altius.FASP.service.AclService;
 import java.util.HashMap;
 import java.util.List;
@@ -85,6 +87,11 @@ public class IntegrationDaoImpl implements IntegrationDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "i", curUser);
         sqlStringBuilder.append(" AND i.INTEGRATION_ID=:integrationId");
         return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new IntegrationRowMapper());
+    }
+
+    @Override
+    public List<IntegrationView> getIntegrationViewList(CustomUserDetails curUser) {
+        return this.namedParameterJdbcTemplate.query("SELECT * FROM ap_integration_view", new IntegrationViewRowMapper());
     }
 
 }

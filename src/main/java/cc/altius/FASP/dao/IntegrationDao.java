@@ -7,6 +7,7 @@ package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Integration;
+import cc.altius.FASP.model.IntegrationView;
 import java.util.List;
 
 /**
@@ -22,4 +23,6 @@ public interface IntegrationDao {
     public List<Integration> getIntegrationList(CustomUserDetails curUser);
 
     public Integration getIntegrationById(int integrationId, CustomUserDetails curUser);
+    
+    public List<IntegrationView> getIntegrationViewList(CustomUserDetails curUser);
 }

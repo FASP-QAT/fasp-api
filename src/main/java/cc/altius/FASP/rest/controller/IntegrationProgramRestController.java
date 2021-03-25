@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,6 +60,28 @@ public class IntegrationProgramRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.integrationProgramService.getIntegrationProgramList(curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Integration Programs", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    /**
+     * API used to get the complete Integration Program list for a ProgramId.
+     *
+     * @param auth
+     * @return returns the complete list of Integration Programs for a ProgramId
+     */
+    @GetMapping("/program/{programId}")
+    @Operation(description = "API used to get the complete Integration Program list for a ProgramId.", summary = "Get Integration Program list for a ProgramId", tags = ("integrationProgram"))
+    @Parameters(
+            @Parameter(name = "programId", description = "programId that you want to the Integration Program list for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Integration Program list for a ProgramId")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program list")
+    public ResponseEntity getIntegrationProgramForProgramId(@PathVariable("programId") int programId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.integrationProgramService.getIntegrationProgramListForProgramId(programId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Integration Programs", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -99,58 +121,58 @@ public class IntegrationProgramRestController {
         }
     }
 
-    /**
-     * API used to add an Integration Program
-     *
-     * @param integrationProgram IntegrationProgram object that you want to add
-     * @param auth
-     * @return returns a Success code if the operation was successful
-     */
-    @PostMapping(value = "")
-    @Operation(description = "API used to add an IntegrationProgram", summary = "Add IntegrationProgram", tags = ("integrationProgram"))
-    @Parameters(
-            @Parameter(name = "integrationProgram", description = "The Integration Program object that you want to add"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not unique")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
-    public ResponseEntity addIntegration(@RequestBody IntegrationProgram integrationProgram, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            this.integrationProgramService.addIntegrationProgram(integrationProgram, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
-        } catch (AccessDeniedException ae) {
-            logger.error("Error while trying to add IntegrationProgram", ae);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
-        } catch (DuplicateKeyException d) {
-            logger.error("Error while trying to add IntegrationProgram", d);
-            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
-        } catch (Exception e) {
-            logger.error("Error while trying to add IntegrationProgram", e);
-            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    /**
+//     * API used to add an Integration Program
+//     *
+//     * @param integrationProgram IntegrationProgram object that you want to add
+//     * @param auth
+//     * @return returns a Success code if the operation was successful
+//     */
+//    @PostMapping(value = "")
+//    @Operation(description = "API used to add an IntegrationProgram", summary = "Add IntegrationProgram", tags = ("integrationProgram"))
+//    @Parameters(
+//            @Parameter(name = "integrationProgram", description = "The Integration Program object that you want to add"))
+//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not unique")
+//    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+//    public ResponseEntity addIntegration(@RequestBody IntegrationProgram integrationProgram, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            this.integrationProgramService.addIntegrationProgram(integrationProgram, curUser);
+//            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+//        } catch (AccessDeniedException ae) {
+//            logger.error("Error while trying to add IntegrationProgram", ae);
+//            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+//        } catch (DuplicateKeyException d) {
+//            logger.error("Error while trying to add IntegrationProgram", d);
+//            return new ResponseEntity(new ResponseCode("static.message.alreadExists"), HttpStatus.NOT_ACCEPTABLE);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to add IntegrationProgram", e);
+//            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     /**
      * API used to update an IntegrationProgram
      *
-     * @param integrationProgram IntegrationProgram object that you want to update
+     * @param integrationPrograms Array of IntegrationProgram that you want to update
      * @param auth
      * @return returns a Success code if the operation was successful
      */
     @PutMapping(path = "")
     @Operation(description = "API used to update an IntegrationProgram", summary = "Update IntegrationProgram", tags = ("integrationProgram"))
     @Parameters(
-            @Parameter(name = "integrationProgram", description = "The Integration Program object that you want to update"))
+            @Parameter(name = "integrationPrograms", description = "An array of Integration Program objects that you want to update"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the IntegrationId supplied does not exist")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not unique")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
-    public ResponseEntity updateIntegrationProgram(@RequestBody IntegrationProgram integrationProgram, Authentication auth) {
+    public ResponseEntity updateIntegrationProgram(@RequestBody IntegrationProgram integrationPrograms[], Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            this.integrationProgramService.updateIntegrationProgram(integrationProgram, curUser);
+            this.integrationProgramService.updateIntegrationProgram(integrationPrograms, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
             logger.error("Error while trying to update IntegrationProgram", ae);

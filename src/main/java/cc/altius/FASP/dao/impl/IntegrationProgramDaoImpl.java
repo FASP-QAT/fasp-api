@@ -11,13 +11,16 @@ import cc.altius.FASP.model.IntegrationProgram;
 import cc.altius.FASP.model.rowMapper.IntegrationProgramRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
@@ -57,35 +60,64 @@ public class IntegrationProgramDaoImpl implements IntegrationProgramDao {
             + "LEFT JOIN us_user lmb ON ip.LAST_MODIFIED_BY=lmb.USER_ID "
             + "WHERE TRUE ";
 
+//    @Override
+//    public int addIntegrationProgram(IntegrationProgram i, CustomUserDetails curUser) {
+//        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_integration_program").usingGeneratedKeyColumns("INTEGRATION_PROGRAM_ID");
+//        Map<String, Object> params = new HashMap<>();
+//        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+//        params.put("INTEGRATION_ID", i.getIntegration().getIntegrationId());
+//        params.put("PROGRAM_ID", i.getProgram().getId());
+//        params.put("VERSION_TYPE_ID", i.getVersionType().getId());
+//        params.put("VERSION_STATUS_ID", i.getVersionStatus().getId());
+//        params.put("ACTIVE", true);
+//        params.put("CREATED_BY", curUser.getUserId());
+//        params.put("CREATED_DATE", curDate);
+//        params.put("LAST_MODIFIED_BY", curUser.getUserId());
+//        params.put("LAST_MODIFIED_DATE", curDate);
+//        return si.executeAndReturnKey(params).intValue();
+//    }
     @Override
-    public int addIntegrationProgram(IntegrationProgram i, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_integration_program").usingGeneratedKeyColumns("INTEGRATION_PROGRAM_ID");
-        Map<String, Object> params = new HashMap<>();
-        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        params.put("INTEGRATION_ID", i.getIntegration().getIntegrationId());
-        params.put("PROGRAM_ID", i.getProgram().getId());
-        params.put("VERSION_TYPE_ID", i.getVersionType().getId());
-        params.put("VERSION_STATUS_ID", i.getVersionStatus().getId());
-        params.put("ACTIVE", true);
-        params.put("CREATED_BY", curUser.getUserId());
-        params.put("CREATED_DATE", curDate);
-        params.put("LAST_MODIFIED_BY", curUser.getUserId());
-        params.put("LAST_MODIFIED_DATE", curDate);
-        return si.executeAndReturnKey(params).intValue();
-    }
-
-    @Override
-    public int updateIntegrationProgram(IntegrationProgram i, CustomUserDetails curUser) {
+    public int updateIntegrationProgram(IntegrationProgram[] integrationPrograms, CustomUserDetails curUser) {
         String sql = "UPDATE rm_integration_program ip SET ip.VERSION_TYPE_ID=:versionTypeId, ip.VERSION_STATUS_ID=:versionStatusId, ip.ACTIVE=:active, ip.LAST_MODIFIED_BY=:curUser, ip.LAST_MODIFIED_DATE=:curDate WHERE ip.INTEGRATION_PROGRAM_ID=:integrationProgramId";
-        Map<String, Object> params = new HashMap<>();
+        final List<SqlParameterSource> insertList = new ArrayList<>();
+        final List<SqlParameterSource> updateList = new ArrayList<>();
+
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        params.put("integrationProgramId", i.getIntegrationProgramId());
-        params.put("versionTypeId", i.getVersionType().getId());
-        params.put("versionStatusId", i.getVersionStatus().getId());
-        params.put("active", i.isActive());
-        params.put("curUser", curUser.getUserId());
-        params.put("curDate", curDate);
-        return this.namedParameterJdbcTemplate.update(sql, params);
+        for (IntegrationProgram ip : integrationPrograms) {
+            if (ip.getIntegrationProgramId() == 0) {
+                // need to add it
+                Map<String, Object> insertParams = new HashMap<>();
+                insertParams.put("INTEGRATION_ID", ip.getIntegration().getIntegrationId());
+                insertParams.put("PROGRAM_ID", ip.getProgram().getId());
+                insertParams.put("VERSION_TYPE_ID", ip.getVersionType().getId());
+                insertParams.put("VERSION_STATUS_ID", ip.getVersionStatus().getId());
+                insertParams.put("ACTIVE", true);
+                insertParams.put("CREATED_BY", curUser.getUserId());
+                insertParams.put("CREATED_DATE", curDate);
+                insertParams.put("LAST_MODIFIED_BY", curUser.getUserId());
+                insertParams.put("LAST_MODIFIED_DATE", curDate);
+                insertList.add(new MapSqlParameterSource(insertParams));
+            } else {
+                // need to update it
+                Map<String, Object> updateParams = new HashMap<>();
+                updateParams.put("integrationProgramId", ip.getIntegrationProgramId());
+                updateParams.put("versionTypeId", ip.getVersionType().getId());
+                updateParams.put("versionStatusId", ip.getVersionStatus().getId());
+                updateParams.put("active", ip.isActive());
+                updateParams.put("curUser", curUser.getUserId());
+                updateParams.put("curDate", curDate);
+                updateList.add(new MapSqlParameterSource(updateParams));
+            }
+        }
+        int rowsUpdated = 0;
+        if (!insertList.isEmpty()) {
+            SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource);
+            rowsUpdated += si.executeBatch(insertList.toArray(new MapSqlParameterSource[insertList.size()])).length;
+        }
+        if (!updateList.isEmpty()) {
+            rowsUpdated += this.namedParameterJdbcTemplate.batchUpdate(sql, updateList.toArray(new MapSqlParameterSource[updateList.size()])).length;
+        }
+        return rowsUpdated;
     }
 
     @Override
@@ -104,6 +136,16 @@ public class IntegrationProgramDaoImpl implements IntegrationProgramDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "i", curUser);
         sqlStringBuilder.append(" AND ip.INTEGRATION_PROGRAM_ID=:integrationProgramId");
         return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new IntegrationProgramRowMapper());
+    }
+
+    @Override
+    public List<IntegrationProgram> getIntegrationProgramListForProgramId(int programId, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "i", curUser);
+        sqlStringBuilder.append(" AND ip.PROGRAM_ID=:programId ");
+        params.put("programId", programId);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new IntegrationProgramRowMapper());
     }
 
 }

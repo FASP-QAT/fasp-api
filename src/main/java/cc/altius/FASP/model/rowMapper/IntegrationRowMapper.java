@@ -6,7 +6,6 @@
 package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.Integration;
-import cc.altius.FASP.model.IntegrationView;
 import cc.altius.FASP.model.SimpleObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,7 +25,7 @@ public class IntegrationRowMapper implements RowMapper<Integration> {
         integration.setFolderLocation(rs.getString("FOLDER_LOCATION"));
         integration.setFileName(rs.getString("FILE_NAME"));
         integration.setRealm(new SimpleObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i)));
-        integration.setIntegrationView(new IntegrationView(rs.getInt("INTEGRATION_VIEW_ID"), rs.getString("INTEGRATION_VIEW_DESC"), rs.getString("INTEGRATION_VIEW_NAME")));
+        integration.setIntegrationView(new IntegrationViewRowMapper().mapRow(rs, i));
         return integration;
     }
     
