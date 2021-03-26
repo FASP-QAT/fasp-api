@@ -171,7 +171,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
     }
 
     @Override
-    public List<ProcurementAgentPlanningUnitProgramPrice> getProcurementAgentPlanningUnitProgramList(int procurementAgentId, int planningUnitId, boolean active, CustomUserDetails curUser) {
+    public List<ProcurementAgentPlanningUnitProgramPrice> getProcurementAgentPlanningUnitProgramList(int procurementAgentPlanningUnitId, boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT papup.PROCUREMENT_AGENT_PLANNING_UNIT_PROGRAM_ID, papup.PROCUREMENT_AGENT_PLANNING_UNIT_ID,   "
                 + "        pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`,   "
                 + "        pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`,   "
@@ -185,10 +185,9 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
                 + "LEFT JOIN vw_program p2 ON papup.PROGRAM_ID=p2.PROGRAM_ID "
                 + "LEFT JOIN us_user cb2 ON papup.CREATED_BY=cb2.USER_ID    "
                 + "LEFT JOIN us_user lmb2 ON papup.LAST_MODIFIED_BY=lmb2.USER_ID  "
-                + "WHERE papu.PROCUREMENT_AGENT_ID=:procurementAgentId AND papu.PLANNING_UNIT_ID=:planningUnitId ");
+                + "WHERE papu.PROCUREMENT_AGENT_PLANNING_UNIT_ID=:procurementAgentPlanningUnitId ");
         Map<String, Object> params = new HashMap<>();
-        params.put("procurementAgentId", procurementAgentId);
-        params.put("planningUnitId", planningUnitId);
+        params.put("procurementAgentPlanningUnitId", procurementAgentPlanningUnitId);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p2", curUser);
         if (active) {

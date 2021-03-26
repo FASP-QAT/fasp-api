@@ -176,13 +176,13 @@ public class ProcurementAgentRestController {
         }
     }
     
-    @GetMapping("/procurementAgent/{procurementAgentId}/planningUnit/{planningUnitId}/program")
-    public ResponseEntity getProcurementAgentPlanningUnitProgramList(@PathVariable("procurementAgentId") int procurementAgentId, @PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
+    @GetMapping("/procurementAgent/planningUnit/{procurementAgentPlanningUnitId}/program")
+    public ResponseEntity getProcurementAgentPlanningUnitProgramList(@PathVariable("procurementAgentPlanningUnitId") int procurementAgentPlanningUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitProgramList(procurementAgentId, planningUnitId, true, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitProgramList(procurementAgentPlanningUnitId, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
-            logger.error("Error while trying to get ProgramPrice list for Procurement Agent Id" + procurementAgentId, er);
+            logger.error("Error while trying to get ProgramPrice list for Procurement Agent Planning Unit Id" + procurementAgentPlanningUnitId, er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
         } catch (Exception e) {
             logger.error("Error while trying to get ProgramPrice list for Procurement Agent", e);

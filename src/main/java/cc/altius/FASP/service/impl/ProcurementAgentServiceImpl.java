@@ -88,15 +88,10 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
             throw new AccessDeniedException("Access denied");
         }
     }
-    
+
     @Override
-    public List<ProcurementAgentPlanningUnitProgramPrice> getProcurementAgentPlanningUnitProgramList(int procurementAgentId, int planningUnitId, boolean active, CustomUserDetails curUser) {
-        ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(procurementAgentId, curUser);
-        if (pa != null && this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
-            return this.procurementAgentDao.getProcurementAgentPlanningUnitProgramList(procurementAgentId, planningUnitId, active, curUser);
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
+    public List<ProcurementAgentPlanningUnitProgramPrice> getProcurementAgentPlanningUnitProgramList(int procurementAgentPlanningUnitId, boolean active, CustomUserDetails curUser) {
+        return this.procurementAgentDao.getProcurementAgentPlanningUnitProgramList(procurementAgentPlanningUnitId, active, curUser);
     }
 
     @Override
@@ -114,7 +109,7 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
         }
         return this.procurementAgentDao.saveProcurementAgentPlanningUnit(procurementAgentPlanningUnits, curUser);
     }
-    
+
     @Override
     public int saveProcurementAgentPlanningUnitProgramPrice(ProcurementAgentPlanningUnitProgramPrice[] procurementAgentPlanningUnitProgramPrices, CustomUserDetails curUser) {
         for (ProcurementAgentPlanningUnitProgramPrice papup : procurementAgentPlanningUnitProgramPrices) {
