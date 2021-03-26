@@ -8,6 +8,7 @@ package cc.altius.FASP.service;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
+import cc.altius.FASP.model.ProcurementAgentPlanningUnitProgramPrice;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
 import java.util.List;
 
@@ -28,10 +29,14 @@ public interface ProcurementAgentService {
     public ProcurementAgent getProcurementAgentById(int procurementAgentId, CustomUserDetails curUser);
 
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser);
+    
+    public List<ProcurementAgentPlanningUnitProgramPrice> getProcurementAgentPlanningUnitProgramList(int procurementAgentId, int planningUnitId, boolean active, CustomUserDetails curUser);
 
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForTracerCategory(int procurementAgentId, int planningUnitId, String term, CustomUserDetails curUser);
 
     public int saveProcurementAgentPlanningUnit(ProcurementAgentPlanningUnit[] procurementAgentPlanningUnits, CustomUserDetails curUser);
+    
+    public int saveProcurementAgentPlanningUnitProgramPrice(ProcurementAgentPlanningUnitProgramPrice[] procurementAgentPlanningUnitProgramPrices, CustomUserDetails curUser);
 
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser);
 
