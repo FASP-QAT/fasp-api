@@ -96,6 +96,7 @@ public class IntegrationProgramDaoImpl implements IntegrationProgramDao {
                 insertParams.put("CREATED_DATE", curDate);
                 insertParams.put("LAST_MODIFIED_BY", curUser.getUserId());
                 insertParams.put("LAST_MODIFIED_DATE", curDate);
+                System.out.println(insertParams);
                 insertList.add(new MapSqlParameterSource(insertParams));
             } else {
                 // need to update it
@@ -111,7 +112,7 @@ public class IntegrationProgramDaoImpl implements IntegrationProgramDao {
         }
         int rowsUpdated = 0;
         if (!insertList.isEmpty()) {
-            SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource);
+            SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_integration_program");
             rowsUpdated += si.executeBatch(insertList.toArray(new MapSqlParameterSource[insertList.size()])).length;
         }
         if (!updateList.isEmpty()) {
