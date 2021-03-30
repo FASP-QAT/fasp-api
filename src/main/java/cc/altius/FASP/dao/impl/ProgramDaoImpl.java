@@ -217,6 +217,9 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("labelEn", p.getLabel().getLabel_en());
         params.put("programManagerUserId", p.getProgramManager().getUserId());
         params.put("programNotes", p.getProgramNotes());
+        params.put("programCode",p.getProgramCode());
+        params.put("organisationId",p.getOrganisation().getId());
+        params.put("healthAreaId",p.getHealthArea().getId());
         params.put("airFreightPerc", p.getAirFreightPerc());
         params.put("seaFreightPerc", p.getSeaFreightPerc());
         params.put("plannedToSubmittedLeadTime", p.getPlannedToSubmittedLeadTime());
@@ -232,7 +235,10 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "LEFT JOIN ap_label pl ON p.LABEL_ID=pl.LABEL_ID "
                 + "SET "
                 + "p.PROGRAM_MANAGER_USER_ID=:programManagerUserId, "
-                + "p.PROGRAM_NOTES=:programNotes, "
+                + "p.PROGRAM_NOTES=:programNotes,"
+                + "p.PROGRAM_CODE=:programCode, "
+                + "p.ORGANISATION_ID=:organisationId, "
+                + "p.HEALTH_AREA_ID=:healthAreaId, "
                 + "p.AIR_FREIGHT_PERC=:airFreightPerc, "
                 + "p.SEA_FREIGHT_PERC=:seaFreightPerc, "
                 + "p.PLANNED_TO_SUBMITTED_LEAD_TIME=:plannedToSubmittedLeadTime, "
@@ -548,7 +554,7 @@ public class ProgramDaoImpl implements ProgramDao {
                     + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
                     + " LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
                     + " WHERE e.`ORDER_NO`=? AND pu.`PLANNING_UNIT_ID`=? "
-//                    + " AND sm.`SHIPMENT_STATUS_ID` NOT IN (7,8) "
+                    //                    + " AND sm.`SHIPMENT_STATUS_ID` NOT IN (7,8) "
                     + " AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) "
                     + " GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`) a "
                     + " WHERE a.SHIPMENT_STATUS_ID NOT IN (7,8) ) GROUP BY e.`ERP_ORDER_ID`; ";
