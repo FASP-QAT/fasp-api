@@ -814,8 +814,9 @@ public class UserDaoImpl implements UserDao {
     @Override
     public int updateUserLanguageByEmailId(String emailId, String languageCode) {
         String sql;
-        sql = "SELECT u.`USER_ID` FROM us_user u WHERE u.`EMAIL_ID`=?;";
+        sql = "SELECT u.`USER_ID` FROM us_user u WHERE LOWER(u.`EMAIL_ID`)=LOWER(?);";
         int userId = this.jdbcTemplate.queryForObject(sql, Integer.class, emailId);
+        System.out.println("user id----" + userId);
         return this.updateUserLanguage(userId, languageCode);
     }
 
