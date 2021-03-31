@@ -180,7 +180,7 @@ public class ProcurementAgentRestController {
     public ResponseEntity getProcurementAgentPlanningUnitProgramList(@PathVariable("procurementAgentPlanningUnitId") int procurementAgentPlanningUnitId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitProgramList(procurementAgentPlanningUnitId, true, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitProgramList(procurementAgentPlanningUnitId, false, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException er) {
             logger.error("Error while trying to get ProgramPrice list for Procurement Agent Planning Unit Id" + procurementAgentPlanningUnitId, er);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
