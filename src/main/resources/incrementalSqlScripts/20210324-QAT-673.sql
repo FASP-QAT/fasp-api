@@ -1,0 +1,4 @@
+
+UPDATE `ap_label` SET `LABEL_EN`='In the next 1-6 months (<%RANGE_1TO6_MONTHS%>), inventory is \n  * overstocked for <%MOSABOVE_MAX_IN6MONTHS%> month(s) 	\n  * understocked for <%MOSLESS_MIN_IN6MONTHS%> month(s). \n \nIn the next 7-18 months (<%RANGE_7TO18_MONTHS%>), inventory is \n  * overstocked for <%MOSABOVE_MAX_IN7TO18MONTHS%> month(s) \n  * understocked for <%MOSLESS_MIN_IN7TO18MONTHS%> month(s) \n\nNote: There are <%SHIPMENTS_IN6MONTHS%> shipment(s) in the next 1-6 months, and there are <%SHIPMENTS_IN7TO18MONTHS%> shipment(s) in the next 7-18 months.' 
+WHERE `LABEL_ID`=(select ap.LABEL_ID from ap_problem ap where ap.PROBLEM_ID=23);
+update rm_realm_problem rrp set rrp.LAST_MODIFIED_DATE=now();
