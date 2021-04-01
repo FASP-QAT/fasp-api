@@ -936,10 +936,15 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
 //                    + "left join adb_commodityprice facp on facp.ProductID=ash.ProductID and facp.SupplierID=ash.SupplierID and facp.dtmEffective < ash.ShipReceivedDate\n"
 //                    + "WHERE ash.`PIPELINE_ID`=:pipelineId";
             sql = "SELECT ash.ShipmentID SHIPMENT_ID,\n"
-                    + "    qtp.`PLANNING_UNIT_ID`, ash.`ShipAmount`, ash.`ShipReceivedDate` EXPECTED_DELIVERY_DATE, ash.ShipAmount SUGGESTED_QTY, ash.ShipAmount QUANTITY,\n"
+                    + "    qtp.`PLANNING_UNIT_ID`, ash.`ShipAmount`, "
+                    + "     ash.`ShipReceivedDate` EXPECTED_DELIVERY_DATE, "
+                    //                    + "ash.ShipAmount SUGGESTED_QTY, ash.ShipAmount QUANTITY,\n"
+                    + "ash.ShipAmount * qtp.MULTIPLIER SUGGESTED_QTY, ash.ShipAmount * qtp.MULTIPLIER QUANTITY,\n"
                     + "    COALESCE(facp.UnitPrice,'0.0') RATE, coalesce(ash.ShipAmount*facp.UnitPrice,'0.0' )PRODUCT_COST, '' SHIPPING_MODE, ash.`ShipPlannedDate` PLANNED_DATE, ash.`ShipShippedDate` SHIPPED_DATE,\n"
                     + "    ash.`ShipReceivedDate` RECEIVED_DATE, null SUBMITTED_DATE, null APPROVED_DATE, null ARRIVED_DATE, COALESCE(ass.QAT_SHIPMENT_STATUS_ID,ash.ShipStatusCode) SHIPMENT_STATUS_ID,\n"
-                    + "    ash.`ShipNote` NOTES, coalesce(ash.ShipAmount*facp.UnitPrice*ads.Freight/100,'0.0') FREIGHT_COST, ash.`ShipPO`,COALESCE(rds.`DATA_SOURCE_ID`,ds.`DataSourceName`) DATA_SOURCE_ID, '1'ACCOUNT_FLAG,'1'ERP_FLAG,\n"
+                    //                    + "    ash.`ShipNote` NOTES, coalesce(ash.ShipAmount*facp.UnitPrice*ads.Freight/100,'0.0') FREIGHT_COST, "
+                    + "    ash.`ShipNote` NOTES, coalesce(ash.ShipAmount*qtp.MULTIPLIER*facp.UnitPrice*ads.Freight/100,'0.0') FREIGHT_COST, "
+                    + "ash.`ShipPO`,COALESCE(rds.`DATA_SOURCE_ID`,ds.`DataSourceName`) DATA_SOURCE_ID, '1'ACCOUNT_FLAG,'1'ERP_FLAG,\n"
                     + "    '0'VERSION_ID ,COALESCE(rpa.`PROCUREMENT_AGENT_ID`,ads.`SupplierName`) PROCUREMENT_AGENT_ID, '' PROCUREMENT_UNIT_ID,'' SUPPLIER_ID ,COALESCE(rfs.`FUNDING_SOURCE_ID`,afs.`FundingSourceName`) FUNDING_SOURCE_ID,'1' ACTIVE  \n"
                     + "FROM adb_shipment ash  \n"
                     + "LEFT JOIN  qat_temp_program_planning_unit qtp ON qtp.PIPELINE_PRODUCT_ID = ash.ProductID  AND  qtp.`PIPELINE_ID`=:pipelineId\n"
@@ -1106,13 +1111,13 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "from qat_temp_consumption c "
                 + "where c.PIPELINE_ID=:pipelineId;";
         List<QatTempConsumption> consumptionList = this.namedParameterJdbcTemplate.query(sqlQatTemp, params, new QatTempConsumptionRowMapper());
-
         if (consumptionList.size() == 0) {
             String sql = "SELECT  "
                     + "If(rds.DATA_SOURCE_ID IS NULL,ad.DataSourceName,rds.DATA_SOURCE_ID) as DATA_SOURCE_ID, "
                     + "date_format(CONCAT(c.ConsStartYear,\"-\",c.ConsStartMonth,\"-01\"),\"%Y-%m-%d\") as CONSUMPTION_DATE, "
                     + "c.ConsActualFlag as ACTUAL_FLAG,"
-                    + "c.ConsAmount as CONSUMPTION_QUANTITY,"
+                    //                    + "c.ConsAmount as CONSUMPTION_QUANTITY,"
+                    + "(c.ConsAmount*qtp.MULTIPLIER) as CONSUMPTION_QUANTITY,"
                     + "c.ConsNote as NOTES,"
                     + "0 as DAYS_OF_STOCK_OUT,"
                     + " '' as REGION_ID,"
@@ -1214,8 +1219,10 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                     //                    + "i.ProductID,"
                     + "qtp.PLANNING_UNIT_ID as PLANNING_UNIT_ID,"
                     + "i.InvNote as NOTES,"
-                    + "if(InvTransferFlag=0,i.InvAmount,0) as ACTUAL_QTY , "
-                    + "if(InvTransferFlag=1,i.InvAmount,0) as ADJUSTMENT_QTY , "
+                    //                    + "if(InvTransferFlag=0,i.InvAmount,null) as ACTUAL_QTY , "
+                    //                    + "if(InvTransferFlag=1,i.InvAmount,null) as ADJUSTMENT_QTY , "
+                    + "if(InvTransferFlag=0,i.InvAmount * qtp.MULTIPLIER,null) as ACTUAL_QTY , "
+                    + "if(InvTransferFlag=1,i.InvAmount * qtp.MULTIPLIER,null) as ADJUSTMENT_QTY , "
                     + "date_format(CONCAT(i.Period),\"%Y-%m-%d\") as INVENTORY_DATE,'' as REGION_ID,  "
                     + " COALESCE(rcpu.REALM_COUNTRY_PLANNING_UNIT_ID,0) as REALM_COUNTRY_PLANNING_UNIT_ID,"
                     + " COALESCE(rcpu.MULTIPLIER,1) as MULTIPLIER "
@@ -1405,7 +1412,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "c.DAYS_OF_STOCK_OUT,"
                 + "c.DATA_SOURCE_ID,"
                 + "c.NOTES, "
-                + " (c.CONSUMPTION_QUANTITY*qtp.MULTIPLIER) CONSUMPTION_QUANTITY,"
+                //                + " (c.CONSUMPTION_QUANTITY*qtp.MULTIPLIER) CONSUMPTION_QUANTITY,"
+                + " c.CONSUMPTION_QUANTITY CONSUMPTION_QUANTITY,"
                 + "c.ACTUAL_FLAG ,"
                 + "rcpu.REALM_COUNTRY_PLANNING_UNIT_ID,"
                 + "c.MULTIPLIER,  "
@@ -1507,7 +1515,12 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "now() SUBMITTED_DATE,"
                 + "now() APPROVED_DATE,"
                 + "now() ARRIVED_DATE,"
-                + " (st.QUANTITY * qtp.MULTIPLIER) QUANTITY, st.RATE, st.PRODUCT_COST, st.FREIGHT_COST, st.SHIPPING_MODE,( st.SUGGESTED_QTY * qtp.MULTIPLIER) SUGGESTED_QTY, '0' ACCOUNT_FLAG, '0'ERP_FLAG, st.NOTES, "
+                //                + " (st.QUANTITY * qtp.MULTIPLIER) QUANTITY, "
+                + " st.QUANTITY  QUANTITY, "
+                + "st.RATE, st.PRODUCT_COST, st.FREIGHT_COST, st.SHIPPING_MODE,"
+                //                + "( st.SUGGESTED_QTY * qtp.MULTIPLIER) SUGGESTED_QTY, "
+                + "st.SUGGESTED_QTY  SUGGESTED_QTY, "
+                + "'0' ACCOUNT_FLAG, '0'ERP_FLAG, st.NOTES, "
                 + "		0 VERSION_ID , "
                 + "		st.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pal.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pal.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pal.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pal.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, pal.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, "
                 + "		st.PLANNING_UNIT_ID, pul.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pul.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pul.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pul.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pul.LABEL_PR `PLANNING_UNIT_LABEL_PR`, "
@@ -1649,8 +1662,10 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
          */
         rowsEffected = 0;
         String sql1 = "SELECT "
-                + "(i.ACTUAL_QTY*qtp.MULTIPLIER) ACTUAL_QTY,"
-                + "(i.ADJUSTMENT_QTY*qtp.MULTIPLIER) ADJUSTMENT_QTY,"
+                //                + "(i.ACTUAL_QTY*qtp.MULTIPLIER) ACTUAL_QTY,"
+                + "i.ACTUAL_QTY ACTUAL_QTY,"
+                //                + "(i.ADJUSTMENT_QTY*qtp.MULTIPLIER) ADJUSTMENT_QTY,"
+                + "i.ADJUSTMENT_QTY ADJUSTMENT_QTY,"
                 + "i.DATA_SOURCE_ID, "
                 + "i.INVENTORY_DATE,"
                 + "i.REGION_ID,"
@@ -1936,7 +1951,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
 
     @Override
     @Transactional
-    public void createRealmCountryPlanningUnits(int pipelineId, CustomUserDetails curUser,int realmCountryId) {
+    public void createRealmCountryPlanningUnits(int pipelineId, CustomUserDetails curUser, int realmCountryId) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sql = "update rm_realm_country r set r.ACTIVE=1,r.LAST_MODIFIED_BY=?,r.LAST_MODIFIED_DATE=? where r.REALM_COUNTRY_ID=? and r.ACTIVE=0";
         this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, realmCountryId);

@@ -92,12 +92,7 @@ public class ShipmentGlobalDemandInput implements Serializable {
         if (this.fundingSourceProcurementAgentIds == null) {
             return "";
         } else {
-            String opt = String.join("','", this.fundingSourceProcurementAgentIds);
-            if (this.fundingSourceProcurementAgentIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
+            return String.join(",", this.fundingSourceProcurementAgentIds);
         }
     }
 
@@ -105,12 +100,7 @@ public class ShipmentGlobalDemandInput implements Serializable {
         if (this.realmCountryIds == null) {
             return "";
         } else {
-            String opt = String.join("','", this.realmCountryIds);
-            if (this.realmCountryIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
+            return String.join(",", this.realmCountryIds);
         }
     }
 
@@ -130,4 +120,3 @@ public class ShipmentGlobalDemandInput implements Serializable {
         this.includePlannedShipments = includePlannedShipments;
     }
 }
-    

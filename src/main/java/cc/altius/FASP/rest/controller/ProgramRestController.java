@@ -296,6 +296,7 @@ public class ProgramRestController {
 
     @GetMapping("/manualTagging/{programId}/{planningUnitId}")
     public ResponseEntity getShipmentListForManualTagging(@PathVariable("programId") int programId, @PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
+        System.out.println("planningUnitId--------"+planningUnitId);
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getShipmentListForManualTagging(programId, planningUnitId), HttpStatus.OK);
@@ -449,6 +450,20 @@ public class ProgramRestController {
             return new ResponseEntity(this.programService.validateProgramCode(realmId, programId, programCode, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             return new ResponseEntity(new LinkedList<LoadProgram>(), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list Programs", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Programs", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("program/supplyPlanReviewer/programId/{programId}")
+    public ResponseEntity getSupplyPlanReviewerListForProgram(@PathVariable("programId") int programId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getSupplyPlanReviewerList(programId, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list Programs", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);

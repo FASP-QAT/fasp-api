@@ -229,7 +229,12 @@ public class ProgramServiceImpl implements ProgramService {
 
     @Override
     public int linkShipmentWithARTMIS(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser) {
-        return this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO, curUser);
+        try {
+            return this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO, curUser);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
     }
 
     @Override
@@ -281,6 +286,11 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int searchId, int programId, int planningUnitId) {
         return this.programDao.getErpOrderSearchData(term, searchId, programId, planningUnitId);
+    }
+
+    @Override
+    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) {
+        return this.programDao.getSupplyPlanReviewerList(programId, curUser);
     }
 
 }

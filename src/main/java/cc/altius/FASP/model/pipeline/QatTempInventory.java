@@ -15,8 +15,8 @@ public class QatTempInventory {
     private String dataSourceId;
     private String regionId;
     private String inventoryDate;
-    private long inventory;
-    private long manualAdjustment;
+    private Long inventory;
+    private Long manualAdjustment;
     private String notes;
     private boolean active;
     private int realmCountryPlanningUnitId;
@@ -26,17 +26,17 @@ public class QatTempInventory {
 
     }
 
-    public QatTempInventory(String planningUnitId, String dataSourceId, String regionId, String inventoryDate, int inventory,int manualAdjustment, String notes, boolean active,int realmCountryPlanningUnitId,double  multiplier) {
+    public QatTempInventory(String planningUnitId, String dataSourceId, String regionId, String inventoryDate, Long inventory, Long manualAdjustment, String notes, boolean active, int realmCountryPlanningUnitId, double multiplier) {
         this.planningUnitId = planningUnitId;
         this.dataSourceId = dataSourceId;
         this.regionId = regionId;
         this.inventoryDate = inventoryDate;
-        this.inventory=inventory;
+        this.inventory = inventory;
         this.manualAdjustment = manualAdjustment;
         this.notes = notes;
         this.active = active;
-        this.realmCountryPlanningUnitId=realmCountryPlanningUnitId;
-        this.multiplier=multiplier;
+        this.realmCountryPlanningUnitId = realmCountryPlanningUnitId;
+        this.multiplier = multiplier;
     }
 
     public int getRealmCountryPlanningUnitId() {
@@ -54,8 +54,6 @@ public class QatTempInventory {
     public void setMultiplier(double multiplier) {
         this.multiplier = multiplier;
     }
-    
-    
 
     public String getPlanningUnitId() {
         return planningUnitId;
@@ -89,19 +87,19 @@ public class QatTempInventory {
         this.inventoryDate = inventoryDate;
     }
 
-    public long getInventory() {
+    public Long getInventory() {
         return inventory;
     }
 
-    public void setInventory(long inventory) {
+    public void setInventory(Long inventory) {
         this.inventory = inventory;
     }
 
-    public long getManualAdjustment() {
+    public Long getManualAdjustment() {
         return manualAdjustment;
     }
 
-    public void setManualAdjustment(long manualAdjustment) {
+    public void setManualAdjustment(Long manualAdjustment) {
         this.manualAdjustment = manualAdjustment;
     }
 
@@ -121,5 +119,4 @@ public class QatTempInventory {
         this.active = active;
     }
 
-    
 }

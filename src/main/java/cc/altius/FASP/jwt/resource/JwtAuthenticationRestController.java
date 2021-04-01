@@ -67,20 +67,30 @@ public class JwtAuthenticationRestController {
             logger.info("JWT Token generated successfully for Username: " + authenticationRequest.getUsername());
             this.userService.resetFailedAttemptsByUsername(authenticationRequest.getUsername());
             this.userService.updateSuncExpiresOn(authenticationRequest.getUsername());
+            logger.info("Langage changed flag---: " + authenticationRequest.isLanguageChanged());
+            System.out.println("Langage changed flag---: " + authenticationRequest.isLanguageChanged());
+            if (authenticationRequest.isLanguageChanged()) {
+                this.userService.updateUserLanguageByEmailId(authenticationRequest.getUsername(), authenticationRequest.getLanguageCode());
+            }
         } catch (BadCredentialsException e) {
+//            System.out.println("-------1--------------");
             this.userService.updateFailedAttemptsByUserId(authenticationRequest.getUsername());
             logger.info("JWT Token generation failed because of BadCredentials for Username: " + authenticationRequest.getUsername());
             return new ResponseEntity(new ResponseCode("static.message.login.invalidCredentials"), HttpStatus.UNAUTHORIZED);
         } catch (DisabledException | AccountExpiredException e) {
+//            System.out.println("-------2--------------");
             logger.info("JWT Token generation failed because user is Disabled for Username: " + authenticationRequest.getUsername());
             return new ResponseEntity(new ResponseCode("static.message.login.disabled"), HttpStatus.UNAUTHORIZED);
         } catch (LockedException e) {
+//            System.out.println("-------3--------------");
             logger.info("JWT Token generation failed because user is Locked for Username: " + authenticationRequest.getUsername());
             return new ResponseEntity(new ResponseCode("static.message.login.locked"), HttpStatus.UNAUTHORIZED);
         } catch (CredentialsExpiredException e) {
+//            System.out.println("-------4--------------");
             logger.info("JWT Token generation failed because Password has expired for Username: " + authenticationRequest.getUsername());
             return new ResponseEntity(new ResponseCode("static.message.login.passwordExpired"), HttpStatus.NOT_ACCEPTABLE);
         } catch (UsernameNotFoundException e) {
+            System.out.println("-------5--------------");
             logger.info("JWT Token generation failed because User not found for Username: " + authenticationRequest.getUsername());
             return new ResponseEntity(new ResponseCode("static.message.login.noUser"), HttpStatus.UNAUTHORIZED);
         }

@@ -24,17 +24,32 @@ public class Problem extends BaseModel implements Serializable {
     private String actionUrl;
     @JsonView(Views.InternalView.class)
     private Label actionLabel;
+    @JsonView(Views.InternalView.class)
+    private boolean actualConsumptionTrigger;
+    @JsonView(Views.InternalView.class)
+    private boolean forecastedConsumptionTrigger;
+    @JsonView(Views.InternalView.class)
+    private boolean inventoryTrigger;
+    @JsonView(Views.InternalView.class)
+    private boolean adjustmentTrigger;
+    @JsonView(Views.InternalView.class)
+    private boolean shipmentTrigger;
 
     public Problem() {
     }
 
-    public Problem(int problemId, Label label, SimpleObject problemCategory, String actionUrl, Label actionLabel) {
+    public Problem(int problemId, Label label, SimpleObject problemCategory, String actionUrl, Label actionLabel, boolean actualConsumptionTrigger, boolean forecastedConsumptionTrigger, boolean inventoryTrigger, boolean adjustmentTrigger, boolean shipmentTrigger) {
         this.problemId = problemId;
         this.label = label;
         this.problemCategory = problemCategory;
         this.actionUrl = actionUrl;
         this.actionLabel = actionLabel;
         setActive(true);
+        this.actualConsumptionTrigger = actualConsumptionTrigger;
+        this.forecastedConsumptionTrigger = forecastedConsumptionTrigger;
+        this.inventoryTrigger = inventoryTrigger;
+        this.adjustmentTrigger = adjustmentTrigger;
+        this.shipmentTrigger = shipmentTrigger;
     }
 
     public int getProblemId() {
@@ -75,6 +90,46 @@ public class Problem extends BaseModel implements Serializable {
 
     public void setActionLabel(Label actionLabel) {
         this.actionLabel = actionLabel;
+    }
+
+    public boolean isActualConsumptionTrigger() {
+        return actualConsumptionTrigger;
+    }
+
+    public void setActualConsumptionTrigger(boolean actualConsumptionTrigger) {
+        this.actualConsumptionTrigger = actualConsumptionTrigger;
+    }
+
+    public boolean isForecastedConsumptionTrigger() {
+        return forecastedConsumptionTrigger;
+    }
+
+    public void setForecastedConsumptionTrigger(boolean forecastedConsumptionTrigger) {
+        this.forecastedConsumptionTrigger = forecastedConsumptionTrigger;
+    }
+
+    public boolean isInventoryTrigger() {
+        return inventoryTrigger;
+    }
+
+    public void setInventoryTrigger(boolean inventoryTrigger) {
+        this.inventoryTrigger = inventoryTrigger;
+    }
+
+    public boolean isAdjustmentTrigger() {
+        return adjustmentTrigger;
+    }
+
+    public void setAdjustmentTrigger(boolean adjustmentTrigger) {
+        this.adjustmentTrigger = adjustmentTrigger;
+    }
+
+    public boolean isShipmentTrigger() {
+        return shipmentTrigger;
+    }
+
+    public void setShipmentTrigger(boolean shipmentTrigger) {
+        this.shipmentTrigger = shipmentTrigger;
     }
 
 }
