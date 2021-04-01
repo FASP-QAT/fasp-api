@@ -23,7 +23,7 @@ import java.util.Objects;
  * @author akil
  */
 public class StockStatusVerticalOutput implements Serializable {
-    
+
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     @JsonView(Views.ReportView.class)
@@ -58,6 +58,8 @@ public class StockStatusVerticalOutput implements Serializable {
     private int minMos;
     @JsonView(Views.ReportView.class)
     private int maxMos;
+    @JsonView(Views.ReportView.class)
+    private Long unmetDemand;
 
     public StockStatusVerticalOutput() {
         this.shipmentInfo = new LinkedList<>();
@@ -189,6 +191,14 @@ public class StockStatusVerticalOutput implements Serializable {
 
     public void setShipmentInfo(List<ShipmentInfo> shipmentInfo) {
         this.shipmentInfo = shipmentInfo;
+    }
+
+    public Long getUnmetDemand() {
+        return unmetDemand;
+    }
+
+    public void setUnmetDemand(Long unmetDemand) {
+        this.unmetDemand = unmetDemand;
     }
 
     @Override
