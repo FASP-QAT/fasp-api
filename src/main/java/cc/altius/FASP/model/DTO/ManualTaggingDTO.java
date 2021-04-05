@@ -7,8 +7,6 @@ package cc.altius.FASP.model.DTO;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
-import cc.altius.FASP.model.Label;
-import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -34,8 +32,18 @@ public class ManualTaggingDTO implements Serializable {
     private int shipmentQty;
     private double productCost;
     private String orderNo;
+    private int primeLineNo;
+    private String roNo;
+    private int roPrimeLineNo;
     private SimpleObject planningUnit;
+    private SimpleObject erpPlanningUnit;
     private String skuCode;
+    private int programId;
+    private String[] planningUnitIdList;
+    private String notes;
+    private int linkingType;
+    private double conversionFactor;
+    private int parentShipmentId;
 
     public int getShipmentId() {
         return shipmentId;
@@ -125,6 +133,14 @@ public class ManualTaggingDTO implements Serializable {
         this.planningUnit = planningUnit;
     }
 
+    public SimpleObject getErpPlanningUnit() {
+        return erpPlanningUnit;
+    }
+
+    public void setErpPlanningUnit(SimpleObject erpPlanningUnit) {
+        this.erpPlanningUnit = erpPlanningUnit;
+    }
+
     public String getSkuCode() {
         return skuCode;
     }
@@ -133,9 +149,89 @@ public class ManualTaggingDTO implements Serializable {
         this.skuCode = skuCode;
     }
 
+    public int getProgramId() {
+        return programId;
+    }
+
+    public void setProgramId(int programId) {
+        this.programId = programId;
+    }
+
+    public String[] getPlanningUnitIdList() {
+        return planningUnitIdList;
+    }
+
+    public void setPlanningUnitIdList(String[] planningUnitIdList) {
+        this.planningUnitIdList = planningUnitIdList;
+    }
+
+    public String getPlanningUnitIdsString() {
+        if (this.planningUnitIdList == null || this.planningUnitIdList.length == 0) {
+            return "";
+        } else {
+            return String.join(",", this.planningUnitIdList);
+        }
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public int getLinkingType() {
+        return linkingType;
+    }
+
+    public void setLinkingType(int linkingType) {
+        this.linkingType = linkingType;
+    }
+
+    public double getConversionFactor() {
+        return conversionFactor;
+    }
+
+    public void setConversionFactor(double conversionFactor) {
+        this.conversionFactor = conversionFactor;
+    }
+
+    public String getRoNo() {
+        return roNo;
+    }
+
+    public void setRoNo(String roNo) {
+        this.roNo = roNo;
+    }
+
+    public int getPrimeLineNo() {
+        return primeLineNo;
+    }
+
+    public void setPrimeLineNo(int primeLineNo) {
+        this.primeLineNo = primeLineNo;
+    }
+
+    public int getRoPrimeLineNo() {
+        return roPrimeLineNo;
+    }
+
+    public void setRoPrimeLineNo(int roPrimeLineNo) {
+        this.roPrimeLineNo = roPrimeLineNo;
+    }
+
+    public int getParentShipmentId() {
+        return parentShipmentId;
+    }
+
+    public void setParentShipmentId(int parentShipmentId) {
+        this.parentShipmentId = parentShipmentId;
+    }
+
     @Override
     public String toString() {
-        return "ManualTaggingDTO{" + "shipmentId=" + shipmentId + ", shipmentTransId=" + shipmentTransId + ", expectedDeliveryDate=" + expectedDeliveryDate + ", shipmentStatus=" + shipmentStatus + ", procurementAgent=" + procurementAgent + ", fundingSource=" + fundingSource + ", budget=" + budget + ", shipmentQty=" + shipmentQty + ", productCost=" + productCost + ", orderNo=" + orderNo + ", planningUnit=" + planningUnit + ", skuCode=" + skuCode + '}';
+        return "ManualTaggingDTO{" + "shipmentId=" + shipmentId + ", shipmentTransId=" + shipmentTransId + ", expectedDeliveryDate=" + expectedDeliveryDate + ", shipmentStatus=" + shipmentStatus + ", procurementAgent=" + procurementAgent + ", fundingSource=" + fundingSource + ", budget=" + budget + ", shipmentQty=" + shipmentQty + ", productCost=" + productCost + ", orderNo=" + orderNo + ", planningUnit=" + planningUnit + ", erpPlanningUnit=" + erpPlanningUnit + ", skuCode=" + skuCode + ", programId=" + programId + ", planningUnitIdList=" + planningUnitIdList + ", notes=" + notes + ", linkingType=" + linkingType + ", conversionFactor=" + conversionFactor + '}';
     }
 
 }

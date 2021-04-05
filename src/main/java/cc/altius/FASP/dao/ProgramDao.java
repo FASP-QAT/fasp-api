@@ -50,9 +50,9 @@ public interface ProgramDao {
 
     public Program getProgramList(int realmId, int programId, int versionId);
 
-    public List<ManualTaggingDTO> getShipmentListForManualTagging(int programId, int planningUnitId);
+    public List<ManualTaggingDTO> getShipmentListForManualTagging(ManualTaggingDTO manualTaggingDTO);
 
-    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int searchId, int programId, int planningUnitId);
+    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo,int programId, int planningUnitId);
 
     public int linkShipmentWithARTMIS(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser);
 
@@ -70,7 +70,7 @@ public interface ProgramDao {
 
     public List<ProgramPlanningUnit> getProgramPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 
-    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int searchId, int programId, int planningUnitId);
+    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term,int programId, int planningUnitId);
 
     public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser);
 }

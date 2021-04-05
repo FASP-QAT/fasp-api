@@ -218,22 +218,28 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<ManualTaggingDTO> getShipmentListForManualTagging(int programId, int planningUnitId) {
-        return this.programDao.getShipmentListForManualTagging(programId, planningUnitId);
+    public List<ManualTaggingDTO> getShipmentListForManualTagging(ManualTaggingDTO manualTaggingDTO) {
+        return this.programDao.getShipmentListForManualTagging(manualTaggingDTO);
     }
 
     @Override
-    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int searchId, int programId, int planningUnitId) {
-        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(roNoOrderNo, searchId, programId, planningUnitId);
+    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int programId, int planningUnitId) {
+        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(roNoOrderNo, programId, planningUnitId);
     }
 
     @Override
-    public int linkShipmentWithARTMIS(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser) {
+    public int[] linkShipmentWithARTMIS(ManualTaggingOrderDTO[] manualTaggingOrderDTO, CustomUserDetails curUser) {
         try {
-            return this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO, curUser);
+            int result[] = null;
+            for (int i = 0; i <= manualTaggingOrderDTO.length; i++) {
+                System.out.println("manualTaggingOrderDTO[i]---"+manualTaggingOrderDTO[i]);
+                int id = this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO[i], curUser);
+                result[i] = id;
+            }
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
-            return 0;
+            return null;
         }
     }
 
@@ -284,8 +290,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int searchId, int programId, int planningUnitId) {
-        return this.programDao.getErpOrderSearchData(term, searchId, programId, planningUnitId);
+    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId) {
+        return this.programDao.getErpOrderSearchData(term, programId, planningUnitId);
     }
 
     @Override
