@@ -15,11 +15,3 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Click on ok to update 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Cliquez sur OK pour mettre à jour la quantité de commande avec la quantité d`expédition suggérée');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Haga clic en Aceptar para actualizar la cantidad del pedido con la cantidad de envío sugerida');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Clique em ok para atualizar a quantidade do pedido com a quantidade de envio sugerida');
-
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipmentDataEntry.showSuggestedShipmentQty','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Show Suggested Shipment Qty');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher la quantité d`expédition suggérée');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar cantidad de envío sugerida');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar Qtd de Remessa Sugerida');
