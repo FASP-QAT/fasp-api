@@ -45,6 +45,10 @@ public class StockStatusVerticalOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private List<ShipmentInfo> shipmentInfo;
     @JsonView(Views.ReportView.class)
+    private List<ConsumptionInfo> consumptionInfo;
+    @JsonView(Views.ReportView.class)
+    private List<InventoryInfo> inventoryInfo;
+    @JsonView(Views.ReportView.class)
     private Long adjustment;
     @JsonView(Views.ReportView.class)
     private Long expiredStock;
@@ -63,6 +67,8 @@ public class StockStatusVerticalOutput implements Serializable {
 
     public StockStatusVerticalOutput() {
         this.shipmentInfo = new LinkedList<>();
+        this.consumptionInfo = new LinkedList<>();
+        this.inventoryInfo = new LinkedList<>();
     }
 
     public Date getDt() {
@@ -191,6 +197,22 @@ public class StockStatusVerticalOutput implements Serializable {
 
     public void setShipmentInfo(List<ShipmentInfo> shipmentInfo) {
         this.shipmentInfo = shipmentInfo;
+    }
+
+    public List<ConsumptionInfo> getConsumptionInfo() {
+        return consumptionInfo;
+    }
+
+    public void setConsumptionInfo(List<ConsumptionInfo> consumptionInfo) {
+        this.consumptionInfo = consumptionInfo;
+    }
+
+    public List<InventoryInfo> getInventoryInfo() {
+        return inventoryInfo;
+    }
+
+    public void setInventoryInfo(List<InventoryInfo> inventoryInfo) {
+        this.inventoryInfo = inventoryInfo;
     }
 
     public Long getUnmetDemand() {
