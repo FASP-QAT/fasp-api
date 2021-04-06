@@ -16,6 +16,7 @@ import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ReviewedProblem;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitForSupplyPlanObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.Version;
@@ -71,4 +72,6 @@ public interface ProgramDataDao {
     public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId);
     
     public String getSupplyPlanReviewerEmialList(int realmCountryId);
+    
+    public List<SimplePlanningUnitForSupplyPlanObject> getPlanningUnitListForProgramData(int programId, CustomUserDetails curUser);
 }

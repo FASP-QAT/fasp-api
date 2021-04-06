@@ -28,8 +28,10 @@ public class Inventory implements Serializable {
     private String inventoryDate;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private SimpleObject region;
-    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
+    @JsonView({Views.InternalView.class})
     private SimpleObject realmCountryPlanningUnit;
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class})
+    private SimpleObject alternateReportingUnit;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private SimplePlanningUnitObject planningUnit;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -107,8 +109,14 @@ public class Inventory implements Serializable {
         return realmCountryPlanningUnit;
     }
 
+    public SimpleObject getAlternateReportingUnit() {
+        return alternateReportingUnit;
+    }
+    
+
     public void setRealmCountryPlanningUnit(SimpleObject realmCountryPlanningUnit) {
         this.realmCountryPlanningUnit = realmCountryPlanningUnit;
+        this.alternateReportingUnit = realmCountryPlanningUnit;
     }
 
     public SimplePlanningUnitObject getPlanningUnit() {
