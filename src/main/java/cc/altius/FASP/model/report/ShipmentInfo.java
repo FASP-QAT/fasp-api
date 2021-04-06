@@ -31,11 +31,13 @@ public class ShipmentInfo implements Serializable {
     private String notes;
     @JsonView(Views.ReportView.class)
     private String shipmentDate;
-    
+    @JsonView(Views.ReportView.class)
+    private SimpleObject dataSource;
+
     public ShipmentInfo() {
     }
 
-    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus, String notes, String shipmentDate) {
+    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus, String notes, String shipmentDate, SimpleObject dataSource) {
         this.shipmentId = shipmentId;
         this.shipmentQty = shipmentQty;
         this.fundingSource = fundingSource;
@@ -43,7 +45,8 @@ public class ShipmentInfo implements Serializable {
         this.shipmentStatus = shipmentStatus;
         this.notes = notes;
         this.shipmentDate = shipmentDate;
-    }    
+        this.dataSource = dataSource;
+    }
 
     public int getShipmentId() {
         return shipmentId;
@@ -99,6 +102,14 @@ public class ShipmentInfo implements Serializable {
 
     public void setShipmentDate(String shipmentDate) {
         this.shipmentDate = shipmentDate;
+    }
+
+    public SimpleObject getDataSource() {
+        return dataSource;
+    }
+
+    public void setDataSource(SimpleObject dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Override

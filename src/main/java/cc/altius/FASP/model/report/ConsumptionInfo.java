@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -20,14 +21,23 @@ public class ConsumptionInfo {
     private String consumptionDate;
     @JsonView(Views.ReportView.class)
     private int consumptionId;
+    @JsonView(Views.ReportView.class)
+    private SimpleObject dataSource;
+    @JsonView(Views.ReportView.class)
+    private SimpleObject region;
+    @JsonView(Views.ReportView.class)
+    private boolean actualFlag;
 
     public ConsumptionInfo() {
     }
 
-    public ConsumptionInfo(String notes, String consumptionDate, int consumptionId) {
+    public ConsumptionInfo(String notes, String consumptionDate, int consumptionId, SimpleObject dataSource, SimpleObject region, boolean actualFlag) {
         this.notes = notes;
         this.consumptionDate = consumptionDate;
         this.consumptionId = consumptionId;
+        this.dataSource = dataSource;
+        this.region = region;
+        this.actualFlag = actualFlag;
     }
 
     public String getNotes() {
@@ -52,6 +62,30 @@ public class ConsumptionInfo {
 
     public void setConsumptionId(int consumptionId) {
         this.consumptionId = consumptionId;
+    }
+
+    public SimpleObject getDataSource() {
+        return dataSource;
+    }
+
+    public void setDataSource(SimpleObject dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public SimpleObject getRegion() {
+        return region;
+    }
+
+    public void setRegion(SimpleObject region) {
+        this.region = region;
+    }
+
+    public boolean isActualFlag() {
+        return actualFlag;
+    }
+
+    public void setActualFlag(boolean actualFlag) {
+        this.actualFlag = actualFlag;
     }
 
     @Override
