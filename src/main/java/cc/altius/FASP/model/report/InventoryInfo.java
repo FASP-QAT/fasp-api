@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 
@@ -20,14 +21,26 @@ public class InventoryInfo {
     private String inventoryDate;
     @JsonView(Views.ReportView.class)
     private int inventoryId;
+    @JsonView(Views.ReportView.class)
+    private SimpleObject dataSource;
+    @JsonView(Views.ReportView.class)
+    private SimpleObject region;
+    @JsonView(Views.ReportView.class)
+    private Double adjustmentQty;
+    @JsonView(Views.ReportView.class)
+    private Double actualQty;
 
     public InventoryInfo() {
     }
 
-    public InventoryInfo(String notes, String inventoryDate, int inventoryId) {
+    public InventoryInfo(String notes, String inventoryDate, int inventoryId, SimpleObject dataSource, SimpleObject region, Double adjustmentQty, Double actualQty) {
         this.notes = notes;
         this.inventoryDate = inventoryDate;
         this.inventoryId = inventoryId;
+        this.dataSource = dataSource;
+        this.region = region;
+        this.adjustmentQty = adjustmentQty;
+        this.actualQty = actualQty;
     }
 
     public int getInventoryId() {
@@ -59,6 +72,38 @@ public class InventoryInfo {
         int hash = 7;
         hash = 79 * hash + this.inventoryId;
         return hash;
+    }
+
+    public SimpleObject getDataSource() {
+        return dataSource;
+    }
+
+    public void setDataSource(SimpleObject dataSource) {
+        this.dataSource = dataSource;
+    }
+
+    public SimpleObject getRegion() {
+        return region;
+    }
+
+    public void setRegion(SimpleObject region) {
+        this.region = region;
+    }
+
+    public Double getAdjustmentQty() {
+        return adjustmentQty;
+    }
+
+    public void setAdjustmentQty(Double adjustmentQty) {
+        this.adjustmentQty = adjustmentQty;
+    }
+
+    public Double getActualQty() {
+        return actualQty;
+    }
+
+    public void setActualQty(Double actualQty) {
+        this.actualQty = actualQty;
     }
 
     @Override

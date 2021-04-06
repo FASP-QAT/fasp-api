@@ -90,7 +90,8 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                         new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, index), rs.getString("PROCUREMENT_AGENT_CODE")),
                         new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, index)),
                         rs.getString("NOTES"),
-                        rs.getString("EDD")
+                        rs.getString("EDD"),
+                        new SimpleObject(rs.getInt("DATA_SOURCE_ID"), new LabelRowMapper("DATA_SOURCE_").mapRow(rs, index))
                 );
                 ssv.getShipmentInfo().add(si);
             }
@@ -99,7 +100,10 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                 ConsumptionInfo ci = new ConsumptionInfo(
                         rs.getString("CONSUMPTION_NOTES"),
                         rs.getString("CONSUMPTION_DATE"),
-                        rs.getInt("CONSUMPTION_ID")
+                        rs.getInt("CONSUMPTION_ID"),
+                        new SimpleObject(rs.getInt("CONSUMPTION_DATA_SOURCE_ID"), new LabelRowMapper("CONSUMPTION_DATA_SOURCE_").mapRow(rs, index)),
+                        new SimpleObject(rs.getInt("CONSUMPTION_REGION_ID"), new LabelRowMapper("CONSUMPTION_REGION_").mapRow(rs, index)),
+                        rs.getBoolean("ACTUAL_FLAG")
                 );
                 ssv.getConsumptionInfo().add(ci);
             }
@@ -108,7 +112,11 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                 InventoryInfo ii = new InventoryInfo(
                         rs.getString("INVENTORY_NOTES"),
                         rs.getString("INVENTORY_DATE"),
-                        rs.getInt("INVENTORY_ID")
+                        rs.getInt("INVENTORY_ID"),
+                        new SimpleObject(rs.getInt("INVENTORY_DATA_SOURCE_ID"), new LabelRowMapper("INVENTORY_DATA_SOURCE_").mapRow(rs, index)),
+                        new SimpleObject(rs.getInt("INVENTORY_REGION_ID"), new LabelRowMapper("INVENTORY_REGION_").mapRow(rs, index)),
+                        rs.getDouble("ADJUSTMENT_QTY"),
+                        rs.getDouble("ACTUAL_QTY")
                 );
                 ssv.getInventoryInfo().add(ii);
             }
