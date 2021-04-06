@@ -30,6 +30,7 @@ import cc.altius.FASP.model.ReviewedProblem;
 import cc.altius.FASP.model.Shipment;
 import cc.altius.FASP.model.ShipmentBatchInfo;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitForSupplyPlanObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.SupplyPlanBatchInfo;
@@ -45,6 +46,7 @@ import cc.altius.FASP.model.rowMapper.ProgramVersionRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
+import cc.altius.FASP.model.rowMapper.SimplePlanningUnitForSupplyPlanObjectResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimplifiedSupplyPlanResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SupplyPlanResultSetExtractor;
 import cc.altius.FASP.service.AclService;
@@ -1722,6 +1724,30 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "where ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER' and\n"
                 + "(ua.REALM_COUNTRY_ID is null OR ua.REALM_COUNTRY_ID=?)";
         return this.jdbcTemplate.queryForObject(sql, String.class, realmCountryId);
+    }
+
+    @Override
+    public List<SimplePlanningUnitForSupplyPlanObject> getPlanningUnitListForProgramData(int programId, CustomUserDetails curUser) {
+        StringBuilder sql = new StringBuilder("SELECT "
+                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, ppu.ACTIVE `PROGRAM_PLANNING_UNIT_ACTIVE`, pu.MULTIPLIER, "
+                + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, "
+                + "    pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, "
+                + "    papu.SKU_CODE, papu.ACTIVE `PROCUREMENT_AGENT_PLANNING_UNIT_ACTIVE`,"
+                + "    ppu.`MONTHS_IN_FUTURE_FOR_AMC`, ppu.`MONTHS_IN_PAST_FOR_AMC`, ppu.`MIN_MONTHS_OF_STOCK`, ppu.`REORDER_FREQUENCY_IN_MONTHS`, "
+                + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR` "
+                + "FROM rm_program p "
+                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID "
+                + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
+                + "LEFT JOIN rm_procurement_agent_planning_unit papu ON ppu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_procurement_agent pa ON papu.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID "
+                + "WHERE ppu.PROGRAM_ID=:programId AND ppu.ACTIVE AND pu.ACTIVE");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        this.aclService.addFullAclForProgram(sql, params, "p", curUser);
+        sql.append("ORDER BY pu.PLANNING_UNIT_ID, papu.PROCUREMENT_AGENT_ID");
+        return namedParameterJdbcTemplate.query(sql.toString(), params, new SimplePlanningUnitForSupplyPlanObjectResultSetExtractor());
     }
 
 }
