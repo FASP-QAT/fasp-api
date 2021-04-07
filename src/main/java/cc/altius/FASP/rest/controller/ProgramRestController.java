@@ -21,6 +21,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -316,12 +317,12 @@ public class ProgramRestController {
         }
     }
 
-    @GetMapping("/searchErpOrderData/{term}/{programId}/{erpPlanningUnitId}")
-    public ResponseEntity searchErpOrderData(@PathVariable("term") String term, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, Authentication auth) {
+    @GetMapping("/searchErpOrderData/{term}/{programId}/{erpPlanningUnitId}/{linkingType}")
+    public ResponseEntity searchErpOrderData(@PathVariable("term") String term, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, @PathVariable("linkingType") int linkingType, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             System.out.println("term---------------------------------->" + term);
-            return new ResponseEntity(this.programService.getErpOrderSearchData(term, programId, planningUnitId), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getErpOrderSearchData(term, programId, planningUnitId, linkingType), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -357,7 +358,7 @@ public class ProgramRestController {
         try {
             System.out.println("erpOrderDTO---" + Arrays.toString(erpOrderDTO));
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            int[] result = this.programService.linkShipmentWithARTMIS(erpOrderDTO, curUser);
+            List<Integer> result = this.programService.linkShipmentWithARTMIS(erpOrderDTO, curUser);
             System.out.println("result---" + result);
             logger.info("Going to get new supply plan list ");
             this.programDataService.getNewSupplyPlanList(erpOrderDTO[0].getProgramId(), -1, true, false);

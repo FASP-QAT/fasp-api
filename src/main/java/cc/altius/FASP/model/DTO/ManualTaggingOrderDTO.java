@@ -37,6 +37,7 @@ public class ManualTaggingOrderDTO {
     private BigDecimal conversionFactor;
     private int programId;
     private boolean active;
+    private int parentShipmentId;
 
     public int getErpOrderId() {
         return erpOrderId;
@@ -214,9 +215,17 @@ public class ManualTaggingOrderDTO {
         this.active = active;
     }
 
+    public int getParentShipmentId() {
+        return parentShipmentId;
+    }
+
+    public void setParentShipmentId(int parentShipmentId) {
+        this.parentShipmentId = parentShipmentId;
+    }
+
     @Override
     public String toString() {
-        return "ManualTaggingOrderDTO{" + "erpOrderId=" + erpOrderId + ", shipmentId=" + shipmentId + ", quantity=" + quantity + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", roNo=" + roNo + ", roPrimeLineNo=" + roPrimeLineNo + ", orderType=" + orderType + ", planningUnitSkuCode=" + planningUnitSkuCode + ", procurementUnitSkuCode=" + procurementUnitSkuCode + ", currentEstimatedDeliveryDate=" + currentEstimatedDeliveryDate + ", supplierName=" + supplierName + ", price=" + price + ", shippingCost=" + shippingCost + ", status=" + status + ", reason=" + reason + ", recipentCountry=" + recipentCountry + ", planningUnitLabel=" + planningUnitLabel + ", notes=" + notes + ", conversionFactor=" + conversionFactor + ", programId=" + programId + ", active=" + active + '}';
+        return "ManualTaggingOrderDTO{" + "erpOrderId=" + erpOrderId + ", shipmentId=" + shipmentId + ", quantity=" + quantity + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", roNo=" + roNo + ", roPrimeLineNo=" + roPrimeLineNo + ", orderType=" + orderType + ", planningUnitSkuCode=" + planningUnitSkuCode + ", procurementUnitSkuCode=" + procurementUnitSkuCode + ", currentEstimatedDeliveryDate=" + currentEstimatedDeliveryDate + ", supplierName=" + supplierName + ", price=" + price + ", shippingCost=" + shippingCost + ", status=" + status + ", reason=" + reason + ", recipentCountry=" + recipentCountry + ", planningUnitLabel=" + planningUnitLabel + ", notes=" + notes + ", conversionFactor=" + conversionFactor + ", programId=" + programId + ", active=" + active + ", parentShipmentId=" + parentShipmentId + '}';
     }
 
 }

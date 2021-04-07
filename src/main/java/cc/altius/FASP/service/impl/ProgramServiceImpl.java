@@ -24,6 +24,7 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -228,13 +229,18 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public int[] linkShipmentWithARTMIS(ManualTaggingOrderDTO[] manualTaggingOrderDTO, CustomUserDetails curUser) {
+    public List<Integer> linkShipmentWithARTMIS(ManualTaggingOrderDTO[] manualTaggingOrderDTO, CustomUserDetails curUser) {
         try {
-            int result[] = null;
+            List<Integer> result = new ArrayList<>();
             for (int i = 0; i <= manualTaggingOrderDTO.length; i++) {
                 System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
-                int id = this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO[i], curUser);
-                result[i] = id;
+                if (manualTaggingOrderDTO[i].isActive()) {
+                    int id = this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO[i], curUser);
+                    result.add(id);
+                } else if (!manualTaggingOrderDTO[i].isActive()) {
+                    System.out.println("****************************************************************************************"+manualTaggingOrderDTO[i]);
+                    this.programDao.delinkShipment(manualTaggingOrderDTO[i], curUser);
+                }
             }
             return result;
         } catch (Exception e) {
@@ -290,8 +296,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId) {
-        return this.programDao.getErpOrderSearchData(term, programId, planningUnitId);
+    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId, int linkingType) {
+        return this.programDao.getErpOrderSearchData(term, programId, planningUnitId, linkingType);
     }
 
     @Override
