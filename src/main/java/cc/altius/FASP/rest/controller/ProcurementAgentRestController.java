@@ -8,7 +8,6 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
-import cc.altius.FASP.model.ProcurementAgentPlanningUnitProgramPrice;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.ProcurementAgentService;
@@ -146,22 +145,6 @@ public class ProcurementAgentRestController {
         }
     }
     
-    @PutMapping("/procurementAgent/planningingUnit/program")
-    public ResponseEntity savePlanningUnitProgramPriceForProcurementAgent(@RequestBody ProcurementAgentPlanningUnitProgramPrice[] procurementAgentPlanningUnitProgramPrices, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            this.procurementAgentService.saveProcurementAgentPlanningUnitProgramPrice(procurementAgentPlanningUnitProgramPrices, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to update PlanningUnit ProgramPrices for ProcurementAgent", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("Error while trying to update PlanningUnit ProgramPrices for ProcurementAgent", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping("/procurementAgent/{procurementAgentId}/planningUnit")
     public ResponseEntity getProcurementAgentPlanningUnitList(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
@@ -176,20 +159,6 @@ public class ProcurementAgentRestController {
         }
     }
     
-    @GetMapping("/procurementAgent/planningUnit/{procurementAgentPlanningUnitId}/program")
-    public ResponseEntity getProcurementAgentPlanningUnitProgramList(@PathVariable("procurementAgentPlanningUnitId") int procurementAgentPlanningUnitId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitProgramList(procurementAgentPlanningUnitId, false, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException er) {
-            logger.error("Error while trying to get ProgramPrice list for Procurement Agent Planning Unit Id" + procurementAgentPlanningUnitId, er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logger.error("Error while trying to get ProgramPrice list for Procurement Agent", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
     @GetMapping("/procurementAgent/{procurementAgentId}/planningUnit/all")
     public ResponseEntity getProcurementAgentPlanningUnitListAll(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
@@ -253,7 +222,7 @@ public class ProcurementAgentRestController {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitListForSyncProgram(getProgramIds(new String[]{"2030","2141"}), curUser), HttpStatus.OK);
+            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing procurementAgent", p);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
@@ -306,16 +275,4 @@ public class ProcurementAgentRestController {
         }
     }
     
-    private String getProgramIds(String[] programIds) {
-        if (programIds == null) {
-            return "";
-        } else {
-            String opt = String.join("','", programIds);
-            if (programIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
-        }
-    }
 }
