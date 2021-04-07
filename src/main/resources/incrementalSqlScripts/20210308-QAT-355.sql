@@ -8,6 +8,15 @@
  * Created: 08-Mar-2021
  */
 
+CREATE TABLE `fasp`.`tr_artmis_country` (
+  `RECEPIENT_NAME` VARCHAR(200) NOT NULL,
+  `REALM_COUNTRY_ID` INT(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (`RECEPIENT_NAME`));
+INSERT INTO tr_country VALUES ('Congo DRC', 11);
+INSERT INTO tr_country VALUES ('Panama', 38);
+INSERT INTO tr_country VALUES ('Vietnam', 49);
+
+
 INSERT INTO `fasp`.`ap_export`(`EXPORT_ID`,`ERP_CODE`,`JOB_NAME`,`LAST_DATE`) VALUES ( NULL,'ARTMIS','QAT_Shipment_Linking',NOW()); 
 UPDATE `fasp`.`em_email_template` SET `SUBJECT`='QAT data export error : <%ERROR_NAME%>' WHERE `EMAIL_TEMPLATE_ID`='4'; 
 
@@ -176,3 +185,49 @@ ORDER BY COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE);
 END$$
 
 DELIMITER ;
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `getErpShipmentForNotLinked`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getErpShipmentForNotLinked`(
+    VAR_REALM_COUNTRY_ID INT(10), 
+    VAR_PRODUCT_CATEGORY_IDS VARCHAR(255), 
+    VAR_PLANNING_UNIT_IDS VARCHAR(255)
+    )
+BEGIN
+
+    SET @productCategoryIds = VAR_PRODUCT_CATEGORY_IDS;
+    SET @planningUnitIds = VAR_PLANNING_UNIT_IDS;
+    
+    SELECT GROUP_CONCAT(pc2.PRODUCT_CATEGORY_ID) into @finalProductCategoryIds FROM rm_product_category pc LEFT JOIN rm_product_category pc2 ON pc2.SORT_ORDER like CONCAT(pc.SORT_ORDER,"%") WHERE FIND_IN_SET(pc.PRODUCT_CATEGORY_ID, @productCategoryIds);
+    
+    SELECT COALESCE(ac.RECEPIENT_NAME, c.LABEL_EN) into @recpientCountry 
+    FROM rm_realm_country rc 
+    LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID 
+    LEFT JOIN tr_artmis_country ac ON rc.REALM_COUNTRY_ID=ac.REALM_COUNTRY_ID
+    WHERE rc.REALM_COUNTRY_ID=VAR_REALM_COUNTRY_ID;
+    
+    SELECT 
+        o.ORDER_NO, o.PRIME_LINE_NO, 
+        pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`,
+        COALESCE(o.CURRENT_ESTIMATED_DELIVERY_DATE,o.AGREED_DELIVERY_DATE, o.REQ_DELIVERY_DATE) `DELIVERY_DATE`, o.`STATUS`, o.QTY
+    FROM rm_erp_order o 
+    LEFT JOIN (SELECT o.ERP_ORDER_ID FROM rm_erp_order o GROUP BY o.ORDER_NO, o.PRIME_LINE_NO) o1 ON o.ERP_ORDER_ID=o1.ERP_ORDER_ID 
+    LEFT JOIN rm_manual_tagging mt ON mt.ORDER_NO=o.ORDER_NO AND mt.PRIME_LINE_NO=o.PRIME_LINE_NO AND mt.ACTIVE 
+    LEFT JOIN rm_procurement_agent_planning_unit papu ON o.PLANNING_UNIT_SKU_CODE=LEFT(papu.SKU_CODE,12) 
+    LEFT JOIN vw_planning_unit pu ON papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID 
+    LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID 
+    WHERE  
+        o1.ERP_ORDER_ID IS NOT NULL  
+        AND mt.SHIPMENT_ID IS NULL  
+        AND o.RECPIENT_COUNTRY!=''  
+        AND o.RECPIENT_COUNTRY=@recpientCountry  
+        AND (LENGTH(@finalProductCategoryIds)=0 OR FIND_IN_SET(fu.PRODUCT_CATEGORY_ID, @finalProductCategoryIds))
+        AND (LENGTH(@planningUnitIds)=0 OR FIND_IN_SET(papu.PLANNING_UNIT_ID, @planningUnitIds));
+END$$
+
+DELIMITER ;
+
