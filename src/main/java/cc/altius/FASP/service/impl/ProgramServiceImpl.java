@@ -223,8 +223,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int programId, int planningUnitId) {
-        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(roNoOrderNo, programId, planningUnitId);
+    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int programId, int planningUnitId, int linkingType) {
+        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(roNoOrderNo, programId, planningUnitId, linkingType);
     }
 
     @Override
@@ -232,7 +232,7 @@ public class ProgramServiceImpl implements ProgramService {
         try {
             int result[] = null;
             for (int i = 0; i <= manualTaggingOrderDTO.length; i++) {
-                System.out.println("manualTaggingOrderDTO[i]---"+manualTaggingOrderDTO[i]);
+                System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
                 int id = this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO[i], curUser);
                 result[i] = id;
             }
