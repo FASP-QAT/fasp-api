@@ -10,7 +10,6 @@ import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.ProcurementAgentPlanningUnit;
-import cc.altius.FASP.model.ProcurementAgentPlanningUnitProgramPrice;
 import cc.altius.FASP.model.ProcurementAgentProcurementUnit;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.service.AclService;
@@ -90,11 +89,6 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
     }
 
     @Override
-    public List<ProcurementAgentPlanningUnitProgramPrice> getProcurementAgentPlanningUnitProgramList(int procurementAgentPlanningUnitId, boolean active, CustomUserDetails curUser) {
-        return this.procurementAgentDao.getProcurementAgentPlanningUnitProgramList(procurementAgentPlanningUnitId, active, curUser);
-    }
-
-    @Override
     public List<ProcurementAgentPlanningUnit> getProcurementAgentPlanningUnitListForTracerCategory(int procurementAgentId, int planningUnitId, String term, CustomUserDetails curUser) {
         return this.procurementAgentDao.getProcurementAgentPlanningUnitListForTracerCategory(procurementAgentId, planningUnitId, term, curUser);
     }
@@ -108,17 +102,6 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
             }
         }
         return this.procurementAgentDao.saveProcurementAgentPlanningUnit(procurementAgentPlanningUnits, curUser);
-    }
-
-    @Override
-    public int saveProcurementAgentPlanningUnitProgramPrice(ProcurementAgentPlanningUnitProgramPrice[] procurementAgentPlanningUnitProgramPrices, CustomUserDetails curUser) {
-        for (ProcurementAgentPlanningUnitProgramPrice papup : procurementAgentPlanningUnitProgramPrices) {
-            ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(papup.getProcurementAgent().getId(), curUser);
-            if (!this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
-                throw new AccessDeniedException("Access denied");
-            }
-        }
-        return this.procurementAgentDao.saveProcurementAgentPlanningUnitProgramPrice(procurementAgentPlanningUnitProgramPrices, curUser);
     }
 
     public List<ProcurementAgentProcurementUnit> getProcurementAgentProcurementUnitList(int procurementAgentId, boolean active, CustomUserDetails curUser) {

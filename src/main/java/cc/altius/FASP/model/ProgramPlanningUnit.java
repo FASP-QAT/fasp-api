@@ -6,6 +6,8 @@
 package cc.altius.FASP.model;
 
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -24,8 +26,10 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
     private double catalogPrice;
     private int monthsInFutureForAmc;
     private int monthsInPastForAmc;
+    private List<ProgramPlanningUnitProcurementAgentPrice> programPlanningUnitProcurementAgentPrices;
 
     public ProgramPlanningUnit() {
+        programPlanningUnitProcurementAgentPrices = new LinkedList<>();
     }
 
     public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, SimpleObject productCategory, int reorderFrequencyInMonths, int minMonthsOfStock, double localProcurementLeadTime, int shelfLife, double catalogPrice, int monthsInPastForAmc, int monthsInFutureForAmc) {
@@ -40,6 +44,7 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
         this.catalogPrice = catalogPrice;
         this.monthsInPastForAmc = monthsInPastForAmc;
         this.monthsInFutureForAmc = monthsInFutureForAmc;
+        programPlanningUnitProcurementAgentPrices = new LinkedList<>();
     }
 
     public int getProgramPlanningUnitId() {
@@ -128,6 +133,14 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
 
     public void setMonthsInPastForAmc(int monthsInPastForAmc) {
         this.monthsInPastForAmc = monthsInPastForAmc;
+    }
+
+    public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentPrices() {
+        return programPlanningUnitProcurementAgentPrices;
+    }
+
+    public void setProgramPlanningUnitProcurementAgentPrices(List<ProgramPlanningUnitProcurementAgentPrice> programPlanningUnitProcurementAgentPrices) {
+        this.programPlanningUnitProcurementAgentPrices = programPlanningUnitProcurementAgentPrices;
     }
 
     @Override

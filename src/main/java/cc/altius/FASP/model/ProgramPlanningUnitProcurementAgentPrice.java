@@ -11,29 +11,29 @@ import java.io.Serializable;
  *
  * @author akil
  */
-public class ProcurementAgentPlanningUnitProgramPrice extends BaseModel implements Serializable {
+public class ProgramPlanningUnitProcurementAgentPrice extends BaseModel implements Serializable {
 
-    private int procurementAgentPlanningUnitProgramId;
-    private int procurementAgentPlanningUnitId;
+    private int programPlanningUnitProcurementAgentId;
+    private int programPlanningUnitId;
     private SimpleCodeObject procurementAgent;
     private SimpleObject planningUnit;
     private SimpleObject program;
     private Double price;
 
-    public int getProcurementAgentPlanningUnitProgramId() {
-        return procurementAgentPlanningUnitProgramId;
+    public int getProgramPlanningUnitProcurementAgentId() {
+        return programPlanningUnitProcurementAgentId;
     }
 
-    public void setProcurementAgentPlanningUnitProgramId(int procurementAgentPlanningUnitProgramId) {
-        this.procurementAgentPlanningUnitProgramId = procurementAgentPlanningUnitProgramId;
+    public void setProgramPlanningUnitProcurementAgentId(int programPlanningUnitProcurementAgentId) {
+        this.programPlanningUnitProcurementAgentId = programPlanningUnitProcurementAgentId;
     }
 
-    public int getProcurementAgentPlanningUnitId() {
-        return procurementAgentPlanningUnitId;
+    public int getProgramPlanningUnitId() {
+        return programPlanningUnitId;
     }
 
-    public void setProcurementAgentPlanningUnitId(int procurementAgentPlanningUnitId) {
-        this.procurementAgentPlanningUnitId = procurementAgentPlanningUnitId;
+    public void setProgramPlanningUnitId(int programPlanningUnitId) {
+        this.programPlanningUnitId = programPlanningUnitId;
     }
 
     public SimpleCodeObject getProcurementAgent() {

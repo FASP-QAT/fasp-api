@@ -6,8 +6,6 @@
 package cc.altius.FASP.model;
 
 import java.io.Serializable;
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  *
@@ -26,17 +24,14 @@ public class ProcurementAgentPlanningUnit extends BaseModel implements Serializa
     private Integer unitsPerContainer;
     private Double volume; // in m3
     private Double weight; // in kg
-    private List<ProcurementAgentPlanningUnitProgramPrice> programPrice;
 
     public ProcurementAgentPlanningUnit() {
-        programPrice = new LinkedList<>();
     }
 
     public ProcurementAgentPlanningUnit(int procurementAgentPlanningUnitId, SimpleCodeObject procurementAgent, SimpleObject planningUnit) {
         this.procurementAgentPlanningUnitId = procurementAgentPlanningUnitId;
         this.procurementAgent = procurementAgent;
         this.planningUnit = planningUnit;
-        programPrice = new LinkedList<>();
     }
 
     public int getProcurementAgentPlanningUnitId() {
@@ -125,14 +120,6 @@ public class ProcurementAgentPlanningUnit extends BaseModel implements Serializa
 
     public void setWeight(Double weight) {
         this.weight = weight;
-    }
-
-    public List<ProcurementAgentPlanningUnitProgramPrice> getProgramPrice() {
-        return programPrice;
-    }
-
-    public void setProgramPrice(List<ProcurementAgentPlanningUnitProgramPrice> programPrice) {
-        this.programPrice = programPrice;
     }
 
     @Override
