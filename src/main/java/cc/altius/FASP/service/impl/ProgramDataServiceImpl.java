@@ -227,8 +227,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
      * @param versionId VersionId of the SupplyPlan you want to send the
      * Notification for
      * @param statusType if the Supply Plan has just been committed
-     * statusType=1, If the Supply Plan has been rejected statusType=2, If the
-     * Supply Plan has been approved statusType=3
+     * statusType=1, If the Supply Plan has been approved statusType=2, If the
+     * Supply Plan has been rejected statusType=3
      * @param toCc "To" if you want the To list and "Cc" if you want the cc list
      * @return List of the people the Notification needs to be sent to
      */
