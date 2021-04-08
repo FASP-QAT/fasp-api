@@ -12,6 +12,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
+import cc.altius.FASP.model.NotificationUser;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
@@ -218,6 +219,22 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public int getLatestVersionForProgram(int programId) {
         return this.programDataDao.getLatestVersionForProgram(programId);
+    }
+
+    /**
+     *
+     * @param programId ProgramId that you want to send the Notification for
+     * @param versionId VersionId of the SupplyPlan you want to send the
+     * Notification for
+     * @param statusType if the Supply Plan has just been committed
+     * statusType=1, If the Supply Plan has been rejected statusType=2, If the
+     * Supply Plan has been approved statusType=3
+     * @param toCc "To" if you want the To list and "Cc" if you want the cc list
+     * @return List of the people the Notification needs to be sent to
+     */
+    @Override
+    public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc) {
+        return this.programDataDao.getSupplyPlanNotificationList(programId, versionId, statusType, toCc);
     }
 
 }

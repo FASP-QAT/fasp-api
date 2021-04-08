@@ -21,6 +21,7 @@ import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.InventoryBatchInfo;
 import cc.altius.FASP.model.MasterSupplyPlan;
 import cc.altius.FASP.model.NewSupplyPlan;
+import cc.altius.FASP.model.NotificationUser;
 import cc.altius.FASP.model.ProblemReport;
 import cc.altius.FASP.model.ProblemReportTrans;
 import cc.altius.FASP.model.Program;
@@ -42,6 +43,7 @@ import cc.altius.FASP.model.rowMapper.IdByAndDateRowMapper;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanBatchResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanRegionResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.NotificationUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramVersionRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
@@ -1748,6 +1750,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.aclService.addFullAclForProgram(sql, params, "p", curUser);
         sql.append("ORDER BY pu.PLANNING_UNIT_ID, papu.PROCUREMENT_AGENT_ID");
         return namedParameterJdbcTemplate.query(sql.toString(), params, new SimplePlanningUnitForSupplyPlanObjectResultSetExtractor());
+    }
+
+    @Override
+    public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc) {
+        String sqlString = "CALL getSupplyPlanNotification" + toCc + "List(:programId,:versionId,:statusType)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        params.put("statusType", statusType);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new NotificationUserRowMapper());
     }
 
 }
