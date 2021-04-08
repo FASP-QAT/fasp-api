@@ -14,8 +14,8 @@ SET @programId = VAR_PROGRAM_ID;
 SET @versionId = VAR_VERSION_ID;
 SET @statusType = VAR_STATUS_TYPE;
 -- statusTypeId = 1 -> Final Submitted
--- statusTypeId = 2 -> Final Rejected
--- statusTypeID = 3 -> Final Approved
+-- statusTypeId = 2 -> Final Approved
+-- statusTypeID = 3 -> Final Rejected
 
 IF @statusType=1 THEN
     -- Final submitted
@@ -55,7 +55,7 @@ FROM (
     WHERE toList.USER_ID IS NULL
     GROUP BY u2.USER_ID;
 
-ELSEIF @statusType=2 THEN
+ELSEIF @statusType=3 THEN
     -- Rejected
     -- ccList
     SELECT u.USER_ID, u.USERNAME, u.EMAIL_ID
@@ -70,7 +70,7 @@ ELSEIF @statusType=2 THEN
     WHERE u.REALM_ID=1 AND (ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER' OR ur.ROLE_ID='ROLE_PROGRAM_ADMIN') AND p.PROGRAM_ID=@programId AND u.ACTIVE
     GROUP BY u.USER_ID;
 
-ELSEIF @statusType=3 THEN
+ELSEIF @statusType=2 THEN
     -- Approved
     -- ccList
     SELECT u.USER_ID, u.USERNAME, u.EMAIL_ID
@@ -89,6 +89,3 @@ END IF;
 END$$
 
 DELIMITER ;
-
-
-

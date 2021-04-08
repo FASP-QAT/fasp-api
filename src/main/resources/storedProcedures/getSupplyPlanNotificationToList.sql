@@ -14,8 +14,8 @@ SET @programId = VAR_PROGRAM_ID;
 SET @versionId = VAR_VERSION_ID;
 SET @statusType = VAR_STATUS_TYPE;
 -- statusTypeId = 1 -> Final Submitted
--- statusTypeId = 2 -> Final Rejected
--- statusTypeID = 3 -> Final Approved
+-- statusTypeId = 2 -> Final Approved
+-- statusTypeID = 3 -> Final Rejected
 
 IF @statusType=1 THEN
     -- Final submitted
@@ -32,7 +32,7 @@ IF @statusType=1 THEN
     WHERE u.REALM_ID=1 AND ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER' AND p.PROGRAM_ID=@programId AND u.ACTIVE;
 
 ELSEIF @statusType=2 OR @statusType=3 THEN
-    -- Rejected or Approved
+    -- Approved or Rejected
     -- toList
     SELECT u.USER_ID, u.USERNAME, u.EMAIL_ID 
     FROM rm_program_version pv 
