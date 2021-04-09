@@ -14,8 +14,8 @@ SET @programId = VAR_PROGRAM_ID;
 SET @versionId = VAR_VERSION_ID;
 SET @statusType = VAR_STATUS_TYPE;
 -- statusTypeId = 1 -> Final Submitted
--- statusTypeId = 2 -> Final Rejected
--- statusTypeID = 3 -> Final Approved
+-- statusTypeId = 2 -> Final Approved
+-- statusTypeID = 3 -> Final Rejected
 
 IF @statusType=1 THEN
     -- Final submitted
@@ -55,7 +55,7 @@ FROM (
     WHERE toList.USER_ID IS NULL
     GROUP BY u2.USER_ID;
 
-ELSEIF @statusType=2 THEN
+ELSEIF @statusType=3 THEN
     -- Rejected
     -- ccList
     SELECT u.USER_ID, u.USERNAME, u.EMAIL_ID
@@ -70,7 +70,7 @@ ELSEIF @statusType=2 THEN
     WHERE u.REALM_ID=1 AND (ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER' OR ur.ROLE_ID='ROLE_PROGRAM_ADMIN') AND p.PROGRAM_ID=@programId AND u.ACTIVE
     GROUP BY u.USER_ID;
 
-ELSEIF @statusType=3 THEN
+ELSEIF @statusType=2 THEN
     -- Approved
     -- ccList
     SELECT u.USER_ID, u.USERNAME, u.EMAIL_ID
@@ -82,13 +82,18 @@ ELSEIF @statusType=3 THEN
         AND (acl.ORGANISATION_ID is null OR acl.ORGANISATION_ID=p.ORGANISATION_ID)
     LEFT JOIN us_user u ON acl.USER_ID=u.USER_ID
     LEFT JOIN us_user_role ur ON u.USER_ID=ur.USER_ID 
-    WHERE u.REALM_ID=1 AND (ur.ROLE_ID='ROLE_REALM_ADMIN' OR ur.ROLE_ID='ROLE_PROGRAM_ADMIN' OR ur.ROLE_ID='ROLE_PROGRAM_USER' OR ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER') AND p.PROGRAM_ID=@programId AND u.ACTIVE
+    WHERE u.REALM_ID=1 AND 
+        (
+            ur.ROLE_ID='ROLE_REALM_ADMIN' 
+            OR ur.ROLE_ID='ROLE_PROGRAM_ADMIN' 
+            OR ur.ROLE_ID='ROLE_PROGRAM_USER' 
+            OR ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER'
+            OR ur.ROLE_ID='ROLE_VIEW_DATA_ENTRY'
+            OR ur.ROLE_ID='ROLE_GUEST_USER'
+        ) AND p.PROGRAM_ID=@programId AND u.ACTIVE
     GROUP BY u.USER_ID;
 END IF; 
     
 END$$
 
 DELIMITER ;
-
-
-
