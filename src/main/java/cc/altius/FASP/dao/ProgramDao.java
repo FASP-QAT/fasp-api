@@ -54,6 +54,8 @@ public interface ProgramDao {
 
     public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int programId, int planningUnitId, int linkingType);
 
+    public List<ManualTaggingDTO> getOrderDetailsByForNotLinkedERPShipments(String roNoOrderNo, int planningUnitId, int linkingType);
+
     public int linkShipmentWithARTMIS(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser);
 
     public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId);

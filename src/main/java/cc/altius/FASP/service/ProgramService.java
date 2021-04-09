@@ -77,4 +77,6 @@ public interface ProgramService {
     public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId, int linkingType);
 
     public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser);
+
+    public List<ManualTaggingDTO> getOrderDetailsByForNotLinkedERPShipments(String roNoOrderNo, int planningUnitId, int linkingType);
 }

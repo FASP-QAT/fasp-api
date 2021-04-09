@@ -21,6 +21,7 @@ import cc.altius.FASP.model.DTO.rowMapper.ErpOrderAutocompleteDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTOListResultSetExtractor;
 import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingOrderDTORowMapper;
+import cc.altius.FASP.model.DTO.rowMapper.NotERPLinkedShipmentsRowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.LoadProgram;
@@ -480,14 +481,20 @@ public class ProgramDaoImpl implements ProgramDao {
         String sql = "";
         List<ManualTaggingDTO> list = null;
         Map<String, Object> params = new HashMap<>();
-        params.put("programId", manualTaggingDTO.getProgramId());
         params.put("planningUnitId", manualTaggingDTO.getPlanningUnitIdsString());
+        params.put("programId", manualTaggingDTO.getProgramId());
         if (manualTaggingDTO.getLinkingType() == 1) {
             sql = "CALL getShipmentListForManualLinking(:programId, :planningUnitId, -1)";
             list = this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
         } else if (manualTaggingDTO.getLinkingType() == 2) {
             sql = "CALL getShipmentListForAlreadyLinkedShipments(:programId, :planningUnitId, -1)";
             list = this.namedParameterJdbcTemplate.query(sql, params, new ERPLinkedShipmentsDTORowMapper());
+        } else {
+            sql = "CALL getErpShipmentForNotLinked(:countryId,:productcategoryId, :planningUnitId)";
+            params.put("productcategoryId", manualTaggingDTO.getProductCategoryIdsString());
+            params.put("countryId", manualTaggingDTO.getCountryId());
+            System.out.println("params-------" + params);
+            list = this.namedParameterJdbcTemplate.query(sql, params, new NotERPLinkedShipmentsRowMapper());
         }
 
         System.out.println("list---" + manualTaggingDTO);
@@ -495,9 +502,34 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
+    public List<ManualTaggingDTO> getOrderDetailsByForNotLinkedERPShipments(String roNoOrderNo, int planningUnitId, int linkingType) {
+        StringBuilder sql = new StringBuilder();
+        sql.append("  (SELECT e.`ERP_ORDER_ID`,e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`, "
+                + "e.`QTY`,e.`STATUS`,l.`LABEL_ID` AS PLANNING_UNIT_LABEL_ID,IF(l.`LABEL_EN` IS NOT NULL,l.`LABEL_EN`,'') AS PLANNING_UNIT_LABEL_EN,p.PLANNING_UNIT_ID, "
+                + "l.`LABEL_FR` AS PLANNING_UNIT_LABEL_FR,l.`LABEL_PR` PLANNING_UNIT_LABEL_PR,l.`LABEL_SP` AS PLANNING_UNIT_LABEL_SP,COALESCE(MIN(es.ACTUAL_DELIVERY_DATE),e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE FROM rm_erp_order e "
+                + "                 LEFT JOIN rm_procurement_agent_planning_unit pu ON LEFT(pu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
+                + "                 AND pu.`PROCUREMENT_AGENT_ID`=1 "
+                + "                 LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
+                + "                 LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
+                + "                  LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID` "
+                + "                 WHERE e.`ERP_ORDER_ID` IN (SELECT a.`ERP_ORDER_ID` FROM (SELECT MAX(e.`ERP_ORDER_ID`)  AS ERP_ORDER_ID,e.STATUS "
+                + "                 FROM rm_erp_order e "
+                + "                 LEFT JOIN rm_procurement_agent_planning_unit pu ON LEFT(pu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
+                + "                 AND pu.`PROCUREMENT_AGENT_ID`=1 "
+                + "                 LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
+                + "                 LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
+                + "                 LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
+                + "                 WHERE e.RO_NO=? AND pu.`PLANNING_UNIT_ID`=? AND mt.SHIPMENT_ID IS NULL "
+                + "                 GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`)  a  "
+                + "                 WHERE a.STATUS != \"Cancelled\" ) GROUP BY e.`ERP_ORDER_ID`) ");
+        return this.jdbcTemplate.query(sql.toString(), new NotERPLinkedShipmentsRowMapper(), roNoOrderNo, planningUnitId);
+    }
+
+    @Override
     public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int programId, int planningUnitId, int linkingType) {
         String reason = "";
         StringBuilder sql = new StringBuilder();
+
         sql.append(" (SELECT e.`ERP_ORDER_ID`,e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`,e.`SHIPMENT_ID`,e.`PLANNING_UNIT_SKU_CODE`,e.`PROCUREMENT_UNIT_SKU_CODE`,e.`ORDER_TYPE`,e.`QTY`,e.`SUPPLIER_NAME`,e.`PRICE`,e.`SHIPPING_COST`,e.`RECPIENT_COUNTRY`,e.`STATUS`,l.`LABEL_ID`,IF(l.`LABEL_EN` IS NOT NULL,l.`LABEL_EN`,'') AS LABEL_EN,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,COALESCE(MIN(es.ACTUAL_DELIVERY_DATE),e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS CURRENT_ESTIMATED_DELIVERY_DATE,mt.ACTIVE,mt.`NOTES`,mt.`CONVERSION_FACTOR` FROM rm_erp_order e "
                 + " LEFT JOIN rm_procurement_agent_planning_unit pu ON LEFT(pu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
                 + " AND pu.`PROCUREMENT_AGENT_ID`=1 "
@@ -555,6 +587,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + " WHERE a.SHIPMENT_STATUS_ID NOT IN (7,8) ) GROUP BY e.`ERP_ORDER_ID`)");
 
         return this.jdbcTemplate.query(sql.toString(), new ManualTaggingOrderDTORowMapper(), programId, roNoOrderNo, planningUnitId, programId, roNoOrderNo, planningUnitId);
+
     }
 
     @Override

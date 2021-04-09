@@ -238,7 +238,7 @@ public class ProgramServiceImpl implements ProgramService {
                     int id = this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO[i], curUser);
                     result.add(id);
                 } else if (!manualTaggingOrderDTO[i].isActive()) {
-                    System.out.println("****************************************************************************************"+manualTaggingOrderDTO[i]);
+                    System.out.println("****************************************************************************************" + manualTaggingOrderDTO[i]);
                     this.programDao.delinkShipment(manualTaggingOrderDTO[i], curUser);
                 }
             }
@@ -303,6 +303,11 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) {
         return this.programDao.getSupplyPlanReviewerList(programId, curUser);
+    }
+
+    @Override
+    public List<ManualTaggingDTO> getOrderDetailsByForNotLinkedERPShipments(String roNoOrderNo, int planningUnitId, int linkingType) {
+        return this.programDao.getOrderDetailsByForNotLinkedERPShipments(roNoOrderNo, planningUnitId, linkingType);
     }
 
 }

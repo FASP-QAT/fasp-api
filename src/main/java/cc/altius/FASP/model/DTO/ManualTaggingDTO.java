@@ -40,10 +40,14 @@ public class ManualTaggingDTO implements Serializable {
     private String skuCode;
     private int programId;
     private String[] planningUnitIdList;
+    private String[] productCategoryIdList;
+    private int countryId;
     private String notes;
     private int linkingType;
     private double conversionFactor;
     private int parentShipmentId;
+    private int erpOrderId;
+    private String erpStatus;
 
     public int getShipmentId() {
         return shipmentId;
@@ -173,6 +177,30 @@ public class ManualTaggingDTO implements Serializable {
         }
     }
 
+    public String[] getProductCategoryIdList() {
+        return productCategoryIdList;
+    }
+
+    public void setProductCategoryIdList(String[] productCategoryIdList) {
+        this.productCategoryIdList = productCategoryIdList;
+    }
+
+    public String getProductCategoryIdsString() {
+        if (this.productCategoryIdList == null || this.productCategoryIdList.length == 0) {
+            return "";
+        } else {
+            return String.join(",", this.productCategoryIdList);
+        }
+    }
+
+    public int getCountryId() {
+        return countryId;
+    }
+
+    public void setCountryId(int countryId) {
+        this.countryId = countryId;
+    }
+
     public String getNotes() {
         return notes;
     }
@@ -229,9 +257,25 @@ public class ManualTaggingDTO implements Serializable {
         this.parentShipmentId = parentShipmentId;
     }
 
+    public int getErpOrderId() {
+        return erpOrderId;
+    }
+
+    public void setErpOrderId(int erpOrderId) {
+        this.erpOrderId = erpOrderId;
+    }
+
+    public String getErpStatus() {
+        return erpStatus;
+    }
+
+    public void setErpStatus(String erpStatus) {
+        this.erpStatus = erpStatus;
+    }
+
     @Override
     public String toString() {
-        return "ManualTaggingDTO{" + "shipmentId=" + shipmentId + ", shipmentTransId=" + shipmentTransId + ", expectedDeliveryDate=" + expectedDeliveryDate + ", shipmentStatus=" + shipmentStatus + ", procurementAgent=" + procurementAgent + ", fundingSource=" + fundingSource + ", budget=" + budget + ", shipmentQty=" + shipmentQty + ", productCost=" + productCost + ", orderNo=" + orderNo + ", planningUnit=" + planningUnit + ", erpPlanningUnit=" + erpPlanningUnit + ", skuCode=" + skuCode + ", programId=" + programId + ", planningUnitIdList=" + planningUnitIdList + ", notes=" + notes + ", linkingType=" + linkingType + ", conversionFactor=" + conversionFactor + '}';
+        return "ManualTaggingDTO{" + "shipmentId=" + shipmentId + ", shipmentTransId=" + shipmentTransId + ", expectedDeliveryDate=" + expectedDeliveryDate + ", shipmentStatus=" + shipmentStatus + ", procurementAgent=" + procurementAgent + ", fundingSource=" + fundingSource + ", budget=" + budget + ", shipmentQty=" + shipmentQty + ", productCost=" + productCost + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", roNo=" + roNo + ", roPrimeLineNo=" + roPrimeLineNo + ", planningUnit=" + planningUnit + ", erpPlanningUnit=" + erpPlanningUnit + ", skuCode=" + skuCode + ", programId=" + programId + ", planningUnitIdList=" + planningUnitIdList + ", productCategoryIdList=" + productCategoryIdList + ", countryId=" + countryId + ", notes=" + notes + ", linkingType=" + linkingType + ", conversionFactor=" + conversionFactor + ", parentShipmentId=" + parentShipmentId + ", erpOrderId=" + erpOrderId + ", erpStatus=" + erpStatus + '}';
     }
 
 }
