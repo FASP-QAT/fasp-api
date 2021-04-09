@@ -168,7 +168,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID  "
             + " LEFT JOIN us_user cb ON ppu.CREATED_BY=cb.USER_ID  "
             + " LEFT JOIN us_user lmb ON ppu.LAST_MODIFIED_BY=lmb.USER_ID "
-            + " LEFT JOIN rm_program_planning_unit_procurement_agent ppupa ON ppu.PROGRAM_PLANNING_UNIT_ID=ppu.PROGRAM_PLANNING_UNIT_ID "
+            + " LEFT JOIN rm_program_planning_unit_procurement_agent ppupa ON ppu.PROGRAM_PLANNING_UNIT_ID=ppupa.PROGRAM_PLANNING_UNIT_ID "
             + " LEFT JOIN vw_procurement_agent pa ON ppupa.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID "
             + " LEFT JOIN us_user cb2 ON ppupa.CREATED_BY=cb2.USER_ID  "
             + " LEFT JOIN us_user lmb2 ON ppupa.LAST_MODIFIED_BY=lmb2.USER_ID "
