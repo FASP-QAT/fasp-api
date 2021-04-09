@@ -104,19 +104,33 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             Version version = this.programDataDao.saveProgramData(programData, curUser);
             try {
                 getNewSupplyPlanList(programData.getProgramId(), version.getVersionId(), true, false);
-                String ccEmailId = this.userService.getEmailByUserId(programData.getProgramManager().getUserId());
-//                System.out.println("ccToemail===>"+ccEmailId);
                 if (programData.getVersionType().getId() == 2) {
-                    String emails = this.programDao.getSupplyPlanReviewerList(programData.getProgramId(), curUser);
-//                    System.out.println("emails===>" + emails);
+                    List<NotificationUser> toEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(programData.getProgramId(), version.getVersionId(), 1, "To");
+                    List<NotificationUser> ccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(programData.getProgramId(), version.getVersionId(), 1, "Cc");
+                    System.out.println("toEmailIdsList===>" + toEmailIdsList);
+                    System.out.println("ccEmailIdsList===>" + ccEmailIdsList);
+                    StringBuilder sbToEmails = new StringBuilder();
+                    StringBuilder sbCcEmails = new StringBuilder();
+                    if (toEmailIdsList.size() > 0) {
+                    for (NotificationUser ns : toEmailIdsList) {
+                        sbToEmails.append(ns.getEmailId()).append(",");
+                    }
+                    }
+                    if (ccEmailIdsList.size() > 0) {
+                    for (NotificationUser ns : ccEmailIdsList) {
+                        sbCcEmails.append(ns.getEmailId()).append(",");
+                    }
+                    }
+                    if (sbToEmails.length() != 0) {System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());}
+                    if (sbCcEmails.length() != 0) {System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());}
                     EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(6);
                     String[] subjectParam = new String[]{};
                     String[] bodyParam = null;
                     Emailer emailer = new Emailer();
-                    subjectParam = new String[]{};
-                    bodyParam = new String[]{programData.getProgramCode(), String.valueOf(version.getVersionId())};
+                    subjectParam = new String[]{programData.getProgramCode()};
+                    bodyParam = new String[]{programData.getProgramCode(), String.valueOf(version.getVersionId()),programData.getNotes()};
 //                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "shubham.y@altius.cc,harshana.c@altius.cc", "palash.n@altius.cc,dolly.c@altius.cc", subjectParam, bodyParam);
-                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), emails, ccEmailId, subjectParam, bodyParam);
+                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
                     int emailerId = this.emailService.saveEmail(emailer);
                     emailer.setEmailerId(emailerId);
                     this.emailService.sendMail(emailer);
