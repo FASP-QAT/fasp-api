@@ -235,7 +235,12 @@ public class ProgramServiceImpl implements ProgramService {
             for (int i = 0; i <= manualTaggingOrderDTO.length; i++) {
                 System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
                 if (manualTaggingOrderDTO[i].isActive()) {
-                    int id = this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO[i], curUser);
+                    int id;
+                    if (manualTaggingOrderDTO[i].getShipmentId() != 0) {
+                        id = this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO[i], curUser);
+                    } else {
+                        id = this.programDao.linkShipmentWithARTMISWithoutShipmentid(manualTaggingOrderDTO[i], curUser);
+                    }
                     result.add(id);
                 } else if (!manualTaggingOrderDTO[i].isActive()) {
                     System.out.println("****************************************************************************************" + manualTaggingOrderDTO[i]);
@@ -252,6 +257,11 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId) {
         return this.programDao.getShipmentListForDelinking(programId, planningUnitId);
+    }
+
+    @Override
+    public List<ManualTaggingDTO> getNotLinkedShipments(int programId, int linkingTypeId) {
+        return this.programDao.getNotLinkedShipments(programId, linkingTypeId);
     }
 
     @Override

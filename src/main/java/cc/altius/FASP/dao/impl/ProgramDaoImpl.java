@@ -1053,12 +1053,81 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
+    public int linkShipmentWithARTMISWithoutShipmentid(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params = new HashMap<>();
+        SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment").usingGeneratedKeyColumns("SHIPMENT_ID");
+        params.put("PROGRAM_ID", manualTaggingOrderDTO.getProgramId());
+        params.put("SUGGESTED_QTY", null);
+        params.put("CURRENCY_ID", 1); // USD as default from ARTMIS
+        params.put("CONVERSION_RATE_TO_USD", 1);
+        params.put("PARENT_SHIPMENT_ID", null);
+        params.put("CREATED_BY", 1); //Default auto user in QAT
+        params.put("CREATED_DATE", curDate);
+        params.put("LAST_MODIFIED_BY", 1); //Default auto user in QAT
+        params.put("LAST_MODIFIED_DATE", curDate);
+        params.put("MAX_VERSION_ID", 1); // Same as the Current Version that is already present
+        int newShipmentId = si.executeAndReturnKey(params).intValue();
+        logger.info("Shipment Id " + newShipmentId + " created");
+//         SimpleJdbcInsert sit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans").usingGeneratedKeyColumns("SHIPMENT_TRANS_ID");
+//                        params.clear();
+//                        params.put("SHIPMENT_ID", newShipmentId);
+//                        params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
+//                        params.put("PROCUREMENT_AGENT_ID", 1);
+//                        params.put("FUNDING_SOURCE_ID", erpOrderDTO.getShFundingSourceId());
+//                        params.put("BUDGET_ID", erpOrderDTO.getShBudgetId());
+//                        params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getExpectedDeliveryDate());
+//                        params.put("PROCUREMENT_UNIT_ID", erpOrderDTO.getEoProcurementUnitId());
+//                        params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
+//                        params.put("SHIPMENT_QTY", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (erpOrderDTO.getEoQty() * erpOrderDTO.getConversionFactor()) : erpOrderDTO.getEoQty()));
+//                        params.put("RATE", erpOrderDTO.getEoPrice());
+//                        params.put("PRODUCT_COST", erpOrderDTO.getEoQty() * erpOrderDTO.getEoPrice());
+//                        params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
+//                        params.put("FREIGHT_COST", erpOrderDTO.getEoShippingCost());
+//                        params.put("PLANNED_DATE", erpOrderDTO.getEoCreatedDate());
+//                        params.put("SUBMITTED_DATE", erpOrderDTO.getEoCreatedDate());
+//                        params.put("APPROVED_DATE", erpOrderDTO.getEoOrderedDate());
+//                        params.put("SHIPPED_DATE", erpOrderDTO.getEoActualShipmentDate());
+//                        params.put("ARRIVED_DATE", erpOrderDTO.getEoArrivalAtDestinationDate());
+//                        params.put("RECEIVED_DATE", erpOrderDTO.getEoActualDeliveryDate());
+//                        params.put("SHIPMENT_STATUS_ID", erpOrderDTO.getEoShipmentStatusId());
+//                        params.put("NOTES", "Auto created from ERP data");
+//                        params.put("ERP_FLAG", 1);
+//                        params.put("ORDER_NO", erpOrderDTO.getEoOrderNo());
+//                        params.put("PRIME_LINE_NO", erpOrderDTO.getEoPrimeLineNo());
+//                        params.put("ACCOUNT_FLAG", erpOrderDTO.getShAccountFlag());
+//                        params.put("EMERGENCY_ORDER", false);   // Cannot determine 
+//                        params.put("LOCAL_PROCUREMENT", false); // Cannot determine
+//                        params.put("LAST_MODIFIED_BY", 1); // Default user
+//                        params.put("DATA_SOURCE_ID", erpOrderDTO.getShDataSourceId());
+//                        params.put("LAST_MODIFIED_DATE", curDate);
+//                        params.put("VERSION_ID", erpOrderDTO.getShVersionId());
+//                        params.put("ACTIVE", true);
+//                        int shipmentTransId = sit.executeAndReturnKey(params).intValue();
+        return newShipmentId;
+    }
+
+    @Override
     public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId) {
         String sql = "CALL getShipmentListForDeLinking(:programId, :planningUnitId, -1)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("planningUnitId", planningUnitId);
         List<ManualTaggingDTO> list = this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
+        return list;
+    }
+
+    @Override
+    public List<ManualTaggingDTO> getNotLinkedShipments(int programId, int linkingTypeId) {
+        String sql = "";
+        List<ManualTaggingDTO> list = null;
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        if (linkingTypeId == 3) {
+            sql = "CALL getNotLinkedShipments(:programId, -1)";
+            list = this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
+        }
+
         return list;
     }
 

@@ -58,7 +58,11 @@ public interface ProgramDao {
 
     public int linkShipmentWithARTMIS(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser);
 
+    public int linkShipmentWithARTMISWithoutShipmentid(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser);
+
     public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId);
+
+    public List<ManualTaggingDTO> getNotLinkedShipments(int programId, int linkingTypeId);
 
     public void delinkShipment(ManualTaggingOrderDTO erpOrderDTO, CustomUserDetails curUser);
 
