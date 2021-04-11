@@ -310,7 +310,7 @@ public class PlanningUnitRestController {
         }
     }
     
-    @GetMapping("/planningUnit/productCategoryList/active")
+    @PostMapping("/planningUnit/productCategoryList/active")
     public ResponseEntity getPlanningUnitForproductCategoryList(@RequestBody String[] productCategoryIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

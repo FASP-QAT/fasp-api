@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
@@ -319,5 +320,26 @@ public class ProgramServiceImpl implements ProgramService {
     public List<ManualTaggingDTO> getOrderDetailsByForNotLinkedERPShipments(String roNoOrderNo, int planningUnitId, int linkingType) {
         return this.programDao.getOrderDetailsByForNotLinkedERPShipments(roNoOrderNo, planningUnitId, linkingType);
     }
+
+    @Override
+    public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId) {
+        return this.programDao.createERPNotification(orderNo, primeLineNo, shipmentId, notificationTypeId);
+    }
+
+    @Override
+    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO) {
+        return this.programDao.getNotificationList(eRPNotificationDTO);
+    }
+
+    @Override
+    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser) {
+        return this.programDao.updateNotification(eRPNotificationDTO, curUser);
+    }
+
+    @Override
+    public int getNotificationCount(CustomUserDetails curUser) {
+    return this.programDao.getNotificationCount(curUser);
+    }
+    
 
 }

@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpBatchDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
@@ -23,6 +24,7 @@ import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingOrderDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.NotERPLinkedShipmentsRowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
+import cc.altius.FASP.model.DTO.rowMapper.ShipmentNotificationDTORowMapper;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
@@ -38,6 +40,7 @@ import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.service.ProgramService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;
@@ -80,7 +83,8 @@ public class ProgramDaoImpl implements ProgramDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
-
+    @Autowired
+    private ProgramService programService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public String sqlListString = "SELECT   "
@@ -610,7 +614,7 @@ public class ProgramDaoImpl implements ProgramDao {
                     + " eo.RECPIENT_NAME, eo.RECPIENT_COUNTRY, eo.`STATUS`, eo.`CHANGE_CODE`, ssm.SHIPMENT_STATUS_ID, eo.MANUAL_TAGGING, eo.CONVERSION_FACTOR, "
                     + " MIN(es.ACTUAL_DELIVERY_DATE) `ACTUAL_DELIVERY_DATE`, MIN(es.ACTUAL_SHIPMENT_DATE) `ACTUAL_SHIPMENT_DATE`, MIN(es.ARRIVAL_AT_DESTINATION_DATE) `ARRIVAL_AT_DESTINATION_DATE`, "
                     + " es.BATCH_NO, IF(es.DELIVERED_QTY !=0,COALESCE(es.DELIVERED_QTY, es.SHIPPED_QTY),es.SHIPPED_QTY) `BATCH_QTY`, es.`EXPIRY_DATE`, "
-                    + " st.PLANNING_UNIT_ID, papu2.PROCUREMENT_UNIT_ID, pu2.SUPPLIER_ID, ppu.SHELF_LIFE, "
+                    + " st.PLANNING_UNIT_ID,papu1.PLANNING_UNIT_ID AS ERP_PLANNING_UNIT_ID, papu2.PROCUREMENT_UNIT_ID, pu2.SUPPLIER_ID, ppu.SHELF_LIFE, "
                     + " sh.SHIPMENT_ID, sh.PROGRAM_ID, sh.PARENT_SHIPMENT_ID, "
                     + " st.SHIPMENT_TRANS_ID, st.VERSION_ID, st.FUNDING_SOURCE_ID, st.PROCUREMENT_AGENT_ID, st.BUDGET_ID, st.ACTIVE, st.ERP_FLAG, st.ACCOUNT_FLAG, st.DATA_SOURCE_ID,eo.CONVERSION_FACTOR  "
                     + " FROM ( "
@@ -632,6 +636,7 @@ public class ProgramDaoImpl implements ProgramDao {
                     + " LEFT JOIN rm_shipment_trans st ON st.SHIPMENT_ID=sh.SHIPMENT_ID AND st.VERSION_ID=sh.MAX_VERSION_ID "
                     + " LEFT JOIN vw_planning_unit pu ON st.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
                     + " LEFT JOIN rm_procurement_agent_planning_unit papu ON st.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID` AND papu.`PROCUREMENT_AGENT_ID`=1  "
+                    + " LEFT JOIN rm_procurement_agent_procurement_unit papu1 ON eo.PLANNING_UNIT_SKU_CODE=LEFT(papu1.SKU_CODE,12) AND papu1.PROCUREMENT_AGENT_ID=1 "
                     + " LEFT JOIN rm_procurement_agent_procurement_unit papu2 ON eo.PROCUREMENT_UNIT_SKU_CODE=LEFT(papu2.SKU_CODE,15) AND papu2.PROCUREMENT_AGENT_ID=1 "
                     + " LEFT JOIN rm_procurement_unit pu2 ON papu2.PROCUREMENT_UNIT_ID=pu2.PROCUREMENT_UNIT_ID "
                     + " LEFT JOIN rm_erp_shipment es ON es.ERP_ORDER_ID=eo.ERP_ORDER_ID "
@@ -923,7 +928,9 @@ public class ProgramDaoImpl implements ProgramDao {
                                 logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                             }
                         }
-
+                        if (erpOrderDTO.isShipmentCancelled() || erpOrderDTO.isSkuChanged()) {
+                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
+                        }
                     } else {
                         System.out.println("---------------4--------------");
                         // This is a new Link request coming through
@@ -1034,6 +1041,9 @@ public class ProgramDaoImpl implements ProgramDao {
                             sib.execute(params);
                             logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                         }
+                        if (erpOrderDTO.isShipmentCancelled() || erpOrderDTO.isSkuChanged()) {
+                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
+                        }
                     }
 
                 } catch (Exception e) {
@@ -1069,13 +1079,13 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("MAX_VERSION_ID", 1); // Same as the Current Version that is already present
         int newShipmentId = si.executeAndReturnKey(params).intValue();
         logger.info("Shipment Id " + newShipmentId + " created");
-//         SimpleJdbcInsert sit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans").usingGeneratedKeyColumns("SHIPMENT_TRANS_ID");
-//                        params.clear();
+        SimpleJdbcInsert sit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans").usingGeneratedKeyColumns("SHIPMENT_TRANS_ID");
+        params.clear();
 //                        params.put("SHIPMENT_ID", newShipmentId);
-//                        params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
+//                        params.put("PLANNING_UNIT_ID", manualTaggingOrderDTO.getPlanningUnitId());
 //                        params.put("PROCUREMENT_AGENT_ID", 1);
-//                        params.put("FUNDING_SOURCE_ID", erpOrderDTO.getShFundingSourceId());
-//                        params.put("BUDGET_ID", erpOrderDTO.getShBudgetId());
+//                        params.put("FUNDING_SOURCE_ID", manualTaggingOrderDTO.getFundingSourceId());
+//                        params.put("BUDGET_ID", manualTaggingOrderDTO.getBudgetId());
 //                        params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getExpectedDeliveryDate());
 //                        params.put("PROCUREMENT_UNIT_ID", erpOrderDTO.getEoProcurementUnitId());
 //                        params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
@@ -1339,6 +1349,73 @@ public class ProgramDaoImpl implements ProgramDao {
         System.out.println(params);
         List<String> emailList = this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, String.class);
         return StringUtils.join(emailList, ",");
+    }
+
+    @Override
+    public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params = new HashMap<>();
+        String sql = "select count(*) from rm_erp_notification n where n.`ORDER_NO`=? and n.`PRIME_LINE_NO`=? and n.`SHIPMENT_ID`=?;";
+        int count = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo, shipmentId);
+        if (count == 0) {
+            SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_erp_notification").usingGeneratedKeyColumns("NOTIFICATION_ID");
+            params.put("ORDER_NO", orderNo);
+            params.put("PRIME_LINE_NO", primeLineNo);
+            params.put("NOTIFICATION_TYPE_ID", 1);
+            params.put("SHIPMENT_ID", 1);
+            params.put("ADDRESSED", 0);
+            params.put("ACTIVE", 1);
+            params.put("CREATED_BY", 1);
+            params.put("CREATED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", 1);
+            params.put("LAST_MODIFIED_DATE", curDate);
+            int notificationId = si.executeAndReturnKey(params).intValue();
+            System.out.println("NotificationId Id " + notificationId + " created");
+            return notificationId;
+        } else {
+            return -1;
+        }
+    }
+
+    @Override
+    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO) {
+        String sql = "";
+        List<ERPNotificationDTO> list = null;
+        Map<String, Object> params = new HashMap<>();
+        params.put("planningUnitId", eRPNotificationDTO.getPlanningUnitIdsString());
+        params.put("programId", eRPNotificationDTO.getProgramId());
+        sql = "CALL getShipmentLinkingNotifications(:programId, :planningUnitId, -1)";
+        list = this.namedParameterJdbcTemplate.query(sql, params, new ShipmentNotificationDTORowMapper());
+        System.out.println("list---" + list);
+        return list;
+    }
+
+    @Override
+    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        System.out.println("eRPNotificationDTO---" + eRPNotificationDTO.toString());
+        String sql = " UPDATE rm_erp_notification n "
+                + " LEFT JOIN rm_manual_tagging  m ON m.`ORDER_NO`=n.`ORDER_NO` AND m.`PRIME_LINE_NO`=n.`PRIME_LINE_NO` AND m.`SHIPMENT_ID`=n.`SHIPMENT_ID` AND m.`ACTIVE` "
+                + " SET n.`ADDRESSED`=1,n.`NOTES`=?,m.`CONVERSION_FACTOR`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=?,n.`CONVERSION_FACTOR`=? "
+                + " WHERE n.`NOTIFICATION_ID`=?;";
+        return this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), eRPNotificationDTO.getConversionFactor(), curUser.getUserId(), curDate, eRPNotificationDTO.getConversionFactor(), eRPNotificationDTO.getNotificationId());
+    }
+
+    @Override
+    public int getNotificationCount(CustomUserDetails curUser) {
+        String programIds = "", sql;
+        List<Program> programList = this.programService.getProgramList(curUser, true);
+        for (Program p : programList) {
+            programIds = programIds + p.getProgramId() + ",";
+        }
+        programIds = programIds.substring(0, programIds.lastIndexOf(","));
+        System.out.println("ids%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
+        sql = "SELECT COUNT(*) FROM ( "
+                + "SELECT n.`NOTIFICATION_ID` FROM rm_erp_notification n "
+                + "LEFT JOIN rm_shipment s ON s.`PARENT_SHIPMENT_ID`=n.`SHIPMENT_ID` "
+                + "LEFT JOIN rm_shipment_trans st ON st.`SHIPMENT_ID`=s.`SHIPMENT_ID` AND n.`ORDER_NO`=st.`ORDER_NO` AND n.`PRIME_LINE_NO`=st.`PRIME_LINE_NO` "
+                + "WHERE n.`ACTIVE` AND n.`ADDRESSED`=0 AND s.`PROGRAM_ID` IN (" + programIds + ") GROUP BY n.`NOTIFICATION_ID` ) AS a;";
+        return this.jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
 }

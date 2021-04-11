@@ -6,6 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
@@ -81,4 +82,12 @@ public interface ProgramService {
     public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser);
 
     public List<ManualTaggingDTO> getOrderDetailsByForNotLinkedERPShipments(String roNoOrderNo, int planningUnitId, int linkingType);
+
+    public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId);
+
+    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO);
+
+    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser);
+
+    public int getNotificationCount(CustomUserDetails curUser);
 }

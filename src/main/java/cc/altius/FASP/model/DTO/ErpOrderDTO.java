@@ -52,6 +52,7 @@ public class ErpOrderDTO {
     private Date eoArrivalAtDestinationDate;
     private float conversionFactor;
     List<ErpShipmentDTO> eoShipmentList;
+    private int erpPlanningUnitId;
 
     private boolean manualTagging;
 
@@ -526,6 +527,28 @@ public class ErpOrderDTO {
             return false;
         }
         return true;
+    }
+
+    public int getErpPlanningUnitId() {
+        return erpPlanningUnitId;
+    }
+
+    public void setErpPlanningUnitId(int erpPlanningUnitId) {
+        this.erpPlanningUnitId = erpPlanningUnitId;
+    }
+
+    public boolean isShipmentCancelled() {
+        if (this.eoShipmentStatusId == 8) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isSkuChanged() {
+        if (this.eoPlanningUnitId != this.erpPlanningUnitId) {
+            return true;
+        }
+        return false;
     }
 
     @Override

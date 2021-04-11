@@ -23,6 +23,7 @@ public class ManualTaggingOrderDTO {
     private String roNo;
     private String roPrimeLineNo;
     private String orderType;
+    private String planningUnitId;
     private String planningUnitSkuCode;
     private String procurementUnitSkuCode;
     private String currentEstimatedDeliveryDate;
@@ -38,6 +39,8 @@ public class ManualTaggingOrderDTO {
     private int programId;
     private boolean active;
     private int parentShipmentId;
+    private int fundingSourceId;
+    private int budgetId;
 
     public int getErpOrderId() {
         return erpOrderId;
@@ -101,6 +104,14 @@ public class ManualTaggingOrderDTO {
 
     public void setOrderType(String orderType) {
         this.orderType = orderType;
+    }
+
+    public String getPlanningUnitId() {
+        return planningUnitId;
+    }
+
+    public void setPlanningUnitId(String planningUnitId) {
+        this.planningUnitId = planningUnitId;
     }
 
     public String getPlanningUnitSkuCode() {
@@ -221,6 +232,22 @@ public class ManualTaggingOrderDTO {
 
     public void setParentShipmentId(int parentShipmentId) {
         this.parentShipmentId = parentShipmentId;
+    }
+
+    public int getFundingSourceId() {
+        return fundingSourceId;
+    }
+
+    public void setFundingSourceId(int fundingSourceId) {
+        this.fundingSourceId = fundingSourceId;
+    }
+
+    public int getBudgetId() {
+        return budgetId;
+    }
+
+    public void setBudgetId(int budgetId) {
+        this.budgetId = budgetId;
     }
 
     @Override
