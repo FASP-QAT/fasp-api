@@ -23,6 +23,7 @@ public class ManualTaggingOrderDTO {
     private String roNo;
     private String roPrimeLineNo;
     private String orderType;
+    private String planningUnitId;
     private String planningUnitSkuCode;
     private String procurementUnitSkuCode;
     private String currentEstimatedDeliveryDate;
@@ -36,6 +37,10 @@ public class ManualTaggingOrderDTO {
     private String notes;
     private BigDecimal conversionFactor;
     private int programId;
+    private boolean active;
+    private int parentShipmentId;
+    private int fundingSourceId;
+    private int budgetId;
 
     public int getErpOrderId() {
         return erpOrderId;
@@ -99,6 +104,14 @@ public class ManualTaggingOrderDTO {
 
     public void setOrderType(String orderType) {
         this.orderType = orderType;
+    }
+
+    public String getPlanningUnitId() {
+        return planningUnitId;
+    }
+
+    public void setPlanningUnitId(String planningUnitId) {
+        this.planningUnitId = planningUnitId;
     }
 
     public String getPlanningUnitSkuCode() {
@@ -205,9 +218,41 @@ public class ManualTaggingOrderDTO {
         this.programId = programId;
     }
 
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
+
+    public int getParentShipmentId() {
+        return parentShipmentId;
+    }
+
+    public void setParentShipmentId(int parentShipmentId) {
+        this.parentShipmentId = parentShipmentId;
+    }
+
+    public int getFundingSourceId() {
+        return fundingSourceId;
+    }
+
+    public void setFundingSourceId(int fundingSourceId) {
+        this.fundingSourceId = fundingSourceId;
+    }
+
+    public int getBudgetId() {
+        return budgetId;
+    }
+
+    public void setBudgetId(int budgetId) {
+        this.budgetId = budgetId;
+    }
+
     @Override
     public String toString() {
-        return "ManualTaggingOrderDTO{" + "erpOrderId=" + erpOrderId + ", shipmentId=" + shipmentId + ", quantity=" + quantity + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", roNo=" + roNo + ", roPrimeLineNo=" + roPrimeLineNo + ", orderType=" + orderType + ", planningUnitSkuCode=" + planningUnitSkuCode + ", procurementUnitSkuCode=" + procurementUnitSkuCode + ", currentEstimatedDeliveryDate=" + currentEstimatedDeliveryDate + ", supplierName=" + supplierName + ", price=" + price + ", shippingCost=" + shippingCost + ", status=" + status + ", reason=" + reason + ", recipentCountry=" + recipentCountry + ", planningUnitLabel=" + planningUnitLabel + ", notes=" + notes + ", conversionFactor=" + conversionFactor + ", programId=" + programId + '}';
+        return "ManualTaggingOrderDTO{" + "erpOrderId=" + erpOrderId + ", shipmentId=" + shipmentId + ", quantity=" + quantity + ", orderNo=" + orderNo + ", primeLineNo=" + primeLineNo + ", roNo=" + roNo + ", roPrimeLineNo=" + roPrimeLineNo + ", orderType=" + orderType + ", planningUnitSkuCode=" + planningUnitSkuCode + ", procurementUnitSkuCode=" + procurementUnitSkuCode + ", currentEstimatedDeliveryDate=" + currentEstimatedDeliveryDate + ", supplierName=" + supplierName + ", price=" + price + ", shippingCost=" + shippingCost + ", status=" + status + ", reason=" + reason + ", recipentCountry=" + recipentCountry + ", planningUnitLabel=" + planningUnitLabel + ", notes=" + notes + ", conversionFactor=" + conversionFactor + ", programId=" + programId + ", active=" + active + ", parentShipmentId=" + parentShipmentId + '}';
     }
 
 }
