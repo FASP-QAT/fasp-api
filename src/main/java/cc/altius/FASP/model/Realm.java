@@ -27,9 +27,15 @@ public class Realm extends BaseModel implements Serializable {
     private int minMosMaxGaurdrail;
     @JsonView(Views.InternalView.class)
     private int maxMosMaxGaurdrail;
+    @JsonView(Views.InternalView.class)
+    private int minQplTolerance;
+    @JsonView(Views.InternalView.class)
+    private int minQplToleranceCutOff;
+    @JsonView(Views.InternalView.class)
+    private int maxQplTolerance;
     private boolean active;
 
-    public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail) {
+    public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail, int minQplTolerance, int minQplToleranceCutOff, int maxQplTolerance) {
         if (realmId == null || realmId == 0) {
             realmId = -1;
         }
@@ -39,6 +45,9 @@ public class Realm extends BaseModel implements Serializable {
         this.minMosMinGaurdrail = minMosMinGaurdrail;
         this.minMosMaxGaurdrail = minMosMaxGaurdrail;
         this.maxMosMaxGaurdrail = maxMosMaxGaurdrail;
+        this.minQplTolerance = minQplTolerance;
+        this.minQplToleranceCutOff = minQplToleranceCutOff;
+        this.maxQplTolerance = this.maxQplTolerance;
     }
 
     public Realm(Integer realmId, Label label, String realmCode) {
@@ -117,6 +126,30 @@ public class Realm extends BaseModel implements Serializable {
 
     public void setMaxMosMaxGaurdrail(int maxMosMaxGaurdrail) {
         this.maxMosMaxGaurdrail = maxMosMaxGaurdrail;
+    }
+
+    public int getMinQplTolerance() {
+        return minQplTolerance;
+    }
+
+    public void setMinQplTolerance(int minQplTolerance) {
+        this.minQplTolerance = minQplTolerance;
+    }
+
+    public int getMinQplToleranceCutOff() {
+        return minQplToleranceCutOff;
+    }
+
+    public void setMinQplToleranceCutOff(int minQplToleranceCutOff) {
+        this.minQplToleranceCutOff = minQplToleranceCutOff;
+    }
+
+    public int getMaxQplTolerance() {
+        return maxQplTolerance;
+    }
+
+    public void setMaxQplTolerance(int maxQplTolerance) {
+        this.maxQplTolerance = maxQplTolerance;
     }
 
     public boolean isActive() {
