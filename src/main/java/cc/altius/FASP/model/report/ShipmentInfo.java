@@ -27,25 +27,16 @@ public class ShipmentInfo implements Serializable {
     private SimpleCodeObject procurementAgent;
     @JsonView(Views.ReportView.class)
     private SimpleObject shipmentStatus;
-    @JsonView(Views.ReportView.class)
-    private String notes;
-    @JsonView(Views.ReportView.class)
-    private String shipmentDate;
-    @JsonView(Views.ReportView.class)
-    private SimpleObject dataSource;
 
     public ShipmentInfo() {
     }
 
-    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus, String notes, String shipmentDate, SimpleObject dataSource) {
+    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus) {
         this.shipmentId = shipmentId;
         this.shipmentQty = shipmentQty;
         this.fundingSource = fundingSource;
         this.procurementAgent = procurementAgent;
         this.shipmentStatus = shipmentStatus;
-        this.notes = notes;
-        this.shipmentDate = shipmentDate;
-        this.dataSource = dataSource;
     }
 
     public int getShipmentId() {
@@ -86,30 +77,6 @@ public class ShipmentInfo implements Serializable {
 
     public void setProcurementAgent(SimpleCodeObject procurementAgent) {
         this.procurementAgent = procurementAgent;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
-    public String getShipmentDate() {
-        return shipmentDate;
-    }
-
-    public void setShipmentDate(String shipmentDate) {
-        this.shipmentDate = shipmentDate;
-    }
-
-    public SimpleObject getDataSource() {
-        return dataSource;
-    }
-
-    public void setDataSource(SimpleObject dataSource) {
-        this.dataSource = dataSource;
     }
 
     @Override
