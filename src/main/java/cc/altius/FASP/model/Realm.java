@@ -47,7 +47,7 @@ public class Realm extends BaseModel implements Serializable {
         this.maxMosMaxGaurdrail = maxMosMaxGaurdrail;
         this.minQplTolerance = minQplTolerance;
         this.minQplToleranceCutOff = minQplToleranceCutOff;
-        this.maxQplTolerance = this.maxQplTolerance;
+        this.maxQplTolerance = maxQplTolerance;
     }
 
     public Realm(Integer realmId, Label label, String realmCode) {
