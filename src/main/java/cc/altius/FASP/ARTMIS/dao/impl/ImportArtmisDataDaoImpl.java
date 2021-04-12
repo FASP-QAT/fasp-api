@@ -408,7 +408,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 + " LEFT JOIN rm_shipment_trans st ON st.SHIPMENT_ID=sh.SHIPMENT_ID AND st.VERSION_ID=sh.MAX_VERSION_ID "
                 + " LEFT JOIN vw_planning_unit pu ON st.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
                 + " LEFT JOIN rm_procurement_agent_planning_unit papu ON st.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID` AND papu.`PROCUREMENT_AGENT_ID`=1  "
-                + " LEFT JOIN rm_procurement_agent_procurement_unit papu1 ON eo.PLANNING_UNIT_SKU_CODE=LEFT(papu1.SKU_CODE,12) AND papu1.PROCUREMENT_AGENT_ID=1 "
+                + " LEFT JOIN rm_procurement_agent_planning_unit papu1 ON eo.PLANNING_UNIT_SKU_CODE=LEFT(papu1.SKU_CODE,12) AND papu1.PROCUREMENT_AGENT_ID=1 "
                 + " LEFT JOIN rm_procurement_agent_procurement_unit papu2 ON eo.PROCUREMENT_UNIT_SKU_CODE=LEFT(papu2.SKU_CODE,15) AND papu2.PROCUREMENT_AGENT_ID=1 "
                 + " LEFT JOIN rm_procurement_unit pu2 ON papu2.PROCUREMENT_UNIT_ID=pu2.PROCUREMENT_UNIT_ID "
                 + " LEFT JOIN rm_erp_shipment es ON es.ERP_ORDER_ID=eo.ERP_ORDER_ID "

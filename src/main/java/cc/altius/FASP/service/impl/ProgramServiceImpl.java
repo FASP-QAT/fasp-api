@@ -233,6 +233,7 @@ public class ProgramServiceImpl implements ProgramService {
     public List<Integer> linkShipmentWithARTMIS(ManualTaggingOrderDTO[] manualTaggingOrderDTO, CustomUserDetails curUser) {
         try {
             List<Integer> result = new ArrayList<>();
+            System.out.println("length---"+manualTaggingOrderDTO.length);
             for (int i = 0; i <= manualTaggingOrderDTO.length; i++) {
                 System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
                 if (manualTaggingOrderDTO[i].isActive()) {
