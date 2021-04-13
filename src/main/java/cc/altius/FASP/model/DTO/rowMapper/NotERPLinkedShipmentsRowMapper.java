@@ -31,6 +31,7 @@ public class NotERPLinkedShipmentsRowMapper implements RowMapper<ManualTaggingDT
         m.setRoNo(rs.getString("RO_NO"));
         m.setRoPrimeLineNo(rs.getInt("RO_PRIME_LINE_NO"));
         m.setErpPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, rows)));
+        m.setSkuCode(rs.getString("SKU_CODE"));
         return m;
     }
 
