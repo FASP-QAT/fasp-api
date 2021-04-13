@@ -12,9 +12,10 @@ CREATE TABLE `fasp`.`tr_artmis_country` (
   `RECEPIENT_NAME` VARCHAR(200) NOT NULL,
   `REALM_COUNTRY_ID` INT(10) UNSIGNED NOT NULL,
   PRIMARY KEY (`RECEPIENT_NAME`));
-INSERT INTO tr_country VALUES ('Congo DRC', 11);
-INSERT INTO tr_country VALUES ('Panama', 38);
-INSERT INTO tr_country VALUES ('Vietnam', 49);
+INSERT INTO tr_artmis_country VALUES ('Congo DRC', 11);
+INSERT INTO tr_artmis_country VALUES ('Panama', 38);
+INSERT INTO tr_artmis_country VALUES ('Vietnam', 49);
+INSERT INTO tr_artmis_country VALUES ('Benin', 5);
 
 
 INSERT INTO `fasp`.`ap_export`(`EXPORT_ID`,`ERP_CODE`,`JOB_NAME`,`LAST_DATE`) VALUES ( NULL,'ARTMIS','QAT_Shipment_Linking',NOW()); 
@@ -187,14 +188,6 @@ END$$
 DELIMITER ;
 
 
-USE `fasp`;
-DROP procedure IF EXISTS `getErpShipmentForNotLinked`;
-
-DELIMITER ;
-
-
-USE `fasp`;
-DROP PROCEDURE IF EXISTS `getErpShipmentForNotLinked`;
 
 DELIMITER $$
 USE `fasp`$$
