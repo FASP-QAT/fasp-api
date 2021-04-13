@@ -8,13 +8,21 @@
  * Created: 03-Apr-2021
  */
 
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipmentDataEntry.suggestedShipmentQtyConfirm','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipmentDataEntry.suggestedShipmentQtyConfirm1','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Click on ok to update the order qty with suggested shipment qty');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Cliquez sur OK pour mettre à jour la quantité de commande avec la quantité d`expédition suggérée');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Haga clic en Aceptar para actualizar la cantidad del pedido con la cantidad de envío sugerida');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Clique em ok para atualizar a quantidade do pedido com a quantidade de envio sugerida');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Suggest to add');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Suggérer d`ajouter');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Sugerir para agregar');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Sugerir adicionar');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.shipmentDataEntry.suggestedShipmentQtyConfirm2','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'amount to your current order to get an order quantity of');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'montant de votre commande en cours pour obtenir une quantité de commande de');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'cantidad a su pedido actual para obtener una cantidad de pedido de');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'valor ao seu pedido atual para obter uma quantidade do pedido de');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.planningUnitSettings','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
