@@ -45,7 +45,7 @@ public class RealmDaoImpl implements RealmDao {
     @Autowired
     private AclService aclService;
 
-    private final String sqlListString = "SELECT r.REALM_ID, r.REALM_CODE, r.DEFAULT_REALM, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, "
+    private final String sqlListString = "SELECT r.REALM_ID, r.REALM_CODE, r.DEFAULT_REALM, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE,  "
             + " rl.`LABEL_ID` ,rl.`LABEL_EN`, rl.`LABEL_FR`, rl.`LABEL_PR`, rl.`LABEL_SP`,"
             + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, r.ACTIVE, r.CREATED_DATE, r.LAST_MODIFIED_DATE "
             + " FROM rm_realm r "
