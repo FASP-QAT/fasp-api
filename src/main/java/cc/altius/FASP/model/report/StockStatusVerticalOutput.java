@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -45,6 +46,10 @@ public class StockStatusVerticalOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private List<ShipmentInfo> shipmentInfo;
     @JsonView(Views.ReportView.class)
+    private List<ConsumptionInfo> consumptionInfo;
+    @JsonView(Views.ReportView.class)
+    private List<InventoryInfo> inventoryInfo;
+    @JsonView(Views.ReportView.class)
     private Long adjustment;
     @JsonView(Views.ReportView.class)
     private Long expiredStock;
@@ -63,6 +68,15 @@ public class StockStatusVerticalOutput implements Serializable {
 
     public StockStatusVerticalOutput() {
         this.shipmentInfo = new LinkedList<>();
+        this.consumptionInfo = new LinkedList<>();
+        this.inventoryInfo = new LinkedList<>();
+    }
+
+    public StockStatusVerticalOutput(Date dt) {
+        this.dt = dt;
+        this.shipmentInfo = new LinkedList<>();
+        this.consumptionInfo = new LinkedList<>();
+        this.inventoryInfo = new LinkedList<>();
     }
 
     public Date getDt() {
@@ -185,14 +199,6 @@ public class StockStatusVerticalOutput implements Serializable {
         this.maxMos = maxMos;
     }
 
-    public List<ShipmentInfo> getShipmentInfo() {
-        return shipmentInfo;
-    }
-
-    public void setShipmentInfo(List<ShipmentInfo> shipmentInfo) {
-        this.shipmentInfo = shipmentInfo;
-    }
-
     public Long getUnmetDemand() {
         return unmetDemand;
     }
@@ -201,10 +207,40 @@ public class StockStatusVerticalOutput implements Serializable {
         this.unmetDemand = unmetDemand;
     }
 
+    public List<ShipmentInfo> getShipmentInfo() {
+        return shipmentInfo;
+    }
+
+    public void setShipmentInfo(List<ShipmentInfo> shipmentInfo) {
+        this.shipmentInfo = shipmentInfo;
+    }
+
+    public List<ConsumptionInfo> getConsumptionInfo() {
+        return consumptionInfo;
+    }
+
+    public void setConsumptionInfo(List<ConsumptionInfo> consumptionInfo) {
+        this.consumptionInfo = consumptionInfo;
+    }
+
+    public List<InventoryInfo> getInventoryInfo() {
+        return inventoryInfo;
+    }
+
+    public void setInventoryInfo(List<InventoryInfo> inventoryInfo) {
+        this.inventoryInfo = inventoryInfo;
+    }
+
+    @Override
+    public String toString() {
+        return "StockStatusVerticalOutput{" + "dt=" + dt + '}';
+    }
+
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 89 * hash + Objects.hashCode(this.dt);
+        int hash = 7;
+        hash = 67 * hash + Objects.hashCode(this.dt);
+        hash = 67 * hash + Objects.hashCode(this.planningUnit);
         return hash;
     }
 
@@ -219,8 +255,9 @@ public class StockStatusVerticalOutput implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
         final StockStatusVerticalOutput other = (StockStatusVerticalOutput) obj;
-        if (!Objects.equals(this.dt, other.dt)) {
+        if (!Objects.equals(sdf.format(this.dt), sdf.format(other.dt))) {
             return false;
         }
         return true;

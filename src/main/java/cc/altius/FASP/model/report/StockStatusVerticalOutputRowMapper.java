@@ -86,11 +86,16 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                 ShipmentInfo si = new ShipmentInfo(
                         rs.getInt("SHIPMENT_ID"),
                         rs.getLong("SHIPMENT_QTY"),
-                        new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, index), rs.getString("FUNDING_SOURCE_CODE")),
-                        new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, index), rs.getString("PROCUREMENT_AGENT_CODE")),
-                        new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, index))
+                        new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, 1), rs.getString("FUNDING_SOURCE_CODE")),
+                        new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, 1), rs.getString("PROCUREMENT_AGENT_CODE")),
+                        new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, 1)),
+                        rs.getString("NOTES"),
+                        rs.getDate("EDD"),
+                        new SimpleObject(rs.getInt("DATA_SOURCE_ID"), new LabelRowMapper("DATA_SOURCE_").mapRow(rs, 1))
                 );
-                ssv.getShipmentInfo().add(si);
+                if (ssv.getShipmentInfo().indexOf(si) == -1) {
+                    ssv.getShipmentInfo().add(si);
+                }
             }
         }
         return ssvList;

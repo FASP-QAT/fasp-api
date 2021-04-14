@@ -508,7 +508,7 @@ public class ReportController {
     // ActualConsumption = 0 -- Forecasted Consumption
     // ActualConsumption = 1 -- Actual Consumption
     // ActualConsumption = null -- No consumption data
-//    @JsonView(Views.ReportView.class)
+    @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
         try {
@@ -526,7 +526,7 @@ public class ReportController {
                 }
                 return new ResponseEntity(ssvoFullList, HttpStatus.OK);
             } else {
-                return new ResponseEntity(ssvoList, HttpStatus.OK);
+            return new ResponseEntity(ssvoList, HttpStatus.OK);
             }
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical", e);
