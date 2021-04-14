@@ -31,3 +31,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Prices');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Des prix');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Precios');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Preços');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.message.procurementAgentAlreadExists','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Procurement Agent already exists');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'L agent d approvisionnement existe déjà');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El agente de adquisiciones ya existe');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Agente de compras já existe');
