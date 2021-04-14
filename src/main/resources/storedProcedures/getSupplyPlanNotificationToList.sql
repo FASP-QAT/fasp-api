@@ -29,7 +29,9 @@ IF @statusType=1 THEN
         AND (acl.ORGANISATION_ID is null OR acl.ORGANISATION_ID=p.ORGANISATION_ID)
     LEFT JOIN us_user u ON acl.USER_ID=u.USER_ID
     LEFT JOIN us_user_role ur ON u.USER_ID=ur.USER_ID 
-    WHERE u.REALM_ID=1 AND ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER' AND p.PROGRAM_ID=@programId AND u.ACTIVE;
+    LEFT JOIN us_role_business_function rbf ON ur.ROLE_ID=rbf.ROLE_ID
+    WHERE u.REALM_ID=1 AND rbf.BUSINESS_FUNCTION_ID='ROLE_BF_NOTIFICATION_TO_COMMIT' AND p.PROGRAM_ID=@programId AND u.ACTIVE
+    GROUP BY u.USER_ID;
 
 ELSEIF @statusType=2 OR @statusType=3 THEN
     -- Approved or Rejected
