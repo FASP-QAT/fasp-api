@@ -1056,9 +1056,23 @@ public class ProgramDaoImpl implements ProgramDao {
             return row;
         } else {
             //Update conversion factor and notes
+
+//            sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
+//                    + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+//                    + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? "
+//                    + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+//
+//            Map<String, Object> map = this.jdbcTemplate.queryForMap(sql, manualTaggingOrderDTO.getParentShipmentId(), manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
+//            System.out.println("map-----" + map);
+
             sql = "UPDATE `rm_manual_tagging` m SET m.`CONVERSION_FACTOR`=?,m.`NOTES`=? "
                     + " WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE` AND m.`SHIPMENT_ID`=?; ";
             this.jdbcTemplate.update(sql, manualTaggingOrderDTO.getConversionFactor(), manualTaggingOrderDTO.getNotes(), manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo(), manualTaggingOrderDTO.getParentShipmentId());
+
+//            sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`PRODUCT_COST`=?, "
+//                    + "st.`LAST_MODIFIED_DATE`=?,st.`LAST_MODIFIED_BY`=?,st.`NOTES`=? "
+//                    + "WHERE st.`SHIPMENT_TRANS_ID`=?;";
+//            this.jdbcTemplate.update(sql, manualTaggingOrderDTO.getConversionFactor(), curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), map.get("SHIPMENT_TRANS_ID"));
             return -1;
         }
     }
