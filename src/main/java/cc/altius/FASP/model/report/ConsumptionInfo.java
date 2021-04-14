@@ -5,55 +5,47 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
- * @author altius
+ * @author akil
  */
-public class ConsumptionInfo {
+public class ConsumptionInfo implements Serializable {
 
     @JsonView(Views.ReportView.class)
-    private String notes;
-    @JsonView(Views.ReportView.class)
-    private String consumptionDate;
-    @JsonView(Views.ReportView.class)
     private int consumptionId;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView(Views.ReportView.class)
+    private Date consumptionDate;
     @JsonView(Views.ReportView.class)
     private SimpleObject dataSource;
     @JsonView(Views.ReportView.class)
     private SimpleObject region;
+    @JsonView(Views.ReportView.class)
+    private String notes;
     @JsonView(Views.ReportView.class)
     private boolean actualFlag;
 
     public ConsumptionInfo() {
     }
 
-    public ConsumptionInfo(String notes, String consumptionDate, int consumptionId, SimpleObject dataSource, SimpleObject region, boolean actualFlag) {
-        this.notes = notes;
-        this.consumptionDate = consumptionDate;
+    public ConsumptionInfo(int consumptionId, Date consumptionDate, SimpleObject dataSource, SimpleObject region, String notes, boolean actualFlag) {
         this.consumptionId = consumptionId;
+        this.consumptionDate = consumptionDate;
         this.dataSource = dataSource;
         this.region = region;
-        this.actualFlag = actualFlag;
-    }
-
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
         this.notes = notes;
-    }
-
-    public String getConsumptionDate() {
-        return consumptionDate;
-    }
-
-    public void setConsumptionDate(String consumptionDate) {
-        this.consumptionDate = consumptionDate;
+        this.actualFlag = actualFlag;
     }
 
     public int getConsumptionId() {
@@ -62,6 +54,14 @@ public class ConsumptionInfo {
 
     public void setConsumptionId(int consumptionId) {
         this.consumptionId = consumptionId;
+    }
+
+    public Date getConsumptionDate() {
+        return consumptionDate;
+    }
+
+    public void setConsumptionDate(Date consumptionDate) {
+        this.consumptionDate = consumptionDate;
     }
 
     public SimpleObject getDataSource() {
@@ -80,6 +80,14 @@ public class ConsumptionInfo {
         this.region = region;
     }
 
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
     public boolean isActualFlag() {
         return actualFlag;
     }
@@ -90,8 +98,8 @@ public class ConsumptionInfo {
 
     @Override
     public int hashCode() {
-        int hash = 5;
-        hash = 29 * hash + this.consumptionId;
+        int hash = 3;
+        hash = 89 * hash + this.consumptionId;
         return hash;
     }
 

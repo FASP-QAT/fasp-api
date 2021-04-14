@@ -5,11 +5,16 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
@@ -30,21 +35,23 @@ public class ShipmentInfo implements Serializable {
     @JsonView(Views.ReportView.class)
     private String notes;
     @JsonView(Views.ReportView.class)
-    private String shipmentDate;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    private Date receivedDate; // If Status is Not Received then ERD if Receied then Received Date
     @JsonView(Views.ReportView.class)
     private SimpleObject dataSource;
 
     public ShipmentInfo() {
     }
 
-    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus, String notes, String shipmentDate, SimpleObject dataSource) {
+    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus, String notes, Date receivedDate, SimpleObject dataSource) {
         this.shipmentId = shipmentId;
         this.shipmentQty = shipmentQty;
         this.fundingSource = fundingSource;
         this.procurementAgent = procurementAgent;
         this.shipmentStatus = shipmentStatus;
         this.notes = notes;
-        this.shipmentDate = shipmentDate;
+        this.receivedDate = receivedDate;
         this.dataSource = dataSource;
     }
 
@@ -96,12 +103,12 @@ public class ShipmentInfo implements Serializable {
         this.notes = notes;
     }
 
-    public String getShipmentDate() {
-        return shipmentDate;
+    public Date getReceivedDate() {
+        return receivedDate;
     }
 
-    public void setShipmentDate(String shipmentDate) {
-        this.shipmentDate = shipmentDate;
+    public void setReceivedDate(Date receivedDate) {
+        this.receivedDate = receivedDate;
     }
 
     public SimpleObject getDataSource() {

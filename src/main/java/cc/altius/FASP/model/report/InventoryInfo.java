@@ -5,42 +5,50 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
- * @author altius
+ * @author akil
  */
-public class InventoryInfo {
+public class InventoryInfo implements Serializable {
 
-    @JsonView(Views.ReportView.class)
-    private String notes;
-    @JsonView(Views.ReportView.class)
-    private String inventoryDate;
     @JsonView(Views.ReportView.class)
     private int inventoryId;
     @JsonView(Views.ReportView.class)
-    private SimpleObject dataSource;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    private Date inventoryDate;
     @JsonView(Views.ReportView.class)
     private SimpleObject region;
     @JsonView(Views.ReportView.class)
-    private Double adjustmentQty;
+    private SimpleObject dataSource;
     @JsonView(Views.ReportView.class)
     private Double actualQty;
+    @JsonView(Views.ReportView.class)
+    private Double adjustmentQty;
+    @JsonView(Views.ReportView.class)
+    private String notes;
 
     public InventoryInfo() {
     }
 
-    public InventoryInfo(String notes, String inventoryDate, int inventoryId, SimpleObject dataSource, SimpleObject region, Double adjustmentQty, Double actualQty) {
-        this.notes = notes;
-        this.inventoryDate = inventoryDate;
+    public InventoryInfo(int inventoryId, Date inventoryDate, SimpleObject region, SimpleObject dataSource, Double actualQty, Double adjustmentQty, String notes) {
         this.inventoryId = inventoryId;
-        this.dataSource = dataSource;
+        this.inventoryDate = inventoryDate;
         this.region = region;
-        this.adjustmentQty = adjustmentQty;
+        this.dataSource = dataSource;
         this.actualQty = actualQty;
+        this.adjustmentQty = adjustmentQty;
+        this.notes = notes;
     }
 
     public int getInventoryId() {
@@ -51,35 +59,12 @@ public class InventoryInfo {
         this.inventoryId = inventoryId;
     }
 
-    public String getNotes() {
-        return notes;
-    }
-
-    public void setNotes(String notes) {
-        this.notes = notes;
-    }
-
-    public String getInventoryDate() {
+    public Date getInventoryDate() {
         return inventoryDate;
     }
 
-    public void setInventoryDate(String inventoryDate) {
+    public void setInventoryDate(Date inventoryDate) {
         this.inventoryDate = inventoryDate;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 79 * hash + this.inventoryId;
-        return hash;
-    }
-
-    public SimpleObject getDataSource() {
-        return dataSource;
-    }
-
-    public void setDataSource(SimpleObject dataSource) {
-        this.dataSource = dataSource;
     }
 
     public SimpleObject getRegion() {
@@ -90,12 +75,12 @@ public class InventoryInfo {
         this.region = region;
     }
 
-    public Double getAdjustmentQty() {
-        return adjustmentQty;
+    public SimpleObject getDataSource() {
+        return dataSource;
     }
 
-    public void setAdjustmentQty(Double adjustmentQty) {
-        this.adjustmentQty = adjustmentQty;
+    public void setDataSource(SimpleObject dataSource) {
+        this.dataSource = dataSource;
     }
 
     public Double getActualQty() {
@@ -104,6 +89,29 @@ public class InventoryInfo {
 
     public void setActualQty(Double actualQty) {
         this.actualQty = actualQty;
+    }
+
+    public Double getAdjustmentQty() {
+        return adjustmentQty;
+    }
+
+    public void setAdjustmentQty(Double adjustmentQty) {
+        this.adjustmentQty = adjustmentQty;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 5;
+        hash = 71 * hash + this.inventoryId;
+        return hash;
     }
 
     @Override

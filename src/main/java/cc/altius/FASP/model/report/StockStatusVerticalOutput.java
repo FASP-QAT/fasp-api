@@ -13,6 +13,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -66,6 +67,13 @@ public class StockStatusVerticalOutput implements Serializable {
     private Long unmetDemand;
 
     public StockStatusVerticalOutput() {
+        this.shipmentInfo = new LinkedList<>();
+        this.consumptionInfo = new LinkedList<>();
+        this.inventoryInfo = new LinkedList<>();
+    }
+
+    public StockStatusVerticalOutput(Date dt) {
+        this.dt = dt;
         this.shipmentInfo = new LinkedList<>();
         this.consumptionInfo = new LinkedList<>();
         this.inventoryInfo = new LinkedList<>();
@@ -191,6 +199,14 @@ public class StockStatusVerticalOutput implements Serializable {
         this.maxMos = maxMos;
     }
 
+    public Long getUnmetDemand() {
+        return unmetDemand;
+    }
+
+    public void setUnmetDemand(Long unmetDemand) {
+        this.unmetDemand = unmetDemand;
+    }
+
     public List<ShipmentInfo> getShipmentInfo() {
         return shipmentInfo;
     }
@@ -215,18 +231,16 @@ public class StockStatusVerticalOutput implements Serializable {
         this.inventoryInfo = inventoryInfo;
     }
 
-    public Long getUnmetDemand() {
-        return unmetDemand;
-    }
-
-    public void setUnmetDemand(Long unmetDemand) {
-        this.unmetDemand = unmetDemand;
+    @Override
+    public String toString() {
+        return "StockStatusVerticalOutput{" + "dt=" + dt + '}';
     }
 
     @Override
     public int hashCode() {
-        int hash = 3;
-        hash = 89 * hash + Objects.hashCode(this.dt);
+        int hash = 7;
+        hash = 67 * hash + Objects.hashCode(this.dt);
+        hash = 67 * hash + Objects.hashCode(this.planningUnit);
         return hash;
     }
 
@@ -241,8 +255,9 @@ public class StockStatusVerticalOutput implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
         final StockStatusVerticalOutput other = (StockStatusVerticalOutput) obj;
-        if (!Objects.equals(this.dt, other.dt)) {
+        if (!Objects.equals(sdf.format(this.dt), sdf.format(other.dt))) {
             return false;
         }
         return true;
