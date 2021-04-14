@@ -107,8 +107,9 @@ public class LabelDaoImpl implements LabelDao {
 
     @Override
     public boolean saveStaticLabels(List<StaticLabelDTO> staticLabelList, CustomUserDetails curUser) {
-        List<Object[]> batchInsert = new ArrayList<Object[]>();
+        List<Object[]> batchInsert;
         for (StaticLabelDTO staticLabelDTO : staticLabelList) {
+            batchInsert = new ArrayList<Object[]>();
             String sql = "DELETE l.* FROM ap_static_label_languages l WHERE l.`STATIC_LABEL_ID`=?;";
             this.jdbcTemplate.update(sql, staticLabelDTO.getStaticLabelId());
             String sql1 = "INSERT INTO ap_static_label_languages VALUES  (NULL,?,?,?)";
