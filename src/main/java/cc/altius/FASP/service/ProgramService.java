@@ -95,4 +95,6 @@ public interface ProgramService {
     public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser);
 
     public int getNotificationCount(CustomUserDetails curUser);
+
+    public List<ManualTaggingDTO> getARTMISHistory(String orderNo, int primeLineNo);
 }

@@ -16,6 +16,7 @@ import cc.altius.FASP.model.DTO.ErpShipmentDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
+import cc.altius.FASP.model.DTO.rowMapper.ARTMISHistoryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ERPLinkedShipmentsDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ErpBatchDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ErpOrderAutocompleteDTORowMapper;
@@ -45,6 +46,7 @@ import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.utils.DateUtils;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -829,7 +831,7 @@ public class ProgramDaoImpl implements ProgramDao {
                             params.put("arrivedDate", erpOrderDTO.getEoArrivalAtDestinationDate());
                             params.put("receivedDate", erpOrderDTO.getEoActualDeliveryDate());
                             params.put("curDate", curDate);
-                            params.put("notes", "Auto updated from ERP Data");
+                            params.put("notes", "Auto updated from shipment linking");
                             this.namedParameterJdbcTemplate.update(sql, params);
                             logger.info("Updated the already existing Shipment Trans record (" + shipmentTransId + ") with new data");
                             logger.info("Now need to update the Batch information");
@@ -977,7 +979,7 @@ public class ProgramDaoImpl implements ProgramDao {
                             params.put("ARRIVED_DATE", erpOrderDTO.getEoArrivalAtDestinationDate());
                             params.put("RECEIVED_DATE", erpOrderDTO.getEoActualDeliveryDate());
                             params.put("SHIPMENT_STATUS_ID", erpOrderDTO.getEoShipmentStatusId());
-                            params.put("NOTES", "Auto created from ERP data");
+                            params.put("NOTES", (!manualTaggingOrderDTO.getNotes().isEmpty() ? manualTaggingOrderDTO.getNotes() : "Auto created from shipment linking"));
                             params.put("ERP_FLAG", 1);
                             params.put("ORDER_NO", erpOrderDTO.getEoOrderNo());
                             params.put("PRIME_LINE_NO", erpOrderDTO.getEoPrimeLineNo());
@@ -1091,7 +1093,7 @@ public class ProgramDaoImpl implements ProgramDao {
                         params.put("ARRIVED_DATE", erpOrderDTO.getEoArrivalAtDestinationDate());
                         params.put("RECEIVED_DATE", erpOrderDTO.getEoActualDeliveryDate());
                         params.put("SHIPMENT_STATUS_ID", erpOrderDTO.getEoShipmentStatusId());
-                        params.put("NOTES", "Auto created from ERP data");
+                        params.put("NOTES", (!manualTaggingOrderDTO.getNotes().isEmpty() ? manualTaggingOrderDTO.getNotes() : "Auto created from shipment linking"));
                         params.put("ERP_FLAG", 1);
                         params.put("ORDER_NO", erpOrderDTO.getEoOrderNo());
                         params.put("PRIME_LINE_NO", erpOrderDTO.getEoPrimeLineNo());
@@ -1164,23 +1166,33 @@ public class ProgramDaoImpl implements ProgramDao {
             return row;
         } else {
             //Update conversion factor and notes
+            sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
+                    + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+                    + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? "
+                    + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
 
-//            sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
-//                    + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-//                    + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? "
-//                    + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
-//
-//            Map<String, Object> map = this.jdbcTemplate.queryForMap(sql, manualTaggingOrderDTO.getParentShipmentId(), manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
-//            System.out.println("map-----" + map);
+            Map<String, Object> map = this.jdbcTemplate.queryForMap(sql, manualTaggingOrderDTO.getParentShipmentId(), manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
 
             sql = "UPDATE `rm_manual_tagging` m SET m.`CONVERSION_FACTOR`=?,m.`NOTES`=? "
                     + " WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE` AND m.`SHIPMENT_ID`=?; ";
-            this.jdbcTemplate.update(sql, manualTaggingOrderDTO.getConversionFactor(), manualTaggingOrderDTO.getNotes(), manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo(), manualTaggingOrderDTO.getParentShipmentId());
+            this.jdbcTemplate.update(sql, manualTaggingOrderDTO.getConversionFactor().intValueExact(), manualTaggingOrderDTO.getNotes(), manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo(), manualTaggingOrderDTO.getParentShipmentId());
 
-//            sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`PRODUCT_COST`=?, "
-//                    + "st.`LAST_MODIFIED_DATE`=?,st.`LAST_MODIFIED_BY`=?,st.`NOTES`=? "
-//                    + "WHERE st.`SHIPMENT_TRANS_ID`=?;";
-//            this.jdbcTemplate.update(sql, manualTaggingOrderDTO.getConversionFactor(), curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), map.get("SHIPMENT_TRANS_ID"));
+            sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`PRODUCT_COST`=?, "
+                    + "st.`LAST_MODIFIED_DATE`=?,st.`LAST_MODIFIED_BY`=?,st.`NOTES`=? "
+                    + "WHERE st.`SHIPMENT_TRANS_ID`=?;";
+            long convertedQty = ((new BigDecimal(manualTaggingOrderDTO.getQuantity())).multiply(manualTaggingOrderDTO.getConversionFactor())).longValueExact();
+//            System.out.println("convertedQty---" + convertedQty);
+            System.out.println("(double) map.get(\"RATE\")--------" + map.get("RATE"));
+//            BigDecimal rate = new BigDecimal((double) map.get("RATE"));
+//            BigDecimal rate =  new BigDecimal((Double) map.get("RATE"));
+//            BigDecimal rate =  map.get("RATE");
+//            long productCost = (new BigDecimal(convertedQty).multiply(rate)).longValueExact();
+//            long productCost = convertedQty*map.get("RATE");
+            System.out.println("productCost___________________________________________________" + Double.parseDouble(map.get("RATE").toString()));
+            double rate = Double.parseDouble(map.get("RATE").toString());
+            double productCost = rate * (double) convertedQty;
+            this.jdbcTemplate.update(sql, convertedQty, productCost, curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
+//            this.jdbcTemplate.update(sql, convertedQty, 1, curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
             return -1;
         }
     }
@@ -1281,21 +1293,21 @@ public class ProgramDaoImpl implements ProgramDao {
         if (shipmentIdList.size() == 1 && erpOrderDTO.getShipmentId() == shipmentIdList.get(0)) {
 //            for (int shipmentId1 : shipmentIdList) {
             maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=?", Integer.class, parentShipmentId);
-            sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=1,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=? "
+            sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=1,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,st.NOTES=? "
                     + "WHERE `SHIPMENT_TRANS_ID`=?;";
-            this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, maxTransId);
+            this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
             maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=?", Integer.class, shipmentIdList.get(0));
 
-            sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=? "
+            sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,st.NOTES=? "
                     + "WHERE `SHIPMENT_TRANS_ID`=?;";
-            this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, maxTransId);
+            this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
 //            }
         } else {
             maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=?", Integer.class, erpOrderDTO.getShipmentId());
             System.out.println("maxTransId--------" + maxTransId);
-            sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=? "
+            sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,st.NOTES=? "
                     + "WHERE `SHIPMENT_TRANS_ID`=?;";
-            this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, maxTransId);
+            this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
         }
 //        }
         sql = "UPDATE rm_manual_tagging m SET m.`ACTIVE`=0,m.`NOTES`=?,m.`LAST_MODIFIED_DATE`=?,m.`LAST_MODIFIED_BY`=? WHERE m.`SHIPMENT_ID`=? AND m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=?;";
@@ -1517,11 +1529,38 @@ public class ProgramDaoImpl implements ProgramDao {
     public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         System.out.println("eRPNotificationDTO---" + eRPNotificationDTO.toString());
-        String sql = " UPDATE rm_erp_notification n "
-                + " LEFT JOIN rm_manual_tagging  m ON m.`ORDER_NO`=n.`ORDER_NO` AND m.`PRIME_LINE_NO`=n.`PRIME_LINE_NO` AND m.`SHIPMENT_ID`=n.`SHIPMENT_ID` AND m.`ACTIVE` "
-                + " SET n.`ADDRESSED`=1,n.`NOTES`=?,m.`CONVERSION_FACTOR`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=?,n.`CONVERSION_FACTOR`=? "
-                + " WHERE n.`NOTIFICATION_ID`=?;";
-        return this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), eRPNotificationDTO.getConversionFactor(), curUser.getUserId(), curDate, eRPNotificationDTO.getConversionFactor(), eRPNotificationDTO.getNotificationId());
+        String sql = "";
+        int id;
+        if (eRPNotificationDTO.getNotificationType().getId() == 2) {
+            sql = " UPDATE rm_erp_notification n "
+                    + " LEFT JOIN rm_manual_tagging  m ON m.`ORDER_NO`=n.`ORDER_NO` AND m.`PRIME_LINE_NO`=n.`PRIME_LINE_NO` AND m.`SHIPMENT_ID`=n.`SHIPMENT_ID` AND m.`ACTIVE` "
+                    + " SET n.`ADDRESSED`=1,n.`NOTES`=?,m.`CONVERSION_FACTOR`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=?,n.`CONVERSION_FACTOR`=? "
+                    + " WHERE n.`NOTIFICATION_ID`=?;";
+            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), eRPNotificationDTO.getConversionFactor(), curUser.getUserId(), curDate, eRPNotificationDTO.getConversionFactor(), eRPNotificationDTO.getNotificationId());
+
+            sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
+                    + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+                    + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? "
+                    + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+
+            Map<String, Object> map = this.jdbcTemplate.queryForMap(sql, eRPNotificationDTO.getParentShipmentId(), eRPNotificationDTO.getOrderNo(), eRPNotificationDTO.getPrimeLineNo());
+            sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`PRODUCT_COST`=?, "
+                    + "st.`LAST_MODIFIED_DATE`=?,st.`LAST_MODIFIED_BY`=?,st.`NOTES`=? "
+                    + "WHERE st.`SHIPMENT_TRANS_ID`=?;";
+            long convertedQty = (long) ((double) eRPNotificationDTO.getShipmentQty() * eRPNotificationDTO.getConversionFactor());
+
+            double rate = Double.parseDouble(map.get("RATE").toString());
+            double productCost = rate * (double) convertedQty;
+            this.jdbcTemplate.update(sql, convertedQty, productCost, curDate, curUser.getUserId(), eRPNotificationDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
+        } else {
+            sql = " UPDATE rm_erp_notification n "
+                    + " LEFT JOIN rm_manual_tagging  m ON m.`ORDER_NO`=n.`ORDER_NO` AND m.`PRIME_LINE_NO`=n.`PRIME_LINE_NO` AND m.`SHIPMENT_ID`=n.`SHIPMENT_ID` AND m.`ACTIVE` "
+                    + " SET n.`ADDRESSED`=1,n.`NOTES`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=? "
+                    + " WHERE n.`NOTIFICATION_ID`=?;";
+            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), curUser.getUserId(), curDate, eRPNotificationDTO.getNotificationId());
+
+        }
+        return id;
     }
 
     @Override
@@ -1539,6 +1578,21 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "LEFT JOIN rm_shipment_trans st ON st.`SHIPMENT_ID`=s.`SHIPMENT_ID` AND n.`ORDER_NO`=st.`ORDER_NO` AND n.`PRIME_LINE_NO`=st.`PRIME_LINE_NO` "
                 + "WHERE n.`ACTIVE` AND n.`ADDRESSED`=0 AND s.`PROGRAM_ID` IN (" + programIds + ") GROUP BY n.`NOTIFICATION_ID` ) AS a;";
         return this.jdbcTemplate.queryForObject(sql, Integer.class);
+    }
+
+    @Override
+    public List<ManualTaggingDTO> getARTMISHistory(String orderNo, int primeLineNo) {
+        String sql = "SELECT "
+                + "e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO` , "
+                + "pu.`PLANNING_UNIT_ID`,pu.`LABEL_ID`,pu.`LABEL_EN`,pu.`LABEL_FR`,pu.`LABEL_PR`,pu.`LABEL_SP`, "
+                + "COALESCE(MIN(es.ACTUAL_DELIVERY_DATE),e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
+                + "e.`STATUS`,e.`QTY`,e.`LAST_MODIFIED_DATE` "
+                + "FROM rm_erp_order e "
+                + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
+                + "LEFT JOIN vw_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID` "
+                + "LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID` "
+                + "WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=? GROUP BY e.`ERP_ORDER_ID`;";
+        return this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo);
     }
 
 }
