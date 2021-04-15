@@ -233,7 +233,7 @@ public class ProgramServiceImpl implements ProgramService {
     public List<Integer> linkShipmentWithARTMIS(ManualTaggingOrderDTO[] manualTaggingOrderDTO, CustomUserDetails curUser) {
         try {
             List<Integer> result = new ArrayList<>();
-            System.out.println("length---"+manualTaggingOrderDTO.length);
+            System.out.println("length---" + manualTaggingOrderDTO.length);
             for (int i = 0; i <= manualTaggingOrderDTO.length; i++) {
                 System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
                 if (manualTaggingOrderDTO[i].isActive()) {
@@ -339,8 +339,12 @@ public class ProgramServiceImpl implements ProgramService {
 
     @Override
     public int getNotificationCount(CustomUserDetails curUser) {
-    return this.programDao.getNotificationCount(curUser);
+        return this.programDao.getNotificationCount(curUser);
     }
-    
+
+    @Override
+    public List<ManualTaggingDTO> getARTMISHistory(String orderNo, int primeLineNo) {
+        return this.programDao.getARTMISHistory(orderNo, primeLineNo);
+    }
 
 }

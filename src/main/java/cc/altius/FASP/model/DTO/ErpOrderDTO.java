@@ -538,13 +538,18 @@ public class ErpOrderDTO {
     }
 
     public boolean isShipmentCancelled() {
+        System.out.println("shipment status id---"+this.eoShipmentStatusId);
         if (this.eoShipmentStatusId == 8) {
+            System.out.println("inside if-------------------");
             return true;
         }
+        System.out.println("inside else-------------------");
         return false;
     }
 
     public boolean isSkuChanged() {
+        System.out.println("pl1--------------------"+this.eoPlanningUnitId);
+        System.out.println("pl2--------------------"+this.erpPlanningUnitId);
         if (this.eoPlanningUnitId != this.erpPlanningUnitId) {
             return true;
         }

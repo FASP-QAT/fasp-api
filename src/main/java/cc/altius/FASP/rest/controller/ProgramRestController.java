@@ -348,6 +348,7 @@ public class ProgramRestController {
                 System.out.println("e-------------------*********************" + e);
                 this.programService.updateNotification(e, curUser);
             }
+            this.programDataService.getNewSupplyPlanList(eRPNotificationDTO[0].getProgramId(), -1, true, false);
             return new ResponseEntity(true, HttpStatus.OK);
 //            return new ResponseEntity("", HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
@@ -381,6 +382,23 @@ public class ProgramRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getNotLinkedShipments(programId, linkingType), HttpStatus.OK);
 //            return new ResponseEntity("", HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Shipment list for Manual Tagging", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping("/artmisHistory/{orderNo}/{primeLineNo}")
+    public ResponseEntity artmisHistory(@PathVariable("orderNo") String orderNo, @PathVariable("primeLineNo") int primeLineNo, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getARTMISHistory(orderNo, primeLineNo), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);

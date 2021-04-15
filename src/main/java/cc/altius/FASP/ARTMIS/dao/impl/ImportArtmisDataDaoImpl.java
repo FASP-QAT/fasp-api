@@ -748,6 +748,8 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                             logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                         }
                     }
+                    System.out.println("is shipment cancelled---------------------------------------------------------------"+erpOrderDTO.isShipmentCancelled());
+                    System.out.println("is shipment shu changed---------------------------------------------------------------"+erpOrderDTO.isSkuChanged());
                     if (erpOrderDTO.isShipmentCancelled() || erpOrderDTO.isSkuChanged()) {
                         this.programService.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
                     }

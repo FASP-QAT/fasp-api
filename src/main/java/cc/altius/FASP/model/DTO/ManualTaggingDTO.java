@@ -48,6 +48,7 @@ public class ManualTaggingDTO implements Serializable {
     private int parentShipmentId;
     private int erpOrderId;
     private String erpStatus;
+    private Date receivedOn;
 
     public int getShipmentId() {
         return shipmentId;
@@ -271,6 +272,14 @@ public class ManualTaggingDTO implements Serializable {
 
     public void setErpStatus(String erpStatus) {
         this.erpStatus = erpStatus;
+    }
+
+    public Date getReceivedOn() {
+        return receivedOn;
+    }
+
+    public void setReceivedOn(Date receivedOn) {
+        this.receivedOn = receivedOn;
     }
 
     @Override
