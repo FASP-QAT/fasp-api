@@ -20,21 +20,22 @@ SET @statusType = VAR_STATUS_TYPE;
 IF @statusType=1 THEN
     -- Final submitted
     -- ccList
-    -- Final submitted
--- ccList
-SELECT u2.USER_ID, u2.USERNAME, u2.EMAIL_ID 
-FROM (
-    SELECT u.USER_ID, u.USERNAME, u.EMAIL_ID
+    SELECT u2.USER_ID, u2.USERNAME, u2.EMAIL_ID 
+    FROM (
+        SELECT u.USER_ID, u.USERNAME, u.EMAIL_ID
         FROM rm_program p 
         LEFT JOIN us_user_acl acl ON 
-            (acl.REALM_COUNTRY_ID is null OR acl.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID)
-            AND (acl.PROGRAM_ID is null OR acl.PROGRAM_ID=p.PROGRAM_ID)
-            AND (acl.HEALTH_AREA_ID is null OR acl.HEALTH_AREA_ID=p.HEALTH_AREA_ID)
-            AND (acl.ORGANISATION_ID is null OR acl.ORGANISATION_ID=p.ORGANISATION_ID)
+                (acl.REALM_COUNTRY_ID is null OR acl.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID)
+                AND (acl.PROGRAM_ID is null OR acl.PROGRAM_ID=p.PROGRAM_ID)
+                AND (acl.HEALTH_AREA_ID is null OR acl.HEALTH_AREA_ID=p.HEALTH_AREA_ID)
+                AND (acl.ORGANISATION_ID is null OR acl.ORGANISATION_ID=p.ORGANISATION_ID)
         LEFT JOIN us_user u ON acl.USER_ID=u.USER_ID
         LEFT JOIN us_user_role ur ON u.USER_ID=ur.USER_ID 
-        WHERE u.REALM_ID=1 AND ur.ROLE_ID='ROLE_PROGRAM_ADMIN' AND p.PROGRAM_ID=@programId AND u.ACTIVE
-    UNION
+        LEFT JOIN us_role_business_function rbf ON ur.ROLE_ID=rbf.ROLE_ID
+        WHERE u.REALM_ID=1 AND rbf.BUSINESS_FUNCTION_ID='ROLE_BF_NOTIFICATION_CC_COMMIT' AND p.PROGRAM_ID=@programId AND u.ACTIVE
+
+        UNION
+
         SELECT u.USER_ID, u.USERNAME, u.EMAIL_ID 
         FROM rm_program_version pv 
         LEFT JOIN us_user u ON pv.CREATED_BY=u.USER_ID 
@@ -50,8 +51,10 @@ FROM (
             AND (acl.ORGANISATION_ID is null OR acl.ORGANISATION_ID=p.ORGANISATION_ID)
         LEFT JOIN us_user u ON acl.USER_ID=u.USER_ID
         LEFT JOIN us_user_role ur ON u.USER_ID=ur.USER_ID 
-        WHERE u.REALM_ID=1 AND ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER' AND p.PROGRAM_ID=@programId AND u.ACTIVE
-    ) toList ON u2.USER_ID=toList.USER_ID
+        LEFT JOIN us_role_business_function rbf ON ur.ROLE_ID=rbf.ROLE_ID
+        WHERE u.REALM_ID=1 AND rbf.BUSINESS_FUNCTION_ID='ROLE_BF_NOTIFICATION_TO_COMMIT' AND p.PROGRAM_ID=@programId AND u.ACTIVE
+        GROUP BY u.USER_ID
+        ) toList ON u2.USER_ID=toList.USER_ID
     WHERE toList.USER_ID IS NULL
     GROUP BY u2.USER_ID;
 
@@ -67,7 +70,8 @@ ELSEIF @statusType=3 THEN
         AND (acl.ORGANISATION_ID is null OR acl.ORGANISATION_ID=p.ORGANISATION_ID)
     LEFT JOIN us_user u ON acl.USER_ID=u.USER_ID
     LEFT JOIN us_user_role ur ON u.USER_ID=ur.USER_ID 
-    WHERE u.REALM_ID=1 AND (ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER' OR ur.ROLE_ID='ROLE_PROGRAM_ADMIN') AND p.PROGRAM_ID=@programId AND u.ACTIVE
+    LEFT JOIN us_role_business_function rbf ON ur.ROLE_ID=rbf.ROLE_ID
+    WHERE u.REALM_ID=1 AND (rbf.BUSINESS_FUNCTION_ID='ROLE_BF_NOTIFICATION_CC_REJECT') AND p.PROGRAM_ID=@programId AND u.ACTIVE
     GROUP BY u.USER_ID;
 
 ELSEIF @statusType=2 THEN
@@ -82,15 +86,8 @@ ELSEIF @statusType=2 THEN
         AND (acl.ORGANISATION_ID is null OR acl.ORGANISATION_ID=p.ORGANISATION_ID)
     LEFT JOIN us_user u ON acl.USER_ID=u.USER_ID
     LEFT JOIN us_user_role ur ON u.USER_ID=ur.USER_ID 
-    WHERE u.REALM_ID=1 AND 
-        (
-            ur.ROLE_ID='ROLE_REALM_ADMIN' 
-            OR ur.ROLE_ID='ROLE_PROGRAM_ADMIN' 
-            OR ur.ROLE_ID='ROLE_PROGRAM_USER' 
-            OR ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER'
-            OR ur.ROLE_ID='ROLE_VIEW_DATA_ENTRY'
-            OR ur.ROLE_ID='ROLE_GUEST_USER'
-        ) AND p.PROGRAM_ID=@programId AND u.ACTIVE
+    LEFT JOIN us_role_business_function rbf ON ur.ROLE_ID=rbf.ROLE_ID
+    WHERE u.REALM_ID=1 AND (rbf.BUSINESS_FUNCTION_ID='ROLE_BF_NOTIFICATION_CC_APPROVE') AND p.PROGRAM_ID=@programId AND u.ACTIVE
     GROUP BY u.USER_ID;
 END IF; 
     
