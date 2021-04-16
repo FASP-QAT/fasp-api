@@ -979,7 +979,7 @@ public class ProgramDaoImpl implements ProgramDao {
                             params.put("ARRIVED_DATE", erpOrderDTO.getEoArrivalAtDestinationDate());
                             params.put("RECEIVED_DATE", erpOrderDTO.getEoActualDeliveryDate());
                             params.put("SHIPMENT_STATUS_ID", erpOrderDTO.getEoShipmentStatusId());
-                            params.put("NOTES", (!manualTaggingOrderDTO.getNotes().isEmpty() ? manualTaggingOrderDTO.getNotes() : "Auto created from shipment linking"));
+                            params.put("NOTES", (manualTaggingOrderDTO.getNotes() != null && manualTaggingOrderDTO.getNotes() != "" ? manualTaggingOrderDTO.getNotes() : "Auto created from shipment linking"));
                             params.put("ERP_FLAG", 1);
                             params.put("ORDER_NO", erpOrderDTO.getEoOrderNo());
                             params.put("PRIME_LINE_NO", erpOrderDTO.getEoPrimeLineNo());
@@ -1093,7 +1093,7 @@ public class ProgramDaoImpl implements ProgramDao {
                         params.put("ARRIVED_DATE", erpOrderDTO.getEoArrivalAtDestinationDate());
                         params.put("RECEIVED_DATE", erpOrderDTO.getEoActualDeliveryDate());
                         params.put("SHIPMENT_STATUS_ID", erpOrderDTO.getEoShipmentStatusId());
-                        params.put("NOTES", (!manualTaggingOrderDTO.getNotes().isEmpty() ? manualTaggingOrderDTO.getNotes() : "Auto created from shipment linking"));
+                        params.put("NOTES", (manualTaggingOrderDTO.getNotes() != null && manualTaggingOrderDTO.getNotes() != "" ? manualTaggingOrderDTO.getNotes() : "Auto created from shipment linking"));
                         params.put("ERP_FLAG", 1);
                         params.put("ORDER_NO", erpOrderDTO.getEoOrderNo());
                         params.put("PRIME_LINE_NO", erpOrderDTO.getEoPrimeLineNo());
@@ -1293,19 +1293,19 @@ public class ProgramDaoImpl implements ProgramDao {
         if (shipmentIdList.size() == 1 && erpOrderDTO.getShipmentId() == shipmentIdList.get(0)) {
 //            for (int shipmentId1 : shipmentIdList) {
             maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=?", Integer.class, parentShipmentId);
-            sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=1,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,st.NOTES=? "
+            sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=1,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,`NOTES`=? "
                     + "WHERE `SHIPMENT_TRANS_ID`=?;";
             this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
             maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=?", Integer.class, shipmentIdList.get(0));
 
-            sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,st.NOTES=? "
+            sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,`NOTES`=? "
                     + "WHERE `SHIPMENT_TRANS_ID`=?;";
             this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
 //            }
         } else {
             maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=?", Integer.class, erpOrderDTO.getShipmentId());
             System.out.println("maxTransId--------" + maxTransId);
-            sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,st.NOTES=? "
+            sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,`NOTES`=? "
                     + "WHERE `SHIPMENT_TRANS_ID`=?;";
             this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
         }
