@@ -39,6 +39,7 @@ public class ShipmentNotificationDTORowMapper implements RowMapper<ERPNotificati
         m.setNotificationType(new SimpleObject(rs.getInt("NOTIFICATION_TYPE_ID"), new LabelRowMapper("").mapRow(rs, rows)));
         m.setNotificationId(rs.getInt("NOTIFICATION_ID"));
         m.setAddressed(rs.getBoolean("ADDRESSED"));
+        m.setErpStatus(rs.getString("STATUS"));
         return m;
     }
     

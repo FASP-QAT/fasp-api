@@ -527,7 +527,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + " LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID`"
                 + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
                 + " LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                + " WHERE e.RO_NO=? AND pu.`PLANNING_UNIT_ID`=? AND mt.SHIPMENT_ID IS NULL "
+                + " WHERE e.ORDER_NO=? AND pu.`PLANNING_UNIT_ID`=? AND (mt.SHIPMENT_ID IS NULL  OR mt.ACTIVE=0) "
                 + " GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`)  a  "
                 + "  ) AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15) GROUP BY e.`ERP_ORDER_ID`) ");
         return this.jdbcTemplate.query(sql.toString(), new NotERPLinkedShipmentsRowMapper(), roNoOrderNo, planningUnitId);
@@ -1193,7 +1193,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "LEFT JOIN rm_shipment_trans st ON st.`SHIPMENT_ID`=s.`SHIPMENT_ID` "
                 + "WHERE s.`PARENT_SHIPMENT_ID`=? ORDER BY st.`SHIPMENT_TRANS_ID` DESC) AS a "
                 + "GROUP BY a.SHIPMENT_ID) AS b WHERE b.active;";
-        System.out.println("delinking parenshipment id----------"+parentShipmentId);
+        System.out.println("delinking parenshipment id----------" + parentShipmentId);
         List<Integer> shipmentIdList = this.jdbcTemplate.queryForList(sql, Integer.class, parentShipmentId);
 //        if (shipmentIdList.size() == 1 && erpOrderDTO.getShipmentId() == shipmentIdList.get(0)) {
         if (shipmentIdList.size() == 1) {
@@ -1209,8 +1209,8 @@ public class ProgramDaoImpl implements ProgramDao {
                 sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,`NOTES`=? "
                         + "WHERE `SHIPMENT_TRANS_ID`=?;";
                 this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
-            }else{
-                System.out.println("delinking inside else----------"+parentShipmentId);
+            } else {
+                System.out.println("delinking inside else----------" + parentShipmentId);
             }
         } else {
             if (this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo()) != null) {
@@ -1219,7 +1219,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,`NOTES`=? "
                         + "WHERE `SHIPMENT_TRANS_ID`=?;";
                 this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
-                System.out.println("delinking inside else else----------"+maxTransId);
+                System.out.println("delinking inside else else----------" + maxTransId);
             }
         }
 //        }
@@ -1409,8 +1409,8 @@ public class ProgramDaoImpl implements ProgramDao {
             SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_erp_notification").usingGeneratedKeyColumns("NOTIFICATION_ID");
             params.put("ORDER_NO", orderNo);
             params.put("PRIME_LINE_NO", primeLineNo);
-            params.put("NOTIFICATION_TYPE_ID", 1);
-            params.put("SHIPMENT_ID", 1);
+            params.put("NOTIFICATION_TYPE_ID", notificationTypeId);
+            params.put("SHIPMENT_ID", shipmentId);
             params.put("ADDRESSED", 0);
             params.put("ACTIVE", 1);
             params.put("CREATED_BY", 1);
@@ -1447,9 +1447,9 @@ public class ProgramDaoImpl implements ProgramDao {
         if (eRPNotificationDTO.getNotificationType().getId() == 2) {
             sql = " UPDATE rm_erp_notification n "
                     + " LEFT JOIN rm_manual_tagging  m ON m.`ORDER_NO`=n.`ORDER_NO` AND m.`PRIME_LINE_NO`=n.`PRIME_LINE_NO` AND m.`SHIPMENT_ID`=n.`SHIPMENT_ID` AND m.`ACTIVE` "
-                    + " SET n.`ADDRESSED`=1,n.`NOTES`=?,m.`CONVERSION_FACTOR`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=?,n.`CONVERSION_FACTOR`=? "
+                    + " SET n.`ADDRESSED`=1,n.`NOTES`=?,m.`NOTES`=?,m.`CONVERSION_FACTOR`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=?,n.`CONVERSION_FACTOR`=? "
                     + " WHERE n.`NOTIFICATION_ID`=?;";
-            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), eRPNotificationDTO.getConversionFactor(), curUser.getUserId(), curDate, eRPNotificationDTO.getConversionFactor(), eRPNotificationDTO.getNotificationId());
+            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), eRPNotificationDTO.getNotes(), eRPNotificationDTO.getConversionFactor(), curUser.getUserId(), curDate, eRPNotificationDTO.getConversionFactor(), eRPNotificationDTO.getNotificationId());
 
             sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
                     + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
