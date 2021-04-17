@@ -39,7 +39,8 @@ public class ManualTaggingOrderDTORowMapper implements RowMapper<ManualTaggingOr
         e.setPlanningUnitLabel(new Label(rs.getInt("LABEL_ID"), rs.getString("LABEL_EN"), rs.getString("LABEL_SP"), rs.getString("LABEL_FR"), rs.getString("LABEL_PR")));
         e.setActive(rs.getBoolean("ACTIVE"));
         e.setNotes(rs.getString("NOTES"));
-        e.setConversionFactor(rs.getBigDecimal("CONVERSION_FACTOR"));
+//        e.setConversionFactor(rs.getBigDecimal("CONVERSION_FACTOR"));
+        e.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
         return e;
     }
 
