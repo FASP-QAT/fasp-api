@@ -35,7 +35,7 @@ public class ManualTaggingOrderDTO {
     private String recipentCountry;
     private Label planningUnitLabel;
     private String notes;
-    private BigDecimal conversionFactor;
+    private double conversionFactor;
     private int programId;
     private boolean active;
     private int parentShipmentId;
@@ -202,11 +202,11 @@ public class ManualTaggingOrderDTO {
         this.notes = notes;
     }
 
-    public BigDecimal getConversionFactor() {
+    public double getConversionFactor() {
         return conversionFactor;
     }
 
-    public void setConversionFactor(BigDecimal conversionFactor) {
+    public void setConversionFactor(double conversionFactor) {
         this.conversionFactor = conversionFactor;
     }
 
