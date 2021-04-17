@@ -657,7 +657,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                         params.put("SUGGESTED_QTY", null);
                         params.put("CURRENCY_ID", 1); // USD as default from ARTMIS
                         params.put("CONVERSION_RATE_TO_USD", 1);
-                        params.put("PARENT_SHIPMENT_ID", erpOrderDTO.getShShipmentId());
+                        params.put("PARENT_SHIPMENT_ID", (erpOrderDTO.getShParentShipmentId() != null ? erpOrderDTO.getShParentShipmentId() : erpOrderDTO.getShShipmentId()));
                         params.put("CREATED_BY", 1); //Default auto user in QAT
                         params.put("CREATED_DATE", curDate);
                         params.put("LAST_MODIFIED_BY", 1); //Default auto user in QAT
@@ -773,7 +773,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     params.put("SUGGESTED_QTY", null);
                     params.put("CURRENCY_ID", 1); // USD as default from ARTMIS
                     params.put("CONVERSION_RATE_TO_USD", 1);
-                    params.put("PARENT_SHIPMENT_ID", erpOrderDTO.getShShipmentId());
+                    params.put("PARENT_SHIPMENT_ID", (erpOrderDTO.getShParentShipmentId() != null ? erpOrderDTO.getShParentShipmentId() : erpOrderDTO.getShShipmentId()));
                     params.put("CREATED_BY", 1); //Default auto user in QAT
                     params.put("CREATED_DATE", curDate);
                     params.put("LAST_MODIFIED_BY", 1); //Default auto user in QAT
