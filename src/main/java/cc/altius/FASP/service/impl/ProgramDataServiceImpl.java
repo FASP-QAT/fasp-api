@@ -31,6 +31,7 @@ import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
+import ch.qos.logback.core.CoreConstants;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
@@ -101,10 +102,12 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         Program p = this.programService.getProgramById(programData.getProgramId(), curUser);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
             programData.setCurrentVersion(p.getCurrentVersion());
+//            System.out.println("++++" + p.getCurrentVersion());
             Version version = this.programDataDao.saveProgramData(programData, curUser);
+//            System.out.println("version++++" + version);
             try {
                 getNewSupplyPlanList(programData.getProgramId(), version.getVersionId(), true, false);
-                if (programData.getVersionType().getId() == 2) {
+                if (programData.getVersionType().getId() == 2 && version.getVersionId() != 0) {
                     List<NotificationUser> toEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(programData.getProgramId(), version.getVersionId(), 1, "To");
                     List<NotificationUser> ccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(programData.getProgramId(), version.getVersionId(), 1, "Cc");
                     System.out.println("toEmailIdsList===>" + toEmailIdsList);
@@ -112,14 +115,14 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                     StringBuilder sbToEmails = new StringBuilder();
                     StringBuilder sbCcEmails = new StringBuilder();
                     if (toEmailIdsList.size() > 0) {
-                    for (NotificationUser ns : toEmailIdsList) {
-                        sbToEmails.append(ns.getEmailId()).append(",");
-                    }
+                        for (NotificationUser ns : toEmailIdsList) {
+                            sbToEmails.append(ns.getEmailId()).append(",");
+                        }
                     }
                     if (ccEmailIdsList.size() > 0) {
-                    for (NotificationUser ns : ccEmailIdsList) {
-                        sbCcEmails.append(ns.getEmailId()).append(",");
-                    }
+                        for (NotificationUser ns : ccEmailIdsList) {
+                            sbCcEmails.append(ns.getEmailId()).append(",");
+                        }
                     }
                     if (sbToEmails.length() != 0) {System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());}
                     if (sbCcEmails.length() != 0) {System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());}
@@ -128,7 +131,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                     String[] bodyParam = null;
                     Emailer emailer = new Emailer();
                     subjectParam = new String[]{programData.getProgramCode()};
-                    bodyParam = new String[]{programData.getProgramCode(), String.valueOf(version.getVersionId()),programData.getNotes()};
+                    bodyParam = new String[]{programData.getProgramCode(), String.valueOf(version.getVersionId()), programData.getNotes()};
 //                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "shubham.y@altius.cc,harshana.c@altius.cc", "palash.n@altius.cc,dolly.c@altius.cc", subjectParam, bodyParam);
                     emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
                     int emailerId = this.emailService.saveEmail(emailer);
