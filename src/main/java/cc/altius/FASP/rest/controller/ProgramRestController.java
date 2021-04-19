@@ -486,7 +486,7 @@ public class ProgramRestController {
     @Transactional
     public ResponseEntity linkShipmentWithARTMIS(@RequestBody ManualTaggingOrderDTO[] erpOrderDTO, Authentication auth) {
         try {
-            System.out.println("erpOrderDTO---" + Arrays.toString(erpOrderDTO));
+            System.out.println("erpOrderDTO%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + Arrays.toString(erpOrderDTO));
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             List<Integer> result = this.programService.linkShipmentWithARTMIS(erpOrderDTO, curUser);
             System.out.println("result---" + result);
