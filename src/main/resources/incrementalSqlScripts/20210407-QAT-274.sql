@@ -3,7 +3,7 @@ DROP procedure IF EXISTS `getSupplyPlanNotificationToList`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getSupplyPlanNotificationToList`( 
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getSupplyPlanNotificationToList`( 
     VAR_PROGRAM_ID INT(10), 
     VAR_VERSION_ID INT(10), 
     VAR_STATUS_TYPE INT(10)
@@ -53,7 +53,7 @@ DROP procedure IF EXISTS `getSupplyPlanNotificationCcList`;
 
 DELIMITER $$
 USE `fasp`$$
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getSupplyPlanNotificationCcList`( 
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getSupplyPlanNotificationCcList`( 
     VAR_PROGRAM_ID INT(10), 
     VAR_VERSION_ID INT(10), 
     VAR_STATUS_TYPE INT(10)
