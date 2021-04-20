@@ -302,7 +302,7 @@ public class UserRestController {
                 PasswordEncoder encoder = new BCryptPasswordEncoder();
                 String hashPass = encoder.encode(password.getNewPassword());
                 password.setNewPassword(hashPass);
-                int row = this.userService.updatePassword(userDetails.getUserId(), password.getNewPassword(), 90);
+                int row = this.userService.updatePassword(userDetails.getUserId(), password.getNewPassword(), 365);
                 if (row > 0) {
                     userDetails.setSessionExpiresOn(sessionExpiryTime);
                     userDetails.setPassword(hashPass);
@@ -330,7 +330,7 @@ public class UserRestController {
                 PasswordEncoder encoder = new BCryptPasswordEncoder();
                 String hashPass = encoder.encode(password.getNewPassword());
                 password.setNewPassword(hashPass);
-                int row = this.userService.updatePassword(password.getUserId(), password.getNewPassword(), 90);
+                int row = this.userService.updatePassword(password.getUserId(), password.getNewPassword(), 365);
                 if (row > 0) {
                     Map<String, String> params = new HashMap<>();
                     params.put("hashPass", hashPass);
@@ -424,7 +424,7 @@ public class UserRestController {
                 } else {
                     logger.info("Password provided is valid and we can proceed");
                     System.out.println("Password provided is valid and we can proceed");
-                    this.userService.updatePassword(user.getEmailId(), user.getToken(), user.getHashPassword(), 90);
+                    this.userService.updatePassword(user.getEmailId(), user.getToken(), user.getHashPassword(), 365);
                     auditLogger.info("Password has now been updated successfully for Username: " + user.getUsername());
                     System.out.println("Password has now been updated successfully for Username: " + user.getUsername());
                     return new ResponseEntity(new ResponseCode("static.message.passwordSuccess"), HttpStatus.OK);
