@@ -13,6 +13,7 @@ import cc.altius.FASP.model.report.BudgetReportInput;
 import cc.altius.FASP.model.report.BudgetReportOutput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
+import cc.altius.FASP.model.report.ConsumptionInfo;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
@@ -25,6 +26,7 @@ import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
+import cc.altius.FASP.model.report.InventoryInfo;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
@@ -175,7 +177,23 @@ public class ReportServiceImpl implements ReportService {
 
     @Override
     public List<StockStatusVerticalOutput> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
-        return this.reportDao.getStockStatusVertical(ssv, curUser);
+        List<StockStatusVerticalOutput> ssvoList = this.reportDao.getStockStatusVertical(ssv, curUser);
+        List<ConsumptionInfo> cList = this.reportDao.getConsumptionInfoForSSVReport(ssv, curUser);
+        List<InventoryInfo> iList = this.reportDao.getInventoryInfoForSSVReport(ssv, curUser);
+        cList.forEach(c -> {
+            int idx = ssvoList.indexOf(new StockStatusVerticalOutput(c.getConsumptionDate()));
+            if (idx != -1) {
+                ssvoList.get(idx).getConsumptionInfo().add(c);
+            }
+        });
+
+        iList.forEach(i -> {
+            int idx = ssvoList.indexOf(new StockStatusVerticalOutput(i.getInventoryDate()));
+            if (idx != -1) {
+                ssvoList.get(idx).getInventoryInfo().add(i);
+            }
+        });
+        return ssvoList;
     }
 
     @Override
@@ -202,7 +220,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public List<StockStatusAcrossProductsOutput> getStockStatusAcrossProducts(StockStatusAcrossProductsInput ssap, CustomUserDetails curUser) {
         List<StockStatusAcrossProductsOutput> ssapList = this.reportDao.getStockStatusAcrossProductsBasicInfo(ssap, curUser);
-        List<StockStatusAcrossProductsOutput> finalList = new LinkedList<>(); 
+        List<StockStatusAcrossProductsOutput> finalList = new LinkedList<>();
         for (StockStatusAcrossProductsOutput s : ssapList) {
             StockStatusAcrossProductsOutput m = new StockStatusAcrossProductsOutput();
             m.setPlanningUnit(s.getPlanningUnit());

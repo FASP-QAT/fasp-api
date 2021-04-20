@@ -16,6 +16,8 @@ import cc.altius.FASP.model.report.BudgetReportOutputRowMapper;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutputRowMapper;
+import cc.altius.FASP.model.report.ConsumptionInfo;
+import cc.altius.FASP.model.report.ConsumptionInfoRowMapper;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.CostOfInventoryRowMapper;
@@ -34,6 +36,8 @@ import cc.altius.FASP.model.report.FundingSourceShipmentReportOutputRowMapper;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutputResultSetExtractor;
+import cc.altius.FASP.model.report.InventoryInfo;
+import cc.altius.FASP.model.report.InventoryInfoRowMapper;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.InventoryTurnsOutputRowMapper;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
@@ -308,6 +312,30 @@ public class ReportDaoImpl implements ReportDao {
         params.put("versionId", ssv.getVersionId());
         params.put("planningUnitId", ssv.getPlanningUnitId());
         return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVertical(:startDate, :stopDate, :programId, :versionId, :planningUnitId)", params, new StockStatusVerticalOutputRowMapper());
+    }
+    
+    // Report no 16a
+    @Override
+    public List<ConsumptionInfo> getConsumptionInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", ssv.getStartDate());
+        params.put("stopDate", ssv.getStopDate());
+        params.put("programId", ssv.getProgramId());
+        params.put("versionId", ssv.getVersionId());
+        params.put("planningUnitId", ssv.getPlanningUnitId());
+        return this.namedParameterJdbcTemplate.query("CALL getConsumptionInfoForSSVReport(:startDate, :stopDate, :programId, :versionId, :planningUnitId)", params, new ConsumptionInfoRowMapper());
+    }
+    
+    // Report no 16b
+    @Override
+    public List<InventoryInfo> getInventoryInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", ssv.getStartDate());
+        params.put("stopDate", ssv.getStopDate());
+        params.put("programId", ssv.getProgramId());
+        params.put("versionId", ssv.getVersionId());
+        params.put("planningUnitId", ssv.getPlanningUnitId());
+        return this.namedParameterJdbcTemplate.query("CALL getInventoryInfoForSSVReport(:startDate, :stopDate, :programId, :versionId, :planningUnitId)", params, new InventoryInfoRowMapper());
     }
 
     // Report no 17

@@ -5,11 +5,16 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  *
@@ -27,16 +32,27 @@ public class ShipmentInfo implements Serializable {
     private SimpleCodeObject procurementAgent;
     @JsonView(Views.ReportView.class)
     private SimpleObject shipmentStatus;
+    @JsonView(Views.ReportView.class)
+    private String notes;
+    @JsonView(Views.ReportView.class)
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    private Date receivedDate; // If Status is Not Received then ERD if Receied then Received Date
+    @JsonView(Views.ReportView.class)
+    private SimpleObject dataSource;
 
     public ShipmentInfo() {
     }
 
-    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus) {
+    public ShipmentInfo(int shipmentId, long shipmentQty, SimpleCodeObject fundingSource, SimpleCodeObject procurementAgent, SimpleObject shipmentStatus, String notes, Date receivedDate, SimpleObject dataSource) {
         this.shipmentId = shipmentId;
         this.shipmentQty = shipmentQty;
         this.fundingSource = fundingSource;
         this.procurementAgent = procurementAgent;
         this.shipmentStatus = shipmentStatus;
+        this.notes = notes;
+        this.receivedDate = receivedDate;
+        this.dataSource = dataSource;
     }
 
     public int getShipmentId() {
@@ -77,6 +93,30 @@ public class ShipmentInfo implements Serializable {
 
     public void setProcurementAgent(SimpleCodeObject procurementAgent) {
         this.procurementAgent = procurementAgent;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public Date getReceivedDate() {
+        return receivedDate;
+    }
+
+    public void setReceivedDate(Date receivedDate) {
+        this.receivedDate = receivedDate;
+    }
+
+    public SimpleObject getDataSource() {
+        return dataSource;
+    }
+
+    public void setDataSource(SimpleObject dataSource) {
+        this.dataSource = dataSource;
     }
 
     @Override
