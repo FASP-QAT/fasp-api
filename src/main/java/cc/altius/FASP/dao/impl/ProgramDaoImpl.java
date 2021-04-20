@@ -25,12 +25,15 @@ import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramPlanningUnit;
+import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.LoadProgramRowMapper;
 import cc.altius.FASP.model.rowMapper.LoadProgramVersionRowMapper;
+import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitProcurementAgentPriceRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
@@ -145,11 +148,35 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID  "
             + " LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID  "
             + " LEFT JOIN us_user cb ON ppu.CREATED_BY=cb.USER_ID  "
-            + " LEFT JOIN us_user lmb ON ppu.LAST_MODIFIED_BY=lmb.USER_ID  "
+            + " LEFT JOIN us_user lmb ON ppu.LAST_MODIFIED_BY=lmb.USER_ID "
+            + " WHERE TRUE ";
+
+    public String sqlListStringForProgramPlanningUnitProcurementAgentPricing = "SELECT ppu.PROGRAM_PLANNING_UNIT_ID,   "
+            + "    pg.PROGRAM_ID, pg.LABEL_ID `PROGRAM_LABEL_ID`, pg.LABEL_EN `PROGRAM_LABEL_EN`, pg.LABEL_FR `PROGRAM_LABEL_FR`, pg.LABEL_PR `PROGRAM_LABEL_PR`, pg.LABEL_SP `PROGRAM_LABEL_SP`,  "
+            + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`,  "
+            + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`,  "
+            + "    ppu.REORDER_FREQUENCY_IN_MONTHS, ppu.MIN_MONTHS_OF_STOCK, ppu.LOCAL_PROCUREMENT_LEAD_TIME, ppu.SHELF_LIFE, ppu.CATALOG_PRICE, ppu.MONTHS_IN_PAST_FOR_AMC, ppu.MONTHS_IN_FUTURE_FOR_AMC,  "
+            + "    ppu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ppu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ppu.LAST_MODIFIED_DATE,  "
+            + "    pa.PROCUREMENT_AGENT_ID, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pa.PROCUREMENT_AGENT_CODE, "
+            + "    ppupa.PROGRAM_PLANNING_UNIT_PROCUREMENT_AGENT_ID, ppupa.PRICE `PROCUREMENT_AGENT_PRICE`, "
+            + "    ppupa.ACTIVE `PPUPA_ACTIVE`, cb2.USER_ID `PPUPA_CB_USER_ID`, cb2.USERNAME `PPUPA_CB_USERNAME`, ppupa.CREATED_DATE `PPUPA_CREATED_DATE`, lmb2.USER_ID `PPUPA_LMB_USER_ID`, lmb2.USERNAME `PPUPA_LMB_USERNAME`, ppupa.LAST_MODIFIED_DATE `PPUPA_LAST_MODIFIED_DATE`  "
+            + " FROM  rm_program_planning_unit ppu   "
+            + " LEFT JOIN vw_program pg ON pg.PROGRAM_ID=ppu.PROGRAM_ID  "
+            + " LEFT JOIN rm_realm_country rc ON pg.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
+            + " LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID  "
+            + " LEFT JOIN rm_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID  "
+            + " LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID  "
+            + " LEFT JOIN us_user cb ON ppu.CREATED_BY=cb.USER_ID  "
+            + " LEFT JOIN us_user lmb ON ppu.LAST_MODIFIED_BY=lmb.USER_ID "
+            + " LEFT JOIN rm_program_planning_unit_procurement_agent ppupa ON ppu.PROGRAM_PLANNING_UNIT_ID=ppupa.PROGRAM_PLANNING_UNIT_ID "
+            + " LEFT JOIN vw_procurement_agent pa ON ppupa.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID "
+            + " LEFT JOIN us_user cb2 ON ppupa.CREATED_BY=cb2.USER_ID  "
+            + " LEFT JOIN us_user lmb2 ON ppupa.LAST_MODIFIED_BY=lmb2.USER_ID "
             + " WHERE TRUE ";
 
     @Override
     @Transactional
+
     public int addProgram(Program p, int realmId, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
@@ -362,7 +389,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<SimpleObject> getPlanningUnitListForProgramIds(String programIds, CustomUserDetails curUser) {
-        String sql = "SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM rm_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE p.PROGRAM_ID IN (" + programIds + ") AND ppu.PROGRAM_ID IS NOT NULL AND ppu.ACTIVE AND pu.ACTIVE";
+        String sql = "SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM rm_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE p.PROGRAM_ID IN (" + programIds + ") AND ppu.PROGRAM_ID IS NOT NULL AND ppu.ACTIVE AND pu.ACTIVE GROUP BY pu.PLANNING_UNIT_ID";
         Map<String, Object> params = new HashMap<>();
         params.put("programIds", programIds);
         return this.namedParameterJdbcTemplate.query(sql, params, new SimpleObjectRowMapper());
@@ -419,6 +446,87 @@ public class ProgramDaoImpl implements ProgramDao {
         if (updateList.size() > 0) {
             SqlParameterSource[] updateParams = new SqlParameterSource[updateList.size()];
             String sqlString = "UPDATE rm_program_planning_unit ppu SET ppu.MIN_MONTHS_OF_STOCK=:minMonthsOfStock,ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.LOCAL_PROCUREMENT_LEAD_TIME=:localProcurementLeadTime, ppu.SHELF_LIFE=:shelfLife, ppu.CATALOG_PRICE=:catalogPrice, ppu.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, ppu.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, ppu.ACTIVE=:active, ppu.LAST_MODIFIED_DATE=:curDate, ppu.LAST_MODIFIED_BY=:curUser WHERE ppu.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId";
+            rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
+        }
+        return rowsEffected;
+    }
+
+    @Override
+    public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentList(int programPlanningUnitId, boolean active, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT  "
+                + "    ppupa.PROGRAM_PLANNING_UNIT_PROCUREMENT_AGENT_ID, ppupa.PROGRAM_PLANNING_UNIT_ID,    "
+                + "    pa.PROCUREMENT_AGENT_ID, pa.PROCUREMENT_AGENT_CODE, pa.LABEL_ID `PROCUREMENT_AGENT_LABEL_ID`, pa.LABEL_EN `PROCUREMENT_AGENT_LABEL_EN`, pa.LABEL_FR `PROCUREMENT_AGENT_LABEL_FR`, pa.LABEL_PR `PROCUREMENT_AGENT_LABEL_PR`, pa.LABEL_SP `PROCUREMENT_AGENT_LABEL_SP`,    "
+                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`,    "
+                + "    p2.PROGRAM_ID, p2.LABEL_ID `PROGRAM_LABEL_ID`, p2.LABEL_EN `PROGRAM_LABEL_EN`, p2.LABEL_FR `PROGRAM_LABEL_FR`, p2.LABEL_SP `PROGRAM_LABEL_SP`, p2.LABEL_PR `PROGRAM_LABEL_PR`,  "
+                + "    ppupa.PRICE `PROGRAM_PRICE`,  "
+                + "    cb2.USER_ID `PPUPA_CB_USER_ID`, cb2.USERNAME `PPUPA_CB_USERNAME`, lmb2.USER_ID `PPUPA_LMB_USER_ID`, lmb2.USERNAME `PPUPA_LMB_USERNAME`, ppupa.ACTIVE `PPUPA_ACTIVE`, ppupa.CREATED_DATE `PPUPA_CREATED_DATE`, ppupa.LAST_MODIFIED_DATE `PPUPA_LAST_MODIFIED_DATE` "
+                + "FROM rm_program_planning_unit_procurement_agent ppupa "
+                + "LEFT JOIN rm_program_planning_unit ppu ON ppupa.PROGRAM_PLANNING_UNIT_ID=ppu.PROGRAM_PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID   "
+                + "LEFT JOIN vw_procurement_agent pa ON pa.PROCUREMENT_AGENT_ID=ppupa.PROCUREMENT_AGENT_ID    "
+                + "LEFT JOIN vw_program p2 ON ppu.PROGRAM_ID=p2.PROGRAM_ID  "
+                + "LEFT JOIN rm_realm_country rc ON p2.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN us_user cb2 ON ppupa.CREATED_BY=cb2.USER_ID     "
+                + "LEFT JOIN us_user lmb2 ON ppupa.LAST_MODIFIED_BY=lmb2.USER_ID  "
+                + "WHERE ppupa.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programPlanningUnitId", programPlanningUnitId);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pa", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p2", curUser);
+        if (active) {
+            sqlStringBuilder.append(" AND ppupa.ACTIVE");
+        }
+        sqlStringBuilder.append(" ORDER BY ppu.PROGRAM_ID, pu.LABEL_EN, pa.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramPlanningUnitProcurementAgentPriceRowMapper());
+    }
+
+    @Override
+    public int saveProgramPlanningUnitProcurementAgentPrice(ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, CustomUserDetails curUser) {
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_planning_unit_procurement_agent");
+        List<SqlParameterSource> insertList = new ArrayList<>();
+        List<SqlParameterSource> updateList = new ArrayList<>();
+        int rowsEffected = 0;
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params;
+        for (ProgramPlanningUnitProcurementAgentPrice ppupa : programPlanningUnitProcurementAgentPrices) {
+            if (ppupa.getProgramPlanningUnitProcurementAgentId() == 0) {
+                // Insert
+                params = new HashMap<>();
+                params.put("PROGRAM_PLANNING_UNIT_ID", ppupa.getProgramPlanningUnitId());
+                params.put("PROCUREMENT_AGENT_ID", ppupa.getProcurementAgent().getId());
+                params.put("PRICE", ppupa.getPrice());
+                params.put("CREATED_DATE", curDate);
+                params.put("CREATED_BY", curUser.getUserId());
+                params.put("LAST_MODIFIED_DATE", curDate);
+                params.put("LAST_MODIFIED_BY", curUser.getUserId());
+                params.put("ACTIVE", true);
+                insertList.add(new MapSqlParameterSource(params));
+            } else {
+                // Update
+                params = new HashMap<>();
+                params.put("programPlanningUnitProcurementAgentId", ppupa.getProgramPlanningUnitProcurementAgentId());
+                params.put("price", ppupa.getPrice());
+                params.put("curDate", curDate);
+                params.put("curUser", curUser.getUserId());
+                params.put("active", ppupa.isActive());
+                updateList.add(new MapSqlParameterSource(params));
+            }
+        }
+        if (insertList.size() > 0) {
+            SqlParameterSource[] insertParams = new SqlParameterSource[insertList.size()];
+            rowsEffected += si.executeBatch(insertList.toArray(insertParams)).length;
+        }
+        if (updateList.size() > 0) {
+            SqlParameterSource[] updateParams = new SqlParameterSource[updateList.size()];
+            String sqlString = "UPDATE "
+                    + "rm_program_planning_unit_procurement_agent ppupa "
+                    + "SET "
+                    + "ppupa.PRICE=:price, "
+                    + "ppupa.ACTIVE=:active, "
+                    + "ppupa.LAST_MODIFIED_DATE=:curDate, "
+                    + "ppupa.LAST_MODIFIED_BY=:curUser "
+                    + "WHERE ppupa.PROGRAM_PLANNING_UNIT_PROCUREMENT_AGENT_ID=:programPlanningUnitProcurementAgentId";
             rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
         }
         return rowsEffected;
@@ -1159,12 +1267,12 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<ProgramPlanningUnit> getProgramPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForProgramPlanningUnit).append(" AND ppu.PROGRAM_ID IN (").append(programIdsString).append(") AND ppu.`PROGRAM_PLANNING_UNIT_ID`  IS NOT NULL  ");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForProgramPlanningUnitProcurementAgentPricing).append(" AND ppu.PROGRAM_ID IN (").append(programIdsString).append(") AND ppu.`PROGRAM_PLANNING_UNIT_ID`  IS NOT NULL  ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "pg", curUser);
-        sqlStringBuilder.append(" ORDER BY pu.LABEL_EN");
-        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramPlanningUnitRowMapper());
+        sqlStringBuilder.append(" ORDER BY pu.LABEL_EN, pa.LABEL_EN");
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramPlanningUnitResultSetExtractor());
     }
 
     @Override

@@ -7,6 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.HealthAreaDao;
 import cc.altius.FASP.dao.OrganisationDao;
+import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -15,9 +16,11 @@ import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.LoadProgram;
+import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
+import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.SimpleObject;
@@ -49,6 +52,8 @@ public class ProgramServiceImpl implements ProgramService {
     private HealthAreaDao healthAreaDao;
     @Autowired
     private OrganisationDao organisationDao;
+    @Autowired
+    private ProcurementAgentDao procurementAgentDao;
     @Autowired
     private AclService aclService;
 
@@ -173,6 +178,22 @@ public class ProgramServiceImpl implements ProgramService {
             }
         }
         return this.programDao.saveProgramPlanningUnit(programPlanningUnits, curUser);
+    }
+
+    @Override
+    public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentList(int programPlanningUnitId, boolean active, CustomUserDetails curUser) {
+        return this.programDao.getProgramPlanningUnitProcurementAgentList(programPlanningUnitId, active, curUser);
+    }
+
+    @Override
+    public int saveProgramPlanningUnitProcurementAgentPrice(ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, CustomUserDetails curUser) {
+        for (ProgramPlanningUnitProcurementAgentPrice papup : programPlanningUnitProcurementAgentPrices) {
+            ProcurementAgent pa = this.procurementAgentDao.getProcurementAgentById(papup.getProcurementAgent().getId(), curUser);
+            if (!this.aclService.checkRealmAccessForUser(curUser, pa.getRealm().getId())) {
+                throw new AccessDeniedException("Access denied");
+            }
+        }
+        return this.programDao.saveProgramPlanningUnitProcurementAgentPrice(programPlanningUnitProcurementAgentPrices, curUser);
     }
 
     @Override

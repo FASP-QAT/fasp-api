@@ -21,6 +21,7 @@ import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.InventoryBatchInfo;
 import cc.altius.FASP.model.MasterSupplyPlan;
 import cc.altius.FASP.model.NewSupplyPlan;
+import cc.altius.FASP.model.NotificationUser;
 import cc.altius.FASP.model.ProblemReport;
 import cc.altius.FASP.model.ProblemReportTrans;
 import cc.altius.FASP.model.Program;
@@ -42,6 +43,7 @@ import cc.altius.FASP.model.rowMapper.IdByAndDateRowMapper;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanBatchResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanRegionResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.NotificationUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramVersionRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
@@ -91,7 +93,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     private EmailService emailService;
     @Autowired
     private ProgramService programService;
-
+   
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -1226,22 +1228,73 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
             }
         }
-
-        if (versionStatusId != 1) {
+        //        when version is rejcted
+        if (versionStatusId == 3) {
             Program program = this.programService.getProgramById(programId, curUser);
-            String emailSql = "select u.EMAIL_ID from us_user u where u.USER_ID \n"
-                    + "in (select v.CREATED_BY from rm_program_version v where v.PROGRAM_ID=? and v.VERSION_ID=?);";
-            String emailTo = this.jdbcTemplate.queryForObject(emailSql, String.class, programId, versionId);
-            String versionStatusSql = "select vvs.LABEL_EN from vw_version_status vvs where vvs.VERSION_STATUS_ID=?";
-            String versionStatus = this.jdbcTemplate.queryForObject(versionStatusSql, String.class, versionStatusId);
+
+            List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "To");
+            List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "Cc");
+            System.out.println("toEmailIdsListReject===>" + toEmailIdsList);
+            System.out.println("ccEmailIdsListReject===>" + ccEmailIdsList);
+            
+            StringBuilder sbToEmails = new StringBuilder();
+            StringBuilder sbCcEmails = new StringBuilder();
+            if (toEmailIdsList.size() > 0) {
+                for (NotificationUser ns : toEmailIdsList) {
+                    sbToEmails.append(ns.getEmailId()).append(",");
+                }
+            }
+            if (ccEmailIdsList.size() > 0) {
+                for (NotificationUser ns : ccEmailIdsList) {
+                    sbCcEmails.append(ns.getEmailId()).append(",");
+                }
+            }
+            if (sbToEmails.length() != 0) {System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());}
+            if (sbCcEmails.length() != 0) {System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());}
+
+            EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(7);
+            String[] subjectParam = new String[]{};
+            String[] bodyParam = null;
+            Emailer emailer = new Emailer();
+            subjectParam = new String[]{program.getProgramCode()};
+            bodyParam = new String[]{program.getProgramCode(), String.valueOf(versionId), notes};
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "",sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
+            int emailerId = this.emailService.saveEmail(emailer);
+            emailer.setEmailerId(emailerId);
+            this.emailService.sendMail(emailer);
+        }
+
+//        when version is approved
+        if (versionStatusId == 2) {
+            Program program = this.programService.getProgramById(programId, curUser);
+
+            List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "To");
+            List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "Cc");
+            System.out.println("toEmailIdsListApproved===>" + toEmailIdsList);
+            System.out.println("ccEmailIdsListApproved===>" + ccEmailIdsList);
+            
+            StringBuilder sbToEmails = new StringBuilder();
+            StringBuilder sbCcEmails = new StringBuilder();
+            if (toEmailIdsList.size() > 0) {
+                for (NotificationUser ns : toEmailIdsList) {
+                    sbToEmails.append(ns.getEmailId()).append(",");
+                }
+            }
+            if (ccEmailIdsList.size() > 0) {
+                for (NotificationUser ns : ccEmailIdsList) {
+                    sbCcEmails.append(ns.getEmailId()).append(",");
+                }
+            }
+            if (sbToEmails.length() != 0) {System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());}
+            if (sbCcEmails.length() != 0) {System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());}
 
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(5);
             String[] subjectParam = new String[]{};
             String[] bodyParam = null;
             Emailer emailer = new Emailer();
-            subjectParam = new String[]{};
-            bodyParam = new String[]{program.getProgramCode(), String.valueOf(versionId), versionStatus};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), emailTo, "", subjectParam, bodyParam);
+            subjectParam = new String[]{program.getProgramCode()};
+            bodyParam = new String[]{program.getProgramCode(), String.valueOf(versionId), notes};
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "",sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -1748,6 +1801,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.aclService.addFullAclForProgram(sql, params, "p", curUser);
         sql.append("ORDER BY pu.PLANNING_UNIT_ID, papu.PROCUREMENT_AGENT_ID");
         return namedParameterJdbcTemplate.query(sql.toString(), params, new SimplePlanningUnitForSupplyPlanObjectResultSetExtractor());
+    }
+
+    @Override
+    public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc) {
+        String sqlString = "CALL getSupplyPlanNotification" + toCc + "List(:programId,:versionId,:statusType)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        params.put("statusType", statusType);
+        return this.namedParameterJdbcTemplate.query(sqlString, params, new NotificationUserRowMapper());
     }
 
 }

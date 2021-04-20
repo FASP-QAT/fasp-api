@@ -6,6 +6,7 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
@@ -33,9 +34,11 @@ import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.model.report.StockStatusVerticalOutput;
 import cc.altius.FASP.model.report.WarehouseByCountryInput;
 import cc.altius.FASP.model.report.WarehouseCapacityInput;
+import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.ReportService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
+import java.util.LinkedList;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,6 +65,8 @@ public class ReportController {
     private ReportService reportService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ProgramService programService;
 
     private final Logger logger = LoggerFactory.getLogger(ReportController.class);
 
@@ -493,7 +498,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitId":152}
+     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitId":152, "allPlanningUnits":true}
      * </pre>
      *
      * @param ssv
@@ -503,13 +508,26 @@ public class ReportController {
     // ActualConsumption = 0 -- Forecasted Consumption
     // ActualConsumption = 1 -- Actual Consumption
     // ActualConsumption = null -- No consumption data
-//    @JsonView(Views.ReportView.class)
+    @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             List<StockStatusVerticalOutput> ssvoList = this.reportService.getStockStatusVertical(ssv, curUser);
+            List<List<StockStatusVerticalOutput>> ssvoFullList = new LinkedList<>();
+            if (ssv.isAllPlanningUnits()) {
+                ssvoFullList.add(ssvoList);
+                int originalPlanningUnit = ssv.getPlanningUnitId();
+                for (ProgramPlanningUnit ppu : this.programService.getPlanningUnitListForProgramId(ssv.getProgramId(), true, curUser)) {
+                    if (!ppu.getPlanningUnit().getId().equals(originalPlanningUnit)) {
+                        ssv.setPlanningUnitId(ppu.getPlanningUnit().getId());
+                        ssvoFullList.add(this.reportService.getStockStatusVertical(ssv, curUser));
+                    }
+                }
+                return new ResponseEntity(ssvoFullList, HttpStatus.OK);
+            } else {
             return new ResponseEntity(ssvoList, HttpStatus.OK);
+            }
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
