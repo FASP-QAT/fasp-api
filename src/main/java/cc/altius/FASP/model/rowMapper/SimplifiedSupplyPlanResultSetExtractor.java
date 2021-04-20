@@ -103,7 +103,7 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
                         rs.getDate("BATCH_CREATED_DATE"), 
                         rs.getLong("BATCH_SHIPMENT_QTY"));
                 sb.setOpeningBalance(rs.getLong("BATCH_OPENING_BALANCE"));
-                sb.setConsumptionQty(rs.getLong("BATCH_CALCULATED_CONSUMPTION_QTY"));
+                sb.setConsumptionQty(rs.getLong("BATCH_CONSUMPTION_QTY"));
                 if (rs.wasNull()) {
                     sb.setConsumptionQty(null);
                 }
@@ -114,6 +114,10 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
                 sb.setAdjustmentQty(rs.getLong("BATCH_ADJUSTMENT_MULTIPLIED_QTY"));
                 if (rs.wasNull()) {
                     sb.setAdjustmentQty(null);
+                }
+                sb.setUnallocatedQty(rs.getLong("BATCH_CALCULATED_CONSUMPTION_QTY"));
+                if (rs.wasNull()) {
+                    sb.setUnallocatedQty(null);
                 }
                 sp.getBatchDetails().add(sb);
             }

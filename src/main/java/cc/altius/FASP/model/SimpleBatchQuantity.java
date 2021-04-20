@@ -46,9 +46,10 @@ public class SimpleBatchQuantity implements Serializable {
     @JsonView({Views.InternalView.class})
     private Long shipmentQty;
     @JsonView({Views.InternalView.class})
+    private Long unallocatedQty;
+    @JsonView({Views.InternalView.class})
     private long openingBalance;
-    
-    
+
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     @JsonView({Views.ArtmisView.class, Views.InternalView.class})
@@ -173,6 +174,14 @@ public class SimpleBatchQuantity implements Serializable {
 
     public void setShipmentQty(Long shipmentQty) {
         this.shipmentQty = shipmentQty;
+    }
+
+    public Long getUnallocatedQty() {
+        return unallocatedQty;
+    }
+
+    public void setUnallocatedQty(Long unallocatedQty) {
+        this.unallocatedQty = unallocatedQty;
     }
 
     public long getOpeningBalance() {
