@@ -483,7 +483,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<ManualTaggingDTO> getShipmentListForManualTagging(ManualTaggingDTO manualTaggingDTO) {
+    public List<ManualTaggingDTO> getShipmentListForManualTagging(ManualTaggingDTO manualTaggingDTO, CustomUserDetails curUser) {
         String sql = "";
         List<ManualTaggingDTO> list = null;
         Map<String, Object> params = new HashMap<>();
@@ -496,10 +496,10 @@ public class ProgramDaoImpl implements ProgramDao {
             sql = "CALL getShipmentListForAlreadyLinkedShipments(:programId, :planningUnitId, -1)";
             list = this.namedParameterJdbcTemplate.query(sql, params, new ERPLinkedShipmentsDTORowMapper());
         } else {
-            sql = "CALL getErpShipmentForNotLinked(:countryId,:productcategoryId, :planningUnitId)";
+            sql = "CALL getErpShipmentForNotLinked(:countryId,:productcategoryId, :planningUnitId, :realmId)";
             params.put("productcategoryId", manualTaggingDTO.getProductCategoryIdsString());
             params.put("countryId", manualTaggingDTO.getCountryId());
-            System.out.println("params-------" + params);
+            params.put("realmId", curUser.getRealm().getRealmId());
             list = this.namedParameterJdbcTemplate.query(sql, params, new NotERPLinkedShipmentsRowMapper());
         }
 

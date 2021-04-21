@@ -8,6 +8,7 @@
  * Created: 08-Mar-2021
  */
 
+DROP TABLE IF EXISTS `fasp`.`tr_artmis_country`;
 CREATE TABLE `fasp`.`tr_artmis_country` (
   `RECEPIENT_NAME` VARCHAR(200) NOT NULL,
   `REALM_COUNTRY_ID` INT(10) UNSIGNED NOT NULL,
@@ -199,19 +200,22 @@ DROP PROCEDURE IF EXISTS `getErpShipmentForNotLinked`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `getErpShipmentForNotLinked`(
     VAR_REALM_COUNTRY_ID INT(10), 
     VAR_PRODUCT_CATEGORY_IDS TEXT, 
-    VAR_PLANNING_UNIT_IDS TEXT
+    VAR_PLANNING_UNIT_IDS TEXT, 
+    VAR_REALM_ID INT(10)
     )
 BEGIN
     SET @productCategoryIds = VAR_PRODUCT_CATEGORY_IDS;
     SET @planningUnitIds = VAR_PLANNING_UNIT_IDS;
+    SET @realmId = VAR_REALM_ID;
+    SET @realmCountryId = VAR_REALM_COUNTRY_ID;
     
     SELECT GROUP_CONCAT(pc2.PRODUCT_CATEGORY_ID) INTO @finalProductCategoryIds FROM rm_product_category pc LEFT JOIN rm_product_category pc2 ON pc2.SORT_ORDER LIKE CONCAT(pc.SORT_ORDER,"%") WHERE FIND_IN_SET(pc.PRODUCT_CATEGORY_ID, @productCategoryIds);
     
-    SELECT COALESCE(ac.RECEPIENT_NAME, c.LABEL_EN) INTO @recpientCountry 
-    FROM rm_realm_country rc 
-    LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID 
+    SELECT group_concat(COALESCE(ac.RECEPIENT_NAME, c.LABEL_EN)) INTO @recepientCountryList
+    FROM rm_realm_country rc
+    LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID
     LEFT JOIN tr_artmis_country ac ON rc.REALM_COUNTRY_ID=ac.REALM_COUNTRY_ID
-    WHERE rc.REALM_COUNTRY_ID=VAR_REALM_COUNTRY_ID;
+    WHERE (rc.REALM_COUNTRY_ID=@realmCountryId OR @realmCountryId=-1) AND rc.REALM_ID=@realmId;
     
     SELECT 
         o.ORDER_NO, o.PRIME_LINE_NO, o.`RO_NO`,o.`RO_PRIME_LINE_NO`,o.ERP_ORDER_ID,
@@ -228,7 +232,7 @@ BEGIN
         o1.ERP_ORDER_ID IS NOT NULL  
         AND mt.SHIPMENT_ID IS NULL  
         AND o.RECPIENT_COUNTRY!=''  
-        AND o.RECPIENT_COUNTRY=@recpientCountry  
+        AND find_in_set(o.RECPIENT_COUNTRY,@recepientCountryList)
         AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15)
         AND (LENGTH(@finalProductCategoryIds)=0 OR FIND_IN_SET(fu.PRODUCT_CATEGORY_ID, @finalProductCategoryIds))
         AND (LENGTH(@planningUnitIds)=0 OR FIND_IN_SET(papu.PLANNING_UNIT_ID, @planningUnitIds));
@@ -236,6 +240,7 @@ END$$
 
 DELIMITER ;
 
+DROP TABLE IF EXISTS `fasp`.`rm_erp_notification`;
 CREATE TABLE `fasp`.`rm_erp_notification`( `NOTIFICATION_ID` INT UNSIGNED NOT NULL AUTO_INCREMENT , `ORDER_NO` VARCHAR(100) NOT NULL , `PRIME_LINE_NO` INT NOT NULL , `TYPE_ID` INT NOT NULL COMMENT '1-SKU CHANGE 2-CANCELLED', `SHIPMENT_ID` INT NOT NULL , `ADDRESSED` BOOLEAN NOT NULL DEFAULT '0' , `ACTIVE` BOOLEAN NOT NULL DEFAULT '0' , `CREATED_DATE` DATETIME NOT NULL , `CREATED_BY` INT NOT NULL , `LAST_MODIFIED_DATE` DATETIME NOT NULL , `LAST_MODIFIED_BY` INT NOT NULL , PRIMARY KEY (`NOTIFICATION_ID`) ); 
 
 DELIMITER $$
@@ -350,7 +355,6 @@ END$$
 DELIMITER ;
 
 ALTER TABLE `fasp`.`rm_erp_notification` ADD COLUMN `NOTES` TEXT NULL AFTER `LAST_MODIFIED_BY`; 
-
 ALTER TABLE `fasp`.`rm_erp_notification` ADD COLUMN `CONVERSION_FACTOR` DECIMAL(12,4) NULL AFTER `NOTES`; 
 
 INSERT INTO `fasp`.`ap_label_source`(`SOURCE_ID`,`SOURCE_DESC`) VALUES ( NULL,'ap_notification_type'); 

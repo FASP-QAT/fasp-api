@@ -304,7 +304,7 @@ public class ProgramRestController {
         System.out.println("manualTaggingDTO---" + manualTaggingDTO);
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getShipmentListForManualTagging(manualTaggingDTO), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getShipmentListForManualTagging(manualTaggingDTO, curUser), HttpStatus.OK);
 //            return new ResponseEntity("", HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);
