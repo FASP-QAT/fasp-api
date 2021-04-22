@@ -56,6 +56,14 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Expiration');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Expiración');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Termo');
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.batchLedger','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Batch Ledger');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Grand livre de lots');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Libro mayor de lotes');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Batch Ledger');
+
 DROP TABLE IF EXISTS `rm_supply_plan_old`;
 DROP TABLE IF EXISTS `rm_supply_plan_batch_info_old`;
 DROP TABLE IF EXISTS `rm_supply_plan_batch_info`;
