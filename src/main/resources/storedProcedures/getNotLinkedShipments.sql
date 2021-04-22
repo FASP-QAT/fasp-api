@@ -1,10 +1,8 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentListForManualLinking`(PROGRAM_ID INT(10), PLANNING_UNIT_ID INT(10), VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getNotLinkedShipments`(PROGRAM_ID INT(10),  VERSION_ID INT (10))
 BEGIN
     SET @programId = PROGRAM_ID;
-    SET @planningUnitIds = PLANNING_UNIT_ID;
     SET @procurementAgentId = 1;
     SET @versionId = VERSION_ID;
-
     IF @versionId = -1 THEN
         SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
     END IF;
@@ -41,7 +39,7 @@ FROM (
     LEFT JOIN vw_budget b ON st.BUDGET_ID=b.BUDGET_ID
     LEFT JOIN rm_manual_tagging mt ON mt.SHIPMENT_ID=ts.SHIPMENT_ID AND mt.ACTIVE
     LEFT JOIN rm_procurement_agent_planning_unit papu ON papu.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID AND papu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID
-    WHERE st.ERP_FLAG=0 AND st.ACTIVE AND st.SHIPMENT_STATUS_ID IN (3,4,5,6,9) AND (LENGTH(@planningUnitIds)=0 OR FIND_IN_SET(st.PLANNING_UNIT_ID,@planningUnitIds))   AND (mt.SHIPMENT_ID IS NULL OR mt.ACTIVE=0) AND st.PROCUREMENT_AGENT_ID=@procurementAgentId
+    WHERE st.ERP_FLAG=0 AND st.ACTIVE AND st.SHIPMENT_STATUS_ID IN (3,4,5,6,9)  AND (mt.SHIPMENT_ID IS NULL OR mt.ACTIVE=0) AND st.PROCUREMENT_AGENT_ID=@procurementAgentId
 ) st
 ORDER BY COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE);
 END

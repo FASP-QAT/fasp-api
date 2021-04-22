@@ -378,4 +378,19 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectRowMapper());
     }
 
+    @Override
+    public List<SimpleObject> getPlanningUnitListByRealmCountryId(int realmCountryId, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID`, pu.`LABEL_ID`, pu.`LABEL_EN`, pu.`LABEL_FR`, pu.`LABEL_SP`, pu.`LABEL_PR` "
+                + "FROM rm_program_planning_unit ppu "
+                + "LEFT JOIN rm_program p ON ppu.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "WHERE "
+                + "    rc.ACTIVE AND p.ACTIVE AND ppu.ACTIVE AND (rc.REALM_COUNTRY_ID=:realmCountryId OR :realmCountryId=-1)");
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmCountryId", realmCountryId);
+        this.aclService.addUserAclForRealm(sb, params, "rc", curUser);
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new SimpleObjectRowMapper());
+    }
+
 }
