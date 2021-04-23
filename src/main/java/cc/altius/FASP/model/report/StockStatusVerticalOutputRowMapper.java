@@ -77,6 +77,8 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                 if (rs.wasNull()) {
                     ssv.setUnmetDemand(null);
                 }
+                ssv.setRegionCount(rs.getInt("REGION_COUNT"));
+                ssv.setRegionCountForStock(rs.getInt("REGION_COUNT_FOR_STOCK"));
                 ssvList.add(ssv);
             } else {
                 ssv = ssvList.get(index);
