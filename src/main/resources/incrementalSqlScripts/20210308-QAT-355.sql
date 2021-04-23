@@ -234,7 +234,7 @@ BEGIN
         AND o.RECPIENT_COUNTRY!=''  
         AND find_in_set(o.RECPIENT_COUNTRY,@recepientCountryList)
         AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15)
-        AND (LENGTH(@finalProductCategoryIds)=0 OR FIND_IN_SET(fu.PRODUCT_CATEGORY_ID, @finalProductCategoryIds))
+        AND (@finalProductCategoryIds IS NULL OR LENGTH(@finalProductCategoryIds)=0 OR FIND_IN_SET(fu.PRODUCT_CATEGORY_ID, @finalProductCategoryIds))
         AND (LENGTH(@planningUnitIds)=0 OR FIND_IN_SET(papu.PLANNING_UNIT_ID, @planningUnitIds));
 END$$
 
