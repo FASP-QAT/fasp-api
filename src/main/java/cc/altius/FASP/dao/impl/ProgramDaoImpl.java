@@ -492,6 +492,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programId", manualTaggingDTO.getProgramId());
         if (manualTaggingDTO.getLinkingType() == 1) {
             sql = "CALL getShipmentListForManualLinking(:programId, :planningUnitId, -1)";
+            System.out.println("params---" + params);
             list = this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
         } else if (manualTaggingDTO.getLinkingType() == 2) {
             sql = "CALL getShipmentListForAlreadyLinkedShipments(:programId, :planningUnitId, -1)";
@@ -542,7 +543,8 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programId", programId);
         params.put("planningUnitId", planningUnitId);
         params.put("roNoOrderNo", roNoOrderNo);
-
+        sql.append("  SELECT sst.`ERP_ORDER_ID`,sst.`RO_NO`,sst.`RO_PRIME_LINE_NO`,sst.`ORDER_NO`,sst.`PRIME_LINE_NO`,sst.`SHIPMENT_ID`,sst.`PLANNING_UNIT_SKU_CODE`,sst.`PROCUREMENT_UNIT_SKU_CODE`,sst.`ORDER_TYPE`,sst.`QTY`,sst.`SUPPLIER_NAME`,sst.`PRICE`,sst.`SHIPPING_COST`,sst.`RECPIENT_COUNTRY`,sst.`STATUS`,sst.`LABEL_ID`,sst.LABEL_EN,sst.`LABEL_FR`,sst.`LABEL_PR`,sst.`LABEL_SP`,sst.CURRENT_ESTIMATED_DELIVERY_DATE,sst.ACTIVE,sst.`NOTES`,sst.`CONVERSION_FACTOR`\n"
+                + "FROM ( ");
         sql.append(" (SELECT e.`ERP_ORDER_ID`,e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`,e.`SHIPMENT_ID`,e.`PLANNING_UNIT_SKU_CODE`,e.`PROCUREMENT_UNIT_SKU_CODE`,e.`ORDER_TYPE`,e.`QTY`,e.`SUPPLIER_NAME`,e.`PRICE`,e.`SHIPPING_COST`,e.`RECPIENT_COUNTRY`,e.`STATUS`,l.`LABEL_ID`,IF(l.`LABEL_EN` IS NOT NULL,l.`LABEL_EN`,'') AS LABEL_EN,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,COALESCE(MIN(es.ACTUAL_DELIVERY_DATE),e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS CURRENT_ESTIMATED_DELIVERY_DATE,IFNULL(mt.ACTIVE,0) AS ACTIVE,mt.`NOTES`,mt.`CONVERSION_FACTOR` FROM rm_erp_order e "
                 + " LEFT JOIN rm_procurement_agent_planning_unit pu ON LEFT(pu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
                 + " AND pu.`PROCUREMENT_AGENT_ID`=1 "
@@ -619,8 +621,9 @@ public class ProgramDaoImpl implements ProgramDao {
         }
         sql.append(" GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`) a "
                 + " ) AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15) GROUP BY e.`ERP_ORDER_ID`)");
+        sql.append("  ) sst ORDER BY sst.CURRENT_ESTIMATED_DELIVERY_DATE DESC ");
         System.out.println("params----" + params);
-        System.out.println("query******************************"+sql.toString());
+        System.out.println("query******************************" + sql.toString());
         return this.namedParameterJdbcTemplate.query(sql.toString(), params, new ManualTaggingOrderDTORowMapper());
 
     }
