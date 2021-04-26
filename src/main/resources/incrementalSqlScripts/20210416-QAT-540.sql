@@ -64,6 +64,30 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Grand livre de lots');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Libro mayor de lotes');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Batch Ledger');
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.supplyPlan.batchInfoNote','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,"Click on 'Expired Quantity' to display batch ledger");
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,"Cliquez sur 'Quantité expirée' pour afficher le grand livre des lots");
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,"Haga clic en 'Cantidad vencida' para mostrar el libro mayor de lotes");
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,"Clique em 'Quantidade Expirada' para exibir o razão do lote");
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.expiryReport.batchInfoNote','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,"Click on 'Expired/Expiring Quantity' to display batch ledger");
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,"Cliquez sur 'Quantité expirée / expirante' pour afficher le grand livre des lots");
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,"Haga clic en 'Cantidad vencida / vencida' para mostrar el libro mayor de lotes");
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,"Clique em 'Quantidade Expirada / Expirando' para exibir o razão do lote");
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataEntry.missingBatchNote','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,"Batches are created by shipments. If you don't see the desired batch in the dropdown, please edit shipment data.");
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,"Les lots sont créés par envois. Si vous ne voyez pas le lot souhaité dans la liste déroulante, veuillez modifier les données d'expédition.");
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,"Los lotes se crean mediante envíos. Si no ve el lote deseado en el menú desplegable, edite los datos del envío.");
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,"Os lotes são criados por remessas. Se você não vir o lote desejado na lista suspensa, edite os dados de envio.");
+
 DROP TABLE IF EXISTS `rm_supply_plan_old`;
 DROP TABLE IF EXISTS `rm_supply_plan_batch_info_old`;
 DROP TABLE IF EXISTS `rm_supply_plan_batch_info`;
