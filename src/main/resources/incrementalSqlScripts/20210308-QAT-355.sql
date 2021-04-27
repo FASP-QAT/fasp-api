@@ -8,6 +8,7 @@
  * Created: 08-Mar-2021
  */
 
+DROP TABLE IF EXISTS `fasp`.`tr_artmis_country`;
 CREATE TABLE `fasp`.`tr_artmis_country` (
   `RECEPIENT_NAME` VARCHAR(200) NOT NULL,
   `REALM_COUNTRY_ID` INT(10) UNSIGNED NOT NULL,
@@ -123,7 +124,7 @@ FROM (
     LEFT JOIN rm_procurement_agent_planning_unit papu ON papu.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID AND papu.PLANNING_UNIT_ID=st.PLANNING_UNIT_ID
     WHERE st.ERP_FLAG=0 AND st.ACTIVE AND st.SHIPMENT_STATUS_ID IN (3,4,5,6,9) AND (LENGTH(@planningUnitIds)=0 OR FIND_IN_SET(st.PLANNING_UNIT_ID,@planningUnitIds))   AND (mt.SHIPMENT_ID IS NULL OR mt.ACTIVE=0) AND st.PROCUREMENT_AGENT_ID=@procurementAgentId
 ) st
-ORDER BY COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE);
+ORDER BY COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) DESC;
 END$$
 DELIMITER ;
 
@@ -183,7 +184,7 @@ FROM (
 --    AND (mt.SHIPMENT_ID IS not NULL AND mt.ACTIVE=1) 
     AND st.PROCUREMENT_AGENT_ID=@procurementAgentId
 ) st
-ORDER BY COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE);
+ORDER BY COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) DESC;
 END$$
 
 DELIMITER ;
@@ -199,26 +200,34 @@ DROP PROCEDURE IF EXISTS `getErpShipmentForNotLinked`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `getErpShipmentForNotLinked`(
     VAR_REALM_COUNTRY_ID INT(10), 
     VAR_PRODUCT_CATEGORY_IDS TEXT, 
-    VAR_PLANNING_UNIT_IDS TEXT
+    VAR_PLANNING_UNIT_IDS TEXT, 
+    VAR_REALM_ID INT(10)
     )
 BEGIN
     SET @productCategoryIds = VAR_PRODUCT_CATEGORY_IDS;
     SET @planningUnitIds = VAR_PLANNING_UNIT_IDS;
+    SET @realmId = VAR_REALM_ID;
+    SET @realmCountryId = VAR_REALM_COUNTRY_ID;
     
     SELECT GROUP_CONCAT(pc2.PRODUCT_CATEGORY_ID) INTO @finalProductCategoryIds FROM rm_product_category pc LEFT JOIN rm_product_category pc2 ON pc2.SORT_ORDER LIKE CONCAT(pc.SORT_ORDER,"%") WHERE FIND_IN_SET(pc.PRODUCT_CATEGORY_ID, @productCategoryIds);
     
-    SELECT COALESCE(ac.RECEPIENT_NAME, c.LABEL_EN) INTO @recpientCountry 
-    FROM rm_realm_country rc 
-    LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID 
+    SELECT GROUP_CONCAT(COALESCE(ac.RECEPIENT_NAME, c.LABEL_EN)) INTO @recepientCountryList
+    FROM rm_realm_country rc
+    LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID
     LEFT JOIN tr_artmis_country ac ON rc.REALM_COUNTRY_ID=ac.REALM_COUNTRY_ID
-    WHERE rc.REALM_COUNTRY_ID=VAR_REALM_COUNTRY_ID;
+    WHERE (rc.REALM_COUNTRY_ID=@realmCountryId OR @realmCountryId=-1) AND rc.REALM_ID=@realmId;
     
+    SELECT 
+        st.ORDER_NO, st.PRIME_LINE_NO, st.`RO_NO`,st.`RO_PRIME_LINE_NO`,st.ERP_ORDER_ID,
+        st.PLANNING_UNIT_ID, st.`PLANNING_UNIT_LABEL_ID`, st.`PLANNING_UNIT_LABEL_EN`, st.`PLANNING_UNIT_LABEL_FR`, st.`PLANNING_UNIT_LABEL_SP`, st.`PLANNING_UNIT_LABEL_PR`,
+        st.`EXPECTED_DELIVERY_DATE`, st.`STATUS`, st.QTY,st.SKU_CODE
+        FROM (
     SELECT 
         o.ORDER_NO, o.PRIME_LINE_NO, o.`RO_NO`,o.`RO_PRIME_LINE_NO`,o.ERP_ORDER_ID,
         pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`,
         COALESCE(o.CURRENT_ESTIMATED_DELIVERY_DATE,o.AGREED_DELIVERY_DATE, o.REQ_DELIVERY_DATE) `EXPECTED_DELIVERY_DATE`, o.`STATUS`, o.QTY,papu.SKU_CODE
     FROM rm_erp_order o 
-    LEFT JOIN (SELECT MAX(o.ERP_ORDER_ID) as ERP_ORDER_ID FROM rm_erp_order o GROUP BY o.`RO_NO`,o.`RO_PRIME_LINE_NO`,o.ORDER_NO, o.PRIME_LINE_NO) o1 ON o.ERP_ORDER_ID=o1.ERP_ORDER_ID 
+    LEFT JOIN (SELECT MAX(o.ERP_ORDER_ID) AS ERP_ORDER_ID FROM rm_erp_order o GROUP BY o.`RO_NO`,o.`RO_PRIME_LINE_NO`,o.ORDER_NO, o.PRIME_LINE_NO) o1 ON o.ERP_ORDER_ID=o1.ERP_ORDER_ID 
     LEFT JOIN rm_manual_tagging mt ON mt.ORDER_NO=o.ORDER_NO AND mt.PRIME_LINE_NO=o.PRIME_LINE_NO AND mt.ACTIVE 
     LEFT JOIN rm_procurement_agent_planning_unit papu ON o.PLANNING_UNIT_SKU_CODE=LEFT(papu.SKU_CODE,12) 
     LEFT JOIN vw_planning_unit pu ON papu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID 
@@ -228,14 +237,17 @@ BEGIN
         o1.ERP_ORDER_ID IS NOT NULL  
         AND mt.SHIPMENT_ID IS NULL  
         AND o.RECPIENT_COUNTRY!=''  
-        AND o.RECPIENT_COUNTRY=@recpientCountry  
+        AND FIND_IN_SET(o.RECPIENT_COUNTRY,@recepientCountryList)
         AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15)
-        AND (LENGTH(@finalProductCategoryIds)=0 OR FIND_IN_SET(fu.PRODUCT_CATEGORY_ID, @finalProductCategoryIds))
-        AND (LENGTH(@planningUnitIds)=0 OR FIND_IN_SET(papu.PLANNING_UNIT_ID, @planningUnitIds));
+         AND (@finalProductCategoryIds IS NULL OR LENGTH(@finalProductCategoryIds)=0 OR FIND_IN_SET(fu.PRODUCT_CATEGORY_ID, @finalProductCategoryIds))
+        AND (LENGTH(@planningUnitIds)=0 OR FIND_IN_SET(papu.PLANNING_UNIT_ID, @planningUnitIds))
+        ) st
+        ORDER BY st.EXPECTED_DELIVERY_DATE DESC;
 END$$
 
 DELIMITER ;
 
+DROP TABLE IF EXISTS `fasp`.`rm_erp_notification`;
 CREATE TABLE `fasp`.`rm_erp_notification`( `NOTIFICATION_ID` INT UNSIGNED NOT NULL AUTO_INCREMENT , `ORDER_NO` VARCHAR(100) NOT NULL , `PRIME_LINE_NO` INT NOT NULL , `TYPE_ID` INT NOT NULL COMMENT '1-SKU CHANGE 2-CANCELLED', `SHIPMENT_ID` INT NOT NULL , `ADDRESSED` BOOLEAN NOT NULL DEFAULT '0' , `ACTIVE` BOOLEAN NOT NULL DEFAULT '0' , `CREATED_DATE` DATETIME NOT NULL , `CREATED_BY` INT NOT NULL , `LAST_MODIFIED_DATE` DATETIME NOT NULL , `LAST_MODIFIED_BY` INT NOT NULL , PRIMARY KEY (`NOTIFICATION_ID`) ); 
 
 DELIMITER $$
@@ -350,7 +362,6 @@ END$$
 DELIMITER ;
 
 ALTER TABLE `fasp`.`rm_erp_notification` ADD COLUMN `NOTES` TEXT NULL AFTER `LAST_MODIFIED_BY`; 
-
 ALTER TABLE `fasp`.`rm_erp_notification` ADD COLUMN `CONVERSION_FACTOR` DECIMAL(12,4) NULL AFTER `NOTES`; 
 
 INSERT INTO `fasp`.`ap_label_source`(`SOURCE_ID`,`SOURCE_DESC`) VALUES ( NULL,'ap_notification_type'); 
@@ -361,3 +372,275 @@ INSERT INTO `fasp`.`ap_notification_type`(`NOTIFICATION_TYPE_ID`,`LABEL_ID`,`ACT
 
 INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'ERP Product Change',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'36'); 
 INSERT INTO `fasp`.`ap_notification_type`(`NOTIFICATION_TYPE_ID`,`LABEL_ID`,`ACTIVE`,`CREATED_DATE`,`CREATED_BY`,`LAST_MODIFIED_DATE`,`LAST_MODIFIED_BY`) VALUES ( NULL,LAST_INSERT_ID(),'1',NOW(),'1',NOW(),'1'); 
+
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_PROGRAM_ADMIN','ROLE_BF_MANUAL_TAGGING','1',NOW(),'1',NOW()); 
+
+CREATE TABLE `fasp`.`rm_manual_tagging_trans` ( PRIMARY KEY(`MANUAL_TAGGING_ID`),KEY `fk_rm_manual_tagging_rm_shipment1_idx`( `SHIPMENT_ID` ), KEY `fk_rm_manual_tagging_us_user1_idx`( `CREATED_BY` ), KEY `fk_rm_manual_tagging_us_user2_idx`( `LAST_MODIFIED_BY` ), KEY `idx_rmManualTagging_orderNo`( `ORDER_NO` ), KEY `idx_rmManualTagging_primeLineNo`( `PRIME_LINE_NO` ))ENGINE=INNODB COLLATE = utf8_bin COMMENT = '' SELECT `MANUAL_TAGGING_ID`, `ORDER_NO`, `PRIME_LINE_NO`, `SHIPMENT_ID`, `CREATED_DATE`, `CREATED_BY`, `LAST_MODIFIED_DATE`, `LAST_MODIFIED_BY`, `ACTIVE`, `NOTES`, `CONVERSION_FACTOR` FROM `fasp`.`rm_manual_tagging`; 
+ALTER TABLE `fasp`.`rm_manual_tagging_trans` DROP COLUMN `CREATED_DATE`, DROP COLUMN `CREATED_BY`, ADD COLUMN `MANUAL_TAGGING_TRANS_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT FIRST, CHANGE `MANUAL_TAGGING_ID` `MANUAL_TAGGING_ID` INT(10) UNSIGNED NOT NULL, DROP PRIMARY KEY, ADD PRIMARY KEY(`MANUAL_TAGGING_TRANS_ID`); 
+
+DELIMITER $$
+
+USE `fasp`$$
+
+DROP TRIGGER /*!50032 IF EXISTS */ `rm_manual_tagging_AFTER_INSERT`$$
+
+CREATE
+    /*!50017 DEFINER = 'faspUser'@'%' */
+    TRIGGER `rm_manual_tagging_AFTER_INSERT` AFTER INSERT ON `rm_manual_tagging` 
+    FOR EACH ROW BEGIN
+	INSERT INTO rm_manual_tagging_trans (`MANUAL_TAGGING_TRANS_ID`,`MANUAL_TAGGING_ID`,`ORDER_NO`,`PRIME_LINE_NO`,`SHIPMENT_ID`,`LAST_MODIFIED_DATE`,`LAST_MODIFIED_BY`,`ACTIVE`,`NOTES`,`CONVERSION_FACTOR`) 
+    VALUES(NULL,new.`MANUAL_TAGGING_ID`,new.ORDER_NO,new.PRIME_LINE_NO,new.SHIPMENT_ID,new.`LAST_MODIFIED_DATE`,new.LAST_MODIFIED_BY,new.ACTIVE,new.NOTES,new.CONVERSION_FACTOR);
+END;
+$$
+
+DELIMITER ;
+
+DELIMITER $$
+
+USE `fasp`$$
+
+DROP TRIGGER /*!50032 IF EXISTS */ `rm_manual_tagging_AFTER_UPDATE`$$
+
+CREATE
+    /*!50017 DEFINER = 'faspUser'@'%' */
+    TRIGGER `rm_manual_tagging_AFTER_UPDATE` AFTER UPDATE ON `rm_manual_tagging` 
+    FOR EACH ROW BEGIN
+	INSERT INTO rm_manual_tagging_trans (`MANUAL_TAGGING_TRANS_ID`,`MANUAL_TAGGING_ID`,`ORDER_NO`,`PRIME_LINE_NO`,`SHIPMENT_ID`,`LAST_MODIFIED_DATE`,`LAST_MODIFIED_BY`,`ACTIVE`,`NOTES`,`CONVERSION_FACTOR`) 
+    VALUES(NULL,new.`MANUAL_TAGGING_ID`,new.ORDER_NO,new.PRIME_LINE_NO,new.SHIPMENT_ID,new.`LAST_MODIFIED_DATE`,new.LAST_MODIFIED_BY,new.ACTIVE,new.NOTES,new.CONVERSION_FACTOR);
+END;
+$$
+
+DELIMITER ;
+
+-- label queries
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES (NULL,'static.mt.notLinkedQAT','1');  
+
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ; 
+
+ 
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'1','Not Linked (QAT)');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'2','Non lié (QAT)');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'3','No vinculado (QAT)');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'4','Não vinculado (QAT)');  
+
+ 
+
+ 
+
+ 
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.notLinkedERP','1');  
+
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ; 
+
+ 
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'1','Not Linked (ERP)');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'2','Non lié (ERP)');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'3','No vinculado (ERP)');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'4','Não vinculado (ERP)');  
+
+ 
+
+ 
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.linked','1');  
+
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ; 
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'1','Linked');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'2','Lié');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'3','Vinculado');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'4','Vinculado');  
+
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectShipmentId','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select shipment id');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner lidentifiant de lenvoi');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione la identificación de envío');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione a identificação da remessa');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectProgram','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select program');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner un programme');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Por favor seleccione programa');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione o programa');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectFundingSource','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select funding source');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner la source de financement');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione la fuente de financiación');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione a fonte de financiamento');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectBudget','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select budget');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner le budget');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Por favor seleccione presupuesto');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione o orçamento');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.confirmNewShipmentCreation','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'You are about to create a new shipment. Are you sure you want to continue?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Vous êtes sur le point de créer un nouvel envoi. Es-tu sur de vouloir continuer?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Está a punto de crear un nuevo envío. Estás seguro de que quieres continuar?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Você está prestes a criar uma nova remessa. Você tem certeza que quer continuar?');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.oneOrderAtATime','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select only 1 order at a time.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez ne sélectionner quune seule commande à la fois.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione solo 1 pedido a la vez.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione apenas 1 pedido de cada vez.');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.linkingUpdateSuccess','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Shipment linking updated successfully');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La liaison de lenvoi a bien été mise à jour');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Enlace de envío actualizado correctamente');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Vinculação de remessa atualizada com sucesso');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.linkColumn','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Link?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Relier?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'¿Enlace?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Link?');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.parentShipmentId','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Parent Shipment Id');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'ID de lenvoi parent');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'ID de envío principal');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Id de remessa pai');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectShipment ','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Select shipment id');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Sélectionnez lidentifiant de lenvoi');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccionar id de envío');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione a identificação da remessa');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.createNewShipment','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Create New Shipment');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Créer un nouvel envoi');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Crear nuevo envío');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Criar Nova Remessa');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectExistingShipment','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Select Existing Shipment');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Sélectionnez un envoi existant');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccionar envío existente');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione Remessa Existente');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.totalQty','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Quantity');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité totale');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad total');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade total');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.dataUpdateSuccess','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Data updated successfully.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les données ont été mises à jour avec succès.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Datos actualizados con éxito.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Dados atualizados com sucesso.');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.isAddressed','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Addressed?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Adressé?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'¿Dirigida?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Endereçada?');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.notificationType','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Notification Type');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Type de notification');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Tipo de notificación');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Tipo de notificação');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.viewArtmisHistory','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'View ARTMIS History');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher lhistorique dARTMIS');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ver historial de ARTMIS');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ver o histórico do ARTMIS');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.dataReceivedOn','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Data Received On');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Données reçues le');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Datos recibidos el');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Dados recebidos em');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.addressed','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Addressed');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Adressé');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Dirigida');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Endereçada');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.notAddressed','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Not Addressed');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pas adressé');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'No dirigida');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Não endereçado');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectPlanninfUnit','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select planning unit');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner lunité de planification');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione la unidad de planificación');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione a unidade de planejamento');
+
+
+
+

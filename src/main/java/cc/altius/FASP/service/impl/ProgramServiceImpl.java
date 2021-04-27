@@ -241,8 +241,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<ManualTaggingDTO> getShipmentListForManualTagging(ManualTaggingDTO manualTaggingDTO) {
-        return this.programDao.getShipmentListForManualTagging(manualTaggingDTO);
+    public List<ManualTaggingDTO> getShipmentListForManualTagging(ManualTaggingDTO manualTaggingDTO, CustomUserDetails curUser) {
+        return this.programDao.getShipmentListForManualTagging(manualTaggingDTO, curUser);
     }
 
     @Override
