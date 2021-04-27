@@ -1710,9 +1710,6 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.clear();
         }
 
-        sql = "UPDATE`adb_pipeline` p SET p.`STATUS`=1 WHERE p.`PIPELINE_ID`=?";
-        rowsEffected = this.jdbcTemplate.update(sql, pipelineId);
-
         sql = "update rm_realm_country r set r.ACTIVE=1,r.LAST_MODIFIED_BY=?,r.LAST_MODIFIED_DATE=? where r.REALM_COUNTRY_ID=? and r.ACTIVE=0";
         this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, p.getRealmCountry().getRealmCountryId());
 
@@ -1747,6 +1744,9 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         } catch (ParseException ex) {
             Logger.getLogger(PipelineDbDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
         }
+
+        sql = "UPDATE`adb_pipeline` p SET p.`STATUS`=1,p.PROGRAM_ID=? WHERE p.`PIPELINE_ID`=?";
+        rowsEffected = this.jdbcTemplate.update(sql, programId, pipelineId);
 
         return programId;
     }
@@ -1969,6 +1969,29 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "left join fasp.rm_health_area rha on rha.HEALTH_AREA_ID=qtp.HEALTH_AREA_ID\n"
                 + "where qtpu.PIPELINE_ID=? and rcpu.REALM_COUNTRY_PLANNING_UNIT_ID is null);";
         this.jdbcTemplate.update(sql1, pipelineId);
+    }
+
+    @Override
+    @Transactional
+    public void deletePipelineProgramData(String programName) {
+        int programId = this.jdbcTemplate.queryForObject("SELECT if(ap.PROGRAM_ID is not null,ap.PROGRAM_ID,0) FROM fasp.adb_programinfo pi \n"
+                + "left join adb_pipeline ap on ap.PIPELINE_ID=pi.PIPELINE_ID\n"
+                + "where pi.ProgramName like '%" + programName + "%'", Integer.class);
+        int pipelineId = this.jdbcTemplate.queryForObject("SELECT pi.PIPELINE_ID FROM fasp.adb_programinfo pi \n"
+                + "where pi.ProgramName like '%" + programName + "%'", Integer.class);
+//        System.out.println("+++++" + programName + "+++" + programId + "+++" + pipelineId);
+        if (programId != 0) {
+            String sqlStringQAT = "CALL deleteProgramDataFromQatTables(:programId)";
+            Map<String, Object> paramsQAT = new HashMap<>();
+            paramsQAT.put("programId", programId);
+            this.namedParameterJdbcTemplate.update(sqlStringQAT, paramsQAT);
+
+        }
+        String sqlString = "CALL deleteProgramDataFromPipelineTables(:pipelineId)";
+        Map<String, Object> params = new HashMap<>();
+        params.put("pipelineId", pipelineId);
+        this.namedParameterJdbcTemplate.update(sqlString, params);
+
     }
 
 }

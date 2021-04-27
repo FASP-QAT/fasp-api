@@ -79,4 +79,6 @@ public interface PipelineDbService {
 
     public void createRealmCountryPlanningUnits(int pipelineId, CustomUserDetails curUser, int realmCountryId);
 
+    public void deletePipelineProgramData(String programName);
+
 }

@@ -162,8 +162,13 @@ public class PipelineDbServiceImpl implements PipelineDbService {
     }
 
     @Override
-    public void createRealmCountryPlanningUnits(int pipelineId, CustomUserDetails curUser,int realmCountryId) {
-        this.pipelineDbDao.createRealmCountryPlanningUnits(pipelineId, curUser,realmCountryId);
+    public void createRealmCountryPlanningUnits(int pipelineId, CustomUserDetails curUser, int realmCountryId) {
+        this.pipelineDbDao.createRealmCountryPlanningUnits(pipelineId, curUser, realmCountryId);
+    }
+
+    @Override
+    public void deletePipelineProgramData(String programName) {
+        this.pipelineDbDao.deletePipelineProgramData(programName);
     }
 
 }

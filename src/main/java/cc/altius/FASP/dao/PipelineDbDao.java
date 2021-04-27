@@ -87,6 +87,8 @@ public interface PipelineDbDao {
 
     public List<QatTempProcurementAgent> getQatTempProcurementAgentListByPipelienId(int pipelineId, CustomUserDetails curUser);
 
-    public void createRealmCountryPlanningUnits(int pipelineId, CustomUserDetails curUser,int realmCountryId);
+    public void createRealmCountryPlanningUnits(int pipelineId, CustomUserDetails curUser, int realmCountryId);
+
+    public void deletePipelineProgramData(String programName);
 
 }
