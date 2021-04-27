@@ -411,3 +411,236 @@ END;
 $$
 
 DELIMITER ;
+
+-- label queries
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES (NULL,'static.mt.notLinkedQAT','1');  
+
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ; 
+
+ 
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'1','Not Linked (QAT)');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'2','Non lié (QAT)');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'3','No vinculado (QAT)');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'4','Não vinculado (QAT)');  
+
+ 
+
+ 
+
+ 
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.notLinkedERP','1');  
+
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ; 
+
+ 
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'1','Not Linked (ERP)');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'2','Non lié (ERP)');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'3','No vinculado (ERP)');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'4','Não vinculado (ERP)');  
+
+ 
+
+ 
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.linked','1');  
+
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ; 
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'1','Linked');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'2','Lié');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'3','Vinculado');  
+
+INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'4','Vinculado');  
+
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectShipmentId','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select shipment id');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner lidentifiant de lenvoi');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione la identificación de envío');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione a identificação da remessa');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectProgram','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select program');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner un programme');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Por favor seleccione programa');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione o programa');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectFundingSource','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select funding source');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner la source de financement');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione la fuente de financiación');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione a fonte de financiamento');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectBudget','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select budget');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner le budget');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Por favor seleccione presupuesto');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione o orçamento');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.confirmNewShipmentCreation','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'You are about to create a new shipment. Are you sure you want to continue?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Vous êtes sur le point de créer un nouvel envoi. Es-tu sur de vouloir continuer?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Está a punto de crear un nuevo envío. Estás seguro de que quieres continuar?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Você está prestes a criar uma nova remessa. Você tem certeza que quer continuar?');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.oneOrderAtATime','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select only 1 order at a time.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez ne sélectionner quune seule commande à la fois.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione solo 1 pedido a la vez.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione apenas 1 pedido de cada vez.');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.linkingUpdateSuccess','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Shipment linking updated successfully');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La liaison de lenvoi a bien été mise à jour');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Enlace de envío actualizado correctamente');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Vinculação de remessa atualizada com sucesso');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.linkColumn','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Link?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Relier?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'¿Enlace?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Link?');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.parentShipmentId','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Parent Shipment Id');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'ID de lenvoi parent');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'ID de envío principal');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Id de remessa pai');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectShipment ','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Select shipment id');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Sélectionnez lidentifiant de lenvoi');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccionar id de envío');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione a identificação da remessa');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.createNewShipment','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Create New Shipment');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Créer un nouvel envoi');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Crear nuevo envío');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Criar Nova Remessa');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectExistingShipment','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Select Existing Shipment');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Sélectionnez un envoi existant');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccionar envío existente');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione Remessa Existente');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.totalQty','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Quantity');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité totale');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad total');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade total');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.dataUpdateSuccess','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Data updated successfully.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les données ont été mises à jour avec succès.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Datos actualizados con éxito.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Dados atualizados com sucesso.');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.isAddressed','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Addressed?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Adressé?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'¿Dirigida?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Endereçada?');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.notificationType','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Notification Type');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Type de notification');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Tipo de notificación');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Tipo de notificação');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.viewArtmisHistory','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'View ARTMIS History');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher lhistorique dARTMIS');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ver historial de ARTMIS');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ver o histórico do ARTMIS');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.dataReceivedOn','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Data Received On');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Données reçues le');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Datos recibidos el');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Dados recebidos em');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.addressed','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Addressed');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Adressé');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Dirigida');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Endereçada');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.notAddressed','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Not Addressed');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pas adressé');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'No dirigida');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Não endereçado');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectPlanninfUnit','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select planning unit');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner lunité de planification');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione la unidad de planificación');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione a unidade de planejamento');
+
+
+
+
