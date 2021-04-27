@@ -65,6 +65,10 @@ public class StockStatusVerticalOutput implements Serializable {
     private int maxMos;
     @JsonView(Views.ReportView.class)
     private Long unmetDemand;
+    @JsonView(Views.ReportView.class)
+    private int regionCount;
+    @JsonView(Views.ReportView.class)
+    private int regionCountForStock;
 
     public StockStatusVerticalOutput() {
         this.shipmentInfo = new LinkedList<>();
@@ -205,6 +209,22 @@ public class StockStatusVerticalOutput implements Serializable {
 
     public void setUnmetDemand(Long unmetDemand) {
         this.unmetDemand = unmetDemand;
+    }
+
+    public int getRegionCount() {
+        return regionCount;
+    }
+
+    public void setRegionCount(int regionCount) {
+        this.regionCount = regionCount;
+    }
+
+    public int getRegionCountForStock() {
+        return regionCountForStock;
+    }
+
+    public void setRegionCountForStock(int regionCountForStock) {
+        this.regionCountForStock = regionCountForStock;
     }
 
     public List<ShipmentInfo> getShipmentInfo() {

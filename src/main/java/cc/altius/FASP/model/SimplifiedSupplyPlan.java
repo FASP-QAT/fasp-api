@@ -64,9 +64,9 @@ public class SimplifiedSupplyPlan implements Serializable {
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private long onholdErpShipmentsTotalData;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long stockQty;
+    private Long stockQty;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private long adjustmentQty;
+    private Long adjustmentQty;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private int regionCount;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
@@ -290,19 +290,19 @@ public class SimplifiedSupplyPlan implements Serializable {
         this.onholdErpShipmentsTotalData = onholdErpShipmentsTotalData;
     }
 
-    public long getStockQty() {
+    public Long getStockQty() {
         return stockQty;
     }
 
-    public void setStockQty(long stockQty) {
+    public void setStockQty(Long stockQty) {
         this.stockQty = stockQty;
     }
 
-    public long getAdjustmentQty() {
+    public Long getAdjustmentQty() {
         return adjustmentQty;
     }
 
-    public void setAdjustmentQty(long adjustmentQty) {
+    public void setAdjustmentQty(Long adjustmentQty) {
         this.adjustmentQty = adjustmentQty;
     }
 

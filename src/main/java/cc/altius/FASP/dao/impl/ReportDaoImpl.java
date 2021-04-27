@@ -23,7 +23,7 @@ import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.CostOfInventoryRowMapper;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
-import cc.altius.FASP.model.report.ExpiredStockOutputRowMapper;
+import cc.altius.FASP.model.report.ExpiredStockOutputResultSetExtractor;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionOutputRowMapper;
@@ -245,7 +245,7 @@ public class ReportDaoImpl implements ReportDao {
         params.put("stopDate", es.getStopDate());
         params.put("includePlannedShipments", es.isIncludePlannedShipments());
         String sql = "CALL getExpiredStock(:programId, :versionId, :startDate, :stopDate, :includePlannedShipments)";
-        return this.namedParameterJdbcTemplate.query(sql, params, new ExpiredStockOutputRowMapper());
+        return this.namedParameterJdbcTemplate.query(sql, params, new ExpiredStockOutputResultSetExtractor());
     }
 
     // Report no 12
