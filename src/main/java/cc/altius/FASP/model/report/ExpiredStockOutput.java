@@ -11,6 +11,9 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -26,6 +29,12 @@ public class ExpiredStockOutput implements Serializable {
     private Batch batchInfo;
     @JsonView(Views.ReportView.class)
     private long expiredQty;
+    @JsonView(Views.ReportView.class)
+    private List<SimpleBatchQuantityWithTransHistory> batchHistory;
+
+    public ExpiredStockOutput() {
+        this.batchHistory = new LinkedList<>();
+    }
 
     public SimpleCodeObject getProgram() {
         return program;
@@ -57,6 +66,47 @@ public class ExpiredStockOutput implements Serializable {
 
     public void setExpiredQty(long expiredQty) {
         this.expiredQty = expiredQty;
+    }
+
+    public List<SimpleBatchQuantityWithTransHistory> getBatchHistory() {
+        return batchHistory;
+    }
+
+    public void setBatchHistory(List<SimpleBatchQuantityWithTransHistory> batchHistory) {
+        this.batchHistory = batchHistory;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 97 * hash + Objects.hashCode(this.program);
+        hash = 97 * hash + Objects.hashCode(this.planningUnit);
+        hash = 97 * hash + Objects.hashCode(this.batchInfo);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ExpiredStockOutput other = (ExpiredStockOutput) obj;
+        if (!Objects.equals(this.program.getId(), other.program.getId())) {
+            return false;
+        }
+        if (!Objects.equals(this.planningUnit.getId(), other.planningUnit.getId())) {
+            return false;
+        }
+        if (!Objects.equals(this.batchInfo.getBatchId(), other.batchInfo.getBatchId())) {
+            return false;
+        }
+        return true;
     }
 
 }
