@@ -22,55 +22,6 @@ INSERT INTO tr_artmis_country VALUES ('Benin', 5);
 INSERT INTO `fasp`.`ap_export`(`EXPORT_ID`,`ERP_CODE`,`JOB_NAME`,`LAST_DATE`) VALUES ( NULL,'ARTMIS','QAT_Shipment_Linking',NOW()); 
 UPDATE `fasp`.`em_email_template` SET `SUBJECT`='QAT data export error : <%ERROR_NAME%>' WHERE `EMAIL_TEMPLATE_ID`='4'; 
 
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES (NULL,'static.mt.notLinkedQAT','1');  
-
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ; 
-
- 
-
-INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'1','Not Linked (QAT)');  
-
-INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'2','Non lié (QAT)');  
-
-INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'3','No vinculado (QAT)');  
-
-INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'4','Não vinculado (QAT)');  
-
- 
-
- 
-
- 
-
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.notLinkedERP','1');  
-
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ; 
-
- 
-
-INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'1','Not Linked (ERP)');  
-
-INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'2','Non lié (ERP)');  
-
-INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'3','No vinculado (ERP)');  
-
-INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'4','Não vinculado (ERP)');  
-
- 
-
- 
-
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.linked','1');  
-
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ; 
-
-INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'1','Linked');  
-
-INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'2','Lié');  
-
-INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'3','Vinculado');  
-
-INSERT INTO `fasp`.`ap_static_label_languages`(`STATIC_LABEL_LANGUAGE_ID`,`STATIC_LABEL_ID`,`LANGUAGE_ID`,`LABEL_TEXT`) VALUES ( NULL,@MAX,'4','Vinculado');  
 
  
 
@@ -366,7 +317,6 @@ ALTER TABLE `fasp`.`rm_erp_notification` ADD COLUMN `CONVERSION_FACTOR` DECIMAL(
 
 INSERT INTO `fasp`.`ap_label_source`(`SOURCE_ID`,`SOURCE_DESC`) VALUES ( NULL,'ap_notification_type'); 
 
-INSERT INTO `fasp`.`ap_label_source`(`SOURCE_ID`,`SOURCE_DESC`) VALUES ( NULL,'ap_notification_type'); 
 INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Cancellation',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'36'); 
 INSERT INTO `fasp`.`ap_notification_type`(`NOTIFICATION_TYPE_ID`,`LABEL_ID`,`ACTIVE`,`CREATED_DATE`,`CREATED_BY`,`LAST_MODIFIED_DATE`,`LAST_MODIFIED_BY`) VALUES ( NULL,LAST_INSERT_ID(),'1',NOW(),'1',NOW(),'1'); 
 
@@ -643,4 +593,18 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione a unidade de
 
 
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.filterByShipmentId','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Filter by QAT shipment id?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Filtrer par identifiant dexpédition QAT?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'¿Filtrar por ID de envío QAT?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Filtrar por ID de remessa QAT?');
+
+
+
+
+UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Search By RO/Order No.' WHERE `STATIC_LABEL_LANGUAGE_ID`='6005'; 
+UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Pesquisa por RO / Nº do pedido' WHERE `STATIC_LABEL_LANGUAGE_ID`='6008'; 
+UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Buscar por RO / Núm. De pedido' WHERE `STATIC_LABEL_LANGUAGE_ID`='6006'; 
+UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Recherche par RO / N ° de commande' WHERE `STATIC_LABEL_LANGUAGE_ID`='6007'; 
