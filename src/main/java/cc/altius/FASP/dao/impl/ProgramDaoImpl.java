@@ -1521,10 +1521,10 @@ public class ProgramDaoImpl implements ProgramDao {
         if (planningUnitId != 0) {
             sb.append(" AND papu.`PLANNING_UNIT_ID`=:planningUnitId ");
         }
-        sb.append(" GROUP BY e.`RO_NO` ");
         if (linkingType == 1) {
             sb.append(" AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) ");
         }
+        sb.append(" GROUP BY e.`RO_NO` ");
         sb.append(" ) ");
         sb.append(" UNION ");
         sb.append("(SELECT e.`ERP_ORDER_ID`,e.`ORDER_NO` AS LABEL FROM rm_erp_order e "
@@ -1540,11 +1540,11 @@ public class ProgramDaoImpl implements ProgramDao {
         if (planningUnitId != 0) {
             sb.append(" AND papu.`PLANNING_UNIT_ID`=:planningUnitId ");
         }
-        sb.append(" GROUP BY e.`ORDER_NO` ");
 
         if (linkingType == 1) {
             sb.append(" AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) ");
         }
+        sb.append(" GROUP BY e.`ORDER_NO` ");
         sb.append(" ) ");
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ErpOrderAutocompleteDTORowMapper());
     }
