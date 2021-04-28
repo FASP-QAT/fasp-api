@@ -512,6 +512,9 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public List<ManualTaggingDTO> getOrderDetailsByForNotLinkedERPShipments(String roNoOrderNo, int planningUnitId, int linkingType) {
         StringBuilder sql = new StringBuilder();
+        Map<String, Object> params = new HashMap<>();
+        params.put("planningUnitId", planningUnitId);
+        params.put("roNoOrderNo", roNoOrderNo);
         sql.append("  (SELECT e.`ERP_ORDER_ID`,e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`, "
                 + " e.`QTY`,e.`STATUS`,l.`LABEL_ID` AS PLANNING_UNIT_LABEL_ID,IF(l.`LABEL_EN` IS NOT NULL,l.`LABEL_EN`,'') AS PLANNING_UNIT_LABEL_EN,p.PLANNING_UNIT_ID, "
                 + " l.`LABEL_FR` AS PLANNING_UNIT_LABEL_FR,l.`LABEL_PR` PLANNING_UNIT_LABEL_PR,l.`LABEL_SP` AS PLANNING_UNIT_LABEL_SP,COALESCE(MIN(es.ACTUAL_DELIVERY_DATE),e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE,pu.SKU_CODE FROM rm_erp_order e "
@@ -529,10 +532,16 @@ public class ProgramDaoImpl implements ProgramDao {
                 + " LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID`"
                 + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
                 + " LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                + " WHERE e.ORDER_NO=? AND pu.`PLANNING_UNIT_ID`=? AND (mt.SHIPMENT_ID IS NULL  OR mt.ACTIVE=0) "
-                + " GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`)  a  "
+                + " WHERE (mt.SHIPMENT_ID IS NULL  OR mt.ACTIVE=0) ");
+        if (planningUnitId != 0) {
+            sql.append(" AND pu.`PLANNING_UNIT_ID`=:planningUnitId ");
+        }
+        if (roNoOrderNo != null && roNoOrderNo != "" && !roNoOrderNo.equals("0")) {
+            sql.append(" AND e.RO_NO=:roNoOrderNo ");
+        }
+        sql.append(" GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`)  a  "
                 + "  ) AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15) GROUP BY e.`ERP_ORDER_ID`) ");
-        return this.jdbcTemplate.query(sql.toString(), new NotERPLinkedShipmentsRowMapper(), roNoOrderNo, planningUnitId);
+        return this.namedParameterJdbcTemplate.query(sql.toString(), params, new NotERPLinkedShipmentsRowMapper());
     }
 
     @Override
