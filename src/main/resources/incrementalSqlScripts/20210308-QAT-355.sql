@@ -608,3 +608,12 @@ UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Search By RO/Order N
 UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Pesquisa por RO / Nº do pedido' WHERE `STATIC_LABEL_LANGUAGE_ID`='6008'; 
 UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Buscar por RO / Núm. De pedido' WHERE `STATIC_LABEL_LANGUAGE_ID`='6006'; 
 UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Recherche par RO / N ° de commande' WHERE `STATIC_LABEL_LANGUAGE_ID`='6007'; 
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.delinkAllShipments','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'You have delinked all the shipments.Your data will be reverted to the original QAT shipment.Are you sure you want to continue?');
+-- INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Filtrer par identifiant dexpédition QAT?');
+-- INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'¿Filtrar por ID de envío QAT?');
+-- INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Filtrar por ID de remessa QAT?');
