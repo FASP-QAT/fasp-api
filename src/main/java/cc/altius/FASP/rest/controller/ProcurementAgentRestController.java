@@ -17,6 +17,8 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -408,5 +410,53 @@ public class ProcurementAgentRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+//    @GetMapping(value = "/sync/procurementAgent/planningUnit/{lastSyncDate}")
+//    public ResponseEntity getProcurementAgentPlanningUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.procurementAgentService.getProcurementAgentPlanningUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error while listing procurementAgent", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error while listing procurementAgent", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//
+//    @GetMapping(value = "/sync/procurementAgent/procurementUnit/{lastSyncDate}")
+//    public ResponseEntity getProcurementAgentProcurementUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.procurementAgentService.getProcurementAgentProcurementUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error while listing procurementAgent", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error while listing procurementAgent", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+//
+//    @GetMapping(value = "/sync/procurementAgent/{lastSyncDate}")
+//    public ResponseEntity getProcurementAgentListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.procurementAgentService.getProcurementAgentListForSync(lastSyncDate, curUser), HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error while listing procurementAgent", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error while listing procurementAgent", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
 }

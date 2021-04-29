@@ -5,10 +5,8 @@
  */
 package cc.altius.FASP.rest.controller;
 
-import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.DashboardService;
-import cc.altius.FASP.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,14 +29,11 @@ public class DashboardRestController {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private DashboardService dashboardService;
-    @Autowired
-    private UserService userService;
     
 
     @GetMapping(value = "/application")
     public ResponseEntity applicationLevelDashboard(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.dashboardService.getApplicationLevelDashboard(), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
@@ -49,7 +44,6 @@ public class DashboardRestController {
     @GetMapping(value = "/realmId/{realmId}")
     public ResponseEntity realmLevelDashboard(@PathVariable("realmId") int realmId,Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.dashboardService.getRealmLevelDashboard(realmId), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
@@ -60,7 +54,6 @@ public class DashboardRestController {
     @GetMapping(value = "/application/user")
     public ResponseEntity applicationLevelDashboardUserList(Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.dashboardService.getUserListForApplicationLevelAdmin(), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
@@ -71,7 +64,6 @@ public class DashboardRestController {
     @GetMapping(value = "/realmId/{realmId}/user")
     public ResponseEntity realmLevelDashboardUserList(@PathVariable("realmId") int realmId,Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.dashboardService.getUserListForRealmLevelAdmin(realmId), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);

@@ -39,7 +39,13 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
                     sp.setConsumptionQty(null);
                 }
                 sp.setAdjustmentQty(rs.getLong("ADJUSTMENT_MULTIPLIED_QTY"));
+                if (rs.wasNull()) {
+                    sp.setAdjustmentQty(null);
+                }
                 sp.setStockQty(rs.getLong("STOCK_MULTIPLIED_QTY"));
+                if (rs.wasNull()) {
+                    sp.setStockQty(null);
+                }
                 sp.setRegionCount(rs.getInt("REGION_COUNT"));
                 sp.setRegionCountForStock(rs.getInt("REGION_COUNT_FOR_STOCK"));
                 sp.setPlannedShipmentsTotalData(rs.getLong("MANUAL_PLANNED_SHIPMENT_QTY"));
@@ -85,7 +91,40 @@ public class SimplifiedSupplyPlanResultSetExtractor implements ResultSetExtracto
             sp = spList.get(idx);
             Integer batchId = rs.getInt("BATCH_ID");
             if (!rs.wasNull()) {
-                SimpleBatchQuantity sb = new SimpleBatchQuantity(batchId, rs.getString("BATCH_NO"), rs.getDate("EXPIRY_DATE"), rs.getBoolean("AUTO_GENERATED"), rs.getLong("BATCH_CLOSING_BALANCE"), rs.getLong("BATCH_CLOSING_BALANCE_WPS"), rs.getLong("BATCH_EXPIRED_STOCK"), rs.getLong("BATCH_EXPIRED_STOCK_WPS"), rs.getDate("BATCH_CREATED_DATE"));
+                SimpleBatchQuantity sb = new SimpleBatchQuantity(
+                        batchId,
+                        rs.getString("BATCH_NO"),
+                        rs.getDate("EXPIRY_DATE"),
+                        rs.getBoolean("AUTO_GENERATED"),
+                        rs.getLong("BATCH_CLOSING_BALANCE"),
+                        rs.getLong("BATCH_CLOSING_BALANCE_WPS"),
+                        rs.getLong("BATCH_EXPIRED_STOCK"),
+                        rs.getLong("BATCH_EXPIRED_STOCK_WPS"),
+                        rs.getDate("BATCH_CREATED_DATE"),
+                        rs.getLong("BATCH_SHIPMENT_QTY"),
+                        rs.getLong("BATCH_SHIPMENT_QTY_WPS"));
+                sb.setOpeningBalance(rs.getLong("BATCH_OPENING_BALANCE"));
+                sb.setOpeningBalanceWps(rs.getLong("BATCH_OPENING_BALANCE_WPS"));
+                sb.setConsumptionQty(rs.getLong("BATCH_CONSUMPTION_QTY"));
+                if (rs.wasNull()) {
+                    sb.setConsumptionQty(null);
+                }
+                sb.setStockQty(rs.getLong("BATCH_STOCK_MULTIPLIED_QTY"));
+                if (rs.wasNull()) {
+                    sb.setStockQty(null);
+                }
+                sb.setAdjustmentQty(rs.getLong("BATCH_ADJUSTMENT_MULTIPLIED_QTY"));
+                if (rs.wasNull()) {
+                    sb.setAdjustmentQty(null);
+                }
+                sb.setUnallocatedQty(rs.getLong("BATCH_CALCULATED_CONSUMPTION_QTY"));
+                if (rs.wasNull()) {
+                    sb.setUnallocatedQty(null);
+                }
+                sb.setUnallocatedQtyWps(rs.getLong("BATCH_CALCULATED_CONSUMPTION_QTY_WPS"));
+                if (rs.wasNull()) {
+                    sb.setUnallocatedQtyWps(null);
+                }
                 sp.getBatchDetails().add(sb);
             }
         }

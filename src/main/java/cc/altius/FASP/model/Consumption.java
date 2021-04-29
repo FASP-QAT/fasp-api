@@ -27,8 +27,10 @@ public class Consumption implements Serializable {
     private SimpleObject region;
     @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private SimplePlanningUnitObject planningUnit;
-    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
+    @JsonView({Views.InternalView.class})
     private SimpleObject realmCountryPlanningUnit;
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class})
+    private SimpleObject alternateReportingUnit;
     @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class})
     private double multiplier;
     @JsonView({Views.GfpVanView.class})
@@ -97,9 +99,14 @@ public class Consumption implements Serializable {
     public SimpleObject getRealmCountryPlanningUnit() {
         return realmCountryPlanningUnit;
     }
+    
+    public SimpleObject getAlternateReportingUnit() {
+        return alternateReportingUnit;
+    }
 
     public void setRealmCountryPlanningUnit(SimpleObject realmCountryPlanningUnit) {
         this.realmCountryPlanningUnit = realmCountryPlanningUnit;
+        this.alternateReportingUnit = realmCountryPlanningUnit;
     }
 
     public SimplePlanningUnitObject getPlanningUnit() {

@@ -5,12 +5,8 @@
  */
 package cc.altius.FASP.rest.controller;
 
-import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.ShipmentStatusService;
-import cc.altius.FASP.service.UserService;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +14,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,8 +29,6 @@ public class ShipmentStatusRestController {
 
     @Autowired
     private ShipmentStatusService shipmentStatusService;
-    @Autowired
-    private UserService userService;
 
     @GetMapping(value = "/getShipmentStatusListActive")
     public ResponseEntity getShipmentStatusListActive(Authentication auth) {

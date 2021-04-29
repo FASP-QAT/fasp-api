@@ -27,6 +27,7 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
         while (rs.next()) {
             StockStatusVerticalOutput ssv = new StockStatusVerticalOutput();
             ssv.setDt(rs.getDate("TRANS_DATE"));
+            ssv.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, 1)));
             int index = ssvList.indexOf(ssv);
             if (index == -1) {
                 ssv.setOpeningBalance(rs.getLong("FINAL_OPENING_BALANCE"));
@@ -72,6 +73,12 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                 }
                 ssv.setMinMos(rs.getInt("MIN_MONTHS_OF_STOCK"));
                 ssv.setMaxMos(rs.getInt("MAX_MONTHS_OF_STOCK"));
+                ssv.setUnmetDemand(rs.getLong("UNMET_DEMAND"));
+                if (rs.wasNull()) {
+                    ssv.setUnmetDemand(null);
+                }
+                ssv.setRegionCount(rs.getInt("REGION_COUNT"));
+                ssv.setRegionCountForStock(rs.getInt("REGION_COUNT_FOR_STOCK"));
                 ssvList.add(ssv);
             } else {
                 ssv = ssvList.get(index);
@@ -81,11 +88,16 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                 ShipmentInfo si = new ShipmentInfo(
                         rs.getInt("SHIPMENT_ID"),
                         rs.getLong("SHIPMENT_QTY"),
-                        new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, index), rs.getString("FUNDING_SOURCE_CODE")),
-                        new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, index), rs.getString("PROCUREMENT_AGENT_CODE")),
-                        new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, index))
+                        new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, 1), rs.getString("FUNDING_SOURCE_CODE")),
+                        new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, 1), rs.getString("PROCUREMENT_AGENT_CODE")),
+                        new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, 1)),
+                        rs.getString("NOTES"),
+                        rs.getDate("EDD"),
+                        new SimpleObject(rs.getInt("DATA_SOURCE_ID"), new LabelRowMapper("DATA_SOURCE_").mapRow(rs, 1))
                 );
-                ssv.getShipmentInfo().add(si);
+                if (ssv.getShipmentInfo().indexOf(si) == -1) {
+                    ssv.getShipmentInfo().add(si);
+                }
             }
         }
         return ssvList;

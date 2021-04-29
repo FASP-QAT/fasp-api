@@ -12,6 +12,7 @@ import cc.altius.FASP.model.report.BudgetReportInput;
 import cc.altius.FASP.model.report.BudgetReportOutput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualInput;
 import cc.altius.FASP.model.report.ConsumptionForecastVsActualOutput;
+import cc.altius.FASP.model.report.ConsumptionInfo;
 import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.CostOfInventoryOutput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
@@ -24,6 +25,7 @@ import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
+import cc.altius.FASP.model.report.InventoryInfo;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
@@ -82,7 +84,7 @@ public interface ReportDao {
 
     // Report no 7
     public List<WarehouseCapacityOutput> getWarehouseCapacityReport(WarehouseCapacityInput wci, CustomUserDetails curUser);
-    
+
     // Report no
     public List<WarehouseByCountryOutput> getWarehouseByCountryReport(WarehouseByCountryInput wci, CustomUserDetails curUser);
 
@@ -109,6 +111,12 @@ public interface ReportDao {
 
     // Report no 16
     public List<StockStatusVerticalOutput> getStockStatusVertical(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+
+    // Report no 16a
+    public List<ConsumptionInfo> getConsumptionInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser);
+
+    // Report no 16b
+    public List<InventoryInfo> getInventoryInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser);
 
     // Report no 17
     public List<StockStatusOverTimeOutput> getStockStatusOverTime(StockStatusOverTimeInput ssot, CustomUserDetails curUser);

@@ -10,7 +10,6 @@ import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.report.StockStatusVerticalInput;
 import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.UserService;
 import java.io.Serializable;

@@ -6,6 +6,7 @@
 package cc.altius.FASP.web.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.StaticLabelDTO;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.LabelService;
 import com.google.gson.Gson;
@@ -67,12 +68,10 @@ public class LabelController {
     }
     
     @PutMapping(path = "/saveStaticLabels")
-    public ResponseEntity putStaticLabels(@RequestBody String json, Authentication auth) {
+    public ResponseEntity putStaticLabels(@RequestBody List<StaticLabelDTO> staticLabelList, Authentication auth) {
         try {
             CustomUserDetails curUser = ((CustomUserDetails) auth.getPrincipal());
-            Gson gson = new Gson(); 
-            List<String> labelArray = gson.fromJson(json, LinkedList.class);  
-            this.labelService.saveStaticLabels(labelArray, curUser);
+            this.labelService.saveStaticLabels(staticLabelList, curUser);
             return new ResponseEntity(new ResponseCode("static.label.labelSuccess"), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity(new ResponseCode("static.label.labelFail"), HttpStatus.INTERNAL_SERVER_ERROR);

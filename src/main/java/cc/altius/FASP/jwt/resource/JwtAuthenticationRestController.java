@@ -68,6 +68,7 @@ public class JwtAuthenticationRestController {
             this.userService.resetFailedAttemptsByUsername(authenticationRequest.getUsername());
             this.userService.updateSuncExpiresOn(authenticationRequest.getUsername());
             logger.info("Langage changed flag---: " + authenticationRequest.isLanguageChanged());
+            System.out.println("Langage changed flag---: " + authenticationRequest.isLanguageChanged());
             if (authenticationRequest.isLanguageChanged()) {
                 this.userService.updateUserLanguageByEmailId(authenticationRequest.getUsername(), authenticationRequest.getLanguageCode());
             }
