@@ -698,7 +698,7 @@ public class ProgramDaoImpl implements ProgramDao {
             sql.append(" AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) ");
         }
         sql.append(" GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`)  a "
-                + " ) AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15) ");
+                + " ) AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15) AND e.`CHANGE_CODE` !=2 ");
         if (linkingType == 2) {
             params.put("parentShipmentId", parentShipmentId);
             sql.append(" AND (mt.SHIPMENT_ID=:parentShipmentId OR mt.SHIPMENT_ID IS NULL) ");
@@ -742,7 +742,7 @@ public class ProgramDaoImpl implements ProgramDao {
             sql.append(" AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0) ");
         }
         sql.append(" GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`) a "
-                + " ) AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15) ");
+                + " ) AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15) AND e.`CHANGE_CODE` !=2 ");
         if (linkingType == 2) {
             params.put("parentShipmentId", parentShipmentId);
             sql.append(" AND (mt.SHIPMENT_ID=:parentShipmentId OR mt.SHIPMENT_ID IS NULL) ");
