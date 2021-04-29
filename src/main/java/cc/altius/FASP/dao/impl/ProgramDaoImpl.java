@@ -1584,6 +1584,10 @@ public class ProgramDaoImpl implements ProgramDao {
         Map<String, Object> params = new HashMap<>();
         String sql = "select count(*) from rm_erp_notification n where n.`ORDER_NO`=? and n.`PRIME_LINE_NO`=? and n.`SHIPMENT_ID`=?;";
         int count = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo, shipmentId);
+        System.out.println("create notificatioon count---" + count);
+        System.out.println("create notificatioon orderNo---" + orderNo);
+        System.out.println("create notificatioon primeLineNo---" + primeLineNo);
+        System.out.println("create notificatioon shipmentId---" + shipmentId);
         if (count == 0) {
             SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_erp_notification").usingGeneratedKeyColumns("NOTIFICATION_ID");
             params.put("ORDER_NO", orderNo);
