@@ -45,7 +45,7 @@ public class RealmDaoImpl implements RealmDao {
     @Autowired
     private AclService aclService;
 
-    private final String sqlListString = "SELECT r.REALM_ID, r.REALM_CODE, r.DEFAULT_REALM, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, "
+    private final String sqlListString = "SELECT r.REALM_ID, r.REALM_CODE, r.DEFAULT_REALM, r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, r.MIN_QPL_TOLERANCE, r.MIN_QPL_TOLERANCE_CUT_OFF, r.MAX_QPL_TOLERANCE,  "
             + " rl.`LABEL_ID` ,rl.`LABEL_EN`, rl.`LABEL_FR`, rl.`LABEL_PR`, rl.`LABEL_SP`,"
             + " cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, r.ACTIVE, r.CREATED_DATE, r.LAST_MODIFIED_DATE "
             + " FROM rm_realm r "
@@ -67,6 +67,9 @@ public class RealmDaoImpl implements RealmDao {
         params.put("MIN_MOS_MIN_GAURDRAIL", r.getMinMosMinGaurdrail());
         params.put("MIN_MOS_MAX_GAURDRAIL", r.getMinMosMaxGaurdrail());
         params.put("MAX_MOS_MAX_GAURDRAIL", r.getMaxMosMaxGaurdrail());
+        params.put("MIN_QPL_TOLERANCE", r.getMinQplTolerance());
+        params.put("MIN_QPL_TOLERANCE_CUT_OFF", r.getMinQplToleranceCutOff());
+        params.put("MAX_QPL_TOLERANCE", r.getMaxQplTolerance());
         params.put("ACTIVE", true);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
@@ -93,6 +96,9 @@ public class RealmDaoImpl implements RealmDao {
         params.put("minMosMinGaurdrail", r.getMinMosMinGaurdrail());
         params.put("minMosMaxGaurdrail", r.getMinMosMaxGaurdrail());
         params.put("maxMosMaxGaurdrail", r.getMaxMosMaxGaurdrail());
+        params.put("minQplTolerance", r.getMinQplTolerance());
+        params.put("minQplToleranceCutOff", r.getMinQplToleranceCutOff());
+        params.put("maxQplTolerance", r.getMaxQplTolerance());
         params.put("active", r.isActive());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
@@ -102,6 +108,9 @@ public class RealmDaoImpl implements RealmDao {
                 + "r.MIN_MOS_MIN_GAURDRAIL=:minMosMinGaurdrail,"
                 + "r.MIN_MOS_MAX_GAURDRAIL=:minMosMaxGaurdrail,"
                 + "r.MAX_MOS_MAX_GAURDRAIL=:maxMosMaxGaurdrail,"
+                + "r.MIN_QPL_TOLERANCE=:minQplTolerance,"
+                + "r.MIN_QPL_TOLERANCE_CUT_OFF=:minQplToleranceCutOff,"
+                + "r.MAX_QPL_TOLERANCE=:maxQplTolerance,"
                 + "r.ACTIVE=:active, "
                 + "r.LAST_MODIFIED_BY=:curUser, "
                 + "r.LAST_MODIFIED_DATE=:curDate, "

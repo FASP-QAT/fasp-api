@@ -13,6 +13,7 @@ import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
+import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.PlanningUnitService;
 import cc.altius.FASP.service.ProgramDataService;
@@ -181,6 +182,36 @@ public class ProgramRestController {
         }
     }
 
+    @GetMapping("/program/planningUnit/procurementAgent/{programPlanningUnitId}")
+    public ResponseEntity getProgramPlanningUnitProcurementAgent(@PathVariable("programPlanningUnitId") int programPlanningUnitId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getProgramPlanningUnitProcurementAgentList(programPlanningUnitId, false, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException er) {
+            logger.error("Error while trying to get ProgramPrice list for Program Planning Unit Id" + programPlanningUnitId, er);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.error("Error while trying to get ProgramPrice list for Procurement Agent", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/program/planningingUnit/procurementAgent")
+    public ResponseEntity saveProgramPlanningUnitProcurementAgentPrices(@RequestBody ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            this.programService.saveProgramPlanningUnitProcurementAgentPrice(programPlanningUnitProcurementAgentPrices, curUser);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to update ProgramPlanningUnit ProcurementAgent Prices", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Error while trying to update ProgramPlanningUnit ProcurementAgent Prices", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/planningUnit/programs")
     public ResponseEntity getPlanningUnitForProgramList(@RequestBody Integer[] programIds, Authentication auth) {
         try {
@@ -253,7 +284,7 @@ public class ProgramRestController {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             sdf.parse(lastSyncDate);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramPlanningUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getProgramPlanningUnitListForSyncProgram(getProgramIds(new String[]{"2030"}), curUser), HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error while listing program planning unit", p);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
@@ -577,4 +608,16 @@ public class ProgramRestController {
         }
     }
 
+    private String getProgramIds(String[] programIds) {
+        if (programIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", programIds);
+            if (programIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
 }

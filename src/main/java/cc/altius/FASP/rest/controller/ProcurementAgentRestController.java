@@ -144,7 +144,7 @@ public class ProcurementAgentRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @GetMapping("/procurementAgent/{procurementAgentId}/planningUnit")
     public ResponseEntity getProcurementAgentPlanningUnitList(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
@@ -158,7 +158,7 @@ public class ProcurementAgentRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @GetMapping("/procurementAgent/{procurementAgentId}/planningUnit/all")
     public ResponseEntity getProcurementAgentPlanningUnitListAll(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
@@ -274,4 +274,5 @@ public class ProcurementAgentRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
 }
