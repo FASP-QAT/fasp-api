@@ -515,13 +515,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Sélectionnez un envoi
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccionar envío existente');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione Remessa Existente');
 
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.totalQty','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Quantity');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité totale');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad total');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade total');
 
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.dataUpdateSuccess','1');
