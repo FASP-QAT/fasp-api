@@ -1828,7 +1828,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu ON ppu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID "
                 + "LEFT JOIN vw_procurement_agent pa ON papu.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID "
-                + "WHERE ppu.PROGRAM_ID=:programId AND ppu.ACTIVE AND pu.ACTIVE");
+                + "WHERE ppu.PROGRAM_ID=:programId");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         this.aclService.addFullAclForProgram(sql, params, "p", curUser);

@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.service.impl;
 
-import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -30,8 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
-import cc.altius.FASP.service.UserService;
-import ch.qos.logback.core.CoreConstants;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
@@ -56,10 +53,6 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     private AclService aclService;
     @Autowired
     private EmailService emailService;
-    @Autowired
-    private UserService userService;
-    @Autowired
-    private ProgramDao programDao;
 
     @Override
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser) {
