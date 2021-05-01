@@ -1,4 +1,4 @@
-    /*
+/*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -33,6 +33,11 @@ import cc.altius.FASP.service.SupplierService;
 import cc.altius.FASP.service.TracerCategoryService;
 import cc.altius.FASP.service.UnitService;
 import cc.altius.FASP.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import javax.servlet.http.HttpServletResponse;
@@ -110,7 +115,22 @@ public class SyncRestController {
     @Autowired
     private UserService userService;
 
+    /**
+     * API used to get list of all masters which are modified after given date
+     *
+     * @param lastSyncDate lastSyncDate that you want a list of all masters
+     * modified after the date
+     * @param auth
+     * @param response
+     * @return list of of all masters
+     */
     @GetMapping(value = "/allMasters/{lastSyncDate}")
+    @Operation(description = "API used to get list of all masters which are modified after given date", summary = "To get list of all masters which are modified after given date", tags = ("masters"))
+    @Parameters(
+            @Parameter(name = "lastSyncDate", description = "lastSyncDate that you want a list of all masters modified after the date"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the list of all masters")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "412", description = "Returns a HttpStatus.PRECONDITION_FAILED if certain conditions to get the lists does not met")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of list of all masters")
     public ResponseEntity getAllMastersForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -171,7 +191,24 @@ public class SyncRestController {
         }
     }
 
+    /**
+     * API used to get list of all program specific masters which are modified
+     * after given date
+     *
+     * @param lastSyncDate lastSyncDate that you want a list of all masters
+     * modified after the date
+     * @param auth
+     * @param response
+     * @return list of of all masters
+     */
     @PostMapping(value = "/allMasters/forPrograms/{lastSyncDate}")
+    @Operation(description = "API used to get list of all program specific masters which are modified", summary = "To get list of all program specific masters which are modified", tags = ("masters"))
+    @Parameters(
+            @Parameter(name = "lastSyncDate", description = "lastSyncDate that you want a list of all masters modified after the date"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the list of all masters")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "412", description = "Returns a HttpStatus.PRECONDITION_FAILED if certain conditions to get the lists does not met")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of list of all masters")
+
     public ResponseEntity getAllMastersForSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

@@ -13,6 +13,11 @@ import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -64,7 +69,30 @@ public class SupplyPlanRestController {
 //        System.out.println(new Date());
 //        return new ResponseEntity(simplifiedSupplyPlan, HttpStatus.OK);
 //    }
+    
+    
+    /**
+     * API is to rebuild supply plan based on rebuild true or false
+     *
+     * @param programId programId that you want to rebuild supply plan for
+     * @param versionId versionId that you want to rebuild supply plan for
+     * @param rebuild rebuild true for rebuild supply plan , rebuild false for
+     * do not rebuild supply plan
+     * @param auth
+     * @return returns success message if rebuild true, returns
+     * SimplifiedSupplyPlan list if rebuild false
+     */
+    
     @GetMapping("/newSupplyPlan/programId/{programId}/versionId/{versionId}/rebuild/{rebuild}")
+    @Operation(description = "API is to rebuild supply plan based on rebuild true or false ", summary = "To rebuild supply plan based on rebuild true or false ", tags = ("supplyPlan"))
+    @Parameters({
+        @Parameter(name = "programId", description = "programId that you want to rebuild supply plan for"),
+        @Parameter(name = "versionId", description = "versionId that you want to rebuild supply plan for"),
+        @Parameter(name = "rebuild", description = "rebuild true for rebuild supply plan , rebuild false for do not rebuild supply plan")})
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the success message or SimplifiedSupplyPlan list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "412", description = "Returns a HttpStatus.PRECONDITION_FAILED if certain conditions to rebuild supply plan does not met")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of SimplifiedSupplyPlan list or rebuild supply plan")
     @ResponseBody
     public ResponseEntity buildNewSupplyPlan(
             @PathVariable(value = "programId", required = true) int programId,
@@ -103,7 +131,21 @@ public class SupplyPlanRestController {
         }
     }
 
+    
+    
+    /**
+     * API is to rebuild supply plan for listed programIds and versionIds
+     * @param pvList pvList list of programIds and versionIds to rebuild supply plan for
+     * @param auth
+     * @return success/error message for rebuild supply plan
+     */
     @PostMapping("/rebuildSupplyPlans")
+    @Operation(description = "API is to rebuild supply plan for listed programIds and versionIds ", summary = "To rebuild supply plan for listed programIds and versionIds ", tags = ("supplyPlan"))
+    @Parameters(
+        @Parameter(name = "pvList", description = "pvList list of programIds and versionIds to rebuild supply plan for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the success/error message")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented rebuild supply plan")
+    
     @ResponseBody
     public ResponseEntity rebuildSupplyPlans(@RequestBody List<ProgramIdAndVersionId> pvList, Authentication auth) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
