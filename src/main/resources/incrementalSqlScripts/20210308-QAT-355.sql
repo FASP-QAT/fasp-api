@@ -13,10 +13,57 @@ CREATE TABLE `fasp`.`tr_artmis_country` (
   `RECEPIENT_NAME` VARCHAR(200) NOT NULL,
   `REALM_COUNTRY_ID` INT(10) UNSIGNED NOT NULL,
   PRIMARY KEY (`RECEPIENT_NAME`));
-INSERT INTO tr_artmis_country VALUES ('Congo DRC', 11);
-INSERT INTO tr_artmis_country VALUES ('Panama', 38);
-INSERT INTO tr_artmis_country VALUES ('Vietnam', 49);
-INSERT INTO tr_artmis_country VALUES ('Benin', 5);
+INSERT INTO tr_artmis_country VALUES ('Angola', '3');
+INSERT INTO tr_artmis_country VALUES ('Australia', '1');
+INSERT INTO tr_artmis_country VALUES ('Bangladesh', '52');
+INSERT INTO tr_artmis_country VALUES ('Barbados', '4');
+INSERT INTO tr_artmis_country VALUES ('Benin', '5');
+INSERT INTO tr_artmis_country VALUES ('Botswana', '6');
+INSERT INTO tr_artmis_country VALUES ('Burkina Faso', '7');
+INSERT INTO tr_artmis_country VALUES ('Burundi', '8');
+INSERT INTO tr_artmis_country VALUES ('Cambodia', '9');
+INSERT INTO tr_artmis_country VALUES ('Cameroon', '10');
+INSERT INTO tr_artmis_country VALUES ('Congo DRC', '11');
+INSERT INTO tr_artmis_country VALUES ('Côte dIvoire', '12');
+INSERT INTO tr_artmis_country VALUES ('Dominican Republic', '13');
+INSERT INTO tr_artmis_country VALUES ('El Salvador', '14');
+INSERT INTO tr_artmis_country VALUES ('Eswatini', '15');
+INSERT INTO tr_artmis_country VALUES ('Ethiopia', '16');
+INSERT INTO tr_artmis_country VALUES ('France', '2');
+INSERT INTO tr_artmis_country VALUES ('Ghana', '17');
+INSERT INTO tr_artmis_country VALUES ('Guatemala', '18');
+INSERT INTO tr_artmis_country VALUES ('Guinea', '19');
+INSERT INTO tr_artmis_country VALUES ('Haiti', '20');
+INSERT INTO tr_artmis_country VALUES ('Honduras', '21');
+INSERT INTO tr_artmis_country VALUES ('Indonesia', '22');
+INSERT INTO tr_artmis_country VALUES ('Kenya', '24');
+INSERT INTO tr_artmis_country VALUES ('Laos', '25');
+INSERT INTO tr_artmis_country VALUES ('Lesotho', '26');
+INSERT INTO tr_artmis_country VALUES ('Liberia', '27');
+INSERT INTO tr_artmis_country VALUES ('Madagascar', '28');
+INSERT INTO tr_artmis_country VALUES ('Malawi', '29');
+INSERT INTO tr_artmis_country VALUES ('Mali', '30');
+INSERT INTO tr_artmis_country VALUES ('Mozambique', '31');
+INSERT INTO tr_artmis_country VALUES ('Myanmar', '32');
+INSERT INTO tr_artmis_country VALUES ('Namibia', '33');
+INSERT INTO tr_artmis_country VALUES ('Nepal', '34');
+INSERT INTO tr_artmis_country VALUES ('Niger', '35');
+INSERT INTO tr_artmis_country VALUES ('Nigeria', '36');
+INSERT INTO tr_artmis_country VALUES ('Pakistan', '37');
+INSERT INTO tr_artmis_country VALUES ('Panama', '38');
+INSERT INTO tr_artmis_country VALUES ('Rwanda', '39');
+INSERT INTO tr_artmis_country VALUES ('Senegal', '40');
+INSERT INTO tr_artmis_country VALUES ('Sierra Leone', '41');
+INSERT INTO tr_artmis_country VALUES ('South Africa', '42');
+INSERT INTO tr_artmis_country VALUES ('Tanzania', '44');
+INSERT INTO tr_artmis_country VALUES ('Thailand', '45');
+INSERT INTO tr_artmis_country VALUES ('Togo', '46');
+INSERT INTO tr_artmis_country VALUES ('Uganda', '47');
+INSERT INTO tr_artmis_country VALUES ('Ukraine', '48');
+INSERT INTO tr_artmis_country VALUES ('Vietnam', '49');
+INSERT INTO tr_artmis_country VALUES ('Zambia', '50');
+INSERT INTO tr_artmis_country VALUES ('Zimbabwe', '51');
+
 
 
 INSERT INTO `fasp`.`ap_export`(`EXPORT_ID`,`ERP_CODE`,`JOB_NAME`,`LAST_DATE`) VALUES ( NULL,'ARTMIS','QAT_Shipment_Linking',NOW()); 
@@ -490,7 +537,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'ID de lenvoi parent');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'ID de envío principal');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Id de remessa pai');
 
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectShipment ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.selectShipment','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Select shipment id');
@@ -608,17 +655,66 @@ INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VA
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'You have delinked all the shipments.Your data will be reverted to the original QAT shipment.Are you sure you want to continue?');
--- INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Filtrer par identifiant dexpédition QAT?');
--- INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'¿Filtrar por ID de envío QAT?');
--- INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Filtrar por ID de remessa QAT?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Vous avez dissocié tous les envois. Vos données seront rétablies sur lenvoi QAT dorigine. Voulez-vous vraiment continuer?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ha desvinculado todos los envíos. Sus datos se revertirán al envío QAT original. ¿Está seguro de que desea continuar?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Você desvinculou todas as remessas. Seus dados serão revertidos para a remessa QAT original. Tem certeza de que deseja continuar?');
 
 
-INSERT INTO `fasp`.`tr_artmis_country`(`RECEPIENT_NAME`,`REALM_COUNTRY_ID`) VALUES ( 'Ethiopia','16'); 
-INSERT INTO `fasp`.`tr_artmis_country`(`RECEPIENT_NAME`,`REALM_COUNTRY_ID`) VALUES ( 'Nigeria','36'); 
-INSERT INTO `fasp`.`tr_artmis_country`(`RECEPIENT_NAME`,`REALM_COUNTRY_ID`) VALUES ( 'Zimbabwe','51'); 
-INSERT INTO `fasp`.`tr_artmis_country`(`RECEPIENT_NAME`,`REALM_COUNTRY_ID`) VALUES ( 'Burundi','17'); 
-UPDATE `fasp`.`tr_artmis_country` SET `REALM_COUNTRY_ID`='8' WHERE `RECEPIENT_NAME`='Burundi'; 
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.totalQty','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ERP Quantity');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité ERP');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad de ERP');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade ERP');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.masterDataSyncNote','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'User needs to perform "Master data sync" to ensure that the changes are seen in the Supply Planning & Shipment Data screens');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Lutilisateur doit effectuer une synchronisation des données plus rapide pour sassurer que les modifications sont visibles dans les écrans de planification des approvisionnements et de données dexpédition');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El usuario debe realizar una sincronización de datos más rápida para asegurarse de que los cambios se vean en las pantallas de planificación de suministro y datos de envío');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O usuário precisa realizar a sincronização de dados mestre para garantir que as alterações sejam vistas nas telas de Planejamento de Suprimento e Dados de Remessa');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.tab1Purpose','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enables "First time" linking of QAT shipment id with ARTMIS order');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Permet la liaison "Première fois" de lidentifiant dexpédition QAT avec la commande ARTMIS');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Habilita la vinculación "por primera vez" de la identificación de envío de QAT con el pedido de ARTMIS');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ativa a vinculação "Primeira vez" da id de remessa QAT com o pedido ARTMIS');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.tab2Purpose','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Perform ERP linking, delinking & conversion factor updates of shipments');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Effectuer des mises à jour des facteurs de liaison, de dissociation et de conversion ERP des expéditions');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Realice actualizaciones de factores de conversión, desvinculación y vinculación ERP de envíos');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Realize atualizações de links, desvinculações e fatores de conversão de ERP de remessas');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.tab3Purpose','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enables linking of ARTMIS order with either a newly created QAT shipment id or an existing QAT shipment id');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Permet de lier la commande ARTMIS avec un identifiant dexpédition QAT nouvellement créé ou un identifiant dexpédition QAT existant');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Permite vincular el pedido de ARTMIS con una identificación de envío QAT recién creada o una identificación de envío QAT existente');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Habilita a vinculação do pedido ARTMIS a um ID de remessa QAT recém-criado ou a um ID de remessa QAT existente');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.shipmentLinkingNotification','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Shipment Linking Notification');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Notification de liaison dexpédition');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Notificación de enlace de envío');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Notificação de vinculação de remessa');
 
 ---
 DELIMITER $$

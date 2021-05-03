@@ -1736,12 +1736,15 @@ public class ProgramDaoImpl implements ProgramDao {
         System.out.println("eRPNotificationDTO---" + eRPNotificationDTO.toString());
         String sql = "";
         int id;
+        sql = "SELECT MAX(m.`MANUAL_TAGGING_ID`) as MANUAL_TAGGING_ID FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO` AND m.`SHIPMENT_ID`=?;";
+        int manualTaggingId = this.jdbcTemplate.queryForObject(sql, Integer.class, eRPNotificationDTO.getOrderNo(), eRPNotificationDTO.getPrimeLineNo(), eRPNotificationDTO.getParentShipmentId());
+
         if (eRPNotificationDTO.getNotificationType().getId() == 2) {
             sql = " UPDATE rm_erp_notification n "
-                    + " LEFT JOIN rm_manual_tagging  m ON m.`ORDER_NO`=n.`ORDER_NO` AND m.`PRIME_LINE_NO`=n.`PRIME_LINE_NO` AND m.`SHIPMENT_ID`=n.`SHIPMENT_ID` AND m.`ACTIVE` "
+                    + " LEFT JOIN rm_manual_tagging  m ON m.`ORDER_NO`=n.`ORDER_NO` AND m.`PRIME_LINE_NO`=n.`PRIME_LINE_NO` AND m.`SHIPMENT_ID`=n.`SHIPMENT_ID` "
                     + " SET n.`ADDRESSED`=1,n.`NOTES`=?,m.`NOTES`=?,m.`CONVERSION_FACTOR`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=?,n.`CONVERSION_FACTOR`=? "
-                    + " WHERE n.`NOTIFICATION_ID`=?;";
-            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), eRPNotificationDTO.getNotes(), eRPNotificationDTO.getConversionFactor(), curUser.getUserId(), curDate, eRPNotificationDTO.getConversionFactor(), eRPNotificationDTO.getNotificationId());
+                    + " WHERE n.`NOTIFICATION_ID`=? AND m.`MANUAL_TAGGING_ID`=?;";
+            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), eRPNotificationDTO.getNotes(), eRPNotificationDTO.getConversionFactor(), curUser.getUserId(), curDate, eRPNotificationDTO.getConversionFactor(), eRPNotificationDTO.getNotificationId(), manualTaggingId);
 
             sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
                     + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
@@ -1759,10 +1762,10 @@ public class ProgramDaoImpl implements ProgramDao {
             this.jdbcTemplate.update(sql, convertedQty, productCost, curDate, curUser.getUserId(), eRPNotificationDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
         } else {
             sql = " UPDATE rm_erp_notification n "
-                    + " LEFT JOIN rm_manual_tagging  m ON m.`ORDER_NO`=n.`ORDER_NO` AND m.`PRIME_LINE_NO`=n.`PRIME_LINE_NO` AND m.`SHIPMENT_ID`=n.`SHIPMENT_ID` AND m.`ACTIVE` "
+                    + " LEFT JOIN rm_manual_tagging  m ON m.`ORDER_NO`=n.`ORDER_NO` AND m.`PRIME_LINE_NO`=n.`PRIME_LINE_NO` AND m.`SHIPMENT_ID`=n.`SHIPMENT_ID` "
                     + " SET n.`ADDRESSED`=1,n.`NOTES`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=? "
-                    + " WHERE n.`NOTIFICATION_ID`=?;";
-            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), curUser.getUserId(), curDate, eRPNotificationDTO.getNotificationId());
+                    + " WHERE n.`NOTIFICATION_ID`=? AND m.`MANUAL_TAGGING_ID`=?;";
+            id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), curUser.getUserId(), curDate, eRPNotificationDTO.getNotificationId(), manualTaggingId);
 
         }
         return id;
