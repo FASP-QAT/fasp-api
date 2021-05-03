@@ -329,7 +329,6 @@ public class ProgramRestController {
         }
     }
 
-
     @PostMapping("/manualTagging")
     public ResponseEntity getShipmentListForManualTagging(@RequestBody ManualTaggingDTO manualTaggingDTO, Authentication auth) {
         System.out.println("planningUnitId--------" + Arrays.toString(manualTaggingDTO.getPlanningUnitIdList()));
