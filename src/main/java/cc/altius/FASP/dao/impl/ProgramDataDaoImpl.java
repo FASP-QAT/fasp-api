@@ -1461,7 +1461,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "    WHERE spa.PROGRAM_ID=@programId AND spa.VERSION_ID=@versionId "
                 + "GROUP BY spa.PLANNING_UNIT_ID, spa.TRANS_DATE) amc ON spa.PROGRAM_ID=amc.PROGRAM_ID AND spa.VERSION_ID=amc.VERSION_ID AND spa.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID AND spa.TRANS_DATE=amc.TRANS_DATE "
                 + "SET  "
-                + "    spa.AMC=amc.AMC,  "
+                + "    spa.AMC=IF(amc.AMC_COUNT=0,null,amc.AMC),  "
                 + "    spa.AMC_COUNT=amc.AMC_COUNT,  "
                 + "    spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE_WPS/amc.AMC), "
                 + "    spa.MIN_STOCK_MOS = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, IF(ppu.MIN_MONTHS_OF_STOCK>r.MIN_MOS_MAX_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)), "
