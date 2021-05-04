@@ -44,9 +44,9 @@ public interface ProgramService {
     public List<SimpleObject> getPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser);
 
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser);
-    
+
     public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentList(int programPlanningUnitId, boolean active, CustomUserDetails curUser);
-    
+
     public int saveProgramPlanningUnitProcurementAgentPrice(ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, CustomUserDetails curUser);
 
     public List<Program> getProgramListForSync(String lastSyncDate, CustomUserDetails curUser);
@@ -96,4 +96,6 @@ public interface ProgramService {
     public int getNotificationCount(CustomUserDetails curUser);
 
     public List<ManualTaggingDTO> getARTMISHistory(String orderNo, int primeLineNo);
+
+    public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId);
 }
