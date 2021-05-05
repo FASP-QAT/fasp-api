@@ -727,6 +727,15 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Original Quantity');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité dorigine');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad original');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade Original');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.childShipmentId','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Child Shipment Id');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'ID de lenvoi enfant');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'ID de envío secundario');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Id de Remessa Infantil');
+
 ---
 DELIMITER $$
 
