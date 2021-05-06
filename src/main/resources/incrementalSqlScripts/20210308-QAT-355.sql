@@ -412,7 +412,7 @@ $$
 
 DELIMITER ;
 
--- label queries
+
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES (NULL,'static.mt.notLinkedQAT','1');  
 
@@ -736,7 +736,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'ID de lenvoi enfant');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'ID de envío secundario');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Id de Remessa Infantil');
 
----
+
 DELIMITER $$
 
 USE `fasp`$$
