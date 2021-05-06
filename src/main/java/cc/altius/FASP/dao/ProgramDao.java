@@ -97,4 +97,7 @@ public interface ProgramDao {
     public List<ManualTaggingDTO> getARTMISHistory(String orderNo, int primeLineNo);
 
     public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId);
+
+    public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo);
+
 }
