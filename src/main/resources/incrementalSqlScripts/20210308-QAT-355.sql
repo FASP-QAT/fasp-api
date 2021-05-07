@@ -677,47 +677,47 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'/ Quantidade ERP');
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.masterDataSyncNote','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'User needs to perform "Master data sync" to ensure that the changes are seen in the Supply Planning & Shipment Data screens');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Lutilisateur doit effectuer une synchronisation des données plus rapide pour sassurer que les modifications sont visibles dans les écrans de planification des approvisionnements et de données dexpédition');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El usuario debe realizar una sincronización de datos más rápida para asegurarse de que los cambios se vean en las pantallas de planificación de suministro y datos de envío');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O usuário precisa realizar a sincronização de dados mestre para garantir que as alterações sejam vistas nas telas de Planejamento de Suprimento e Dados de Remessa');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Reminder: If you make any changes in this screen, you will need to click “master data sync” for those changes to be seen throughout the tool.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Rappel: si vous apportez des modifications dans cet écran, vous devrez cliquer sur «synchronisation des données de base» pour que ces modifications soient visibles dans tout loutil.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Recordatorio: si realiza algún cambio en esta pantalla, deberá hacer clic en “sincronización de datos maestros” para que esos cambios se vean en toda la herramienta.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Lembrete: se você fizer alguma alteração nesta tela, precisará clicar em “sincronização de dados mestre” para que essas alterações sejam vistas em toda a ferramenta.');
 
 
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.tab1Purpose','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enables "First time" linking of QAT shipment id with ARTMIS order');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Permet la liaison "Première fois" de lidentifiant dexpédition QAT avec la commande ARTMIS');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Habilita la vinculación "por primera vez" de la identificación de envío de QAT con el pedido de ARTMIS');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ativa a vinculação "Primeira vez" da id de remessa QAT com o pedido ARTMIS');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Use this screen to link QAT shipments with ERP orders for the first time');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilisez cet écran pour lier les envois QAT aux commandes ERP pour la première fois');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Utilice esta pantalla para vincular los envíos QAT con los pedidos de ERP por primera vez');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Use esta tela para vincular remessas QAT com pedidos ERP pela primeira vez');
 
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.tab2Purpose','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Perform ERP linking, delinking & conversion factor updates of shipments');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Effectuer des mises à jour des facteurs de liaison, de dissociation et de conversion ERP des expéditions');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Realice actualizaciones de factores de conversión, desvinculación y vinculación ERP de envíos');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Realize atualizações de links, desvinculações e fatores de conversão de ERP de remessas');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Use this screen to update or de-link existing QAT-ERP linkages.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilisez cet écran pour mettre à jour ou dissocier les liaisons QAT-ERP existantes.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Utilice esta pantalla para actualizar o desvincular los enlaces QAT-ERP existentes.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Use esta tela para atualizar ou desvincular links QAT-ERP existentes.');
 
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.tab3Purpose','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enables linking of ARTMIS order with either a newly created QAT shipment id or an existing QAT shipment id');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Permet de lier la commande ARTMIS avec un identifiant dexpédition QAT nouvellement créé ou un identifiant dexpédition QAT existant');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Permite vincular el pedido de ARTMIS con una identificación de envío QAT recién creada o una identificación de envío QAT existente');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Habilita a vinculação do pedido ARTMIS a um ID de remessa QAT recém-criado ou a um ID de remessa QAT existente');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Use this screen to link ERP orders to QAT for the first time');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilisez cet écran pour lier les commandes ERP à QAT pour la première fois');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Utilice esta pantalla para vincular los pedidos de ERP a QAT por primera vez');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Use esta tela para vincular pedidos de ERP ao QAT pela primeira vez');
 
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.shipmentLinkingNotification','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Shipment Linking Notification');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Notification de liaison dexpédition');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Notificación de enlace de envío');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Notificação de vinculação de remessa');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ERP Shipment Notifications');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Notifications dexpédition ERP');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Notificaciones de envío de ERP');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Notificações de remessa de ERP');
 
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.originalQty','1');
@@ -790,7 +790,7 @@ BEGIN
 --     AND st.PROCUREMENT_AGENT_ID=@procurementAgentId GROUP BY n.`NOTIFICATION_ID`;
 
 SELECT n.`NOTIFICATION_ID`,n.`ADDRESSED`,n.NOTIFICATION_TYPE_ID,l.*,n.`CHILD_SHIPMENT_ID` AS SHIPMENT_ID,e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`,
-st.`EXPECTED_DELIVERY_DATE`,e.`STATUS`,st.`SHIPMENT_QTY`,n.`CONVERSION_FACTOR`,n.`NOTES`,s.`PARENT_SHIPMENT_ID`,
+st.`EXPECTED_DELIVERY_DATE`,e.`STATUS`,st.`SHIPMENT_QTY`,COALESCE(n.`CONVERSION_FACTOR`,m.CONVERSION_FACTOR) AS CONVERSION_FACTOR,n.`NOTES`,s.`PARENT_SHIPMENT_ID`,
 st.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`,
  pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`,
  papu1.PLANNING_UNIT_ID AS ERP_PLANNING_UNIT_ID, pu1.LABEL_ID `ERP_PLANNING_UNIT_LABEL_ID`, pu1.LABEL_EN `ERP_PLANNING_UNIT_LABEL_EN`, pu1.LABEL_FR `ERP_PLANNING_UNIT_LABEL_FR`,
@@ -810,6 +810,7 @@ LEFT JOIN vw_planning_unit pu1 ON pu1.`PLANNING_UNIT_ID`=papu1.`PLANNING_UNIT_ID
 LEFT JOIN rm_shipment_trans st ON ts.SHIPMENT_ID=st.SHIPMENT_ID AND ts.MAX_VERSION_ID=st.VERSION_ID
 LEFT JOIN rm_procurement_agent_planning_unit papu2 ON papu2.`PLANNING_UNIT_ID`=st.`PLANNING_UNIT_ID`
 LEFT JOIN vw_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu2.`PLANNING_UNIT_ID`
+LEFT JOIN rm_manual_tagging m ON m.ORDER_NO=e.ORDER_NO AND m.PRIME_LINE_NO=e.PRIME_LINE_NO AND m.SHIPMENT_ID=s.`PARENT_SHIPMENT_ID`
 WHERE n.`NOTIFICATION_ID` IS NOT NULL AND n.ACTIVE AND (LENGTH(@planningUnitIds)=0 OR FIND_IN_SET(st.PLANNING_UNIT_ID,@planningUnitIds)) 
 ORDER BY n.ADDRESSED DESC;
 END$$
@@ -819,3 +820,8 @@ DELIMITER ;
 ALTER TABLE `fasp`.`rm_erp_notification` ADD COLUMN `ERP_ORDER_ID` INT NOT NULL AFTER `CONVERSION_FACTOR`, ADD COLUMN `CHILD_SHIPMENT_ID` INT NOT NULL AFTER `ERP_ORDER_ID`; 
 
 ALTER TABLE `fasp`.`rm_erp_notification` DROP COLUMN `ORDER_NO`, DROP COLUMN `PRIME_LINE_NO`, DROP COLUMN `SHIPMENT_ID`; 
+
+UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Estimated Receive Date' WHERE `STATIC_LABEL_LANGUAGE_ID`='4841'; 
+UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Date de réception estimée' WHERE `STATIC_LABEL_LANGUAGE_ID`='4842'; 
+UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Fecha estimada de recepción' WHERE `STATIC_LABEL_LANGUAGE_ID`='4843'; 
+UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Data Estimada de Recebimento' WHERE `STATIC_LABEL_LANGUAGE_ID`='4844'; 
