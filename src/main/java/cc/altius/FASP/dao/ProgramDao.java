@@ -45,9 +45,9 @@ public interface ProgramDao {
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentList(int programPlanningUnitId, boolean active, CustomUserDetails curUser);
-    
+
     public int saveProgramPlanningUnitProcurementAgentPrice(ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, CustomUserDetails curUser);
-    
+
     public List<Program> getProgramListForSync(String lastSyncDate, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnit> getProgramPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
@@ -95,4 +95,9 @@ public interface ProgramDao {
     public int getNotificationCount(CustomUserDetails curUser);
 
     public List<ManualTaggingDTO> getARTMISHistory(String orderNo, int primeLineNo);
+
+    public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId);
+
+    public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo);
+
 }

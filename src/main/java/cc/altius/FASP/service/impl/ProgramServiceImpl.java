@@ -368,4 +368,14 @@ public class ProgramServiceImpl implements ProgramService {
         return this.programDao.getARTMISHistory(orderNo, primeLineNo);
     }
 
+    @Override
+    public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId) {
+        return this.programDao.getShipmentDetailsByParentShipmentId(parentShipmentId);
+    }
+
+    @Override
+    public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo) {
+        return this.programDao.checkPreviousARTMISPlanningUnitId(orderNo, primeLineNo);
+    }
+
 }
