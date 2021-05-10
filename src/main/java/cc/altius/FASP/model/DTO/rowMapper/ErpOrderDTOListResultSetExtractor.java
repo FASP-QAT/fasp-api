@@ -57,6 +57,7 @@ public class ErpOrderDTOListResultSetExtractor implements ResultSetExtractor<Lis
                 e.setEoPlanningUnitId(rs.getInt("PLANNING_UNIT_ID"));
                 e.setEoShelfLife(rs.getInt("SHELF_LIFE"));
                 e.setEoProcurementUnitId(rs.getInt("PROCUREMENT_UNIT_ID"));
+                e.setErpPlanningUnitId(rs.getInt("ERP_PLANNING_UNIT_ID"));
                 if (rs.wasNull()) {
                     e.setEoProcurementUnitId(null);
                 }
