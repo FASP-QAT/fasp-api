@@ -7,6 +7,7 @@ package cc.altius.FASP.ARTMIS.dao;
 
 import cc.altius.FASP.model.DTO.ExportOrderDataDTO;
 import cc.altius.FASP.model.DTO.ExportProgramDataDTO;
+import cc.altius.FASP.model.DTO.ExportShipmentLinkingDTO;
 import java.util.Date;
 import java.util.List;
 
@@ -19,8 +20,10 @@ public interface ExportArtmisDataDao {
     public List<ExportProgramDataDTO> exportProgramData(Date lastDate);
 
     public List<ExportOrderDataDTO> exportOrderData(Date lastDate);
-    
+
     public Date getLastDate(String erpCode, String jobName);
 
     public boolean updateLastDate(String erpCode, String jobName, Date lastDate);
+
+    public List<ExportShipmentLinkingDTO> exportShipmentLinkingData(Date lastDate);
 }
