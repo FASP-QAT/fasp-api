@@ -1,4 +1,19 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getStockStatusForProgram`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_DT DATE, VAR_TRACER_CATEGORY_IDS TEXT, VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT(1))
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ * Author:  altius
+ * Created: 03-May-2021
+ */
+
+USE `fasp`;
+DROP procedure IF EXISTS `getStockStatusForProgram`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getStockStatusForProgram`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_DT DATE, VAR_TRACER_CATEGORY_IDS TEXT, VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT(1))
 BEGIN
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     -- Report no 28
@@ -50,4 +65,7 @@ BEGIN
     PREPARE S1 FROM @sqlString;
     EXECUTE S1;
     
-END
+END$$
+
+DELIMITER ;
+
