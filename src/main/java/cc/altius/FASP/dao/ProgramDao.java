@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
@@ -44,9 +45,9 @@ public interface ProgramDao {
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnitProcurementAgentPrice> getProgramPlanningUnitProcurementAgentList(int programPlanningUnitId, boolean active, CustomUserDetails curUser);
-    
+
     public int saveProgramPlanningUnitProcurementAgentPrice(ProgramPlanningUnitProcurementAgentPrice[] programPlanningUnitProcurementAgentPrices, CustomUserDetails curUser);
-    
+
     public List<Program> getProgramListForSync(String lastSyncDate, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnit> getProgramPlanningUnitListForSync(String lastSyncDate, CustomUserDetails curUser);
@@ -55,13 +56,19 @@ public interface ProgramDao {
 
     public Program getProgramList(int realmId, int programId, int versionId);
 
-    public List<ManualTaggingDTO> getShipmentListForManualTagging(int programId, int planningUnitId);
+    public List<ManualTaggingDTO> getShipmentListForManualTagging(ManualTaggingDTO manualTaggingDTO, CustomUserDetails curUser);
 
-    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int searchId, int programId, int planningUnitId);
+    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int programId, int planningUnitId, int linkingType, int parentShipmentId);
+
+    public List<ManualTaggingDTO> getOrderDetailsByForNotLinkedERPShipments(String roNoOrderNo, int planningUnitId, int linkingType);
 
     public int linkShipmentWithARTMIS(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser);
 
+    public int linkShipmentWithARTMISWithoutShipmentid(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser);
+
     public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId);
+
+    public List<ManualTaggingDTO> getNotLinkedShipments(int programId, int linkingTypeId);
 
     public void delinkShipment(ManualTaggingOrderDTO erpOrderDTO, CustomUserDetails curUser);
 
@@ -70,12 +77,27 @@ public interface ProgramDao {
     public LoadProgram getLoadProgram(int programId, int page, CustomUserDetails curUser);
 
     public boolean validateProgramCode(int realmId, int programId, String programCode, CustomUserDetails curUser);
-    
+
     public List<Program> getProgramListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnit> getProgramPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 
-    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int searchId, int programId, int planningUnitId);
+    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId, int linkingType);
 
     public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser);
+
+    public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId);
+
+    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO);
+
+    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser);
+
+    public int getNotificationCount(CustomUserDetails curUser);
+
+    public List<ManualTaggingDTO> getARTMISHistory(String orderNo, int primeLineNo);
+
+    public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId);
+
+    public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo);
+
 }

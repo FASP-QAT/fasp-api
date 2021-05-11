@@ -792,6 +792,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 forecastingUnitParams.replace("PRODUCT_CATEGORY_ID", fu.getProductCategory().getId());
                 sb.append("----------fu 3--------------");
                 sqlString = "SELECT TRACER_CATEGORY_ID FROM vw_tracer_category tc WHERE tc.REALM_ID=1 AND tc.LABEL_EN=?";
+                System.out.println("tracer category---"+fu.getTracerCategory().getLabel().getLabel_en());
                 fu.getTracerCategory().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getTracerCategory().getLabel().getLabel_en()));
                 forecastingUnitParams.replace("TRACER_CATEGORY_ID", fu.getTracerCategory().getId());
                 sb.append("----------fu 4--------------");
@@ -982,6 +983,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         // Update planning unit start
 //        sqlString = "SELECT tpu.*, null UNIT_ID, null FORECASTING_UNIT_ID FROM tmp_planning_unit tpu where tpu.FOUND=1";
 //        for (PlanningUnitArtmisPull pu : this.jdbcTemplate.query(sqlString, new PlanningUnitArtmisPullRowMapper())) {
+
         sqlString = "UPDATE `tmp_planning_unit` tpu   "
                 + "LEFT JOIN rm_planning_unit pu ON tpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID  "
                 + "LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID  "

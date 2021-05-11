@@ -15,6 +15,7 @@ import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.PlanningUnitService;
 import java.text.ParseException;
@@ -179,13 +180,26 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
 
     @Override
     public List<PlanningUnit> getPlanningUnitListForProductCategory(int productCategoryId, boolean active, CustomUserDetails curUser) {
-
         if (productCategoryId != 0) {
             ProductCategory pc = this.productCategoryDao.getProductCategoryById(productCategoryId, curUser);
             return this.planningUnitDao.getPlanningUnitListForProductCategory(pc.getSortOrder(), active, curUser);
         } else {
             return this.planningUnitDao.getPlanningUnitListForProductCategory("00", active, curUser);
         }
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds, boolean active, CustomUserDetails curUser) {
+        if (productCategoryIds != null && productCategoryIds.length != 0) {
+            return this.planningUnitDao.getPlanningUnitListForProductCategoryList(productCategoryIds, active, curUser);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitListByRealmCountryId(int realmCountryId, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListByRealmCountryId(realmCountryId, curUser);
     }
 
 }
