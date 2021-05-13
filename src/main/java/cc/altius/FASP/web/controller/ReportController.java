@@ -180,7 +180,7 @@ public class ReportController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @PostMapping(value = "/forecastMetricsMonthly")
+    @PostMapping(value = "/forecastErrorByPlanningUnit")
     public ResponseEntity getForecastMetricsMonthly(@RequestBody ForecastMetricsMonthlyInput fmi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -215,7 +215,7 @@ public class ReportController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @PostMapping(value = "/forecastMetricsComparision")
+    @PostMapping(value = "/forecastErrorMonthly")
     public ResponseEntity getForecastMetricsComparision(@RequestBody ForecastMetricsComparisionInput fmi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
