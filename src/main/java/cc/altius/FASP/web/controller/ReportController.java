@@ -159,7 +159,7 @@ public class ReportController {
     }
 
     // Report no 4
-    // Reports -> Consumption Reports -> Forecast Error (by Planning Unit)
+    // Reports -> Consumption Reports -> Forecast Error (Monthly)
     /**
      * <pre>
      * Sample JSON
@@ -180,7 +180,7 @@ public class ReportController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @PostMapping(value = "/forecastErrorByPlanningUnit")
+    @PostMapping(value = "/forecastMetricsMonthly")
     public ResponseEntity getForecastMetricsMonthly(@RequestBody ForecastMetricsMonthlyInput fmi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -193,7 +193,7 @@ public class ReportController {
 
     // Report no 5
     // Global Report
-    // Reports -> Consumption Reports -> Forecast Error (Monthly)
+    // Reports -> Consumption Reports -> Forecast Error (by Planning Unit)
     /**
      * <pre>
      * Sample JSON
@@ -215,7 +215,7 @@ public class ReportController {
      * @return
      */
     @JsonView(Views.ReportView.class)
-    @PostMapping(value = "/forecastErrorMonthly")
+    @PostMapping(value = "/forecastMetricsComparision")
     public ResponseEntity getForecastMetricsComparision(@RequestBody ForecastMetricsComparisionInput fmi, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
