@@ -368,8 +368,6 @@ public class ReportDaoImpl implements ReportDao {
         params.put("includePlannedShipments", ssm.isIncludePlannedShipments());
         params.put("planningUnitIds", String.join(",", ssm.getPlanningUnitIds()));
         params.put("tracerCategoryIds", String.join(",", ssm.getTracerCategoryIds()));
-        System.out.println(sql);
-        System.out.println(params);
         return this.namedParameterJdbcTemplate.query(sql, params, new StockStatusMatrixOutputRowMapper());
     }
 
