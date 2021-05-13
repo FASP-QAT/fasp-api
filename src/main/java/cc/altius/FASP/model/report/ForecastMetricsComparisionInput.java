@@ -22,7 +22,6 @@ public class ForecastMetricsComparisionInput implements Serializable {
     private String[] realmCountryIds;
     private String[] programIds;
     private String[] planningUnitIds;
-    private String[] tracerCategoryIds;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
@@ -61,14 +60,6 @@ public class ForecastMetricsComparisionInput implements Serializable {
         this.planningUnitIds = planningUnitIds;
     }
 
-    public String[] getTracerCategoryIds() {
-        return tracerCategoryIds;
-    }
-
-    public void setTracerCategoryIds(String[] tracerCategoryIds) {
-        this.tracerCategoryIds = tracerCategoryIds;
-    }
-
     public Date getStartDate() {
         return startDate;
     }
@@ -83,6 +74,46 @@ public class ForecastMetricsComparisionInput implements Serializable {
 
     public void setPreviousMonths(int previousMonths) {
         this.previousMonths = previousMonths;
+    }
+
+    
+    public String getRealmCountryIdString() {
+        if (this.realmCountryIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.realmCountryIds);
+            if (this.realmCountryIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
+
+    public String getProgramIdString() {
+        if (this.programIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.programIds);
+            if (this.programIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
+    }
+
+    public String getPlanningUnitIdString() {
+        if (this.planningUnitIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", this.planningUnitIds);
+            if (this.planningUnitIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
+        }
     }
 
     public boolean isUseApprovedSupplyPlanOnly() {

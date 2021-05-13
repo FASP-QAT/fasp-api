@@ -570,7 +570,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"programId":2030, "versionId":10, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":[4115], "tracerCategoryIds":[21,28] "includePlannedShipments":1}
+     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":[152,157], "includePlannedShipments":1}
      * -- programId must be a single Program cannot be muti-program select or -1 for all programs
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
      * -- planningUnitList is the list of Planning Units that you want to include in the report. If you want to include all the Planning Units in this Program leave it as empty
