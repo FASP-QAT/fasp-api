@@ -397,6 +397,21 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForProgramPlanningUnit).append(" AND pg.PROGRAM_ID=:programId");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        if (tracerCategoryIds.length > 0) {
+            sqlStringBuilder.append(" AND find_in_set(fu.TRACER_CATEGORY_ID,:tracerCategoryIds)");
+            params.put("tracerCategoryIds", String.join(",", tracerCategoryIds));
+        }
+        if (active) {
+            sqlStringBuilder = sqlStringBuilder.append(" AND ppu.ACTIVE ");
+        }
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramPlanningUnitRowMapper());
+    }
+
+    @Override
     public List<SimpleObject> getPlanningUnitListForProgramIds(String programIds, CustomUserDetails curUser) {
         String sql = "SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM rm_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE p.PROGRAM_ID IN (" + programIds + ") AND ppu.PROGRAM_ID IS NOT NULL AND ppu.ACTIVE AND pu.ACTIVE GROUP BY pu.PLANNING_UNIT_ID";
         Map<String, Object> params = new HashMap<>();

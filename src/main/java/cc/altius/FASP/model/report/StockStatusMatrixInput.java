@@ -26,7 +26,8 @@ public class StockStatusMatrixInput implements Serializable {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
-    private String[] planningUnitIds;   
+    private String[] planningUnitIds;
+    private String[] tracerCategoryIds;
     private boolean includePlannedShipments;
 
     public int getProgramId() {
@@ -77,17 +78,25 @@ public class StockStatusMatrixInput implements Serializable {
         this.planningUnitIds = planningUnitIds;
     }
 
-    public String getPlanningUnitIdsString() {
-        if (this.planningUnitIds == null) {
-            return "";
-        } else {
-            String opt = String.join("','", this.planningUnitIds);
-            if (this.planningUnitIds.length > 0) {
-                return "'" + opt + "'";
-            } else {
-                return opt;
-            }
-        }
+    public String[] getTracerCategoryIds() {
+        return tracerCategoryIds;
     }
+
+    public void setTracerCategoryIds(String[] tracerCategoryIds) {
+        this.tracerCategoryIds = tracerCategoryIds;
+    }
+
+//    public String getPlanningUnitIdsString() {
+//        if (this.planningUnitIds == null) {
+//            return "";
+//        } else {
+//            String opt = String.join("','", this.planningUnitIds);
+//            if (this.planningUnitIds.length > 0) {
+//                return "'" + opt + "'";
+//            } else {
+//                return opt;
+//            }
+//        }
+//    }
 
 }
