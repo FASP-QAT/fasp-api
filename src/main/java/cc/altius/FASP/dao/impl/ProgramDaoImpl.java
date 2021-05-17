@@ -1110,7 +1110,7 @@ public class ProgramDaoImpl implements ProgramDao {
                             System.out.println("Is sku changed--------------------------------------" + erpOrderDTO.isSkuChanged());
                             System.out.println("previous erp order------------" + this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()));
                             System.out.println("Current erp planning unit---" + erpOrderDTO.getErpPlanningUnitId());
-                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : (erpOrderDTO.isSkuChanged() ? 2 : 3)));
+//                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : (erpOrderDTO.isSkuChanged() ? 2 : 3)));
                         }
                     } else {
                         System.out.println("---------------4--------------");
@@ -1232,7 +1232,7 @@ public class ProgramDaoImpl implements ProgramDao {
                             System.out.println("Is sku changed--------------------------------------" + erpOrderDTO.isSkuChanged());
                             System.out.println("previous erp order------------" + this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()));
                             System.out.println("Current erp planning unit---" + erpOrderDTO.getErpPlanningUnitId());
-                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : (erpOrderDTO.isSkuChanged() ? 2 : 3)));
+//                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : (erpOrderDTO.isSkuChanged() ? 2 : 3)));
                         }
                     }
 
@@ -1491,9 +1491,9 @@ public class ProgramDaoImpl implements ProgramDao {
             if (this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo()) != null) {
                 System.out.println("inside if--------------------" + erpOrderDTO);
                 maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=?", Integer.class, parentShipmentId);
-                sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=1,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,`NOTES`=? "
+                sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=1,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=? "
                         + "WHERE `SHIPMENT_TRANS_ID`=?;";
-                this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, erpOrderDTO.getNotes(), maxTransId);
+                this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, maxTransId);
                 maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
 
                 sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=0,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=?,`NOTES`=? "
