@@ -197,7 +197,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * { "realmId":1, "realmCountryIds":[2,5], "programIds":[2003,2028], "planningUnitIds":[772,2692], "startDate":"2020-03-01", "previousMonths":5}
+     * { "realmId":1, "realmCountryIds":[2,5], "programIds":[2029,2521,2140], "tracerCategoryIds":[6,7],"planningUnitIds":[], "startDate":"2020-10-01", "previousMonths":3}
      * -- realmId since it is a Global report need to include Realm
      * -- startDate - date that the report is to be run for
      * -- realmCountryIds list of countries that we need to run the report for
