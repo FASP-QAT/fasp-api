@@ -183,12 +183,13 @@ public class ReportDaoImpl implements ReportDao {
         params.put("realmId", fmi.getRealmId());
         params.put("startDate", fmi.getStartDate());
         params.put("previousMonths", fmi.getPreviousMonths());
-        params.put("realmCountryIds", fmi.getRealmCountryIdString());
-        params.put("programIds", fmi.getProgramIdString());
-        params.put("planningUnitIds", fmi.getPlanningUnitIdString());
+        params.put("realmCountryIds", String.join(",",fmi.getRealmCountryIds()));
+        params.put("programIds", String.join(",", fmi.getProgramIds()));
+        params.put("planningUnitIds", String.join(",", fmi.getPlanningUnitIds()));
+        params.put("tracerCategoryIds", String.join(",", fmi.getTracerCategoryIds()));
         params.put("approvedSupplyPlanOnly", fmi.isUseApprovedSupplyPlanOnly());
         params.put("curUser", curUser.getUserId());
-        return this.namedParameterJdbcTemplate.query("CALL forecastMetricsComparision(:curUser, :realmId, :startDate, :realmCountryIds, :programIds, :planningUnitIds, :previousMonths, :approvedSupplyPlanOnly)", params, new ForecastMetricsComparisionOutputRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL forecastMetricsComparision(:curUser, :realmId, :startDate, :realmCountryIds, :programIds, :tracerCategoryIds, :planningUnitIds, :previousMonths, :approvedSupplyPlanOnly)", params, new ForecastMetricsComparisionOutputRowMapper());
     }
 
     // Report no 7
