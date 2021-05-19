@@ -20,8 +20,8 @@ public class NotificationSummaryDTORowMapper implements RowMapper<NotificationSu
     @Override
     public NotificationSummaryDTO mapRow(ResultSet rs, int i) throws SQLException {
         NotificationSummaryDTO n = new NotificationSummaryDTO();
-        n.setProgramId(rs.getInt(""));
-        n.setNotificationCount(rs.getInt(""));
+        n.setProgramId(rs.getInt("PROGRAM_ID"));
+        n.setNotificationCount(rs.getInt("NOTIFICATION_COUNT"));
         n.setLabel(new LabelRowMapper("").mapRow(rs, i));
         return n;
     }

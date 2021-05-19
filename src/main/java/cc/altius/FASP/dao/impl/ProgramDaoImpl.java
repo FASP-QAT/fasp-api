@@ -1901,7 +1901,7 @@ public class ProgramDaoImpl implements ProgramDao {
         }
         programIds = programIds.substring(0, programIds.lastIndexOf(","));
         System.out.println("ids 1%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
-        sql = "SELECT s.`PROGRAM_ID`,l.`LABEL_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_SP`,l.`LABEL_PR`,COUNT(DISTINCT(n.`NOTIFICATION_ID`)) FROM rm_erp_notification n "
+        sql = "SELECT s.`PROGRAM_ID`,l.`LABEL_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_SP`,l.`LABEL_PR`,COUNT(DISTINCT(n.`NOTIFICATION_ID`)) as NOTIFICATION_COUNT FROM rm_erp_notification n "
                 + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=n.`CHILD_SHIPMENT_ID` "
                 + "LEFT JOIN rm_program p ON p.`PROGRAM_ID`=s.`PROGRAM_ID` "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "

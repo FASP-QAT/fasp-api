@@ -288,3 +288,12 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Pack of 100 chocolate 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pack de 100 tablettes de chocolat');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Paquete de 100 barras de chocolate');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Pacote de 100 barras de chocolate');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.notificationCount','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Notification Count');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nombre de notifications');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Recuento de notificaciones');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Contagem de Notificação');
