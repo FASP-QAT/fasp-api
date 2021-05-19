@@ -15,6 +15,7 @@ import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ErpShipmentDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
+import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.DTO.rowMapper.ARTMISHistoryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ERPLinkedShipmentsDTORowMapper;
@@ -24,6 +25,7 @@ import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTOListResultSetExtractor;
 import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ManualTaggingOrderDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.NotERPLinkedShipmentsRowMapper;
+import cc.altius.FASP.model.DTO.rowMapper.NotificationSummaryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ShipmentNotificationDTORowMapper;
 import cc.altius.FASP.model.LabelConstants;
@@ -1903,6 +1905,25 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=t.PLANNING_UNIT_SKU_CODE "
                 + "ORDER BY t.ERP_ORDER_ID ASC LIMIT 1;";
         return this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
+    }
+
+    @Override
+    public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser) {
+        String programIds = "", sql;
+        List<Program> programList = this.programService.getProgramList(curUser, true);
+        for (Program p : programList) {
+            programIds = programIds + p.getProgramId() + ",";
+        }
+        programIds = programIds.substring(0, programIds.lastIndexOf(","));
+        System.out.println("ids 1%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
+        sql = "SELECT s.`PROGRAM_ID`,l.`LABEL_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_SP`,l.`LABEL_PR`,COUNT(DISTINCT(n.`NOTIFICATION_ID`)) as NOTIFICATION_COUNT FROM rm_erp_notification n "
+                + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=n.`CHILD_SHIPMENT_ID` "
+                + "LEFT JOIN rm_program p ON p.`PROGRAM_ID`=s.`PROGRAM_ID` "
+                + "LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
+                + "WHERE n.`ACTIVE` AND n.`ADDRESSED`=0 "
+                + "AND s.`PROGRAM_ID` IN (" + programIds + ") "
+                + "GROUP BY s.`PROGRAM_ID` ;";
+        return this.jdbcTemplate.query(sql, new NotificationSummaryDTORowMapper());
     }
 
 }

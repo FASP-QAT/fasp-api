@@ -10,6 +10,7 @@ import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
+import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
@@ -102,4 +103,6 @@ public interface ProgramService {
     public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId);
 
     public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo);
+
+    public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser);
 }
