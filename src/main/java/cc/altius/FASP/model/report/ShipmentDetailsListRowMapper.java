@@ -27,6 +27,7 @@ public class ShipmentDetailsListRowMapper implements RowMapper<ShipmentDetailsLi
         sd.setMultiplier(rs.getInt("MULTIPLIER"));
         sd.setProcurementAgent(new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, i), rs.getString("PROCUREMENT_AGENT_CODE")));
         sd.setFundingSource(new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, i), rs.getString("FUNDING_SOURCE_CODE")));
+        sd.setBudget(new SimpleCodeObject(rs.getInt("BUDGET_ID"), new LabelRowMapper("BUDGET_").mapRow(rs, i), rs.getString("BUDGET_CODE")));
         sd.setShipmentStatus(new SimpleObject(rs.getInt("SHIPMENT_STATUS_ID"), new LabelRowMapper("SHIPMENT_STATUS_").mapRow(rs, i)));
         sd.setShipmentQty(rs.getLong("SHIPMENT_QTY"));
         sd.setExpectedDeliveryDate(rs.getDate("EDD"));
