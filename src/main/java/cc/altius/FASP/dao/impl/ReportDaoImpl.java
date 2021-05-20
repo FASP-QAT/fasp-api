@@ -98,6 +98,7 @@ import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -413,17 +414,21 @@ public class ReportDaoImpl implements ReportDao {
         sql = "CALL shipmentOverview_ProcurementAgentSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
         List<ShipmentOverviewProcurementAgentSplit> sopList = this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewProcurementAgentSplitRowMapper());
         if (!sopList.isEmpty()) {
+            List<String> keyListToRemove = new LinkedList<>();
             for (String key : sopList.get(0).getProcurementAgentQty().keySet()) {
                 Long total = sopList.stream()
                         .map(x -> (Long) x.getProcurementAgentQty().get(key))
                         .collect(Collectors.summingLong(Long::longValue));
                 if (total.longValue() == 0) {
-                    // remove this column
-                    sopList.forEach(sop -> {
-                        sop.getProcurementAgentQty().remove(key);
-                    });
+                    // Add to the remove List
+                    keyListToRemove.add(key);
                 }
             }
+            keyListToRemove.forEach(key -> {
+                sopList.forEach(sop -> {
+                    sop.getProcurementAgentQty().remove(key);
+                });
+            });
         }
         soo.setProcurementAgentSplit(sopList);
         return soo;
