@@ -379,17 +379,18 @@ public class ReportDaoImpl implements ReportDao {
     @Override
     public ShipmentDetailsOutput getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) {
         ShipmentDetailsOutput sdo = new ShipmentDetailsOutput();
-        String sql = "CALL shipmentDetails(:startDate, :stopDate, :programId, :versionId, :planningUnitIds)";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("programId", sd.getProgramId());
         params.put("versionId", sd.getVersionId());
         params.put("planningUnitIds", sd.getPlanningUnitIdsString());
+        params.put("fundingSourceIds", sd.getFundingSourceIdsString());
+        params.put("budgetIds", sd.getBudgetIdsString());
         params.put("startDate", sd.getStartDate());
         params.put("stopDate", sd.getStopDate());
         params.put("reportView", sd.getReportView());
-        sdo.setShipmentDetailsList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentDetailsListRowMapper()));
-        sdo.setShipmentDetailsFundingSourceList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsFundingSource(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :reportView)", params, new ShipmentDetailsFundingSourceRowMapper()));
-        sdo.setShipmentDetailsMonthList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsMonth(:startDate, :stopDate, :programId, :versionId, :planningUnitIds)", params, new ShipmentDetailsMonthRowMapper()));
+        sdo.setShipmentDetailsList(this.namedParameterJdbcTemplate.query("CALL shipmentDetails(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :fundingSourceIds, :budgetIds)", params, new ShipmentDetailsListRowMapper()));
+        sdo.setShipmentDetailsFundingSourceList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsFundingSource(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :fundingSourceIds, :budgetIds, :reportView)", params, new ShipmentDetailsFundingSourceRowMapper()));
+        sdo.setShipmentDetailsMonthList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsMonth(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :fundingSourceIds, :budgetIds)", params, new ShipmentDetailsMonthRowMapper()));
         return sdo;
     }
 

@@ -602,7 +602,7 @@ public class ReportController {
     /**
      * <pre>
      * Sample JSON
-     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":[], "reportView":1}
+     * {    "programId": 2030,    "versionId": 9,    "startDate": "2019-10-01",    "stopDate": "2020-07-01",    "planningUnitIds": [1354],    "fundingSourceIds": [1,4],    "budgetIds": [8,9],    "reportView": 1}
      * -- Only Month and Year will be considered for StartDate and StopDate
      * -- Only a single ProgramId can be selected
      * -- VersionId can be a valid Version Id for the Program or -1 for last submitted VersionId

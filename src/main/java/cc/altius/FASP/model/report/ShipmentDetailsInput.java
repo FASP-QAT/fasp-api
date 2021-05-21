@@ -25,6 +25,8 @@ public class ShipmentDetailsInput {
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
+    private String[] fundingSourceIds;
+    private String[] budgetIds;
     private String[] planningUnitIds;
     private int reportView; // 1 = Planning Units, 2 = Forecasting Units
 
@@ -60,6 +62,38 @@ public class ShipmentDetailsInput {
         this.stopDate = stopDate;
     }
 
+    public String[] getFundingSourceIds() {
+        return fundingSourceIds;
+    }
+
+    public void setFundingSourceIds(String[] fundingSourceIds) {
+        this.fundingSourceIds = fundingSourceIds;
+    }
+
+    public String getFundingSourceIdsString() {
+        if (this.fundingSourceIds == null) {
+            return "";
+        } else {
+            return String.join(",", this.fundingSourceIds);
+        }
+    }
+
+    public String[] getBudgetIds() {
+        return budgetIds;
+    }
+
+    public void setBudgetIds(String[] budgetIds) {
+        this.budgetIds = budgetIds;
+    }
+
+    public String getBudgetIdsString() {
+        if (this.budgetIds == null) {
+            return "";
+        } else {
+            return String.join(",", this.budgetIds);
+        }
+    }
+
     public String[] getPlanningUnitIds() {
         return planningUnitIds;
     }
@@ -83,5 +117,5 @@ public class ShipmentDetailsInput {
     public void setReportView(int reportView) {
         this.reportView = reportView;
     }
-    
+
 }
