@@ -297,3 +297,21 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Notification Count');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nombre de notifications');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Recuento de notificaciones');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Contagem de Notificação');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.viewBatchDetails','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'View Batch Details');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher les détails du lot');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ver detalles de lote');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Exibir detalhes do lote');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.mt.erpHistoryTitle','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ERP Order History');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Historique des commandes ERP');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Historial de pedidos de ERP');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Histórico de pedidos de ERP');

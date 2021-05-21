@@ -11,6 +11,7 @@ import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
@@ -375,7 +376,7 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<ManualTaggingDTO> getARTMISHistory(String orderNo, int primeLineNo) {
+    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
         return this.programDao.getARTMISHistory(orderNo, primeLineNo);
     }
 

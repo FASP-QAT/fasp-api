@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpBatchDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
@@ -48,14 +49,12 @@ import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.utils.DateUtils;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
-import org.apache.commons.collections4.map.HashedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -768,6 +767,44 @@ public class ProgramDaoImpl implements ProgramDao {
         sql.append("  ) sst ORDER BY sst.CURRENT_ESTIMATED_DELIVERY_DATE DESC ");
         System.out.println("params----" + params);
         System.out.println("query******************************" + sql.toString());
+        
+        
+        //SELECT sst.`ERP_ORDER_ID`,sst.`RO_NO`,sst.`RO_PRIME_LINE_NO`,sst.`ORDER_NO`,sst.`PRIME_LINE_NO`,sst.`SHIPMENT_ID`,sst.`PLANNING_UNIT_SKU_CODE`,sst.`PROCUREMENT_UNIT_SKU_CODE`,sst.`ORDER_TYPE`,sst.`QTY`,sst.`SUPPLIER_NAME`,sst.`PRICE`,sst.`SHIPPING_COST`,sst.`RECPIENT_COUNTRY`,sst.`STATUS`,sst.`LABEL_ID`,sst.LABEL_EN,sst.`LABEL_FR`,sst.`LABEL_PR`,sst.`LABEL_SP`,sst.CURRENT_ESTIMATED_DELIVERY_DATE,sst.ACTIVE,sst.`NOTES`,sst.`CONVERSION_FACTOR`
+//               FROM 
+//(SELECT e.`ERP_ORDER_ID`,e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`,e.`SHIPMENT_ID`,e.`PLANNING_UNIT_SKU_CODE`,e.`PROCUREMENT_UNIT_SKU_CODE`,e.`ORDER_TYPE`,e.`QTY`,e.`SUPPLIER_NAME`,e.`PRICE`,e.`SHIPPING_COST`,e.`RECPIENT_COUNTRY`,e.`STATUS`,l.`LABEL_ID`,IF(l.`LABEL_EN` IS NOT NULL,l.`LABEL_EN`,'') AS LABEL_EN,l.`LABEL_FR`,l.`LABEL_PR`,l.`LABEL_SP`,COALESCE(MIN(es.ACTUAL_DELIVERY_DATE),e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS CURRENT_ESTIMATED_DELIVERY_DATE,IFNULL(mt.ACTIVE,0) AS ACTIVE,mt.`NOTES`,mt.`CONVERSION_FACTOR` FROM rm_erp_order e 
+//                 LEFT JOIN rm_procurement_agent_planning_unit pu ON LEFT(pu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` 
+//                 AND pu.`PROCUREMENT_AGENT_ID`=1 
+//                 LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` 
+//                 LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` 
+//                 LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` 
+//                 LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID`
+//                LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO`
+//                WHERE e.`ERP_ORDER_ID` IN (SELECT a.`ERP_ORDER_ID` FROM (SELECT MAX(e.`ERP_ORDER_ID`)  AS ERP_ORDER_ID,sm.`SHIPMENT_STATUS_MAPPING_ID` FROM rm_erp_order e 
+//                 LEFT JOIN rm_procurement_agent_planning_unit pu ON LEFT(pu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` 
+//                 AND pu.`PROCUREMENT_AGENT_ID`=1 
+//                 LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` 
+//                 LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` 
+//                 LEFT JOIN (SELECT rc.REALM_COUNTRY_ID, cl.LABEL_EN, c.COUNTRY_CODE 
+//                	FROM rm_realm_country rc 
+//                 LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID 
+//                 LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=e.RECPIENT_COUNTRY 
+//                 LEFT JOIN rm_program pm ON pm.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID  
+//                 LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS`
+//                 LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` 
+//                 WHERE pm.`PROGRAM_ID`=2060
+//                AND pu.`PLANNING_UNIT_ID`=1371
+//                AND (mt.`MANUAL_TAGGING_ID` IS NULL OR mt.ACTIVE =0)
+//                GROUP BY e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO`)  a 
+//                 ) AND sm.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15) AND e.`CHANGE_CODE` !=2
+//                GROUP BY e.`ERP_ORDER_ID`) 
+//                sst 
+//                LEFT JOIN rm_shipment_status_mapping sms ON sms.`EXTERNAL_STATUS_STAGE`=sst.`STATUS`
+//                WHERE sms.SHIPMENT_STATUS_MAPPING_ID!=2 OR (sms.SHIPMENT_STATUS_MAPPING_ID = 2 && sst.CURRENT_ESTIMATED_DELIVERY_DATE BETWEEN CURDATE() AND CURDATE() - INTERVAL 6 MONTH)
+//                ORDER BY sst.CURRENT_ESTIMATED_DELIVERY_DATE DESC 
+//                
+        
+        
+        
         return this.namedParameterJdbcTemplate.query(sql.toString(), params, new ManualTaggingOrderDTORowMapper());
 
     }
@@ -1836,18 +1873,20 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<ManualTaggingDTO> getARTMISHistory(String orderNo, int primeLineNo
+    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo
     ) {
         String sql = "SELECT "
-                + "e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO` , "
-                + "pu.`PLANNING_UNIT_ID`,pu.`LABEL_ID`,pu.`LABEL_EN`,pu.`LABEL_FR`,pu.`LABEL_PR`,pu.`LABEL_SP`, "
-                + "COALESCE(MIN(es.ACTUAL_DELIVERY_DATE),e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
-                + "e.`STATUS`,e.`QTY`,e.`LAST_MODIFIED_DATE` "
-                + "FROM rm_erp_order e "
-                + "LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
-                + "LEFT JOIN vw_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID` "
-                + "LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID` "
-                + "WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=? GROUP BY e.`ERP_ORDER_ID`;";
+                + " e.`ERP_ORDER_ID`,e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO` ,((e.`QTY` * e.PRICE)+e.SHIPPING_COST) AS TOTAL_COST, "
+                + " pu.`PLANNING_UNIT_ID`,pu.`LABEL_ID`,pu.`LABEL_EN`,pu.`LABEL_FR`,pu.`LABEL_PR`,pu.`LABEL_SP`, "
+                + " COALESCE(MIN(es.ACTUAL_DELIVERY_DATE),e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
+                + " e.`STATUS`,e.`QTY`,e.`LAST_MODIFIED_DATE`,es.BATCH_NO, es.EXPIRY_DATE "
+                + " FROM rm_erp_order e "
+                + " LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
+                + " LEFT JOIN vw_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID` "
+                + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID` "
+                + " WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=? "
+                + " GROUP BY e.`ERP_ORDER_ID`,es.BATCH_NO;";
+        System.out.println("history------------------------------------------------------------" + this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo));
         return this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo);
     }
 
