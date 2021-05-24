@@ -41,6 +41,7 @@ public class ERPLinkedShipmentsDTORowMapper implements RowMapper<ManualTaggingDT
         m.setNotes(rs.getString("NOTES"));
         m.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
         m.setParentShipmentId(rs.getInt("PARENT_SHIPMENT_ID"));
+        m.setErpStatus(rs.getString("STATUS"));
         return m;
     }
 
