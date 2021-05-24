@@ -750,8 +750,8 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     }
                     System.out.println("is shipment cancelled---------------------------------------------------------------" + erpOrderDTO.isShipmentCancelled());
                     System.out.println("is shipment shu changed---------------------------------------------------------------" + erpOrderDTO.isSkuChanged());
-                    if (erpOrderDTO.isShipmentCancelled() || erpOrderDTO.isSkuChanged() || (erpOrderDTO.getErpPlanningUnitId() != this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
-                        this.programService.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : (erpOrderDTO.isSkuChanged() ? 2 : 3)));
+                    if (erpOrderDTO.isShipmentCancelled() || (erpOrderDTO.getErpPlanningUnitId() != this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
+                        this.programService.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
                     }
                 } else {
                     System.out.println("---------------4--------------");
@@ -863,8 +863,8 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                         sib.execute(params);
                         logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                     }
-                    if (erpOrderDTO.isShipmentCancelled() || erpOrderDTO.isSkuChanged() || (erpOrderDTO.getErpPlanningUnitId() != this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
-                        this.programService.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 :  (erpOrderDTO.isSkuChanged() ? 2 : 3)));
+                    if (erpOrderDTO.isShipmentCancelled() ||  (erpOrderDTO.getErpPlanningUnitId() != this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
+                        this.programService.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 :  2));
                     }
                 }
                 System.out.println("erpOrderDTO.getShProgramId()---" + erpOrderDTO.getShProgramId());
