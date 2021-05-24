@@ -1117,13 +1117,13 @@ public class ProgramDaoImpl implements ProgramDao {
                                 logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                             }
                         }
-                        if (erpOrderDTO.isShipmentCancelled() || erpOrderDTO.isSkuChanged() || (erpOrderDTO.getErpPlanningUnitId() != this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
+                        if (erpOrderDTO.isShipmentCancelled() || (erpOrderDTO.getErpPlanningUnitId() != this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
                             System.out.println("Inside notification------------------------------------------------------------");
                             System.out.println("Is shipment cancelled-------------------------" + erpOrderDTO.isShipmentCancelled());
                             System.out.println("Is sku changed--------------------------------------" + erpOrderDTO.isSkuChanged());
                             System.out.println("previous erp order------------" + this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()));
                             System.out.println("Current erp planning unit---" + erpOrderDTO.getErpPlanningUnitId());
-                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : (erpOrderDTO.isSkuChanged() ? 2 : 3)));
+                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
                         }
                     } else {
                         System.out.println("---------------4--------------");
@@ -1239,13 +1239,14 @@ public class ProgramDaoImpl implements ProgramDao {
                             sib.execute(params);
                             logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                         }
-                        if (erpOrderDTO.isShipmentCancelled() || erpOrderDTO.isSkuChanged() || (erpOrderDTO.getErpPlanningUnitId() != this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
+//                        if (erpOrderDTO.isShipmentCancelled() || erpOrderDTO.isSkuChanged() || (erpOrderDTO.getErpPlanningUnitId() != this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
+                        if (erpOrderDTO.isShipmentCancelled() || (erpOrderDTO.getErpPlanningUnitId() != this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
                             System.out.println("Inside notification------------------------------------------------------------");
                             System.out.println("Is shipment cancelled-------------------------" + erpOrderDTO.isShipmentCancelled());
                             System.out.println("Is sku changed--------------------------------------" + erpOrderDTO.isSkuChanged());
                             System.out.println("previous erp order------------" + this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()));
                             System.out.println("Current erp planning unit---" + erpOrderDTO.getErpPlanningUnitId());
-                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : (erpOrderDTO.isSkuChanged() ? 2 : 3)));
+                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
                         }
                     }
 
