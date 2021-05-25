@@ -1026,7 +1026,7 @@ public class ProgramDaoImpl implements ProgramDao {
                             params.put("FUNDING_SOURCE_ID", erpOrderDTO.getShFundingSourceId());
                             params.put("BUDGET_ID", erpOrderDTO.getShBudgetId());
                             params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getExpectedDeliveryDate());
-                            params.put("PROCUREMENT_UNIT_ID", erpOrderDTO.getEoProcurementUnitId());
+                            params.put("PROCUREMENT_UNIT_ID", (erpOrderDTO.getEoProcurementUnitId() != 0 ? erpOrderDTO.getEoProcurementUnitId() : null));
                             params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
                             System.out.println("qty---" + erpOrderDTO.getEoQty());
                             System.out.println("conversion factor---" + erpOrderDTO.getConversionFactor());
@@ -1102,14 +1102,14 @@ public class ProgramDaoImpl implements ProgramDao {
                                 logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                             }
                         }
-                        if (erpOrderDTO.isShipmentCancelled() || (erpOrderDTO.getErpPlanningUnitId() != this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
-                            System.out.println("Inside notification------------------------------------------------------------");
-                            System.out.println("Is shipment cancelled-------------------------" + erpOrderDTO.isShipmentCancelled());
-                            System.out.println("Is sku changed--------------------------------------" + erpOrderDTO.isSkuChanged());
-                            System.out.println("previous erp order------------" + this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()));
-                            System.out.println("Current erp planning unit---" + erpOrderDTO.getErpPlanningUnitId());
-                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
-                        }
+//                        if (erpOrderDTO.isShipmentCancelled() || (erpOrderDTO.getErpPlanningUnitId() != this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
+//                            System.out.println("Inside notification------------------------------------------------------------");
+//                            System.out.println("Is shipment cancelled-------------------------" + erpOrderDTO.isShipmentCancelled());
+//                            System.out.println("Is sku changed--------------------------------------" + erpOrderDTO.isSkuChanged());
+//                            System.out.println("previous erp order------------" + this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()));
+//                            System.out.println("Current erp planning unit---" + erpOrderDTO.getErpPlanningUnitId());
+//                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
+//                        }
                     } else {
                         System.out.println("---------------4--------------");
                         // This is a new Link request coming through
@@ -1151,7 +1151,7 @@ public class ProgramDaoImpl implements ProgramDao {
                         params.put("FUNDING_SOURCE_ID", erpOrderDTO.getShFundingSourceId());
                         params.put("BUDGET_ID", erpOrderDTO.getShBudgetId());
                         params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getExpectedDeliveryDate());
-                        params.put("PROCUREMENT_UNIT_ID", erpOrderDTO.getEoProcurementUnitId());
+                        params.put("PROCUREMENT_UNIT_ID", (erpOrderDTO.getEoProcurementUnitId() != 0 ? erpOrderDTO.getEoProcurementUnitId() : null));
                         params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
                         params.put("SHIPMENT_QTY", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (Math.round(erpOrderDTO.getEoQty() * erpOrderDTO.getConversionFactor())) : erpOrderDTO.getEoQty()));
                         params.put("RATE", erpOrderDTO.getEoPrice());
@@ -1225,14 +1225,14 @@ public class ProgramDaoImpl implements ProgramDao {
                             logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                         }
 //                        if (erpOrderDTO.isShipmentCancelled() || erpOrderDTO.isSkuChanged() || (erpOrderDTO.getErpPlanningUnitId() != this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
-                        if (erpOrderDTO.isShipmentCancelled() || (erpOrderDTO.getErpPlanningUnitId() != this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
-                            System.out.println("Inside notification------------------------------------------------------------");
-                            System.out.println("Is shipment cancelled-------------------------" + erpOrderDTO.isShipmentCancelled());
-                            System.out.println("Is sku changed--------------------------------------" + erpOrderDTO.isSkuChanged());
-                            System.out.println("previous erp order------------" + this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()));
-                            System.out.println("Current erp planning unit---" + erpOrderDTO.getErpPlanningUnitId());
-                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
-                        }
+//                        if (erpOrderDTO.isShipmentCancelled() || (erpOrderDTO.getErpPlanningUnitId() != this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
+//                            System.out.println("Inside notification------------------------------------------------------------");
+//                            System.out.println("Is shipment cancelled-------------------------" + erpOrderDTO.isShipmentCancelled());
+//                            System.out.println("Is sku changed--------------------------------------" + erpOrderDTO.isSkuChanged());
+//                            System.out.println("previous erp order------------" + this.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()));
+//                            System.out.println("Current erp planning unit---" + erpOrderDTO.getErpPlanningUnitId());
+//                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
+//                        }
                     }
 
                 } catch (Exception e) {
@@ -1360,7 +1360,7 @@ public class ProgramDaoImpl implements ProgramDao {
                     params.put("FUNDING_SOURCE_ID", manualTaggingOrderDTO.getFundingSourceId());
                     params.put("BUDGET_ID", manualTaggingOrderDTO.getBudgetId());
                     params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getExpectedDeliveryDate());
-                    params.put("PROCUREMENT_UNIT_ID", erpOrderDTO.getEoProcurementUnitId());
+                    params.put("PROCUREMENT_UNIT_ID", (erpOrderDTO.getEoProcurementUnitId() != 0 ? erpOrderDTO.getEoProcurementUnitId() : null));
                     params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
                     params.put("SHIPMENT_QTY", (manualTaggingOrderDTO.getConversionFactor() != 0 && manualTaggingOrderDTO.getConversionFactor() != 0.0 ? (Math.round(manualTaggingOrderDTO.getQuantity() * manualTaggingOrderDTO.getConversionFactor())) : manualTaggingOrderDTO.getQuantity()));
                     params.put("RATE", erpOrderDTO.getEoPrice());
@@ -1715,42 +1715,49 @@ public class ProgramDaoImpl implements ProgramDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         String sql;
+        int notificationId = 0;
 //        String sql = "select count(*) from rm_erp_notification n where n.`ORDER_NO`=? and n.`PRIME_LINE_NO`=? and n.`SHIPMENT_ID`=?;";
 //        int count = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo, shipmentId);
 //        System.out.println("create notificatioon count---" + count);
-        System.out.println("create notificatioon orderNo---" + orderNo);
-        System.out.println("create notificatioon primeLineNo---" + primeLineNo);
-        System.out.println("create notificatioon shipmentId---" + shipmentId);
+        logger.info("create notificatioon orderNo---" + orderNo);
+        logger.info("create notificatioon primeLineNo---" + primeLineNo);
+        logger.info("create notificatioon shipmentId---" + shipmentId);
 //        if (count == 0) {
-        sql = "SELECT MAX(e.`ERP_ORDER_ID`) AS ERP_ORDER_ID FROM rm_erp_order e WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=?;";
-        int erpOrderId = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
-        System.out.println("erpOrderId---" + erpOrderId);
-
-        sql = "SELECT MAX(st.`SHIPMENT_ID`) AS SHIPMENT_ID FROM rm_shipment_trans st\n"
-                + "LEFT JOIN rm_shipment  s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID`\n"
-                + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=?;";
-        int childShipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, shipmentId, orderNo, primeLineNo);
-        System.out.println("childShipmentId---" + childShipmentId);
-        SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_erp_notification").usingGeneratedKeyColumns("NOTIFICATION_ID");
-        params.put("ORDER_NO", orderNo);
-        params.put("PRIME_LINE_NO", primeLineNo);
-        params.put("NOTIFICATION_TYPE_ID", notificationTypeId);
-        params.put("SHIPMENT_ID", shipmentId);
-        params.put("ADDRESSED", 0);
-        params.put("ACTIVE", 1);
-        params.put("CREATED_BY", 1);
-        params.put("CREATED_DATE", curDate);
-        params.put("LAST_MODIFIED_BY", 1);
-        params.put("LAST_MODIFIED_DATE", curDate);
-        params.put("ERP_ORDER_ID", erpOrderId);
-        params.put("CHILD_SHIPMENT_ID", childShipmentId);
-        int notificationId = 0;
         try {
+            sql = "SELECT m.`MANUAL_TAGGING_ID` FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`SHIPMENT_ID`=? AND m.`ACTIVE`;";
+            int manualTaggingId = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo, shipmentId);
+            logger.info("manualTaggingId---" + manualTaggingId);
+
+            sql = "SELECT MAX(e.`ERP_ORDER_ID`) AS ERP_ORDER_ID FROM rm_erp_order e WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=?;";
+            int erpOrderId = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
+            logger.info("erpOrderId---" + erpOrderId);
+
+            sql = "SELECT MAX(st.`SHIPMENT_ID`) AS SHIPMENT_ID FROM rm_shipment_trans st\n"
+                    + "LEFT JOIN rm_shipment  s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID`\n"
+                    + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=?;";
+            int childShipmentId = this.jdbcTemplate.queryForObject(sql, Integer.class, shipmentId, orderNo, primeLineNo);
+            logger.info("childShipmentId---" + childShipmentId);
+            SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_erp_notification").usingGeneratedKeyColumns("NOTIFICATION_ID");
+            params.put("ORDER_NO", orderNo);
+            params.put("PRIME_LINE_NO", primeLineNo);
+            params.put("NOTIFICATION_TYPE_ID", notificationTypeId);
+            params.put("SHIPMENT_ID", shipmentId);
+            params.put("ADDRESSED", 0);
+            params.put("ACTIVE", 1);
+            params.put("CREATED_BY", 1);
+            params.put("CREATED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", 1);
+            params.put("LAST_MODIFIED_DATE", curDate);
+            params.put("ERP_ORDER_ID", erpOrderId);
+            params.put("CHILD_SHIPMENT_ID", childShipmentId);
+            params.put("MANUAL_TAGGING_ID", manualTaggingId);
+
             notificationId = si.executeAndReturnKey(params).intValue();
         } catch (Exception e) {
+            logger.info("Notification creation error---" + e);
             e.printStackTrace();
         }
-        System.out.println("NotificationId Id " + notificationId + " created");
+        logger.info("NotificationId Id " + notificationId + " created");
         return notificationId;
 //        } else {
 //            return -1;

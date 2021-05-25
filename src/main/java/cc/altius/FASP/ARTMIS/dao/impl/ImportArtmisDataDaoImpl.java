@@ -674,7 +674,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                         params.put("FUNDING_SOURCE_ID", erpOrderDTO.getShFundingSourceId());
                         params.put("BUDGET_ID", erpOrderDTO.getShBudgetId());
                         params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getExpectedDeliveryDate());
-                        params.put("PROCUREMENT_UNIT_ID", erpOrderDTO.getEoProcurementUnitId());
+                        params.put("PROCUREMENT_UNIT_ID", (erpOrderDTO.getEoProcurementUnitId() != 0 ? erpOrderDTO.getEoProcurementUnitId() : null));
                         params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
                         params.put("SHIPMENT_QTY", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (Math.round(erpOrderDTO.getEoQty() * erpOrderDTO.getConversionFactor())) : erpOrderDTO.getEoQty()));
                         params.put("RATE", erpOrderDTO.getEoPrice());
@@ -749,8 +749,13 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                         }
                     }
                     System.out.println("is shipment cancelled---------------------------------------------------------------" + erpOrderDTO.isShipmentCancelled());
-                    System.out.println("is shipment shu changed---------------------------------------------------------------" + erpOrderDTO.isSkuChanged());
+                    System.out.println("is shipment sku changed---------------------------------------------------------------" + (erpOrderDTO.getErpPlanningUnitId() != this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo())));
                     if (erpOrderDTO.isShipmentCancelled() || (erpOrderDTO.getErpPlanningUnitId() != this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
+                        logger.info("Inside notification------------------------------------------------------------");
+                        logger.info("Is shipment cancelled-------------------------" + erpOrderDTO.isShipmentCancelled());
+                        logger.info("Is sku changed--------------------------------------" + erpOrderDTO.isSkuChanged());
+                        logger.info("previous erp order------------" + this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()));
+                        logger.info("Current erp planning unit---" + erpOrderDTO.getErpPlanningUnitId());
                         this.programService.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
                     }
                 } else {
@@ -790,7 +795,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     params.put("FUNDING_SOURCE_ID", erpOrderDTO.getShFundingSourceId());
                     params.put("BUDGET_ID", erpOrderDTO.getShBudgetId());
                     params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getExpectedDeliveryDate());
-                    params.put("PROCUREMENT_UNIT_ID", erpOrderDTO.getEoProcurementUnitId());
+                     params.put("PROCUREMENT_UNIT_ID", (erpOrderDTO.getEoProcurementUnitId() != 0 ? erpOrderDTO.getEoProcurementUnitId() : null));
                     params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
                     params.put("SHIPMENT_QTY", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (Math.round(erpOrderDTO.getEoQty() * erpOrderDTO.getConversionFactor())) : erpOrderDTO.getEoQty()));
                     params.put("RATE", erpOrderDTO.getEoPrice());
@@ -863,8 +868,15 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                         sib.execute(params);
                         logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
                     }
-                    if (erpOrderDTO.isShipmentCancelled() ||  (erpOrderDTO.getErpPlanningUnitId() != this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
-                        this.programService.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 :  2));
+                    System.out.println("is shipment cancelled---------------------------------------------------------------" + erpOrderDTO.isShipmentCancelled());
+                    System.out.println("is shipment sku changed---------------------------------------------------------------" + (erpOrderDTO.getErpPlanningUnitId() != this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo())));
+                    if (erpOrderDTO.isShipmentCancelled() || (erpOrderDTO.getErpPlanningUnitId() != this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
+                        logger.info("Inside notification------------------------------------------------------------");
+                        logger.info("Is shipment cancelled-------------------------" + erpOrderDTO.isShipmentCancelled());
+                        logger.info("Is sku changed--------------------------------------" + erpOrderDTO.isSkuChanged());
+                        logger.info("previous erp order------------" + this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()));
+                        logger.info("Current erp planning unit---" + erpOrderDTO.getErpPlanningUnitId());
+                        this.programService.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
                     }
                 }
                 System.out.println("erpOrderDTO.getShProgramId()---" + erpOrderDTO.getShProgramId());
