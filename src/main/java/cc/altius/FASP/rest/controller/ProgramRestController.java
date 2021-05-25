@@ -56,8 +56,6 @@ public class ProgramRestController {
     private ProgramService programService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private PlanningUnitService planningUnitService;
 
     @Autowired
     private ProgramDataService programDataService;
@@ -350,8 +348,6 @@ public class ProgramRestController {
 
     @PostMapping("/manualTagging")
     public ResponseEntity getShipmentListForManualTagging(@RequestBody ManualTaggingDTO manualTaggingDTO, Authentication auth) {
-        System.out.println("planningUnitId--------" + Arrays.toString(manualTaggingDTO.getPlanningUnitIdList()));
-        System.out.println("manualTaggingDTO---" + manualTaggingDTO);
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getShipmentListForManualTagging(manualTaggingDTO, curUser), HttpStatus.OK);
@@ -370,8 +366,6 @@ public class ProgramRestController {
 
     @PostMapping("/shipmentLinkingNotification")
     public ResponseEntity shipmentLinkingNotification(@RequestBody ERPNotificationDTO eRPNotificationDTO, Authentication auth) {
-        System.out.println("planningUnitId--------" + Arrays.toString(eRPNotificationDTO.getPlanningUnitIdList()));
-        System.out.println("eRPNotificationDTO---" + eRPNotificationDTO);
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getNotificationList(eRPNotificationDTO), HttpStatus.OK);
@@ -390,8 +384,6 @@ public class ProgramRestController {
 
     @PostMapping("/updateNotification")
     public ResponseEntity updateNotification(@RequestBody ERPNotificationDTO[] eRPNotificationDTO, Authentication auth) {
-//        System.out.println("planningUnitId--------" + Arrays.toString(eRPNotificationDTO.getPlanningUnitIdList()));
-        System.out.println("eRPNotificationDTO--->>>>>>>>>>>>>>" + Arrays.toString(eRPNotificationDTO));
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             for (ERPNotificationDTO e : eRPNotificationDTO) {
@@ -429,8 +421,6 @@ public class ProgramRestController {
 
     @GetMapping("/manualTagging/notLinkedShipments/{programId}/{linkingType}")
     public ResponseEntity getNotLinkedShipmentListForManualTagging(@PathVariable("programId") int programId, @PathVariable("linkingType") int linkingType, Authentication auth) {
-//        System.out.println("planningUnitId--------" + Arrays.toString(manualTaggingDTO.getPlanningUnitIdList()));
-//        System.out.println("manualTaggingDTO---" + manualTaggingDTO);
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getNotLinkedShipments(programId, linkingType), HttpStatus.OK);
@@ -468,7 +458,6 @@ public class ProgramRestController {
     public ResponseEntity searchErpOrderData(@PathVariable("term") String term, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, @PathVariable("linkingType") int linkingType, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            System.out.println("term---------------------------------->" + term);
             return new ResponseEntity(this.programService.getErpOrderSearchData(term, programId, planningUnitId, linkingType), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);
