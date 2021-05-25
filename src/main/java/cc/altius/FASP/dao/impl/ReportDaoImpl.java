@@ -64,6 +64,7 @@ import cc.altius.FASP.model.report.ShipmentOverviewFundindSourceSplitRowMapper;
 import cc.altius.FASP.model.report.ShipmentOverviewInput;
 import cc.altius.FASP.model.report.ShipmentOverviewOutput;
 import cc.altius.FASP.model.report.ShipmentOverviewPlanningUnitSplitRowMapper;
+import cc.altius.FASP.model.report.ShipmentOverviewProcurementAgentSplit;
 import cc.altius.FASP.model.report.ShipmentOverviewProcurementAgentSplitRowMapper;
 import cc.altius.FASP.model.report.ShipmentReportInput;
 import cc.altius.FASP.model.report.ShipmentReportOutput;
@@ -97,8 +98,10 @@ import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -183,7 +186,7 @@ public class ReportDaoImpl implements ReportDao {
         params.put("realmId", fmi.getRealmId());
         params.put("startDate", fmi.getStartDate());
         params.put("previousMonths", fmi.getPreviousMonths());
-        params.put("realmCountryIds", String.join(",",fmi.getRealmCountryIds()));
+        params.put("realmCountryIds", String.join(",", fmi.getRealmCountryIds()));
         params.put("programIds", String.join(",", fmi.getProgramIds()));
         params.put("planningUnitIds", String.join(",", fmi.getPlanningUnitIds()));
         params.put("tracerCategoryIds", String.join(",", fmi.getTracerCategoryIds()));
@@ -411,7 +414,25 @@ public class ReportDaoImpl implements ReportDao {
         sql = "CALL shipmentOverview_PlanningUnitSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
         soo.setPlanningUnitSplit(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewPlanningUnitSplitRowMapper()));
         sql = "CALL shipmentOverview_ProcurementAgentSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
-        soo.setProcurementAgentSplit(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewProcurementAgentSplitRowMapper()));
+        List<ShipmentOverviewProcurementAgentSplit> sopList = this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewProcurementAgentSplitRowMapper());
+        if (!sopList.isEmpty()) {
+            List<String> keyListToRemove = new LinkedList<>();
+            for (String key : sopList.get(0).getProcurementAgentQty().keySet()) {
+                Long total = sopList.stream()
+                        .map(x -> (Long) x.getProcurementAgentQty().get(key))
+                        .collect(Collectors.summingLong(Long::longValue));
+                if (total.longValue() == 0) {
+                    // Add to the remove List
+                    keyListToRemove.add(key);
+                }
+            }
+            keyListToRemove.forEach(key -> {
+                sopList.forEach(sop -> {
+                    sop.getProcurementAgentQty().remove(key);
+                });
+            });
+        }
+        soo.setProcurementAgentSplit(sopList);
         return soo;
     }
 
