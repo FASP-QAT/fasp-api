@@ -1,3 +1,18 @@
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ * Author:  altius
+ * Created: 17-May-2021
+ */
+
+USE `fasp`;
+DROP procedure IF EXISTS `buildNewSupplyPlanRegion`;
+
+DELIMITER $$
+USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `buildNewSupplyPlanRegion`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10))
 BEGIN
     SET @programId = VAR_PROGRAM_ID;
@@ -168,4 +183,6 @@ BEGIN
     FROM tmp_nsp tn LEFT JOIN rm_program_planning_unit ppu ON tn.PROGRAM_ID=ppu.PROGRAM_ID AND tn.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID WHERE tn.PROGRAM_ID=@programId AND tn.VERSION_ID=@versionId 
     ;
 
-END
+END$$
+
+DELIMITER ;
