@@ -202,7 +202,7 @@ public class ReportDaoImpl implements ReportDao {
         params.put("curUser", curUser.getUserId());
         return this.namedParameterJdbcTemplate.query("CALL warehouseCapacityReport(:curUser, :realmId, :realmCountryIds, :programIds)", params, new WarehouseCapacityOutputResultSetExtractor());
     }
-    
+
     // Report 
     @Override
     public List<WarehouseByCountryOutput> getWarehouseByCountryReport(WarehouseByCountryInput wci, CustomUserDetails curUser) {
@@ -314,7 +314,7 @@ public class ReportDaoImpl implements ReportDao {
         params.put("planningUnitId", ssv.getPlanningUnitId());
         return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVertical(:startDate, :stopDate, :programId, :versionId, :planningUnitId)", params, new StockStatusVerticalOutputRowMapper());
     }
-    
+
     // Report no 16a
     @Override
     public List<ConsumptionInfo> getConsumptionInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
@@ -326,7 +326,7 @@ public class ReportDaoImpl implements ReportDao {
         params.put("planningUnitId", ssv.getPlanningUnitId());
         return this.namedParameterJdbcTemplate.query("CALL getConsumptionInfoForSSVReport(:startDate, :stopDate, :programId, :versionId, :planningUnitId)", params, new ConsumptionInfoRowMapper());
     }
-    
+
     // Report no 16b
     @Override
     public List<InventoryInfo> getInventoryInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
@@ -360,14 +360,15 @@ public class ReportDaoImpl implements ReportDao {
     // Report no 18
     @Override
     public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm) {
-        String sql = "CALL stockStatusMatrix(:programId, :versionId, :planningUnitIds, :startDate, :stopDate, :includePlannedShipments)";
+        String sql = "CALL stockStatusMatrix(:programId, :versionId, :tracerCategoryIds, :planningUnitIds, :startDate, :stopDate, :includePlannedShipments)";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("programId", ssm.getProgramId());
         params.put("versionId", ssm.getVersionId());
         params.put("startDate", ssm.getStartDate());
         params.put("stopDate", ssm.getStopDate());
         params.put("includePlannedShipments", ssm.isIncludePlannedShipments());
-        params.put("planningUnitIds", ssm.getPlanningUnitIdsString());
+        params.put("planningUnitIds", String.join(",", ssm.getPlanningUnitIds()));
+        params.put("tracerCategoryIds", String.join(",", ssm.getTracerCategoryIds()));
         return this.namedParameterJdbcTemplate.query(sql, params, new StockStatusMatrixOutputRowMapper());
     }
 
