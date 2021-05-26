@@ -35,6 +35,8 @@ public class ShipmentDetailsList implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleCodeObject fundingSource;
     @JsonView(Views.ReportView.class)
+    private SimpleCodeObject budget;
+    @JsonView(Views.ReportView.class)
     private SimpleObject shipmentStatus;
     @JsonView(Views.ReportView.class)
     private long shipmentQty;
@@ -89,6 +91,14 @@ public class ShipmentDetailsList implements Serializable {
 
     public void setFundingSource(SimpleCodeObject fundingSource) {
         this.fundingSource = fundingSource;
+    }
+
+    public SimpleCodeObject getBudget() {
+        return budget;
+    }
+
+    public void setBudget(SimpleCodeObject budget) {
+        this.budget = budget;
     }
 
     public SimpleObject getShipmentStatus() {

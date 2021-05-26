@@ -55,6 +55,10 @@ public class StockStatusVerticalOutputRowMapper implements ResultSetExtractor<Li
                 if (rs.wasNull()) {
                     ssv.setAdjustment(null);
                 }
+                ssv.setNationalAdjustment(rs.getLong("NATIONAL_ADJUSTMENT"));
+                if (rs.wasNull()) {
+                    ssv.setNationalAdjustment(null);
+                }
                 ssv.setExpiredStock(rs.getLong("EXPIRED_STOCK"));
                 if (rs.wasNull()) {
                     ssv.setExpiredStock(null);

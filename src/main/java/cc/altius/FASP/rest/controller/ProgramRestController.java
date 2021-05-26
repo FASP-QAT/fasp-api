@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import jdk.jfr.BooleanFlag;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,8 +57,6 @@ public class ProgramRestController {
     private ProgramService programService;
     @Autowired
     private UserService userService;
-    @Autowired
-    private PlanningUnitService planningUnitService;
 
     @Autowired
     private ProgramDataService programDataService;
@@ -136,6 +135,23 @@ public class ProgramRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getPlanningUnitListForProgramId(programId, true, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to list PlanningUnit for Program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @PostMapping("/program/{programId}/tracerCategory/planningUnit")
+    public ResponseEntity getPlanningUnitForProgramTracerCategory(@PathVariable("programId") int programId, @RequestBody String[] tracerCategoryIds, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programService.getPlanningUnitListForProgramId(programId, true, tracerCategoryIds, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit for Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -350,8 +366,6 @@ public class ProgramRestController {
 
     @PostMapping("/manualTagging")
     public ResponseEntity getShipmentListForManualTagging(@RequestBody ManualTaggingDTO manualTaggingDTO, Authentication auth) {
-        System.out.println("planningUnitId--------" + Arrays.toString(manualTaggingDTO.getPlanningUnitIdList()));
-        System.out.println("manualTaggingDTO---" + manualTaggingDTO);
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getShipmentListForManualTagging(manualTaggingDTO, curUser), HttpStatus.OK);
@@ -370,8 +384,6 @@ public class ProgramRestController {
 
     @PostMapping("/shipmentLinkingNotification")
     public ResponseEntity shipmentLinkingNotification(@RequestBody ERPNotificationDTO eRPNotificationDTO, Authentication auth) {
-        System.out.println("planningUnitId--------" + Arrays.toString(eRPNotificationDTO.getPlanningUnitIdList()));
-        System.out.println("eRPNotificationDTO---" + eRPNotificationDTO);
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getNotificationList(eRPNotificationDTO), HttpStatus.OK);
@@ -390,8 +402,6 @@ public class ProgramRestController {
 
     @PostMapping("/updateNotification")
     public ResponseEntity updateNotification(@RequestBody ERPNotificationDTO[] eRPNotificationDTO, Authentication auth) {
-//        System.out.println("planningUnitId--------" + Arrays.toString(eRPNotificationDTO.getPlanningUnitIdList()));
-        System.out.println("eRPNotificationDTO--->>>>>>>>>>>>>>" + Arrays.toString(eRPNotificationDTO));
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             for (ERPNotificationDTO e : eRPNotificationDTO) {
@@ -440,8 +450,6 @@ public class ProgramRestController {
 
     @GetMapping("/manualTagging/notLinkedShipments/{programId}/{linkingType}")
     public ResponseEntity getNotLinkedShipmentListForManualTagging(@PathVariable("programId") int programId, @PathVariable("linkingType") int linkingType, Authentication auth) {
-//        System.out.println("planningUnitId--------" + Arrays.toString(manualTaggingDTO.getPlanningUnitIdList()));
-//        System.out.println("manualTaggingDTO---" + manualTaggingDTO);
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getNotLinkedShipments(programId, linkingType), HttpStatus.OK);
@@ -479,7 +487,6 @@ public class ProgramRestController {
     public ResponseEntity searchErpOrderData(@PathVariable("term") String term, @PathVariable("programId") int programId, @PathVariable("erpPlanningUnitId") int planningUnitId, @PathVariable("linkingType") int linkingType, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            System.out.println("term---------------------------------->" + term);
             return new ResponseEntity(this.programService.getErpOrderSearchData(term, programId, planningUnitId, linkingType), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Shipment list for Manual Tagging", e);

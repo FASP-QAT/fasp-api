@@ -64,6 +64,7 @@ import cc.altius.FASP.model.report.ShipmentOverviewFundindSourceSplitRowMapper;
 import cc.altius.FASP.model.report.ShipmentOverviewInput;
 import cc.altius.FASP.model.report.ShipmentOverviewOutput;
 import cc.altius.FASP.model.report.ShipmentOverviewPlanningUnitSplitRowMapper;
+import cc.altius.FASP.model.report.ShipmentOverviewProcurementAgentSplit;
 import cc.altius.FASP.model.report.ShipmentOverviewProcurementAgentSplitRowMapper;
 import cc.altius.FASP.model.report.ShipmentReportInput;
 import cc.altius.FASP.model.report.ShipmentReportOutput;
@@ -97,8 +98,10 @@ import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
@@ -183,12 +186,13 @@ public class ReportDaoImpl implements ReportDao {
         params.put("realmId", fmi.getRealmId());
         params.put("startDate", fmi.getStartDate());
         params.put("previousMonths", fmi.getPreviousMonths());
-        params.put("realmCountryIds", fmi.getRealmCountryIdString());
-        params.put("programIds", fmi.getProgramIdString());
-        params.put("planningUnitIds", fmi.getPlanningUnitIdString());
+        params.put("realmCountryIds", String.join(",", fmi.getRealmCountryIds()));
+        params.put("programIds", String.join(",", fmi.getProgramIds()));
+        params.put("planningUnitIds", String.join(",", fmi.getPlanningUnitIds()));
+        params.put("tracerCategoryIds", String.join(",", fmi.getTracerCategoryIds()));
         params.put("approvedSupplyPlanOnly", fmi.isUseApprovedSupplyPlanOnly());
         params.put("curUser", curUser.getUserId());
-        return this.namedParameterJdbcTemplate.query("CALL forecastMetricsComparision(:curUser, :realmId, :startDate, :realmCountryIds, :programIds, :planningUnitIds, :previousMonths, :approvedSupplyPlanOnly)", params, new ForecastMetricsComparisionOutputRowMapper());
+        return this.namedParameterJdbcTemplate.query("CALL forecastMetricsComparision(:curUser, :realmId, :startDate, :realmCountryIds, :programIds, :tracerCategoryIds, :planningUnitIds, :previousMonths, :approvedSupplyPlanOnly)", params, new ForecastMetricsComparisionOutputRowMapper());
     }
 
     // Report no 7
@@ -201,7 +205,7 @@ public class ReportDaoImpl implements ReportDao {
         params.put("curUser", curUser.getUserId());
         return this.namedParameterJdbcTemplate.query("CALL warehouseCapacityReport(:curUser, :realmId, :realmCountryIds, :programIds)", params, new WarehouseCapacityOutputResultSetExtractor());
     }
-    
+
     // Report 
     @Override
     public List<WarehouseByCountryOutput> getWarehouseByCountryReport(WarehouseByCountryInput wci, CustomUserDetails curUser) {
@@ -313,7 +317,7 @@ public class ReportDaoImpl implements ReportDao {
         params.put("planningUnitId", ssv.getPlanningUnitId());
         return this.namedParameterJdbcTemplate.query("CALL stockStatusReportVertical(:startDate, :stopDate, :programId, :versionId, :planningUnitId)", params, new StockStatusVerticalOutputRowMapper());
     }
-    
+
     // Report no 16a
     @Override
     public List<ConsumptionInfo> getConsumptionInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
@@ -325,7 +329,7 @@ public class ReportDaoImpl implements ReportDao {
         params.put("planningUnitId", ssv.getPlanningUnitId());
         return this.namedParameterJdbcTemplate.query("CALL getConsumptionInfoForSSVReport(:startDate, :stopDate, :programId, :versionId, :planningUnitId)", params, new ConsumptionInfoRowMapper());
     }
-    
+
     // Report no 16b
     @Override
     public List<InventoryInfo> getInventoryInfoForSSVReport(StockStatusVerticalInput ssv, CustomUserDetails curUser) {
@@ -359,14 +363,15 @@ public class ReportDaoImpl implements ReportDao {
     // Report no 18
     @Override
     public List<StockStatusMatrixOutput> getStockStatusMatrix(StockStatusMatrixInput ssm) {
-        String sql = "CALL stockStatusMatrix(:programId, :versionId, :planningUnitIds, :startDate, :stopDate, :includePlannedShipments)";
+        String sql = "CALL stockStatusMatrix(:programId, :versionId, :tracerCategoryIds, :planningUnitIds, :startDate, :stopDate, :includePlannedShipments)";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("programId", ssm.getProgramId());
         params.put("versionId", ssm.getVersionId());
         params.put("startDate", ssm.getStartDate());
         params.put("stopDate", ssm.getStopDate());
         params.put("includePlannedShipments", ssm.isIncludePlannedShipments());
-        params.put("planningUnitIds", ssm.getPlanningUnitIdsString());
+        params.put("planningUnitIds", String.join(",", ssm.getPlanningUnitIds()));
+        params.put("tracerCategoryIds", String.join(",", ssm.getTracerCategoryIds()));
         return this.namedParameterJdbcTemplate.query(sql, params, new StockStatusMatrixOutputRowMapper());
     }
 
@@ -374,17 +379,18 @@ public class ReportDaoImpl implements ReportDao {
     @Override
     public ShipmentDetailsOutput getShipmentDetails(ShipmentDetailsInput sd, CustomUserDetails curUser) {
         ShipmentDetailsOutput sdo = new ShipmentDetailsOutput();
-        String sql = "CALL shipmentDetails(:startDate, :stopDate, :programId, :versionId, :planningUnitIds)";
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("programId", sd.getProgramId());
         params.put("versionId", sd.getVersionId());
         params.put("planningUnitIds", sd.getPlanningUnitIdsString());
+        params.put("fundingSourceIds", sd.getFundingSourceIdsString());
+        params.put("budgetIds", sd.getBudgetIdsString());
         params.put("startDate", sd.getStartDate());
         params.put("stopDate", sd.getStopDate());
         params.put("reportView", sd.getReportView());
-        sdo.setShipmentDetailsList(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentDetailsListRowMapper()));
-        sdo.setShipmentDetailsFundingSourceList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsFundingSource(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :reportView)", params, new ShipmentDetailsFundingSourceRowMapper()));
-        sdo.setShipmentDetailsMonthList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsMonth(:startDate, :stopDate, :programId, :versionId, :planningUnitIds)", params, new ShipmentDetailsMonthRowMapper()));
+        sdo.setShipmentDetailsList(this.namedParameterJdbcTemplate.query("CALL shipmentDetails(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :fundingSourceIds, :budgetIds)", params, new ShipmentDetailsListRowMapper()));
+        sdo.setShipmentDetailsFundingSourceList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsFundingSource(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :fundingSourceIds, :budgetIds, :reportView)", params, new ShipmentDetailsFundingSourceRowMapper()));
+        sdo.setShipmentDetailsMonthList(this.namedParameterJdbcTemplate.query("CALL shipmentDetailsMonth(:startDate, :stopDate, :programId, :versionId, :planningUnitIds, :fundingSourceIds, :budgetIds)", params, new ShipmentDetailsMonthRowMapper()));
         return sdo;
     }
 
@@ -408,7 +414,25 @@ public class ReportDaoImpl implements ReportDao {
         sql = "CALL shipmentOverview_PlanningUnitSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
         soo.setPlanningUnitSplit(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewPlanningUnitSplitRowMapper()));
         sql = "CALL shipmentOverview_ProcurementAgentSplit(:curUser, :realmId, :startDate, :stopDate, :realmCountryIds, :programIds, :fundingSourceIds, :planningUnitIds, :shipmentStatusIds, :approvedSupplyPlanOnly)";
-        soo.setProcurementAgentSplit(this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewProcurementAgentSplitRowMapper()));
+        List<ShipmentOverviewProcurementAgentSplit> sopList = this.namedParameterJdbcTemplate.query(sql, params, new ShipmentOverviewProcurementAgentSplitRowMapper());
+        if (!sopList.isEmpty()) {
+            List<String> keyListToRemove = new LinkedList<>();
+            for (String key : sopList.get(0).getProcurementAgentQty().keySet()) {
+                Long total = sopList.stream()
+                        .map(x -> (Long) x.getProcurementAgentQty().get(key))
+                        .collect(Collectors.summingLong(Long::longValue));
+                if (total.longValue() == 0) {
+                    // Add to the remove List
+                    keyListToRemove.add(key);
+                }
+            }
+            keyListToRemove.forEach(key -> {
+                sopList.forEach(sop -> {
+                    sop.getProcurementAgentQty().remove(key);
+                });
+            });
+        }
+        soo.setProcurementAgentSplit(sopList);
         return soo;
     }
 
