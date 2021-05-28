@@ -9,9 +9,11 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.PlanningUnitService;
 import cc.altius.FASP.service.ProcurementAgentService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -311,6 +313,7 @@ public class PlanningUnitRestController {
     }
     
     @PostMapping("/planningUnit/productCategoryList/active")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitForproductCategoryList(@RequestBody String[] productCategoryIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

@@ -363,10 +363,11 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
 
     @Override
     public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds, boolean active, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder("SELECT GROUP_CONCAT(pc2.PRODUCT_CATEGORY_ID) `allProductCategories` FROM rm_product_category pc LEFT JOIN rm_product_category pc2 ON pc2.SORT_ORDER LIKE CONCAT(pc.SORT_ORDER,\"%\") WHERE FIND_IN_SET(pc.PRODUCT_CATEGORY_ID, :productCategoryList)");
+        StringBuilder subBuilder = new StringBuilder("SELECT DISTINCT(pc2.PRODUCT_CATEGORY_ID) `PRODUCT_CATEGORY_ID` FROM rm_product_category pc LEFT JOIN rm_product_category pc2 ON pc2.SORT_ORDER LIKE CONCAT(pc.SORT_ORDER,\"%\") WHERE FIND_IN_SET(pc.PRODUCT_CATEGORY_ID, :productCategoryList) ");
         Map<String, Object> params = new HashMap<>();
         params.put("productCategoryList", String.join(",", productCategoryIds));
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pc", curUser);
+        this.aclService.addUserAclForRealm(subBuilder, params, "pc", curUser);
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT GROUP_CONCAT(pc3.`PRODUCT_CATEGORY_ID`) `allProductCategories` FROM (").append(subBuilder).append(") AS pc3");
         String finalProductCategoryIds = this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, String.class);
         params.clear();
         sqlStringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID` , pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR "
@@ -381,7 +382,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
                 + "    AND ppu.ACTIVE "
                 + "    AND p.ACTIVE ");
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(" ORDER BY pu.LABEL_EN");
+        sqlStringBuilder.append(" GROUP BY pu.PLANNING_UNIT_ID ORDER BY pu.LABEL_EN");
         params.put("finalProductCategoryIds", finalProductCategoryIds);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectRowMapper());
     }
