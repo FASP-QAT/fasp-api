@@ -611,25 +611,25 @@ public class ProgramDaoImpl implements ProgramDao {
     public List<ManualTaggingDTO> getShipmentListForManualTagging(ManualTaggingDTO manualTaggingDTO, CustomUserDetails curUser) {
         String sql = "";
         List<ManualTaggingDTO> list = null;
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("planningUnitId", manualTaggingDTO.getPlanningUnitIdsString());
-        params.put("programId", manualTaggingDTO.getProgramId());
+        params.put("curDate", curDate);
         if (manualTaggingDTO.getLinkingType() == 1) {
+            params.put("programId", manualTaggingDTO.getProgramId());
             sql = "CALL getShipmentListForManualLinking(:programId, :planningUnitId, -1)";
-            System.out.println("params---" + params);
             list = this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
         } else if (manualTaggingDTO.getLinkingType() == 2) {
+            params.put("programId", manualTaggingDTO.getProgramId());
             sql = "CALL getShipmentListForAlreadyLinkedShipments(:programId, :planningUnitId, -1)";
             list = this.namedParameterJdbcTemplate.query(sql, params, new ERPLinkedShipmentsDTORowMapper());
         } else {
-            sql = "CALL getErpShipmentForNotLinked(:countryId,:productcategoryId, :planningUnitId, :realmId)";
+            sql = "CALL getErpShipmentForNotLinked(:countryId,:productcategoryId, :planningUnitId, :realmId, :curDate)";
             params.put("productcategoryId", manualTaggingDTO.getProductCategoryIdsString());
             params.put("countryId", manualTaggingDTO.getCountryId());
             params.put("realmId", curUser.getRealm().getRealmId());
             list = this.namedParameterJdbcTemplate.query(sql, params, new NotERPLinkedShipmentsRowMapper());
         }
-
-        System.out.println("list---" + manualTaggingDTO);
         return list;
     }
 
@@ -786,9 +786,11 @@ public class ProgramDaoImpl implements ProgramDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         int rows;
+        int count = 0;
         System.out.println("conversion factor---" + manualTaggingOrderDTO.getConversionFactor());
         String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
-        int count = this.jdbcTemplate.queryForObject(sql, Integer.class, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
+        count = this.jdbcTemplate.queryForObject(sql, Integer.class, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
+        logger.info("manual tagging count---"+count);
         if (count == 0) {
             sql = "INSERT INTO rm_manual_tagging VALUES (NULL,?,?,?,?,?,?,?,1,?,?);";
             int row = this.jdbcTemplate.update(sql, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo(), (manualTaggingOrderDTO.getParentShipmentId() != 0 ? manualTaggingOrderDTO.getParentShipmentId() : manualTaggingOrderDTO.getShipmentId()), curDate, curUser.getUserId(), curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), manualTaggingOrderDTO.getConversionFactor());
