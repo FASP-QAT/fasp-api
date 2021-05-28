@@ -16,13 +16,14 @@ BEGIN
     SET @realmId = VAR_REALM_ID;
     SET @realmCountryId = VAR_REALM_COUNTRY_ID;
     
-    SELECT GROUP_CONCAT(pc2.PRODUCT_CATEGORY_ID) INTO @finalProductCategoryIds FROM rm_product_category pc LEFT JOIN rm_product_category pc2 ON pc2.SORT_ORDER LIKE CONCAT(pc.SORT_ORDER,"%") WHERE FIND_IN_SET(pc.PRODUCT_CATEGORY_ID, @productCategoryIds);
+    SELECT GROUP_CONCAT(pc3.`PRODUCT_CATEGORY_ID`) INTO @finalProductCategoryIds FROM (SELECT DISTINCT(pc2.PRODUCT_CATEGORY_ID) `PRODUCT_CATEGORY_ID` FROM rm_product_category pc LEFT JOIN rm_product_category pc2 ON pc2.SORT_ORDER LIKE CONCAT(pc.SORT_ORDER,"%") WHERE FIND_IN_SET(pc.PRODUCT_CATEGORY_ID, @productCategoryIds) AND pc.REALM_ID=@realmId) AS pc3;
     
     SELECT GROUP_CONCAT(COALESCE(ac.RECEPIENT_NAME, c.LABEL_EN)) INTO @recepientCountryList
     FROM rm_realm_country rc
     LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID
     LEFT JOIN tr_artmis_country ac ON rc.REALM_COUNTRY_ID=ac.REALM_COUNTRY_ID
-    WHERE (rc.REALM_COUNTRY_ID=@realmCountryId OR @realmCountryId=-1) AND rc.REALM_ID=@realmId;
+    # If Josh says put it back then add the option of @realmCountryId=-1
+    WHERE (rc.REALM_COUNTRY_ID=@realmCountryId) AND rc.REALM_ID=@realmId;
     
     SELECT 
         st.ORDER_NO, st.PRIME_LINE_NO, st.`RO_NO`,st.`RO_PRIME_LINE_NO`,st.ERP_ORDER_ID,
