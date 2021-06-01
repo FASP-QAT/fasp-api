@@ -707,9 +707,13 @@ public class ProgramDaoImpl implements ProgramDao {
                 + " LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=e.RECPIENT_COUNTRY "
                 + " LEFT JOIN rm_program pm ON pm.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID  "
-                + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS`"
-                + " LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                + " WHERE pm.`PROGRAM_ID`=:programId ");
+                + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` ");
+        if (linkingType == 1) {
+            sql.append(" LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` AND mt.ACTIVE ");
+        } else {
+            sql.append(" LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` ");
+        }
+        sql.append(" WHERE pm.`PROGRAM_ID`=:programId ");
         if (planningUnitId != 0) {
             sql.append(" AND pu.`PLANNING_UNIT_ID`=:planningUnitId ");
         }
@@ -750,9 +754,13 @@ public class ProgramDaoImpl implements ProgramDao {
                 + " LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=e.RECPIENT_COUNTRY "
                 + " LEFT JOIN rm_program pm ON pm.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID                      "
-                + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                + " LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
-                + " WHERE pm.`PROGRAM_ID`=:programId ");
+                + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` ");
+        if (linkingType == 1) {
+            sql.append(" LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` AND mt.ACTIVE ");
+        } else {
+            sql.append(" LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` ");
+        }
+        sql.append(" WHERE pm.`PROGRAM_ID`=:programId ");
         if (planningUnitId != 0) {
             sql.append(" AND pu.`PLANNING_UNIT_ID`=:planningUnitId ");
         }
@@ -790,7 +798,7 @@ public class ProgramDaoImpl implements ProgramDao {
         System.out.println("conversion factor---" + manualTaggingOrderDTO.getConversionFactor());
         String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
         count = this.jdbcTemplate.queryForObject(sql, Integer.class, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
-        logger.info("manual tagging count---"+count);
+        logger.info("manual tagging count---" + count);
         if (count == 0) {
             sql = "INSERT INTO rm_manual_tagging VALUES (NULL,?,?,?,?,?,?,?,1,?,?);";
             int row = this.jdbcTemplate.update(sql, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo(), (manualTaggingOrderDTO.getParentShipmentId() != 0 ? manualTaggingOrderDTO.getParentShipmentId() : manualTaggingOrderDTO.getShipmentId()), curDate, curUser.getUserId(), curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), manualTaggingOrderDTO.getConversionFactor());
@@ -1381,7 +1389,8 @@ public class ProgramDaoImpl implements ProgramDao {
                     params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
                     params.put("SHIPMENT_QTY", (manualTaggingOrderDTO.getConversionFactor() != 0 && manualTaggingOrderDTO.getConversionFactor() != 0.0 ? (Math.round(manualTaggingOrderDTO.getQuantity() * manualTaggingOrderDTO.getConversionFactor())) : manualTaggingOrderDTO.getQuantity()));
                     params.put("RATE", erpOrderDTO.getEoPrice());
-                    params.put("PRODUCT_COST", manualTaggingOrderDTO.getQuantity() * erpOrderDTO.getEoPrice());
+                    params.put("PRODUCT_COST", (manualTaggingOrderDTO.getConversionFactor() != 0 && manualTaggingOrderDTO.getConversionFactor() != 0.0 ? (manualTaggingOrderDTO.getConversionFactor() * manualTaggingOrderDTO.getQuantity()) * erpOrderDTO.getEoPrice() : (erpOrderDTO.getEoPrice() * manualTaggingOrderDTO.getQuantity())));
+//                    params.put("PRODUCT_COST", manualTaggingOrderDTO.getQuantity() * erpOrderDTO.getEoPrice());
                     params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
                     params.put("FREIGHT_COST", erpOrderDTO.getEoShippingCost());
                     params.put("PLANNED_DATE", erpOrderDTO.getEoCreatedDate());

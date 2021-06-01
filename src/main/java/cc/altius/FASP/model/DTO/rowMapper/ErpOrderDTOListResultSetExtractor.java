@@ -37,7 +37,7 @@ public class ErpOrderDTOListResultSetExtractor implements ResultSetExtractor<Lis
                 e.setEoParentCreatedDate(rs.getTimestamp("PARENT_CREATED_DATE"));
                 e.setEoPlanningUnitSkuCode(rs.getString("PLANNING_UNIT_SKU_CODE"));
                 e.setEoProcurementUnitSkuCode(rs.getString("PROCUREMENT_UNIT_SKU_CODE"));
-                e.setEoQty(rs.getInt("QTY"));
+                e.setEoQty(rs.getLong("QTY"));
                 e.setEoOrderedDate(rs.getDate("ORDERD_DATE"));
                 e.setEoCurrentEstimatedDeliveryDate(rs.getDate("CURRENT_ESTIMATED_DELIVERY_DATE"));
                 e.setEoReqDeliveryDate(rs.getDate("REQ_DELIVERY_DATE"));
