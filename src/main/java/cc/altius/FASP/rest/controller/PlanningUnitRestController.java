@@ -313,6 +313,7 @@ public class PlanningUnitRestController {
     }
     
     @PostMapping("/planningUnit/productCategoryList/active")
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitForproductCategoryList(@RequestBody String[] productCategoryIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
