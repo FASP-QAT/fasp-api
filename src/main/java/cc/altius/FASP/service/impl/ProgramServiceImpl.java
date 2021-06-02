@@ -11,10 +11,12 @@ import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
+import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.ProcurementAgent;
@@ -374,7 +376,7 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<ManualTaggingDTO> getARTMISHistory(String orderNo, int primeLineNo) {
+    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
         return this.programDao.getARTMISHistory(orderNo, primeLineNo);
     }
 
@@ -386,6 +388,11 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo) {
         return this.programDao.checkPreviousARTMISPlanningUnitId(orderNo, primeLineNo);
+    }
+
+    @Override
+    public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser) {
+        return this.programDao.getNotificationSummary(curUser);
     }
 
 }

@@ -6,10 +6,12 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
+import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
@@ -97,9 +99,11 @@ public interface ProgramService {
 
     public int getNotificationCount(CustomUserDetails curUser);
 
-    public List<ManualTaggingDTO> getARTMISHistory(String orderNo, int primeLineNo);
+    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo);
 
     public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId);
 
     public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo);
+
+    public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser);
 }
