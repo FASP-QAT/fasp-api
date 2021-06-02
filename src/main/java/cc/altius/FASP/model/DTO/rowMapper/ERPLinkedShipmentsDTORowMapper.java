@@ -27,7 +27,7 @@ public class ERPLinkedShipmentsDTORowMapper implements RowMapper<ManualTaggingDT
         m.setProcurementAgent(new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, rows), rs.getString("PROCUREMENT_AGENT_CODE")));
         m.setFundingSource(new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, rows), rs.getString("FUNDING_SOURCE_CODE")));
         m.setBudget(new SimpleCodeObject(rs.getInt("BUDGET_ID"), new LabelRowMapper("BUDGET_").mapRow(rs, rows), rs.getString("BUDGET_CODE")));
-        m.setShipmentQty(rs.getLong("SHIPMENT_QTY"));
+        m.setShipmentQty(rs.getLong("QTY"));
         m.setProductCost(rs.getDouble("PRODUCT_COST"));
         m.setShipmentId(rs.getInt("SHIPMENT_ID"));
         m.setShipmentTransId(rs.getInt("SHIPMENT_TRANS_ID"));
