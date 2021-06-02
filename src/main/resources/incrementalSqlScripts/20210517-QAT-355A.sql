@@ -323,7 +323,7 @@ USE `fasp`$$
 
 DROP PROCEDURE IF EXISTS `getShipmentListForManualLinking`$$
 
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentListForManualLinking`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentListForManualLinking`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @planningUnitIds = PLANNING_UNIT_ID;
@@ -381,7 +381,7 @@ USE `fasp`$$
 
 DROP PROCEDURE IF EXISTS `getErpShipmentForNotLinked`$$
 
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getErpShipmentForNotLinked`(
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getErpShipmentForNotLinked`(
     VAR_REALM_COUNTRY_ID INT(10), 
     VAR_PRODUCT_CATEGORY_IDS TEXT, 
     VAR_PLANNING_UNIT_IDS TEXT, 
@@ -443,7 +443,7 @@ USE `fasp`$$
 
 DROP PROCEDURE IF EXISTS `getShipmentLinkingNotifications`$$
 
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentLinkingNotifications`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentLinkingNotifications`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @planningUnitIds = PLANNING_UNIT_ID;
@@ -523,7 +523,7 @@ USE `fasp`$$
 
 DROP PROCEDURE IF EXISTS `getShipmentListForAlreadyLinkedShipments`$$
 
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentListForAlreadyLinkedShipments`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentListForAlreadyLinkedShipments`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @planningUnitIds = PLANNING_UNIT_ID;
@@ -586,7 +586,7 @@ USE `fasp`$$
 
 DROP PROCEDURE IF EXISTS `getShipmentLinkingNotifications`$$
 
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentLinkingNotifications`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentLinkingNotifications`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @planningUnitIds = PLANNING_UNIT_ID;
@@ -632,7 +632,7 @@ USE `fasp`$$
 
 DROP PROCEDURE IF EXISTS `getErpShipmentForNotLinked`$$
 
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getErpShipmentForNotLinked`(
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getErpShipmentForNotLinked`(
     VAR_REALM_COUNTRY_ID INT(10), 
     VAR_PRODUCT_CATEGORY_IDS TEXT, 
     VAR_PLANNING_UNIT_IDS TEXT, 
@@ -692,7 +692,7 @@ USE `fasp`$$
 
 DROP PROCEDURE IF EXISTS `getErpShipmentForNotLinked`$$
 
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getErpShipmentForNotLinked`(
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getErpShipmentForNotLinked`(
     VAR_REALM_COUNTRY_ID INT(10), 
     VAR_PRODUCT_CATEGORY_IDS TEXT, 
     VAR_PLANNING_UNIT_IDS TEXT, 
@@ -754,7 +754,7 @@ USE `fasp`$$
 
 DROP PROCEDURE IF EXISTS `getNotLinkedShipments`$$
 
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getNotLinkedShipments`(PROGRAM_ID INT(10),  VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getNotLinkedShipments`(PROGRAM_ID INT(10),  VERSION_ID INT (10))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @procurementAgentId = 1;
@@ -810,7 +810,7 @@ USE `fasp`$$
 
 DROP PROCEDURE IF EXISTS `getShipmentListForManualLinking`$$
 
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentListForManualLinking`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentListForManualLinking`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @planningUnitIds = PLANNING_UNIT_ID;
