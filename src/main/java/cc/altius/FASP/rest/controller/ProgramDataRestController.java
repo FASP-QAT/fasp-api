@@ -352,5 +352,18 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @GetMapping("/programData/getLastModifiedDateForProgram/{programId}/{versionId}")
+    public ResponseEntity getLastModifiedDateForProgram(@PathVariable(value = "programId", required = true) int programId,@PathVariable(value = "versionId", required = true) int versionId){
+        try {
+            return new ResponseEntity(this.programDataService.getLastModifiedDateForProgram(programId,versionId), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get last modified date for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get last modified date for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }        
+    }
 
 }
