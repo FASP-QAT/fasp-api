@@ -44,7 +44,7 @@ public class ARTMISHistoryDTORowMapper implements ResultSetExtractor<List<ARTMIS
                 order.setPrimeLineNo(rs.getInt("PRIME_LINE_NO"));
                 order.setExpectedDeliveryDate(rs.getTimestamp("EXPECTED_DELIVERY_DATE"));
                 order.setErpStatus(rs.getString("STATUS"));
-                order.setShipmentQty(rs.getInt("QTY"));
+                order.setShipmentQty(rs.getLong("QTY"));
                 order.setReceivedOn(rs.getTimestamp("LAST_MODIFIED_DATE"));
                 order.setErpPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("").mapRow(rs, 1)));
             }

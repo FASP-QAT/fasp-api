@@ -99,8 +99,8 @@ public class ErpOrderDTOResultSetExtractor implements ResultSetExtractor<ErpOrde
                 if (rs.wasNull()) {
                     e.setShAccountFlag(Boolean.TRUE);
                 }
-                e.setEoActualShipmentDate(rs.getDate("ACTUAL_SHIPPED_DATE"));
-                e.setEoActualDeliveryDate(rs.getDate("ACTUAL_DELIVERY_DATE"));
+//                e.setEoActualShipmentDate(rs.getDate("ACTUAL_SHIPPED_DATE"));
+//                e.setEoActualDeliveryDate(rs.getDate("ACTUAL_DELIVERY_DATE"));
                 
             }
             ErpShipmentDTO es = new ErpShipmentDTO();
