@@ -1945,7 +1945,7 @@ public class ProgramDaoImpl implements ProgramDao {
                     + " SET n.`ADDRESSED`=1,n.`NOTES`=?,n.`LAST_MODIFIED_BY`=?,n.`LAST_MODIFIED_DATE`=? "
                     + " WHERE n.`NOTIFICATION_ID`=?;";
             id = this.jdbcTemplate.update(sql, eRPNotificationDTO.getNotes(), curUser.getUserId(), curDate, eRPNotificationDTO.getNotificationId());
-            logger.info("ERP Notification : rows updated---"+id);
+            logger.info("ERP Notification : rows updated---" + id);
 
         }
         return id;
