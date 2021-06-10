@@ -18,11 +18,13 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.xml.sax.SAXException;
 import cc.altius.FASP.ARTMIS.dao.ImportArtmisDataDao;
+import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.DTO.ErpBatchDTO;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ErpShipmentDTO;
 import cc.altius.FASP.model.DTO.rowMapper.ErpBatchDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTOListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.BatchRowMapper;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.utils.DateUtils;
 import java.io.FileReader;
@@ -271,38 +273,8 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
         sqlString = "SELECT COUNT(*) FROM rm_erp_order;";
         logger.info("Total rows present in rm_erp_order---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
 
-//        sqlString = "UPDATE tmp_erp_order t "
-//                + "LEFT JOIN rm_erp_order o ON t.`ORDER_NO`=o.`ORDER_NO` AND t.`PRIME_LINE_NO`=o.`PRIME_LINE_NO` "
-//                + "SET "
-//                + "o.`RO_NO`=t.`RO_NO`, "
-//                + "o.`RO_PRIME_LINE_NO`=t.`RO_PRIME_LINE_NO`, "
-//                + "o.`ORDER_TYPE`=t.`ORDER_TYPE_IND`, "
-//                + "o.`CREATED_DATE`=IFNULL(CONCAT(LEFT(t.`ORDER_ENTRY_DATE`,10),' ',REPLACE(MID(t.`ORDER_ENTRY_DATE`,12,8),'.',':')),NULL), "
-//                + "o.`PARENT_RO`=t.`PARENT_RO`, "
-//                + "o.`PARENT_CREATED_DATE`=IFNULL(CONCAT(LEFT(t.`PARENT_ORDER_ENTRY_DATE`,10),' ',REPLACE(MID(t.`PARENT_ORDER_ENTRY_DATE`,12,8),'.',':')),NULL), "
-//                + "o.`PLANNING_UNIT_SKU_CODE`=LEFT(t.`ITEM_ID`,12), "
-//                + "o.`PROCUREMENT_UNIT_SKU_CODE`=IF(LENGTH(t.`ITEM_ID`)>=15,t.`ITEM_ID`,NULL), "
-//                + "o.`QTY`=t.`ORDERED_QTY`, "
-//                + "o.`ORDERD_DATE`=IFNULL(CONCAT(LEFT(t.`PO_RELEASED_FOR_FULFILLMENT_DATE`,10),' ',REPLACE(MID(t.`PO_RELEASED_FOR_FULFILLMENT_DATE`,12,8),'.',':')),NULL), "
-//                + "o.`CURRENT_ESTIMATED_DELIVERY_DATE`=IFNULL(CONCAT(LEFT(t.`LATEST_ESTIMATED_DELIVERY_DATE`,10),' ',REPLACE(MID(t.`LATEST_ESTIMATED_DELIVERY_DATE`,12,8),'.',':')),NULL), "
-//                + "o.`REQ_DELIVERY_DATE`=IFNULL(CONCAT(LEFT(t.`REQ_DELIVERY_DATE`,10),' ',REPLACE(MID(t.`REQ_DELIVERY_DATE`,12,8),'.',':')),NULL), "
-//                + "o.`AGREED_DELIVERY_DATE`=IFNULL(CONCAT(LEFT(t.`REVISED_AGREED_DELIVERY_DATE`,10),' ',REPLACE(MID(t.`REVISED_AGREED_DELIVERY_DATE`,12,8),'.',':')),NULL), "
-//                + "o.`SUPPLIER_NAME`=t.`ITEM_SUPPLIER_NAME`, "
-//                + "o.`PRICE`=t.`UNIT_PRICE`, "
-//                + "o.`SHIPPING_COST`=COALESCE(IF(t.`TOTAL_ACTUAL_FREIGHT_COST`=0,NULL,t.`TOTAL_ACTUAL_FREIGHT_COST`),IF(t.`FREIGHT_ESTIMATE`=0,NULL,t.`FREIGHT_ESTIMATE`),IF(t.`SHIPPING_CHARGES`=0,NULL,t.`SHIPPING_CHARGES`)), "
-//                + "o.`SHIP_BY`=t.`CARRIER_SERVICE_CODE`, "
-//                + "o.`RECPIENT_NAME`=t.`RECIPIENT_NAME`, "
-//                + "o.`RECPIENT_COUNTRY`=t.`RECIPIENT_COUNTRY`, "
-//                + "o.`STATUS`=t.`EXTERNAL_STATUS_STAGE`, "
-//                + "o.`LAST_MODIFIED_DATE`=:curDate, "
-//                + "o.`PROGRAM_ID`=t.`PROGRAM_ID`, "
-//                + "o.`SHIPMENT_ID`=t.`SHIPMENT_ID`, "
-//                + "o.`FLAG`=1 "
-//                + "WHERE o.ERP_ORDER_ID IS NOT NULL";
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         params.put("orderFileName", orderFile.getName());
-//        int rows = this.namedParameterJdbcTemplate.update(sqlString, params);
-//        logger.info("No of rows updated in rm_erp_order---" + rows);
 
         sqlString = "INSERT INTO rm_erp_order (`RO_NO`, `RO_PRIME_LINE_NO`, `ORDER_NO`, `PRIME_LINE_NO`, `ORDER_TYPE`, "
                 + "`PARENT_RO`, `PARENT_CREATED_DATE`, `PLANNING_UNIT_SKU_CODE`, `PROCUREMENT_UNIT_SKU_CODE`, `QTY`, "
@@ -318,24 +290,11 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
         int rows = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info("No of rows inserted into rm_erp_order---" + rows);
 
-        // Update erp shipment table
-//        sqlString = "UPDATE tmp_erp_shipment t "
-//                + "LEFT JOIN rm_erp_shipment s ON t.`KN_SHIPMENT_NO`=s.`KN_SHIPMENT_NO` AND t.`ORDER_NO`=s.`ORDER_NO` AND t.`PRIME_LINE_NO`=s.`PRIME_LINE_NO` AND t.`BATCH_NO`=s.`BATCH_NO` "
-//                + "SET "
-//                + " s.`FLAG`=1, "
-//                + " s.`LAST_MODIFIED_DATE`=:curDate, "
-//                + " s.`EXPIRY_DATE`=IFNULL(LEFT(t.`EXPIRATION_DATE`,10),NULL), "
-//                + " s.`PROCUREMENT_UNIT_SKU_CODE`=t.`ITEM_ID`, "
-//                + " s.`SHIPPED_QTY`=t.`SHIPPED_QUANTITY`, "
-//                + " s.`DELIVERED_QTY`=t.`DELIVERED_QUANTITY`, "
-//                + " s.`ACTUAL_SHIPMENT_DATE`=IFNULL(CONCAT(LEFT(t.`ACTUAL_SHIPMENT_DATE`,10),' ',REPLACE(MID(t.`ACTUAL_SHIPMENT_DATE`,12,8),'.',':')),NULL), "
-//                + " s.`ACTUAL_DELIVERY_DATE`=IFNULL(CONCAT(LEFT(t.`ACTUAL_DELIVERY_DATE`,10),' ',REPLACE(MID(t.`ACTUAL_DELIVERY_DATE`,12,8),'.',':')),NULL), "
-//                + " s.`ARRIVAL_AT_DESTINATION_DATE`=IFNULL(CONCAT(LEFT(t.`ARRIVAL_AT_DESTINATION_DATE`,10),' ',REPLACE(MID(t.`ARRIVAL_AT_DESTINATION_DATE`,12,8),'.',':')),NULL), "
-//                + " s.`STATUS`=t.`EXTERNAL_STATUS_STAGE` "
-//                + " WHERE s.ERP_SHIPMENT_ID IS NOT NULL";
-//        rows = this.namedParameterJdbcTemplate.update(sqlString, params);
-//
-//        logger.info("No of rows updated in  rm_erp_shipment---" + rows);
+        sqlString = "SELECT COUNT(*) FROM rm_erp_order WHERE FLAG=1;";
+        logger.info("Total changed rows present in rm_erp_order---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
+
+        sqlString = "UPDATE rm_erp_shipment o SET o.`FLAG`=0";
+        this.jdbcTemplate.update(sqlString);
         params.put("shipmentFileName", shipmentFile.getName());
         //Insert into erp shipment table
         sqlString = "INSERT INTO rm_erp_shipment (KN_SHIPMENT_NO, ORDER_NO, PRIME_LINE_NO, BATCH_NO, "
@@ -348,9 +307,50 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
         rows = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info("No of rows inserted into rm_erp_shipment---" + rows);
 
+        sqlString = "SELECT COUNT(*) FROM rm_erp_shipment WHERE FLAG=1;";
+        logger.info("Total changed rows present in rm_erp_shipment---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class));
+
         sqlString = "UPDATE rm_erp_shipment t LEFT JOIN rm_erp_order o ON o.FILE_NAME=:orderFileName AND o.`ORDER_NO`=t.`ORDER_NO` AND o.`PRIME_LINE_NO`=t.`PRIME_LINE_NO` SET t.`ERP_ORDER_ID`=o.`ERP_ORDER_ID` WHERE t.FILE_NAME=:shipmentFileName";
         rows = this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info("update erp order id in erp shipment table---" + rows);
+
+        sqlString = "UPDATE rm_erp_order eo LEFT JOIN ( "
+                + "SELECT e1.ORDER_NO, e1.PRIME_LINE_NO, MAX(eo2.FILE_NAME) `FILE_NAME` FROM ( "
+                + "    SELECT e.ORDER_NO, e.PRIME_LINE_NO FROM "
+                + "        ( "
+                + "        SELECT eo.ORDER_NO, eo.PRIME_LINE_NO FROM rm_erp_order eo WHERE eo.FLAG "
+                + "        UNION "
+                + "        SELECT es.ORDER_NO, es.PRIME_LINE_NO FROM rm_erp_shipment es WHERE es.FLAG "
+                + "    ) AS e GROUP BY e.ORDER_NO, e.PRIME_LINE_NO "
+                + ") AS e1 "
+                + "LEFT JOIN rm_erp_order eo1 ON e1.ORDER_NO=eo1.ORDER_NO AND e1.PRIME_LINE_NO=eo1.PRIME_LINE_NO AND eo1.FILE_NAME=:orderFileName "
+                + "LEFT JOIN rm_erp_order eo2 ON e1.ORDER_NO=eo2.ORDER_NO AND e1.PRIME_LINE_NO=eo2.PRIME_LINE_NO AND eo2.FILE_NAME< :orderFileName "
+                + "WHERE eo1.FILE_NAME IS NULL "
+                + "GROUP BY e1.ORDER_NO, e1.PRIME_LINE_NO) e3 ON eo.ORDER_NO=e3.ORDER_NO AND eo.PRIME_LINE_NO=e3.PRIME_LINE_NO AND eo.FILE_NAME=e3.FILE_NAME "
+                + "SET eo.FLAG=1 "
+                + "WHERE e3.ORDER_NO IS NOT NULL;";
+        params.put("orderFileName", orderFile.getName());
+        rows = this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info("Update erp order table with not matching orders---" + rows);
+
+        sqlString = "UPDATE rm_erp_shipment eo LEFT JOIN ( "
+                + "SELECT e1.ORDER_NO, e1.PRIME_LINE_NO, MAX(eo2.FILE_NAME) `FILE_NAME` FROM ( "
+                + "    SELECT e.ORDER_NO, e.PRIME_LINE_NO FROM "
+                + "        ( "
+                + "        SELECT eo.ORDER_NO, eo.PRIME_LINE_NO FROM rm_erp_order eo where eo.FLAG "
+                + "        UNION "
+                + "        SELECT es.ORDER_NO, es.PRIME_LINE_NO FROM rm_erp_shipment es where es.FLAG "
+                + "    ) as e GROUP BY e.ORDER_NO, e.PRIME_LINE_NO "
+                + ") as e1 "
+                + "LEFT JOIN rm_erp_shipment eo1 ON e1.ORDER_NO=eo1.ORDER_NO AND e1.PRIME_LINE_NO=eo1.PRIME_LINE_NO AND eo1.FILE_NAME=:shipmentFileName "
+                + "LEFT JOIN rm_erp_shipment eo2 ON e1.ORDER_NO=eo2.ORDER_NO AND e1.PRIME_LINE_NO=eo2.PRIME_LINE_NO AND eo2.FILE_NAME< :shipmentFileName "
+                + "WHERE eo1.FILE_NAME IS NULL "
+                + "GROUP BY e1.ORDER_NO, e1.PRIME_LINE_NO) e3 ON eo.ORDER_NO=e3.ORDER_NO AND eo.PRIME_LINE_NO=e3.PRIME_LINE_NO AND eo.FILE_NAME=e3.FILE_NAME "
+                + "SET eo.FLAG=1 "
+                + "WHERE e3.ORDER_NO IS NOT NULL;";
+        params.put("shipmentFileName", shipmentFile.getName());
+        rows = this.namedParameterJdbcTemplate.update(sqlString, params);
+        logger.info("Update erp shipment table with not matching orders---" + rows);
 
         sqlString = "SELECT eo.SUPPLIER_NAME FROM rm_erp_order eo LEFT JOIN vw_supplier s on eo.SUPPLIER_NAME=s.LABEL_EN WHERE eo.FILE_NAME=? AND s.SUPPLIER_ID IS NULL AND eo.SUPPLIER_NAME!='' group by eo.SUPPLIER_NAME";
         List<String> supplierList = this.jdbcTemplate.query(sqlString, new RowMapper<String>() {
@@ -402,7 +402,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 + "    LEFT JOIN rm_shipment s ON e.SHIPMENT_ID=s.SHIPMENT_ID  "
                 + "    LEFT JOIN rm_manual_tagging mt ON e.ORDER_NO=mt.ORDER_NO AND e.PRIME_LINE_NO=mt.PRIME_LINE_NO and mt.ACTIVE "
                 + "    LEFT JOIN rm_shipment mts ON mt.SHIPMENT_ID=mts.SHIPMENT_ID   "
-                + "    WHERE e.`FILE_NAME`=:orderFileName AND (e.SHIPMENT_ID IS NOT NULL OR mt.MANUAL_TAGGING_ID IS NOT NULL) AND (s.SHIPMENT_ID IS NOT null OR mts.SHIPMENT_ID IS NOT NULL)  "
+                + "    WHERE e.`FLAG`=1 AND (e.SHIPMENT_ID IS NOT NULL OR mt.MANUAL_TAGGING_ID IS NOT NULL) AND (s.SHIPMENT_ID IS NOT null OR mts.SHIPMENT_ID IS NOT NULL)  "
                 + ") eo "
                 + " LEFT JOIN (SELECT sx1.SHIPMENT_ID, sx1.PROGRAM_ID, sx1.PARENT_SHIPMENT_ID, MAX(st1.VERSION_ID) MAX_VERSION_ID FROM rm_shipment sx1 LEFT JOIN rm_shipment_trans st1 ON sx1.SHIPMENT_ID=st1.SHIPMENT_ID GROUP BY st1.SHIPMENT_ID) sh ON sh.SHIPMENT_ID=eo.SHIPMENT_ID AND sh.PROGRAM_ID=eo.PROGRAM_ID "
                 + " LEFT JOIN rm_shipment_trans st ON st.SHIPMENT_ID=sh.SHIPMENT_ID AND st.VERSION_ID=sh.MAX_VERSION_ID "
@@ -411,12 +411,13 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 + " LEFT JOIN rm_procurement_agent_planning_unit papu1 ON eo.PLANNING_UNIT_SKU_CODE=LEFT(papu1.SKU_CODE,12) AND papu1.PROCUREMENT_AGENT_ID=1 "
                 + " LEFT JOIN rm_procurement_agent_procurement_unit papu2 ON eo.PROCUREMENT_UNIT_SKU_CODE=LEFT(papu2.SKU_CODE,15) AND papu2.PROCUREMENT_AGENT_ID=1 "
                 + " LEFT JOIN rm_procurement_unit pu2 ON papu2.PROCUREMENT_UNIT_ID=pu2.PROCUREMENT_UNIT_ID "
-                + " LEFT JOIN rm_erp_shipment es ON es.ERP_ORDER_ID=eo.ERP_ORDER_ID "
+//                + " LEFT JOIN rm_erp_shipment es ON es.ERP_ORDER_ID=eo.ERP_ORDER_ID "
+                + " LEFT JOIN rm_erp_shipment es ON es.ORDER_NO=eo.ORDER_NO AND es.PRIME_LINE_NO=eo.PRIME_LINE_NO AND es.FLAG=1 "
                 + " LEFT JOIN rm_shipment_status_mapping ssm ON eo.`STATUS`=ssm.EXTERNAL_STATUS_STAGE "
-                + " LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=sh.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
-                + " GROUP BY eo.`ERP_ORDER_ID`; ";
+                + " LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=sh.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID; ";
+//                + " GROUP BY eo.`ERP_ORDER_ID`; ";
         params.clear();
-        params.put("orderFileName", orderFile.getName());
+//        params.put("orderFileName", orderFile.getName());
         List<ErpOrderDTO> erpOrderDTOList = this.namedParameterJdbcTemplate.query(sqlString, params, new ErpOrderDTOListResultSetExtractor());
         logger.info("");
         logger.info("");
@@ -705,25 +706,128 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                         if (!erpOrderDTO.getEoShipmentList().isEmpty()) {
                             logger.info("Some batch information exists so going to create Batches");
                             for (ErpShipmentDTO es : erpOrderDTO.getEoShipmentList()) {
+                                //New code for batch start
+                                if (es.isAutoGenerated()) {
+                                    // This is an autogenerated batch therefore cannot match with Batch no, try to match with Qty and Expiry Date
+                                    logger.info("ERP Linking : This is an autogenerated batch therefore cannot match with Batch no, try to match with Qty and Expiry Date");
+                                    es.setStatus(2); // Insert
+                                } else {
+                                    // This is not an autogenerated batch which means that we can match it on BatchNo
+                                    logger.info("ERP Linking : This is not an autogenerated batch which means that we can match it on BatchNo---");
+                                    sqlString = "SELECT bi.BATCH_ID, bi.BATCH_NO, bi.PROGRAM_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.`AUTO_GENERATED`, "
+                                            + "bi.EXPIRY_DATE, bi.CREATED_DATE "
+                                            + "FROM rm_batch_info bi WHERE  bi.`PROGRAM_ID`=:programId AND bi.`PLANNING_UNIT_ID`=:planningUnitId AND bi.`BATCH_NO`=:batchNo;";
+                                    params.clear();
+                                    params.put("programId", erpOrderDTO.getShProgramId());
+                                    params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
+                                    params.put("batchNo", es.getBatchNo());
+//                                        params.put("expiryDate", es.getExpiryDate());
+                                    List<Batch> erpBatchList = this.namedParameterJdbcTemplate.query(sqlString, params, new BatchRowMapper());
+                                    logger.info("ERP Linking : erpBatchList---" + erpBatchList);
+
+                                    if (erpBatchList.size() > 0) {
+                                        Batch tempB = new Batch();
+                                        tempB.setBatchNo(es.getBatchNo());
+                                        int index = erpBatchList.indexOf(tempB);
+                                        Batch eb = erpBatchList.get(index);
+                                        logger.info("ERP Linking : Batch eb---" + eb);
+                                        logger.info("ERP Linking : batch index---" + index);
+                                        if (DateUtils.compareDate(eb.getExpiryDate(), es.getExpiryDate()) > 0) {
+                                            // Update the batch table with less es.expiry date
+                                            logger.info("ERP Linking : match found so do entry in shipment trans batch info---");
+                                            es.setStatus(1); // Leave alone
+                                            es.setExistingBatchId(eb.getBatchId());
+                                        } else {
+                                            // match found so no nneed to do anything
+                                            logger.info("ERP Linking : match found so do entry in shipment trans batch info---");
+                                            es.setStatus(3); // Leave alone
+                                            es.setExistingBatchId(eb.getBatchId());
+                                        }
+                                    } else {
+                                        // Batch not found
+                                        logger.info("ERP Linking : Batch not found therefore need to insert ---");
+                                        es.setStatus(2); // Insert
+                                    }
+                                }
+
+                                logger.info("ERP Linking : Looping through Batch no: " + es.getBatchNo() + " Qty:" + es.getBatchQty());
+                                logger.info("ERP Linking : es.getStatus()---" + es.getStatus());
+                                switch (es.getStatus()) {
+                                    case 0: // Do nothing
+                                        logger.info("ERP Linking : case 0 This Batch matched with what was already there so do nothing");
+                                        break;
+                                    case 1: // update
+                                        logger.info("ERP Linking : Need to update this Batch");
+                                        sqlString = "UPDATE rm_batch_info bi SET bi.EXPIRY_DATE=:expiryDate WHERE bi.BATCH_ID=:batchId";
+                                        params.clear();
+                                        params.put("expiryDate", (es.getExpiryDate() == null ? erpOrderDTO.getCalculatedExpiryDate() : es.getExpiryDate()));
+                                        params.put("batchId", es.getExistingBatchId());
+                                        logger.info("ERP Linking : case 1 batch info params---" + params);
+                                        this.namedParameterJdbcTemplate.update(sqlString, params);
+//                                             sib = null;
+                                        SimpleJdbcInsert sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans_batch_info");
+                                        params.put("SHIPMENT_TRANS_ID", shipmentTransId);
+                                        params.put("BATCH_ID", es.getExistingBatchId());
+                                        params.put("BATCH_SHIPMENT_QTY", (es.isAutoGenerated() ? erpOrderDTO.getEoQty() : es.getBatchQty()));
+                                        logger.info("ERP Linking : case 2 shipment trans batch info params---" + params);
+                                        sib.execute(params);
+                                        logger.info("ERP Linking : Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
+                                        break;
+                                    case 2: // Insert
+                                        logger.info("ERP Linking : case 2 Need to insert this Batch");
+                                        sib = null;
+                                        sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
+                                        params.clear();
+                                        params.put("PROGRAM_ID", erpOrderDTO.getShProgramId());
+                                        params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
+                                        params.put("BATCH_NO", (es.isAutoGenerated() ? erpOrderDTO.getAutoGeneratedBatchNo() : es.getBatchNo()));
+                                        params.put("EXPIRY_DATE", (es.isAutoGenerated() || es.getExpiryDate() == null ? erpOrderDTO.getCalculatedExpiryDate() : es.getExpiryDate()));
+                                        params.put("CREATED_DATE", (erpOrderDTO.getMinActualDeliveryDate() == null ? erpOrderDTO.getExpectedDeliveryDate() : erpOrderDTO.getMinActualDeliveryDate()));
+                                        params.put("AUTO_GENERATED", es.isAutoGenerated());
+                                        logger.info("ERP Linking : case 2 batch info params---" + params);
+                                        int batchId = sib.executeAndReturnKey(params).intValue();
+                                        logger.info("ERP Linking : Batch " + params.get("BATCH_NO") + " created with Exp dt " + params.get("EXPIRY_DATE"));
+                                        params.clear();
+                                        sib = null;
+                                        sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans_batch_info");
+                                        params.put("SHIPMENT_TRANS_ID", shipmentTransId);
+                                        params.put("BATCH_ID", batchId);
+                                        params.put("BATCH_SHIPMENT_QTY", (es.isAutoGenerated() ? erpOrderDTO.getEoQty() : es.getBatchQty()));
+                                        logger.info("ERP Linking : case 2 shipment trans batch info params---" + params);
+                                        sib.execute(params);
+                                        logger.info("ERP Linking : Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
+
+                                    case 3: // Insert
+                                        logger.info("ERP Linking : case 3 Need to insert into shipment trans Batch info");
+                                        params.clear();
+                                        sib = null;
+                                        sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans_batch_info");
+                                        params.put("SHIPMENT_TRANS_ID", shipmentTransId);
+                                        params.put("BATCH_ID", es.getExistingBatchId());
+                                        params.put("BATCH_SHIPMENT_QTY", (es.isAutoGenerated() ? erpOrderDTO.getEoQty() : es.getBatchQty()));
+                                        logger.info("ERP Linking : case 2 shipment trans batch info params---" + params);
+                                        sib.execute(params);
+                                        logger.info("ERP Linking : Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
+                                }
                                 // Insert into Batch info for each record
-                                SimpleJdbcInsert sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
-                                params.clear();
-                                params.put("PROGRAM_ID", erpOrderDTO.getShProgramId());
-                                params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
-                                params.put("BATCH_NO", (es.isAutoGenerated() ? erpOrderDTO.getAutoGeneratedBatchNo() : es.getBatchNo()));
-                                params.put("EXPIRY_DATE", (es.isAutoGenerated() || es.getExpiryDate() == null ? erpOrderDTO.getCalculatedExpiryDate() : es.getExpiryDate()));
-                                params.put("CREATED_DATE", (erpOrderDTO.getMinActualDeliveryDate() == null ? erpOrderDTO.getExpectedDeliveryDate() : erpOrderDTO.getMinActualDeliveryDate()));
-                                params.put("AUTO_GENERATED", es.isAutoGenerated());
-                                int batchId = sib.executeAndReturnKey(params).intValue();
-                                logger.info("Batch " + params.get("BATCH_NO") + " created with Exp dt " + params.get("EXPIRY_DATE"));
-                                params.clear();
-                                sib = null;
-                                sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans_batch_info");
-                                params.put("SHIPMENT_TRANS_ID", shipmentTransId);
-                                params.put("BATCH_ID", batchId);
-                                params.put("BATCH_SHIPMENT_QTY", (es.isAutoGenerated() ? erpOrderDTO.getEoQty() : es.getBatchQty()));
-                                sib.execute(params);
-                                logger.info("Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
+//                                SimpleJdbcInsert sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
+//                                params.clear();
+//                                params.put("PROGRAM_ID", erpOrderDTO.getShProgramId());
+//                                params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
+//                                params.put("BATCH_NO", (es.isAutoGenerated() ? erpOrderDTO.getAutoGeneratedBatchNo() : es.getBatchNo()));
+//                                params.put("EXPIRY_DATE", (es.isAutoGenerated() || es.getExpiryDate() == null ? erpOrderDTO.getCalculatedExpiryDate() : es.getExpiryDate()));
+//                                params.put("CREATED_DATE", (erpOrderDTO.getMinActualDeliveryDate() == null ? erpOrderDTO.getExpectedDeliveryDate() : erpOrderDTO.getMinActualDeliveryDate()));
+//                                params.put("AUTO_GENERATED", es.isAutoGenerated());
+//                                int batchId = sib.executeAndReturnKey(params).intValue();
+//                                logger.info("Batch " + params.get("BATCH_NO") + " created with Exp dt " + params.get("EXPIRY_DATE"));
+//                                params.clear();
+//                                sib = null;
+//                                sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans_batch_info");
+//                                params.put("SHIPMENT_TRANS_ID", shipmentTransId);
+//                                params.put("BATCH_ID", batchId);
+//                                params.put("BATCH_SHIPMENT_QTY", (es.isAutoGenerated() ? erpOrderDTO.getEoQty() : es.getBatchQty()));
+//                                sib.execute(params);
+//                                logger.info("Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
                             }
                         } else {
                             // Insert into Batch info for each record
@@ -795,7 +899,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     params.put("FUNDING_SOURCE_ID", erpOrderDTO.getShFundingSourceId());
                     params.put("BUDGET_ID", erpOrderDTO.getShBudgetId());
                     params.put("EXPECTED_DELIVERY_DATE", erpOrderDTO.getExpectedDeliveryDate());
-                     params.put("PROCUREMENT_UNIT_ID", (erpOrderDTO.getEoProcurementUnitId() != 0 ? erpOrderDTO.getEoProcurementUnitId() : null));
+                    params.put("PROCUREMENT_UNIT_ID", (erpOrderDTO.getEoProcurementUnitId() != 0 ? erpOrderDTO.getEoProcurementUnitId() : null));
                     params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
                     params.put("SHIPMENT_QTY", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (Math.round(erpOrderDTO.getEoQty() * erpOrderDTO.getConversionFactor())) : erpOrderDTO.getEoQty()));
                     params.put("RATE", erpOrderDTO.getEoPrice());
@@ -826,25 +930,128 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     if (!erpOrderDTO.getEoShipmentList().isEmpty()) {
                         logger.info("Some batch information exists so going to create Batches");
                         for (ErpShipmentDTO es : erpOrderDTO.getEoShipmentList()) {
+                            //New code for batch
+                            if (es.isAutoGenerated()) {
+                                // This is an autogenerated batch therefore cannot match with Batch no, try to match with Qty and Expiry Date
+                                logger.info("ERP Linking : This is an autogenerated batch therefore cannot match with Batch no, try to match with Qty and Expiry Date");
+                                es.setStatus(2); // Insert
+                            } else {
+                                // This is not an autogenerated batch which means that we can match it on BatchNo
+                                logger.info("ERP Linking : This is not an autogenerated batch which means that we can match it on BatchNo---");
+                                sqlString = "SELECT bi.BATCH_ID, bi.BATCH_NO, bi.PROGRAM_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.`AUTO_GENERATED`, "
+                                        + "bi.EXPIRY_DATE, bi.CREATED_DATE "
+                                        + "FROM rm_batch_info bi WHERE  bi.`PROGRAM_ID`=:programId AND bi.`PLANNING_UNIT_ID`=:planningUnitId AND bi.`BATCH_NO`=:batchNo;";
+                                params.clear();
+                                params.put("programId", erpOrderDTO.getShProgramId());
+                                params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
+                                params.put("batchNo", es.getBatchNo());
+//                                        params.put("expiryDate", es.getExpiryDate());
+                                List<Batch> erpBatchList = this.namedParameterJdbcTemplate.query(sqlString, params, new BatchRowMapper());
+                                logger.info("ERP Linking : erpBatchList---" + erpBatchList);
+
+                                if (erpBatchList.size() > 0) {
+                                    Batch tempB = new Batch();
+                                    tempB.setBatchNo(es.getBatchNo());
+                                    int index = erpBatchList.indexOf(tempB);
+                                    Batch eb = erpBatchList.get(index);
+                                    logger.info("ERP Linking : Batch eb---" + eb);
+                                    logger.info("ERP Linking : batch index---" + index);
+                                    if (DateUtils.compareDate(eb.getExpiryDate(), es.getExpiryDate()) > 0) {
+                                        // Update the batch table with less es.expiry date
+                                        logger.info("ERP Linking : match found so do entry in shipment trans batch info---");
+                                        es.setStatus(1); // Leave alone
+                                        es.setExistingBatchId(eb.getBatchId());
+                                    } else {
+                                        // match found so no nneed to do anything
+                                        logger.info("ERP Linking : match found so do entry in shipment trans batch info---");
+                                        es.setStatus(3); // Leave alone
+                                        es.setExistingBatchId(eb.getBatchId());
+                                    }
+                                } else {
+                                    // Batch not found
+                                    logger.info("ERP Linking : Batch not found therefore need to insert ---");
+                                    es.setStatus(2); // Insert
+                                }
+                            }
+
+                            logger.info("ERP Linking : Looping through Batch no: " + es.getBatchNo() + " Qty:" + es.getBatchQty());
+                            logger.info("ERP Linking : es.getStatus()---" + es.getStatus());
+                            switch (es.getStatus()) {
+                                case 0: // Do nothing
+                                    logger.info("ERP Linking : case 0 This Batch matched with what was already there so do nothing");
+                                    break;
+                                case 1: // update
+                                    logger.info("ERP Linking : Need to update this Batch");
+                                    sqlString = "UPDATE rm_batch_info bi SET bi.EXPIRY_DATE=:expiryDate WHERE bi.BATCH_ID=:batchId";
+                                    params.clear();
+                                    params.put("expiryDate", (es.getExpiryDate() == null ? erpOrderDTO.getCalculatedExpiryDate() : es.getExpiryDate()));
+                                    params.put("batchId", es.getExistingBatchId());
+                                    logger.info("ERP Linking : case 1 batch info params---" + params);
+                                    this.namedParameterJdbcTemplate.update(sqlString, params);
+//                                             sib = null;
+                                    SimpleJdbcInsert sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans_batch_info");
+                                    params.put("SHIPMENT_TRANS_ID", shipmentTransId);
+                                    params.put("BATCH_ID", es.getExistingBatchId());
+                                    params.put("BATCH_SHIPMENT_QTY", (es.isAutoGenerated() ? erpOrderDTO.getEoQty() : es.getBatchQty()));
+                                    logger.info("ERP Linking : case 2 shipment trans batch info params---" + params);
+                                    sib.execute(params);
+                                    logger.info("ERP Linking : Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
+                                    break;
+                                case 2: // Insert
+                                    logger.info("ERP Linking : case 2 Need to insert this Batch");
+                                    sib = null;
+                                    sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
+                                    params.clear();
+                                    params.put("PROGRAM_ID", erpOrderDTO.getShProgramId());
+                                    params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
+                                    params.put("BATCH_NO", (es.isAutoGenerated() ? erpOrderDTO.getAutoGeneratedBatchNo() : es.getBatchNo()));
+                                    params.put("EXPIRY_DATE", (es.isAutoGenerated() || es.getExpiryDate() == null ? erpOrderDTO.getCalculatedExpiryDate() : es.getExpiryDate()));
+                                    params.put("CREATED_DATE", (erpOrderDTO.getMinActualDeliveryDate() == null ? erpOrderDTO.getExpectedDeliveryDate() : erpOrderDTO.getMinActualDeliveryDate()));
+                                    params.put("AUTO_GENERATED", es.isAutoGenerated());
+                                    logger.info("ERP Linking : case 2 batch info params---" + params);
+                                    int batchId = sib.executeAndReturnKey(params).intValue();
+                                    logger.info("ERP Linking : Batch " + params.get("BATCH_NO") + " created with Exp dt " + params.get("EXPIRY_DATE"));
+                                    params.clear();
+                                    sib = null;
+                                    sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans_batch_info");
+                                    params.put("SHIPMENT_TRANS_ID", shipmentTransId);
+                                    params.put("BATCH_ID", batchId);
+                                    params.put("BATCH_SHIPMENT_QTY", (es.isAutoGenerated() ? erpOrderDTO.getEoQty() : es.getBatchQty()));
+                                    logger.info("ERP Linking : case 2 shipment trans batch info params---" + params);
+                                    sib.execute(params);
+                                    logger.info("ERP Linking : Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
+
+                                case 3: // Insert
+                                    logger.info("ERP Linking : case 3 Need to insert into shipment trans Batch info");
+                                    params.clear();
+                                    sib = null;
+                                    sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans_batch_info");
+                                    params.put("SHIPMENT_TRANS_ID", shipmentTransId);
+                                    params.put("BATCH_ID", es.getExistingBatchId());
+                                    params.put("BATCH_SHIPMENT_QTY", (es.isAutoGenerated() ? erpOrderDTO.getEoQty() : es.getBatchQty()));
+                                    logger.info("ERP Linking : case 2 shipment trans batch info params---" + params);
+                                    sib.execute(params);
+                                    logger.info("ERP Linking : Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
+                            }
                             // Insert into Batch info for each record
-                            SimpleJdbcInsert sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
-                            params.clear();
-                            params.put("PROGRAM_ID", erpOrderDTO.getShProgramId());
-                            params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
-                            params.put("BATCH_NO", (es.isAutoGenerated() ? erpOrderDTO.getAutoGeneratedBatchNo() : es.getBatchNo()));
-                            params.put("EXPIRY_DATE", (es.isAutoGenerated() || es.getExpiryDate() == null ? erpOrderDTO.getCalculatedExpiryDate() : es.getExpiryDate()));
-                            params.put("CREATED_DATE", (erpOrderDTO.getMinActualDeliveryDate() == null ? erpOrderDTO.getExpectedDeliveryDate() : erpOrderDTO.getMinActualDeliveryDate()));
-                            params.put("AUTO_GENERATED", es.isAutoGenerated());
-                            int batchId = sib.executeAndReturnKey(params).intValue();
-                            logger.info("Batch " + params.get("BATCH_NO") + " created with Exp dt " + params.get("EXPIRY_DATE"));
-                            params.clear();
-                            sib = null;
-                            sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans_batch_info");
-                            params.put("SHIPMENT_TRANS_ID", shipmentTransId);
-                            params.put("BATCH_ID", batchId);
-                            params.put("BATCH_SHIPMENT_QTY", (es.isAutoGenerated() ? erpOrderDTO.getEoQty() : es.getBatchQty()));
-                            sib.execute(params);
-                            logger.info("Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
+//                            SimpleJdbcInsert sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
+//                            params.clear();
+//                            params.put("PROGRAM_ID", erpOrderDTO.getShProgramId());
+//                            params.put("PLANNING_UNIT_ID", erpOrderDTO.getEoPlanningUnitId());
+//                            params.put("BATCH_NO", (es.isAutoGenerated() ? erpOrderDTO.getAutoGeneratedBatchNo() : es.getBatchNo()));
+//                            params.put("EXPIRY_DATE", (es.isAutoGenerated() || es.getExpiryDate() == null ? erpOrderDTO.getCalculatedExpiryDate() : es.getExpiryDate()));
+//                            params.put("CREATED_DATE", (erpOrderDTO.getMinActualDeliveryDate() == null ? erpOrderDTO.getExpectedDeliveryDate() : erpOrderDTO.getMinActualDeliveryDate()));
+//                            params.put("AUTO_GENERATED", es.isAutoGenerated());
+//                            int batchId = sib.executeAndReturnKey(params).intValue();
+//                            logger.info("Batch " + params.get("BATCH_NO") + " created with Exp dt " + params.get("EXPIRY_DATE"));
+//                            params.clear();
+//                            sib = null;
+//                            sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment_trans_batch_info");
+//                            params.put("SHIPMENT_TRANS_ID", shipmentTransId);
+//                            params.put("BATCH_ID", batchId);
+//                            params.put("BATCH_SHIPMENT_QTY", (es.isAutoGenerated() ? erpOrderDTO.getEoQty() : es.getBatchQty()));
+//                            sib.execute(params);
+//                            logger.info("Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
                         }
                     } else {
                         // Insert into Batch info for each record
