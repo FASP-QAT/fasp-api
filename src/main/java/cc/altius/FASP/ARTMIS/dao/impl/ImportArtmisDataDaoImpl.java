@@ -411,7 +411,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 + " LEFT JOIN rm_procurement_agent_planning_unit papu1 ON eo.PLANNING_UNIT_SKU_CODE=LEFT(papu1.SKU_CODE,12) AND papu1.PROCUREMENT_AGENT_ID=1 "
                 + " LEFT JOIN rm_procurement_agent_procurement_unit papu2 ON eo.PROCUREMENT_UNIT_SKU_CODE=LEFT(papu2.SKU_CODE,15) AND papu2.PROCUREMENT_AGENT_ID=1 "
                 + " LEFT JOIN rm_procurement_unit pu2 ON papu2.PROCUREMENT_UNIT_ID=pu2.PROCUREMENT_UNIT_ID "
-//                + " LEFT JOIN rm_erp_shipment es ON es.ERP_ORDER_ID=eo.ERP_ORDER_ID "
+                //                + " LEFT JOIN rm_erp_shipment es ON es.ERP_ORDER_ID=eo.ERP_ORDER_ID "
                 + " LEFT JOIN rm_erp_shipment es ON es.ORDER_NO=eo.ORDER_NO AND es.PRIME_LINE_NO=eo.PRIME_LINE_NO AND es.FLAG=1 "
                 + " LEFT JOIN rm_shipment_status_mapping ssm ON eo.`STATUS`=ssm.EXTERNAL_STATUS_STAGE "
                 + " LEFT JOIN rm_program_planning_unit ppu ON ppu.PROGRAM_ID=sh.PROGRAM_ID AND ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID; ";
@@ -588,6 +588,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                         params.clear();
                                         params.put("shipmentTransBatchInfoId", es.getExistingShipmentTransBatchInfoId());
                                         this.namedParameterJdbcTemplate.update(sqlString, params);
+                                        break;
 //                                        System.out.println("---------Batch case 3---------");
                                     case 2: // Insert
                                         try {
@@ -631,6 +632,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
 //                                            System.out.println("---------Batch case 4 end---------");
 
                                         logger.info("Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
+                                        break;
                                     } catch (Exception e) {
                                         e.printStackTrace();
                                     }
@@ -796,7 +798,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                         logger.info("ERP Linking : case 2 shipment trans batch info params---" + params);
                                         sib.execute(params);
                                         logger.info("ERP Linking : Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
-
+                                        break;
                                     case 3: // Insert
                                         logger.info("ERP Linking : case 3 Need to insert into shipment trans Batch info");
                                         params.clear();
@@ -808,6 +810,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                         logger.info("ERP Linking : case 2 shipment trans batch info params---" + params);
                                         sib.execute(params);
                                         logger.info("ERP Linking : Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
+                                        break;
                                 }
                                 // Insert into Batch info for each record
 //                                SimpleJdbcInsert sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
@@ -1020,7 +1023,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                     logger.info("ERP Linking : case 2 shipment trans batch info params---" + params);
                                     sib.execute(params);
                                     logger.info("ERP Linking : Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
-
+                                    break;
                                 case 3: // Insert
                                     logger.info("ERP Linking : case 3 Need to insert into shipment trans Batch info");
                                     params.clear();
@@ -1032,6 +1035,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                     logger.info("ERP Linking : case 2 shipment trans batch info params---" + params);
                                     sib.execute(params);
                                     logger.info("ERP Linking : Pushed into shipmentBatchTrans with Qty " + es.getBatchQty());
+                                    break;
                             }
                             // Insert into Batch info for each record
 //                            SimpleJdbcInsert sib = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_batch_info").usingGeneratedKeyColumns("BATCH_ID");
@@ -1098,4 +1102,5 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
         logger.info("--------------------------------------------------------------------------------------");
         return programList;
     }
+
 }
