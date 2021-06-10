@@ -131,7 +131,7 @@ public class BudgetRestController {
         }
     }
 
-    @GetMapping(value = "/sync/budget/{lastSyncDate}")
+//    @GetMapping(value = "/sync/budget/{lastSyncDate}")
 //    @Operation(
 //            summary = "Used to Sync the Budgets with users machines for Offline use",
 //            tags = {"Sync", "Budget"},
@@ -178,18 +178,18 @@ public class BudgetRestController {
 //                        })
 //            }
 //    )
-    public ResponseEntity getBudgetListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.budgetService.getBudgetListForSync(lastSyncDate, curUser), HttpStatus.OK);
-        } catch (ParseException p) {
-            logger.error("Error while listing budget", p);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-        } catch (Exception e) {
-            logger.error("Error while listing budget", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    public ResponseEntity getBudgetListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.budgetService.getBudgetListForSync(lastSyncDate, curUser), HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error while listing budget", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error while listing budget", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }
