@@ -24,7 +24,7 @@ public class ManualTaggingDTO implements Serializable {
     private int shipmentTransId;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    private Date expectedDeliveryDate;
+    Date expectedDeliveryDate;
     private SimpleObject shipmentStatus;
     private SimpleCodeObject procurementAgent;
     private SimpleCodeObject fundingSource;
