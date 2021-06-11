@@ -481,7 +481,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                 + "    st.SHIPMENT_STATUS_ID=:shipmentStatusId, st.SUPPLIER_ID=:supplierId, st.PLANNED_DATE=:plannedDate, "
                                 + "    st.SUBMITTED_DATE=:submittedDate, st.APPROVED_DATE=:approvedDate, st.SHIPPED_DATE=:shippedDate, "
                                 + "    st.ARRIVED_DATE=:arrivedDate, st.RECEIVED_DATE=:receivedDate, st.LAST_MODIFIED_BY=1, "
-                                + "    st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate, st.NOTES=:notes "
+                                + "    st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate "
                                 + "WHERE st.SHIPMENT_TRANS_ID=:shipmentTransId";
                         params.clear();
 //                        params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
@@ -501,7 +501,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                         params.put("arrivedDate", erpOrderDTO.getMinArrivalAtDestinationDate());
                         params.put("receivedDate", erpOrderDTO.getMinActualDeliveryDate());
                         params.put("curDate", curDate);
-                        params.put("notes", "Auto updated from ERP Data");
+                        System.out.println("----------removed notes---------");
                         this.namedParameterJdbcTemplate.update(sqlString, params);
                         logger.info("Updated the already existing Shipment Trans record (" + shipmentTransId + ") with new data");
                         logger.info("Now need to update the Batch information");
