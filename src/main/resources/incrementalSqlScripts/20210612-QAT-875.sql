@@ -18,4 +18,4 @@ insert into us_role_business_function select null,'ROLE_INTERNAL_USER',u.BUSINES
 update us_user_role u set u.ROLE_ID='ROLE_INTERNAL_USER',u.LAST_MODIFIED_DATE=now() where u.USER_ID in (select u.USER_ID 
 from us_user u 
 left join us_user_role ur on u.USER_ID=ur.USER_ID
-where (u.EMAIL_ID like '%altius%' or u.EMAIL_ID like '%fhi%') and u.USER_ID!=1 and ur.ROLE_ID='REALM_LEVEL_ADMIN');
+where (u.EMAIL_ID like '%altius%' or u.EMAIL_ID like '%fhi%') and u.USER_ID!=1 and ur.ROLE_ID='ROLE_REALM_ADMIN');
