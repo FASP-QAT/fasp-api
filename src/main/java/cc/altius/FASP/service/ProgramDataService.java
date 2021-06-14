@@ -62,4 +62,6 @@ public interface ProgramDataService {
     public int getLatestVersionForProgram(int programId);
     
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
+    
+    public String getLastModifiedDateForProgram(int programId,int versionId);
 }

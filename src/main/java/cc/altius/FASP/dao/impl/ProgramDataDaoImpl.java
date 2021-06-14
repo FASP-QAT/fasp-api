@@ -93,7 +93,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     private EmailService emailService;
     @Autowired
     private ProgramService programService;
-   
+
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -1247,7 +1247,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "Cc");
             System.out.println("toEmailIdsListReject===>" + toEmailIdsList);
             System.out.println("ccEmailIdsListReject===>" + ccEmailIdsList);
-            
+
             StringBuilder sbToEmails = new StringBuilder();
             StringBuilder sbCcEmails = new StringBuilder();
             if (toEmailIdsList.size() > 0) {
@@ -1260,8 +1260,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     sbCcEmails.append(ns.getEmailId()).append(",");
                 }
             }
-            if (sbToEmails.length() != 0) {System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());}
-            if (sbCcEmails.length() != 0) {System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());}
+            if (sbToEmails.length() != 0) {
+                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
+            }
+            if (sbCcEmails.length() != 0) {
+                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
+            }
 
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(7);
             String[] subjectParam = new String[]{};
@@ -1269,7 +1273,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             Emailer emailer = new Emailer();
             subjectParam = new String[]{program.getProgramCode()};
             bodyParam = new String[]{program.getProgramCode(), String.valueOf(versionId), notes};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "",sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -1283,7 +1287,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "Cc");
             System.out.println("toEmailIdsListApproved===>" + toEmailIdsList);
             System.out.println("ccEmailIdsListApproved===>" + ccEmailIdsList);
-            
+
             StringBuilder sbToEmails = new StringBuilder();
             StringBuilder sbCcEmails = new StringBuilder();
             if (toEmailIdsList.size() > 0) {
@@ -1296,8 +1300,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     sbCcEmails.append(ns.getEmailId()).append(",");
                 }
             }
-            if (sbToEmails.length() != 0) {System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());}
-            if (sbCcEmails.length() != 0) {System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());}
+            if (sbToEmails.length() != 0) {
+                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
+            }
+            if (sbCcEmails.length() != 0) {
+                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
+            }
 
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(5);
             String[] subjectParam = new String[]{};
@@ -1305,7 +1313,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             Emailer emailer = new Emailer();
             subjectParam = new String[]{program.getProgramCode()};
             bodyParam = new String[]{program.getProgramCode(), String.valueOf(versionId), notes};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "",sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -1822,6 +1830,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("versionId", versionId);
         params.put("statusType", statusType);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new NotificationUserRowMapper());
+    }
+
+    @Override
+    public String getLastModifiedDateForProgram(int programId, int versionId) {
+        String sql = "select MAX(st.LAST_MODIFIED_DATE) from rm_shipment s \n"
+                + "left join rm_shipment_trans st on s.SHIPMENT_ID=st.SHIPMENT_ID and s.MAX_VERSION_ID=st.VERSION_ID\n"
+                + "where s.PROGRAM_ID=? and st.VERSION_ID<=?;";
+        return this.jdbcTemplate.queryForObject(sql, String.class, programId, versionId);
     }
 
 }
