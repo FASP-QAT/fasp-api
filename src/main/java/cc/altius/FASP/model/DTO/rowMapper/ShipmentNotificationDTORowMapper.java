@@ -23,7 +23,7 @@ public class ShipmentNotificationDTORowMapper implements RowMapper<ERPNotificati
     public ERPNotificationDTO mapRow(ResultSet rs, int rows) throws SQLException {
         ERPNotificationDTO m = new ERPNotificationDTO();
         m.setExpectedDeliveryDate(rs.getTimestamp("EXPECTED_DELIVERY_DATE"));
-        m.setShipmentQty(rs.getInt("SHIPMENT_QTY"));
+        m.setShipmentQty(rs.getLong("SHIPMENT_QTY"));
         m.setShipmentId(rs.getInt("SHIPMENT_ID"));
         m.setParentShipmentId(rs.getInt("PARENT_SHIPMENT_ID"));
         m.setOrderNo(rs.getString("ORDER_NO"));

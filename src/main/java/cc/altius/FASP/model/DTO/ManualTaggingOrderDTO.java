@@ -17,7 +17,7 @@ public class ManualTaggingOrderDTO {
 
     private int erpOrderId;
     private int shipmentId;
-    private int quantity;
+    private long quantity;
     private String orderNo;
     private int primeLineNo;
     private String roNo;
@@ -58,11 +58,11 @@ public class ManualTaggingOrderDTO {
         this.shipmentId = shipmentId;
     }
 
-    public int getQuantity() {
+    public long getQuantity() {
         return quantity;
     }
 
-    public void setQuantity(int quantity) {
+    public void setQuantity(long quantity) {
         this.quantity = quantity;
     }
 
