@@ -8,7 +8,7 @@
  * Created: 12-Jun-2021
  */
 
-insert into ap_label values(null,"Internal users","","","",1,now(),1,now(),20);
+insert into ap_label values(null,"Internal user","","","",1,now(),1,now(),20);
 select max(l.LABEL_ID) into @max from ap_label l ;
 
 insert into us_role values('ROLE_INTERNAL_USER',@max,1,now(),1,now());
