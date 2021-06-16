@@ -129,7 +129,7 @@ public class ProcurementAgentRestController {
         }
     }
 
-    @PutMapping("/procurementAgent/planningingUnit")
+    @PutMapping("/procurementAgent/planningUnit")
     public ResponseEntity savePlanningUnitForProcurementAgent(@RequestBody ProcurementAgentPlanningUnit[] procurementAgentPlanningUnits, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
