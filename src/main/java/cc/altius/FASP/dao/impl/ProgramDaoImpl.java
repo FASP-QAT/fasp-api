@@ -2045,14 +2045,13 @@ public class ProgramDaoImpl implements ProgramDao {
                 sql = "SELECT COUNT(*) FROM rm_erp_tab3_shipments s WHERE s.`SHIPMENT_ID`=? AND s.`ACTIVE`;";
                 int count = this.jdbcTemplate.queryForObject(sql, Integer.class, parentShipmentId);
                 logger.info("ERP Linking : Going to check tab3 shipments count--------------------" + count);
-                if (count == 0) {
-                    logger.info("ERP Linking : Going to check tab3 shipments count is 0 so activate parent--------------------");
-                    maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=?", Integer.class, parentShipmentId);
-                    logger.info("ERP Linking : 1st max trans id---" + maxTransId);
-                    sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=1,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=? "
-                            + "WHERE `SHIPMENT_TRANS_ID`=?;";
-                    this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, maxTransId);
-                } else {
+//                    logger.info("ERP Linking : Going to check tab3 shipments count is 0 so activate parent--------------------");
+                maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=?", Integer.class, parentShipmentId);
+                logger.info("ERP Linking : 1st max trans id---" + maxTransId);
+                sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=?,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=? "
+                        + "WHERE `SHIPMENT_TRANS_ID`=?;";
+                this.jdbcTemplate.update(sql, (count == 0 ? 1 : 0), curUser.getUserId(), curDate, maxTransId);
+                if (count > 0) {
                     logger.info("ERP Linking : Going to check tab3 shipments count is greater than 0 so leave parent as is and deactivate in tab3 shipment table--------------------");
                     sql = "UPDATE rm_erp_tab3_shipments s SET s.`ACTIVE`=0,s.`LAST_MODIFIED_BY`=?,s.`LAST_MODIFIED_DATE`=? WHERE s.`SHIPMENT_ID`=? AND s.`ACTIVE`; ";
                     this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, parentShipmentId);
