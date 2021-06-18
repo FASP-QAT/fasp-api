@@ -367,9 +367,12 @@ public class ErpOrderDTO {
     }
 
     public boolean isShErpFlag() {
+        System.out.println("inside erp flag function-------------------"+this.eoOrderNo);
         if (this.shErpFlag == null) {
+            System.out.println("inside erp flag function if-------------------"+this.shErpFlag);
             return false;
         } else {
+            System.out.println("inside erp flag function else-------------------"+this.shErpFlag);
             return this.shErpFlag;
         }
     }
