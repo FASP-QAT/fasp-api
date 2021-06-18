@@ -1792,7 +1792,8 @@ public class ProgramDaoImpl implements ProgramDao {
                     params.put("ARRIVED_DATE", erpOrderDTO.getMinArrivalAtDestinationDate());
                     params.put("RECEIVED_DATE", erpOrderDTO.getMinActualDeliveryDate());
                     params.put("SHIPMENT_STATUS_ID", erpOrderDTO.getEoShipmentStatusId());
-                    params.put("NOTES", "Auto created from shipment linking...");
+//                    params.put("NOTES", "Auto created from shipment linking...");
+                    params.put("NOTES", (i == 1 ? "Auto created from not linked(ERP)..." : manualTaggingOrderDTO.getNotes()));
                     params.put("ERP_FLAG", 1);
                     params.put("ORDER_NO", erpOrderDTO.getEoOrderNo());
                     params.put("PRIME_LINE_NO", (i == 1 ? null : erpOrderDTO.getEoPrimeLineNo()));
