@@ -10,9 +10,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.apache.commons.io.FilenameUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -32,26 +29,26 @@ public class UserManualServiceImpl implements UserManualService {
     private String QAT_USER_GUIDE;
 
     @Override
-    public void uploadUserManual(MultipartFile file) {
-        try {
-            byte[] userManualBytes = file.getBytes();
-            String attachmentFilePath = QAT_FILE_PATH.concat(QAT_ADDITIONAL_FILES).concat(QAT_USER_GUIDE);
+    public void uploadUserManual(MultipartFile file) throws IOException,FileNotFoundException{
+//        try {
+        byte[] userManualBytes = file.getBytes();
+        String attachmentFilePath = QAT_FILE_PATH.concat(QAT_ADDITIONAL_FILES).concat(QAT_USER_GUIDE);
 
-            File attachmentFile = new File(attachmentFilePath);
-            FileOutputStream attachmentFileFos;
-            try {
-                attachmentFileFos = new FileOutputStream(attachmentFile);
-                attachmentFileFos.write(userManualBytes);
-                attachmentFileFos.flush();
-                attachmentFileFos.close();
-            } catch (FileNotFoundException ex) {
-                ex.printStackTrace();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        } catch (IOException ex) {
-            Logger.getLogger(UserManualServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        File attachmentFile = new File(attachmentFilePath);
+        FileOutputStream attachmentFileFos;
+//            try {
+        attachmentFileFos = new FileOutputStream(attachmentFile);
+        attachmentFileFos.write(userManualBytes);
+        attachmentFileFos.flush();
+        attachmentFileFos.close();
+//            } catch (FileNotFoundException ex) {
+//                ex.printStackTrace();
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        } catch (IOException ex) {
+//            Logger.getLogger(UserManualServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
+//        }
 
     }
 
