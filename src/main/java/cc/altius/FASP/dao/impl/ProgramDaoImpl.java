@@ -886,13 +886,14 @@ public class ProgramDaoImpl implements ProgramDao {
                         logger.info("ERP Linking : Change code is 2 --- ");
                         // This is the Delete code so go ahead and delete this Order
                         logger.info("Change code is 2 so therefore delete this line item where shipmentId=" + erpOrderDTO.getShShipmentId());
-                        sql = "UPDATE rm_shipment s LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID SET st.ACTIVE=0, st.LAST_MODIFIED_BY=1, st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate WHERE s.PARENT_SHIPMENT_ID=:shipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo AND st.ACTIVE AND st.ERP_FLAG";
+                        sql = "UPDATE rm_shipment s LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID SET st.ACTIVE=0, st.LAST_MODIFIED_BY=:curUser, st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=:curUser, s.LAST_MODIFIED_DATE=:curDate WHERE s.PARENT_SHIPMENT_ID=:shipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo AND st.ACTIVE AND st.ERP_FLAG";
                         params.clear();
 //                        params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
                         params.put("shipmentId", erpOrderDTO.getShShipmentId());
                         params.put("orderNo", erpOrderDTO.getEoOrderNo());
                         params.put("primeLineNo", erpOrderDTO.getEoPrimeLineNo());
                         params.put("curDate", curDate);
+                        params.put("curUser", curUser.getUserId());
                         logger.info("ERP Linking : Change code is 2 params--- " + params);
                         rows = this.namedParameterJdbcTemplate.update(sql, params);
                         logger.info(rows + " rows updated");
@@ -924,8 +925,8 @@ public class ProgramDaoImpl implements ProgramDao {
                                     + "    st.RATE=:price, st.SHIPMENT_MODE=:shipBy, st.SHIPMENT_QTY=:qty, "
                                     + "    st.SHIPMENT_STATUS_ID=:shipmentStatusId, st.SUPPLIER_ID=:supplierId, st.PLANNED_DATE=:plannedDate, "
                                     + "    st.SUBMITTED_DATE=:submittedDate, st.APPROVED_DATE=:approvedDate, st.SHIPPED_DATE=:shippedDate, "
-                                    + "    st.ARRIVED_DATE=:arrivedDate, st.RECEIVED_DATE=:receivedDate, st.LAST_MODIFIED_BY=1, "
-                                    + "    st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate, st.NOTES=:notes "
+                                    + "    st.ARRIVED_DATE=:arrivedDate, st.RECEIVED_DATE=:receivedDate, st.LAST_MODIFIED_BY=:curUser, "
+                                    + "    st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=:curUser, s.LAST_MODIFIED_DATE=:curDate, st.NOTES=:notes "
                                     + "WHERE st.SHIPMENT_TRANS_ID=:shipmentTransId";
                             params.clear();
 //                            params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
@@ -945,6 +946,7 @@ public class ProgramDaoImpl implements ProgramDao {
                             params.put("arrivedDate", erpOrderDTO.getMinArrivalAtDestinationDate());
                             params.put("receivedDate", erpOrderDTO.getMinActualDeliveryDate());
                             params.put("curDate", curDate);
+                            params.put("curUser", curUser.getUserId());
                             params.put("notes", "Auto updated from shipment linking");
                             logger.info("ERP Linking : params---" + params);
                             this.namedParameterJdbcTemplate.update(sql, params);
@@ -1142,9 +1144,9 @@ public class ProgramDaoImpl implements ProgramDao {
                             params.put("CURRENCY_ID", 1); // USD as default from ARTMIS
                             params.put("CONVERSION_RATE_TO_USD", 1);
                             params.put("PARENT_SHIPMENT_ID", (erpOrderDTO.getShParentShipmentId() != null ? erpOrderDTO.getShParentShipmentId() : erpOrderDTO.getShShipmentId()));
-                            params.put("CREATED_BY", 1); //Default auto user in QAT
+                            params.put("CREATED_BY", curUser.getUserId()); //Default auto user in QAT
                             params.put("CREATED_DATE", curDate);
-                            params.put("LAST_MODIFIED_BY", 1); //Default auto user in QAT
+                            params.put("LAST_MODIFIED_BY", curUser.getUserId()); //Default auto user in QAT
                             params.put("LAST_MODIFIED_DATE", curDate);
                             params.put("MAX_VERSION_ID", erpOrderDTO.getShVersionId()); // Same as the Current Version that is already present
                             SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment").usingGeneratedKeyColumns("SHIPMENT_ID");
@@ -1182,7 +1184,7 @@ public class ProgramDaoImpl implements ProgramDao {
                             params.put("ACCOUNT_FLAG", erpOrderDTO.getShAccountFlag());
                             params.put("EMERGENCY_ORDER", false);   // Cannot determine 
                             params.put("LOCAL_PROCUREMENT", false); // Cannot determine
-                            params.put("LAST_MODIFIED_BY", 1); // Default user
+                            params.put("LAST_MODIFIED_BY", curUser.getUserId()); // Default user
                             params.put("DATA_SOURCE_ID", erpOrderDTO.getShDataSourceId());
                             params.put("LAST_MODIFIED_DATE", curDate);
                             params.put("VERSION_ID", erpOrderDTO.getShVersionId());
@@ -1382,12 +1384,13 @@ public class ProgramDaoImpl implements ProgramDao {
                         // All other details to be taken from ARTMIS + Current Shipment
 //                        sql = "UPDATE rm_shipment_trans st LEFT JOIN rm_shipment s ON st.SHIPMENT_ID=s.SHIPMENT_ID SET st.`PLANNING_UNIT_ID`=:planningUnitId,st.ERP_FLAG=1, st.ACTIVE=0, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate, st.LAST_MODIFIED_BY=1, st.LAST_MODIFIED_DATE=:curDate WHERE st.SHIPMENT_TRANS_ID=:shipmentTransId";
                         sql = "UPDATE rm_shipment_trans st LEFT JOIN rm_shipment s ON st.SHIPMENT_ID=s.SHIPMENT_ID "
-                                + " SET st.ERP_FLAG=1, st.ACTIVE=0, s.LAST_MODIFIED_BY=1, "
-                                + " s.LAST_MODIFIED_DATE=:curDate, st.LAST_MODIFIED_BY=1, st.LAST_MODIFIED_DATE=:curDate "
+                                + " SET st.ERP_FLAG=1, st.ACTIVE=0, s.LAST_MODIFIED_BY=:curUser, "
+                                + " s.LAST_MODIFIED_DATE=:curDate, st.LAST_MODIFIED_BY=:curUser, st.LAST_MODIFIED_DATE=:curDate "
                                 + " WHERE st.SHIPMENT_TRANS_ID=:shipmentTransId";
                         params.clear();
 //                        params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
                         System.out.println("shipment trans id-------------------------" + erpOrderDTO.getShShipmentTransId());
+                        params.put("curUser", curUser.getUserId());
                         params.put("curDate", curDate);
                         params.put("shipmentTransId", erpOrderDTO.getShShipmentTransId());
                         logger.info("ERP Linking : update shipment trans params---" + params);
@@ -1399,9 +1402,9 @@ public class ProgramDaoImpl implements ProgramDao {
                         params.put("CURRENCY_ID", 1); // USD as default from ARTMIS
                         params.put("CONVERSION_RATE_TO_USD", 1);
                         params.put("PARENT_SHIPMENT_ID", (erpOrderDTO.getShParentShipmentId() != null ? erpOrderDTO.getShParentShipmentId() : erpOrderDTO.getShShipmentId()));
-                        params.put("CREATED_BY", 1); //Default auto user in QAT
+                        params.put("CREATED_BY", curUser.getUserId()); //Default auto user in QAT
                         params.put("CREATED_DATE", curDate);
-                        params.put("LAST_MODIFIED_BY", 1); //Default auto user in QAT
+                        params.put("LAST_MODIFIED_BY", curUser.getUserId()); //Default auto user in QAT
                         params.put("LAST_MODIFIED_DATE", curDate);
                         params.put("MAX_VERSION_ID", erpOrderDTO.getShVersionId()); // Same as the Current Version that is already present
                         SimpleJdbcInsert si = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_shipment").usingGeneratedKeyColumns("SHIPMENT_ID");
@@ -1437,7 +1440,7 @@ public class ProgramDaoImpl implements ProgramDao {
                         params.put("ACCOUNT_FLAG", erpOrderDTO.getShAccountFlag());
                         params.put("EMERGENCY_ORDER", false);   // Cannot determine 
                         params.put("LOCAL_PROCUREMENT", false); // Cannot determine
-                        params.put("LAST_MODIFIED_BY", 1); // Default user
+                        params.put("LAST_MODIFIED_BY", curUser.getUserId()); // Default user
                         params.put("DATA_SOURCE_ID", erpOrderDTO.getShDataSourceId());
                         params.put("LAST_MODIFIED_DATE", curDate);
                         params.put("VERSION_ID", erpOrderDTO.getShVersionId());
@@ -1692,9 +1695,9 @@ public class ProgramDaoImpl implements ProgramDao {
             params.put("CURRENCY_ID", 1); // USD as default from ARTMIS
             params.put("CONVERSION_RATE_TO_USD", 1);
             params.put("PARENT_SHIPMENT_ID", (i == 1 ? null : parentShipmentId));
-            params.put("CREATED_BY", 1); //Default auto user in QAT
+            params.put("CREATED_BY", curUser.getUserId()); //Default auto user in QAT
             params.put("CREATED_DATE", curDate);
-            params.put("LAST_MODIFIED_BY", 1); //Default auto user in QAT
+            params.put("LAST_MODIFIED_BY", curUser.getUserId()); //Default auto user in QAT
             params.put("LAST_MODIFIED_DATE", curDate);
             params.put("MAX_VERSION_ID", 1); // Same as the Current Version that is already present
             logger.info("ERP Linking : Going to create shipment table entry params---" + params);
@@ -1706,6 +1709,9 @@ public class ProgramDaoImpl implements ProgramDao {
                 sql = "INSERT INTO rm_manual_tagging VALUES (NULL,?,?,?,?,?,?,?,1,?,?);";
                 int row = this.jdbcTemplate.update(sql, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo(), newShipmentId, curDate, curUser.getUserId(), curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), manualTaggingOrderDTO.getConversionFactor());
                 logger.info("ERP Linking : rows inserted in manual tagging---" + row);
+
+                logger.info("ERP Linking : Going to do entry in tab3 shipment table---");
+                this.tab3ShipmentCreation(newShipmentId, curUser);
             }
             String filename = this.getMaxERPOrderIdFromERPShipment(manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
             sql = " SELECT "
@@ -1786,14 +1792,15 @@ public class ProgramDaoImpl implements ProgramDao {
                     params.put("ARRIVED_DATE", erpOrderDTO.getMinArrivalAtDestinationDate());
                     params.put("RECEIVED_DATE", erpOrderDTO.getMinActualDeliveryDate());
                     params.put("SHIPMENT_STATUS_ID", erpOrderDTO.getEoShipmentStatusId());
-                    params.put("NOTES", "Auto created from shipment linking...");
+//                    params.put("NOTES", "Auto created from shipment linking...");
+                    params.put("NOTES", (i == 1 ? "Auto created from not linked(ERP)..." : manualTaggingOrderDTO.getNotes()));
                     params.put("ERP_FLAG", 1);
                     params.put("ORDER_NO", erpOrderDTO.getEoOrderNo());
                     params.put("PRIME_LINE_NO", (i == 1 ? null : erpOrderDTO.getEoPrimeLineNo()));
                     params.put("ACCOUNT_FLAG", erpOrderDTO.getShAccountFlag());
                     params.put("EMERGENCY_ORDER", false);   // Cannot determine 
                     params.put("LOCAL_PROCUREMENT", false); // Cannot determine
-                    params.put("LAST_MODIFIED_BY", 1); // Default user
+                    params.put("LAST_MODIFIED_BY", curUser.getUserId()); // Default user
                     params.put("DATA_SOURCE_ID", 17);
                     params.put("LAST_MODIFIED_DATE", curDate);
                     params.put("VERSION_ID", 1);
@@ -2034,12 +2041,24 @@ public class ProgramDaoImpl implements ProgramDao {
             logger.info("ERP Linking : one shipment id found to delink---");
 //            for (int shipmentId1 : shipmentIdList) {
             if (this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo()) != null) {
-                System.out.println("inside if--------------------" + erpOrderDTO);
+                logger.info("inside if--------------------" + erpOrderDTO);
+                logger.info("ERP Linking : Going to check tab3 shipments table for parent--------------------" + parentShipmentId);
+                sql = "SELECT COUNT(*) FROM rm_erp_tab3_shipments s WHERE s.`SHIPMENT_ID`=? AND s.`ACTIVE`;";
+                int count = this.jdbcTemplate.queryForObject(sql, Integer.class, parentShipmentId);
+                logger.info("ERP Linking : Going to check tab3 shipments count--------------------" + count);
+//                    logger.info("ERP Linking : Going to check tab3 shipments count is 0 so activate parent--------------------");
                 maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`SHIPMENT_ID`=?", Integer.class, parentShipmentId);
                 logger.info("ERP Linking : 1st max trans id---" + maxTransId);
-                sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=1,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=? "
+                sql = "UPDATE rm_shipment_trans SET `ERP_FLAG`=0,`ACTIVE`=?,`PRIME_LINE_NO`=NULL,`LAST_MODIFIED_BY`=?,`LAST_MODIFIED_DATE`=? "
                         + "WHERE `SHIPMENT_TRANS_ID`=?;";
-                this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, maxTransId);
+                this.jdbcTemplate.update(sql, (count == 0 ? 1 : 0), curUser.getUserId(), curDate, maxTransId);
+                if (count > 0) {
+                    logger.info("ERP Linking : Going to check tab3 shipments count is greater than 0 so leave parent as is and deactivate in tab3 shipment table--------------------");
+                    sql = "UPDATE rm_erp_tab3_shipments s SET s.`ACTIVE`=0,s.`LAST_MODIFIED_BY`=?,s.`LAST_MODIFIED_DATE`=? WHERE s.`SHIPMENT_ID`=? AND s.`ACTIVE`; ";
+                    this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, parentShipmentId);
+                    logger.info("ERP Linking : Updation of tab 3 shiment completed--------------------");
+                }
+
                 maxTransId = this.jdbcTemplate.queryForObject("SELECT MAX(st.`SHIPMENT_TRANS_ID`) FROM rm_shipment_trans st WHERE st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE`;", Integer.class, erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
                 logger.info("ERP Linking : 2nd max trans id---" + maxTransId);
 
@@ -2497,4 +2516,24 @@ public class ProgramDaoImpl implements ProgramDao {
         String sql = "SELECT MAX(s.FILE_NAME) AS FILE_NAME FROM rm_erp_shipment s WHERE s.`ORDER_NO`=? AND s.`PRIME_LINE_NO`=?;";
         return this.jdbcTemplate.queryForObject(sql, String.class, orderNo, primeLineNo);
     }
+
+    @Override
+    @Transactional
+    public int tab3ShipmentCreation(int shipmentId, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        logger.info("ERP Linking : Tab3 new shipment creation---" + shipmentId);
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_erp_tab3_shipments").usingGeneratedKeyColumns("TAB3_SHIPMENT_ID");
+        params.put("SHIPMENT_ID", shipmentId);
+        params.put("ACTIVE", true);
+        params.put("CREATED_BY", curUser.getUserId());
+        params.put("CREATED_DATE", curDate);
+        params.put("LAST_MODIFIED_BY", curUser.getUserId());
+        params.put("LAST_MODIFIED_DATE", curDate);
+        logger.info("ERP Linking : Tab3 new shipment creation params---" + params);
+        int id = si.executeAndReturnKey(params).intValue();
+        logger.info("ERP Linking : Tab3 new shipment creation completed---" + id);
+        return id;
+    }
+
 }
