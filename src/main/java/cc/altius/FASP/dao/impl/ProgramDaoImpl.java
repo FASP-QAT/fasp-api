@@ -658,7 +658,9 @@ public class ProgramDaoImpl implements ProgramDao {
                 + " AND pu.`PROCUREMENT_AGENT_ID`=1 "
                 + " LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
                 + " LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
-                + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID`"
+                + " LEFT JOIN rm_erp_shipment es ON es.`ORDER_NO`=e.`ORDER_NO` AND es.`PRIME_LINE_NO`=e.`PRIME_LINE_NO` AND es.file_name=( "
+                + " SELECT MAX(s.FILE_NAME) AS FILE_NAME FROM rm_erp_shipment s WHERE s.`ORDER_NO`=e.`ORDER_NO` AND s.`PRIME_LINE_NO`=e.`PRIME_LINE_NO` "
+                + " ) "
                 + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.STATUS "
                 + " WHERE e.`ERP_ORDER_ID` IN (SELECT a.`ERP_ORDER_ID` FROM (SELECT MAX(e.`ERP_ORDER_ID`)  AS ERP_ORDER_ID,sm.SHIPMENT_STATUS_MAPPING_ID "
                 + " FROM rm_erp_order e "
@@ -703,7 +705,9 @@ public class ProgramDaoImpl implements ProgramDao {
                 + " LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
                 + " LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
                 + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID` ");
+                + " LEFT JOIN rm_erp_shipment es ON es.`ORDER_NO`=e.`ORDER_NO` AND es.`PRIME_LINE_NO`=e.`PRIME_LINE_NO` AND es.file_name=( "
+                + " SELECT MAX(s.FILE_NAME) AS FILE_NAME FROM rm_erp_shipment s WHERE s.`ORDER_NO`=e.`ORDER_NO` AND s.`PRIME_LINE_NO`=e.`PRIME_LINE_NO` "
+                + " ) ");
         if (linkingType == 2) {
             sql.append(" LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` AND mt.ACTIVE ");
         } else {
@@ -750,7 +754,9 @@ public class ProgramDaoImpl implements ProgramDao {
                 + " LEFT JOIN rm_planning_unit p ON p.`PLANNING_UNIT_ID`=pu.`PLANNING_UNIT_ID` "
                 + " LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
                 + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` "
-                + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID` ");
+                + " LEFT JOIN rm_erp_shipment es ON es.`ORDER_NO`=e.`ORDER_NO` AND es.`PRIME_LINE_NO`=e.`PRIME_LINE_NO` AND es.file_name=(\n"
+                + " SELECT MAX(s.FILE_NAME) AS FILE_NAME FROM rm_erp_shipment s WHERE s.`ORDER_NO`=e.`ORDER_NO` AND s.`PRIME_LINE_NO`=e.`PRIME_LINE_NO`\n"
+                + " ) ");
         if (linkingType == 2) {
             sql.append(" LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` AND mt.ACTIVE ");
         } else {
