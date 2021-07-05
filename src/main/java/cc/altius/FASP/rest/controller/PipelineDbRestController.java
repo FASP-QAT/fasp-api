@@ -190,7 +190,7 @@ public class PipelineDbRestController {
         }
     }
 
-    @GetMapping("/qatTem/regions/{pipelineId}")
+    @GetMapping("/qatTemp/regions/{pipelineId}")
     public ResponseEntity getQatTempProgramRegion(Authentication auth, @PathVariable("pipelineId") int pipelineId) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
