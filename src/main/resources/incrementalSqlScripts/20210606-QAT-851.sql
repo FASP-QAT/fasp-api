@@ -20,7 +20,7 @@ ENGINE = InnoDB;
 INSERT INTO rm_program_health_area SELECT null, p.PROGRAM_ID, p.HEALTH_AREA_ID FROM rm_program p;
 
 ALTER TABLE `fasp`.`rm_program` DROP FOREIGN KEY `fk_program_healthAreaId`;
-ALTER TABLE `rm_program` DROP COLUMN `HEALTH_AREA_ID`, DROP INDEX `fk_program_healthAreaId_idx`;
+ALTER TABLE `rm_program` DROP INDEX `fk_program_healthAreaId_idx`,DROP COLUMN `HEALTH_AREA_ID` ;
 
 USE `fasp`;
 CREATE 
