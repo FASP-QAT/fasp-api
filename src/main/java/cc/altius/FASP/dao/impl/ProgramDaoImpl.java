@@ -2430,7 +2430,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + " e.`ERP_ORDER_ID`,e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO` ,((e.`QTY` * e.PRICE)+e.SHIPPING_COST) AS TOTAL_COST, "
                 + " pu.`PLANNING_UNIT_ID`,pu.`LABEL_ID`,pu.`LABEL_EN`,pu.`LABEL_FR`,pu.`LABEL_PR`,pu.`LABEL_SP`, "
                 + " COALESCE(e.`CURRENT_ESTIMATED_DELIVERY_DATE`,e.`AGREED_DELIVERY_DATE`,e.`REQ_DELIVERY_DATE`) AS EXPECTED_DELIVERY_DATE, "
-                + " e.`STATUS`,e.`QTY`,e.`LAST_MODIFIED_DATE`,es.BATCH_NO, es.EXPIRY_DATE,es.ACTUAL_DELIVERY_DATE,es.`FILE_NAME` "
+                + " e.`STATUS`,e.`QTY`,e.`LAST_MODIFIED_DATE`,es.BATCH_NO, es.EXPIRY_DATE,es.ACTUAL_DELIVERY_DATE,es.`FILE_NAME`,IF(es.`DELIVERED_QTY`!=0,COALESCE(es.`DELIVERED_QTY`,es.`SHIPPED_QTY`),es.`SHIPPED_QTY`) AS BATCH_QTY "
                 + " FROM rm_erp_order e "
                 + " LEFT JOIN rm_procurement_agent_planning_unit papu ON LEFT(papu.`SKU_CODE`,12)=e.`PLANNING_UNIT_SKU_CODE` "
                 + " LEFT JOIN vw_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID` "
