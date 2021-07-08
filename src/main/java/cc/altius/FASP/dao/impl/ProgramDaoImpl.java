@@ -291,7 +291,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "p.PROGRAM_NOTES=:programNotes,"
                 + "p.PROGRAM_CODE=:programCode, "
                 + "p.ORGANISATION_ID=:organisationId, "
-                + "p.HEALTH_AREA_ID=:healthAreaId, "
+//                + "p.HEALTH_AREA_ID=:healthAreaId, "
                 + "p.AIR_FREIGHT_PERC=:airFreightPerc, "
                 + "p.SEA_FREIGHT_PERC=:seaFreightPerc, "
                 + "p.PLANNED_TO_SUBMITTED_LEAD_TIME=:plannedToSubmittedLeadTime, "

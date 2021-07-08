@@ -11,6 +11,7 @@ import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.PipelineDbDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.RealmCountry;
@@ -61,10 +62,12 @@ import cc.altius.FASP.model.pipeline.rowMapper.QatTempDataSourceRowMapper;
 import cc.altius.FASP.model.pipeline.QatTempFundingSource;
 import cc.altius.FASP.model.pipeline.rowMapper.QatTempFundingSourceRowMapper;
 import cc.altius.FASP.model.pipeline.QatTempProcurementAgent;
+import cc.altius.FASP.model.pipeline.rowMapper.QatTemHealthAreaRowMapper;
 import cc.altius.FASP.model.pipeline.rowMapper.QatTempProcurementAgentRowMapper;
 import java.text.ParseException;
 import java.util.Calendar;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -148,12 +151,15 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             + " LEFT JOIN ap_label cul ON cu.LABEL_ID=cul.LABEL_ID "
             + " LEFT JOIN rm_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
             + " LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
-            + " LEFT JOIN rm_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
-            + " LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
+            //            + " LEFT JOIN rm_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
+            //            + " LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
             + " LEFT JOIN us_user pm ON p.PROGRAM_MANAGER_USER_ID=pm.USER_ID "
             + " LEFT JOIN qat_temp_program_region pr ON p.PIPELINE_ID=pr.PIPELINE_ID "
             + " LEFT JOIN rm_region re ON pr.REGION_ID=re.REGION_ID "
             + " LEFT JOIN ap_label rel ON re.LABEL_ID=rel.LABEL_ID "
+            + " LEFT JOIN qat_temp_program_healthArea ph ON p.PIPELINE_ID=ph.PIPELINE_ID "
+            + " LEFT JOIN rm_health_area ha ON ha.HEALTH_AREA_ID=ph.HEALTH_AREA_ID "
+            + " LEFT JOIN ap_label hal ON ha.LABEL_ID=hal.LABEL_ID "
             + " LEFT JOIN ap_unit u ON rc.PALLET_UNIT_ID=u.UNIT_ID "
             + " LEFT JOIN ap_label ul ON u.LABEL_ID=ul.LABEL_ID "
             + " LEFT JOIN us_user cb ON p.CREATED_BY=cb.USER_ID "
@@ -702,7 +708,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         params.put("PROGRAM_CODE", p.getProgramCode());
         params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
         params.put("ORGANISATION_ID", p.getOrganisation().getId());
-        params.put("HEALTH_AREA_ID", p.getHealthArea().getId());
+//        params.put("HEALTH_AREA_ID", p.getHealthArea().getId());
         params.put("LABEL_ID", labelId);
         params.put("PROGRAM_MANAGER_USER_ID", p.getProgramManager().getUserId());
         params.put("PROGRAM_NOTES", p.getProgramNotes());
@@ -727,6 +733,26 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         params.put("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME", p.getShippedToArrivedBySeaLeadTime());
 
         int programId = si.executeAndReturnKey(params).intValue();
+
+        this.namedParameterJdbcTemplate.update("DELETE FROM qat_temp_program_healthArea WHERE PIPELINE_ID=:pipelineId", params);
+        si = new SimpleJdbcInsert(this.dataSource).withTableName("qat_temp_program_healthArea");
+        SqlParameterSource[] paramListha = new SqlParameterSource[p.getHealthAreaArray().length];
+        int iha = 0;
+        for (String ha : p.getHealthAreaArray()) {
+            params = new HashMap<>();
+            params.put("HEALTH_AREA_ID", ha);
+            params.put("pipelineId", pipelineId);
+//            params.put("CREATED_BY", curUser.getUserId());
+//            params.put("CREATED_DATE", curDate);
+//            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+//            params.put("LAST_MODIFIED_DATE", curDate);
+//            params.put("ACTIVE", true);
+            paramListha[iha] = new MapSqlParameterSource(params);
+            iha++;
+        }
+        si.executeBatch(paramListha);
+//        params.clear();
+        System.out.println("params===>" + params);
         this.namedParameterJdbcTemplate.update("DELETE FROM qat_temp_program_region WHERE PIPELINE_ID=:pipelineId", params);
         si = new SimpleJdbcInsert(this.dataSource).withTableName("qat_temp_program_region");
         SqlParameterSource[] paramList = new SqlParameterSource[p.getRegionArray().length];
@@ -1312,10 +1338,21 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
     @Transactional
     public int finalSaveProgramData(int pipelineId, CustomUserDetails curUser) {
         QatTempProgram p = this.getQatTempProgram(curUser, pipelineId);
-        String pCode = p.getProgramCode();
+//        String pCode = p.getProgramCode();
+//        RealmCountry rc = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
+//        String programCode = !"".equals(pCode) ? rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode() + "-" + p.getProgramCode() : rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
+//        p.setProgramCode(programCode);
         RealmCountry rc = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
-        String programCode = !"".equals(pCode) ? rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode() + "-" + p.getProgramCode() : rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
-        p.setProgramCode(programCode);
+        StringBuilder healthAreaCode = new StringBuilder();
+        for (int haId : p.getHealthAreaIdList()) {
+            healthAreaCode.append(this.healthAreaDao.getHealthAreaById(haId, curUser).getHealthAreaCode());
+        }
+        StringBuilder programCode = new StringBuilder(rc.getCountry().getCountryCode()).append("-").append(healthAreaCode).append("-").append(this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode());
+        if (p.getProgramCode() != null && !p.getProgramCode().isBlank()) {
+            programCode.append("-").append(p.getProgramCode());
+        }
+        p.setProgramCode(programCode.toString());
+
         Map<String, Object> params = new HashMap<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         int labelId = this.labelDao.addLabel(p.getLabel(), LabelConstants.RM_PROGRAM, curUser.getUserId());
@@ -1324,7 +1361,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         params.put("REALM_ID", rc.getRealm().getRealmId());
         params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
         params.put("ORGANISATION_ID", p.getOrganisation().getId());
-        params.put("HEALTH_AREA_ID", p.getHealthArea().getId());
+//        params.put("HEALTH_AREA_ID", p.getHealthArea().getId());
         params.put("LABEL_ID", labelId);
         params.put("PROGRAM_MANAGER_USER_ID", p.getProgramManager().getUserId());
         params.put("PROGRAM_NOTES", p.getProgramNotes());
@@ -1360,7 +1397,27 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             i++;
         }
         si.executeBatch(paramList);
+//        params.clear();
+
+        si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_program_health_area");
+        SqlParameterSource[] paramListHA = new SqlParameterSource[p.getHealthAreaArray().length];
+        int iha = 0;
+        System.out.println("p.getHealthAreaArray()" + Arrays.toString(p.getHealthAreaArray()));
+        for (String rId : p.getHealthAreaArray()) {
+            params = new HashMap<>();
+            params.put("HEALTH_AREA_ID", rId);
+            params.put("PROGRAM_ID", programId);
+//            params.put("CREATED_BY", curUser.getUserId());
+//            params.put("CREATED_DATE", curDate);
+//            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+//            params.put("LAST_MODIFIED_DATE", curDate);
+//            params.put("ACTIVE", true);
+            paramListHA[iha] = new MapSqlParameterSource(params);
+            iha++;
+        }
+        si.executeBatch(paramListHA);
         params.clear();
+
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         params.put("programId", programId);
@@ -1471,7 +1528,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_budget").usingGeneratedKeyColumns("BUDGET_ID");
 
         for (Map<String, Object> budget : budgetList) {
-            String BudgetName = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser).getCountry().getLabel().getLabel_en() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + budget.get("FUNDING_SOURCE_CODE").toString();
+//            String BudgetName = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser).getCountry().getLabel().getLabel_en() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + budget.get("FUNDING_SOURCE_CODE").toString();
+            String BudgetName = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser).getCountry().getLabel().getLabel_en() + "-" + budget.get("FUNDING_SOURCE_CODE").toString();
             Label l = new Label();
             l.setLabel_en(BudgetName);
             labelId = this.labelDao.addLabel(l, LabelConstants.RM_BUDGET, curUser.getUserId());
@@ -1716,21 +1774,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         sql = "update rm_realm_country r set r.ACTIVE=1,r.LAST_MODIFIED_BY=?,r.LAST_MODIFIED_DATE=? where r.REALM_COUNTRY_ID=? and r.ACTIVE=0";
         this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, p.getRealmCountry().getRealmCountryId());
 
-        sql = "update rm_health_area ha set ha.ACTIVE=1,ha.LAST_MODIFIED_BY=?,ha.LAST_MODIFIED_DATE=? where ha.HEALTH_AREA_ID=? and ha.ACTIVE=0;";
-        this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, p.getHealthArea().getId());
-
         sql = "update rm_organisation o set o.ACTIVE=1,o.LAST_MODIFIED_BY=?,o.LAST_MODIFIED_DATE=? where o.ORGANISATION_ID=? and o.ACTIVE=0;";
         this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, p.getOrganisation().getId());
-
-        sql = "select count(*) from rm_health_area_country hac where hac.HEALTH_AREA_ID=? and hac.REALM_COUNTRY_ID=?;";
-        int haCount = this.jdbcTemplate.queryForObject(sql, Integer.class, p.getHealthArea().getId(), p.getRealmCountry().getRealmCountryId());
-        if (haCount > 0) {
-            sql = "update rm_health_area_country hac set hac.ACTIVE=1,hac.LAST_MODIFIED_BY=?,hac.LAST_MODIFIED_DATE=?  where hac.HEALTH_AREA_ID=? and hac.REALM_COUNTRY_ID=? and hac.ACTIVE=0;";
-            this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, p.getHealthArea().getId(), p.getRealmCountry().getRealmCountryId());
-        } else {
-            sql = "insert into rm_health_area_country values(null,?,?,1,?,?,?,?)";
-            this.jdbcTemplate.update(sql, p.getHealthArea().getId(), p.getRealmCountry().getRealmCountryId(), curUser.getUserId(), curDate, curUser.getUserId(), curDate);
-        }
 
         sql = "select count(*) from rm_organisation_country roc where roc.ORGANISATION_ID=? and roc.REALM_COUNTRY_ID=?";
         int oCount = this.jdbcTemplate.queryForObject(sql, Integer.class, p.getOrganisation().getId(), p.getRealmCountry().getRealmCountryId());
@@ -1740,6 +1785,23 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         } else {
             sql = "insert into rm_organisation_country values(null,?,?,1,?,?,?,?)";
             this.jdbcTemplate.update(sql, p.getOrganisation().getId(), p.getRealmCountry().getRealmCountryId(), curUser.getUserId(), curDate, curUser.getUserId(), curDate);
+        }
+
+        for (String haId : p.getHealthAreaArray()) {
+            sql = "update rm_health_area ha set ha.ACTIVE=1,ha.LAST_MODIFIED_BY=?,ha.LAST_MODIFIED_DATE=? where ha.HEALTH_AREA_ID=? and ha.ACTIVE=0;";
+            this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, haId);
+        }
+
+        for (String haId : p.getHealthAreaArray()) {
+            sql = "select count(*) from rm_health_area_country hac where hac.HEALTH_AREA_ID=? and hac.REALM_COUNTRY_ID=?;";
+            int haCount = this.jdbcTemplate.queryForObject(sql, Integer.class, haId, p.getRealmCountry().getRealmCountryId());
+            if (haCount > 0) {
+                sql = "update rm_health_area_country hac set hac.ACTIVE=1,hac.LAST_MODIFIED_BY=?,hac.LAST_MODIFIED_DATE=?  where hac.HEALTH_AREA_ID=? and hac.REALM_COUNTRY_ID=? and hac.ACTIVE=0;";
+                this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, haId, p.getRealmCountry().getRealmCountryId());
+            } else {
+                sql = "insert into rm_health_area_country values(null,?,?,1,?,?,?,?)";
+                this.jdbcTemplate.update(sql, haId, p.getRealmCountry().getRealmCountryId(), curUser.getUserId(), curDate, curUser.getUserId(), curDate);
+            }
         }
 
         try {
@@ -1955,9 +2017,28 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sql = "update rm_realm_country r set r.ACTIVE=1,r.LAST_MODIFIED_BY=?,r.LAST_MODIFIED_DATE=? where r.REALM_COUNTRY_ID=? and r.ACTIVE=0";
         this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, realmCountryId);
+        
+        String haCodes="";
+        String sqlHa = "select group_concat(ha.HEALTH_AREA_CODE) from qat_temp_program_healthArea ph \n"
+                + "left join rm_health_area ha on ha.HEALTH_AREA_ID=ph.HEALTH_AREA_ID\n"
+                + "where ph.PIPELINE_ID=?";
+        haCodes=this.jdbcTemplate.queryForObject(sqlHa,String.class, pipelineId).replaceAll(",", "");
+        System.out.println("haCodes+++"+haCodes);
 
+//        String sql1 = "insert into rm_realm_country_planning_unit (SELECT null,qtpu.PLANNING_UNIT_ID,qtp.REALM_COUNTRY_ID,rpu.LABEL_ID\n"
+//                + ",concat(ac.COUNTRY_CODE2,\"-\",rha.HEALTH_AREA_CODE,\"-\",qtpu.PIPELINE_PRODUCT_ID,\"-\",qtpu.PLANNING_UNIT_ID) \n"
+//                + ",1,1,null,1,1,now(),1,now() \n"
+//                + "FROM fasp.qat_temp_program_planning_unit qtpu \n"
+//                + "left join rm_planning_unit rpu on rpu.PLANNING_UNIT_ID=qtpu.PLANNING_UNIT_ID \n"
+//                + "left join fasp.qat_temp_program qtp on qtp.PIPELINE_ID=qtpu.PIPELINE_ID\n"
+//                + "left join fasp.rm_realm_country_planning_unit rcpu on rcpu.PLANNING_UNIT_ID=qtpu.PLANNING_UNIT_ID \n"
+//                + "and rcpu.MULTIPLIER=1 and rcpu.REALM_COUNTRY_ID=qtp.REALM_COUNTRY_ID\n"
+//                + "left join fasp.rm_realm_country rrc on rrc.REALM_COUNTRY_ID=qtp.REALM_COUNTRY_ID\n"
+//                + "left join ap_country ac on ac.COUNTRY_ID=rrc.COUNTRY_ID\n"
+//                + "left join fasp.rm_health_area rha on rha.HEALTH_AREA_ID=qtp.HEALTH_AREA_ID\n"
+//                + "where qtpu.PIPELINE_ID=? and rcpu.REALM_COUNTRY_PLANNING_UNIT_ID is null);";
         String sql1 = "insert into rm_realm_country_planning_unit (SELECT null,qtpu.PLANNING_UNIT_ID,qtp.REALM_COUNTRY_ID,rpu.LABEL_ID\n"
-                + ",concat(ac.COUNTRY_CODE2,\"-\",rha.HEALTH_AREA_CODE,\"-\",qtpu.PIPELINE_PRODUCT_ID,\"-\",qtpu.PLANNING_UNIT_ID) \n"
+                + ",concat(ac.COUNTRY_CODE2,\"-\",qtpu.PIPELINE_PRODUCT_ID,\"-\",qtpu.PLANNING_UNIT_ID) \n"
                 + ",1,1,null,1,1,now(),1,now() \n"
                 + "FROM fasp.qat_temp_program_planning_unit qtpu \n"
                 + "left join rm_planning_unit rpu on rpu.PLANNING_UNIT_ID=qtpu.PLANNING_UNIT_ID \n"
@@ -1966,7 +2047,6 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "and rcpu.MULTIPLIER=1 and rcpu.REALM_COUNTRY_ID=qtp.REALM_COUNTRY_ID\n"
                 + "left join fasp.rm_realm_country rrc on rrc.REALM_COUNTRY_ID=qtp.REALM_COUNTRY_ID\n"
                 + "left join ap_country ac on ac.COUNTRY_ID=rrc.COUNTRY_ID\n"
-                + "left join fasp.rm_health_area rha on rha.HEALTH_AREA_ID=qtp.HEALTH_AREA_ID\n"
                 + "where qtpu.PIPELINE_ID=? and rcpu.REALM_COUNTRY_PLANNING_UNIT_ID is null);";
         this.jdbcTemplate.update(sql1, pipelineId);
     }
