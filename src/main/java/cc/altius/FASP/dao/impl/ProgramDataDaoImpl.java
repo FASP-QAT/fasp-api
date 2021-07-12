@@ -1793,7 +1793,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "    papu.SKU_CODE, papu.ACTIVE `PROCUREMENT_AGENT_PLANNING_UNIT_ACTIVE`,"
                 + "    ppu.`MONTHS_IN_FUTURE_FOR_AMC`, ppu.`MONTHS_IN_PAST_FOR_AMC`, ppu.`MIN_MONTHS_OF_STOCK`, ppu.`REORDER_FREQUENCY_IN_MONTHS`, "
                 + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR` "
-                + "FROM rm_program p "
+                + "FROM vw_program p "
                 + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID "
                 + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
