@@ -206,7 +206,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
-        sqlStringBuilder.append(" AND ha.HEALTH_AREA_ID IN (SELECT p.HEALTH_AREA_ID FROM rm_program p WHERE p.ACTIVE) ");
+        sqlStringBuilder.append(" AND ha.HEALTH_AREA_ID IN (SELECT p.HEALTH_AREA_ID FROM vw_program p WHERE p.ACTIVE) ");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new HealthAreaListResultSetExtractor());
     }
 

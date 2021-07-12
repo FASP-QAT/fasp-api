@@ -2025,20 +2025,8 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         haCodes=this.jdbcTemplate.queryForObject(sqlHa,String.class, pipelineId).replaceAll(",", "");
         System.out.println("haCodes+++"+haCodes);
 
-//        String sql1 = "insert into rm_realm_country_planning_unit (SELECT null,qtpu.PLANNING_UNIT_ID,qtp.REALM_COUNTRY_ID,rpu.LABEL_ID\n"
-//                + ",concat(ac.COUNTRY_CODE2,\"-\",rha.HEALTH_AREA_CODE,\"-\",qtpu.PIPELINE_PRODUCT_ID,\"-\",qtpu.PLANNING_UNIT_ID) \n"
-//                + ",1,1,null,1,1,now(),1,now() \n"
-//                + "FROM fasp.qat_temp_program_planning_unit qtpu \n"
-//                + "left join rm_planning_unit rpu on rpu.PLANNING_UNIT_ID=qtpu.PLANNING_UNIT_ID \n"
-//                + "left join fasp.qat_temp_program qtp on qtp.PIPELINE_ID=qtpu.PIPELINE_ID\n"
-//                + "left join fasp.rm_realm_country_planning_unit rcpu on rcpu.PLANNING_UNIT_ID=qtpu.PLANNING_UNIT_ID \n"
-//                + "and rcpu.MULTIPLIER=1 and rcpu.REALM_COUNTRY_ID=qtp.REALM_COUNTRY_ID\n"
-//                + "left join fasp.rm_realm_country rrc on rrc.REALM_COUNTRY_ID=qtp.REALM_COUNTRY_ID\n"
-//                + "left join ap_country ac on ac.COUNTRY_ID=rrc.COUNTRY_ID\n"
-//                + "left join fasp.rm_health_area rha on rha.HEALTH_AREA_ID=qtp.HEALTH_AREA_ID\n"
-//                + "where qtpu.PIPELINE_ID=? and rcpu.REALM_COUNTRY_PLANNING_UNIT_ID is null);";
         String sql1 = "insert into rm_realm_country_planning_unit (SELECT null,qtpu.PLANNING_UNIT_ID,qtp.REALM_COUNTRY_ID,rpu.LABEL_ID\n"
-                + ",concat(ac.COUNTRY_CODE2,\"-\",qtpu.PIPELINE_PRODUCT_ID,\"-\",qtpu.PLANNING_UNIT_ID) \n"
+                + ",concat(ac.COUNTRY_CODE2,\"-\",?,\"-\",qtpu.PIPELINE_PRODUCT_ID,\"-\",qtpu.PLANNING_UNIT_ID) \n"
                 + ",1,1,null,1,1,now(),1,now() \n"
                 + "FROM fasp.qat_temp_program_planning_unit qtpu \n"
                 + "left join rm_planning_unit rpu on rpu.PLANNING_UNIT_ID=qtpu.PLANNING_UNIT_ID \n"
@@ -2047,8 +2035,20 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "and rcpu.MULTIPLIER=1 and rcpu.REALM_COUNTRY_ID=qtp.REALM_COUNTRY_ID\n"
                 + "left join fasp.rm_realm_country rrc on rrc.REALM_COUNTRY_ID=qtp.REALM_COUNTRY_ID\n"
                 + "left join ap_country ac on ac.COUNTRY_ID=rrc.COUNTRY_ID\n"
+                + "left join fasp.rm_health_area rha on rha.HEALTH_AREA_ID=qtp.HEALTH_AREA_ID\n"
                 + "where qtpu.PIPELINE_ID=? and rcpu.REALM_COUNTRY_PLANNING_UNIT_ID is null);";
-        this.jdbcTemplate.update(sql1, pipelineId);
+//        String sql1 = "insert into rm_realm_country_planning_unit (SELECT null,qtpu.PLANNING_UNIT_ID,qtp.REALM_COUNTRY_ID,rpu.LABEL_ID\n"
+//                + ",concat(ac.COUNTRY_CODE2,\"-\",qtpu.PIPELINE_PRODUCT_ID,\"-\",qtpu.PLANNING_UNIT_ID) \n"
+//                + ",1,1,null,1,1,now(),1,now() \n"
+//                + "FROM fasp.qat_temp_program_planning_unit qtpu \n"
+//                + "left join rm_planning_unit rpu on rpu.PLANNING_UNIT_ID=qtpu.PLANNING_UNIT_ID \n"
+//                + "left join fasp.qat_temp_program qtp on qtp.PIPELINE_ID=qtpu.PIPELINE_ID\n"
+//                + "left join fasp.rm_realm_country_planning_unit rcpu on rcpu.PLANNING_UNIT_ID=qtpu.PLANNING_UNIT_ID \n"
+//                + "and rcpu.MULTIPLIER=1 and rcpu.REALM_COUNTRY_ID=qtp.REALM_COUNTRY_ID\n"
+//                + "left join fasp.rm_realm_country rrc on rrc.REALM_COUNTRY_ID=qtp.REALM_COUNTRY_ID\n"
+//                + "left join ap_country ac on ac.COUNTRY_ID=rrc.COUNTRY_ID\n"
+//                + "where qtpu.PIPELINE_ID=? and rcpu.REALM_COUNTRY_PLANNING_UNIT_ID is null);";
+        this.jdbcTemplate.update(sql1, haCodes,pipelineId);
     }
 
 }
