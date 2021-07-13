@@ -1160,7 +1160,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "AND (:programId = -1 OR p.PROGRAM_ID = :programId ) "
                 + "AND (:versionId = -1 OR pv.VERSION_ID = :versionId ) "
                 + "AND (:realmCountryId = -1 OR p.REALM_COUNTRY_ID= :realmCountryId ) "
-                + "AND (:healthAreaId = -1 OR FIND_IN_SET(:healthAreaId, p.HEALTH_AREA_ID) "
+                + "AND (:healthAreaId = -1 OR FIND_IN_SET(:healthAreaId, p.HEALTH_AREA_ID)) "
                 + "AND (:organisationId = -1 OR p.ORGANISATION_ID = :organisationId) "
                 + "AND (:versionTypeId = -1 OR pv.VERSION_TYPE_ID = :versionTypeId) "
                 + "AND (:versionStatusId = -1 OR pv.VERSION_STATUS_ID = :versionStatusId) "
