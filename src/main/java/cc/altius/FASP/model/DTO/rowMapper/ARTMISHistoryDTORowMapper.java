@@ -22,7 +22,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  * @author altius
  */
 public class ARTMISHistoryDTORowMapper implements ResultSetExtractor<List<ARTMISHistoryDTO>> {
-    
+
     @Override
     public List<ARTMISHistoryDTO> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<ARTMISHistoryDTO> orderList = new LinkedList<>();
@@ -55,6 +55,7 @@ public class ARTMISHistoryDTORowMapper implements ResultSetExtractor<List<ARTMIS
                 s.setExpiryDate(rs.getTimestamp("EXPIRY_DATE"));
                 s.setEoActualDeliveryDate(rs.getTimestamp("ACTUAL_DELIVERY_DATE"));
                 s.setFileName(rs.getString("FILE_NAME"));
+                s.setBatchQty(rs.getLong("BATCH_QTY"));
                 order.getShipmentList().add(s);
             }
             file = new FilePathDTO();
@@ -62,9 +63,9 @@ public class ARTMISHistoryDTORowMapper implements ResultSetExtractor<List<ARTMIS
             if (order.getFiles().indexOf(file) == -1) {
                 order.getFiles().add(file);
             }
-            
+
             oldErpOrderId = newErpOrderId;
-            
+
         }
         if (order.getErpOrderId() != 0) {
             orderList.add(order);
