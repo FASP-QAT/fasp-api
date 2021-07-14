@@ -29,6 +29,8 @@ public interface ProgramDataService {
 
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser);
 
+    public ProgramData getProgramDataForExport(int programId, int versionId, CustomUserDetails curUser);
+
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
 
     public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
@@ -51,17 +53,17 @@ public interface ProgramDataService {
 
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp);
 
-    public ShipmentSync getShipmentListForSync(int programId, int versionId,int userId ,String lastSyncDate, CustomUserDetails curUser);
+    public ShipmentSync getShipmentListForSync(int programId, int versionId, int userId, String lastSyncDate, CustomUserDetails curUser);
 
     public boolean checkNewerVersions(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
 
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList();
 
     public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId);
-    
+
     public int getLatestVersionForProgram(int programId);
-    
+
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
-    
-    public String getLastModifiedDateForProgram(int programId,int versionId);
+
+    public String getLastModifiedDateForProgram(int programId, int versionId);
 }

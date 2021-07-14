@@ -71,6 +71,22 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
+    public ProgramData getProgramDataForExport(int programId, int versionId, CustomUserDetails curUser) {
+        ProgramData pd = new ProgramData(this.programService.getProgramById(programId, curUser));
+        pd.setRequestedProgramVersion(versionId);
+        pd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
+        versionId = pd.getCurrentVersion().getVersionId();
+        pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId));
+        pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId));
+        pd.setShipmentList(this.programDataDao.getShipmentListForExport(programId, versionId));
+        pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId));
+        pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
+        pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId));
+        pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(programId, curUser));
+        return pd;
+    }
+
+    @Override
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
         List<ProgramData> programDataList = new LinkedList<>();
         programVersionList.forEach(pv -> {
