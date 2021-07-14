@@ -106,4 +106,6 @@ public interface ProgramDao {
 
     public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser);
 
+    public int tab3ShipmentCreation(int shipmentId, CustomUserDetails curUser);
+
 }

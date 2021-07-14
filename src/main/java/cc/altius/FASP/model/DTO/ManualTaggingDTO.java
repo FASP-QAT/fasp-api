@@ -24,12 +24,12 @@ public class ManualTaggingDTO implements Serializable {
     private int shipmentTransId;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
-    private Date expectedDeliveryDate;
+    Date expectedDeliveryDate;
     private SimpleObject shipmentStatus;
     private SimpleCodeObject procurementAgent;
     private SimpleCodeObject fundingSource;
     private SimpleCodeObject budget;
-    private int shipmentQty;
+    private long shipmentQty;
     private double productCost;
     private String orderNo;
     private int primeLineNo;
@@ -106,11 +106,11 @@ public class ManualTaggingDTO implements Serializable {
         this.budget = budget;
     }
 
-    public int getShipmentQty() {
+    public long getShipmentQty() {
         return shipmentQty;
     }
 
-    public void setShipmentQty(int shipmentQty) {
+    public void setShipmentQty(long shipmentQty) {
         this.shipmentQty = shipmentQty;
     }
 
