@@ -144,11 +144,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<Shipment> getShipmentList(int programId, int versionId) {
+    public List<Shipment> getShipmentList(int programId, int versionId, boolean active) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
-        return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId)", params, new ShipmentListResultSetExtractor());
+        params.put("active", active);
+        return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId, :active)", params, new ShipmentListResultSetExtractor());
     }
 
     private final Logger logger = LoggerFactory.getLogger(ProgramDaoImpl.class);

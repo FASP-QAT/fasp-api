@@ -55,14 +55,14 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     private EmailService emailService;
 
     @Override
-    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser) {
+    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean active) {
         ProgramData pd = new ProgramData(this.programService.getProgramById(programId, curUser));
         pd.setRequestedProgramVersion(versionId);
         pd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
         versionId = pd.getCurrentVersion().getVersionId();
         pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId));
         pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId));
-        pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId));
+        pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId, active));
         pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId));
         pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
         pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId));
@@ -80,7 +80,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             int versionId = pd.getCurrentVersion().getVersionId();
             pd.setConsumptionList(this.programDataDao.getConsumptionList(pv.getProgramId(), versionId));
             pd.setInventoryList(this.programDataDao.getInventoryList(pv.getProgramId(), versionId));
-            pd.setShipmentList(this.programDataDao.getShipmentList(pv.getProgramId(), versionId));
+            pd.setShipmentList(this.programDataDao.getShipmentList(pv.getProgramId(), versionId, false));
             pd.setBatchInfoList(this.programDataDao.getBatchList(pv.getProgramId(), versionId));
             pd.setProblemReportList(this.problemService.getProblemReportList(pv.getProgramId(), versionId, curUser));
             pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId));
