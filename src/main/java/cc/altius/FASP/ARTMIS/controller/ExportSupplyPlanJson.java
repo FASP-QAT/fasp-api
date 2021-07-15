@@ -75,7 +75,7 @@ public class ExportSupplyPlanJson {
                 sb.append("Checking if Directory exists ").append(directory).append(newLine);
                 if (directory.isDirectory()) {
                     sb.append("Directory exists ").append(newLine);
-                    ProgramData programData = this.programDataService.getProgramDataForExport(iDto.getProgramId(), iDto.getVersionId(), curUser);
+                    ProgramData programData = this.programDataService.getProgramData(iDto.getProgramId(), iDto.getVersionId(), curUser, true);
                     sb.append("Got the Program Data").append(newLine);
                     ObjectMapper mapper = new ObjectMapper();
                     String json = "";

@@ -27,9 +27,7 @@ import java.util.List;
  */
 public interface ProgramDataService {
 
-    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser);
-
-    public ProgramData getProgramDataForExport(int programId, int versionId, CustomUserDetails curUser);
+    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean active);
 
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
 

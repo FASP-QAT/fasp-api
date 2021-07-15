@@ -36,9 +36,7 @@ public interface ProgramDataDao {
 
     public List<Inventory> getInventoryList(int programId, int versionId);
 
-    public List<Shipment> getShipmentList(int programId, int versionId);
-
-    public List<Shipment> getShipmentListForExport(int programId, int versionId);
+    public List<Shipment> getShipmentList(int programId, int versionId, boolean active);
 
     public List<Batch> getBatchList(int programId, int versionId);
 
