@@ -148,7 +148,7 @@ public class RegionDaoImpl implements RegionDao {
                 + "    r.REALM_ID, r.`LABEL_ID` `REALM_LABEL_ID`, r.`LABEL_EN` `REALM_LABEL_EN` , r.`LABEL_FR` `REALM_LABEL_FR`, r.`LABEL_PR` `REALM_LABEL_PR`, r.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE,  "
                 + "    c.COUNTRY_ID, c.`LABEL_ID` `COUNTRY_LABEL_ID`, c.`LABEL_EN` `COUNTRY_LABEL_EN` , c.`LABEL_FR` `COUNTRY_LABEL_FR`, c.`LABEL_PR` `COUNTRY_LABEL_PR`, c.`LABEL_SP` `COUNTRY_LABEL_SP`, c.COUNTRY_CODE,  "
                 + "    re.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, re.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, re.LAST_MODIFIED_DATE  "
-                + " FROM rm_program p "
+                + " FROM vw_program p "
                 + " LEFT JOIN rm_program_region pr ON p.PROGRAM_ID=pr.PROGRAM_ID "
                 + " LEFT JOIN vw_region re ON pr.REGION_ID=re.REGION_ID "
                 + " LEFT JOIN rm_realm_country rc on re.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
