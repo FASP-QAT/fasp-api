@@ -12,20 +12,18 @@ import org.springframework.jdbc.core.RowMapper;
 
 /**
  *
- * @author akil
+ * @author altius
  */
-public class ErpBatchDTORowMapper implements RowMapper<ErpBatchDTO>{
+public class ERPNewBatchDTORowMapper implements RowMapper<ErpBatchDTO> {
 
     @Override
     public ErpBatchDTO mapRow(ResultSet rs, int i) throws SQLException {
         ErpBatchDTO eb = new ErpBatchDTO();
         eb.setBatchId(rs.getInt("BATCH_ID"));
-        eb.setShipmentTransBatchInfoId(rs.getInt("SHIPMENT_TRANS_BATCH_INFO_ID"));
         eb.setBatchNo(rs.getString("BATCH_NO"));
         eb.setExpiryDate(rs.getDate("EXPIRY_DATE"));
-        eb.setQty(rs.getLong("BATCH_SHIPMENT_QTY"));
         eb.setStatus(-1);
         return eb;
     }
-    
+
 }

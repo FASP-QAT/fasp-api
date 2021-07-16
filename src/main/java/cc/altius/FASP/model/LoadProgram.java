@@ -9,6 +9,7 @@ import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -59,6 +60,14 @@ public class LoadProgram implements Serializable {
 
     public void setHealthArea(List<SimpleCodeObject> healthAreaList) {
         this.healthAreaList = healthAreaList;
+    }
+    
+    public void setHealthAreaList(List<SimpleCodeObject> healthAreaList) {
+        this.healthAreaList = healthAreaList;
+    }
+
+    public List<Integer> getHealthAreaIdList() {
+        return healthAreaList.stream().map(SimpleCodeObject::getId).collect(Collectors.toList());
     }
 
     public void addHealthArea(SimpleCodeObject healthArea) {

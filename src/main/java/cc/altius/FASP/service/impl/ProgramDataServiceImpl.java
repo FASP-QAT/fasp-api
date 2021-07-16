@@ -117,8 +117,12 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                             sbCcEmails.append(ns.getEmailId()).append(",");
                         }
                     }
-                    if (sbToEmails.length() != 0) {System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());}
-                    if (sbCcEmails.length() != 0) {System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());}
+                    if (sbToEmails.length() != 0) {
+                        System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
+                    }
+                    if (sbCcEmails.length() != 0) {
+                        System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
+                    }
                     EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(6);
                     String[] subjectParam = new String[]{};
                     String[] bodyParam = null;
@@ -245,6 +249,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc) {
         return this.programDataDao.getSupplyPlanNotificationList(programId, versionId, statusType, toCc);
+    }
+
+    @Override
+    public String getLastModifiedDateForProgram(int programId, int versionId) {
+        return this.programDataDao.getLastModifiedDateForProgram(programId, versionId);
     }
 
 }
