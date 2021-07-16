@@ -18,7 +18,6 @@ import cc.altius.FASP.model.User;
 import cc.altius.FASP.security.CustomUserDetailsService;
 import cc.altius.FASP.service.UserService;
 import cc.altius.utils.PassPhrase;
-import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -256,38 +255,38 @@ public class UserRestController {
         }
     }
 
-    @PutMapping(value = "/unlockAccount/{userId}/{emailId}")
-    public ResponseEntity unlockAccount(@PathVariable int userId, @PathVariable String emailId, Authentication authentication, HttpServletRequest request) throws UnsupportedEncodingException {
-        CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
-        auditLogger.info("Going to unlock account for userId: " + userId + " emailId:" + emailId, request.getRemoteAddr(), curUser.getUsername());
-        try {
-            User user = this.userService.getUserByUserId(userId, curUser);
-            if (!user.getEmailId().equals(emailId)) {
-                auditLogger.info("Incorrect emailId or UserId");
-                return new ResponseEntity(new ResponseCode("static.message.accountUnlocked"), HttpStatus.OK);
-            }
-            PasswordEncoder encoder = new BCryptPasswordEncoder();
-            String password = PassPhrase.getPassword();
-            String hashPass = encoder.encode(password);
-            int row = this.userService.unlockAccount(userId, hashPass);
-            if (row > 0) {
-                String token = this.userService.generateTokenForEmailId(user.getEmailId(), 1);
-                if (token == null || token.isEmpty()) {
-                    auditLogger.info("User could not be unlocked as Token could not be generated");
-                    return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
-                } else {
-                    auditLogger.info("User unlocked and email sent with credentials link");
-                    return new ResponseEntity(new ResponseCode("static.message.accountUnlocked"), HttpStatus.OK);
-                }
-            } else {
-                auditLogger.info("User could not be unlocked");
-                return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
-            }
-        } catch (Exception e) {
-            auditLogger.info("User could not be unlocked", e);
-            return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @PutMapping(value = "/unlockAccount/{userId}/{emailId}")
+//    public ResponseEntity unlockAccount(@PathVariable int userId, @PathVariable String emailId, Authentication authentication, HttpServletRequest request) throws UnsupportedEncodingException {
+//        CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
+//        auditLogger.info("Going to unlock account for userId: " + userId + " emailId:" + emailId, request.getRemoteAddr(), curUser.getUsername());
+//        try {
+//            User user = this.userService.getUserByUserId(userId, curUser);
+//            if (!user.getEmailId().equals(emailId)) {
+//                auditLogger.info("Incorrect emailId or UserId");
+//                return new ResponseEntity(new ResponseCode("static.message.accountUnlocked"), HttpStatus.OK);
+//            }
+//            PasswordEncoder encoder = new BCryptPasswordEncoder();
+//            String password = PassPhrase.getPassword();
+//            String hashPass = encoder.encode(password);
+//            int row = this.userService.unlockAccount(userId, hashPass);
+//            if (row > 0) {
+//                String token = this.userService.generateTokenForEmailId(user.getEmailId(), 1);
+//                if (token == null || token.isEmpty()) {
+//                    auditLogger.info("User could not be unlocked as Token could not be generated");
+//                    return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
+//                } else {
+//                    auditLogger.info("User unlocked and email sent with credentials link");
+//                    return new ResponseEntity(new ResponseCode("static.message.accountUnlocked"), HttpStatus.OK);
+//                }
+//            } else {
+//                auditLogger.info("User could not be unlocked");
+//                return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
+//            }
+//        } catch (Exception e) {
+//            auditLogger.info("User could not be unlocked", e);
+//            return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     @PostMapping(value = "/updateExpiredPassword")
     public ResponseEntity updateExpiredPassword(@RequestBody Password password) {
@@ -462,26 +461,26 @@ public class UserRestController {
         }
     }
 
-    @GetMapping(value = "/checkIfUserExists")
-    public ResponseEntity checkIfUserExists(HttpServletRequest request) throws UnsupportedEncodingException {
-        try {
-            String username = request.getHeader("username");
-            String password = request.getHeader("password");
-            if (username == null || password == null) {
-                return new ResponseEntity("static.message.notExist", HttpStatus.NOT_ACCEPTABLE);
-            }
-            Map<String, Object> responseMap = this.userService.checkIfUserExists(username, password);
-            CustomUserDetails customUserDetails = (CustomUserDetails) responseMap.get("customUserDetails");
-            if (customUserDetails != null) {
-                return new ResponseEntity(customUserDetails, HttpStatus.OK);
-            } else {
-                return new ResponseEntity("static.message.listFailed", HttpStatus.NOT_ACCEPTABLE);
-            }
-        } catch (Exception e) {
-            logger.error("Error", e);
-            return new ResponseEntity("static.message.listFailed", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
+//    @GetMapping(value = "/checkIfUserExists")
+//    public ResponseEntity checkIfUserExists(HttpServletRequest request) throws UnsupportedEncodingException {
+//        try {
+//            String username = request.getHeader("username");
+//            String password = request.getHeader("password");
+//            if (username == null || password == null) {
+//                return new ResponseEntity("static.message.notExist", HttpStatus.NOT_ACCEPTABLE);
+//            }
+//            Map<String, Object> responseMap = this.userService.checkIfUserExists(username, password);
+//            CustomUserDetails customUserDetails = (CustomUserDetails) responseMap.get("customUserDetails");
+//            if (customUserDetails != null) {
+//                return new ResponseEntity(customUserDetails, HttpStatus.OK);
+//            } else {
+//                return new ResponseEntity("static.message.listFailed", HttpStatus.NOT_ACCEPTABLE);
+//            }
+//        } catch (Exception e) {
+//            logger.error("Error", e);
+//            return new ResponseEntity("static.message.listFailed", HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     @PutMapping(value = "/accessControls")
     public ResponseEntity accessControl(@RequestBody User user, Authentication auth) {

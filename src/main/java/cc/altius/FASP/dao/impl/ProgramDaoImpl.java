@@ -7,7 +7,6 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProgramDao;
-import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
@@ -36,11 +35,15 @@ import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.Version;
-import cc.altius.FASP.model.rowMapper.BatchRowMapper;
-import cc.altius.FASP.model.rowMapper.LoadProgramRowMapper;
+
+import cc.altius.FASP.model.rowMapper.LoadProgramListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.LoadProgramResultSetExtractor;
+
+
 import cc.altius.FASP.model.rowMapper.LoadProgramVersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitProcurementAgentPriceRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramListResultSetExtractor;
@@ -128,7 +131,8 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
             + " LEFT JOIN vw_currency cu ON rc.DEFAULT_CURRENCY_ID=cu.CURRENCY_ID  "
             + " LEFT JOIN vw_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID  "
-            + " LEFT JOIN vw_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID  "
+            + " LEFT JOIN rm_program_health_area pha ON p.PROGRAM_ID=pha.PROGRAM_ID "
+            + " LEFT JOIN vw_health_area ha ON pha.HEALTH_AREA_ID=ha.HEALTH_AREA_ID  "
             + " LEFT JOIN us_user pm ON p.PROGRAM_MANAGER_USER_ID=pm.USER_ID  "
             + " LEFT JOIN rm_program_region pr ON p.PROGRAM_ID=pr.PROGRAM_ID  "
             + " LEFT JOIN vw_region re ON pr.REGION_ID=re.REGION_ID  "
@@ -198,7 +202,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("REALM_ID", realmId);
         params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
         params.put("ORGANISATION_ID", p.getOrganisation().getId());
-        params.put("HEALTH_AREA_ID", p.getHealthArea().getId());
+//        params.put("HEALTH_AREA_ID", p.getHealthArea().getId());
         params.put("PROGRAM_CODE", p.getProgramCode());
         params.put("LABEL_ID", labelId);
         params.put("PROGRAM_MANAGER_USER_ID", p.getProgramManager().getUserId());
@@ -218,9 +222,22 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
         int programId = si.executeAndReturnKey(params).intValue();
-        si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_program_region");
-        SqlParameterSource[] paramList = new SqlParameterSource[p.getRegionArray().length];
+        si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_program_health_area");
+        SqlParameterSource[] paramList = new SqlParameterSource[p.getHealthAreaIdList().size()];
         int i = 0;
+        for (SimpleCodeObject ha : p.getHealthAreaList()) {
+            params = new HashMap<>();
+            params.put("HEALTH_AREA_ID", ha.getId());
+            params.put("PROGRAM_ID", programId);
+            paramList[i] = new MapSqlParameterSource(params);
+            i++;
+        }
+        si.executeBatch(paramList);
+        paramList = null;
+        si = null;
+        si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_program_region");
+        paramList = new SqlParameterSource[p.getRegionArray().length];
+        i = 0;
         for (String rId : p.getRegionArray()) {
             params = new HashMap<>();
             params.put("REGION_ID", rId);
@@ -259,7 +276,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programNotes", p.getProgramNotes());
         params.put("programCode", p.getProgramCode());
         params.put("organisationId", p.getOrganisation().getId());
-        params.put("healthAreaId", p.getHealthArea().getId());
+//        params.put("healthAreaId", p.getHealthArea().getId());
         params.put("airFreightPerc", p.getAirFreightPerc());
         params.put("seaFreightPerc", p.getSeaFreightPerc());
         params.put("plannedToSubmittedLeadTime", p.getPlannedToSubmittedLeadTime());
@@ -278,7 +295,6 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "p.PROGRAM_NOTES=:programNotes,"
                 + "p.PROGRAM_CODE=:programCode, "
                 + "p.ORGANISATION_ID=:organisationId, "
-                + "p.HEALTH_AREA_ID=:healthAreaId, "
                 + "p.AIR_FREIGHT_PERC=:airFreightPerc, "
                 + "p.SEA_FREIGHT_PERC=:seaFreightPerc, "
                 + "p.PLANNED_TO_SUBMITTED_LEAD_TIME=:plannedToSubmittedLeadTime, "
@@ -297,10 +313,26 @@ public class ProgramDaoImpl implements ProgramDao {
         int rows = this.namedParameterJdbcTemplate.update(sqlString, params);
         params.clear();
         params.put("programId", p.getProgramId());
-        this.namedParameterJdbcTemplate.update("DELETE FROM rm_program_region WHERE PROGRAM_ID=:programId", params);
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_program_region");
-        SqlParameterSource[] paramList = new SqlParameterSource[p.getRegionArray().length];
+        this.namedParameterJdbcTemplate.update("DELETE FROM rm_program_health_area WHERE PROGRAM_ID=:programId", params);
+        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_program_health_area");
+        SqlParameterSource[] paramList = new SqlParameterSource[p.getHealthAreaList().size()];
         int i = 0;
+        for (SimpleCodeObject ha : p.getHealthAreaList()) {
+            params = new HashMap<>();
+            params.put("PROGRAM_ID", p.getProgramId());
+            params.put("HEALTH_AREA_ID", ha.getId());
+            paramList[i] = new MapSqlParameterSource(params);
+            i++;
+        }
+        si.executeBatch(paramList);
+        si = null;
+        paramList = null;
+        params.clear();
+        params.put("programId", p.getProgramId());
+        this.namedParameterJdbcTemplate.update("DELETE FROM rm_program_region WHERE PROGRAM_ID=:programId", params);
+        si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_program_region");
+        paramList = new SqlParameterSource[p.getRegionArray().length];
+        i = 0;
         for (String regionId : p.getRegionArray()) {
             params = new HashMap<>();
             params.put("PROGRAM_ID", p.getProgramId());
@@ -362,7 +394,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<Program> getProgramList(int realmId, CustomUserDetails curUser) {
+    public List<Program> getProgramListForRealmId(int realmId, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
@@ -382,7 +414,7 @@ public class ProgramDaoImpl implements ProgramDao {
         if (p == null) {
             throw new EmptyResultDataAccessException(1);
         }
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             return p;
         } else {
             return null;
@@ -401,7 +433,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) {
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForProgramPlanningUnit).append(" AND pg.PROGRAM_ID=:programId");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
@@ -417,10 +449,11 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<SimpleObject> getPlanningUnitListForProgramIds(String programIds, CustomUserDetails curUser) {
-        String sql = "SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM rm_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE p.PROGRAM_ID IN (" + programIds + ") AND ppu.PROGRAM_ID IS NOT NULL AND ppu.ACTIVE AND pu.ACTIVE GROUP BY pu.PLANNING_UNIT_ID";
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM vw_program p LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE p.PROGRAM_ID IN (" + programIds + ") AND ppu.PROGRAM_ID IS NOT NULL AND ppu.ACTIVE AND pu.ACTIVE GROUP BY pu.PLANNING_UNIT_ID");
         Map<String, Object> params = new HashMap<>();
         params.put("programIds", programIds);
-        return this.namedParameterJdbcTemplate.query(sql, params, new SimpleObjectRowMapper());
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectRowMapper());
     }
 
     @Override
@@ -822,7 +855,9 @@ public class ProgramDaoImpl implements ProgramDao {
         logger.info("ERP Linking : link shipment with QAT curUser ---" + curUser.getUsername());
         String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
         count = this.jdbcTemplate.queryForObject(sql, Integer.class, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
+
         logger.info("ERP Linking : manual tagging count---" + count);
+
         if (count == 0) {
             logger.info("ERP Linking : going to create entry in manual tagging table---");
             sql = "INSERT INTO rm_manual_tagging VALUES (NULL,?,?,?,?,?,?,?,1,?,?);";
@@ -2095,27 +2130,25 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<LoadProgram> getLoadProgram(CustomUserDetails curUser
-    ) {
+    public List<LoadProgram> getLoadProgram(CustomUserDetails curUser) {
         StringBuilder sb = new StringBuilder("SELECT  "
                 + "    p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR, "
                 + "    rc.REALM_COUNTRY_ID, c.LABEL_ID `REALM_COUNTRY_LABEL_ID`, c.LABEL_EN `REALM_COUNTRY_LABEL_EN`, c.LABEL_FR `REALM_COUNTRY_LABEL_FR`, c.LABEL_SP `REALM_COUNTRY_LABEL_SP`, c.LABEL_PR `REALM_COUNTRY_LABEL_PR`, c.COUNTRY_CODE, "
                 + "    ha.HEALTH_AREA_ID, ha.LABEL_ID `HEALTH_AREA_LABEL_ID`, ha.LABEL_EN `HEALTH_AREA_LABEL_EN`, ha.LABEL_FR `HEALTH_AREA_LABEL_FR`, ha.LABEL_SP `HEALTH_AREA_LABEL_SP`, ha.LABEL_PR `HEALTH_AREA_LABEL_PR`, ha.HEALTH_AREA_CODE, "
                 + "    o.ORGANISATION_ID, o.LABEL_ID `ORGANISATION_LABEL_ID`, o.LABEL_EN `ORGANISATION_LABEL_EN`, o.LABEL_FR `ORGANISATION_LABEL_FR`, o.LABEL_SP `ORGANISATION_LABEL_SP`, o.LABEL_PR `ORGANISATION_LABEL_PR`, o.ORGANISATION_CODE, "
-                + "    COUNT(pv.VERSION_ID) MAX_COUNT "
+                + "    pv.MAX_COUNT "
                 + "FROM vw_program p  "
                 + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                + "LEFT JOIN vw_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
+                + "LEFT JOIN vw_health_area ha ON FIND_IN_SET(ha.HEALTH_AREA_ID,p.HEALTH_AREA_ID) "
                 + "LEFT JOIN rm_health_area_country hac ON  ha.HEALTH_AREA_ID=hac.HEALTH_AREA_ID AND rc.REALM_COUNTRY_ID=hac.REALM_COUNTRY_ID "
                 + "LEFT JOIN vw_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
                 + "LEFT JOIN rm_organisation_country oc ON o.ORGANISATION_ID=oc.ORGANISATION_ID AND rc.REALM_COUNTRY_ID=oc.REALM_COUNTRY_ID "
-                + "LEFT JOIN rm_program_version pv ON p.PROGRAM_ID=pv.PROGRAM_ID "
+                + "LEFT JOIN (SELECT pv.PROGRAM_ID, count(*) MAX_COUNT FROM rm_program_version pv GROUP BY pv.PROGRAM_ID) pv ON p.PROGRAM_ID=pv.PROGRAM_ID "
                 + "WHERE p.ACTIVE AND rc.ACTIVE AND ha.ACTIVE AND o.ACTIVE AND hac.ACTIVE AND oc.ACTIVE ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
-        sb.append(" GROUP BY p.PROGRAM_ID");
-        List<LoadProgram> programList = this.namedParameterJdbcTemplate.query(sb.toString(), params, new LoadProgramRowMapper());
+        List<LoadProgram> programList = this.namedParameterJdbcTemplate.query(sb.toString(), params, new LoadProgramListResultSetExtractor());
         params.clear();
         params.put("programId", 0);
         for (LoadProgram lp : programList) {
@@ -2135,8 +2168,7 @@ public class ProgramDaoImpl implements ProgramDao {
      * @return
      */
     @Override
-    public LoadProgram getLoadProgram(int programId, int page, CustomUserDetails curUser
-    ) {
+    public LoadProgram getLoadProgram(int programId, int page, CustomUserDetails curUser) {
         StringBuilder sb = new StringBuilder("SELECT  "
                 + "    p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID, p.LABEL_EN, p.LABEL_FR, p.LABEL_SP, p.LABEL_PR, "
                 + "    rc.REALM_COUNTRY_ID, c.LABEL_ID `REALM_COUNTRY_LABEL_ID`, c.LABEL_EN `REALM_COUNTRY_LABEL_EN`, c.LABEL_FR `REALM_COUNTRY_LABEL_FR`, c.LABEL_SP `REALM_COUNTRY_LABEL_SP`, c.LABEL_PR `REALM_COUNTRY_LABEL_PR`, c.COUNTRY_CODE, "
@@ -2156,7 +2188,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programId", programId);
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         sb.append(" GROUP BY p.PROGRAM_ID");
-        LoadProgram program = this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new LoadProgramRowMapper());
+        LoadProgram program = this.namedParameterJdbcTemplate.query(sb.toString(), params, new LoadProgramResultSetExtractor());
         program.setCurrentPage(page);
         params.clear();
         params.put("programId", programId);
@@ -2175,9 +2207,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public boolean validateProgramCode(int realmId, int programId, String programCode,
-            CustomUserDetails curUser
-    ) {
+    public boolean validateProgramCode(int realmId, int programId, String programCode, CustomUserDetails curUser) {
         String sql = "SELECT COUNT(*) FROM rm_program p LEFT JOIN rm_realm_country rc  ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID WHERE rc.REALM_ID = :realmId AND p.PROGRAM_CODE = :programCode AND (:programId = 0 OR p.PROGRAM_ID != :programId)";
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
@@ -2187,8 +2217,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<Program> getProgramListForSyncProgram(String programIdsString, CustomUserDetails curUser
-    ) {
+    public List<Program> getProgramListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND p.PROGRAM_ID IN (").append(programIdsString).append(") ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
@@ -2208,8 +2237,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId, int linkingType
-    ) {
+    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId, int linkingType) {
         StringBuilder sb = new StringBuilder();
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
@@ -2258,15 +2286,14 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser
-    ) {
+    public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) {
         Program p = this.getProgramById(programId, curUser);
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT u.EMAIL_ID "
                 + "FROM us_user u "
                 + "LEFT JOIN us_user_role ur ON u.USER_ID=ur.USER_ID "
                 + "LEFT JOIN us_user_acl acl ON u.USER_ID=acl.USER_ID "
-                + "LEFT JOIN rm_program p ON p.PROGRAM_ID=:programId "
+                + "LEFT JOIN vw_program p ON p.PROGRAM_ID=:programId "
                 + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + "WHERE "
                 + "     ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER' "
@@ -2286,8 +2313,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId
-    ) {
+    public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         String sql;
@@ -2341,8 +2367,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO
-    ) {
+    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO) {
         String sql = "";
         List<ERPNotificationDTO> list = null;
         Map<String, Object> params = new HashMap<>();
@@ -2355,9 +2380,11 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
+
     @Transactional
     public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser
     ) {
+
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         logger.info("ERP Notification : Going to update notification---" + eRPNotificationDTO.toString());
         String sql = "";
@@ -2408,8 +2435,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public int getNotificationCount(CustomUserDetails curUser
-    ) {
+    public int getNotificationCount(CustomUserDetails curUser) {
         String programIds = "", sql;
         List<Program> programList = this.programService.getProgramList(curUser, true);
         for (Program p : programList) {
@@ -2425,8 +2451,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo
-    ) {
+    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
         String sql = "SELECT "
                 + " e.`ERP_ORDER_ID`,e.`RO_NO`,e.`RO_PRIME_LINE_NO`,e.`ORDER_NO`,e.`PRIME_LINE_NO` ,((e.`QTY` * e.PRICE)+e.SHIPPING_COST) AS TOTAL_COST, "
                 + " pu.`PLANNING_UNIT_ID`,pu.`LABEL_ID`,pu.`LABEL_EN`,pu.`LABEL_FR`,pu.`LABEL_PR`,pu.`LABEL_SP`, "
@@ -2542,5 +2567,7 @@ public class ProgramDaoImpl implements ProgramDao {
         logger.info("ERP Linking : Tab3 new shipment creation completed---" + id);
         return id;
     }
+
+   
 
 }

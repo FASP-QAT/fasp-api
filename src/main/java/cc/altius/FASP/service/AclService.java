@@ -6,6 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Map;
  */
 public interface AclService {
 
-    public boolean checkAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, int healthAreaId, int organisationId, int programId);
+    public boolean checkAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, List<Integer> healthAreaId, int organisationId, int programId);
 
     public boolean checkRealmAccessForUser(CustomUserDetails curUser, int realmId);
 
@@ -22,7 +23,7 @@ public interface AclService {
 
     public boolean checkOrganisationAccessForUser(CustomUserDetails curUser, int organisationId);
 
-    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int realmId, int programId, int healthAreaId, int organisationId);
+    public boolean checkProgramAccessForUser(CustomUserDetails curUser, int realmId, int programId, List<Integer> healthAreaIdList, int organisationId);
 
     public String addUserAclForRealm(String sqlString, Map<String, Object> params, String realmAlias, int realmId, CustomUserDetails curUser);
 

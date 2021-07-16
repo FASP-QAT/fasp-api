@@ -5,8 +5,6 @@
  */
 package cc.altius.FASP.rest.controller;
 
-import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.UserManualService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -50,7 +50,7 @@ public class QatTempProgramResultSetExtractor implements ResultSetExtractor<QatT
 //                p.getRealmCountry().setPalletUnit(new Unit(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, 1), rs.getString("UNIT_CODE")));
                 p.setLabel(new LabelRowMapper().mapRow(rs, 1));
                 p.setOrganisation(new SimpleCodeObject(rs.getInt("ORGANISATION_ID"), new LabelRowMapper("ORGANISATION_").mapRow(rs, 1), rs.getString("ORGANISATION_CODE")));
-                p.setHealthArea(new SimpleCodeObject(rs.getInt("HEALTH_AREA_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("HEALTH_AREA_CODE")));
+//                p.setHealthArea(new SimpleCodeObject(rs.getInt("HEALTH_AREA_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("HEALTH_AREA_CODE")));
                 p.setProgramManager(new BasicUser(rs.getInt("PROGRAM_MANAGER_USER_ID"), rs.getString("PROGRAM_MANAGER_USERNAME")));
                 p.setProgramNotes(rs.getString("PROGRAM_NOTES"));
                 p.setAirFreightPerc(rs.getDouble("AIR_FREIGHT_PERC"));
@@ -70,6 +70,10 @@ public class QatTempProgramResultSetExtractor implements ResultSetExtractor<QatT
             Region r = new Region(rs.getInt("REGION_ID"), new LabelRowMapper("REGION_").mapRow(rs, 0));
             if (p.getRegionList().indexOf(r) == -1) {
                 p.getRegionList().add(r);
+            }
+            SimpleCodeObject ha = new SimpleCodeObject(rs.getInt("HEALTH_AREA_ID"), new LabelRowMapper("HEALTH_AREA_").mapRow(rs, 0), rs.getString("HEALTH_AREA_CODE"));
+            if (p.getHealthAreaList().indexOf(ha) == -1) {
+                p.getHealthAreaList().add(ha);
             }
 //            Version v = new Version(rs.getInt("VERSION_ID"), new BasicUser(rs.getInt("VERSION_USER_ID"), rs.getString("VERSION_USERNAME")), rs.getTimestamp("VERSION_CREATED_DATE"));
 //            if (p.getVersionList().indexOf(v) == -1) {
