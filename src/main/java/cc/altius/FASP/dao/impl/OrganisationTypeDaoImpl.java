@@ -129,12 +129,12 @@ public class OrganisationTypeDaoImpl implements OrganisationTypeDao {
         return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new OrganisationTypeRowMapper());
     }
 
-//    @Override
-//    public List<OrganisationType> getOrganisationTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
-//        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND ot.LAST_MODIFIED_DATE>:lastSyncDate ");
-//        Map<String, Object> params = new HashMap<>();
-//        params.put("lastSyncDate", lastSyncDate);
-//        this.aclService.addUserAclForRealm(sqlListString, params, "ot", curUser);
-//        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new OrganisationTypeRowMapper());
-//    }
+    @Override
+    public List<OrganisationType> getOrganisationTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND ot.LAST_MODIFIED_DATE>:lastSyncDate ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        this.aclService.addUserAclForRealm(sqlListString, params, "ot", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new OrganisationTypeRowMapper());
+    }
 }

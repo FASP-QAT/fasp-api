@@ -6,7 +6,6 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.OrganisationType;
 
 import java.util.List;
@@ -27,5 +26,5 @@ public interface OrganisationTypeService {
 
     public OrganisationType getOrganisationTypeById(int organisationTypeId, CustomUserDetails curUser);
 
-//    public List<OrganisationType> getOrganisationTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
+    public List<OrganisationType> getOrganisationTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

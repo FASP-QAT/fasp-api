@@ -26,5 +26,5 @@ public interface OrganisationTypeDao {
 
     public OrganisationType getOrganisationTypeById(int organisationTypeId, CustomUserDetails curUser);
 
-//    public List<OrganisationType> getOrganisationTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
+    public List<OrganisationType> getOrganisationTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

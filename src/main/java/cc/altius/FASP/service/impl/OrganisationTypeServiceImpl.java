@@ -81,8 +81,8 @@ public class OrganisationTypeServiceImpl implements OrganisationTypeService {
         }
     }
 
-//    @Override
-//    public List<OrganisationType> getOrganisationTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
-//        return this.organisationTypeDao.getOrganisationTypeListForSync(lastSyncDate, curUser);
-//    }
+    @Override
+    public List<OrganisationType> getOrganisationTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.organisationTypeDao.getOrganisationTypeListForSync(lastSyncDate, curUser);
+    }
 }
