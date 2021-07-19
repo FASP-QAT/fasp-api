@@ -231,11 +231,11 @@ public class ProgramRestController {
         } catch (AccessDeniedException e) {
             e.printStackTrace();
             logger.error("Error while trying to get PlanningUnit list for Programs", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("Error while trying to get PlanningUnit list for Programs", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
