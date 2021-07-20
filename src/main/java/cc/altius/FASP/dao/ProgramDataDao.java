@@ -36,7 +36,7 @@ public interface ProgramDataDao {
 
     public List<Inventory> getInventoryList(int programId, int versionId);
 
-    public List<Shipment> getShipmentList(int programId, int versionId);
+    public List<Shipment> getShipmentList(int programId, int versionId, boolean active);
 
     public List<Batch> getBatchList(int programId, int versionId);
 
@@ -65,18 +65,18 @@ public interface ProgramDataDao {
     public List<Batch> getBatchListForSync(int programId, int versionId, String lastSyncDate);
 
     public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId);
-    
+
     public int getLatestVersionForProgram(int programId);
 
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList();
 
     public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId);
-    
+
     public String getSupplyPlanReviewerEmialList(int realmCountryId);
-    
+
     public List<SimplePlanningUnitForSupplyPlanObject> getPlanningUnitListForProgramData(int programId, CustomUserDetails curUser);
-    
+
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
-    
-    public String getLastModifiedDateForProgram(int programId,int versionId);
+
+    public String getLastModifiedDateForProgram(int programId, int versionId);
 }
