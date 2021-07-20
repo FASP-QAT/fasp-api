@@ -14,7 +14,7 @@ USE `fasp`$$
 
 DROP PROCEDURE IF EXISTS `getShipmentData`$$
 
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentData`(PROGRAM_ID INT(10), VERSION_ID INT (10),ACTIVE TINYINT)
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentData`(PROGRAM_ID INT(10), VERSION_ID INT (10),ACTIVE TINYINT)
 BEGIN
 	SET @programId = PROGRAM_ID;
     SET @versionId = VERSION_ID;
