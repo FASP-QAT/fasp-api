@@ -1,20 +1,34 @@
+/* 
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+/**
+ * Author:  altius
+ * Created: 15-Jul-2021
+ */
+
+DELIMITER $$
+
+USE `fasp`$$
+
+DROP PROCEDURE IF EXISTS `shipmentDetailsMonth`$$
+
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentDetailsMonth`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT, VAR_FUNDING_SOURCE_IDS TEXT, VAR_BUDGET_IDS TEXT)
 BEGIN
-
-    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    -- Report no 19 c
-    -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
-    -- Only Month and Year will be considered for StartDate and StopDate
-    -- Only a single ProgramId can be selected
-    -- VersionId can be a valid Version Id for the Program or -1 for last submitted VersionId
-    -- PlanningUnitIds is the list of Planning Units you want to run the report for. 
-    -- Empty PlanningUnitIds means you want to run the report for all the Planning Units in that Program
-    -- FundingSourceIds is the list of FundingSources that you want to filter the report on
-    -- Empty FundingSourceIds means you want to run the report for all the Funding Sources
-    -- BudgetIds is the list of Budgets that you want to filter the report on
-    -- Empty BudgetIds means you want to run the report for all the Budgets
-
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     SET @startDate = VAR_START_DATE;
     SET @stopDate = VAR_STOP_DATE;
     SET @programId = VAR_PROGRAM_ID;
@@ -22,7 +36,6 @@ BEGIN
     SET @planningUnitIds = VAR_PLANNING_UNIT_IDS;
     SET @fundingSourceIds = VAR_FUNDING_SOURCE_IDS;
     SET @budgetIds = VAR_BUDGET_IDS;
-
     IF @versionId = -1 THEN
     	SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
     END IF;
@@ -63,12 +76,12 @@ BEGIN
         ) AS s 
         LEFT JOIN rm_shipment s1 ON s.SHIPMENT_ID=s1.SHIPMENT_ID 
         LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID 
-        LEFT JOIN vw_shipment_status ss on st.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID 
+        LEFT JOIN vw_shipment_status ss ON st.SHIPMENT_STATUS_ID=ss.SHIPMENT_STATUS_ID 
         LEFT JOIN vw_funding_source fs ON st.FUNDING_SOURCE_ID=fs.FUNDING_SOURCE_ID 
         LEFT JOIN vw_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID 
         LEFT JOIN rm_program_planning_unit ppu ON s1.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID 
         WHERE 
-            st.ACTIVE AND st.ACCOUNT_FLAG AND ppu.ACTIVE AND pu.ACTIVE 
+            st.ACTIVE AND st.ACCOUNT_FLAG   AND ppu.ACTIVE AND pu.ACTIVE 
             AND st.SHIPMENT_STATUS_ID!=8 
 	    AND (LENGTH(@planningUnitIds)=0 OR FIND_IN_SET(st.PLANNING_UNIT_ID,@planningUnitIds)) 
             AND (LENGTH(@fundingSourceIds)=0 OR FIND_IN_SET(st.FUNDING_SOURCE_ID, @fundingSourceIds))
@@ -78,4 +91,6 @@ BEGIN
     WHERE mn.MONTH BETWEEN @startDate AND @stopDate 
     GROUP BY mn.MONTH;
     
-END
+END$$
+
+DELIMITER ;
