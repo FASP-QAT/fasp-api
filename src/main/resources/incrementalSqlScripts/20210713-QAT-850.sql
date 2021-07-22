@@ -29,6 +29,7 @@ CREATE TABLE `rm_organisation_type` (
 
 -- ALTER TABLE `fasp`.`rm_organisation_type` ADD CONSTRAINT `FK_rm_organisation_type_realm` FOREIGN KEY (`REALM_ID`) REFERENCES `rm_realm` (`REALM_ID`);
 
+SET FOREIGN_KEY_CHECKS = 0;
 
 DELIMITER $$
 
@@ -99,3 +100,5 @@ FROM (`rm_organisation` `o`
      ON ((`ot`.`LABEL_ID` = `otl`.`LABEL_ID`)))$$
 
 DELIMITER ;
+
+SET FOREIGN_KEY_CHECKS = 1;
