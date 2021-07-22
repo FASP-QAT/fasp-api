@@ -19,6 +19,7 @@ import cc.altius.FASP.service.FundingSourceService;
 import cc.altius.FASP.service.HealthAreaService;
 import cc.altius.FASP.service.LanguageService;
 import cc.altius.FASP.service.OrganisationService;
+import cc.altius.FASP.service.OrganisationTypeService;
 import cc.altius.FASP.service.PlanningUnitService;
 import cc.altius.FASP.service.ProblemService;
 import cc.altius.FASP.service.ProcurementAgentService;
@@ -86,6 +87,8 @@ public class SyncRestController {
     @Autowired
     private OrganisationService organisationService;
     @Autowired
+    private OrganisationTypeService organisationTypeService;
+    @Autowired
     private FundingSourceService fundingSourceService;
     @Autowired
     private ProcurementAgentService procurementAgentService;
@@ -130,6 +133,7 @@ public class SyncRestController {
             masters.setRealmList(this.realmService.getRealmListForSync(lastSyncDate, curUser));
             masters.setHealthAreaList(this.healthAreaService.getHealthAreaListForSync(lastSyncDate, curUser));
             masters.setOrganisationList(this.organisationService.getOrganisationListForSync(lastSyncDate, curUser));
+            masters.setOrganisationTypeList(this.organisationTypeService.getOrganisationTypeListForSync(lastSyncDate, curUser));
             masters.setFundingSourceList(this.fundingSourceService.getFundingSourceListForSync(lastSyncDate, curUser));
             masters.setProcurementAgentList(this.procurementAgentService.getProcurementAgentListForSync(lastSyncDate, curUser));
             masters.setSupplierList(this.supplierService.getSupplierListForSync(lastSyncDate, curUser));
@@ -204,6 +208,7 @@ public class SyncRestController {
             masters.setHealthAreaList(this.healthAreaService.getHealthAreaListForSync(lastSyncDate, curUser));
 //            System.out.println("HealthArea -> " + masters.getHealthAreaList().size());
             masters.setOrganisationList(this.organisationService.getOrganisationListForSync(lastSyncDate, curUser));
+            masters.setOrganisationTypeList(this.organisationTypeService.getOrganisationTypeListForSync(lastSyncDate, curUser));
 //            System.out.println("Organisation -> " + masters.getOrganisationList().size());
             masters.setFundingSourceList(this.fundingSourceService.getFundingSourceListForSync(lastSyncDate, curUser));
 //            System.out.println("FundingSource -> " + masters.getFundingSourceList().size());

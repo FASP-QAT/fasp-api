@@ -29,6 +29,7 @@ public class MastersSync implements Serializable {
     private List<RealmCountry> realmCountryList;
     private List<HealthArea> healthAreaList;
     private List<Organisation> organisationList;
+    private List<OrganisationType> organisationTypeList;
     private List<FundingSource> fundingSourceList;
     private List<ProcurementAgent> procurementAgentList;
     private List<Supplier> supplierList;
@@ -157,6 +158,14 @@ public class MastersSync implements Serializable {
 
     public void setOrganisationList(List<Organisation> organisationList) {
         this.organisationList = organisationList;
+    }
+
+    public List<OrganisationType> getOrganisationTypeList() {
+        return organisationTypeList;
+    }
+
+    public void setOrganisationTypeList(List<OrganisationType> organisationTypeList) {
+        this.organisationTypeList = organisationTypeList;
     }
 
     public List<FundingSource> getFundingSourceList() {
