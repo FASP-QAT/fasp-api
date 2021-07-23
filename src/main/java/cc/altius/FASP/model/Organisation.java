@@ -131,7 +131,7 @@ public class Organisation extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "Organisation{" + "organisationId=" + organisationId + ", organisationCode=" + organisationCode + ", realm=" + realm + ", label=" + label + ", realmCountryList=" + realmCountryList + ", realmCountryArray=" + realmCountryArray + '}';
+        return "Organisation{" + "organisationId=" + organisationId + ", organisationCode=" + organisationCode + ", organisationType=" + organisationType + ", label=" + label + '}';
     }
 
 }
