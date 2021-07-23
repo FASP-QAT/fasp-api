@@ -14,7 +14,7 @@ USE `fasp`$$
 
 DROP PROCEDURE IF EXISTS `getShipmentListForManualLinking`$$
 
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getShipmentListForManualLinking`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getShipmentListForManualLinking`(PROGRAM_ID INT(10), PLANNING_UNIT_ID TEXT, VERSION_ID INT (10))
 BEGIN
     SET @programId = PROGRAM_ID;
     SET @planningUnitIds = PLANNING_UNIT_ID;

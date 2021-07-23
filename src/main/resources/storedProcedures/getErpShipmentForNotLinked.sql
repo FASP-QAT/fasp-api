@@ -4,7 +4,7 @@ USE `fasp`$$
 
 DROP PROCEDURE IF EXISTS `getErpShipmentForNotLinked`$$
 
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `getErpShipmentForNotLinked`(
+CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `getErpShipmentForNotLinked`(
     VAR_REALM_COUNTRY_ID INT(10), 
     VAR_PRODUCT_CATEGORY_IDS TEXT, 
     VAR_PLANNING_UNIT_IDS TEXT, 
