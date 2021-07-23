@@ -163,16 +163,16 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         int x = 0;
                         logger.info("Going to drop tmp_product_catalog");
                         sb.append("Going to drop tmp_product_catalog").append(br);
-                        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_product_catalog`";
-//                        sqlString = "DROP TABLE IF EXISTS `tmp_product_catalog`";
+//                        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_product_catalog`";
+                        sqlString = "DROP TABLE IF EXISTS `tmp_product_catalog`";
                         this.jdbcTemplate.execute(sqlString);
                         logger.info("Successfully droped tmp_product_catalog");
                         sb.append("Successfully droped tmp_product_catalog").append(br);
 
                         logger.info("Going to create tmp_product_catalog");
                         sb.append("Going to create tmp_product_catalog").append(br);
-                        sqlString = "CREATE TEMPORARY TABLE `tmp_product_catalog` ( "
-                                //                        sqlString = "CREATE TABLE `tmp_product_catalog` ( "
+//                        sqlString = "CREATE TEMPORARY TABLE `tmp_product_catalog` ( "
+                        sqlString = "CREATE TABLE `tmp_product_catalog` ( "
                                 + "  `TaskOrder` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `CommodityCouncil` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `Subcategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
@@ -282,6 +282,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                                 map.put("productNameNoPack", dataRecordElement.getElementsByTagName("product_name_no_pack").item(0).getTextContent());
                                 map.put("productId", dataRecordElement.getElementsByTagName("product_id").item(0).getTextContent());
                                 map.put("productName", dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent());
+//                                System.out.println("product name ---"+dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent());
                                 map.put("itemUom", dataRecordElement.getElementsByTagName("item_uom").item(0).getTextContent());
                                 map.put("productPackSize", dataRecordElement.getElementsByTagName("product_pack_size").item(0).getTextContent());
                                 map.put("productBaseUnitMult", dataRecordElement.getElementsByTagName("product_base_unit_mult").item(0).getTextContent());
@@ -672,13 +673,13 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         sb.append("------------------------------- Forecasting Unit ------------------------------------").append(br);
         //------------Forcasting Unit--------------------------
         // Step 1 - Drop the table if it exists
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
-//        String sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
+//        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
+        String sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
         this.jdbcTemplate.update(sqlString);
 
         // Step 2 - Create Temporary Table
-        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
-//        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
+//        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
+        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
                 + "    `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
                 + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,   "
@@ -705,7 +706,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
 
         // Step 3 insert into the tmp_label the ProductNameNoPack
-        sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, ProductNameNoPack, null, IF(TRIM(INN)='',null,TRIM(INN)), null, BaseUnit, CommodityCouncil, Subcategory, TracerCategory, 0, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' group by tpc.ProductIDNoPack";
+        sqlString = "INSERT INTO tmp_forecasting_unit SELECT null, ProductNameNoPack, null, IF(TRIM(INN)='',null,TRIM(INN)), null, BaseUnit, CommodityCouncil, Subcategory, TracerCategory, 0, 0 FROM tmp_product_catalog tpc WHERE tpc.ProductNameNoPack IS NOT NULL AND tpc.ProductNameNoPack != '' group by tpc.ProductNameNoPack";
         int rows = this.jdbcTemplate.update(sqlString);
         logger.info(rows + " inserted into the tmp_label for ProductNameNoPack");
         sb.append(rows).append(" inserted into the tmp_label for ProductNameNoPack").append(br);
@@ -792,7 +793,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 forecastingUnitParams.replace("PRODUCT_CATEGORY_ID", fu.getProductCategory().getId());
                 sb.append("----------fu 3--------------");
                 sqlString = "SELECT TRACER_CATEGORY_ID FROM vw_tracer_category tc WHERE tc.REALM_ID=1 AND tc.LABEL_EN=?";
-                System.out.println("tracer category---"+fu.getTracerCategory().getLabel().getLabel_en());
+//                System.out.println("tracer category---" + fu.getTracerCategory().getLabel().getLabel_en());
                 fu.getTracerCategory().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getTracerCategory().getLabel().getLabel_en()));
                 forecastingUnitParams.replace("TRACER_CATEGORY_ID", fu.getTracerCategory().getId());
                 sb.append("----------fu 4--------------");
@@ -862,7 +863,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
 
         sqlString = "CREATE TEMPORARY TABLE `tmp_planning_unit` (   "
-//                        sqlString = "CREATE TABLE `tmp_planning_unit` (   "
+                //                        sqlString = "CREATE TABLE `tmp_planning_unit` (   "
                 + "     `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "     `PLANNING_UNIT_ID` int (10) unsigned DEFAULT NULL,   "
                 + "     `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
@@ -983,7 +984,6 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         // Update planning unit start
 //        sqlString = "SELECT tpu.*, null UNIT_ID, null FORECASTING_UNIT_ID FROM tmp_planning_unit tpu where tpu.FOUND=1";
 //        for (PlanningUnitArtmisPull pu : this.jdbcTemplate.query(sqlString, new PlanningUnitArtmisPullRowMapper())) {
-
         sqlString = "UPDATE `tmp_planning_unit` tpu   "
                 + "LEFT JOIN rm_planning_unit pu ON tpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID  "
                 + "LEFT JOIN ap_label pul ON pu.LABEL_ID=pul.LABEL_ID  "
@@ -1377,3 +1377,4 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     }
 
 }
+	

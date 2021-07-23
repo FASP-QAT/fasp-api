@@ -55,14 +55,14 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     private EmailService emailService;
 
     @Override
-    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser) {
+    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean active) {
         ProgramData pd = new ProgramData(this.programService.getProgramById(programId, curUser));
         pd.setRequestedProgramVersion(versionId);
         pd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
         versionId = pd.getCurrentVersion().getVersionId();
         pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId));
         pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId));
-        pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId));
+        pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId, active));
         pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId));
         pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
         pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId));
@@ -80,7 +80,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             int versionId = pd.getCurrentVersion().getVersionId();
             pd.setConsumptionList(this.programDataDao.getConsumptionList(pv.getProgramId(), versionId));
             pd.setInventoryList(this.programDataDao.getInventoryList(pv.getProgramId(), versionId));
-            pd.setShipmentList(this.programDataDao.getShipmentList(pv.getProgramId(), versionId));
+            pd.setShipmentList(this.programDataDao.getShipmentList(pv.getProgramId(), versionId, false));
             pd.setBatchInfoList(this.programDataDao.getBatchList(pv.getProgramId(), versionId));
             pd.setProblemReportList(this.problemService.getProblemReportList(pv.getProgramId(), versionId, curUser));
             pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId));
@@ -117,8 +117,12 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                             sbCcEmails.append(ns.getEmailId()).append(",");
                         }
                     }
-                    if (sbToEmails.length() != 0) {System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());}
-                    if (sbCcEmails.length() != 0) {System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());}
+                    if (sbToEmails.length() != 0) {
+                        System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
+                    }
+                    if (sbCcEmails.length() != 0) {
+                        System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
+                    }
                     EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(6);
                     String[] subjectParam = new String[]{};
                     String[] bodyParam = null;
@@ -245,6 +249,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc) {
         return this.programDataDao.getSupplyPlanNotificationList(programId, versionId, statusType, toCc);
+    }
+
+    @Override
+    public String getLastModifiedDateForProgram(int programId, int versionId) {
+        return this.programDataDao.getLastModifiedDateForProgram(programId, versionId);
     }
 
 }

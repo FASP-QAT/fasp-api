@@ -93,7 +93,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     private EmailService emailService;
     @Autowired
     private ProgramService programService;
-   
+
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -144,11 +144,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<Shipment> getShipmentList(int programId, int versionId) {
+    public List<Shipment> getShipmentList(int programId, int versionId, boolean active) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
-        return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId)", params, new ShipmentListResultSetExtractor());
+        params.put("active", active);
+        return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId, :active)", params, new ShipmentListResultSetExtractor());
     }
 
     private final Logger logger = LoggerFactory.getLogger(ProgramDaoImpl.class);
@@ -1247,7 +1248,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "Cc");
             System.out.println("toEmailIdsListReject===>" + toEmailIdsList);
             System.out.println("ccEmailIdsListReject===>" + ccEmailIdsList);
-            
+
             StringBuilder sbToEmails = new StringBuilder();
             StringBuilder sbCcEmails = new StringBuilder();
             if (toEmailIdsList.size() > 0) {
@@ -1260,8 +1261,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     sbCcEmails.append(ns.getEmailId()).append(",");
                 }
             }
-            if (sbToEmails.length() != 0) {System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());}
-            if (sbCcEmails.length() != 0) {System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());}
+            if (sbToEmails.length() != 0) {
+                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
+            }
+            if (sbCcEmails.length() != 0) {
+                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
+            }
 
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(7);
             String[] subjectParam = new String[]{};
@@ -1269,7 +1274,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             Emailer emailer = new Emailer();
             subjectParam = new String[]{program.getProgramCode()};
             bodyParam = new String[]{program.getProgramCode(), String.valueOf(versionId), notes};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "",sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -1283,7 +1288,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "Cc");
             System.out.println("toEmailIdsListApproved===>" + toEmailIdsList);
             System.out.println("ccEmailIdsListApproved===>" + ccEmailIdsList);
-            
+
             StringBuilder sbToEmails = new StringBuilder();
             StringBuilder sbCcEmails = new StringBuilder();
             if (toEmailIdsList.size() > 0) {
@@ -1296,8 +1301,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     sbCcEmails.append(ns.getEmailId()).append(",");
                 }
             }
-            if (sbToEmails.length() != 0) {System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());}
-            if (sbCcEmails.length() != 0) {System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());}
+            if (sbToEmails.length() != 0) {
+                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
+            }
+            if (sbCcEmails.length() != 0) {
+                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
+            }
 
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(5);
             String[] subjectParam = new String[]{};
@@ -1305,7 +1314,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             Emailer emailer = new Emailer();
             subjectParam = new String[]{program.getProgramCode()};
             bodyParam = new String[]{program.getProgramCode(), String.valueOf(versionId), notes};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "",sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -1439,7 +1448,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "    WHERE spa.PROGRAM_ID=@programId AND spa.VERSION_ID=@versionId "
                 + "GROUP BY spa.PLANNING_UNIT_ID, spa.TRANS_DATE) amc ON spa.PROGRAM_ID=amc.PROGRAM_ID AND spa.VERSION_ID=amc.VERSION_ID AND spa.PLANNING_UNIT_ID=amc.PLANNING_UNIT_ID AND spa.TRANS_DATE=amc.TRANS_DATE "
                 + "SET  "
-                + "    spa.AMC=amc.AMC,  "
+                + "    spa.AMC=IF(amc.AMC_COUNT=0,null,amc.AMC),  "
                 + "    spa.AMC_COUNT=amc.AMC_COUNT,  "
                 + "    spa.MOS=IF(amc.AMC IS NULL OR amc.AMC=0, null, spa.CLOSING_BALANCE_WPS/amc.AMC), "
                 + "    spa.MIN_STOCK_MOS = IF(ppu.MIN_MONTHS_OF_STOCK<r.MIN_MOS_MIN_GAURDRAIL, r.MIN_MOS_MIN_GAURDRAIL, IF(ppu.MIN_MONTHS_OF_STOCK>r.MIN_MOS_MAX_GAURDRAIL, r.MIN_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK)), "
@@ -1822,6 +1831,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("versionId", versionId);
         params.put("statusType", statusType);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new NotificationUserRowMapper());
+    }
+
+    @Override
+    public String getLastModifiedDateForProgram(int programId, int versionId) {
+        String sql = "select MAX(st.LAST_MODIFIED_DATE) from rm_shipment s \n"
+                + "left join rm_shipment_trans st on s.SHIPMENT_ID=st.SHIPMENT_ID and s.MAX_VERSION_ID=st.VERSION_ID\n"
+                + "where s.PROGRAM_ID=? and st.VERSION_ID<=?;";
+        return this.jdbcTemplate.queryForObject(sql, String.class, programId, versionId);
     }
 
 }

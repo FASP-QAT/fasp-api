@@ -22,7 +22,7 @@ public class ManualTaggingOrderDTORowMapper implements RowMapper<ManualTaggingOr
         ManualTaggingOrderDTO e = new ManualTaggingOrderDTO();
         e.setErpOrderId(rs.getInt("ERP_ORDER_ID"));
         e.setShipmentId(rs.getInt("SHIPMENT_ID"));
-        e.setQuantity(rs.getInt("QTY"));
+        e.setQuantity(rs.getLong("QTY"));
         e.setOrderNo(rs.getString("ORDER_NO"));
         e.setPrimeLineNo(rs.getInt("PRIME_LINE_NO"));
         e.setRoNo(rs.getString("RO_NO"));

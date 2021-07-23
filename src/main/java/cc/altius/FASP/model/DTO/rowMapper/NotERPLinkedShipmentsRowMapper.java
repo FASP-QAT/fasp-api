@@ -25,7 +25,7 @@ public class NotERPLinkedShipmentsRowMapper implements RowMapper<ManualTaggingDT
         m.setErpOrderId(rs.getInt("ERP_ORDER_ID"));
         m.setExpectedDeliveryDate(rs.getTimestamp("EXPECTED_DELIVERY_DATE"));
         m.setErpStatus(rs.getString("STATUS"));
-        m.setShipmentQty(rs.getInt("QTY"));
+        m.setShipmentQty(rs.getLong("QTY"));
         m.setOrderNo(rs.getString("ORDER_NO"));
         m.setPrimeLineNo(rs.getInt("PRIME_LINE_NO"));
         m.setRoNo(rs.getString("RO_NO"));

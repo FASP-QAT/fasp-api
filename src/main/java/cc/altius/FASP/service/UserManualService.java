@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.service;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -13,6 +15,6 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface UserManualService {
 
-    public void uploadUserManual(MultipartFile file);
+    public void uploadUserManual(MultipartFile file) throws IOException, FileNotFoundException;
 
 }

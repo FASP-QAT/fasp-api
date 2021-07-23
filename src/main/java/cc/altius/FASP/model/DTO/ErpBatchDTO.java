@@ -19,13 +19,12 @@ public class ErpBatchDTO implements Serializable {
     private int shipmentTransBatchInfoId;
     private String batchNo;
     private Date expiryDate;
-    private int qty;
+    private long qty;
     private int status;
 
     /**
      * -1 -- Delete 0 -- Leave it alone 1 -- Update 2 -- Insert
      */
-
     public int getBatchId() {
         return batchId;
     }
@@ -58,11 +57,11 @@ public class ErpBatchDTO implements Serializable {
         this.expiryDate = expiryDate;
     }
 
-    public int getQty() {
+    public long getQty() {
         return qty;
     }
 
-    public void setQty(int qty) {
+    public void setQty(long qty) {
         this.qty = qty;
     }
 

@@ -8,13 +8,13 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.PlanningUnitDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.rowMapper.PlanningUnitCapacityRowMapper;
 import cc.altius.FASP.model.rowMapper.PlanningUnitRowMapper;
-import cc.altius.FASP.model.rowMapper.PlanningUnitTracerCategoryRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
@@ -363,10 +363,11 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
 
     @Override
     public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds, boolean active, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder("SELECT GROUP_CONCAT(pc2.PRODUCT_CATEGORY_ID) `allProductCategories` FROM rm_product_category pc LEFT JOIN rm_product_category pc2 ON pc2.SORT_ORDER LIKE CONCAT(pc.SORT_ORDER,\"%\") WHERE FIND_IN_SET(pc.PRODUCT_CATEGORY_ID, :productCategoryList)");
+        StringBuilder subBuilder = new StringBuilder("SELECT DISTINCT(pc2.PRODUCT_CATEGORY_ID) `PRODUCT_CATEGORY_ID` FROM rm_product_category pc LEFT JOIN rm_product_category pc2 ON pc2.SORT_ORDER LIKE CONCAT(pc.SORT_ORDER,\"%\") WHERE FIND_IN_SET(pc.PRODUCT_CATEGORY_ID, :productCategoryList) ");
         Map<String, Object> params = new HashMap<>();
         params.put("productCategoryList", String.join(",", productCategoryIds));
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "pc", curUser);
+        this.aclService.addUserAclForRealm(subBuilder, params, "pc", curUser);
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT GROUP_CONCAT(pc3.`PRODUCT_CATEGORY_ID`) `allProductCategories` FROM (").append(subBuilder).append(") AS pc3");
         String finalProductCategoryIds = this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, String.class);
         params.clear();
         sqlStringBuilder = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID` , pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR "
@@ -381,7 +382,7 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
                 + "    AND ppu.ACTIVE "
                 + "    AND p.ACTIVE ");
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(" ORDER BY pu.LABEL_EN");
+        sqlStringBuilder.append(" GROUP BY pu.PLANNING_UNIT_ID ORDER BY pu.LABEL_EN");
         params.put("finalProductCategoryIds", finalProductCategoryIds);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimpleObjectRowMapper());
     }
@@ -402,4 +403,27 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new SimpleObjectRowMapper());
     }
 
+    @Override
+    public List<SimpleObject> getPlanningUnitByProgramAndTracerCategory(ProgramAndTracerCategoryDTO programAndTracerCategory, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT pu.PLANNING_UNIT_ID `ID`, pu.`LABEL_ID`, pu.`LABEL_EN`, pu.`LABEL_FR`, pu.`LABEL_SP`, pu.`LABEL_PR` "
+                + "FROM rm_program_planning_unit ppu "
+                + "LEFT JOIN rm_program p ON ppu.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "LEFT JOIN rm_realm r ON rc.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "WHERE "
+                + "    r.ACTIVE AND rc.ACTIVE AND p.ACTIVE AND ppu.ACTIVE AND pu.ACTIVE "
+                + "AND (LENGTH(:programIds)=0 OR FIND_IN_SET(p.PROGRAM_ID, :programIds)) "
+                + "AND (LENGTH(:tracerCategoryIds)=0 OR FIND_IN_SET(fu.TRACER_CATEGORY_ID, :tracerCategoryIds)) ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programIds", programAndTracerCategory.getProgramIdsString());
+        params.put("tracerCategoryIds", programAndTracerCategory.getTracerCategoryIdsString());
+        this.aclService.addUserAclForRealm(sb, params, "r", curUser);
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        sb.append(" GROUP BY pu.PLANNING_UNIT_ID ");
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new SimpleObjectRowMapper());
+    }
+
+    
 }

@@ -69,6 +69,8 @@ public class StockStatusVerticalOutput implements Serializable {
     private int regionCount;
     @JsonView(Views.ReportView.class)
     private int regionCountForStock;
+    @JsonView(Views.ReportView.class)
+    private Long nationalAdjustment;
 
     public StockStatusVerticalOutput() {
         this.shipmentInfo = new LinkedList<>();
@@ -225,6 +227,14 @@ public class StockStatusVerticalOutput implements Serializable {
 
     public void setRegionCountForStock(int regionCountForStock) {
         this.regionCountForStock = regionCountForStock;
+    }
+
+    public Long getNationalAdjustment() {
+        return nationalAdjustment;
+    }
+
+    public void setNationalAdjustment(Long nationalAdjustment) {
+        this.nationalAdjustment = nationalAdjustment;
     }
 
     public List<ShipmentInfo> getShipmentInfo() {
