@@ -22,7 +22,7 @@ CREATE TABLE `rm_organisation_type` (
   KEY `FK_rm_organisation_type_realm` (`REALM_ID`),
   CONSTRAINT `FK_rm_organisation_type_label` FOREIGN KEY (`LABEL_ID`) REFERENCES `ap_label` (`LABEL_ID`),
   CONSTRAINT `FK_rm_organisation_type_realm` FOREIGN KEY (`REALM_ID`) REFERENCES `rm_realm` (`REALM_ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Table used to define the organization types for each Realm\nNote: An Organisation type can only be created and administered by a Realm Admin'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin COMMENT='Table used to define the organization types for each Realm\nNote: An Organisation type can only be created and administered by a Realm Admin';
 
 
 -- ALTER TABLE `fasp`.`rm_organisation_type` ADD CONSTRAINT `FK_rm_organisation_type_label` FOREIGN KEY (`LABEL_ID`) REFERENCES `ap_label` (`LABEL_ID`);
