@@ -70,7 +70,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
     @Override
     @Transactional
     public int addOrganisation(Organisation o, CustomUserDetails curUser) {
-        System.out.println("ORGANISATION>>>>>>>>>>>>>>>>>>>>>"+o);
+        System.out.println("ORGANISATION-DAO->>>>>>>>>>>>>>>>>>>>>"+o);
         SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_organisation").usingGeneratedKeyColumns("ORGANISATION_ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
