@@ -46,6 +46,7 @@ public class OrganisationRestController {
     public ResponseEntity postOrganisation(@RequestBody Organisation organisation, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            System.out.println("ORGANISATION-CONTROLLER->>>>>>>>>>>>>>>>>>>>>"+organisation);
             this.organisationService.addOrganisation(organisation, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
