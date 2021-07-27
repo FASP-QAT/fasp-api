@@ -84,7 +84,14 @@ public class OrganisationDaoImpl implements OrganisationDao {
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
-        int organisationId = si.executeAndReturnKey(params).intValue();
+        System.out.println("PARAMS>>>>>>>>>>>>>>>>>"+params);
+        int organisationId = 0;
+        try {
+            organisationId = si.executeAndReturnKey(params).intValue();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        
 
         si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_organisation_country");
         SqlParameterSource[] paramList = new SqlParameterSource[o.getRealmCountryArray().length];
