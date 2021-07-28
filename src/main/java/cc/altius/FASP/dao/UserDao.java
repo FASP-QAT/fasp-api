@@ -44,7 +44,7 @@ public interface UserDao {
 
     public int updateUser(User user, int curUser);
 
-    public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page); // 1 add User , 2 Edit User
+    public String checkIfUserExistsByEmail(User user, int page); // 1 add User , 2 Edit User
 
     public int unlockAccount(int userId, String password);
 

@@ -113,7 +113,7 @@ public class UserDaoImpl implements UserDao {
     private static final String customUserOrderBy = "  ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,bf.`BUSINESS_FUNCTION_ID`,acl.`USER_ACL_ID`";
 
     private static final String userString = "SELECT "
-            + "    `user`.`USER_ID`, `user`.`USERNAME`, `user`.`EMAIL_ID`, `user`.`PHONE`, `user`.`PASSWORD`, "
+            + "    `user`.`USER_ID`, `user`.`USERNAME`, `user`.`EMAIL_ID`, `user`.`ORG_AND_COUNTRY`, `user`.`PASSWORD`, "
             + "    `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, "
             + "    realm.`REALM_ID`, realm.`REALM_CODE`, realm_lb.`LABEL_ID` `REALM_LABEL_ID`, realm_lb.`LABEL_EN` `REALM_LABEL_EN`, realm_lb.`LABEL_FR` `REALM_LABEL_FR`, realm_lb.`LABEL_SP` `REALM_LABEL_SP`, realm_lb.`LABEL_PR` `REALM_LABEL_PR`, "
             + "    lang.`LANGUAGE_ID`, langLabel.`LABEL_ID` AS LANGUAGE_LABEL_ID,langLabel.`LABEL_EN` AS LANGUAGE_LABEL_EN,langLabel.`LABEL_FR` AS LANGUAGE_LABEL_FR,langLabel.`LABEL_PR` LANGUAGE_LABEL_PR,langLabel.`LABEL_SP` AS LANGUAGE_LABEL_SP , lang.`LANGUAGE_CODE`,lang.`COUNTRY_CODE`, "
@@ -349,7 +349,7 @@ public class UserDaoImpl implements UserDao {
         map.put("PASSWORD", user.getPassword());
 //        map.put("PASSWORD", null);
         map.put("EMAIL_ID", user.getEmailId());
-        map.put("PHONE", user.getPhoneNumber());
+        map.put("ORG_AND_COUNTRY", user.getOrgAndCountry());
         map.put("LANGUAGE_ID", user.getLanguage().getLanguageId());
         map.put("ACTIVE", true);
         map.put("EXPIRED", false);
@@ -425,7 +425,7 @@ public class UserDaoImpl implements UserDao {
                 + "SET "
                 + "u.`USERNAME`=:userName, "
                 + "u.`EMAIL_ID`=:emailId, "
-                + "u.`PHONE`=:phoneNo, "
+                + "u.`ORG_AND_COUNTRY`=:orgAndCountry, "
                 + "u.`LANGUAGE_ID`=:languageId, "
                 + "u.`ACTIVE`=:active, "
                 + "u.`LAST_MODIFIED_BY`=:lastModifiedBy, "
@@ -434,7 +434,7 @@ public class UserDaoImpl implements UserDao {
         Map<String, Object> params = new HashMap<>();
         params.put("userName", user.getUsername());
         params.put("emailId", user.getEmailId());
-        params.put("phoneNo", user.getPhoneNumber());
+        params.put("orgAndCountry()", user.getOrgAndCountry());
         params.put("languageId", user.getLanguage().getLanguageId());
         params.put("active", user.isActive());
         params.put("lastModifiedBy", curUser);
@@ -461,7 +461,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page) {
+    public String checkIfUserExistsByEmail(User user, int page) {
         String message = "", sql;
         int result2 = 0;
         Map<String, Object> params = new HashMap<>();
