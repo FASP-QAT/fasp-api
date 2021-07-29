@@ -73,9 +73,7 @@ public class OrganisationTypeDaoImpl implements OrganisationTypeDao {
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
         int organisationTypeId = si.executeAndReturnKey(params).intValue();
-
         return organisationTypeId;
-
     }
 
     @Override
@@ -86,7 +84,7 @@ public class OrganisationTypeDaoImpl implements OrganisationTypeDao {
         params.put("labelEn", ot.getLabel().getLabel_en());
         params.put("active", ot.isActive());
         params.put("curUser", curUser.getUserId());
-        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
+        params.put("curDate", curDate);
         int rows = this.namedParameterJdbcTemplate.update("UPDATE rm_organisation_type ot LEFT JOIN ap_label ol ON ot.LABEL_ID=ol.LABEL_ID "
                 + "SET "
                 + "ot.ACTIVE=:active, "
@@ -104,7 +102,7 @@ public class OrganisationTypeDaoImpl implements OrganisationTypeDao {
     public List<OrganisationType> getOrganisationTypeList(boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        this.aclService.addUserAclForRealm(sqlListString, params, "ot", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ot", curUser);
         if (active) {
             sqlStringBuilder.append(" AND ot.ACTIVE ");
         }
@@ -115,8 +113,8 @@ public class OrganisationTypeDaoImpl implements OrganisationTypeDao {
     public List<OrganisationType> getOrganisationTypeListByRealmId(int realmId, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
-        this.aclService.addUserAclForRealm(sqlListString, params, "ot", curUser);
-        this.aclService.addUserAclForRealm(sqlListString, params, "ot", realmId, curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ot", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ot", realmId, curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new OrganisationTypeRowMapper());
     }
 
@@ -125,7 +123,7 @@ public class OrganisationTypeDaoImpl implements OrganisationTypeDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND ot.ORGANISATION_TYPE_ID=:organisationTypeId ");
         Map<String, Object> params = new HashMap<>();
         params.put("organisationTypeId", organisationTypeId);
-        this.aclService.addUserAclForRealm(sqlListString, params, "ot", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ot", curUser);
         return this.namedParameterJdbcTemplate.queryForObject(sqlStringBuilder.toString(), params, new OrganisationTypeRowMapper());
     }
 
@@ -134,7 +132,7 @@ public class OrganisationTypeDaoImpl implements OrganisationTypeDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND ot.LAST_MODIFIED_DATE>:lastSyncDate ");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
-        this.aclService.addUserAclForRealm(sqlListString, params, "ot", curUser);
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ot", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new OrganisationTypeRowMapper());
     }
 }
