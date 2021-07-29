@@ -48,6 +48,29 @@ CREATE
      OR REPLACE ALGORITHM = UNDEFINED 
     DEFINER = `faspUser`@`%` 
     SQL SECURITY DEFINER
+VIEW `vw_organisation_type` AS
+    SELECT 
+        `o`.`ORGANISATION_TYPE_ID` AS `ORGANISATION_TYPE_ID`,
+        `o`.`REALM_ID` AS `REALM_ID`,
+        `o`.`LABEL_ID` AS `LABEL_ID`,
+        `o`.`ACTIVE` AS `ACTIVE`,
+        `o`.`CREATED_BY` AS `CREATED_BY`,
+        `o`.`CREATED_DATE` AS `CREATED_DATE`,
+        `o`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `o`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `ol`.`LABEL_EN` AS `LABEL_EN`,
+        `ol`.`LABEL_FR` AS `LABEL_FR`,
+        `ol`.`LABEL_SP` AS `LABEL_SP`,
+        `ol`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_organisation_type` `o`
+        LEFT JOIN `ap_label` `ol` ON ((`o`.`LABEL_ID` = `ol`.`LABEL_ID`)));
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
 VIEW `vw_organisation` AS
     SELECT 
         `o`.`ORGANISATION_ID` AS `ORGANISATION_ID`,
@@ -76,28 +99,7 @@ VIEW `vw_organisation` AS
         );
 
 
-USE `fasp`;
-CREATE 
-     OR REPLACE ALGORITHM = UNDEFINED 
-    DEFINER = `faspUser`@`%` 
-    SQL SECURITY DEFINER
-VIEW `vw_organisation_type` AS
-    SELECT 
-        `o`.`ORGANISATION_TYPE_ID` AS `ORGANISATION_TYPE_ID`,
-        `o`.`REALM_ID` AS `REALM_ID`,
-        `o`.`LABEL_ID` AS `LABEL_ID`,
-        `o`.`ACTIVE` AS `ACTIVE`,
-        `o`.`CREATED_BY` AS `CREATED_BY`,
-        `o`.`CREATED_DATE` AS `CREATED_DATE`,
-        `o`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
-        `o`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
-        `ol`.`LABEL_EN` AS `LABEL_EN`,
-        `ol`.`LABEL_FR` AS `LABEL_FR`,
-        `ol`.`LABEL_SP` AS `LABEL_SP`,
-        `ol`.`LABEL_PR` AS `LABEL_PR`
-    FROM
-        (`rm_organisation_type` `o`
-        LEFT JOIN `ap_label` `ol` ON ((`o`.`LABEL_ID` = `ol`.`LABEL_ID`)));
+
 
 INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Add Organization Type',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'1');
 SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;

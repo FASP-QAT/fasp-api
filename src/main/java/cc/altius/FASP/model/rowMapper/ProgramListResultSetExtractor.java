@@ -30,7 +30,6 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
     @Override
     public List<Program> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<Program> pList = new LinkedList<Program>();
-//        int oldProgramId = 0, newProgramId;
         boolean isFirst = true;
         Program p = new Program();
         while (rs.next()) {
@@ -50,16 +49,8 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
                                 new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE"), rs.getInt("MIN_MOS_MIN_GAURDRAIL"), rs.getInt("MIN_MOS_MAX_GAURDRAIL"), rs.getInt("MAX_MOS_MAX_GAURDRAIL"), rs.getInt("MIN_QPL_TOLERANCE"), rs.getInt("MIN_QPL_TOLERANCE_CUT_OFF"), rs.getInt("MAX_QPL_TOLERANCE"))
                         )
                 );
-//                p.getRealmCountry().setDefaultCurrency(new Currency(rs.getInt("CURRENCY_ID"), rs.getString("CURRENCY_CODE"), new LabelRowMapper("CURRENCY_").mapRow(rs, 1), rs.getDouble("CONVERSION_RATE_TO_USD")));
-//                p.getRealmCountry().setAirFreightPercentage(rs.getDouble("REALM_COUNTRY_AIR_FREIGHT_PERC"));
-//                p.getRealmCountry().setSeaFreightPercentage(rs.getDouble("REALM_COUNTRY_SEA_FREIGHT_PERC"));
-//                p.getRealmCountry().setShippedToArrivedBySeaLeadTime(rs.getDouble("REALM_COUNTRY_SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME"));
-//                p.getRealmCountry().setShippedToArrivedByAirLeadTime(rs.getDouble("REALM_COUNTRY_SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME"));
-//                p.getRealmCountry().setArrivedToDeliveredLeadTime(rs.getDouble("REALM_COUNTRY_ARRIVED_TO_DELIVERED_LEAD_TIME"));
-//                p.getRealmCountry().setPalletUnit(new Unit(rs.getInt("UNIT_ID"), new LabelRowMapper("UNIT_").mapRow(rs, 1), rs.getString("UNIT_CODE")));
                 p.setLabel(new LabelRowMapper().mapRow(rs, 1));
                 p.setOrganisation(new SimpleCodeObject(rs.getInt("ORGANISATION_ID"), new LabelRowMapper("ORGANISATION_").mapRow(rs, 1), rs.getString("ORGANISATION_CODE")));
-//                p.setHealthArea(new SimpleCodeObject(rs.getInt("HEALTH_AREA_ID"), new LabelRowMapper("HEALTH_AREA_").mapRow(rs, 1), rs.getString("HEALTH_AREA_CODE")));
                 p.setProgramManager(new BasicUser(rs.getInt("PROGRAM_MANAGER_USER_ID"), rs.getString("PROGRAM_MANAGER_USERNAME")));
                 p.setProgramNotes(rs.getString("PROGRAM_NOTES"));
                 p.setAirFreightPerc(rs.getDouble("AIR_FREIGHT_PERC"));
