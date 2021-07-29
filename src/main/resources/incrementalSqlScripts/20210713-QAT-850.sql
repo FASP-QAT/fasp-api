@@ -55,6 +55,11 @@ VIEW `vw_organisation` AS
         `o`.`LABEL_ID` AS `LABEL_ID`,
         `o`.`ORGANISATION_CODE` AS `ORGANISATION_CODE`,
         `o`.`ORGANISATION_TYPE_ID` AS `ORGANISATION_TYPE_ID`,
+        `ot`.`LABEL_ID` `TYPE_LABEL_ID`,
+        `ot`.`LABEL_EN` `TYPE_LABEL_EN`,
+        `ot`.`LABEL_FR` `TYPE_LABEL_FR`,
+        `ot`.`LABEL_SP` `TYPE_LABEL_SP`,
+        `ot`.`LABEL_PR` `TYPE_LABEL_PR`,
         `o`.`ACTIVE` AS `ACTIVE`,
         `o`.`CREATED_BY` AS `CREATED_BY`,
         `o`.`CREATED_DATE` AS `CREATED_DATE`,
@@ -66,7 +71,9 @@ VIEW `vw_organisation` AS
         `ol`.`LABEL_PR` AS `LABEL_PR`
     FROM
         (`rm_organisation` `o`
-        LEFT JOIN `ap_label` `ol` ON ((`o`.`LABEL_ID` = `ol`.`LABEL_ID`)));
+        LEFT JOIN `ap_label` `ol` ON ((`o`.`LABEL_ID` = `ol`.`LABEL_ID`))
+        LEFT JOIN `vw_organisation_type` `ot` ON ((`o`.`ORGANISATION_TYPE_ID`=`ot`.`ORGANISATION_TYPE_ID`))
+        );
 
 
 USE `fasp`;
