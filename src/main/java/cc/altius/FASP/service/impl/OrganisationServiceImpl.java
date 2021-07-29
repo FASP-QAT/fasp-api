@@ -40,7 +40,6 @@ public class OrganisationServiceImpl implements OrganisationService {
     @Override
     public int addOrganisation(Organisation organisation, CustomUserDetails curUser) {
         if (this.aclService.checkRealmAccessForUser(curUser, organisation.getRealm().getId())) {
-            System.out.println("ORGANISATION-SERVICE->>>>>>>>>>>>>>>>>>>>>"+organisation);
             return organisationDao.addOrganisation(organisation, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
