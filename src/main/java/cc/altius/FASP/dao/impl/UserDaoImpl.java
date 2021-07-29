@@ -434,7 +434,7 @@ public class UserDaoImpl implements UserDao {
         Map<String, Object> params = new HashMap<>();
         params.put("userName", user.getUsername());
         params.put("emailId", user.getEmailId());
-        params.put("orgAndCountry()", user.getOrgAndCountry());
+        params.put("orgAndCountry", user.getOrgAndCountry());
         params.put("languageId", user.getLanguage().getLanguageId());
         params.put("active", user.isActive());
         params.put("lastModifiedBy", curUser);
