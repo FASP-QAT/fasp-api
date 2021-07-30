@@ -340,19 +340,17 @@ public class UserDaoImpl implements UserDao {
     @Override
     @Transactional
     public int addNewUser(User user, int curUser) {
-        SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("us_user").usingGeneratedKeyColumns("USER_ID");
+        SimpleJdbcInsert insert = new SimpleJdbcInsert(dataSource).withTableName("us_user").usingColumns("REALM_ID", "AGREEMENT_ACCEPTED", "USERNAME", "PASSWORD", "EMAIL_ID", "ORG_AND_COUNTRY", "LANGUAGE_ID", "ACTIVE", "FAILED_ATTEMPTS", "EXPIRES_ON", "SYNC_EXPIRES_ON", "LAST_LOGIN_DATE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE").usingGeneratedKeyColumns("USER_ID");
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         Map<String, Object> map = new HashedMap<>();
         map.put("REALM_ID", ((user.getRealm() == null || user.getRealm().getRealmId() == null ? null : (user.getRealm().getRealmId() != -1 ? user.getRealm().getRealmId() : null))));
         map.put("AGREEMENT_ACCEPTED", false);
         map.put("USERNAME", user.getUsername());
         map.put("PASSWORD", user.getPassword());
-//        map.put("PASSWORD", null);
         map.put("EMAIL_ID", user.getEmailId());
         map.put("ORG_AND_COUNTRY", user.getOrgAndCountry());
         map.put("LANGUAGE_ID", user.getLanguage().getLanguageId());
         map.put("ACTIVE", true);
-        map.put("EXPIRED", false);
         map.put("FAILED_ATTEMPTS", 0);
         map.put("EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, -1));
         map.put("SYNC_EXPIRES_ON", DateUtils.getOffsetFromCurrentDateObject(DateUtils.EST, syncExpiresOn));
