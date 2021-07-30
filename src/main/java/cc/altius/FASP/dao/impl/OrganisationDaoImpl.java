@@ -13,7 +13,6 @@ import cc.altius.FASP.model.rowMapper.OrganisationResultSetExtractor;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import cc.altius.FASP.dao.OrganisationDao;
-import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.SuggestedDisplayName;
@@ -22,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -38,12 +38,14 @@ public class OrganisationDaoImpl implements OrganisationDao {
 
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
 
     @Autowired
 
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Autowired
@@ -71,7 +73,13 @@ public class OrganisationDaoImpl implements OrganisationDao {
     @Override
     @Transactional
     public int addOrganisation(Organisation o, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_organisation").usingGeneratedKeyColumns("ORGANISATION_ID");
+        SimpleJdbcInsert si;
+        String sql = "INSERT INTO `fasp`.`rm_organisation` "
+                + "(`REALM_ID`, `LABEL_ID`, `ORGANISATION_CODE`, `ORGANISATION_TYPE_ID`, `ACTIVE`, "
+                + "`CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) "
+                + "VALUES "
+                + "(:REALM_ID, :LABEL_ID, :ORGANISATION_CODE, :ORGANISATION_TYPE_ID, :ACTIVE, "
+                + ":CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE)";
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", o.getRealm().getId());
@@ -84,30 +92,25 @@ public class OrganisationDaoImpl implements OrganisationDao {
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
-        int organisationId = 0;
-        try {
-            organisationId = si.executeAndReturnKey(params).intValue();
-            si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_organisation_country");
-            SqlParameterSource[] paramList = new SqlParameterSource[o.getRealmCountryArray().length];
-            int i = 0;
-            for (String realmCountryId : o.getRealmCountryArray()) {
-                params = new HashMap<>();
-                params.put("ORGANISATION_ID", organisationId);
-                params.put("REALM_COUNTRY_ID", realmCountryId);
-                params.put("ACTIVE", true);
-                params.put("CREATED_BY", curUser.getUserId());
-                params.put("CREATED_DATE", curDate);
-                params.put("LAST_MODIFIED_BY", curUser.getUserId());
-                params.put("LAST_MODIFIED_DATE", curDate);
-                paramList[i] = new MapSqlParameterSource(params);
-                i++;
-            }
-            si.executeBatch(paramList);
-            return organisationId;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return 0;
+        this.namedParameterJdbcTemplate.update(sql, params);
+        int organisationId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+        si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_organisation_country");
+        SqlParameterSource[] paramList = new SqlParameterSource[o.getRealmCountryArray().length];
+        int i = 0;
+        for (String realmCountryId : o.getRealmCountryArray()) {
+            params = new HashMap<>();
+            params.put("ORGANISATION_ID", organisationId);
+            params.put("REALM_COUNTRY_ID", realmCountryId);
+            params.put("ACTIVE", true);
+            params.put("CREATED_BY", curUser.getUserId());
+            params.put("CREATED_DATE", curDate);
+            params.put("LAST_MODIFIED_BY", curUser.getUserId());
+            params.put("LAST_MODIFIED_DATE", curDate);
+            paramList[i] = new MapSqlParameterSource(params);
+            i++;
         }
+        si.executeBatch(paramList);
+        return organisationId;
     }
 
     @Override
