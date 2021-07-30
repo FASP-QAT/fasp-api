@@ -7,22 +7,22 @@ CREATE TABLE IF NOT EXISTS `rm_program_health_area` (
   INDEX `fk_rm_program_health_area_healthAreaId_idx` (`HEALTH_AREA_ID` ASC),
   CONSTRAINT `fk_rm_program_health_area_programId`
     FOREIGN KEY (`PROGRAM_ID`)
-    REFERENCES `fasp`.`rm_program` (`PROGRAM_ID`)
+    REFERENCES `rm_program` (`PROGRAM_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
   CONSTRAINT `fk_rm_program_health_area_healthAreaId`
     FOREIGN KEY (`HEALTH_AREA_ID`)
-    REFERENCES `fasp`.`rm_health_area` (`HEALTH_AREA_ID`)
+    REFERENCES `rm_health_area` (`HEALTH_AREA_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 INSERT INTO rm_program_health_area SELECT null, p.PROGRAM_ID, p.HEALTH_AREA_ID FROM rm_program p;
 
-ALTER TABLE `fasp`.`rm_program` DROP FOREIGN KEY `fk_program_healthAreaId`;
+ALTER TABLE `rm_program` DROP FOREIGN KEY `fk_program_healthAreaId`;
 ALTER TABLE `rm_program` DROP INDEX `fk_program_healthAreaId_idx`,DROP COLUMN `HEALTH_AREA_ID` ;
 
-USE `fasp`;
+
 CREATE 
      OR REPLACE ALGORITHM = UNDEFINED 
     DEFINER = `faspUser`@`%` 
@@ -62,22 +62,22 @@ VIEW `vw_program` AS
         LEFT JOIN `ap_label` `pl` ON ((`p`.`LABEL_ID` = `pl`.`LABEL_ID`)))
     GROUP BY `p`.`PROGRAM_ID`;
 
-ALTER TABLE `fasp`.`rm_program` 
+ALTER TABLE `rm_program` 
 CHANGE COLUMN `PROGRAM_CODE` `PROGRAM_CODE` VARCHAR(50) CHARACTER SET 'utf8' NOT NULL ;
 
-CREATE TABLE `fasp`.`qat_temp_program_healthArea` (
+CREATE TABLE `qat_temp_program_healthArea` (
   `PROGRAM_HEALTH_AREA_ID` INT(10) UNSIGNED NOT NULL,
   `HEALTH_AREA_ID` INT(11) NULL,
   `PROGRAM_ID` INT(11) NULL,
   PRIMARY KEY (`PROGRAM_HEALTH_AREA_ID`));
 
-ALTER TABLE `fasp`.`qat_temp_program_healthArea` 
+ALTER TABLE `qat_temp_program_healthArea` 
 CHANGE COLUMN `PROGRAM_ID` `PIPELINE_ID` INT(11) NULL DEFAULT NULL ;
 
-ALTER TABLE `fasp`.`qat_temp_program_healthArea` 
+ALTER TABLE `qat_temp_program_healthArea` 
 CHANGE COLUMN `PROGRAM_HEALTH_AREA_ID` `PROGRAM_HEALTH_AREA_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ;
 
-USE `fasp`;
+
 DROP procedure IF EXISTS `getSupplyPlanNotificationCcList`;
 
 DELIMITER $$
@@ -176,7 +176,7 @@ DELIMITER ;
 
 
 
-USE `fasp`;
+
 DROP procedure IF EXISTS `getSupplyPlanNotificationToList`;
 
 DELIMITER $$
