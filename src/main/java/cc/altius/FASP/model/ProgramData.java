@@ -24,7 +24,7 @@ public class ProgramData extends BaseModel implements Serializable {
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private SimpleCodeObject organisation;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private SimpleCodeObject healthArea;
+    private List<SimpleCodeObject> healthAreaList;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private Label label;
     @JsonView({Views.InternalView.class})
@@ -91,7 +91,7 @@ public class ProgramData extends BaseModel implements Serializable {
         this.programCode = p.getProgramCode();
         this.realmCountry = p.getRealmCountry();
         this.organisation = p.getOrganisation();
-        this.healthArea = p.getHealthArea();
+        this.healthAreaList = p.getHealthAreaList();
         this.label = p.getLabel();
         this.programManager = p.getProgramManager();
         this.programNotes = p.getProgramNotes();
@@ -140,12 +140,12 @@ public class ProgramData extends BaseModel implements Serializable {
         this.organisation = organisation;
     }
 
-    public SimpleCodeObject getHealthArea() {
-        return healthArea;
+    public List<SimpleCodeObject> getHealthAreaList() {
+        return healthAreaList;
     }
 
-    public void setHealthArea(SimpleCodeObject healthArea) {
-        this.healthArea = healthArea;
+    public void setHealthAreaList(List<SimpleCodeObject> healthAreaList) {
+        this.healthAreaList = healthAreaList;
     }
 
     public Label getLabel() {
@@ -342,7 +342,7 @@ public class ProgramData extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "ProgramData{" + "programId=" + programId + ", realmCountry=" + realmCountry + ", organisation=" + organisation + ", healthArea=" + healthArea + ", label=" + label + ", programManager=" + programManager + ", programNotes=" + programNotes + ", airFreightPerc=" + airFreightPerc + ", seaFreightPerc=" + seaFreightPerc + ", plannedToSubmittedLeadTime=" + plannedToSubmittedLeadTime + ", submittedToApprovedLeadTime=" + submittedToApprovedLeadTime + ", approvedToShippedLeadTime=" + approvedToShippedLeadTime + ", shippedToArrivedBySeaLeadTime=" + shippedToArrivedBySeaLeadTime + ", shippedToArrivedByAirLeadTime=" + shippedToArrivedByAirLeadTime + ", regionList=" + regionList + ", currentVersion=" + currentVersion + ", versionList=" + versionList + ", consumptionList=" + consumptionList + ", inventoryList=" + inventoryList + '}';
+        return "ProgramData{" + "programId=" + programId + ", realmCountry=" + realmCountry + ", organisation=" + organisation + ", healthAreaList=" + healthAreaList + ", label=" + label + ", programManager=" + programManager + ", programNotes=" + programNotes + ", airFreightPerc=" + airFreightPerc + ", seaFreightPerc=" + seaFreightPerc + ", plannedToSubmittedLeadTime=" + plannedToSubmittedLeadTime + ", submittedToApprovedLeadTime=" + submittedToApprovedLeadTime + ", approvedToShippedLeadTime=" + approvedToShippedLeadTime + ", shippedToArrivedBySeaLeadTime=" + shippedToArrivedBySeaLeadTime + ", shippedToArrivedByAirLeadTime=" + shippedToArrivedByAirLeadTime + ", regionList=" + regionList + ", currentVersion=" + currentVersion + ", versionList=" + versionList + ", consumptionList=" + consumptionList + ", inventoryList=" + inventoryList + '}';
     }
 
 }

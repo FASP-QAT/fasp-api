@@ -73,15 +73,19 @@ public class ProgramServiceImpl implements ProgramService {
                 curUser,
                 p.getRealmCountry().getRealm().getRealmId(),
                 p.getRealmCountry().getRealmCountryId(),
-                p.getHealthArea().getId(),
+                p.getHealthAreaIdList(),
                 p.getOrganisation().getId(),
                 0)) {
             RealmCountry rc = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
-            String programCode = rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
-            if (p.getProgramCode() != null && !p.getProgramCode().isBlank()) {
-                programCode += "-" + p.getProgramCode();
+            StringBuilder healthAreaCode = new StringBuilder();
+            for (int haId : p.getHealthAreaIdList()) {
+                healthAreaCode.append(this.healthAreaDao.getHealthAreaById(haId, curUser).getHealthAreaCode());
             }
-            p.setProgramCode(programCode);
+            StringBuilder programCode = new StringBuilder(rc.getCountry().getCountryCode()).append("-").append(healthAreaCode).append("-").append(this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode());
+            if (p.getProgramCode() != null && !p.getProgramCode().isBlank()) {
+                programCode.append("-").append(p.getProgramCode());
+            }
+            p.setProgramCode(programCode.toString());
             return this.programDao.addProgram(p, rc.getRealm().getRealmId(), curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -98,7 +102,7 @@ public class ProgramServiceImpl implements ProgramService {
                 curUser,
                 curProg.getRealmCountry().getRealm().getRealmId(),
                 curProg.getRealmCountry().getRealmCountryId(),
-                curProg.getHealthArea().getId(),
+                curProg.getHealthAreaIdList(),
                 curProg.getOrganisation().getId(),
                 curProg.getProgramId())) {
             return this.programDao.updateProgram(p, curUser);
@@ -118,13 +122,13 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<Program> getProgramList(int realmId, CustomUserDetails curUser) {
+    public List<Program> getProgramListForRealmId(int realmId, CustomUserDetails curUser) {
         Realm r = this.realmDao.getRealmById(realmId, curUser);
         if (r == null) {
             throw new EmptyResultDataAccessException(1);
         }
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
-            return this.programDao.getProgramList(realmId, curUser);
+            return this.programDao.getProgramListForRealmId(realmId, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -136,7 +140,7 @@ public class ProgramServiceImpl implements ProgramService {
         if (p == null) {
             throw new AccessDeniedException("Access denied");
         }
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             return p;
         } else {
             throw new AccessDeniedException("Access denied");
@@ -146,7 +150,7 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
         Program p = this.programDao.getProgramById(programId, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthArea().getId(), p.getOrganisation().getId())) {
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             return this.programDao.getPlanningUnitListForProgramId(programId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -154,10 +158,10 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) {
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) {
         Program p = this.programDao.getProgramById(programId, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthArea().getId(), p.getOrganisation().getId())) {
-            return this.programDao.getPlanningUnitListForProgramId(programId, active, tracerCategoryIds, curUser);
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+            return this.programDao.getPlanningUnitListForProgramIdAndTracerCategoryIds(programId, active, tracerCategoryIds, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -168,7 +172,7 @@ public class ProgramServiceImpl implements ProgramService {
         StringBuilder programList = new StringBuilder();
         for (int programId : programIds) {
             Program p = this.programDao.getProgramById(programId, curUser);
-            if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthArea().getId(), p.getOrganisation().getId())) {
+            if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
                 programList.append("'").append(programId).append("',");
             } else {
                 throw new AccessDeniedException("Access denied");
@@ -187,7 +191,7 @@ public class ProgramServiceImpl implements ProgramService {
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) {
         for (ProgramPlanningUnit ppu : programPlanningUnits) {
             Program p = this.programDao.getProgramById(ppu.getProgram().getId(), curUser);
-            if (!this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
+            if (!this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
                 throw new AccessDeniedException("Access denied");
             }
         }
@@ -223,7 +227,7 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId, int productCategoryId, boolean active, CustomUserDetails curUser) {
         Program p = this.programDao.getProgramById(programId, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthArea().getId(), p.getOrganisation().getId())) {
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             return this.programDao.getPlanningUnitListForProgramAndCategoryId(programId, productCategoryId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -234,11 +238,15 @@ public class ProgramServiceImpl implements ProgramService {
     @Transactional
     public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) {
         RealmCountry rc = this.realmCountryService.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser);
-        String programCode = rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(program.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(program.getOrganisation().getId(), curUser).getOrganisationCode();
-        if (program.getProgramCode() != null && !program.getProgramCode().isBlank()) {
-            programCode += "-" + program.getProgramCode();
+        StringBuilder healthAreaCode = new StringBuilder();
+        for (int haId : program.getHealthAreaIdList()) {
+            healthAreaCode.append(this.healthAreaDao.getHealthAreaById(haId, curUser).getHealthAreaCode());
         }
-        program.setProgramCode(programCode);
+        StringBuilder programCode = new StringBuilder(rc.getCountry().getCountryCode()).append("-").append(healthAreaCode).append("-").append(this.organisationDao.getOrganisationById(program.getOrganisation().getId(), curUser).getOrganisationCode());
+        if (program.getProgramCode() != null && !program.getProgramCode().isBlank()) {
+            programCode.append("-").append(program.getProgramCode());
+        }
+        program.setProgramCode(programCode.toString());
         int programId = this.programDao.addProgram(program, rc.getRealm().getRealmId(), curUser);
         for (ProgramPlanningUnit ppu : program.getProgramPlanningUnits()) {
             ppu.getProgram().setId(programId);
