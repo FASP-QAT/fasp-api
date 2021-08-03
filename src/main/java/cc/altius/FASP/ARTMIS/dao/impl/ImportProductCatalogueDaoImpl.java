@@ -333,6 +333,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                                     map.put("euro1", euro1);
                                     map.put("euro2", euro2);
                                 } catch (Exception e) {
+                                    logger.info("Planning Unit Per Pallet not found because there was an error " + e.getMessage());
                                     map.put("euro1", planningUnitPerPallet);
                                     map.put("euro2", null);
                                 }
@@ -442,81 +443,84 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.execute(sqlString);
         logger.info("Successfully created tmp_unit");
         sb.append("Successfully created tmp_unit").append(br);
+        try {
+            sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, BaseUnit, NULL, NULL, NULL, 0 FROM tmp_product_catalog WHERE BaseUnit IS NOT NULL AND BaseUnit != '' GROUP BY BaseUnit";
+            int cnt = this.jdbcTemplate.update(sqlString);
+            logger.info(sqlString + " -> " + cnt);
+            sb.append(sqlString).append(" -> ").append(cnt).append(br);
 
-        sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, BaseUnit, NULL, NULL, NULL, 0 FROM tmp_product_catalog WHERE BaseUnit IS NOT NULL AND BaseUnit != '' GROUP BY BaseUnit";
-        int cnt = this.jdbcTemplate.update(sqlString);
-        logger.info(sqlString + " -> " + cnt);
-        sb.append(sqlString).append(" -> ").append(cnt).append(br);
+            sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, OrderUOM, NULL, NULL, NULL, 0  FROM tmp_product_catalog WHERE OrderUOM IS NOT NULL AND OrderUOM != '' GROUP BY OrderUOM";
+            cnt = this.jdbcTemplate.update(sqlString);
+            logger.info(sqlString + " -> " + cnt);
+            sb.append(sqlString).append(" -> ").append(cnt).append(br);
+            sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, WeightUOM, NULL, NULL, NULL, 0 FROM tmp_product_catalog WHERE WeightUOM IS NOT NULL AND WeightUOM != '' GROUP BY WeightUOM";
+            cnt = this.jdbcTemplate.update(sqlString);
+            logger.info(sqlString + " -> " + cnt);
+            sb.append(sqlString).append(" -> ").append(cnt).append(br);
+            sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, HeightUOM, NULL, NULL, NULL, 0 FROM tmp_product_catalog WHERE HeightUOM IS NOT NULL AND HeightUOM != '' GROUP BY HeightUOM";
+            cnt = this.jdbcTemplate.update(sqlString);
+            logger.info(sqlString + " -> " + cnt);
+            sb.append(sqlString).append(" -> ").append(cnt).append(br);
 
-        sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, OrderUOM, NULL, NULL, NULL, 0  FROM tmp_product_catalog WHERE OrderUOM IS NOT NULL AND OrderUOM != '' GROUP BY OrderUOM";
-        cnt = this.jdbcTemplate.update(sqlString);
-        logger.info(sqlString + " -> " + cnt);
-        sb.append(sqlString).append(" -> ").append(cnt).append(br);
-        sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, WeightUOM, NULL, NULL, NULL, 0 FROM tmp_product_catalog WHERE WeightUOM IS NOT NULL AND WeightUOM != '' GROUP BY WeightUOM";
-        cnt = this.jdbcTemplate.update(sqlString);
-        logger.info(sqlString + " -> " + cnt);
-        sb.append(sqlString).append(" -> ").append(cnt).append(br);
-        sqlString = "INSERT IGNORE INTO tmp_unit SELECT NULL, HeightUOM, NULL, NULL, NULL, 0 FROM tmp_product_catalog WHERE HeightUOM IS NOT NULL AND HeightUOM != '' GROUP BY HeightUOM";
-        cnt = this.jdbcTemplate.update(sqlString);
-        logger.info(sqlString + " -> " + cnt);
-        sb.append(sqlString).append(" -> ").append(cnt).append(br);
+            sqlString = "SELECT COUNT(*) FROM tmp_unit;";
+            cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+            logger.info("Total rows inserted in tmp_unit---" + cnt);
+            sb.append("Total rows inserted in tmp_unit---").append(cnt).append(br);
 
-        sqlString = "SELECT COUNT(*) FROM tmp_unit;";
-        cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-        logger.info("Total rows inserted in tmp_unit---" + cnt);
-        sb.append("Total rows inserted in tmp_unit---").append(cnt).append(br);
+            sqlString = "UPDATE tmp_unit tu "
+                    + "LEFT JOIN vw_unit u ON tu.LABEL = u.LABEL_EN OR tu.LABEL=u.UNIT_CODE "
+                    + "SET tu.UNIT_ID = u.UNIT_ID, tu.FOUND=1 WHERE u.UNIT_ID IS NOT NULL";
+            int rows = this.jdbcTemplate.update(sqlString);
+            logger.info(rows + " matched with the ap_unit table");
+            sb.append(rows).append(" matched with the ap_unit table").append(br);
 
-        sqlString = "UPDATE tmp_unit tu "
-                + "LEFT JOIN vw_unit u ON tu.LABEL = u.LABEL_EN OR tu.LABEL=u.UNIT_CODE "
-                + "SET tu.UNIT_ID = u.UNIT_ID, tu.FOUND=1 WHERE u.UNIT_ID IS NOT NULL";
-        int rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " matched with the ap_unit table");
-        sb.append(rows).append(" matched with the ap_unit table").append(br);
+            logger.info("Setting the Dimension for any new rows to 3 - Eaches, rows updated:" + this.jdbcTemplate.update("UPDATE tmp_unit tu SET tu.DIMENSION_ID=3 WHERE tu.UNIT_ID IS NULL and tu.FOUND=0"));
 
-        logger.info("Setting the Dimension for any new rows to 3 - Eaches, rows updated:" + this.jdbcTemplate.update("UPDATE tmp_unit tu SET tu.DIMENSION_ID=3 WHERE tu.UNIT_ID IS NULL and tu.FOUND=0"));
+            sqlString = "SELECT MAX(LABEL_ID) FROM ap_label";
+            int max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
 
-        sqlString = "SELECT MAX(LABEL_ID) FROM ap_label";
-        int max = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+            sqlString = "SELECT u.UNIT_ID, u.LABEL UNIT_CODE, u.DIMENSION_ID, null `DIMENSION_LABEL_ID`, null `DIMENSION_LABEL_EN`,null `DIMENSION_LABEL_FR`,null `DIMENSION_LABEL_SP`,null `DIMENSION_LABEL_PR`, "
+                    + " u.LABEL_ID, u.LABEL `LABEL_EN`, null `LABEL_FR`, null `LABEL_SP`, null `LABEL_PR`, "
+                    + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
+                    + "FROM tmp_unit u where u.FOUND=0";
+            SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
+            SimpleJdbcInsert siUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_unit");
+            Map<String, Object> labelParams = new HashMap<>();
+            Map<String, Object> unitParams = new HashMap<>();
+            int curUserId = 1;
+            Date curDate = DateUtils.getCurrentDateObject("EST");
+            labelParams.put("CREATED_BY", curUserId);
+            labelParams.put("CREATED_DATE", curDate);
+            labelParams.put("LAST_MODIFIED_BY", curUserId);
+            labelParams.put("LAST_MODIFIED_DATE", curDate);
+            labelParams.put("ACTIVE", true);
+            labelParams.put("LABEL_EN", "");
+            labelParams.put("SOURCE_ID", 17);
 
-        sqlString = "SELECT u.UNIT_ID, u.LABEL UNIT_CODE, u.DIMENSION_ID, null `DIMENSION_LABEL_ID`, null `DIMENSION_LABEL_EN`,null `DIMENSION_LABEL_FR`,null `DIMENSION_LABEL_SP`,null `DIMENSION_LABEL_PR`, "
-                + " u.LABEL_ID, u.LABEL `LABEL_EN`, null `LABEL_FR`, null `LABEL_SP`, null `LABEL_PR`, "
-                + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
-                + "FROM tmp_unit u where u.FOUND=0";
-        SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
-        SimpleJdbcInsert siUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_unit");
-        Map<String, Object> labelParams = new HashMap<>();
-        Map<String, Object> unitParams = new HashMap<>();
-        int curUserId = 1;
-        Date curDate = DateUtils.getCurrentDateObject("EST");
-        labelParams.put("CREATED_BY", curUserId);
-        labelParams.put("CREATED_DATE", curDate);
-        labelParams.put("LAST_MODIFIED_BY", curUserId);
-        labelParams.put("LAST_MODIFIED_DATE", curDate);
-        labelParams.put("ACTIVE", true);
-        labelParams.put("LABEL_EN", "");
-        labelParams.put("SOURCE_ID", 17);
+            unitParams.put("CREATED_BY", curUserId);
+            unitParams.put("CREATED_DATE", curDate);
+            unitParams.put("LAST_MODIFIED_BY", curUserId);
+            unitParams.put("LAST_MODIFIED_DATE", curDate);
+            unitParams.put("ACTIVE", true);
+            unitParams.put("UNIT_CODE", "0");
+            unitParams.put("DIMENSION_ID", 0);
+            unitParams.put("LABEL_ID", 0);
+            for (Unit u : this.jdbcTemplate.query(sqlString, new UnitRowMapper())) {
+                labelParams.replace("LABEL_EN", u.getLabel().getLabel_en());
+                u.getLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
+                unitParams.replace("UNIT_CODE", u.getUnitCode().length() > 20 ? u.getUnitCode().substring(0, 19) : u.getUnitCode());
+                unitParams.replace("DIMENSION_ID", u.getDimension().getId());
+                unitParams.replace("LABEL_ID", u.getLabel().getLabelId());
+                siUnit.execute(unitParams);
+            }
 
-        unitParams.put("CREATED_BY", curUserId);
-        unitParams.put("CREATED_DATE", curDate);
-        unitParams.put("LAST_MODIFIED_BY", curUserId);
-        unitParams.put("LAST_MODIFIED_DATE", curDate);
-        unitParams.put("ACTIVE", true);
-        unitParams.put("UNIT_CODE", "0");
-        unitParams.put("DIMENSION_ID", 0);
-        unitParams.put("LABEL_ID", 0);
-        for (Unit u : this.jdbcTemplate.query(sqlString, new UnitRowMapper())) {
-            labelParams.replace("LABEL_EN", u.getLabel().getLabel_en());
-            u.getLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
-            unitParams.replace("UNIT_CODE", u.getUnitCode().length() > 20 ? u.getUnitCode().substring(0, 19) : u.getUnitCode());
-            unitParams.replace("DIMENSION_ID", u.getDimension().getId());
-            unitParams.replace("LABEL_ID", u.getLabel().getLabelId());
-            siUnit.execute(unitParams);
+            sqlString = "SELECT COUNT(*) FROM ap_unit;";
+            cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+            logger.info("Total rows available in ap_unit---" + cnt);
+            sb.append("Total rows available in ap_unit---").append(cnt).append(br);
+        } catch (Exception e) {
+            logger.info("Error occured for unit---" + e.getMessage());
         }
-
-        sqlString = "SELECT COUNT(*) FROM ap_unit;";
-        cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-        logger.info("Total rows available in ap_unit---" + cnt);
-        sb.append("Total rows available in ap_unit---").append(cnt).append(br);
     }
 
     @Transactional
@@ -541,63 +545,66 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 + "  PRIMARY KEY (`ID`) "
                 + ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
         this.jdbcTemplate.update(sqlString);
+        try {
+            // Step 3 insert into the tmp_tracer all the data that you can get from 
+            //        product_catalog that you just imported
+            sqlString = "INSERT INTO tmp_tracer_category SELECT NULL, TracerCategory, NULL, NULL, 0 FROM tmp_product_catalog WHERE TracerCategory IS NOT NULL AND TracerCategory != '' GROUP BY TracerCategory";
+            int rows = this.jdbcTemplate.update(sqlString);
+            logger.info(rows + " inserted into the tmp_tracer_category table");
+            sb.append(rows).append(" inserted into the tmp_tracer_category table").append(br);
 
-        // Step 3 insert into the tmp_tracer all the data that you can get from 
-        //        product_catalog that you just imported
-        sqlString = "INSERT INTO tmp_tracer_category SELECT NULL, TracerCategory, NULL, NULL, 0 FROM tmp_product_catalog WHERE TracerCategory IS NOT NULL AND TracerCategory != '' GROUP BY TracerCategory";
-        int rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " inserted into the tmp_tracer_category table");
-        sb.append(rows).append(" inserted into the tmp_tracer_category table").append(br);
+            // Step 4 Match those records that are already present in the main tracer_category table
+            sqlString = "UPDATE tmp_tracer_category ttc "
+                    + "LEFT JOIN vw_tracer_category tc ON ttc.LABEL=tc.LABEL_EN "
+                    + "SET ttc.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID, ttc.FOUND=1 "
+                    + "WHERE tc.TRACER_CATEGORY_ID IS NOT NULL";
 
-        // Step 4 Match those records that are already present in the main tracer_category table
-        sqlString = "UPDATE tmp_tracer_category ttc "
-                + "LEFT JOIN vw_tracer_category tc ON ttc.LABEL=tc.LABEL_EN "
-                + "SET ttc.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID, ttc.FOUND=1 "
-                + "WHERE tc.TRACER_CATEGORY_ID IS NOT NULL";
+            rows = this.jdbcTemplate.update(sqlString);
+            logger.info(rows + " existing labels found");
+            sb.append(rows).append(" existing labels found").append(br);
 
-        rows = this.jdbcTemplate.update(sqlString);
-        logger.info(rows + " existing labels found");
-        sb.append(rows).append(" existing labels found").append(br);
+            // Step 5 Get the max count on the label table so that you can now work on data that you insert from here on
+            sqlString = "SELECT "
+                    + " ttc.TRACER_CATEGORY_ID, 1 REALM_ID, null REALM_CODE, null REALM_LABEL_ID, null REALM_LABEL_EN, null REALM_LABEL_FR, null REALM_LABEL_SP, null REALM_LABEL_PR, "
+                    + " null LABEL_ID, ttc.LABEL LABEL_EN, ttc.LABEL LABEL_Fr, ttc.LABEL LABEL_SP, ttc.LABEL LABEL_PR, "
+                    + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
+                    + "FROM tmp_tracer_category ttc WHERE ttc.FOUND=0";
+            this.jdbcTemplate.query(sqlString, new TracerCategoryRowMapper());
+            SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
+            SimpleJdbcInsert siUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_tracer_category");
+            Map<String, Object> labelParams = new HashMap<>();
+            Map<String, Object> tracerCategoryParams = new HashMap<>();
+            int curUserId = 1;
+            Date curDate = DateUtils.getCurrentDateObject("EST");
+            labelParams.put("CREATED_BY", curUserId);
+            labelParams.put("CREATED_DATE", curDate);
+            labelParams.put("LAST_MODIFIED_BY", curUserId);
+            labelParams.put("LAST_MODIFIED_DATE", curDate);
+            labelParams.put("ACTIVE", true);
+            labelParams.put("LABEL_EN", "");
+            labelParams.put("SOURCE_ID", 27);
 
-        // Step 5 Get the max count on the label table so that you can now work on data that you insert from here on
-        sqlString = "SELECT "
-                + " ttc.TRACER_CATEGORY_ID, 1 REALM_ID, null REALM_CODE, null REALM_LABEL_ID, null REALM_LABEL_EN, null REALM_LABEL_FR, null REALM_LABEL_SP, null REALM_LABEL_PR, "
-                + " null LABEL_ID, ttc.LABEL LABEL_EN, ttc.LABEL LABEL_Fr, ttc.LABEL LABEL_SP, ttc.LABEL LABEL_PR, "
-                + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
-                + "FROM tmp_tracer_category ttc WHERE ttc.FOUND=0";
-        this.jdbcTemplate.query(sqlString, new TracerCategoryRowMapper());
-        SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
-        SimpleJdbcInsert siUnit = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_tracer_category");
-        Map<String, Object> labelParams = new HashMap<>();
-        Map<String, Object> tracerCategoryParams = new HashMap<>();
-        int curUserId = 1;
-        Date curDate = DateUtils.getCurrentDateObject("EST");
-        labelParams.put("CREATED_BY", curUserId);
-        labelParams.put("CREATED_DATE", curDate);
-        labelParams.put("LAST_MODIFIED_BY", curUserId);
-        labelParams.put("LAST_MODIFIED_DATE", curDate);
-        labelParams.put("ACTIVE", true);
-        labelParams.put("LABEL_EN", "");
-        labelParams.put("SOURCE_ID", 27);
+            tracerCategoryParams.put("CREATED_BY", curUserId);
+            tracerCategoryParams.put("CREATED_DATE", curDate);
+            tracerCategoryParams.put("LAST_MODIFIED_BY", curUserId);
+            tracerCategoryParams.put("LAST_MODIFIED_DATE", curDate);
+            tracerCategoryParams.put("ACTIVE", true);
+            tracerCategoryParams.put("REALM_ID", 1);
+            tracerCategoryParams.put("LABEL_ID", 0);
+            for (TracerCategory tc : this.jdbcTemplate.query(sqlString, new TracerCategoryRowMapper())) {
+                labelParams.replace("LABEL_EN", tc.getLabel().getLabel_en());
+                tc.getLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
+                tracerCategoryParams.replace("LABEL_ID", tc.getLabel().getLabelId());
+                siUnit.execute(tracerCategoryParams);
+            }
 
-        tracerCategoryParams.put("CREATED_BY", curUserId);
-        tracerCategoryParams.put("CREATED_DATE", curDate);
-        tracerCategoryParams.put("LAST_MODIFIED_BY", curUserId);
-        tracerCategoryParams.put("LAST_MODIFIED_DATE", curDate);
-        tracerCategoryParams.put("ACTIVE", true);
-        tracerCategoryParams.put("REALM_ID", 1);
-        tracerCategoryParams.put("LABEL_ID", 0);
-        for (TracerCategory tc : this.jdbcTemplate.query(sqlString, new TracerCategoryRowMapper())) {
-            labelParams.replace("LABEL_EN", tc.getLabel().getLabel_en());
-            tc.getLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
-            tracerCategoryParams.replace("LABEL_ID", tc.getLabel().getLabelId());
-            siUnit.execute(tracerCategoryParams);
+            sqlString = "SELECT COUNT(*) FROM rm_tracer_category;";
+            int cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
+            logger.info("Total rows available in rm_tracer_category ---" + cnt);
+            sb.append("Total rows available in rm_tracer_category ---").append(cnt).append(br);
+        } catch (Exception e) {
+            logger.info("Error occured for tracer_category ---" + e.getMessage());
         }
-
-        sqlString = "SELECT COUNT(*) FROM rm_tracer_category;";
-        int cnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
-        logger.info("Total rows available in rm_tracer_category ---" + cnt);
-        sb.append("Total rows available in rm_tracer_category ---").append(cnt).append(br);
     }
 
     @Transactional
@@ -605,65 +612,68 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         //------------Product Category-------------------------
         logger.info("------------------------------- Product Category ------------------------------------");
         sb.append("------------------------------- Product Category ------------------------------------").append(br);
-
-        // Step 1: See if there are any new Commodity Councils
-        String sqlString = "SELECT tpc.CommodityCouncil FROM tmp_product_catalog tpc LEFT JOIN vw_product_category pc ON pc.REALM_ID=1 AND tpc.CommodityCouncil=right(pc.LABEL_EN, length(pc.LABEL_EN)-locate(\":\", pc.LABEL_EN)-1) WHERE pc.PRODUCT_CATEGORY_ID is null group by tpc.CommodityCouncil";
-        logger.info("Checking if there are any new Commodity Councils");
-        sb.append("Checking if there are any new Commodity Councils").append(br);
-        List<String> newProductCategoryList = this.jdbcTemplate.queryForList(sqlString, String.class);
-        if (newProductCategoryList.size() > 0) {
-            logger.info("New Commodity Council found so proceeding to enter those into the Product Category table");
-            sb.append("New Commodity Council found so proceeding to enter those into the Product Category table").append(br);
-            for (String pc : newProductCategoryList) {
-                // Step 2: Get the highest CC (Commodity Council no in Product Category Table
-                sqlString = "SELECT max(cast(right(left(pc.LABEL_EN, locate(':', pc.LABEL_EN)-1), length(left(pc.LABEL_EN, locate(':', pc.LABEL_EN)))-3) as UNSIGNED)) `maxCc` FROM vw_product_category pc where pc.REALM_ID=1 AND length(pc.SORT_ORDER)=5";
-                int maxCc = this.jdbcTemplate.queryForObject(sqlString, Integer.class) + 1;
-                String newCc = "CC " + maxCc + ": " + pc;
-                // Step 3: Insert that into the label table
-                sqlString = "INSERT INTO `ap_label` (`LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `SOURCE_ID`) VALUES (? , null, null, null, 1, now(), 1, now(), 26)";
-                this.jdbcTemplate.update(sqlString, newCc);
-                int labelId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
-                // Step 4: Then insert into the product_category table
-                sqlString = "INSERT INTO `rm_product_category` (`REALM_ID`, `LABEL_ID`, `PARENT_PRODUCT_CATEGORY_ID`, `SORT_ORDER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, ?, 0, ?, 1, 1, now(), 1, now())";
-                String sortOrder = "00." + String.format("%02d", maxCc);
-                this.jdbcTemplate.update(sqlString, labelId, sortOrder);
-                int productCategoryId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
-                logger.info("Added " + newCc + " to the Product Category table");
-                sb.append("Added ").append(newCc).append(" to the Product Category table").append(br);
-                // Step 5: Now find all the SubCategories that are from the new CC and insert them
-                sqlString = "SELECT tpc.Subcategory FROM tmp_product_catalog tpc where tpc.CommodityCouncil=? group by tpc.Subcategory";
-                List<String> subCategoryList = this.jdbcTemplate.queryForList(sqlString, String.class, pc);
-                int cnt = 1;
-                for (String sc : subCategoryList) {
-                    // Step 6: Insert into the label table
+        try {
+            // Step 1: See if there are any new Commodity Councils
+            String sqlString = "SELECT tpc.CommodityCouncil FROM tmp_product_catalog tpc LEFT JOIN vw_product_category pc ON pc.REALM_ID=1 AND tpc.CommodityCouncil=right(pc.LABEL_EN, length(pc.LABEL_EN)-locate(\":\", pc.LABEL_EN)-1) WHERE pc.PRODUCT_CATEGORY_ID is null group by tpc.CommodityCouncil";
+            logger.info("Checking if there are any new Commodity Councils");
+            sb.append("Checking if there are any new Commodity Councils").append(br);
+            List<String> newProductCategoryList = this.jdbcTemplate.queryForList(sqlString, String.class);
+            if (newProductCategoryList.size() > 0) {
+                logger.info("New Commodity Council found so proceeding to enter those into the Product Category table");
+                sb.append("New Commodity Council found so proceeding to enter those into the Product Category table").append(br);
+                for (String pc : newProductCategoryList) {
+                    // Step 2: Get the highest CC (Commodity Council no in Product Category Table
+                    sqlString = "SELECT max(cast(right(left(pc.LABEL_EN, locate(':', pc.LABEL_EN)-1), length(left(pc.LABEL_EN, locate(':', pc.LABEL_EN)))-3) as UNSIGNED)) `maxCc` FROM vw_product_category pc where pc.REALM_ID=1 AND length(pc.SORT_ORDER)=5";
+                    int maxCc = this.jdbcTemplate.queryForObject(sqlString, Integer.class) + 1;
+                    String newCc = "CC " + maxCc + ": " + pc;
+                    // Step 3: Insert that into the label table
                     sqlString = "INSERT INTO `ap_label` (`LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `SOURCE_ID`) VALUES (? , null, null, null, 1, now(), 1, now(), 26)";
-                    this.jdbcTemplate.update(sqlString, sc);
-                    labelId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+                    this.jdbcTemplate.update(sqlString, newCc);
+                    int labelId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+                    // Step 4: Then insert into the product_category table
+                    sqlString = "INSERT INTO `rm_product_category` (`REALM_ID`, `LABEL_ID`, `PARENT_PRODUCT_CATEGORY_ID`, `SORT_ORDER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, ?, 0, ?, 1, 1, now(), 1, now())";
+                    String sortOrder = "00." + String.format("%02d", maxCc);
+                    this.jdbcTemplate.update(sqlString, labelId, sortOrder);
+                    int productCategoryId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+                    logger.info("Added " + newCc + " to the Product Category table");
+                    sb.append("Added ").append(newCc).append(" to the Product Category table").append(br);
+                    // Step 5: Now find all the SubCategories that are from the new CC and insert them
+                    sqlString = "SELECT tpc.Subcategory FROM tmp_product_catalog tpc where tpc.CommodityCouncil=? group by tpc.Subcategory";
+                    List<String> subCategoryList = this.jdbcTemplate.queryForList(sqlString, String.class, pc);
+                    int cnt = 1;
+                    for (String sc : subCategoryList) {
+                        // Step 6: Insert into the label table
+                        sqlString = "INSERT INTO `ap_label` (`LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `SOURCE_ID`) VALUES (? , null, null, null, 1, now(), 1, now(), 26)";
+                        this.jdbcTemplate.update(sqlString, sc);
+                        labelId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
+                        // Step:7 Insert into the product category table
+                        sqlString = "INSERT INTO `rm_product_category` (`REALM_ID`, `LABEL_ID`, `PARENT_PRODUCT_CATEGORY_ID`, `SORT_ORDER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, ?, ?, ?, 1, 1, now(), 1, now())";
+                        this.jdbcTemplate.update(sqlString, labelId, productCategoryId, sortOrder + "." + String.format("%02d", cnt));
+                        cnt++;
+                        logger.info("Added " + sc + " under " + newCc + " to the ProductCategory table");
+                        sb.append("Added ").append(sc).append(" under ").append(newCc).append(" to the ProductCategory table").append(br);
+                    }
+                }
+                // Step 9: Now find any new SubCategory that is not present in the ProductCategory table 
+                logger.info("Checking if there are any new Subcategories that are not present in the Product Category table");
+                sb.append("Checking if there are any new Subcategories that are not present in the Product Category table").append(br);
+                sqlString = "SELECT tpc.Subcategory, pc2.SORT_ORDER, pc2.LABEL_EN, pc2.PRODUCT_CATEGORY_ID FROM tmp_product_catalog tpc LEFT JOIN vw_product_category pc1 ON pc1.REALM_ID=1 and pc1.LABEL_EN=tpc.Subcategory  LEFT JOIN vw_product_category pc2 ON pc2.REALM_ID=1 AND tpc.CommodityCouncil=right(pc2.LABEL_EN, length(pc2.LABEL_EN)-locate(':', pc2.LABEL_EN)-1) WHERE pc1.PRODUCT_CATEGORY_ID IS NULL  group by tpc.Subcategory order by pc2.PRODUCT_CATEGORY_ID, tpc.Subcategory";
+                List<Map<String, Object>> subCategoryList = this.jdbcTemplate.queryForList(sqlString);
+                for (Map<String, Object> sc : subCategoryList) {
+                    sqlString = "SELECT count(*) FROM vw_product_category pc WHERE pc.PARENT_PRODUCT_CATEGORY_ID=?";
+                    int maxCnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class, sc.get("PRODUCT_CATEGORY_ID")) + 1;
+                    sqlString = "INSERT INTO `ap_label` (`LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `SOURCE_ID`) VALUES (? , null, null, null, 1, now(), 1, now(),26)";
+                    this.jdbcTemplate.update(sqlString, sc.get("Subcategory"));
+                    int labelId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
                     // Step:7 Insert into the product category table
                     sqlString = "INSERT INTO `rm_product_category` (`REALM_ID`, `LABEL_ID`, `PARENT_PRODUCT_CATEGORY_ID`, `SORT_ORDER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, ?, ?, ?, 1, 1, now(), 1, now())";
-                    this.jdbcTemplate.update(sqlString, labelId, productCategoryId, sortOrder + "." + String.format("%02d", cnt));
-                    cnt++;
-                    logger.info("Added " + sc + " under " + newCc + " to the ProductCategory table");
-                    sb.append("Added ").append(sc).append(" under ").append(newCc).append(" to the ProductCategory table").append(br);
+                    this.jdbcTemplate.update(sqlString, labelId, sc.get("PRODUCT_CATEGORY_ID"), sc.get("SORT_ORDER") + "." + String.format("%02d", maxCnt));
+                    logger.info("Added " + sc.get("Subcategory") + " under " + sc.get("LABEL_EN") + " to the ProductCategory table");
+                    sb.append("Added ").append(sc.get("Subcategory")).append(" under ").append(sc.get("LABEL_EN")).append(" to the ProductCategory table").append(br);
                 }
             }
-            // Step 9: Now find any new SubCategory that is not present in the ProductCategory table 
-            logger.info("Checking if there are any new Subcategories that are not present in the Product Category table");
-            sb.append("Checking if there are any new Subcategories that are not present in the Product Category table").append(br);
-            sqlString = "SELECT tpc.Subcategory, pc2.SORT_ORDER, pc2.LABEL_EN, pc2.PRODUCT_CATEGORY_ID FROM tmp_product_catalog tpc LEFT JOIN vw_product_category pc1 ON pc1.REALM_ID=1 and pc1.LABEL_EN=tpc.Subcategory  LEFT JOIN vw_product_category pc2 ON pc2.REALM_ID=1 AND tpc.CommodityCouncil=right(pc2.LABEL_EN, length(pc2.LABEL_EN)-locate(':', pc2.LABEL_EN)-1) WHERE pc1.PRODUCT_CATEGORY_ID IS NULL  group by tpc.Subcategory order by pc2.PRODUCT_CATEGORY_ID, tpc.Subcategory";
-            List<Map<String, Object>> subCategoryList = this.jdbcTemplate.queryForList(sqlString);
-            for (Map<String, Object> sc : subCategoryList) {
-                sqlString = "SELECT count(*) FROM vw_product_category pc WHERE pc.PARENT_PRODUCT_CATEGORY_ID=?";
-                int maxCnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class, sc.get("PRODUCT_CATEGORY_ID")) + 1;
-                sqlString = "INSERT INTO `ap_label` (`LABEL_EN`, `LABEL_FR`, `LABEL_SP`, `LABEL_PR`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `SOURCE_ID`) VALUES (? , null, null, null, 1, now(), 1, now(),26)";
-                this.jdbcTemplate.update(sqlString, sc.get("Subcategory"));
-                int labelId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
-                // Step:7 Insert into the product category table
-                sqlString = "INSERT INTO `rm_product_category` (`REALM_ID`, `LABEL_ID`, `PARENT_PRODUCT_CATEGORY_ID`, `SORT_ORDER`, `ACTIVE`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) VALUES (1, ?, ?, ?, 1, 1, now(), 1, now())";
-                this.jdbcTemplate.update(sqlString, labelId, sc.get("PRODUCT_CATEGORY_ID"), sc.get("SORT_ORDER") + "." + String.format("%02d", maxCnt));
-                logger.info("Added " + sc.get("Subcategory") + " under " + sc.get("LABEL_EN") + " to the ProductCategory table");
-                sb.append("Added ").append(sc.get("Subcategory")).append(" under ").append(sc.get("LABEL_EN")).append(" to the ProductCategory table").append(br);
-            }
+        } catch (Exception e) {
+            logger.info("Error occured for product category ---" + e.getMessage());
         }
     }
 
@@ -1377,4 +1387,3 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     }
 
 }
-	
