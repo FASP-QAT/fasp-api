@@ -119,6 +119,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
         Map<String, Object> params = new HashMap<>();
         params.put("organisationId", o.getOrganisationId());
         params.put("organisationCode", o.getOrganisationCode());
+        params.put("organisationTypeId", o.getOrganisationType().getId());
         params.put("labelEn", o.getLabel().getLabel_en());
         params.put("active", o.isActive());
         params.put("curUser", curUser.getUserId());
@@ -126,7 +127,8 @@ public class OrganisationDaoImpl implements OrganisationDao {
         int rows = this.namedParameterJdbcTemplate.update("UPDATE rm_organisation o LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
                 + "SET "
                 + "o.ACTIVE=:active, "
-                + "o.ORGANISATION_CODE=:organisationCode,"
+                + "o.ORGANISATION_CODE=:organisationCode, "
+                + "o.ORGANISATION_TYPE_ID=:organisationTypeId, "
                 + "o.LAST_MODIFIED_BY=:curUser, "
                 + "o.LAST_MODIFIED_DATE=:curDate, "
                 + "ol.LABEL_EN=:labelEn, "
