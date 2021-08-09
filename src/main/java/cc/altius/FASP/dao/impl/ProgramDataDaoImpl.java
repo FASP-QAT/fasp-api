@@ -94,6 +94,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Autowired
     private ProgramService programService;
 
+    private final Logger logger = LoggerFactory.getLogger(ProgramDaoImpl.class);
+
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
@@ -152,11 +154,164 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId, :active)", params, new ShipmentListResultSetExtractor());
     }
 
-    private final Logger logger = LoggerFactory.getLogger(ProgramDaoImpl.class);
+    @Override
+    @Transactional
+    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_commit_request").usingGeneratedKeyColumns("ID");
+        Map<String, Object> params = new HashMap<>();
+        params.put("PROGRAM_ID", programData.getProgramId());
+        params.put("CREATED_BY", curUser.getUserId());
+        params.put("CREATED_DATE", curDate);
+        params.put("STATUS", 1); // New request
+        int commitRequestId = si.executeAndReturnKey(params).intValue();
+        params.clear();
+        si = null;
+        si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_consumption").usingGeneratedKeyColumns("ID");
+        SimpleJdbcInsert st = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_consumption_batch_info");
+        for (Consumption c : programData.getConsumptionList()) {
+            Map<String, Object> tp = new HashMap<>();
+            tp.put("COMMIT_REQUEST_ID", commitRequestId);
+            tp.put("CONSUMPTION_ID", (c.getConsumptionId() == 0 ? null : c.getConsumptionId()));
+            tp.put("REGION_ID", c.getRegion().getId());
+            tp.put("REALM_COUNTRY_PLANNING_UNIT_ID", c.getRealmCountryPlanningUnit().getId());
+            tp.put("PLANNING_UNIT_ID", c.getPlanningUnit().getId());
+            tp.put("CONSUMPTION_DATE", c.getConsumptionDate());
+            tp.put("ACTUAL_FLAG", c.isActualFlag());
+            tp.put("RCPU_QTY", c.getConsumptionRcpuQty());
+            tp.put("QTY", c.getConsumptionQty());
+            tp.put("DAYS_OF_STOCK_OUT", c.getDayOfStockOut());
+            tp.put("DATA_SOURCE_ID", c.getDataSource().getId());
+            tp.put("NOTES", c.getNotes());
+            tp.put("CREATED_BY", c.getCreatedBy().getUserId());
+            tp.put("CREATED_DATE", c.getCreatedDate());
+            tp.put("LAST_MODIFIED_BY", c.getLastModifiedBy().getUserId());
+            tp.put("LAST_MODIFIED_DATE", c.getLastModifiedDate());
+            tp.put("ACTIVE", c.isActive());
+            tp.put("VERSION_ID", c.getVersionId());
+            int id = si.executeAndReturnKey(tp).intValue();
+            for (ConsumptionBatchInfo b : c.getBatchInfoList()) {
+                Map<String, Object> tb = new HashMap<>();
+                tb.put("CONSUMPTION_TRANS_ID", null);
+                tb.put("CONSUMPTION_TRANS_BATCH_INFO_ID", (b.getConsumptionTransBatchInfoId() == 0 ? null : b.getConsumptionTransBatchInfoId()));
+                tb.put("PARENT_ID", id);
+                tb.put("BATCH_ID", b.getBatch().getBatchId());
+                tb.put("BATCH_QTY", b.getConsumptionQty());
+                st.execute(tb);
+            }
+        }
+        si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_inventory").usingGeneratedKeyColumns("ID");
+        st = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_inventory_batch_info");
+        for (Inventory i : programData.getInventoryList()) {
+            Map<String, Object> tp = new HashMap<>();
+            tp.put("COMMIT_REQUEST_ID", commitRequestId);
+            tp.put("INVENTORY_ID", (i.getInventoryId() == 0 ? null : i.getInventoryId()));
+            tp.put("INVENTORY_DATE", i.getInventoryDate());
+            tp.put("REGION_ID", i.getRegion().getId());
+            tp.put("REALM_COUNTRY_PLANNING_UNIT_ID", i.getRealmCountryPlanningUnit().getId());
+            tp.put("ACTUAL_QTY", i.getActualQty());
+            tp.put("ADJUSTMENT_QTY", i.getAdjustmentQty());
+            tp.put("DATA_SOURCE_ID", i.getDataSource().getId());
+            tp.put("NOTES", i.getNotes());
+            tp.put("CREATED_BY", i.getCreatedBy().getUserId());
+            tp.put("CREATED_DATE", i.getCreatedDate());
+            tp.put("LAST_MODIFIED_BY", i.getLastModifiedBy().getUserId());
+            tp.put("LAST_MODIFIED_DATE", i.getLastModifiedDate());
+            tp.put("ACTIVE", i.isActive());
+            tp.put("VERSION_ID", i.getVersionId());
+            int id = si.executeAndReturnKey(tp).intValue();
+            for (InventoryBatchInfo b : i.getBatchInfoList()) {
+                Map<String, Object> tb = new HashMap<>();
+                tb.put("INVENTORY_TRANS_ID", null);
+                tb.put("INVENTORY_TRANS_BATCH_INFO_ID", (b.getInventoryTransBatchInfoId() == 0 ? null : b.getInventoryTransBatchInfoId()));
+                tb.put("PARENT_ID", id);
+                tb.put("BATCH_ID", b.getBatch().getBatchId());
+                tb.put("ACTUAL_QTY", b.getActualQty());
+                tb.put("ADJUSTMENT_QTY", b.getAdjustmentQty());
+                st.execute(tb);
+            }
+        }
+        
+        si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_shipment").usingGeneratedKeyColumns("ID");
+        st = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_shipment_batch_info");
+        for(Shipment s : programData.getShipmentList()) {
+            Map<String, Object> tp = new HashMap<>();
+            tp.put("SHIPMENT_ID", (s.getShipmentId() == 0 ? null : s.getShipmentId()));
+            tp.put("PARENT_SHIPMENT_ID", s.getParentShipmentId());
+            tp.put("SUGGESTED_QTY", s.getSuggestedQty());
+            tp.put("PROCUREMENT_AGENT_ID", (s.getProcurementAgent() == null || s.getProcurementAgent().getId() == null || s.getProcurementAgent().getId() == 0 ? null : s.getProcurementAgent().getId()));
+            tp.put("FUNDING_SOURCE_ID", (s.getFundingSource() == null || s.getFundingSource().getId() == null || s.getFundingSource().getId() == 0 ? null : s.getFundingSource().getId()));
+            tp.put("BUDGET_ID", (s.getBudget() == null || s.getBudget().getId() == null || s.getBudget().getId() == 0 ? null : s.getBudget().getId()));
+            tp.put("ACCOUNT_FLAG", s.isAccountFlag());
+            tp.put("ERP_FLAG", s.isErpFlag());
+            tp.put("CURRENCY_ID", s.getCurrency().getCurrencyId());
+            tp.put("CONVERSION_RATE_TO_USD", s.getCurrency().getConversionRateToUsd());
+            tp.put("EMERGENCY_ORDER", s.isEmergencyOrder());
+            tp.put("LOCAL_PROCUREMENT", s.isLocalProcurement());
+            tp.put("PLANNING_UNIT_ID", s.getPlanningUnit().getId());
+            tp.put("EXPECTED_DELIVERY_DATE", s.getExpectedDeliveryDate());
+            tp.put("PROCUREMENT_UNIT_ID", (s.getProcurementUnit() == null || s.getProcurementUnit().getId() == null || s.getProcurementUnit().getId() == 0 ? null : s.getProcurementUnit().getId()));
+            tp.put("SUPPLIER_ID", (s.getSupplier() == null || s.getSupplier().getId() == null || s.getSupplier().getId() == 0 ? null : s.getSupplier().getId()));
+            tp.put("SHIPMENT_QTY", s.getShipmentQty());
+            tp.put("RATE", s.getRate());
+            tp.put("PRODUCT_COST", s.getProductCost());
+            tp.put("SHIPMENT_MODE", s.getShipmentMode());
+            tp.put("FREIGHT_COST", s.getFreightCost());
+            tp.put("PLANNED_DATE", s.getPlannedDate());
+            tp.put("SUBMITTED_DATE", s.getSubmittedDate());
+            tp.put("APPROVED_DATE", s.getApprovedDate());
+            tp.put("SHIPPED_DATE", s.getShippedDate());
+            tp.put("ARRIVED_DATE", s.getArrivedDate());
+            tp.put("RECEIVED_DATE", s.getReceivedDate());
+            tp.put("SHIPMENT_STATUS_ID", s.getShipmentStatus().getId());
+            tp.put("DATA_SOURCE_ID", s.getDataSource().getId());
+            tp.put("NOTES", s.getNotes());
+            tp.put("ORDER_NO", (s.getOrderNo() == null || s.getOrderNo().isBlank() ? null : s.getOrderNo()));
+            tp.put("PRIME_LINE_NO", (s.getPrimeLineNo() == null || s.getPrimeLineNo().isBlank() ? null : s.getPrimeLineNo()));
+            tp.put("CREATED_BY", s.getCreatedBy().getUserId());
+            tp.put("CREATED_DATE", s.getCreatedDate());
+            tp.put("LAST_MODIFIED_BY", s.getLastModifiedBy().getUserId());
+            tp.put("LAST_MODIFIED_DATE", s.getLastModifiedDate());
+            tp.put("ACTIVE", s.isActive());
+            tp.put("VERSION_ID", s.getVersionId());
+            int id = si.executeAndReturnKey(tp).intValue();
+            for (ShipmentBatchInfo b : s.getBatchInfoList()) {
+                Map<String, Object> tb = new HashMap<>();
+                tb.put("SHIPMENT_TRANS_ID", null);
+                tb.put("SHIPMENT_TRANS_BATCH_INFO_ID", (b.getShipmentTransBatchInfoId() == 0 ? null : b.getShipmentTransBatchInfoId()));
+                tb.put("PARENT_ID", id);
+                tb.put("BATCH_ID", b.getBatch().getBatchId());
+                tb.put("BATCH_SHIPMENT_QTY", b.getShipmentQty());
+                st.execute(tb);
+            }
+        }
+        
+        si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_problem_report");
+        for (ProblemReport pr : programData.getProblemReportList()) {
+            Map<String, Object> tp = new HashMap<>();
+            tp.put("PROBLEM_REPORT_ID", (pr.getProblemReportId() == 0 ? null : pr.getProblemReportId()));
+            tp.put("REALM_PROBLEM_ID", pr.getRealmProblem().getRealmProblemId());
+            tp.put("PROGRAM_ID", pr.getProgram().getId());
+            tp.put("VERSION_ID", pr.getVersionId());
+            tp.put("PROBLEM_TYPE_ID", pr.getProblemType().getId());
+            tp.put("PROBLEM_STATUS_ID", pr.getProblemStatus().getId());
+            tp.put("DATA1", pr.getDt()); // Dt
+            tp.put("DATA2", pr.getRegion().getId()); // RegionId
+            tp.put("DATA3", pr.getPlanningUnit().getId()); // PlanningUnitId
+            tp.put("DATA4", pr.getShipmentId()); // ShipmentId
+            tp.put("DATA5", pr.getData5());
+            tp.put("CREATED_BY", pr.getCreatedBy().getUserId());
+            tp.put("CREATED_DATE", pr.getCreatedDate());
+            tp.put("LAST_MODIFIED_BY", pr.getLastModifiedBy().getUserId());
+            tp.put("LAST_MODIFIED_DATE", pr.getLastModifiedDate());
+            si.execute(tp);
+        }
+        return commitRequestId;
+    }
 
     @Override
     @Transactional
-    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
+    public Version executeProgramDataCommit(int commitRequestId, ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         // Check which records have changed
         Map<String, Object> params = new HashMap<>();

@@ -91,20 +91,31 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
+    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
+        Program p = this.programService.getProgramById(programData.getProgramId(), curUser);
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
+            programData.setCurrentVersion(p.getCurrentVersion());
+            return this.programDataDao.saveProgramData(programData, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public Version executeProgramDataCommit(int commitRequestId, ProgramData programData) throws CouldNotSaveException {
+        CustomUserDetails curUser = new CustomUserDetails();
+        curUser.setUserId(1);
         Program p = this.programService.getProgramById(programData.getProgramId(), curUser);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
             programData.setCurrentVersion(p.getCurrentVersion());
 //            System.out.println("++++" + p.getCurrentVersion());
-            Version version = this.programDataDao.saveProgramData(programData, curUser);
+            Version version = this.programDataDao.executeProgramDataCommit(commitRequestId, programData, curUser);
 //            System.out.println("version++++" + version);
             try {
                 getNewSupplyPlanList(programData.getProgramId(), version.getVersionId(), true, false);
                 if (programData.getVersionType().getId() == 2 && version.getVersionId() != 0) {
                     List<NotificationUser> toEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(programData.getProgramId(), version.getVersionId(), 1, "To");
                     List<NotificationUser> ccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(programData.getProgramId(), version.getVersionId(), 1, "Cc");
-                    System.out.println("toEmailIdsList===>" + toEmailIdsList);
-                    System.out.println("ccEmailIdsList===>" + ccEmailIdsList);
                     StringBuilder sbToEmails = new StringBuilder();
                     StringBuilder sbCcEmails = new StringBuilder();
                     if (toEmailIdsList.size() > 0) {

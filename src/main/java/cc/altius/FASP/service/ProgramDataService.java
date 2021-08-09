@@ -31,7 +31,9 @@ public interface ProgramDataService {
 
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
 
-    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
+    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
+
+    public Version executeProgramDataCommit(int commitRequestId, ProgramData programData) throws CouldNotSaveException;
 
     public List<SimpleObject> getVersionTypeList();
 
