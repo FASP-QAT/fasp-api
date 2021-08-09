@@ -1,6 +1,17 @@
+DROP TABLE IF EXISTS `ct_supply_plan_problem_report`;
+DROP TABLE IF EXISTS `ct_supply_plan_shipment_batch_info`;
+DROP TABLE IF EXISTS `ct_supply_plan_shipment`;
+DROP TABLE IF EXISTS `ct_supply_plan_inventory_batch_info`;
+DROP TABLE IF EXISTS `ct_supply_plan_inventory`;
+DROP TABLE IF EXISTS `ct_supply_plan_consumption_batch_info`;
+DROP TABLE IF EXISTS `ct_supply_plan_consumption`;
+DROP TABLE IF EXISTS `ct_supply_plan_commit_request`;
+
 CREATE TABLE `fasp`.`ct_supply_plan_commit_request` (
   `COMMIT_REQUEST_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `PROGRAM_ID` INT(10) UNSIGNED NOT NULL,
+  `VERSION_TYPE_ID` int(10) unsigned NOT NULL,
+  `NOTES` text COLLATE utf8_bin,  
   `CREATED_BY` INT(10) UNSIGNED NOT NULL,
   `CREATED_DATE` DATETIME NOT NULL,
   `STATUS` INT(10) UNSIGNED NOT NULL,
@@ -8,6 +19,7 @@ CREATE TABLE `fasp`.`ct_supply_plan_commit_request` (
   PRIMARY KEY (`COMMIT_REQUEST_ID`),
   INDEX `fk_ct_supply_plan_commit_request_programId_idx` (`PROGRAM_ID` ASC),
   INDEX `fk_ct_supply_plan_commit_request_createdBy_idx` (`CREATED_BY` ASC),
+  INDEX `fk_ct_sp_commit_request_ap_version_type1_idx` (`VERSION_TYPE_ID`),
   CONSTRAINT `fk_ct_supply_plan_commit_request_programId`
     FOREIGN KEY (`PROGRAM_ID`)
     REFERENCES `fasp`.`rm_program` (`PROGRAM_ID`)
@@ -17,6 +29,11 @@ CREATE TABLE `fasp`.`ct_supply_plan_commit_request` (
     FOREIGN KEY (`CREATED_BY`)
     REFERENCES `fasp`.`us_user` (`USER_ID`)
     ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ct_sp_commit_request_ap_version_type1_idx` 
+    FOREIGN KEY (`VERSION_TYPE_ID`) 
+    REFERENCES `ap_version_type` (`VERSION_TYPE_ID`) 
+    ON DELETE NO ACTION 
     ON UPDATE NO ACTION);
 
 CREATE TABLE `ct_supply_plan_consumption` ( 
@@ -39,7 +56,7 @@ CREATE TABLE `ct_supply_plan_consumption` (
   `LAST_MODIFIED_DATE` DATETIME NOT NULL, 
   `ACTIVE` TINYINT UNSIGNED NOT NULL DEFAULT 1, 
   `VERSION_ID` INT(10) NULL, 
-  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, 
+--   `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, 
   PRIMARY KEY (`ID`), 
   INDEX `fk_ct_sp_consumption_commitRequestId_idx` (`COMMIT_REQUEST_ID` ASC), 
   INDEX `fk_ct_sp_consumption_1_idx` (`CONSUMPTION_ID` ASC), 
@@ -81,7 +98,7 @@ CREATE TABLE `ct_supply_plan_consumption` (
   `CONSUMPTION_TRANS_ID` INT(10) UNSIGNED NULL, 
   `BATCH_ID` INT(10) NOT NULL, 
   `BATCH_QTY` DECIMAL(24,4) UNSIGNED NOT NULL, 
-  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, 
+--   `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, 
   PRIMARY KEY (`ID`), 
   INDEX `fk_ct_sp_cbi_commitRequestId_idx` (`COMMIT_REQUEST_ID` ASC), 
   INDEX `fk_ct_sp_cbi_2_idx` (`CONSUMPTION_TRANS_BATCH_INFO_ID` ASC), 
@@ -99,6 +116,7 @@ CREATE TABLE `ct_supply_plan_consumption` (
 
 CREATE TABLE `ct_supply_plan_inventory` ( 
   `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, 
+  `COMMIT_REQUEST_ID` INT UNSIGNED NOT NULL, 
   `INVENTORY_ID` INT UNSIGNED NULL, 
   `INVENTORY_DATE` DATE NOT NULL, 
   `REGION_ID` INT(10) UNSIGNED NULL, 
@@ -113,31 +131,45 @@ CREATE TABLE `ct_supply_plan_inventory` (
   `LAST_MODIFIED_DATE` DATETIME NOT NULL, 
   `ACTIVE` TINYINT UNSIGNED NOT NULL DEFAULT 1, 
   `VERSION_ID` INT(10) NULL, 
-  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, 
+--   `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, 
   PRIMARY KEY (`ID`), 
+  INDEX `fk_ct_sp_inventory_commitRequestId_idx` (`COMMIT_REQUEST_ID` ASC), 
   INDEX `fk_ct_supply_planinventory_1_idx` (`INVENTORY_ID` ASC), 
   INDEX `fk_ct_sp_inventory_2_idx` (`REGION_ID` ASC), 
   INDEX `fk_ct_sp_inventory_3_idx` (`REALM_COUNTRY_PLANNING_UNIT_ID` ASC), 
   INDEX `fk_ct_sp_inventory_4_idx` (`DATA_SOURCE_ID` ASC), 
-  INDEX `fk_ct_sp_inventory_5_idx` (`VERSION_ID` ASC));
+  INDEX `fk_ct_sp_inventory_5_idx` (`VERSION_ID` ASC),
+  CONSTRAINT `fk_ct_sp_inventory_commitRequestId`
+  FOREIGN KEY (`COMMIT_REQUEST_ID`)
+  REFERENCES `fasp`.`ct_supply_plan_commit_request` (`COMMIT_REQUEST_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION);
 
 
 CREATE TABLE `ct_supply_plan_inventory_batch_info` ( 
   `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, 
+`COMMIT_REQUEST_ID` INT UNSIGNED NOT NULL, 
   `PARENT_ID` INT(10) UNSIGNED NOT NULL, 
   `INVENTORY_TRANS_BATCH_INFO_ID` INT(10) UNSIGNED NULL, 
   `INVENTORY_TRANS_ID` INT(10) UNSIGNED NULL, 
   `BATCH_ID` INT(10) NOT NULL, 
   `ACTUAL_QTY` BIGINT(20) UNSIGNED NULL, 
   `ADJUSTMENT_QTY` BIGINT(20) NULL, 
-  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, 
+--   `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, 
   PRIMARY KEY (`ID`), 
+    INDEX `fk_ct_sp_ibi_commitRequestId_idx` (`COMMIT_REQUEST_ID` ASC), 
   INDEX `fk_ct_sp_ibi_1_idx` (`INVENTORY_TRANS_ID` ASC), 
   INDEX `fk_ct_sp_ibi_2_idx` (`INVENTORY_TRANS_BATCH_INFO_ID` ASC), 
-  INDEX `fk_ct_sp_ibi_3_idx` (`BATCH_ID` ASC));
+  INDEX `fk_ct_sp_ibi_3_idx` (`BATCH_ID` ASC),
+    CONSTRAINT `fk_ct_sp_ibi_commitRequestId`
+    FOREIGN KEY (`COMMIT_REQUEST_ID`)
+    REFERENCES `fasp`.`ct_supply_plan_commit_request` (`COMMIT_REQUEST_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
   
 CREATE TABLE `ct_supply_plan_shipment` ( 
   `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, 
+`COMMIT_REQUEST_ID` INT UNSIGNED NOT NULL, 
   `SHIPMENT_ID` INT(10) UNSIGNED NULL, 
   `PARENT_SHIPMENT_ID` INT(10) UNSIGNED NULL, 
   `SUGGESTED_QTY` BIGINT(20) UNSIGNED NULL, 
@@ -176,8 +208,9 @@ CREATE TABLE `ct_supply_plan_shipment` (
   `LAST_MODIFIED_DATE` DATETIME NOT NULL, 
   `ACTIVE` TINYINT(1) UNSIGNED NOT NULL DEFAULT 1, 
   `VERSION_ID` INT(10) NULL, 
-  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, 
+--   `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, 
   PRIMARY KEY (`ID`), 
+INDEX `fk_ct_sp_shipment_commitRequestId_idx` (`COMMIT_REQUEST_ID` ASC), 
   INDEX `fk_ct_sp_shipment_1_idx` (`SHIPMENT_ID` ASC), 
   INDEX `fk_ct_sp_shipment_2_idx` (`PLANNING_UNIT_ID` ASC), 
   INDEX `fk_ct_sp_shipment_3_idx` (`PROCUREMENT_UNIT_ID` ASC), 
@@ -189,17 +222,70 @@ CREATE TABLE `ct_supply_plan_shipment` (
   INDEX `fk_ct_sp_shipment_9_idx` (`VERSION_ID` ASC),
   INDEX `fk_ct_sp_shipment_10_idx` (`PROCUREMENT_AGENT_ID` ASC), 
   INDEX `fk_ct_sp_shipment_11_idx` (`FUNDING_SOURCE_ID` ASC), 
-  INDEX `fk_ct_sp_shipment_12_idx` (`BUDGET_ID` ASC) );
+  INDEX `fk_ct_sp_shipment_12_idx` (`BUDGET_ID` ASC) ,
+CONSTRAINT `fk_ct_sp_shipment_commitRequestId`
+    FOREIGN KEY (`COMMIT_REQUEST_ID`)
+    REFERENCES `fasp`.`ct_supply_plan_commit_request` (`COMMIT_REQUEST_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION
+);
 
 CREATE TABLE `ct_supply_plan_shipment_batch_info` ( 
   `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, 
+  `COMMIT_REQUEST_ID` INT UNSIGNED NOT NULL, 
   `PARENT_ID` INT(10) UNSIGNED NOT NULL, 
   `SHIPMENT_TRANS_BATCH_INFO_ID` INT(10) UNSIGNED NULL, 
   `SHIPMENT_TRANS_ID` INT(10) UNSIGNED NULL, 
   `BATCH_ID` INT(10) NOT NULL, 
   `BATCH_SHIPMENT_QTY` BIGINT(20) UNSIGNED NOT NULL, 
-  `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, 
+--   `CHANGED` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0, 
   PRIMARY KEY (`ID`), 
+INDEX `fk_ct_sp_sbi_commitRequestId_idx` (`COMMIT_REQUEST_ID` ASC), 
   INDEX `fk_ct_sp_sbi_1_idx` (`SHIPMENT_TRANS_ID` ASC), 
   INDEX `fk_ct_sp_sbi_2_idx` (`SHIPMENT_TRANS_BATCH_INFO_ID` ASC), 
-  INDEX `fk_ct_sp_sbi_3_idx` (`BATCH_ID` ASC));
+  INDEX `fk_ct_sp_sbi_3_idx` (`BATCH_ID` ASC),
+CONSTRAINT `fk_ct_sp_sbi_commitRequestId`
+    FOREIGN KEY (`COMMIT_REQUEST_ID`)
+    REFERENCES `fasp`.`ct_supply_plan_commit_request` (`COMMIT_REQUEST_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+CREATE TABLE `ct_supply_plan_problem_report` (
+`ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT, 
+  `COMMIT_REQUEST_ID` INT UNSIGNED NOT NULL, 
+  `PROBLEM_REPORT_ID` int(10) unsigned NULL,
+  `REALM_PROBLEM_ID` int(10) unsigned NOT NULL,
+  `PROGRAM_ID` int(10) unsigned NOT NULL,
+  `VERSION_ID` int(10) unsigned NOT NULL,
+  `PROBLEM_TYPE_ID` int(10) unsigned NOT NULL,
+  `PROBLEM_STATUS_ID` int(10) unsigned NOT NULL,
+  `DATA1` varchar(50) COLLATE utf8_bin DEFAULT NULL,
+  `DATA2` varchar(50) COLLATE utf8_bin DEFAULT NULL,
+  `DATA3` varchar(50) COLLATE utf8_bin DEFAULT NULL,
+  `DATA4` varchar(50) COLLATE utf8_bin DEFAULT NULL,
+  `DATA5` text CHARACTER SET utf8,
+  `CREATED_BY` int(10) unsigned NOT NULL,
+  `CREATED_DATE` datetime NOT NULL,
+  `LAST_MODIFIED_BY` int(10) unsigned NOT NULL,
+  `LAST_MODIFIED_DATE` datetime NOT NULL,
+  PRIMARY KEY (`ID`),
+  INDEX `fk_ct_sp_problem_report_commitRequestId_idx` (`COMMIT_REQUEST_ID` ASC), 
+  INDEX `fk_ct_sp_rm_realm_problem1_idx` (`REALM_PROBLEM_ID`),
+  INDEX `fk_ct_sp_rm_program1_idx` (`PROGRAM_ID`),
+  INDEX `fk_ct_sp_ap_problem_type1_idx` (`PROBLEM_TYPE_ID`),
+  INDEX `fk_ct_sp_ap_problem_status1_idx` (`PROBLEM_STATUS_ID`),
+  INDEX `fk_ct_sp_us_user1_idx` (`CREATED_BY`),
+  INDEX `fk_ct_sp_us_user2_idx` (`LAST_MODIFIED_BY`),
+CONSTRAINT `fk_ct_sp_problem_report_commitRequestId`
+    FOREIGN KEY (`COMMIT_REQUEST_ID`)
+    REFERENCES `fasp`.`ct_supply_plan_commit_request` (`COMMIT_REQUEST_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ct_sp_problem_report_ap_problem_status1` FOREIGN KEY (`PROBLEM_STATUS_ID`) REFERENCES `ap_problem_status` (`PROBLEM_STATUS_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ct_sp_problem_report_problem_type1` FOREIGN KEY (`PROBLEM_TYPE_ID`) REFERENCES `ap_problem_type` (`PROBLEM_TYPE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ct_sp_problem_report_rm_program1` FOREIGN KEY (`PROGRAM_ID`) REFERENCES `rm_program` (`PROGRAM_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ct_sp_problem_report_rm_program2` FOREIGN KEY (`PROGRAM_ID`) REFERENCES `rm_program` (`PROGRAM_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ct_sp_problem_report_rm_realm_problem1` FOREIGN KEY (`REALM_PROBLEM_ID`) REFERENCES `rm_realm_problem` (`REALM_PROBLEM_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ct_sp_problem_report_us_user1` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ct_sp_problem_report_us_user2` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;

@@ -161,6 +161,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_commit_request").usingGeneratedKeyColumns("ID");
         Map<String, Object> params = new HashMap<>();
         params.put("PROGRAM_ID", programData.getProgramId());
+        params.put("VERSION_TYPE_ID",programData.getVersionType().getId());
+        params.put("NOTES",programData.getNotes());
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
         params.put("STATUS", 1); // New request
@@ -192,6 +194,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             int id = si.executeAndReturnKey(tp).intValue();
             for (ConsumptionBatchInfo b : c.getBatchInfoList()) {
                 Map<String, Object> tb = new HashMap<>();
+                tb.put("COMMIT_REQUEST_ID", commitRequestId);
                 tb.put("CONSUMPTION_TRANS_ID", null);
                 tb.put("CONSUMPTION_TRANS_BATCH_INFO_ID", (b.getConsumptionTransBatchInfoId() == 0 ? null : b.getConsumptionTransBatchInfoId()));
                 tb.put("PARENT_ID", id);
@@ -222,6 +225,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             int id = si.executeAndReturnKey(tp).intValue();
             for (InventoryBatchInfo b : i.getBatchInfoList()) {
                 Map<String, Object> tb = new HashMap<>();
+                tb.put("COMMIT_REQUEST_ID", commitRequestId);
                 tb.put("INVENTORY_TRANS_ID", null);
                 tb.put("INVENTORY_TRANS_BATCH_INFO_ID", (b.getInventoryTransBatchInfoId() == 0 ? null : b.getInventoryTransBatchInfoId()));
                 tb.put("PARENT_ID", id);
@@ -236,6 +240,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         st = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_shipment_batch_info");
         for(Shipment s : programData.getShipmentList()) {
             Map<String, Object> tp = new HashMap<>();
+            tp.put("COMMIT_REQUEST_ID", commitRequestId);
             tp.put("SHIPMENT_ID", (s.getShipmentId() == 0 ? null : s.getShipmentId()));
             tp.put("PARENT_SHIPMENT_ID", s.getParentShipmentId());
             tp.put("SUGGESTED_QTY", s.getSuggestedQty());
@@ -277,6 +282,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             int id = si.executeAndReturnKey(tp).intValue();
             for (ShipmentBatchInfo b : s.getBatchInfoList()) {
                 Map<String, Object> tb = new HashMap<>();
+                tb.put("COMMIT_REQUEST_ID", commitRequestId);
                 tb.put("SHIPMENT_TRANS_ID", null);
                 tb.put("SHIPMENT_TRANS_BATCH_INFO_ID", (b.getShipmentTransBatchInfoId() == 0 ? null : b.getShipmentTransBatchInfoId()));
                 tb.put("PARENT_ID", id);
@@ -289,6 +295,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_problem_report");
         for (ProblemReport pr : programData.getProblemReportList()) {
             Map<String, Object> tp = new HashMap<>();
+            tp.put("COMMIT_REQUEST_ID", commitRequestId);
             tp.put("PROBLEM_REPORT_ID", (pr.getProblemReportId() == 0 ? null : pr.getProblemReportId()));
             tp.put("REALM_PROBLEM_ID", pr.getRealmProblem().getRealmProblemId());
             tp.put("PROGRAM_ID", pr.getProgram().getId());
