@@ -116,7 +116,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         if (files.length < 1) {
             subjectParam = new String[]{"Product Catalogue", "File not found"};
             bodyParam = new String[]{"Product Catalogue", date, "File not found", "File not found"};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -132,7 +132,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 if (!extension.equalsIgnoreCase("xml")) {
                     subjectParam = new String[]{"Product Catalogue", "File is not an xml"};
                     bodyParam = new String[]{"Product Catalogue", date, "File is not an xml", fileList};
-                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                     int emailerId = this.emailService.saveEmail(emailer);
                     emailer.setEmailerId(emailerId);
                     this.emailService.sendMail(emailer);
@@ -163,16 +163,16 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         int x = 0;
                         logger.info("Going to drop tmp_product_catalog");
                         sb.append("Going to drop tmp_product_catalog").append(br);
-//                        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_product_catalog`";
-                        sqlString = "DROP TABLE IF EXISTS `tmp_product_catalog`";
+                        sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_product_catalog`";
+//                        sqlString = "DROP TABLE IF EXISTS `tmp_product_catalog`";
                         this.jdbcTemplate.execute(sqlString);
                         logger.info("Successfully droped tmp_product_catalog");
                         sb.append("Successfully droped tmp_product_catalog").append(br);
 
                         logger.info("Going to create tmp_product_catalog");
                         sb.append("Going to create tmp_product_catalog").append(br);
-//                        sqlString = "CREATE TEMPORARY TABLE `tmp_product_catalog` ( "
-                        sqlString = "CREATE TABLE `tmp_product_catalog` ( "
+                        sqlString = "CREATE TEMPORARY TABLE `tmp_product_catalog` ( "
+//                        sqlString = "CREATE TABLE `tmp_product_catalog` ( "
                                 + "  `TaskOrder` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `CommodityCouncil` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
                                 + "  `Subcategory` varchar(250) COLLATE utf8_bin DEFAULT NULL, "
@@ -379,13 +379,86 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         int tmpCnt = this.jdbcTemplate.queryForObject(sqlString, Integer.class);
                         logger.info("Total rows inserted in tmp_product_catalog---" + tmpCnt);
                         sb.append("Total rows inserted in tmp_product_catalog---").append(tmpCnt).append(br);
-                        pullUnit(sb);
-                        pullTracerCategory(sb);
-                        pullProductCategory(sb);
-                        pullForecastingUnit(sb);
-                        pullPlanningUnit(sb);
-                        pullSupplier(sb);
-                        pullProcurementUnit(sb);
+//                        EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
+//        String[] subjectParam = new String[]{};
+//        String[] bodyParam = null;
+                        try {
+                            pullUnit(sb);
+                        } catch (Exception e) {
+                            subjectParam = new String[]{"Product Catalog", "Error while pulling units"};
+                            bodyParam = new String[]{"Product Catalog", date, "Error while pulling units", e.getMessage()};
+                            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                            int emailerId = this.emailService.saveEmail(emailer);
+                            emailer.setEmailerId(emailerId);
+                            this.emailService.sendMail(emailer);
+                            logger.error("Error while pulling units---" + e.getMessage());
+                        }
+                        try {
+                            pullTracerCategory(sb);
+                        } catch (Exception e) {
+                            subjectParam = new String[]{"Product Catalog", "Error while pulling tracer category"};
+                            bodyParam = new String[]{"Product Catalog", date, "Error while pulling tracer category", e.getMessage()};
+                            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                            int emailerId = this.emailService.saveEmail(emailer);
+                            emailer.setEmailerId(emailerId);
+                            this.emailService.sendMail(emailer);
+                            logger.error("Error while pulling tracer category---" + e.getMessage());
+                        }
+                        try {
+                            pullProductCategory(sb);
+                        } catch (Exception e) {
+                            subjectParam = new String[]{"Product Catalog", "Error while pulling product category"};
+                            bodyParam = new String[]{"Product Catalog", date, "Error while pulling product category", e.getMessage()};
+                            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                            int emailerId = this.emailService.saveEmail(emailer);
+                            emailer.setEmailerId(emailerId);
+                            this.emailService.sendMail(emailer);
+                            logger.error("Error while pulling product category---" + e.getMessage());
+                        }
+                        try {
+                            pullForecastingUnit(sb);
+                        } catch (Exception e) {
+                            subjectParam = new String[]{"Product Catalog", "Error while pulling forecasting unit"};
+                            bodyParam = new String[]{"Product Catalog", date, "Error while pulling forecasting unit", e.getMessage()};
+                            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                            int emailerId = this.emailService.saveEmail(emailer);
+                            emailer.setEmailerId(emailerId);
+                            this.emailService.sendMail(emailer);
+                            logger.error("Error while pulling forecasting unit---" + e.getMessage());
+                        }
+                        try {
+                            pullPlanningUnit(sb);
+                        } catch (Exception e) {
+                            subjectParam = new String[]{"Product Catalog", "Error while pulling planning unit"};
+                            bodyParam = new String[]{"Product Catalog", date, "Error while pulling planning unit", e.getMessage()};
+                            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                            int emailerId = this.emailService.saveEmail(emailer);
+                            emailer.setEmailerId(emailerId);
+                            this.emailService.sendMail(emailer);
+                            logger.error("Error while pulling planning unit---" + e.getMessage());
+                        }
+                        try {
+                            pullSupplier(sb);
+                        } catch (Exception e) {
+                            subjectParam = new String[]{"Product Catalog", "Error while pulling supplier"};
+                            bodyParam = new String[]{"Product Catalog", date, "Error while pulling supplier", e.getMessage()};
+                            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                            int emailerId = this.emailService.saveEmail(emailer);
+                            emailer.setEmailerId(emailerId);
+                            this.emailService.sendMail(emailer);
+                            logger.error("Error while pulling supplier---" + e.getMessage());
+                        }
+                        try {
+                            pullProcurementUnit(sb);
+                        } catch (Exception e) {
+                            subjectParam = new String[]{"Product Catalog", "Error while pulling procurement unit"};
+                            bodyParam = new String[]{"Product Catalog", date, "Error while pulling procurement unit", e.getMessage()};
+                            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                            int emailerId = this.emailService.saveEmail(emailer);
+                            emailer.setEmailerId(emailerId);
+                            this.emailService.sendMail(emailer);
+                            logger.error("Error while pulling procurement unit---" + e.getMessage());
+                        }
                         File directory = new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH);
                         if (directory.isDirectory()) {
                             fXmlFile.renameTo(new File(QAT_FILE_PATH + BKP_CATALOG_FILE_PATH + fXmlFile.getName()));
@@ -683,13 +756,13 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         sb.append("------------------------------- Forecasting Unit ------------------------------------").append(br);
         //------------Forcasting Unit--------------------------
         // Step 1 - Drop the table if it exists
-//        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
-        String sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
+        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
+//        String sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
         this.jdbcTemplate.update(sqlString);
 
         // Step 2 - Create Temporary Table
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
-        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
+//        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
                 + "    `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
                 + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,   "
@@ -1113,7 +1186,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
 
         sqlString = "CREATE TEMPORARY TABLE `tmp_procurement_unit` (  "
-                //        sqlString = "CREATE TABLE `tmp_procurement_unit` (  "
+//        sqlString = "CREATE TABLE `tmp_procurement_unit` (  "
                 + "	`ID` int(10) unsigned NOT NULL AUTO_INCREMENT,  "
                 + "    `PROCUREMENT_UNIT_ID` int(10) UNSIGNED DEFAULT NULL,  "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,  "
