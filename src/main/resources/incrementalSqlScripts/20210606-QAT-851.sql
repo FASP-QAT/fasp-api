@@ -1895,3 +1895,9 @@ END$$
 
 DELIMITER ;
 
+INSERT INTO `ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programValidation.programCode','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Combination of program code and unique code character length must be less then 45.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La combinaison du code de programme et de la longueur de caractère du code unique doit être inférieure à 45.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La combinación del código de programa y la longitud de los caracteres del código único debe ser inferior a 45.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A combinação de código de programa e comprimento de caractere de código exclusivo deve ser inferior a 45.');-- pr
