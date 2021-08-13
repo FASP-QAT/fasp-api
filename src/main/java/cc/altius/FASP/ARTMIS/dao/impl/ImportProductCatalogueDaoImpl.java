@@ -337,6 +337,13 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                                     logger.info("Planning Unit Per Pallet not found because there was an error " + e.getMessage());
                                     map.put("euro1", planningUnitPerPallet);
                                     map.put("euro2", null);
+                                    subjectParam = new String[]{"Product Catalog", "Planning Unit Per Pallet not found"};
+                                    bodyParam = new String[]{"Product Catalog", date, "Planning Unit Per Pallet not found", e.getMessage()};
+                                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                                    int emailerId = this.emailService.saveEmail(emailer);
+                                    emailer.setEmailerId(emailerId);
+                                    this.emailService.sendMail(emailer);
+                                    logger.error("Error while pulling tracer category---" + e.getMessage());
                                 }
 
                                 map.put("planningUnitsPerContainer", dataRecordElement.getElementsByTagName("planning_unit_per_container").item(0).getTextContent());
@@ -909,6 +916,12 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 } else {
                     logger.info("Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + "because either the ProductCategory or TracerCategory is not provided");
                     sb.append("Skipping the Forecasting Unit ").append(fu.getLabel().getLabel_en()).append("because either the ProductCategory or TracerCategory is not provided").append(br);
+                    subjectParam = new String[]{"Product Catalog", "Skipping the Forecasting Unit"};
+                    bodyParam = new String[]{"Product Catalog", date, "Skipping the Forecasting Unit", "Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + "because either the ProductCategory or TracerCategory is not provided"};
+                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                    int emailerId = this.emailService.saveEmail(emailer);
+                    emailer.setEmailerId(emailerId);
+                    this.emailService.sendMail(emailer);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1072,6 +1085,12 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 } else {
                     logger.info("Skipping the Planning Unit " + pu.getSkuCode() + " since there is no ForecastingUnit defined");
                     sb.append("Skipping the Planning Unit ").append(pu.getSkuCode()).append(" since there is no ForecastingUnit defined").append(br);
+                    subjectParam = new String[]{"Product Catalog", "Skipping the Planning Unit"};
+                    bodyParam = new String[]{"Product Catalog", date, "Skipping the Planning Unit", "Skipping the Planning Unit " + pu.getSkuCode() + " since there is no ForecastingUnit defined"};
+                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                    int emailerId = this.emailService.saveEmail(emailer);
+                    emailer.setEmailerId(emailerId);
+                    this.emailService.sendMail(emailer);
                 }
             } catch (Exception e) {
                 logger.info("Skipping the Planning Unit " + pu.getSkuCode() + " because there was an error " + e.getMessage());
@@ -1372,10 +1391,22 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     } else {
                         logger.info("Skipping the Procurement Unit " + pu.getSkuCode() + " since there is no Supplier Id defined");
                         sb.append("Skipping the Procurement Unit ").append(pu.getSkuCode()).append(" since there is no Supplier Id defined").append(br);
+                        subjectParam = new String[]{"Product Catalog", "Skipping the Procurement Unit"};
+                        bodyParam = new String[]{"Product Catalog", date, "Skipping the Procurement Unit", "Skipping the Procurement Unit " + pu.getSkuCode() + " since there is no Supplier Id defined"};
+                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                        int emailerId = this.emailService.saveEmail(emailer);
+                        emailer.setEmailerId(emailerId);
+                        this.emailService.sendMail(emailer);
                     }
                 } else {
                     logger.info("Skipping the Procurement Unit " + pu.getSkuCode() + " since there is no PlanningUnit defined");
                     sb.append("Skipping the Procurement Unit ").append(pu.getSkuCode()).append(" since there is no PlanningUnit defined").append(br);
+                    subjectParam = new String[]{"Product Catalog", "Skipping the Procurement Unit"};
+                    bodyParam = new String[]{"Product Catalog", date, "Skipping the Procurement Unit", "Skipping the Procurement Unit " + pu.getSkuCode() + " since there is no PlanningUnit defined"};
+                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+                    int emailerId = this.emailService.saveEmail(emailer);
+                    emailer.setEmailerId(emailerId);
+                    this.emailService.sendMail(emailer);
                 }
             } catch (Exception e) {
                 logger.info("Skipping the Procurement Unit " + pu.getSkuCode() + " because there was an error " + e.getMessage());
