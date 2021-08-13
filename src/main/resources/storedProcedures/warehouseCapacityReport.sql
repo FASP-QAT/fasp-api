@@ -1,9 +1,9 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `warehouseCapacityReport`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT)
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `warehouseCapacityReport`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT)
 BEGIN
 	-- %%%%%%%%%%%%%%%%%%%%%
     -- Report no 7
 	-- %%%%%%%%%%%%%%%%%%%%%
-    
+	
     -- RealmId must be the Realm that the user is from so that we can select all the Countries for that Realm
 	-- RealmCountryIds are a list of RealmCountries that you want to run the report for 
     -- RealmCountrIds blank means you want to run it for all the RealmCountries
@@ -29,7 +29,7 @@ BEGIN
         -- For each loop build the sql for acl
         SET @aclSqlString = CONCAT(@aclSqlString,"       OR (");
         SET @aclSqlString = CONCAT(@aclSqlString,"           (p.PROGRAM_ID IS NULL OR ",IFNULL(curRealmCountryId,-1),"=-1 OR p.REALM_COUNTRY_ID=",IFNULL(curRealmCountryId,-1),")");
-        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curHealthAreaId,-1)  ,"=-1 OR p.HEALTH_AREA_ID="  ,IFNULL(curHealthAreaId,-1)  ,")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curHealthAreaId,-1)  ,"=-1 OR FIND_IN_SET(IFNULL(curHealthAreaId,-1),p.HEALTH_AREA_ID))");
         SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curOrganisationId,-1),"=-1 OR p.ORGANISATION_ID=" ,IFNULL(curOrganisationId,-1),")");
         SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curProgramId,-1)     ,"=-1 OR p.PROGRAM_ID="      ,IFNULL(curProgramId,-1)     ,")");
         SET @aclSqlString = CONCAT(@aclSqlString,"       )");
