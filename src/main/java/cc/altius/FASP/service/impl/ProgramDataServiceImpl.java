@@ -21,7 +21,9 @@ import cc.altius.FASP.model.ShipmentSync;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
+import cc.altius.FASP.model.SupplyPlanCommitRequest;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.SupplyPlanCommitRequestInput;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.ProblemService;
@@ -265,6 +267,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public String getLastModifiedDateForProgram(int programId, int versionId) {
         return this.programDataDao.getLastModifiedDateForProgram(programId, versionId);
+    }
+
+    @Override
+    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser) {
+        return this.programDataDao.getSupplyPlanCommitRequestList(spcr, curUser);
     }
 
 }

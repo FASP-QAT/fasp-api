@@ -35,8 +35,10 @@ import cc.altius.FASP.model.SimplePlanningUnitForSupplyPlanObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.SupplyPlanBatchInfo;
+import cc.altius.FASP.model.SupplyPlanCommitRequest;
 import cc.altius.FASP.model.SupplyPlanDate;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.SupplyPlanCommitRequestInput;
 import cc.altius.FASP.model.rowMapper.BatchRowMapper;
 import cc.altius.FASP.model.rowMapper.ConsumptionListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.IdByAndDateRowMapper;
@@ -50,6 +52,7 @@ import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.SimplePlanningUnitForSupplyPlanObjectResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimplifiedSupplyPlanResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.SupplyPlanCommitRequestRowMapper;
 import cc.altius.FASP.model.rowMapper.SupplyPlanResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.LogUtils;
@@ -58,11 +61,13 @@ import cc.altius.FASP.service.ProgramService;
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,8 +166,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_commit_request").usingGeneratedKeyColumns("ID");
         Map<String, Object> params = new HashMap<>();
         params.put("PROGRAM_ID", programData.getProgramId());
-        params.put("VERSION_TYPE_ID",programData.getVersionType().getId());
-        params.put("NOTES",programData.getNotes());
+        params.put("VERSION_TYPE_ID", programData.getVersionType().getId());
+        params.put("NOTES", programData.getNotes());
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
         params.put("STATUS", 1); // New request
@@ -235,10 +240,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 st.execute(tb);
             }
         }
-        
+
         si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_shipment").usingGeneratedKeyColumns("ID");
         st = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_shipment_batch_info");
-        for(Shipment s : programData.getShipmentList()) {
+        for (Shipment s : programData.getShipmentList()) {
             Map<String, Object> tp = new HashMap<>();
             tp.put("COMMIT_REQUEST_ID", commitRequestId);
             tp.put("SHIPMENT_ID", (s.getShipmentId() == 0 ? null : s.getShipmentId()));
@@ -291,7 +296,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 st.execute(tb);
             }
         }
-        
+
         si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_problem_report");
         for (ProblemReport pr : programData.getProblemReportList()) {
             Map<String, Object> tp = new HashMap<>();
@@ -1997,10 +2002,28 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public String getLastModifiedDateForProgram(int programId, int versionId) {
-        String sql = "select MAX(st.LAST_MODIFIED_DATE) from rm_shipment s \n"
-                + "left join rm_shipment_trans st on s.SHIPMENT_ID=st.SHIPMENT_ID and s.MAX_VERSION_ID=st.VERSION_ID\n"
-                + "where s.PROGRAM_ID=? and st.VERSION_ID<=?;";
+        String sql = "select MAX(st.LAST_MODIFIED_DATE) from rm_shipment s "
+                + "left join rm_shipment_trans st on s.SHIPMENT_ID=st.SHIPMENT_ID and s.MAX_VERSION_ID=st.VERSION_ID "
+                + "where s.PROGRAM_ID=? and st.VERSION_ID<=?";
         return this.jdbcTemplate.queryForObject(sql, String.class, programId, versionId);
+    }
+
+    @Override
+    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT spcr.COMMIT_REQUEST_ID, "
+                + "p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
+                + "vt.VERSION_TYPE_ID, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
+                + "spcr.`NOTES`, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, spcr.CREATED_DATE, spcr.COMPLETED_DATE, spcr.STATUS "
+                + "FROM ct_supply_plan_commit_request spcr "
+                + "LEFT JOIN vw_program p ON spcr.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN vw_version_type vt ON spcr.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
+                + "LEFT JOIN us_user cb ON spcr.CREATED_BY=cb.USER_ID "
+                + "WHERE FIND_IN_SET(spcr.PROGRAM_ID,'" + spcr.getProgramIdsString() + "') AND spcr.CREATED_DATE BETWEEN :startDate AND :stopDate ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", spcr.getStartDateString() + " 00:00:00");
+        params.put("stopDate", spcr.getStopDateString() + " 23:59:59");
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new SupplyPlanCommitRequestRowMapper());
     }
 
 }
