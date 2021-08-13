@@ -27,31 +27,25 @@ public class AclServiceImpl implements AclService {
 
     @Override
     public boolean checkAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, List<Integer> healthAreaIdList, int organisationId, int programId) {
-        boolean hasAccess = false;
-        for (Integer ha : healthAreaIdList) {
-            logger.info("Going to check if userId:" + curUser.getUserId() + " has access to RealmId:" + realmId + ", realmCountryId:" + realmCountryId + ", healthAreaId:" + ha + ", organisationId:" + organisationId + ", programId:" + programId);
-            if (curUser.getRealm().getRealmId() != -1 && curUser.getRealm().getRealmId() != realmId) {
-                // Is not an Application level user and also does not have access to this Realm
-                logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " so cannot get access");
-                return false;
-            }
-            logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " Realm check passed");
-            for (UserAcl acl : curUser.getAclList()) {
-                logger.info(acl.toString());
-                if ((acl.getRealmCountryId() == -1 || acl.getRealmCountryId() == realmCountryId || realmCountryId == 0)
-                        && (acl.getHealthAreaId() == -1 || acl.getHealthAreaId() == ha || ha == 0)
-                        && (acl.getOrganisationId() == -1 || acl.getOrganisationId() == organisationId || organisationId == 0)
-                        && (acl.getProgramId() == -1 || acl.getProgramId() == programId || programId == 0)) {
-                    logger.info("Check passed");
-                    hasAccess = true;
-                } else {
-                    logger.info("Check failed");
-                    return false;
-                }
+        logger.info("Going to check if userId:" + curUser.getUserId() + " has access to RealmId:" + realmId + ", realmCountryId:" + realmCountryId + ", healthAreaIdList:" + healthAreaIdList + ", organisationId:" + organisationId + ", programId:" + programId);
+        if (curUser.getRealm().getRealmId() != -1 && curUser.getRealm().getRealmId() != realmId) {
+            // Is not an Application level user and also does not have access to this Realm
+            logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " so cannot get access");
+            return false;
+        }
+        logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " Realm check passed");
+        for (UserAcl acl : curUser.getAclList()) {
+            logger.info(acl.toString());
+            if ((acl.getRealmCountryId() == -1 || acl.getRealmCountryId() == realmCountryId || realmCountryId == 0)
+                    && (acl.getHealthAreaId() == -1 || healthAreaIdList == null || healthAreaIdList.isEmpty() || healthAreaIdList.indexOf(acl.getHealthAreaId()) >= 0)
+                    && (acl.getOrganisationId() == -1 || acl.getOrganisationId() == organisationId || organisationId == 0)
+                    && (acl.getProgramId() == -1 || acl.getProgramId() == programId || programId == 0)) {
+                logger.info("Check passed");
+                return true;
             }
         }
-        logger.info("Access allowed");
-        return hasAccess;
+        logger.info("Access not allowed");
+        return false;
     }
 
     @Override
@@ -64,16 +58,6 @@ public class AclServiceImpl implements AclService {
         }
         logger.info("UserRealmId:" + curUser.getRealm().getRealmId() + " Realm check passed");
         return true;
-    }
-
-    @Override
-    public boolean checkHealthAreaAccessForUser(CustomUserDetails curUser, int healthAreaId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public boolean checkOrganisationAccessForUser(CustomUserDetails curUser, int organisationId) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
