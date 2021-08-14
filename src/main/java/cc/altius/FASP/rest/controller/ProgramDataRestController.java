@@ -133,6 +133,7 @@ public class ProgramDataRestController {
         }
     }
 
+    // Part 1 of the Commit Request
     @PutMapping("/programData")
     public ResponseEntity putProgramData(@RequestBody ProgramData programData, Authentication auth) {
         try {
@@ -151,6 +152,28 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             logger.error("Error while trying to update ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    // Part 1 of the Commit Request
+    @GetMapping("/processCommitRequest")
+    public ResponseEntity processCommitRequest(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(1);
+            this.programDataService.processCommitRequest(curUser);
+            return new ResponseEntity(HttpStatus.OK);
+        } catch (CouldNotSaveException e) {
+            logger.error("Error while trying to processCommitRequest", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to processCommitRequest", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to processCommitRequest", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to processCommitRequest", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

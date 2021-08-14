@@ -108,6 +108,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
+    private static String commitRequestSql = "SELECT spcr.COMMIT_REQUEST_ID, "
+            + "p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
+            + "vt.VERSION_TYPE_ID, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
+            + "spcr.`NOTES`, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, spcr.CREATED_DATE, spcr.COMPLETED_DATE, spcr.STATUS "
+            + "FROM ct_supply_plan_commit_request spcr "
+            + "LEFT JOIN vw_program p ON spcr.PROGRAM_ID=p.PROGRAM_ID "
+            + "LEFT JOIN vw_version_type vt ON spcr.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
+            + "LEFT JOIN us_user cb ON spcr.CREATED_BY=cb.USER_ID "
+            + "WHERE TRUE ";
+
     @Override
     public Version getVersionInfo(int programId, int versionId) {
         if (versionId == -1) {
@@ -319,6 +329,26 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             si.execute(tp);
         }
         return commitRequestId;
+    }
+
+    @Override
+    public void processCommitRequest() {
+        StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND STATUS=1 LIMIT 1");
+        Map<String, Object> params = new HashMap<>();
+        List<SupplyPlanCommitRequest> spcrList = this.namedParameterJdbcTemplate.query(sb.toString(), params, new SupplyPlanCommitRequestRowMapper());
+        for (SupplyPlanCommitRequest spcr : spcrList) {
+
+        }
+    }
+
+    @Override
+    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND FIND_IN_SET(spcr.PROGRAM_ID,'" + spcr.getProgramIdsString() + "') AND spcr.CREATED_DATE BETWEEN :startDate AND :stopDate ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("startDate", spcr.getStartDateString() + " 00:00:00");
+        params.put("stopDate", spcr.getStopDateString() + " 23:59:59");
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new SupplyPlanCommitRequestRowMapper());
     }
 
     @Override
@@ -2006,24 +2036,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "left join rm_shipment_trans st on s.SHIPMENT_ID=st.SHIPMENT_ID and s.MAX_VERSION_ID=st.VERSION_ID "
                 + "where s.PROGRAM_ID=? and st.VERSION_ID<=?";
         return this.jdbcTemplate.queryForObject(sql, String.class, programId, versionId);
-    }
-
-    @Override
-    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser) {
-        StringBuilder sb = new StringBuilder("SELECT spcr.COMMIT_REQUEST_ID, "
-                + "p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
-                + "vt.VERSION_TYPE_ID, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
-                + "spcr.`NOTES`, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, spcr.CREATED_DATE, spcr.COMPLETED_DATE, spcr.STATUS "
-                + "FROM ct_supply_plan_commit_request spcr "
-                + "LEFT JOIN vw_program p ON spcr.PROGRAM_ID=p.PROGRAM_ID "
-                + "LEFT JOIN vw_version_type vt ON spcr.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
-                + "LEFT JOIN us_user cb ON spcr.CREATED_BY=cb.USER_ID "
-                + "WHERE FIND_IN_SET(spcr.PROGRAM_ID,'" + spcr.getProgramIdsString() + "') AND spcr.CREATED_DATE BETWEEN :startDate AND :stopDate ");
-        Map<String, Object> params = new HashMap<>();
-        params.put("startDate", spcr.getStartDateString() + " 00:00:00");
-        params.put("stopDate", spcr.getStopDateString() + " 23:59:59");
-        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
-        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new SupplyPlanCommitRequestRowMapper());
     }
 
 }

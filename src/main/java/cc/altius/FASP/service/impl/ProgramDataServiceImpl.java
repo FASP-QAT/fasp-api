@@ -104,6 +104,16 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
+    public void processCommitRequest(CustomUserDetails curUser) {
+        this.programDataDao.processCommitRequest(curUser);
+    }
+
+    @Override
+    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser) {
+        return this.programDataDao.getSupplyPlanCommitRequestList(spcr, curUser);
+    }
+
+    @Override
     public Version executeProgramDataCommit(int commitRequestId, ProgramData programData) throws CouldNotSaveException {
         CustomUserDetails curUser = new CustomUserDetails();
         curUser.setUserId(1);
@@ -267,11 +277,6 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public String getLastModifiedDateForProgram(int programId, int versionId) {
         return this.programDataDao.getLastModifiedDateForProgram(programId, versionId);
-    }
-
-    @Override
-    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser) {
-        return this.programDataDao.getSupplyPlanCommitRequestList(spcr, curUser);
     }
 
 }

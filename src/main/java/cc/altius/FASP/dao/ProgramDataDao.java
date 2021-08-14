@@ -43,7 +43,11 @@ public interface ProgramDataDao {
     public List<Batch> getBatchList(int programId, int versionId);
 
     public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
-    
+
+    public void processCommitRequest(CustomUserDetails curUser);
+
+    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser);
+
     public Version executeProgramDataCommit(int commitRequestId, ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
     public List<SimpleObject> getVersionTypeList();
@@ -83,6 +87,5 @@ public interface ProgramDataDao {
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
 
     public String getLastModifiedDateForProgram(int programId, int versionId);
-    
-    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser);
+
 }
