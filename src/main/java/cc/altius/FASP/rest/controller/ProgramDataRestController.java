@@ -163,9 +163,9 @@ public class ProgramDataRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(1);
             this.programDataService.processCommitRequest(curUser);
             return new ResponseEntity(HttpStatus.OK);
-        } catch (CouldNotSaveException e) {
-            logger.error("Error while trying to processCommitRequest", e);
-            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (CouldNotSaveException e) {
+//            logger.error("Error while trying to processCommitRequest", e);
+//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to processCommitRequest", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
