@@ -1,4 +1,6 @@
+SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `ct_supply_plan_problem_report`;
+DROP TABLE IF EXISTS `ct_supply_plan_problem_report_trans`;
 DROP TABLE IF EXISTS `ct_supply_plan_shipment_batch_info`;
 DROP TABLE IF EXISTS `ct_supply_plan_shipment`;
 DROP TABLE IF EXISTS `ct_supply_plan_inventory_batch_info`;
@@ -17,6 +19,7 @@ CREATE TABLE `fasp`.`ct_supply_plan_commit_request` (
   `STATUS` INT(10) UNSIGNED NOT NULL,
   `COMPLETED_DATE` DATETIME NULL,
   `STARTED_DATE` DATETIME NULL, 
+  `VERSION_ID` INT(10) NULL,
   `FAILED_REASON` TEXT NULL,
   PRIMARY KEY (`COMMIT_REQUEST_ID`),
   INDEX `fk_ct_supply_plan_commit_request_programId_idx` (`PROGRAM_ID` ASC),
@@ -273,6 +276,9 @@ CREATE TABLE `ct_supply_plan_problem_report` (
   `DATA3` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `DATA4` varchar(50) COLLATE utf8_bin DEFAULT NULL,
   `DATA5` text CHARACTER SET utf8,
+  `REVIEWED` TINYINT(1) UNSIGNED NOT NULL,
+  `REVIEW_NOTES` TEXT NULL,
+  `REVIEWED_DATE` DATETIME NULL,
   `CREATED_BY` int(10) unsigned NOT NULL,
   `CREATED_DATE` datetime NOT NULL,
   `LAST_MODIFIED_BY` int(10) unsigned NOT NULL,
@@ -305,6 +311,7 @@ CREATE TABLE `ct_supply_plan_problem_report_trans` (
   `PROBLEM_REPORT_TRANS_ID` int(10) unsigned NULL,
   `NOTES` TEXT NULL, 
   `PROBLEM_STATUS_ID` int(10) unsigned NOT NULL,
+  `REVIEWED` TINYINT(1) UNSIGNED NOT NULL,
   `CREATED_BY` int(10) unsigned NOT NULL,
   `CREATED_DATE` datetime NOT NULL,
   PRIMARY KEY (`ID`),
@@ -319,3 +326,4 @@ CONSTRAINT `fk_ct_sp_problem_report_trans_commitRequestId`
   CONSTRAINT `fk_ct_sp_problem_report_trans_ap_problem_status1` FOREIGN KEY (`PROBLEM_STATUS_ID`) REFERENCES `ap_problem_status` (`PROBLEM_STATUS_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_ct_sp_problem_report_trans_us_user1` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+SET FOREIGN_KEY_CHECKS=1;

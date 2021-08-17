@@ -44,11 +44,13 @@ public interface ProgramDataDao {
 
     public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
-    public void processCommitRequest(CustomUserDetails curUser);
+    public List<SupplyPlanCommitRequest> getPendingSupplyPlanProcessList();
+            
+    public Version processCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser);
 
     public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser);
 
-    public Version executeProgramDataCommit(int commitRequestId, ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
+//    public Version executeProgramDataCommit(int commitRequestId, ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
     public List<SimpleObject> getVersionTypeList();
 

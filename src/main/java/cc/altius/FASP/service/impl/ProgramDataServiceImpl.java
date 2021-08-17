@@ -24,6 +24,7 @@ import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.SupplyPlanCommitRequest;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.SupplyPlanCommitRequestInput;
+import cc.altius.FASP.model.rowMapper.SupplyPlanCommitRequestRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.ProblemService;
@@ -31,11 +32,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
+import cc.altius.FASP.utils.LogUtils;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
@@ -105,67 +109,61 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 
     @Override
     public void processCommitRequest(CustomUserDetails curUser) {
-        this.programDataDao.processCommitRequest(curUser);
+        List<SupplyPlanCommitRequest> spcrList = this.programDataDao.getPendingSupplyPlanProcessList();
+        for (SupplyPlanCommitRequest spcr : spcrList) {
+            Program p = this.programService.getProgramById(spcr.getProgram().getId(), curUser);
+            if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
+//            programData.setCurrentVersion(p.getCurrentVersion());
+//            System.out.println("++++" + p.getCurrentVersion());
+                Version version = this.programDataDao.processCommitRequest(spcr, curUser);
+//            System.out.println("version++++" + version);
+                try {
+                    getNewSupplyPlanList(spcr.getProgram().getId(), version.getVersionId(), true, false);
+                    if (spcr.getVersionType().getId() == 2 && version.getVersionId() != 0) {
+                        List<NotificationUser> toEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "To");
+                        List<NotificationUser> ccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "Cc");
+                        StringBuilder sbToEmails = new StringBuilder();
+                        StringBuilder sbCcEmails = new StringBuilder();
+                        if (toEmailIdsList.size() > 0) {
+                            for (NotificationUser ns : toEmailIdsList) {
+                                sbToEmails.append(ns.getEmailId()).append(",");
+                            }
+                        }
+                        if (ccEmailIdsList.size() > 0) {
+                            for (NotificationUser ns : ccEmailIdsList) {
+                                sbCcEmails.append(ns.getEmailId()).append(",");
+                            }
+                        }
+                        if (sbToEmails.length() != 0) {
+                            System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
+                        }
+                        if (sbCcEmails.length() != 0) {
+                            System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
+                        }
+                        EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(6);
+                        String[] subjectParam = new String[]{};
+                        String[] bodyParam = null;
+                        Emailer emailer = new Emailer();
+                        subjectParam = new String[]{spcr.getProgram().getCode()};
+                        bodyParam = new String[]{spcr.getProgram().getCode(), String.valueOf(version.getVersionId()), spcr.getNotes()};
+//                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "shubham.y@altius.cc,harshana.c@altius.cc", "palash.n@altius.cc,dolly.c@altius.cc", subjectParam, bodyParam);
+                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
+                        int emailerId = this.emailService.saveEmail(emailer);
+                        emailer.setEmailerId(emailerId);
+                        this.emailService.sendMail(emailer);
+                    }
+                } catch (ParseException pe) {
+
+                }
+            } else {
+                throw new AccessDeniedException("Access denied");
+            }
+        }
     }
 
     @Override
     public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser) {
         return this.programDataDao.getSupplyPlanCommitRequestList(spcr, curUser);
-    }
-
-    @Override
-    public Version executeProgramDataCommit(int commitRequestId, ProgramData programData) throws CouldNotSaveException {
-        CustomUserDetails curUser = new CustomUserDetails();
-        curUser.setUserId(1);
-        Program p = this.programService.getProgramById(programData.getProgramId(), curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
-            programData.setCurrentVersion(p.getCurrentVersion());
-//            System.out.println("++++" + p.getCurrentVersion());
-            Version version = this.programDataDao.executeProgramDataCommit(commitRequestId, programData, curUser);
-//            System.out.println("version++++" + version);
-            try {
-                getNewSupplyPlanList(programData.getProgramId(), version.getVersionId(), true, false);
-                if (programData.getVersionType().getId() == 2 && version.getVersionId() != 0) {
-                    List<NotificationUser> toEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(programData.getProgramId(), version.getVersionId(), 1, "To");
-                    List<NotificationUser> ccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(programData.getProgramId(), version.getVersionId(), 1, "Cc");
-                    StringBuilder sbToEmails = new StringBuilder();
-                    StringBuilder sbCcEmails = new StringBuilder();
-                    if (toEmailIdsList.size() > 0) {
-                        for (NotificationUser ns : toEmailIdsList) {
-                            sbToEmails.append(ns.getEmailId()).append(",");
-                        }
-                    }
-                    if (ccEmailIdsList.size() > 0) {
-                        for (NotificationUser ns : ccEmailIdsList) {
-                            sbCcEmails.append(ns.getEmailId()).append(",");
-                        }
-                    }
-                    if (sbToEmails.length() != 0) {
-                        System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
-                    }
-                    if (sbCcEmails.length() != 0) {
-                        System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
-                    }
-                    EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(6);
-                    String[] subjectParam = new String[]{};
-                    String[] bodyParam = null;
-                    Emailer emailer = new Emailer();
-                    subjectParam = new String[]{programData.getProgramCode()};
-                    bodyParam = new String[]{programData.getProgramCode(), String.valueOf(version.getVersionId()), programData.getNotes()};
-//                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "shubham.y@altius.cc,harshana.c@altius.cc", "palash.n@altius.cc,dolly.c@altius.cc", subjectParam, bodyParam);
-                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
-                    int emailerId = this.emailService.saveEmail(emailer);
-                    emailer.setEmailerId(emailerId);
-                    this.emailService.sendMail(emailer);
-                }
-
-                return version;
-            } catch (ParseException pe) {
-                throw new CouldNotSaveException(pe.getMessage());
-            }
-        } else {
-            throw new AccessDeniedException("Access denied");
-        }
     }
 
     @Override

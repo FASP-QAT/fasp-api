@@ -156,7 +156,7 @@ public class ProgramDataRestController {
         }
     }
     
-    // Part 1 of the Commit Request
+    // Part 2 of the Commit Request
     @GetMapping("/processCommitRequest")
     public ResponseEntity processCommitRequest(Authentication auth) {
         try {
