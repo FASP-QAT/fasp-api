@@ -25,7 +25,7 @@ public class User extends BaseModel implements Serializable {
     private String username;
     private String password;
     private String emailId;
-    private String phoneNumber;
+    private String orgAndCountry;
     private Realm realm;
     private List<Role> roleList;
     private String[] roles;
@@ -91,12 +91,12 @@ public class User extends BaseModel implements Serializable {
         this.emailId = emailId;
     }
 
-    public String getPhoneNumber() {
-        return phoneNumber;
+    public String getOrgAndCountry() {
+        return orgAndCountry;
     }
 
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
+    public void setOrgAndCountry(String orgAndCountry) {
+        this.orgAndCountry = orgAndCountry;
     }
 
     public Realm getRealm() {
@@ -170,7 +170,7 @@ public class User extends BaseModel implements Serializable {
 
     @Override
     public String toString() {
-        return "User{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", emailId=" + emailId + ", phoneNumber=" + phoneNumber + ", realm=" + realm + ", roleList=" + roleList + ", roles=" + roles + ", language=" + language + ", faildAttempts=" + faildAttempts + ", lastLoginDate=" + lastLoginDate + ", userAclList=" + userAclList + ", userAcls=" + userAcls + '}';
+        return "User{" + "userId=" + userId + ", username=" + username + ", password=" + password + ", emailId=" + emailId + ", orgAndCountry=" + orgAndCountry + ", realm=" + realm + ", roleList=" + roleList + ", roles=" + roles + ", language=" + language + ", faildAttempts=" + faildAttempts + ", lastLoginDate=" + lastLoginDate + ", userAclList=" + userAclList + ", userAcls=" + userAcls + '}';
     }
 
 }
