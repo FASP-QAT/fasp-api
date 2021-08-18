@@ -121,8 +121,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page) {
-        return this.userDao.checkIfUserExistsByEmailIdAndPhoneNumber(user, page);
+    public String checkIfUserExistsByEmailId(User user, int page) {
+        return this.userDao.checkIfUserExistsByEmail(user, page);
     }
 
     @Override
