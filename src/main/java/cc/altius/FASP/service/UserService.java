@@ -45,7 +45,7 @@ public interface UserService {
 
     public int updateUser(User user, int curUser);
 
-    public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page);
+    public String checkIfUserExistsByEmailId(User user, int page);
 
     public int unlockAccount(int userId, String password);
 

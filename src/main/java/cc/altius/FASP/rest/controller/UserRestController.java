@@ -204,7 +204,7 @@ public class UserRestController {
             String password = PassPhrase.getPassword();
             String hashPass = encoder.encode(password);
             user.setPassword(hashPass);
-            String msg = this.userService.checkIfUserExistsByEmailIdAndPhoneNumber(user, 1);
+            String msg = this.userService.checkIfUserExistsByEmailId(user, 1);
             if (msg.isEmpty()) {
                 int userId = this.userService.addNewUser(user, curUser.getUserId());
                 if (userId > 0) {
@@ -236,7 +236,7 @@ public class UserRestController {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
         auditLogger.info("Going to update User " + user.toString(), request.getRemoteAddr(), curUser.getUsername());
         try {
-            String msg = this.userService.checkIfUserExistsByEmailIdAndPhoneNumber(user, 2);
+            String msg = this.userService.checkIfUserExistsByEmailId(user, 2);
             if (msg.isEmpty()) {
                 int row = this.userService.updateUser(user, curUser.getUserId());
                 if (row > 0) {

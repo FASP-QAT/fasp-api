@@ -30,7 +30,7 @@ public class UserObjectTest {
         user.setActive(true);
         user.setEmailId("anchal.c@altius.cc");
         user.setLanguage(new Language(1));
-        user.setPhoneNumber("9820517741");
+        user.setOrgAndCountry("MOH - Benin");
         user.setRealm(new Realm(1));
         List<Role> roleList = new LinkedList<>();
         roleList.add(new Role("ROLE_APPLICATION_ADMIN"));
