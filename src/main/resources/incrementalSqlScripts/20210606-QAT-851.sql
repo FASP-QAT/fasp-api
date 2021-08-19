@@ -63,7 +63,7 @@ VIEW `vw_program` AS
     GROUP BY `p`.`PROGRAM_ID`;
 
 ALTER TABLE `rm_program` 
-CHANGE COLUMN `PROGRAM_CODE` `PROGRAM_CODE` VARCHAR(45) CHARACTER SET 'utf8' NOT NULL ;
+CHANGE COLUMN `PROGRAM_CODE` `PROGRAM_CODE` VARCHAR(50) CHARACTER SET 'utf8' NOT NULL ;
 
 CREATE TABLE `qat_temp_program_healthArea` (
   `PROGRAM_HEALTH_AREA_ID` INT(10) UNSIGNED NOT NULL,
@@ -1897,7 +1897,10 @@ DELIMITER ;
 
 INSERT INTO `ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.programValidation.programCode','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Combination of program code and unique code character length must be less then 45.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La combinaison du code de programme et de la longueur de caractère du code unique doit être inférieure à 45.');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La combinación del código de programa y la longitud de los caracteres del código único debe ser inferior a 45.');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A combinação de código de programa e comprimento de caractere de código exclusivo deve ser inferior a 45.');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Combination of program code and unique code character length must be less then 50.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La combinaison du code de programme et de la longueur de caractère du code unique doit être inférieure à 50.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La combinación del código de programa y la longitud de los caracteres del código único debe ser inferior a 50.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A combinação de código de programa e comprimento de caractere de código exclusivo deve ser inferior a 50.');-- pr
+
+ALTER TABLE `fasp`.`qat_temp_program` 
+CHANGE COLUMN `PROGRAM_CODE` `PROGRAM_CODE` VARCHAR(50) CHARACTER SET 'utf8' NULL DEFAULT NULL ;
