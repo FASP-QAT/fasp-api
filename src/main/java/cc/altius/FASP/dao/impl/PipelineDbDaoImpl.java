@@ -1345,9 +1345,9 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         RealmCountry rc = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
         StringBuilder healthAreaCode = new StringBuilder();
         for (int haId : p.getHealthAreaIdList()) {
-            healthAreaCode.append(this.healthAreaDao.getHealthAreaById(haId, curUser).getHealthAreaCode());
+            healthAreaCode.append(this.healthAreaDao.getHealthAreaById(haId, curUser).getHealthAreaCode()+ "/");
         }
-        StringBuilder programCode = new StringBuilder(rc.getCountry().getCountryCode()).append("-").append(healthAreaCode).append("-").append(this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode());
+        StringBuilder programCode = new StringBuilder(rc.getCountry().getCountryCode()).append("-").append(healthAreaCode.substring(0, healthAreaCode.length() - 1)).append("-").append(this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode());
         if (p.getProgramCode() != null && !p.getProgramCode().isBlank()) {
             programCode.append("-").append(p.getProgramCode());
         }
