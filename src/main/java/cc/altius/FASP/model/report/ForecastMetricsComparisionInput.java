@@ -92,5 +92,5 @@ public class ForecastMetricsComparisionInput implements Serializable {
     public void setUseApprovedSupplyPlanOnly(boolean useApprovedSupplyPlanOnly) {
         this.useApprovedSupplyPlanOnly = useApprovedSupplyPlanOnly;
     }
-    
-}
+
+    }

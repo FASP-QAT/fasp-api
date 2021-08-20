@@ -36,12 +36,11 @@ public class ProblemReportResultSetExtractor implements ResultSetExtractor<List<
                 pr.setDt(rs.getString("DT")); // Date
                 pr.setRegion(new SimpleObject(rs.getInt("REGION_ID"), new LabelRowMapper("REGION_").mapRow(rs, 1))); // Region
                 if (pr.getRegion().getId() == 0) {
-                    pr.getRegion().setId(null);
+                    pr.setRegion(null);
                 }
                 pr.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, 1))); // Planning Unit
-
                 if (pr.getPlanningUnit().getId() == 0) {
-                    pr.getPlanningUnit().setId(null);
+                    pr.setPlanningUnit(null);
                 }
                 pr.setShipmentId(rs.getInt("SHIPMENT_ID")); // Shipment Id
                 if (rs.wasNull()) {

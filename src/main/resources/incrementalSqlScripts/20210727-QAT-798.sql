@@ -12,3 +12,4 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enter Organization & C
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Entrez l organisation et le pays');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingrese Organización y País');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Insira Organização e País');
+

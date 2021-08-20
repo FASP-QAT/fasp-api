@@ -1,9 +1,9 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `globalConsumption`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT, VAR_PLANNING_UNIT_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REPORT_VIEW INT(10), VAR_APPROVED_SUPPLY_PLAN_ONLY TINYINT(1))
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `globalConsumption`(VAR_USER_ID INT(10), VAR_REALM_ID INT(10), VAR_REALM_COUNTRY_IDS TEXT, VAR_PROGRAM_IDS TEXT, VAR_PLANNING_UNIT_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_REPORT_VIEW INT(10), VAR_APPROVED_SUPPLY_PLAN_ONLY TINYINT(1))
 BEGIN
 	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	-- Report no 3
 	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    
+	
 	-- realmId must be a valid realm that you want to run this Global report for
     -- RealmCountryIds is the list of Countries that you want to run the report for. Empty means all Countries
     -- ProgramIds is the list of Programs that you want to run the report for. Empty means all Programs
@@ -11,7 +11,7 @@ BEGIN
     -- startDate and stopDate are the range between which you want to run the report for`
     -- reportView = 1 shows the Consumption in PlanningUnits
     -- reportView = 2 shows the Consumption in ForecastingUnits
-    
+	
     DECLARE curRealmCountryId INT;
     DECLARE curHealthAreaId INT;
     DECLARE curOrganisationId INT;
@@ -30,7 +30,7 @@ BEGIN
         -- For each loop build the sql for acl
         SET @aclSqlString = CONCAT(@aclSqlString,"       OR (");
         SET @aclSqlString = CONCAT(@aclSqlString,"           (p.PROGRAM_ID IS NULL OR ",IFNULL(curRealmCountryId,-1),"=-1 OR p.REALM_COUNTRY_ID=",IFNULL(curRealmCountryId,-1),")");
-        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curHealthAreaId,-1)  ,"=-1 OR p.HEALTH_AREA_ID="  ,IFNULL(curHealthAreaId,-1)  ,")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curHealthAreaId,-1)  ,"=-1 OR FIND_IN_SET(IFNULL(curHealthAreaId,-1),p.HEALTH_AREA_ID))");
         SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curOrganisationId,-1),"=-1 OR p.ORGANISATION_ID=" ,IFNULL(curOrganisationId,-1),")");
         SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curProgramId,-1)     ,"=-1 OR p.PROGRAM_ID="      ,IFNULL(curProgramId,-1)     ,")");
         SET @aclSqlString = CONCAT(@aclSqlString,"       )");
