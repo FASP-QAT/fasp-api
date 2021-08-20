@@ -7,6 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.PipelineDbDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.pipeline.QatTempProgram;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.pipeline.Pipeline;
@@ -92,6 +93,7 @@ public class PipelineDbServiceImpl implements PipelineDbService {
         return this.pipelineDbDao.getQatTempRegionsById(curUser, pipelineId);
     }
 
+    
     @Override
     public int saveQatTempConsumption(QatTempConsumption[] consumption, CustomUserDetails curUser, int pipelineId) {
         return this.pipelineDbDao.saveQatTempConsumption(consumption, curUser, pipelineId);

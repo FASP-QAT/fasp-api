@@ -15,6 +15,7 @@ import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.RealmCountry;
+import java.util.stream.Collectors;
 /**
  *
  * @author ekta
@@ -24,7 +25,8 @@ public class QatTempProgram extends BaseModel implements Serializable {
     private String programCode;
     private RealmCountry realmCountry;
     private SimpleCodeObject organisation;
-    private SimpleCodeObject healthArea;
+//    private SimpleCodeObject healthArea;
+    private List<SimpleCodeObject> healthAreaList;
     private Label label;
     private BasicUser programManager;
     private String programNotes;
@@ -47,6 +49,7 @@ public class QatTempProgram extends BaseModel implements Serializable {
 
     public QatTempProgram() {
         this.regionList = new LinkedList<>();
+        this.healthAreaList = new LinkedList<>();
     }
 
     public QatTempProgram(int programId, String programCode, Label label) {
@@ -54,6 +57,7 @@ public class QatTempProgram extends BaseModel implements Serializable {
         this.programCode = programCode;
         this.label = label;
         this.regionList = new LinkedList<>();
+        this.healthAreaList = new LinkedList<>();
     }
 
     public double getArrivedToDeliveredLeadTime() {
@@ -111,14 +115,41 @@ public class QatTempProgram extends BaseModel implements Serializable {
     public void setOrganisation(SimpleCodeObject organisation) {
         this.organisation = organisation;
     }
-
-    public SimpleCodeObject getHealthArea() {
-        return healthArea;
+    
+     public List<SimpleCodeObject> getHealthAreaList() {
+        return healthAreaList;
     }
 
-    public void setHealthArea(SimpleCodeObject healthArea) {
-        this.healthArea = healthArea;
+    public void setHealthAreaList(List<SimpleCodeObject> healthAreaList) {
+        this.healthAreaList = healthAreaList;
     }
+
+    public List<Integer> getHealthAreaIdList() {
+        return healthAreaList.stream().map(SimpleCodeObject::getId).collect(Collectors.toList());
+    }
+
+    public String[] getHealthAreaArray() {
+        if (this.healthAreaList.isEmpty()) {
+            return new String[0];
+        } else {
+            return healthAreaList.stream().map(SimpleCodeObject::getIdString).toArray(String[]::new);
+        }
+    }
+
+    public void setHealthAreaArray(String[] healthAreaArray) {
+        this.healthAreaList.clear();
+        for (String ha : healthAreaArray) {
+            this.healthAreaList.add(new SimpleCodeObject(Integer.parseInt(ha), null, null));
+        }
+    }
+
+//    public SimpleCodeObject getHealthArea() {
+//        return healthArea;
+//    }
+//
+//    public void setHealthArea(SimpleCodeObject healthArea) {
+//        this.healthArea = healthArea;
+//    }
 
     public Label getLabel() {
         return label;

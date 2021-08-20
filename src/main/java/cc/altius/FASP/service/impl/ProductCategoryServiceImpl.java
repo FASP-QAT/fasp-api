@@ -113,7 +113,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     @Override
     public List<Node<ExtendedProductCategory>> getProductCategoryListForProgram(CustomUserDetails curUser, int realmId, int programId) {
         Program r = this.programDao.getProgramById(programId, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkProgramAccessForUser(curUser, r.getRealmCountry().getRealm().getRealmId(), programId, r.getHealthArea().getId(), r.getOrganisation().getId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkProgramAccessForUser(curUser, r.getRealmCountry().getRealm().getRealmId(), programId, r.getHealthAreaIdList(), r.getOrganisation().getId())) {
             return this.productCategoryDao.getProductCategoryListForProgram(curUser, realmId, programId);
         } else {
             throw new AccessDeniedException("Access denied");

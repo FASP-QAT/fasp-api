@@ -7,6 +7,7 @@
  * Author:  altius
  * Created: 09-Mar-2021
  */
+SET FOREIGN_KEY_CHECKS = 0;
 
 INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Add Country',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'1');
 SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
@@ -640,7 +641,7 @@ UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Add Realm' WHERE `LABEL_ID`=53;
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='List Procurement Unit' WHERE `LABEL_ID`=1126;
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Update Program Info' WHERE `LABEL_ID`=430;
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Link ERP Shipments' WHERE `LABEL_ID`=1110;
+
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Update ERP Shipments' WHERE `LABEL_ID`=1111;
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Supply Planning' WHERE `LABEL_ID`=78;
-
 SET FOREIGN_KEY_CHECKS = 1;
