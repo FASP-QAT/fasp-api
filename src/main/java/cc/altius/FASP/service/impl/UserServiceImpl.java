@@ -65,10 +65,10 @@ public class UserServiceImpl implements UserService {
         return this.userDao.getCustomUserByUserId(userId);
     }
 
-    @Override
-    public Map<String, Object> checkIfUserExists(String username, String password) {
-        return this.userDao.checkIfUserExists(username, password);
-    }
+//    @Override
+//    public Map<String, Object> checkIfUserExists(String username, String password) {
+//        return this.userDao.checkIfUserExists(username, password);
+//    }
 
     @Override
     public int resetFailedAttemptsByUsername(String emailId) {

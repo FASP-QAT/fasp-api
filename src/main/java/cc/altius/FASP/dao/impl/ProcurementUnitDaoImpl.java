@@ -224,7 +224,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
     }
 
     @Override
-    public List<ProcurementUnit> getProcurementUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        public List<ProcurementUnit> getProcurementUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT  "
                 + "    pru.PROCUREMENT_UNIT_ID, pru.LABEL_ID, pru.LABEL_EN, pru.LABEL_FR, pru.LABEL_SP, pru.LABEL_PR,  "
                 + "    s.SUPPLIER_ID, s.LABEL_ID `SUPPLIER_LABEL_ID`, s.LABEL_EN `SUPPLIER_LABEL_EN`, s.LABEL_FR `SUPPLIER_LABEL_FR`, s.LABEL_SP `SUPPLIER_LABEL_SP`, s.LABEL_PR `SUPPLIER_LABEL_PR`,  "
@@ -242,7 +242,7 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
                 + "    weu.UNIT_ID `WEIGHT_UNIT_ID`, weu.UNIT_CODE `WEIGHT_UNIT_CODE`, weu.LABEL_ID `WEIGHT_UNIT_LABEL_ID`, weu.LABEL_EN `WEIGHT_UNIT_LABEL_EN`, weu.LABEL_FR `WEIGHT_UNIT_LABEL_FR`, weu.LABEL_PR `WEIGHT_UNIT_LABEL_PR`, weu.LABEL_SP `WEIGHT_UNIT_LABEL_SP`,  "
                 + "    vu.UNIT_ID `VOLUME_UNIT_ID`, vu.UNIT_CODE `VOLUME_UNIT_CODE`, vu.LABEL_ID `VOLUME_UNIT_LABEL_ID`, vu.LABEL_EN `VOLUME_UNIT_LABEL_EN`, vu.LABEL_FR `VOLUME_UNIT_LABEL_FR`, vu.LABEL_PR `VOLUME_UNIT_LABEL_PR`, vu.LABEL_SP `VOLUME_UNIT_LABEL_SP`,  "
                 + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pru.ACTIVE, pru.CREATED_DATE, pru.LAST_MODIFIED_DATE    "
-                + " FROM rm_program p "
+                + " FROM vw_program p "
                 + " LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID "
                 + " LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID  "
                 + " LEFT JOIN vw_procurement_unit pru ON pu.PLANNING_UNIT_ID=pru.PLANNING_UNIT_ID "

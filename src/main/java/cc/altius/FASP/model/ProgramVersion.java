@@ -6,6 +6,8 @@
 package cc.altius.FASP.model;
 
 import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -16,10 +18,11 @@ public class ProgramVersion extends Version {
     private int programVersionId;
     private SimpleObject program;
     private SimpleCodeObject realmCountry;
-    private SimpleCodeObject healthArea;
+    private List<SimpleCodeObject> healthAreaList;
     private SimpleCodeObject organisation;
 
     public ProgramVersion() {
+        healthAreaList = new LinkedList<>();
     }
 
     public ProgramVersion(int programVersionId, SimpleObject program, SimpleCodeObject realmCountry, SimpleCodeObject healthArea, SimpleCodeObject organisation, int versionId, SimpleObject versionType, SimpleObject versionStatus, String notes, BasicUser createdBy, Date createdDate, BasicUser lastModifiedBy, Date lastModifiedDate) {
@@ -27,8 +30,16 @@ public class ProgramVersion extends Version {
         this.programVersionId = programVersionId;
         this.program = program;
         this.realmCountry = realmCountry;
-        this.healthArea = healthArea;
+        this.healthAreaList = new LinkedList<>();
+        this.healthAreaList.add(healthArea);
         this.organisation = organisation;
+    }
+
+    public void addHeathArea(SimpleCodeObject healthArea) {
+        int idx = this.healthAreaList.indexOf(healthArea);
+        if (idx == -1) {
+            this.healthAreaList.add(healthArea);
+        }
     }
 
     public int getProgramVersionId() {
@@ -55,12 +66,12 @@ public class ProgramVersion extends Version {
         this.realmCountry = realmCountry;
     }
 
-    public SimpleObject getHealthArea() {
-        return healthArea;
+    public List<SimpleCodeObject> getHealthAreaList() {
+        return healthAreaList;
     }
 
-    public void setHealthArea(SimpleCodeObject healthArea) {
-        this.healthArea = healthArea;
+    public void setHealthAreaList(List<SimpleCodeObject> healthAreaList) {
+        this.healthAreaList = healthAreaList;
     }
 
     public SimpleCodeObject getOrganisation() {
@@ -69,6 +80,31 @@ public class ProgramVersion extends Version {
 
     public void setOrganisation(SimpleCodeObject organisation) {
         this.organisation = organisation;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 37 * hash + this.programVersionId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final ProgramVersion other = (ProgramVersion) obj;
+        if (this.programVersionId != other.programVersionId) {
+            return false;
+        }
+        return true;
     }
 
 }

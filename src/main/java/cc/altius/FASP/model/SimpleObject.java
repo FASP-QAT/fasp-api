@@ -30,6 +30,10 @@ public class SimpleObject {
         return id;
     }
 
+    public String getIdString() {
+        return Integer.toString(id);
+    }
+
     public void setId(Integer id) {
         this.id = id;
     }
