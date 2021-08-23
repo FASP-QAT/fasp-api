@@ -337,12 +337,12 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                                     logger.info("Planning Unit Per Pallet not found because there was an error " + e.getMessage());
                                     map.put("euro1", planningUnitPerPallet);
                                     map.put("euro2", null);
-                                    subjectParam = new String[]{"Product Catalog", "Planning Unit Per Pallet not found for "+dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent()};
-                                    bodyParam = new String[]{"Product Catalog", date, "Planning Unit Per Pallet not found for "+dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent(), e.getMessage()};
-                                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
-                                    int emailerId = this.emailService.saveEmail(emailer);
-                                    emailer.setEmailerId(emailerId);
-                                    this.emailService.sendMail(emailer);
+//                                    subjectParam = new String[]{"Product Catalog", "Planning Unit Per Pallet not found for "+dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent()};
+//                                    bodyParam = new String[]{"Product Catalog", date, "Planning Unit Per Pallet not found for "+dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent(), e.getMessage()};
+//                                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
+//                                    int emailerId = this.emailService.saveEmail(emailer);
+//                                    emailer.setEmailerId(emailerId);
+//                                    this.emailService.sendMail(emailer);
                                     logger.error("Error while pulling tracer category---" + e.getMessage());
                                 }
 
