@@ -23,6 +23,7 @@ public class LabelConstants implements Serializable {
     public static final int US_ROLE = 8;
     public static final int RM_HEALTH_AREA = 9;
     public static final int RM_ORGANISATION = 10;
+    public static final int RM_ORGANISATION_TYPE = 37;
     public static final int RM_REGION = 11;
     public static final int RM_PROCUREMENT_AGENT = 12;
     public static final int RM_FUNDING_SOURCE = 13;

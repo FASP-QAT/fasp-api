@@ -6,7 +6,10 @@
 package cc.altius.FASP.model;
 
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -16,7 +19,7 @@ public class LoadProgram implements Serializable {
 
     private SimpleCodeObject program;
     private SimpleCodeObject realmCountry;
-    private SimpleCodeObject healthArea;
+    private List<SimpleCodeObject> healthAreaList;
     private SimpleCodeObject organisation;
     private List<LoadVersion> versionList;
     private int currentPage;
@@ -28,10 +31,11 @@ public class LoadProgram implements Serializable {
     public LoadProgram(SimpleCodeObject program, SimpleCodeObject realmCountry, SimpleCodeObject healthArea, SimpleCodeObject organisation, int maxCount) {
         this.program = program;
         this.realmCountry = realmCountry;
-        this.healthArea = healthArea;
+        this.healthAreaList = new LinkedList<>();
+        this.healthAreaList.add(healthArea);
         this.organisation = organisation;
         this.currentPage = 0;
-        this.maxPages = (maxCount-1)/5;
+        this.maxPages = (maxCount - 1) / 5;
     }
 
     public SimpleCodeObject getProgram() {
@@ -50,12 +54,27 @@ public class LoadProgram implements Serializable {
         this.realmCountry = realmCountry;
     }
 
-    public SimpleCodeObject getHealthArea() {
-        return healthArea;
+    public List<SimpleCodeObject> getHealthAreaList() {
+        return healthAreaList;
     }
 
-    public void setHealthArea(SimpleCodeObject healthArea) {
-        this.healthArea = healthArea;
+    public void setHealthArea(List<SimpleCodeObject> healthAreaList) {
+        this.healthAreaList = healthAreaList;
+    }
+    
+    public void setHealthAreaList(List<SimpleCodeObject> healthAreaList) {
+        this.healthAreaList = healthAreaList;
+    }
+
+    public List<Integer> getHealthAreaIdList() {
+        return healthAreaList.stream().map(SimpleCodeObject::getId).collect(Collectors.toList());
+    }
+
+    public void addHealthArea(SimpleCodeObject healthArea) {
+        int idx = this.healthAreaList.indexOf(healthArea);
+        if (idx == -1) {
+            this.healthAreaList.add(healthArea);
+        }
     }
 
     public SimpleCodeObject getOrganisation() {
@@ -89,5 +108,31 @@ public class LoadProgram implements Serializable {
     public void setMaxPages(int maxPages) {
         this.maxPages = maxPages;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 53 * hash + Objects.hashCode(this.program);
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final LoadProgram other = (LoadProgram) obj;
+        if (!Objects.equals(this.program, other.program)) {
+            return false;
+        }
+        return true;
+    }
+    
 
 }

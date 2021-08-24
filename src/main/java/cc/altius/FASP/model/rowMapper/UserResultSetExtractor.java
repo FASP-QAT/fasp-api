@@ -36,7 +36,7 @@ public class UserResultSetExtractor implements ResultSetExtractor<User> {
                 user.setUserId(rs.getInt("USER_ID"));
                 user.setUsername(rs.getString("USERNAME"));
                 user.setEmailId(rs.getString("EMAIL_ID"));
-                user.setPhoneNumber(rs.getString("PHONE"));
+                user.setOrgAndCountry(rs.getString("ORG_AND_COUNTRY"));
                 user.setPassword(rs.getString("PASSWORD"));
                 user.setRealm(new Realm(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")));
                 user.setLanguage(new Language(rs.getInt("LANGUAGE_ID"), new LabelRowMapper("LANGUAGE_").mapRow(rs, 1), rs.getString("LANGUAGE_CODE"), rs.getString("COUNTRY_CODE")));

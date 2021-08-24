@@ -1,25 +1,10 @@
 USE `fasp`;
 DROP procedure IF EXISTS `stockStatusMatrix`;
 
-DELIMITER $$
-USE `fasp`$$
+DROP procedure IF EXISTS `stockStatusMatrix`;
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `stockStatusMatrix`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_PLANNING_UNIT_IDS TEXT, VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_INCLUDE_PLANNED_SHIPMENTS TINYINT(1))
 BEGIN
-	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	-- Report no 18
-	-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
- 
-	-- programId must be a single Program cannot be muti-program select or -1 for all programs
-    -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
-    -- planningUnitId is the list of Planning Units that you want to include in the report
-    -- empty means you want to see the report for all Planning Units
-	-- startDate and stopDate are the period for which you want to run the report
-    -- includePlannedShipments = 1 means that you want to include the shipments that are still in the Planned stage while running this report.
-    -- includePlannedShipments = 0 means that you want to exclude the shipments that are still in the Planned stage while running this report.
-    -- AMC is calculated based on the MonthsInPastForAMC and MonthsInFutureForAMC from the Program setup
-    -- Current month is always included in AMC
-
-	SET @programId = VAR_PROGRAM_ID;
+SET @programId = VAR_PROGRAM_ID;
 	SET @versionId = VAR_VERSION_ID;
 	SET @startDate = VAR_START_DATE;
 	SET @stopDate = VAR_STOP_DATE;
@@ -66,4 +51,3 @@ BEGIN
 END$$
 
 DELIMITER ;
-

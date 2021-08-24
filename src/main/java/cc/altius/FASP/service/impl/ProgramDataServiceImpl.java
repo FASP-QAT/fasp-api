@@ -99,7 +99,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
         Program p = this.programService.getProgramById(programData.getProgramId(), curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             programData.setCurrentVersion(p.getCurrentVersion());
             return this.programDataDao.saveProgramData(programData, curUser);
         } else {
@@ -112,7 +112,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         List<SupplyPlanCommitRequest> spcrList = this.programDataDao.getPendingSupplyPlanProcessList();
         for (SupplyPlanCommitRequest spcr : spcrList) {
             Program p = this.programService.getProgramById(spcr.getProgram().getId(), curUser);
-            if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
+            if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
 //            programData.setCurrentVersion(p.getCurrentVersion());
 //            System.out.println("++++" + p.getCurrentVersion());
                 Version version;

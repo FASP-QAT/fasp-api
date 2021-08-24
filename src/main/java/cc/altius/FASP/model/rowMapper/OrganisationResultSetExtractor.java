@@ -9,6 +9,7 @@ import cc.altius.FASP.model.Country;
 import cc.altius.FASP.model.Organisation;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -29,6 +30,7 @@ public class OrganisationResultSetExtractor implements ResultSetExtractor<Organi
             if (isFirst) {
                 o.setOrganisationId(rs.getInt("ORGANISATION_ID"));
                 o.setOrganisationCode(rs.getString("ORGANISATION_CODE"));
+                o.setOrganisationType(new SimpleObject(rs.getInt("ORGANISATION_TYPE_ID"), new LabelRowMapper("TYPE_").mapRow(rs, 1)));
                 o.setRealm(new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")));
                 o.setLabel(new LabelRowMapper().mapRow(rs, 1));
                 o.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));

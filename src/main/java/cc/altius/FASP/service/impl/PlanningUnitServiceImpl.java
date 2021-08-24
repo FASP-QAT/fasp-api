@@ -98,7 +98,9 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     @Override
     public PlanningUnit getPlanningUnitById(int planningUnitId, CustomUserDetails curUser) {
         PlanningUnit pr = this.planningUnitDao.getPlanningUnitById(planningUnitId, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, pr.getForecastingUnit().getRealm().getId())) {
+        List<Integer> emptyList = new LinkedList<Integer>();
+        emptyList.add(0);
+        if (this.aclService.checkAccessForUser(curUser, pr.getForecastingUnit().getRealm().getId(), 0, emptyList, 0, pr.getPlanningUnitId())) {
             return pr;
         } else {
             throw new AccessDeniedException("Access denied");

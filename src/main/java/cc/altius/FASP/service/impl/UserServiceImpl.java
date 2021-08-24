@@ -65,10 +65,10 @@ public class UserServiceImpl implements UserService {
         return this.userDao.getCustomUserByUserId(userId);
     }
 
-    @Override
-    public Map<String, Object> checkIfUserExists(String username, String password) {
-        return this.userDao.checkIfUserExists(username, password);
-    }
+//    @Override
+//    public Map<String, Object> checkIfUserExists(String username, String password) {
+//        return this.userDao.checkIfUserExists(username, password);
+//    }
 
     @Override
     public int resetFailedAttemptsByUsername(String emailId) {
@@ -121,8 +121,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page) {
-        return this.userDao.checkIfUserExistsByEmailIdAndPhoneNumber(user, page);
+    public String checkIfUserExistsByEmailId(User user, int page) {
+        return this.userDao.checkIfUserExistsByEmail(user, page);
     }
 
     @Override

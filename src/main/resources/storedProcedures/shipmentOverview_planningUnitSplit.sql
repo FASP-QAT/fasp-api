@@ -1,4 +1,4 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `shipmentOverview_planningUnitSplit`(
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentOverview_planningUnitSplit`(
     VAR_USER_ID INT(10), 
     VAR_REALM_ID INT(10), 
     VAR_START_DATE DATE, 
@@ -46,7 +46,7 @@ BEGIN
         -- For each loop build the sql for acl
         SET @aclSqlString = CONCAT(@aclSqlString,"       OR (");
         SET @aclSqlString = CONCAT(@aclSqlString,"           (p.PROGRAM_ID IS NULL OR ",IFNULL(curRealmCountryId,-1),"=-1 OR p.REALM_COUNTRY_ID=",IFNULL(curRealmCountryId,-1),")");
-        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curHealthAreaId,-1)  ,"=-1 OR p.HEALTH_AREA_ID="  ,IFNULL(curHealthAreaId,-1)  ,")");
+        SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curHealthAreaId,-1)  ,"=-1 OR FIND_IN_SET(IFNULL(curHealthAreaId,-1),p.HEALTH_AREA_ID))");
         SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curOrganisationId,-1),"=-1 OR p.ORGANISATION_ID=" ,IFNULL(curOrganisationId,-1),")");
         SET @aclSqlString = CONCAT(@aclSqlString,"       AND (p.PROGRAM_ID IS NULL OR ",IFNULL(curProgramId,-1)     ,"=-1 OR p.PROGRAM_ID="      ,IFNULL(curProgramId,-1)     ,")");
         SET @aclSqlString = CONCAT(@aclSqlString,"       )");
@@ -102,7 +102,7 @@ BEGIN
     SET @sqlString = CONCAT(@sqlString, "	AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate ");
     SET @sqlString = CONCAT(@sqlString, "	AND (LENGTH(@fundingSourceIds)=0 OR FIND_IN_SET(st.FUNDING_SOURCE_ID,@fundingSourceIds)) ");
     SET @sqlString = CONCAT(@sqlString, "	GROUP BY st.PLANNING_UNIT_ID");
-	-- SELECT @sqlString;
+	
     PREPARE S1 FROM @sqlString;
     EXECUTE S1;
 END
