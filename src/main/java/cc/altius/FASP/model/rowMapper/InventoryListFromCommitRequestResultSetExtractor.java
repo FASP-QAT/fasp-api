@@ -71,7 +71,7 @@ public class InventoryListFromCommitRequestResultSetExtractor implements ResultS
                 i.setLastModifiedBy(new BasicUser(rs.getInt("LMB_USER_ID"), rs.getString("LMB_USERNAME")));
                 inventoryList.add(i);
             }
-            InventoryBatchInfo ib = new InventoryBatchInfoRowMapper().mapRow(rs, 1);
+            InventoryBatchInfo ib = new InventoryBatchInfo();
             ib.setInventoryTransBatchInfoId(rs.getInt("INVENTORY_TRANS_BATCH_INFO_ID"));
             if (!rs.wasNull()) {
                 ib.setBatch(new Batch(rs.getInt("BATCH_ID"), rs.getInt("BATCH_PLANNING_UNIT_ID"), rs.getString("BATCH_NO"), rs.getBoolean("AUTO_GENERATED"), rs.getDate("EXPIRY_DATE")));

@@ -114,11 +114,6 @@ CREATE TABLE `ct_supply_plan_consumption` (
     FOREIGN KEY (`COMMIT_REQUEST_ID`)
     REFERENCES `fasp`.`ct_supply_plan_commit_request` (`COMMIT_REQUEST_ID`)
     ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_ct_sp_cbi_2`
-    FOREIGN KEY (`CONSUMPTION_TRANS_BATCH_INFO_ID`)
-    REFERENCES `fasp`.`rm_consumption_trans_batch_info` (`CONSUMPTION_TRANS_BATCH_INFO_ID`)
-    ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
 CREATE TABLE `ct_supply_plan_inventory` ( 
@@ -327,3 +322,16 @@ CONSTRAINT `fk_ct_sp_problem_report_trans_commitRequestId`
   CONSTRAINT `fk_ct_sp_problem_report_trans_us_user1` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 SET FOREIGN_KEY_CHECKS=1;
+
+UPDATE `ap_static_label_languages` SET `LABEL_TEXT` = 'Commit request has been generated will notify you once the request is completed' WHERE (`STATIC_LABEL_LANGUAGE_ID` = '2841');
+UPDATE `ap_static_label_languages` SET `LABEL_TEXT` = 'Se ha generado la solicitud de confirmación le notificará una vez que se complete la solicitud' WHERE (`STATIC_LABEL_LANGUAGE_ID` = '2842');
+UPDATE `ap_static_label_languages` SET `LABEL_TEXT` = 'La demande de validation a été générée vous informera une fois la demande terminée' WHERE (`STATIC_LABEL_LANGUAGE_ID` = '2843');
+UPDATE `ap_static_label_languages` SET `LABEL_TEXT` = 'A solicitação de confirmação foi gerada irá notificá-lo assim que a solicitação for concluída' WHERE (`STATIC_LABEL_LANGUAGE_ID` = '2844');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.requestAlreadyExists','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Commit Request already exists please wait for the existing request to get completed');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La demande de validation existe déjà, veuillez attendre que la demande existante soit terminée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La solicitud de confirmación ya existe, espere a que se complete la solicitud existente');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A solicitação de confirmação já existe, aguarde até que a solicitação existente seja concluída');-- pr

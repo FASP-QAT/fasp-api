@@ -34,13 +34,14 @@ public interface ProgramDataService {
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
 
     public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
-    
+
     public void processCommitRequest(CustomUserDetails curUser);
-    
+
+    public Version updateFailedSupplyPlanCommitRequest(int commitRequestId, String message);
+
     public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser);
 
 //    public Version executeProgramDataCommit(int commitRequestId, ProgramData programData) throws CouldNotSaveException;
-
     public List<SimpleObject> getVersionTypeList();
 
     public List<SimpleObject> getVersionStatusList();
@@ -73,5 +74,5 @@ public interface ProgramDataService {
 
     public String getLastModifiedDateForProgram(int programId, int versionId);
 
-    
+    public boolean checkIfCommitRequestExistsForProgram(int programId);
 }

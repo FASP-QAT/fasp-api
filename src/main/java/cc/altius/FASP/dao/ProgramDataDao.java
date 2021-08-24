@@ -45,13 +45,14 @@ public interface ProgramDataDao {
     public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
     public List<SupplyPlanCommitRequest> getPendingSupplyPlanProcessList();
-            
+
     public Version processCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser);
+
+    public Version updateFailedSupplyPlanCommitRequest(int commitRequestId, String message);
 
     public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser);
 
 //    public Version executeProgramDataCommit(int commitRequestId, ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
-
     public List<SimpleObject> getVersionTypeList();
 
     public List<SimpleObject> getVersionStatusList();
@@ -89,5 +90,7 @@ public interface ProgramDataDao {
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
 
     public String getLastModifiedDateForProgram(int programId, int versionId);
+
+    public boolean checkIfCommitRequestExistsForProgram(int programId);
 
 }

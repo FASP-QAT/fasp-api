@@ -406,5 +406,18 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    @GetMapping("/programData/checkIfCommitRequestExistsForProgram/{programId}")
+    public ResponseEntity checkIfCommitRequestExistsForProgram(@PathVariable(value = "programId", required = true) int programId) {
+        try {
+            return new ResponseEntity(this.programDataService.checkIfCommitRequestExistsForProgram(programId), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to check if commit request exists for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to check if commit request exists for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 }

@@ -115,7 +115,12 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
 //            programData.setCurrentVersion(p.getCurrentVersion());
 //            System.out.println("++++" + p.getCurrentVersion());
-                Version version = this.programDataDao.processCommitRequest(spcr, curUser);
+                Version version;
+                try {
+                    version = this.programDataDao.processCommitRequest(spcr, curUser);
+                } catch (Exception e) {
+                    version = this.programDataDao.updateFailedSupplyPlanCommitRequest(spcr.getCommitRequestId(), e.getMessage());
+                }
 //            System.out.println("version++++" + version);
                 try {
                     getNewSupplyPlanList(spcr.getProgram().getId(), version.getVersionId(), true, false);
@@ -159,6 +164,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                 throw new AccessDeniedException("Access denied");
             }
         }
+    }
+
+    @Override
+    public Version updateFailedSupplyPlanCommitRequest(int commitRequestId, String message) {
+        return this.programDataDao.updateFailedSupplyPlanCommitRequest(commitRequestId, message);
     }
 
     @Override
@@ -275,6 +285,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public String getLastModifiedDateForProgram(int programId, int versionId) {
         return this.programDataDao.getLastModifiedDateForProgram(programId, versionId);
+    }
+
+    @Override
+    public boolean checkIfCommitRequestExistsForProgram(int programId) {
+        return this.programDataDao.checkIfCommitRequestExistsForProgram(programId);
     }
 
 }
