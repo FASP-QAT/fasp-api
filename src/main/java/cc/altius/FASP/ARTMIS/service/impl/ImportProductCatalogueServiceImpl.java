@@ -41,6 +41,10 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
     private String QAT_FILE_PATH;
     @Value("${catalogFilePath}")
     private String CATALOG_FILE_PATH;
+    @Value("${email.toList}")
+    private String toList;
+    @Value("${email.ccList}")
+    private String ccList;
     private static final String br = "\n<br/>";
 
     @Override
@@ -50,20 +54,20 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         String[] subjectParam = new String[]{};
         String[] bodyParam = null;
         StringBuilder sb = new StringBuilder();
-        
+
         logger.info("-------------- Import ARTMIS Product Catalog job started ---------------");
         sb.append("-------------- Import ARTMIS Product Catalog job started ---------------").append(br);
         Emailer emailer = new Emailer();
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
         String date = simpleDateFormat.format(DateUtils.getCurrentDateObject(DateUtils.EST));
         try {
-            File directory = new File(QAT_FILE_PATH+CATALOG_FILE_PATH);
+            File directory = new File(QAT_FILE_PATH + CATALOG_FILE_PATH);
             if (directory.isDirectory()) {
                 this.importProductCatalogueDao.importProductCatalogue(sb);
             } else {
                 subjectParam = new String[]{"Product Catalog", "Directory does not exists"};
                 bodyParam = new String[]{"Product Catalog", date, "Directory does not exists", "Directory does not exists"};
-                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+                emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
                 this.emailService.sendMail(emailer);
@@ -73,7 +77,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         } catch (FileNotFoundException e) {
             subjectParam = new String[]{"Product Catalog", "File not found"};
             bodyParam = new String[]{"Product Catalog", date, "File not found", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -83,7 +87,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         } catch (SAXException e) {
             subjectParam = new String[]{"Product Catalog", "Xml syntax error"};
             bodyParam = new String[]{"Product Catalog", date, "Xml syntax error", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -93,7 +97,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         } catch (IOException e) {
             subjectParam = new String[]{"Product Catalog", "Input/Output error"};
             bodyParam = new String[]{"Product Catalog", date, "Input/Output error", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -103,7 +107,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         } catch (BadSqlGrammarException | DataIntegrityViolationException e) {
             subjectParam = new String[]{"Product Catalog", "SQL Exception"};
             bodyParam = new String[]{"Product Catalog", date, "SQL Exception", e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
@@ -113,7 +117,7 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
         } catch (Exception e) {
             subjectParam = new String[]{"Product Catalog", e.getClass().toString()};
             bodyParam = new String[]{"Product Catalog", date, e.getClass().toString(), e.getMessage()};
-            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "anchal.c@altius.cc,shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", "shubham.y@altius.cc,priti.p@altius.cc,sameer.g@altiusbpo.com", subjectParam, bodyParam);
+            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
             this.emailService.sendMail(emailer);
