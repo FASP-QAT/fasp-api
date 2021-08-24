@@ -224,48 +224,48 @@ public class UserDaoImpl implements UserDao {
         return this.namedParameterJdbcTemplate.queryForList(sqlString, params, String.class);
     }
 
-    @Override
-    public Map<String, Object> checkIfUserExists(String username, String password) {
-        CustomUserDetails customUserDetails = null;
-        Map<String, Object> responseMap = new HashMap<>();
-        String sql = "SELECT user.*, user_role.ROLE_ID, role.ROLE_NAME FROM us_user `user`"
-                + " LEFT JOIN us_user_role user_role ON user.USER_ID=user_role.USER_ID "
-                + " LEFT JOIN us_role role ON user_role.ROLE_ID=role.ROLE_ID "
-                + " WHERE user.USERNAME=:username";
-        try {
-            Map<String, Object> params = new HashMap<>();
-            params.put("username", username);
-            customUserDetails = this.namedParameterJdbcTemplate.query(sql, params, new CustomUserDetailsResultSetExtractorBasic());
-            PasswordEncoder encoder = new BCryptPasswordEncoder();
-            if (encoder.matches(password, customUserDetails.getPassword())) {
-                if (!customUserDetails.isActive()) {
-                    responseMap.put("customUserDetails", null);
-                    responseMap.put("message", "User is not active");
-                    return responseMap;
-                } else if (customUserDetails.getFailedAttempts() >= 3) {
-                    responseMap.put("customUserDetails", null);
-                    responseMap.put("message", "User account is locked");
-                    return responseMap;
-                } else {
-                    customUserDetails.setBusinessFunction(this.getBusinessFunctionsForUserId(customUserDetails.getUserId()));
-                    responseMap.put("customUserDetails", customUserDetails);
-                    responseMap.put("message", "Login successful");
-                    this.resetFailedAttemptsByUsername(username);
-                }
-            } else {
-                this.updateFailedAttemptsByUserId(username);
-                responseMap.put("customUserDetails", null);
-                responseMap.put("message", "Password is invalid");
-                return responseMap;
-            }
-        } catch (Exception i) {
-            logger.error("Error", i);
-            responseMap.put("customUserDetails", null);
-            responseMap.put("message", "User does not exists");
-            return responseMap;
-        }
-        return responseMap;
-    }
+//    @Override
+//    public Map<String, Object> checkIfUserExists(String username, String password) {
+//        CustomUserDetails customUserDetails = null;
+//        Map<String, Object> responseMap = new HashMap<>();
+//        String sql = "SELECT user.*, user_role.ROLE_ID, role.ROLE_NAME FROM us_user `user`"
+//                + " LEFT JOIN us_user_role user_role ON user.USER_ID=user_role.USER_ID "
+//                + " LEFT JOIN us_role role ON user_role.ROLE_ID=role.ROLE_ID "
+//                + " WHERE user.USERNAME=:username";
+//        try {
+//            Map<String, Object> params = new HashMap<>();
+//            params.put("username", username);
+//            customUserDetails = this.namedParameterJdbcTemplate.query(sql, params, new CustomUserDetailsResultSetExtractorBasic());
+//            PasswordEncoder encoder = new BCryptPasswordEncoder();
+//            if (encoder.matches(password, customUserDetails.getPassword())) {
+//                if (!customUserDetails.isActive()) {
+//                    responseMap.put("customUserDetails", null);
+//                    responseMap.put("message", "User is not active");
+//                    return responseMap;
+//                } else if (customUserDetails.getFailedAttempts() >= 3) {
+//                    responseMap.put("customUserDetails", null);
+//                    responseMap.put("message", "User account is locked");
+//                    return responseMap;
+//                } else {
+//                    customUserDetails.setBusinessFunction(this.getBusinessFunctionsForUserId(customUserDetails.getUserId()));
+//                    responseMap.put("customUserDetails", customUserDetails);
+//                    responseMap.put("message", "Login successful");
+//                    this.resetFailedAttemptsByUsername(username);
+//                }
+//            } else {
+//                this.updateFailedAttemptsByUserId(username);
+//                responseMap.put("customUserDetails", null);
+//                responseMap.put("message", "Password is invalid");
+//                return responseMap;
+//            }
+//        } catch (Exception i) {
+//            logger.error("Error", i);
+//            responseMap.put("customUserDetails", null);
+//            responseMap.put("message", "User does not exists");
+//            return responseMap;
+//        }
+//        return responseMap;
+//    }
 
     @Override
     public int resetFailedAttemptsByUsername(String emailId) {
@@ -741,7 +741,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int mapAccessControls(User user, CustomUserDetails curUser) {
+    public int mapAccessControls(User user, CustomUserDetails curUser) {    
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sqlString = "";
         int row = 0, x = 0, count;

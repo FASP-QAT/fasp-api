@@ -70,7 +70,9 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
     @Override
     public ForecastingUnit getForecastingUnitById(int forecastingUnitId, CustomUserDetails curUser) {
         ForecastingUnit pr = this.forecastingUnitDao.getForecastingUnitById(forecastingUnitId, curUser);
-        if (this.aclService.checkAccessForUser(curUser, pr.getRealm().getId(), 0, 0, 0, pr.getForecastingUnitId())) {
+        List<Integer> emptyList = new LinkedList<Integer>();
+        emptyList.add(0);
+        if (this.aclService.checkAccessForUser(curUser, pr.getRealm().getId(), 0, emptyList, 0, pr.getForecastingUnitId())) {
             return pr;
         } else {
             throw new AccessDeniedException("Access denied");

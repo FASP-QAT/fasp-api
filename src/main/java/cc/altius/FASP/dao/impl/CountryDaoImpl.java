@@ -12,7 +12,6 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.rowMapper.CountryRowMapper;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -104,7 +103,7 @@ public class CountryDaoImpl implements CountryDao {
     public List<Country> getCountryList(boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         if (active) {
-            sqlStringBuilder.append(" AND c.ACTIVE ORDER BY cl.`LABEL_EN`");
+            sqlStringBuilder.append(" AND c.ACTIVE ORDER BY c.`LABEL_EN`");
         }
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), new CountryRowMapper());
     }
@@ -132,7 +131,7 @@ public class CountryDaoImpl implements CountryDao {
                 + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CONVERSION_RATE_TO_USD, "
                 + "    cu.LABEL_ID `CURRENCY_LABEL_ID`, cu.LABEL_EN `CURRENCY_LABEL_EN`, cu.LABEL_FR `CURRENCY_LABEL_FR`, cu.LABEL_PR `CURRENCY_LABEL_PR`, cu.LABEL_SP `CURRENCY_LABEL_SP`, "
                 + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, c.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, c.LAST_MODIFIED_DATE, c.ACTIVE  "
-                + "FROM rm_program p "
+                + "FROM vw_program p "
                 + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + "LEFT JOIN vw_currency cu ON c.CURRENCY_ID=cu.CURRENCY_ID "

@@ -13,9 +13,7 @@ import cc.altius.FASP.model.rowMapper.OrganisationResultSetExtractor;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import cc.altius.FASP.dao.OrganisationDao;
-import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.LabelConstants;
-import cc.altius.FASP.model.rowMapper.HealthAreaListResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.utils.SuggestedDisplayName;
 import java.util.HashMap;
@@ -23,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -39,12 +38,14 @@ public class OrganisationDaoImpl implements OrganisationDao {
 
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private JdbcTemplate jdbcTemplate;
 
     @Autowired
 
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
+        this.jdbcTemplate = new JdbcTemplate(dataSource);
     }
 
     @Autowired
@@ -53,13 +54,13 @@ public class OrganisationDaoImpl implements OrganisationDao {
     private AclService aclService;
 
     private final String sqlListString = " SELECT "
-            + " o.ORGANISATION_ID, o.ORGANISATION_CODE, ol.LABEL_ID, ol.LABEL_EN, ol.LABEL_FR, ol.LABEL_SP, ol.LABEL_PR, "
+            + " o.ORGANISATION_ID, o.ORGANISATION_CODE, o.LABEL_ID, o.LABEL_EN, o.LABEL_FR, o.LABEL_SP, o.LABEL_PR, "
             + " r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_SP `REALM_LABEL_SP`, rl.LABEL_PR `REALM_LABEL_PR`, "
             + " o.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, o.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, o.LAST_MODIFIED_DATE, "
-            + " rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR` "
-            + " FROM rm_organisation o "
+            + " rc.REALM_COUNTRY_ID, rc.COUNTRY_ID, cl.LABEL_ID `COUNTRY_LABEL_ID`, cl.LABEL_EN `COUNTRY_LABEL_EN`, cl.LABEL_FR `COUNTRY_LABEL_FR`, cl.LABEL_SP `COUNTRY_LABEL_SP`, cl.LABEL_PR `COUNTRY_LABEL_PR`, "
+            + " o.ORGANISATION_TYPE_ID, o.TYPE_LABEL_ID, o.TYPE_LABEL_EN, o.TYPE_LABEL_FR, o.TYPE_LABEL_SP, o.TYPE_LABEL_PR"
+            + " FROM vw_organisation o "
             + " LEFT JOIN rm_realm r ON o.REALM_ID=r.REALM_ID "
-            + " LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
             + " LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
             + " LEFT JOIN us_user cb ON o.CREATED_BY=cb.USER_ID "
             + " LEFT JOIN us_user lmb ON o.LAST_MODIFIED_BY=lmb.USER_ID "
@@ -72,10 +73,17 @@ public class OrganisationDaoImpl implements OrganisationDao {
     @Override
     @Transactional
     public int addOrganisation(Organisation o, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_organisation").usingGeneratedKeyColumns("ORGANISATION_ID");
+        SimpleJdbcInsert si;
+        String sql = "INSERT INTO `fasp`.`rm_organisation` "
+                + "(`REALM_ID`, `LABEL_ID`, `ORGANISATION_CODE`, `ORGANISATION_TYPE_ID`, `ACTIVE`, "
+                + "`CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`) "
+                + "VALUES "
+                + "(:REALM_ID, :LABEL_ID, :ORGANISATION_CODE, :ORGANISATION_TYPE_ID, :ACTIVE, "
+                + ":CREATED_BY, :CREATED_DATE, :LAST_MODIFIED_BY, :LAST_MODIFIED_DATE)";
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("REALM_ID", o.getRealm().getId());
+        params.put("ORGANISATION_TYPE_ID", o.getOrganisationType().getId());
         int labelId = this.labelDao.addLabel(o.getLabel(), LabelConstants.RM_ORGANISATION, curUser.getUserId());
         params.put("ORGANISATION_CODE", o.getOrganisationCode());
         params.put("LABEL_ID", labelId);
@@ -84,8 +92,8 @@ public class OrganisationDaoImpl implements OrganisationDao {
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
-        int organisationId = si.executeAndReturnKey(params).intValue();
-
+        this.namedParameterJdbcTemplate.update(sql, params);
+        int organisationId = this.jdbcTemplate.queryForObject("SELECT LAST_INSERT_ID()", Integer.class);
         si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_organisation_country");
         SqlParameterSource[] paramList = new SqlParameterSource[o.getRealmCountryArray().length];
         int i = 0;
@@ -103,7 +111,6 @@ public class OrganisationDaoImpl implements OrganisationDao {
         }
         si.executeBatch(paramList);
         return organisationId;
-
     }
 
     @Override
@@ -112,6 +119,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
         Map<String, Object> params = new HashMap<>();
         params.put("organisationId", o.getOrganisationId());
         params.put("organisationCode", o.getOrganisationCode());
+        params.put("organisationTypeId", o.getOrganisationType().getId());
         params.put("labelEn", o.getLabel().getLabel_en());
         params.put("active", o.isActive());
         params.put("curUser", curUser.getUserId());
@@ -119,7 +127,8 @@ public class OrganisationDaoImpl implements OrganisationDao {
         int rows = this.namedParameterJdbcTemplate.update("UPDATE rm_organisation o LEFT JOIN ap_label ol ON o.LABEL_ID=ol.LABEL_ID "
                 + "SET "
                 + "o.ACTIVE=:active, "
-                + "o.ORGANISATION_CODE=:organisationCode,"
+                + "o.ORGANISATION_CODE=:organisationCode, "
+                + "o.ORGANISATION_TYPE_ID=:organisationTypeId, "
                 + "o.LAST_MODIFIED_BY=:curUser, "
                 + "o.LAST_MODIFIED_DATE=:curDate, "
                 + "ol.LABEL_EN=:labelEn, "
@@ -195,7 +204,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
         int cnt = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
         return SuggestedDisplayName.getFinalDisplayName(extractedName, cnt);
     }
-    
+
     @Override
     public List<Organisation> getOrganisationListForSync(String lastSyncDate, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND o.LAST_MODIFIED_DATE>:lastSyncDate ");
