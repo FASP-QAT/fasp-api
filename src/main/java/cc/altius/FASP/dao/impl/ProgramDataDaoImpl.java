@@ -114,7 +114,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
-    private static String commitRequestSql = "SELECT spcr.COMMIT_REQUEST_ID, "
+    private static String commitRequestSql = "SELECT spcr.COMMIT_REQUEST_ID,spcr.`COMMITTED_VERSION_ID`, "
             + "p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
             + "vt.VERSION_TYPE_ID, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
             + "spcr.`NOTES`, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, spcr.CREATED_DATE, spcr.COMPLETED_DATE, spcr.STATUS "
@@ -182,6 +182,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_commit_request").usingGeneratedKeyColumns("ID");
         Map<String, Object> params = new HashMap<>();
         params.put("PROGRAM_ID", programData.getProgramId());
+        params.put("COMMITTED_VERSION_ID",programData.getCurrentVersion().getVersionId());
         params.put("VERSION_TYPE_ID", programData.getVersionType().getId());
         params.put("NOTES", programData.getNotes());
         params.put("CREATED_BY", curUser.getUserId());
@@ -341,7 +342,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("REVIEW_NOTES", pr.getReviewNotes());
             tp.put("REVIEWED_DATE", pr.getReviewedDate());
             tp.put("DATA1", pr.getDt()); // Dt
-            tp.put("DATA2", pr.getRegion().getId()); // RegionId
+            tp.put("DATA2", (pr.getRegion()!=null ? pr.getRegion().getId() : null)); // RegionId
             tp.put("DATA3", pr.getPlanningUnit().getId()); // PlanningUnitId
             tp.put("DATA4", pr.getShipmentId()); // ShipmentId
             tp.put("DATA5", pr.getData5());

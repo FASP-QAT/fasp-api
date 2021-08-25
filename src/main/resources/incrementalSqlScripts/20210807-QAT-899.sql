@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS `ct_supply_plan_commit_request`;
 CREATE TABLE `fasp`.`ct_supply_plan_commit_request` (
   `COMMIT_REQUEST_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `PROGRAM_ID` INT(10) UNSIGNED NOT NULL,
+  `COMMITTED_VERSION_ID` INT(10) UNSIGNED NOT NULL,
   `VERSION_TYPE_ID` int(10) unsigned NOT NULL,
   `NOTES` text COLLATE utf8_bin,  
   `CREATED_BY` INT(10) UNSIGNED NOT NULL,
@@ -335,3 +336,44 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Commit Request already
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La demande de validation existe déjà, veuillez attendre que la demande existante soit terminée');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La solicitud de confirmación ya existe, espere a que se complete la solicitud existente');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A solicitação de confirmação já existe, aguarde até que a solicitação existente seja concluída');-- pr
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dashboard.commitRequest','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Commit Request');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Demande de validation');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Solicitud de confirmación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Solicitação de confirmação');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitReqiest.statusPending','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Pending');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'En attente');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pendiente');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Pendente');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitReqiest.statusCompleted','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Completed');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Complété');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Terminada');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Concluída');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitReqiest.statusFailed','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Failed');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Échoué');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fallida');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Fracassada');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitRequest.completedDate','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Completion date');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Date d`achèvement');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fecha de Terminación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Data de conclusão');-- pr

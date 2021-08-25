@@ -20,6 +20,7 @@ public class SupplyPlanCommitRequest {
 
     private int commitRequestId;
     private SimpleCodeObject program;
+    private int committedVersionId;
     private SimpleObject versionType;
     private String notes;
     private BasicUser createdBy;
@@ -47,6 +48,14 @@ public class SupplyPlanCommitRequest {
 
     public void setProgram(SimpleCodeObject program) {
         this.program = program;
+    }
+
+    public int getCommittedVersionId() {
+        return committedVersionId;
+    }
+
+    public void setCommittedVersionId(int committedVersionId) {
+        this.committedVersionId = committedVersionId;
     }
 
     public SimpleObject getVersionType() {
