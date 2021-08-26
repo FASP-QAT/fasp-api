@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -157,8 +158,10 @@ public class ProgramDataRestController {
     }
     
     // Part 2 of the Commit Request
-    @GetMapping("/processCommitRequest")
-    public ResponseEntity processCommitRequest(Authentication auth) {
+//    @GetMapping("/processCommitRequest")
+    //sec min hour day_of_month month day_of_week
+    @Scheduled(cron = "00 */5 * * * *")
+    public ResponseEntity processCommitRequest() {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(1);
             this.programDataService.processCommitRequest(curUser);
