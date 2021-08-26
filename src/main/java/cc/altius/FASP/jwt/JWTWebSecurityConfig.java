@@ -124,7 +124,8 @@ public class JWTWebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and().ignoring().antMatchers("/importProductCatalog/**")
                 .and().ignoring().antMatchers("/api/sync/language/**")
                 .and().ignoring().antMatchers("/exportShipmentLinkingData/**")
-                .and().ignoring().antMatchers("/jira/syncJiraAccountIds/**");
+                .and().ignoring().antMatchers("/jira/syncJiraAccountIds/**")
+                .and().ignoring().antMatchers("/api/processCommitRequest/**");
     }
 
 //    @EventListener

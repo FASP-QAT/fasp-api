@@ -20,7 +20,9 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitForSupplyPlanObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
+import cc.altius.FASP.model.SupplyPlanCommitRequest;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.SupplyPlanCommitRequestInput;
 import java.text.ParseException;
 import java.util.List;
 
@@ -40,8 +42,17 @@ public interface ProgramDataDao {
 
     public List<Batch> getBatchList(int programId, int versionId);
 
-    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
+    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
+    public List<SupplyPlanCommitRequest> getPendingSupplyPlanProcessList();
+
+    public Version processCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser);
+
+    public Version updateFailedSupplyPlanCommitRequest(int commitRequestId, String message);
+
+    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser);
+
+//    public Version executeProgramDataCommit(int commitRequestId, ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
     public List<SimpleObject> getVersionTypeList();
 
     public List<SimpleObject> getVersionStatusList();
@@ -79,4 +90,7 @@ public interface ProgramDataDao {
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
 
     public String getLastModifiedDateForProgram(int programId, int versionId);
+
+    public boolean checkIfCommitRequestExistsForProgram(int programId);
+
 }
