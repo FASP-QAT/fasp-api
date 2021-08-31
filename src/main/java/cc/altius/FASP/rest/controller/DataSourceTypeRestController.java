@@ -47,7 +47,7 @@ public class DataSourceTypeRestController {
     @Autowired
     private UserService userService;
 
-        /**
+    /**
      * API used to get the complete DataSourceType list. Will only return those
      * DataSourceTypes that are marked Active.
      *
@@ -92,9 +92,11 @@ public class DataSourceTypeRestController {
     /**
      * API used to get the DataSourceType for a specific DataSourceTypeId
      *
-     * @param dataSourceTypeId DataSourceTypeId that you want the DataSourceType Object for
+     * @param dataSourceTypeId DataSourceTypeId that you want the DataSourceType
+     * Object for
      * @param auth
-     * @return returns the list the DataSourceType object based on DataSourceTypeId specified
+     * @return returns the list the DataSourceType object based on
+     * DataSourceTypeId specified
      */
     @GetMapping(value = "/{dataSourceTypeId}")
     @Operation(description = "API used to get the DataSourceType for a specific DataSourceTypeId", summary = "Get DataSourceType for a DataSourceTypeId", tags = ("dataSourceType"))
@@ -125,7 +127,8 @@ public class DataSourceTypeRestController {
      *
      * @param realmId RealmId that you want the DataSourceType Object for
      * @param auth
-     * @return returns the list the DataSourceType object based on DataSourceTypeId specified
+     * @return returns the list the DataSourceType object based on
+     * DataSourceTypeId specified
      */
     @GetMapping(value = "/{realmId}")
     @Operation(description = "API used to get the DataSourceType for a specific DataSourceTypeId", summary = "Get DataSourceType for a DataSourceTypeId", tags = ("dataSourceType"))
@@ -151,7 +154,7 @@ public class DataSourceTypeRestController {
         }
     }
 
-        /**
+    /**
      * API used to add a DataSourceType
      *
      * @param dataSourceType DataSourceType object that you want to add
@@ -198,7 +201,7 @@ public class DataSourceTypeRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access to the Realm")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the DataSourceId does not exist")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
-    
+
     public ResponseEntity updateDataSourceType(@RequestBody DataSourceType dataSourceType, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -216,4 +219,19 @@ public class DataSourceTypeRestController {
         }
     }
 
+//@GetMapping(value = "/sync/dataSourceType/{lastSyncDate}")
+//    public ResponseEntity getDataSourceTypeListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.dataSourceTypeService.getDataSourceTypeListForSync(lastSyncDate, curUser), HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error while listing dataSourceType", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error while listing dataSourceType", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }

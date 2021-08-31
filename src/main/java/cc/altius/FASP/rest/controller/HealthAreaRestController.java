@@ -70,11 +70,9 @@ public class HealthAreaRestController {
     /**
      * API used to get the HealthArea for a specific HealthAreaId
      *
-     * @param healthAreaId HealthAreaId that you want the HealthArea
-     * Object for
+     * @param healthAreaId HealthAreaId that you want the HealthArea Object for
      * @param auth
-     * @return returns the HealthArea object based on
-     * HealthAreaId specified
+     * @return returns the HealthArea object based on HealthAreaId specified
      */
     @GetMapping(value = "/{healthAreaId}")
     @Operation(description = "API used to get the HealthArea for a specific HealthAreaId", summary = "Get HealthArea for a HealthAreaId", tags = ("healthArea"))
@@ -134,8 +132,8 @@ public class HealthAreaRestController {
     /**
      * API used to get the HealthArea list for a RealmCountry
      *
-     * @param realmCountryId RealmCountryId that you want the HealthArea
-     * List from
+     * @param realmCountryId RealmCountryId that you want the HealthArea List
+     * from
      * @param auth
      * @return returns the complete list of HealthAreas
      */
@@ -320,4 +318,19 @@ public class HealthAreaRestController {
         }
     }
 
+//    @GetMapping(value = "/sync/healthArea/{lastSyncDate}")
+//    public ResponseEntity getHealthAreaListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.healthAreaService.getHealthAreaListForSync(lastSyncDate, curUser), HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error while listing healthArea", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error while listing healthArea", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }

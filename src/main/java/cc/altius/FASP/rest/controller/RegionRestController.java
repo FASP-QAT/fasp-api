@@ -107,8 +107,8 @@ public class RegionRestController {
      *
      * @param realmCountryId RealmCountryId that you want the Region List from
      * @param auth
-     * @return returns the complete list of Regions, based on the
-     * RealmCountryId that was passed
+     * @return returns the complete list of Regions, based on the RealmCountryId
+     * that was passed
      */
     @GetMapping("/realmCountryId/{realmCountryId}")
     @Operation(description = "API used to get the Region list for a list of RealmCountry Ids. Empty list means you want the complete list of Regions", summary = "Get Region list based on RealmCountry list", tags = ("region"))
@@ -166,4 +166,19 @@ public class RegionRestController {
         }
     }
 
+//    @GetMapping(value = "/sync/region/{lastSyncDate}")
+//    public ResponseEntity getRegionListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.regionService.getRegionListForSync(lastSyncDate, curUser), HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error while listing region", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error while listing region", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }

@@ -18,7 +18,6 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +29,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.springframework.web.bind.annotation.PostMapping;
 
 /**
  *
@@ -69,11 +69,9 @@ public class SupplierRestController {
     /**
      * API used to get the Supplier for a specific SupplierId
      *
-     * @param supplierId SupplierId that you want the Supplier
-     * Object for
+     * @param supplierId SupplierId that you want the Supplier Object for
      * @param auth
-     * @return returns the Supplier object based on
-     * SupplierId specified
+     * @return returns the Supplier object based on SupplierId specified
      */
     @GetMapping(value = "/{supplierId}")
     @Operation(description = "API used to get the Supplier for a specific SupplierId", summary = "Get Supplier for a SupplierId", tags = ("supplier"))
@@ -186,4 +184,19 @@ public class SupplierRestController {
         }
     }
 
+//    @GetMapping(value = "/sync/supplier/{lastSyncDate}")
+//    public ResponseEntity getSupplierListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.supplierService.getSupplierListForSync(lastSyncDate, curUser), HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error while listing supplier", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error while listing supplier", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }

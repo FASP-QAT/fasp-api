@@ -10,11 +10,13 @@ import cc.altius.FASP.dao.PlanningUnitDao;
 import cc.altius.FASP.dao.ProductCategoryDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.Realm;
+import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.PlanningUnitService;
 import java.text.ParseException;
@@ -96,7 +98,9 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     @Override
     public PlanningUnit getPlanningUnitById(int planningUnitId, CustomUserDetails curUser) {
         PlanningUnit pr = this.planningUnitDao.getPlanningUnitById(planningUnitId, curUser);
-        if (this.aclService.checkAccessForUser(curUser, pr.getForecastingUnit().getRealm().getId(), 0, 0, 0, pr.getPlanningUnitId())) {
+        List<Integer> emptyList = new LinkedList<Integer>();
+        emptyList.add(0);
+        if (this.aclService.checkAccessForUser(curUser, pr.getForecastingUnit().getRealm().getId(), 0, emptyList, 0, pr.getPlanningUnitId())) {
             return pr;
         } else {
             throw new AccessDeniedException("Access denied");
@@ -179,13 +183,31 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
 
     @Override
     public List<PlanningUnit> getPlanningUnitListForProductCategory(int productCategoryId, boolean active, CustomUserDetails curUser) {
-
         if (productCategoryId != 0) {
             ProductCategory pc = this.productCategoryDao.getProductCategoryById(productCategoryId, curUser);
             return this.planningUnitDao.getPlanningUnitListForProductCategory(pc.getSortOrder(), active, curUser);
         } else {
             return this.planningUnitDao.getPlanningUnitListForProductCategory("00", active, curUser);
         }
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitListForProductCategoryList(String[] productCategoryIds, boolean active, CustomUserDetails curUser) {
+        if (productCategoryIds != null && productCategoryIds.length != 0) {
+            return this.planningUnitDao.getPlanningUnitListForProductCategoryList(productCategoryIds, active, curUser);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitListByRealmCountryId(int realmCountryId, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListByRealmCountryId(realmCountryId, curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitByProgramAndTracerCategory(ProgramAndTracerCategoryDTO programAndTracerCategory, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitByProgramAndTracerCategory(programAndTracerCategory, curUser);
     }
 
 }

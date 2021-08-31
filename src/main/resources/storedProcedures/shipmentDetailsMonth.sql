@@ -1,4 +1,4 @@
-CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentDetailsMonth`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT)
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `shipmentDetailsMonth`(VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT, VAR_PLANNING_UNIT_IDS TEXT, VAR_FUNDING_SOURCE_IDS TEXT, VAR_BUDGET_IDS TEXT)
 BEGIN
 
     -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -10,12 +10,18 @@ BEGIN
     -- VersionId can be a valid Version Id for the Program or -1 for last submitted VersionId
     -- PlanningUnitIds is the list of Planning Units you want to run the report for. 
     -- Empty PlanningUnitIds means you want to run the report for all the Planning Units in that Program
+    -- FundingSourceIds is the list of FundingSources that you want to filter the report on
+    -- Empty FundingSourceIds means you want to run the report for all the Funding Sources
+    -- BudgetIds is the list of Budgets that you want to filter the report on
+    -- Empty BudgetIds means you want to run the report for all the Budgets
 
     SET @startDate = VAR_START_DATE;
     SET @stopDate = VAR_STOP_DATE;
     SET @programId = VAR_PROGRAM_ID;
     SET @versionId = VAR_VERSION_ID;
     SET @planningUnitIds = VAR_PLANNING_UNIT_IDS;
+    SET @fundingSourceIds = VAR_FUNDING_SOURCE_IDS;
+    SET @budgetIds = VAR_BUDGET_IDS;
 
     IF @versionId = -1 THEN
     	SELECT MAX(pv.VERSION_ID) INTO @versionId FROM rm_program_version pv WHERE pv.PROGRAM_ID=@programId;
@@ -62,9 +68,11 @@ BEGIN
         LEFT JOIN vw_planning_unit pu ON st.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID 
         LEFT JOIN rm_program_planning_unit ppu ON s1.PROGRAM_ID=ppu.PROGRAM_ID AND st.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID 
         WHERE 
-            st.ACTIVE  AND ppu.ACTIVE AND pu.ACTIVE 
+            st.ACTIVE AND st.ACCOUNT_FLAG AND ppu.ACTIVE AND pu.ACTIVE 
             AND st.SHIPMENT_STATUS_ID!=8 
 	    AND (LENGTH(@planningUnitIds)=0 OR FIND_IN_SET(st.PLANNING_UNIT_ID,@planningUnitIds)) 
+            AND (LENGTH(@fundingSourceIds)=0 OR FIND_IN_SET(st.FUNDING_SOURCE_ID, @fundingSourceIds))
+            AND (LENGTH(@budgetIds)=0 OR FIND_IN_SET(st.BUDGET_ID, @budgetIds))
             AND COALESCE(st.RECEIVED_DATE, st.EXPECTED_DELIVERY_DATE) BETWEEN @startDate AND @stopDate 
     ) AS s1 ON mn.MONTH =s1.DT 
     WHERE mn.MONTH BETWEEN @startDate AND @stopDate 

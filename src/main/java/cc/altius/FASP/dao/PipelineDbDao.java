@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.pipeline.QatTempProgram;
 import cc.altius.FASP.model.Region;
@@ -64,6 +65,8 @@ public interface PipelineDbDao {
     public List<PplConsumption> getPipelineConsumptionById(CustomUserDetails curUser, int pipelineId);
 
     public List<Region> getQatTempRegionsById(CustomUserDetails curUser, int pipelineId);
+    
+    
 
     public int saveQatTempConsumption(QatTempConsumption[] consumption, CustomUserDetails curUser, int pipelineId);
 

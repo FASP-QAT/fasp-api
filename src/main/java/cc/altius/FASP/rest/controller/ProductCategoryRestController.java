@@ -141,11 +141,27 @@ public class ProductCategoryRestController extends BaseModel implements Serializ
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+//    @GetMapping(value = "/sync/productCategory/{lastSyncDate}")
+//    public ResponseEntity getProductCategoryListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.productCategoryService.getProductCategoryListForSync(lastSyncDate, curUser), HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error while listing productCategory", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error while listing productCategory", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
     /**
      * API used to update the ProductCategory tree
      *
-     * @param productCategories Array of the ProductCategories that you want to update
+     * @param productCategories Array of the ProductCategories that you want to
+     * update
      * @param auth
      * @return returns a Success code if the operation was successful
      */

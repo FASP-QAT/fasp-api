@@ -93,8 +93,8 @@ public class ProcurementUnitRestController {
      * @param procurementUnitId ProcurementUnitId that you want the
      * ProcurementUnit Object for
      * @param auth
-     * @return returns the ProcurementUnit object based on
-     * ProcurementUnitId specified
+     * @return returns the ProcurementUnit object based on ProcurementUnitId
+     * specified
      */
     @GetMapping(value = "/{procurementUnitId}")
     @Operation(description = "API used to get the ProcurementUnit for a specific ProcurementUnitId", summary = "Get ProcurementUnit for a ProcurementUnitId", tags = ("procurementUnit"))
@@ -122,8 +122,8 @@ public class ProcurementUnitRestController {
      *
      * @param realmId RealmId that you want the ProcurementUnit List for
      * @param auth
-     * @return returns the list the ProcurementUnit based on RealmId
-     * specified. Will only return those ProcurementUnits that are marked active
+     * @return returns the list the ProcurementUnit based on RealmId specified.
+     * Will only return those ProcurementUnits that are marked active
      */
     @GetMapping(value = "realmId/{realmId}")
     @Operation(description = "API used to get all the ProcurementUnits for a specific RealmId. Will only return those ProcurementUnits that are marked active", summary = "Get ProcurementUnit for a RealmId", tags = ("procurementUnit"))
@@ -185,12 +185,10 @@ public class ProcurementUnitRestController {
      * API used to get the ProcurementUnit for a specific PlanningUnitId. Will
      * only return those ProcurementUnits that are marked active
      *
-     * @param realmId PlanningUnitId that you want the ProcurementUnit List
-     * for
+     * @param realmId PlanningUnitId that you want the ProcurementUnit List for
      * @param auth
-     * @return returns the list the ProcurementUnit list based on
-     * PlanningUnitId specified. Will only return those ProcurementUnits that
-     * are marked active
+     * @return returns the list the ProcurementUnit list based on PlanningUnitId
+     * specified. Will only return those ProcurementUnits that are marked active
      */
     @GetMapping("/planningUnitId/{planningUnitId}")
     @Operation(description = "API used to get all the ProcurementUnits for a specific PlanningUnitId. Will only return those ProcurementUnits that are marked active", summary = "Get ProcurementUnit for a PlanningUnitId", tags = ("procurementUnit"))
@@ -216,11 +214,10 @@ public class ProcurementUnitRestController {
     /**
      * API used to get the ProcurementUnits for a specific PlanningUnitId.
      *
-     * @param realmId PlanningUnitId that you want the ProcurementUnit list
-     * for
+     * @param realmId PlanningUnitId that you want the ProcurementUnit list for
      * @param auth
-     * @return returns the list the ProcurementUnit list based on
-     * PlanningUnitId specified.
+     * @return returns the list the ProcurementUnit list based on PlanningUnitId
+     * specified.
      */
     @GetMapping("/planningUnitId/{planningUnitId}/all")
     @Operation(description = "API used to get all the ProcurementUnits for a specific PlanningUnitId.", summary = "Get ProcurementUnit for a PlanningUnitId", tags = ("procurementUnit"))
@@ -299,4 +296,19 @@ public class ProcurementUnitRestController {
         }
     }
 
+//    @GetMapping(value = "/sync/procurementUnit/{lastSyncDate}")
+//    public ResponseEntity getProcurementUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.procurementUnitService.getProcurementUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error while listing procurementUnit", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error while listing procurementUnit", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }

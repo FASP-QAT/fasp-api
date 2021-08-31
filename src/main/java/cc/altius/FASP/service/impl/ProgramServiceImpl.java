@@ -11,9 +11,12 @@ import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
+import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ErpOrderAutocompleteDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
+import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.ProcurementAgent;
@@ -27,6 +30,7 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,15 +73,19 @@ public class ProgramServiceImpl implements ProgramService {
                 curUser,
                 p.getRealmCountry().getRealm().getRealmId(),
                 p.getRealmCountry().getRealmCountryId(),
-                p.getHealthArea().getId(),
+                p.getHealthAreaIdList(),
                 p.getOrganisation().getId(),
                 0)) {
             RealmCountry rc = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
-            String programCode = rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(p.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode();
-            if (p.getProgramCode() != null && !p.getProgramCode().isBlank()) {
-                programCode += "-" + p.getProgramCode();
+            StringBuilder healthAreaCode = new StringBuilder();
+            for (int haId : p.getHealthAreaIdList()) {
+                healthAreaCode.append(this.healthAreaDao.getHealthAreaById(haId, curUser).getHealthAreaCode() + "/");
             }
-            p.setProgramCode(programCode);
+            StringBuilder programCode = new StringBuilder(rc.getCountry().getCountryCode()).append("-").append(healthAreaCode.substring(0, healthAreaCode.length() - 1)).append("-").append(this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode());
+            if (p.getProgramCode() != null && !p.getProgramCode().isBlank()) {
+                programCode.append("-").append(p.getProgramCode());
+            }
+            p.setProgramCode(programCode.toString());
             return this.programDao.addProgram(p, rc.getRealm().getRealmId(), curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -94,7 +102,7 @@ public class ProgramServiceImpl implements ProgramService {
                 curUser,
                 curProg.getRealmCountry().getRealm().getRealmId(),
                 curProg.getRealmCountry().getRealmCountryId(),
-                curProg.getHealthArea().getId(),
+                curProg.getHealthAreaIdList(),
                 curProg.getOrganisation().getId(),
                 curProg.getProgramId())) {
             return this.programDao.updateProgram(p, curUser);
@@ -114,13 +122,13 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<Program> getProgramList(int realmId, CustomUserDetails curUser) {
+    public List<Program> getProgramListForRealmId(int realmId, CustomUserDetails curUser) {
         Realm r = this.realmDao.getRealmById(realmId, curUser);
         if (r == null) {
             throw new EmptyResultDataAccessException(1);
         }
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
-            return this.programDao.getProgramList(realmId, curUser);
+            return this.programDao.getProgramListForRealmId(realmId, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -132,7 +140,7 @@ public class ProgramServiceImpl implements ProgramService {
         if (p == null) {
             throw new AccessDeniedException("Access denied");
         }
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             return p;
         } else {
             throw new AccessDeniedException("Access denied");
@@ -142,8 +150,18 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
         Program p = this.programDao.getProgramById(programId, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthArea().getId(), p.getOrganisation().getId())) {
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             return this.programDao.getPlanningUnitListForProgramId(programId, active, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) {
+        Program p = this.programDao.getProgramById(programId, curUser);
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+            return this.programDao.getPlanningUnitListForProgramIdAndTracerCategoryIds(programId, active, tracerCategoryIds, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -154,7 +172,7 @@ public class ProgramServiceImpl implements ProgramService {
         StringBuilder programList = new StringBuilder();
         for (int programId : programIds) {
             Program p = this.programDao.getProgramById(programId, curUser);
-            if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthArea().getId(), p.getOrganisation().getId())) {
+            if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
                 programList.append("'").append(programId).append("',");
             } else {
                 throw new AccessDeniedException("Access denied");
@@ -173,7 +191,7 @@ public class ProgramServiceImpl implements ProgramService {
     public int saveProgramPlanningUnit(ProgramPlanningUnit[] programPlanningUnits, CustomUserDetails curUser) {
         for (ProgramPlanningUnit ppu : programPlanningUnits) {
             Program p = this.programDao.getProgramById(ppu.getProgram().getId(), curUser);
-            if (!this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthArea().getId(), p.getOrganisation().getId())) {
+            if (!this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
                 throw new AccessDeniedException("Access denied");
             }
         }
@@ -209,7 +227,7 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramAndCategoryId(int programId, int productCategoryId, boolean active, CustomUserDetails curUser) {
         Program p = this.programDao.getProgramById(programId, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthArea().getId(), p.getOrganisation().getId())) {
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             return this.programDao.getPlanningUnitListForProgramAndCategoryId(programId, productCategoryId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
@@ -220,11 +238,15 @@ public class ProgramServiceImpl implements ProgramService {
     @Transactional
     public int addProgramInitialize(ProgramInitialize program, CustomUserDetails curUser) {
         RealmCountry rc = this.realmCountryService.getRealmCountryById(program.getRealmCountry().getRealmCountryId(), curUser);
-        String programCode = rc.getCountry().getCountryCode() + "-" + this.healthAreaDao.getHealthAreaById(program.getHealthArea().getId(), curUser).getHealthAreaCode() + "-" + this.organisationDao.getOrganisationById(program.getOrganisation().getId(), curUser).getOrganisationCode();
-        if (program.getProgramCode() != null && !program.getProgramCode().isBlank()) {
-            programCode += "-" + program.getProgramCode();
+        StringBuilder healthAreaCode = new StringBuilder();
+        for (int haId : program.getHealthAreaIdList()) {
+            healthAreaCode.append(this.healthAreaDao.getHealthAreaById(haId, curUser).getHealthAreaCode() + "/");
         }
-        program.setProgramCode(programCode);
+        StringBuilder programCode = new StringBuilder(rc.getCountry().getCountryCode()).append("-").append(healthAreaCode.substring(0, healthAreaCode.length() - 1)).append("-").append(this.organisationDao.getOrganisationById(program.getOrganisation().getId(), curUser).getOrganisationCode());
+        if (program.getProgramCode() != null && !program.getProgramCode().isBlank()) {
+            programCode.append("-").append(program.getProgramCode());
+        }
+        program.setProgramCode(programCode.toString());
         int programId = this.programDao.addProgram(program, rc.getRealm().getRealmId(), curUser);
         for (ProgramPlanningUnit ppu : program.getProgramPlanningUnits()) {
             ppu.getProgram().setId(programId);
@@ -239,28 +261,50 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<ManualTaggingDTO> getShipmentListForManualTagging(int programId, int planningUnitId) {
-        return this.programDao.getShipmentListForManualTagging(programId, planningUnitId);
+    public List<ManualTaggingDTO> getShipmentListForManualTagging(ManualTaggingDTO manualTaggingDTO, CustomUserDetails curUser) {
+        return this.programDao.getShipmentListForManualTagging(manualTaggingDTO, curUser);
     }
 
     @Override
-    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int searchId, int programId, int planningUnitId) {
-        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(roNoOrderNo, searchId, programId, planningUnitId);
+    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int programId, int planningUnitId, int linkingType, int parentShipmentId) {
+        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(roNoOrderNo, programId, planningUnitId, linkingType, parentShipmentId);
     }
 
     @Override
-    public int linkShipmentWithARTMIS(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser) {
+    public List<Integer> linkShipmentWithARTMIS(ManualTaggingOrderDTO[] manualTaggingOrderDTO, CustomUserDetails curUser) {
         try {
-            return this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO, curUser);
+            List<Integer> result = new ArrayList<>();
+            System.out.println("length---" + manualTaggingOrderDTO.length);
+            for (int i = 0; i < manualTaggingOrderDTO.length; i++) {
+                System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
+                if (manualTaggingOrderDTO[i].isActive()) {
+                    int id;
+                    if (manualTaggingOrderDTO[i].getShipmentId() != 0) {
+                        id = this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO[i], curUser);
+                    } else {
+                        id = this.programDao.linkShipmentWithARTMISWithoutShipmentid(manualTaggingOrderDTO[i], curUser);
+                    }
+                    result.add(id);
+                } else if (!manualTaggingOrderDTO[i].isActive()) {
+                    System.out.println("****************************************************************************************" + manualTaggingOrderDTO[i]);
+                    this.programDao.delinkShipment(manualTaggingOrderDTO[i], curUser);
+                }
+            }
+            return result;
         } catch (Exception e) {
             e.printStackTrace();
-            return 0;
+            return null;
         }
     }
 
     @Override
     public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId) {
         return this.programDao.getShipmentListForDelinking(programId, planningUnitId);
+    }
+
+    @Override
+    public List<ManualTaggingDTO> getNotLinkedShipments(int programId, int linkingTypeId) {
+        return this.programDao.getNotLinkedShipments(programId, linkingTypeId);
     }
 
     @Override
@@ -305,13 +349,58 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int searchId, int programId, int planningUnitId) {
-        return this.programDao.getErpOrderSearchData(term, searchId, programId, planningUnitId);
+    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId, int linkingType) {
+        return this.programDao.getErpOrderSearchData(term, programId, planningUnitId, linkingType);
     }
 
     @Override
     public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) {
         return this.programDao.getSupplyPlanReviewerList(programId, curUser);
+    }
+
+    @Override
+    public List<ManualTaggingDTO> getOrderDetailsByForNotLinkedERPShipments(String roNoOrderNo, int planningUnitId, int linkingType) {
+        return this.programDao.getOrderDetailsByForNotLinkedERPShipments(roNoOrderNo, planningUnitId, linkingType);
+    }
+
+    @Override
+    public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId) {
+        return this.programDao.createERPNotification(orderNo, primeLineNo, shipmentId, notificationTypeId);
+    }
+
+    @Override
+    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO) {
+        return this.programDao.getNotificationList(eRPNotificationDTO);
+    }
+
+    @Override
+    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser) {
+        return this.programDao.updateNotification(eRPNotificationDTO, curUser);
+    }
+
+    @Override
+    public int getNotificationCount(CustomUserDetails curUser) {
+        return this.programDao.getNotificationCount(curUser);
+    }
+
+    @Override
+    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
+        return this.programDao.getARTMISHistory(orderNo, primeLineNo);
+    }
+
+    @Override
+    public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId) {
+        return this.programDao.getShipmentDetailsByParentShipmentId(parentShipmentId);
+    }
+
+    @Override
+    public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo) {
+        return this.programDao.checkPreviousARTMISPlanningUnitId(orderNo, primeLineNo);
+    }
+
+    @Override
+    public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser) {
+        return this.programDao.getNotificationSummary(curUser);
     }
 
 }

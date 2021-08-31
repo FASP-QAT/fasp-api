@@ -7,10 +7,13 @@ package cc.altius.FASP.model.DTO;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -47,11 +50,12 @@ public class ErpOrderDTO {
     private String eoStatus;
     private int eoChangeCode;
     private Integer eoShipmentStatusId;
-    private Date eoActualShipmentDate;
-    private Date eoActualDeliveryDate;
-    private Date eoArrivalAtDestinationDate;
+//    private Date eoActualShipmentDate;
+//    private Date eoActualDeliveryDate;
+//    private Date eoArrivalAtDestinationDate;
     private float conversionFactor;
     List<ErpShipmentDTO> eoShipmentList;
+    private int erpPlanningUnitId;
 
     private boolean manualTagging;
 
@@ -67,6 +71,8 @@ public class ErpOrderDTO {
     private Integer shBudgetId;
     private Boolean shAccountFlag;
     private Integer shDataSourceId;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public ErpOrderDTO() {
         this.eoShipmentList = new LinkedList<>();
@@ -361,9 +367,12 @@ public class ErpOrderDTO {
     }
 
     public boolean isShErpFlag() {
+        System.out.println("inside erp flag function-------------------"+this.eoOrderNo);
         if (this.shErpFlag == null) {
+            System.out.println("inside erp flag function if-------------------"+this.shErpFlag);
             return false;
         } else {
+            System.out.println("inside erp flag function else-------------------"+this.shErpFlag);
             return this.shErpFlag;
         }
     }
@@ -400,30 +409,29 @@ public class ErpOrderDTO {
         this.shBudgetId = shBudgetId;
     }
 
-    public Date getEoActualShipmentDate() {
-        return eoActualShipmentDate;
-    }
-
-    public void setEoActualShipmentDate(Date eoActualShipmentDate) {
-        this.eoActualShipmentDate = eoActualShipmentDate;
-    }
-
-    public Date getEoActualDeliveryDate() {
-        return eoActualDeliveryDate;
-    }
-
-    public void setEoActualDeliveryDate(Date eoActualDeliveryDate) {
-        this.eoActualDeliveryDate = eoActualDeliveryDate;
-    }
-
-    public Date getEoArrivalAtDestinationDate() {
-        return eoArrivalAtDestinationDate;
-    }
-
-    public void setEoArrivalAtDestinationDate(Date eoArrivalAtDestinationDate) {
-        this.eoArrivalAtDestinationDate = eoArrivalAtDestinationDate;
-    }
-
+//    public Date getEoActualShipmentDate() {
+//        return eoActualShipmentDate;
+//    }
+//
+//    public void setEoActualShipmentDate(Date eoActualShipmentDate) {
+//        this.eoActualShipmentDate = eoActualShipmentDate;
+//    }
+//
+//    public Date getEoActualDeliveryDate() {
+//        return eoActualDeliveryDate;
+//    }
+//
+//    public void setEoActualDeliveryDate(Date eoActualDeliveryDate) {
+//        this.eoActualDeliveryDate = eoActualDeliveryDate;
+//    }
+//
+//    public Date getEoArrivalAtDestinationDate() {
+//        return eoArrivalAtDestinationDate;
+//    }
+//
+//    public void setEoArrivalAtDestinationDate(Date eoArrivalAtDestinationDate) {
+//        this.eoArrivalAtDestinationDate = eoArrivalAtDestinationDate;
+//    }
     public List<ErpShipmentDTO> getEoShipmentList() {
         return eoShipmentList;
     }
@@ -458,8 +466,9 @@ public class ErpOrderDTO {
 
     public Date getCalculatedExpiryDate() {
         Date dt = null;
-        if (this.eoActualDeliveryDate != null) {
-            dt = this.eoActualShipmentDate;
+
+        if (getMinActualDeliveryDate() != null) {
+            dt = getMinActualShipmentDate();
         } else {
             dt = getExpectedDeliveryDate();
         }
@@ -467,11 +476,14 @@ public class ErpOrderDTO {
         c.setTime(dt);
         c.set(Calendar.DATE, 1);
         c.add(Calendar.MONTH, this.eoShelfLife);
+        logger.info("ERP Linking : Expiry date---" + c.getTime());
         return c.getTime();
     }
 
     public Date getExpectedDeliveryDate() {
-        if (this.eoCurrentEstimatedDeliveryDate != null) {
+        if (getMinActualDeliveryDate() != null) {
+            return getMinActualDeliveryDate();
+        } else if (this.eoCurrentEstimatedDeliveryDate != null) {
             return this.eoCurrentEstimatedDeliveryDate;
         } else if (this.eoAgreedDeliveryDate != null) {
             return this.eoAgreedDeliveryDate;
@@ -480,6 +492,54 @@ public class ErpOrderDTO {
         } else {
             return null;
         }
+    }
+
+    public Date getMinActualShipmentDate() {
+        Date dt = null;
+        logger.info("ERP Linking : Going to calculate minimum actual shipment date");
+        if (this.eoShipmentList.size() > 0) {
+//            ErpShipmentDTO erpShipmentDTO = Collections.min(this.eoShipmentList, Comparator.comparing(s -> s.getEoActualShipmentDate()));
+            ErpShipmentDTO erpShipmentDTO = this.eoShipmentList.stream()
+                    .filter(m -> m.getEoActualShipmentDate() != null)
+                    .min(Comparator.comparing(ErpShipmentDTO::getEoActualShipmentDate)).orElse(null);
+            if (erpShipmentDTO != null && erpShipmentDTO.getEoActualShipmentDate() != null) {
+                logger.info("Minimum actual shipment date is : " + erpShipmentDTO.getEoActualShipmentDate());
+                dt = erpShipmentDTO.getEoActualShipmentDate();
+            }
+        }
+        return dt;
+    }
+
+    public Date getMinActualDeliveryDate() {
+        Date dt = null;
+        logger.info("ERP Linking : Going to calculate minimum actual delivery date date");
+        if (this.eoShipmentList.size() > 0) {
+//            ErpShipmentDTO erpShipmentDTO = Collections.min(this.eoShipmentList, Comparator.comparing(s -> s.getEoActualDeliveryDate()));
+            ErpShipmentDTO erpShipmentDTO = this.eoShipmentList.stream()
+                    .filter(m -> m.getEoActualDeliveryDate() != null)
+                    .min(Comparator.comparing(ErpShipmentDTO::getEoActualDeliveryDate)).orElse(null);
+            if (erpShipmentDTO != null && erpShipmentDTO.getEoActualDeliveryDate() != null) {
+                logger.info("Minimum actual delivery date is : " + erpShipmentDTO.getEoActualDeliveryDate());
+                dt = erpShipmentDTO.getEoActualDeliveryDate();
+            }
+        }
+        return dt;
+    }
+
+    public Date getMinArrivalAtDestinationDate() {
+        Date dt = null;
+        logger.info("ERP Linking : Going to calculate minimum arrival at destination date");
+        if (this.eoShipmentList.size() > 0) {
+//            ErpShipmentDTO erpShipmentDTO = Collections.min(this.eoShipmentList, Comparator.comparing(s -> s.getEoArrivalAtDestinationDate()));
+            ErpShipmentDTO erpShipmentDTO = this.eoShipmentList.stream()
+                    .filter(m -> m.getEoArrivalAtDestinationDate() != null)
+                    .min(Comparator.comparing(ErpShipmentDTO::getEoArrivalAtDestinationDate)).orElse(null);
+            if (erpShipmentDTO != null && erpShipmentDTO.getEoArrivalAtDestinationDate() != null) {
+                logger.info("Minimum arrival at destination date is : " + erpShipmentDTO.getEoArrivalAtDestinationDate());
+                dt = erpShipmentDTO.getEoArrivalAtDestinationDate();
+            }
+        }
+        return dt;
     }
 
     public String getAutoGeneratedBatchNo() {
@@ -528,9 +588,36 @@ public class ErpOrderDTO {
         return true;
     }
 
+    public int getErpPlanningUnitId() {
+        return erpPlanningUnitId;
+    }
+
+    public void setErpPlanningUnitId(int erpPlanningUnitId) {
+        this.erpPlanningUnitId = erpPlanningUnitId;
+    }
+
+    public boolean isShipmentCancelled() {
+        System.out.println("shipment status id---" + this.eoShipmentStatusId);
+        if (this.eoShipmentStatusId == 8) {
+            System.out.println("inside if-------------------");
+            return true;
+        }
+        System.out.println("inside else-------------------");
+        return false;
+    }
+
+    public boolean isSkuChanged() {
+        System.out.println("pl1--------------------" + this.eoPlanningUnitId);
+        System.out.println("pl2--------------------" + this.erpPlanningUnitId);
+        if (this.eoPlanningUnitId != this.erpPlanningUnitId) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public String toString() {
-        return "ErpOrderDTO{" + "eoErpOrderId=" + eoErpOrderId + ", eoRoNo=" + eoRoNo + ", eoRoPrimeLineNo=" + eoRoPrimeLineNo + ", eoOrderNo=" + eoOrderNo + ", eoPrimeLineNo=" + eoPrimeLineNo + ", eoOrderType=" + eoOrderType + ", eoCreatedDate=" + eoCreatedDate + ", eoParentRo=" + eoParentRo + ", eoParentCreatedDate=" + eoParentCreatedDate + ", eoPlanningUnitSkuCode=" + eoPlanningUnitSkuCode + ", eoPlanningUnitId=" + eoPlanningUnitId + ", eoShelfLife=" + eoShelfLife + ", eoProcurementUnitSkuCode=" + eoProcurementUnitSkuCode + ", eoProcurementUnitId=" + eoProcurementUnitId + ", eoSupplierId=" + eoSupplierId + ", eoQty=" + eoQty + ", eoOrderedDate=" + eoOrderedDate + ", eoCurrentEstimatedDeliveryDate=" + eoCurrentEstimatedDeliveryDate + ", eoReqDeliveryDate=" + eoReqDeliveryDate + ", eoAgreedDeliveryDate=" + eoAgreedDeliveryDate + ", eoSupplierName=" + eoSupplierName + ", eoPrice=" + eoPrice + ", eoShippingCost=" + eoShippingCost + ", eoShipBy=" + eoShipBy + ", eoRecipentName=" + eoRecipentName + ", eoRecipentCountry=" + eoRecipentCountry + ", eoStatus=" + eoStatus + ", eoChangeCode=" + eoChangeCode + ", eoShipmentStatusId=" + eoShipmentStatusId + ", eoActualShipmentDate=" + eoActualShipmentDate + ", eoActualDeliveryDate=" + eoActualDeliveryDate + ", eoArrivalAtDestinationDate=" + eoArrivalAtDestinationDate + ", conversionFactor=" + conversionFactor + ", eoShipmentList=" + eoShipmentList + ", manualTagging=" + manualTagging + ", shProgramId=" + shProgramId + ", shShipmentId=" + shShipmentId + ", shVersionId=" + shVersionId + ", shShipmentTransId=" + shShipmentTransId + ", shActive=" + shActive + ", shErpFlag=" + shErpFlag + ", shParentShipmentId=" + shParentShipmentId + ", shFundingSourceId=" + shFundingSourceId + ", shProcurementAgentId=" + shProcurementAgentId + ", shBudgetId=" + shBudgetId + ", shAccountFlag=" + shAccountFlag + ", shDataSourceId=" + shDataSourceId + '}';
+        return "ErpOrderDTO{" + "eoErpOrderId=" + eoErpOrderId + ", eoRoNo=" + eoRoNo + ", eoRoPrimeLineNo=" + eoRoPrimeLineNo + ", eoOrderNo=" + eoOrderNo + ", eoPrimeLineNo=" + eoPrimeLineNo + ", eoOrderType=" + eoOrderType + ", eoCreatedDate=" + eoCreatedDate + ", eoParentRo=" + eoParentRo + ", eoParentCreatedDate=" + eoParentCreatedDate + ", eoPlanningUnitSkuCode=" + eoPlanningUnitSkuCode + ", eoPlanningUnitId=" + eoPlanningUnitId + ", eoShelfLife=" + eoShelfLife + ", eoProcurementUnitSkuCode=" + eoProcurementUnitSkuCode + ", eoProcurementUnitId=" + eoProcurementUnitId + ", eoSupplierId=" + eoSupplierId + ", eoQty=" + eoQty + ", eoOrderedDate=" + eoOrderedDate + ", eoCurrentEstimatedDeliveryDate=" + eoCurrentEstimatedDeliveryDate + ", eoReqDeliveryDate=" + eoReqDeliveryDate + ", eoAgreedDeliveryDate=" + eoAgreedDeliveryDate + ", eoSupplierName=" + eoSupplierName + ", eoPrice=" + eoPrice + ", eoShippingCost=" + eoShippingCost + ", eoShipBy=" + eoShipBy + ", eoRecipentName=" + eoRecipentName + ", eoRecipentCountry=" + eoRecipentCountry + ", eoStatus=" + eoStatus + ", eoChangeCode=" + eoChangeCode + ", eoShipmentStatusId=" + eoShipmentStatusId + ", conversionFactor=" + conversionFactor + ", eoShipmentList=" + eoShipmentList + ", manualTagging=" + manualTagging + ", shProgramId=" + shProgramId + ", shShipmentId=" + shShipmentId + ", shVersionId=" + shVersionId + ", shShipmentTransId=" + shShipmentTransId + ", shActive=" + shActive + ", shErpFlag=" + shErpFlag + ", shParentShipmentId=" + shParentShipmentId + ", shFundingSourceId=" + shFundingSourceId + ", shProcurementAgentId=" + shProcurementAgentId + ", shBudgetId=" + shBudgetId + ", shAccountFlag=" + shAccountFlag + ", shDataSourceId=" + shDataSourceId + '}';
     }
 
 }

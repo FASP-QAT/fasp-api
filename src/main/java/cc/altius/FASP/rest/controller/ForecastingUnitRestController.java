@@ -19,7 +19,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -30,6 +29,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.springframework.web.bind.annotation.PutMapping;
 
 /**
  *
@@ -46,7 +46,6 @@ public class ForecastingUnitRestController {
     @Autowired
     private UserService userService;
 
-    
     /**
      * API used to get the complete ForecastingUnit list. Will only return those
      * ForecastingUnits that are marked Active.
@@ -73,7 +72,7 @@ public class ForecastingUnitRestController {
     }
 
     /**
-     * API used to get the complete ForecastingUnit list. 
+     * API used to get the complete ForecastingUnit list.
      *
      * @param auth
      * @return returns the complete list of ForecastingUnits
@@ -99,9 +98,11 @@ public class ForecastingUnitRestController {
     /**
      * API used to get the ForecastingUnit for a specific ForecastingUnitId
      *
-     * @param forecastingUnitId ForecastingUnitId that you want the ForecastingUnit Object for
+     * @param forecastingUnitId ForecastingUnitId that you want the
+     * ForecastingUnit Object for
      * @param auth
-     * @return returns the ForecastingUnit object based on ForecastingUnitId specified
+     * @return returns the ForecastingUnit object based on ForecastingUnitId
+     * specified
      */
     @GetMapping(value = "/{forecastingUnitId}")
     @Operation(description = "API used to get the ForecastingUnit for a specific ForecastingUnitId", summary = "Get ForecastingUnit for a ForecastingUnitId", tags = ("forecastingUnit"))
@@ -126,7 +127,7 @@ public class ForecastingUnitRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     /**
      * API used to get the ForecastingUnit for a specific RealmId
      *
@@ -157,8 +158,6 @@ public class ForecastingUnitRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
-    
 
     /**
      * API used to add a ForecastingUnit
@@ -215,4 +214,20 @@ public class ForecastingUnitRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+//    @GetMapping(value = "/sync/forecastingUnit/{lastSyncDate}")
+//    public ResponseEntity getForecastingUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListForSync(lastSyncDate, curUser), HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error while listing forecastingUnit", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error while listing forecastingUnit", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }

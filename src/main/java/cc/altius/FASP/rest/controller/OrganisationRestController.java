@@ -73,8 +73,8 @@ public class OrganisationRestController {
      * @param organisationId OrganisationId that you want the Organisation
      * Object for
      * @param auth
-     * @return returns the list the Organisation object based on
-     * OrganisationId specified
+     * @return returns the list the Organisation object based on OrganisationId
+     * specified
      */
     @GetMapping(value = "/{organisationId}")
     @Operation(description = "API used to get the Organisation for a specific OrganisationId", summary = "Get Organisation for a OrganisationId", tags = ("organisation"))
@@ -254,4 +254,19 @@ public class OrganisationRestController {
         }
     }
 
+//    @GetMapping(value = "/sync/organisation/{lastSyncDate}")
+//    public ResponseEntity getOrganisatiionListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.organisationService.getOrganisationListForSync(lastSyncDate, curUser), HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error while listing organisation", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error while listing organisation", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }

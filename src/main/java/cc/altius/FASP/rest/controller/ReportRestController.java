@@ -197,7 +197,7 @@ public class ReportRestController {
     /**
      * <pre>
      * Sample JSON
-     * { "realmId":1, "realmCountryIds":[2,5], "programIds":[2003,2028], "planningUnitIds":[772,2692], "startDate":"2020-03-01", "previousMonths":5}
+     * { "realmId":1, "realmCountryIds":[2,5], "programIds":[2029,2521,2140], "tracerCategoryIds":[6,7],"planningUnitIds":[], "startDate":"2020-10-01", "previousMonths":3}
      * -- realmId since it is a Global report need to include Realm
      * -- startDate - date that the report is to be run for
      * -- realmCountryIds list of countries that we need to run the report for
@@ -576,7 +576,7 @@ public class ReportRestController {
     /**
      * <pre>
      * Sample JSON
-     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":[152,157], "includePlannedShipments":1}
+     * {"programId":2030, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":[4115], "tracerCategoryIds":[21,28], "includePlannedShipments":1}
      * -- programId must be a single Program cannot be muti-program select or -1 for all programs
      * -- versionId must be the actual version that you want to refer to for this report or -1 in which case it will automatically take the latest version (not approved or final just latest)
      * -- planningUnitList is the list of Planning Units that you want to include in the report. If you want to include all the Planning Units in this Program leave it as empty
@@ -608,7 +608,7 @@ public class ReportRestController {
     /**
      * <pre>
      * Sample JSON
-     * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":[], "reportView":1}
+     * {    "programId": 2030,    "versionId": 9,    "startDate": "2019-10-01",    "stopDate": "2020-07-01",    "planningUnitIds": [1354],    "fundingSourceIds": [1,4],    "budgetIds": [8,9],    "reportView": 1}
      * -- Only Month and Year will be considered for StartDate and StopDate
      * -- Only a single ProgramId can be selected
      * -- VersionId can be a valid Version Id for the Program or -1 for last submitted VersionId

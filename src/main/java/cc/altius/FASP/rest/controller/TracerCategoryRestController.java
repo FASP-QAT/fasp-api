@@ -69,9 +69,11 @@ public class TracerCategoryRestController {
     /**
      * API used to get the TracerCategory for a specific TracerCategoryId
      *
-     * @param tracerCategoryId TracerCategoryId that you want the TracerCategory Object for
+     * @param tracerCategoryId TracerCategoryId that you want the TracerCategory
+     * Object for
      * @param auth
-     * @return returns the TracerCategory object based on TracerCategoryId specified
+     * @return returns the TracerCategory object based on TracerCategoryId
+     * specified
      */
     @GetMapping(value = "/{tracerCategoryId}")
     @Operation(description = "API used to get the TracerCategory for a specific TracerCategoryId", summary = "Get TracerCategory for a TracerCategoryId", tags = ("tracerCategory"))
@@ -163,8 +165,9 @@ public class TracerCategoryRestController {
         }
     }
 
-        /**
-     * API used to get the TracerCategory list for a Realm. Only returns those Tracer Categories that are from Planning Units in active Programs
+    /**
+     * API used to get the TracerCategory list for a Realm. Only returns those
+     * Tracer Categories that are from Planning Units in active Programs
      *
      * @param realmId RealmId that you want the TracerCategory List from
      * @param auth
@@ -178,7 +181,7 @@ public class TracerCategoryRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the RealmId specified does not exist")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of TracerCategory list")
-    
+
     public ResponseEntity getTracerCategoryForRealmPrograms(@PathVariable("realmId") int realmId, @RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -251,4 +254,19 @@ public class TracerCategoryRestController {
         }
     }
 
+//    @GetMapping(value = "/sync/tracerCategory/{lastSyncDate}")
+//    public ResponseEntity getTracerCategoryListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            return new ResponseEntity(this.tracerCategoryService.getTracerCategoryListForSync(lastSyncDate, curUser), HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error while listing tracerCategory", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error while listing tracerCategory", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }

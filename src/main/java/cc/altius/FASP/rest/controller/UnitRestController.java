@@ -68,11 +68,9 @@ public class UnitRestController {
     /**
      * API used to get the Unit for a specific UnitId
      *
-     * @param unitId UnitId that you want the Unit
-     * Object for
+     * @param unitId UnitId that you want the Unit Object for
      * @param auth
-     * @return returns the Unit object based on
-     * UnitId specified
+     * @return returns the Unit object based on UnitId specified
      */
     @GetMapping(value = "/{unitId}")
     @Operation(description = "API used to get the Unit for a specific UnitId", summary = "Get Unit for a UnitId", tags = ("unit"))
@@ -92,7 +90,7 @@ public class UnitRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     /**
      * API used to add a Unit
      *
@@ -149,4 +147,18 @@ public class UnitRestController {
         }
     }
 
+//    @GetMapping(value = "/sync/unit/{lastSyncDate}")
+//    public ResponseEntity getUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            return new ResponseEntity(this.unitService.getUnitListForSync(lastSyncDate), HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error while listing unit", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error while listing unit", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }

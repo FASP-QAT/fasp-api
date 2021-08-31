@@ -23,7 +23,7 @@ public class ErpBatchDTORowMapper implements RowMapper<ErpBatchDTO>{
         eb.setShipmentTransBatchInfoId(rs.getInt("SHIPMENT_TRANS_BATCH_INFO_ID"));
         eb.setBatchNo(rs.getString("BATCH_NO"));
         eb.setExpiryDate(rs.getDate("EXPIRY_DATE"));
-        eb.setQty(rs.getInt("BATCH_SHIPMENT_QTY"));
+        eb.setQty(rs.getLong("BATCH_SHIPMENT_QTY"));
         eb.setStatus(-1);
         return eb;
     }

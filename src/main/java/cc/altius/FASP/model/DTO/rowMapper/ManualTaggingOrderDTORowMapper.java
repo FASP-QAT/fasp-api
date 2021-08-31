@@ -22,7 +22,7 @@ public class ManualTaggingOrderDTORowMapper implements RowMapper<ManualTaggingOr
         ManualTaggingOrderDTO e = new ManualTaggingOrderDTO();
         e.setErpOrderId(rs.getInt("ERP_ORDER_ID"));
         e.setShipmentId(rs.getInt("SHIPMENT_ID"));
-        e.setQuantity(rs.getInt("QTY"));
+        e.setQuantity(rs.getLong("QTY"));
         e.setOrderNo(rs.getString("ORDER_NO"));
         e.setPrimeLineNo(rs.getInt("PRIME_LINE_NO"));
         e.setRoNo(rs.getString("RO_NO"));
@@ -37,6 +37,10 @@ public class ManualTaggingOrderDTORowMapper implements RowMapper<ManualTaggingOr
         e.setStatus(rs.getString("STATUS"));
         e.setRecipentCountry(rs.getString("RECPIENT_COUNTRY"));
         e.setPlanningUnitLabel(new Label(rs.getInt("LABEL_ID"), rs.getString("LABEL_EN"), rs.getString("LABEL_SP"), rs.getString("LABEL_FR"), rs.getString("LABEL_PR")));
+        e.setActive(rs.getBoolean("ACTIVE"));
+        e.setNotes(rs.getString("NOTES"));
+//        e.setConversionFactor(rs.getBigDecimal("CONVERSION_FACTOR"));
+        e.setConversionFactor(rs.getDouble("CONVERSION_FACTOR"));
         return e;
     }
 

@@ -27,13 +27,14 @@ public class ManualTaggingDTORowMapper implements RowMapper<ManualTaggingDTO> {
         m.setProcurementAgent(new SimpleCodeObject(rs.getInt("PROCUREMENT_AGENT_ID"), new LabelRowMapper("PROCUREMENT_AGENT_").mapRow(rs, rows), rs.getString("PROCUREMENT_AGENT_CODE")));
         m.setFundingSource(new SimpleCodeObject(rs.getInt("FUNDING_SOURCE_ID"), new LabelRowMapper("FUNDING_SOURCE_").mapRow(rs, rows), rs.getString("FUNDING_SOURCE_CODE")));
         m.setBudget(new SimpleCodeObject(rs.getInt("BUDGET_ID"), new LabelRowMapper("BUDGET_").mapRow(rs, rows), rs.getString("BUDGET_CODE")));
-        m.setShipmentQty(rs.getInt("SHIPMENT_QTY"));
+        m.setShipmentQty(rs.getLong("SHIPMENT_QTY"));
         m.setProductCost(rs.getDouble("PRODUCT_COST"));
         m.setShipmentId(rs.getInt("SHIPMENT_ID"));
         m.setShipmentTransId(rs.getInt("SHIPMENT_TRANS_ID"));
         m.setOrderNo(rs.getString("ORDER_NO"));
         m.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, rows)));
         m.setSkuCode(rs.getString("SKU_CODE"));
+        m.setNotes(rs.getString("NOTES"));
         return m;
     }
     

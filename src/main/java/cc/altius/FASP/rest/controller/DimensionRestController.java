@@ -18,7 +18,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -30,6 +29,7 @@ import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.Parameters;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import org.springframework.web.bind.annotation.PostMapping;
 
 /**
  *
@@ -91,7 +91,8 @@ public class DimensionRestController {
      *
      * @param dimensionId DimensionId that you want the Dimension Object for
      * @param auth
-     * @return returns the list the Dimension object based on DimensionId specified
+     * @return returns the list the Dimension object based on DimensionId
+     * specified
      */
     @GetMapping(value = "/{dimensionId}")
     @Operation(description = "API used to get the Dimension for a specific DimensionId", summary = "Get Dimension for a DimensionId", tags = ("dimension"))
@@ -171,4 +172,18 @@ public class DimensionRestController {
         }
     }
 
+//    @GetMapping(value = "/sync/dimension/{lastSyncDate}")
+//    public ResponseEntity getCountryListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            return new ResponseEntity(this.dimensionService.getDimensionListForSync(lastSyncDate), HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error while listing dimension", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error while listing dimension", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }
