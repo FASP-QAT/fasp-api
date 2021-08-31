@@ -61,7 +61,7 @@ public class HealthAreaDaoImpl implements HealthAreaDao {
             + "LEFT JOIN us_user cb ON ha.CREATED_BY=cb.USER_ID "
             + "LEFT JOIN us_user lmb ON ha.LAST_MODIFIED_BY=lmb.USER_ID "
             + "LEFT JOIN rm_health_area_country hac ON ha.HEALTH_AREA_ID=hac.HEALTH_AREA_ID "
-            + "LEFT JOIN rm_realm_country rc ON hac.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+            + "LEFT JOIN rm_realm_country rc ON hac.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID AND rc.ACTIVE AND hac.ACTIVE "
             + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
             + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID "
             + "WHERE TRUE ";
