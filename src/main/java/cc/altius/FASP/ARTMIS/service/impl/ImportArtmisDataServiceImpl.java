@@ -51,9 +51,9 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
     private String QAT_FILE_PATH;
     @Value("${catalogFilePath}")
     private String CATALOG_FILE_PATH;
-    @Value("${email.toList}")
+    @Value("${email.orderToList}")
     private String toList;
-    @Value("${email.ccList}")
+    @Value("${email.orderCCList}")
     private String ccList;
     @Value("${catalogBkpFilePath}")
     private String BKP_CATALOG_FILE_PATH;
