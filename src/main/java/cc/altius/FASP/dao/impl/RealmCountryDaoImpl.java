@@ -19,6 +19,7 @@ import cc.altius.FASP.model.rowMapper.RealmCountryRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramDataService;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -84,8 +85,8 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
             + "FROM vw_realm r  "
             + "LEFT JOIN rm_realm_country rc ON r.REALM_ID=rc.REALM_ID "
             + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-            + "LEFT JOIN rm_program p ON rc.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID "
-            + "LEFT JOIN vw_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
+            + "LEFT JOIN vw_program p ON rc.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID "
+            + "LEFT JOIN vw_health_area ha ON FIND_IN_SET(ha.HEALTH_AREA_ID, p.HEALTH_AREA_ID) "
             + "LEFT JOIN rm_health_area_country hac ON ha.HEALTH_AREA_ID = hac.HEALTH_AREA_ID AND rc.REALM_COUNTRY_ID=hac.REALM_COUNTRY_ID "
             + "LEFT JOIN rm_organisation o ON p.ORGANISATION_ID=o.ORGANISATION_ID "
             + "LEFT JOIN us_user cb ON ha.CREATED_BY=cb.USER_ID  "
@@ -116,7 +117,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
             + "              rcpu.LABEL_ID, rcpu.LABEL_EN, rcpu.LABEL_FR, rcpu.LABEL_SP, rcpu.LABEL_PR, "
             + "              u.UNIT_ID, u.UNIT_CODE, u.LABEL_ID `UNIT_LABEL_ID`, u.LABEL_EN `UNIT_LABEL_EN`, u.LABEL_FR `UNIT_LABEL_FR`, u.LABEL_SP  `UNIT_LABEL_SP`, u.LABEL_PR  `UNIT_LABEL_PR`, "
             + "              rcpu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, rcpu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, rcpu.LAST_MODIFIED_DATE "
-            + "FROM rm_program p "
+            + "FROM vw_program p "
             + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID "
             + "LEFT JOIN vw_realm_country_planning_unit rcpu ON ppu.PLANNING_UNIT_ID=rcpu.PLANNING_UNIT_ID AND p.REALM_COUNTRY_ID=rcpu.REALM_COUNTRY_ID "
             + "LEFT JOIN rm_realm_country rc  ON rc.REALM_COUNTRY_ID=rcpu.REALM_COUNTRY_ID "
@@ -255,6 +256,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" GROUP BY rc.REALM_COUNTRY_ID, ha.HEALTH_AREA_ID ORDER BY c.COUNTRY_CODE, ha.HEALTH_AREA_CODE");
+        System.out.println(LogUtils.buildStringForLog(sqlStringBuilder.toString(), params));
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryHealthAreaResultSetExtractor());
     }
 
@@ -426,7 +428,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                 + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CONVERSION_RATE_TO_USD, cu.LABEL_ID `CURRENCY_LABEL_ID`, cu.LABEL_EN `CURRENCY_LABEL_EN`, cu.LABEL_FR `CURRENCY_LABEL_FR`, cu.LABEL_PR `CURRENCY_LABEL_PR`, cu.LABEL_SP `CURRENCY_LABEL_SP`,  "
                 + "    un.UNIT_ID, un.UNIT_CODE, un.LABEL_ID `UNIT_LABEL_ID`, un.LABEL_EN `UNIT_LABEL_EN`, un.LABEL_FR `UNIT_LABEL_FR`, un.LABEL_PR `UNIT_LABEL_PR`, un.LABEL_SP `UNIT_LABEL_SP`,  "
                 + "    rc.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, rc.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, rc.LAST_MODIFIED_DATE  "
-                + "FROM rm_program p "
+                + "FROM vw_program p "
                 + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID  "
                 + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
@@ -460,7 +462,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                 + "      rcpu.LABEL_ID, rcpu.LABEL_EN, rcpu.LABEL_FR, rcpu.LABEL_SP, rcpu.LABEL_PR,  "
                 + "      u.UNIT_ID, u.UNIT_CODE, u.LABEL_ID `UNIT_LABEL_ID`, u.LABEL_EN `UNIT_LABEL_EN`, u.LABEL_FR `UNIT_LABEL_FR`, u.LABEL_SP  `UNIT_LABEL_SP`, u.LABEL_PR  `UNIT_LABEL_PR`,  "
                 + "      rcpu.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, rcpu.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, rcpu.LAST_MODIFIED_DATE  "
-                + "FROM rm_program p  "
+                + "FROM vw_program p  "
                 + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID "
                 + "LEFT JOIN rm_realm_country rc  ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
                 + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "

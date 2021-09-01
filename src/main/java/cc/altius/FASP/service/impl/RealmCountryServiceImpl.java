@@ -92,6 +92,9 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     @Override
     public RealmCountry getRealmCountryById(int realmCountryId, CustomUserDetails curUser) {
         RealmCountry rc = this.realmCountryDao.getRealmCountryById(realmCountryId, curUser);
+        if (rc == null) {
+            throw new EmptyResultDataAccessException("RealmCountry not found", 1);
+        }
         if (this.aclService.checkRealmAccessForUser(curUser, rc.getRealm().getRealmId())) {
             return rc;
         } else {
@@ -121,7 +124,7 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     public List<RealmCountryPlanningUnit> getRealmCountryPlanningUnitListForProgramList(String[] programIds, CustomUserDetails curUser) {
         return this.realmCountryDao.getRealmCountryPlanningUnitListForProgramList(programIds, curUser);
     }
-    
+
     @Override
     public int savePlanningUnitForCountry(RealmCountryPlanningUnit[] realmCountryPlanningUnits, CustomUserDetails curUser) {
         return this.realmCountryDao.savePlanningUnitForCountry(realmCountryPlanningUnits, curUser);

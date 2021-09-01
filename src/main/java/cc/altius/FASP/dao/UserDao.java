@@ -12,7 +12,6 @@ import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.Role;
 import cc.altius.FASP.model.User;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -26,7 +25,7 @@ public interface UserDao {
 
     public CustomUserDetails getCustomUserByUserId(int userId);
 
-    public Map<String, Object> checkIfUserExists(String username, String password);
+//    public Map<String, Object> checkIfUserExists(String username, String password);
 
     public List<String> getBusinessFunctionsForUserId(int userId);
 
@@ -44,7 +43,7 @@ public interface UserDao {
 
     public int updateUser(User user, int curUser);
 
-    public String checkIfUserExistsByEmailIdAndPhoneNumber(User user, int page); // 1 add User , 2 Edit User
+    public String checkIfUserExistsByEmail(User user, int page); // 1 add User , 2 Edit User
 
     public int unlockAccount(int userId, String password);
 

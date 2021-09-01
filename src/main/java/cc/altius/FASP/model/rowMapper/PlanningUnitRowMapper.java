@@ -36,6 +36,7 @@ public class PlanningUnitRowMapper implements RowMapper<PlanningUnit> {
                 rs.getDouble("MULTIPLIER"),
                 rs.getBoolean("ACTIVE")
         );
+        pu.getForecastingUnit().setUnit(new SimpleCodeObject(rs.getInt("FU_UNIT_ID"), new LabelRowMapper("FU_UNIT_").mapRow(rs, rowNum), rs.getString("FU_UNIT_CODE")));
         pu.setBaseModel(new BaseModelRowMapper().mapRow(rs, rowNum));
         return pu;
     }

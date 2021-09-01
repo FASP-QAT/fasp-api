@@ -86,7 +86,7 @@ public class DataSourceServiceImpl implements DataSourceService {
             throw new EmptyResultDataAccessException(1);
         }
         Program p = this.programDao.getProgramById(programId, curUser);
-        if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkProgramAccessForUser(curUser, realmId, programId, p.getHealthArea().getId(), p.getOrganisation().getId())) {
+        if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkProgramAccessForUser(curUser, realmId, programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             return this.dataSourceDao.getDataSourceForRealmAndProgram(realmId, programId, active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");

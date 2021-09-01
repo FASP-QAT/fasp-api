@@ -36,13 +36,13 @@ public interface ProgramDao {
 
     public List<Program> getProgramListForProgramIds(String[] programIds, CustomUserDetails curUser);
 
-    public List<Program> getProgramList(int realmId, CustomUserDetails curUser);
+    public List<Program> getProgramListForRealmId(int realmId, CustomUserDetails curUser);
 
     public Program getProgramById(int programId, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
     
-    public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
+    public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitListForProgramIds(String programIds, CustomUserDetails curUser);
 
@@ -105,5 +105,7 @@ public interface ProgramDao {
     public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo);
 
     public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser);
+
+    public int tab3ShipmentCreation(int shipmentId, CustomUserDetails curUser);
 
 }

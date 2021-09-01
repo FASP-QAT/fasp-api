@@ -1,8 +1,3 @@
-USE `fasp`;
-DROP procedure IF EXISTS `getSupplyPlanNotificationCcList`;
-
-DELIMITER $$
-USE `fasp`$$
 CREATE DEFINER=`faspUser`@`%` PROCEDURE `getSupplyPlanNotificationCcList`( 
     VAR_PROGRAM_ID INT(10), 
     VAR_VERSION_ID INT(10), 
@@ -23,11 +18,11 @@ IF @statusType=1 THEN
     SELECT u2.USER_ID, u2.USERNAME, u2.EMAIL_ID 
     FROM (
         SELECT u.USER_ID, u.USERNAME, u.EMAIL_ID
-        FROM rm_program p 
+        FROM vw_program p 
         LEFT JOIN us_user_acl acl ON 
                 (acl.REALM_COUNTRY_ID is null OR acl.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID)
                 AND (acl.PROGRAM_ID is null OR acl.PROGRAM_ID=p.PROGRAM_ID)
-                AND (acl.HEALTH_AREA_ID is null OR acl.HEALTH_AREA_ID=p.HEALTH_AREA_ID)
+                AND (acl.HEALTH_AREA_ID is null OR FIND_IN_SET(acl.HEALTH_AREA_ID,p.HEALTH_AREA_ID))
                 AND (acl.ORGANISATION_ID is null OR acl.ORGANISATION_ID=p.ORGANISATION_ID)
         LEFT JOIN us_user u ON acl.USER_ID=u.USER_ID
         LEFT JOIN us_user_role ur ON u.USER_ID=ur.USER_ID 
@@ -43,11 +38,11 @@ IF @statusType=1 THEN
     ) u2 
     LEFT JOIN (
         SELECT u.USER_ID, u.USERNAME, u.EMAIL_ID
-        FROM rm_program p 
+        FROM vw_program p 
         LEFT JOIN us_user_acl acl ON 
             (acl.REALM_COUNTRY_ID is null OR acl.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID)
             AND (acl.PROGRAM_ID is null OR acl.PROGRAM_ID=p.PROGRAM_ID)
-            AND (acl.HEALTH_AREA_ID is null OR acl.HEALTH_AREA_ID=p.HEALTH_AREA_ID)
+            AND (acl.HEALTH_AREA_ID is null OR FIND_IN_SET(acl.HEALTH_AREA_ID,p.HEALTH_AREA_ID))
             AND (acl.ORGANISATION_ID is null OR acl.ORGANISATION_ID=p.ORGANISATION_ID)
         LEFT JOIN us_user u ON acl.USER_ID=u.USER_ID
         LEFT JOIN us_user_role ur ON u.USER_ID=ur.USER_ID 
@@ -62,11 +57,11 @@ ELSEIF @statusType=3 THEN
     -- Rejected
     -- ccList
     SELECT u.USER_ID, u.USERNAME, u.EMAIL_ID
-    FROM rm_program p 
+    FROM vw_program p 
     LEFT JOIN us_user_acl acl ON 
         (acl.REALM_COUNTRY_ID is null OR acl.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID)
         AND (acl.PROGRAM_ID is null OR acl.PROGRAM_ID=p.PROGRAM_ID)
-        AND (acl.HEALTH_AREA_ID is null OR acl.HEALTH_AREA_ID=p.HEALTH_AREA_ID)
+        AND (acl.HEALTH_AREA_ID is null OR FIND_IN_SET(acl.HEALTH_AREA_ID,p.HEALTH_AREA_ID))
         AND (acl.ORGANISATION_ID is null OR acl.ORGANISATION_ID=p.ORGANISATION_ID)
     LEFT JOIN us_user u ON acl.USER_ID=u.USER_ID
     LEFT JOIN us_user_role ur ON u.USER_ID=ur.USER_ID 
@@ -78,11 +73,11 @@ ELSEIF @statusType=2 THEN
     -- Approved
     -- ccList
     SELECT u.USER_ID, u.USERNAME, u.EMAIL_ID
-    FROM rm_program p 
+    FROM vw_program p 
     LEFT JOIN us_user_acl acl ON 
         (acl.REALM_COUNTRY_ID is null OR acl.REALM_COUNTRY_ID=p.REALM_COUNTRY_ID)
         AND (acl.PROGRAM_ID is null OR acl.PROGRAM_ID=p.PROGRAM_ID)
-        AND (acl.HEALTH_AREA_ID is null OR acl.HEALTH_AREA_ID=p.HEALTH_AREA_ID)
+        AND (acl.HEALTH_AREA_ID is null OR FIND_IN_SET(acl.HEALTH_AREA_ID,p.HEALTH_AREA_ID))
         AND (acl.ORGANISATION_ID is null OR acl.ORGANISATION_ID=p.ORGANISATION_ID)
     LEFT JOIN us_user u ON acl.USER_ID=u.USER_ID
     LEFT JOIN us_user_role ur ON u.USER_ID=ur.USER_ID 
@@ -91,6 +86,4 @@ ELSEIF @statusType=2 THEN
     GROUP BY u.USER_ID;
 END IF; 
     
-END$$
-
-DELIMITER ;
+END

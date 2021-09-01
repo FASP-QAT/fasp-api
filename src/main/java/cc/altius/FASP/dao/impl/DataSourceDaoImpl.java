@@ -45,19 +45,15 @@ public class DataSourceDaoImpl implements DataSourceDao {
     }
 
     private final String sqlListString = "SELECT ds.DATA_SOURCE_ID,  "
-            + "	dsl.LABEL_ID, dsl.LABEL_EN, dsl.LABEL_FR, dsl.LABEL_PR, dsl.LABEL_SP, "
-            + " r.REALM_ID, r.REALM_CODE, rl.LABEL_ID `REALM_LABEL_ID`, rl.LABEL_EN `REALM_LABEL_EN`, rl.LABEL_FR `REALM_LABEL_FR`, rl.LABEL_PR `REALM_LABEL_PR`, rl.LABEL_SP `REALM_LABEL_SP`, "
-            + " pr.PROGRAM_ID, prl.LABEL_ID `PROGRAM_LABEL_ID`, prl.LABEL_EN `PROGRAM_LABEL_EN`, prl.LABEL_FR `PROGRAM_LABEL_FR`, prl.LABEL_PR `PROGRAM_LABEL_PR`, prl.LABEL_SP `PROGRAM_LABEL_SP`, "
-            + "	dst.DATA_SOURCE_TYPE_ID, dstl.LABEL_ID `DATA_SOURCE_TYPE_LABEL_ID`, dstl.LABEL_EN `DATA_SOURCE_TYPE_LABEL_EN`, dstl.LABEL_FR `DATA_SOURCE_TYPE_LABEL_FR`, dstl.LABEL_PR `DATA_SOURCE_TYPE_LABEL_PR`, dstl.LABEL_SP `DATA_SOURCE_TYPE_LABEL_SP`, "
+            + "	ds.LABEL_ID, ds.LABEL_EN, ds.LABEL_FR, ds.LABEL_PR, ds.LABEL_SP, "
+            + " r.REALM_ID, r.REALM_CODE, r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_PR `REALM_LABEL_PR`, r.LABEL_SP `REALM_LABEL_SP`, "
+            + " p.PROGRAM_ID, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_PR `PROGRAM_LABEL_PR`, p.LABEL_SP `PROGRAM_LABEL_SP`, "
+            + "	dst.DATA_SOURCE_TYPE_ID, dst.LABEL_ID `DATA_SOURCE_TYPE_LABEL_ID`, dst.LABEL_EN `DATA_SOURCE_TYPE_LABEL_EN`, dst.LABEL_FR `DATA_SOURCE_TYPE_LABEL_FR`, dst.LABEL_PR `DATA_SOURCE_TYPE_LABEL_PR`, dst.LABEL_SP `DATA_SOURCE_TYPE_LABEL_SP`, "
             + "	cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, ds.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ds.LAST_MODIFIED_DATE, ds.ACTIVE  "
-            + "FROM rm_data_source ds  "
-            + "LEFT JOIN ap_label dsl ON ds.LABEL_ID=dsl.LABEL_ID "
-            + "LEFT JOIN rm_realm r ON ds.REALM_ID=r.REALM_ID "
-            + "LEFT JOIN ap_label rl ON r.LABEL_ID=rl.LABEL_ID "
-            + "LEFT JOIN rm_program pr ON ds.PROGRAM_ID=pr.PROGRAM_ID "
-            + "LEFT JOIN ap_label prl ON pr.LABEL_ID=prl.LABEL_ID "
-            + "LEFT JOIN rm_data_source_type dst ON ds.DATA_SOURCE_TYPE_ID=dst.DATA_SOURCE_TYPE_ID "
-            + "LEFT JOIN ap_label dstl ON dst.LABEL_ID=dstl.LABEL_ID "
+            + "FROM vw_data_source ds  "
+            + "LEFT JOIN vw_realm r ON ds.REALM_ID=r.REALM_ID "
+            + "LEFT JOIN vw_program p ON ds.PROGRAM_ID=p.PROGRAM_ID "
+            + "LEFT JOIN vw_data_source_type dst ON ds.DATA_SOURCE_TYPE_ID=dst.DATA_SOURCE_TYPE_ID "
             + "LEFT JOIN us_user cb ON ds.CREATED_BY=cb.USER_ID "
             + "LEFT JOIN us_user lmb ON ds.LAST_MODIFIED_BY=lmb.USER_ID "
             + "WHERE TRUE ";
@@ -108,7 +104,7 @@ public class DataSourceDaoImpl implements DataSourceDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ds", curUser);
-        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "pr", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         if (active) {
             sqlStringBuilder.append(" AND ds.ACTIVE ");
         }
@@ -131,7 +127,7 @@ public class DataSourceDaoImpl implements DataSourceDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ds", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ds", realmId, curUser);
-        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "pr", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         if (active) {
             sqlStringBuilder.append(" AND ds.ACTIVE ");
         }
@@ -143,7 +139,7 @@ public class DataSourceDaoImpl implements DataSourceDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ds", curUser);
-        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "pr", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" AND ds.DATA_SOURCE_TYPE_ID=:dataSourceTypeId ");
         params.put("dataSourceTypeId", dataSourceTypeId);
         if (active) {
@@ -158,7 +154,7 @@ public class DataSourceDaoImpl implements DataSourceDao {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND ds.LAST_MODIFIED_DATE>:lastSyncDate ");
         params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "ds", curUser);
-        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "pr", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new DataSourceRowMapper());
     }
 }
