@@ -254,4 +254,19 @@ public class SyncRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+    @GetMapping(value = "/sync/language/{lastSyncDate}")
+    public ResponseEntity getLanguageListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.parse(lastSyncDate);
+            return new ResponseEntity(this.languageService.getLanguageListForSync(lastSyncDate), HttpStatus.OK);
+        } catch (ParseException p) {
+            logger.error("Error while listing language", p);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (Exception e) {
+            logger.error("Error while listing language", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
