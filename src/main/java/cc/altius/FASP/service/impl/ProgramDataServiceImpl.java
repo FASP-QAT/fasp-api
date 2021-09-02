@@ -100,6 +100,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
         Program p = this.programService.getProgramById(programData.getProgramId(), curUser);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+            programData.setRequestedProgramVersion(programData.getCurrentVersion().getVersionId());
             programData.setCurrentVersion(p.getCurrentVersion());
             return this.programDataDao.saveProgramData(programData, curUser);
         } else {

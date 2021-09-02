@@ -182,7 +182,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_commit_request").usingGeneratedKeyColumns("ID");
         Map<String, Object> params = new HashMap<>();
         params.put("PROGRAM_ID", programData.getProgramId());
-        params.put("COMMITTED_VERSION_ID",programData.getCurrentVersion().getVersionId());
+        params.put("COMMITTED_VERSION_ID",programData.getRequestedProgramVersion());
         params.put("VERSION_TYPE_ID", programData.getVersionType().getId());
         params.put("NOTES", programData.getNotes());
         params.put("CREATED_BY", curUser.getUserId());
