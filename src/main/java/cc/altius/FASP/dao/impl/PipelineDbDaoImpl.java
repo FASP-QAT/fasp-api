@@ -1345,9 +1345,9 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         RealmCountry rc = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
         StringBuilder healthAreaCode = new StringBuilder();
         for (int haId : p.getHealthAreaIdList()) {
-            healthAreaCode.append(this.healthAreaDao.getHealthAreaById(haId, curUser).getHealthAreaCode());
+            healthAreaCode.append(this.healthAreaDao.getHealthAreaById(haId, curUser).getHealthAreaCode()+ "/");
         }
-        StringBuilder programCode = new StringBuilder(rc.getCountry().getCountryCode()).append("-").append(healthAreaCode).append("-").append(this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode());
+        StringBuilder programCode = new StringBuilder(rc.getCountry().getCountryCode()).append("-").append(healthAreaCode.substring(0, healthAreaCode.length() - 1)).append("-").append(this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode());
         if (p.getProgramCode() != null && !p.getProgramCode().isBlank()) {
             programCode.append("-").append(p.getProgramCode());
         }
@@ -1356,7 +1356,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         Map<String, Object> params = new HashMap<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         int labelId = this.labelDao.addLabel(p.getLabel(), LabelConstants.RM_PROGRAM, curUser.getUserId());
-        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program").usingGeneratedKeyColumns("PROGRAM_ID");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program").usingColumns("PROGRAM_CODE","REALM_ID","REALM_COUNTRY_ID","ORGANISATION_ID","LABEL_ID","PROGRAM_MANAGER_USER_ID","PROGRAM_NOTES","AIR_FREIGHT_PERC","SEA_FREIGHT_PERC","PLANNED_TO_SUBMITTED_LEAD_TIME","SUBMITTED_TO_APPROVED_LEAD_TIME","APPROVED_TO_SHIPPED_LEAD_TIME","SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME","SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME","ARRIVED_TO_DELIVERED_LEAD_TIME","CURRENT_VERSION_ID","ACTIVE","CREATED_BY","CREATED_DATE","LAST_MODIFIED_BY","LAST_MODIFIED_DATE" ).usingGeneratedKeyColumns("PROGRAM_ID");
         params.put("PROGRAM_CODE", p.getProgramCode());
         params.put("REALM_ID", rc.getRealm().getRealmId());
         params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
