@@ -22,9 +22,9 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.SupplyPlanCommitRequest;
+import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.SupplyPlanCommitRequestInput;
-import cc.altius.FASP.model.rowMapper.SupplyPlanCommitRequestRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.ProblemService;
@@ -32,14 +32,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
-import cc.altius.FASP.utils.LogUtils;
+import cc.altius.FASP.service.UserService;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
@@ -59,6 +57,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     private AclService aclService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private UserService userService;
 
     @Override
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean active) {
@@ -117,46 +117,71 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 //            programData.setCurrentVersion(p.getCurrentVersion());
 //            System.out.println("++++" + p.getCurrentVersion());
                 Version version;
+                User user = this.userService.getUserByUserId(spcr.getCreatedBy().getUserId(), curUser);
                 try {
                     version = this.programDataDao.processCommitRequest(spcr, curUser);
                 } catch (Exception e) {
                     version = this.programDataDao.updateFailedSupplyPlanCommitRequest(spcr.getCommitRequestId(), e.getMessage());
+                    EmailTemplate emailTemplateForSpcr = this.emailService.getEmailTemplateByEmailTemplateId(9);
+                    String[] subjectParamForSpcr = new String[]{};
+                    String[] bodyParamForSpcr = new String[]{};
+                    Emailer emailerForSpcr = new Emailer();
+                    subjectParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommitRequestId())};
+                    bodyParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommitRequestId())};
+                    emailerForSpcr = this.emailService.buildEmail(emailTemplateForSpcr.getEmailTemplateId(), user.getEmailId(), "", subjectParamForSpcr, bodyParamForSpcr);
+                    int emailerIdForSpcr = this.emailService.saveEmail(emailerForSpcr);
+                    emailerForSpcr.setEmailerId(emailerIdForSpcr);
+                    this.emailService.sendMail(emailerForSpcr);
                 }
 //            System.out.println("version++++" + version);
                 try {
                     getNewSupplyPlanList(spcr.getProgram().getId(), version.getVersionId(), true, false);
-                    if (spcr.getVersionType().getId() == 2 && version.getVersionId() != 0) {
-                        List<NotificationUser> toEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "To");
-                        List<NotificationUser> ccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "Cc");
-                        StringBuilder sbToEmails = new StringBuilder();
-                        StringBuilder sbCcEmails = new StringBuilder();
-                        if (toEmailIdsList.size() > 0) {
-                            for (NotificationUser ns : toEmailIdsList) {
-                                sbToEmails.append(ns.getEmailId()).append(",");
+                    if (version.getVersionId() != 0) {
+                        EmailTemplate emailTemplateForSpcr = this.emailService.getEmailTemplateByEmailTemplateId(8);
+                        String[] subjectParamForSpcr = new String[]{};
+                        String[] bodyParamForSpcr = new String[]{};
+                        Emailer emailerForSpcr = new Emailer();
+                        subjectParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommitRequestId())};
+                        bodyParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommitRequestId())};
+                        emailerForSpcr = this.emailService.buildEmail(emailTemplateForSpcr.getEmailTemplateId(), user.getEmailId(), "", subjectParamForSpcr, bodyParamForSpcr);
+                        int emailerIdForSpcr = this.emailService.saveEmail(emailerForSpcr);
+                        emailerForSpcr.setEmailerId(emailerIdForSpcr);
+                        this.emailService.sendMail(emailerForSpcr);
+                        if (spcr.getVersionType().getId() == 2) {
+                            List<NotificationUser> toEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "To");
+                            List<NotificationUser> ccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "Cc");
+                            StringBuilder sbToEmails = new StringBuilder();
+                            StringBuilder sbCcEmails = new StringBuilder();
+                            if (toEmailIdsList.size() > 0) {
+                                for (NotificationUser ns : toEmailIdsList) {
+                                    sbToEmails.append(ns.getEmailId()).append(",");
+                                }
                             }
-                        }
-                        if (ccEmailIdsList.size() > 0) {
-                            for (NotificationUser ns : ccEmailIdsList) {
-                                sbCcEmails.append(ns.getEmailId()).append(",");
+                            if (ccEmailIdsList.size() > 0) {
+                                for (NotificationUser ns : ccEmailIdsList) {
+                                    sbCcEmails.append(ns.getEmailId()).append(",");
+                                }
                             }
-                        }
-                        if (sbToEmails.length() != 0) {
-                            System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
-                        }
-                        if (sbCcEmails.length() != 0) {
-                            System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
-                        }
-                        EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(6);
-                        String[] subjectParam = new String[]{};
-                        String[] bodyParam = null;
-                        Emailer emailer = new Emailer();
-                        subjectParam = new String[]{spcr.getProgram().getCode()};
-                        bodyParam = new String[]{spcr.getProgram().getCode(), String.valueOf(version.getVersionId()), spcr.getNotes()};
+                            if (sbToEmails.length() != 0) {
+                                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
+                            }
+                            if (sbCcEmails.length() != 0) {
+                                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
+                            }
+                            EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(6);
+                            String[] subjectParam = new String[]{};
+                            String[] bodyParam = null;
+                            Emailer emailer = new Emailer();
+                            subjectParam = new String[]{spcr.getProgram().getCode()};
+                            bodyParam = new String[]{spcr.getProgram().getCode(), String.valueOf(version.getVersionId()), spcr.getNotes()};
 //                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "shubham.y@altius.cc,harshana.c@altius.cc", "palash.n@altius.cc,dolly.c@altius.cc", subjectParam, bodyParam);
-                        emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
-                        int emailerId = this.emailService.saveEmail(emailer);
-                        emailer.setEmailerId(emailerId);
-                        this.emailService.sendMail(emailer);
+                            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
+                            int emailerId = this.emailService.saveEmail(emailer);
+                            emailer.setEmailerId(emailerId);
+                            this.emailService.sendMail(emailer);
+                        }
+                    } else {
+
                     }
                 } catch (ParseException pe) {
 
