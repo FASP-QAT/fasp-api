@@ -50,7 +50,7 @@ public interface ProgramDataDao {
 
     public Version updateFailedSupplyPlanCommitRequest(int commitRequestId, String message);
 
-    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser);
+    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser);
 
 //    public Version executeProgramDataCommit(int commitRequestId, ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
     public List<SimpleObject> getVersionTypeList();

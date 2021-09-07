@@ -156,7 +156,7 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     // Part 2 of the Commit Request
 //    @GetMapping("/processCommitRequest")
     //sec min hour day_of_month month day_of_week
@@ -180,12 +180,12 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    @PostMapping("/getCommitRequest") 
-    public ResponseEntity getProgramDataCommitRequest(@RequestBody SupplyPlanCommitRequestInput spcr, Authentication auth) {
+
+    @PostMapping("/getCommitRequest/{requestStatus}")
+    public ResponseEntity getProgramDataCommitRequest(@RequestBody SupplyPlanCommitRequestInput spcr, @PathVariable(value = "requestStatus", required = true) int requestStatus, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            List<SupplyPlanCommitRequest> spcrList = this.programDataService.getSupplyPlanCommitRequestList(spcr, curUser);
+            List<SupplyPlanCommitRequest> spcrList = this.programDataService.getSupplyPlanCommitRequestList(spcr, requestStatus, curUser);
             return new ResponseEntity(spcrList, HttpStatus.OK);
 //            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
         } catch (AccessDeniedException e) {
@@ -409,7 +409,7 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @GetMapping("/programData/checkIfCommitRequestExistsForProgram/{programId}")
     public ResponseEntity checkIfCommitRequestExistsForProgram(@PathVariable(value = "programId", required = true) int programId) {
         try {

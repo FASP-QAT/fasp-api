@@ -198,8 +198,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser) {
-        return this.programDataDao.getSupplyPlanCommitRequestList(spcr, curUser);
+    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser) {
+        return this.programDataDao.getSupplyPlanCommitRequestList(spcr, requestStatus, curUser);
     }
 
     @Override
