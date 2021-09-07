@@ -182,7 +182,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_commit_request").usingGeneratedKeyColumns("ID");
         Map<String, Object> params = new HashMap<>();
         params.put("PROGRAM_ID", programData.getProgramId());
-        params.put("COMMITTED_VERSION_ID",programData.getRequestedProgramVersion());
+        params.put("COMMITTED_VERSION_ID", programData.getRequestedProgramVersion());
         params.put("VERSION_TYPE_ID", programData.getVersionType().getId());
         params.put("NOTES", programData.getNotes());
         params.put("CREATED_BY", curUser.getUserId());
@@ -342,7 +342,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("REVIEW_NOTES", pr.getReviewNotes());
             tp.put("REVIEWED_DATE", pr.getReviewedDate());
             tp.put("DATA1", pr.getDt()); // Dt
-            tp.put("DATA2", (pr.getRegion()!=null ? pr.getRegion().getId() : null)); // RegionId
+            tp.put("DATA2", (pr.getRegion() != null ? pr.getRegion().getId() : null)); // RegionId
             tp.put("DATA3", pr.getPlanningUnit().getId()); // PlanningUnitId
             tp.put("DATA4", pr.getShipmentId()); // ShipmentId
             tp.put("DATA5", pr.getData5());
@@ -1361,8 +1361,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("PROBLEM_TYPE_ID", pr.getProblemType().getId());
             tp.put("PROBLEM_STATUS_ID", pr.getProblemStatus().getId());
             tp.put("DATA1", pr.getDt()); // Dt
-            tp.put("DATA2", (pr.getRegion()!=null ? pr.getRegion().getId() : null)); // RegionId
-            tp.put("DATA3", (pr.getPlanningUnit() !=null ? pr.getPlanningUnit().getId() :null)); // PlanningUnitId
+            tp.put("DATA2", (pr.getRegion() != null ? pr.getRegion().getId() : null)); // RegionId
+            tp.put("DATA3", (pr.getPlanningUnit() != null ? pr.getPlanningUnit().getId() : null)); // PlanningUnitId
             tp.put("DATA4", pr.getShipmentId()); // ShipmentId
             tp.put("DATA5", pr.getData5());
 //            tp.put("REVIWED", pr.isReviewed());
@@ -1509,9 +1509,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, CustomUserDetails curUser) {
+    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser) {
         StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND FIND_IN_SET(spcr.PROGRAM_ID,'" + spcr.getProgramIdsString() + "') AND spcr.CREATED_DATE BETWEEN :startDate AND :stopDate ");
         Map<String, Object> params = new HashMap<>();
+        if (requestStatus != -1) {
+            sb.append(" AND STATUS=:requestStatus");
+            params.put("requestStatus", requestStatus);
+        }
         params.put("startDate", spcr.getStartDateString() + " 00:00:00");
         params.put("stopDate", spcr.getStopDateString() + " 23:59:59");
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
