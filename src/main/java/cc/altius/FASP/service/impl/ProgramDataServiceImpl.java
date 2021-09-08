@@ -126,8 +126,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                     String[] subjectParamForSpcr = new String[]{};
                     String[] bodyParamForSpcr = new String[]{};
                     Emailer emailerForSpcr = new Emailer();
-                    subjectParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommitRequestId())};
-                    bodyParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommitRequestId())};
+                    subjectParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommittedVersionId())};
+                    bodyParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommittedVersionId())};
                     emailerForSpcr = this.emailService.buildEmail(emailTemplateForSpcr.getEmailTemplateId(), user.getEmailId(), "", subjectParamForSpcr, bodyParamForSpcr);
                     int emailerIdForSpcr = this.emailService.saveEmail(emailerForSpcr);
                     emailerForSpcr.setEmailerId(emailerIdForSpcr);
@@ -141,8 +141,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                         String[] subjectParamForSpcr = new String[]{};
                         String[] bodyParamForSpcr = new String[]{};
                         Emailer emailerForSpcr = new Emailer();
-                        subjectParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommitRequestId())};
-                        bodyParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommitRequestId())};
+                        subjectParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommittedVersionId())};
+                        bodyParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommittedVersionId())};
                         emailerForSpcr = this.emailService.buildEmail(emailTemplateForSpcr.getEmailTemplateId(), user.getEmailId(), "", subjectParamForSpcr, bodyParamForSpcr);
                         int emailerIdForSpcr = this.emailService.saveEmail(emailerForSpcr);
                         emailerForSpcr.setEmailerId(emailerIdForSpcr);
