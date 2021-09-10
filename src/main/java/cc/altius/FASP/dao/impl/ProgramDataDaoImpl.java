@@ -1760,7 +1760,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         String sqlString = "SELECT pvt.PROGRAM_VERSION_TRANS_ID, pv.PROGRAM_ID, p.PROGRAM_CODE, pv.VERSION_ID, pv.VERSION_TYPE_ID, pv.VERSION_STATUS_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, i.FILE_NAME, i.FOLDER_LOCATION, i.INTEGRATION_VIEW_ID, iv.INTEGRATION_VIEW_NAME "
                 + "FROM rm_program_version_trans pvt  "
                 + "LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
-                + "LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID AND p.PROGRAM_TYPE_ID=1 "
                 + "LEFT JOIN rm_integration_program ip ON  "
                 + "    ip.PROGRAM_ID=pv.PROGRAM_ID AND  "
                 + "    (ip.VERSION_TYPE_ID=pvt.VERSION_TYPE_ID OR ip.VERSION_TYPE_ID IS NULL) AND  "

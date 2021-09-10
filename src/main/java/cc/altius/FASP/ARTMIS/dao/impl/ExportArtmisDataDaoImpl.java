@@ -43,7 +43,7 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
     public List<ExportProgramDataDTO> exportProgramData(Date lastDate) {
         String today = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMD) + " 21:00:00";
         String sql = "SELECT p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_EN `PROGRAM_NAME`, c.COUNTRY_CODE2, ha.LABEL_EN `TECHNICAL_AREA_NAME`,p.`ACTIVE`,p.`LAST_MODIFIED_DATE` "
-                + "FRom vw_program p LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "FROM vw_program p LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
                 + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + "LEFT JOIN vw_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
                 + "WHERE p.`LAST_MODIFIED_DATE` > ? AND p.`LAST_MODIFIED_DATE` < ?";
@@ -88,7 +88,7 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
     public List<ExportShipmentLinkingDTO> exportShipmentLinkingData(Date lastDate) {
         String sql = "SELECT s.`PROGRAM_ID`,m.`MANUAL_TAGGING_ID`,l.`LABEL_EN`,m.`SHIPMENT_ID`,b.RO_NO,m.`ORDER_NO`,m.`PRIME_LINE_NO`,m.`ACTIVE`,m.`LAST_MODIFIED_DATE` FROM rm_manual_tagging m "
                 + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=m.`SHIPMENT_ID` "
-                + "LEFT JOIN rm_program p ON p.`PROGRAM_ID`=s.`PROGRAM_ID` "
+                + "LEFT JOIN rm_program p ON p.`PROGRAM_ID`=s.`PROGRAM_ID` AND p.PROGRAM_TYPE_ID=1 "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
                 + "LEFT JOIN (SELECT a.* FROM ( "
                 + "SELECT o.`ERP_ORDER_ID`,o.`RO_NO`,o.`ORDER_NO`,o.`PRIME_LINE_NO` FROM rm_erp_order o "

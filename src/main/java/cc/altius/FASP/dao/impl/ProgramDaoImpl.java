@@ -347,7 +347,7 @@ public class ProgramDaoImpl implements ProgramDao {
         Map<String, Object> params = new HashMap<>();
         String sql = "SELECT r.`PROGRAM_ID`,label.`LABEL_ID`,label.`LABEL_EN`,label.`LABEL_FR`,label.`LABEL_PR`,label.`LABEL_SP` "
                 + "FROM rm_program r  "
-                + "LEFT JOIN ap_label label ON label.`LABEL_ID`=r.`LABEL_ID` WHERE 1 ";
+                + "LEFT JOIN ap_label label ON label.`LABEL_ID`=r.`LABEL_ID` WHERE 1 r.PROGRAM_TYPE_ID=1 ";
         int count = 1;
         for (UserAcl acl : curUser.getAclList()) {
             sql += "AND ("
@@ -751,7 +751,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "	FROM rm_realm_country rc "
                 + " LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=e.RECPIENT_COUNTRY "
-                + " LEFT JOIN rm_program pm ON pm.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID  "
+                + " LEFT JOIN rm_program pm ON pm.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND pm.PROGRAM_TYPE_ID=1 "
                 + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` ");
         if (linkingType == 1) {
             sql.append(" LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` AND mt.ACTIVE ");
@@ -800,7 +800,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "	FROM rm_realm_country rc "
                 + " LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + " LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=e.RECPIENT_COUNTRY "
-                + " LEFT JOIN rm_program pm ON pm.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID                      "
+                + " LEFT JOIN rm_program pm ON pm.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND pm.PROGRAM_TYPE_ID=1 "
                 + " LEFT JOIN rm_shipment_status_mapping sm ON sm.`EXTERNAL_STATUS_STAGE`=e.`STATUS` ");
         if (linkingType == 1) {
             sql.append(" LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` AND mt.ACTIVE ");
@@ -2245,7 +2245,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "FROM rm_realm_country rc "
                 + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=e.RECPIENT_COUNTRY "
-                + "LEFT JOIN rm_program p ON p.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND p.`PROGRAM_ID`=:programId "
+                + "LEFT JOIN rm_program p ON p.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND p.`PROGRAM_ID`=:programId AND p.PROGRAM_TYPE_ID=1 "
                 + "LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
                 + "WHERE  p.`REALM_COUNTRY_ID` IS NOT NULL AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15) AND e.`RO_NO` LIKE '%").append(term).append("%' ");
         if (planningUnitId != 0) {
@@ -2264,7 +2264,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "FROM rm_realm_country rc "
                 + "LEFT JOIN ap_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + "LEFT JOIN ap_label cl ON c.LABEL_ID=cl.LABEL_ID) c1 ON c1.LABEL_EN=e.RECPIENT_COUNTRY "
-                + "LEFT JOIN rm_program p ON p.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND p.`PROGRAM_ID`=:programId "
+                + "LEFT JOIN rm_program p ON p.`REALM_COUNTRY_ID`=c1.REALM_COUNTRY_ID AND p.`PROGRAM_ID`=:programId AND p.PROGRAM_TYPE_ID=1 "
                 + "LEFT JOIN rm_manual_tagging mt ON mt.`ORDER_NO`=e.`ORDER_NO` AND e.`PRIME_LINE_NO`=mt.`PRIME_LINE_NO` "
                 + "WHERE p.`REALM_COUNTRY_ID` IS NOT NULL AND sm.`SHIPMENT_STATUS_MAPPING_ID` NOT IN (1,3,5,7,9,10,13,15) AND  e.`ORDER_NO` LIKE '%").append(term).append("%' ");
         if (planningUnitId != 0) {
@@ -2527,10 +2527,9 @@ public class ProgramDaoImpl implements ProgramDao {
             programIds = programIds + p.getProgramId() + ",";
         }
         programIds = programIds.substring(0, programIds.lastIndexOf(","));
-        System.out.println("ids 1%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
         sql = "SELECT s.`PROGRAM_ID`,l.`LABEL_ID`,l.`LABEL_EN`,l.`LABEL_FR`,l.`LABEL_SP`,l.`LABEL_PR`,COUNT(DISTINCT(n.`NOTIFICATION_ID`)) as NOTIFICATION_COUNT FROM rm_erp_notification n "
                 + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=n.`CHILD_SHIPMENT_ID` "
-                + "LEFT JOIN rm_program p ON p.`PROGRAM_ID`=s.`PROGRAM_ID` "
+                + "LEFT JOIN rm_program p ON p.`PROGRAM_ID`=s.`PROGRAM_ID` AND p.PROGRAM_TYPE_ID=1 "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
                 + "WHERE n.`ACTIVE` AND n.`ADDRESSED`=0 "
                 + "AND s.`PROGRAM_ID` IN (" + programIds + ") "
