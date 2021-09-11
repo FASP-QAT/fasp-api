@@ -26,6 +26,9 @@ public class Java8StreamListToArray {
         rcList.add(new RealmCountry(3, new Country(3, "C", new Label(1))));
         rcList.add(new RealmCountry(4, new Country(4, "D", new Label(1))));
         ha.setRealmCountryArray(rcList.stream().map(rc -> Integer.toString(rc.getRealmCountryId())).toArray(String[]::new));
-        System.out.println(ha);
+        System.out.println(ha.getRealmCountryArray()[0]);
+        System.out.println(ha.getRealmCountryArray()[1]);
+        System.out.println(ha.getRealmCountryArray()[2]);
+        System.out.println(ha.getRealmCountryArray()[3]);
     }
 }
