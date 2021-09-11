@@ -7,8 +7,8 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.UsagePeriod;
-import cc.altius.FASP.service.UsagePeriodService;
+import cc.altius.FASP.model.ForecastMethod;
+import cc.altius.FASP.service.ForecastMethodService;
 import cc.altius.FASP.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -35,85 +35,85 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@RequestMapping("/api/usagePeriod")
-public class UsagePeriodRestController {
+@RequestMapping("/api/forecastMethod")
+public class ForecastMethodRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    private UsagePeriodService usagePeriodService;
+    private ForecastMethodService forecastMethodService;
     @Autowired
     private UserService userService;
 
     /**
-     * API used to get the active UsagePeriod list. Will only return those
-     * UsagePeriods that are marked Active.
+     * API used to get the active ForecastMethod list. Will only return those
+     * ForecastMethods that are marked Active.
      *
      * @param auth
-     * @return returns the active list of active UsagePeriods
+     * @return returns the active list of active ForecastMethods
      */
     @GetMapping("")
-    @Operation(description = "API used to get the complete UsagePeriod list. Will only return those UsagePeriods that are marked Active.", summary = "Get active UsagePeriod list", tags = ("usagePeriod"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the UsagePeriod list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of UsagePeriod list")
-    public ResponseEntity getUsagePeriodList(Authentication auth) {
+    @Operation(description = "API used to get the complete ForecastMethod list. Will only return those ForecastMethods that are marked Active.", summary = "Get active ForecastMethod list", tags = ("forecastMethod"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ForecastMethod list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ForecastMethod list")
+    public ResponseEntity getForecastMethodList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.usagePeriodService.getUsagePeriodList(true, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.forecastMethodService.getForecastMethodList(true, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Error while trying to get  UsagePeriod list", e);
+            logger.error("Error while trying to get  ForecastMethod list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * API used to get the complete UsagePeriod list.
+     * API used to get the complete ForecastMethod list.
      *
      * @param auth
-     * @return returns the complete list of UsagePeriods
+     * @return returns the complete list of ForecastMethods
      */
     @GetMapping("/all")
-    @Operation(description = "API used to get the complete UsagePeriod list.", summary = "Get complete UsagePeriod list", tags = ("usagePeriod"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the UsagePeriod list")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of UsagePeriod list")
-    public ResponseEntity getUsagePeriodListAll(Authentication auth) {
+    @Operation(description = "API used to get the complete ForecastMethod list.", summary = "Get complete ForecastMethod list", tags = ("forecastMethod"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ForecastMethod list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ForecastMethod list")
+    public ResponseEntity getForecastMethodListAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.usagePeriodService.getUsagePeriodList(false, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.forecastMethodService.getForecastMethodList(false, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Error while trying to get  UsagePeriod list", e);
+            logger.error("Error while trying to get  ForecastMethod list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     /**
-     * API used to add and update UsagePeriod
+     * API used to add and update ForecastMethod
      *
-     * @param usagePeriodList List<UsagePeriod> object that you want to add or
+     * @param forecastMethodList List<ForecastMethod> object that you want to add or
      * update
      * @param auth
      * @return returns a Success code if the operation was successful
      */
     @PostMapping(value = "")
-    @Operation(description = "API used to add or update UsagePeriod", summary = "Add or Update UsagePeriod", tags = ("usagePeriod"))
+    @Operation(description = "API used to add or update ForecastMethod", summary = "Add or Update ForecastMethod", tags = ("forecastMethod"))
     @Parameters(
-            @Parameter(name = "usagePeriod", description = "The list of UsagePeriod objects that you want to add or update. If usagePeriodId is null or 0 then it is added if usagePeriodId is not null and non 0 it is updated"))
+            @Parameter(name = "forecastMethod", description = "The list of ForecastMethod objects that you want to add or update. If forecastMethodId is null or 0 then it is added if forecastMethodId is not null and non 0 it is updated"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if you do not have rights to add/update this object")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the data supplied is not acceptable")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
-    public ResponseEntity addAndUpadteUsagePeriod(@RequestBody List<UsagePeriod> usagePeriodList, Authentication auth) {
+    public ResponseEntity addAndUpadteForecastMethod(@RequestBody List<ForecastMethod> forecastMethodList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.usagePeriodService.addAndUpdateUsagePeriod(usagePeriodList, curUser) + " records updated", HttpStatus.OK);
+            return new ResponseEntity(this.forecastMethodService.addAndUpdateForecastMethod(forecastMethodList, curUser) + " records updated", HttpStatus.OK);
         } catch (AccessDeniedException e) {
-            logger.error("Error while trying to add UsagePeriod", e);
+            logger.error("Error while trying to add ForecastMethod", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
         } catch (DuplicateKeyException e) {
-            logger.error("Error while trying to add UsagePeriod", e);
+            logger.error("Error while trying to add ForecastMethod", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {
-            logger.error("Error while trying to add UsagePeriod", e);
+            logger.error("Error while trying to add ForecastMethod", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -1,4 +1,4 @@
-/*
+/*  
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
@@ -6,10 +6,10 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
-import cc.altius.FASP.dao.UsagePeriodDao;
+import cc.altius.FASP.dao.ForecastMethodDao;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.UsagePeriod;
-import cc.altius.FASP.model.rowMapper.UsagePeriodRowMapper;
+import cc.altius.FASP.model.ForecastMethod;
+import cc.altius.FASP.model.rowMapper.ForecastMethodRowMapper;
 import cc.altius.utils.DateUtils;
 import java.util.Arrays;
 import java.util.Date;
@@ -32,7 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author akil
  */
 @Repository
-public class UsagePeriodDaoImpl implements UsagePeriodDao {
+public class ForecastMethodDaoImpl implements ForecastMethodDao {
 
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
@@ -46,34 +46,37 @@ public class UsagePeriodDaoImpl implements UsagePeriodDao {
     }
 
     @Override
-    public List<UsagePeriod> getUsagePeriodList(boolean active, CustomUserDetails curUser) {
+    public List<ForecastMethod> getForecastMethodList(boolean active, CustomUserDetails curUser) {
         String sqlString = "SELECT  "
-                + "    up.USAGE_PERIOD_ID,  "
-                + "    up.LABEL_ID, up.LABEL_EN, up.LABEL_FR, up.LABEL_SP, up.LABEL_PR, "
-                + "    up.CONVERT_TO_MONTH, up.ACTIVE, "
-                + "    cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, up.CREATED_DATE, "
-                + "    lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME, up.LAST_MODIFIED_DATE "
-                + "FROM vw_usage_period up  "
-                + "LEFT JOIN us_user cb ON up.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON up.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE TRUE ";
+                + "    fm.FORECAST_METHOD_ID,  "
+                + "    fm.LABEL_ID, fm.LABEL_EN, fm.LABEL_FR, fm.LABEL_SP, fm.LABEL_PR, "
+                + "    fm.ACTIVE, fm.FORECAST_METHOD_TYPE_ID, "
+                + "    cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, fm.CREATED_DATE, "
+                + "    lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME, fm.LAST_MODIFIED_DATE "
+                + "FROM vw_forecast_method fm  "
+                + "LEFT JOIN us_user cb ON fm.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN us_user lmb ON fm.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "WHERE TRUE AND fm.REALM_ID=:realmId ";
         if (active) {
-            sqlString += " AND up.ACTIVE ";
+            sqlString += " AND fm.ACTIVE ";
         }
-        sqlString += "ORDER BY up.CONVERT_TO_MONTH";
-        return namedParameterJdbcTemplate.query(sqlString, new UsagePeriodRowMapper());
+        sqlString += "ORDER BY fm.LABEL_EN";
+        Map<String, Object> params = new HashMap<>();
+        params.put("realmId", curUser.getRealm().getRealmId());
+        return namedParameterJdbcTemplate.query(sqlString, params, new ForecastMethodRowMapper());
     }
 
     @Override
     @Transactional
-    public int addAndUpdateUsagePeriod(List<UsagePeriod> usagePeriodList, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ap_usage_period");
+    public int addAndUpdateForecastMethod(List<ForecastMethod> forecastMethodList, CustomUserDetails curUser) {
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_method");
         Date dt = DateUtils.getCurrentDateObject(DateUtils.EST);
         List<SqlParameterSource> paramList = new LinkedList<>();
-        usagePeriodList.stream().filter(ut -> ut.getUsagePeriodId() == 0).collect(Collectors.toList()).forEach(ut -> {
+        forecastMethodList.stream().filter(ut -> ut.getForecastMethodId() == 0).collect(Collectors.toList()).forEach(ut -> {
             MapSqlParameterSource param = new MapSqlParameterSource();
             param.addValue("LABEL_ID", this.labelDao.addLabel(ut.getLabel(), 41, curUser.getUserId()));
-            param.addValue("CONVERT_TO_MONTH", ut.getConvertToMonth());
+            param.addValue("REALM_ID", curUser.getRealm().getRealmId());
+            param.addValue("FORECAST_METHOD_TYPE_ID", ut.getForecastMethodTypeId());
             param.addValue("ACTIVE", 1);
             param.addValue("CREATED_BY", curUser.getUserId());
             param.addValue("CREATED_DATE", dt);
@@ -89,34 +92,31 @@ public class UsagePeriodDaoImpl implements UsagePeriodDao {
             rows += Arrays.stream(updatedRows).filter(i -> i == 1).count();
             paramList.clear();
         }
-        usagePeriodList.stream().filter(ut -> ut.getUsagePeriodId() != 0).collect(Collectors.toList()).forEach(ut -> {
+        forecastMethodList.stream().filter(ut -> ut.getForecastMethodId() != 0).collect(Collectors.toList()).forEach(ut -> {
             Map<String, Object> param = new HashMap<>();
-            param.put("usagePeriodId", ut.getUsagePeriodId());
+            param.put("forecastMethodId", ut.getForecastMethodId());
             param.put("labelEn", ut.getLabel().getLabel_en());
-            param.put("convertToMonth", ut.getConvertToMonth());
             param.put("active", ut.isActive());
             param.put("curUser", curUser.getUserId());
             param.put("dt", dt);
             paramList.add(new MapSqlParameterSource(param));
         }
         );
-        String sql = "UPDATE ap_usage_period up "
-                + "LEFT JOIN ap_label l ON up.LABEL_ID=l.LABEL_ID "
+        String sql = "UPDATE rm_forecast_method fm "
+                + "LEFT JOIN ap_label l ON fm.LABEL_ID=l.LABEL_ID "
                 + "SET "
-                + "up.CONVERT_TO_MONTH=:convertToMonth, "
-                + "up.ACTIVE=:active, "
-                + "up.LAST_MODIFIED_DATE=:dt, "
-                + "up.LAST_MODIFIED_BY=:curUser, "
+                + "fm.ACTIVE=:active, "
+                + "fm.LAST_MODIFIED_DATE=:dt, "
+                + "fm.LAST_MODIFIED_BY=:curUser, "
                 + "l.LABEL_EN=:labelEn, "
                 + "l.LAST_MODIFIED_DATE=:dt, "
                 + "l.LAST_MODIFIED_BY=:curUser "
                 + "WHERE "
-                + " up.USAGE_PERIOD_ID=:usagePeriodId AND "
-                + "  ("
+                + " fm.FORECAST_METHOD_ID=:forecastMethodId AND "
+                + " ("
                 + "     l.LABEL_EN!=:labelEn OR "
-                + "     up.CONVERT_TO_MONTH!=:convertToMonth OR "
-                + "     up.ACTIVE!=:active "
-                + "  )";
+                + "     fm.ACTIVE!=:active"
+                + " )";
         if (paramList.size() > 0) {
             updatedRows = namedParameterJdbcTemplate.batchUpdate(sql, paramList.toArray(new MapSqlParameterSource[paramList.size()]));
             rows += Arrays.stream(updatedRows).filter(i -> i > 0).count();
