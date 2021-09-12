@@ -72,7 +72,7 @@ public class ModelingTypeDaoImpl implements ModelingTypeDao {
         List<SqlParameterSource> paramList = new LinkedList<>();
         modelingTypeList.stream().filter(ut -> ut.getModelingTypeId() == 0).collect(Collectors.toList()).forEach(ut -> {
             MapSqlParameterSource param = new MapSqlParameterSource();
-            param.addValue("LABEL_ID", this.labelDao.addLabel(ut.getLabel(), 40, curUser.getUserId()));
+            param.addValue("LABEL_ID", this.labelDao.addLabel(ut.getLabel(), 41, curUser.getUserId()));
             param.addValue("ACTIVE", 1);
             param.addValue("CREATED_BY", curUser.getUserId());
             param.addValue("CREATED_DATE", dt);

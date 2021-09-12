@@ -74,7 +74,7 @@ public class ForecastMethodDaoImpl implements ForecastMethodDao {
         List<SqlParameterSource> paramList = new LinkedList<>();
         forecastMethodList.stream().filter(ut -> ut.getForecastMethodId() == 0).collect(Collectors.toList()).forEach(ut -> {
             MapSqlParameterSource param = new MapSqlParameterSource();
-            param.addValue("LABEL_ID", this.labelDao.addLabel(ut.getLabel(), 41, curUser.getUserId()));
+            param.addValue("LABEL_ID", this.labelDao.addLabel(ut.getLabel(), 43, curUser.getUserId()));
             param.addValue("REALM_ID", curUser.getRealm().getRealmId());
             param.addValue("FORECAST_METHOD_TYPE_ID", ut.getForecastMethodTypeId());
             param.addValue("ACTIVE", 1);

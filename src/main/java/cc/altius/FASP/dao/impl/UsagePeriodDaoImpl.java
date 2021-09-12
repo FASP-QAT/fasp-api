@@ -72,7 +72,7 @@ public class UsagePeriodDaoImpl implements UsagePeriodDao {
         List<SqlParameterSource> paramList = new LinkedList<>();
         usagePeriodList.stream().filter(ut -> ut.getUsagePeriodId() == 0).collect(Collectors.toList()).forEach(ut -> {
             MapSqlParameterSource param = new MapSqlParameterSource();
-            param.addValue("LABEL_ID", this.labelDao.addLabel(ut.getLabel(), 41, curUser.getUserId()));
+            param.addValue("LABEL_ID", this.labelDao.addLabel(ut.getLabel(), 40, curUser.getUserId()));
             param.addValue("CONVERT_TO_MONTH", ut.getConvertToMonth());
             param.addValue("ACTIVE", 1);
             param.addValue("CREATED_BY", curUser.getUserId());

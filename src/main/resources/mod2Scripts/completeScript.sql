@@ -579,3 +579,55 @@ VIEW `vw_dataset` AS
     WHERE
         (`p`.`PROGRAM_TYPE_ID` = 2)
     GROUP BY `p`.`PROGRAM_ID`;
+
+
+CREATE TABLE `fasp`.`rm_equivalency_unit_mapping` (
+  `EQUIVALENCY_UNIT_MAPPING_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `EQUIVALENCY_UNIT_ID` INT(10) UNSIGNED NOT NULL,
+  `FORECASTING_UNIT_ID` INT(10) UNSIGNED NOT NULL,
+  `CONVERT_TO_FU` DECIMAL(18,4) UNSIGNED NOT NULL,
+  `NOTES` TEXT NULL,
+  `REALM_ID` INT(10) UNSIGNED NOT NULL,
+  `PROGRAM_ID` INT(10) UNSIGNED NULL,
+  `ACTIVE` TINYINT(1) UNSIGNED NOT NULL,
+  `CREATED_BY` INT(10) UNSIGNED NOT NULL,
+  `CREATED_DATE` DATETIME NOT NULL,
+  `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL,
+  `LAST_MODIFIED_DATE` DATETIME NOT NULL,
+  PRIMARY KEY (`EQUIVALENCY_UNIT_MAPPING_ID`),
+  INDEX `fk_rm_equivalency_mapping_equivalencyUnitId_idx` (`EQUIVALENCY_UNIT_ID` ASC),
+  INDEX `fk_rm_equivalency_mapping_forecastingUnitId_idx` (`FORECASTING_UNIT_ID` ASC),
+  INDEX `fk_rm_equivalency_mapping_realmId_idx` (`REALM_ID` ASC),
+  INDEX `fk_rm_equivalency_mapping_programId_idx` (`PROGRAM_ID` ASC),
+  INDEX `fk_rm_equivalency_mapping_createdBy_idx` (`CREATED_BY` ASC),
+  INDEX `fk_rm_equivalency_mapping_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC),
+  CONSTRAINT `fk_rm_equivalency_mapping_equivalencyUnitId`
+    FOREIGN KEY (`EQUIVALENCY_UNIT_ID`)
+    REFERENCES `fasp`.`rm_equivalency_unit` (`EQUIVALENCY_UNIT_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_equivalency_mapping_forecastingUnitId`
+    FOREIGN KEY (`FORECASTING_UNIT_ID`)
+    REFERENCES `fasp`.`rm_forecasting_unit` (`FORECASTING_UNIT_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_equivalency_mapping_realmId`
+    FOREIGN KEY (`REALM_ID`)
+    REFERENCES `fasp`.`rm_realm` (`REALM_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_equivalency_mapping_programId`
+    FOREIGN KEY (`PROGRAM_ID`)
+    REFERENCES `fasp`.`rm_program` (`PROGRAM_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_equivalency_mapping_createdBy`
+    FOREIGN KEY (`CREATED_BY`)
+    REFERENCES `fasp`.`us_user` (`USER_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_equivalency_mapping_lastModifiedBy`
+    FOREIGN KEY (`LAST_MODIFIED_BY`)
+    REFERENCES `fasp`.`us_user` (`USER_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
