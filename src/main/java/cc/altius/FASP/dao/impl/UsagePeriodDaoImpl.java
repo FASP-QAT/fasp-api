@@ -44,24 +44,33 @@ public class UsagePeriodDaoImpl implements UsagePeriodDao {
         this.dataSource = dataSource;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
+    private static String usagePeriodString = "SELECT  "
+            + "    up.USAGE_PERIOD_ID,  "
+            + "    up.LABEL_ID, up.LABEL_EN, up.LABEL_FR, up.LABEL_SP, up.LABEL_PR, "
+            + "    up.CONVERT_TO_MONTH, up.ACTIVE, "
+            + "    cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, up.CREATED_DATE, "
+            + "    lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME, up.LAST_MODIFIED_DATE "
+            + "FROM vw_usage_period up  "
+            + "LEFT JOIN us_user cb ON up.CREATED_BY=cb.USER_ID "
+            + "LEFT JOIN us_user lmb ON up.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "WHERE TRUE ";
 
     @Override
     public List<UsagePeriod> getUsagePeriodList(boolean active, CustomUserDetails curUser) {
-        String sqlString = "SELECT  "
-                + "    up.USAGE_PERIOD_ID,  "
-                + "    up.LABEL_ID, up.LABEL_EN, up.LABEL_FR, up.LABEL_SP, up.LABEL_PR, "
-                + "    up.CONVERT_TO_MONTH, up.ACTIVE, "
-                + "    cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, up.CREATED_DATE, "
-                + "    lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME, up.LAST_MODIFIED_DATE "
-                + "FROM vw_usage_period up  "
-                + "LEFT JOIN us_user cb ON up.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON up.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE TRUE ";
+        String sqlString = this.usagePeriodString;
         if (active) {
             sqlString += " AND up.ACTIVE ";
         }
         sqlString += "ORDER BY up.CONVERT_TO_MONTH";
         return namedParameterJdbcTemplate.query(sqlString, new UsagePeriodRowMapper());
+    }
+
+    @Override
+    public List<UsagePeriod> getUsagePeriodListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        String sqlString = this.usagePeriodString + " AND up.LAST_MODIFIED_DATE>:lastSyncDate ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        return namedParameterJdbcTemplate.query(sqlString, params, new UsagePeriodRowMapper());
     }
 
     @Override

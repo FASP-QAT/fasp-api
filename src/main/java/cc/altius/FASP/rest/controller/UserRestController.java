@@ -11,6 +11,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EmailUser;
 import cc.altius.FASP.model.ForgotPasswordToken;
 import cc.altius.FASP.model.LanguageUser;
+import cc.altius.FASP.model.ModuleUser;
 import cc.altius.FASP.model.Password;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Role;
@@ -287,7 +288,6 @@ public class UserRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
     @PostMapping(value = "/updateExpiredPassword")
     public ResponseEntity updateExpiredPassword(@RequestBody Password password) {
         try {
@@ -384,11 +384,11 @@ public class UserRestController {
             System.out.println("---------------1-----------");
             auditLogger.info("Confirm forgot password has been triggered for EmailId:" + user.getEmailId() + " with ForgotPasswordToken:" + fpt, request.getRemoteAddr());
 //            if (fpt.isValidForCompletion()) {
-                System.out.println("---------------2-----------");
-                logger.info("fpt.isValidForCompletion()=true");
-                auditLogger.info("Token is valid and reset can proceed");
+            System.out.println("---------------2-----------");
+            logger.info("fpt.isValidForCompletion()=true");
+            auditLogger.info("Token is valid and reset can proceed");
 //                this.userService.updateTriggeredDateForForgotPasswordToken(user.getEmailId(), user.getToken());
-                return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity(HttpStatus.OK);
 //            } else {
 //                System.out.println("---------------3-----------");
 //                logger.info("fpt.isValidForCompletion()=true");
@@ -481,7 +481,6 @@ public class UserRestController {
 //            return new ResponseEntity("static.message.listFailed", HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
     @PutMapping(value = "/accessControls")
     public ResponseEntity accessControl(@RequestBody User user, Authentication auth) {
         try {
@@ -517,6 +516,20 @@ public class UserRestController {
         } catch (Exception e) {
             auditLogger.info("Could not update preferred language", e);
             return new ResponseEntity(new ResponseCode("static.message.user.languageChangeError"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/user/module/{moduleId}")
+    public ResponseEntity updateUserModule(@PathVariable int moduleId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            auditLogger.info("Update Module change triggered for Username: " + curUser.getUsername());
+            this.userService.updateUserModule(curUser.getUserId(), moduleId);
+            auditLogger.info("Default Module updated successfully for Username: " + curUser.getUsername());
+            return new ResponseEntity("", HttpStatus.OK);
+        } catch (Exception e) {
+            auditLogger.info("Could not update default module", e);
+            return new ResponseEntity(new ResponseCode("static.message.user.moduleChangeError"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -47,6 +47,12 @@ public class MastersSync implements Serializable {
     private List<SimpleObject> problemCategoryList;
     private List<RealmProblem> realmProblemList;
     private List<Budget> budgetList;
+    private List<SimpleBaseModel> usageTypeList;
+    private List<SimpleBaseModel> nodeTypeList;
+    private List<SimpleBaseModel> forecastMethodTypeList;
+    private List<UsagePeriod> usagePeriodList;
+    private List<ModelingType> modelingTypeList;
+    private List<ForecastMethod> forecastMethodList;
 
     public List<Country> getCountryList() {
         return countryList;
@@ -302,6 +308,54 @@ public class MastersSync implements Serializable {
 
     public void setBudgetList(List<Budget> budgetList) {
         this.budgetList = budgetList;
+    }
+
+    public List<SimpleBaseModel> getUsageTypeList() {
+        return usageTypeList;
+    }
+
+    public void setUsageTypeList(List<SimpleBaseModel> usageTypeList) {
+        this.usageTypeList = usageTypeList;
+    }
+
+    public List<SimpleBaseModel> getNodeTypeList() {
+        return nodeTypeList;
+    }
+
+    public void setNodeTypeList(List<SimpleBaseModel> nodeTypeList) {
+        this.nodeTypeList = nodeTypeList;
+    }
+
+    public List<SimpleBaseModel> getForecastMethodTypeList() {
+        return forecastMethodTypeList;
+    }
+
+    public void setForecastMethodTypeList(List<SimpleBaseModel> forecastMethodTypeList) {
+        this.forecastMethodTypeList = forecastMethodTypeList;
+    }
+
+    public List<UsagePeriod> getUsagePeriodList() {
+        return usagePeriodList;
+    }
+
+    public void setUsagePeriodList(List<UsagePeriod> usagePeriodList) {
+        this.usagePeriodList = usagePeriodList;
+    }
+
+    public List<ModelingType> getModelingTypeList() {
+        return modelingTypeList;
+    }
+
+    public void setModelingTypeList(List<ModelingType> modelingTypeList) {
+        this.modelingTypeList = modelingTypeList;
+    }
+
+    public List<ForecastMethod> getForecastMethodList() {
+        return forecastMethodList;
+    }
+
+    public void setForecastMethodList(List<ForecastMethod> forecastMethodList) {
+        this.forecastMethodList = forecastMethodList;
     }
 
 }

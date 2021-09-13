@@ -45,23 +45,33 @@ public class ModelingTypeDaoImpl implements ModelingTypeDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
+    private static String modelingTypeString = "SELECT  "
+            + "    mt.MODELING_TYPE_ID,  "
+            + "    mt.LABEL_ID, mt.LABEL_EN, mt.LABEL_FR, mt.LABEL_SP, mt.LABEL_PR, "
+            + "    mt.ACTIVE, "
+            + "    cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, mt.CREATED_DATE, "
+            + "    lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME, mt.LAST_MODIFIED_DATE "
+            + "FROM vw_modeling_type mt  "
+            + "LEFT JOIN us_user cb ON mt.CREATED_BY=cb.USER_ID "
+            + "LEFT JOIN us_user lmb ON mt.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "WHERE TRUE ";
+
     @Override
     public List<ModelingType> getModelingTypeList(boolean active, CustomUserDetails curUser) {
-        String sqlString = "SELECT  "
-                + "    mt.MODELING_TYPE_ID,  "
-                + "    mt.LABEL_ID, mt.LABEL_EN, mt.LABEL_FR, mt.LABEL_SP, mt.LABEL_PR, "
-                + "    mt.ACTIVE, "
-                + "    cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, mt.CREATED_DATE, "
-                + "    lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME, mt.LAST_MODIFIED_DATE "
-                + "FROM vw_modeling_type mt  "
-                + "LEFT JOIN us_user cb ON mt.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON mt.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE TRUE ";
+        String sqlString = modelingTypeString;
         if (active) {
             sqlString += " AND mt.ACTIVE ";
         }
         sqlString += "ORDER BY mt.LABEL_EN";
         return namedParameterJdbcTemplate.query(sqlString, new ModelingTypeRowMapper());
+    }
+
+    @Override
+    public List<ModelingType> getModelingTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        String sqlString = modelingTypeString + " AND mt.LAST_MODIFIED_DATE>:lastSyncDate ";
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        return namedParameterJdbcTemplate.query(sqlString, params, new ModelingTypeRowMapper());
     }
 
     @Override

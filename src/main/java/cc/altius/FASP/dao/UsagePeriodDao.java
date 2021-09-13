@@ -17,5 +17,7 @@ public interface UsagePeriodDao {
 
     public List<UsagePeriod> getUsagePeriodList(boolean active, CustomUserDetails curUser);
 
+    public List<UsagePeriod> getUsagePeriodListForSync(String lastSyncDate, CustomUserDetails curUser);
+
     public int addAndUpdateUsagePeriod(List<UsagePeriod> usagePeriodList, CustomUserDetails curUser);
 }

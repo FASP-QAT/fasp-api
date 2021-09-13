@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.ForecastMethodDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ForecastMethod;
 import cc.altius.FASP.model.rowMapper.ForecastMethodRowMapper;
+import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.Arrays;
 import java.util.Date;
@@ -38,6 +39,8 @@ public class ForecastMethodDaoImpl implements ForecastMethodDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     @Autowired
     private LabelDao labelDao;
+    @Autowired
+    private AclService aclService;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -45,24 +48,34 @@ public class ForecastMethodDaoImpl implements ForecastMethodDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
+    private static String forecastMethodString = "SELECT  "
+            + "    fm.FORECAST_METHOD_ID,  "
+            + "    fm.LABEL_ID, fm.LABEL_EN, fm.LABEL_FR, fm.LABEL_SP, fm.LABEL_PR, "
+            + "    fm.ACTIVE, fm.FORECAST_METHOD_TYPE_ID, "
+            + "    cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, fm.CREATED_DATE, "
+            + "    lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME, fm.LAST_MODIFIED_DATE "
+            + "FROM vw_forecast_method fm  "
+            + "LEFT JOIN us_user cb ON fm.CREATED_BY=cb.USER_ID "
+            + "LEFT JOIN us_user lmb ON fm.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "WHERE TRUE ";
+
     @Override
     public List<ForecastMethod> getForecastMethodList(boolean active, CustomUserDetails curUser) {
-        String sqlString = "SELECT  "
-                + "    fm.FORECAST_METHOD_ID,  "
-                + "    fm.LABEL_ID, fm.LABEL_EN, fm.LABEL_FR, fm.LABEL_SP, fm.LABEL_PR, "
-                + "    fm.ACTIVE, fm.FORECAST_METHOD_TYPE_ID, "
-                + "    cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, fm.CREATED_DATE, "
-                + "    lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME, fm.LAST_MODIFIED_DATE "
-                + "FROM vw_forecast_method fm  "
-                + "LEFT JOIN us_user cb ON fm.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON fm.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE TRUE AND fm.REALM_ID=:realmId ";
+        String sqlString = forecastMethodString;
         if (active) {
             sqlString += " AND fm.ACTIVE ";
         }
-        sqlString += "ORDER BY fm.LABEL_EN";
         Map<String, Object> params = new HashMap<>();
-        params.put("realmId", curUser.getRealm().getRealmId());
+        sqlString = this.aclService.addUserAclForRealm(sqlString, params, "fm", curUser) + "ORDER BY fm.LABEL_EN";
+        return namedParameterJdbcTemplate.query(sqlString, params, new ForecastMethodRowMapper());
+    }
+
+    @Override
+    public List<ForecastMethod> getForecastMethodListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        String sqlString = forecastMethodString;
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        sqlString = this.aclService.addUserAclForRealm(sqlString, params, "fm", curUser);
         return namedParameterJdbcTemplate.query(sqlString, params, new ForecastMethodRowMapper());
     }
 

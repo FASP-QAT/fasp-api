@@ -6,7 +6,7 @@
 package cc.altius.FASP.service;
 
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimpleBaseModel;
 import java.util.List;
 
 /**
@@ -15,11 +15,10 @@ import java.util.List;
  */
 public interface ForecastingStaticDataService {
 
-    public List<SimpleObject> getUsageTypeList(boolean active, CustomUserDetails curUser);
+    public List<SimpleBaseModel> getUsageTypeList(boolean active, CustomUserDetails curUser);
 
-    public List<SimpleObject> getNodeTypeList(boolean active, CustomUserDetails curUser);
+    public List<SimpleBaseModel> getNodeTypeList(boolean active, CustomUserDetails curUser);
 
-    public List<SimpleObject> getForecastMethodTypeList(boolean active, CustomUserDetails curUser);
-
-//    public int addAndUpadteUsageType(List<UsageType> usageTypeList, CustomUserDetails curUser);
+    public List<SimpleBaseModel> getForecastMethodTypeList(boolean active, CustomUserDetails curUser);
+    
 }

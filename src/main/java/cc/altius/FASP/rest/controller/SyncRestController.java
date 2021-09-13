@@ -5,6 +5,10 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.dao.ForecastMethodDao;
+import cc.altius.FASP.dao.ForecastingStaticDataDao;
+import cc.altius.FASP.dao.ModelingTypeDao;
+import cc.altius.FASP.dao.UsagePeriodDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.MastersSync;
 import cc.altius.FASP.model.ResponseCode;
@@ -112,56 +116,63 @@ public class SyncRestController {
     private ProblemService problemService;
     @Autowired
     private UserService userService;
-
-    @GetMapping(value = "/sync/allMasters/{lastSyncDate}")
-    public ResponseEntity getAllMastersForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.parse(lastSyncDate);
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            MastersSync masters = new MastersSync();
-            masters.setCountryList(this.countryService.getCountryListForSync(lastSyncDate));
-            masters.setCurrencyList(this.currencyService.getCurrencyListForSync(lastSyncDate));
-            masters.setDimensionList(this.dimensionService.getDimensionListForSync(lastSyncDate));
-            masters.setLanguageList(this.languageService.getLanguageListForSync(lastSyncDate));
-            masters.setShipmentStatusList(this.shipmentStatusService.getShipmentStatusListForSync(lastSyncDate, curUser));
-            masters.setUnitList(this.unitService.getUnitListForSync(lastSyncDate));
-            masters.setDataSourceTypeList(this.dataSourceTypeService.getDataSourceTypeListForSync(lastSyncDate, curUser));
-            masters.setDataSourceList(this.dataSourceService.getDataSourceListForSync(lastSyncDate, curUser));
-            masters.setTracerCategoryList(this.tracerCategoryService.getTracerCategoryListForSync(lastSyncDate, curUser));
-            masters.setProductCategoryList(this.productCategoryService.getProductCategoryListForSync(lastSyncDate, curUser));
-            masters.setRealmList(this.realmService.getRealmListForSync(lastSyncDate, curUser));
-            masters.setHealthAreaList(this.healthAreaService.getHealthAreaListForSync(lastSyncDate, curUser));
-            masters.setOrganisationList(this.organisationService.getOrganisationListForSync(lastSyncDate, curUser));
-            masters.setOrganisationTypeList(this.organisationTypeService.getOrganisationTypeListForSync(lastSyncDate, curUser));
-            masters.setFundingSourceList(this.fundingSourceService.getFundingSourceListForSync(lastSyncDate, curUser));
-            masters.setProcurementAgentList(this.procurementAgentService.getProcurementAgentListForSync(lastSyncDate, curUser));
-            masters.setSupplierList(this.supplierService.getSupplierListForSync(lastSyncDate, curUser));
-            masters.setForecastingUnitList(this.forecastingUnitService.getForecastingUnitListForSync(lastSyncDate, curUser));
-            masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSync(lastSyncDate, curUser));
-            masters.setProcurementUnitList(this.procurementUnitService.getProcurementUnitListForSync(lastSyncDate, curUser));
-            masters.setRealmCountryList(this.realmCountryService.getRealmCountryListForSync(lastSyncDate, curUser));
-            masters.setRealmCountryPlanningUnitList(this.realmCountryService.getRealmCountryPlanningUnitListForSync(lastSyncDate, curUser));
-            masters.setProcurementAgentPlanningUnitList(this.procurementAgentService.getProcurementAgentPlanningUnitListForSync(lastSyncDate, curUser));
-            masters.setProcurementAgentProcurementUnitList(this.procurementAgentService.getProcurementAgentProcurementUnitListForSync(lastSyncDate, curUser));
-            masters.setProgramList(this.programService.getProgramListForSync(lastSyncDate, curUser));
-            masters.setProgramPlanningUnitList(this.programService.getProgramPlanningUnitListForSync(lastSyncDate, curUser));
-            masters.setRegionList(this.regionService.getRegionListForSync(lastSyncDate, curUser));
-            masters.setBudgetList(this.budgetService.getBudgetListForSync(lastSyncDate, curUser));
-            masters.setProblemStatusList(this.problemService.getProblemStatusForSync(lastSyncDate, curUser));
-            masters.setProblemCriticalityList(this.problemService.getProblemCriticalityForSync(lastSyncDate, curUser));
-            masters.setProblemCategoryList(this.problemService.getProblemCategoryForSync(lastSyncDate, curUser));
-            masters.setRealmProblemList(this.problemService.getProblemListForSync(lastSyncDate, curUser));
-            return new ResponseEntity(masters, HttpStatus.OK);
-        } catch (ParseException p) {
-            logger.error("Error in masters sync", p);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-        } catch (Exception e) {
-            logger.error("Error in masters sync", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
+    @Autowired
+    private ForecastingStaticDataDao forecastingStaticDataDao;
+    @Autowired
+    private UsagePeriodDao usagePeriodDao;
+    @Autowired
+    private ModelingTypeDao modelingTypeDao;
+    @Autowired
+    private ForecastMethodDao forecastMethodDao;
+    
+//    @GetMapping(value = "/sync/allMasters/{lastSyncDate}")
+//    public ResponseEntity getAllMastersForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            MastersSync masters = new MastersSync();
+//            masters.setCountryList(this.countryService.getCountryListForSync(lastSyncDate));
+//            masters.setCurrencyList(this.currencyService.getCurrencyListForSync(lastSyncDate));
+//            masters.setDimensionList(this.dimensionService.getDimensionListForSync(lastSyncDate));
+//            masters.setLanguageList(this.languageService.getLanguageListForSync(lastSyncDate));
+//            masters.setShipmentStatusList(this.shipmentStatusService.getShipmentStatusListForSync(lastSyncDate, curUser));
+//            masters.setUnitList(this.unitService.getUnitListForSync(lastSyncDate));
+//            masters.setDataSourceTypeList(this.dataSourceTypeService.getDataSourceTypeListForSync(lastSyncDate, curUser));
+//            masters.setDataSourceList(this.dataSourceService.getDataSourceListForSync(lastSyncDate, curUser));
+//            masters.setTracerCategoryList(this.tracerCategoryService.getTracerCategoryListForSync(lastSyncDate, curUser));
+//            masters.setProductCategoryList(this.productCategoryService.getProductCategoryListForSync(lastSyncDate, curUser));
+//            masters.setRealmList(this.realmService.getRealmListForSync(lastSyncDate, curUser));
+//            masters.setHealthAreaList(this.healthAreaService.getHealthAreaListForSync(lastSyncDate, curUser));
+//            masters.setOrganisationList(this.organisationService.getOrganisationListForSync(lastSyncDate, curUser));
+//            masters.setOrganisationTypeList(this.organisationTypeService.getOrganisationTypeListForSync(lastSyncDate, curUser));
+//            masters.setFundingSourceList(this.fundingSourceService.getFundingSourceListForSync(lastSyncDate, curUser));
+//            masters.setProcurementAgentList(this.procurementAgentService.getProcurementAgentListForSync(lastSyncDate, curUser));
+//            masters.setSupplierList(this.supplierService.getSupplierListForSync(lastSyncDate, curUser));
+//            masters.setForecastingUnitList(this.forecastingUnitService.getForecastingUnitListForSync(lastSyncDate, curUser));
+//            masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSync(lastSyncDate, curUser));
+//            masters.setProcurementUnitList(this.procurementUnitService.getProcurementUnitListForSync(lastSyncDate, curUser));
+//            masters.setRealmCountryList(this.realmCountryService.getRealmCountryListForSync(lastSyncDate, curUser));
+//            masters.setRealmCountryPlanningUnitList(this.realmCountryService.getRealmCountryPlanningUnitListForSync(lastSyncDate, curUser));
+//            masters.setProcurementAgentPlanningUnitList(this.procurementAgentService.getProcurementAgentPlanningUnitListForSync(lastSyncDate, curUser));
+//            masters.setProcurementAgentProcurementUnitList(this.procurementAgentService.getProcurementAgentProcurementUnitListForSync(lastSyncDate, curUser));
+//            masters.setProgramList(this.programService.getProgramListForSync(lastSyncDate, curUser));
+//            masters.setProgramPlanningUnitList(this.programService.getProgramPlanningUnitListForSync(lastSyncDate, curUser));
+//            masters.setRegionList(this.regionService.getRegionListForSync(lastSyncDate, curUser));
+//            masters.setBudgetList(this.budgetService.getBudgetListForSync(lastSyncDate, curUser));
+//            masters.setProblemStatusList(this.problemService.getProblemStatusForSync(lastSyncDate, curUser));
+//            masters.setProblemCriticalityList(this.problemService.getProblemCriticalityForSync(lastSyncDate, curUser));
+//            masters.setProblemCategoryList(this.problemService.getProblemCategoryForSync(lastSyncDate, curUser));
+//            masters.setRealmProblemList(this.problemService.getProblemListForSync(lastSyncDate, curUser));
+//            return new ResponseEntity(masters, HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error in masters sync", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error in masters sync", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
     private String getProgramIds(String[] programIds) {
         if (programIds == null) {
             return "";
@@ -230,7 +241,7 @@ public class SyncRestController {
             masters.setProcurementAgentProcurementUnitList(this.procurementAgentService.getProcurementAgentProcurementUnitListForSyncProgram(programIdsString, curUser));//programIds, 
 //            System.out.println("ProcurementAgentProcurementUnit -> " + masters.getProcurementAgentProcurementUnitList().size());
             masters.setProgramList(this.programService.getProgramListForSyncProgram(programIdsString, curUser));//programIds, 
-//            System.out.println("Program -> " + masters.getProgramList().size());
+//            System.out.println("Program -> " + m/sync/allMasters/forPrograms/{lastSyncDate}asters.getProgramList().size());
             masters.setProgramPlanningUnitList(this.programService.getProgramPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
 //            System.out.println("ProgramPlanningUnit -> " + masters.getProgramPlanningUnitList().size());
             masters.setRegionList(this.regionService.getRegionListForSyncProgram(programIdsString, curUser));//programIds, 
@@ -245,6 +256,12 @@ public class SyncRestController {
 //            System.out.println("ProblemCategory -> " + masters.getProblemCategoryList().size());
             masters.setRealmProblemList(this.problemService.getProblemListForSync(lastSyncDate, curUser));
 //            System.out.println("RealmProblem -> " + masters.getRealmProblemList().size());
+            masters.setUsageTypeList(this.forecastingStaticDataDao.getUsageTypeListForSync(lastSyncDate, curUser));
+            masters.setNodeTypeList(this.forecastingStaticDataDao.getNodeTypeListForSync(lastSyncDate, curUser));
+            masters.setForecastMethodTypeList(this.forecastingStaticDataDao.getForecastMethodTypeListForSync(lastSyncDate, curUser));
+            masters.setUsagePeriodList(this.usagePeriodDao.getUsagePeriodListForSync(lastSyncDate, curUser));
+            masters.setModelingTypeList(this.modelingTypeDao.getModelingTypeListForSync(lastSyncDate, curUser));
+            masters.setForecastMethodList(this.forecastMethodDao.getForecastMethodListForSync(lastSyncDate, curUser));
             return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);
