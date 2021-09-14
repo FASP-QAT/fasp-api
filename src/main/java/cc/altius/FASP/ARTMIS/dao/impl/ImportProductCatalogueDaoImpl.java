@@ -84,9 +84,9 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
     private String CATALOG_FILE_PATH;
     @Value("${catalogBkpFilePath}")
     private String BKP_CATALOG_FILE_PATH;
-    @Value("${email.toList}")
+    @Value("${email.catalogToList}")
     private String toList;
-    @Value("${email.ccList}")
+    @Value("${email.catalogCCList}")
     private String ccList;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     private static final String br = "\n<br/>";
