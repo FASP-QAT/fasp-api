@@ -122,6 +122,11 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
+    public List<Program> getDatasetList(CustomUserDetails curUser, boolean active) {
+        return this.programDao.getDatasetList(curUser, active);
+    }
+
+    @Override
     public List<Program> getProgramListForRealmId(int realmId, CustomUserDetails curUser) {
         Realm r = this.realmDao.getRealmById(realmId, curUser);
         if (r == null) {

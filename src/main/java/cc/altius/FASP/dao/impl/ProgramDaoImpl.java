@@ -97,7 +97,7 @@ public class ProgramDaoImpl implements ProgramDao {
     private ProgramService programService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public String sqlListString = "SELECT   "
+    private static String sqlListString1 = "SELECT   "
             + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME,  "
             + "     cpv.VERSION_ID `CV_VERSION_ID`, cpv.NOTES `CV_VERSION_NOTES`, cpv.CREATED_DATE `CV_CREATED_DATE`, cpvcb.USER_ID `CV_CB_USER_ID`, cpvcb.USERNAME `CV_CB_USERNAME`, cpv.LAST_MODIFIED_DATE `CV_LAST_MODIFIED_DATE`, cpvlmb.USER_ID `CV_LMB_USER_ID`, cpvlmb.USERNAME `CV_LMB_USERNAME`,  "
             + "     vt.VERSION_TYPE_ID `CV_VERSION_TYPE_ID`, vt.LABEL_ID `CV_VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `CV_VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `CV_VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `CV_VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `CV_VERSION_TYPE_LABEL_PR`,  "
@@ -121,9 +121,9 @@ public class ProgramDaoImpl implements ProgramDao {
             + "     pv.VERSION_ID `VT_VERSION_ID`, pv.NOTES `VT_VERSION_NOTES`, pv.CREATED_DATE `VT_CREATED_DATE`, pvcb.USER_ID `VT_CB_USER_ID`, pvcb.USERNAME `VT_CB_USERNAME`, pv.LAST_MODIFIED_DATE `VT_LAST_MODIFIED_DATE`, pvlmb.USER_ID `VT_LMB_USER_ID`, pvlmb.USERNAME `VT_LMB_USERNAME`,  "
             + "     pvt.VERSION_TYPE_ID `VT_VERSION_TYPE_ID`, pvt.LABEL_ID `VT_VERSION_TYPE_LABEL_ID`, pvt.LABEL_EN `VT_VERSION_TYPE_LABEL_EN`, pvt.LABEL_FR `VT_VERSION_TYPE_LABEL_FR`, pvt.LABEL_SP `VT_VERSION_TYPE_LABEL_SP`, pvt.LABEL_PR `VT_VERSION_TYPE_LABEL_PR`,  "
             + "     pvs.VERSION_STATUS_ID `VT_VERSION_STATUS_ID`, pvs.LABEL_ID `VT_VERSION_STATUS_LABEL_ID`, pvs.LABEL_EN `VT_VERSION_STATUS_LABEL_EN`, pvs.LABEL_FR `VT_VERSION_STATUS_LABEL_FR`, pvs.LABEL_SP `VT_VERSION_STATUS_LABEL_SP`, pvs.LABEL_PR `VT_VERSION_STATUS_LABEL_PR`,  "
-            + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE  "
-            + " FROM vw_program p   "
-            + " LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
+            + "     p.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, p.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, p.LAST_MODIFIED_DATE  ";
+
+    private static String sqlListString2 = " LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID  "
             + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID  "
             + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
             + " LEFT JOIN vw_currency cu ON rc.DEFAULT_CURRENCY_ID=cu.CURRENCY_ID  "
@@ -148,6 +148,8 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN us_user pvlmb ON pv.LAST_MODIFIED_BY=pvlmb.USER_ID  "
             + " WHERE TRUE ";
     private final String sqlOrderBy = " ORDER BY p.PROGRAM_CODE, pv.VERSION_ID";
+    public String sqlProgramListString = sqlListString1 + " FROM vw_program p   " + sqlListString2;
+    public String sqlDatasetListString = sqlListString1 + " FROM vw_program p   " + sqlListString2;
 
     public String sqlListStringForProgramPlanningUnit = "SELECT ppu.PROGRAM_PLANNING_UNIT_ID,   "
             + "    pg.PROGRAM_ID, pg.LABEL_ID `PROGRAM_LABEL_ID`, pg.LABEL_EN `PROGRAM_LABEL_EN`, pg.LABEL_FR `PROGRAM_LABEL_FR`, pg.LABEL_PR `PROGRAM_LABEL_PR`, pg.LABEL_SP `PROGRAM_LABEL_SP`,  "
@@ -360,7 +362,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<Program> getProgramListForProgramIds(String[] programIds, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlProgramListString);
         StringBuilder paramBuilder = new StringBuilder();
         for (String pId : programIds) {
             paramBuilder.append("'").append(pId).append("',");
@@ -376,7 +378,19 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<Program> getProgramList(CustomUserDetails curUser, boolean active) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlProgramListString);
+        Map<String, Object> params = new HashMap<>();
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        if (active) {
+            sqlStringBuilder.append(" AND p.ACTIVE ").append(this.sqlOrderBy);
+        }
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramListResultSetExtractor());
+    }
+
+    @Override
+    public List<Program> getDatasetList(CustomUserDetails curUser, boolean active) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlDatasetListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
@@ -388,7 +402,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<Program> getProgramListForRealmId(int realmId, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlProgramListString);
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", realmId, curUser);
@@ -399,7 +413,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public Program getProgramById(int programId, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND p.PROGRAM_ID=:programId");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlProgramListString).append(" AND p.PROGRAM_ID=:programId");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         sqlStringBuilder.append(this.sqlOrderBy);
@@ -589,7 +603,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<Program> getProgramListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND p.LAST_MODIFIED_DATE>:lastSyncDate ");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlProgramListString).append(" AND p.LAST_MODIFIED_DATE>:lastSyncDate ");
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
@@ -627,7 +641,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public Program getProgramList(int realmId, int programId, int versionId) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString);
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlProgramListString);
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
         params.put("programId", programId);
@@ -2212,7 +2226,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<Program> getProgramListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND p.PROGRAM_ID IN (").append(programIdsString).append(") ");
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlProgramListString).append(" AND p.PROGRAM_ID IN (").append(programIdsString).append(") ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
