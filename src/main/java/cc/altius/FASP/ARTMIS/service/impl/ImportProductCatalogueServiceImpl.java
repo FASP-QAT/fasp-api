@@ -41,9 +41,9 @@ public class ImportProductCatalogueServiceImpl implements ImportProductCatalogue
     private String QAT_FILE_PATH;
     @Value("${catalogFilePath}")
     private String CATALOG_FILE_PATH;
-    @Value("${email.toList}")
+    @Value("${email.catalogToList}")
     private String toList;
-    @Value("${email.ccList}")
+    @Value("${email.catalogCCList}")
     private String ccList;
     private static final String br = "\n<br/>";
 
