@@ -149,7 +149,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + " WHERE TRUE ";
     private final String sqlOrderBy = " ORDER BY p.PROGRAM_CODE, pv.VERSION_ID";
     public String sqlProgramListString = sqlListString1 + " FROM vw_program p   " + sqlListString2;
-    public String sqlDatasetListString = sqlListString1 + " FROM vw_program p   " + sqlListString2;
+    public String sqlDatasetListString = sqlListString1 + " FROM vw_dataset p   " + sqlListString2;
 
     public String sqlListStringForProgramPlanningUnit = "SELECT ppu.PROGRAM_PLANNING_UNIT_ID,   "
             + "    pg.PROGRAM_ID, pg.LABEL_ID `PROGRAM_LABEL_ID`, pg.LABEL_EN `PROGRAM_LABEL_EN`, pg.LABEL_FR `PROGRAM_LABEL_FR`, pg.LABEL_PR `PROGRAM_LABEL_PR`, pg.LABEL_SP `PROGRAM_LABEL_SP`,  "
