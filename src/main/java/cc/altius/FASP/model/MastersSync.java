@@ -53,6 +53,7 @@ public class MastersSync implements Serializable {
     private List<UsagePeriod> usagePeriodList;
     private List<ModelingType> modelingTypeList;
     private List<ForecastMethod> forecastMethodList;
+    private List<UsageTemplate> usageTemplateList;
 
     public List<Country> getCountryList() {
         return countryList;
@@ -356,6 +357,14 @@ public class MastersSync implements Serializable {
 
     public void setForecastMethodList(List<ForecastMethod> forecastMethodList) {
         this.forecastMethodList = forecastMethodList;
+    }
+
+    public List<UsageTemplate> getUsageTemplateList() {
+        return usageTemplateList;
+    }
+
+    public void setUsageTemplateList(List<UsageTemplate> usageTemplateList) {
+        this.usageTemplateList = usageTemplateList;
     }
 
 }

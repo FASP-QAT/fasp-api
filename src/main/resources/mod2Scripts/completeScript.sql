@@ -547,8 +547,9 @@ VIEW `vw_program` AS
     GROUP BY `p`.`PROGRAM_ID`;
 
 
+USE `fasp`;
 CREATE 
-    ALGORITHM = UNDEFINED 
+     OR REPLACE ALGORITHM = UNDEFINED 
     DEFINER = `faspUser`@`%` 
     SQL SECURITY DEFINER
 VIEW `vw_dataset` AS
@@ -562,6 +563,14 @@ VIEW `vw_dataset` AS
         `p`.`LABEL_ID` AS `LABEL_ID`,
         `p`.`PROGRAM_MANAGER_USER_ID` AS `PROGRAM_MANAGER_USER_ID`,
         `p`.`PROGRAM_NOTES` AS `PROGRAM_NOTES`,
+        `p`.`AIR_FREIGHT_PERC` AS `AIR_FREIGHT_PERC`,
+        `p`.`SEA_FREIGHT_PERC` AS `SEA_FREIGHT_PERC`,
+        `p`.`PLANNED_TO_SUBMITTED_LEAD_TIME` AS `PLANNED_TO_SUBMITTED_LEAD_TIME`,
+        `p`.`SUBMITTED_TO_APPROVED_LEAD_TIME` AS `SUBMITTED_TO_APPROVED_LEAD_TIME`,
+        `p`.`APPROVED_TO_SHIPPED_LEAD_TIME` AS `APPROVED_TO_SHIPPED_LEAD_TIME`,
+        `p`.`SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME` AS `SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME`,
+        `p`.`SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME` AS `SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME`,
+        `p`.`ARRIVED_TO_DELIVERED_LEAD_TIME` AS `ARRIVED_TO_DELIVERED_LEAD_TIME`,
         `p`.`CURRENT_VERSION_ID` AS `CURRENT_VERSION_ID`,
         `p`.`ACTIVE` AS `ACTIVE`,
         `p`.`CREATED_BY` AS `CREATED_BY`,
@@ -579,6 +588,7 @@ VIEW `vw_dataset` AS
     WHERE
         (`p`.`PROGRAM_TYPE_ID` = 2)
     GROUP BY `p`.`PROGRAM_ID`;
+
 
 
 CREATE TABLE `fasp`.`rm_equivalency_unit_mapping` (
@@ -654,3 +664,79 @@ insert into ap_static_label values (null, 'static.message.user.moduleChangeError
 SELECT last_insert_id() into @id;
 SELECT @id;
 INSERT INTO ap_static_label_languages values (null, @id, 1, 'An error occurred while setting the default Module for user');
+
+
+CREATE TABLE `fasp`.`rm_usage_template` (
+  `USAGE_TEMPLATE_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each usage',
+  `REALM_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key of Realm Id that the Program belongs to',
+  `PROGRAM_ID` INT(10) UNSIGNED NULL COMMENT 'Foreign key to indicate which Program Id',
+  `LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',
+  `FORECASTING_UNIT_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Foreign key to indicate forecasting id',
+  `LAG_IN_MONTHS` INT(10) UNSIGNED NOT NULL COMMENT '# of months to wait before using',
+  `USAGE_TYPE_ID` INT(10) UNSIGNED NOT NULL COMMENT '1 for Discrete, 2 for Continuous',
+  `NO_OF_PATIENTS` INT(10) UNSIGNED NOT NULL COMMENT '# of Patients this usage will be used for',
+  `NO_OF_FORECASTING_UNITS` INT(10) UNSIGNED NOT NULL COMMENT '# of Forecasting Units ',
+  `ONE_TIME_USAGE` TINYINT(1) UNSIGNED NOT NULL,
+  `USAGE_FREQUENCY_USAGE_PERIOD_ID` INT(10) UNSIGNED NULL COMMENT 'Foreign Key that points to the UsagePeriod (every day, week, month etc)',
+  `USAGE_FREQUENCY_COUNT` DECIMAL(16,4) UNSIGNED NULL COMMENT '# of UsagePeriod that this is given over',
+  `REPEAT_USAGE_PERIOD_ID` INT(10) UNSIGNED NULL COMMENT 'Foreign Key that points to the UsagePeriod (every day, week, month etc) for Repeat Count',
+  `REPEAT_COUNT` DECIMAL(16,4) UNSIGNED NULL COMMENT '# of times it is repeated for the Discrete type',
+  `ACTIVE` TINYINT(1) UNSIGNED NOT NULL ,
+  `CREATED_DATE` DATETIME NOT NULL ,
+  `CREATED_BY` INT(10) UNSIGNED NOT NULL ,
+  `LAST_MODIFIED_DATE` DATETIME NOT NULL ,
+  `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (`USAGE_TEMPLATE_ID`),
+INDEX `fk_rm_usage_template_realmId_idx` (`REALM_ID` ASC),
+INDEX `fk_rm_usage_template_programId_idx` (`PROGRAM_ID` ASC),
+INDEX `fk_rm_usage_template_labelId_idx` (`LABEL_ID` ASC),
+INDEX `fk_rm_usage_template_forecastingUnitId_idx` (`FORECASTING_UNIT_ID` ASC),
+INDEX `fk_rm_usage_template_usageTypeId_idx` (`USAGE_TYPE_ID` ASC),
+INDEX `fk_rm_usage_template_usageFrequencyUsagePeriodId_idx` (`USAGE_FREQUENCY_USAGE_PERIOD_ID` ASC),
+INDEX `fk_rm_usage_template_createdBy_idx` (`CREATED_BY` ASC),
+INDEX `fk_rm_usage_template_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC),
+CONSTRAINT `fk_rm_usage_template_realmId`
+  FOREIGN KEY (`REALM_ID`)
+  REFERENCES `fasp`.`rm_realm` (`REALM_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+CONSTRAINT `fk_rm_usage_template_programId`
+  FOREIGN KEY (`PROGRAM_ID`)
+  REFERENCES `fasp`.`rm_program` (`PROGRAM_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+CONSTRAINT `fk_rm_usage_template_labelId`
+  FOREIGN KEY (`LABEL_ID`)
+  REFERENCES `fasp`.`ap_label` (`LABEL_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+CONSTRAINT `fk_rm_usage_template_forecastingUnitId`
+  FOREIGN KEY (`FORECASTING_UNIT_ID`)
+  REFERENCES `fasp`.`rm_forecasting_unit` (`FORECASTING_UNIT_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+CONSTRAINT `fk_rm_usage_template_usageTypeId`
+  FOREIGN KEY (`USAGE_TYPE_ID`)
+  REFERENCES `fasp`.`ap_usage_type` (`USAGE_TYPE_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+CONSTRAINT `fk_rm_usage_template_usageFrequencyUsagePeriodId`
+  FOREIGN KEY (`USAGE_FREQUENCY_USAGE_PERIOD_ID`)
+  REFERENCES `fasp`.`ap_usage_period` (`USAGE_PERIOD_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+CONSTRAINT `fk_rm_usage_template_repeatUsagePeriodId`
+  FOREIGN KEY (`REPEAT_USAGE_PERIOD_ID`)
+  REFERENCES `fasp`.`ap_usage_period` (`USAGE_PERIOD_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+CONSTRAINT `fk_rm_usage_template_createdBy`
+  FOREIGN KEY (`CREATED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+CONSTRAINT `fk_rm_usage_template_lastModifiedBy`
+  FOREIGN KEY (`LAST_MODIFIED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION);

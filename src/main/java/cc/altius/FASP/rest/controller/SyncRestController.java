@@ -9,6 +9,7 @@ import cc.altius.FASP.dao.ForecastMethodDao;
 import cc.altius.FASP.dao.ForecastingStaticDataDao;
 import cc.altius.FASP.dao.ModelingTypeDao;
 import cc.altius.FASP.dao.UsagePeriodDao;
+import cc.altius.FASP.dao.UsageTemplateDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.MastersSync;
 import cc.altius.FASP.model.ResponseCode;
@@ -124,6 +125,8 @@ public class SyncRestController {
     private ModelingTypeDao modelingTypeDao;
     @Autowired
     private ForecastMethodDao forecastMethodDao;
+    @Autowired
+    private UsageTemplateDao usageTemplateDao;
     
 //    @GetMapping(value = "/sync/allMasters/{lastSyncDate}")
 //    public ResponseEntity getAllMastersForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
@@ -262,6 +265,7 @@ public class SyncRestController {
             masters.setUsagePeriodList(this.usagePeriodDao.getUsagePeriodListForSync(lastSyncDate, curUser));
             masters.setModelingTypeList(this.modelingTypeDao.getModelingTypeListForSync(lastSyncDate, curUser));
             masters.setForecastMethodList(this.forecastMethodDao.getForecastMethodListForSync(lastSyncDate, curUser));
+            masters.setUsageTemplateList(this.usageTemplateDao.getUsageTemplateListForSync(programIdsString, curUser));
             return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);
