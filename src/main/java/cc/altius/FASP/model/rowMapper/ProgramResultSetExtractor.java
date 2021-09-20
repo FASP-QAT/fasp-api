@@ -56,6 +56,7 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
                 p.setShippedToArrivedBySeaLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME"));
                 p.setShippedToArrivedByAirLeadTime(rs.getDouble("SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME"));
                 p.setArrivedToDeliveredLeadTime(rs.getDouble("ARRIVED_TO_DELIVERED_LEAD_TIME"));
+                p.setProgramTypeId(rs.getInt("PROGRAM_TYPE_ID"));
                 p.setCurrentVersion(new Version(
                         rs.getInt("CV_VERSION_ID"),
                         new SimpleObject(rs.getInt("CV_VERSION_TYPE_ID"), new LabelRowMapper("CV_VERSION_TYPE_").mapRow(rs, 1)),
