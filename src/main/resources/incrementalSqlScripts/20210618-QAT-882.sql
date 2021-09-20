@@ -3,7 +3,7 @@ set @MAXID=(select max(l.LABEL_ID) from ap_label l);
 insert into us_business_function values ('ROLE_BF_READONLY_ACCESS_REALM_ADMIN',@MAXID,1,now(),1,now());
 insert into us_role_business_function values (null,'ROLE_REALM_ADMIN','ROLE_BF_READONLY_ACCESS_REALM_ADMIN',1,now(),1,now());
 
-
+delete from us_role_business_function  where us_role_business_function.BUSINESS_FUNCTION_ID= 'ROLE_BF_CREATE_REALM' and us_role_business_function.ROLE_ID='ROLE_REALM_ADMIN';
 delete from us_role_business_function  where us_role_business_function.BUSINESS_FUNCTION_ID= 'ROLE_BF_ADD_PROBLEM' and us_role_business_function.ROLE_ID='ROLE_APPLICATION_ADMIN';
 delete from us_role_business_function  where us_role_business_function.BUSINESS_FUNCTION_ID= 'ROLE_BF_ANNUAL_SHIPMENT_COST_REPORT' and us_role_business_function.ROLE_ID='ROLE_APPLICATION_ADMIN';
 delete from us_role_business_function  where us_role_business_function.BUSINESS_FUNCTION_ID= 'ROLE_BF_APPROVE_A_VERSION' and us_role_business_function.ROLE_ID='ROLE_APPLICATION_ADMIN';
