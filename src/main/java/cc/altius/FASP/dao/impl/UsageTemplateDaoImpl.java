@@ -86,7 +86,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
 
     @Override
     public List<UsageTemplate> getUsageTemplateListForSync(String programIdsString, CustomUserDetails curUser) {
-        StringBuilder sqlString = new StringBuilder(usageTemplateString).append(" AND (ut.PROGRAM_ID IS NULL OR FIND_IN_SET(ut.PROGRAM_ID, '").append(programIdsString).append("'");
+        StringBuilder sqlString = new StringBuilder(usageTemplateString).append(" AND (ut.PROGRAM_ID IS NULL OR ut.PROGRAM_ID IN (").append(programIdsString).append(")");
         Map<String, Object> params = new HashMap<>();
         params.put("programIdsString", programIdsString);
         this.aclService.addUserAclForRealm(sqlString, params, "ut", curUser);
