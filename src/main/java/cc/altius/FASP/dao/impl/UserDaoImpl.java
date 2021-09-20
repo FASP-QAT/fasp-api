@@ -166,7 +166,7 @@ public class UserDaoImpl implements UserDao {
             + "    LEFT JOIN ap_label acl_program_lb on acl_program.`LABEL_ID`=acl_program_lb.`LABEL_ID` "
             + "    LEFT JOIN us_role_business_function rbf ON role.ROLE_ID=rbf.ROLE_ID "
             + "    LEFT JOIN us_user cu ON user.REALM_ID=cu.REALM_ID OR cu.REALM_ID IS NULL "
-            + "    WHERE cu.USER_ID=:curUser AND `user`.`USER_ID` IN (" + userAccessString + ")";
+            + "    WHERE cu.USER_ID=:curUser ";
 
     private static final String userOrderBy = " ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,acl.`USER_ACL_ID`";
 
@@ -396,22 +396,20 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public List<User> getUserList(CustomUserDetails curUser) {
-        String sql = this.userString + this.userOrderBy;
+        String sql = this.userString + "AND `user`.`USER_ID` IN (" + userAccessString + ")" + this.userOrderBy;
         Map<String, Object> params = new HashMap<>();
         params.put("curUser", curUser.getUserId());
+        params.put("realmId", curUser.getRealm().getRealmId());
+        params.put("userRealmId", curUser.getRealm().getRealmId());
         return this.namedParameterJdbcTemplate.query(sql, params, new UserListResultSetExtractor());
     }
 
     @Override
     public List<User> getUserListForRealm(int realmId, CustomUserDetails curUser) {
-        String sql = this.userString + " AND user.REALM_ID=:realmId ";
-
+        String sql = this.userString + "AND `user`.`USER_ID` IN (" + userAccessString + ")" + " AND user.REALM_ID=:realmId ";
         Map<String, Object> params = new HashMap<>();
         params.put("realmId", realmId);
-        if (curUser.getRealm().getRealmId() != -1) {
-            params.put("userRealmId", curUser.getRealm().getRealmId());
-            sql += " AND user.REALM_ID=:userRealmId ";
-        }
+        params.put("userRealmId", curUser.getRealm().getRealmId());
         params.put("curUser", curUser.getUserId());
         sql += this.userOrderBy;
         return this.namedParameterJdbcTemplate.query(sql, params, new UserListResultSetExtractor());
