@@ -1051,6 +1051,30 @@ INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE
 INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_DATASET_ADMIN','ROLE_BF_APPLICATION_DASHBOARD','1',NOW(),'1',NOW()); 
 -- Shubham script end date-16th sep
 
+-- Anchal's script for access control screen
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.programAndDataset','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program/Dataset');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Programme/Ensemble de données');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Programa / conjunto de datos');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Programa / conjunto de dados');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.pr','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'PR - ');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'RP - ');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'PR - ');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'PR - ');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.fr','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'FR - ');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'FP - ');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'FR - ');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'FR - ');-- pr
 
 USE `fasp`;
 CREATE 
