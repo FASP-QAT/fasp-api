@@ -21,4 +21,10 @@ public interface ForecastingStaticDataService {
 
     public List<SimpleBaseModel> getForecastMethodTypeList(boolean active, CustomUserDetails curUser);
     
+    public List<SimpleBaseModel> getUsageTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
+
+    public List<SimpleBaseModel> getNodeTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
+
+    public List<SimpleBaseModel> getForecastMethodTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
+    
 }

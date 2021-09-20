@@ -16,6 +16,8 @@ import java.util.List;
 public interface ModelingTypeService {
 
     public List<ModelingType> getModelingTypeList(boolean active, CustomUserDetails curUser);
+    
+    public List<ModelingType> getModelingTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
 
     public int addAndUpdateModelingType(List<ModelingType> modelingTypeList, CustomUserDetails curUser);
 }

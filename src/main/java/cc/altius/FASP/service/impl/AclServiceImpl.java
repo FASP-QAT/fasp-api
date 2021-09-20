@@ -22,8 +22,6 @@ import org.springframework.stereotype.Service;
 public class AclServiceImpl implements AclService {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-//    @Autowired
-//    private ProgramService programService;
 
     @Override
     public boolean checkAccessForUser(CustomUserDetails curUser, int realmId, int realmCountryId, List<Integer> healthAreaIdList, int organisationId, int programId) {

@@ -29,6 +29,11 @@ public class ModelingTypeServiceImpl implements ModelingTypeService {
     }
 
     @Override
+    public List<ModelingType> getModelingTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.modelingTypeDao.getModelingTypeListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
     public int addAndUpdateModelingType(List<ModelingType> modelingTypeList, CustomUserDetails curUser) {
         return this.modelingTypeDao.addAndUpdateModelingType(modelingTypeList, curUser);
     }

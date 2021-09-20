@@ -18,4 +18,6 @@ public interface UsageTemplateService {
     public List<UsageTemplate> getUsageTemplateList(boolean active, CustomUserDetails curUser);
 
     public int addAndUpdateUsageTemplate(List<UsageTemplate> usageTemplateList, CustomUserDetails curUser);
+    
+    public List<UsageTemplate> getUsageTemplateListForSync(String programIdsString, CustomUserDetails curUser);
 }

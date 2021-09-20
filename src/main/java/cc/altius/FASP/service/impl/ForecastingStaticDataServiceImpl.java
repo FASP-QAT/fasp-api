@@ -38,4 +38,21 @@ public class ForecastingStaticDataServiceImpl implements ForecastingStaticDataSe
         return this.forecastingStaticDataDao.getForecastMethodTypeList(active, curUser);
     }
 
+    @Override
+    public List<SimpleBaseModel> getUsageTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.forecastingStaticDataDao.getUsageTypeListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
+    public List<SimpleBaseModel> getNodeTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.forecastingStaticDataDao.getNodeTypeListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
+    public List<SimpleBaseModel> getForecastMethodTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.forecastingStaticDataDao.getForecastMethodTypeListForSync(lastSyncDate, curUser);
+    }
+    
+    
+
 }

@@ -33,4 +33,9 @@ public class UsageTemplateServiceImpl implements UsageTemplateService {
         return this.usageTemplateDao.addAndUpdateUsageTemplate(usageTemplateList, curUser);
     }
 
+    @Override
+    public List<UsageTemplate> getUsageTemplateListForSync(String programIdsString, CustomUserDetails curUser) {
+        return this.usageTemplateDao.getUsageTemplateListForSync(programIdsString, curUser);
+    }
+
 }

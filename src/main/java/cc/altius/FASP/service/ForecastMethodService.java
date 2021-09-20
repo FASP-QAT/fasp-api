@@ -17,5 +17,7 @@ public interface ForecastMethodService {
 
     public List<ForecastMethod> getForecastMethodList(boolean active, CustomUserDetails curUser);
 
+    public List<ForecastMethod> getForecastMethodListForSync(String lastSyncDate, CustomUserDetails curUser);
+    
     public int addAndUpdateForecastMethod(List<ForecastMethod> forecastMethodList, CustomUserDetails curUser);
 }

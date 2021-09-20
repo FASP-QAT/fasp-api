@@ -29,6 +29,11 @@ public class UsagePeriodServiceImpl implements UsagePeriodService {
     }
 
     @Override
+    public List<UsagePeriod> getUsagePeriodListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.usagePeriodDao.getUsagePeriodListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
     public int addAndUpdateUsagePeriod(List<UsagePeriod> usagePeriodList, CustomUserDetails curUser) {
         return this.usagePeriodDao.addAndUpdateUsagePeriod(usagePeriodList, curUser);
     }

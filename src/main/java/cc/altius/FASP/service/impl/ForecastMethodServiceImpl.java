@@ -29,6 +29,11 @@ public class ForecastMethodServiceImpl implements ForecastMethodService {
     }
 
     @Override
+    public List<ForecastMethod> getForecastMethodListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.forecastMethodDao.getForecastMethodListForSync(lastSyncDate, curUser);
+    }
+
+    @Override
     public int addAndUpdateForecastMethod(List<ForecastMethod> forecastMethodList, CustomUserDetails curUser) {
         return this.forecastMethodDao.addAndUpdateForecastMethod(forecastMethodList, curUser);
     }

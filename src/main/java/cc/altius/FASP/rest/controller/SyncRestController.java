@@ -5,11 +5,6 @@
  */
 package cc.altius.FASP.rest.controller;
 
-import cc.altius.FASP.dao.ForecastMethodDao;
-import cc.altius.FASP.dao.ForecastingStaticDataDao;
-import cc.altius.FASP.dao.ModelingTypeDao;
-import cc.altius.FASP.dao.UsagePeriodDao;
-import cc.altius.FASP.dao.UsageTemplateDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.MastersSync;
 import cc.altius.FASP.model.ResponseCode;
@@ -19,10 +14,13 @@ import cc.altius.FASP.service.CurrencyService;
 import cc.altius.FASP.service.DataSourceService;
 import cc.altius.FASP.service.DataSourceTypeService;
 import cc.altius.FASP.service.DimensionService;
+import cc.altius.FASP.service.ForecastMethodService;
+import cc.altius.FASP.service.ForecastingStaticDataService;
 import cc.altius.FASP.service.ForecastingUnitService;
 import cc.altius.FASP.service.FundingSourceService;
 import cc.altius.FASP.service.HealthAreaService;
 import cc.altius.FASP.service.LanguageService;
+import cc.altius.FASP.service.ModelingTypeService;
 import cc.altius.FASP.service.OrganisationService;
 import cc.altius.FASP.service.OrganisationTypeService;
 import cc.altius.FASP.service.PlanningUnitService;
@@ -38,6 +36,8 @@ import cc.altius.FASP.service.ShipmentStatusService;
 import cc.altius.FASP.service.SupplierService;
 import cc.altius.FASP.service.TracerCategoryService;
 import cc.altius.FASP.service.UnitService;
+import cc.altius.FASP.service.UsagePeriodService;
+import cc.altius.FASP.service.UsageTemplateService;
 import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -118,15 +118,15 @@ public class SyncRestController {
     @Autowired
     private UserService userService;
     @Autowired
-    private ForecastingStaticDataDao forecastingStaticDataDao;
+    private ForecastingStaticDataService forecastingStaticDataService;
     @Autowired
-    private UsagePeriodDao usagePeriodDao;
+    private UsagePeriodService usagePeriodService;
     @Autowired
-    private ModelingTypeDao modelingTypeDao;
+    private ModelingTypeService modelingTypeService;
     @Autowired
-    private ForecastMethodDao forecastMethodDao;
+    private ForecastMethodService forecastMethodService;
     @Autowired
-    private UsageTemplateDao usageTemplateDao;
+    private UsageTemplateService usageTemplateService;
     
 //    @GetMapping(value = "/sync/allMasters/{lastSyncDate}")
 //    public ResponseEntity getAllMastersForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
@@ -259,13 +259,13 @@ public class SyncRestController {
 //            System.out.println("ProblemCategory -> " + masters.getProblemCategoryList().size());
             masters.setRealmProblemList(this.problemService.getProblemListForSync(lastSyncDate, curUser));
 //            System.out.println("RealmProblem -> " + masters.getRealmProblemList().size());
-            masters.setUsageTypeList(this.forecastingStaticDataDao.getUsageTypeListForSync(lastSyncDate, curUser));
-            masters.setNodeTypeList(this.forecastingStaticDataDao.getNodeTypeListForSync(lastSyncDate, curUser));
-            masters.setForecastMethodTypeList(this.forecastingStaticDataDao.getForecastMethodTypeListForSync(lastSyncDate, curUser));
-            masters.setUsagePeriodList(this.usagePeriodDao.getUsagePeriodListForSync(lastSyncDate, curUser));
-            masters.setModelingTypeList(this.modelingTypeDao.getModelingTypeListForSync(lastSyncDate, curUser));
-            masters.setForecastMethodList(this.forecastMethodDao.getForecastMethodListForSync(lastSyncDate, curUser));
-            masters.setUsageTemplateList(this.usageTemplateDao.getUsageTemplateListForSync(programIdsString, curUser));
+            masters.setUsageTypeList(this.forecastingStaticDataService.getUsageTypeListForSync(lastSyncDate, curUser));
+            masters.setNodeTypeList(this.forecastingStaticDataService.getNodeTypeListForSync(lastSyncDate, curUser));
+            masters.setForecastMethodTypeList(this.forecastingStaticDataService.getForecastMethodTypeListForSync(lastSyncDate, curUser));
+            masters.setUsagePeriodList(this.usagePeriodService.getUsagePeriodListForSync(lastSyncDate, curUser));
+            masters.setModelingTypeList(this.modelingTypeService.getModelingTypeListForSync(lastSyncDate, curUser));
+            masters.setForecastMethodList(this.forecastMethodService.getForecastMethodListForSync(lastSyncDate, curUser));
+            masters.setUsageTemplateList(this.usageTemplateService.getUsageTemplateListForSync(programIdsString, curUser));
             return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);
