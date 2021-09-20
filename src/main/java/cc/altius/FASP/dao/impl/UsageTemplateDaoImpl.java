@@ -88,7 +88,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
     public List<UsageTemplate> getUsageTemplateListForSync(String programIdsString, CustomUserDetails curUser) {
         StringBuilder sqlString = new StringBuilder(usageTemplateString);
         if (programIdsString.length() > 0) {
-            sqlString.append(" AND (ut.PROGRAM_ID IS NULL OR ut.PROGRAM_ID IN (").append(programIdsString).append(")");
+            sqlString.append(" AND (ut.PROGRAM_ID IS NULL OR ut.PROGRAM_ID IN (").append(programIdsString).append("))");
         } else {
             sqlString.append(" AND ut.PROGRAM_ID IS NULL");
         }
