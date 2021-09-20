@@ -74,6 +74,24 @@ public class UserDaoImpl implements UserDao {
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
 
+    private final static String userAccessString = "SELECT a1.USER_ID FROM (SELECT      "
+            + "    `user`.`USER_ID`, "
+            + "    BIT_or(IF( "
+            + "            (cuacl.REALM_COUNTRY_ID=acl.REALM_COUNTRY_ID OR cuacl.REALM_COUNTRY_ID is null) AND  "
+            + "            (cuacl.HEALTH_AREA_ID=acl.HEALTH_AREA_ID OR cuacl.HEALTH_AREA_ID is null) AND "
+            + "            (cuacl.ORGANISATION_ID=acl.ORGANISATION_ID OR cuacl.ORGANISATION_ID is null) AND "
+            + "            (cuacl.PROGRAM_ID=acl.PROGRAM_ID OR cuacl.PROGRAM_ID is null) "
+            + "        , 1,0)) access "
+            + "FROM us_user `user`      "
+            + "LEFT JOIN us_user_acl acl ON `user`.`USER_ID`=acl.`USER_ID`      "
+            + "LEFT JOIN us_user cu ON user.REALM_ID=cu.REALM_ID OR cu.REALM_ID IS NULL      "
+            + "LEFT JOIN us_user_acl cuacl ON cu.USER_ID=cuacl.USER_ID "
+            + "WHERE  "
+            + "    cu.USER_ID=:curUser   "
+            + "    AND user.REALM_ID=:realmId   "
+            + "    AND user.REALM_ID=:userRealmId   "
+            + "group by user.USER_ID "
+            + "having access) a1";
     private final static String customUserString = " SELECT "
             + " `user`.`USER_ID`,`user`.`AGREEMENT_ACCEPTED`, `user`.`USERNAME`, `user`.`PASSWORD`,`user`.`SYNC_EXPIRES_ON`, "
             + " `user`.`FAILED_ATTEMPTS`, `user`.`LAST_LOGIN_DATE`, "
@@ -148,7 +166,7 @@ public class UserDaoImpl implements UserDao {
             + "    LEFT JOIN ap_label acl_program_lb on acl_program.`LABEL_ID`=acl_program_lb.`LABEL_ID` "
             + "    LEFT JOIN us_role_business_function rbf ON role.ROLE_ID=rbf.ROLE_ID "
             + "    LEFT JOIN us_user cu ON user.REALM_ID=cu.REALM_ID OR cu.REALM_ID IS NULL "
-            + "    WHERE cu.USER_ID=:curUser ";
+            + "    WHERE cu.USER_ID=:curUser AND `user`.`USER_ID` IN (" + userAccessString + ")";
 
     private static final String userOrderBy = " ORDER BY `user`.`USER_ID`, role.`ROLE_ID`,acl.`USER_ACL_ID`";
 
@@ -266,7 +284,6 @@ public class UserDaoImpl implements UserDao {
 //        }
 //        return responseMap;
 //    }
-
     @Override
     public int resetFailedAttemptsByUsername(String emailId) {
         try {
@@ -741,7 +758,7 @@ public class UserDaoImpl implements UserDao {
     }
 
     @Override
-    public int mapAccessControls(User user, CustomUserDetails curUser) {    
+    public int mapAccessControls(User user, CustomUserDetails curUser) {
         String curDate = DateUtils.getCurrentDateString(DateUtils.EST, DateUtils.YMDHMS);
         String sqlString = "";
         int row = 0, x = 0, count;
