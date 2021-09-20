@@ -93,8 +93,6 @@ public class ProgramDaoImpl implements ProgramDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
-    @Autowired
-    private ProgramService programService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static String sqlListString1 = "SELECT   "
@@ -2445,7 +2443,7 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public int getNotificationCount(CustomUserDetails curUser) {
         String programIds = "", sql;
-        List<Program> programList = this.programService.getProgramList(curUser, true);
+        List<Program> programList = this.getProgramList(curUser, true);
         for (Program p : programList) {
             programIds = programIds + p.getProgramId() + ",";
         }
@@ -2536,7 +2534,7 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser) {
         String programIds = "", sql;
-        List<Program> programList = this.programService.getProgramList(curUser, true);
+        List<Program> programList = this.getProgramList(curUser, true);
         for (Program p : programList) {
             programIds = programIds + p.getProgramId() + ",";
         }
