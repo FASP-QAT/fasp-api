@@ -1162,3 +1162,22 @@ VIEW `vw_dataset` AS
     WHERE
         (`p`.`PROGRAM_TYPE_ID` = 2)
     GROUP BY `p`.`PROGRAM_ID`;
+
+
+-- Anishaslabels script
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.module.forecasting','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'FORECASTING');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'PRÉVISION');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'PRONOSTICO');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'PREVISÃO');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.module.supplyPlanningMod','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'SUPPLY PLANNING');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'PLANIFICATION DE L APPROVISIONNEMENT');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'LA PLANIFICACIÓN DEL SUMINISTRO');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'PLANEJAMENTO DE FORNECIMENTO');
