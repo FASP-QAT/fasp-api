@@ -839,6 +839,55 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
+    public int checkIfOrderNoAlreadyTagged(String orderNo, String primeLineNo) {
+        int count = 0;
+        logger.info("ERP Linking : Going to check manual tagging count ---");
+        logger.info("ERP Linking : Going to check manual tagging order no ---" + orderNo);
+        logger.info("ERP Linking : Going to check manual tagging prime line no ---" + primeLineNo);
+        String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
+        count = this.jdbcTemplate.queryForObject(sql, Integer.class, orderNo, primeLineNo);
+
+        logger.info("ERP Linking : manual tagging count---" + count);
+        return count;
+    }
+
+    @Override
+    public int updateERPLinking(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser) {
+        //Update conversion factor and notes
+        logger.info("ERP Linking : Going to update conversion factor and notes");
+        logger.info("ERP Linking : manual tagging object---" + manualTaggingOrderDTO);
+        sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
+                + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+                + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE` "
+                + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+
+        Map<String, Object> map = this.jdbcTemplate.queryForMap(sql, manualTaggingOrderDTO.getParentShipmentId(), manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
+        logger.info("ERP Linking : Get shipment trans info---" + map);
+
+        sql = "UPDATE `rm_manual_tagging` m SET m.`CONVERSION_FACTOR`=?,m.`NOTES`=? "
+                + " WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE` AND m.`SHIPMENT_ID`=?; ";
+        int rowsUpdated = this.jdbcTemplate.update(sql, manualTaggingOrderDTO.getConversionFactor(), manualTaggingOrderDTO.getNotes(), manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo(), manualTaggingOrderDTO.getParentShipmentId());
+        logger.info("ERP Linking : updated conversion factor and notes rows---" + rowsUpdated);
+
+//            System.out.println("conversion factor---" + manualTaggingOrderDTO.getConversionFactor());
+        sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`PRODUCT_COST`=?, "
+                + "st.`LAST_MODIFIED_DATE`=?,st.`LAST_MODIFIED_BY`=?,st.`NOTES`=? "
+                + "WHERE st.`SHIPMENT_TRANS_ID`=?;";
+//            long convertedQty = ((new BigDecimal(manualTaggingOrderDTO.getQuantity())).multiply(manualTaggingOrderDTO.getConversionFactor())).longValueExact();
+
+        long convertedQty = (long) Math.round((double) manualTaggingOrderDTO.getQuantity() * manualTaggingOrderDTO.getConversionFactor());
+        logger.info("ERP Linking : convertedQty---" + convertedQty);
+        logger.info("ERP Linking : rate---" + map.get("RATE"));
+        logger.info("ERP Linking : product cost---" + Double.parseDouble(map.get("RATE").toString()));
+        double rate = Double.parseDouble(map.get("RATE").toString());
+        double productCost = rate * (double) convertedQty;
+        logger.info("ERP Linking : final product cost---" + productCost);
+        rowsUpdated = this.jdbcTemplate.update(sql, Math.round(convertedQty), productCost, curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
+        logger.info("ERP Linking : updated shipment trans---" + rowsUpdated);
+        return -1;
+    }
+
+    @Override
     @Transactional
     public int linkShipmentWithARTMIS(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
@@ -1678,38 +1727,38 @@ public class ProgramDaoImpl implements ProgramDao {
 
             return row;
         } else {
-            //Update conversion factor and notes
-            logger.info("ERP Linking : Going to update conversion factor and notes");
-            logger.info("ERP Linking : manual tagging object---" + manualTaggingOrderDTO);
-            sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
-                    + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
-                    + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE` "
-                    + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
-
-            Map<String, Object> map = this.jdbcTemplate.queryForMap(sql, manualTaggingOrderDTO.getParentShipmentId(), manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
-            logger.info("ERP Linking : Get shipment trans info---" + map);
-
-            sql = "UPDATE `rm_manual_tagging` m SET m.`CONVERSION_FACTOR`=?,m.`NOTES`=? "
-                    + " WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE` AND m.`SHIPMENT_ID`=?; ";
-            int rowsUpdated = this.jdbcTemplate.update(sql, manualTaggingOrderDTO.getConversionFactor(), manualTaggingOrderDTO.getNotes(), manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo(), manualTaggingOrderDTO.getParentShipmentId());
-            logger.info("ERP Linking : updated conversion factor and notes rows---" + rowsUpdated);
-
-//            System.out.println("conversion factor---" + manualTaggingOrderDTO.getConversionFactor());
-            sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`PRODUCT_COST`=?, "
-                    + "st.`LAST_MODIFIED_DATE`=?,st.`LAST_MODIFIED_BY`=?,st.`NOTES`=? "
-                    + "WHERE st.`SHIPMENT_TRANS_ID`=?;";
-//            long convertedQty = ((new BigDecimal(manualTaggingOrderDTO.getQuantity())).multiply(manualTaggingOrderDTO.getConversionFactor())).longValueExact();
-
-            long convertedQty = (long) Math.round((double) manualTaggingOrderDTO.getQuantity() * manualTaggingOrderDTO.getConversionFactor());
-            logger.info("ERP Linking : convertedQty---" + convertedQty);
-            logger.info("ERP Linking : rate---" + map.get("RATE"));
-            logger.info("ERP Linking : product cost---" + Double.parseDouble(map.get("RATE").toString()));
-            double rate = Double.parseDouble(map.get("RATE").toString());
-            double productCost = rate * (double) convertedQty;
-            logger.info("ERP Linking : final product cost---" + productCost);
-            rowsUpdated = this.jdbcTemplate.update(sql, Math.round(convertedQty), productCost, curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
-            logger.info("ERP Linking : updated shipment trans---" + rowsUpdated);
-            return -1;
+//            //Update conversion factor and notes
+//            logger.info("ERP Linking : Going to update conversion factor and notes");
+//            logger.info("ERP Linking : manual tagging object---" + manualTaggingOrderDTO);
+//            sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
+//                    + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
+//                    + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE` "
+//                    + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
+//
+//            Map<String, Object> map = this.jdbcTemplate.queryForMap(sql, manualTaggingOrderDTO.getParentShipmentId(), manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
+//            logger.info("ERP Linking : Get shipment trans info---" + map);
+//
+//            sql = "UPDATE `rm_manual_tagging` m SET m.`CONVERSION_FACTOR`=?,m.`NOTES`=? "
+//                    + " WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE` AND m.`SHIPMENT_ID`=?; ";
+//            int rowsUpdated = this.jdbcTemplate.update(sql, manualTaggingOrderDTO.getConversionFactor(), manualTaggingOrderDTO.getNotes(), manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo(), manualTaggingOrderDTO.getParentShipmentId());
+//            logger.info("ERP Linking : updated conversion factor and notes rows---" + rowsUpdated);
+//
+////            System.out.println("conversion factor---" + manualTaggingOrderDTO.getConversionFactor());
+//            sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`PRODUCT_COST`=?, "
+//                    + "st.`LAST_MODIFIED_DATE`=?,st.`LAST_MODIFIED_BY`=?,st.`NOTES`=? "
+//                    + "WHERE st.`SHIPMENT_TRANS_ID`=?;";
+////            long convertedQty = ((new BigDecimal(manualTaggingOrderDTO.getQuantity())).multiply(manualTaggingOrderDTO.getConversionFactor())).longValueExact();
+//
+//            long convertedQty = (long) Math.round((double) manualTaggingOrderDTO.getQuantity() * manualTaggingOrderDTO.getConversionFactor());
+//            logger.info("ERP Linking : convertedQty---" + convertedQty);
+//            logger.info("ERP Linking : rate---" + map.get("RATE"));
+//            logger.info("ERP Linking : product cost---" + Double.parseDouble(map.get("RATE").toString()));
+//            double rate = Double.parseDouble(map.get("RATE").toString());
+//            double productCost = rate * (double) convertedQty;
+//            logger.info("ERP Linking : final product cost---" + productCost);
+//            rowsUpdated = this.jdbcTemplate.update(sql, Math.round(convertedQty), productCost, curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
+//            logger.info("ERP Linking : updated shipment trans---" + rowsUpdated);
+//            return -1;
         }
     }
 

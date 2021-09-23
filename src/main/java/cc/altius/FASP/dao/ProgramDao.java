@@ -41,7 +41,7 @@ public interface ProgramDao {
     public Program getProgramById(int programId, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
-    
+
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitListForProgramIds(String programIds, CustomUserDetails curUser);
@@ -107,5 +107,9 @@ public interface ProgramDao {
     public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser);
 
     public int tab3ShipmentCreation(int shipmentId, CustomUserDetails curUser);
+
+    public int checkIfOrderNoAlreadyTagged(String orderNo, String primeLineNo);
+
+    public int updateERPLinking(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser);
 
 }

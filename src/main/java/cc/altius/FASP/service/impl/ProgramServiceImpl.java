@@ -30,6 +30,7 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
+import io.swagger.v3.oas.integration.StringOpenApiConfigurationLoader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,6 +61,8 @@ public class ProgramServiceImpl implements ProgramService {
     private ProcurementAgentDao procurementAgentDao;
     @Autowired
     private AclService aclService;
+    
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser) {
@@ -279,10 +282,17 @@ public class ProgramServiceImpl implements ProgramService {
                 System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
                 if (manualTaggingOrderDTO[i].isActive()) {
                     int id;
+                    int count = this.programDao.checkIfOrderNoAlreadyTagged(manualTaggingOrderDTO[i].orderNo, manualTaggingOrderDTO[i].primeLineNo);
                     if (manualTaggingOrderDTO[i].getShipmentId() != 0) {
-                        id = this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO[i], curUser);
+                        if (count != 0 && count != null) {
+                            id = this.programDao.updateERPLinking(manualTaggingOrderDTO[i], curUser);
+                        } else {
+                            id = this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO[i], curUser);
+                        }
                     } else {
-                        id = this.programDao.linkShipmentWithARTMISWithoutShipmentid(manualTaggingOrderDTO[i], curUser);
+                        if (count == 0 || count == null) {
+                            id = this.programDao.linkShipmentWithARTMISWithoutShipmentid(manualTaggingOrderDTO[i], curUser);
+                        }
                     }
                     result.add(id);
                 } else if (!manualTaggingOrderDTO[i].isActive()) {
