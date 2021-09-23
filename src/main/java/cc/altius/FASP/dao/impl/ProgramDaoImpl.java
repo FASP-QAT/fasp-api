@@ -839,7 +839,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
 
     @Override
-    public int checkIfOrderNoAlreadyTagged(String orderNo, String primeLineNo) {
+    public int checkIfOrderNoAlreadyTagged(String orderNo, int primeLineNo) {
         int count = 0;
         logger.info("ERP Linking : Going to check manual tagging count ---");
         logger.info("ERP Linking : Going to check manual tagging order no ---" + orderNo);
@@ -856,7 +856,7 @@ public class ProgramDaoImpl implements ProgramDao {
         //Update conversion factor and notes
         logger.info("ERP Linking : Going to update conversion factor and notes");
         logger.info("ERP Linking : manual tagging object---" + manualTaggingOrderDTO);
-        sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
+       String sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
                 + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
                 + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE` "
                 + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
@@ -893,19 +893,26 @@ public class ProgramDaoImpl implements ProgramDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         int rows;
-        int count = 0;
+//        int count = 0;
+        boolean goAhead = false;
         logger.info("ERP Linking : link shipment with QAT object ---" + manualTaggingOrderDTO);
         logger.info("ERP Linking : link shipment with QAT curUser ---" + curUser.getUsername());
-        String sql = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
-        count = this.jdbcTemplate.queryForObject(sql, Integer.class, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
+        String sql;
+//                = "SELECT COUNT(*) FROM rm_manual_tagging m WHERE m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=? AND m.`ACTIVE`=1;";
+//        count = this.jdbcTemplate.queryForObject(sql, Integer.class, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
 
-        logger.info("ERP Linking : manual tagging count---" + count);
-
-        if (count == 0) {
+//        logger.info("ERP Linking : manual tagging count---" + count);
+//        if (count == 0) {
+        try {
             logger.info("ERP Linking : going to create entry in manual tagging table---");
             sql = "INSERT INTO rm_manual_tagging VALUES (NULL,?,?,?,?,?,?,?,1,?,?);";
             int row = this.jdbcTemplate.update(sql, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo(), (manualTaggingOrderDTO.getParentShipmentId() != 0 ? manualTaggingOrderDTO.getParentShipmentId() : manualTaggingOrderDTO.getShipmentId()), curDate, curUser.getUserId(), curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), manualTaggingOrderDTO.getConversionFactor());
             logger.info("ERP Linking : entry created in manual tagging table---");
+            goAhead = true;
+        } catch (Exception e) {
+            logger.info("ERP Linking : Can't go ahead and link shipment bcoz it's duplicate---" + manualTaggingOrderDTO.getOrderNo() + "-" + manualTaggingOrderDTO.getPrimeLineNo());
+        }
+        if (goAhead) {
             logger.info("ERP Linking : going to get erp order object---");
 
             String filename = this.getMaxERPOrderIdFromERPShipment(manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
@@ -1724,9 +1731,9 @@ public class ProgramDaoImpl implements ProgramDao {
                 }
 
             }
-
-            return row;
-        } else {
+        }
+        return row;
+//        } else {
 //            //Update conversion factor and notes
 //            logger.info("ERP Linking : Going to update conversion factor and notes");
 //            logger.info("ERP Linking : manual tagging object---" + manualTaggingOrderDTO);
@@ -1759,7 +1766,7 @@ public class ProgramDaoImpl implements ProgramDao {
 //            rowsUpdated = this.jdbcTemplate.update(sql, Math.round(convertedQty), productCost, curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
 //            logger.info("ERP Linking : updated shipment trans---" + rowsUpdated);
 //            return -1;
-        }
+//        }
     }
 
     @Override
@@ -2178,9 +2185,12 @@ public class ProgramDaoImpl implements ProgramDao {
         }
 //        }
         logger.info("ERP Linking : Going to update manual tagging table---");
-        sql = "UPDATE rm_manual_tagging m SET m.`ACTIVE`=0,m.`NOTES`=?,m.`LAST_MODIFIED_DATE`=?,m.`LAST_MODIFIED_BY`=? WHERE m.`SHIPMENT_ID`=? AND m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=?;";
-        this.jdbcTemplate.update(sql, erpOrderDTO.getNotes(), curDate, curUser.getUserId(), erpOrderDTO.getParentShipmentId(), erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
-
+//        sql = "UPDATE rm_manual_tagging m SET m.`ACTIVE`=0,m.`NOTES`=?,m.`LAST_MODIFIED_DATE`=?,m.`LAST_MODIFIED_BY`=? WHERE m.`SHIPMENT_ID`=? AND m.`ORDER_NO`=? AND m.`PRIME_LINE_NO`=?;";
+//        this.jdbcTemplate.update(sql, erpOrderDTO.getNotes(), curDate, curUser.getUserId(), erpOrderDTO.getParentShipmentId(), erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
+        sql = "DELETE FROM rm_manual_tagging WHERE `SHIPMENT_ID`=? AND `ORDER_NO`=? AND `PRIME_LINE_NO`=?;";
+        this.jdbcTemplate.update(sql, erpOrderDTO.getParentShipmentId(), erpOrderDTO.getOrderNo(), erpOrderDTO.getPrimeLineNo());
+//        DELETE FROM rm_manual_tagging WHERE active = 0;""
+//ALTER TABLE `fasp`.`rm_manual_tagging` ADD UNIQUE `uniqueOrder` (`ORDER_NO`, `PRIME_LINE_NO`, `SHIPMENT_ID`, `ACTIVE`); 
     }
 
     @Override

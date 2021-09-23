@@ -108,7 +108,7 @@ public interface ProgramDao {
 
     public int tab3ShipmentCreation(int shipmentId, CustomUserDetails curUser);
 
-    public int checkIfOrderNoAlreadyTagged(String orderNo, String primeLineNo);
+    public int checkIfOrderNoAlreadyTagged(String orderNo, int primeLineNo);
 
     public int updateERPLinking(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser);
 
