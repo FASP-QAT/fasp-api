@@ -49,9 +49,9 @@ public class ExportSupplyPlanJson {
     private String QAT_FILE_PATH;
     @Value("${exportSupplyPlanFilePath}")
     private String EXPORT_SUPPLY_PLAN_FILE_PATH;
-    @Value("${email.toList}")
+    @Value("${email.exportToList}")
     private String toList;
-    @Value("${email.ccList}")
+    @Value("${email.exportCCList}")
     private String ccList;
 
     @GetMapping("/exportSupplyPlan")
