@@ -12,9 +12,12 @@ import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.io.Serializable;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/realmCountry")
 public class RealmCountryRestController extends BaseModel implements Serializable {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -48,7 +51,21 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
     @Autowired
     private UserService userService;
 
-    @PostMapping(path = "/realmCountry")
+    /**
+     * API used to add a RealmCountry
+     *
+     * @param realmCountryList List of RealmCountry that you want to add
+     * @param auth
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to add a RealmCountry", summary = "Add RealmCountry", tags = ("realmCountry"))
+    @Parameters(
+            @Parameter(name = "realmCountryList", description = "List of RealmCountry that you want to add"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the RealmCountry supplied is not unique")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    @PostMapping(path = "/")
     public ResponseEntity postRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -66,7 +83,21 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @PutMapping(path = "/realmCountry")
+    /**
+     * API used to update a RealmCountry
+     *
+     * @param realmCountryList List of RealmCountry that you want to update
+     * @param auth
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to update a RealmCountry", summary = "Update RealmCountry", tags = ("realmCountry"))
+    @Parameters(
+            @Parameter(name = "realmCountryList", description = "List of RealmCountry that you want to update"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the RealmCountry supplied is not unique")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    @PutMapping(path = "/")
     public ResponseEntity putRealmCountry(@RequestBody List<RealmCountry> realmCountryList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -84,7 +115,19 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/realmCountry")
+    /**
+     * API used to get the complete RealmCountry list. Will only return those
+     * RealmCountries that are marked Active.
+     *
+     * @param auth
+     * @return returns the complete list of active RealmCountries
+     */
+    @Operation(description = "API used to get the complete RealmCountry list. Will only return those RealmCountries that are marked Active.", summary = "Get active RealmCountry list", tags = ("realmCountry"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the RealmCountry list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if no RealmCountry found")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of RealmCountry list")
+    @GetMapping("/")
     public ResponseEntity getRealmCountry(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -101,7 +144,21 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/realmCountry/{realmCountryId}")
+    /**
+     * API used to get the RealmCountry for a specific RealmCountryId
+     *
+     * @param realmCountryId realmCountryId that you want RealmCountry for
+     * @param auth
+     * @return returns the RealmCountry object based on RealmCountryId specified
+     */
+    @Operation(description = "API used to get the RealmCountry for a specific RealmCountryId", summary = "Get RealmCountry for a specific RealmCountryId", tags = ("realmCountry"))
+    @Parameters(
+            @Parameter(name = "realmCountryId", description = "RealmCountryId that you want RealmCountry for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the RealmCountry object")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if no RealmCountryId found")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of RealmCountry object")
+    @GetMapping("/{realmCountryId}")
     public ResponseEntity getRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -118,7 +175,21 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/realmCountry/realmId/{realmId}")
+    /**
+     * API used to get the RealmCountry list for a specific realmId
+     *
+     * @param realmId realmId that you want RealmCountry list for
+     * @param auth
+     * @return returns the RealmCountry list based on realmId specified
+     */
+    @Operation(description = "API used to get the RealmCountry list for a specific realmId", summary = "Get RealmCountry list for a specific realmId", tags = ("realmCountry"))
+    @Parameters(
+            @Parameter(name = "realmId", description = "RealmId that you want RealmCountry list for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the RealmCountry list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if no realmId found")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of RealmCountry list")
+    @GetMapping("/realmId/{realmId}")
     public ResponseEntity getRealmCountryByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -135,11 +206,26 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/realmCountry/{realmCountryId}/planningUnit")
+    /**
+     * API used to get the active PlanningUnit list for a specific
+     * realmCountryId
+     *
+     * @param realmCountryId realmCountryId that you want PlanningUnit list for
+     * @param auth
+     * @return returns the PlanningUnit list based on realmCountryId specified
+     */
+    @Operation(description = "API used to get the active PlanningUnit list for a specific realmCountryId", summary = "Get PlanningUnit list for a specific realmCountryId", tags = ("realmCountry"))
+    @Parameters(
+            @Parameter(name = "realmCountryId", description = "RealmCountryId that you want PlanningUnit list for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the PlanningUnit list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if no realmCountryId found")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of PlanningUnit list")
+    @GetMapping("/{realmCountryId}/planningUnit")
     public ResponseEntity getPlanningUnitForCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.realmCountryService.getPlanningUnitListForRealmCountryId(realmCountryId, false, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.realmCountryService.getPlanningUnitListForRealmCountryId(realmCountryId, true, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list PlanningUnit for Country", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -152,7 +238,24 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @PutMapping("/realmCountry/programIds/planningUnit")
+    /**
+     * API used to get the RealmCountryPlanningUnit list for a specific
+     * programIds
+     *
+     * @param programIds Array of programIds that you want
+     * RealmCountryPlanningUnit list for
+     * @param auth
+     * @return returns the RealmCountryPlanningUnit list based on programIds
+     * specified
+     */
+    @Operation(description = "API used to get RealmCountryPlanningUnit list for a specific programIds", summary = "Get RealmCountryPlanningUnit list for a specific programIds", tags = ("realmCountry"))
+    @Parameters(
+            @Parameter(name = "programIds", description = "Array of programIds that you want RealmCountryPlanningUnit list for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the RealmCountryPlanningUnit list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if no programIds found")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of RealmCountryPlanningUnit list")
+    @PutMapping("/programIds/planningUnit")
     public ResponseEntity getPlanningUnitForProgramList(@RequestBody String[] programIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -169,7 +272,23 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/realmCountry/{realmCountryId}/planningUnit/all")
+    /**
+     * API used to get the complete PlanningUnit list for a specific
+     * realmCountryId
+     *
+     * @param realmCountryId realmCountryId that you want PlanningUnit list for
+     * @param auth
+     * @return returns the complete PlanningUnit list based on realmCountryId
+     * specified
+     */
+    @Operation(description = "API used to get the complete PlanningUnit list for a specific realmCountryId", summary = "Get Complete PlanningUnit list for a specific realmCountryId", tags = ("realmCountry"))
+    @Parameters(
+            @Parameter(name = "realmCountryId", description = "RealmCountryId that you want PlanningUnit list for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the PlanningUnit list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if no realmCountryId found")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of PlanningUnit list")
+    @GetMapping("/{realmCountryId}/planningUnit/all")
     public ResponseEntity getPlanningUnitForCountryAll(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -186,7 +305,21 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @PutMapping("/realmCountry/planningUnit")
+    /**
+     * API used to save PlanningUnit for RealmCountry
+     *
+     * @param realmCountryPlanningUnits Array of realmCountryPlanningUnits that
+     * you want to save
+     * @param auth
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to save PlanningUnit for RealmCountry", summary = "Save PlanningUnit for RealmCountry", tags = ("realmCountry"))
+    @Parameters(
+            @Parameter(name = "realmCountryPlanningUnits", description = "Array of realmCountryPlanningUnits that you want to save"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    @PutMapping("/planningUnit")
     public ResponseEntity savePlanningUnitForCountry(@RequestBody RealmCountryPlanningUnit[] realmCountryPlanningUnits, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -201,7 +334,22 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/realmCountry/program/realmId/{realmId}")
+    /**
+     * API used to get the RealmCountry list by specified reamId for active
+     * programs
+     *
+     * @param realmId realmId that you want RealmCountry list for
+     * @param auth
+     * @return returns the RealmCountry list by reamId for active programs
+     */
+    @Operation(description = "API used to get the RealmCountry list by specified reamId for active programs", summary = "Get RealmCountry list by specified reamId for active programs", tags = ("realmCountry"))
+    @Parameters(
+            @Parameter(name = "realmId", description = "RealmId that you want RealmCountry list for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the RealmCountry list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if no realmId found")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of RealmCountry list")
+    @GetMapping("/program/realmId/{realmId}")
     public ResponseEntity getRealmCountryByRealmIdForActivePrograms(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -218,7 +366,19 @@ public class RealmCountryRestController extends BaseModel implements Serializabl
         }
     }
 
-    @GetMapping("/realmCountry/program")
+    /**
+     * API used to get the RealmCountry list active programs
+     *
+     * @param auth
+     * @return returns the RealmCountry list active programs
+     */
+    @Operation(description = "API used to get the RealmCountry list active programs", summary = "Get the RealmCountry list active programs", tags = ("realmCountry"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the RealmCountry list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "412", description = "Returns a HttpStatus.PRECONDITION_FAILED if a User with access to multiple Realms tried to access a RealmCountry Program list without specifying a Realm")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if no RealmCountry found")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of RealmCountry list")
+    @GetMapping("/program")
     public ResponseEntity getRealmCountryForActivePrograms(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

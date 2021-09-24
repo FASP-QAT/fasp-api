@@ -7,6 +7,9 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.ShipmentStatusService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +33,15 @@ public class ShipmentStatusRestController {
     @Autowired
     private ShipmentStatusService shipmentStatusService;
 
+    /**
+     * API used to get the active ShipmentStatus list.
+     *
+     * @param auth
+     * @return returns the active ShipmentStatus list.
+     */
+    @Operation(description = "API used to get the active ShipmentStatus list.", summary = "Get Active ShipmentStatus list.", tags = ("shipmentStatus"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ShipmentStatus list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ShipmentStatus list")
     @GetMapping(value = "/getShipmentStatusListActive")
     public ResponseEntity getShipmentStatusListActive(Authentication auth) {
         try {

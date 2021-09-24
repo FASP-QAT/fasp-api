@@ -45,7 +45,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/programData")
 public class ProgramDataRestController {
 
     private final Logger logger = LoggerFactory.getLogger(ProgramDataRestController.class);
@@ -75,7 +75,7 @@ public class ProgramDataRestController {
      * VersionId
      */
     @JsonView(Views.InternalView.class)
-    @GetMapping("/programData/programId/{programId}/versionId/{versionId}")
+    @GetMapping("/programId/{programId}/versionId/{versionId}")
     @Operation(description = "API used to get ProgramData for ProgramId and VersionId", summary = "Get ProgramData for a ProgramId and VersionId", tags = ("programData"))
     @Parameters({
         @Parameter(name = "programId", description = "programId that you want to the ProgramData for"),
@@ -87,7 +87,7 @@ public class ProgramDataRestController {
     public ResponseEntity getProgramData(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser,false), HttpStatus.OK);
+            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, false), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -110,7 +110,7 @@ public class ProgramDataRestController {
      * VersionId
      */
     @JsonView(Views.InternalView.class)
-    @PostMapping("/programData")
+    @PostMapping("/")
     @Operation(description = "API used to get ProgramData list for listed ProgramIds and VersionIds", summary = "Get ProgramData list for listed ProgramIds and VersionIds", tags = ("programData"))
     @Parameters(
             @Parameter(name = "programVersionList", description = "programVersionList list of ProgramIds and VersionIds that you want a ProgramData list for"))
@@ -144,7 +144,7 @@ public class ProgramDataRestController {
      * @return return the ProgramData list for given ProgramId and VersionId
      */
     @JsonView(Views.ArtmisView.class)
-    @GetMapping("/programData/artmis/programId/{programId}/versionId/{versionId}")
+    @GetMapping("/artmis/programId/{programId}/versionId/{versionId}")
     @Operation(description = "API used to get Artmis view ProgramData list for given ProgramId and VersionId", summary = "Get Artmis view ProgramData list for given ProgramId and VersionId", tags = ("programData"))
     @Parameters({
         @Parameter(name = "programId", description = "programId that you want to the ProgramData for"),
@@ -156,7 +156,7 @@ public class ProgramDataRestController {
     public ResponseEntity getProgramDataArtmis(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser,false), HttpStatus.OK);
+            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, false), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -179,7 +179,7 @@ public class ProgramDataRestController {
      * @return return the ProgramData list for given ProgramId and VersionId
      */
     @JsonView(Views.GfpVanView.class)
-    @GetMapping("/programData/gfpvan/programId/{programId}/versionId/{versionId}")
+    @GetMapping("/gfpvan/programId/{programId}/versionId/{versionId}")
     @Operation(description = "API used to get GfpVan view ProgramData list for given ProgramId and VersionId", summary = "Get Artmis view ProgramData list for given ProgramId and VersionId", tags = ("programData"))
     @Parameters({
         @Parameter(name = "programId", description = "programId that you want to the ProgramData for"),
@@ -191,7 +191,7 @@ public class ProgramDataRestController {
     public ResponseEntity getProgramDataGfpVan(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser,false), HttpStatus.OK);
+            return new ResponseEntity(this.programDataService.getProgramData(programId, versionId, curUser, false), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to get ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -211,7 +211,7 @@ public class ProgramDataRestController {
      * @param auth
      * @return returns a Success code if the operation was successful
      */
-    @PutMapping("/programData")
+    @PutMapping("/")
     @Operation(description = "API used to update a ProgramData", summary = "Update ProgramData", tags = ("programData"))
     @Parameters(
             @Parameter(name = "programData", description = "programData object that you want to update"))
@@ -224,7 +224,7 @@ public class ProgramDataRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             Version v = this.programDataService.saveProgramData(programData, curUser);
-            return new ResponseEntity(this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false), HttpStatus.OK);
+            return new ResponseEntity(this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser, false), HttpStatus.OK);
         } catch (CouldNotSaveException e) {
             logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
@@ -460,7 +460,7 @@ public class ProgramDataRestController {
      * @param auth
      * @return order status
      */
-    @GetMapping("/programData/checkErpOrder/orderNo/{orderNo}/primeLineNo/{primeLineNo}/realmCountryId/{realmCountryId}/planningUnitId/{planningUnitId}")
+    @GetMapping("/checkErpOrder/orderNo/{orderNo}/primeLineNo/{primeLineNo}/realmCountryId/{realmCountryId}/planningUnitId/{planningUnitId}")
     @Operation(description = "API to check ERP order status", summary = "Check ERP order status", tags = ("programData"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ordr status")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ERP order status")
@@ -493,7 +493,7 @@ public class ProgramDataRestController {
      * @return returns a complete list of Shipment data for given programId and
      * versionId which are modified after given date
      */
-    @GetMapping("/programData/shipmentSync/programId/{programId}/versionId/{versionId}/userId/{userId}/lastSyncDate/{lastSyncDate}")
+    @GetMapping("/shipmentSync/programId/{programId}/versionId/{versionId}/userId/{userId}/lastSyncDate/{lastSyncDate}")
     @Operation(description = "API used to get list of Shipment data for given programId and versionId which are modified after given date", summary = "Get list of Shipment data for given programId and versionId which are modified after given date", tags = ("programData"))
     @Parameters({
         @Parameter(name = "programId", description = "programId that want the Shipment data for"),
@@ -530,7 +530,7 @@ public class ProgramDataRestController {
      * @return return true or false based on availability of newer version for
      * listed programIds and versionIds
      */
-    @PostMapping("/programData/checkNewerVersions")
+    @PostMapping("/checkNewerVersions")
 
     @Operation(description = "API to check if newer version available for list programIds and versionIds", summary = "To check if newer version available for list programIds and versionIds", tags = ("programData"))
     @Parameters(
@@ -557,7 +557,7 @@ public class ProgramDataRestController {
      * @param programId programId that you want the latest version for
      * @return latest version of program
      */
-    @GetMapping("/programData/getLatestVersionForProgram/{programId}")
+    @GetMapping("/getLatestVersionForProgram/{programId}")
 
     @Operation(description = "API to get the latest version for a program", summary = "Get the latest version for a program", tags = ("programData"))
     @Parameters(
@@ -577,18 +577,32 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    @GetMapping("/programData/getLastModifiedDateForProgram/{programId}/{versionId}")
-    public ResponseEntity getLastModifiedDateForProgram(@PathVariable(value = "programId", required = true) int programId,@PathVariable(value = "versionId", required = true) int versionId){
+
+    /**
+     * API to get the last modified date for a program and versionId
+     *
+     * @param programId programId that you want the last modified date for
+     * @param versionId versionId that you want the last modified date for
+     * @return last modified date of program
+     */
+    @Operation(description = "API to get the last modified date for a program and versionId", summary = "Get the last modified date for a program", tags = ("programData"))
+    @Parameters({
+        @Parameter(name = "programId", description = "programId that you want the last modified date for"),
+        @Parameter(name = "versionId", description = "versionId that you want the last modified date for")})
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the last modified date of program")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of last modified date of program")
+    @GetMapping("/getLastModifiedDateForProgram/{programId}/{versionId}")
+    public ResponseEntity getLastModifiedDateForProgram(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId) {
         try {
-            return new ResponseEntity(this.programDataService.getLastModifiedDateForProgram(programId,versionId), HttpStatus.OK);
+            return new ResponseEntity(this.programDataService.getLastModifiedDateForProgram(programId, versionId), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get last modified date for program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             logger.error("Error while trying to get last modified date for program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }        
+        }
     }
 
 }

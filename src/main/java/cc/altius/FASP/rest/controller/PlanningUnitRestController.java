@@ -183,7 +183,7 @@ public class PlanningUnitRestController {
     }
 
     /**
-     * API used to get the PlanningUnit list for a Realm
+     * API used to get the complete PlanningUnit list for a Realm
      *
      * @param realmId RealmId that you want the PlanningUnit List from
      * @param auth
@@ -216,8 +216,8 @@ public class PlanningUnitRestController {
     /**
      * API used to get the PlanningUnit for a specific PlanningUnitId
      *
-     * @param planningUnitId PlanningUnit that you want the PlanningUnit Object
-     * for
+     * @param planningUnitId PlanningUnitId that you want the PlanningUnit
+     * Object for
      * @param auth
      * @return returns the PlanningUnit object based on PlanningUnitId specified
      */
@@ -225,8 +225,8 @@ public class PlanningUnitRestController {
     @Operation(description = "API used to get the PlanningUnit for a specific PlanningUnitId", summary = "Get PlanningUnit for a PlanningUnitId", tags = ("planningUnit"))
     @Parameters(
             @Parameter(name = "planningUnitId", description = "PlanningUnitId that you want to the PlanningUnit for"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the PlanningUnit")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the HealthAreaId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the PlanningUnit object")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the PlanningUnitId specified does not exist")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of PlanningUnit")
     public ResponseEntity getPlanningUnitById(@PathVariable("planningUnitId") int planningUnitId, Authentication auth) {
         try {
@@ -488,7 +488,7 @@ public class PlanningUnitRestController {
 //        }
 //    }
     /**
-     * API used to get the PlanningUnit list for a ProductCategory
+     * API used to get the PlanningUnit list for a specified ProductCategory
      *
      * @param productCategoryId productCategoryId that you want the PlanningUnit
      * List for
@@ -552,7 +552,22 @@ public class PlanningUnitRestController {
         }
     }
 
-    @PostMapping("/planningUnit/productCategoryList/active")
+    /**
+     * API used to get the list of active PlanningUnits for a ProductCategory
+     *
+     * @param productCategoryIds array of productCategoryIds that you want the
+     * PlanningUnit List for
+     * @param auth
+     * @return returns the list of active PlanningUnits
+     */
+    @Operation(description = "API used to get the list of active PlanningUnits for a ProductCategory", summary = "Get active PlanningUnit list for ProductCategory", tags = ("planningUnit"))
+    @Parameters(
+            @Parameter(name = "productCategoryId", description = "array of productCategoryIds that you want the PlanningUnit"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the active PlanningUnit list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the productCategoryId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of PlanningUnit list")
+    @PostMapping("/productCategoryList/active")
     @JsonView(Views.ReportView.class)
     public ResponseEntity getPlanningUnitForproductCategoryList(@RequestBody String[] productCategoryIds, Authentication auth) {
         try {
@@ -588,8 +603,24 @@ public class PlanningUnitRestController {
         }
     }
 
+    /**
+     * API used to get the list of active PlanningUnits for a tracerCategory and
+     * a program
+     *
+     * @param programAndTracerCategory object containing array of tracerCategory
+     * and program that you want the PlanningUnit List for
+     * @param auth
+     * @return returns the list of active PlanningUnits
+     */
+    @Operation(description = "API used to get the list of active PlanningUnits for a tracerCategory and a program", summary = "Get active PlanningUnit list for a TracerCategory and a Program", tags = ("planningUnit"))
+    @Parameters(
+            @Parameter(name = "programAndTracerCategory", description = "object containing array of tracerCategory and program that you want the PlanningUnit List for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the active PlanningUnit list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the tracerCategories and programs specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of PlanningUnit list")
     @JsonView(Views.ReportView.class)
-    @PostMapping("/planningUnit/tracerCategory/program/")
+    @PostMapping("/tracerCategory/program/")
     public ResponseEntity getPlanningUnitByTracerCategoryAndProgram(@RequestBody ProgramAndTracerCategoryDTO programAndTracerCategory, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -606,7 +637,22 @@ public class PlanningUnitRestController {
         }
     }
 
-    @GetMapping("/planningUnit/realmCountry/{realmCountryId}")
+    /**
+     * API used to get the list of active PlanningUnits for a realm country
+     *
+     * @param realmCountryId realmCountryId that you want the PlanningUnit List
+     * for
+     * @param auth
+     * @return returns the list of active PlanningUnits
+     */
+    @Operation(description = "API used to get the list of active PlanningUnits for a realm country", summary = "Get active PlanningUnit list for a realm country", tags = ("planningUnit"))
+    @Parameters(
+            @Parameter(name = "realmCountryId", description = "realmCountryId that you want the PlanningUnit List for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the active PlanningUnit list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the tracerCategories and programs specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of PlanningUnit list")
+    @GetMapping("/realmCountry/{realmCountryId}")
     public ResponseEntity getPlanningUnitByRealmCountry(@PathVariable("realmCountryId") int realmCountryId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

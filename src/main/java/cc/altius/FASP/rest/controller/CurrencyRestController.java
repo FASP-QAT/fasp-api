@@ -95,7 +95,8 @@ public class CurrencyRestController {
      *
      * @param currencyId CurrencyId that you want the Currency Object for
      * @param auth
-     * @return returns the list the Currency object based on CurrencyId specified
+     * @return returns the list the Currency object based on CurrencyId
+     * specified
      */
     @GetMapping(value = "/{currencyId}")
     @Operation(description = "API used to get the Currency for a specific CurrencyId", summary = "Get Currency for a CurrencyId", tags = ("currency"))
@@ -145,7 +146,7 @@ public class CurrencyRestController {
         }
     }
 
-        /**
+    /**
      * API used to update a Currency
      *
      * @param currency Currency object that you want to update

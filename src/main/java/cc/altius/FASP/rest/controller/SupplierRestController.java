@@ -36,7 +36,7 @@ import org.springframework.web.bind.annotation.PostMapping;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/supplier")
 public class SupplierRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

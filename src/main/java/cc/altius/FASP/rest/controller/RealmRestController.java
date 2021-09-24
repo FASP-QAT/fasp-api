@@ -70,11 +70,9 @@ public class RealmRestController {
     /**
      * API used to get the Realm for a specific RealmId
      *
-     * @param realmId RealmId that you want the Realm
-     * Object for
+     * @param realmId RealmId that you want the Realm Object for
      * @param auth
-     * @return returns the Realm object based on
-     * RealmId specified
+     * @return returns the Realm object based on RealmId specified
      */
     @GetMapping(value = "/{realmId}")
     @Operation(description = "API used to get the Realm for a specific RealmId", summary = "Get Realm for a RealmId", tags = ("realm"))
@@ -84,7 +82,7 @@ public class RealmRestController {
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the RealmId specified does not exist")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Realm")
-    
+
     public ResponseEntity getRealmById(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -100,7 +98,6 @@ public class RealmRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
     /**
      * API used to add a Realm
@@ -161,7 +158,6 @@ public class RealmRestController {
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
 //    @GetMapping(value = "/sync/realm/{lastSyncDate}")
 //    public ResponseEntity getRealmListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {

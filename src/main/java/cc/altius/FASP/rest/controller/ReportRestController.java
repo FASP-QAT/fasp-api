@@ -38,6 +38,9 @@ import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.ReportService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.LinkedList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -58,7 +61,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author ekta
  */
 @RestController
-@RequestMapping("/api/report/")
+@RequestMapping("/api/report")
 public class ReportRestController {
 
     @Autowired
@@ -73,6 +76,7 @@ public class ReportRestController {
     // Report no 1
     // Reports -> Program Catalog
     /**
+     * API used to get list of ProgramProductCatalogOutput
      * <pre>
      * Sample JSON {"productCategoryId": -1, "tracerCategoryId": -1, "programId": 2028 }
      * -- Program Id must be a valid Program Id, cannot be -1 (Any)      *
@@ -80,10 +84,13 @@ public class ReportRestController {
      * -- Return the list of Program-Planning Units and their corresponding fields
      * </pre>
      *
-     * @param ProgramProductCatalogInput
+     * @param ppc ProgramProductCatalogInput object
      * @param auth Authentication object from JWT
-     * @return ProgramProductCatalogOutput
+     * @return list of ProgramProductCatalogOutput
      */
+    @Operation(description = "API used to get the ProgramProductCatalogOutput list.", summary = "get the ProgramProductCatalogOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ProgramProductCatalogOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ProgramProductCatalogOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/programProductCatalog")
     public ResponseEntity getProgramProductCatalog(@RequestBody ProgramProductCatalogInput ppc, Authentication auth) {
@@ -99,6 +106,7 @@ public class ReportRestController {
     // Report no 2
     // Reports -> Consumption Reports -> Consumption (Forecast vs Actual)
     /**
+     * API used to get list of ConsumptionForecastVsActualOutput
      * <pre>
      * Sample JSON
      * {"programId":2535, "versionId":1, "startDate":"2019-01-01", "stopDate":"2019-12-01", "planningUnitId":778, "reportView":1}
@@ -110,10 +118,13 @@ public class ReportRestController {
      * -- reportView = 2 - Data is reported in terms of Forecasting Unit
      * </pre>
      *
-     * @param ConsumptionForecastVsActualInput
+     * @param ppc ConsumptionForecastVsActualInput object
      * @param auth Authentication object from JWT
-     * @return ConsumptionForecastVsActualOutput
+     * @return list of ConsumptionForecastVsActualOutput
      */
+    @Operation(description = "API used to get the ConsumptionForecastVsActualOutput list.", summary = "get the ConsumptionForecastVsActualOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ConsumptionForecastVsActualOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ConsumptionForecastVsActualOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/consumptionForecastVsActual")
     public ResponseEntity getConsumptionForecastVsActual(@RequestBody ConsumptionForecastVsActualInput ppc, Authentication auth) {
@@ -130,6 +141,7 @@ public class ReportRestController {
     // Reports -> Consumption Reports -> Consumption (Global)
     // Global Report
     /**
+     * API used to get list of GlobalConsumptionOutput
      * <pre>
      * Sample JSON
      * { "realmId": 1, "realmCountryIds": [5,51], "programIds": [2028,2029,2535], "planningUnitIds": [778,2692], "startDate": "2019-01-01", "stopDate": "2019-12-01", "reportView": 1, "useApprovedSupplyPlanOnly":0}
@@ -142,10 +154,13 @@ public class ReportRestController {
      * -- reportView = 2 shows the Consumption in ForecastingUnits
      * </pre>
      *
-     * @param gci
+     * @param gci GlobalConsumptionInput object
      * @param auth
-     * @return
+     * @return list of GlobalConsumptionOutput
      */
+    @Operation(description = "API used to get the GlobalConsumptionOutput list.", summary = "get the GlobalConsumptionOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the GlobalConsumptionOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of GlobalConsumptionOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/globalConsumption")
     public ResponseEntity getGlobalConsumption(@RequestBody GlobalConsumptionInput gci, Authentication auth) {
@@ -161,6 +176,7 @@ public class ReportRestController {
     // Report no 4
     // Reports -> Consumption Reports -> Forecast Error (Monthly)
     /**
+     * API used to get list of ForecastMetricsMonthlyOutput
      * <pre>
      * Sample JSON
      * { "programId": 2003, "versionId":2, "planningUnitId": 772, "startDate": "2020-01-01", "stopDate": "2020-05-01", "previousMonths": 6}
@@ -175,10 +191,13 @@ public class ReportRestController {
      * *
      * </pre>
      *
-     * @param fmi
+     * @param fmi ForecastMetricsMonthlyInput object
      * @param auth
-     * @return
+     * @return list of ForecastMetricsMonthlyOutput
      */
+    @Operation(description = "API used to get the ForecastMetricsMonthlyOutput list.", summary = "get the ForecastMetricsMonthlyOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ForecastMetricsMonthlyOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ForecastMetricsMonthlyOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/forecastMetricsMonthly")
     public ResponseEntity getForecastMetricsMonthly(@RequestBody ForecastMetricsMonthlyInput fmi, Authentication auth) {
@@ -195,6 +214,7 @@ public class ReportRestController {
     // Global Report
     // Reports -> Consumption Reports -> Forecast Error (by Planning Unit)
     /**
+     * API used to get list of ForecastMetricsComparisionOutput
      * <pre>
      * Sample JSON
      * { "realmId":1, "realmCountryIds":[2,5], "programIds":[2029,2521,2140], "tracerCategoryIds":[6,7],"planningUnitIds":[], "startDate":"2020-10-01", "previousMonths":3}
@@ -210,10 +230,13 @@ public class ReportRestController {
      * -- ((Abs(actual consumption month 1-forecasted consumption month 1)+ Abs(actual consumption month 2-forecasted consumption month 2)+ Abs(actual consumption month 3-forecasted consumption month 3)+ Abs(actual consumption month 4-forecasted consumption month 4)+ Abs(actual consumption month 5-forecasted consumption month 5)+ Abs(actual consumption month 6-forecasted consumption month 6)) / (Sum of all actual consumption in the last 6 months))
      * </pre>
      *
-     * @param fmi
+     * @param fmi ForecastMetricsComparisionInput object
      * @param auth
-     * @return
+     * @return list of ForecastMetricsComparisionOutput
      */
+    @Operation(description = "API used to get the ForecastMetricsComparisionOutput list.", summary = "get the ForecastMetricsComparisionOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ForecastMetricsComparisionOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ForecastMetricsComparisionOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/forecastMetricsComparision")
     public ResponseEntity getForecastMetricsComparision(@RequestBody ForecastMetricsComparisionInput fmi, Authentication auth) {
@@ -230,6 +253,8 @@ public class ReportRestController {
     // Report no 7
     // Reports -> Inventory Reports -> Warehouse Capacity (by Program)
     /**
+     * API used to get list of WarehouseCapacityOutput
+     *
      * <pre>
      * Sample JSON
      * { "realmCountryId":2, "programIds":[3]}
@@ -239,10 +264,13 @@ public class ReportRestController {
      * -- List of all the Regions for the Programs selected and their capacity
      * </pre>
      *
-     * @param wci
+     * @param wci WarehouseCapacityInput object
      * @param auth
-     * @return
+     * @return list of WarehouseCapacityOutput
      */
+    @Operation(description = "API used to get the WarehouseCapacityOutput list.", summary = "get the WarehouseCapacityOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the WarehouseCapacityOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of WarehouseCapacityOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/warehouseCapacityReport")
     public ResponseEntity getwarehouseCapacityReport(@RequestBody WarehouseCapacityInput wci, Authentication auth) {
@@ -258,6 +286,8 @@ public class ReportRestController {
     //Report no 
     // Reports -> Inventory Reports -> Warehouse Capcity (By Country)
     /**
+     * API used to get list of WarehouseByCountryOutput
+     *
      * <pre>
      * Sample JSON
      * { "realmCountryIds":[51,16,6]}
@@ -265,7 +295,14 @@ public class ReportRestController {
      * -- RealmCountryIds blank means you want to run it for all RealmCountryIds
      * -- List of all the Regions for the RealmCountryIds selected and their capacity
      * </pre>
+     *
+     * @param wbc WarehouseByCountryInput object
+     * @param auth
+     * @return list of WarehouseByCountryOutput
      */
+    @Operation(description = "API used to get the WarehouseByCountryOutput list.", summary = "get the WarehouseByCountryOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the WarehouseByCountryOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of WarehouseByCountryOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping("/warehouseByCountry")
     public ResponseEntity getWarehouseByCountry(@RequestBody WarehouseByCountryInput wbc, Authentication auth) {
@@ -287,6 +324,8 @@ public class ReportRestController {
     // Report no 8
     // Reports -> Inventory Reports -> Cost of Inventory
     /**
+     * API used to get list of CostOfInventoryOutput
+     *
      * <pre>
      * Sample JSON
      * {"programId":3, "versionId":2, "dt":"2020-04-01", "includePlannedShipments":1}
@@ -299,10 +338,13 @@ public class ReportRestController {
      * -- Cost = Closing inventory for that Planning Unit x Catalog Price
      * </pre>
      *
-     * @param cii
+     * @param cii CostOfInventoryInput
      * @param auth
-     * @return
+     * @return list of CostOfInventoryOutput
      */
+    @Operation(description = "API used to get the CostOfInventoryOutput list.", summary = "get the CostOfInventoryOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the CostOfInventoryOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of CostOfInventoryOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/costOfInventory")
     public ResponseEntity getCostOfInventory(@RequestBody CostOfInventoryInput cii, Authentication auth) {
@@ -318,6 +360,8 @@ public class ReportRestController {
     // Report no 9
     // Reports -> Inventory Reports -> Inventory Turns
     /**
+     * API used to get list of InventoryTurnsOutput
+     *
      * <pre>
      * Sample JSON
      * {"programId":3, "versionId":2, "dt":"2020-04-01", "includePlannedShipments":1}
@@ -329,10 +373,13 @@ public class ReportRestController {
      * -- Inventory Turns = Total Consumption for the last 12 months (including current month) / Avg Stock during that period
      * </pre>
      *
-     * @param it
+     * @param it CostOfInventoryInput object
      * @param auth
-     * @return
+     * @return list of InventoryTurnsOutput
      */
+    @Operation(description = "API used to get the InventoryTurnsOutput list.", summary = "get the InventoryTurnsOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the InventoryTurnsOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of InventoryTurnsOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/inventoryTurns")
     public ResponseEntity getInventoryTurns(@RequestBody CostOfInventoryInput it, Authentication auth) {
@@ -348,6 +395,8 @@ public class ReportRestController {
     // Report no 11
     // Reports -> Inventory Reports -> Expiries
     /**
+     * API used to get list of ExpiredStockOutput
+     *
      * <pre>
      * Sample JSON
      * {"programId":2535, "versionId":1, "startDt":"2017-01-01", "stopDt":"2021-12-01", "includePlannedShipments":1}
@@ -359,10 +408,13 @@ public class ReportRestController {
      * -- Include Planned Shipments = 0 means that Shipments that are in the Planned stages will not be considered in the report
      * </pre>
      *
-     * @param it
+     * @param esi ExpiredStockInput
      * @param auth
-     * @return
+     * @return list of ExpiredStockOutput
      */
+    @Operation(description = "API used to get the ExpiredStockOutput list.", summary = "get the ExpiredStockOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ExpiredStockOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ExpiredStockOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/expiredStock")
     public ResponseEntity getExpiredStock(@RequestBody ExpiredStockInput esi, Authentication auth) {
@@ -378,6 +430,8 @@ public class ReportRestController {
     // Report no 12
     // Reports -> Inventory Reports -> Stock Adjustment
     /**
+     * API used to get list of StockAdjustmentReportOutput
+     *
      * <pre>
      * Sample JSON
      * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-10-01", "planningUnitIds":[152,157]}
@@ -387,10 +441,13 @@ public class ReportRestController {
      * -- VAR_PLANNING_UNIT_IDS are the Quoted, Comma separated list of the Planning Unit Ids that you want to run the report for. If you want to run it for all Planning Units in the Program leave it empty
      * </pre>
      *
-     * @param si
+     * @param si StockAdjustmentReportInput
      * @param auth
-     * @return
+     * @return list of StockAdjustmentReportOutput
      */
+    @Operation(description = "API used to get the StockAdjustmentReportOutput list.", summary = "get the StockAdjustmentReportOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the StockAdjustmentReportOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of StockAdjustmentReportOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockAdjustmentReport")
     public ResponseEntity getStockAdjustmentReport(@RequestBody StockAdjustmentReportInput si, Authentication auth) {
@@ -405,6 +462,8 @@ public class ReportRestController {
 
     // Report no 13
     /**
+     * API used to get list of ProcurementAgentShipmentReportOutput
+     *
      * <pre>
      * Sample JSON
      * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-10-01", "planningUnitIds":[152,157], "includePlannedShipments":1, "procurementAgentId":1}
@@ -420,11 +479,14 @@ public class ReportRestController {
      *
      * </pre>
      *
-     * @param pari
+     * @param pari ProcurementAgentShipmentReportInput
      * @param auth
-     * @return
+     * @return list of ProcurementAgentShipmentReportOutput
      */
     // Report -> Shipment Reports -> Shipment Cost Details (Procurement Agent view)
+    @Operation(description = "API used to get the ProcurementAgentShipmentReportOutput list.", summary = "get the ProcurementAgentShipmentReportOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ProcurementAgentShipmentReportOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ProcurementAgentShipmentReportOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/procurementAgentShipmentReport")
     public ResponseEntity getProcurementAgentShipmentReport(@RequestBody ProcurementAgentShipmentReportInput pari, Authentication auth) {
@@ -440,6 +502,8 @@ public class ReportRestController {
     // Report no 14
     // Report -> Shipment Reports -> Procurement Agent Lead Times
     /**
+     * API used to get list of ProgramLeadTimesOutput
+     *
      * <pre>
      * Sample JSON
      * {"programId":3, "procurementAgentIds":[1,3], "planningUnitIds":[157,152]}
@@ -450,8 +514,11 @@ public class ReportRestController {
      *
      * @param plt
      * @param auth
-     * @return
+     * @return list of ProgramLeadTimesOutput
      */
+    @Operation(description = "API used to get the ProgramLeadTimesOutput list.", summary = "get the ProgramLeadTimesOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ProgramLeadTimesOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ProgramLeadTimesOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/programLeadTimes")
     public ResponseEntity getProgramLeadTimes(@RequestBody ProgramLeadTimesInput plt, Authentication auth) {
@@ -469,6 +536,8 @@ public class ReportRestController {
     // Report no 15
     // Report -> Shipment Reports -> Shipment Cost Details (Funding Source view)
     /**
+     * API used to get list of FundingSourceShipmentReportOutput
+     *
      * <pre>
      * Sample JSON
      * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-10-01", "planningUnitIds":[152,157], "includePlannedShipments":1, "fundingSourceId":3}
@@ -483,10 +552,13 @@ public class ReportRestController {
      * -- FreightPerc is in SUM(FREIGHT_COST)/SUM(PRODUCT_COST) for that ProcurementAgent and that PlanningUnit
      * </pre>
      *
-     * @param fsri
+     * @param fsri FundingSourceShipmentReportInput
      * @param auth
-     * @return
+     * @return list of FundingSourceShipmentReportOutput
      */
+    @Operation(description = "API used to get the FundingSourceShipmentReportOutput list.", summary = "get the FundingSourceShipmentReportOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the FundingSourceShipmentReportOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of FundingSourceShipmentReportOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/fundingSourceShipmentReport")
     public ResponseEntity getFundingSourceShipmentReport(@RequestBody FundingSourceShipmentReportInput fsri, Authentication auth) {
@@ -502,18 +574,23 @@ public class ReportRestController {
     // Report no 16
     // Supply Planning -> Supply Plan Report
     /**
+     * API used to get list of StockStatusVerticalOutput
+     *
      * <pre>
      * Sample JSON
      * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitId":152, "allPlanningUnits":true}
      * </pre>
      *
-     * @param ssv
+     * @param ssv list of StockStatusVerticalOutput
      * @param auth
-     * @return
+     * @return list of StockStatusVerticalOutput
      */
     // ActualConsumption = 0 -- Forecasted Consumption
     // ActualConsumption = 1 -- Actual Consumption
     // ActualConsumption = null -- No consumption data
+    @Operation(description = "API used to get the StockStatusVerticalOutput list.", summary = "get the StockStatusVerticalOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the StockStatusVerticalOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of StockStatusVerticalOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusVertical")
     public ResponseEntity getStockStatusVertical(@RequestBody StockStatusVerticalInput ssv, Authentication auth) {
@@ -532,7 +609,7 @@ public class ReportRestController {
                 }
                 return new ResponseEntity(ssvoFullList, HttpStatus.OK);
             } else {
-            return new ResponseEntity(ssvoList, HttpStatus.OK);
+                return new ResponseEntity(ssvoList, HttpStatus.OK);
             }
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical", e);
@@ -543,6 +620,8 @@ public class ReportRestController {
     // Report no 17
     // Reports -> Stock Status -> Stock Status Over Time
     /**
+     * API used to get list of StockStatusOverTimeOutput
+     *
      * <pre>
      * Sample JSON
      * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":[152,157], "mosPast":3, "mosFuture":6}
@@ -552,13 +631,16 @@ public class ReportRestController {
      * you give mosFuture = 6 it will take the AMC for Jan, Feb, Mar, Apr, May
      * and Jun
      *
-     * @param ssot
+     * @param ssot StockStatusOverTimeInput
      * @param auth
-     * @return
+     * @return list of StockStatusOverTimeOutput
      */
     // ActualConsumption = 0 -- Forecasted Consumption
     // ActualConsumption = 1 -- Actual Consumption
     // ActualConsumption = null -- No consumption data
+    @Operation(description = "API used to get the StockStatusOverTimeOutput list.", summary = "get the StockStatusOverTimeOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the StockStatusOverTimeOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of StockStatusOverTimeOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusOverTime")
     public ResponseEntity getStockStatusOverTime(@RequestBody StockStatusOverTimeInput ssot, Authentication auth) {
@@ -574,6 +656,8 @@ public class ReportRestController {
     // Report no 18
     // Reports -> Stock Status -> Stock Status Matrix
     /**
+     * API used to get list of StockStatusMatrixOutput
+     *
      * <pre>
      * Sample JSON
      * {"programId":2030, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitIds":[4115], "tracerCategoryIds":[21,28], "includePlannedShipments":1}
@@ -587,10 +671,13 @@ public class ReportRestController {
      * -- Current month is always included in AMC
      * </pre>
      *
-     * @param ssm
+     * @param ssm StockStatusMatrixInput
      * @param auth
-     * @return
+     * @return list of StockStatusMatrixOutput
      */
+    @Operation(description = "API used to get the StockStatusMatrixOutput list.", summary = "get the StockStatusMatrixOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the StockStatusMatrixOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of StockStatusMatrixOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusMatrix")
     public ResponseEntity getStockStatusMatrix(@RequestBody StockStatusMatrixInput ssm, Authentication auth) {
@@ -606,6 +693,8 @@ public class ReportRestController {
 
     // Report no 19
     /**
+     * API used to get ShipmentDetailsOutput object
+     *
      * <pre>
      * Sample JSON
      * {    "programId": 2030,    "versionId": 9,    "startDate": "2019-10-01",    "stopDate": "2020-07-01",    "planningUnitIds": [1354],    "fundingSourceIds": [1,4],    "budgetIds": [8,9],    "reportView": 1}
@@ -617,11 +706,14 @@ public class ReportRestController {
      * -- Report view 1 = Planning Units, 2 = Forecasting Units
      * </pre>
      *
-     * @param sd
+     * @param sd ShipmentDetailsInput
      * @param auth
-     * @return
+     * @return ShipmentDetailsOutput object
      */
     // Report -> Shipment Reports -> Shipment Details
+    @Operation(description = "API used to get the ShipmentDetailsOutput object.", summary = "get the ShipmentDetailsOutput object", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ShipmentDetailsOutput object")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ShipmentDetailsOutput object")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/shipmentDetails")
     public ResponseEntity getShipmentDetails(@RequestBody ShipmentDetailsInput sd, Authentication auth) {
@@ -638,15 +730,20 @@ public class ReportRestController {
     // Report -> Shipment Reports -> Shipments Overview
     // Global Report
     /**
+     * API used to get ShipmentOverviewOutput object
+     *
      * <pre>
      * Sample JSON
      * {"curUser":20, "realmId":1,  "startDate":"2019-10-01", "stopDate":"2021-07-01", "shipmentStatusIds":[],"planningUnitIds":[], "fundingSourceIds":[], "procurementAgentIds":[], "useApprovedSupplyPlansOnly":0}
      * </pre>
      *
-     * @param so
+     * @param so ShipmentOverviewInput
      * @param auth
-     * @return
+     * @return ShipmentOverviewOutput object
      */
+    @Operation(description = "API used to get the ShipmentOverviewOutput object.", summary = "get the ShipmentOverviewOutput object", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ShipmentOverviewOutput object")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ShipmentOverviewOutput object")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/shipmentOverview")
     public ResponseEntity getShipmentOverview(@RequestBody ShipmentOverviewInput so, Authentication auth) {
@@ -663,15 +760,20 @@ public class ReportRestController {
     // Report -> Shipment Reports -> Shipments (Global)
     // Global Report
     /**
+     * API used to get ShipmentGlobalDemandOutput object
+     *
      * <pre>
      * Sample JSON
      * {"curUser": 20,"realmId": 1,"realmCountryIds": [5,51],"programIds": [2028,2029,2535],"planningUnitId": 2692,"startDate": 2019-01-01","stopDate": "2019-12-01","fundingSourceProcurementAgentIds": [],"reportView": 1,"useApprovedSupplyPlanOnly": 0,"includePlannedShipments": 1}
      * </pre>
      *
-     * @param sgd
+     * @param sgd ShipmentGlobalDemandInput
      * @param auth
-     * @return
+     * @return ShipmentGlobalDemandOutput object
      */
+    @Operation(description = "API used to get the ShipmentGlobalDemandOutput object.", summary = "get the ShipmentGlobalDemandOutput object", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ShipmentGlobalDemandOutput object")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ShipmentGlobalDemandOutput object")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/shipmentGlobalDemand")
     public ResponseEntity getShipmentGlobalDemand(@RequestBody ShipmentGlobalDemandInput sgd, Authentication auth) {
@@ -687,6 +789,8 @@ public class ReportRestController {
     // Report no 22
     // Report -> Shipment Reports -> Shipment Cost Overview
     /**
+     * API used to get list of AnnualShipmentCostOutput
+     *
      * <pre>
      * Sample JSON
      * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-07-01", "planningUnitId":152, "procurementAgentId":-1, "fundingSourceId":-1, "shipmentStatusId":-1}
@@ -697,10 +801,13 @@ public class ReportRestController {
      * -- If ProcurementAgent has not been selected as yet in the Shipment, that Shipment will be excluded
      * </pre>
      *
-     * @param asci
+     * @param asci AnnualShipmentCostInput
      * @param auth
-     * @return
+     * @return list of AnnualShipmentCostOutput
      */
+    @Operation(description = "API used to get the AnnualShipmentCostOutput list.", summary = "get the AnnualShipmentCostOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the AnnualShipmentCostOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of AnnualShipmentCostOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/annualShipmentCost")
     public ResponseEntity getAnnualShipmentCost(@RequestBody AnnualShipmentCostInput asci, Authentication auth) {
@@ -715,6 +822,8 @@ public class ReportRestController {
 
     // Report no 24
     /**
+     * API used to get list of ShipmentReportOutput
+     *
      * <pre>
      * Sample JSON
      * {"programId":3, "versionId":2, "startDate":"2019-10-01", "stopDate":"2020-10-01", "planningUnitIds":[152,157], "includePlannedShipments":1}
@@ -728,11 +837,14 @@ public class ReportRestController {
      * -- FreightPerc is in SUM(FREIGHT_COST)/SUM(PRODUCT_COST) for that ProcurementAgent and that PlanningUnit
      * </pre>
      *
-     * @param fsri
+     * @param fsri ShipmentReportInput
      * @param auth
-     * @return
+     * @return list of ShipmentReportOutput
      */
     // Report -> Shipment Reports -> Shipment Cost Details (Planning Unit view)
+    @Operation(description = "API used to get the ShipmentReportOutput list.", summary = "get the ShipmentReportOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ShipmentReportOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ShipmentReportOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/aggregateShipmentByProduct")
     public ResponseEntity getAggregateShipmentByProduct(@RequestBody ShipmentReportInput fsri, Authentication auth) {
@@ -748,6 +860,8 @@ public class ReportRestController {
     // Report no 28
     // Reports -> Stock Status -> Stock Status Snapshot
     /**
+     * API used to get list of StockStatusForProgramOutput
+     *
      * <pre>
      * Sample JSON
      * {"programId":2028, "versionId":1, "dt":"2019-10-01", "includePlannedShipments":1, "tracerCategoryIds":[]}
@@ -763,10 +877,13 @@ public class ReportRestController {
      * -- MaxMonthsOfStock is Min of Min of MinMonthOfStock+ReorderFrequency and 15
      * </pre>
      *
-     * @param sspi
+     * @param sspi StockStatusForProgramInput
      * @param auth
-     * @return
+     * @return list of StockStatusForProgramOutput
      */
+    @Operation(description = "API used to get the StockStatusForProgramOutput list.", summary = "get the StockStatusForProgramOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the StockStatusForProgramOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of StockStatusForProgramOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusForProgram")
     public ResponseEntity getStockStatusForProgram(@RequestBody StockStatusForProgramInput sspi, Authentication auth) {
@@ -782,13 +899,18 @@ public class ReportRestController {
     // Report no 29
     // Report -> Shipment Reports -> Budget reports
     /**
+     * API used to get list of BudgetReportOutput
+     *
      * Sample JSON {"programId":2028, "versionId":1, "startDate":"2019-01-01",
      * "stopDate":"2021-12-01", "fundingSourceIds":[], "shippingStatusIds":[]}
      *
-     * @param br
+     * @param br BudgetReportInput
      * @param auth
-     * @return
+     * @return list of BudgetReportOutput
      */
+    @Operation(description = "API used to get the BudgetReportOutput list.", summary = "get the BudgetReportOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the BudgetReportOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of BudgetReportOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/budgetReport")
     public ResponseEntity getBudgetReport(@RequestBody BudgetReportInput br, Authentication auth) {
@@ -805,6 +927,8 @@ public class ReportRestController {
     // Reports -> Stock Status -> Stock Status Snapshot (Global)
     // Global Report
     /**
+     * API used to get list of StockStatusAcrossProductsOutput
+     *
      * <pre>
      * Sample JSON
      * {    "curUser": 20,    "realmId": 1,    "realmCountryIds": [        5,        51    ],    "tracerCategoryIds":[], "dt":"2020-09-01"}
@@ -820,10 +944,13 @@ public class ReportRestController {
      * -- MaxMonthsOfStock is Min of Min of MinMonthOfStock+ReorderFrequency and 15
      * </pre>
      *
-     * @param sspi
+     * @param ssap StockStatusAcrossProductsInput
      * @param auth
-     * @return
+     * @return list of StockStatusAcrossProductsOutput
      */
+    @Operation(description = "API used to get the StockStatusAcrossProductsOutput list.", summary = "get the StockStatusAcrossProductsOutput list", tags = ("report"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the StockStatusAcrossProductsOutput list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of StockStatusAcrossProductsOutput list")
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/stockStatusAcrossProducts")
     public ResponseEntity getStockStatusAcrossProducts(@RequestBody StockStatusAcrossProductsInput ssap, Authentication auth) {

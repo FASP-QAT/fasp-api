@@ -50,13 +50,13 @@ public class ProcurementAgentRestController {
     private UserService userService;
 
     /**
-     * API used to get the complete ProcurementAgent list.
+     * API used to get the complete list of ProcurementAgent.
      *
      * @param auth
      * @return returns the complete list of ProcurementAgents
      */
     @GetMapping("/")
-    @Operation(description = "API used to get the complete ProcurementAgent list.", summary = "Get ProcurementAgent list", tags = ("procurementAgent"))
+    @Operation(description = "API used to get the complete list of ProcurementAgent.", summary = "Get Complete ProcurementAgent list", tags = ("procurementAgent"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ProcurementAgent list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ProcurementAgent list")
     public ResponseEntity getProcurementAgent(Authentication auth) {
@@ -75,8 +75,8 @@ public class ProcurementAgentRestController {
      * @param procurementAgentId ProcurementAgentId that you want the
      * ProcurementAgent Object for
      * @param auth
-     * @return returns the list the ProcurementAgent object based on
-     * ProcurementAgentId specified
+     * @return returns the ProcurementAgent object based on ProcurementAgentId
+     * specified
      */
     @GetMapping(value = "/{procurementAgentId}")
     @Operation(description = "API used to get the ProcurementAgent for a specific ProcurementAgentId", summary = "Get ProcurementAgent for a ProcurementAgentId", tags = ("procurementAgent"))
@@ -103,12 +103,12 @@ public class ProcurementAgentRestController {
      * ProcurementAgent and the Realm
      *
      * @param realmId RealmId that you want the ProcurementAgent from
-     * @param name Display name of the Funding source you want to get
+     * @param name Display name of the ProcurementAgent you want to get
      * @param auth
-     * @return returns the complete list of ProcurementAgents
+     * @return returns the ProcurementAgent
      */
     @GetMapping("/getDisplayName/realmId/{realmId}/name/{name}")
-    @Operation(description = "API used to get the complete ProcurementAgent by providing the display name of the ProcurementAgent and the Realm", summary = "Get ProcurementAgent by display name", tags = ("procurementAgent"))
+    @Operation(description = "API used to get the ProcurementAgent by providing the display name of the ProcurementAgent and the Realm", summary = "Get ProcurementAgent by display name", tags = ("procurementAgent"))
     @Parameters({
         @Parameter(name = "realmId", description = "RealmId that you want to the ProcurementAgent for"),
         @Parameter(name = "name", description = "Display name that you want to the ProcurementAgent for")})
@@ -132,7 +132,7 @@ public class ProcurementAgentRestController {
      * @return returns the complete list of ProcurementAgents
      */
     @GetMapping("/realmId/{realmId}")
-    @Operation(description = "API used to get the complete ProcurementAgent list for a Realm", summary = "Get ProcurementAgent list for Realm", tags = ("procurementAgent"))
+    @Operation(description = "API used to get the ProcurementAgent list for a Realm", summary = "Get ProcurementAgent list for Realm", tags = ("procurementAgent"))
     @Parameters(
             @Parameter(name = "realmId", description = "RealmId that you want to the ProcurementAgent for"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ProcurementAgent list")
@@ -192,7 +192,6 @@ public class ProcurementAgentRestController {
 
     }
 
-
     /**
      * API used to update a ProcurementAgent
      *
@@ -228,15 +227,15 @@ public class ProcurementAgentRestController {
     /**
      * API used to save the ProcurementAgentPlanningUnits list
      *
-     * @param procurementAgentPlanningUnits ProcurementAgentPlanningUnits list
-     * that you want to save
+     * @param procurementAgentPlanningUnits array of
+     * ProcurementAgentPlanningUnits that you want to save
      * @param auth
      * @return returns a Success code if the operation was successful
      */
     @PutMapping("/planningingUnit")
     @Operation(description = "API used to save the ProcurementAgentPlanningUnits list", summary = "Update ProcurementAgent PlanningUnits", tags = ("procurementAgent"))
     @Parameters(
-            @Parameter(name = "procurementAgentPlanningUnits", description = "The list of ProcurementAgentPlanningUnits that you want to save"))
+            @Parameter(name = "procurementAgentPlanningUnits", description = "Array of ProcurementAgentPlanningUnits that you want to save"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
@@ -250,7 +249,6 @@ public class ProcurementAgentRestController {
             logger.error("Error while trying to update PlanningUnit for Program", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
-            e.printStackTrace();
             logger.error("Error while trying to update PlanningUnit for Program", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -267,13 +265,13 @@ public class ProcurementAgentRestController {
      * specified. Will only return those PlanningUnits that are marked active.
      */
     @GetMapping("/{procurementAgentId}/planningUnit")
-    @Operation(description = "API used to get the ProcurementAgent Planning Unit list for a Procurement Agent. Will only return those PlanningUnits that are marked active.", summary = "Get ProcurementAgent list for Realm", tags = ("procurementAgent"))
+    @Operation(description = "API used to get the ProcurementAgent Planning Unit list for a Procurement Agent. Will only return those PlanningUnits that are marked active.", summary = "Get ProcurementAgent Planning Unit list for a Procurement Agent", tags = ("procurementAgent"))
     @Parameters(
             @Parameter(name = "procurementAgentId", description = "ProcurementAgentId that you want to the PlanningUnit list for"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the PlanningUnit list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the RealmId specified does not exist")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ProcurementAgent list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the procurementAgentId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ProcurementAgent Planning Unit list")
     public ResponseEntity getProcurementAgentPlanningUnitList(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -288,8 +286,8 @@ public class ProcurementAgentRestController {
     }
 
     /**
-     * API used to get the ProcurementAgent Planning Unit list for a Procurement
-     * Agent.
+     * API used to get the complete ProcurementAgent Planning Unit list for a
+     * Procurement Agent.
      *
      * @param procurementAgentId ProcurementAgentId that you want the
      * PlanningUnit List for
@@ -298,13 +296,13 @@ public class ProcurementAgentRestController {
      * specified.
      */
     @GetMapping("/{procurementAgentId}/planningUnit/all")
-    @Operation(description = "API used to get the ProcurementAgent Planning Unit list for a Procurement Agent.", summary = "Get ProcurementAgent list for Realm", tags = ("procurementAgent"))
+    @Operation(description = "API used to get the complete ProcurementAgent Planning Unit list for a Procurement Agent.", summary = "Get Complete ProcurementAgent Planning Unit list for a Procurement Agent", tags = ("procurementAgent"))
     @Parameters(
             @Parameter(name = "procurementAgentId", description = "ProcurementAgentId that you want to the PlanningUnit list for"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the PlanningUnit list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the RealmId specified does not exist")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ProcurementAgent list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the ProcurementAgentId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ProcurementAgent Planning Unit list")
     public ResponseEntity getProcurementAgentPlanningUnitListAll(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -321,15 +319,15 @@ public class ProcurementAgentRestController {
     /**
      * API used to save the ProcurementAgentProcurementUnits list
      *
-     * @param procurementAgentProcurementUnits ProcurementAgentProcurementUnits
-     * list that you want to save
+     * @param procurementAgentProcurementUnits Array of
+     * ProcurementAgentProcurementUnits that you want to save
      * @param auth
      * @return returns a Success code if the operation was successful
      */
     @PutMapping("/procurementUnit")
     @Operation(description = "API used to save the ProcurementAgentProcurementUnits list", summary = "Update ProcurementAgent ProcurementUnits", tags = ("procurementAgent"))
     @Parameters(
-            @Parameter(name = "procurementAgentProcurementUnits", description = "The list of ProcurementAgentProcurementUnits that you want to save"))
+            @Parameter(name = "procurementAgentProcurementUnits", description = "Array of ProcurementAgentProcurementUnits that you want to save"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
@@ -353,20 +351,20 @@ public class ProcurementAgentRestController {
      * marked active.
      *
      * @param procurementAgentId ProcurementAgentId that you want the
-     * PlanningUnit List for
+     * Procurement Unit List for
      * @param auth
      * @return returns the list of ProcurementUnits for the ProcurementAgent
      * specified. Will only return those ProcurementUnits that are marked
      * active.
      */
     @GetMapping("/{procurementAgentId}/procurementUnit")
-    @Operation(description = "API used to get the ProcurementAgent ProcurementUnit list for a Procurement Agent. Will only return those ProcurementUnits that are marked active.", summary = "Get ProcurementAgent list for Realm", tags = ("procurementAgent"))
+    @Operation(description = "API used to get the ProcurementAgent ProcurementUnit list for a Procurement Agent. Will only return those ProcurementUnits that are marked active.", summary = "Get ProcurementAgent Procurement Unit list for a Procurement Agent.", tags = ("procurementAgent"))
     @Parameters(
-            @Parameter(name = "procurementAgentId", description = "ProcurementAgentId that you want to the PlanningUnit list for"))
+            @Parameter(name = "procurementAgentId", description = "ProcurementAgentId that you want to the Procurement Unit list for"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ProcurementUnit list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the RealmId specified does not exist")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ProcurementAgent list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the procurementAgentId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ProcurementAgent Procurement Unit list")
     public ResponseEntity getProcurementAgentProcurementUnitList(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -381,23 +379,23 @@ public class ProcurementAgentRestController {
     }
 
     /**
-     * API used to get the ProcurementAgent Procurement Unit list for a
+     * API used to get the complete ProcurementAgent Procurement Unit list for a
      * Procurement Agent.
      *
      * @param procurementAgentId ProcurementAgentId that you want the
-     * PlanningUnit List for
+     * Procurement unit List for
      * @param auth
-     * @return returns the list of ProcurementUnits for the ProcurementAgent
-     * specified.
+     * @return returns the complete list of ProcurementUnits for the
+     * ProcurementAgent specified.
      */
     @GetMapping("/{procurementAgentId}/procurementUnit/all")
-    @Operation(description = "API used to get the ProcurementAgent ProcurementUnit list for a Procurement Agent.", summary = "Get ProcurementAgent list for Realm", tags = ("procurementAgent"))
+    @Operation(description = "API used to get the complete ProcurementAgent ProcurementUnit list for a Procurement Agent.", summary = "Get Complete ProcurementAgent Procurement Unit list for a Procurement Agent", tags = ("procurementAgent"))
     @Parameters(
-            @Parameter(name = "procurementAgentId", description = "ProcurementAgentId that you want to the PlanningUnit list for"))
+            @Parameter(name = "procurementAgentId", description = "ProcurementAgentId that you want to the Procurement unit list for"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ProcurementUnit list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the RealmId specified does not exist")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of ProcurementAgent list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the ProcurementAgentId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Procurement Unit list")
     public ResponseEntity getProcurementAgentProcurementUnitListAll(@PathVariable("procurementAgentId") int procurementAgentId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -411,7 +409,6 @@ public class ProcurementAgentRestController {
         }
     }
 
-
 //    @GetMapping(value = "/sync/procurementAgent/planningUnit/{lastSyncDate}")
 //    public ResponseEntity getProcurementAgentPlanningUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
 //        try {
@@ -427,7 +424,6 @@ public class ProcurementAgentRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @GetMapping(value = "/sync/procurementAgent/procurementUnit/{lastSyncDate}")
 //    public ResponseEntity getProcurementAgentProcurementUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
 //        try {
@@ -443,7 +439,6 @@ public class ProcurementAgentRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @GetMapping("/procurementAgent/getDisplayName/realmId/{realmId}/name/{name}")
 //    public ResponseEntity getProcurementAgentDisplayName(@PathVariable("realmId") int realmId, @PathVariable("name") String name, Authentication auth) {
 //        try {
@@ -454,7 +449,6 @@ public class ProcurementAgentRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @GetMapping(value = "/sync/procurementAgent/{lastSyncDate}")
 //    public ResponseEntity getProcurementAgentListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
 //        try {
@@ -470,7 +464,6 @@ public class ProcurementAgentRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-    
 //    @GetMapping(value = "/sync/procurementAgent/planningUnit/{lastSyncDate}")
 //    public ResponseEntity getProcurementAgentPlanningUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
 //        try {
@@ -518,5 +511,4 @@ public class ProcurementAgentRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 }

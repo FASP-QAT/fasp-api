@@ -154,7 +154,7 @@ public class SupplyPlanRestController {
         CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
         for (ProgramIdAndVersionId pv : pvList) {
             try {
-                System.out.println("Starting supply plan build for ProgramId:" + pv.getProgramId() + " versionId:" + pv.getVersionId());
+//                System.out.println("Starting supply plan build for ProgramId:" + pv.getProgramId() + " versionId:" + pv.getVersionId());
                 sb.append("Starting supply plan build for ProgramId:" + pv.getProgramId() + " versionId:" + pv.getVersionId()).append(nl);
                 Date dt1 = new Date();
                 System.out.println(sdf.format(dt1));

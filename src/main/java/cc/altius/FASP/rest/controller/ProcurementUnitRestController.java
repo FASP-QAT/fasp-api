@@ -185,7 +185,8 @@ public class ProcurementUnitRestController {
      * API used to get the ProcurementUnit for a specific PlanningUnitId. Will
      * only return those ProcurementUnits that are marked active
      *
-     * @param realmId PlanningUnitId that you want the ProcurementUnit List for
+     * @param planningUnitId PlanningUnitId that you want the ProcurementUnit
+     * List for
      * @param auth
      * @return returns the list the ProcurementUnit list based on PlanningUnitId
      * specified. Will only return those ProcurementUnits that are marked active
@@ -193,7 +194,7 @@ public class ProcurementUnitRestController {
     @GetMapping("/planningUnitId/{planningUnitId}")
     @Operation(description = "API used to get all the ProcurementUnits for a specific PlanningUnitId. Will only return those ProcurementUnits that are marked active", summary = "Get ProcurementUnit for a PlanningUnitId", tags = ("procurementUnit"))
     @Parameters(
-            @Parameter(name = "realmId", description = "PlanningUnitId that you want to the ProcurementUnit for"))
+            @Parameter(name = "planningUnitId", description = "PlanningUnitId that you want to the ProcurementUnit for"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ProcurementUnits list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the PlanningUnitId specified does not exist")
@@ -214,7 +215,8 @@ public class ProcurementUnitRestController {
     /**
      * API used to get the ProcurementUnits for a specific PlanningUnitId.
      *
-     * @param realmId PlanningUnitId that you want the ProcurementUnit list for
+     * @param planningUnitId PlanningUnitId that you want the ProcurementUnit
+     * list for
      * @param auth
      * @return returns the list the ProcurementUnit list based on PlanningUnitId
      * specified.
@@ -222,7 +224,7 @@ public class ProcurementUnitRestController {
     @GetMapping("/planningUnitId/{planningUnitId}/all")
     @Operation(description = "API used to get all the ProcurementUnits for a specific PlanningUnitId.", summary = "Get ProcurementUnit for a PlanningUnitId", tags = ("procurementUnit"))
     @Parameters(
-            @Parameter(name = "realmId", description = "PlanningUnitId that you want to the ProcurementUnit for"))
+            @Parameter(name = "planningUnitId", description = "PlanningUnitId that you want to the ProcurementUnit for"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the ProcurementUnits list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the PlanningUnitId specified does not exist")

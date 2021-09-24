@@ -292,7 +292,20 @@ public class SyncRestController {
         }
     }
 
-    @GetMapping(value = "/sync/language/{lastSyncDate}")
+    /**
+     * API used to get list of languages which are modified after given date
+     *
+     * @param lastSyncDate lastSyncDate that you want a list languages modified
+     * after the date
+     * @return list of languages
+     */
+    @Operation(description = "API used to get list of languages which are modified after given date", summary = "Get list of languages which are modified", tags = ("masters"))
+    @Parameters(
+            @Parameter(name = "lastSyncDate", description = "lastSyncDate that you want a list languages modified after the date"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the list of languages")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "412", description = "Returns a HttpStatus.PRECONDITION_FAILED if certain conditions to get the lists does not met")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of list of languages")
+    @GetMapping(value = "/language/{lastSyncDate}")
     public ResponseEntity getLanguageListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

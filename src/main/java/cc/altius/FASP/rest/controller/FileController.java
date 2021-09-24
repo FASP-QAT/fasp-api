@@ -51,13 +51,15 @@ public class FileController {
     /**
      *
      * @param fileName Name of file that the user wants to get from the Server
+     * @param auth
      * @return Returns the byte array of the file that was requested
      * @throws FileNotFoundException if the file was not found
      * @throws IOException if there was an error in reading the file from the
      * server
      */
     @Operation(description = "Returns the byte stream of the file that was requested", summary = "Get file from Server", tags = ("file"))
-    @Parameters(@Parameter(name = "fileName", description = "Name of file that the user wants to get from the Server"))
+    @Parameters(
+            @Parameter(name = "fileName", description = "Name of file that the user wants to get from the Server"))
     @ApiResponse(content = @Content(mediaType = "application/octet-stream"), responseCode = "200", description = "Returns the byte array of the file that was requested")
     @GetMapping("/file/{fileName}")
     public byte[] getFile(@PathVariable(name = "fileName") String fileName, HttpServletResponse response, Authentication auth) throws FileNotFoundException, IOException {

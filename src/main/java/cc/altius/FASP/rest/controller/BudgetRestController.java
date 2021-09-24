@@ -78,7 +78,7 @@ public class BudgetRestController {
             @Parameter(name = "budget", description = "The Budget object that you want to add to the Realm"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access to add the Budget")
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the some of the underlying data does not match. For instance the Funding Source Id specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the some of the underlying data does not match.")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     public ResponseEntity addBudget(@RequestBody Budget budget, Authentication auth) {
         try {
@@ -210,7 +210,6 @@ public class BudgetRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
 
 //    @GetMapping(value = "/sync/budget/{lastSyncDate}")
 //    @Operation(

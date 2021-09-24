@@ -18,6 +18,11 @@ import cc.altius.FASP.model.User;
 import cc.altius.FASP.security.CustomUserDetailsService;
 import cc.altius.FASP.service.UserService;
 import cc.altius.utils.PassPhrase;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -46,7 +51,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/user")
 public class UserRestController {
 
     private final Logger auditLogger = LoggerFactory.getLogger(UserRestController.class);
@@ -63,6 +68,15 @@ public class UserRestController {
     @Value("${jwt.http.request.header}")
     private String tokenHeader;
 
+    /**
+     * API used to get the userDetails for current user
+     *
+     * @param auth
+     * @return returns User object
+     */
+    @Operation(description = "API used to get the userDetails for current user", summary = "Get userDetails for current user", tags = ("user"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the User")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of User")
     @GetMapping(value = "/userDetails")
     public ResponseEntity getUserDetails(Authentication auth) {
         CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -74,6 +88,15 @@ public class UserRestController {
         }
     }
 
+    /**
+     * API used to get the Role list for current user
+     *
+     * @param auth
+     * @return returns the Role list
+     */
+    @Operation(description = "API used to get the Role list for current user", summary = "Get Role list for current user", tags = ("user"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Role list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Role list")
     @GetMapping(value = "/role")
     public ResponseEntity getRoleList(Authentication auth) {
         try {
@@ -85,6 +108,17 @@ public class UserRestController {
         }
     }
 
+    /**
+     * API used to get the Role object for a specific roleId
+     *
+     * @param roleId roleId that you want the Role Object for
+     * @return returns the Role object for a specific roleId
+     */
+    @Operation(description = "API used to get the Role object for a specific roleId", summary = "Get Role object for a specific roleId", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "roleId", description = "roleId that you want the Role Object for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Role object")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Role")
     @GetMapping(value = "/role/{roleId}")
     public ResponseEntity getRoleById(@PathVariable("roleId") String roleId) {
         try {
@@ -95,6 +129,19 @@ public class UserRestController {
         }
     }
 
+    /**
+     * API used to add a Role
+     *
+     * @param role role object that you want to add
+     * @param auth
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to add a Role", summary = "Add Role", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "role", description = "role object that you want to add"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the Role object supplied is not unique")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     @PostMapping(value = "/role")
     public ResponseEntity addNewRole(@RequestBody Role role, Authentication auth) {
         try {
@@ -116,6 +163,19 @@ public class UserRestController {
         }
     }
 
+    /**
+     * API used to update a Role
+     *
+     * @param role role object that you want to update
+     * @param auth
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to update a Role", summary = "Update Role", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "role", description = "role object that you want to update"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "406", description = "Returns a HttpStatus.NOT_ACCEPTABLE if the Role object supplied is not unique")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     @PutMapping(value = "/role")
     public ResponseEntity editRole(@RequestBody Role role, Authentication auth) {
         try {
@@ -137,6 +197,14 @@ public class UserRestController {
         }
     }
 
+    /**
+     * API used to get the BusinessFunction list
+     *
+     * @return returns the BusinessFunction list
+     */
+    @Operation(description = "API used to get the BusinessFunction list", summary = "Get BusinessFunction list", tags = ("user"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the BusinessFunction list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of BusinessFunction list")
     @GetMapping(value = "/businessFunction")
     public ResponseEntity getBusinessFunctionList() {
         try {
@@ -147,7 +215,16 @@ public class UserRestController {
         }
     }
 
-    @GetMapping(value = "/user")
+    /**
+     * API used to get the User list
+     *
+     * @param auth
+     * @return returns the User list
+     */
+    @Operation(description = "API used to get the User list", summary = "Get User list", tags = ("user"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the User list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of User list")
+    @GetMapping(value = "/")
     public ResponseEntity getUserList(Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
@@ -158,7 +235,22 @@ public class UserRestController {
         }
     }
 
-    @GetMapping(value = "/user/realmId/{realmId}")
+    /**
+     * API used to get the User list for specified realmId
+     *
+     * @param realmId realmId that you want the User list for
+     * @param auth
+     *
+     * @return returns the User list for specified realmId
+     */
+    @Operation(description = "API used to get the User list for specified realmId", summary = "Get the User list for specified realmId", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "realmId", description = "RealmId that you want the User list for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the User list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the some of the underlying data does not match.")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access to get the User list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of User list")
+    @GetMapping(value = "/realmId/{realmId}")
     public ResponseEntity getUserList(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -175,7 +267,22 @@ public class UserRestController {
         }
     }
 
-    @GetMapping(value = "/user/{userId}")
+    /**
+     * API used to get the User object for specified userId
+     *
+     * @param userId userId that you want the User object for
+     * @param auth
+     *
+     * @return returns the User object for specified userId
+     */
+    @Operation(description = "API used to get the User object for specified userId", summary = "Get the User object for specified userId", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "realmId", description = "UserId that you want the User object for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the User object")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the some of the underlying data does not match.")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access to get the User list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of User object")
+    @GetMapping(value = "/{userId}")
     public ResponseEntity getUserByUserId(@PathVariable int userId, Authentication auth) {
         try {
             CustomUserDetails curUser = (CustomUserDetails) auth.getPrincipal();
@@ -194,7 +301,21 @@ public class UserRestController {
         }
     }
 
-    @PostMapping(value = "/user")
+    /**
+     * API used to add a User
+     *
+     * @param user user object that you want to add
+     * @param authentication
+     * @param request
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to add a user", summary = "Add User", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "user", description = "user object that you want to add"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "412", description = "Returns a HttpStatus.PRECONDITION_FAILED if the Username or email id already exists")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    @PostMapping(value = "/")
     public ResponseEntity addUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
         auditLogger.info("Adding new User " + user.toString(), request.getRemoteAddr(), curUser.getUsername());
@@ -230,7 +351,21 @@ public class UserRestController {
         }
     }
 
-    @PutMapping(value = "/user")
+    /**
+     * API used to update a User
+     *
+     * @param user user object that you want to update
+     * @param authentication
+     * @param request
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to update a user", summary = "Update User", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "user", description = "user object that you want to update"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "412", description = "Returns a HttpStatus.PRECONDITION_FAILED if the Username or email id already exists")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    @PutMapping(value = "/")
     public ResponseEntity editUser(@RequestBody User user, Authentication authentication, HttpServletRequest request) {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
         auditLogger.info("Going to update User " + user.toString(), request.getRemoteAddr(), curUser.getUsername());
@@ -287,7 +422,20 @@ public class UserRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.tokenNotGenerated"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
+    /**
+     * API used to update expired password
+     *
+     * @param password password object that you want to update
+     *
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to update expired password", summary = "Update Expired Password", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "password", description = "password object that you want to update"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "412", description = "Returns a HttpStatus.PRECONDITION_FAILED if the old password and new password does not match")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the passwords does not match")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     @PostMapping(value = "/updateExpiredPassword")
     public ResponseEntity updateExpiredPassword(@RequestBody Password password) {
         try {
@@ -318,6 +466,20 @@ public class UserRestController {
         }
     }
 
+    /**
+     * API used to change password
+     *
+     * @param password password object that you want to change
+     * @param auth
+     *
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to update changed password", summary = "Change password", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "password", description = "password object that you want to change"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "412", description = "Returns a HttpStatus.PRECONDITION_FAILED if the old password and new password does not match")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     @PostMapping(value = "/changePassword")
     public ResponseEntity changePassword(@RequestBody Password password, Authentication auth) {
         try {
@@ -343,6 +505,21 @@ public class UserRestController {
         }
     }
 
+    /**
+     * API used to reset forgot password
+     *
+     * @param user EmailUser object for which password has to reset
+     * @param request
+     *
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to reset forgot password", summary = "Reset forgot password", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "user", description = "EmailUser object for which password has to reset "))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User is disabled")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if User does not exists with given Email Id.")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     @PostMapping(value = "/forgotPassword")
     public ResponseEntity forgotPassword(@RequestBody EmailUser user, HttpServletRequest request) {
         auditLogger.info("Forgot password action triggered for Email Id:" + user.getEmailId(), request.getRemoteAddr());
@@ -375,20 +552,30 @@ public class UserRestController {
         }
     }
 
+    /**
+     * API used to confirm if forgot password token is valid
+     *
+     * @param user EmailUser object for which token has to validate
+     * @param request
+     *
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to confirm if forgot password token is valid", summary = "Confirm Forgot Password", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "user", description = "EmailUser object for which token has to validate"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     @PostMapping("/confirmForgotPasswordToken")
     public ResponseEntity confirmForgotPasswordToken(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
             logger.info("------------------------------------------------------ Reset password Start ----------------------------------------------------");
-            System.out.println("---------------reset password start-----------");
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getEmailId(), user.getToken());
-            System.out.println("---------------1-----------");
             auditLogger.info("Confirm forgot password has been triggered for EmailId:" + user.getEmailId() + " with ForgotPasswordToken:" + fpt, request.getRemoteAddr());
 //            if (fpt.isValidForCompletion()) {
-                System.out.println("---------------2-----------");
-                logger.info("fpt.isValidForCompletion()=true");
-                auditLogger.info("Token is valid and reset can proceed");
+            logger.info("fpt.isValidForCompletion()=true");
+            auditLogger.info("Token is valid and reset can proceed");
 //                this.userService.updateTriggeredDateForForgotPasswordToken(user.getEmailId(), user.getToken());
-                return new ResponseEntity(HttpStatus.OK);
+            return new ResponseEntity(HttpStatus.OK);
 //            } else {
 //                System.out.println("---------------3-----------");
 //                logger.info("fpt.isValidForCompletion()=true");
@@ -402,6 +589,21 @@ public class UserRestController {
         }
     }
 
+    /**
+     * API used to update password
+     *
+     * @param user EmailUser object for which password has to update
+     * @param request
+     *
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to update password", summary = "Update password", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "user", description = "EmailUser object for which password has to update"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the token is invalid")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "412", description = "Returns a HttpStatus.PRECONDITION_FAILED if the new password is same as current password")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     @PostMapping("/updatePassword")
     public ResponseEntity updatePassword(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
@@ -439,6 +641,18 @@ public class UserRestController {
         }
     }
 
+    /**
+     * API used to logout
+     *
+     * @param authentication
+     * @param request
+     *
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to logout", summary = "Logout", tags = ("user"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if token is invalid")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     @GetMapping(value = "/logout")
     public ResponseEntity logout(Authentication authentication, HttpServletRequest request) {
         CustomUserDetails curUser = (CustomUserDetails) authentication.getPrincipal();
@@ -481,7 +695,20 @@ public class UserRestController {
 //            return new ResponseEntity("static.message.listFailed", HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
+    /**
+     * API used to map access controls like realmCountry, organisation,
+     * healthArea and program with specified user
+     *
+     * @param user user object for which access control need to map with
+     * @param auth
+     *
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to map access controls like realmCountry, organisation, healthArea and program with specified user", summary = "Map Access Control to User", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "user", description = "user object for which access control need to map with"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     @PutMapping(value = "/accessControls")
     public ResponseEntity accessControl(@RequestBody User user, Authentication auth) {
         try {
@@ -506,7 +733,21 @@ public class UserRestController {
         }
     }
 
-    @PostMapping("/user/language")
+    /**
+     * API used to update user language
+     *
+     * @param languageUser LanguageUser object that you want language to update
+     * for
+     * @param auth
+     *
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to update user language", summary = "Update user language", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "languageUser", description = "LanguageUser object that you want language to update"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    @PostMapping("/language")
     public ResponseEntity updateUserLanguage(@RequestBody LanguageUser languageUser, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -520,7 +761,18 @@ public class UserRestController {
         }
     }
 
-    @PostMapping("/user/agreement")
+    /**
+     * API used to update user agreement accepted
+     *
+     * @param auth
+     *
+     * @return returns a Success code if the operation was successful
+     */
+    @Operation(description = "API used to update user agreement accepted", summary = "Update user agreement accepted", tags = ("user"))
+
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    @PostMapping("/agreement")
     public ResponseEntity acceptUserAgreement(Authentication auth) {
         try {
 //            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

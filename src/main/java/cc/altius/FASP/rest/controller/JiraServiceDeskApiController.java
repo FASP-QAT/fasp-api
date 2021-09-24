@@ -9,8 +9,11 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.JiraServiceDeskApiService;
 import cc.altius.FASP.service.UserService;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,12 +45,33 @@ public class JiraServiceDeskApiController {
     @Autowired
     private UserService userService;
 
+    /**
+     * API used to sync user's Jira account id in user table
+     *
+     * @return returns the json object with Jira account details
+     */
+    @Operation(description = "API used to sync user's Jira account id in user table.", summary = "Sync user's Jira account id", tags = ("jiraServiceDesk"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the json object with Jira account details")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     @GetMapping("/syncJiraAccountIds")
-    public String syncUserJiraAccountId(HttpServletResponse response) throws FileNotFoundException, IOException {
+    public String syncUserJiraAccountId(HttpServletResponse response) {
         return this.jiraServiceDeskApiService.syncUserJiraAccountId("");
     }
 
-    @PostMapping(value = "/jira/addIssue")
+    /**
+     * API used to add issue in Jira
+     *
+     * @param jsonData Issue details to add in Jira in json format
+     * @param auth
+     * @return returns a response which we get after calling Jira API to add
+     * issue
+     */
+    @Operation(description = "API used to add issue in Jira", summary = "Add issue in Jira", tags = ("jiraServiceDesk"))
+    @Parameters(
+            @Parameter(name = "jsonData", description = "Issue details to add in Jira in json format"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
+    @PostMapping(value = "/addIssue")
     public ResponseEntity addIssue(@RequestBody(required = true) String jsonData, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -65,6 +89,21 @@ public class JiraServiceDeskApiController {
 
     }
 
+    /**
+     * API used to add attachment in the issue in Jira
+     *
+     * @param file Attachment which needs to be added in Jira issue
+     * @param issueId Issue id for which attachment needs to be added for
+     * @param auth
+     * @return returns a response which we get after calling Jira API to add
+     * attachment in Jira issue issue
+     */
+    @Operation(description = "API used to add attachment in the issue in Jira", summary = "Add attachment in Jira issue", tags = ("jiraServiceDesk"))
+    @Parameters({
+        @Parameter(name = "file", description = "Attachment which needs to be added in Jira issue"),
+        @Parameter(name = "issueId", description = "Issue id for which attachment needs to be added for")})
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     @PostMapping(value = "/addIssueAttachment/{issueId}")
     public ResponseEntity addIssueAttachment(@RequestParam("file") MultipartFile file, @PathVariable("issueId") String issueId, Authentication auth) {
         String message = "";
@@ -85,6 +124,15 @@ public class JiraServiceDeskApiController {
         }
     }
 
+    /**
+     * API used to get number of open and addressed issues
+     *
+     * @param auth
+     * @return returns a number of open and addressed issues in json format
+     */
+    @Operation(description = "API used to get number of open and addressed issues", summary = "Get number of open and addressed issues", tags = ("jiraServiceDesk"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a Success code if the operation was successful")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     @GetMapping(value = "/openIssues")
     public ResponseEntity getOpenIssue(Authentication auth) {
         try {

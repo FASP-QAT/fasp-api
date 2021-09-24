@@ -103,7 +103,7 @@ public class OrganisationRestController {
     /**
      * API used to get the Organisation list for a Realm
      *
-     * @param realmId RealmId that you want the Funding Source List from
+     * @param realmId RealmId that you want the Organisation List from
      * @param auth
      * @return returns the complete list of Organisations
      */
@@ -134,8 +134,8 @@ public class OrganisationRestController {
     /**
      * API used to get the Organisation list for a RealmCountry
      *
-     * @param realmCountryId RealmCountryId that you want the Funding Source
-     * List from
+     * @param realmCountryId RealmCountryId that you want the Organisation List
+     * from
      * @param auth
      * @return returns the complete list of Organisations
      */
@@ -164,8 +164,8 @@ public class OrganisationRestController {
      * API used to get the Organisation by providing the display name of the
      * Organisation and the Realm
      *
-     * @param realmId RealmId that you want the Funding Source from
-     * @param name Display name of the Funding source you want to get
+     * @param realmId RealmId that you want the Organisation from
+     * @param name Display name of the Organisation you want to get
      * @param auth
      * @return returns the complete list of Organisations
      */
@@ -181,7 +181,7 @@ public class OrganisationRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.organisationService.getDisplayName(realmId, name, curUser), HttpStatus.OK);
         } catch (Exception e) {
-            logger.error("Error while trying to get Funding source suggested display name", e);
+            logger.error("Error while trying to get organisation suggested display name", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

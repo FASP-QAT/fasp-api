@@ -64,10 +64,12 @@ public class IntegrationProgramRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     /**
      * API used to get the complete Integration Program list for a ProgramId.
      *
+     * @param programId programId that you want to the Integration Program list
+     * for
      * @param auth
      * @return returns the complete list of Integration Programs for a ProgramId
      */
@@ -88,10 +90,11 @@ public class IntegrationProgramRestController {
     }
 
     /**
-     * API used to get the Integration Program for a specific IntegrationProgramId
+     * API used to get the Integration Program for a specific
+     * IntegrationProgramId
      *
-     * @param integrationProgramId IntegrationProgramId that you want the Integration Program for
-     * Object for
+     * @param integrationProgramId IntegrationProgramId that you want the
+     * Integration Program for Object for
      * @param auth
      * @return returns the list the Integration Program object based on
      * IntegrationProgramId specified
@@ -155,7 +158,8 @@ public class IntegrationProgramRestController {
     /**
      * API used to update an IntegrationProgram
      *
-     * @param integrationPrograms Array of IntegrationProgram that you want to update
+     * @param integrationPrograms Array of IntegrationProgram that you want to
+     * update
      * @param auth
      * @return returns a Success code if the operation was successful
      */

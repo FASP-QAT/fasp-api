@@ -24,9 +24,11 @@ public class LocaleRestController {
     private LanguageService languageService;
 
     /**
-     * Api returns the complete file that the system uses for the Translations. Language is based on the Locale provided.
-     * @param languageCode
-     * @return 
+     * Api returns the complete file that the system uses for the Translations.
+     * Language is based on the Locale provided.
+     *
+     * @param languageCode for which you need the language label for
+     * @return file containing labels for the Translations
      */
     @GetMapping("/locales/{languageCode}")
     ResponseEntity getLanguageJson(@PathVariable("languageCode") String languageCode) {

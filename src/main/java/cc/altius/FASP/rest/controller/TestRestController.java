@@ -10,6 +10,11 @@ import cc.altius.FASP.model.Program;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import static jxl.biff.BaseCellFeatures.logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -36,6 +41,20 @@ public class TestRestController {
     @Autowired
     private ProgramService programService;
 
+    /**
+     * API used to check for user access to specified programIds
+     *
+     * @param programIdList Array of programIds to check access for
+     * @param auth
+     *
+     * @return returns true if user has access and false if user does not access
+     */
+    @Operation(description = "API used to check for user access to specified programIds", summary = "Check for user access to specified programIds", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "programIdList", description = "Array of programIds to check access for "))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a true if user has access and false if user does not access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access to get the program")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     @PostMapping(path = "/aclTest")
     public ResponseEntity postCheckAccessToProgram(@RequestBody Integer[] programIdList, Authentication auth) {
         StringBuilder sb = new StringBuilder();
@@ -69,6 +88,20 @@ public class TestRestController {
         }
     }
 
+    /**
+     * API used to check for user access to specified programIds using query
+     *
+     * @param programIdList Array of programIds to check access for
+     * @param auth
+     *
+     * @return returns List of program if user has access
+     */
+    @Operation(description = "API used to check for user access to specified programIds using query", summary = "Check for user access to specified programIds using query", tags = ("user"))
+    @Parameters(
+            @Parameter(name = "programIdList", description = "Array of programIds to check access for "))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns a List of program if user has access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access to get the program")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Returns a HttpStatus.INTERNAL_SERVER_ERROR if there was some other error that did not allow the operation to complete")
     @PostMapping(path = "/aclTestQuery")
     public ResponseEntity postCheckAccessViaQuery(@RequestBody String[] programIdList, Authentication auth) {
         StringBuilder sb = new StringBuilder();

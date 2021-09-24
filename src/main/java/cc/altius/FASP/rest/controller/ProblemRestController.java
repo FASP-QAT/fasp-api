@@ -9,6 +9,11 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.service.ProblemService;
 import cc.altius.FASP.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.Parameters;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,16 +33,30 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/problem")
 public class ProblemRestController implements Serializable {
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private ProblemService problemService;
     @Autowired
     private UserService userService;
-    
-    @GetMapping("/problem/realmId/{realmId}")
+
+    /**
+     * API used to get the list of active problem list for a realm
+     *
+     * @param realmId realmId that you want the problem list for
+     * @param auth
+     * @return returns the list of active problem list
+     */
+    @Operation(description = "API used to get the list of active problem list for a realm", summary = "Get active Problem list for a realm country", tags = ("problem"))
+    @Parameters(
+            @Parameter(name = "realmId", description = "realmId that you want the problem list for"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the active Problem list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the realmId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Problem list")
+    @GetMapping("/realmId/{realmId}")
     public ResponseEntity getProblmeByRealmId(@PathVariable("realmId") int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -53,7 +72,24 @@ public class ProblemRestController implements Serializable {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
+    /**
+     * API used to get the list of active problem report list for a programId
+     * and versionId
+     *
+     * @param programId programId that you want the problem report list for
+     * @param versionId versionId that you want the problem report list for
+     * @param auth
+     * @return returns the list of active problem report list
+     */
+    @Operation(description = "API used to get the list of active problem report list for a programId and versionId", summary = "Get active Problem Report list for a program and version", tags = ("problem"))
+    @Parameters({
+        @Parameter(name = "programId", description = "programId that you want the problem report list for"),
+        @Parameter(name = "versionId", description = "versionId that you want the problem report list for")})
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the active Problem report list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "403", description = "Returns a HttpStatus.FORBIDDEN if the User does not have access")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "404", description = "Returns a HttpStatus.NOT_FOUND if the programId and versionId specified does not exist")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Problem report list")
     @GetMapping("/problemReport/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getProblmeReport(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
         try {
@@ -70,7 +106,7 @@ public class ProblemRestController implements Serializable {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
 //    @GetMapping(value = "/sync/problem/lastSyncDate/{lastSyncDate}")
 //    public ResponseEntity getProblemListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
 //        try {
@@ -118,7 +154,15 @@ public class ProblemRestController implements Serializable {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-    
+    /**
+     * API used to get the complete list of problem status
+     *
+     * @param auth
+     * @return returns the list of complete list of problem status
+     */
+    @Operation(description = "API used to get the complete list of problem status", summary = "Get Problem Status list", tags = ("problem"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Problem Status list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Problem status list")
     @GetMapping(value = "/problemStatus")
     public ResponseEntity getProblemStatusList(Authentication auth) {
         try {
@@ -129,5 +173,5 @@ public class ProblemRestController implements Serializable {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
 }
