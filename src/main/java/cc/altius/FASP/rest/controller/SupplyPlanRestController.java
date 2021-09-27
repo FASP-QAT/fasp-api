@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/supplyPlan")
 public class SupplyPlanRestController {
 
     @Autowired
@@ -69,8 +69,6 @@ public class SupplyPlanRestController {
 //        System.out.println(new Date());
 //        return new ResponseEntity(simplifiedSupplyPlan, HttpStatus.OK);
 //    }
-    
-    
     /**
      * API is to rebuild supply plan based on rebuild true or false
      *
@@ -82,7 +80,6 @@ public class SupplyPlanRestController {
      * @return returns success message if rebuild true, returns
      * SimplifiedSupplyPlan list if rebuild false
      */
-    
     @GetMapping("/newSupplyPlan/programId/{programId}/versionId/{versionId}/rebuild/{rebuild}")
     @Operation(description = "API is to rebuild supply plan based on rebuild true or false ", summary = "To rebuild supply plan based on rebuild true or false ", tags = ("supplyPlan"))
     @Parameters({
@@ -131,21 +128,21 @@ public class SupplyPlanRestController {
         }
     }
 
-    
-    
     /**
      * API is to rebuild supply plan for listed programIds and versionIds
-     * @param pvList pvList list of programIds and versionIds to rebuild supply plan for
+     *
+     * @param pvList pvList list of programIds and versionIds to rebuild supply
+     * plan for
      * @param auth
      * @return success/error message for rebuild supply plan
      */
     @PostMapping("/rebuildSupplyPlans")
     @Operation(description = "API is to rebuild supply plan for listed programIds and versionIds ", summary = "To rebuild supply plan for listed programIds and versionIds ", tags = ("supplyPlan"))
     @Parameters(
-        @Parameter(name = "pvList", description = "pvList list of programIds and versionIds to rebuild supply plan for"))
+            @Parameter(name = "pvList", description = "pvList list of programIds and versionIds to rebuild supply plan for"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the success/error message")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented rebuild supply plan")
-    
+
     @ResponseBody
     public ResponseEntity rebuildSupplyPlans(@RequestBody List<ProgramIdAndVersionId> pvList, Authentication auth) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");

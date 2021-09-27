@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author altius
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/shipmentStatus")
 public class ShipmentStatusRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());

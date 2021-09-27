@@ -51,7 +51,7 @@ public class IntegrationProgramRestController {
      * @param auth
      * @return returns the complete list of Integration Programs
      */
-    @GetMapping("")
+    @GetMapping("/")
     @Operation(description = "API used to get the complete Integration Program list.", summary = "Get Integration Program list", tags = ("integrationProgram"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Integration Program list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration Program list")
@@ -163,7 +163,7 @@ public class IntegrationProgramRestController {
      * @param auth
      * @return returns a Success code if the operation was successful
      */
-    @PutMapping(path = "")
+    @PutMapping(path = "/")
     @Operation(description = "API used to update an IntegrationProgram", summary = "Update IntegrationProgram", tags = ("integrationProgram"))
     @Parameters(
             @Parameter(name = "integrationPrograms", description = "An array of Integration Program objects that you want to update"))

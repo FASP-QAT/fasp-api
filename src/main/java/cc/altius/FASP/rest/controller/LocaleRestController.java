@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author akil
  */
-@RestController("/api")
+@RestController("/api/locales")
 public class LocaleRestController {
 
     @Autowired
@@ -30,7 +30,7 @@ public class LocaleRestController {
      * @param languageCode for which you need the language label for
      * @return file containing labels for the Translations
      */
-    @GetMapping("/locales/{languageCode}")
+    @GetMapping("/{languageCode}")
     ResponseEntity getLanguageJson(@PathVariable("languageCode") String languageCode) {
         return new ResponseEntity(this.languageService.getLanguageJsonForStaticLabels(languageCode), HttpStatus.OK);
     }

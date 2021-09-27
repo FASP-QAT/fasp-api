@@ -52,7 +52,7 @@ public class IntegrationRestController {
      * @param auth
      * @return returns the complete list of Integrations
      */
-    @GetMapping("")
+    @GetMapping("/")
     @Operation(description = "API used to get the complete Integration list.", summary = "Get Integration list", tags = ("integration"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Integration list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of Integration list")
@@ -69,11 +69,11 @@ public class IntegrationRestController {
     /**
      * API used to get the Integration for a specific IntegrationId
      *
-     * @param integrationId IntegrationId that you want the Integration
-     * Object for
+     * @param integrationId IntegrationId that you want the Integration Object
+     * for
      * @param auth
-     * @return returns the list the Integration object based on
-     * IntegrationId specified
+     * @return returns the list the Integration object based on IntegrationId
+     * specified
      */
     @GetMapping(value = "/{integrationId}")
     @Operation(description = "API used to get the Integration for a specific IntegrationId", summary = "Get Integration for an IntegrationId", tags = ("integration"))
@@ -106,7 +106,7 @@ public class IntegrationRestController {
      * @param auth
      * @return returns a Success code if the operation was successful
      */
-    @PostMapping(value = "")
+    @PostMapping(value = "/")
     @Operation(description = "API used to add an Integration", summary = "Add Integration", tags = ("integration"))
     @Parameters(
             @Parameter(name = "integration", description = "The Integration object that you want to add"))
@@ -138,7 +138,7 @@ public class IntegrationRestController {
      * @param auth
      * @return returns a Success code if the operation was successful
      */
-    @PutMapping(path = "")
+    @PutMapping(path = "/")
     @Operation(description = "API used to update an Integration", summary = "Update Integration", tags = ("integration"))
     @Parameters(
             @Parameter(name = "integration", description = "The Integration object that you want to update"))
@@ -166,7 +166,7 @@ public class IntegrationRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     /**
      * API used to get the complete Integration View list.
      *

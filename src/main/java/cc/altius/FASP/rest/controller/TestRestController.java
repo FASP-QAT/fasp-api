@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author akil
  */
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/acl")
 public class TestRestController {
 
     @Autowired
