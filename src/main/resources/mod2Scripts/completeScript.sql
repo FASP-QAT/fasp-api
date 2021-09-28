@@ -500,6 +500,31 @@ VIEW `vw_equivalency_unit` AS
         (`rm_equivalency_unit` `ut`
         LEFT JOIN `ap_label` `l` ON ((`ut`.`LABEL_ID` = `l`.`LABEL_ID`)));
 
+INSERT INTO ap_label VALUES (null, 'Patient Month of ARV', null, null, null, 1, @dt, 1, @dt, 44);	SELECT last_insert_id() into @labelId;	INSERT INTO rm_equivalency_unit VALUES (null, 1, @labelId, 1, 1, @dt, 1, @dt);
+INSERT INTO ap_label VALUES (null, 'Male Condom (Latex) Lubricated, 53 mm', null, null, null, 1, @dt, 1, @dt, 44);	SELECT last_insert_id() into @labelId;	INSERT INTO rm_equivalency_unit VALUES (null, 1, @labelId, 1, 1, @dt, 1, @dt);
+INSERT INTO ap_label VALUES (null, 'Artemether/Lumefantrine 20/120 mg Tablet', null, null, null, 1, @dt, 1, @dt, 44);	SELECT last_insert_id() into @labelId;	INSERT INTO rm_equivalency_unit VALUES (null, 1, @labelId, 1, 1, @dt, 1, @dt);
+INSERT INTO ap_label VALUES (null, 'Regular Malaria Treatment', null, null, null, 1, @dt, 1, @dt, 44);	SELECT last_insert_id() into @labelId;	INSERT INTO rm_equivalency_unit VALUES (null, 1, @labelId, 1, 1, @dt, 1, @dt);
+INSERT INTO ap_label VALUES (null, 'VL/EID Tests', null, null, null, 1, @dt, 1, @dt, 44);	SELECT last_insert_id() into @labelId;	INSERT INTO rm_equivalency_unit VALUES (null, 1, @labelId, 1, 1, @dt, 1, @dt);
+INSERT INTO ap_label VALUES (null, 'CYP', null, null, null, 1, @dt, 1, @dt, 44);	SELECT last_insert_id() into @labelId;	INSERT INTO rm_equivalency_unit VALUES (null, 1, @labelId, 1, 1, @dt, 1, @dt);
+INSERT INTO ap_label VALUES (null, 'Flavored Condoms', null, null, null, 1, @dt, 1, @dt, 44);	SELECT last_insert_id() into @labelId;	INSERT INTO rm_equivalency_unit VALUES (null, 1, @labelId, 1, 1, @dt, 1, @dt);
+INSERT INTO ap_label VALUES (null, 'Severe Malaria Treatment', null, null, null, 1, @dt, 1, @dt, 44);	SELECT last_insert_id() into @labelId;	INSERT INTO rm_equivalency_unit VALUES (null, 1, @labelId, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 1, 204, 0.0333333333333333, '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 1, 2665, 0.0333333333333333, '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 915, 1, '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 983, 1, '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 928, 1, '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 6, '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 24, '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 1, '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 5, 455, 96, '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 6, 928, 0.00833333333333333, '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 928, 1, '', 1, 1, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 227, 1, '', 1, 1, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 7, 1813, 1, '', 1, 1, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 7, 1814, 1, '', 1, 1, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 6, 222, 1, '', 1, 1, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 8, 1708, 0.166666666666667, '', 1, 2, 1, 1, @dt, 1, @dt);
+
 ALTER TABLE `fasp`.`rm_program` 
 ADD COLUMN `PROGRAM_TYPE_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Indicates what type of Program this is. 1 - SupplyPlan 2 - Forecast' AFTER `LAST_MODIFIED_DATE`;
 
@@ -1162,3 +1187,258 @@ VIEW `vw_dataset` AS
     WHERE
         (`p`.`PROGRAM_TYPE_ID` = 2)
     GROUP BY `p`.`PROGRAM_ID`;
+
+
+INSERT INTO ap_label_source values (null, 'ap_node_unit');
+CREATE TABLE `ap_node_unit` (
+  `NODE_UNIT_ID` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique node unit id, 1-Patients, 2-Clients, 3-Customers, 4-People',
+  `LABEL_ID` int(10) unsigned NOT NULL COMMENT 'Label id for this Node Unit',
+  `CREATED_BY` int(10) unsigned NOT NULL,
+  `CREATED_DATE` datetime NOT NULL,
+  `LAST_MODIFIED_BY` int(10) unsigned NOT NULL,
+  `LAST_MODIFIED_DATE` datetime NOT NULL,
+  `ACTIVE` tinyint(1) unsigned NOT NULL,
+  PRIMARY KEY (`NODE_UNIT_ID`),
+  KEY `fk_ap_node_unit_createdBy_idx` (`CREATED_BY`),
+  KEY `fk_ap_node_unit_lastModifiedBy_idx` (`LAST_MODIFIED_BY`),
+  CONSTRAINT `fk_ap_node_unit_createdBy` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_ap_node_unit_lastModifiedBy` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO ap_label values (null, 'Patients', null, null, null, 1, @dt, 1, @dt, 51);
+SELECT last_insert_id() into @labelId;
+INSERT INTO ap_node_unit values (null, @labelId, 1, @dt, 1, @dt, 1);
+INSERT INTO ap_label values (null, 'Clients', null, null, null, 1, @dt, 1, @dt, 51);
+SELECT last_insert_id() into @labelId;
+INSERT INTO ap_node_unit values (null, @labelId, 1, @dt, 1, @dt, 1);
+INSERT INTO ap_label values (null, 'Customers', null, null, null, 1, @dt, 1, @dt, 51);
+SELECT last_insert_id() into @labelId;
+INSERT INTO ap_node_unit values (null, @labelId, 1, @dt, 1, @dt, 1);
+INSERT INTO ap_label values (null, 'People', null, null, null, 1, @dt, 1, @dt, 51);
+SELECT last_insert_id() into @labelId;
+INSERT INTO ap_node_unit values (null, @labelId, 1, @dt, 1, @dt, 1);
+
+
+
+SET FOREIGN_KEY_CHECKS=0;
+-- MySql	
+DROP TABLE IF EXISTS rm_tree_template;
+Create table `rm_tree_template` (`TREE_TEMPLATE_ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique forecast tree template id',	
+`REALM_ID` int(10) UNSIGNED NOT NULL COMMENT 'Foreign key that maps to the Realm this Template is for',	
+`LABEL_ID` int(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',	
+`FORECAST_METHOD_ID` int(10) UNSIGNED NOT NULL COMMENT 'Foreign key to indicate which Forecast method is used for this Tree',	
+PRIMARY KEY(`TREE_TEMPLATE_ID`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;	
+	
+	
+-- MySql	
+DROP TABLE IF EXISTS rm_tree_template_node;
+Create table `rm_tree_template_node` (`NODE_ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique node id for tree',	
+`TREE_TEMPLATE_ID` int(10) UNSIGNED NOT NULL COMMENT 'TreeTemplateId that this Node belongs to',	
+`PARENT_NODE_ID` int(10) UNSIGNED NULL COMMENT 'Node Id of the parent. Null if this is the root.',	
+`NODE_TYPE_ID` int(10) UNSIGNED NOT NULL COMMENT 'What type of Node is this',	
+`NODE_UNIT_ID` int(10) UNSIGNED NULL COMMENT 'Indicates the NodeUnit for this Node',	
+`MANUAL_CHANGE_EFFECTS_FUTURE_MONTHS` tinyint(1) UNSIGNED NOT NULL COMMENT 'If true any manual changes will cascade into future months. If false the manual change is only for that month and does not cascase into future months',	
+`LABEL_ID` int(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',	
+PRIMARY KEY(`NODE_ID`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;	
+	
+	
+-- MySql	
+DROP TABLE IF EXISTS rm_tree_template_node_data;
+Create table `rm_tree_template_node_data` (`NODE_DATA_ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique node data id for the node and scenario',	
+`NODE_ID` int(10) UNSIGNED NOT NULL COMMENT 'node id ',	
+`MONTH` date NOT NULL COMMENT 'Indicates the month that this Data is for, Defaults to the StartDate of the Forecast Dataset. Cannot be later than start of Forecast DataSet',	
+`DATA_VALUE` decimal(14,4) NULL COMMENT 'Based on the forecast_tree_node.NODE_TYPE_ID this value will be used either as a direct value or as a Perc of the Parent',	
+`NODE_DATA_FU_ID` int(10) UNSIGNED NULL COMMENT '',	
+`NODE_DATA_PU_ID` int(10) UNSIGNED NULL COMMENT '',	
+`NOTES` text NULL COMMENT 'Notes that describe the Node',	
+PRIMARY KEY(`NODE_DATA_ID`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;	
+	
+	
+-- MySql	
+DROP TABLE IF EXISTS rm_tree_template_node_data_fu;
+Create table `rm_tree_template_node_data_fu` (`NODE_DATA_FU_ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each usage',	
+`FORECASTING_UNIT_ID` int(10) UNSIGNED NOT NULL COMMENT 'Foreign key to indicate forecasting id',	
+`LAG_IN_MONTHS` int(10) UNSIGNED NOT NULL COMMENT '# of months to wait before using',	
+`USAGE_TYPE_ID` int(10) UNSIGNED NOT NULL COMMENT '1 for Discrete, 2 for Continuous',	
+`NO_OF_PERSONS` int(10) UNSIGNED NOT NULL COMMENT '# of Patients this usage will be used for',	
+`FORECASTING_UNITS_PER_PERSON` decimal(16,4) UNSIGNED NOT NULL COMMENT '# of Forecasting Units ',	
+`ONE_TIME_USAGE` tinyint(1) UNSIGNED NOT NULL COMMENT '',	
+`USAGE_FREQUENCY` decimal(16,4) UNSIGNED NOT NULL COMMENT '# of times the Forecasting Unit is given per Usage',	
+`USAGE_FREQUENCY_USAGE_PERIOD_ID` int(10) UNSIGNED NOT NULL COMMENT 'Foreign Key that points to the UsagePeriod (every day, week, month etc)',	
+`REPEAT_COUNT` decimal(16,4) UNSIGNED NULL COMMENT '# of times it is repeated for the Discrete type',	
+`REPEAT_USAGE_PERIOD_ID` int(10) UNSIGNED NOT NULL COMMENT 'Foreign Key that points to the UsagePeriod (every day, week, month etc) for Repeat Count',	
+PRIMARY KEY(`NODE_DATA_FU_ID`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;	
+	
+	
+-- MySql	
+DROP TABLE IF EXISTS rm_tree_template_node_data_pu;
+Create table `rm_tree_template_node_data_pu` (`NODE_DATA_PU_ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each PU Conversion',	
+`PLANNING_UNIT_ID` int(10) UNSIGNED NOT NULL COMMENT 'What Palnning Unit does this Node convert to',	
+`SHARE_PLANNING_UNIT` tinyint(1) UNSIGNED NOT NULL COMMENT 'If 1 that means this Planning Unit is to be shared with others and therefore maintain the decimal, if it is not shared you need to round to 1',	
+`REFILL_MONTHS` int(10) UNSIGNED NOT NULL COMMENT '# of moths over which refulls are taken',	
+PRIMARY KEY(`NODE_DATA_PU_ID`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;	
+	
+	
+-- MySql	
+DROP TABLE IF EXISTS rm_tree_template_node_data_modeling;
+Create table `rm_tree_template_node_data_modeling` (`NODE_DATA_MODELING_ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for NodeScaleUp',	
+`NODE_DATA_ID` int(10) UNSIGNED NOT NULL COMMENT 'Node that this ScaleUp referrs to',	
+`START_DATE` date NOT NULL COMMENT 'Start date that the Scale up is applicable from. Startes from the Forecast Dataset Start',	
+`STOP_DATE` date NOT NULL COMMENT 'Stop date that the Scale up is applicable from. Defaults to Forecast Dataset End but user can override',	
+`MODELING_TYPE_ID` int(10) UNSIGNED NOT NULL COMMENT 'Foreign key to indicate scale type id',	
+`DATA_VALUE` decimal(14,2) NULL COMMENT 'Data value could be a number of a % based on the ScaleTypeId',	
+`TRANSFER_NODE_ID` int(10) UNSIGNED NOT NULL COMMENT 'Indicates the Node that this data Scale gets transferred to. If null then it does not get transferred.',	
+`NOTES` text NULL COMMENT 'Notes to desribe this scale up',	
+PRIMARY KEY(`NODE_DATA_MODELING_ID`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;	
+	
+	
+-- MySql	
+DROP TABLE IF EXISTS rm_tree_template_node_data_override;
+Create table `rm_tree_template_node_data_override` (`NODE_DATA_OVERRIDE_ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for Override Id',	
+`NODE_DATA_ID` int(10) UNSIGNED NOT NULL COMMENT 'The Node Data Id that this Override is for',	
+`MONTH` date NOT NULL COMMENT 'Month that this Override is for',	
+`MANUAL_CHANGE` decimal(16,4) NOT NULL COMMENT 'The manual change value',	
+`SEASONALITY_PERC` decimal(16,4) NULL COMMENT 'Seasonality % value. Only applicable for Number nodes not for Percentage nodes, FU or PU nodes',	
+PRIMARY KEY(`NODE_DATA_OVERRIDE_ID`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;	
+	
+SET FOREIGN_KEY_CHECKS=1;    
+		
+ALTER TABLE `rm_tree_template` ADD INDEX `fk_treeTemplate_realmId_idx` (`REALM_ID` ASC);	ALTER TABLE `rm_tree_template` ADD CONSTRAINT `fk_treeTemplate_realmId_idx`  FOREIGN KEY (`REALM_ID`)  REFERENCES `rm_realm` (`REALM_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+ALTER TABLE `rm_tree_template` ADD INDEX `fk_treeTemplate_labelId_idx` (`LABEL_ID` ASC);	ALTER TABLE `rm_tree_template` ADD CONSTRAINT `fk_treeTemplate_labelId_idx`  FOREIGN KEY (`LABEL_ID`)  REFERENCES `ap_label` (`LABEL_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+ALTER TABLE `rm_tree_template` ADD INDEX `fk_treeTemplate_forecastMethodId_idx` (`FORECAST_METHOD_ID` ASC);	ALTER TABLE `rm_tree_template` ADD CONSTRAINT `fk_treeTemplate_forecastMethodId_idx`  FOREIGN KEY (`FORECAST_METHOD_ID`)  REFERENCES `rm_forecast_method` (`FORECAST_METHOD_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+ALTER TABLE `rm_tree_template` ADD COLUMN `CREATED_BY` INT(10) UNSIGNED NOT NULL AFTER `FORECAST_METHOD_ID`, ADD COLUMN `CREATED_DATE` DATETIME NOT NULL AFTER `CREATED_BY`, ADD COLUMN `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL AFTER `CREATED_DATE`, ADD COLUMN `LAST_MODIFIED_DATE` DATETIME NOT NULL AFTER `LAST_MODIFIED_BY`, ADD COLUMN `ACTIVE` TINYINT(1) UNSIGNED NOT NULL AFTER `LAST_MODIFIED_DATE`;	ALTER TABLE `rm_tree_template` ADD INDEX `fk_treeTemplate_createdBy_idx` (`CREATED_BY` ASC), ADD INDEX `fk_treeTemplate_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC);	ALTER TABLE `rm_tree_template` ADD CONSTRAINT `fk_treeTemplate_createdBy_idx` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION, ADD CONSTRAINT `fk_treeTemplate_lastModifiedBy_idx` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+		
+		
+		
+		
+ALTER TABLE `rm_tree_template_node` ADD INDEX `fk_treeTemplateNode_treeTemplateId_idx` (`TREE_TEMPLATE_ID` ASC);	ALTER TABLE `rm_tree_template_node` ADD CONSTRAINT `fk_treeTemplateNode_treeTemplateId_idx`  FOREIGN KEY (`TREE_TEMPLATE_ID`)  REFERENCES `rm_tree_template` (`TREE_TEMPLATE_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+ALTER TABLE `rm_tree_template_node` ADD INDEX `fk_treeTemplateNode_parentNodeId_idx` (`PARENT_NODE_ID` ASC);	ALTER TABLE `rm_tree_template_node` ADD CONSTRAINT `fk_treeTemplateNode_parentNodeId_idx`  FOREIGN KEY (`PARENT_NODE_ID`)  REFERENCES `rm_tree_template_node` (`NODE_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+ALTER TABLE `rm_tree_template_node` ADD INDEX `fk_treeTemplateNode_nodeTypeId_idx` (`NODE_TYPE_ID` ASC);	ALTER TABLE `rm_tree_template_node` ADD CONSTRAINT `fk_treeTemplateNode_nodeTypeId_idx`  FOREIGN KEY (`NODE_TYPE_ID`)  REFERENCES `ap_node_type` (`NODE_TYPE_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+ALTER TABLE `rm_tree_template_node` ADD INDEX `fk_treeTemplateNode_nodeUnitId_idx` (`NODE_UNIT_ID` ASC);	ALTER TABLE `rm_tree_template_node` ADD CONSTRAINT `fk_treeTemplateNode_nodeUnitId_idx`  FOREIGN KEY (`NODE_UNIT_ID`)  REFERENCES `ap_node_unit` (`NODE_UNIT_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+		
+ALTER TABLE `rm_tree_template_node` ADD INDEX `fk_treeTemplateNode_labelId_idx` (`LABEL_ID` ASC);	ALTER TABLE `rm_tree_template_node` ADD CONSTRAINT `fk_treeTemplateNode_labelId_idx`  FOREIGN KEY (`LABEL_ID`)  REFERENCES `ap_label` (`LABEL_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+ALTER TABLE `rm_tree_template_node` ADD COLUMN `CREATED_BY` INT(10) UNSIGNED NOT NULL AFTER `LABEL_ID`, ADD COLUMN `CREATED_DATE` DATETIME NOT NULL AFTER `CREATED_BY`, ADD COLUMN `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL AFTER `CREATED_DATE`, ADD COLUMN `LAST_MODIFIED_DATE` DATETIME NOT NULL AFTER `LAST_MODIFIED_BY`, ADD COLUMN `ACTIVE` TINYINT(1) UNSIGNED NOT NULL AFTER `LAST_MODIFIED_DATE`;	ALTER TABLE `rm_tree_template_node` ADD INDEX `fk_treeTemplateNode_createdBy_idx` (`CREATED_BY` ASC), ADD INDEX `fk_treeTemplateNode_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC);	ALTER TABLE `rm_tree_template_node` ADD CONSTRAINT `fk_treeTemplateNode_createdBy_idx` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION, ADD CONSTRAINT `fk_treeTemplateNode_lastModifiedBy_idx` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+		
+		
+		
+		
+ALTER TABLE `rm_tree_template_node_data` ADD INDEX `fk_treeTemplateNodeData_nodeId_idx` (`NODE_ID` ASC);	ALTER TABLE `rm_tree_template_node_data` ADD CONSTRAINT `fk_treeTemplateNodeData_nodeId_idx`  FOREIGN KEY (`NODE_ID`)  REFERENCES `rm_tree_template_node` (`NODE_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+		
+		
+ALTER TABLE `rm_tree_template_node_data` ADD INDEX `fk_treeTemplateNodeData_nodeDataFuId_idx` (`NODE_DATA_FU_ID` ASC);	ALTER TABLE `rm_tree_template_node_data` ADD CONSTRAINT `fk_treeTemplateNodeData_nodeDataFuId_idx`  FOREIGN KEY (`NODE_DATA_FU_ID`)  REFERENCES `rm_tree_template_node_data_fu` (`NODE_DATA_FU_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+ALTER TABLE `rm_tree_template_node_data` ADD INDEX `fk_treeTemplateNodeData_nodeDataPuId_idx` (`NODE_DATA_PU_ID` ASC);	ALTER TABLE `rm_tree_template_node_data` ADD CONSTRAINT `fk_treeTemplateNodeData_nodeDataPuId_idx`  FOREIGN KEY (`NODE_DATA_PU_ID`)  REFERENCES `rm_tree_template_node_data_pu` (`NODE_DATA_PU_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+		
+ALTER TABLE `rm_tree_template_node_data` ADD COLUMN `CREATED_BY` INT(10) UNSIGNED NOT NULL AFTER `NOTES`, ADD COLUMN `CREATED_DATE` DATETIME NOT NULL AFTER `CREATED_BY`, ADD COLUMN `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL AFTER `CREATED_DATE`, ADD COLUMN `LAST_MODIFIED_DATE` DATETIME NOT NULL AFTER `LAST_MODIFIED_BY`, ADD COLUMN `ACTIVE` TINYINT(1) UNSIGNED NOT NULL AFTER `LAST_MODIFIED_DATE`;	ALTER TABLE `rm_tree_template_node_data` ADD INDEX `fk_treeTemplateNodeData_createdBy_idx` (`CREATED_BY` ASC), ADD INDEX `fk_treeTemplateNodeData_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC);	ALTER TABLE `rm_tree_template_node_data` ADD CONSTRAINT `fk_treeTemplateNodeData_createdBy_idx` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION, ADD CONSTRAINT `fk_treeTemplateNodeData_lastModifiedBy_idx` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+		
+		
+		
+		
+ALTER TABLE `rm_tree_template_node_data_fu` ADD INDEX `fk_treeTemplateNodeDataFu_forecastingUnitId_idx` (`FORECASTING_UNIT_ID` ASC);	ALTER TABLE `rm_tree_template_node_data_fu` ADD CONSTRAINT `fk_treeTemplateNodeDataFu_forecastingUnitId_idx`  FOREIGN KEY (`FORECASTING_UNIT_ID`)  REFERENCES `rm_forecasting_unit` (`FORECASTING_UNIT_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+		
+ALTER TABLE `rm_tree_template_node_data_fu` ADD INDEX `fk_treeTemplateNodeDataFu_usageTypeId_idx` (`USAGE_TYPE_ID` ASC);	ALTER TABLE `rm_tree_template_node_data_fu` ADD CONSTRAINT `fk_treeTemplateNodeDataFu_usageTypeId_idx`  FOREIGN KEY (`USAGE_TYPE_ID`)  REFERENCES `ap_usage_type` (`USAGE_TYPE_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+		
+		
+		
+		
+ALTER TABLE `rm_tree_template_node_data_fu` ADD INDEX `fk_treeTemplateNodeDataFu_usageFrequencyUsagePeriodId_idx` (`USAGE_FREQUENCY_USAGE_PERIOD_ID` ASC);	ALTER TABLE `rm_tree_template_node_data_fu` ADD CONSTRAINT `fk_treeTemplateNodeDataFu_usageFrequencyUsagePeriodId_idx`  FOREIGN KEY (`USAGE_FREQUENCY_USAGE_PERIOD_ID`)  REFERENCES `ap_usage_type` (`USAGE_TYPE_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+		
+ALTER TABLE `rm_tree_template_node_data_fu` ADD INDEX `fk_treeTemplateNodeDataFu_repeatUsagePeriodId_idx` (`REPEAT_USAGE_PERIOD_ID` ASC);	ALTER TABLE `rm_tree_template_node_data_fu` ADD CONSTRAINT `fk_treeTemplateNodeDataFu_repeatUsagePeriodId_idx`  FOREIGN KEY (`REPEAT_USAGE_PERIOD_ID`)  REFERENCES `ap_usage_type` (`USAGE_TYPE_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+ALTER TABLE `rm_tree_template_node_data_fu` ADD COLUMN `CREATED_BY` INT(10) UNSIGNED NOT NULL AFTER `REPEAT_USAGE_PERIOD_ID`, ADD COLUMN `CREATED_DATE` DATETIME NOT NULL AFTER `CREATED_BY`, ADD COLUMN `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL AFTER `CREATED_DATE`, ADD COLUMN `LAST_MODIFIED_DATE` DATETIME NOT NULL AFTER `LAST_MODIFIED_BY`, ADD COLUMN `ACTIVE` TINYINT(1) UNSIGNED NOT NULL AFTER `LAST_MODIFIED_DATE`;	ALTER TABLE `rm_tree_template_node_data_fu` ADD INDEX `fk_treeTemplateNodeDataFu_createdBy_idx` (`CREATED_BY` ASC), ADD INDEX `fk_treeTemplateNodeDataFu_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC);	ALTER TABLE `rm_tree_template_node_data_fu` ADD CONSTRAINT `fk_treeTemplateNodeDataFu_createdBy_idx` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION, ADD CONSTRAINT `fk_treeTemplateNodeDataFu_lastModifiedBy_idx` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+		
+		
+		
+		
+ALTER TABLE `rm_tree_template_node_data_pu` ADD INDEX `fk_treeTemplateNodeDataPu_planningUnitId_idx` (`PLANNING_UNIT_ID` ASC);	ALTER TABLE `rm_tree_template_node_data_pu` ADD CONSTRAINT `fk_treeTemplateNodeDataPu_planningUnitId_idx`  FOREIGN KEY (`PLANNING_UNIT_ID`)  REFERENCES `rm_planning_unit` (`PLANNING_UNIT_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+		
+		
+ALTER TABLE `rm_tree_template_node_data_pu` ADD COLUMN `CREATED_BY` INT(10) UNSIGNED NOT NULL AFTER `REFILL_MONTHS`, ADD COLUMN `CREATED_DATE` DATETIME NOT NULL AFTER `CREATED_BY`, ADD COLUMN `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL AFTER `CREATED_DATE`, ADD COLUMN `LAST_MODIFIED_DATE` DATETIME NOT NULL AFTER `LAST_MODIFIED_BY`, ADD COLUMN `ACTIVE` TINYINT(1) UNSIGNED NOT NULL AFTER `LAST_MODIFIED_DATE`;	ALTER TABLE `rm_tree_template_node_data_pu` ADD INDEX `fk_treeTemplateNodeDataPu_createdBy_idx` (`CREATED_BY` ASC), ADD INDEX `fk_treeTemplateNodeDataPu_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC);	ALTER TABLE `rm_tree_template_node_data_pu` ADD CONSTRAINT `fk_treeTemplateNodeDataPu_createdBy_idx` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION, ADD CONSTRAINT `fk_treeTemplateNodeDataPu_lastModifiedBy_idx` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+		
+		
+		
+		
+ALTER TABLE `rm_tree_template_node_data_modeling` ADD INDEX `fk_treeTemplateNodeDataModeling_nodeDataId_idx` (`NODE_DATA_ID` ASC);	ALTER TABLE `rm_tree_template_node_data_modeling` ADD CONSTRAINT `fk_treeTemplateNodeDataModeling_nodeDataId_idx`  FOREIGN KEY (`NODE_DATA_ID`)  REFERENCES `rm_tree_template_node_data` (`NODE_DATA_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+		
+		
+ALTER TABLE `rm_tree_template_node_data_modeling` ADD INDEX `fk_treeTemplateNodeDataModeling_modelingTypeId_idx` (`MODELING_TYPE_ID` ASC);	ALTER TABLE `rm_tree_template_node_data_modeling` ADD CONSTRAINT `fk_treeTemplateNodeDataModeling_modelingTypeId_idx`  FOREIGN KEY (`MODELING_TYPE_ID`)  REFERENCES `ap_modeling_type` (`MODELING_TYPE_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+		
+ALTER TABLE `rm_tree_template_node_data_modeling` ADD INDEX `fk_treeTemplateNodeDataModeling_transferNodeId_idx` (`TRANSFER_NODE_ID` ASC);	ALTER TABLE `rm_tree_template_node_data_modeling` ADD CONSTRAINT `fk_treeTemplateNodeDataModeling_transferNodeId_idx`  FOREIGN KEY (`TRANSFER_NODE_ID`)  REFERENCES `rm_tree_template_node` (`NODE_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+		
+ALTER TABLE `rm_tree_template_node_data_modeling` ADD COLUMN `CREATED_BY` INT(10) UNSIGNED NOT NULL AFTER `NOTES`, ADD COLUMN `CREATED_DATE` DATETIME NOT NULL AFTER `CREATED_BY`, ADD COLUMN `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL AFTER `CREATED_DATE`, ADD COLUMN `LAST_MODIFIED_DATE` DATETIME NOT NULL AFTER `LAST_MODIFIED_BY`, ADD COLUMN `ACTIVE` TINYINT(1) UNSIGNED NOT NULL AFTER `LAST_MODIFIED_DATE`;	ALTER TABLE `rm_tree_template_node_data_modeling` ADD INDEX `fk_treeTemplateNodeDataModeling_createdBy_idx` (`CREATED_BY` ASC), ADD INDEX `fk_treeTemplateNodeDataModeling_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC);	ALTER TABLE `rm_tree_template_node_data_modeling` ADD CONSTRAINT `fk_treeTemplateNodeDataModeling_createdBy_idx` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION, ADD CONSTRAINT `fk_treeTemplateNodeDataModeling_lastModifiedBy_idx` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+		
+		
+		
+		
+ALTER TABLE `rm_tree_template_node_data_override` ADD INDEX `fk_treeTemplateNodeDataOverride_nodeDataId_idx` (`NODE_DATA_ID` ASC);	ALTER TABLE `rm_tree_template_node_data_override` ADD CONSTRAINT `fk_treeTemplateNodeDataOverride_nodeDataId_idx`  FOREIGN KEY (`NODE_DATA_ID`)  REFERENCES `rm_tree_template_node_data` (`NODE_DATA_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;	
+		
+		
+		
+ALTER TABLE `rm_tree_template_node_data_override` ADD COLUMN `CREATED_BY` INT(10) UNSIGNED NOT NULL AFTER `SEASONALITY_PERC`, ADD COLUMN `CREATED_DATE` DATETIME NOT NULL AFTER `CREATED_BY`, ADD COLUMN `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL AFTER `CREATED_DATE`, ADD COLUMN `LAST_MODIFIED_DATE` DATETIME NOT NULL AFTER `LAST_MODIFIED_BY`, ADD COLUMN `ACTIVE` TINYINT(1) UNSIGNED NOT NULL AFTER `LAST_MODIFIED_DATE`;	ALTER TABLE `rm_tree_template_node_data_override` ADD INDEX `fk_treeTemplateNodeDataOverride_createdBy_idx` (`CREATED_BY` ASC), ADD INDEX `fk_treeTemplateNodeDataOverride_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC);	ALTER TABLE `rm_tree_template_node_data_override` ADD CONSTRAINT `fk_treeTemplateNodeDataOverride_createdBy_idx` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION, ADD CONSTRAINT `fk_treeTemplateNodeDataOverride_lastModifiedBy_idx` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+
+INSERT INTO ap_label values (null, 'Demographic Condoms Template', null, null, null, 1, @dt, 1, @dt, 45);
+SELECT last_insert_id() into @labelId;
+INSERT INTO `fasp`.`rm_tree_template` (`TREE_TEMPLATE_ID`, `REALM_ID`, `LABEL_ID`, `FORECAST_METHOD_ID`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`) VALUES (NULL, '1', @labelId, '1', '9', @dt, '9', @dt, '1');
+
+INSERT INTO ap_label values (null, 'Demographic ARV Template', null, null, null, 1, @dt, 1, @dt, 45);
+SELECT last_insert_id() into @labelId;
+INSERT INTO `fasp`.`rm_tree_template` (`TREE_TEMPLATE_ID`, `REALM_ID`, `LABEL_ID`, `FORECAST_METHOD_ID`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`, `ACTIVE`) VALUES (NULL, '1', @labelId, '1', '9', @dt, '9', @dt, '1');
+
+INSERT INTO ap_label values (null, 'Country population', null, null, null, 1, @dt, 1, @dt, 46);
+SELECT last_insert_id() into @labelId;
+insert into rm_tree_template_node values (null, 1, null, 2, 4, 1, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeId;
+insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 100829000, null, null, "", 1, @dt, 1, @dt, 1);
+
+INSERT INTO ap_label values (null, 'Male population', null, null, null, 1, @dt, 1, @dt, 46);
+SELECT last_insert_id() into @labelId;
+insert into rm_tree_template_node values (null, 1, 1, 3, 4, 1, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeId;
+insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 59.7, null, null, "", 1, @dt, 1, @dt, 1);
+
+INSERT INTO ap_label values (null, 'Female population', null, null, null, 1, @dt, 1, @dt, 46);
+SELECT last_insert_id() into @labelId;
+insert into rm_tree_template_node values (null, 1, 1, 3, 4, 1, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeId;
+insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 40.3, null, null, "", 1, @dt, 1, @dt, 1);
+
+INSERT INTO ap_label values (null, 'Sexually active men', null, null, null, 1, @dt, 1, @dt, 46);
+SELECT last_insert_id() into @labelId;
+insert into rm_tree_template_node values (null, 1, 2, 3, 4, 1, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeId;
+insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 75.4, null, null, "", 1, @dt, 1, @dt, 1);
+
+INSERT INTO ap_label values (null, 'Men who use Condoms', null, null, null, 1, @dt, 1, @dt, 46);
+SELECT last_insert_id() into @labelId;
+insert into rm_tree_template_node values (null, 1, 4, 3, 4, 1, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeId;
+insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 36.8, null, null, "", 1, @dt, 1, @dt, 1);
+
+INSERT INTO ap_label values (null, 'No logo Condoms', null, null, null, 1, @dt, 1, @dt, 46);
+SELECT last_insert_id() into @labelId;
+insert into rm_tree_template_node values (null, 1, 5, 4, null, 1, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeId;
+insert into rm_tree_template_node_data_fu values (null, 915, 0, 1, 1, 120, 0, 1, 4, null, null, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeDataFuId;
+insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 70, @nodeDataFuId, null, "", 1, @dt, 1, @dt, 1);
+
+INSERT INTO ap_label values (null, 'Strawberry Condoms', null, null, null, 1, @dt, 1, @dt, 46);
+SELECT last_insert_id() into @labelId;
+insert into rm_tree_template_node values (null, 1, 5, 4, null, 1, @labelId, 1, @dt, 1, @dt, 1);
+insert into rm_tree_template_node_data_fu values (null, 911, 0, 1, 1, 120, 0, 1, 4, null, null, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeDataFuId;
+insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 30, @nodeDataFuId, null, "", 1, @dt, 1, @dt, 1);
+
+INSERT INTO ap_label values (null, 'No logo condom, pack of 1', null, null, null, 1, @dt, 1, @dt, 46);
+SELECT last_insert_id() into @labelId;
+insert into rm_tree_template_node values (null, 1, 6, 5, null, 1, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeId;
+insert into rm_tree_template_node_data_pu values (null, 4148, 0, 2, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeDataPuId;
+insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 70, null, @nodeDataPuId, "", 1, @dt, 1, @dt, 1);
+
+INSERT INTO ap_label values (null, 'Strawberry condom pack of 1', null, null, null, 1, @dt, 1, @dt, 46);
+SELECT last_insert_id() into @labelId;
+insert into rm_tree_template_node values (null, 1, 7, 5, null, 1, @labelId, 1, @dt, 1, @dt, 1);
+insert into rm_tree_template_node_data_pu values (null, 4159, 0, 2, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeDataPuId;
+insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 30, null, @nodeDataPuId, "", 1, @dt, 1, @dt, 1);
