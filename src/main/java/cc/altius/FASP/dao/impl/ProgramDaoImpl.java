@@ -827,7 +827,7 @@ public class ProgramDaoImpl implements ProgramDao {
         sql.append(" GROUP BY e.`ERP_ORDER_ID`) ");
         sql.append("  ) sst "
                 + " LEFT JOIN rm_shipment_status_mapping sms ON sms.`EXTERNAL_STATUS_STAGE`=sst.`STATUS` "
-                + " WHERE IF(sst.CURRENT_ESTIMATED_DELIVERY_DATE < CURDATE() - INTERVAL 6 MONTH, sms.SHIPMENT_STATUS_MAPPING_ID!=2 , sms.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
+                + " WHERE IF((sst.CURRENT_ESTIMATED_DELIVERY_DATE < CURDATE() - INTERVAL 6 MONTH) && sst.ACTIVE=0, sms.SHIPMENT_STATUS_MAPPING_ID!=2 , sms.SHIPMENT_STATUS_MAPPING_ID NOT IN (1,3,5,7,9,10,13,15)) "
                 + " ORDER BY sst.CURRENT_ESTIMATED_DELIVERY_DATE DESC ");
 //        System.out.println("params----" + params);
 //        System.out.println("query******************************" + sql.toString());
