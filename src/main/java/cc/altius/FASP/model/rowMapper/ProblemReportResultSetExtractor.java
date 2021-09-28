@@ -64,6 +64,7 @@ public class ProblemReportResultSetExtractor implements ResultSetExtractor<List<
             }
             ProblemReportTrans prt = new ProblemReportTrans();
             prt.setProblemReportTransId(rs.getInt("PROBLEM_REPORT_TRANS_ID"));
+            if(!rs.wasNull() && prt.getProblemReportTransId()!=0){
             prt.setNotes(rs.getString("NOTES"));
             prt.setCreatedBy(new BasicUser(rs.getInt("CBT_USER_ID"), rs.getString("CBT_USERNAME")));
             prt.setCreatedDate(rs.getTimestamp("TRANS_CREATED_DATE"));
@@ -71,6 +72,9 @@ public class ProblemReportResultSetExtractor implements ResultSetExtractor<List<
             prt.setReviewed(rs.getBoolean("PROBLEM_REPORT_TRANS_REVIEWED"));
             pr.getProblemTransList().add(prt);
             }
+
+        }
+
         return prList;
     }
 
