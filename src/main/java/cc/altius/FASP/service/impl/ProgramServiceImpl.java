@@ -283,16 +283,16 @@ public class ProgramServiceImpl implements ProgramService {
             for (int i = 0; i < manualTaggingOrderDTO.length; i++) {
                 System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
                 if (manualTaggingOrderDTO[i].isActive()) {
-                    int id;
-                    int count = this.programDao.checkIfOrderNoAlreadyTagged(manualTaggingOrderDTO[i].orderNo, manualTaggingOrderDTO[i].primeLineNo);
+                    int id=0;
+                    int count = this.programDao.checkIfOrderNoAlreadyTagged(manualTaggingOrderDTO[i].getOrderNo(), manualTaggingOrderDTO[i].getPrimeLineNo());
                     if (manualTaggingOrderDTO[i].getShipmentId() != 0) {
-                        if (count != 0 && count != null) {
+                        if (count != 0) {
                             id = this.programDao.updateERPLinking(manualTaggingOrderDTO[i], curUser);
                         } else {
                             id = this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO[i], curUser);
                         }
                     } else {
-                        if (count == 0 || count == null) {
+                        if (count == 0) {
                             id = this.programDao.linkShipmentWithARTMISWithoutShipmentid(manualTaggingOrderDTO[i], curUser);
                         }
                     }

@@ -853,10 +853,11 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public int updateERPLinking(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         //Update conversion factor and notes
         logger.info("ERP Linking : Going to update conversion factor and notes");
         logger.info("ERP Linking : manual tagging object---" + manualTaggingOrderDTO);
-       String sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
+        String sql = " SELECT st.`SHIPMENT_TRANS_ID`,st.`RATE` FROM rm_shipment_trans st "
                 + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=st.`SHIPMENT_ID` "
                 + "WHERE s.`PARENT_SHIPMENT_ID`=? AND st.`ORDER_NO`=? AND st.`PRIME_LINE_NO`=? AND st.`ACTIVE` "
                 + "ORDER BY st.`SHIPMENT_TRANS_ID` DESC LIMIT 1;";
@@ -893,6 +894,7 @@ public class ProgramDaoImpl implements ProgramDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         int rows;
+        int row = 0;
 //        int count = 0;
         boolean goAhead = false;
         logger.info("ERP Linking : link shipment with QAT object ---" + manualTaggingOrderDTO);
@@ -906,7 +908,7 @@ public class ProgramDaoImpl implements ProgramDao {
         try {
             logger.info("ERP Linking : going to create entry in manual tagging table---");
             sql = "INSERT INTO rm_manual_tagging VALUES (NULL,?,?,?,?,?,?,?,1,?,?);";
-            int row = this.jdbcTemplate.update(sql, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo(), (manualTaggingOrderDTO.getParentShipmentId() != 0 ? manualTaggingOrderDTO.getParentShipmentId() : manualTaggingOrderDTO.getShipmentId()), curDate, curUser.getUserId(), curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), manualTaggingOrderDTO.getConversionFactor());
+            row = this.jdbcTemplate.update(sql, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo(), (manualTaggingOrderDTO.getParentShipmentId() != 0 ? manualTaggingOrderDTO.getParentShipmentId() : manualTaggingOrderDTO.getShipmentId()), curDate, curUser.getUserId(), curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), manualTaggingOrderDTO.getConversionFactor());
             logger.info("ERP Linking : entry created in manual tagging table---");
             goAhead = true;
         } catch (Exception e) {
