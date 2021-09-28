@@ -70,7 +70,7 @@ public class ProblemReportResultSetExtractor implements ResultSetExtractor<List<
             prt.setProblemStatus(new SimpleObject(rs.getInt("PROBLEM_STATUS_TRANS_ID"), new LabelRowMapper("PROBLEM_STATUS_TRANS_").mapRow(rs, 1)));
             prt.setReviewed(rs.getBoolean("PROBLEM_REPORT_TRANS_REVIEWED"));
             pr.getProblemTransList().add(prt);
-        }
+            }
         return prList;
     }
 

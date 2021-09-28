@@ -1007,7 +1007,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     transParams.put("CREATED_BY", prt.getCreatedBy().getUserId());
                     transParams.put("CREATED_DATE", prt.getCreatedDate());
                     this.namedParameterJdbcTemplate.update("INSERT INTO `rm_problem_report_trans` (`PROBLEM_REPORT_ID`, `PROBLEM_STATUS_ID`, `NOTES`, `REVIEWED`, `CREATED_BY`, `CREATED_DATE`) VALUES (:PROBLEM_REPORT_ID, :PROBLEM_STATUS_ID, :NOTES, :REVIEWED, :CREATED_BY, :CREATED_DATE)", transParams);
-                }
+                    }
             } else {
                 for (ProblemReportTrans prt : pr.getProblemTransList()) {
                     if (prt.getProblemReportTransId() == 0) {
