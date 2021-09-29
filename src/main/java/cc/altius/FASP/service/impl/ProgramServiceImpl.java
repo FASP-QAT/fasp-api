@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import cc.altius.FASP.dao.HealthAreaDao;
 import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.dao.ProcurementAgentDao;
@@ -30,6 +32,7 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
+import io.swagger.v3.oas.integration.StringOpenApiConfigurationLoader;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -60,6 +63,8 @@ public class ProgramServiceImpl implements ProgramService {
     private ProcurementAgentDao procurementAgentDao;
     @Autowired
     private AclService aclService;
+    
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
     public List<ProgramDTO> getProgramListForDropdown(CustomUserDetails curUser) {
@@ -278,11 +283,18 @@ public class ProgramServiceImpl implements ProgramService {
             for (int i = 0; i < manualTaggingOrderDTO.length; i++) {
                 System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
                 if (manualTaggingOrderDTO[i].isActive()) {
-                    int id;
+                    int id=0;
+                    int count = this.programDao.checkIfOrderNoAlreadyTagged(manualTaggingOrderDTO[i].getOrderNo(), manualTaggingOrderDTO[i].getPrimeLineNo());
                     if (manualTaggingOrderDTO[i].getShipmentId() != 0) {
-                        id = this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO[i], curUser);
+                        if (count != 0) {
+                            id = this.programDao.updateERPLinking(manualTaggingOrderDTO[i], curUser);
+                        } else {
+                            id = this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO[i], curUser);
+                        }
                     } else {
-                        id = this.programDao.linkShipmentWithARTMISWithoutShipmentid(manualTaggingOrderDTO[i], curUser);
+                        if (count == 0) {
+                            id = this.programDao.linkShipmentWithARTMISWithoutShipmentid(manualTaggingOrderDTO[i], curUser);
+                        }
                     }
                     result.add(id);
                 } else if (!manualTaggingOrderDTO[i].isActive()) {
