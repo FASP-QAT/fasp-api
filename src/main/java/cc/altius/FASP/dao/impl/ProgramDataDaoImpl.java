@@ -998,6 +998,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 sqlString = "SELECT LAST_INSERT_ID()";
                 pr.setProblemReportId(this.jdbcTemplate.queryForObject(sqlString, Integer.class));
                 for (ProblemReportTrans prt : pr.getProblemTransList()) {
+                    if(prt.getCreatedDate()!=null){
                     Map<String, Object> transParams = new HashMap<>();
                     transParams.put("PROBLEM_REPORT_ID", pr.getProblemReportId());
                     transParams.put("PROBLEM_STATUS_ID", prt.getProblemStatus().getId());
@@ -1007,10 +1008,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     transParams.put("CREATED_BY", prt.getCreatedBy().getUserId());
                     transParams.put("CREATED_DATE", prt.getCreatedDate());
                     this.namedParameterJdbcTemplate.update("INSERT INTO `rm_problem_report_trans` (`PROBLEM_REPORT_ID`, `PROBLEM_STATUS_ID`, `NOTES`, `REVIEWED`, `CREATED_BY`, `CREATED_DATE`) VALUES (:PROBLEM_REPORT_ID, :PROBLEM_STATUS_ID, :NOTES, :REVIEWED, :CREATED_BY, :CREATED_DATE)", transParams);
+                    }
+
                 }
+
             } else {
                 for (ProblemReportTrans prt : pr.getProblemTransList()) {
-                    if (prt.getProblemReportTransId() == 0) {
+                    if (prt.getProblemReportTransId() == 0 && prt.getCreatedDate()!=null) {
                         Map<String, Object> transParams = new HashMap<>();
                         transParams.put("PROBLEM_REPORT_ID", pr.getProblemReportId());
                         transParams.put("PROBLEM_STATUS_ID", prt.getProblemStatus().getId());
