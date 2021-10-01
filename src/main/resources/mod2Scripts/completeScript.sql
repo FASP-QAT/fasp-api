@@ -1413,37 +1413,37 @@ INSERT INTO `fasp`.`rm_tree_template` (`TREE_TEMPLATE_ID`, `REALM_ID`, `LABEL_ID
 
 INSERT INTO ap_label values (null, 'Country population', null, null, null, 1, @dt, 1, @dt, 46);
 SELECT last_insert_id() into @labelId;
-insert into rm_tree_template_node values (null, 1, null, 2, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
+insert into rm_tree_template_node values (null, 1, null, "00", 1, 2, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
 SELECT last_insert_id() into @nodeId;
 insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 100829000, null, null, "", 1, @dt, 1, @dt, 1);
 
 INSERT INTO ap_label values (null, 'Male population', null, null, null, 1, @dt, 1, @dt, 46);
 SELECT last_insert_id() into @labelId;
-insert into rm_tree_template_node values (null, 1, 1, 3, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
+insert into rm_tree_template_node values (null, 1, 1, "00.01", 2, 3, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
 SELECT last_insert_id() into @nodeId;
 insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 59.7, null, null, "", 1, @dt, 1, @dt, 1);
 
 INSERT INTO ap_label values (null, 'Female population', null, null, null, 1, @dt, 1, @dt, 46);
 SELECT last_insert_id() into @labelId;
-insert into rm_tree_template_node values (null, 1, 1, 3, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
+insert into rm_tree_template_node values (null, 1, 1, "00.02", 2, 3, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
 SELECT last_insert_id() into @nodeId;
 insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 40.3, null, null, "", 1, @dt, 1, @dt, 1);
 
 INSERT INTO ap_label values (null, 'Sexually active men', null, null, null, 1, @dt, 1, @dt, 46);
 SELECT last_insert_id() into @labelId;
-insert into rm_tree_template_node values (null, 1, 2, 3, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
+insert into rm_tree_template_node values (null, 1, 2, "00.01.01", 3, 3, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
 SELECT last_insert_id() into @nodeId;
 insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 75.4, null, null, "", 1, @dt, 1, @dt, 1);
 
 INSERT INTO ap_label values (null, 'Men who use Condoms', null, null, null, 1, @dt, 1, @dt, 46);
 SELECT last_insert_id() into @labelId;
-insert into rm_tree_template_node values (null, 1, 4, 3, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
+insert into rm_tree_template_node values (null, 1, 4, "00.01.01.01", 4, 3, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
 SELECT last_insert_id() into @nodeId;
 insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 36.8, null, null, "", 1, @dt, 1, @dt, 1);
 
 INSERT INTO ap_label values (null, 'No logo Condoms', null, null, null, 1, @dt, 1, @dt, 46);
 SELECT last_insert_id() into @labelId;
-insert into rm_tree_template_node values (null, 1, 5, 4, null, 1, @labelId, 1, @dt, 1, @dt, 1);
+insert into rm_tree_template_node values (null, 1, 5, "00.01.01.01.01", 5, 4, null, 1, @labelId, 1, @dt, 1, @dt, 1);
 SELECT last_insert_id() into @nodeId;
 insert into rm_tree_template_node_data_fu values (null, 915, 0, 1, 1, 120, 0, 1, 4, null, null, 1, @dt, 1, @dt, 1);
 SELECT last_insert_id() into @nodeDataFuId;
@@ -1451,14 +1451,14 @@ insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 70, 
 
 INSERT INTO ap_label values (null, 'Strawberry Condoms', null, null, null, 1, @dt, 1, @dt, 46);
 SELECT last_insert_id() into @labelId;
-insert into rm_tree_template_node values (null, 1, 5, 4, null, 1, @labelId, 1, @dt, 1, @dt, 1);
+insert into rm_tree_template_node values (null, 1, 5, "00.01.01.01.01", 5, 4, null, 1, @labelId, 1, @dt, 1, @dt, 1);
 insert into rm_tree_template_node_data_fu values (null, 911, 0, 1, 1, 120, 0, 1, 4, null, null, 1, @dt, 1, @dt, 1);
 SELECT last_insert_id() into @nodeDataFuId;
 insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 30, @nodeDataFuId, null, "", 1, @dt, 1, @dt, 1);
 
 INSERT INTO ap_label values (null, 'No logo condom, pack of 1', null, null, null, 1, @dt, 1, @dt, 46);
 SELECT last_insert_id() into @labelId;
-insert into rm_tree_template_node values (null, 1, 6, 5, null, 1, @labelId, 1, @dt, 1, @dt, 1);
+insert into rm_tree_template_node values (null, 1, 6, "00.01.01.02", 4, 5, null, 1, @labelId, 1, @dt, 1, @dt, 1);
 SELECT last_insert_id() into @nodeId;
 insert into rm_tree_template_node_data_pu values (null, 4148, 0, 2, 1, @dt, 1, @dt, 1);
 SELECT last_insert_id() into @nodeDataPuId;
@@ -1466,7 +1466,7 @@ insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 70, 
 
 INSERT INTO ap_label values (null, 'Strawberry condom pack of 1', null, null, null, 1, @dt, 1, @dt, 46);
 SELECT last_insert_id() into @labelId;
-insert into rm_tree_template_node values (null, 1, 7, 5, null, 1, @labelId, 1, @dt, 1, @dt, 1);
+insert into rm_tree_template_node values (null, 1, 7, "00.01.01.02.01",5, 5, null, 1, @labelId, 1, @dt, 1, @dt, 1);
 insert into rm_tree_template_node_data_pu values (null, 4159, 0, 2, 1, @dt, 1, @dt, 1);
 SELECT last_insert_id() into @nodeDataPuId;
 insert into rm_tree_template_node_data values (null, @nodeId, '2021-01-01', 30, null, @nodeDataPuId, "", 1, @dt, 1, @dt, 1);
