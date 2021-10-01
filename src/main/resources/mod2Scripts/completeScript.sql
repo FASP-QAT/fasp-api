@@ -1609,3 +1609,89 @@ VIEW `vw_tree_template_node` AS
         (`rm_tree_template_node` `ttn`
         LEFT JOIN `ap_label` `l` ON ((`ttn`.`LABEL_ID` = `l`.`LABEL_ID`)))
     ORDER BY `ttn`.`TREE_TEMPLATE_ID` , `ttn`.`SORT_ORDER`
+
+-- Tree labels
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.datasetmanagement','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Dataset Managment');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Gestion des jeux de données');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Gestión de conjuntos de datos');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Gerenciamento de conjunto de dados');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.listtree','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'List Tree');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Arborescence de la liste');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Árbol de lista');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Árvore de Lista');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.createTreeTemplate','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Create tree template');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Créer un modèle d arbre');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Crear plantilla de árbol');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Criar modelo de árvore');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.scenarioName','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Scenarion Name');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nom du scénario');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nombre del escenario');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nome do Cenário');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.region','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Region');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Région');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Región');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Região');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.treeName','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Tree name');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nom de larbre');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nombre del árbol');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nome da árvore');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.createManualTree','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Create Manual tree');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Créer un arbre manuel');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Crear árbol manual');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Criar árvore manual');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.createTreeFromTemplate','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Tree Templates');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modèles d arborescence');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Plantillas de árbol');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Modelos de Árvore');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.buildTree','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Build Tree');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Construire un arbre');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Construir árbol');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Construire un arbre');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.copyRow','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Copy Row');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Copier la ligne');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Copiar fila');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Copiar linha');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.loadDeleteDataSet','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Load or delete dataset');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Charger ou supprimer un ensemble de données');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cargar o eliminar conjunto de datos');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Carregar ou excluir conjunto de dados');
+
