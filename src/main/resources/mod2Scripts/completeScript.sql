@@ -1257,7 +1257,7 @@ DROP TABLE IF EXISTS rm_tree_template_node;
 Create table `rm_tree_template_node` (`NODE_ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique node id for tree',	
 `TREE_TEMPLATE_ID` int(10) UNSIGNED NOT NULL COMMENT 'TreeTemplateId that this Node belongs to',	
 `PARENT_NODE_ID` int(10) UNSIGNED NULL COMMENT 'Node Id of the parent. Null if this is the root.',	
-`SORT_ORDER` varchar(300) UNSIGNED NOT NULL COMMENT 'Sort order of the Node in the tree',	
+`SORT_ORDER` varchar(300) NOT NULL COMMENT 'Sort order of the Node in the tree',	
 `LEVEL_NO` int(10) UNSIGNED NOT NULL COMMENT 'Level that this node appears on ',	
 `NODE_TYPE_ID` int(10) UNSIGNED NOT NULL COMMENT 'What type of Node is this',	
 `UNIT_ID` int(10) UNSIGNED NULL COMMENT 'Indicates the Unit for this Node',	
