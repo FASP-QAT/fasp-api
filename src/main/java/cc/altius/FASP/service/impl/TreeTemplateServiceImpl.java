@@ -22,10 +22,25 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
 
     @Autowired
     private TreeTemplateDao treeTemplateDao;
-    
+
     @Override
-    public List<TreeTemplate> getTreeTemplateList(CustomUserDetails curUser) {
-        return this.treeTemplateDao.getTreeTemplateList(curUser);
+    public List<TreeTemplate> getTreeTemplateList(boolean nodeData, CustomUserDetails curUser) {
+        List<TreeTemplate> ttList = this.treeTemplateDao.getTreeTemplateList(curUser);
+        if (nodeData) {
+            ttList.forEach(tt -> {
+                tt.setTree(this.treeTemplateDao.getTree(tt.getTreeTemplateId()));
+            });
+        }
+        return ttList;
     }
-    
+
+    @Override
+    public TreeTemplate getTreeTemplateById(int treeTemplateId, boolean nodeData, CustomUserDetails curUser) {
+        TreeTemplate tt = this.treeTemplateDao.getTreeTemplateById(treeTemplateId, curUser);
+        if (nodeData) {
+            tt.setTree(this.treeTemplateDao.getTree(treeTemplateId));
+        }
+        return tt;
+    }
+
 }

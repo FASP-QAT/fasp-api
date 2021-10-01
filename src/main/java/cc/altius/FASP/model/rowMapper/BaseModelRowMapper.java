@@ -30,11 +30,11 @@ public class BaseModelRowMapper implements RowMapper<BaseModel> {
     @Override
     public BaseModel mapRow(ResultSet rs, int rowNum) throws SQLException {
         BaseModel b = new BaseModel();
-        b.setActive(rs.getBoolean(prefix+"ACTIVE"));
-        b.setCreatedDate(rs.getTimestamp(prefix+"CREATED_DATE"));
-        b.setLastModifiedDate(rs.getTimestamp(prefix+"LAST_MODIFIED_DATE"));
-        b.setCreatedBy(new BasicUser(rs.getInt(prefix+"CB_USER_ID"), rs.getString(prefix+"CB_USERNAME")));
-        b.setLastModifiedBy(new BasicUser(rs.getInt(prefix+"LMB_USER_ID"), rs.getString(prefix+"LMB_USERNAME")));
+        b.setActive(rs.getBoolean(prefix + "ACTIVE"));
+        b.setCreatedDate(rs.getTimestamp(prefix + "CREATED_DATE"));
+        b.setLastModifiedDate(rs.getTimestamp(prefix + "LAST_MODIFIED_DATE"));
+        b.setCreatedBy(new BasicUser(rs.getInt(prefix + "CB_USER_ID"), rs.getString(prefix + "CB_USERNAME")));
+        b.setLastModifiedBy(new BasicUser(rs.getInt(prefix + "LMB_USER_ID"), rs.getString(prefix + "LMB_USERNAME")));
         return b;
     }
 

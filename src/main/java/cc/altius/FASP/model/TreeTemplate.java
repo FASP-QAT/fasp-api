@@ -7,7 +7,6 @@ package cc.altius.FASP.model;
 
 import cc.altius.utils.TreeUtils.Tree;
 import java.io.Serializable;
-import java.util.List;
 
 /**
  *
@@ -18,9 +17,16 @@ public class TreeTemplate extends BaseModel implements Serializable {
     private int treeTemplateId;
     private SimpleCodeObject realm;
     private Label label;
-    private SimpleObject forecastMethod;
-    private Tree<BaseNode> nodeList;
-    private List<SimpleObject> scenarioList;
+    private SimpleObjectWithType forecastMethod;
+    private Tree<TreeNode> tree;
+    
+
+    public TreeTemplate() {
+    }
+
+    public TreeTemplate(int treeTemplateId) {
+        this.treeTemplateId = treeTemplateId;
+    }
 
     public int getTreeTemplateId() {
         return treeTemplateId;
@@ -46,28 +52,45 @@ public class TreeTemplate extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public SimpleObject getForecastMethod() {
+    public SimpleObjectWithType getForecastMethod() {
         return forecastMethod;
     }
 
-    public void setForecastMethod(SimpleObject forecastMethod) {
+    public void setForecastMethod(SimpleObjectWithType forecastMethod) {
         this.forecastMethod = forecastMethod;
     }
 
-    public Tree<BaseNode> getNodeList() {
-        return nodeList;
+    public Tree<TreeNode> getTree() {
+        return tree;
     }
 
-    public void setNodeList(Tree<BaseNode> nodeList) {
-        this.nodeList = nodeList;
+    public void setTree(Tree<TreeNode> tree) {
+        this.tree = tree;
     }
 
-    public List<SimpleObject> getScenarioList() {
-        return scenarioList;
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 89 * hash + this.treeTemplateId;
+        return hash;
     }
 
-    public void setScenarioList(List<SimpleObject> scenarioList) {
-        this.scenarioList = scenarioList;
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final TreeTemplate other = (TreeTemplate) obj;
+        if (this.treeTemplateId != other.treeTemplateId) {
+            return false;
+        }
+        return true;
     }
 
 }
