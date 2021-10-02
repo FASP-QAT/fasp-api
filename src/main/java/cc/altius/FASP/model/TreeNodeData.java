@@ -13,14 +13,13 @@ import java.util.List;
  *
  * @author akil
  */
-public class NodeData extends BaseModel implements Serializable {
+public class TreeNodeData extends BaseModel implements Serializable {
 
     private int nodeDataId;
-    private Integer scenarioId;
     private Date month;
     private Double dataValue;
-    private NodeDataFu fuNode;
-    private NodeDataPu puNode;
+    private TreeNodeDataFu fuNode;
+    private TreeNodeDataPu puNode;
     private String notes;
     private List<NodeDataModeling> nodeDataModelingList;
     private List<NodeDataOverride> nodeDataOverrideList;
@@ -31,14 +30,6 @@ public class NodeData extends BaseModel implements Serializable {
 
     public void setNodeDataId(int nodeDataId) {
         this.nodeDataId = nodeDataId;
-    }
-
-    public Integer getScenarioId() {
-        return scenarioId;
-    }
-
-    public void setScenarioId(Integer scenarioId) {
-        this.scenarioId = scenarioId;
     }
 
     public Date getMonth() {
@@ -57,19 +48,19 @@ public class NodeData extends BaseModel implements Serializable {
         this.dataValue = dataValue;
     }
 
-    public NodeDataFu getFuNode() {
+    public TreeNodeDataFu getFuNode() {
         return fuNode;
     }
 
-    public void setFuNode(NodeDataFu fuNode) {
+    public void setFuNode(TreeNodeDataFu fuNode) {
         this.fuNode = fuNode;
     }
 
-    public NodeDataPu getPuNode() {
+    public TreeNodeDataPu getPuNode() {
         return puNode;
     }
 
-    public void setPuNode(NodeDataPu puNode) {
+    public void setPuNode(TreeNodeDataPu puNode) {
         this.puNode = puNode;
     }
 

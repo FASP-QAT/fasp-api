@@ -11,15 +11,16 @@ import java.io.Serializable;
  *
  * @author akil
  */
-public class NodeDataFu extends BaseModel implements Serializable {
+public class TreeNodeDataFu extends BaseModel implements Serializable {
 
     private int nodeDataFuId;
     private SimpleUnitAndTracerObject forecastingUnit;
     private int lagInMonths;
-    private int usageTypeId;
-    private int noOfPatients;
-    private int noOfForecastingUnits;
-    private double noOfUnits;
+    private SimpleObject usageType;
+    private int noOfPersons;
+    private int noOfForecastingUnitsPerPerson;
+    private boolean oneTimeUsage;
+    private double usageFrequency;
     private UsagePeriod usagePeriod;
     private Double repeatCount;
     private UsagePeriod repeatUsagePeriod;
@@ -48,36 +49,44 @@ public class NodeDataFu extends BaseModel implements Serializable {
         this.lagInMonths = lagInMonths;
     }
 
-    public int getUsageTypeId() {
-        return usageTypeId;
+    public SimpleObject getUsageType() {
+        return usageType;
     }
 
-    public void setUsageTypeId(int usageTypeId) {
-        this.usageTypeId = usageTypeId;
+    public void setUsageType(SimpleObject usageType) {
+        this.usageType = usageType;
     }
 
-    public int getNoOfPatients() {
-        return noOfPatients;
+    public int getNoOfPersons() {
+        return noOfPersons;
     }
 
-    public void setNoOfPatients(int noOfPatients) {
-        this.noOfPatients = noOfPatients;
+    public void setNoOfPersons(int noOfPersons) {
+        this.noOfPersons = noOfPersons;
     }
 
-    public int getNoOfForecastingUnits() {
-        return noOfForecastingUnits;
+    public int getNoOfForecastingUnitsPerPerson() {
+        return noOfForecastingUnitsPerPerson;
     }
 
-    public void setNoOfForecastingUnits(int noOfForecastingUnits) {
-        this.noOfForecastingUnits = noOfForecastingUnits;
+    public void setNoOfForecastingUnitsPerPerson(int noOfForecastingUnitsPerPerson) {
+        this.noOfForecastingUnitsPerPerson = noOfForecastingUnitsPerPerson;
     }
 
-    public double getNoOfUnits() {
-        return noOfUnits;
+    public boolean isOneTimeUsage() {
+        return oneTimeUsage;
     }
 
-    public void setNoOfUnits(double noOfUnits) {
-        this.noOfUnits = noOfUnits;
+    public void setOneTimeUsage(boolean oneTimeUsage) {
+        this.oneTimeUsage = oneTimeUsage;
+    }
+
+    public double getUsageFrequency() {
+        return usageFrequency;
+    }
+
+    public void setUsageFrequency(double usageFrequency) {
+        this.usageFrequency = usageFrequency;
     }
 
     public UsagePeriod getUsagePeriod() {
@@ -103,5 +112,6 @@ public class NodeDataFu extends BaseModel implements Serializable {
     public void setRepeatUsagePeriod(UsagePeriod repeatUsagePeriod) {
         this.repeatUsagePeriod = repeatUsagePeriod;
     }
+
 
 }

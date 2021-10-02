@@ -18,22 +18,18 @@ public class TreeNode extends BaseModel implements Serializable {
 
     private int nodeId;
     private Integer parentNodeId;
-    private String sortOrder;
-    private int levelNo;
     private SimpleObject nodeType;
     private SimpleCodeObject nodeUnit;
     private Label label;
-    private Map<Integer, List<NodeData>> nodeDataMap; // Key is Scenario Id
+    private Map<Integer, List<TreeNodeData>> nodeDataMap; // Key is Scenario Id in the case of TreeTemplate the Scenario is 0
 
     public TreeNode() {
         this.nodeDataMap = new HashMap<>();
     }
 
-    public TreeNode(int nodeId, Integer parentNodeId, String sortOrder, int levelNo, SimpleObject nodeType, SimpleCodeObject nodeUnit, Label label) {
+    public TreeNode(int nodeId, Integer parentNodeId, SimpleObject nodeType, SimpleCodeObject nodeUnit, Label label) {
         this.nodeId = nodeId;
         this.parentNodeId = parentNodeId;
-        this.sortOrder = sortOrder;
-        this.levelNo = levelNo;
         this.nodeType = nodeType;
         this.nodeUnit = nodeUnit;
         this.label = label;
@@ -54,22 +50,6 @@ public class TreeNode extends BaseModel implements Serializable {
 
     public void setParentNodeId(Integer parentNodeId) {
         this.parentNodeId = parentNodeId;
-    }
-
-    public String getSortOrder() {
-        return sortOrder;
-    }
-
-    public void setSortOrder(String sortOrder) {
-        this.sortOrder = sortOrder;
-    }
-
-    public int getLevelNo() {
-        return levelNo;
-    }
-
-    public void setLevelNo(int levelNo) {
-        this.levelNo = levelNo;
     }
 
     public SimpleObject getNodeType() {
@@ -96,11 +76,11 @@ public class TreeNode extends BaseModel implements Serializable {
         this.label = label;
     }
 
-    public Map<Integer, List<NodeData>> getNodeDataMap() {
+    public Map<Integer, List<TreeNodeData>> getNodeDataMap() {
         return nodeDataMap;
     }
 
-    public void setNodeDataMap(Map<Integer, List<NodeData>> nodeDataMap) {
+    public void setNodeDataMap(Map<Integer, List<TreeNodeData>> nodeDataMap) {
         this.nodeDataMap = nodeDataMap;
     }
 

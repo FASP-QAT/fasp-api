@@ -11,12 +11,12 @@ import java.io.Serializable;
  *
  * @author akil
  */
-public class NodeDataPu extends BaseModel implements Serializable {
+public class TreeNodeDataPu extends BaseModel implements Serializable {
 
     private int nodeDataPuId;
     private SimpleUnitObject planningUnit;
     private boolean sharePlanningUnit;
-    private int consumptionInterval;
+    private int refillMonths;
 
     public int getNodeDataPuId() {
         return nodeDataPuId;
@@ -42,12 +42,12 @@ public class NodeDataPu extends BaseModel implements Serializable {
         this.sharePlanningUnit = sharePlanningUnit;
     }
 
-    public int getConsumptionInterval() {
-        return consumptionInterval;
+    public int getRefillMonths() {
+        return refillMonths;
     }
 
-    public void setConsumptionInterval(int consumptionInterval) {
-        this.consumptionInterval = consumptionInterval;
+    public void setRefillMonths(int refillMonths) {
+        this.refillMonths = refillMonths;
     }
 
 }

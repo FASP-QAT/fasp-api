@@ -55,19 +55,54 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
 
     @Override
     public Tree<TreeNode> getTree(int treeTemplateId) {
-        String sql = "SELECT  "
-                + "    ttn.NODE_ID, ttn.TREE_TEMPLATE_ID, ttn.PARENT_NODE_ID, ttn.SORT_ORDER, ttn.LEVEL_NO, ttn.MANUAL_CHANGE_EFFECTS_FUTURE_MONTHS,  "
-                + "    ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, ttn.ACTIVE, ttn.CREATED_DATE, ttn.LAST_MODIFIED_DATE, "
-                + "    nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`,  "
-                + "    u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
-                + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME` "
-                + "FROM vw_tree_template_node ttn "
-                + "LEFT JOIN vw_node_type nt ON ttn.NODE_TYPE_ID=nt.NODE_TYPE_ID "
-                + "LEFT JOIN vw_unit u ON ttn.UNIT_ID=u.UNIT_ID "
-                + "LEFT JOIN us_user cb ON ttn.CREATED_BY=cb.USER_ID "
-                + "LEFT JOIN us_user lmb ON ttn.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "ORDER BY ttn.SORT_ORDER";
-        return this.namedParameterJdbcTemplate.query(sql, new TreeNodeResultSetExtractor());
+        String sql = "SELECT "
+                + "          ttn.NODE_ID, ttn.TREE_TEMPLATE_ID, ttn.PARENT_NODE_ID, ttn.MANUAL_CHANGE_EFFECTS_FUTURE_MONTHS, "
+                + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, ttn.ACTIVE, ttn.CREATED_DATE, ttn.LAST_MODIFIED_DATE, "
+                + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
+                + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
+                + "          cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, "
+                + "          ttnd.NODE_DATA_ID, ttnd.MONTH, ttnd.DATA_VALUE, ttnd.NOTES, ttnd.ACTIVE `ND_ACTIVE`, ttnd.CREATED_DATE `ND_CREATED_DATE`, ttnd.LAST_MODIFIED_DATE `ND_LAST_MODIFIED_DATE`, "
+                + "          cbd.USER_ID `ND_CB_USER_ID`, cbd.USERNAME `ND_CB_USERNAME`, lmbd.USER_ID `ND_LMB_USER_ID`, lmbd.USERNAME `ND_LMB_USERNAME`, "
+                + "          ttndf.NODE_DATA_FU_ID, ttndf.LAG_IN_MONTHS, ttndf.NO_OF_PERSONS, ttndf.FORECASTING_UNITS_PER_PERSON, "
+                + "          fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
+                + "          fuu.UNIT_ID `FUU_UNIT_ID`, fuu.UNIT_CODE `FUU_UNIT_CODE`, fuu.LABEL_ID `FUU_LABEL_ID`, fuu.LABEL_EN `FUU_LABEL_EN`, fuu.LABEL_FR `FUU_LABEL_FR`, fuu.LABEL_SP `FUU_LABEL_SP`, fuu.LABEL_PR `FUU_LABEL_PR`, "
+                + "          tc.TRACER_CATEGORY_ID, tc.LABEL_ID `TC_LABEL_ID`, tc.LABEL_EN `TC_LABEL_EN`, tc.LABEL_FR `TC_LABEL_FR`, tc.LABEL_SP `TC_LABEL_SP`, tc.LABEL_PR `TC_LABEL_PR`, "
+                + "          ut.USAGE_TYPE_ID, ut.LABEL_ID `UT_LABEL_ID`, ut.LABEL_EN `UT_LABEL_EN`, ut.LABEL_FR `UT_LABEL_FR`, ut.LABEL_SP `UT_LABEL_SP`, ut.LABEL_PR `UT_LABEL_PR`, "
+                + "          ttndf.ONE_TIME_USAGE, ttndf.USAGE_FREQUENCY, upf.USAGE_PERIOD_ID `UPF_USAGE_PERIOD_ID`, upf.CONVERT_TO_MONTH `UPF_CONVERT_TO_MONTH`, upf.LABEL_ID `UPF_LABEL_ID`, upf.LABEL_EN `UPF_LABEL_EN`, upf.LABEL_FR `UPF_LABEL_FR`, upf.LABEL_SP `UPF_LABEL_SP`, upf.LABEL_PR `UPF_LABEL_PR`, "
+                + "          ttndf.REPEAT_COUNT, upr.USAGE_PERIOD_ID `UPR_USAGE_PERIOD_ID`, upr.CONVERT_TO_MONTH `UPR_CONVERT_TO_MONTH`, upr.LABEL_ID `UPR_LABEL_ID`, upr.LABEL_EN `UPR_LABEL_EN`, upr.LABEL_FR `UPR_LABEL_FR`, upr.LABEL_SP `UPR_LABEL_SP`, upr.LABEL_PR `UPR_LABEL_PR`, "
+                + "          ttndf.ACTIVE `NDF_ACTIVE`, ttndf.CREATED_DATE `NDF_CREATED_DATE`, ttndf.LAST_MODIFIED_DATE `NDF_LAST_MODIFIED_DATE`, "
+                + "          cbdf.USER_ID `NDF_CB_USER_ID`, cbdf.USERNAME `NDF_CB_USERNAME`, lmbdf.USER_ID `NDF_LMB_USER_ID`, lmbdf.USERNAME `NDF_LMB_USERNAME`, "
+                + "          ttndp.NODE_DATA_PU_ID, ttndp.REFILL_MONTHS, ttndp.SHARE_PLANNING_UNIT, ttndp.ACTIVE `NDP_ACTIVE`, ttndp.CREATED_DATE `NDP_CREATED_DATE`, ttndp.LAST_MODIFIED_DATE `NDP_LAST_MODIFIED_DATE`, "
+                + "          pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
+                + "          puu.UNIT_ID `PUU_UNIT_ID`, puu.UNIT_CODE `PUU_UNIT_CODE`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR`, "
+                + "          cbdp.USER_ID `NDP_CB_USER_ID`, cbdp.USERNAME `NDP_CB_USERNAME`, lmbdp.USER_ID `NDP_LMB_USER_ID`, lmbdp.USERNAME `NDP_LMB_USERNAME` "
+                + "      FROM vw_tree_template_node ttn "
+                + "      LEFT JOIN vw_node_type nt ON ttn.NODE_TYPE_ID=nt.NODE_TYPE_ID "
+                + "      LEFT JOIN vw_unit u ON ttn.UNIT_ID=u.UNIT_ID "
+                + "      LEFT JOIN us_user cb ON ttn.CREATED_BY=cb.USER_ID "
+                + "      LEFT JOIN us_user lmb ON ttn.LAST_MODIFIED_BY=lmb.USER_ID "
+                + "      LEFT JOIN rm_tree_template_node_data ttnd ON ttn.NODE_ID=ttnd.NODE_ID "
+                + "      LEFT JOIN us_user cbd ON ttnd.CREATED_BY=cbd.USER_ID "
+                + "      LEFT JOIN us_user lmbd ON ttnd.LAST_MODIFIED_BY=lmbd.USER_ID "
+                + "      LEFT JOIN rm_tree_template_node_data_fu ttndf on ttndf.NODE_DATA_FU_ID=ttnd.NODE_DATA_FU_ID "
+                + "      LEFT JOIN vw_forecasting_unit fu ON ttndf.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "      LEFT JOIN vw_unit fuu ON fu.UNIT_ID=fuu.UNIT_ID "
+                + "      LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID "
+                + "      LEFT JOIN vw_usage_type ut ON ttndf.USAGE_TYPE_ID=ut.USAGE_TYPE_ID "
+                + "      LEFT JOIN vw_usage_period upf ON ttndf.USAGE_FREQUENCY_USAGE_PERIOD_ID=upf.USAGE_PERIOD_ID "
+                + "      LEFT JOIN vw_usage_period upr ON ttndf.REPEAT_USAGE_PERIOD_ID=upr.USAGE_PERIOD_ID "
+                + "      LEFT JOIN us_user cbdf ON ttndf.CREATED_BY=cbdf.USER_ID "
+                + "      LEFT JOIN us_user lmbdf ON ttndf.LAST_MODIFIED_BY=lmbdf.USER_ID "
+                + "      LEFT JOIN rm_tree_template_node_data_pu ttndp ON ttndp.NODE_DATA_PU_ID=ttnd.NODE_DATA_PU_ID "
+                + "      LEFT JOIN vw_planning_unit pu ON ttndp.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "      LEFT JOIN vw_unit puu ON pu.UNIT_ID=puu.UNIT_ID "
+                + "      LEFT JOIN us_user cbdp ON ttndp.CREATED_BY=cbdp.USER_ID "
+                + "      LEFT JOIN us_user lmbdp ON ttndp.LAST_MODIFIED_BY=lmbdp.USER_ID "
+                + "      WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId "
+                + "      ORDER BY ttn.SORT_ORDER, ttnd.NODE_DATA_ID";
+        Map<String, Object> params = new HashMap<>();
+        params.put("treeTemplateId", treeTemplateId);
+        return this.namedParameterJdbcTemplate.query(sql, params, new TreeNodeResultSetExtractor());
     }
 
     @Override
