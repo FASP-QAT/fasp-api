@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -14,13 +15,19 @@ import java.util.Map;
  *
  * @author akil
  */
-public class TreeNode extends BaseModel implements Serializable {
+public class TreeNode implements Serializable {
 
+    @JsonView(Views.InternalView.class)
     private int nodeId;
+    @JsonView(Views.InternalView.class)
     private Integer parentNodeId;
+    @JsonView(Views.InternalView.class)
     private SimpleObject nodeType;
+    @JsonView(Views.InternalView.class)
     private SimpleCodeObject nodeUnit;
+    @JsonView(Views.InternalView.class)
     private Label label;
+    @JsonView(Views.InternalView.class)
     private Map<Integer, List<TreeNodeData>> nodeDataMap; // Key is Scenario Id in the case of TreeTemplate the Scenario is 0
 
     public TreeNode() {

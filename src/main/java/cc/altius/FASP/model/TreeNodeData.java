@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -13,15 +14,23 @@ import java.util.List;
  *
  * @author akil
  */
-public class TreeNodeData extends BaseModel implements Serializable {
+public class TreeNodeData implements Serializable {
 
+    @JsonView(Views.InternalView.class)
     private int nodeDataId;
+    @JsonView(Views.InternalView.class)
     private Date month;
+    @JsonView(Views.InternalView.class)
     private Double dataValue;
+    @JsonView(Views.InternalView.class)
     private TreeNodeDataFu fuNode;
+    @JsonView(Views.InternalView.class)
     private TreeNodeDataPu puNode;
+    @JsonView(Views.InternalView.class)
     private String notes;
+    @JsonView(Views.InternalView.class)
     private List<NodeDataModeling> nodeDataModelingList;
+    @JsonView(Views.InternalView.class)
     private List<NodeDataOverride> nodeDataOverrideList;
 
     public int getNodeDataId() {

@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.PipelineDbDao;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.HealthArea;
 import cc.altius.FASP.model.Label;
@@ -1345,7 +1346,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         RealmCountry rc = this.realmCountryService.getRealmCountryById(p.getRealmCountry().getRealmCountryId(), curUser);
         StringBuilder healthAreaCode = new StringBuilder();
         for (int haId : p.getHealthAreaIdList()) {
-            healthAreaCode.append(this.healthAreaDao.getHealthAreaById(haId, curUser).getHealthAreaCode()+ "/");
+            healthAreaCode.append(this.healthAreaDao.getHealthAreaById(haId, curUser).getHealthAreaCode() + "/");
         }
         StringBuilder programCode = new StringBuilder(rc.getCountry().getCountryCode()).append("-").append(healthAreaCode.substring(0, healthAreaCode.length() - 1)).append("-").append(this.organisationDao.getOrganisationById(p.getOrganisation().getId(), curUser).getOrganisationCode());
         if (p.getProgramCode() != null && !p.getProgramCode().isBlank()) {
@@ -1356,7 +1357,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         Map<String, Object> params = new HashMap<>();
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         int labelId = this.labelDao.addLabel(p.getLabel(), LabelConstants.RM_PROGRAM, curUser.getUserId());
-        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program").usingColumns("PROGRAM_CODE","REALM_ID","REALM_COUNTRY_ID","ORGANISATION_ID","LABEL_ID","PROGRAM_MANAGER_USER_ID","PROGRAM_NOTES","AIR_FREIGHT_PERC","SEA_FREIGHT_PERC","PLANNED_TO_SUBMITTED_LEAD_TIME","SUBMITTED_TO_APPROVED_LEAD_TIME","APPROVED_TO_SHIPPED_LEAD_TIME","SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME","SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME","ARRIVED_TO_DELIVERED_LEAD_TIME","CURRENT_VERSION_ID","ACTIVE","CREATED_BY","CREATED_DATE","LAST_MODIFIED_BY","LAST_MODIFIED_DATE" ).usingGeneratedKeyColumns("PROGRAM_ID");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program").usingColumns("PROGRAM_CODE", "REALM_ID", "REALM_COUNTRY_ID", "ORGANISATION_ID", "LABEL_ID", "PROGRAM_MANAGER_USER_ID", "PROGRAM_NOTES", "AIR_FREIGHT_PERC", "SEA_FREIGHT_PERC", "PLANNED_TO_SUBMITTED_LEAD_TIME", "SUBMITTED_TO_APPROVED_LEAD_TIME", "APPROVED_TO_SHIPPED_LEAD_TIME", "SHIPPED_TO_ARRIVED_BY_SEA_LEAD_TIME", "SHIPPED_TO_ARRIVED_BY_AIR_LEAD_TIME", "ARRIVED_TO_DELIVERED_LEAD_TIME", "CURRENT_VERSION_ID", "ACTIVE", "CREATED_BY", "CREATED_DATE", "LAST_MODIFIED_BY", "LAST_MODIFIED_DATE").usingGeneratedKeyColumns("PROGRAM_ID");
         params.put("PROGRAM_CODE", p.getProgramCode());
         params.put("REALM_ID", rc.getRealm().getRealmId());
         params.put("REALM_COUNTRY_ID", p.getRealmCountry().getRealmCountryId());
@@ -1375,7 +1376,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         params.put("ARRIVED_TO_DELIVERED_LEAD_TIME", p.getArrivedToDeliveredLeadTime());
         params.put("CURRENT_VERSION_ID", null);
         params.put("ACTIVE", true);
-        params.put("PROGRAM_TYPE_ID",1); // Hard Coded for SupplyPlan Program
+        params.put("PROGRAM_TYPE_ID", GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN); // Hard Coded for SupplyPlan Program
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
@@ -1425,7 +1426,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         params.put("versionTypeId", 1);
         params.put("versionStatusId", 1);
         params.put("notes", "testing.............");
-        Version version = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)", params, new VersionRowMapper());
+        Version version = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, :curUser, :curDate)", params, new VersionRowMapper());
 
         params.put("versionId", version.getVersionId());
 
@@ -2018,13 +2019,13 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         String sql = "update rm_realm_country r set r.ACTIVE=1,r.LAST_MODIFIED_BY=?,r.LAST_MODIFIED_DATE=? where r.REALM_COUNTRY_ID=? and r.ACTIVE=0";
         this.jdbcTemplate.update(sql, curUser.getUserId(), curDate, realmCountryId);
-        
-        String haCodes="";
+
+        String haCodes = "";
         String sqlHa = "select group_concat(ha.HEALTH_AREA_CODE) from qat_temp_program_healthArea ph  "
                 + "left join rm_health_area ha on ha.HEALTH_AREA_ID=ph.HEALTH_AREA_ID "
                 + "where ph.PIPELINE_ID=?";
-        haCodes=this.jdbcTemplate.queryForObject(sqlHa,String.class, pipelineId).replaceAll(",", "");
-        System.out.println("haCodes+++"+haCodes);
+        haCodes = this.jdbcTemplate.queryForObject(sqlHa, String.class, pipelineId).replaceAll(",", "");
+        System.out.println("haCodes+++" + haCodes);
 
         String sql1 = "insert into rm_realm_country_planning_unit (SELECT null,qtpu.PLANNING_UNIT_ID,qtp.REALM_COUNTRY_ID,rpu.LABEL_ID "
                 + ",concat(ac.COUNTRY_CODE2,\"-\",?,\"-\",qtpu.PIPELINE_PRODUCT_ID,\"-\",qtpu.PLANNING_UNIT_ID)  "
@@ -2049,7 +2050,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
 //                + "left join fasp.rm_realm_country rrc on rrc.REALM_COUNTRY_ID=qtp.REALM_COUNTRY_ID "
 //                + "left join ap_country ac on ac.COUNTRY_ID=rrc.COUNTRY_ID "
 //                + "where qtpu.PIPELINE_ID=? and rcpu.REALM_COUNTRY_PLANNING_UNIT_ID is null);";
-        this.jdbcTemplate.update(sql1, haCodes,pipelineId);
+        this.jdbcTemplate.update(sql1, haCodes, pipelineId);
     }
 
 }

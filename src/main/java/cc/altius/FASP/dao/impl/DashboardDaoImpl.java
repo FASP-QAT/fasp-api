@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.DashboardDao;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.DashboardUser;
 import cc.altius.FASP.model.rowMapper.DashboardUserRowMapper;
 import java.util.HashMap;
@@ -50,7 +51,7 @@ public class DashboardDaoImpl implements DashboardDao {
         map.put("LANGUAGE_COUNT", this.jdbcTemplate.queryForObject(sql, Integer.class));
         //Supply plan waiting for approval
         sql = " SELECT COUNT(*) FROM rm_program_version pv "
-                + " LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID AND p.PROGRAM_TYPE_ID=1 "
+                + " LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID AND p.PROGRAM_TYPE_ID=" + GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN + " "
                 + " WHERE TRUE AND  pv.`VERSION_STATUS_ID`=1 AND pv.`VERSION_TYPE_ID`=2; ";
         map.put("SUPPLY_PLAN_COUNT", this.jdbcTemplate.queryForObject(sql, Integer.class));
         return map;
@@ -78,11 +79,11 @@ public class DashboardDaoImpl implements DashboardDao {
         //Programs
         sql = "SELECT COUNT(*) FROM rm_program p "
                 + "LEFT JOIN rm_realm_country rc ON rc.`REALM_COUNTRY_ID`=p.`REALM_COUNTRY_ID` "
-                + "WHERE p.PROGRAM_TYPE_ID=1 AND p.`ACTIVE` AND rc.`REALM_ID`=?;";
+                + "WHERE p.PROGRAM_TYPE_ID=" + GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN + " AND p.`ACTIVE` AND rc.`REALM_ID`=?;";
         map.put("PROGRAM_COUNT", this.jdbcTemplate.queryForObject(sql, Integer.class, realmId));
         //Supply plan waiting for approval
         sql = " SELECT COUNT(*) FROM rm_program_version pv "
-                + " LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID AND p.PROGRAM_TYPE_ID=1 "
+                + " LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID AND p.PROGRAM_TYPE_ID=" + GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN + " "
                 + " LEFT JOIN rm_realm_country rc ON rc.`REALM_COUNTRY_ID`=p.`REALM_COUNTRY_ID` "
                 + " WHERE TRUE AND  pv.`VERSION_STATUS_ID`=1 AND pv.`VERSION_TYPE_ID`=2  AND rc.`REALM_ID`=?; ";
         map.put("SUPPLY_PLAN_COUNT", this.jdbcTemplate.queryForObject(sql, Integer.class, realmId));

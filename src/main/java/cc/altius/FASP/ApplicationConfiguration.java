@@ -39,4 +39,6 @@ public class ApplicationConfiguration {
         pspc.setIgnoreUnresolvablePlaceholders(true);
         return pspc;
     }
-}
+    
+    }
+

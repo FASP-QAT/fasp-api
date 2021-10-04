@@ -6,6 +6,7 @@
 package cc.altius.FASP.ARTMIS.dao.impl;
 
 import cc.altius.FASP.ARTMIS.dao.ExportArtmisDataDao;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.DTO.ExportOrderDataDTO;
 import cc.altius.FASP.model.DTO.ExportProgramDataDTO;
 import cc.altius.FASP.model.DTO.ExportShipmentLinkingDTO;
@@ -88,7 +89,7 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
     public List<ExportShipmentLinkingDTO> exportShipmentLinkingData(Date lastDate) {
         String sql = "SELECT s.`PROGRAM_ID`,m.`MANUAL_TAGGING_ID`,l.`LABEL_EN`,m.`SHIPMENT_ID`,b.RO_NO,m.`ORDER_NO`,m.`PRIME_LINE_NO`,m.`ACTIVE`,m.`LAST_MODIFIED_DATE` FROM rm_manual_tagging m "
                 + "LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=m.`SHIPMENT_ID` "
-                + "LEFT JOIN rm_program p ON p.`PROGRAM_ID`=s.`PROGRAM_ID` AND p.PROGRAM_TYPE_ID=1 "
+                + "LEFT JOIN rm_program p ON p.`PROGRAM_ID`=s.`PROGRAM_ID` AND p.PROGRAM_TYPE_ID=" + GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN + " "
                 + "LEFT JOIN ap_label l ON l.`LABEL_ID`=p.`LABEL_ID` "
                 + "LEFT JOIN (SELECT a.* FROM ( "
                 + "SELECT o.`ERP_ORDER_ID`,o.`RO_NO`,o.`ORDER_NO`,o.`PRIME_LINE_NO` FROM rm_erp_order o "

@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
@@ -15,9 +16,11 @@ import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.util.LinkedList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -52,7 +55,6 @@ public class ProgramRestController {
     private ProgramService programService;
     @Autowired
     private UserService userService;
-
     @Autowired
     private ProgramDataService programDataService;
 
@@ -60,6 +62,7 @@ public class ProgramRestController {
     public ResponseEntity postProgram(@RequestBody Program program, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            program.setProgramTypeId(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN); // Supply Plan Program
             this.programService.addProgram(program, curUser);
             return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (DuplicateKeyException d) {
@@ -78,6 +81,7 @@ public class ProgramRestController {
     public ResponseEntity putProgram(@RequestBody Program program, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            program.setProgramTypeId(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN); // Supply Plan Program
             this.programService.updateProgram(program, curUser);
             return new ResponseEntity(new ResponseCode("static.message.updateSuccess"), HttpStatus.OK);
         } catch (EmptyResultDataAccessException ae) {
@@ -107,27 +111,24 @@ public class ProgramRestController {
     public ResponseEntity getProgram(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramList(curUser, true), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getProgramList(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser, true), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    
 
     @GetMapping("/program/all")
     public ResponseEntity getProgramAll(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramList(curUser, false), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getProgramList(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser, false), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    
+
     @GetMapping("/program/{programId}/planningUnit")
     public ResponseEntity getPlanningUnitForProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
@@ -246,7 +247,7 @@ public class ProgramRestController {
     public ResponseEntity getProgramForRealm(@PathVariable(value = "realmId", required = true) int realmId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramListForRealmId(realmId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getProgramListForRealmId(realmId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
@@ -263,7 +264,7 @@ public class ProgramRestController {
     public ResponseEntity getProgram(@PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getProgramById(programId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to list Program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
@@ -291,7 +292,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 //    @GetMapping(value = "/sync/programPlanningUnit/{lastSyncDate}")
 //    public ResponseEntity getProgramPlanningUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
 //        try {
@@ -307,7 +307,6 @@ public class ProgramRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
     @GetMapping("/program/{programId}/{productCategory}/planningUnit/all")
     public ResponseEntity getPlanningUnitForProgramAndProductCategory(@PathVariable("programId") int programId, @PathVariable("productCategory") int productCategoryId, Authentication auth) {
         try {
@@ -581,10 +580,11 @@ public class ProgramRestController {
     }
 
     @GetMapping("loadProgram")
+    @JsonView(Views.InternalView.class)
     public ResponseEntity getLoadProgram(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getLoadProgram(curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getLoadProgram(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Programs", e);
             return new ResponseEntity(new LinkedList<LoadProgram>(), HttpStatus.OK);
@@ -598,10 +598,11 @@ public class ProgramRestController {
     }
 
     @GetMapping("loadProgram/programId/{programId}/page/{page}")
+    @JsonView(Views.InternalView.class)
     public ResponseEntity getLoadProgram(@PathVariable("programId") int programId, @PathVariable("page") int page, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getLoadProgram(programId, page, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.programService.getLoadProgram(programId, page, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser), HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             return new ResponseEntity(new LinkedList<LoadProgram>(), HttpStatus.OK);
         } catch (AccessDeniedException e) {

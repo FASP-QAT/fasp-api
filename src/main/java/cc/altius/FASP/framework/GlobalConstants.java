@@ -5,12 +5,12 @@
  */
 package cc.altius.FASP.framework;
 
-import java.util.HashMap;
-
 /**
  *
  * @author altius
  */
-public class GlobalConstants extends HashMap {
+public class GlobalConstants {
 
+    public static final int PROGRAM_TYPE_SUPPLY_PLAN = 1; // Supply Plan Programs
+    public static final int PROGRAM_TYPE_DATASET = 2; // Dataset Programs
 }

@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.rest.controller;
 
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
@@ -74,7 +75,7 @@ public class SupplyPlanRestController {
     ) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            Program p = this.programService.getProgramById(programId, curUser);
+            Program p = this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
             if (versionId == -1) {
                 versionId = p.getCurrentVersion().getVersionId();
             }

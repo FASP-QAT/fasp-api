@@ -5,17 +5,22 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
  *
  * @author akil
  */
-public class TreeNodeDataPu extends BaseModel implements Serializable {
+public class TreeNodeDataPu implements Serializable {
 
+    @JsonView(Views.InternalView.class)
     private int nodeDataPuId;
+    @JsonView(Views.InternalView.class)
     private SimpleUnitObject planningUnit;
+    @JsonView(Views.InternalView.class)
     private boolean sharePlanningUnit;
+    @JsonView(Views.InternalView.class)
     private int refillMonths;
 
     public int getNodeDataPuId() {

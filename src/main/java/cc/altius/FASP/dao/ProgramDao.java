@@ -32,18 +32,16 @@ public interface ProgramDao {
 
     public int updateProgram(Program p, CustomUserDetails curUser);
 
-    public List<Program> getProgramList(CustomUserDetails curUser, boolean active);
-    
-    public List<Program> getDatasetList(CustomUserDetails curUser, boolean active);
+    public List<Program> getProgramList(int programTypeId, CustomUserDetails curUser, boolean active);
 
     public List<Program> getProgramListForProgramIds(String[] programIds, CustomUserDetails curUser);
 
-    public List<Program> getProgramListForRealmId(int realmId, CustomUserDetails curUser);
+    public List<Program> getProgramListForRealmId(int realmId, int programTypeId, CustomUserDetails curUser);
 
-    public Program getProgramById(int programId, CustomUserDetails curUser);
+    public Program getProgramById(int programId, int programTypeId, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
-    
+
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitListForProgramIds(String programIds, CustomUserDetails curUser);
@@ -78,9 +76,9 @@ public interface ProgramDao {
 
     public void delinkShipment(ManualTaggingOrderDTO erpOrderDTO, CustomUserDetails curUser);
 
-    public List<LoadProgram> getLoadProgram(CustomUserDetails curUser);
+    public List<LoadProgram> getLoadProgram(int programTypeId, CustomUserDetails curUser);
 
-    public LoadProgram getLoadProgram(int programId, int page, CustomUserDetails curUser);
+    public LoadProgram getLoadProgram(int programId, int page, int programTypeId, CustomUserDetails curUser);
 
     public boolean validateProgramCode(int realmId, int programId, String programCode, CustomUserDetails curUser);
 

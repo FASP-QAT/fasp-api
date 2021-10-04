@@ -39,6 +39,14 @@ public class Version implements Serializable {
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     @JsonView(Views.InternalView.class)
     private Date lastModifiedDate;
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.InternalView.class)
+    private Date forecastStartDate;
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    @JsonView(Views.InternalView.class)
+    private Date forecastStopDate;
 
     public Version() {
     }
@@ -127,6 +135,22 @@ public class Version implements Serializable {
 
     public void setLastModifiedDate(Date lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
+    }
+ 
+    public Date getForecastStartDate() {
+        return forecastStartDate;
+    }
+
+    public void setForecastStartDate(Date forecastStartDate) {
+        this.forecastStartDate = forecastStartDate;
+    }
+
+    public Date getForecastStopDate() {
+        return forecastStopDate;
+    }
+
+    public void setForecastStopDate(Date forecastStopDate) {
+        this.forecastStopDate = forecastStopDate;
     }
 
     @Override

@@ -5,12 +5,15 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 /**
  *
  * @author akil
  */
 public class SimpleUnitAndTracerObject extends SimpleUnitObject {
 
+    @JsonView(Views.InternalView.class)
     private SimpleObject tracerCategory;
 
     public SimpleObject getTracerCategory() {

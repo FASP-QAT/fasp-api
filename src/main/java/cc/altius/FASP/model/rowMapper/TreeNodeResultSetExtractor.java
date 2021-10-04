@@ -90,7 +90,6 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<Tree<TreeN
                 new SimpleCodeObject(rs.getInt("U_UNIT_ID"), new LabelRowMapper("U_").mapRow(rs, count), rs.getString("U_UNIT_CODE")),
                 new LabelRowMapper().mapRow(rs, count)
         );
-        tn.setBaseModel(new BaseModelRowMapper().mapRow(rs, count));
         return tn;
     }
 
@@ -100,7 +99,6 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<Tree<TreeN
         tnd.setMonth(rs.getDate("MONTH"));
         tnd.setDataValue(rs.getDouble("DATA_VALUE"));
         tnd.setNotes(rs.getString("NOTES"));
-        tnd.setBaseModel(new BaseModelRowMapper("ND_").mapRow(rs, 1));
         int nodeDataFuId = rs.getInt("NODE_DATA_FU_ID");
         if (!rs.wasNull()) {
             TreeNodeDataFu tndf = new TreeNodeDataFu();
@@ -119,7 +117,6 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<Tree<TreeN
                     tndf.setRepeatUsagePeriod(new UsagePeriod(rs.getInt("UPR_USAGE_PERIOD_ID"), new LabelRowMapper("UPR_").mapRow(rs, count), rs.getDouble("UPR_CONVERT_TO_MONTH")));
                 }
             }
-            tndf.setBaseModel(new BaseModelRowMapper("NDF_").mapRow(rs, count));
         }
         int nodeDataPuId = rs.getInt("NODE_DATA_PU_ID");
         if (!rs.wasNull()) {
@@ -128,7 +125,6 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<Tree<TreeN
             tndp.setRefillMonths(rs.getInt("REFILL_MONTHS"));
             tndp.setSharePlanningUnit(rs.getBoolean("SHARE_PLANNING_UNIT"));
             tndp.setPlanningUnit(new SimpleUnitObject(new SimpleCodeObject(rs.getInt("PUU_UNIT_ID"), new LabelRowMapper("PUU_").mapRow(rs, count), rs.getString("PUU_UNIT_CODE")), rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, count)));
-            tndp.setBaseModel(new BaseModelRowMapper("NDP_").mapRow(rs, count));
         }
         return tnd;
     }

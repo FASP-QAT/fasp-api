@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
@@ -18,12 +19,17 @@ import java.util.Date;
  */
 public class LoadVersion implements Serializable {
 
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String versionId;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObject versionType;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObject versionStatus;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private BasicUser createdBy;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Date createdDate;
 
     public String getVersionId() {

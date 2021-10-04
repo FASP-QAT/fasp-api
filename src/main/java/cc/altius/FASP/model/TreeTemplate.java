@@ -6,6 +6,7 @@
 package cc.altius.FASP.model;
 
 import cc.altius.utils.TreeUtils.Tree;
+import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**
@@ -14,10 +15,15 @@ import java.io.Serializable;
  */
 public class TreeTemplate extends BaseModel implements Serializable {
 
+    @JsonView(Views.InternalView.class)
     private int treeTemplateId;
+    @JsonView(Views.InternalView.class)
     private SimpleCodeObject realm;
+    @JsonView(Views.InternalView.class)
     private Label label;
+    @JsonView(Views.InternalView.class)
     private SimpleObjectWithType forecastMethod;
+    @JsonView(Views.InternalView.class)
     private Tree<TreeNode> tree;
     
 

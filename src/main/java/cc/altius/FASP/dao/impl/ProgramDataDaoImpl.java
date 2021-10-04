@@ -7,6 +7,7 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.BatchData;
 import cc.altius.FASP.model.Consumption;
@@ -331,7 +332,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("versionTypeId", programData.getVersionType().getId());
             params.put("versionStatusId", programData.getVersionStatus().getId());
             params.put("notes", programData.getNotes());
-            sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
+            sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, :curUser, :curDate)";
 //            try {
             version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
             logger.info(version + " is the new version no");
@@ -575,7 +576,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", programData.getVersionType().getId());
                 params.put("versionStatusId", programData.getVersionStatus().getId());
                 params.put("notes", programData.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, :curUser, :curDate)";
 //                try {
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
@@ -884,7 +885,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", programData.getVersionType().getId());
                 params.put("versionStatusId", programData.getVersionStatus().getId());
                 params.put("notes", programData.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, :curUser, :curDate)";
 //                try {
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
@@ -1072,7 +1073,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", programData.getVersionType().getId());
                 params.put("versionStatusId", programData.getVersionStatus().getId());
                 params.put("notes", programData.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, :curUser, :curDate)";
 //                try {
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
@@ -1091,7 +1092,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     params.put("versionTypeId", programData.getVersionType().getId());
                     params.put("versionStatusId", programData.getVersionStatus().getId());
                     params.put("notes", programData.getNotes());
-                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, :curUser, :curDate)";
+                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, :curUser, :curDate)";
 //                    try {
                     version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                     logger.info(version + " is the new version no");
@@ -1236,7 +1237,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
         //        when version is rejcted
         if (versionStatusId == 3) {
-            Program program = this.programService.getProgramById(programId, curUser);
+            Program program = this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "Cc");
@@ -1276,7 +1277,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
 //        when version is approved
         if (versionStatusId == 2) {
-            Program program = this.programService.getProgramById(programId, curUser);
+            Program program = this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "Cc");
