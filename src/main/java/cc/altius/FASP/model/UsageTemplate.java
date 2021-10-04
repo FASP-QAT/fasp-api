@@ -156,6 +156,8 @@ public class UsageTemplate extends BaseModel implements Serializable {
         StringBuilder sb = new StringBuilder();
         if (this.usageType.getId() == 2) { // Continuous
             sb.append("Every 1 Patient - requires ").append(this.noOfForecastingUnits).append(" ").append(this.unit.getCode()).append(" ").append(this.usageFrequencyCount).append(" time(s) per ").append(this.usageFrequencyUsagePeriod.getLabel().getLabel_en()).append(" indefinitely");
+        } else if (this.oneTimeUsage == true) {
+            sb.append("Every ").append(this.noOfPatients).append(" Patient - requires ").append(this.noOfForecastingUnits).append(" ").append(this.unit.getCode());
         } else {
             sb.append("Every ").append(this.noOfPatients).append(" Patient - requires ").append(this.noOfForecastingUnits).append(" ").append(this.unit.getCode()).append(" ").append(this.usageFrequencyCount).append(" time(s) per ").append(this.usageFrequencyUsagePeriod.getLabel().getLabel_en()).append(" for ").append(this.repeatCount).append(" ").append(this.repeatUsagePeriod.getLabel().getLabel_en());
         }
@@ -163,15 +165,19 @@ public class UsageTemplate extends BaseModel implements Serializable {
     }
 
     public double getNoOfFUPerPersonPerTime() {
-        return (double)this.noOfForecastingUnits / (double)this.noOfPatients;
+        return (double) this.noOfForecastingUnits / (double) this.noOfPatients;
     }
 
     public double getNoOfFUPerPersonPerMonth() {
-        return getNoOfFUPerPersonPerTime() * this.usageFrequencyUsagePeriod.getConvertToMonth() * this.usageFrequencyCount;
+        if (this.oneTimeUsage) {
+            return getNoOfFUPerPersonPerTime();
+        } else {
+            return getNoOfFUPerPersonPerTime() * this.usageFrequencyUsagePeriod.getConvertToMonth() * this.usageFrequencyCount;
+        }
     }
 
     public Double getNoOfFURequired() {
-        if (this.usageType.getId() == 2) {
+        if (this.usageType.getId() == 2) { // Continuous
             return null;
         } else if (this.oneTimeUsage == false) {
             return this.repeatCount / this.repeatUsagePeriod.getConvertToMonth() * getNoOfFUPerPersonPerMonth();

@@ -67,6 +67,8 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
                         new BasicUser(rs.getInt("CV_LMB_USER_ID"), rs.getString("CV_LMB_USERNAME")),
                         rs.getTimestamp("CV_LAST_MODIFIED_DATE")
                 ));
+                p.getCurrentVersion().setForecastStartDate(rs.getDate("CV_FORECAST_START_DATE"));
+                p.getCurrentVersion().setForecastStopDate(rs.getDate("CV_FORECAST_STOP_DATE"));
                 p.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 p.setRegionList(new LinkedList<>());
                 p.setVersionList(new LinkedList<>());
@@ -92,6 +94,8 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
                     new BasicUser(rs.getInt("VT_LMB_USER_ID"), rs.getString("VT_LMB_USERNAME")),
                     rs.getTimestamp("VT_LAST_MODIFIED_DATE")
             );
+            v.setForecastStartDate(rs.getDate("VT_FORECAST_START_DATE"));
+            v.setForecastStopDate(rs.getDate("VT_FORECAST_STOP_DATE"));
             if (p.getVersionList().indexOf(v) == -1) {
                 p.getVersionList().add(v);
             }

@@ -72,8 +72,8 @@ public class ProgramListResultSetExtractor implements ResultSetExtractor<List<Pr
                         new BasicUser(rs.getInt("CV_LMB_USER_ID"), rs.getString("CV_LMB_USERNAME")),
                         rs.getTimestamp("CV_LAST_MODIFIED_DATE")
                 ));
-                p.getCurrentVersion().setForecastStartDate(rs.getDate("FORECAST_START_DATE"));
-                p.getCurrentVersion().setForecastStopDate(rs.getDate("FORECAST_STOP_DATE"));
+                p.getCurrentVersion().setForecastStartDate(rs.getDate("CV_FORECAST_START_DATE"));
+                p.getCurrentVersion().setForecastStopDate(rs.getDate("CV_FORECAST_STOP_DATE"));
                 p.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 p.setRegionList(new LinkedList<Region>());
                 p.setVersionList(new LinkedList<Version>());
