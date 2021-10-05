@@ -1696,6 +1696,224 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cargar o eliminar conj
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Carregar ou excluir conjunto de dados');
 
 
+CREATE TABLE `rm_forecast_tree` (
+  `TREE_ID` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique forecast tree template id',
+  `PROGRAM_ID` int(10) unsigned NOT NULL COMMENT 'Foreign key that maps to the Program this Tree is for',
+  `LABEL_ID` int(10) unsigned NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',
+  `FORECAST_METHOD_ID` int(10) unsigned NOT NULL COMMENT 'Foreign key to indicate which Forecast method is used for this Tree',
+  `CREATED_BY` int(10) unsigned NOT NULL,
+  `CREATED_DATE` datetime NOT NULL,
+  `LAST_MODIFIED_BY` int(10) unsigned NOT NULL,
+  `LAST_MODIFIED_DATE` datetime NOT NULL,
+  `ACTIVE` tinyint(1) unsigned NOT NULL,
+  PRIMARY KEY (`TREE_ID`),
+  KEY `fk_forecastTree_programId_idx` (`PROGRAM_ID`),
+  KEY `fk_forecastTree_labelId_idx` (`LABEL_ID`),
+  KEY `fk_forecastTree_forecastMethodId_idx` (`FORECAST_METHOD_ID`),
+  KEY `fk_forecastTree_createdBy_idx` (`CREATED_BY`),
+  KEY `fk_forecastTree_lastModifiedBy_idx` (`LAST_MODIFIED_BY`),
+  CONSTRAINT `fk_forecastTree_createdBy_idx` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTree_forecastMethodId_idx` FOREIGN KEY (`FORECAST_METHOD_ID`) REFERENCES `rm_forecast_method` (`FORECAST_METHOD_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTree_labelId_idx` FOREIGN KEY (`LABEL_ID`) REFERENCES `ap_label` (`LABEL_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTree_lastModifiedBy_idx` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTree_programId_idx` FOREIGN KEY (`PROGRAM_ID`) REFERENCES `rm_program` (`PROGRAM_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `rm_forecast_tree_node` (
+  `NODE_ID` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique node id for tree',
+  `TREE_ID` int(10) unsigned NOT NULL COMMENT 'TreeId that this Node belongs to',
+  `PARENT_NODE_ID` int(10) unsigned DEFAULT NULL COMMENT 'Node Id of the parent. Null if this is the root.',
+  `SORT_ORDER` varchar(300) NOT NULL COMMENT 'Sort order of the Node in the tree',
+  `LEVEL_NO` int(10) unsigned NOT NULL COMMENT 'Level that this node appears on ',
+  `NODE_TYPE_ID` int(10) unsigned NOT NULL COMMENT 'What type of Node is this',
+  `UNIT_ID` int(10) unsigned DEFAULT NULL COMMENT 'Indicates the Unit for this Node',
+  `MANUAL_CHANGE_EFFECTS_FUTURE_MONTHS` tinyint(1) unsigned NOT NULL COMMENT 'If true any manual changes will cascade into future months. If false the manual change is only for that month and does not cascase into future months',
+  `LABEL_ID` int(10) unsigned NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',
+  `CREATED_BY` int(10) unsigned NOT NULL,
+  `CREATED_DATE` datetime NOT NULL,
+  `LAST_MODIFIED_BY` int(10) unsigned NOT NULL,
+  `LAST_MODIFIED_DATE` datetime NOT NULL,
+  `ACTIVE` tinyint(1) unsigned NOT NULL,
+  PRIMARY KEY (`NODE_ID`),
+  KEY `fk_forecastTreeNode_treeId_idx` (`TREE_ID`),
+  KEY `fk_forecastTreeNode_parentNodeId_idx` (`PARENT_NODE_ID`),
+  KEY `idx_forecastTreeNode_sortOrder` (`SORT_ORDER`),
+  KEY `fk_forecastTreeNode_nodeTypeId_idx` (`NODE_TYPE_ID`),
+  KEY `fk_forecastTreeNode_unitId_idx` (`UNIT_ID`),
+  KEY `fk_forecastTreeNode_labelId_idx` (`LABEL_ID`),
+  KEY `fk_forecastTreeNode_createdBy_idx` (`CREATED_BY`),
+  KEY `fk_forecastTreeNode_lastModifiedBy_idx` (`LAST_MODIFIED_BY`),
+  CONSTRAINT `fk_forecastTreeNode_createdBy_idx` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNode_labelId_idx` FOREIGN KEY (`LABEL_ID`) REFERENCES `ap_label` (`LABEL_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNode_lastModifiedBy_idx` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNode_nodeTypeId_idx` FOREIGN KEY (`NODE_TYPE_ID`) REFERENCES `ap_node_type` (`NODE_TYPE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNode_parentNodeId_idx` FOREIGN KEY (`PARENT_NODE_ID`) REFERENCES `rm_tree_template_node` (`NODE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNode_treeId_idx` FOREIGN KEY (`TREE_ID`) REFERENCES `rm_forecast_tree` (`TREE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNode_unitId_idx` FOREIGN KEY (`UNIT_ID`) REFERENCES `ap_unit` (`UNIT_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `rm_forecast_tree_node_data` (
+  `NODE_DATA_ID` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique node data id for the node and scenario',
+  `NODE_ID` int(10) unsigned NOT NULL COMMENT 'node id ',
+  `MONTH` date NOT NULL COMMENT 'Indicates the month that this Data is for, Defaults to the StartDate of the Forecast Dataset. Cannot be later than start of Forecast DataSet',
+  `DATA_VALUE` decimal(14,4) DEFAULT NULL COMMENT 'Based on the forecast_tree_node.NODE_TYPE_ID this value will be used either as a direct value or as a Perc of the Parent',
+  `NODE_DATA_FU_ID` int(10) unsigned DEFAULT NULL,
+  `NODE_DATA_PU_ID` int(10) unsigned DEFAULT NULL,
+  `NOTES` text COMMENT 'Notes that describe the Node',
+  `CREATED_BY` int(10) unsigned NOT NULL,
+  `CREATED_DATE` datetime NOT NULL,
+  `LAST_MODIFIED_BY` int(10) unsigned NOT NULL,
+  `LAST_MODIFIED_DATE` datetime NOT NULL,
+  `ACTIVE` tinyint(1) unsigned NOT NULL,
+  PRIMARY KEY (`NODE_DATA_ID`),
+  KEY `fk_forecastTreeNodeData_nodeId_idx` (`NODE_ID`),
+  KEY `fk_forecastTreeNodeData_nodeDataFuId_idx` (`NODE_DATA_FU_ID`),
+  KEY `fk_forecastTreeNodeData_nodeDataPuId_idx` (`NODE_DATA_PU_ID`),
+  KEY `fk_forecastTreeNodeData_createdBy_idx` (`CREATED_BY`),
+  KEY `fk_forecastTreeNodeData_lastModifiedBy_idx` (`LAST_MODIFIED_BY`),
+  CONSTRAINT `fk_forecastTreeNodeData_createdBy_idx` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeData_lastModifiedBy_idx` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeData_nodeDataFuId_idx` FOREIGN KEY (`NODE_DATA_FU_ID`) REFERENCES `rm_tree_template_node_data_fu` (`NODE_DATA_FU_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeData_nodeDataPuId_idx` FOREIGN KEY (`NODE_DATA_PU_ID`) REFERENCES `rm_tree_template_node_data_pu` (`NODE_DATA_PU_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeData_nodeId_idx` FOREIGN KEY (`NODE_ID`) REFERENCES `rm_tree_template_node` (`NODE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `rm_forecast_tree_node_data_fu` (
+  `NODE_DATA_FU_ID` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each usage',
+  `FORECASTING_UNIT_ID` int(10) unsigned NOT NULL COMMENT 'Foreign key to indicate forecasting id',
+  `LAG_IN_MONTHS` int(10) unsigned NOT NULL COMMENT '# of months to wait before using',
+  `USAGE_TYPE_ID` int(10) unsigned NOT NULL COMMENT '1 for Discrete, 2 for Continuous',
+  `NO_OF_PERSONS` int(10) unsigned NOT NULL COMMENT '# of Patients this usage will be used for',
+  `FORECASTING_UNITS_PER_PERSON` decimal(16,4) unsigned NOT NULL COMMENT '# of Forecasting Units ',
+  `ONE_TIME_USAGE` tinyint(1) unsigned NOT NULL,
+  `USAGE_FREQUENCY` decimal(16,4) unsigned NOT NULL COMMENT '# of times the Forecasting Unit is given per Usage',
+  `USAGE_FREQUENCY_USAGE_PERIOD_ID` int(10) unsigned NOT NULL COMMENT 'Foreign Key that points to the UsagePeriod (every day, week, month etc)',
+  `REPEAT_COUNT` decimal(16,4) unsigned DEFAULT NULL COMMENT '# of times it is repeated for the Discrete type',
+  `REPEAT_USAGE_PERIOD_ID` int(10) unsigned DEFAULT NULL COMMENT 'Foreign Key that points to the UsagePeriod (every day, week, month etc) for Repeat Count',
+  `CREATED_BY` int(10) unsigned NOT NULL,
+  `CREATED_DATE` datetime NOT NULL,
+  `LAST_MODIFIED_BY` int(10) unsigned NOT NULL,
+  `LAST_MODIFIED_DATE` datetime NOT NULL,
+  `ACTIVE` tinyint(1) unsigned NOT NULL,
+  PRIMARY KEY (`NODE_DATA_FU_ID`),
+  KEY `fk_forecastTreeNodeDataFu_forecastingUnitId_idx` (`FORECASTING_UNIT_ID`),
+  KEY `fk_forecastTreeNodeDataFu_usageTypeId_idx` (`USAGE_TYPE_ID`),
+  KEY `fk_forecastTreeNodeDataFu_usageFrequencyUsagePeriodId_idx` (`USAGE_FREQUENCY_USAGE_PERIOD_ID`),
+  KEY `fk_forecastTreeNodeDataFu_repeatUsagePeriodId_idx` (`REPEAT_USAGE_PERIOD_ID`),
+  KEY `fk_forecastTreeNodeDataFu_createdBy_idx` (`CREATED_BY`),
+  KEY `fk_forecastTreeNodeDataFu_lastModifiedBy_idx` (`LAST_MODIFIED_BY`),
+  CONSTRAINT `fk_forecastTreeNodeDataFu_createdBy_idx` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeDataFu_forecastingUnitId_idx` FOREIGN KEY (`FORECASTING_UNIT_ID`) REFERENCES `rm_forecasting_unit` (`FORECASTING_UNIT_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeDataFu_lastModifiedBy_idx` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeDataFu_repeatUsagePeriodId_idx` FOREIGN KEY (`REPEAT_USAGE_PERIOD_ID`) REFERENCES `ap_usage_period` (`USAGE_PERIOD_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeDataFu_usageFrequencyUsagePeriodId_idx` FOREIGN KEY (`USAGE_FREQUENCY_USAGE_PERIOD_ID`) REFERENCES `ap_usage_period` (`USAGE_PERIOD_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeDataFu_usageTypeId_idx` FOREIGN KEY (`USAGE_TYPE_ID`) REFERENCES `ap_usage_type` (`USAGE_TYPE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `rm_forecast_tree_node_data_modeling` (
+  `NODE_DATA_MODELING_ID` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for NodeScaleUp',
+  `NODE_DATA_ID` int(10) unsigned NOT NULL COMMENT 'Node that this ScaleUp referrs to',
+  `START_DATE` date NOT NULL COMMENT 'Start date that the Scale up is applicable from. Startes from the Forecast Dataset Start',
+  `STOP_DATE` date NOT NULL COMMENT 'Stop date that the Scale up is applicable from. Defaults to Forecast Dataset End but user can override',
+  `MODELING_TYPE_ID` int(10) unsigned NOT NULL COMMENT 'Foreign key to indicate scale type id',
+  `DATA_VALUE` decimal(14,2) DEFAULT NULL COMMENT 'Data value could be a number of a % based on the ScaleTypeId',
+  `TRANSFER_NODE_ID` int(10) unsigned NOT NULL COMMENT 'Indicates the Node that this data Scale gets transferred to. If null then it does not get transferred.',
+  `NOTES` text COMMENT 'Notes to desribe this scale up',
+  `CREATED_BY` int(10) unsigned NOT NULL,
+  `CREATED_DATE` datetime NOT NULL,
+  `LAST_MODIFIED_BY` int(10) unsigned NOT NULL,
+  `LAST_MODIFIED_DATE` datetime NOT NULL,
+  `ACTIVE` tinyint(1) unsigned NOT NULL,
+  PRIMARY KEY (`NODE_DATA_MODELING_ID`),
+  KEY `fk_forecastTreeNodeDataModeling_nodeDataId_idx` (`NODE_DATA_ID`),
+  KEY `fk_forecastTreeNodeDataModeling_modelingTypeId_idx` (`MODELING_TYPE_ID`),
+  KEY `fk_forecastTreeNodeDataModeling_transferNodeId_idx` (`TRANSFER_NODE_ID`),
+  KEY `fk_forecastTreeNodeDataModeling_createdBy_idx` (`CREATED_BY`),
+  KEY `fk_forecastTreeNodeDataModeling_lastModifiedBy_idx` (`LAST_MODIFIED_BY`),
+  CONSTRAINT `fk_forecastTreeNodeDataModeling_createdBy_idx` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeDataModeling_lastModifiedBy_idx` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeDataModeling_modelingTypeId_idx` FOREIGN KEY (`MODELING_TYPE_ID`) REFERENCES `ap_modeling_type` (`MODELING_TYPE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeDataModeling_nodeDataId_idx` FOREIGN KEY (`NODE_DATA_ID`) REFERENCES `rm_tree_template_node_data` (`NODE_DATA_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeDataModeling_transferNodeId_idx` FOREIGN KEY (`TRANSFER_NODE_ID`) REFERENCES `rm_tree_template_node` (`NODE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `rm_forecast_tree_node_data_override` (
+  `NODE_DATA_OVERRIDE_ID` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for Override Id',
+  `NODE_DATA_ID` int(10) unsigned NOT NULL COMMENT 'The Node Data Id that this Override is for',
+  `MONTH` date NOT NULL COMMENT 'Month that this Override is for',
+  `MANUAL_CHANGE` decimal(16,4) NOT NULL COMMENT 'The manual change value',
+  `SEASONALITY_PERC` decimal(16,4) DEFAULT NULL COMMENT 'Seasonality % value. Only applicable for Number nodes not for Percentage nodes, FU or PU nodes',
+  `CREATED_BY` int(10) unsigned NOT NULL,
+  `CREATED_DATE` datetime NOT NULL,
+  `LAST_MODIFIED_BY` int(10) unsigned NOT NULL,
+  `LAST_MODIFIED_DATE` datetime NOT NULL,
+  `ACTIVE` tinyint(1) unsigned NOT NULL,
+  PRIMARY KEY (`NODE_DATA_OVERRIDE_ID`),
+  KEY `fk_forecastTreeNodeDataOverride_nodeDataId_idx` (`NODE_DATA_ID`),
+  KEY `fk_forecastTreeNodeDataOverride_createdBy_idx` (`CREATED_BY`),
+  KEY `fk_forecastTreeNodeDataOverride_lastModifiedBy_idx` (`LAST_MODIFIED_BY`),
+  CONSTRAINT `fk_forecastTreeNodeDataOverride_createdBy_idx` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeDataOverride_lastModifiedBy_idx` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeDataOverride_nodeDataId_idx` FOREIGN KEY (`NODE_DATA_ID`) REFERENCES `rm_tree_template_node_data` (`NODE_DATA_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE `rm_forecast_tree_node_data_pu` (
+  `NODE_DATA_PU_ID` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each PU Conversion',
+  `PLANNING_UNIT_ID` int(10) unsigned NOT NULL COMMENT 'What Palnning Unit does this Node convert to',
+  `SHARE_PLANNING_UNIT` tinyint(1) unsigned NOT NULL COMMENT 'If 1 that means this Planning Unit is to be shared with others and therefore maintain the decimal, if it is not shared you need to round to 1',
+  `REFILL_MONTHS` int(10) unsigned NOT NULL COMMENT '# of moths over which refulls are taken',
+  `CREATED_BY` int(10) unsigned NOT NULL,
+  `CREATED_DATE` datetime NOT NULL,
+  `LAST_MODIFIED_BY` int(10) unsigned NOT NULL,
+  `LAST_MODIFIED_DATE` datetime NOT NULL,
+  `ACTIVE` tinyint(1) unsigned NOT NULL,
+  PRIMARY KEY (`NODE_DATA_PU_ID`),
+  KEY `fk_forecastTreeNodeDataPu_planningUnitId_idx` (`PLANNING_UNIT_ID`),
+  KEY `fk_forecastTreeNodeDataPu_createdBy_idx` (`CREATED_BY`),
+  KEY `fk_forecastTreeNodeDataPu_lastModifiedBy_idx` (`LAST_MODIFIED_BY`),
+  CONSTRAINT `fk_forecastTreeNodeDataPu_createdBy_idx` FOREIGN KEY (`CREATED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeDataPu_lastModifiedBy_idx` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeDataPu_planningUnitId_idx` FOREIGN KEY (`PLANNING_UNIT_ID`) REFERENCES `rm_planning_unit` (`PLANNING_UNIT_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `fasp`.`rm_forecast_tree` 
+ADD COLUMN `VERSION_ID` INT(10) UNSIGNED NOT NULL AFTER `PROGRAM_ID`;
+
+
+ALTER TABLE `fasp`.`rm_forecast_tree` 
+ADD CONSTRAINT `fk_forecastTree_versionId_idx`
+ FOREIGN KEY (`PROGRAM_ID` , `VERSION_ID`)
+ REFERENCES `fasp`.`rm_program_version` (`PROGRAM_ID` , `VERSION_ID`)
+ ON DELETE NO ACTION
+ ON UPDATE NO ACTION;
+
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_forecast_tree` AS
+    SELECT 
+        `ft`.`TREE_ID` AS `TREE_ID`,
+        `ft`.`PROGRAM_ID` AS `PROGRAM_ID`,
+        `ft`.`VERSION_ID` AS `VERSION_ID`,
+        `ft`.`LABEL_ID` AS `LABEL_ID`,
+        `ft`.`FORECAST_METHOD_ID` AS `FORECAST_METHOD_ID`,
+        `ft`.`CREATED_BY` AS `CREATED_BY`,
+        `ft`.`CREATED_DATE` AS `CREATED_DATE`,
+        `ft`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `ft`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `ft`.`ACTIVE` AS `ACTIVE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_forecast_tree` `ft`
+        LEFT JOIN `ap_label` `l` ON ((`ft`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+
 USE `fasp`;
 DROP procedure IF EXISTS `getVersionId`;
 
@@ -1722,7 +1940,7 @@ BEGIN
     FROM rm_program_version pv WHERE pv.`PROGRAM_ID`=@programId;
 	SELECT pv.VERSION_ID INTO @versionId FROM rm_program_version pv WHERE pv.`PROGRAM_VERSION_ID`= LAST_INSERT_ID();
 	UPDATE rm_program p SET p.CURRENT_VERSION_ID=@versionId WHERE p.PROGRAM_ID=@programId;
-	SELECT pv.VERSION_ID, pv.NOTES, 
+	SELECT pv.VERSION_ID, pv.NOTES, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE,
 		pv.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`,
 		pv.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`,
 		vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, 
@@ -1739,3 +1957,39 @@ END$$
 
 DELIMITER ;
 
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_forecast_tree_node` AS
+    SELECT 
+        `tn`.`NODE_ID` AS `NODE_ID`,
+        `tn`.`TREE_ID` AS `TREE_ID`,
+        `tn`.`PARENT_NODE_ID` AS `PARENT_NODE_ID`,
+        `tn`.`SORT_ORDER` AS `SORT_ORDER`,
+        `tn`.`LEVEL_NO` AS `LEVEL_NO`,
+        `tn`.`NODE_TYPE_ID` AS `NODE_TYPE_ID`,
+        `tn`.`UNIT_ID` AS `UNIT_ID`,
+        `tn`.`MANUAL_CHANGE_EFFECTS_FUTURE_MONTHS` AS `MANUAL_CHANGE_EFFECTS_FUTURE_MONTHS`,
+        `tn`.`LABEL_ID` AS `LABEL_ID`,
+        `tn`.`CREATED_BY` AS `CREATED_BY`,
+        `tn`.`CREATED_DATE` AS `CREATED_DATE`,
+        `tn`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `tn`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `tn`.`ACTIVE` AS `ACTIVE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_forecast_tree_node` `tn`
+        LEFT JOIN `ap_label` `l` ON ((`tn`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+
+INSERT INTO rm_forecast_tree SELECT null, 2550, 1, tt.LABEL_ID, tt.FORECAST_METHOD_ID, tt.CREATED_BY, tt.CREATED_DATE, tt.LAST_MODIFIED_BY, tt.LAST_MODIFIED_DATE, 1 FROM rm_tree_template tt WHERE tt.TREE_TEMPLATE_ID=1;
+INSERT INTO rm_forecast_tree_node SELECT null, 1, ttn.PARENT_NODE_ID, ttn.SORT_ORDER, ttn.LEVEL_NO, ttn.NODE_TYPE_ID, ttn.UNIT_ID, ttn.MANUAL_CHANGE_EFFECTS_FUTURE_MONTHS, ttn.LABEL_ID, ttn.CREATED_BY, ttn.CREATED_DATE, ttn.LAST_MODIFIED_BY, ttn.LAST_MODIFIED_DATE, ttn.ACTIVE FROM rm_tree_template_node ttn where ttn.TREE_TEMPLATE_ID=1;
+INSERT INTO rm_forecast_tree_node_data SELECT * FROM rm_tree_template_node_data tnd;
+INSERT INTO rm_forecast_tree_node_data_fu SELECT * FROM rm_tree_template_node_data_fu tnd;
+INSERT INTO rm_forecast_tree_node_data_pu SELECT * FROM rm_tree_template_node_data_pu tnd;

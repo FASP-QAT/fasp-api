@@ -95,7 +95,7 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-
+    
     @JsonView(Views.ArtmisView.class)
     @GetMapping("/programData/artmis/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getProgramDataArtmis(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {

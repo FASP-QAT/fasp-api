@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.OrganisationDao;
 import cc.altius.FASP.dao.ProcurementAgentDao;
 import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
@@ -18,6 +19,8 @@ import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
+import cc.altius.FASP.model.DatasetTree;
+import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.Program;
@@ -27,6 +30,7 @@ import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
@@ -401,6 +405,21 @@ public class ProgramServiceImpl implements ProgramService {
     @Override
     public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser) {
         return this.programDao.getNotificationSummary(curUser);
+    }
+
+    @Override
+    public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser) {
+        if (this.programDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser) == null) {
+            // ACL check fail
+            return null;
+        } else {
+            return this.programDao.getTreeListForDataset(programId, versionId, curUser);
+        }
+    }
+
+    @Override
+    public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser) {
+        return this.programDao.getTreeData(treeId, curUser);
     }
 
 }

@@ -110,7 +110,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("programId", programId);
             versionId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
         }
-        String sqlString = "SELECT pv.VERSION_ID, "
+        String sqlString = "SELECT pv.VERSION_ID, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, "
                 + "    pv.PROGRAM_ID, pv.NOTES, pv.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pv.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`,  "
                 + "    vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
                 + "    vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR` "
@@ -983,8 +983,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             tp.put("PROBLEM_TYPE_ID", pr.getProblemType().getId());
             tp.put("PROBLEM_STATUS_ID", pr.getProblemStatus().getId());
             tp.put("DATA1", pr.getDt()); // Dt
-            tp.put("DATA2", (pr.getRegion()!=null ? pr.getRegion().getId() : null)); // RegionId
-            tp.put("DATA3", (pr.getPlanningUnit() !=null ? pr.getPlanningUnit().getId() :null)); // PlanningUnitId
+            tp.put("DATA2", (pr.getRegion() != null ? pr.getRegion().getId() : null)); // RegionId
+            tp.put("DATA3", (pr.getPlanningUnit() != null ? pr.getPlanningUnit().getId() : null)); // PlanningUnitId
             tp.put("DATA4", pr.getShipmentId()); // ShipmentId
             tp.put("DATA5", pr.getData5());
 //            tp.put("REVIWED", pr.isReviewed());

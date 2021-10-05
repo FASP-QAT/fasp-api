@@ -31,6 +31,8 @@ import cc.altius.FASP.model.DTO.rowMapper.NotERPLinkedShipmentsRowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.NotificationSummaryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ShipmentNotificationDTORowMapper;
+import cc.altius.FASP.model.DatasetTree;
+import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
@@ -38,9 +40,11 @@ import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.Views;
+import cc.altius.FASP.model.rowMapper.DatasetTreeRowMapper;
 import cc.altius.FASP.model.rowMapper.LoadProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.LoadProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.LoadProgramVersionRowMapper;
@@ -50,6 +54,7 @@ import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
+import cc.altius.FASP.model.rowMapper.TreeNodeResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
@@ -2612,6 +2617,60 @@ public class ProgramDaoImpl implements ProgramDao {
         int id = si.executeAndReturnKey(params).intValue();
         logger.info("ERP Linking : Tab3 new shipment creation completed---" + id);
         return id;
+    }
+
+    @Override
+    public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser) {
+        String sql = "SELECT "
+                + "ft.TREE_ID, ft.PROGRAM_ID, ft.VERSION_ID, ft.LABEL_ID, ft.LABEL_EN, ft.LABEL_FR, ft.LABEL_SP, ft.LABEL_PR, "
+                + "fm.FORECAST_METHOD_ID, fm.FORECAST_METHOD_TYPE_ID, "
+                + "fm.LABEL_ID `FM_LABEL_ID`, fm.LABEL_EN `FM_LABEL_EN`, fm.LABEL_FR `FM_LABEL_FR`, fm.LABEL_SP `FM_LABEL_SP`, fm.LABEL_PR `FM_LABEL_PR` "
+                + "FROM vw_forecast_tree ft "
+                + "LEFT JOIN vw_forecast_method fm ON ft.FORECAST_METHOD_ID=fm.FORECAST_METHOD_ID "
+                + "where ft.PROGRAM_ID=:programId AND ft.VERSION_ID=:versionId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        return this.namedParameterJdbcTemplate.query(sql, params, new DatasetTreeRowMapper());
+    }
+
+    @Override
+    public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser) {
+        String sql = "SELECT "
+                + "          ttn.NODE_ID, ttn.TREE_ID, ttn.PARENT_NODE_ID, ttn.MANUAL_CHANGE_EFFECTS_FUTURE_MONTHS, "
+                + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
+                + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
+                + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
+                + "          ttnd.NODE_DATA_ID, ttnd.MONTH, ttnd.DATA_VALUE, ttnd.NOTES, "
+                + "          ttndf.NODE_DATA_FU_ID, ttndf.LAG_IN_MONTHS, ttndf.NO_OF_PERSONS, ttndf.FORECASTING_UNITS_PER_PERSON, "
+                + "          fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
+                + "          fuu.UNIT_ID `FUU_UNIT_ID`, fuu.UNIT_CODE `FUU_UNIT_CODE`, fuu.LABEL_ID `FUU_LABEL_ID`, fuu.LABEL_EN `FUU_LABEL_EN`, fuu.LABEL_FR `FUU_LABEL_FR`, fuu.LABEL_SP `FUU_LABEL_SP`, fuu.LABEL_PR `FUU_LABEL_PR`, "
+                + "          tc.TRACER_CATEGORY_ID, tc.LABEL_ID `TC_LABEL_ID`, tc.LABEL_EN `TC_LABEL_EN`, tc.LABEL_FR `TC_LABEL_FR`, tc.LABEL_SP `TC_LABEL_SP`, tc.LABEL_PR `TC_LABEL_PR`, "
+                + "          ut.USAGE_TYPE_ID, ut.LABEL_ID `UT_LABEL_ID`, ut.LABEL_EN `UT_LABEL_EN`, ut.LABEL_FR `UT_LABEL_FR`, ut.LABEL_SP `UT_LABEL_SP`, ut.LABEL_PR `UT_LABEL_PR`, "
+                + "          ttndf.ONE_TIME_USAGE, ttndf.USAGE_FREQUENCY, upf.USAGE_PERIOD_ID `UPF_USAGE_PERIOD_ID`, upf.CONVERT_TO_MONTH `UPF_CONVERT_TO_MONTH`, upf.LABEL_ID `UPF_LABEL_ID`, upf.LABEL_EN `UPF_LABEL_EN`, upf.LABEL_FR `UPF_LABEL_FR`, upf.LABEL_SP `UPF_LABEL_SP`, upf.LABEL_PR `UPF_LABEL_PR`, "
+                + "          ttndf.REPEAT_COUNT, upr.USAGE_PERIOD_ID `UPR_USAGE_PERIOD_ID`, upr.CONVERT_TO_MONTH `UPR_CONVERT_TO_MONTH`, upr.LABEL_ID `UPR_LABEL_ID`, upr.LABEL_EN `UPR_LABEL_EN`, upr.LABEL_FR `UPR_LABEL_FR`, upr.LABEL_SP `UPR_LABEL_SP`, upr.LABEL_PR `UPR_LABEL_PR`, "
+                + "          ttndp.NODE_DATA_PU_ID, ttndp.REFILL_MONTHS, ttndp.SHARE_PLANNING_UNIT, "
+                + "          pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
+                + "          puu.UNIT_ID `PUU_UNIT_ID`, puu.UNIT_CODE `PUU_UNIT_CODE`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR` "
+                + "      FROM vw_forecast_tree_node ttn "
+                + "      LEFT JOIN vw_node_type nt ON ttn.NODE_TYPE_ID=nt.NODE_TYPE_ID "
+                + "      LEFT JOIN vw_unit u ON ttn.UNIT_ID=u.UNIT_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data ttnd ON ttn.NODE_ID=ttnd.NODE_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data_fu ttndf on ttndf.NODE_DATA_FU_ID=ttnd.NODE_DATA_FU_ID "
+                + "      LEFT JOIN vw_forecasting_unit fu ON ttndf.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "      LEFT JOIN vw_unit fuu ON fu.UNIT_ID=fuu.UNIT_ID "
+                + "      LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID "
+                + "      LEFT JOIN vw_usage_type ut ON ttndf.USAGE_TYPE_ID=ut.USAGE_TYPE_ID "
+                + "      LEFT JOIN vw_usage_period upf ON ttndf.USAGE_FREQUENCY_USAGE_PERIOD_ID=upf.USAGE_PERIOD_ID "
+                + "      LEFT JOIN vw_usage_period upr ON ttndf.REPEAT_USAGE_PERIOD_ID=upr.USAGE_PERIOD_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data_pu ttndp ON ttndp.NODE_DATA_PU_ID=ttnd.NODE_DATA_PU_ID "
+                + "      LEFT JOIN vw_planning_unit pu ON ttndp.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "      LEFT JOIN vw_unit puu ON pu.UNIT_ID=puu.UNIT_ID "
+                + "      WHERE ttn.TREE_ID=:treeId "
+                + "      ORDER BY ttn.SORT_ORDER, ttnd.NODE_DATA_ID";
+        Map<String, Object> params = new HashMap<>();
+        params.put("treeId", treeId);
+        return this.namedParameterJdbcTemplate.query(sql, params, new TreeNodeResultSetExtractor());
     }
 
 }

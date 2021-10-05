@@ -297,7 +297,7 @@ public class ProgramRestController {
 //        try {
 //            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 //            sdf.parse(lastSyncDate);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            CustomUserDetails curUser = this.userServiceApplicationConfiguration.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
 //            return new ResponseEntity(this.programService.getProgramPlanningUnitListForSyncProgram(getProgramIds(new String[]{"2030"}), curUser), HttpStatus.OK);
 //        } catch (ParseException p) {
 //            logger.error("Error while listing program planning unit", p);

@@ -8,6 +8,7 @@ package cc.altius.FASP.service;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
+import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.NotificationUser;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
@@ -30,6 +31,8 @@ public interface ProgramDataService {
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean active);
 
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
+    
+    public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
 
     public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 

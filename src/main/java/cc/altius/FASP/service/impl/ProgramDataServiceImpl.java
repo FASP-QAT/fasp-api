@@ -10,6 +10,7 @@ import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
+import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.NotificationUser;
@@ -89,6 +90,21 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             programDataList.add(pd);
         });
         return programDataList;
+    }
+
+    @Override
+    public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
+        List<DatasetData> datasetDataList = new LinkedList<>();
+        programVersionList.forEach(pv -> {
+            DatasetData dd = new DatasetData(this.programService.getProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser));
+            dd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), pv.getVersionId()));
+            dd.setTreeList(this.programService.getTreeListForDataset(pv.getProgramId(), pv.getVersionId(), curUser));
+            dd.getTreeList().forEach(t -> {
+                t.setTree(this.programService.getTreeData(t.getTreeId(), curUser));
+            });
+            datasetDataList.add(dd);
+        });
+        return datasetDataList;
     }
 
     @Override

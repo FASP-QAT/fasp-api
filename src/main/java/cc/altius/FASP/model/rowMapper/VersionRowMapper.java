@@ -29,6 +29,8 @@ public class VersionRowMapper implements RowMapper<Version> {
                 rs.getTimestamp("CREATED_DATE"),
                 new BasicUser(rs.getInt("LMB_USER_ID"), rs.getString("LMB_USERNAME")),
                 rs.getTimestamp("LAST_MODIFIED_DATE"));
+        v.setForecastStartDate(rs.getDate("FORECAST_START_DATE"));
+        v.setForecastStopDate(rs.getDate("FORECAST_STOP_DATE"));
         return v;
     }
 

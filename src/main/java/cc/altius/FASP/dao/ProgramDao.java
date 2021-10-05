@@ -13,11 +13,14 @@ import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
+import cc.altius.FASP.model.DatasetTree;
+import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.TreeNode;
 import java.util.List;
 
 /**
@@ -107,5 +110,9 @@ public interface ProgramDao {
     public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser);
 
     public int tab3ShipmentCreation(int shipmentId, CustomUserDetails curUser);
+
+    public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser);
+    
+    public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser);
 
 }
