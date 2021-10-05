@@ -7,11 +7,11 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.TreeTemplateDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.TreeTemplate;
 import cc.altius.FASP.model.rowMapper.TreeNodeResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.TreeTemplateRowMapper;
-import cc.altius.utils.TreeUtils.Tree;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -54,7 +54,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
     }
 
     @Override
-    public Tree<TreeNode> getTree(int treeTemplateId) {
+    public ForecastTree<TreeNode> getTree(int treeTemplateId) {
         String sql = "SELECT "
                 + "          ttn.NODE_ID, ttn.TREE_TEMPLATE_ID, ttn.PARENT_NODE_ID, ttn.MANUAL_CHANGE_EFFECTS_FUTURE_MONTHS, "
                 + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "

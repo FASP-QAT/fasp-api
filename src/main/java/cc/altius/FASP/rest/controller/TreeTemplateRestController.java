@@ -7,8 +7,10 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.TreeTemplateService;
 import cc.altius.FASP.service.UserService;
+import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -45,6 +47,7 @@ public class TreeTemplateRestController {
      * @param auth
      * @return returns the active list of active Tree Templates
      */
+    @JsonView(Views.InternalView.class)
     @GetMapping("")
     @Operation(description = "API used to get the complete TreeTemplate list. Will only return those TreeTemplates that are marked Active.", summary = "Get active TreeTemplate list", tags = ("treeTemplate"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the TreeTemplate list")
@@ -65,6 +68,7 @@ public class TreeTemplateRestController {
      * @param auth
      * @return returns the complete list of TreeTemplates
      */
+    @JsonView(Views.InternalView.class)
     @GetMapping("/all")
     @Operation(description = "API used to get the complete TreeTemplate list.", summary = "Get complete TreeTemplate list", tags = ("treeTemplate"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the TreeTemplate list")
@@ -85,6 +89,7 @@ public class TreeTemplateRestController {
      * @param auth
      * @return returns the complete list of TreeTemplates
      */
+    @JsonView(Views.InternalView.class)
     @GetMapping("/{treeTemplateId}")
     @Operation(description = "API used to get a specific TreeTemplate based on the Id.", summary = "Get TreeTemplate based on the Id", tags = ("treeTemplate"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the TreeTemplate for the Id")

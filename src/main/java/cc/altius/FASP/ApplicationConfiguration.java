@@ -33,12 +33,10 @@ public class ApplicationConfiguration {
         Resource[] resources = new Resource[]{
             new ClassPathResource("application.properties"),
             new ClassPathResource("fasp.properties"),
-            new ClassPathResource("version.properties"),
-        };
+            new ClassPathResource("version.properties"),};
         pspc.setLocations(resources);
         pspc.setIgnoreUnresolvablePlaceholders(true);
         return pspc;
     }
-    
-    }
 
+}

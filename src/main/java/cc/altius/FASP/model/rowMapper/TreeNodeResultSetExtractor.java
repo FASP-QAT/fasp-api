@@ -5,6 +5,8 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.ForecastNode;
+import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleUnitAndTracerObject;
@@ -14,8 +16,6 @@ import cc.altius.FASP.model.TreeNodeData;
 import cc.altius.FASP.model.TreeNodeDataFu;
 import cc.altius.FASP.model.TreeNodeDataPu;
 import cc.altius.FASP.model.UsagePeriod;
-import cc.altius.utils.TreeUtils.Node;
-import cc.altius.utils.TreeUtils.Tree;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -28,11 +28,11 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  *
  * @author akil
  */
-public class TreeNodeResultSetExtractor implements ResultSetExtractor<Tree<TreeNode>> {
+public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTree<TreeNode>> {
 
     @Override
-    public Tree<TreeNode> extractData(ResultSet rs) throws SQLException, DataAccessException {
-        Tree<TreeNode> tree = null;
+    public ForecastTree<TreeNode> extractData(ResultSet rs) throws SQLException, DataAccessException {
+        ForecastTree<TreeNode> tree = null;
         try {
             while (rs.next()) {
                 Integer parentNodeId = rs.getInt("PARENT_NODE_ID");
@@ -41,18 +41,18 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<Tree<TreeN
                 }
                 int nodeId = rs.getInt("NODE_ID");
                 TreeNode tn = getNode(nodeId, parentNodeId, rs, 1);
-                Node<TreeNode> n = null;
+                ForecastNode<TreeNode> n = null;
                 if (tree == null) {
                     // Tree is empty so Initialize the Tree
-                    n = new Node(tn.getNodeId(), null, tn, tn.getNodeId());
-                    tree = new Tree<>(n);
+                    n = new ForecastNode(tn.getNodeId(), null, tn);
+                    tree = new ForecastTree<>(n);
                 } else {
                     // Tree is not null so you should search if the Node already exists
-                    n = tree.findNodeByPayloadId(nodeId);
+                    n = tree.findForecastNode(nodeId);
                     if (n == null) {
                         // Node was not found so this is a new Node you need to create it and add to the Tree
-                        n = new Node(tn.getNodeId(), parentNodeId, tn, tn.getNodeId());
-                        tree.addNode(n);
+                        n = new ForecastNode(tn.getNodeId(), parentNodeId, tn);
+                        tree.addForecastNode(n);
                     } else {
                         // Node was found so just link tn
                         tn = n.getPayload();
