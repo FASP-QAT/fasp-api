@@ -107,7 +107,7 @@ public class DatasetRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping("/datasetData")
     public ResponseEntity getDatasetData(@RequestBody List<ProgramIdAndVersionId> programVersionList, Authentication auth) {
         try {
@@ -164,11 +164,11 @@ public class DatasetRestController {
     }
 
     @GetMapping("loadDataset")
-    @JsonView(Views.ReportView.class)
     public ResponseEntity getLoadDataset(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getLoadProgram(GlobalConstants.PROGRAM_TYPE_DATASET, curUser), HttpStatus.OK);
+            List<LoadProgram> lp = this.programService.getLoadProgram(GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
+            return new ResponseEntity(lp, HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Datasets", e);
             return new ResponseEntity(new LinkedList<LoadProgram>(), HttpStatus.OK);
@@ -182,7 +182,6 @@ public class DatasetRestController {
     }
 
     @GetMapping("loadDataset/programId/{programId}/page/{page}")
-    @JsonView(Views.InternalView.class)
     public ResponseEntity getLoadProgram(@PathVariable("programId") int programId, @PathVariable("page") int page, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
