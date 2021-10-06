@@ -17,17 +17,17 @@ import java.util.List;
  */
 public class ForecastNode<T> implements Serializable {
 
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private int id;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private Integer parent;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private T payload;
     @JsonIgnore
     private List<ForecastNode<T>> tree;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private int level;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private String sortOrder;
 
     public ForecastNode(int id, Integer parent, T payload) {

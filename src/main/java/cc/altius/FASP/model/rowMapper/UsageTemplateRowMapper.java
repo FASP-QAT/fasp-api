@@ -23,6 +23,7 @@ public class UsageTemplateRowMapper implements RowMapper<UsageTemplate> {
     public UsageTemplate mapRow(ResultSet rs, int i) throws SQLException {
         UsageTemplate ut = new UsageTemplate();
         ut.setUsageTemplateId(rs.getInt("USAGE_TEMPLATE_ID"));
+        ut.setLabel(new LabelRowMapper().mapRow(rs, i));
         ut.setRealmId(rs.getInt("REALM_ID"));
         SimpleCodeObject p = new SimpleCodeObject();
         p.setId(rs.getInt("PROGRAM_ID"));

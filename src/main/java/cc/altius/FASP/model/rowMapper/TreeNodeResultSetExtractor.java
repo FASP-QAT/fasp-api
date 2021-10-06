@@ -101,7 +101,8 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
         tnd.setNotes(rs.getString("NOTES"));
         int nodeDataFuId = rs.getInt("NODE_DATA_FU_ID");
         if (!rs.wasNull()) {
-            TreeNodeDataFu tndf = new TreeNodeDataFu();
+            tnd.setFuNode(new TreeNodeDataFu());
+            TreeNodeDataFu tndf = tnd.getFuNode();
             tndf.setNodeDataFuId(nodeDataFuId);
             tndf.setUsageType(new SimpleObject(rs.getInt("USAGE_TYPE_ID"), new LabelRowMapper("UT_").mapRow(rs, count)));
             tndf.setLagInMonths(rs.getInt("LAG_IN_MONTHS"));
@@ -120,7 +121,8 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
         }
         int nodeDataPuId = rs.getInt("NODE_DATA_PU_ID");
         if (!rs.wasNull()) {
-            TreeNodeDataPu tndp = new TreeNodeDataPu();
+            tnd.setPuNode(new TreeNodeDataPu());
+            TreeNodeDataPu tndp = tnd.getPuNode();
             tndp.setNodeDataPuId(nodeDataPuId);
             tndp.setRefillMonths(rs.getInt("REFILL_MONTHS"));
             tndp.setSharePlanningUnit(rs.getBoolean("SHARE_PLANNING_UNIT"));

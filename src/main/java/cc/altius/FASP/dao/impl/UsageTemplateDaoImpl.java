@@ -49,7 +49,8 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
     }
 
     private static String usageTemplateString = "SELECT  "
-            + "    ut.USAGE_TEMPLATE_ID, ut.REALM_ID, ut.LAG_IN_MONTHS, ut.NO_OF_PATIENTS, ut.NO_OF_FORECASTING_UNITS, ut.ONE_TIME_USAGE, ut.USAGE_FREQUENCY_COUNT, ut.REPEAT_COUNT, ut.ACTIVE, "
+            + "    ut.USAGE_TEMPLATE_ID, ut.LABEL_ID, ut.LABEL_EN, ut.LABEL_FR, ut.LABEL_SP, ut.LABEL_PR, "
+            + "    ut.REALM_ID, ut.LAG_IN_MONTHS, ut.NO_OF_PATIENTS, ut.NO_OF_FORECASTING_UNITS, ut.ONE_TIME_USAGE, ut.USAGE_FREQUENCY_COUNT, ut.REPEAT_COUNT, ut.ACTIVE, "
             + "    p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
             + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
             + "    u.UNIT_ID, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, u.UNIT_CODE, "
@@ -59,7 +60,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
             + "    upr.USAGE_PERIOD_ID `R_USAGE_PERIOD_ID`, upr.CONVERT_TO_MONTH `R_CONVERT_TO_MONTH`, upr.LABEL_ID `R_LABEL_ID`, upr.LABEL_EN `R_LABEL_EN`, upr.LABEL_FR `R_LABEL_FR`, upr.LABEL_SP `R_LABEL_SP`, upr.LABEL_PR `R_LABEL_PR`, "
             + "    cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, ut.CREATED_DATE, "
             + "    lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME, ut.LAST_MODIFIED_DATE "
-            + "FROM rm_usage_template ut "
+            + "FROM vw_usage_template ut "
             + "LEFT JOIN vw_program p ON ut.PROGRAM_ID=p.PROGRAM_ID "
             + "LEFT JOIN vw_forecasting_unit fu ON ut.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
             + "LEFT JOIN vw_unit u ON fu.UNIT_ID=u.UNIT_ID "

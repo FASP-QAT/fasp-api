@@ -164,7 +164,7 @@ public class DatasetRestController {
     }
 
     @GetMapping("loadDataset")
-    @JsonView(Views.InternalView.class)
+    @JsonView(Views.ReportView.class)
     public ResponseEntity getLoadDataset(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());

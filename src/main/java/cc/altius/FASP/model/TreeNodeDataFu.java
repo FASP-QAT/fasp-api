@@ -14,27 +14,27 @@ import java.io.Serializable;
  */
 public class TreeNodeDataFu implements Serializable {
 
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private int nodeDataFuId;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private SimpleUnitAndTracerObject forecastingUnit;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private int lagInMonths;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private SimpleObject usageType;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private int noOfPersons;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private int noOfForecastingUnitsPerPerson;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private boolean oneTimeUsage;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private double usageFrequency;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private UsagePeriod usagePeriod;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private Double repeatCount;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private UsagePeriod repeatUsagePeriod;
 
     public int getNodeDataFuId() {

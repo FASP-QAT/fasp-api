@@ -14,6 +14,7 @@ import java.io.Serializable;
 public class UsageTemplate extends BaseModel implements Serializable {
 
     private int usageTemplateId;
+    private Label label;
     private int realmId;
     private SimpleCodeObject program;
     private SimpleObject forecastingUnit;
@@ -38,6 +39,14 @@ public class UsageTemplate extends BaseModel implements Serializable {
 
     public void setUsageTemplateId(int usageTemplateId) {
         this.usageTemplateId = usageTemplateId;
+    }
+
+    public Label getLabel() {
+        return label;
+    }
+
+    public void setLabel(Label label) {
+        this.label = label;
     }
 
     public int getRealmId() {

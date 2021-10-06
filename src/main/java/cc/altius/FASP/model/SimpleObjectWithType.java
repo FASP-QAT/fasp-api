@@ -5,12 +5,15 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 /**
  *
  * @author akil
  */
 public class SimpleObjectWithType extends SimpleObject {
 
+    @JsonView({Views.ArtmisView.class,Views.GfpVanView.class, Views.InternalView.class, Views.ReportView.class})
     private int typeId;
 
     public SimpleObjectWithType() {

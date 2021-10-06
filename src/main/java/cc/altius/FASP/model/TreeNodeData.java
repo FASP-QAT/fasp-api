@@ -16,21 +16,21 @@ import java.util.List;
  */
 public class TreeNodeData implements Serializable {
 
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private int nodeDataId;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private Date month;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private Double dataValue;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private TreeNodeDataFu fuNode;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private TreeNodeDataPu puNode;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private String notes;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private List<NodeDataModeling> nodeDataModelingList;
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.InternalView.class, Views.InternalView.class})
     private List<NodeDataOverride> nodeDataOverrideList;
 
     public int getNodeDataId() {
