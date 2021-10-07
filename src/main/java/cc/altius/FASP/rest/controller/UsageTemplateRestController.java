@@ -131,17 +131,18 @@ public class UsageTemplateRestController {
     @GetMapping("/tracerCategory/{tracerCategoryId}/usageType/{usageTypeId}/forecastingUnit/{forecastingUnitId}")
     @Operation(description = "API used to get the complete UsageTemplate list. Will only return those UsageTemplates that are marked Active.", summary = "Get active UsageTemplate list", tags = ("usageTemplate"))
     @Parameters(
-            @Parameter(name = "tracerCategoryId", description = "The TracerCategory that you want to filter the UsageTemplate")
-    //            ,
-    //            @Parameter(name = "usageTypeId", description = "The UsageType that you want to filter the UsageTemplate"),
-    //            @Parameter(name = "forecastingUnitId", description = "The ForecastingUnit that you want to filter the UsageTemplate")
+            {
+                @Parameter(name = "tracerCategoryId", description = "The TracerCategory that you want to filter the UsageTemplate"),
+                @Parameter(name = "usageTypeId", description = "The UsageType that you want to filter the UsageTemplate"),
+                @Parameter(name = "forecastingUnitId", description = "The ForecastingUnit that you want to filter the UsageTemplate")
+            }
     )
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the UsageTemplate list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of UsageTemplate list")
     public ResponseEntity getUsageTemplateListWihtFilters(
-            @PathVariable("tracerCategoryId") int tracerCategoryId, 
-            @PathVariable("usageTypeId") int usageTypeId, 
-            @PathVariable("forecastingUnitId") int forecastingUnitId, 
+            @PathVariable("tracerCategoryId") int tracerCategoryId,
+            @PathVariable("usageTypeId") int usageTypeId,
+            @PathVariable("forecastingUnitId") int forecastingUnitId,
             Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
