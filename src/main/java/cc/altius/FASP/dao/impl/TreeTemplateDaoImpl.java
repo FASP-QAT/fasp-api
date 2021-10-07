@@ -105,4 +105,14 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         return this.namedParameterJdbcTemplate.queryForObject(sql, params, new TreeTemplateRowMapper());
     }
 
+    @Override
+    public int addTreeTemplate(TreeTemplate tt, CustomUserDetails curUser) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public int updateTreeTemplate(TreeTemplate tt, CustomUserDetails curUser) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
 }
