@@ -25,6 +25,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -89,8 +90,8 @@ public class UsageTemplateRestController {
     /**
      * API used to add and update UsageTemplate
      *
-     * @param usageTemplateList List<UsageTemplate> object that you want to add or
-     * update
+     * @param usageTemplateList List<UsageTemplate> object that you want to add
+     * or update
      * @param auth
      * @return returns a Success code if the operation was successful
      */
@@ -118,4 +119,43 @@ public class UsageTemplateRestController {
         }
     }
 
+    /**
+     * API used to get the active UsageTemplate list based on filters provided.
+     * Will only return those UsageTemplates that are marked Active and match
+     * with Filter criteria.
+     *
+     * @param auth
+     * @return returns the active list of active UsageTemplates that match with
+     * filter criteria
+     */
+    @GetMapping("/tracerCategory/{tracerCategoryId}/usageType/{usageTypeId}/forecastingUnit/{forecastingUnitId}")
+    @Operation(description = "API used to get the complete UsageTemplate list. Will only return those UsageTemplates that are marked Active.", summary = "Get active UsageTemplate list", tags = ("usageTemplate"))
+    @Parameters(
+            @Parameter(name = "tracerCategoryId", description = "The TracerCategory that you want to filter the UsageTemplate")
+    //            ,
+    //            @Parameter(name = "usageTypeId", description = "The UsageType that you want to filter the UsageTemplate"),
+    //            @Parameter(name = "forecastingUnitId", description = "The ForecastingUnit that you want to filter the UsageTemplate")
+    )
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the UsageTemplate list")
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of UsageTemplate list")
+    public ResponseEntity getUsageTemplateListWihtFilters(
+            @PathVariable("tracerCategoryId") int tracerCategoryId, 
+            @PathVariable("usageTypeId") int usageTypeId, 
+            @PathVariable("forecastingUnitId") int forecastingUnitId, 
+            Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.usageTemplateService.getUsageTemplateList(tracerCategoryId, usageTypeId, forecastingUnitId, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to get  UsageTemplate list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+// TODO
+    // List of Usage Template 
+    // Filters TracerCategory 0
+    // ForecastingUnit 0
+    // UsageType cannot be 0 must be either 1 or 2
+
+    // GetTracerCategoryListByProgramId -- Done
 }

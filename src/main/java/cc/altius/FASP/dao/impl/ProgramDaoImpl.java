@@ -44,7 +44,7 @@ import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.Views;
-import cc.altius.FASP.model.rowMapper.DatasetTreeRowMapper;
+import cc.altius.FASP.model.rowMapper.DatasetTreeResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.LoadProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.LoadProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.LoadProgramVersionRowMapper;
@@ -2624,14 +2624,16 @@ public class ProgramDaoImpl implements ProgramDao {
         String sql = "SELECT "
                 + "ft.TREE_ID, ft.PROGRAM_ID, ft.VERSION_ID, ft.LABEL_ID, ft.LABEL_EN, ft.LABEL_FR, ft.LABEL_SP, ft.LABEL_PR, "
                 + "fm.FORECAST_METHOD_ID, fm.FORECAST_METHOD_TYPE_ID, "
-                + "fm.LABEL_ID `FM_LABEL_ID`, fm.LABEL_EN `FM_LABEL_EN`, fm.LABEL_FR `FM_LABEL_FR`, fm.LABEL_SP `FM_LABEL_SP`, fm.LABEL_PR `FM_LABEL_PR` "
+                + "fm.LABEL_ID `FM_LABEL_ID`, fm.LABEL_EN `FM_LABEL_EN`, fm.LABEL_FR `FM_LABEL_FR`, fm.LABEL_SP `FM_LABEL_SP`, fm.LABEL_PR `FM_LABEL_PR`, "
+                + "s.SCENARIO_ID, s.LABEL_ID `S_LABEL_ID`, s.LABEL_EN `S_LABEL_EN`, s.LABEL_FR `S_LABEL_FR`, s.LABEL_SP `S_LABEL_SP`, s.LABEL_PR `S_LABEL_PR` "
                 + "FROM vw_forecast_tree ft "
                 + "LEFT JOIN vw_forecast_method fm ON ft.FORECAST_METHOD_ID=fm.FORECAST_METHOD_ID "
+                + "LEFT JOIN vw_scenario s ON ft.TREE_ID=s.TREE_ID "
                 + "where ft.PROGRAM_ID=:programId AND ft.VERSION_ID=:versionId";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new DatasetTreeRowMapper());
+        return this.namedParameterJdbcTemplate.query(sql, params, new DatasetTreeResultSetExtractor());
     }
 
     @Override
@@ -2641,7 +2643,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
                 + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
                 + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
-                + "          ttnd.NODE_DATA_ID, ttnd.MONTH, ttnd.DATA_VALUE, ttnd.NOTES, "
+                + "          ttnd.`SCENARIO_ID`, ttnd.NODE_DATA_ID, ttnd.MONTH, ttnd.DATA_VALUE, ttnd.NOTES, "
                 + "          ttndf.NODE_DATA_FU_ID, ttndf.LAG_IN_MONTHS, ttndf.NO_OF_PERSONS, ttndf.FORECASTING_UNITS_PER_PERSON, "
                 + "          fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
                 + "          fuu.UNIT_ID `FUU_UNIT_ID`, fuu.UNIT_CODE `FUU_UNIT_CODE`, fuu.LABEL_ID `FUU_LABEL_ID`, fuu.LABEL_EN `FUU_LABEL_EN`, fuu.LABEL_FR `FUU_LABEL_FR`, fuu.LABEL_SP `FUU_LABEL_SP`, fuu.LABEL_PR `FUU_LABEL_PR`, "

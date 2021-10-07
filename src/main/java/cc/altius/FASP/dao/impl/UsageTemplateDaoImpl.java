@@ -86,6 +86,21 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
     }
 
     @Override
+    public List<UsageTemplate> getUsageTemplateList(int tracerCategoryId, int usageTypeId, int forecastingUnitId, CustomUserDetails curUser) {
+        StringBuilder sqlString = new StringBuilder(usageTemplateString).append(" AND ut.ACTIVE ");
+        Map<String, Object> params = new HashMap<>();
+        sqlString.append(" AND ut.USAGE_TYPE_ID=:usageTypeId AND (fu.FORECASTING_UNIT_ID=:forecastingUnitId OR :forecastingUnitId=0) AND (fu.TRACER_CATEGORY_ID=:tracerCategoryId OR :tracerCategoryId=0)");
+        
+        params.put("usageTypeId", usageTypeId);
+        params.put("forecastingUnitId", forecastingUnitId);
+        params.put("tracerCategoryId", tracerCategoryId);
+        this.aclService.addUserAclForRealm(sqlString, params, "ut", curUser);
+        this.aclService.addFullAclForProgram(sqlString, params, "p", curUser);
+        sqlString.append("ORDER BY fu.LABEL_EN ");
+        return namedParameterJdbcTemplate.query(sqlString.toString(), params, new UsageTemplateRowMapper());
+    }
+
+    @Override
     public List<UsageTemplate> getUsageTemplateListForSync(String programIdsString, CustomUserDetails curUser) {
         StringBuilder sqlString = new StringBuilder(usageTemplateString);
         if (programIdsString.length() > 0) {

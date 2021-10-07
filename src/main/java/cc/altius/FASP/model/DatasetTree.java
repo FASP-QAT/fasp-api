@@ -6,6 +6,8 @@
 package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -21,8 +23,11 @@ public class DatasetTree {
     private SimpleObjectWithType forecastMethod;
     @JsonView(Views.InternalView.class)
     private ForecastTree<TreeNode> tree;
+    @JsonView(Views.InternalView.class)
+    private List<SimpleObject> scenarioList;
 
     public DatasetTree() {
+        this.scenarioList = new LinkedList<>();
     }
 
     public DatasetTree(int treeId) {
@@ -59,6 +64,14 @@ public class DatasetTree {
 
     public void setTree(ForecastTree<TreeNode> tree) {
         this.tree = tree;
+    }
+
+    public List<SimpleObject> getScenarioList() {
+        return scenarioList;
+    }
+
+    public void setScenarioList(List<SimpleObject> scenarioList) {
+        this.scenarioList = scenarioList;
     }
 
     @Override

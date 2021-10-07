@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.model;
 
-import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 
 /**

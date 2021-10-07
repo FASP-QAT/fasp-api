@@ -1271,7 +1271,7 @@ DROP TABLE IF EXISTS rm_tree_template_node_data;
 Create table `rm_tree_template_node_data` (`NODE_DATA_ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique node data id for the node and scenario',	
 `NODE_ID` int(10) UNSIGNED NOT NULL COMMENT 'node id ',	
 `MONTH` date NOT NULL COMMENT 'Indicates the month that this Data is for, Defaults to the StartDate of the Forecast Dataset. Cannot be later than start of Forecast DataSet',	
-`DATA_VALUE` decimal(14,4) NULL COMMENT 'Based on the forecast_tree_node.NODE_TYPE_ID this value will be used either as a direct value or as a Perc of the Parent',	
+`DATA_VALUE` decimal(14,4) NULL COMMENT 'Based on the NODE_TYPE_ID this value will be used either as a direct value or as a Perc of the Parent',	
 `NODE_DATA_FU_ID` int(10) UNSIGNED NULL COMMENT '',	
 `NODE_DATA_PU_ID` int(10) UNSIGNED NULL COMMENT '',	
 `NOTES` text NULL COMMENT 'Notes that describe the Node',	
@@ -1719,6 +1719,15 @@ CREATE TABLE `rm_forecast_tree` (
   CONSTRAINT `fk_forecastTree_programId_idx` FOREIGN KEY (`PROGRAM_ID`) REFERENCES `rm_program` (`PROGRAM_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+Create table `rm_scenario` (
+`SCENARIO_ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Scenario Id',	
+`TREE_ID` int(10) UNSIGNED NOT NULL COMMENT 'Foreign key for the tree Id',	
+`LABEL_ID` int(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',	
+PRIMARY KEY(`SCENARIO_ID`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+ALTER TABLE `rm_scenario` ADD INDEX `fk_scenario_treeId_idx` (`TREE_ID` ASC);	ALTER TABLE `rm_scenario` ADD CONSTRAINT `fk_scenario_treeId_idx`  FOREIGN KEY (`TREE_ID`)  REFERENCES `rm_forecast_tree` (`TREE_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+ALTER TABLE `rm_scenario` ADD INDEX `fk_scenario__idx` (`LABEL_ID` ASC);	ALTER TABLE `rm_scenario` ADD CONSTRAINT `fk_scenario__idx`  FOREIGN KEY (`LABEL_ID`)  REFERENCES `ap_label` (`LABEL_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+ALTER TABLE `rm_scenario` ADD COLUMN `CREATED_BY` INT(10) UNSIGNED NOT NULL AFTER `LABEL_ID`, ADD COLUMN `CREATED_DATE` DATETIME NOT NULL AFTER `CREATED_BY`, ADD COLUMN `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL AFTER `CREATED_DATE`, ADD COLUMN `LAST_MODIFIED_DATE` DATETIME NOT NULL AFTER `LAST_MODIFIED_BY`, ADD COLUMN `ACTIVE` TINYINT(1) UNSIGNED NOT NULL AFTER `LAST_MODIFIED_DATE`;	ALTER TABLE `rm_scenario` ADD INDEX `fk_scenario_createdBy_idx` (`CREATED_BY` ASC), ADD INDEX `fk_scenario_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC);
+
 CREATE TABLE `rm_forecast_tree_node` (
   `NODE_ID` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique node id for tree',
   `TREE_ID` int(10) unsigned NOT NULL COMMENT 'TreeId that this Node belongs to',
@@ -1755,6 +1764,7 @@ CREATE TABLE `rm_forecast_tree_node` (
 CREATE TABLE `rm_forecast_tree_node_data` (
   `NODE_DATA_ID` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique node data id for the node and scenario',
   `NODE_ID` int(10) unsigned NOT NULL COMMENT 'node id ',
+  `SCENARIO_ID` int (10) unsigned NOT NULL COMMENT 'Scenario that this Node data is for',
   `MONTH` date NOT NULL COMMENT 'Indicates the month that this Data is for, Defaults to the StartDate of the Forecast Dataset. Cannot be later than start of Forecast DataSet',
   `DATA_VALUE` decimal(14,4) DEFAULT NULL COMMENT 'Based on the forecast_tree_node.NODE_TYPE_ID this value will be used either as a direct value or as a Perc of the Parent',
   `NODE_DATA_FU_ID` int(10) unsigned DEFAULT NULL,
@@ -1767,6 +1777,7 @@ CREATE TABLE `rm_forecast_tree_node_data` (
   `ACTIVE` tinyint(1) unsigned NOT NULL,
   PRIMARY KEY (`NODE_DATA_ID`),
   KEY `fk_forecastTreeNodeData_nodeId_idx` (`NODE_ID`),
+  KEY `fk_forecastTreeNodeData_scenarioId_idx` (`SCENARIO_ID`),
   KEY `fk_forecastTreeNodeData_nodeDataFuId_idx` (`NODE_DATA_FU_ID`),
   KEY `fk_forecastTreeNodeData_nodeDataPuId_idx` (`NODE_DATA_PU_ID`),
   KEY `fk_forecastTreeNodeData_createdBy_idx` (`CREATED_BY`),
@@ -1775,7 +1786,8 @@ CREATE TABLE `rm_forecast_tree_node_data` (
   CONSTRAINT `fk_forecastTreeNodeData_lastModifiedBy_idx` FOREIGN KEY (`LAST_MODIFIED_BY`) REFERENCES `us_user` (`USER_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_forecastTreeNodeData_nodeDataFuId_idx` FOREIGN KEY (`NODE_DATA_FU_ID`) REFERENCES `rm_tree_template_node_data_fu` (`NODE_DATA_FU_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
   CONSTRAINT `fk_forecastTreeNodeData_nodeDataPuId_idx` FOREIGN KEY (`NODE_DATA_PU_ID`) REFERENCES `rm_tree_template_node_data_pu` (`NODE_DATA_PU_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_forecastTreeNodeData_nodeId_idx` FOREIGN KEY (`NODE_ID`) REFERENCES `rm_tree_template_node` (`NODE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  CONSTRAINT `fk_forecastTreeNodeData_nodeId_idx` FOREIGN KEY (`NODE_ID`) REFERENCES `rm_tree_template_node` (`NODE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_forecastTreeNodeData_scenarioId_idx` FOREIGN KEY (`SCENARIO_ID`) REFERENCES `rm_scenario` (`SCENARIO_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 CREATE TABLE `rm_forecast_tree_node_data_fu` (
@@ -1998,8 +2010,18 @@ INSERT INTO rm_program_health_area values (null, @programId, 8);
 INSERT INTO rm_program_region VALUES (null, @programId, 70, 1, 1, @dt, 1, @dt);
 
 INSERT INTO rm_forecast_tree SELECT null, @programId, 1, tt.LABEL_ID, tt.FORECAST_METHOD_ID, tt.CREATED_BY, tt.CREATED_DATE, tt.LAST_MODIFIED_BY, tt.LAST_MODIFIED_DATE, 1 FROM rm_tree_template tt WHERE tt.TREE_TEMPLATE_ID=1;
+SELECT last_insert_id() into @treeId;
+INSERT INTO ap_label values (null, 'Default scenario', null, null, null, 1, @dt, 1, @dt, 50);
+SELECT last_insert_id() into @labelId;
+INSERT INTO rm_scenario VALUES (null, @treeId, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @scenarioId1;
+INSERT INTO ap_label values (null, 'High scenario', null, null, null, 1, @dt, 1, @dt, 50);
+SELECT last_insert_id() into @labelId;
+INSERT INTO rm_scenario VALUES (null, @treeId, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @scenarioId2;
 INSERT INTO rm_forecast_tree_node SELECT null, 1, ttn.PARENT_NODE_ID, ttn.SORT_ORDER, ttn.LEVEL_NO, ttn.NODE_TYPE_ID, ttn.UNIT_ID, ttn.MANUAL_CHANGE_EFFECTS_FUTURE_MONTHS, ttn.LABEL_ID, ttn.CREATED_BY, ttn.CREATED_DATE, ttn.LAST_MODIFIED_BY, ttn.LAST_MODIFIED_DATE, ttn.ACTIVE FROM rm_tree_template_node ttn where ttn.TREE_TEMPLATE_ID=1;
-INSERT INTO rm_forecast_tree_node_data SELECT * FROM rm_tree_template_node_data tnd;
+INSERT INTO rm_forecast_tree_node_data SELECT null, tnd.NODE_ID, @scenarioId1, tnd.MONTH, tnd.DATA_VALUE, tnd.NODE_DATA_FU_ID, tnd.NODE_DATA_PU_ID, tnd.NOTES, tnd.CREATED_BY, tnd.CREATED_DATE, tnd.LAST_MODIFIED_BY, tnd.LAST_MODIFIED_DATE, tnd.ACTIVE FROM rm_tree_template_node_data tnd;
+INSERT INTO rm_forecast_tree_node_data SELECT null, tnd.NODE_ID, @scenarioId2, tnd.MONTH, tnd.DATA_VALUE*1.1, tnd.NODE_DATA_FU_ID, tnd.NODE_DATA_PU_ID, tnd.NOTES, tnd.CREATED_BY, tnd.CREATED_DATE, tnd.LAST_MODIFIED_BY, tnd.LAST_MODIFIED_DATE, tnd.ACTIVE FROM rm_tree_template_node_data tnd;
 INSERT INTO rm_forecast_tree_node_data_fu SELECT * FROM rm_tree_template_node_data_fu tnd;
 INSERT INTO rm_forecast_tree_node_data_pu SELECT * FROM rm_tree_template_node_data_pu tnd;
 
@@ -2077,3 +2099,27 @@ INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE
 INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_DATASET_USER','ROLE_BF_LIST_EQUIVALENCY_UNIT_MAPPING','1',NOW(),'1',NOW());
 
 INSERT INTO rm_organisation_country VALUES (null, 1, 44, 1, 1, @dt, 1, @dt);
+
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_scenario` AS
+    SELECT 
+        `s`.`SCENARIO_ID` AS `SCENARIO_ID`,
+        `s`.`TREE_ID` AS `TREE_ID`,
+        `s`.`LABEL_ID` AS `LABEL_ID`,
+        `s`.`CREATED_BY` AS `CREATED_BY`,
+        `s`.`CREATED_DATE` AS `CREATED_DATE`,
+        `s`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `s`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `s`.`ACTIVE` AS `ACTIVE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_scenario` `s`
+        LEFT JOIN `ap_label` `l` ON ((`s`.`LABEL_ID` = `l`.`LABEL_ID`)));

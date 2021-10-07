@@ -16,6 +16,8 @@ import java.util.List;
 public interface UsageTemplateService {
 
     public List<UsageTemplate> getUsageTemplateList(boolean active, CustomUserDetails curUser);
+    
+    public List<UsageTemplate> getUsageTemplateList(int tracerCategoryId, int usageTypeId, int forecastingUnitId, CustomUserDetails curUser);
 
     public int addAndUpdateUsageTemplate(List<UsageTemplate> usageTemplateList, CustomUserDetails curUser);
     
