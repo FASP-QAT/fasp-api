@@ -81,7 +81,7 @@ public class ForecastTree<T> {
         return this.root;
     }
 
-    @JsonView({Views.InternalView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     public List<ForecastNode<T>> getFlatList() {
         return this.flatList;
     }
@@ -100,7 +100,7 @@ public class ForecastTree<T> {
         return subList;
     }
 
-    @JsonView({Views.InternalView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     public List<ForecastNode<T>> getTreeFullList() {
         return getTreeSubList(1, true, -1);
     }

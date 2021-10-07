@@ -18,5 +18,9 @@ public interface TreeTemplateService {
     public List<TreeTemplate> getTreeTemplateList(boolean nodeData, CustomUserDetails curUser);
     
     public TreeTemplate getTreeTemplateById(int treeTemplateId, boolean nodeData, CustomUserDetails curUser);
+    
+    public int addTreeTempalte(TreeTemplate tt, CustomUserDetails curUser);
+    
+    public int updateTreeTempalte(TreeTemplate tt, CustomUserDetails curUser);
 
 }

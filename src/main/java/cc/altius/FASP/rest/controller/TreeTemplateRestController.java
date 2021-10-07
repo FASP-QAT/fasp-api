@@ -7,21 +7,24 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.Views;
+import cc.altius.FASP.model.TreeTemplate;
 import cc.altius.FASP.service.TreeTemplateService;
 import cc.altius.FASP.service.UserService;
-import com.fasterxml.jackson.annotation.JsonView;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,7 +50,6 @@ public class TreeTemplateRestController {
      * @param auth
      * @return returns the active list of active Tree Templates
      */
-    @JsonView(Views.InternalView.class)
     @GetMapping("")
     @Operation(description = "API used to get the complete TreeTemplate list. Will only return those TreeTemplates that are marked Active.", summary = "Get active TreeTemplate list", tags = ("treeTemplate"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the TreeTemplate list")
@@ -68,7 +70,6 @@ public class TreeTemplateRestController {
      * @param auth
      * @return returns the complete list of TreeTemplates
      */
-    @JsonView(Views.InternalView.class)
     @GetMapping("/all")
     @Operation(description = "API used to get the complete TreeTemplate list.", summary = "Get complete TreeTemplate list", tags = ("treeTemplate"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the TreeTemplate list")
@@ -89,12 +90,10 @@ public class TreeTemplateRestController {
      * @param auth
      * @return returns the complete list of TreeTemplates
      */
-    @JsonView(Views.InternalView.class)
     @GetMapping("/{treeTemplateId}")
     @Operation(description = "API used to get a specific TreeTemplate based on the Id.", summary = "Get TreeTemplate based on the Id", tags = ("treeTemplate"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the TreeTemplate for the Id")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of TreeTemplate")
-
     public ResponseEntity getTreeTemplate(@PathVariable("treeTemplateId") int treeTemplateId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
@@ -103,5 +102,21 @@ public class TreeTemplateRestController {
             logger.error("Error while trying to get TreeTemplate", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    
+    @PostMapping("")
+    public ResponseEntity postTreeTemplate(@RequestBody TreeTemplate treeTemplate, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            this.treeTemplateService.addTreeTemplate(treeTemplate, curUser);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+        } catch (AccessDeniedException ae) {
+            logger.error("Error while trying to add Tree Template", ae);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to add Tree Template", e);
+            return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     }
 }

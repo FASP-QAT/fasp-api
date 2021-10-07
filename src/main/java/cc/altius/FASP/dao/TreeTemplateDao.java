@@ -25,4 +25,8 @@ public interface TreeTemplateDao {
     public ForecastTree<TreeNode> getTree(int treeTemplateId);
 
     public Map<String, Object> getConsumption(int treeTemplateId);
+    
+    public int addTreeTempalte(TreeTemplate tt, CustomUserDetails curUser);
+    
+    public int updateTreeTempalte(TreeTemplate tt, CustomUserDetails curUser);
 }
