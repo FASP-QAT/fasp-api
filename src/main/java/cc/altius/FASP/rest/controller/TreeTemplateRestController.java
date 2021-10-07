@@ -47,7 +47,7 @@ public class TreeTemplateRestController {
      * @param auth
      * @return returns the active list of active Tree Templates
      */
-    @JsonView(Views.InternalView.class)
+//    @JsonView(Views.InternalView.class)
     @GetMapping("")
     @Operation(description = "API used to get the complete TreeTemplate list. Will only return those TreeTemplates that are marked Active.", summary = "Get active TreeTemplate list", tags = ("treeTemplate"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the TreeTemplate list")
