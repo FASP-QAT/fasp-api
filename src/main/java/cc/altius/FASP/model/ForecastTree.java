@@ -7,7 +7,6 @@ package cc.altius.FASP.model;
 
 import cc.altius.utils.StringUtils;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,22 +27,22 @@ public class ForecastTree<T> {
     private final ForecastNode<T> root;
     private List<ForecastNode<T>> flatList = new LinkedList<>();
 
-    public void addForecastNode(ForecastNode<T> n) throws Exception {
+    public void addNode(ForecastNode<T> n) throws Exception {
         if (n.getParent() == null) {
-            throw new Exception("Must have a valid Parent");
+            throw new Exception("Must have a valid Parent Id");
         }
-        ForecastNode<T> checkForecastNode = new ForecastNode<>(n.getParent());
-        int idx = this.flatList.indexOf(checkForecastNode);
+        ForecastNode<T> checkNode = new ForecastNode<>(n.getParent(), 0);
+        int idx = this.flatList.indexOf(checkNode);
         if (idx == -1) {
             throw new Exception("Must have a valid Parent Id");
         }
-        ForecastNode<T> foundForecastNode = findForecastNode(this.root, n.getParent());
-        if (foundForecastNode != null) {
-            n.setLevel(foundForecastNode.getLevel() + 1);
-            String newSortOrder = foundForecastNode.getSortOrder() + ".";
-            newSortOrder += StringUtils.pad(Integer.toString(foundForecastNode.getNoOfChild() + 1), '0', 2, StringUtils.LEFT);
+        ForecastNode<T> foundNode = findNode(this.root, n.getParent());
+        if (foundNode != null) {
+            n.setLevel(foundNode.getLevel() + 1);
+            String newSortOrder = foundNode.getSortOrder() + ".";
+            newSortOrder += StringUtils.pad(Integer.toString(foundNode.getNoOfChild() + 1), '0', 2, StringUtils.LEFT);
             n.setSortOrder(newSortOrder);
-            foundForecastNode.getTree().add(n);
+            foundNode.getTree().add(n);
         } else {
             n.setLevel(this.root.getLevel() + 1);
             String newSortOrder = this.root.getSortOrder() + ".";
@@ -54,12 +53,12 @@ public class ForecastTree<T> {
         this.flatList.add(n);
     }
 
-    public ForecastNode<T> findForecastNode(int id) {
+    public ForecastNode<T> findNode(int id) {
         ForecastNode<T> n = this.root;
-        return findForecastNode(n, id);
+        return findNode(n, id);
     }
 
-    private ForecastNode<T> findForecastNode(ForecastNode<T> node, int id) {
+    private ForecastNode<T> findNode(ForecastNode<T> node, int id) {
         if (node.getId() == id) {
             return node;
         }
@@ -67,9 +66,31 @@ public class ForecastTree<T> {
             if (n.getId() == id) {
                 return n;
             } else if (!n.getTree().isEmpty()) {
-                ForecastNode foundForecastNode = findForecastNode(n, id);
-                if (foundForecastNode != null) {
-                    return foundForecastNode;
+                ForecastNode foundNode = findNode(n, id);
+                if (foundNode != null) {
+                    return foundNode;
+                }
+            }
+        }
+        return null;
+    }
+
+    public ForecastNode<T> findNodeByPayloadId(int payloadId) {
+        ForecastNode<T> n = this.root;
+        return findNodeByPayloadId(n, payloadId);
+    }
+
+    private ForecastNode<T> findNodeByPayloadId(ForecastNode<T> node, int payloadId) {
+        if (node.getPayloadId() == payloadId) {
+            return node;
+        }
+        for (ForecastNode<T> n : node.getTree()) {
+            if (n.getPayloadId() == payloadId) {
+                return n;
+            } else if (!n.getTree().isEmpty()) {
+                ForecastNode foundNode = findNodeByPayloadId(n, payloadId);
+                if (foundNode != null) {
+                    return foundNode;
                 }
             }
         }
@@ -81,14 +102,14 @@ public class ForecastTree<T> {
         return this.root;
     }
 
-    @JsonView({Views.ReportView.class, Views.InternalView.class})
     public List<ForecastNode<T>> getFlatList() {
         return this.flatList;
     }
 
+    @JsonIgnore
     public List<T> getPayloadSubList(int id, boolean includeSelf, int level) {
         List<T> subList = new LinkedList<>();
-        ForecastNode<T> n = findForecastNode(id);
+        ForecastNode<T> n = findNode(id);
         if (includeSelf) {
             subList.add(n.getPayload());
         }
@@ -100,14 +121,15 @@ public class ForecastTree<T> {
         return subList;
     }
 
-    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    @JsonIgnore
     public List<ForecastNode<T>> getTreeFullList() {
         return getTreeSubList(1, true, -1);
     }
 
+    @JsonIgnore
     public List<ForecastNode<T>> getTreeSubList(int id, boolean includeSelf, int level) {
         List<ForecastNode<T>> subList = new LinkedList<>();
-        ForecastNode<T> n = findForecastNode(id);
+        ForecastNode<T> n = findNode(id);
         if (includeSelf) {
             subList.add(n);
         }

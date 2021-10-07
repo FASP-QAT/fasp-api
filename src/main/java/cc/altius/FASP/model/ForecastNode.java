@@ -6,7 +6,6 @@
 package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
@@ -17,28 +16,26 @@ import java.util.List;
  */
 public class ForecastNode<T> implements Serializable {
 
-    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int id;
-    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Integer parent;
-    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private T payload;
     @JsonIgnore
     private List<ForecastNode<T>> tree;
-    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int level;
-    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String sortOrder;
+    private int payloadId;
 
-    public ForecastNode(int id, Integer parent, T payload) {
+    public ForecastNode(int id, Integer parent, T payload, int payloadId) {
         this.id = id;
         this.parent = parent;
         this.payload = payload;
         this.tree = new LinkedList<>();
+        this.payloadId = payloadId;
     }
 
-    public ForecastNode(int id) {
+    public ForecastNode(int id, int payloadId) {
         this.id = id;
+        this.payloadId = payloadId;
         this.tree = new LinkedList<>();
         this.level = 0;
         this.sortOrder = "00";
@@ -46,6 +43,14 @@ public class ForecastNode<T> implements Serializable {
 
     public ForecastNode() {
         this.tree = new LinkedList<>();
+    }
+
+    public int getPayloadId() {
+        return payloadId;
+    }
+
+    public void setPayloadId(int payloadId) {
+        this.payloadId = payloadId;
     }
 
     public int getLevel() {
@@ -108,7 +113,7 @@ public class ForecastNode<T> implements Serializable {
 
     @Override
     public String toString() {
-        return "Node{" + "sortOrder=" + sortOrder + ", level=" + level + ", id=" + id + ", parent=" + parent + ", payload=" + payload + ", tree=" + tree.size() + '}';
+        return "Node{" + "sortOrder=" + sortOrder + ", level=" + level + ", id=" + id + ", parent=" + parent + ", payloadId=" + payloadId + ", payload=" + payload + ", tree=" + tree.size() + '}';
     }
 
     @Override

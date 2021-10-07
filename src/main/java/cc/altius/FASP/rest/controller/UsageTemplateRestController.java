@@ -152,11 +152,5 @@ public class UsageTemplateRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-// TODO
-    // List of Usage Template 
-    // Filters TracerCategory 0
-    // ForecastingUnit 0
-    // UsageType cannot be 0 must be either 1 or 2
 
-    // GetTracerCategoryListByProgramId -- Done
 }

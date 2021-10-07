@@ -25,6 +25,7 @@ public class TreeNode implements Serializable {
     private SimpleObject nodeType;
     @JsonView(Views.InternalView.class)
     private SimpleCodeObject nodeUnit;
+    private boolean manualChangeEffectsFutureMonths;
     @JsonView(Views.InternalView.class)
     private Label label;
     @JsonView(Views.InternalView.class)
@@ -34,11 +35,12 @@ public class TreeNode implements Serializable {
         this.nodeDataMap = new HashMap<>();
     }
 
-    public TreeNode(int nodeId, Integer parentNodeId, SimpleObject nodeType, SimpleCodeObject nodeUnit, Label label) {
+    public TreeNode(int nodeId, Integer parentNodeId, SimpleObject nodeType, SimpleCodeObject nodeUnit, boolean manualChangeEffectsFutureMonths, Label label) {
         this.nodeId = nodeId;
         this.parentNodeId = parentNodeId;
         this.nodeType = nodeType;
         this.nodeUnit = nodeUnit;
+        this.manualChangeEffectsFutureMonths = manualChangeEffectsFutureMonths;
         this.label = label;
         this.nodeDataMap = new HashMap<>();
     }
@@ -73,6 +75,14 @@ public class TreeNode implements Serializable {
 
     public void setNodeUnit(SimpleCodeObject nodeUnit) {
         this.nodeUnit = nodeUnit;
+    }
+
+    public boolean isManualChangeEffectsFutureMonths() {
+        return manualChangeEffectsFutureMonths;
+    }
+
+    public void setManualChangeEffectsFutureMonths(boolean manualChangeEffectsFutureMonths) {
+        this.manualChangeEffectsFutureMonths = manualChangeEffectsFutureMonths;
     }
 
     public Label getLabel() {

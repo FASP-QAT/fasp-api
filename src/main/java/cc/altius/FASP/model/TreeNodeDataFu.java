@@ -29,7 +29,7 @@ public class TreeNodeDataFu implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private boolean oneTimeUsage;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
-    private double usageFrequency;
+    private Double usageFrequency;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private UsagePeriod usagePeriod;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
@@ -93,11 +93,11 @@ public class TreeNodeDataFu implements Serializable {
         this.oneTimeUsage = oneTimeUsage;
     }
 
-    public double getUsageFrequency() {
+    public Double getUsageFrequency() {
         return usageFrequency;
     }
 
-    public void setUsageFrequency(double usageFrequency) {
+    public void setUsageFrequency(Double usageFrequency) {
         this.usageFrequency = usageFrequency;
     }
 
