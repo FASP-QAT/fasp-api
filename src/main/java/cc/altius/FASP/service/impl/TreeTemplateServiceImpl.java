@@ -47,16 +47,7 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
     }
 
     @Override
-    public int addTreeTemplate(TreeTemplate tt, CustomUserDetails curUser) throws Exception {
-        boolean isFirst = true;
-       for (ForecastNode<TreeNode> node : tt.getFlatList()) {
-           if (isFirst) {
-                tt.setTree(new ForecastTree(node));
-            } else {
-                tt.getTree().addNode(node);
-            }
-            isFirst = false;
-       }
+    public int addTreeTemplate(TreeTemplate tt, CustomUserDetails curUser) {
         return this.treeTemplateDao.addTreeTemplate(tt, curUser);
     }
 
@@ -64,7 +55,5 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
     public int updateTreeTemplate(TreeTemplate tt, CustomUserDetails curUser) {
         return this.treeTemplateDao.updateTreeTemplate(tt, curUser);
     }
-    
-    
 
 }

@@ -2123,3 +2123,6 @@ VIEW `vw_scenario` AS
     FROM
         (`rm_scenario` `s`
         LEFT JOIN `ap_label` `l` ON ((`s`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+UPDATE ap_label l set l.LABEL_EN="Continuous" where l.LABEL_ID=33557;
+UPDATE ap_label l set l.LABEL_EN="Discrete" where l.LABEL_ID=33558;
