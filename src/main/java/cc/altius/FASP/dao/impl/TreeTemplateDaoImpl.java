@@ -181,23 +181,23 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                                 nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
                                 nodeParams.put("REPEAT_COUNT", tnd.getFuNode().getRepeatCount());
                                 nodeParams.put("REPEAT_USAGE_PERIOD_ID", tnd.getFuNode().getRepeatUsagePeriod().getUsagePeriodId());
-                            } else {
-                                // Continuous
-                                nodeParams.put("ONE_TIME_USAGE", 0);
-                                nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
-                                nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
                             }
-                            nodeParams.put("CREATED_BY", curUser.getUserId());
-                            nodeParams.put("CREATED_DATE", curDate);
-                            nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
-                            nodeParams.put("LAST_MODIFIED_DATE", curDate);
-                            nodeParams.put("ACTIVE", 1);
-                            int nodeFuId = nidf.executeAndReturnKey(nodeParams).intValue();
-                            nodeParams.clear();
-                            nodeParams.put("nodeFuId", nodeFuId);
-                            nodeParams.put("nodeDataId", nodeDataId);
-                            this.namedParameterJdbcTemplate.update("UPDATE rm_tree_template_node_data SET NODE_DATA_FU_ID=:nodeFuId WHERE NODE_DATA_ID=:nodeDataId", nodeParams);
+                        } else {
+                            // Continuous
+                            nodeParams.put("ONE_TIME_USAGE", 0);
+                            nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
+                            nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
                         }
+                        nodeParams.put("CREATED_BY", curUser.getUserId());
+                        nodeParams.put("CREATED_DATE", curDate);
+                        nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
+                        nodeParams.put("LAST_MODIFIED_DATE", curDate);
+                        nodeParams.put("ACTIVE", 1);
+                        int nodeFuId = nidf.executeAndReturnKey(nodeParams).intValue();
+                        nodeParams.clear();
+                        nodeParams.put("nodeFuId", nodeFuId);
+                        nodeParams.put("nodeDataId", nodeDataId);
+                        this.namedParameterJdbcTemplate.update("UPDATE rm_tree_template_node_data SET NODE_DATA_FU_ID=:nodeFuId WHERE NODE_DATA_ID=:nodeDataId", nodeParams);
                     } else if (tnd.getPuNode() != null && n.getPayload().getNodeType().getId() == 5) { // PlanningUnit Node
                         nodeParams.put("PLANNING_UNIT_ID", tnd.getPuNode().getPlanningUnit().getId());
                         nodeParams.put("SHARE_PLANNING_UNIT", tnd.getPuNode().isSharePlanningUnit());
@@ -288,9 +288,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         deleteList.setLength(0);
         // Delete NodeData
         tt.getTree().getFlatList().forEach(n -> {
-            if (n.getPayload().getNodeType().getId() != 4
-                    && n.getPayload().getNodeType().getId() != 5
-                    && n.getPayload().getNodeDataMap() != null
+            if (n.getPayload().getNodeDataMap() != null
                     && n.getPayload().getNodeDataMap().get(0) != null
                     && n.getPayload().getNodeDataMap().get(0).get(0) != null
                     && n.getPayload().getNodeDataMap().get(0).get(0).getNodeDataId() != 0) {
@@ -579,7 +577,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                                             + " WHERE f.NODE_DATA_FU_ID=:nodeDataFuId");
                                     params.put("curUser", curUser.getUserId());
                                     params.put("curDate", curDate);
-                                    params.put("active",1);
+                                    params.put("active", 1);
                                     params.put("nodeDataFuId", tnd.getFuNode().getNodeDataFuId());
                                     this.namedParameterJdbcTemplate.update(sb.toString(), params);
                                 }
@@ -616,7 +614,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                                     params.put("refillMonths", tnd.getPuNode().getRefillMonths());
                                     params.put("curUser", curUser.getUserId());
                                     params.put("curDate", curDate);
-                                    params.put("active",1);
+                                    params.put("active", 1);
                                     params.put("nodeDataPuId", tnd.getPuNode().getNodeDataPuId());
                                     this.namedParameterJdbcTemplate.update(sql, params);
                                 }
@@ -626,17 +624,9 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                 }
             }
         }
+        params.clear();
+        params.put("treeTemplateId", tt.getTreeTemplateId());
+        this.namedParameterJdbcTemplate.update("UPDATE rm_tree_template_node ttn LEFT JOIN rm_tree_template_node ttn2 ON ttn.TREE_TEMPLATE_ID=ttn2.TREE_TEMPLATE_ID AND left(ttn.SORT_ORDER, length(ttn.SORT_ORDER)-3)=ttn2.SORT_ORDER SET ttn.PARENT_NODE_ID=ttn2.NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
         return tt.getFlatList().length;
-    }
-
-    private String convertListToString(List<Integer> lst) {
-        StringBuilder sb = new StringBuilder();
-        lst.forEach(l -> {
-            sb.append(l).append(",");
-        });
-        if (sb.length() > 0) {
-            sb.setLength(sb.length() - 1);
-        }
-        return sb.toString();
     }
 }
