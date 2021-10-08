@@ -413,9 +413,9 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                 params.put("sortOrder", n.getSortOrder());
                 params.put("levelNo", n.getLevel() + 1);
                 params.put("nodeTypeId", n.getPayload().getNodeType().getId());
-                params.put("unitId", n.getPayload().getNodeUnit().getId());
+                params.put("unitId", (n.getPayload().getNodeUnit() == null ? null : (n.getPayload().getNodeUnit().getId() == 0 ? null : n.getPayload().getNodeUnit().getId())));
                 params.put("manualChangeEffectsFutureMonths", n.getPayload().isManualChangeEffectsFutureMonths());
-                params.put("labelEn", n.getPayload().getLabel().getLabelId());
+                params.put("labelEn", n.getPayload().getLabel().getLabel_en());
                 params.put("curUser", curUser.getUserId());
                 params.put("curDate", curDate);
                 params.put("active", tt.isActive());
@@ -486,7 +486,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                             // Node Data Id exists so therefore do an update on NodeData
                             params.clear();
                             params.put("month", tnd.getMonth());
-                            params.put("dataVaue", tnd.getDataValue());
+                            params.put("dataValue", tnd.getDataValue());
                             params.put("notes", tnd.getNotes());
                             params.put("curUser", curUser.getUserId());
                             params.put("curDate", curDate);
@@ -501,7 +501,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                                     + "ttnd.LAST_MODIFIED_DATE=:curDate "
                                     + "WHERE ttnd.NODE_DATA_ID=:nodeDataId";
                             this.namedParameterJdbcTemplate.update(sql, params);
-                            if (tnd.getFuNode() != null && n.getPayload().getNodeUnit().getId() == 4) { //Forecasting Unit Node
+                            if (tnd.getFuNode() != null && n.getPayload().getNodeType().getId() == 4) { //Forecasting Unit Node
                                 if (tnd.getFuNode().getNodeDataFuId() == 0) {
                                     // New Forecasting Unit so insert
                                     nodeParams.clear();
@@ -579,10 +579,11 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                                             + " WHERE f.NODE_DATA_FU_ID=:nodeDataFuId");
                                     params.put("curUser", curUser.getUserId());
                                     params.put("curDate", curDate);
+                                    params.put("active",1);
                                     params.put("nodeDataFuId", tnd.getFuNode().getNodeDataFuId());
                                     this.namedParameterJdbcTemplate.update(sb.toString(), params);
                                 }
-                            } else if (tnd.getPuNode() != null && n.getPayload().getNodeUnit().getId() == 5) { //Planning Unit Node
+                            } else if (tnd.getPuNode() != null && n.getPayload().getNodeType().getId() == 5) { //Planning Unit Node
                                 if (tnd.getPuNode().getNodeDataPuId() == 0) {
                                     // New Planning Unit so insert
                                     nodeParams.put("PLANNING_UNIT_ID", tnd.getPuNode().getPlanningUnit().getId());
@@ -612,9 +613,10 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                                     params.clear();
                                     params.put("planningUnitId", tnd.getPuNode().getPlanningUnit().getId());
                                     params.put("sharePlanningUnit", tnd.getPuNode().isSharePlanningUnit());
-                                    params.put("refilMonths", tnd.getPuNode().getRefillMonths());
+                                    params.put("refillMonths", tnd.getPuNode().getRefillMonths());
                                     params.put("curUser", curUser.getUserId());
                                     params.put("curDate", curDate);
+                                    params.put("active",1);
                                     params.put("nodeDataPuId", tnd.getPuNode().getNodeDataPuId());
                                     this.namedParameterJdbcTemplate.update(sql, params);
                                 }
