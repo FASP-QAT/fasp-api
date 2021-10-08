@@ -1287,8 +1287,8 @@ Create table `rm_tree_template_node_data_fu` (`NODE_DATA_FU_ID` int(10) UNSIGNED
 `NO_OF_PERSONS` int(10) UNSIGNED NOT NULL COMMENT '# of Patients this usage will be used for',	
 `FORECASTING_UNITS_PER_PERSON` decimal(16,4) UNSIGNED NOT NULL COMMENT '# of Forecasting Units ',	
 `ONE_TIME_USAGE` tinyint(1) UNSIGNED NOT NULL COMMENT '',	
-`USAGE_FREQUENCY` decimal(16,4) UNSIGNED NOT NULL COMMENT '# of times the Forecasting Unit is given per Usage',	
-`USAGE_FREQUENCY_USAGE_PERIOD_ID` int(10) UNSIGNED NOT NULL COMMENT 'Foreign Key that points to the UsagePeriod (every day, week, month etc)',	
+`USAGE_FREQUENCY` decimal(16,4) UNSIGNED NULL COMMENT '# of times the Forecasting Unit is given per Usage',	
+`USAGE_FREQUENCY_USAGE_PERIOD_ID` int(10) UNSIGNED NULL COMMENT 'Foreign Key that points to the UsagePeriod (every day, week, month etc)',	
 `REPEAT_COUNT` decimal(16,4) UNSIGNED NULL COMMENT '# of times it is repeated for the Discrete type',	
 `REPEAT_USAGE_PERIOD_ID` int(10) UNSIGNED NULL COMMENT 'Foreign Key that points to the UsagePeriod (every day, week, month etc) for Repeat Count',	
 PRIMARY KEY(`NODE_DATA_FU_ID`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;	

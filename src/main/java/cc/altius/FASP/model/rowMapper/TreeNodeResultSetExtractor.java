@@ -44,15 +44,15 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 ForecastNode<TreeNode> n = null;
                 if (tree == null) {
                     // Tree is empty so Initialize the Tree
-                    n = new ForecastNode(tn.getNodeId(), null, tn);
+                    n = new ForecastNode(tn.getNodeId(), tn.getParentNodeId(), tn, tn.getNodeId());
                     tree = new ForecastTree<>(n);
                 } else {
                     // Tree is not null so you should search if the Node already exists
-                    n = tree.findForecastNode(nodeId);
+                    n = tree.findNode(nodeId);
                     if (n == null) {
                         // Node was not found so this is a new Node you need to create it and add to the Tree
-                        n = new ForecastNode(tn.getNodeId(), parentNodeId, tn);
-                        tree.addForecastNode(n);
+                        n = new ForecastNode(tn.getNodeId(), tn.getParentNodeId(), tn, tn.getNodeId());
+                        tree.addNode(n);
                     } else {
                         // Node was found so just link tn
                         tn = n.getPayload();
@@ -89,6 +89,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 parentNodeId,
                 new SimpleObject(rs.getInt("NODE_TYPE_ID"), new LabelRowMapper("NT_").mapRow(rs, count)),
                 new SimpleCodeObject(rs.getInt("U_UNIT_ID"), new LabelRowMapper("U_").mapRow(rs, count), rs.getString("U_UNIT_CODE")),
+                rs.getBoolean("MANUAL_CHANGE_EFFECTS_FUTURE_MONTHS"),
                 new LabelRowMapper().mapRow(rs, count)
         );
         return tn;
@@ -114,7 +115,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
             if (tndf.isOneTimeUsage() != true) {
                 tndf.setUsageFrequency(rs.getDouble("USAGE_FREQUENCY"));
                 tndf.setUsagePeriod(new UsagePeriod(rs.getInt("UPF_USAGE_PERIOD_ID"), new LabelRowMapper("UPF_").mapRow(rs, count), rs.getDouble("UPF_CONVERT_TO_MONTH")));
-                if (tndf.getUsageType().getId() == 1) { //
+                if (tndf.getUsageType().getId() == 2) { // Discrete
                     tndf.setRepeatCount(rs.getDouble("REPEAT_COUNT"));
                     tndf.setRepeatUsagePeriod(new UsagePeriod(rs.getInt("UPR_USAGE_PERIOD_ID"), new LabelRowMapper("UPR_").mapRow(rs, count), rs.getDouble("UPR_CONVERT_TO_MONTH")));
                 }

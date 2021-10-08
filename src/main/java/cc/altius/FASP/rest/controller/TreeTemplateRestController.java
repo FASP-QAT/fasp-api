@@ -99,13 +99,14 @@ public class TreeTemplateRestController {
     public ResponseEntity getTreeTemplate(@PathVariable("treeTemplateId") int treeTemplateId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.treeTemplateService.getTreeTemplateById(treeTemplateId, true, curUser), HttpStatus.OK);
+            TreeTemplate tt = this.treeTemplateService.getTreeTemplateById(treeTemplateId, true, curUser);
+            return new ResponseEntity(tt, HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get TreeTemplate", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping("")
     public ResponseEntity addTreeTemplate(@RequestBody TreeTemplate treeTemplate, Authentication auth) {
         try {
@@ -120,7 +121,7 @@ public class TreeTemplateRestController {
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PutMapping("")
     public ResponseEntity updateTreeTemplate(@RequestBody TreeTemplate treeTemplate, Authentication auth) {
         try {

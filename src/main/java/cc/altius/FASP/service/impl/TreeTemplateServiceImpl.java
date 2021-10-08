@@ -7,6 +7,9 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.TreeTemplateDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.ForecastNode;
+import cc.altius.FASP.model.ForecastTree;
+import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.TreeTemplate;
 import cc.altius.FASP.service.TreeTemplateService;
 import java.util.List;
@@ -44,7 +47,16 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
     }
 
     @Override
-    public int addTreeTemplate(TreeTemplate tt, CustomUserDetails curUser) {
+    public int addTreeTemplate(TreeTemplate tt, CustomUserDetails curUser) throws Exception {
+        boolean isFirst = true;
+       for (ForecastNode<TreeNode> node : tt.getFlatList()) {
+           if (isFirst) {
+                tt.setTree(new ForecastTree(node));
+            } else {
+                tt.getTree().addNode(node);
+            }
+            isFirst = false;
+       }
         return this.treeTemplateDao.addTreeTemplate(tt, curUser);
     }
 

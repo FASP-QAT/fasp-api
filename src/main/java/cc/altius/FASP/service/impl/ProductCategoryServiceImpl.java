@@ -50,7 +50,6 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
         for (Node<ProductCategory> node : productCategorys) {
             node.setPayloadId(node.getPayload().getProductCategoryId());
             if (isFirst) {
-
                 productCategoryTree = new Tree(node);
             } else {
                 productCategoryTree.addNode(node);

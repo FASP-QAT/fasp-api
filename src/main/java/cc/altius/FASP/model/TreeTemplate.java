@@ -18,6 +18,7 @@ public class TreeTemplate extends BaseModel implements Serializable {
     private Label label;
     private SimpleObjectWithType forecastMethod;
     private ForecastTree<TreeNode> tree;
+    private ForecastNode<TreeNode>[] flatList;
 
     public TreeTemplate() {
     }
@@ -64,6 +65,14 @@ public class TreeTemplate extends BaseModel implements Serializable {
 
     public void setTree(ForecastTree<TreeNode> tree) {
         this.tree = tree;
+    }
+
+    public ForecastNode<TreeNode>[] getFlatList() {
+        return flatList;
+    }
+
+    public void setFlatList(ForecastNode<TreeNode>[] flatList) {
+        this.flatList = flatList;
     }
 
     @Override
