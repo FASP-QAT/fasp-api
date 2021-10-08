@@ -23,7 +23,6 @@ public class LabelConstants implements Serializable {
     public static final int US_ROLE = 8;
     public static final int RM_HEALTH_AREA = 9;
     public static final int RM_ORGANISATION = 10;
-    public static final int RM_ORGANISATION_TYPE = 37;
     public static final int RM_REGION = 11;
     public static final int RM_PROCUREMENT_AGENT = 12;
     public static final int RM_FUNDING_SOURCE = 13;
@@ -47,6 +46,22 @@ public class LabelConstants implements Serializable {
     public static final int RM_PROCUREMENT_UNIT = 31;
     public static final int RM_REALM_COUNTRY_PLANNING_UNIT = 32;
     public static final int RM_SUPPLIER = 33;
+    public static final int AP_PROBLE_CATEGORY = 34;
     public static final int AP_LANGUAGE = 35;
+    public static final int AP_NOTIFICATION_TYPE = 36;
+    public static final int RM_ORGANISATION_TYPE = 37;
+    public static final int AP_USAGE_TYPE = 38;
+    public static final int AP_NODE_TYPE = 39;
+    public static final int AP_USAGE_PERIOD = 40;
+    public static final int AP_MODELING_TYPE = 41;
+    public static final int AP_FORECAST_METHOD_TYPE = 42;
+    public static final int RM_FORECAST_METHOD = 43;
+    public static final int RM_EQUIVALENCY_UNIT = 44;
+    public static final int RM_FORECAST_TREE_TEMPLATE = 45;
+    public static final int RM_FORECAST_TREE_TEMPLATE_NODE = 46;
+    public static final int RM_USAGE_TEMPLATE = 47;
+    public static final int RM_FORECAST_TREE = 48;
+    public static final int RM_FORECAST_TREE_NODE = 49;
+    public static final int RM_SCENARIO = 50;
 
 }

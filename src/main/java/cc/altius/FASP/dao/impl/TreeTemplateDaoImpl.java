@@ -5,19 +5,25 @@
  */
 package cc.altius.FASP.dao.impl;
 
+import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.TreeTemplateDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.ForecastTree;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.TreeTemplate;
 import cc.altius.FASP.model.rowMapper.TreeNodeResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.TreeTemplateRowMapper;
+import cc.altius.utils.DateUtils;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -26,16 +32,19 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public class TreeTemplateDaoImpl implements TreeTemplateDao {
-
+    
     private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
-
+    
     @Autowired
     public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
-
+    
+    @Autowired
+    private LabelDao labelDao;
+    
     private static final String treeTemplateSql = "SELECT  "
             + "    tt.TREE_TEMPLATE_ID, tt.LABEL_ID, tt.LABEL_EN, tt.LABEL_FR, tt.LABEL_SP, tt.LABEL_PR, tt.ACTIVE, tt.CREATED_DATE, tt.LAST_MODIFIED_DATE, "
             + "    r.REALM_ID, r.REALM_CODE, r.LABEL_ID `R_LABEL_ID`,  r.LABEL_EN `R_LABEL_EN`, r.LABEL_FR `R_LABEL_FR`, r.LABEL_SP `R_LABEL_SP`, r.LABEL_PR `R_LABEL_PR`, "
@@ -46,13 +55,13 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
             + "LEFT JOIN vw_forecast_method fm ON tt.FORECAST_METHOD_ID=fm.FORECAST_METHOD_ID "
             + "LEFT JOIN us_user cb ON tt.CREATED_BY=cb.USER_ID "
             + "LEFT JOIN us_user lmb ON tt.LAST_MODIFIED_BY=lmb.USER_ID ";
-
+    
     @Override
     public List<TreeTemplate> getTreeTemplateList(CustomUserDetails curUser) {
         String sql = treeTemplateSql + "ORDER BY tt.LABEL_EN";
         return this.namedParameterJdbcTemplate.query(sql, new TreeTemplateRowMapper());
     }
-
+    
     @Override
     public ForecastTree<TreeNode> getTree(int treeTemplateId) {
         String sql = "SELECT "
@@ -60,7 +69,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                 + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
                 + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
                 + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
-                + "          ttnd.NODE_DATA_ID, ttnd.MONTH, ttnd.DATA_VALUE, ttnd.NOTES, "
+                + "          0 `SCENARIO_ID`, ttnd.NODE_DATA_ID, ttnd.MONTH, ttnd.DATA_VALUE, ttnd.NOTES, "
                 + "          ttndf.NODE_DATA_FU_ID, ttndf.LAG_IN_MONTHS, ttndf.NO_OF_PERSONS, ttndf.FORECASTING_UNITS_PER_PERSON, "
                 + "          fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
                 + "          fuu.UNIT_ID `FUU_UNIT_ID`, fuu.UNIT_CODE `FUU_UNIT_CODE`, fuu.LABEL_ID `FUU_LABEL_ID`, fuu.LABEL_EN `FUU_LABEL_EN`, fuu.LABEL_FR `FUU_LABEL_FR`, fuu.LABEL_SP `FUU_LABEL_SP`, fuu.LABEL_PR `FUU_LABEL_PR`, "
@@ -91,12 +100,12 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         params.put("treeTemplateId", treeTemplateId);
         return this.namedParameterJdbcTemplate.query(sql, params, new TreeNodeResultSetExtractor());
     }
-
+    
     @Override
     public Map<String, Object> getConsumption(int treeTemplateId) {
         return null;
     }
-
+    
     @Override
     public TreeTemplate getTreeTemplateById(int treeTemplateId, CustomUserDetails curUser) {
         String sql = treeTemplateSql + "WHERE tt.TREE_TEMPLATE_ID=:treeTemplateId ORDER BY tt.LABEL_EN";
@@ -104,5 +113,39 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         params.put("treeTemplateId", treeTemplateId);
         return this.namedParameterJdbcTemplate.queryForObject(sql, params, new TreeTemplateRowMapper());
     }
-
+    
+    @Override
+    public int addTreeTemplate(TreeTemplate tt, CustomUserDetails curUser) {
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template").usingGeneratedKeyColumns("TREE_TEMPLATE_ID");
+        Map<String, Object> params = new HashMap<>();
+        params.put("REALM_ID", curUser.getRealm().getRealmId());
+        int labelId = this.labelDao.addLabel(tt.getLabel(), LabelConstants.RM_FORECAST_TREE_TEMPLATE, curUser.getUserId());
+        params.put("LABEL_ID", labelId);
+        params.put("FORECAST_METHOD_ID", tt.getForecastMethod().getId());
+        params.put("CREATED_BY", curUser.getUserId());
+        params.put("CREATED_DATE", curDate);
+        params.put("LAST_MODIFIED_BY", curUser.getUserId());
+        params.put("LAST_MODIFIED_DATE", curDate);
+        params.put("ACTIVE", 1);
+        int treeTemplateId = si.executeAndReturnKey(params).intValue();
+        SimpleJdbcInsert ni = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node").usingGeneratedKeyColumns("TREE_TEMPLATE_NODE_ID");
+        for (ForecastNode<TreeNode> n : tt.getTree().getFlatList()) {
+            Map<String, Object> nodeParams = new HashMap<>();
+            nodeParams.put("TREE_TEMPLATE_ID", treeTemplateId);
+            nodeParams.put("PARENT_NODE", n.getParent());
+            nodeParams.put("SORT_ORDER", n.getSortOrder());
+            nodeParams.put("NODE_TYPE_ID", n.getPayload().getNodeType().getId());
+            
+            
+        }
+        return 0;
+        
+    }
+    
+    @Override
+    public int updateTreeTemplate(TreeTemplate tt, CustomUserDetails curUser) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
 }

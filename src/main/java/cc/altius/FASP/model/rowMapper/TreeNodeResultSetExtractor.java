@@ -59,10 +59,11 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                     }
                 }
                 // Load other data into Payload
-                List<TreeNodeData> tndList = tn.getNodeDataMap().get(0);
+                int scenarioId = rs.getInt("SCENARIO_ID");
+                List<TreeNodeData> tndList = tn.getNodeDataMap().get(scenarioId);
                 if (tndList == null) {
                     tndList = new LinkedList<>();
-                    tn.getNodeDataMap().put(0, tndList);
+                    tn.getNodeDataMap().put(scenarioId, tndList);
                 }
                 tndList.add(getNodeData(rs, 1));
             }

@@ -5,7 +5,11 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -16,21 +20,23 @@ import java.util.List;
  */
 public class TreeNodeData implements Serializable {
 
-    @JsonView({Views.InternalView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int nodeDataId;
-    @JsonView({Views.InternalView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
     private Date month;
-    @JsonView({Views.InternalView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double dataValue;
-    @JsonView({Views.InternalView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private TreeNodeDataFu fuNode;
-    @JsonView({Views.InternalView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private TreeNodeDataPu puNode;
-    @JsonView({Views.InternalView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String notes;
-    @JsonView({Views.InternalView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<NodeDataModeling> nodeDataModelingList;
-    @JsonView({Views.InternalView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<NodeDataOverride> nodeDataOverrideList;
 
     public int getNodeDataId() {
@@ -96,7 +102,5 @@ public class TreeNodeData implements Serializable {
     public void setNodeDataOverrideList(List<NodeDataOverride> nodeDataOverrideList) {
         this.nodeDataOverrideList = nodeDataOverrideList;
     }
-    
-    
-
+   
 }

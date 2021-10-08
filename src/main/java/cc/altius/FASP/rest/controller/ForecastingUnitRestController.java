@@ -133,6 +133,23 @@ public class ForecastingUnitRestController {
         }
     }
 
+    @GetMapping("/forecastingUnit/tracerCategory/{tracerCategoryId}")
+    public ResponseEntity getForecastingUnitForTracerCategory(@PathVariable(value = "tracerCategoryId", required = true) int tracerCategoryId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.forecastingUnitService.getForecastingUnitListByTracerCategory(tracerCategoryId, true, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to list ForecastingUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to list ForecastingUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to list ForecastingUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
 //    @GetMapping(value = "/sync/forecastingUnit/{lastSyncDate}")
 //    public ResponseEntity getForecastingUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
 //        try {

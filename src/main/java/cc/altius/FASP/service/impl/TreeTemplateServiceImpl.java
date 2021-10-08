@@ -43,4 +43,16 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
         return tt;
     }
 
+    @Override
+    public int addTreeTemplate(TreeTemplate tt, CustomUserDetails curUser) {
+        return this.treeTemplateDao.addTreeTemplate(tt, curUser);
+    }
+
+    @Override
+    public int updateTreeTemplate(TreeTemplate tt, CustomUserDetails curUser) {
+        return this.treeTemplateDao.updateTreeTemplate(tt, curUser);
+    }
+    
+    
+
 }

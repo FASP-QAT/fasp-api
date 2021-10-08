@@ -14,13 +14,13 @@ import java.io.Serializable;
  */
 public class TreeNodeDataPu implements Serializable {
 
-    @JsonView({Views.InternalView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int nodeDataPuId;
-    @JsonView({Views.InternalView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleUnitObject planningUnit;
-    @JsonView({Views.InternalView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private boolean sharePlanningUnit;
-    @JsonView({Views.InternalView.class, Views.InternalView.class})
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int refillMonths;
 
     public int getNodeDataPuId() {

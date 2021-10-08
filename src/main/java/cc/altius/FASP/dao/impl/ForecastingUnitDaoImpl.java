@@ -22,7 +22,6 @@ import org.springframework.stereotype.Repository;
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.utils.LogUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
@@ -218,6 +217,18 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append("GROUP BY fu.FORECASTING_UNIT_ID");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ForecastingUnitRowMapper());
+    }
+
+    @Override
+    public List<ForecastingUnit> getForecastingUnitListByTracerCategory(int tracerCategoryId, boolean active, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder(this.sqlListString).append(" AND fu.TRACER_CATEGORY_ID=:tracerCategoryId ");
+        if (active) {
+            sb.append(" AND fu.ACTIVE ");
+        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("tracerCategoryId", tracerCategoryId);
+        this.aclService.addUserAclForRealm(sb, params, "fu", curUser);
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ForecastingUnitRowMapper());
     }
 
 }
