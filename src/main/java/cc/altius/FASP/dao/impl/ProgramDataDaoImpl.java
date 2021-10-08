@@ -1772,7 +1772,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN ap_integration i ON ip.INTEGRATION_ID=i.INTEGRATION_ID "
                 + "LEFT JOIN ap_integration_view iv ON i.INTEGRATION_VIEW_ID=iv.INTEGRATION_VIEW_ID "
                 + "LEFT JOIN rm_integration_program_completed ipc ON i.INTEGRATION_ID=ipc.INTEGRATION_ID AND pvt.PROGRAM_VERSION_TRANS_ID=ipc.PROGRAM_VERSION_TRANS_ID "
-                + "WHERE ip.ACTIVE AND ip.INTEGRATION_PROGRAM_ID IS NOT NULL AND ipc.COMPLETED_DATE IS NULL";
+                + "LEFT JOIN (SELECT pv.PROGRAM_ID, IFNULL(mp.MAX_VERSION_ID, max(pv.VERSION_ID)-1) MAX_VERSION_ID FROM rm_program_version pv LEFT JOIN (SELECT pv.PROGRAM_ID, max(pv.VERSION_ID) MAX_VERSION_ID FROM rm_integration_program_completed ipc LEFT JOIN rm_program_version_trans pvt ON ipc.PROGRAM_VERSION_TRANS_ID=pvt.PROGRAM_VERSION_TRANS_ID LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID group by pv.PROGRAM_ID) mp ON pv.PROGRAM_ID=mp.PROGRAM_ID group by PROGRAM_ID) mp ON pv.PROGRAM_ID=mp.PROGRAM_ID AND pv.VERSION_ID>mp.MAX_VERSION_ID "
+                + "WHERE ip.ACTIVE AND ip.INTEGRATION_PROGRAM_ID IS NOT NULL AND ipc.COMPLETED_DATE IS NULL AND mp.PROGRAM_ID IS NOT NULL";
         return this.jdbcTemplate.query(sqlString, new ProgramIntegrationDTORowMapper());
     }
 
