@@ -8,6 +8,7 @@ package cc.altius.FASP.dao.impl;
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.UsageTemplateDao;
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.UsageTemplate;
 import cc.altius.FASP.model.rowMapper.UsageTemplateRowMapper;
 import cc.altius.FASP.service.AclService;
@@ -124,6 +125,8 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
         usageTemplateList.stream().filter(ut -> ut.getUsageTemplateId() == 0).collect(Collectors.toList()).forEach(ut -> {
             MapSqlParameterSource param = new MapSqlParameterSource();
             param.addValue("REALM_ID", curUser.getRealm().getRealmId());
+            int labelId = this.labelDao.addLabel(ut.getLabel(), LabelConstants.RM_USAGE_TEMPLATE, curUser.getUserId());
+            param.addValue("LABEL_ID", labelId);
             param.addValue("PROGRAM_ID", (ut.getProgram() == null ? null : (ut.getProgram().getId() == null || ut.getProgram().getId() == 0 ? null : ut.getProgram().getId())));
             param.addValue("FORECASTING_UNIT_ID", ut.getForecastingUnit().getId());
             param.addValue("LAG_IN_MONTHS", ut.getLagInMonths());
@@ -153,6 +156,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
         usageTemplateList.stream().filter(ut -> ut.getUsageTemplateId() != 0).collect(Collectors.toList()).forEach(ut -> {
             Map<String, Object> param = new HashMap<>();
             param.put("usageTemplateId", ut.getUsageTemplateId());
+            param.put("labelEn", ut.getLabel().getLabel_en());
             param.put("programId", (ut.getProgram() == null ? null : (ut.getProgram().getId() == null || ut.getProgram().getId() == 0 ? null : ut.getProgram().getId())));
             param.put("forecastingUnitId", ut.getForecastingUnit().getId());
             param.put("lagInMonths", ut.getLagInMonths());
@@ -170,8 +174,9 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
             paramList.add(new MapSqlParameterSource(param));
         }
         );
-        String sql = "UPDATE rm_usage_template ut "
+        String sql = "UPDATE rm_usage_template ut LEFT JOIN ap_label l ON ut.LABEL_ID=l.LABEL_ID "
                 + "SET "
+                + "l.LABEL_EN=:labelEn, "
                 + "ut.PROGRAM_ID=:programId, "
                 + "ut.FORECASTING_UNIT_ID=:forecastingUnitId, "
                 + "ut.LAG_IN_MONTHS=:lagInMonths, "
@@ -189,6 +194,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
                 + "WHERE "
                 + " ut.USAGE_TEMPLATE_ID=:usageTemplateId AND "
                 + " ("
+                + "     l.LABEL_EN!=:labelEn OR "
                 + "     ut.PROGRAM_ID!=:programId OR "
                 + "     ut.FORECASTING_UNIT_ID!=:forecastingUnitId OR "
                 + "     ut.LAG_IN_MONTHS!=:lagInMonths OR "

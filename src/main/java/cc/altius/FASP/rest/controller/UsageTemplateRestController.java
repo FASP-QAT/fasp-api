@@ -106,7 +106,8 @@ public class UsageTemplateRestController {
     public ResponseEntity addAndUpadteUsageTemplate(@RequestBody List<UsageTemplate> usageTemplateList, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.usageTemplateService.addAndUpdateUsageTemplate(usageTemplateList, curUser) + " records updated", HttpStatus.OK);
+            this.usageTemplateService.addAndUpdateUsageTemplate(usageTemplateList, curUser);
+            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to add UsageTemplate", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
