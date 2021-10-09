@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.UsagePeriod;
@@ -41,28 +42,32 @@ public class UsageTemplateRowMapper implements RowMapper<UsageTemplate> {
         ut.setUsageType(new SimpleObject(rs.getInt("USAGE_TYPE_ID"), new LabelRowMapper("UT_").mapRow(rs, i)));
         ut.setNoOfPatients(rs.getInt("NO_OF_PATIENTS"));
         ut.setNoOfForecastingUnits(rs.getInt("NO_OF_FORECASTING_UNITS"));
-        ut.setOneTimeUsage(rs.getBoolean("ONE_TIME_USAGE"));
-        UsagePeriod up = new UsagePeriod();
-        up.setUsagePeriodId(rs.getInt("UF_USAGE_PERIOD_ID"));
-        if (rs.wasNull()) {
-            ut.setUsageFrequencyUsagePeriod(null);
-            ut.setUsageFrequencyCount(null);
+        if (ut.getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) {
+            // Discrete
+            ut.setOneTimeUsage(rs.getBoolean("ONE_TIME_USAGE"));
+            if (!ut.isOneTimeUsage()) {
+                UsagePeriod up = new UsagePeriod();
+                up.setUsagePeriodId(rs.getInt("UF_USAGE_PERIOD_ID"));
+                up.setLabel(new LabelRowMapper("UF_").mapRow(rs, i));
+                up.setConvertToMonth(rs.getDouble("UF_CONVERT_TO_MONTH"));
+                ut.setUsageFrequencyUsagePeriod(up);
+                ut.setUsageFrequencyCount(rs.getDouble("USAGE_FREQUENCY_COUNT"));
+                up = new UsagePeriod();
+                up.setUsagePeriodId(rs.getInt("R_USAGE_PERIOD_ID"));
+                up.setLabel(new LabelRowMapper("R_").mapRow(rs, i));
+                up.setConvertToMonth(rs.getDouble("R_CONVERT_TO_MONTH"));
+                ut.setRepeatUsagePeriod(up);
+                ut.setRepeatCount(rs.getDouble("REPEAT_COUNT"));
+            }
         } else {
+            // Continuous
+            ut.setOneTimeUsage(false);
+            UsagePeriod up = new UsagePeriod();
+            up.setUsagePeriodId(rs.getInt("UF_USAGE_PERIOD_ID"));
             up.setLabel(new LabelRowMapper("UF_").mapRow(rs, i));
             up.setConvertToMonth(rs.getDouble("UF_CONVERT_TO_MONTH"));
             ut.setUsageFrequencyUsagePeriod(up);
             ut.setUsageFrequencyCount(rs.getDouble("USAGE_FREQUENCY_COUNT"));
-        }
-        up = new UsagePeriod();
-        up.setUsagePeriodId(rs.getInt("R_USAGE_PERIOD_ID"));
-        if (rs.wasNull()) {
-            ut.setRepeatUsagePeriod(null);
-            ut.setRepeatCount(null);
-        } else {
-            up.setLabel(new LabelRowMapper("R_").mapRow(rs, i));
-            up.setConvertToMonth(rs.getDouble("R_CONVERT_TO_MONTH"));
-            ut.setRepeatUsagePeriod(up);
-            ut.setRepeatCount(rs.getDouble("REPEAT_COUNT"));
         }
         ut.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return ut;

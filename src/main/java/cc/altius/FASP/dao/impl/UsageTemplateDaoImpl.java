@@ -7,6 +7,7 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.UsageTemplateDao;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.UsageTemplate;
@@ -91,7 +92,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
         StringBuilder sqlString = new StringBuilder(usageTemplateString).append(" AND ut.ACTIVE ");
         Map<String, Object> params = new HashMap<>();
         sqlString.append(" AND ut.USAGE_TYPE_ID=:usageTypeId AND (fu.FORECASTING_UNIT_ID=:forecastingUnitId OR :forecastingUnitId=0) AND (fu.TRACER_CATEGORY_ID=:tracerCategoryId OR :tracerCategoryId=0)");
-        
+
         params.put("usageTypeId", usageTypeId);
         params.put("forecastingUnitId", forecastingUnitId);
         params.put("tracerCategoryId", tracerCategoryId);
@@ -133,11 +134,22 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
             param.addValue("USAGE_TYPE_ID", ut.getUsageType().getId());
             param.addValue("NO_OF_PATIENTS", ut.getNoOfPatients());
             param.addValue("NO_OF_FORECASTING_UNITS", ut.getNoOfForecastingUnits());
-            param.addValue("ONE_TIME_USAGE", ut.isOneTimeUsage());
-            param.addValue("USAGE_FREQUENCY_USAGE_PERIOD_ID", (ut.getUsageFrequencyUsagePeriod() == null ? null : (ut.getUsageFrequencyUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getUsageFrequencyUsagePeriod().getUsagePeriodId())));
-            param.addValue("USAGE_FREQUENCY_COUNT", (ut.getUsageFrequencyUsagePeriod() == null ? null : (ut.getUsageFrequencyUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getUsageFrequencyCount())));
-            param.addValue("REPEAT_USAGE_PERIOD_ID", (ut.getRepeatUsagePeriod() == null ? null : (ut.getRepeatUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getRepeatUsagePeriod().getUsagePeriodId())));
-            param.addValue("REPEAT_COUNT", (ut.getRepeatUsagePeriod() == null ? null : (ut.getRepeatUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getRepeatCount())));
+            if (ut.getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) {
+                // Discrete
+                param.addValue("ONE_TIME_USAGE", ut.isOneTimeUsage());
+                if (!ut.isOneTimeUsage()) {
+                    // Not a one time usage
+                    param.addValue("USAGE_FREQUENCY_USAGE_PERIOD_ID", (ut.getUsageFrequencyUsagePeriod() == null ? null : (ut.getUsageFrequencyUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getUsageFrequencyUsagePeriod().getUsagePeriodId())));
+                    param.addValue("USAGE_FREQUENCY_COUNT", (ut.getUsageFrequencyUsagePeriod() == null ? null : (ut.getUsageFrequencyUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getUsageFrequencyCount())));
+                    param.addValue("REPEAT_USAGE_PERIOD_ID", (ut.getRepeatUsagePeriod() == null ? null : (ut.getRepeatUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getRepeatUsagePeriod().getUsagePeriodId())));
+                    param.addValue("REPEAT_COUNT", (ut.getRepeatUsagePeriod() == null ? null : (ut.getRepeatUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getRepeatCount())));
+                }
+            } else {
+                // Continuous
+                param.addValue("ONE_TIME_USAGE", 0); // Always false
+                param.addValue("USAGE_FREQUENCY_USAGE_PERIOD_ID", (ut.getUsageFrequencyUsagePeriod() == null ? null : (ut.getUsageFrequencyUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getUsageFrequencyUsagePeriod().getUsagePeriodId())));
+                param.addValue("USAGE_FREQUENCY_COUNT", (ut.getUsageFrequencyUsagePeriod() == null ? null : (ut.getUsageFrequencyUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getUsageFrequencyCount())));
+            }
             param.addValue("ACTIVE", 1);
             param.addValue("CREATED_BY", curUser.getUserId());
             param.addValue("CREATED_DATE", dt);
@@ -160,14 +172,31 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
             param.put("programId", (ut.getProgram() == null ? null : (ut.getProgram().getId() == null || ut.getProgram().getId() == 0 ? null : ut.getProgram().getId())));
             param.put("forecastingUnitId", ut.getForecastingUnit().getId());
             param.put("lagInMonths", ut.getLagInMonths());
-            param.put("usageTypeId", ut.getUsageType().getId());
             param.put("noOfPatients", ut.getNoOfPatients());
             param.put("noOfForecastingUnits", ut.getNoOfForecastingUnits());
-            param.put("oneTimeUsage", ut.isOneTimeUsage());
-            param.put("usageFrequencyUsagePeriodId", (ut.getUsageFrequencyUsagePeriod() == null ? null : (ut.getUsageFrequencyUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getUsageFrequencyUsagePeriod().getUsagePeriodId())));
-            param.put("usageFrequencyCount", (ut.getUsageFrequencyUsagePeriod() == null ? null : (ut.getUsageFrequencyUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getUsageFrequencyCount())));
-            param.put("repeatUsagePeriodId", (ut.getRepeatUsagePeriod() == null ? null : (ut.getRepeatUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getRepeatUsagePeriod().getUsagePeriodId())));
-            param.put("repeatCount", (ut.getRepeatUsagePeriod() == null ? null : (ut.getRepeatUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getRepeatCount())));
+            param.put("usageTypeId", ut.getUsageType().getId());
+            if (ut.getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) {
+                // Discrete
+                param.put("oneTimeUsage", ut.isOneTimeUsage());
+                if (!ut.isOneTimeUsage()) {
+                    param.put("usageFrequencyUsagePeriodId", (ut.getUsageFrequencyUsagePeriod() == null ? null : (ut.getUsageFrequencyUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getUsageFrequencyUsagePeriod().getUsagePeriodId())));
+                    param.put("usageFrequencyCount", (ut.getUsageFrequencyUsagePeriod() == null ? null : (ut.getUsageFrequencyUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getUsageFrequencyCount())));
+                    param.put("repeatUsagePeriodId", (ut.getRepeatUsagePeriod() == null ? null : (ut.getRepeatUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getRepeatUsagePeriod().getUsagePeriodId())));
+                    param.put("repeatCount", (ut.getRepeatUsagePeriod() == null ? null : (ut.getRepeatUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getRepeatCount())));
+                } else {
+                    param.put("usageFrequencyUsagePeriodId", null);
+                    param.put("usageFrequencyCount", null);
+                    param.put("repeatUsagePeriodId", null);
+                    param.put("repeatCount", null);
+                }
+            } else {
+                // Continuous
+                param.put("oneTimeUsage", 0); // Always false
+                param.put("usageFrequencyUsagePeriodId", (ut.getUsageFrequencyUsagePeriod() == null ? null : (ut.getUsageFrequencyUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getUsageFrequencyUsagePeriod().getUsagePeriodId())));
+                param.put("usageFrequencyCount", (ut.getUsageFrequencyUsagePeriod() == null ? null : (ut.getUsageFrequencyUsagePeriod().getUsagePeriodId() == 0 ? null : ut.getUsageFrequencyCount())));
+                param.put("repeatUsagePeriodId", null);
+                param.put("repeatCount", null);
+            }
             param.put("active", ut.isActive());
             param.put("curUser", curUser.getUserId());
             param.put("dt", dt);

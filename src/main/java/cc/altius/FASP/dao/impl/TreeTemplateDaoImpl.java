@@ -7,6 +7,7 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.TreeTemplateDao;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.ForecastTree;
@@ -173,7 +174,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("USAGE_TYPE_ID", tnd.getFuNode().getUsageType().getId());
                         nodeParams.put("NO_OF_PERSONS", tnd.getFuNode().getNoOfPersons());
                         nodeParams.put("FORECASTING_UNITS_PER_PERSON", tnd.getFuNode().getNoOfForecastingUnitsPerPerson());
-                        if (tnd.getFuNode().getUsageType().getId() == 2) {
+                        if (tnd.getFuNode().getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) {
                             // Discrete
                             nodeParams.put("ONE_TIME_USAGE", tnd.getFuNode().isOneTimeUsage());
                             if (!tnd.getFuNode().isOneTimeUsage()) {
@@ -184,7 +185,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                             }
                         } else {
                             // Continuous
-                            nodeParams.put("ONE_TIME_USAGE", 0);
+                            nodeParams.put("ONE_TIME_USAGE", 0); // Always false
                             nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                             nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
                         }
@@ -352,7 +353,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                             nodeParams.put("USAGE_TYPE_ID", tnd.getFuNode().getUsageType().getId());
                             nodeParams.put("NO_OF_PERSONS", tnd.getFuNode().getNoOfPersons());
                             nodeParams.put("FORECASTING_UNITS_PER_PERSON", tnd.getFuNode().getNoOfForecastingUnitsPerPerson());
-                            if (tnd.getFuNode().getUsageType().getId() == 2) {
+                            if (tnd.getFuNode().getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) {
                                 // Discrete
                                 nodeParams.put("ONE_TIME_USAGE", tnd.getFuNode().isOneTimeUsage());
                                 if (!tnd.getFuNode().isOneTimeUsage()) {
@@ -363,7 +364,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                                 }
                             } else {
                                 // Continuous
-                                nodeParams.put("ONE_TIME_USAGE", 0);
+                                nodeParams.put("ONE_TIME_USAGE", 0); // Always false
                                 nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                                 nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
                             }
@@ -442,7 +443,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                                 nodeParams.put("USAGE_TYPE_ID", tnd.getFuNode().getUsageType().getId());
                                 nodeParams.put("NO_OF_PERSONS", tnd.getFuNode().getNoOfPersons());
                                 nodeParams.put("FORECASTING_UNITS_PER_PERSON", tnd.getFuNode().getNoOfForecastingUnitsPerPerson());
-                                if (tnd.getFuNode().getUsageType().getId() == 2) {//Discrete
+                                if (tnd.getFuNode().getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) {//Discrete
                                     nodeParams.put("ONE_TIME_USAGE", tnd.getFuNode().isOneTimeUsage());
                                     if (!tnd.getFuNode().isOneTimeUsage()) {
                                         nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
@@ -452,6 +453,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                                     }
                                 } else {
                                     // Continuous
+                                    nodeParams.put("ONE_TIME_USAGE", 0); // Always false
                                     nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                                     nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
                                 }
@@ -508,7 +510,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                                     nodeParams.put("USAGE_TYPE_ID", tnd.getFuNode().getUsageType().getId());
                                     nodeParams.put("NO_OF_PERSONS", tnd.getFuNode().getNoOfPersons());
                                     nodeParams.put("FORECASTING_UNITS_PER_PERSON", tnd.getFuNode().getNoOfForecastingUnitsPerPerson());
-                                    if (tnd.getFuNode().getUsageType().getId() == 2) {
+                                    if (tnd.getFuNode().getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) {
                                         //Discrete
                                         nodeParams.put("ONE_TIME_USAGE", tnd.getFuNode().isOneTimeUsage());
                                         if (!tnd.getFuNode().isOneTimeUsage()) {
@@ -519,6 +521,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                                         }
                                     } else {
                                         // Continuous
+                                        nodeParams.put("ONE_TIME_USAGE", 0); // Always false
                                         nodeParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                                         nodeParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", tnd.getFuNode().getUsagePeriod().getUsagePeriodId());
                                     }
@@ -548,7 +551,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                                     params.put("usageTypeId", tnd.getFuNode().getUsageType().getId());
                                     params.put("noOfPersons", tnd.getFuNode().getNoOfPersons());
                                     params.put("forecastingUnitsPerPerson", tnd.getFuNode().getNoOfForecastingUnitsPerPerson());
-                                    if (tnd.getFuNode().getUsageType().getId() == 2) {
+                                    if (tnd.getFuNode().getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) {
                                         //Discrete
                                         sb.append(", f.ONE_TIME_USAGE=:oneTimeUsage");
                                         params.put("oneTimeUsage", tnd.getFuNode().isOneTimeUsage());

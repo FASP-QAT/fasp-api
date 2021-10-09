@@ -13,4 +13,7 @@ public class GlobalConstants {
 
     public static final int PROGRAM_TYPE_SUPPLY_PLAN = 1; // Supply Plan Programs
     public static final int PROGRAM_TYPE_DATASET = 2; // Dataset Programs
+    public static final int USAGE_TEMPLATE_DISCRETE = 1;
+    public static final int USAGE_TEMPLATE_CONTINUOUS = 2;
+    
 }
