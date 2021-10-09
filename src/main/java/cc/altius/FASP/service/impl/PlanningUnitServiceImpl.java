@@ -69,7 +69,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
             throw new EmptyResultDataAccessException(1);
         }
         if (this.aclService.checkRealmAccessForUser(curUser, fu.getRealm().getId())) {
-            return this.planningUnitDao.getPlanningUnitList(fu.getRealm().getId(), active, curUser);
+            return this.planningUnitDao.getPlanningUnitListByForecastingUnit(fu.getForecastingUnitId(), active, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
