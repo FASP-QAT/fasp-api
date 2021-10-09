@@ -2323,3 +2323,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Frequency');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La fréquence');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Frecuencia');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Frequência');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usagePeriod.conversionFactorTestString','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Max 5 digit number and 8 digits after decimal are allowed.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Un nombre maximum de 5 chiffres et 8 chiffres après la virgule sont autorisés.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se permiten un número máximo de 5 dígitos y 8 dígitos después del decimal.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'São permitidos no máximo 5 dígitos e 8 dígitos após o decimal.');
