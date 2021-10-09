@@ -206,7 +206,7 @@ VIEW `vw_node_type` AS
 CREATE TABLE `fasp`.`ap_usage_period` (
   `USAGE_PERIOD_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for each usage set', 
   `LABEL_ID` INT(10) UNSIGNED NOT NULL COMMENT 'Label Id that points to the label table so that we can get the text in different languages',
-  `CONVERT_TO_MONTH` DECIMAL(9,4) NOT NULL COMMENT 'Multiply by this to converts the UsagePeriod to Months', 
+  `CONVERT_TO_MONTH` DECIMAL(13,8) NOT NULL COMMENT 'Multiply by this to convert the UsagePeriod to Months', 
   `ACTIVE` TINYINT(1) UNSIGNED NOT NULL COMMENT 'Field that indicates if this record is active or not',
   `CREATED_BY` INT(10) UNSIGNED NOT NULL,
   `CREATED_DATE` DATETIME NOT NULL,
