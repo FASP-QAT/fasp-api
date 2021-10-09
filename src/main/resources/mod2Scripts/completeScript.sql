@@ -2128,3 +2128,198 @@ VIEW `vw_scenario` AS
     FROM
         (`rm_scenario` `s`
         LEFT JOIN `ap_label` `l` ON ((`s`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+-- shubham script for usage template
+INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Add Usage Template',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'24');
+SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
+INSERT INTO `fasp`.`us_business_function`(`BUSINESS_FUNCTION_ID`,`LABEL_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( 'ROLE_BF_ADD_USAGE_TEMPLATE',@MAX,'1',NOW(),'1',NOW());
+
+INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Edit Usage Template',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'24');
+SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
+INSERT INTO `fasp`.`us_business_function`(`BUSINESS_FUNCTION_ID`,`LABEL_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( 'ROLE_BF_EDIT_USAGE_TEMPLATE',@MAX,'1',NOW(),'1',NOW());
+
+INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'List Usage Template',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'24');
+SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
+INSERT INTO `fasp`.`us_business_function`(`BUSINESS_FUNCTION_ID`,`LABEL_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( 'ROLE_BF_LIST_USAGE_TEMPLATE',@MAX,'1',NOW(),'1',NOW());
+
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_DATASET_ADMIN','ROLE_BF_ADD_USAGE_TEMPLATE','1',NOW(),'1',NOW());
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_DATASET_ADMIN','ROLE_BF_EDIT_USAGE_TEMPLATE','1',NOW(),'1',NOW());
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_DATASET_ADMIN','ROLE_BF_LIST_USAGE_TEMPLATE','1',NOW(),'1',NOW());
+
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_REALM_ADMIN','ROLE_BF_ADD_USAGE_TEMPLATE','1',NOW(),'1',NOW());
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_REALM_ADMIN','ROLE_BF_EDIT_USAGE_TEMPLATE','1',NOW(),'1',NOW());
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_REALM_ADMIN','ROLE_BF_LIST_USAGE_TEMPLATE','1',NOW(),'1',NOW());
+
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_DATASET_USER','ROLE_BF_LIST_USAGE_TEMPLATE','1',NOW(),'1',NOW());
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usagePeriod.conversionTOFUTest','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Max 14 digit number and 4 digits after decimal are allowed.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Un nombre maximum de 14 chiffres et 4 chiffres après la virgule sont autorisés.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se permiten un número máximo de 14 dígitos y 4 dígitos después del decimal.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'São permitidos no máximo 14 dígitos e 4 dígitos após o decimal.');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.equivalancyUnit.equivalancyUnits','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Equivalency Units');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unités d équivalence');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Unidades de equivalencia');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Unidades de equivalência');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.lagInMonth','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Lag In Months');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Lag en mois');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Retraso en meses');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Atraso em meses');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.people','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# People');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'# Personnes');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# Gente');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'# Pessoas');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.fuPerPersonPerTime','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# Of FU/Person/Time');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'# d UF/Personne/Temps');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# De FU / persona / tiempo');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº de FU / Pessoa / Tempo');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.onTimeUsage?','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'One Time Usage?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilisation unique ?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'¿Uso único?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Uso único?');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.usageFrequency','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Usage Frequency');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Fréquence d utilisation');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Frecuencia de uso');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Freqüência de Uso');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.fuPerPersonPerMonth?','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# Of FU/Person/Month');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'# d UF/Personne/Mois');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# De FU / persona / mes');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº de FU / pessoa / mês');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usagePeriod.fuRequired','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# OF FU Required');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nbre d UF requis');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# DE FU requerido');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº DE FU necessário');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usagePeriod.usageInWords','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Usage In Words');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilisation dans les mots');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Uso en palabras');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Uso em palavras');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.continuous','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Continuous');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Continue');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Continua');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Contínua');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.discrete','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Discrete');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Discrète');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Discreta');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Discreta');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataSet.dataSet','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Dataset');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Base de données');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Conjunto de datos');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Conjunto de dados');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataSet.dataSetManager','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Dataset Manager');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Gestionnaire de jeux de données');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Administrador de conjuntos de datos');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Gerenciador de conjunto de dados');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.equivalancyUnit.equivalancyUnitManage','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Manage Equivalency Unit');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unité de gestion des équivalences');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Gestionar unidad de equivalencia');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Gerenciar Unidade de Equivalência');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.equivalancyUnit.type','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Type');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Taper');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Escribe');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Modelo');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.equivalancyUnit.conversionToFu','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Conversion to FU');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Conversion en UF');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Conversión a FU');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Conversão para FU');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.usageName','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Usage Name');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nom d utilisation');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nombre de uso');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nome de Uso');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.usageFrequencyTest','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Max 12 digit number and 4 digits after decimal are allowed.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Un nombre maximum de 12 chiffres et 4 chiffres après la virgule sont autorisés.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se permiten un número máximo de 12 dígitos y 4 dígitos después del decimal.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'São permitidos no máximo 12 dígitos e 4 dígitos após o decimal.');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.calculateUsageFrequency','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calculate Usage Frequency');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Calculer la fréquence d utilisation');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Calcular la frecuencia de uso');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Calcular a frequência de uso');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.usageTemplate','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Usage Template');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modèle d utilisation');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Plantilla de uso');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Modelo de uso');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.every','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Every');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Tous');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cada');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Cada');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.frequency','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Frequency');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La fréquence');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Frecuencia');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Frequência');
