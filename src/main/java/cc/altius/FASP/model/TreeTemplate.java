@@ -5,7 +5,9 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
+import java.util.List;
 
 /**
  *
@@ -17,8 +19,8 @@ public class TreeTemplate extends BaseModel implements Serializable {
     private SimpleCodeObject realm;
     private Label label;
     private SimpleObjectWithType forecastMethod;
+    @JsonIgnore
     private ForecastTree<TreeNode> tree;
-    private ForecastNode<TreeNode>[] flatList;
 
     public TreeTemplate() {
     }
@@ -68,11 +70,25 @@ public class TreeTemplate extends BaseModel implements Serializable {
     }
 
     public ForecastNode<TreeNode>[] getFlatList() {
-        return flatList;
+        if (this.tree != null) {
+            List<ForecastNode<TreeNode>> nodeList = this.tree.getFlatList();
+            ForecastNode[] nodeArray = new ForecastNode[nodeList.size()];
+            return nodeList.toArray(nodeArray);
+        } else {
+            return null;
+        }
     }
 
-    public void setFlatList(ForecastNode<TreeNode>[] flatList) {
-        this.flatList = flatList;
+    public void setFlatList(ForecastNode<TreeNode>[] flatList) throws Exception {
+        boolean isFirst = true;
+        for (ForecastNode<TreeNode> node : flatList) {
+            if (isFirst) {
+                this.setTree(new ForecastTree(node));
+            } else {
+                this.getTree().addNode(node);
+            }
+            isFirst = false;
+        }
     }
 
     @Override
