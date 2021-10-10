@@ -63,7 +63,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
             + "    cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, ut.CREATED_DATE, "
             + "    lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME, ut.LAST_MODIFIED_DATE "
             + "FROM vw_usage_template ut "
-            + "LEFT JOIN vw_program p ON ut.PROGRAM_ID=p.PROGRAM_ID "
+            + "LEFT JOIN vw_dataset p ON ut.PROGRAM_ID=p.PROGRAM_ID "
             + "LEFT JOIN vw_forecasting_unit fu ON ut.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
             + "LEFT JOIN vw_unit u ON fu.UNIT_ID=u.UNIT_ID "
             + "LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID "
