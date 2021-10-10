@@ -851,7 +851,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Fator de conversão pa
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.equivalancyUnit.equivalancyUnit','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Equivalancy Unit');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Equivalency Unit');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unité d équivalence');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Unidad de equivalencia');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Unidade de Equivalência');
@@ -1108,7 +1108,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Texto de aviso persona
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.customWarningEquivalencyUnit','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Use this page to define equivalency units, which are used on the Monthly Forecast screen. If you don t see an equivalency unit you need, please click on the "Manage Equivalency Unit" button.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Use this page to define equivalency units, which are used on the Monthly Forecast screen. If you don‘t see an equivalency unit you need, please click on the "Manage Equivalency Unit" button.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilisez cette page pour définir les unités d équivalence, qui sont utilisées sur l écran Prévision mensuelle. Si vous ne voyez pas d unité d équivalence dont vous avez besoin, veuillez cliquer sur le bouton "Gérer l unité d équivalence".');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Utilice esta página para definir las unidades de equivalencia, que se utilizan en la pantalla Pronóstico mensual. Si no ve una unidad de equivalencia que necesita, haga clic en el botón "Administrar unidad de equivalencia".');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Use esta página para definir unidades de equivalência, que são usadas na tela de Previsão Mensal. Se você não encontrar uma unidade de equivalência de que precisa, clique no botão "Gerenciar Unidade de Equivalência".');
@@ -2183,8 +2183,8 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'# Pessoas');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.fuPerPersonPerTime','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# Of FU/Person/Time');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'# d UF/Personne/Temps');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# Of FU / Person / Time');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'# d UF / Personne / Temps');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# De FU / persona / tiempo');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº de FU / Pessoa / Tempo');
 
@@ -2204,8 +2204,8 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Freqüência de Uso');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.fuPerPersonPerMonth?','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# Of FU/Person/Month');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'# d UF/Personne/Mois');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# Of FU / Person / Month');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'# d UF / Personne / Mois');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# De FU / persona / mes');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº de FU / pessoa / mês');
 
@@ -2330,3 +2330,21 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Max 5 digit number and
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Un nombre maximum de 5 chiffres et 8 chiffres après la virgule sont autorisés.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se permiten un número máximo de 5 dígitos y 8 dígitos después del decimal.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'São permitidos no máximo 5 dígitos e 8 dígitos após o decimal.');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.equivalancyUnit.equivalancyUnitName','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Equivalency Unit (Name)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unité d équivalence (Nom)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Unidad de equivalencia (nombre)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Unidade de Equivalência (Nome)');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.fuPerPersonPerMonth','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# of FU / Person / Month');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'# d UF / Personne / Mois');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# de FU / persona / mes');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº de FU / Pessoa / Mês');
