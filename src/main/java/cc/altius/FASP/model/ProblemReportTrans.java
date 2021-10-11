@@ -82,4 +82,4 @@ public class ProblemReportTrans implements Serializable {
         this.createdDate = createdDate;
     }
 
-}
+    }
