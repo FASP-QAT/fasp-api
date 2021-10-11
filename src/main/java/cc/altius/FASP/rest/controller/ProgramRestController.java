@@ -19,10 +19,13 @@ import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
+import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +60,8 @@ public class ProgramRestController {
     private UserService userService;
     @Autowired
     private ProgramDataService programDataService;
+    @Autowired
+    private RealmCountryService realmCountryService;
 
     @PostMapping(path = "/program")
     public ResponseEntity postProgram(@RequestBody Program program, Authentication auth) {
@@ -584,7 +589,10 @@ public class ProgramRestController {
     public ResponseEntity getLoadProgram(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.programService.getLoadProgram(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser), HttpStatus.OK);
+            Map<String, Object> params = new HashMap<>();
+            params.put("realmCountryList", this.realmCountryService.getRealmCountryListByRealmIdForActivePrograms(curUser.getRealm().getRealmId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
+            params.put("programList", this.programService.getLoadProgram(GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
+            return new ResponseEntity(params, HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Programs", e);
             return new ResponseEntity(new LinkedList<LoadProgram>(), HttpStatus.OK);
