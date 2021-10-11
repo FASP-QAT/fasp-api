@@ -29,6 +29,8 @@ public class TreeNodeData implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double dataValue;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private Double calculatedDataValue;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private TreeNodeDataFu fuNode;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private TreeNodeDataPu puNode;
@@ -102,7 +104,13 @@ public class TreeNodeData implements Serializable {
     public void setNodeDataOverrideList(List<NodeDataOverride> nodeDataOverrideList) {
         this.nodeDataOverrideList = nodeDataOverrideList;
     }
-    
-    
+
+    public Double getCalculatedDataValue() {
+        return calculatedDataValue;
+    }
+
+    public void setCalculatedDataValue(Double calculatedDataValue) {
+        this.calculatedDataValue = calculatedDataValue;
+    }
 
 }
