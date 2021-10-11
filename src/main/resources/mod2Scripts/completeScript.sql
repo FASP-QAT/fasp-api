@@ -2348,3 +2348,18 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# of FU / Person / Mon
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'# d UF / Personne / Mois');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# de FU / persona / mes');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº de FU / Pessoa / Mês');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.realmLevel','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Realm Level');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Niveau du royaume');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nivel de reino');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nível de reino');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.datasetLevel','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Frequency');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Niveau de l ensemble de données');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nivel de conjunto de datos');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nível do conjunto de dados');
