@@ -7,6 +7,7 @@ package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.ForecastTree;
+import cc.altius.FASP.model.NodeType;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleUnitAndTracerObject;
@@ -87,7 +88,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
         TreeNode tn = new TreeNode(
                 nodeId,
                 parentNodeId,
-                new SimpleObject(rs.getInt("NODE_TYPE_ID"), new LabelRowMapper("NT_").mapRow(rs, count)),
+                new NodeType(rs.getInt("NODE_TYPE_ID"), new LabelRowMapper("NT_").mapRow(rs, count), rs.getBoolean("MODELING_ALLOWED")),
                 new SimpleCodeObject(rs.getInt("U_UNIT_ID"), new LabelRowMapper("U_").mapRow(rs, count), rs.getString("U_UNIT_CODE")),
                 rs.getBoolean("MANUAL_CHANGE_EFFECTS_FUTURE_MONTHS"),
                 new LabelRowMapper().mapRow(rs, count)

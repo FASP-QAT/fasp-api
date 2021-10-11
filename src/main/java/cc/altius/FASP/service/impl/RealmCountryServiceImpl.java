@@ -8,7 +8,6 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.dao.RealmDao;
-import cc.altius.FASP.dao.impl.RealmCountryDaoImpl;
 import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Realm;
@@ -16,12 +15,8 @@ import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.RealmCountryHealthArea;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.RealmCountryService;
-import static java.lang.Runtime.version;
-import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
@@ -139,13 +134,13 @@ public class RealmCountryServiceImpl implements RealmCountryService {
     }
 
     @Override
-    public List<RealmCountryHealthArea> getRealmCountryListByRealmIdForActivePrograms(int realmId, CustomUserDetails curUser) {
+    public List<RealmCountryHealthArea> getRealmCountryListByRealmIdForActivePrograms(int realmId, int programTypeId, CustomUserDetails curUser) {
         Realm r = this.realmDao.getRealmById(realmId, curUser);
         if (r == null) {
             throw new EmptyResultDataAccessException(1);
         }
         if (this.aclService.checkRealmAccessForUser(curUser, realmId)) {
-            return this.realmCountryDao.getRealmCountryListByRealmIdForActivePrograms(realmId, curUser);
+            return this.realmCountryDao.getRealmCountryListByRealmIdForActivePrograms(realmId, programTypeId, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }

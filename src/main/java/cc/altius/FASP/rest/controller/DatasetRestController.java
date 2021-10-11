@@ -11,13 +11,14 @@ import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ResponseCode;
-import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
+import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.UserService;
-import com.fasterxml.jackson.annotation.JsonView;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,6 +52,8 @@ public class DatasetRestController {
     private ProgramDataService programDataService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private RealmCountryService realmCountryService;
 
     @GetMapping("/dataset")
     public ResponseEntity getDataset(Authentication auth) {
@@ -167,8 +170,10 @@ public class DatasetRestController {
     public ResponseEntity getLoadDataset(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            List<LoadProgram> lp = this.programService.getLoadProgram(GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
-            return new ResponseEntity(lp, HttpStatus.OK);
+            Map<String, Object> params = new HashMap<>();
+            params.put("realmCountryList", this.realmCountryService.getRealmCountryListByRealmIdForActivePrograms(curUser.getRealm().getRealmId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser));
+            params.put("programList", this.programService.getLoadProgram(GlobalConstants.PROGRAM_TYPE_DATASET, curUser));
+            return new ResponseEntity(params, HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
             logger.error("Error while trying to list Datasets", e);
             return new ResponseEntity(new LinkedList<LoadProgram>(), HttpStatus.OK);

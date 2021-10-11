@@ -2348,3 +2348,101 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# of FU / Person / Mon
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'# d UF / Personne / Mois');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# de FU / persona / mes');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº de FU / Pessoa / Mês');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.realmLevel','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Realm Level');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Niveau du royaume');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nivel de reino');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nível de reino');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.datasetLevel','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Dataset Level');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Niveau de l ensemble de données');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nivel de conjunto de datos');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nível do conjunto de dados');
+
+
+CREATE TABLE `ap_node_type_rule` (
+  `NODE_TYPE_RULE_ID` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `NODE_TYPE_ID` int(10) unsigned NOT NULL,
+  `CHILD_NODE_TYPE_ID` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`NODE_TYPE_RULE_ID`),
+  KEY `fk_nodeTypeRule_nodeTypeId_idx` (`NODE_TYPE_ID`),
+  KEY `fk_nodeTypeRule_childNodeTypeId_idx` (`CHILD_NODE_TYPE_ID`),
+  CONSTRAINT `fk_nodeTypeRule_childNodeTypeId` FOREIGN KEY (`CHILD_NODE_TYPE_ID`) REFERENCES `ap_node_type` (`NODE_TYPE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_nodeTypeRule_nodeTypeId` FOREIGN KEY (`NODE_TYPE_ID`) REFERENCES `ap_node_type` (`NODE_TYPE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+ALTER TABLE `fasp`.`ap_node_type_rule` 
+ADD INDEX `fk_nodeTypeRule_nodeTypeId_idx` (`NODE_TYPE_ID` ASC),
+ADD INDEX `fk_nodeTypeRule_childNodeTypeId_idx` (`CHILD_NODE_TYPE_ID` ASC);
+ALTER TABLE `fasp`.`ap_node_type_rule` 
+ADD CONSTRAINT `fk_nodeTypeRule_nodeTypeId`
+  FOREIGN KEY (`NODE_TYPE_ID`)
+  REFERENCES `fasp`.`ap_node_type` (`NODE_TYPE_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_nodeTypeRule_childNodeTypeId`
+  FOREIGN KEY (`CHILD_NODE_TYPE_ID`)
+  REFERENCES `fasp`.`ap_node_type` (`NODE_TYPE_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+ALTER TABLE `fasp`.`ap_node_type` 
+ADD COLUMN `MODELING_ALLOWED` TINYINT(1) UNSIGNED NOT NULL AFTER `LABEL_ID`;
+
+UPDATE `fasp`.`ap_node_type` SET `MODELING_ALLOWED`='0' WHERE `NODE_TYPE_ID`='1';
+UPDATE `fasp`.`ap_node_type` SET `MODELING_ALLOWED`='1' WHERE `NODE_TYPE_ID`='2';
+UPDATE `fasp`.`ap_node_type` SET `MODELING_ALLOWED`='1' WHERE `NODE_TYPE_ID`='3';
+UPDATE `fasp`.`ap_node_type` SET `MODELING_ALLOWED`='1' WHERE `NODE_TYPE_ID`='4';
+UPDATE `fasp`.`ap_node_type` SET `MODELING_ALLOWED`='1' WHERE `NODE_TYPE_ID`='5';
+
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_node_type` AS
+    SELECT 
+        `ut`.`NODE_TYPE_ID` AS `NODE_TYPE_ID`,
+        `ut`.`LABEL_ID` AS `LABEL_ID`,
+        `ut`.`MODELING_ALLOWED` AS `MODELING_ALLOWED`,
+        `ut`.`ACTIVE` AS `ACTIVE`,
+        `ut`.`CREATED_BY` AS `CREATED_BY`,
+        `ut`.`CREATED_DATE` AS `CREATED_DATE`,
+        `ut`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `ut`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`ap_node_type` `ut`
+        LEFT JOIN `ap_label` `l` ON ((`ut`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+ALTER TABLE `fasp`.`ap_node_type_rule` 
+DROP FOREIGN KEY `fk_nodeTypeRule_childNodeTypeId`;
+ALTER TABLE `fasp`.`ap_node_type_rule` 
+CHANGE COLUMN `CHILD_NODE_TYPE_ID` `CHILD_NODE_TYPE_ID` INT(10) UNSIGNED NULL ;
+ALTER TABLE `fasp`.`ap_node_type_rule` 
+ADD CONSTRAINT `fk_nodeTypeRule_childNodeTypeId`
+  FOREIGN KEY (`CHILD_NODE_TYPE_ID`)
+  REFERENCES `fasp`.`ap_node_type` (`NODE_TYPE_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+INSERT INTO ap_node_type_rule VALUES (null, 1, 1);
+INSERT INTO ap_node_type_rule VALUES (null, 1, 2);
+INSERT INTO ap_node_type_rule VALUES (null, 2, 3);
+INSERT INTO ap_node_type_rule VALUES (null, 2, 4);
+INSERT INTO ap_node_type_rule VALUES (null, 3, 3);
+INSERT INTO ap_node_type_rule VALUES (null, 3, 4);
+INSERT INTO ap_node_type_rule VALUES (null, 4, 5);
+INSERT INTO ap_node_type_rule VALUES (null, 5, null);
+
+

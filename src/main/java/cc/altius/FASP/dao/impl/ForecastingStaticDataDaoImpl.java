@@ -13,7 +13,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import cc.altius.FASP.dao.ForecastingStaticDataDao;
+import cc.altius.FASP.model.NodeType;
 import cc.altius.FASP.model.SimpleBaseModel;
+import cc.altius.FASP.model.NodeTypeSync;
+import cc.altius.FASP.model.rowMapper.NodeTypeRowMapper;
+import cc.altius.FASP.model.rowMapper.NodeTypeSyncResultSetExtractor;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -43,12 +47,17 @@ public class ForecastingStaticDataDaoImpl implements ForecastingStaticDataDao {
             + "LEFT JOIN us_user lmb ON ut.LAST_MODIFIED_BY=lmb.USER_ID "
             + "WHERE 1 ";
 
-    private static String nodeTypeString = "SELECT nt.NODE_TYPE_ID ID, "
+    private static String nodeTypeString = "SELECT nt.NODE_TYPE_ID ID, nt.MODELING_ALLOWED, ntr.CHILD_NODE_TYPE_ID, "
             + "nt.LABEL_ID, nt.LABEL_EN, nt.LABEL_FR, nt.LABEL_SP, nt.LABEL_PR, "
             + "nt.ACTIVE, nt.CREATED_DATE, cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, nt.LAST_MODIFIED_DATE, lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME "
             + "FROM vw_node_type nt "
+            + "LEFT JOIN ap_node_type_rule ntr ON nt.NODE_TYPE_ID=ntr.NODE_TYPE_ID "
             + "LEFT JOIN us_user cb ON nt.CREATED_BY=cb.USER_ID "
             + "LEFT JOIN us_user lmb ON nt.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "WHERE 1 ";
+
+    private static String nodeTypeRuleString = "SELECT ntr.NODE_TYPE_ID ID, ntr.CHILD_NODE_TYPE_ID "
+            + "FROM ap_node_type_rule ntr "
             + "WHERE 1 ";
 
     @Autowired
@@ -67,12 +76,12 @@ public class ForecastingStaticDataDaoImpl implements ForecastingStaticDataDao {
     }
 
     @Override
-    public List<SimpleBaseModel> getNodeTypeList(boolean active, CustomUserDetails curUser) {
+    public List<NodeType> getNodeTypeList(boolean active, CustomUserDetails curUser) {
         String sqlString = nodeTypeString;
         if (active) {
             sqlString += " AND nt.ACTIVE";
         }
-        return namedParameterJdbcTemplate.query(sqlString, new SimpleBaseModelRowMapper());
+        return namedParameterJdbcTemplate.query(sqlString, new NodeTypeRowMapper());
     }
 
     @Override
@@ -93,11 +102,12 @@ public class ForecastingStaticDataDaoImpl implements ForecastingStaticDataDao {
     }
 
     @Override
-    public List<SimpleBaseModel> getNodeTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
+    public List<NodeTypeSync> getNodeTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
         String sqlString = nodeTypeString + " AND nt.LAST_MODIFIED_DATE>:lastSyncDate";
+        sqlString += " ORDER BY nt.NODE_TYPE_ID, ntr.CHILD_NODE_TYPE_ID ";
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);
-        return namedParameterJdbcTemplate.query(sqlString, params, new SimpleBaseModelRowMapper());
+        return namedParameterJdbcTemplate.query(sqlString, params, new NodeTypeSyncResultSetExtractor());
     }
 
     @Override

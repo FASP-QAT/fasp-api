@@ -6,6 +6,8 @@
 package cc.altius.FASP.dao;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.NodeType;
+import cc.altius.FASP.model.NodeTypeSync;
 import cc.altius.FASP.model.SimpleBaseModel;
 import java.util.List;
 
@@ -17,13 +19,13 @@ public interface ForecastingStaticDataDao {
 
     public List<SimpleBaseModel> getUsageTypeList(boolean active, CustomUserDetails curUser);
 
-    public List<SimpleBaseModel> getNodeTypeList(boolean active, CustomUserDetails curUser);
+    public List<NodeType> getNodeTypeList(boolean active, CustomUserDetails curUser);
 
     public List<SimpleBaseModel> getForecastMethodTypeList(boolean active, CustomUserDetails curUser);
 
     public List<SimpleBaseModel> getUsageTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
 
-    public List<SimpleBaseModel> getNodeTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
+    public List<NodeTypeSync> getNodeTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
 
     public List<SimpleBaseModel> getForecastMethodTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

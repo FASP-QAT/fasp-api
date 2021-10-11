@@ -11,6 +11,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cc.altius.FASP.dao.ForecastingStaticDataDao;
+import cc.altius.FASP.model.NodeType;
+import cc.altius.FASP.model.NodeTypeSync;
 import cc.altius.FASP.service.ForecastingStaticDataService;
 
 /**
@@ -29,7 +31,7 @@ public class ForecastingStaticDataServiceImpl implements ForecastingStaticDataSe
     }
 
     @Override
-    public List<SimpleBaseModel> getNodeTypeList(boolean active, CustomUserDetails curUser) {
+    public List<NodeType> getNodeTypeList(boolean active, CustomUserDetails curUser) {
         return this.forecastingStaticDataDao.getNodeTypeList(active, curUser);
     }
 
@@ -44,7 +46,7 @@ public class ForecastingStaticDataServiceImpl implements ForecastingStaticDataSe
     }
 
     @Override
-    public List<SimpleBaseModel> getNodeTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
+    public List<NodeTypeSync> getNodeTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.forecastingStaticDataDao.getNodeTypeListForSync(lastSyncDate, curUser);
     }
 
