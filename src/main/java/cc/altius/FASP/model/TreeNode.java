@@ -22,7 +22,7 @@ public class TreeNode implements Serializable {
     @JsonView(Views.InternalView.class)
     private Integer parentNodeId;
     @JsonView(Views.InternalView.class)
-    private SimpleObject nodeType;
+    private NodeType nodeType;
     @JsonView(Views.InternalView.class)
     private SimpleCodeObject nodeUnit;
     private boolean manualChangeEffectsFutureMonths;
@@ -35,7 +35,7 @@ public class TreeNode implements Serializable {
         this.nodeDataMap = new HashMap<>();
     }
 
-    public TreeNode(int nodeId, Integer parentNodeId, SimpleObject nodeType, SimpleCodeObject nodeUnit, boolean manualChangeEffectsFutureMonths, Label label) {
+    public TreeNode(int nodeId, Integer parentNodeId, NodeType nodeType, SimpleCodeObject nodeUnit, boolean manualChangeEffectsFutureMonths, Label label) {
         this.nodeId = nodeId;
         this.parentNodeId = parentNodeId;
         this.nodeType = nodeType;
@@ -61,11 +61,11 @@ public class TreeNode implements Serializable {
         this.parentNodeId = parentNodeId;
     }
 
-    public SimpleObject getNodeType() {
+    public NodeType getNodeType() {
         return nodeType;
     }
 
-    public void setNodeType(SimpleObject nodeType) {
+    public void setNodeType(NodeType nodeType) {
         this.nodeType = nodeType;
     }
 

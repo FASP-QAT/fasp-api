@@ -48,7 +48,7 @@ public class MastersSync implements Serializable {
     private List<RealmProblem> realmProblemList;
     private List<Budget> budgetList;
     private List<SimpleBaseModel> usageTypeList;
-    private List<SimpleBaseModel> nodeTypeList;
+    private List<NodeTypeSync> nodeTypeList;
     private List<SimpleBaseModel> forecastMethodTypeList;
     private List<UsagePeriod> usagePeriodList;
     private List<ModelingType> modelingTypeList;
@@ -319,11 +319,11 @@ public class MastersSync implements Serializable {
         this.usageTypeList = usageTypeList;
     }
 
-    public List<SimpleBaseModel> getNodeTypeList() {
+    public List<NodeTypeSync> getNodeTypeList() {
         return nodeTypeList;
     }
 
-    public void setNodeTypeList(List<SimpleBaseModel> nodeTypeList) {
+    public void setNodeTypeList(List<NodeTypeSync> nodeTypeList) {
         this.nodeTypeList = nodeTypeList;
     }
 
