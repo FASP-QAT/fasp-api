@@ -117,7 +117,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     private static String commitRequestSql = "SELECT spcr.COMMIT_REQUEST_ID,spcr.`COMMITTED_VERSION_ID`, "
             + "p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
             + "vt.VERSION_TYPE_ID, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
-            + "spcr.`NOTES`, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, spcr.CREATED_DATE, spcr.COMPLETED_DATE, spcr.STATUS "
+            + "spcr.`NOTES`,spcr.`SAVE_DATA`, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, spcr.CREATED_DATE, spcr.COMPLETED_DATE, spcr.STATUS "
             + "FROM ct_supply_plan_commit_request spcr "
             + "LEFT JOIN vw_program p ON spcr.PROGRAM_ID=p.PROGRAM_ID "
             + "LEFT JOIN vw_version_type vt ON spcr.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
@@ -185,6 +185,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("COMMITTED_VERSION_ID", programData.getRequestedProgramVersion());
         params.put("VERSION_TYPE_ID", programData.getVersionType().getId());
         params.put("NOTES", programData.getNotes());
+        params.put("SAVE_DATA", 1);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
         params.put("STATUS", 1); // New request

@@ -27,6 +27,7 @@ public class SupplyPlanCommitRequestRowMapper implements RowMapper<SupplyPlanCom
         spcr.setCommittedVersionId(rs.getInt("COMMITTED_VERSION_ID"));
         spcr.setVersionType(new SimpleObject(rs.getInt("VERSION_TYPE_ID"), new LabelRowMapper("VERSION_TYPE_").mapRow(rs, i)));
         spcr.setNotes(rs.getString("NOTES"));
+        spcr.setSaveData(rs.getBoolean("SAVE_DATA"));
         spcr.setCreatedBy(new BasicUser(rs.getInt("CB_USER_ID"), rs.getString("CB_USERNAME")));
         spcr.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
         spcr.setCompletedDate(rs.getTimestamp("COMPLETED_DATE"));

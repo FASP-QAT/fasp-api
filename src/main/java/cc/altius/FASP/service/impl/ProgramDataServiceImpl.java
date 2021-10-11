@@ -46,7 +46,7 @@ import org.springframework.security.access.AccessDeniedException;
  */
 @Service
 public class ProgramDataServiceImpl implements ProgramDataService {
-
+    
     @Autowired
     private ProgramDataDao programDataDao;
     @Autowired
@@ -59,7 +59,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     private EmailService emailService;
     @Autowired
     private UserService userService;
-
+    
     @Override
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean active) {
         ProgramData pd = new ProgramData(this.programService.getProgramById(programId, curUser));
@@ -75,7 +75,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(programId, curUser));
         return pd;
     }
-
+    
     @Override
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
         List<ProgramData> programDataList = new LinkedList<>();
@@ -95,7 +95,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         });
         return programDataList;
     }
-
+    
     @Override
     public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
         Program p = this.programService.getProgramById(programData.getProgramId(), curUser);
@@ -107,7 +107,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             throw new AccessDeniedException("Access denied");
         }
     }
-
+    
     @Override
     public void processCommitRequest(CustomUserDetails curUser) {
         List<SupplyPlanCommitRequest> spcrList = this.programDataDao.getPendingSupplyPlanProcessList();
@@ -119,7 +119,12 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                 Version version;
                 User user = this.userService.getUserByUserId(spcr.getCreatedBy().getUserId(), curUser);
                 try {
-                    version = this.programDataDao.processCommitRequest(spcr, curUser);
+                    if (spcr.isSaveData()) {
+                        version = this.programDataDao.processCommitRequest(spcr, curUser);
+                    } else {
+                        version = new Version();
+                        version.setVersionId(spcr.getCommittedVersionId());
+                    }
                 } catch (Exception e) {
                     version = this.programDataDao.updateFailedSupplyPlanCommitRequest(spcr.getCommitRequestId(), e.getMessage());
                     EmailTemplate emailTemplateForSpcr = this.emailService.getEmailTemplateByEmailTemplateId(9);
@@ -181,71 +186,71 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                             this.emailService.sendMail(emailer);
                         }
                     } else {
-
+                        
                     }
                 } catch (ParseException pe) {
-
+                    
                 }
             } else {
                 throw new AccessDeniedException("Access denied");
             }
         }
     }
-
+    
     @Override
     public Version updateFailedSupplyPlanCommitRequest(int commitRequestId, String message) {
         return this.programDataDao.updateFailedSupplyPlanCommitRequest(commitRequestId, message);
     }
-
+    
     @Override
     public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser) {
         return this.programDataDao.getSupplyPlanCommitRequestList(spcr, requestStatus, curUser);
     }
-
+    
     @Override
     public List<SimpleObject> getVersionTypeList() {
         return this.programDataDao.getVersionTypeList();
     }
-
+    
     @Override
     public List<SimpleObject> getVersionStatusList() {
         return this.programDataDao.getVersionStatusList();
     }
-
+    
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser) {
         return this.programDataDao.getProgramVersionList(programId, versionId, realmCountryId, healthAreaId, organisationId, versionTypeId, versionStatusId, startDate, stopDate, curUser);
     }
-
+    
     @Override
     public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList) {
         return this.programDataDao.updateProgramVersion(programId, versionId, versionStatusId, notes, curUser, reviewedProblemList);
     }
-
+    
     @Override
     public int checkErpOrder(String orderNo, String primeLineNo, int realmCountryId, int planningUnitId) {
         return this.programDataDao.checkErpOrder(orderNo, primeLineNo, realmCountryId, planningUnitId);
     }
-
+    
     @Override
     public SupplyPlan getSupplyPlan(int programId, int versionId) {
         return this.programDataDao.getSupplyPlan(programId, versionId);
     }
-
+    
     @Override
     public List<SimplifiedSupplyPlan> getNewSupplyPlanList(int programId, int versionId, boolean rebuild, boolean returnSupplyPlan) throws ParseException {
         return this.programDataDao.getNewSupplyPlanList(programId, versionId, rebuild, returnSupplyPlan);
     }
-
+    
     @Override
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp) {
         return this.programDataDao.updateSupplyPlanBatchInfo(sp);
     }
-
+    
     @Override
     public int updateSentToARTMISFlag(String programVersionIds) {
         return this.programDataDao.updateSentToARTMISFlag(programVersionIds);
     }
-
+    
     @Override
     public ShipmentSync getShipmentListForSync(int programId, int versionId, int userId, String lastSyncDate, CustomUserDetails curUser) {
         ShipmentSync ss = new ShipmentSync();
@@ -257,7 +262,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         ss.setProblemReportList(this.problemService.getProblemReportListForSync(programId, versionId, lastSyncDate));
         return ss;
     }
-
+    
     @Override
     public boolean checkNewerVersions(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
         boolean newer = false;
@@ -276,17 +281,17 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         }
         return newer;
     }
-
+    
     @Override
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList() {
         return this.programDataDao.getSupplyPlanToExportList();
     }
-
+    
     @Override
     public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId) {
         return this.programDataDao.updateSupplyPlanAsExported(programVersionTransId, integrationId);
     }
-
+    
     @Override
     public int getLatestVersionForProgram(int programId) {
         return this.programDataDao.getLatestVersionForProgram(programId);
@@ -307,15 +312,15 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc) {
         return this.programDataDao.getSupplyPlanNotificationList(programId, versionId, statusType, toCc);
     }
-
+    
     @Override
     public String getLastModifiedDateForProgram(int programId, int versionId) {
         return this.programDataDao.getLastModifiedDateForProgram(programId, versionId);
     }
-
+    
     @Override
     public boolean checkIfCommitRequestExistsForProgram(int programId) {
         return this.programDataDao.checkIfCommitRequestExistsForProgram(programId);
     }
-
+    
 }

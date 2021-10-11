@@ -23,6 +23,7 @@ public class SupplyPlanCommitRequest {
     private int committedVersionId;
     private SimpleObject versionType;
     private String notes;
+    private boolean saveData;
     private BasicUser createdBy;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
@@ -72,6 +73,14 @@ public class SupplyPlanCommitRequest {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public boolean isSaveData() {
+        return saveData;
+    }
+
+    public void setSaveData(boolean saveData) {
+        this.saveData = saveData;
     }
 
     public BasicUser getCreatedBy() {
