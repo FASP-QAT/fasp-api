@@ -378,3 +378,20 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Completion date');-- e
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Date d`achèvement');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fecha de Terminación');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Data de conclusão');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.notification.commitSuccess','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Commit Request for program {{programCode}} v~{{programVersion}} is completed successfully. Please click on the notification to load the latest version.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La demande de validation pour le programme {{programCode}} v~{{programVersion}} est terminée avec succès. Veuillez cliquer sur la notification pour charger la dernière version.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La solicitud de confirmación para el programa {{programCode}} v ~ {{programVersion}} se completó correctamente. Haga clic en la notificación para cargar la última versión.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A solicitação de confirmação para o programa {{programCode}} v ~ {{programVersion}} foi concluída com êxito. Clique na notificação para carregar a versão mais recente.');-- pr
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.notification.commitFailed','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Commit Request for program {{programCode}} v~{{programVersion}} is failed. Please try again.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La demande de validation du programme {{programCode}} v~{{programVersion}} a échoué. Veuillez réessayer.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La solicitud de confirmación para el programa {{programCode}} v ~ {{programVersion}} ha fallado. Inténtalo de nuevo.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A solicitação de confirmação para o programa {{programCode}} v ~ {{programVersion}} falhou. Por favor, tente novamente.');-- pr

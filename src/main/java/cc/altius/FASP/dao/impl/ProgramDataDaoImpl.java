@@ -2270,4 +2270,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
     }
 
+    @Override
+    public SupplyPlanCommitRequest getCommitRequestByCommitRequestId(int commitRequestId) {
+        StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND spcr.COMMIT_REQUEST_ID=:commitRequestId");
+        Map<String, Object> params = new HashMap<>();
+        params.put("commitRequestId", commitRequestId);
+        return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new SupplyPlanCommitRequestRowMapper());
+    }
+
 }

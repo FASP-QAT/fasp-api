@@ -75,4 +75,6 @@ public interface ProgramDataService {
     public String getLastModifiedDateForProgram(int programId, int versionId);
 
     public boolean checkIfCommitRequestExistsForProgram(int programId);
+    
+    public SupplyPlanCommitRequest getCommitRequestByCommitRequestId(int commitRequestId);
 }
