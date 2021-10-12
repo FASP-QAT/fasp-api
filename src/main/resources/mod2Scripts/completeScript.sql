@@ -2501,3 +2501,7 @@ VIEW `vw_usage_template` AS
     FROM
         (`rm_usage_template` `ut`
         LEFT JOIN `ap_label` `l` ON ((`ut`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+ALTER TABLE `fasp`.`rm_program` 
+DROP INDEX `unq_program_programCode` ,
+ADD UNIQUE INDEX `unq_program_programCode` (`PROGRAM_CODE` ASC, `REALM_ID` ASC, `PROGRAM_TYPE_ID` ASC);
