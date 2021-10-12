@@ -627,7 +627,7 @@ CREATE TABLE `fasp`.`rm_equivalency_unit_mapping` (
   `EQUIVALENCY_UNIT_MAPPING_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `EQUIVALENCY_UNIT_ID` INT(10) UNSIGNED NOT NULL,
   `FORECASTING_UNIT_ID` INT(10) UNSIGNED NOT NULL,
-  `CONVERT_TO_FU` DECIMAL(18,4) UNSIGNED NOT NULL,
+  `CONVERT_TO_EU` DECIMAL(18,4) UNSIGNED NOT NULL,
   `NOTES` TEXT NULL,
   `REALM_ID` INT(10) UNSIGNED NOT NULL,
   `PROGRAM_ID` INT(10) UNSIGNED NULL,
@@ -674,22 +674,22 @@ CREATE TABLE `fasp`.`rm_equivalency_unit_mapping` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
-INSERT INTO rm_equivalency_unit_mapping VALUES (null, 1, 204, 0.0333333333333333, '', 1, null, 1, 1, @dt, 1, @dt);
-INSERT INTO rm_equivalency_unit_mapping VALUES (null, 1, 2665, 0.0333333333333333, '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 1, 204, 30., '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 1, 2665, 30., '', 1, null, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 915, 1, '', 1, null, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 983, 1, '', 1, null, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 928, 1, '', 1, null, 1, 1, @dt, 1, @dt);
-INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 6, '', 1, null, 1, 1, @dt, 1, @dt);
-INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 24, '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 0.1667, '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 0.0417, '', 1, null, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 1, '', 1, null, 1, 1, @dt, 1, @dt);
-INSERT INTO rm_equivalency_unit_mapping VALUES (null, 5, 455, 96, '', 1, null, 1, 1, @dt, 1, @dt);
-INSERT INTO rm_equivalency_unit_mapping VALUES (null, 6, 928, 0.00833333333333333, '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 5, 455, 0.0104, '', 1, null, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 6, 928, 120, '', 1, null, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 928, 1, '', 1, 2030, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 227, 1, '', 1, 2030, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 7, 1813, 1, '', 1, 2030, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 7, 1814, 1, '', 1, 2030, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 6, 222, 1, '', 1, 2030, 1, 1, @dt, 1, @dt);
-INSERT INTO rm_equivalency_unit_mapping VALUES (null, 8, 1708, 0.166666666666667, '', 1, 2030, 1, 1, @dt, 1, @dt);
+INSERT INTO rm_equivalency_unit_mapping VALUES (null, 8, 1708, 6, '', 1, 2030, 1, 1, @dt, 1, @dt);
 
 ALTER TABLE `fasp`.`rm_program` 
 CHANGE COLUMN `AIR_FREIGHT_PERC` `AIR_FREIGHT_PERC` DECIMAL(5,2) UNSIGNED NULL COMMENT 'Percentage of Order Qty when Mode = Air' ,

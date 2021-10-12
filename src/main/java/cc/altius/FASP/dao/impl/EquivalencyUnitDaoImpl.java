@@ -131,7 +131,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
     @Override
     public List<EquivalencyUnitMapping> getEquivalencyUnitMappingList(boolean active, CustomUserDetails curUser) {
         String sqlString = "SELECT  "
-                + "    eum.EQUIVALENCY_UNIT_MAPPING_ID, eum.CONVERT_TO_FU, eum.NOTES,  "
+                + "    eum.EQUIVALENCY_UNIT_MAPPING_ID, eum.CONVERT_TO_EU, eum.NOTES,  "
                 + "    eum.ACTIVE, eum.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, eum.`LAST_MODIFIED_DATE`, eum.LAST_MODIFIED_BY, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, "
                 + "    eu.EQUIVALENCY_UNIT_ID, eu.LABEL_ID, eu.LABEL_EN, eu.LABEL_FR, eu.LABEL_SP, eu.LABEL_PR, "
                 + "    eu.ACTIVE `EU_ACTIVE`, eu.CREATED_DATE `EU_CREATED_DATE`, eucb.USER_ID `EU_CB_USER_ID`, eucb.USERNAME `EU_CB_USERNAME`, eu.`LAST_MODIFIED_DATE` `EU_LAST_MODIFIED_DATE`, eu.LAST_MODIFIED_BY `EU_LAST_MODIFIED_BY`, eulmb.USER_ID `EU_LMB_USER_ID`, eulmb.USERNAME `EU_LMB_USERNAME`, "
@@ -176,7 +176,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
             param.addValue("FORECASTING_UNIT_ID", eum.getForecastingUnit().getId());
             param.addValue("PROGRAM_ID", (eum.getProgram() == null ? null : (eum.getProgram().getId() == 0 ? null : eum.getProgram().getId())));
             param.addValue("NOTES", eum.getNotes());
-            param.addValue("CONVERT_TO_FU", eum.getConvertToFu());
+            param.addValue("CONVERT_TO_EU", eum.getConvertToEu());
             param.addValue("ACTIVE", 1);
             param.addValue("CREATED_BY", curUser.getUserId());
             param.addValue("CREATED_DATE", dt);
@@ -197,7 +197,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
             param.put("equivalencyUnitMappingId", eum.getEquivalencyUnitMappingId());
             param.put("active", eum.isActive());
             param.put("notes", eum.getNotes());
-            param.put("convertToFu", eum.getConvertToFu());
+            param.put("convertToEu", eum.getConvertToEu());
             param.put("curUser", curUser.getUserId());
             param.put("dt", dt);
             paramList.add(new MapSqlParameterSource(param));
@@ -206,7 +206,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
         String sql = "UPDATE rm_equivalency_unit_mapping eum "
                 + "SET "
                 + "eum.ACTIVE=:active, "
-                + "eum.CONVERT_TO_FU=:convertToFu, "
+                + "eum.CONVERT_TO_EU=:convertToEu, "
                 + "eum.NOTES=:notes, "
                 + "eum.LAST_MODIFIED_DATE=:dt, "
                 + "eum.LAST_MODIFIED_BY=:curUser "
@@ -214,7 +214,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 + "     eum.EQUIVALENCY_UNIT_MAPPING_ID=:equivalencyUnitMappingId AND "
                 + "     ("
                 + "         eum.ACTIVE!=:active OR "
-                + "         eum.CONVERT_TO_FU!=:convertToFu OR "
+                + "         eum.CONVERT_TO_EU!=:convertToEu OR "
                 + "         eum.NOTES!=:notes"
                 + "     )";
         if (paramList.size() > 0) {

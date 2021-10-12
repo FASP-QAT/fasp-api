@@ -18,7 +18,7 @@ public class EquivalencyUnitMapping extends BaseModel implements Serializable {
     private SimpleObject forecastingUnit;
     private SimpleCodeObject unit;
     private SimpleObject tracerCategory;
-    private double convertToFu;
+    private double convertToEu;
     private String notes;
     private SimpleCodeObject program;
 
@@ -62,12 +62,12 @@ public class EquivalencyUnitMapping extends BaseModel implements Serializable {
         this.tracerCategory = tracerCategory;
     }
 
-    public double getConvertToFu() {
-        return convertToFu;
+    public double getConvertToEu() {
+        return convertToEu;
     }
 
-    public void setConvertToFu(double convertToFu) {
-        this.convertToFu = convertToFu;
+    public void setConvertToEu(double convertToEu) {
+        this.convertToEu = convertToEu;
     }
 
     public String getNotes() {
