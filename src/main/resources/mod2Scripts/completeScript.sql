@@ -2376,29 +2376,13 @@ CREATE TABLE `ap_node_type_rule` (
   CONSTRAINT `fk_nodeTypeRule_nodeTypeId` FOREIGN KEY (`NODE_TYPE_ID`) REFERENCES `ap_node_type` (`NODE_TYPE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-ALTER TABLE `fasp`.`ap_node_type_rule` 
-ADD INDEX `fk_nodeTypeRule_nodeTypeId_idx` (`NODE_TYPE_ID` ASC),
-ADD INDEX `fk_nodeTypeRule_childNodeTypeId_idx` (`CHILD_NODE_TYPE_ID` ASC);
-ALTER TABLE `fasp`.`ap_node_type_rule` 
-ADD CONSTRAINT `fk_nodeTypeRule_nodeTypeId`
-  FOREIGN KEY (`NODE_TYPE_ID`)
-  REFERENCES `fasp`.`ap_node_type` (`NODE_TYPE_ID`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION,
-ADD CONSTRAINT `fk_nodeTypeRule_childNodeTypeId`
-  FOREIGN KEY (`CHILD_NODE_TYPE_ID`)
-  REFERENCES `fasp`.`ap_node_type` (`NODE_TYPE_ID`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
+ALTER TABLE `fasp`.`ap_node_type` ADD COLUMN `MODELING_ALLOWED` TINYINT(1) UNSIGNED NOT NULL AFTER `LABEL_ID`;
 
-ALTER TABLE `fasp`.`ap_node_type` 
-ADD COLUMN `MODELING_ALLOWED` TINYINT(1) UNSIGNED NOT NULL AFTER `LABEL_ID`;
-
-UPDATE `fasp`.`ap_node_type` SET `MODELING_ALLOWED`='0' WHERE `NODE_TYPE_ID`='1';
-UPDATE `fasp`.`ap_node_type` SET `MODELING_ALLOWED`='1' WHERE `NODE_TYPE_ID`='2';
-UPDATE `fasp`.`ap_node_type` SET `MODELING_ALLOWED`='1' WHERE `NODE_TYPE_ID`='3';
-UPDATE `fasp`.`ap_node_type` SET `MODELING_ALLOWED`='1' WHERE `NODE_TYPE_ID`='4';
-UPDATE `fasp`.`ap_node_type` SET `MODELING_ALLOWED`='1' WHERE `NODE_TYPE_ID`='5';
+UPDATE `fasp`.`ap_node_type` SET `MODELING_ALLOWED`='0', LAST_MODIFIED_DATE='2021-10-12 00:00:00' WHERE `NODE_TYPE_ID`='1';
+UPDATE `fasp`.`ap_node_type` SET `MODELING_ALLOWED`='1', LAST_MODIFIED_DATE='2021-10-12 00:00:00' WHERE `NODE_TYPE_ID`='2';
+UPDATE `fasp`.`ap_node_type` SET `MODELING_ALLOWED`='1', LAST_MODIFIED_DATE='2021-10-12 00:00:00' WHERE `NODE_TYPE_ID`='3';
+UPDATE `fasp`.`ap_node_type` SET `MODELING_ALLOWED`='1', LAST_MODIFIED_DATE='2021-10-12 00:00:00' WHERE `NODE_TYPE_ID`='4';
+UPDATE `fasp`.`ap_node_type` SET `MODELING_ALLOWED`='1', LAST_MODIFIED_DATE='2021-10-12 00:00:00' WHERE `NODE_TYPE_ID`='5';
 
 
 USE `fasp`;
@@ -2446,3 +2430,74 @@ INSERT INTO ap_node_type_rule VALUES (null, 4, 5);
 INSERT INTO ap_node_type_rule VALUES (null, 5, null);
 
 
+ALTER TABLE `fasp`.`rm_equivalency_unit` ADD COLUMN `HEALTH_AREA_ID` INT(10) unsigned NULL AFTER `REALM_ID`, ADD INDEX `fk_rm_equivalency_unit_healthAreaId_idx` (`HEALTH_AREA_ID` ASC);
+UPDATE rm_equivalency_unit_mapping eum LEFT JOIN rm_equivalency_unit eu ON eum.EQUIVALENCY_UNIT_ID=eu.EQUIVALENCY_UNIT_ID LEFT JOIN rm_forecasting_unit fu ON eum.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID LEFT JOIN rm_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID SET eu.HEALTH_AREA_ID=tc.HEALTH_AREA_ID;
+UPDATE rm_equivalency_unit eu set eu.HEALTH_AREA_ID=3 where eu.EQUIVALENCY_UNIT_ID=3;
+ALTER TABLE `fasp`.`rm_equivalency_unit` CHANGE COLUMN `HEALTH_AREA_ID` `HEALTH_AREA_ID` INT(10) unsigned NOT NULL;
+ALTER TABLE `fasp`.`rm_equivalency_unit` 
+ADD CONSTRAINT `fk_rm_equivalency_unit_healthAreaId`
+  FOREIGN KEY (`HEALTH_AREA_ID`)
+  REFERENCES `fasp`.`rm_health_area` (`HEALTH_AREA_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_equivalency_unit` AS
+    SELECT 
+        `ut`.`EQUIVALENCY_UNIT_ID` AS `EQUIVALENCY_UNIT_ID`,
+        `ut`.`REALM_ID` AS `REALM_ID`,
+        `ut`.`HEALTH_AREA_ID` AS `HEALTH_AREA_ID`,
+        `ut`.`LABEL_ID` AS `LABEL_ID`,
+        `ut`.`ACTIVE` AS `ACTIVE`,
+        `ut`.`CREATED_BY` AS `CREATED_BY`,
+        `ut`.`CREATED_DATE` AS `CREATED_DATE`,
+        `ut`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `ut`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_equivalency_unit` `ut`
+        LEFT JOIN `ap_label` `l` ON ((`ut`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+ALTER TABLE `fasp`.`rm_usage_template` ADD COLUMN `NOTES` TEXT NULL AFTER `REPEAT_COUNT`;
+
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_usage_template` AS
+    SELECT 
+        `ut`.`USAGE_TEMPLATE_ID` AS `USAGE_TEMPLATE_ID`,
+        `ut`.`REALM_ID` AS `REALM_ID`,
+        `ut`.`PROGRAM_ID` AS `PROGRAM_ID`,
+        `ut`.`FORECASTING_UNIT_ID` AS `FORECASTING_UNIT_ID`,
+        `ut`.`LAG_IN_MONTHS` AS `LAG_IN_MONTHS`,
+        `ut`.`USAGE_TYPE_ID` AS `USAGE_TYPE_ID`,
+        `ut`.`NO_OF_PATIENTS` AS `NO_OF_PATIENTS`,
+        `ut`.`NO_OF_FORECASTING_UNITS` AS `NO_OF_FORECASTING_UNITS`,
+        `ut`.`ONE_TIME_USAGE` AS `ONE_TIME_USAGE`,
+        `ut`.`USAGE_FREQUENCY_USAGE_PERIOD_ID` AS `USAGE_FREQUENCY_USAGE_PERIOD_ID`,
+        `ut`.`USAGE_FREQUENCY_COUNT` AS `USAGE_FREQUENCY_COUNT`,
+        `ut`.`REPEAT_USAGE_PERIOD_ID` AS `REPEAT_USAGE_PERIOD_ID`,
+        `ut`.`REPEAT_COUNT` AS `REPEAT_COUNT`,
+        `ut`.`NOTES` AS `NOTES`, 
+        `ut`.`ACTIVE` AS `ACTIVE`,
+        `ut`.`CREATED_DATE` AS `CREATED_DATE`,
+        `ut`.`CREATED_BY` AS `CREATED_BY`,
+        `ut`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `ut`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `l`.`LABEL_ID` AS `LABEL_ID`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_usage_template` `ut`
+        LEFT JOIN `ap_label` `l` ON ((`ut`.`LABEL_ID` = `l`.`LABEL_ID`)));

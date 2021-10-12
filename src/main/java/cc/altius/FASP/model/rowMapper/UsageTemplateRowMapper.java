@@ -42,6 +42,7 @@ public class UsageTemplateRowMapper implements RowMapper<UsageTemplate> {
         ut.setUsageType(new SimpleObject(rs.getInt("USAGE_TYPE_ID"), new LabelRowMapper("UT_").mapRow(rs, i)));
         ut.setNoOfPatients(rs.getInt("NO_OF_PATIENTS"));
         ut.setNoOfForecastingUnits(rs.getInt("NO_OF_FORECASTING_UNITS"));
+        ut.setNotes(rs.getString("NOTES"));
         if (ut.getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) {
             // Discrete
             ut.setOneTimeUsage(rs.getBoolean("ONE_TIME_USAGE"));

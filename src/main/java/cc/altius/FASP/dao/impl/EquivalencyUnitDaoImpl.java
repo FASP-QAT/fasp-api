@@ -10,6 +10,7 @@ import cc.altius.FASP.dao.EquivalencyUnitDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EquivalencyUnit;
 import cc.altius.FASP.model.EquivalencyUnitMapping;
+import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.rowMapper.EquivalencyUnitMappingRowMapper;
 import cc.altius.FASP.model.rowMapper.EquivalencyUnitRowMapper;
 import cc.altius.utils.DateUtils;
@@ -53,9 +54,11 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 + "    eu.EQUIVALENCY_UNIT_ID,  "
                 + "    eu.LABEL_ID, eu.LABEL_EN, eu.LABEL_FR, eu.LABEL_SP, eu.LABEL_PR, "
                 + "    eu.ACTIVE, eu.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, eu.`LAST_MODIFIED_DATE`, eu.LAST_MODIFIED_BY, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, "
-                + "    r.REALM_ID, r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_SP `REALM_LABEL_SP`, r.LABEL_PR `REALM_LABEL_PR`, r.REALM_CODE "
+                + "    r.REALM_ID, r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_SP `REALM_LABEL_SP`, r.LABEL_PR `REALM_LABEL_PR`, r.REALM_CODE, "
+                + "    ha.HEALTH_AREA_ID, ha.LABEL_ID `HA_LABEL_ID`, ha.LABEL_EN `HA_LABEL_EN`, ha.LABEL_FR `HA_LABEL_FR`, ha.LABEL_SP `HA_LABEL_SP`, ha.LABEL_PR `HA_LABEL_PR`, ha.HEALTH_AREA_CODE "
                 + "FROM vw_equivalency_unit eu "
                 + "LEFT JOIN vw_realm r ON eu.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN vw_health_area ha on eu.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
                 + "LEFT JOIN us_user cb ON cb.USER_ID=eu.CREATED_BY "
                 + "LEFT JOIN us_user lmb ON lmb.USER_ID=eu.LAST_MODIFIED_BY ";
         if (active) {
@@ -75,8 +78,9 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
         List<SqlParameterSource> paramList = new LinkedList<>();
         equivalencyUnitList.stream().filter(ut -> ut.getEquivalencyUnitId() == 0).collect(Collectors.toList()).forEach(ut -> {
             MapSqlParameterSource param = new MapSqlParameterSource();
-            param.addValue("LABEL_ID", this.labelDao.addLabel(ut.getLabel(), 44, curUser.getUserId()));
+            param.addValue("LABEL_ID", this.labelDao.addLabel(ut.getLabel(), LabelConstants.RM_EQUIVALENCY_UNIT, curUser.getUserId()));
             param.addValue("REALM_ID", curUser.getRealm().getRealmId());
+            param.addValue("HEALTH_AREA_ID", ut.getHealthArea().getId());
             param.addValue("ACTIVE", 1);
             param.addValue("CREATED_BY", curUser.getUserId());
             param.addValue("CREATED_DATE", dt);
@@ -132,6 +136,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 + "    eu.EQUIVALENCY_UNIT_ID, eu.LABEL_ID, eu.LABEL_EN, eu.LABEL_FR, eu.LABEL_SP, eu.LABEL_PR, "
                 + "    eu.ACTIVE `EU_ACTIVE`, eu.CREATED_DATE `EU_CREATED_DATE`, eucb.USER_ID `EU_CB_USER_ID`, eucb.USERNAME `EU_CB_USERNAME`, eu.`LAST_MODIFIED_DATE` `EU_LAST_MODIFIED_DATE`, eu.LAST_MODIFIED_BY `EU_LAST_MODIFIED_BY`, eulmb.USER_ID `EU_LMB_USER_ID`, eulmb.USERNAME `EU_LMB_USERNAME`, "
                 + "    r.REALM_ID, r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_SP `REALM_LABEL_SP`, r.LABEL_PR `REALM_LABEL_PR`, r.REALM_CODE, "
+                + "    ha.HEALTH_AREA_ID, ha.LABEL_ID `HA_LABEL_ID`, ha.LABEL_EN `HA_LABEL_EN`, ha.LABEL_FR `HA_LABEL_FR`, ha.LABEL_SP `HA_LABEL_SP`, ha.LABEL_PR `HA_LABEL_PR`, ha.HEALTH_AREA_CODE, "
                 + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
                 + "    u.UNIT_ID, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, u.UNIT_CODE, "
                 + "    tc.TRACER_CATEGORY_ID, tc.LABEL_ID `TC_LABEL_ID`, tc.LABEL_EN `TC_LABEL_EN`, tc.LABEL_FR `TC_LABEL_FR`, tc.LABEL_SP `TC_LABEL_SP`, tc.LABEL_PR `TC_LABEL_PR`, "
@@ -139,6 +144,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 + "FROM rm_equivalency_unit_mapping eum "
                 + "LEFT JOIN vw_equivalency_unit eu ON eum.EQUIVALENCY_UNIT_ID=eu.EQUIVALENCY_UNIT_ID "
                 + "LEFT JOIN vw_realm r ON eu.REALM_ID=r.REALM_ID "
+                + "LEFT JOIN vw_health_area ha ON eu.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
                 + "LEFT JOIN us_user eucb ON eucb.USER_ID=eu.CREATED_BY "
                 + "LEFT JOIN us_user eulmb ON eulmb.USER_ID=eu.LAST_MODIFIED_BY "
                 + "LEFT JOIN us_user cb ON cb.USER_ID=eum.CREATED_BY "

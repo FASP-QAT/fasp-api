@@ -29,6 +29,7 @@ public class UsageTemplate extends BaseModel implements Serializable {
     private Double usageFrequencyCount;
     private UsagePeriod repeatUsagePeriod;
     private Double repeatCount;
+    private String notes;
 
     public UsageTemplate() {
     }
@@ -159,6 +160,14 @@ public class UsageTemplate extends BaseModel implements Serializable {
 
     public void setRepeatCount(Double repeatCount) {
         this.repeatCount = repeatCount;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public Label getUsageInWords() {
