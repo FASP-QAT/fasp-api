@@ -51,7 +51,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
     }
 
     private static String usageTemplateString = "SELECT  "
-            + "    ut.USAGE_TEMPLATE_ID, ut.LABEL_ID, ut.LABEL_EN, ut.LABEL_FR, ut.LABEL_SP, ut.LABEL_PR, "
+            + "    ut.USAGE_TEMPLATE_ID, ut.LABEL_ID, ut.LABEL_EN, ut.LABEL_FR, ut.LABEL_SP, ut.LABEL_PR, ut.NOTES, "
             + "    ut.REALM_ID, ut.LAG_IN_MONTHS, ut.NO_OF_PATIENTS, ut.NO_OF_FORECASTING_UNITS, ut.ONE_TIME_USAGE, ut.USAGE_FREQUENCY_COUNT, ut.REPEAT_COUNT, ut.ACTIVE, "
             + "    p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
             + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
@@ -134,6 +134,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
             param.addValue("USAGE_TYPE_ID", ut.getUsageType().getId());
             param.addValue("NO_OF_PATIENTS", ut.getNoOfPatients());
             param.addValue("NO_OF_FORECASTING_UNITS", ut.getNoOfForecastingUnits());
+            param.addValue("NOTES", ut.getNotes());
             if (ut.getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) {
                 // Discrete
                 param.addValue("ONE_TIME_USAGE", ut.isOneTimeUsage());
@@ -175,6 +176,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
             param.put("noOfPatients", ut.getNoOfPatients());
             param.put("noOfForecastingUnits", ut.getNoOfForecastingUnits());
             param.put("usageTypeId", ut.getUsageType().getId());
+            param.put("notes", ut.getNotes());
             if (ut.getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) {
                 // Discrete
                 param.put("oneTimeUsage", ut.isOneTimeUsage());
@@ -217,6 +219,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
                 + "ut.USAGE_FREQUENCY_COUNT=:usageFrequencyCount, "
                 + "ut.REPEAT_USAGE_PERIOD_ID=:repeatUsagePeriodId, "
                 + "ut.REPEAT_COUNT=:repeatCount, "
+                + "ut.NOTES=:notes, "
                 + "ut.ACTIVE=:active, "
                 + "ut.LAST_MODIFIED_DATE=:dt, "
                 + "ut.LAST_MODIFIED_BY=:curUser "
@@ -231,10 +234,21 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
                 + "     ut.NO_OF_PATIENTS!=:noOfPatients OR "
                 + "     ut.NO_OF_FORECASTING_UNITS!=:noOfForecastingUnits OR "
                 + "     ut.ONE_TIME_USAGE!=:oneTimeUsage OR "
+                + "     (ut.USAGE_FREQUENCY_USAGE_PERIOD_ID is null AND :usageFrequencyUsagePeriodId is not null) OR "
+                + "     (ut.USAGE_FREQUENCY_USAGE_PERIOD_ID is not null AND :usageFrequencyUsagePeriodId is null) OR "
                 + "     ut.USAGE_FREQUENCY_USAGE_PERIOD_ID!=:usageFrequencyUsagePeriodId OR "
+                + "     (ut.USAGE_FREQUENCY_COUNT is null AND :usageFrequencyCount is not null) OR "
+                + "     (ut.USAGE_FREQUENCY_COUNT is not null AND :usageFrequencyCount is null) OR "
                 + "     ut.USAGE_FREQUENCY_COUNT!=:usageFrequencyCount OR "
+                + "     (ut.REPEAT_USAGE_PERIOD_ID is null AND :repeatUsagePeriodId is not null) OR "
+                + "     (ut.REPEAT_USAGE_PERIOD_ID is not null AND :repeatUsagePeriodId is null) OR "
                 + "     ut.REPEAT_USAGE_PERIOD_ID!=:repeatUsagePeriodId OR "
+                + "     (ut.REPEAT_COUNT is null AND :repeatCount is not null) OR "
+                + "     (ut.REPEAT_COUNT is not null AND :repeatCount is null) OR "
                 + "     ut.REPEAT_COUNT!=:repeatCount OR "
+                + "     (ut.NOTES is null AND :notes is not null) OR "
+                + "     (ut.NOTES is not null AND :notes is null) OR "
+                + "     ut.NOTES!=:notes OR "
                 + "     ut.ACTIVE!=:active "
                 + " )";
         if (paramList.size() > 0) {

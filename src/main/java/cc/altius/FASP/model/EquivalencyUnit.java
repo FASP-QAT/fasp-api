@@ -15,14 +15,16 @@ public class EquivalencyUnit extends BaseModel implements Serializable {
 
     private int equivalencyUnitId;
     private SimpleCodeObject realm;
+    private SimpleCodeObject healthArea;
     private Label label;
 
     public EquivalencyUnit() {
     }
 
-    public EquivalencyUnit(int equivalencyUnitId, SimpleCodeObject realm, Label label) {
+    public EquivalencyUnit(int equivalencyUnitId, SimpleCodeObject realm, SimpleCodeObject healthArea, Label label) {
         this.equivalencyUnitId = equivalencyUnitId;
         this.realm = realm;
+        this.healthArea = healthArea;
         this.label = label;
     }
 
@@ -40,6 +42,14 @@ public class EquivalencyUnit extends BaseModel implements Serializable {
 
     public void setRealm(SimpleCodeObject realm) {
         this.realm = realm;
+    }
+
+    public SimpleCodeObject getHealthArea() {
+        return healthArea;
+    }
+
+    public void setHealthArea(SimpleCodeObject healthArea) {
+        this.healthArea = healthArea;
     }
 
     public Label getLabel() {

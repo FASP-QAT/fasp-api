@@ -29,7 +29,11 @@ public class EquivalencyUnitRowMapper implements RowMapper<EquivalencyUnit> {
 
     @Override
     public EquivalencyUnit mapRow(ResultSet rs, int i) throws SQLException {
-        EquivalencyUnit eq = new EquivalencyUnit(rs.getInt("EQUIVALENCY_UNIT_ID"), new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i), rs.getString("REALM_CODE")), new LabelRowMapper().mapRow(rs, i));
+        EquivalencyUnit eq = new EquivalencyUnit(
+                rs.getInt("EQUIVALENCY_UNIT_ID"), 
+                new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i), rs.getString("REALM_CODE")), 
+                new SimpleCodeObject(rs.getInt("HEALTH_AREA_ID"), new LabelRowMapper("HA_").mapRow(rs, i), rs.getString("HEALTH_AREA_CODE")), 
+                new LabelRowMapper().mapRow(rs, i));
         eq.setBaseModel(new BaseModelRowMapper(prefix).mapRow(rs, i));
         return eq;
     }
