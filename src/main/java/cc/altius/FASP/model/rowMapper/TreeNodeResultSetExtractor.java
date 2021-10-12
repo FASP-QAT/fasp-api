@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.NodeType;
@@ -116,7 +117,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
             if (tndf.isOneTimeUsage() != true) {
                 tndf.setUsageFrequency(rs.getDouble("USAGE_FREQUENCY"));
                 tndf.setUsagePeriod(new UsagePeriod(rs.getInt("UPF_USAGE_PERIOD_ID"), new LabelRowMapper("UPF_").mapRow(rs, count), rs.getDouble("UPF_CONVERT_TO_MONTH")));
-                if (tndf.getUsageType().getId() == 2) { // Discrete
+                if (tndf.getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) { // Discrete
                     tndf.setRepeatCount(rs.getDouble("REPEAT_COUNT"));
                     tndf.setRepeatUsagePeriod(new UsagePeriod(rs.getInt("UPR_USAGE_PERIOD_ID"), new LabelRowMapper("UPR_").mapRow(rs, count), rs.getDouble("UPR_CONVERT_TO_MONTH")));
                 }

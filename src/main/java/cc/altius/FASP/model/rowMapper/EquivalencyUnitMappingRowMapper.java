@@ -33,7 +33,7 @@ public class EquivalencyUnitMappingRowMapper implements RowMapper<EquivalencyUni
             eum.setProgram(new SimpleCodeObject(programId, new LabelRowMapper("P_").mapRow(rs, programId), rs.getString("PROGRAM_CODE")));
         }
         eum.setNotes(rs.getString("NOTES"));
-        eum.setConvertToFu(rs.getDouble("CONVERT_TO_FU"));
+        eum.setConvertToEu(rs.getDouble("CONVERT_TO_EU"));
         eum.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return eum;
     }

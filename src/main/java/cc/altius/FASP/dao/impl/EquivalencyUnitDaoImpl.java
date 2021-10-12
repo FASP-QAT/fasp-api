@@ -176,7 +176,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
             param.addValue("FORECASTING_UNIT_ID", eum.getForecastingUnit().getId());
             param.addValue("PROGRAM_ID", (eum.getProgram() == null ? null : (eum.getProgram().getId() == 0 ? null : eum.getProgram().getId())));
             param.addValue("NOTES", eum.getNotes());
-            param.addValue("CONVERT_TO_FU", eum.getConvertToFu());
+            param.addValue("CONVERT_TO_FU", eum.getConvertToEu());
             param.addValue("ACTIVE", 1);
             param.addValue("CREATED_BY", curUser.getUserId());
             param.addValue("CREATED_DATE", dt);
@@ -197,7 +197,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
             param.put("equivalencyUnitMappingId", eum.getEquivalencyUnitMappingId());
             param.put("active", eum.isActive());
             param.put("notes", eum.getNotes());
-            param.put("convertToFu", eum.getConvertToFu());
+            param.put("convertToFu", eum.getConvertToEu());
             param.put("curUser", curUser.getUserId());
             param.put("dt", dt);
             paramList.add(new MapSqlParameterSource(param));
