@@ -531,6 +531,7 @@ public class ProgramRestController {
             program.setId(erpOrderDTO[0].getProgramId());
             s.setProgram(program);
             s.setCommittedVersionId(-1);
+            s.setSaveData(false);
             s.setNotes("ERP Linking Supply Plan Rebuild");
             int commitRequestId = this.programDataService.addSupplyPlanCommitRequest(s,curUser);
 //            this.programDataService.getNewSupplyPlanList(erpOrderDTO[0].getProgramId(), -1, true, false);

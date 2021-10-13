@@ -395,3 +395,5 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Commit Request for pro
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La demande de validation du programme {{programCode}} v~{{programVersion}} a échoué. Veuillez réessayer.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La solicitud de confirmación para el programa {{programCode}} v ~ {{programVersion}} ha fallado. Inténtalo de nuevo.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A solicitação de confirmação para o programa {{programCode}} v ~ {{programVersion}} falhou. Por favor, tente novamente.');-- pr
+
+ALTER TABLE `fasp`.`ct_supply_plan_commit_request` CHANGE `COMMITTED_VERSION_ID` `COMMITTED_VERSION_ID` INT(10) NOT NULL; 
