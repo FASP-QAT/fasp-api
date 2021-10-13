@@ -524,7 +524,13 @@ public class ProgramRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             List<Integer> result = this.programService.linkShipmentWithARTMIS(erpOrderDTO, curUser);
             logger.info("ERP Linking : Going to get new supply plan list ");
-            this.programDataService.getNewSupplyPlanList(erpOrderDTO[0].getProgramId(), -1, true, false);
+            SupplyPlanCommitRequest s = new SupplyPlanCommitRequest();
+            SimpleCodeObject program = new SimpleCodeObject();
+            program.setId(erpOrderDTO[0].getProgramId());
+            s.setCommittedVersionId(-1);
+            s.setNotes("ERP Linking Supply Plan Rebuild");
+            int commitRequestId = this.programDataService.addSupplyPlanCommitRequest(s);
+//            this.programDataService.getNewSupplyPlanList(erpOrderDTO[0].getProgramId(), -1, true, false);
             logger.info("ERP Linking : supply plan rebuild done ");
             return new ResponseEntity(result, HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {
