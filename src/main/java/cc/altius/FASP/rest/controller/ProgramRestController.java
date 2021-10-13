@@ -6,6 +6,8 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.SupplyPlanCommitRequest;
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
@@ -524,7 +526,15 @@ public class ProgramRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             List<Integer> result = this.programService.linkShipmentWithARTMIS(erpOrderDTO, curUser);
             logger.info("ERP Linking : Going to get new supply plan list ");
-            this.programDataService.getNewSupplyPlanList(erpOrderDTO[0].getProgramId(), -1, true, false);
+            SupplyPlanCommitRequest s = new SupplyPlanCommitRequest();
+            SimpleCodeObject program = new SimpleCodeObject();
+            program.setId(erpOrderDTO[0].getProgramId());
+            s.setProgram(program);
+            s.setCommittedVersionId(-1);
+            s.setSaveData(false);
+            s.setNotes("ERP Linking Supply Plan Rebuild");
+            int commitRequestId = this.programDataService.addSupplyPlanCommitRequest(s,curUser);
+//            this.programDataService.getNewSupplyPlanList(erpOrderDTO[0].getProgramId(), -1, true, false);
             logger.info("ERP Linking : supply plan rebuild done ");
             return new ResponseEntity(result, HttpStatus.OK);
         } catch (EmptyResultDataAccessException e) {

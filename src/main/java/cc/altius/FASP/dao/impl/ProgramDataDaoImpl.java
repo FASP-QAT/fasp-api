@@ -117,7 +117,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     private static String commitRequestSql = "SELECT spcr.COMMIT_REQUEST_ID,spcr.`COMMITTED_VERSION_ID`, "
             + "p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
             + "vt.VERSION_TYPE_ID, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
-            + "spcr.`NOTES`, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, spcr.CREATED_DATE, spcr.COMPLETED_DATE, spcr.STATUS "
+            + "spcr.`NOTES`,spcr.`SAVE_DATA`, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, spcr.CREATED_DATE, spcr.COMPLETED_DATE, spcr.STATUS "
             + "FROM ct_supply_plan_commit_request spcr "
             + "LEFT JOIN vw_program p ON spcr.PROGRAM_ID=p.PROGRAM_ID "
             + "LEFT JOIN vw_version_type vt ON spcr.VERSION_TYPE_ID=vt.VERSION_TYPE_ID "
@@ -185,6 +185,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("COMMITTED_VERSION_ID", programData.getRequestedProgramVersion());
         params.put("VERSION_TYPE_ID", programData.getVersionType().getId());
         params.put("NOTES", programData.getNotes());
+        params.put("SAVE_DATA", 1);
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
         params.put("STATUS", 1); // New request
@@ -353,17 +354,19 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             int id = si.executeAndReturnKey(tp).intValue();
             SimpleJdbcInsert strans = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_problem_report_trans");
             for (ProblemReportTrans prt : pr.getProblemTransList()) {
-                Map<String, Object> tt = new HashMap<>();
-                tt.put("COMMIT_REQUEST_ID", commitRequestId);
-                tt.put("PARENT_ID", id);
-                tt.put("PROBLEM_REPORT_TRANS_ID", prt.getProblemReportTransId());
-                tt.put("PROBLEM_REPORT_ID", (pr.getProblemReportId() == 0 ? null : pr.getProblemReportId()));
-                tt.put("PROBLEM_STATUS_ID", prt.getProblemStatus().getId());
-                tt.put("REVIEWED", prt.isReviewed());
-                tt.put("CREATED_BY", prt.getCreatedBy().getUserId());
-                tt.put("CREATED_DATE", prt.getCreatedDate());
-                tt.put("NOTES", prt.getNotes());
-                strans.execute(tt);
+                if (prt.getCreatedDate() != null) {
+                    Map<String, Object> tt = new HashMap<>();
+                    tt.put("COMMIT_REQUEST_ID", commitRequestId);
+                    tt.put("PARENT_ID", id);
+                    tt.put("PROBLEM_REPORT_TRANS_ID", prt.getProblemReportTransId());
+                    tt.put("PROBLEM_REPORT_ID", (pr.getProblemReportId() == 0 ? null : pr.getProblemReportId()));
+                    tt.put("PROBLEM_STATUS_ID", prt.getProblemStatus().getId());
+                    tt.put("REVIEWED", prt.isReviewed());
+                    tt.put("CREATED_BY", prt.getCreatedBy().getUserId());
+                    tt.put("CREATED_DATE", prt.getCreatedDate());
+                    tt.put("NOTES", prt.getNotes());
+                    strans.execute(tt);
+                }
             }
         }
         return commitRequestId;
@@ -1377,21 +1380,21 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 sqlString = "SELECT LAST_INSERT_ID()";
                 pr.setProblemReportId(this.jdbcTemplate.queryForObject(sqlString, Integer.class));
                 for (ProblemReportTrans prt : pr.getProblemTransList()) {
-                    if(prt.getCreatedDate()!=null){
-                    Map<String, Object> transParams = new HashMap<>();
-                    transParams.put("PROBLEM_REPORT_ID", pr.getProblemReportId());
-                    transParams.put("PROBLEM_STATUS_ID", prt.getProblemStatus().getId());
-                    transParams.put("NOTES", prt.getNotes());
+                    if (prt.getCreatedDate() != null) {
+                        Map<String, Object> transParams = new HashMap<>();
+                        transParams.put("PROBLEM_REPORT_ID", pr.getProblemReportId());
+                        transParams.put("PROBLEM_STATUS_ID", prt.getProblemStatus().getId());
+                        transParams.put("NOTES", prt.getNotes());
 //                    transParams.put("REVIEWED", prt.isReviewed());
-                    transParams.put("REVIEWED", pd.getVersionType().getId() == 2 && (prt.getProblemStatus().getId() == 3 || prt.getProblemStatus().getId() == 1) ? false : prt.isReviewed());
-                    transParams.put("CREATED_BY", prt.getCreatedBy().getUserId());
-                    transParams.put("CREATED_DATE", prt.getCreatedDate());
-                    this.namedParameterJdbcTemplate.update("INSERT INTO `rm_problem_report_trans` (`PROBLEM_REPORT_ID`, `PROBLEM_STATUS_ID`, `NOTES`, `REVIEWED`, `CREATED_BY`, `CREATED_DATE`) VALUES (:PROBLEM_REPORT_ID, :PROBLEM_STATUS_ID, :NOTES, :REVIEWED, :CREATED_BY, :CREATED_DATE)", transParams);
+                        transParams.put("REVIEWED", pd.getVersionType().getId() == 2 && (prt.getProblemStatus().getId() == 3 || prt.getProblemStatus().getId() == 1) ? false : prt.isReviewed());
+                        transParams.put("CREATED_BY", prt.getCreatedBy().getUserId());
+                        transParams.put("CREATED_DATE", prt.getCreatedDate());
+                        this.namedParameterJdbcTemplate.update("INSERT INTO `rm_problem_report_trans` (`PROBLEM_REPORT_ID`, `PROBLEM_STATUS_ID`, `NOTES`, `REVIEWED`, `CREATED_BY`, `CREATED_DATE`) VALUES (:PROBLEM_REPORT_ID, :PROBLEM_STATUS_ID, :NOTES, :REVIEWED, :CREATED_BY, :CREATED_DATE)", transParams);
                     }
                 }
             } else {
                 for (ProblemReportTrans prt : pr.getProblemTransList()) {
-                    if (prt.getProblemReportTransId() == 0 && prt.getCreatedDate()!=null) {
+                    if (prt.getProblemReportTransId() == 0 && prt.getCreatedDate() != null) {
                         Map<String, Object> transParams = new HashMap<>();
                         transParams.put("PROBLEM_REPORT_ID", pr.getProblemReportId());
                         transParams.put("PROBLEM_STATUS_ID", prt.getProblemStatus().getId());
@@ -2174,18 +2177,22 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList() {
-        String sqlString = "SELECT pvt.PROGRAM_VERSION_TRANS_ID, pv.PROGRAM_ID, p.PROGRAM_CODE, pv.VERSION_ID, pv.VERSION_TYPE_ID, pv.VERSION_STATUS_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, i.FILE_NAME, i.FOLDER_LOCATION, i.INTEGRATION_VIEW_ID, iv.INTEGRATION_VIEW_NAME "
-                + "FROM rm_program_version_trans pvt  "
+        String sqlString = "SELECT f.PROGRAM_ID, pv.VERSION_ID, pv.VERSION_TYPE_ID, pv.VERSION_STATUS_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, i.FILE_NAME, i.FOLDER_LOCATION, i.INTEGRATION_VIEW_ID, iv.INTEGRATION_VIEW_NAME "
+                + " FROM ("
+                + "SELECT pv.PROGRAM_ID, MAX(pvt.PROGRAM_VERSION_TRANS_ID) PROGRAM_VERSION_TRANS_ID "
+                + "FROM rm_program_version_trans pvt "
                 + "LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
-                + "LEFT JOIN rm_program p ON pv.PROGRAM_ID=p.PROGRAM_ID "
-                + "LEFT JOIN rm_integration_program ip ON  "
-                + "    ip.PROGRAM_ID=pv.PROGRAM_ID AND  "
-                + "    (ip.VERSION_TYPE_ID=pvt.VERSION_TYPE_ID OR ip.VERSION_TYPE_ID IS NULL) AND  "
-                + "    (ip.VERSION_STATUS_ID=pvt.VERSION_STATUS_ID OR ip.VERSION_STATUS_ID IS NULL) "
+                + "LEFT JOIN rm_integration_program ip ON  ip.PROGRAM_ID=pv.PROGRAM_ID AND  (ip.VERSION_TYPE_ID=pvt.VERSION_TYPE_ID OR ip.VERSION_TYPE_ID IS NULL) AND  (ip.VERSION_STATUS_ID=pvt.VERSION_STATUS_ID OR ip.VERSION_STATUS_ID IS NULL) "
                 + "LEFT JOIN ap_integration i ON ip.INTEGRATION_ID=i.INTEGRATION_ID "
-                + "LEFT JOIN ap_integration_view iv ON i.INTEGRATION_VIEW_ID=iv.INTEGRATION_VIEW_ID "
                 + "LEFT JOIN rm_integration_program_completed ipc ON i.INTEGRATION_ID=ipc.INTEGRATION_ID AND pvt.PROGRAM_VERSION_TRANS_ID=ipc.PROGRAM_VERSION_TRANS_ID "
-                + "WHERE ip.ACTIVE AND ip.INTEGRATION_PROGRAM_ID IS NOT NULL AND ipc.COMPLETED_DATE IS NULL";
+                + "LEFT JOIN (SELECT pv.PROGRAM_ID, IFNULL(mp.MAX_VERSION_ID, max(pv.VERSION_ID)-1) MAX_VERSION_ID FROM rm_program_version pv LEFT JOIN (SELECT pv.PROGRAM_ID, max(pv.VERSION_ID) MAX_VERSION_ID FROM rm_integration_program_completed ipc LEFT JOIN rm_program_version_trans pvt ON ipc.PROGRAM_VERSION_TRANS_ID=pvt.PROGRAM_VERSION_TRANS_ID LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID group by pv.PROGRAM_ID) mp ON pv.PROGRAM_ID=mp.PROGRAM_ID group by PROGRAM_ID) mp ON pv.PROGRAM_ID=mp.PROGRAM_ID AND pv.VERSION_ID>mp.MAX_VERSION_ID "
+                + "WHERE ip.ACTIVE AND ip.INTEGRATION_PROGRAM_ID IS NOT NULL AND ipc.COMPLETED_DATE IS NULL AND mp.PROGRAM_ID IS NOT NULL "
+                + "GROUP BY pv.PROGRAM_ID) as f "
+                + "LEFT JOIN rm_program_version_trans pvt ON f.PROGRAM_VERSION_TRANS_ID=pvt.PROGRAM_VERSION_TRANS_ID "
+                + "LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
+                + "LEFT JOIN rm_integration_program ip ON  ip.PROGRAM_ID=f.PROGRAM_ID AND (ip.VERSION_TYPE_ID=pvt.VERSION_TYPE_ID OR ip.VERSION_TYPE_ID IS NULL) AND (ip.VERSION_STATUS_ID=pvt.VERSION_STATUS_ID OR ip.VERSION_STATUS_ID IS NULL) "
+                + "LEFT JOIN ap_integration i ON ip.INTEGRATION_ID=i.INTEGRATION_ID "
+                + "LEFT JOIN ap_integration_view iv ON i.INTEGRATION_VIEW_ID=iv.INTEGRATION_VIEW_ID";
         return this.jdbcTemplate.query(sqlString, new ProgramIntegrationDTORowMapper());
     }
 
@@ -2261,6 +2268,31 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public SupplyPlanCommitRequest getCommitRequestByCommitRequestId(int commitRequestId) {
+        StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND spcr.COMMIT_REQUEST_ID=:commitRequestId");
+        Map<String, Object> params = new HashMap<>();
+        params.put("commitRequestId", commitRequestId);
+        return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new SupplyPlanCommitRequestRowMapper());
+    }
+
+    @Override
+    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser) {
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_commit_request").usingGeneratedKeyColumns("ID");
+        Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
+        Map<String, Object> params = new HashMap<>();
+        params.put("PROGRAM_ID", spcr.getProgram().getId());
+        params.put("COMMITTED_VERSION_ID", spcr.getCommittedVersionId());
+        params.put("VERSION_TYPE_ID", spcr.getVersionType() != null ? spcr.getVersionType().getId() : null);
+        params.put("NOTES", spcr.getNotes());
+        params.put("SAVE_DATA", spcr.isSaveData());
+        params.put("CREATED_BY", curUser.getUserId());
+        params.put("CREATED_DATE", curDate);
+        params.put("STATUS", 1); // New request
+        int commitRequestId = si.executeAndReturnKey(params).intValue();
+        return commitRequestId;
     }
 
 }

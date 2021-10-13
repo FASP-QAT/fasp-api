@@ -72,7 +72,9 @@ public class ProblemReportResultSetExtractor implements ResultSetExtractor<List<
             prt.setReviewed(rs.getBoolean("PROBLEM_REPORT_TRANS_REVIEWED"));
             pr.getProblemTransList().add(prt);
             }
+
         }
+
         return prList;
     }
 

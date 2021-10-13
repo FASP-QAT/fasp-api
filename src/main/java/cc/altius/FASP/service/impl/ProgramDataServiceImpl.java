@@ -119,7 +119,12 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                 Version version;
                 User user = this.userService.getUserByUserId(spcr.getCreatedBy().getUserId(), curUser);
                 try {
-                    version = this.programDataDao.processCommitRequest(spcr, curUser);
+                    if (spcr.isSaveData()) {
+                        version = this.programDataDao.processCommitRequest(spcr, curUser);
+                    } else {
+                        version = new Version();
+                        version.setVersionId(spcr.getCommittedVersionId());
+                    }
                 } catch (Exception e) {
                     version = this.programDataDao.updateFailedSupplyPlanCommitRequest(spcr.getCommitRequestId(), e.getMessage());
                     EmailTemplate emailTemplateForSpcr = this.emailService.getEmailTemplateByEmailTemplateId(9);
@@ -136,7 +141,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 //            System.out.println("version++++" + version);
                 try {
                     getNewSupplyPlanList(spcr.getProgram().getId(), version.getVersionId(), true, false);
-                    if (version.getVersionId() != 0) {
+                    if (version.getVersionId() != 0 && spcr.isSaveData()) {
                         EmailTemplate emailTemplateForSpcr = this.emailService.getEmailTemplateByEmailTemplateId(8);
                         String[] subjectParamForSpcr = new String[]{};
                         String[] bodyParamForSpcr = new String[]{};
@@ -316,6 +321,16 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public boolean checkIfCommitRequestExistsForProgram(int programId) {
         return this.programDataDao.checkIfCommitRequestExistsForProgram(programId);
+    }
+
+    @Override
+    public SupplyPlanCommitRequest getCommitRequestByCommitRequestId(int commitRequestId) {
+        return this.programDataDao.getCommitRequestByCommitRequestId(commitRequestId);
+    }
+
+    @Override
+    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr,CustomUserDetails curUser) {
+        return this.programDataDao.addSupplyPlanCommitRequest(spcr,curUser);
     }
 
 }
