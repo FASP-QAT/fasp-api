@@ -97,8 +97,7 @@ public class TreeTemplateRestController {
     public ResponseEntity getTreeTemplate(@PathVariable("treeTemplateId") int treeTemplateId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            TreeTemplate tt = this.treeTemplateService.getTreeTemplateById(treeTemplateId, true, curUser);
-            return new ResponseEntity(tt, HttpStatus.OK);
+            return new ResponseEntity(this.treeTemplateService.getTreeTemplateById(treeTemplateId, true, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get TreeTemplate", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -109,8 +108,8 @@ public class TreeTemplateRestController {
     public ResponseEntity addTreeTemplate(@RequestBody TreeTemplate treeTemplate, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            this.treeTemplateService.addTreeTemplate(treeTemplate, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+            int treeTemplateId = this.treeTemplateService.addTreeTemplate(treeTemplate, curUser);
+            return new ResponseEntity(this.treeTemplateService.getTreeTemplateById(treeTemplateId, true, curUser), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Tree Template", ae);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
@@ -125,7 +124,7 @@ public class TreeTemplateRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.treeTemplateService.updateTreeTemplate(treeTemplate, curUser);
-            return new ResponseEntity(new ResponseCode("static.message.addSuccess"), HttpStatus.OK);
+            return new ResponseEntity(this.treeTemplateService.getTreeTemplateById(treeTemplate.getTreeTemplateId(), true, curUser), HttpStatus.OK);
         } catch (AccessDeniedException ae) {
             logger.error("Error while trying to add Tree Template", ae);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
