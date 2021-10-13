@@ -2283,7 +2283,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_commit_request").usingGeneratedKeyColumns("ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
-        params.put("PROGRAM_ID", spcr.getProgram());
+        params.put("PROGRAM_ID", spcr.getProgram().getId());
         params.put("COMMITTED_VERSION_ID", spcr.getCommittedVersionId());
         params.put("VERSION_TYPE_ID", spcr.getVersionType().getId());
         params.put("NOTES", spcr.getNotes());

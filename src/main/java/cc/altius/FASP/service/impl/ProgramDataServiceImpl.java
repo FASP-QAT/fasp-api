@@ -141,7 +141,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 //            System.out.println("version++++" + version);
                 try {
                     getNewSupplyPlanList(spcr.getProgram().getId(), version.getVersionId(), true, false);
-                    if (version.getVersionId() != 0) {
+                    if (version.getVersionId() != 0 && spcr.isSaveData()) {
                         EmailTemplate emailTemplateForSpcr = this.emailService.getEmailTemplateByEmailTemplateId(8);
                         String[] subjectParamForSpcr = new String[]{};
                         String[] bodyParamForSpcr = new String[]{};
