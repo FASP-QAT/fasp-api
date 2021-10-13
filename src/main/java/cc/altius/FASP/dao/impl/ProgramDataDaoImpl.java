@@ -2279,13 +2279,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr,CustomUserDetails curUser) {
+    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser) {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ct_supply_plan_commit_request").usingGeneratedKeyColumns("ID");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params = new HashMap<>();
         params.put("PROGRAM_ID", spcr.getProgram().getId());
         params.put("COMMITTED_VERSION_ID", spcr.getCommittedVersionId());
-        params.put("VERSION_TYPE_ID", spcr.getVersionType().getId());
+        params.put("VERSION_TYPE_ID", spcr.getVersionType() != null ? spcr.getVersionType().getId() : null);
         params.put("NOTES", spcr.getNotes());
         params.put("SAVE_DATA", 1);
         params.put("CREATED_BY", curUser.getUserId());
@@ -2294,7 +2294,5 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         int commitRequestId = si.executeAndReturnKey(params).intValue();
         return commitRequestId;
     }
-    
-    
 
 }
