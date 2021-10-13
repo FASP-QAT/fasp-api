@@ -102,7 +102,6 @@ public class TracerCategoryDaoImpl implements TracerCategoryDao {
         if (active) {
             sqlStringBuilder.append(" AND tc.ACTIVE ");
         }
-        System.out.println(sqlStringBuilder.toString());
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new TracerCategoryRowMapper());
     }
 
