@@ -2287,7 +2287,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("COMMITTED_VERSION_ID", spcr.getCommittedVersionId());
         params.put("VERSION_TYPE_ID", spcr.getVersionType() != null ? spcr.getVersionType().getId() : null);
         params.put("NOTES", spcr.getNotes());
-        params.put("SAVE_DATA", 1);
+        params.put("SAVE_DATA", spcr.isSaveData());
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
         params.put("STATUS", 1); // New request
