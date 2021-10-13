@@ -328,4 +328,9 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         return this.programDataDao.getCommitRequestByCommitRequestId(commitRequestId);
     }
 
+    @Override
+    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr,CustomUserDetails curUser) {
+        return this.programDataDao.addSupplyPlanCommitRequest(spcr,curUser);
+    }
+
 }

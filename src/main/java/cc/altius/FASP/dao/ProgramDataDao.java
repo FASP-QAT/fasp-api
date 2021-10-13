@@ -94,5 +94,7 @@ public interface ProgramDataDao {
     public boolean checkIfCommitRequestExistsForProgram(int programId);
     
     public SupplyPlanCommitRequest getCommitRequestByCommitRequestId(int commitRequestId);
+    
+    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr,CustomUserDetails curUser);
 
 }
