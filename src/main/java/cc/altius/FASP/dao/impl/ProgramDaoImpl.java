@@ -37,6 +37,7 @@ import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SupplyPlanCommitRequest;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.LoadProgramListResultSetExtractor;
@@ -50,6 +51,7 @@ import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -82,6 +84,8 @@ public class ProgramDaoImpl implements ProgramDao {
     private LabelDao labelDao;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private ProgramDataService programDataService;
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
@@ -455,6 +459,7 @@ public class ProgramDaoImpl implements ProgramDao {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_program_planning_unit");
         List<SqlParameterSource> insertList = new ArrayList<>();
         List<SqlParameterSource> updateList = new ArrayList<>();
+        List<Integer> programIds = new ArrayList<>();
         int rowsEffected = 0;
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params;
@@ -492,6 +497,9 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("curUser", curUser.getUserId());
                 params.put("active", ppu.isActive());
                 updateList.add(new MapSqlParameterSource(params));
+                if(programIds.indexOf(ppu.getProgram().getId())==-1){
+                    programIds.add(ppu.getProgram().getId());
+                }
             }
         }
         if (insertList.size() > 0) {
@@ -502,6 +510,16 @@ public class ProgramDaoImpl implements ProgramDao {
             SqlParameterSource[] updateParams = new SqlParameterSource[updateList.size()];
             String sqlString = "UPDATE rm_program_planning_unit ppu SET ppu.MIN_MONTHS_OF_STOCK=:minMonthsOfStock,ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.LOCAL_PROCUREMENT_LEAD_TIME=:localProcurementLeadTime, ppu.SHELF_LIFE=:shelfLife, ppu.CATALOG_PRICE=:catalogPrice, ppu.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, ppu.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, ppu.ACTIVE=:active, ppu.LAST_MODIFIED_DATE=:curDate, ppu.LAST_MODIFIED_BY=:curUser WHERE ppu.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId";
             rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
+        }
+        for(Integer pId:programIds){
+            SupplyPlanCommitRequest s = new SupplyPlanCommitRequest();
+            SimpleCodeObject program = new SimpleCodeObject();
+            program.setId(pId);
+            s.setProgram(program);
+            s.setCommittedVersionId(-1);
+            s.setSaveData(false);
+            s.setNotes("Supply Plan Rebuild After program planning unit data modified");
+            this.programDataService.addSupplyPlanCommitRequest(s,curUser);
         }
         return rowsEffected;
     }
