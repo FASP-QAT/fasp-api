@@ -33,24 +33,34 @@ public class DashboardRestController {
     private DashboardService dashboardService;
     @Autowired
     private UserService userService;
-    
 
     @GetMapping(value = "/applicationLevelDashboard")
     public ResponseEntity applicationLevelDashboard(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.dashboardService.getApplicationLevelDashboard(), HttpStatus.OK);
+            return new ResponseEntity(this.dashboardService.getApplicationLevelDashboard(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping(value = "/realmLevelDashboard/{realmId}")
-    public ResponseEntity realmLevelDashboard(@PathVariable("realmId") int realmId,Authentication auth) {
+    @GetMapping(value = "/realmLevelDashboard")
+    public ResponseEntity realmLevelDashboard(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.dashboardService.getRealmLevelDashboard(realmId), HttpStatus.OK);
+            return new ResponseEntity(this.dashboardService.getRealmLevelDashboard(curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while getting country list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping(value = "/supplyPlanReviewerLevelDashboard")
+    public ResponseEntity supplyPlanReviewerLevelDashboard(Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.dashboardService.getSupplyPlanReviewerLevelDashboard(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
@@ -61,18 +71,18 @@ public class DashboardRestController {
     public ResponseEntity applicationLevelDashboardUserList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.dashboardService.getUserListForApplicationLevelAdmin(), HttpStatus.OK);
+            return new ResponseEntity(this.dashboardService.getUserListForApplicationLevelAdmin(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    @GetMapping(value = "/realmLevelDashboardUserList/{realmId}")
-    public ResponseEntity realmLevelDashboardUserList(@PathVariable("realmId") int realmId,Authentication auth) {
+    @GetMapping(value = "/realmLevelDashboardUserList")
+    public ResponseEntity realmLevelDashboardUserList(Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.dashboardService.getUserListForRealmLevelAdmin(realmId), HttpStatus.OK);
+            return new ResponseEntity(this.dashboardService.getUserListForRealmLevelAdmin(curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while getting country list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
