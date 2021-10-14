@@ -194,9 +194,7 @@ public class ProcurementAgentDaoImpl implements ProcurementAgentDao {
         int rowsEffected = 0;
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         Map<String, Object> params;
-        System.out.println("procurementAgentPlanningUnits----" + Arrays.toString(procurementAgentPlanningUnits));
         for (ProcurementAgentPlanningUnit papu : procurementAgentPlanningUnits) {
-            System.out.println("papu------" + papu);
             if (papu.getProcurementAgentPlanningUnitId() == 0) {
                 // Insert
                 params = new HashMap<>();
