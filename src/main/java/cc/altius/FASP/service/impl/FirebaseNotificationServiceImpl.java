@@ -29,14 +29,11 @@ public class FirebaseNotificationServiceImpl implements FirebaseNotificationServ
     @Override
     @Async
     public CompletableFuture<Object> getCommitRequestStatusByCommitRequestId(int commitRequestId) {
-        System.out.println("in check if commit rquest");
         SupplyPlanCommitRequest spcr=new SupplyPlanCommitRequest();
         spcr.setStatus(0);
         while (spcr.getStatus() != 2 && spcr.getStatus() != 3) {
-            System.out.println("in status while");
             try {
                 spcr = this.programDataService.getCommitRequestByCommitRequestId(commitRequestId);
-                System.out.println("status+++" + spcr);
                 Thread.sleep(5000L);
             } catch (InterruptedException ex) {
                 Logger.getLogger(FirebaseNotificationServiceImpl.class.getName()).log(Level.SEVERE, null, ex);

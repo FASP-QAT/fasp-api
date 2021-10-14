@@ -1505,11 +1505,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public Version updateFailedSupplyPlanCommitRequest(int commitRequestId, String message) {
+    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message) {
         Map<String, Object> params = new HashMap<>();
-        params.put("FAILED_REASON", message);
+        params.put("FAILED_REASON", message != "" ? message : null);
         params.put("COMMIT_REQUEST_ID", commitRequestId);
-        this.namedParameterJdbcTemplate.update("UPDATE ct_supply_plan_commit_request spcr SET spcr.STATUS=3, FAILED_REASON=:FAILED_REASON WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
+        params.put("STATUS", status);
+        params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
+        this.namedParameterJdbcTemplate.update("UPDATE ct_supply_plan_commit_request spcr SET spcr.STATUS=:STATUS, FAILED_REASON=:FAILED_REASON,COMPLETED_DATE=:curDate WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
         return new Version(0, null, null, null, null, null, null, null);
     }
 
