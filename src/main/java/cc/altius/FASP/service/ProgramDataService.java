@@ -37,7 +37,7 @@ public interface ProgramDataService {
 
     public void processCommitRequest(CustomUserDetails curUser);
 
-    public Version updateFailedSupplyPlanCommitRequest(int commitRequestId, String message);
+    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message);
 
     public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser);
 
@@ -78,5 +78,5 @@ public interface ProgramDataService {
 
     public SupplyPlanCommitRequest getCommitRequestByCommitRequestId(int commitRequestId);
 
-    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr,CustomUserDetails curUser);
+    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser);
 }

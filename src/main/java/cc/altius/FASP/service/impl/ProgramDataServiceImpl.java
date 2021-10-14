@@ -126,7 +126,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                         version.setVersionId(spcr.getCommittedVersionId());
                     }
                 } catch (Exception e) {
-                    version = this.programDataDao.updateFailedSupplyPlanCommitRequest(spcr.getCommitRequestId(), e.getMessage());
+                    version = this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 3, e.getMessage());
                     EmailTemplate emailTemplateForSpcr = this.emailService.getEmailTemplateByEmailTemplateId(9);
                     String[] subjectParamForSpcr = new String[]{};
                     String[] bodyParamForSpcr = new String[]{};
@@ -141,6 +141,9 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 //            System.out.println("version++++" + version);
                 try {
                     getNewSupplyPlanList(spcr.getProgram().getId(), version.getVersionId(), true, false);
+                    if (version.getVersionId() != 0 && !spcr.isSaveData()) {
+                        this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 2, "");
+                    }
                     if (version.getVersionId() != 0 && spcr.isSaveData()) {
                         EmailTemplate emailTemplateForSpcr = this.emailService.getEmailTemplateByEmailTemplateId(8);
                         String[] subjectParamForSpcr = new String[]{};
@@ -198,8 +201,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public Version updateFailedSupplyPlanCommitRequest(int commitRequestId, String message) {
-        return this.programDataDao.updateFailedSupplyPlanCommitRequest(commitRequestId, message);
+    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message) {
+        return this.programDataDao.updateSupplyPlanCommitRequest(commitRequestId, status, message);
     }
 
     @Override
@@ -329,8 +332,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr,CustomUserDetails curUser) {
-        return this.programDataDao.addSupplyPlanCommitRequest(spcr,curUser);
+    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser) {
+        return this.programDataDao.addSupplyPlanCommitRequest(spcr, curUser);
     }
 
 }
