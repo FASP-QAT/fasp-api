@@ -6,6 +6,7 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
+import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.dao.RealmCountryDao;
 import cc.altius.FASP.model.RealmCountryPlanningUnit;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -18,7 +19,6 @@ import cc.altius.FASP.model.rowMapper.RealmCountryPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.RealmCountryRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
@@ -54,7 +54,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
     @Autowired
     private AclService aclService;
     @Autowired
-    private ProgramDataService programDataService;
+    private ProgramDataDao programDataDao;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -398,7 +398,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                     this.namedParameterJdbcTemplate.update(sqlString, params);
 
                     try {
-                        this.programDataService.getNewSupplyPlanList(pId, version.getVersionId(), true, false);
+                        this.programDataDao.getNewSupplyPlanList(pId, version.getVersionId(), true, false);
                     } catch (ParseException ex) {
                         Logger.getLogger(RealmCountryDaoImpl.class.getName()).log(Level.SEVERE, null, ex);
                     }
