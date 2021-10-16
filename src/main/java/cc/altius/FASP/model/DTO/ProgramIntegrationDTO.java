@@ -142,4 +142,10 @@ public class ProgramIntegrationDTO implements Serializable {
         }
         return originalString;
     }
+
+    @Override
+    public String toString() {
+        return "ProgramIntegrationDTO{" + "programVersionTransId=" + programVersionTransId + ", programId=" + programId + ", programCode=" + programCode + ", versionId=" + versionId + ", integrationName=" + integrationName + ", fileName=" + fileName + '}';
+    }
+
 }
