@@ -150,7 +150,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                         String[] bodyParamForSpcr = new String[]{};
                         Emailer emailerForSpcr = new Emailer();
                         subjectParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommittedVersionId())};
-                        bodyParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommittedVersionId())};
+                        bodyParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommittedVersionId()),spcr.getVersionType().getLabel().getLabel_en(),spcr.getNotes()};
                         emailerForSpcr = this.emailService.buildEmail(emailTemplateForSpcr.getEmailTemplateId(), user.getEmailId(), "", subjectParamForSpcr, bodyParamForSpcr);
                         int emailerIdForSpcr = this.emailService.saveEmail(emailerForSpcr);
                         emailerForSpcr.setEmailerId(emailerIdForSpcr);
