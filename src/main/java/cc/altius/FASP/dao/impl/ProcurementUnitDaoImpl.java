@@ -199,7 +199,6 @@ public class ProcurementUnitDaoImpl implements ProcurementUnitDao {
         params.put("labelEn", procurementUnit.getLabel().getLabel_en());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
-        System.out.println(LogUtils.buildStringForLog(sqlString, params));
         return this.namedParameterJdbcTemplate.update(sqlString, params);
     }
 

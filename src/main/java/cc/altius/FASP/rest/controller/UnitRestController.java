@@ -81,6 +81,16 @@ public class UnitRestController {
         }
     }
 
+    @GetMapping("/unit/dimension/{dimensionId}")
+    public ResponseEntity getUnitByDimension(@PathVariable("dimensionId") int dimensionId, Authentication auth) {
+        try {
+            return new ResponseEntity(this.unitService.getUnitListByDimensionId(dimensionId), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("Error while trying to list Unit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @GetMapping("/unit/{unitId}")
     public ResponseEntity getUnit(@PathVariable("unitId") int unitId, Authentication auth) {
         try {
@@ -108,5 +118,4 @@ public class UnitRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 }

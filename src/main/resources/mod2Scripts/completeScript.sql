@@ -1226,19 +1226,45 @@ VIEW `vw_dataset` AS
         (`p`.`PROGRAM_TYPE_ID` = 2)
     GROUP BY `p`.`PROGRAM_ID`;
 
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_dimension` AS
+    SELECT 
+        `d`.`DIMENSION_ID` AS `DIMENSION_ID`,
+        `d`.`LABEL_ID` AS `LABEL_ID`,
+        `d`.`ACTIVE` AS `ACTIVE`,
+        `d`.`CREATED_BY` AS `CREATED_BY`,
+        `d`.`CREATED_DATE` AS `CREATED_DATE`,
+        `d`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `d`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`ap_dimension` `d`
+        LEFT JOIN `ap_label` `l` ON ((`d`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+insert into ap_label values (null, 'Tree unit', null, null, null, 1, now(), 1, now(), 4);
+SELECT last_insert_id() into @labelId;
+insert into ap_dimension values (null, @labelId, 1, 1, now(), 1, now());
+SELECT last_insert_id() into @dimensionId;
 
 INSERT INTO ap_label values (null, 'Patients', null, null, null, 1, @dt, 1, @dt, 17);
 SELECT last_insert_id() into @labelId;
-INSERT INTO ap_unit values (null, 3, @labelId, 'Patients', 1, 1, @dt, 1, @dt);
+INSERT INTO ap_unit values (null, @dimensionId, @labelId, 'Patients', 1, 1, @dt, 1, @dt);
 INSERT INTO ap_label values (null, 'Clients', null, null, null, 1, @dt, 1, @dt, 17);
 SELECT last_insert_id() into @labelId;
-INSERT INTO ap_unit values (null, 3, @labelId, 'Clients', 1, 1, @dt, 1, @dt);
+INSERT INTO ap_unit values (null, @dimensionId, @labelId, 'Clients', 1, 1, @dt, 1, @dt);
 INSERT INTO ap_label values (null, 'Customers', null, null, null, 1, @dt, 1, @dt, 17);
 SELECT last_insert_id() into @labelId;
-INSERT INTO ap_unit values (null, 3, @labelId, 'Customers', 1, 1, @dt, 1, @dt);
+INSERT INTO ap_unit values (null, @dimensionId, @labelId, 'Customers', 1, 1, @dt, 1, @dt);
 INSERT INTO ap_label values (null, 'People', null, null, null, 1, @dt, 1, @dt, 17);
 SELECT last_insert_id() into @labelId;
-INSERT INTO ap_unit values (null, 3, @labelId, 'People', 1, 1, @dt, 1, @dt);
+INSERT INTO ap_unit values (null, @dimensionId, @labelId, 'People', 1, 1, @dt, 1, @dt);
 
 
 
