@@ -325,10 +325,10 @@ CONSTRAINT `fk_ct_sp_problem_report_trans_commitRequestId`
 ) ENGINE=InnoDB AUTO_INCREMENT=0 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 SET FOREIGN_KEY_CHECKS=1;
 
-UPDATE `ap_static_label_languages` SET `LABEL_TEXT` = 'Commit request has been generated will notify you once the request is completed' WHERE (`STATIC_LABEL_LANGUAGE_ID` = '2841');
-UPDATE `ap_static_label_languages` SET `LABEL_TEXT` = 'Se ha generado la solicitud de confirmación le notificará una vez que se complete la solicitud' WHERE (`STATIC_LABEL_LANGUAGE_ID` = '2842');
-UPDATE `ap_static_label_languages` SET `LABEL_TEXT` = 'La demande de validation a été générée vous informera une fois la demande terminée' WHERE (`STATIC_LABEL_LANGUAGE_ID` = '2843');
-UPDATE `ap_static_label_languages` SET `LABEL_TEXT` = 'A solicitação de confirmação foi gerada irá notificá-lo assim que a solicitação for concluída' WHERE (`STATIC_LABEL_LANGUAGE_ID` = '2844');
+update ap_static_label_languages s left join ap_static_label sl on s.STATIC_LABEL_ID=sl.STATIC_LABEL_ID set s.LABEL_TEXT='Commit request has been generated will notify you once the request is completed' where sl.LABEL_CODE='static.message.commitSuccess' and s.LANGUAGE_ID=1;
+update ap_static_label_languages s left join ap_static_label sl on s.STATIC_LABEL_ID=sl.STATIC_LABEL_ID set s.LABEL_TEXT='Se ha generado la solicitud de confirmación le notificará una vez que se complete la solicitud' where sl.LABEL_CODE='static.message.commitSuccess' and s.LANGUAGE_ID=2;
+update ap_static_label_languages s left join ap_static_label sl on s.STATIC_LABEL_ID=sl.STATIC_LABEL_ID set s.LABEL_TEXT='La demande de validation a été générée vous informera une fois la demande terminée' where sl.LABEL_CODE='static.message.commitSuccess' and s.LANGUAGE_ID=3;
+update ap_static_label_languages s left join ap_static_label sl on s.STATIC_LABEL_ID=sl.STATIC_LABEL_ID set s.LABEL_TEXT='A solicitação de confirmação foi gerada irá notificá-lo assim que a solicitação for concluída' where sl.LABEL_CODE='static.message.commitSuccess' and s.LANGUAGE_ID=4;
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.requestAlreadyExists','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -382,18 +382,26 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Data de conclusão');-
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.notification.commitSuccess','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Commit Request for program {{programCode}} v~{{programVersion}} is completed successfully. Please click on the notification to load the latest version.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La demande de validation pour le programme {{programCode}} v~{{programVersion}} est terminée avec succès. Veuillez cliquer sur la notification pour charger la dernière version.');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La solicitud de confirmación para el programa {{programCode}} v ~ {{programVersion}} se completó correctamente. Haga clic en la notificación para cargar la última versión.');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A solicitação de confirmação para o programa {{programCode}} v ~ {{programVersion}} foi concluída com êxito. Clique na notificação para carregar a versão mais recente.');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Commit complete for {{programCode}} program, v{{programVersion}}. Please click here to increase your local version to latest version.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Validation terminée pour le programme {{programCode}}, v{{programVersion}}. Veuillez cliquer ici pour augmenter votre version locale à la dernière version.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Confirmación completa para el programa {{programCode}}, v {{programVersion}}. Haga clic aquí para aumentar su versión local a la última versión.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Confirmação concluída para o programa {{programCode}}, v {{programVersion}}. Clique aqui para aumentar sua versão local para a versão mais recente.');-- pr
 
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.notification.commitFailed','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Commit Request for program {{programCode}} v~{{programVersion}} is failed. Please try again.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La demande de validation du programme {{programCode}} v~{{programVersion}} a échoué. Veuillez réessayer.');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La solicitud de confirmación para el programa {{programCode}} v ~ {{programVersion}} ha fallado. Inténtalo de nuevo.');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A solicitação de confirmação para o programa {{programCode}} v ~ {{programVersion}} falhou. Por favor, tente novamente.');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Commit failed for {{programCode}} program, v{{programVersion}}. Please try again.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Échec de la validation pour le programme {{programCode}}, v{{programVersion}}. Veuillez réessayer.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Error de confirmación para el programa {{programCode}}, v {{programVersion}}. Inténtalo de nuevo.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A confirmação falhou para o programa {{programCode}}, v {{programVersion}}. Por favor, tente novamente.');-- pr
 
 ALTER TABLE `fasp`.`ct_supply_plan_commit_request` CHANGE `COMMITTED_VERSION_ID` `COMMITTED_VERSION_ID` INT(10) NOT NULL; 
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataentry.readonly','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note: Commit currently in process. Data entry frozen until commit is completed.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : validation en cours. La saisie des données est gelée jusqu`à ce que la validation soit terminée.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: Confirmar actualmente en proceso. La entrada de datos se congela hasta que se completa la confirmación.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: Confirmação atualmente em andamento. Entrada de dados congelada até que a confirmação seja concluída.');-- pr
