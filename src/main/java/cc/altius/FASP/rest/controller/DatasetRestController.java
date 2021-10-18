@@ -95,7 +95,7 @@ public class DatasetRestController {
     }
 
     @GetMapping("/dataset/{programId}")
-    public ResponseEntity getProgram(@PathVariable("programId") int programId, Authentication auth) {
+    public ResponseEntity getDataset(@PathVariable("programId") int programId, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser), HttpStatus.OK);
@@ -187,7 +187,7 @@ public class DatasetRestController {
     }
 
     @GetMapping("loadDataset/programId/{programId}/page/{page}")
-    public ResponseEntity getLoadProgram(@PathVariable("programId") int programId, @PathVariable("page") int page, Authentication auth) {
+    public ResponseEntity getLoadDataset(@PathVariable("programId") int programId, @PathVariable("page") int page, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programService.getLoadProgram(programId, page, GlobalConstants.PROGRAM_TYPE_DATASET, curUser), HttpStatus.OK);

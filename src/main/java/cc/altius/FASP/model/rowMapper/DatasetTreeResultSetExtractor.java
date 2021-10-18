@@ -31,11 +31,21 @@ public class DatasetTreeResultSetExtractor implements ResultSetExtractor<List<Da
             if (idx == -1) {
                 t.setForecastMethod(new SimpleObjectWithType(rs.getInt("FORECAST_METHOD_ID"), new LabelRowMapper("FM_").mapRow(rs, 1), rs.getInt("FORECAST_METHOD_TYPE_ID")));
                 t.setLabel(new LabelRowMapper().mapRow(rs, 1));
+                t.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 treeList.add(t);
             } else {
                 t = treeList.get(idx);
             }
-            t.getScenarioList().add(new SimpleObject(rs.getInt("SCENARIO_ID"), new LabelRowMapper("S_").mapRow(rs, 1)));
+            SimpleObject scenario = new SimpleObject(rs.getInt("SCENARIO_ID"), new LabelRowMapper("S_").mapRow(rs, 1));
+            idx = t.getScenarioList().indexOf(scenario);
+            if (idx == -1) {
+                t.getScenarioList().add(scenario);
+            }
+            SimpleObject region = new SimpleObject(rs.getInt("REGION_ID"), new LabelRowMapper("REG_").mapRow(rs, 1));
+            idx = t.getRegionList().indexOf(region);
+            if (idx == -1) {
+                t.getRegionList().add(region);
+            }
         }
         return treeList;
     }

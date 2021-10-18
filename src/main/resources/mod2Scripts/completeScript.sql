@@ -2385,7 +2385,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nível de reino');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.datasetLevel','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Dataset Level');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program Level');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Niveau de l ensemble de données');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nivel de conjunto de datos');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nível do conjunto de dados');
@@ -2531,3 +2531,55 @@ VIEW `vw_usage_template` AS
 ALTER TABLE `fasp`.`rm_program` 
 DROP INDEX `unq_program_programCode` ,
 ADD UNIQUE INDEX `unq_program_programCode` (`PROGRAM_CODE` ASC, `REALM_ID` ASC, `PROGRAM_TYPE_ID` ASC);
+
+
+CREATE TABLE `fasp`.`rm_forecast_tree_region` (
+  `FORECAST_TREE_REGION_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `TREE_ID` INT(10) UNSIGNED NOT NULL,
+  `REGION_ID` INT(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (`FORECAST_TREE_REGION_ID`),
+  INDEX `fk_rm_forecast_tree_region_treeId_idx` (`TREE_ID` ASC),
+  INDEX `fk_rm_forecast_tree_region_regionId_idx` (`REGION_ID` ASC),
+  CONSTRAINT `fk_rm_forecast_tree_region_treeId`
+    FOREIGN KEY (`TREE_ID`)
+    REFERENCES `fasp`.`rm_forecast_tree` (`TREE_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_forecast_tree_region_regionId`
+    FOREIGN KEY (`REGION_ID`)
+    REFERENCES `fasp`.`rm_region` (`REGION_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+INSERT INTO rm_forecast_tree_region VALUES (null, @treeId, 70);
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataset.manageProgram','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Manage Program');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Gérer le programme');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Administrar programa');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Gerenciar programa');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataset.forecastingProgram','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecasting Program');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Programme de prévision');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Programa de previsión');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Programa de Previsão');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.equivalencyUnit.conversionToEU','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Conversion To EU');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Conversion vers l UE');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Conversión a la UE');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Conversão para UE');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.calculatorReminderText','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Right click to open the Interval to Frequency calculator');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Faites un clic droit pour ouvrir le calculateur d intervalle à fréquence');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Haga clic derecho para abrir la calculadora de intervalo a frecuencia');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Clique com o botão direito para abrir a calculadora de intervalo para frequência');
+
