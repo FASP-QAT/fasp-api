@@ -2531,3 +2531,22 @@ VIEW `vw_usage_template` AS
 ALTER TABLE `fasp`.`rm_program` 
 DROP INDEX `unq_program_programCode` ,
 ADD UNIQUE INDEX `unq_program_programCode` (`PROGRAM_CODE` ASC, `REALM_ID` ASC, `PROGRAM_TYPE_ID` ASC);
+
+CREATE TABLE `fasp`.`rm_forecast_tree_region` (
+  `FORECAST_TREE_REGION_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `TREE_ID` INT(10) UNSIGNED NOT NULL,
+  `REGION_ID` INT(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (`FORECAST_TREE_REGION_ID`),
+  INDEX `fk_rm_forecast_tree_region_treeId_idx` (`TREE_ID` ASC),
+  INDEX `fk_rm_forecast_tree_region_regionId_idx` (`REGION_ID` ASC),
+  CONSTRAINT `fk_rm_forecast_tree_region_treeId`
+    FOREIGN KEY (`TREE_ID`)
+    REFERENCES `fasp`.`rm_forecast_tree` (`TREE_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_forecast_tree_region_regionId`
+    FOREIGN KEY (`REGION_ID`)
+    REFERENCES `fasp`.`rm_region` (`REGION_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+INSERT INTO rm_forecast_tree_region VALUES (null, @treeId, 70);

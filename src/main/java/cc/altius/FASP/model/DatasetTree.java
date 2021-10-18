@@ -13,7 +13,7 @@ import java.util.List;
  *
  * @author akil
  */
-public class DatasetTree {
+public class DatasetTree extends BaseModel {
 
     @JsonView(Views.InternalView.class)
     private int treeId;
@@ -25,9 +25,12 @@ public class DatasetTree {
     private ForecastTree<TreeNode> tree;
     @JsonView(Views.InternalView.class)
     private List<SimpleObject> scenarioList;
+    @JsonView(Views.InternalView.class)
+    private List<SimpleObject> regionList;
 
     public DatasetTree() {
         this.scenarioList = new LinkedList<>();
+        this.regionList = new LinkedList<>();
     }
 
     public DatasetTree(int treeId) {
@@ -72,6 +75,14 @@ public class DatasetTree {
 
     public void setScenarioList(List<SimpleObject> scenarioList) {
         this.scenarioList = scenarioList;
+    }
+
+    public List<SimpleObject> getRegionList() {
+        return regionList;
+    }
+
+    public void setRegionList(List<SimpleObject> regionList) {
+        this.regionList = regionList;
     }
 
     @Override
