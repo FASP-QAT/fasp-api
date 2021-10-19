@@ -5,9 +5,9 @@
  */
 package cc.altius.FASP.dao;
 
+import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DashboardUser;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -15,12 +15,24 @@ import java.util.Map;
  */
 public interface DashboardDao {
 
-    Map<String, Object> getApplicationLevelDashboard();
+    public int getRealmCount(CustomUserDetails curUser);
 
-    Map<String, Object> getRealmLevelDashboard(int realmId);
+    public int getLanguageCount(CustomUserDetails curUser);
 
-    List<DashboardUser> getUserListForApplicationLevelAdmin();
+    public int getRealmCountryCount(CustomUserDetails curUser);
 
-    List<DashboardUser> getUserListForRealmLevelAdmin(int realmId);
+    public int getHealthAreaCount(CustomUserDetails curUser);
+
+    public int getOrganisationCount(CustomUserDetails curUser);
+
+    public int getRegionCount(CustomUserDetails curUser);
+
+    public int getProgramCount(CustomUserDetails curUser);
+
+    public int getSupplyPlanPendingCount(CustomUserDetails curUser);
+
+    List<DashboardUser> getUserListForApplicationLevelAdmin(CustomUserDetails curUser);
+
+    List<DashboardUser> getUserListForRealmLevelAdmin(CustomUserDetails curUser);
 
 }
