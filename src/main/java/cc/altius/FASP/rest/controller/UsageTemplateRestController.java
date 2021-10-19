@@ -129,25 +129,18 @@ public class UsageTemplateRestController {
      * @return returns the active list of active UsageTemplates that match with
      * filter criteria
      */
-    @GetMapping("/tracerCategory/{tracerCategoryId}/usageType/{usageTypeId}/forecastingUnit/{forecastingUnitId}")
+    @GetMapping("/tracerCategory/{tracerCategoryId}")
     @Operation(description = "API used to get the complete UsageTemplate list. Will only return those UsageTemplates that are marked Active.", summary = "Get active UsageTemplate list", tags = ("usageTemplate"))
     @Parameters(
-            {
-                @Parameter(name = "tracerCategoryId", description = "The TracerCategory that you want to filter the UsageTemplate"),
-                @Parameter(name = "usageTypeId", description = "The UsageType that you want to filter the UsageTemplate"),
-                @Parameter(name = "forecastingUnitId", description = "The ForecastingUnit that you want to filter the UsageTemplate")
-            }
-    )
+            @Parameter(name = "tracerCategoryId", description = "The TracerCategory that you want to filter the UsageTemplate"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the UsageTemplate list")
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "500", description = "Internal error that prevented the retreival of UsageTemplate list")
     public ResponseEntity getUsageTemplateListWihtFilters(
             @PathVariable("tracerCategoryId") int tracerCategoryId,
-            @PathVariable("usageTypeId") int usageTypeId,
-            @PathVariable("forecastingUnitId") int forecastingUnitId,
             Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.usageTemplateService.getUsageTemplateList(tracerCategoryId, usageTypeId, forecastingUnitId, curUser), HttpStatus.OK);
+            return new ResponseEntity(this.usageTemplateService.getUsageTemplateList(tracerCategoryId, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("Error while trying to get  UsageTemplate list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

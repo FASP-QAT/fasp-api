@@ -112,7 +112,11 @@ public interface ProgramDao {
     public int tab3ShipmentCreation(int shipmentId, CustomUserDetails curUser);
 
     public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser);
-    
+
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser);
+
+    public int checkIfOrderNoAlreadyTagged(String orderNo, int primeLineNo);
+
+    public int updateERPLinking(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser);
 
 }

@@ -29,8 +29,8 @@ public class UsageTemplateServiceImpl implements UsageTemplateService {
     }
 
     @Override
-    public List<UsageTemplate> getUsageTemplateList(int tracerCategoryId, int usageTypeId, int forecastingUnitId, CustomUserDetails curUser) {
-        return this.usageTemplateDao.getUsageTemplateList(tracerCategoryId, usageTypeId, forecastingUnitId, curUser);
+    public List<UsageTemplate> getUsageTemplateList(int tracerCategoryId, CustomUserDetails curUser) {
+        return this.usageTemplateDao.getUsageTemplateList(tracerCategoryId, curUser);
     }
 
     @Override
