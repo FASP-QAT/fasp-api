@@ -67,7 +67,7 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
                 + "LEFT JOIN rm_planning_unit pu ON pu.`PLANNING_UNIT_ID`=papu.`PLANNING_UNIT_ID`  "
                 + "LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`  "
                 + "LEFT JOIN vw_tracer_category tc ON tc.`TRACER_CATEGORY_ID`=fu.`TRACER_CATEGORY_ID`  "
-                + "WHERE s.`LAST_MODIFIED_DATE` > ? AND s.`LAST_MODIFIED_DATE` < ?";
+                + "WHERE s.`LAST_MODIFIED_DATE` > ? AND s.`LAST_MODIFIED_DATE` < ? AND st.`SHIPMENT_TRANS_ID` IS NOT NULL";
         System.out.println("lastDate---" + lastDate);
         System.out.println("today---" + today);
         return this.jdbcTemplate.query(sql, new ExportOrderDataDTORowMapper(), lastDate, today);

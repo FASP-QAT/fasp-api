@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.service.impl;
 
+import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
@@ -30,7 +31,6 @@ import cc.altius.FASP.service.ProblemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ProgramDataService;
-import cc.altius.FASP.service.ProgramService;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
@@ -48,7 +48,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Autowired
     private ProgramDataDao programDataDao;
     @Autowired
-    private ProgramService programService;
+    private ProgramDao programDao;
     @Autowired
     private ProblemService problemService;
     @Autowired
@@ -58,7 +58,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 
     @Override
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean active) {
-        ProgramData pd = new ProgramData(this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
+        ProgramData pd = new ProgramData(this.programDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
         pd.setRequestedProgramVersion(versionId);
         pd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
         versionId = pd.getCurrentVersion().getVersionId();
@@ -76,7 +76,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
         List<ProgramData> programDataList = new LinkedList<>();
         programVersionList.forEach(pv -> {
-            ProgramData pd = new ProgramData(this.programService.getProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
+            ProgramData pd = new ProgramData(this.programDao.getProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser));
             pd.setRequestedProgramVersion(pv.getVersionId());
             pd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), pv.getVersionId()));
             int versionId = pd.getCurrentVersion().getVersionId();
@@ -96,11 +96,11 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
         List<DatasetData> datasetDataList = new LinkedList<>();
         programVersionList.forEach(pv -> {
-            DatasetData dd = new DatasetData(this.programService.getProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser));
+            DatasetData dd = new DatasetData(this.programDao.getProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser));
             dd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), pv.getVersionId()));
-            dd.setTreeList(this.programService.getTreeListForDataset(pv.getProgramId(), pv.getVersionId(), curUser));
+            dd.setTreeList(this.programDao.getTreeListForDataset(pv.getProgramId(), pv.getVersionId(), curUser));
             dd.getTreeList().forEach(t -> {
-                t.setTree(this.programService.getTreeData(t.getTreeId(), curUser));
+                t.setTree(this.programDao.getTreeData(t.getTreeId(), curUser));
             });
             datasetDataList.add(dd);
         });
@@ -109,7 +109,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 
     @Override
     public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
-        Program p = this.programService.getProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        Program p = this.programDao.getProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             programData.setCurrentVersion(p.getCurrentVersion());
 //            System.out.println("++++" + p.getCurrentVersion());
@@ -228,7 +228,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         for (int programId : programMap.keySet()) {
             Integer versionId = programMap.get(programId).stream().mapToInt(v -> v).max().orElse(-1);
             if (versionId != -1) {
-                Program p = this.programService.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+                Program p = this.programDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
                 if (p.getCurrentVersion().getVersionId() > versionId) {
                     newer = true;
                 }
