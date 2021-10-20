@@ -189,6 +189,25 @@ public class SyncRestController {
         }
     }
 
+//    @PostMapping(value = "/sync/test/forPrograms/{lastSyncDate}")
+//    public ResponseEntity getRegionsForSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
+//        try {
+//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//            sdf.parse(lastSyncDate);
+//            String programIdsString = getProgramIds(programIds);
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            MastersSync masters = new MastersSync();
+//            masters.setProgramList(this.programService.getProgramListForSyncProgram(programIdsString, curUser));//programIds, 
+//        return new ResponseEntity(masters, HttpStatus.OK);
+//        } catch (ParseException p) {
+//            logger.error("Error in masters sync", p);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+//        } catch (Exception e) {
+//            logger.error("Error in masters sync", e);
+//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
+    
     @PostMapping(value = "/sync/allMasters/forPrograms/{lastSyncDate}")
     public ResponseEntity getAllMastersForSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
         try {
@@ -197,7 +216,7 @@ public class SyncRestController {
             String programIdsString = getProgramIds(programIds);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             MastersSync masters = new MastersSync();
-            masters.setCountryList(this.countryService.getCountryListForSyncProgram(programIdsString, curUser));//programIds
+            masters.setCountryList(this.countryService.getCountryListForSyncProgram(programIdsString, curUser));//programIds -- Done for Dataset
 //            System.out.println("Country -> " + masters.getCountryList().size());
             masters.setCurrencyList(this.currencyService.getCurrencyListForSync(lastSyncDate));
 //            System.out.println("Currency -> " + masters.getCurrencyList().size());
@@ -235,7 +254,7 @@ public class SyncRestController {
 //            System.out.println("PlanningUnit -> " + masters.getPlanningUnitList().size());
             masters.setProcurementUnitList(this.procurementUnitService.getProcurementUnitListForSyncProgram(programIdsString, curUser));//programIds, 
 //            System.out.println("ProcurementUnit -> " + masters.getProcurementUnitList().size());
-            masters.setRealmCountryList(this.realmCountryService.getRealmCountryListForSyncProgram(programIdsString, curUser));//programIds, 
+            masters.setRealmCountryList(this.realmCountryService.getRealmCountryListForSyncProgram(programIdsString, curUser));//programIds,  -- Done for Dataset
 //            System.out.println("RealmCountry -> " + masters.getRealmCountryList().size());
             masters.setRealmCountryPlanningUnitList(this.realmCountryService.getRealmCountryPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
 //            System.out.println("RealmCountryPlanningUnit -> " + masters.getRealmCountryPlanningUnitList().size());
@@ -243,11 +262,11 @@ public class SyncRestController {
 //            System.out.println("ProcurementAgentPlanningUnit -> " + masters.getProcurementAgentPlanningUnitList().size());
             masters.setProcurementAgentProcurementUnitList(this.procurementAgentService.getProcurementAgentProcurementUnitListForSyncProgram(programIdsString, curUser));//programIds, 
 //            System.out.println("ProcurementAgentProcurementUnit -> " + masters.getProcurementAgentProcurementUnitList().size());
-            masters.setProgramList(this.programService.getProgramListForSyncProgram(programIdsString, curUser));//programIds, 
+            masters.setProgramList(this.programService.getProgramListForSyncProgram(programIdsString, curUser));//programIds,  -- Done for Dataset
 //            System.out.println("Program -> " + m/sync/allMasters/forPrograms/{lastSyncDate}asters.getProgramList().size());
             masters.setProgramPlanningUnitList(this.programService.getProgramPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
 //            System.out.println("ProgramPlanningUnit -> " + masters.getProgramPlanningUnitList().size());
-            masters.setRegionList(this.regionService.getRegionListForSyncProgram(programIdsString, curUser));//programIds, 
+            masters.setRegionList(this.regionService.getRegionListForSyncProgram(programIdsString, curUser));//programIds,  -- Done for Dataset
 //            System.out.println("Region -> " + masters.getRegionList().size());
             masters.setBudgetList(this.budgetService.getBudgetListForSyncProgram(programIdsString, curUser));//programIds, 
 //            System.out.println("Budget -> " + masters.getBudgetList().size());

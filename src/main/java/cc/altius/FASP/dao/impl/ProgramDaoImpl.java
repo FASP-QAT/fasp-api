@@ -2342,11 +2342,16 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public List<Program> getProgramListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlProgramListString).append(" AND p.PROGRAM_ID IN (").append(programIdsString).append(") ");
+        StringBuilder sqlStringBuilder = new StringBuilder("(").append(this.sqlProgramListString).append(" AND p.PROGRAM_ID IN (").append(programIdsString).append(") ");
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(this.sqlOrderBy);
+        sqlStringBuilder.append(this.sqlOrderBy).append(")");
+        sqlStringBuilder.append(" UNION ")
+                .append("(").append(this.sqlDatasetListString).append(" AND p.PROGRAM_ID IN (").append(programIdsString).append(") ");
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(this.sqlOrderBy).append(")");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramListResultSetExtractor());
     }
 
