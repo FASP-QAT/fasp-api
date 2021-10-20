@@ -405,3 +405,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note: Commit currently
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : validation en cours. La saisie des données est gelée jusqu`à ce que la validation soit terminée.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: Confirmar actualmente en proceso. La entrada de datos se congela hasta que se completa la confirmación.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: Confirmação atualmente em andamento. Entrada de dados congelada até que a confirmação seja concluída.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitRequest.commitProgress','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Commit progress');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Engager des progrès');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Comprometer el progreso');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Comprometa o progresso');-- pr
