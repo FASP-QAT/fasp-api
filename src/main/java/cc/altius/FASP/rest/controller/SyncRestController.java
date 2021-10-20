@@ -35,6 +35,7 @@ import cc.altius.FASP.service.RegionService;
 import cc.altius.FASP.service.ShipmentStatusService;
 import cc.altius.FASP.service.SupplierService;
 import cc.altius.FASP.service.TracerCategoryService;
+import cc.altius.FASP.service.TreeTemplateService;
 import cc.altius.FASP.service.UnitService;
 import cc.altius.FASP.service.UsagePeriodService;
 import cc.altius.FASP.service.UsageTemplateService;
@@ -127,6 +128,8 @@ public class SyncRestController {
     private ForecastMethodService forecastMethodService;
     @Autowired
     private UsageTemplateService usageTemplateService;
+    @Autowired
+    private TreeTemplateService treeTemplateService;
     
 //    @GetMapping(value = "/sync/allMasters/{lastSyncDate}")
 //    public ResponseEntity getAllMastersForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
@@ -197,7 +200,7 @@ public class SyncRestController {
 //            String programIdsString = getProgramIds(programIds);
 //            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
 //            MastersSync masters = new MastersSync();
-//            masters.setProgramList(this.programService.getProgramListForSyncProgram(programIdsString, curUser));//programIds, 
+//            masters.setTreeTemplateList(this.treeTemplateService.getTreeTemplateListForSync(lastSyncDate, curUser));
 //        return new ResponseEntity(masters, HttpStatus.OK);
 //        } catch (ParseException p) {
 //            logger.error("Error in masters sync", p);
@@ -285,6 +288,7 @@ public class SyncRestController {
             masters.setModelingTypeList(this.modelingTypeService.getModelingTypeListForSync(lastSyncDate, curUser));
             masters.setForecastMethodList(this.forecastMethodService.getForecastMethodListForSync(lastSyncDate, curUser));
             masters.setUsageTemplateList(this.usageTemplateService.getUsageTemplateListForSync(programIdsString, curUser));
+            masters.setTreeTemplateList(this.treeTemplateService.getTreeTemplateListForSync(lastSyncDate, curUser));
             return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);

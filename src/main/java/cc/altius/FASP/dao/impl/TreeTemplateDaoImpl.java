@@ -17,7 +17,6 @@ import cc.altius.FASP.model.TreeNodeData;
 import cc.altius.FASP.model.TreeTemplate;
 import cc.altius.FASP.model.rowMapper.TreeNodeResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.TreeTemplateRowMapper;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
@@ -348,4 +347,14 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         this.namedParameterJdbcTemplate.update("UPDATE rm_tree_template_node ttn LEFT JOIN rm_tree_template_node ttn2 ON ttn.TREE_TEMPLATE_ID=ttn2.TREE_TEMPLATE_ID AND left(ttn.SORT_ORDER, length(ttn.SORT_ORDER)-3)=ttn2.SORT_ORDER SET ttn.PARENT_NODE_ID=ttn2.NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
         return treeTemplateId;
     }
+
+    @Override
+    public List<TreeTemplate> getTreeTemplateListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        String sql = treeTemplateSql + " WHERE tt.LAST_MODIFIED_DATE>=:lastSyncDate ORDER BY tt.LABEL_EN";
+        Map<String, Object> params = new HashMap<>();
+        params.put("lastSyncDate", lastSyncDate);
+        return this.namedParameterJdbcTemplate.query(sql, params, new TreeTemplateRowMapper());
+    }
+    
+    
 }
