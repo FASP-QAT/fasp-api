@@ -1517,7 +1517,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser) {
-        StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND FIND_IN_SET(spcr.PROGRAM_ID,'" + spcr.getProgramIdsString() + "') AND spcr.CREATED_DATE BETWEEN :startDate AND :stopDate ");
+        StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND FIND_IN_SET(spcr.PROGRAM_ID,'" + spcr.getProgramIdsString() + "') AND spcr.CREATED_DATE BETWEEN :startDate AND :stopDate AND spcr.CREATED_BY=:curUser");
         Map<String, Object> params = new HashMap<>();
         if (requestStatus != -1) {
             sb.append(" AND STATUS=:requestStatus");
@@ -1525,6 +1525,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
         params.put("startDate", spcr.getStartDateString() + " 00:00:00");
         params.put("stopDate", spcr.getStopDateString() + " 23:59:59");
+        params.put("curUser", curUser.getUserId());
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new SupplyPlanCommitRequestRowMapper());
     }
