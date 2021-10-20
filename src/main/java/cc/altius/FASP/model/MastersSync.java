@@ -54,6 +54,7 @@ public class MastersSync implements Serializable {
     private List<ModelingType> modelingTypeList;
     private List<ForecastMethod> forecastMethodList;
     private List<UsageTemplate> usageTemplateList;
+    private List<TreeTemplate> treeTemplateList;
 
     public List<Country> getCountryList() {
         return countryList;
@@ -365,6 +366,14 @@ public class MastersSync implements Serializable {
 
     public void setUsageTemplateList(List<UsageTemplate> usageTemplateList) {
         this.usageTemplateList = usageTemplateList;
+    }
+
+    public List<TreeTemplate> getTreeTemplateList() {
+        return treeTemplateList;
+    }
+
+    public void setTreeTemplateList(List<TreeTemplate> treeTemplateList) {
+        this.treeTemplateList = treeTemplateList;
     }
 
 }

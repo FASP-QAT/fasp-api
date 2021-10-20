@@ -456,7 +456,27 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
         Map<String, Object> params = new HashMap<>();
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(" GROUP BY c.COUNTRY_CODE");
+        sqlStringBuilder.append(" GROUP BY rc.REALM_COUNTRY_ID ");
+        sqlStringBuilder.append(" UNION ")
+                .append("SELECT  "
+                + "    rc.REALM_COUNTRY_ID,  "
+                + "    r.REALM_ID, r.LABEL_ID `REALM_LABEL_ID`, r.LABEL_EN `REALM_LABEL_EN`, r.LABEL_FR `REALM_LABEL_FR`, r.LABEL_PR `REALM_LABEL_PR`, r.LABEL_SP `REALM_LABEL_SP`, r.REALM_CODE,  "
+                + "    c.COUNTRY_ID, c.COUNTRY_CODE, c.LABEL_ID `COUNTRY_LABEL_ID`,c.LABEL_EN `COUNTRY_LABEL_EN`, c.LABEL_FR `COUNTRY_LABEL_FR`, c.LABEL_PR `COUNTRY_LABEL_PR`, c.LABEL_SP `COUNTRY_LABEL_SP`,  "
+                + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CONVERSION_RATE_TO_USD, cu.LABEL_ID `CURRENCY_LABEL_ID`, cu.LABEL_EN `CURRENCY_LABEL_EN`, cu.LABEL_FR `CURRENCY_LABEL_FR`, cu.LABEL_PR `CURRENCY_LABEL_PR`, cu.LABEL_SP `CURRENCY_LABEL_SP`,  "
+                + "    un.UNIT_ID, un.UNIT_CODE, un.LABEL_ID `UNIT_LABEL_ID`, un.LABEL_EN `UNIT_LABEL_EN`, un.LABEL_FR `UNIT_LABEL_FR`, un.LABEL_PR `UNIT_LABEL_PR`, un.LABEL_SP `UNIT_LABEL_SP`,  "
+                + "    rc.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, rc.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, rc.LAST_MODIFIED_DATE  "
+                + "FROM vw_dataset p "
+                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID  "
+                + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID  "
+                + " LEFT JOIN vw_currency cu ON rc.DEFAULT_CURRENCY_ID=cu.CURRENCY_ID  "
+                + " LEFT JOIN vw_unit un ON rc.PALLET_UNIT_ID=un.UNIT_ID  "
+                + " LEFT JOIN us_user cb ON rc.CREATED_BY=cb.USER_ID  "
+                + " LEFT JOIN us_user lmb ON rc.LAST_MODIFIED_BY=lmb.USER_ID "
+                + " WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") AND rc.`REALM_COUNTRY_ID`  IS NOT NULL ");
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" GROUP BY rc.REALM_COUNTRY_ID ");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RealmCountryRowMapper());
     }
 

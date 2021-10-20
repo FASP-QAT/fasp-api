@@ -12,6 +12,7 @@ import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.Region;
 import cc.altius.FASP.model.rowMapper.RegionRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.HashMap;
 import java.util.List;
@@ -161,6 +162,26 @@ public class RegionDaoImpl implements RegionDao {
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
         sqlStringBuilder.append(" GROUP BY re.REGION_ID");
+        sqlStringBuilder.append(" UNION ")
+                .append("SELECT  "
+                        + "    re.REGION_ID, rc.REALM_COUNTRY_ID, re.GLN, re.CAPACITY_CBM, "
+                        + "    re.LABEL_ID, re.LABEL_EN, re.LABEL_FR, re.LABEL_SP, re.LABEL_PR, "
+                        + "    r.REALM_ID, r.`LABEL_ID` `REALM_LABEL_ID`, r.`LABEL_EN` `REALM_LABEL_EN` , r.`LABEL_FR` `REALM_LABEL_FR`, r.`LABEL_PR` `REALM_LABEL_PR`, r.`LABEL_SP` `REALM_LABEL_SP`, r.REALM_CODE, "
+                        + "    c.COUNTRY_ID, c.`LABEL_ID` `COUNTRY_LABEL_ID`, c.`LABEL_EN` `COUNTRY_LABEL_EN` , c.`LABEL_FR` `COUNTRY_LABEL_FR`, c.`LABEL_PR` `COUNTRY_LABEL_PR`, c.`LABEL_SP` `COUNTRY_LABEL_SP`, c.COUNTRY_CODE, "
+                        + "    re.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, re.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, re.LAST_MODIFIED_DATE "
+                        + " FROM vw_dataset p "
+                        + " LEFT JOIN rm_program_region pr ON p.PROGRAM_ID=pr.PROGRAM_ID "
+                        + " LEFT JOIN vw_region re ON pr.REGION_ID=re.REGION_ID "
+                        + " LEFT JOIN rm_realm_country rc on re.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                        + " LEFT JOIN vw_realm r ON rc.REALM_ID=r.REALM_ID "
+                        + " LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
+                        + " LEFT JOIN us_user cb ON re.CREATED_BY=cb.USER_ID "
+                        + " LEFT JOIN us_user lmb ON re.LAST_MODIFIED_BY=lmb.USER_ID "
+                        + " WHERE TRUE AND p.PROGRAM_ID IN (").append(programIdsString).append(") AND re.`REGION_ID`  IS NOT NULL ");
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(" GROUP BY re.REGION_ID");
+        System.out.println(LogUtils.buildStringForLog(sqlStringBuilder.toString(), params));
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new RegionRowMapper());
     }
 
