@@ -72,7 +72,7 @@ public class ProgramData extends BaseModel implements Serializable {
     private List<SimplifiedSupplyPlan> supplyPlan;
     @JsonView(Views.InternalView.class)
     private int requestedProgramVersion;
-    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class})
+    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private List<SimplePlanningUnitForSupplyPlanObject> planningUnitList;
 
     public int getRequestedProgramVersion() {

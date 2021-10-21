@@ -123,7 +123,6 @@ public class LanguageRestController {
         }
     }
 
-
 //    @GetMapping(value = "/sync/language/{lastSyncDate}")
 //    public ResponseEntity getLanguageListForSync(@PathVariable("lastSyncDate") String lastSyncDate) {
 //        try {
@@ -138,6 +137,5 @@ public class LanguageRestController {
 //            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
 //        }
 //    }
-
 
 }

@@ -53,4 +53,13 @@ public class TreeTemplateServiceImpl implements TreeTemplateService {
         return this.treeTemplateDao.updateTreeTemplate(tt, curUser);
     }
 
+    @Override
+    public List<TreeTemplate> getTreeTemplateListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        List<TreeTemplate> ttList = this.treeTemplateDao.getTreeTemplateListForSync(lastSyncDate, curUser);
+        ttList.forEach(tt -> {
+            tt.setTree(this.treeTemplateDao.getTree(tt.getTreeTemplateId()));
+        });
+        return ttList;
+    }
+
 }

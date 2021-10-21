@@ -24,6 +24,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import static jxl.biff.BaseCellFeatures.logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.jdbc.BadSqlGrammarException;
@@ -49,14 +51,16 @@ public class ExportSupplyPlanJson {
     private String QAT_FILE_PATH;
     @Value("${exportSupplyPlanFilePath}")
     private String EXPORT_SUPPLY_PLAN_FILE_PATH;
-    @Value("${email.toList}")
+    @Value("${email.exportToList}")
     private String toList;
-    @Value("${email.ccList}")
+    @Value("${email.exportCCList}")
     private String ccList;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @GetMapping("/exportSupplyPlan")
     @ResponseBody
     public String exportSupplyPlan(Authentication auth) {
+        logger.info(" ################ Going to start Supply Plan export process ############## ");
         String newLine = "<br/>\n";
         StringBuilder sb = new StringBuilder();
         EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(4);
@@ -66,17 +70,25 @@ public class ExportSupplyPlanJson {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("MM-dd-yyyy hh:mm a");
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         CustomUserDetails curUser = this.userService.getCustomUserByUserId(1); // Super User for the Export
+        logger.info("About to pull the Supply plan list that need to be exported");
         List<ProgramIntegrationDTO> integrationList = this.programDataService.getSupplyPlanToExportList();
+        logger.info("Found " + integrationList.size() + " supply plans");
         sb.append("Found ").append(integrationList.size()).append(" supply plans to export").append(newLine);
         for (ProgramIntegrationDTO iDto : integrationList) {
             try {
+                logger.info("Creating file and folder name");
+                logger.info("Starting export for " + iDto);
                 File directory = new File(QAT_FILE_PATH + EXPORT_SUPPLY_PLAN_FILE_PATH + iDto.getFolderName());
+                logger.info("Folder created");
                 sb.append("Begining export for ProgramId:").append(iDto.getProgramId()).append(" VersionId:").append(iDto.getVersionId()).append(" Integeration ").append(iDto.getIntegrationName()).append(newLine);
                 sb.append("Checking if Directory exists ").append(directory).append(newLine);
+                logger.info("Checking if directory exists");
                 if (directory.isDirectory()) {
                     sb.append("Directory exists ").append(newLine);
+                    logger.info("Directory exists");
                     ProgramData programData = this.programDataService.getProgramData(iDto.getProgramId(), iDto.getVersionId(), curUser, true);
                     sb.append("Got the Program Data").append(newLine);
+                    logger.info("Got the Program Data");
                     ObjectMapper mapper = new ObjectMapper();
                     String json = "";
                     sb.append("View set for ").append(iDto.getIntegrationViewName()).append(newLine);
@@ -99,9 +111,11 @@ public class ExportSupplyPlanJson {
                     fileWriter.flush();
                     fileWriter.close();
                     sb.append("Export completed").append(newLine).append(newLine);
+                    logger.info("Export completed");
                     logger.info("Export supply plan successful for ProgramId:" + iDto.getProgramId() + " VersionId:" + iDto.getVersionId() + " IntegrationName:" + iDto.getIntegrationName());
                     this.programDataService.updateSupplyPlanAsExported(iDto.getProgramVersionTransId(), iDto.getIntegrationId());
                 } else {
+                    
                     subjectParam = new String[]{"supply plan", "Directory does not exists for " + iDto.getIntegrationName()};
                     bodyParam = new String[]{"supply plan", simpleDateFormat.format(curDate), "Directory does not exist for " + iDto.getIntegrationName(), "Directory does not exist for " + iDto.getIntegrationName()};
                     emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
@@ -148,6 +162,7 @@ public class ExportSupplyPlanJson {
                 logger.error("Export supply plan exception occured", e);
             }
         }
+        logger.info(" #################### Completed Export process ####################### ");
         return sb.toString();
     }
 }

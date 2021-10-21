@@ -2027,12 +2027,13 @@ VIEW `vw_forecast_tree_node` AS
         LEFT JOIN `ap_label` `l` ON ((`tn`.`LABEL_ID` = `l`.`LABEL_ID`)));
 
 
-INSERT INTO ap_label values (null, 'Tanzania Condoms', null, null, null, 1, @dt, 1, @dt, 45);
+INSERT INTO ap_label values (null, 'Tanzania Condoms & ARV', null, null, null, 1, @dt, 1, @dt, 45);
 SELECT last_insert_id() into @labelId;
-INSERT INTO rm_program values (null, "TZA-CON-MOH", 1, 44 , 1, @labelId, 1, "Testing for Condoms", null, null, null, null, null, null, null, null, 1, 1, 9, @dt, 9, @dt, 2);
+INSERT INTO rm_program values (null, "TZA-CON/ARV-MOH", 1, 44 , 1, @labelId, 1, "Testing for Condoms & ARV", null, null, null, null, null, null, null, null, 1, 1, 9, @dt, 9, @dt, 2);
 SELECT last_insert_id() into @programId;
 INSERT INTO rm_program_version values (null, @programId, 1, 1, 1, "Loaded during testing", 9, @dt, 9, @dt, 1, "2020-01-01", "2024-12-31");
 INSERT INTO rm_program_health_area values (null, @programId, 8);
+INSERT INTO rm_program_health_area values (null, @programId, 1);
 INSERT INTO rm_program_region VALUES (null, @programId, 70, 1, 1, @dt, 1, @dt);
 
 INSERT INTO rm_forecast_tree SELECT null, @programId, 1, tt.LABEL_ID, tt.FORECAST_METHOD_ID, tt.CREATED_BY, tt.CREATED_DATE, tt.LAST_MODIFIED_BY, tt.LAST_MODIFIED_DATE, 1 FROM rm_tree_template tt WHERE tt.TREE_TEMPLATE_ID=1;
@@ -2583,3 +2584,73 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Faites un clic droit p
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Haga clic derecho para abrir la calculadora de intervalo a frecuencia donde el tipo es discreto y un valor de uso de tiempo es falso');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Clique com o botão direito para abrir o intervalo para a calculadora de frequência onde o tipo é discreto e um valor de uso de tempo é falso');
 
+
+INSERT INTO ap_label values (null, 'ARV Tree', null, null, null, 1, @dt, 1, @dt, 48);
+SELECT last_insert_id() into @labelId;
+INSERT INTO rm_forecast_tree VALUES (null, @programId, 1, @labelId, 1, 1, @dt, 1, @dt, 1);
+
+SELECT last_insert_id() into @treeId;
+INSERT INTO ap_label values (null, 'Most likely scenario', null, null, null, 1, @dt, 1, @dt, 50);
+SELECT last_insert_id() into @labelId;
+INSERT INTO rm_scenario VALUES (null, @treeId, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @scenarioId1;
+INSERT INTO ap_label values (null, 'Over estimation', null, null, null, 1, @dt, 1, @dt, 50);
+SELECT last_insert_id() into @labelId;
+INSERT INTO rm_scenario VALUES (null, @treeId, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @scenarioId2;
+INSERT INTO ap_label values (null, 'Under estimation', null, null, null, 1, @dt, 1, @dt, 50);
+SELECT last_insert_id() into @labelId;
+INSERT INTO rm_scenario VALUES (null, @treeId, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @scenarioId3;
+
+INSERT INTO ap_label values (null, 'ARV Patients', null, null, null, 1, @dt, 1, @dt, 49);
+SELECT last_insert_id() into @labelId;
+insert into rm_forecast_tree_node values (null, @treeId, null, "00", 1, 1, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeId;
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId1, "2021-01-01", null, null, null, "", 1, @dt, 1, @dt, 1);
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId2, "2021-01-01", null, null, null, "", 1, @dt, 1, @dt, 1);
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId3, "2021-01-01", null, null, null, "", 1, @dt, 1, @dt, 1);
+
+SET @parentNodeId = @nodeId;
+INSERT INTO ap_label values (null, 'Adults', null, null, null, 1, @dt, 1, @dt, 49);
+SELECT last_insert_id() into @labelId;
+insert into rm_forecast_tree_node values (null, @treeId, @parentNodeId, "00.01", 2, 1, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeId;
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId1, "2021-01-01", null, null, null, "", 1, @dt, 1, @dt, 1);
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId2, "2021-01-01", null, null, null, "", 1, @dt, 1, @dt, 1);
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId3, "2021-01-01", null, null, null, "", 1, @dt, 1, @dt, 1);
+
+INSERT INTO ap_label values (null, 'Children', null, null, null, 1, @dt, 1, @dt, 49);
+SELECT last_insert_id() into @labelId;
+insert into rm_forecast_tree_node values (null, @treeId, @parentNodeId, "00.02", 2, 1, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeId;
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId1, "2021-01-01", null, null, null, "", 1, @dt, 1, @dt, 1);
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId2, "2021-01-01", null, null, null, "", 1, @dt, 1, @dt, 1);
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId3, "2021-01-01", null, null, null, "", 1, @dt, 1, @dt, 1);
+
+SET @parentNodeId = @nodeId-1;
+
+INSERT INTO ap_label values (null, 'Adults 1st Line', null, null, null, 1, @dt, 1, @dt, 49);
+SELECT last_insert_id() into @labelId;
+insert into rm_forecast_tree_node values (null, @treeId, @parentNodeId, "00.01.01", 3, 2, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeId;
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId1, "2021-01-01", 45386964, null, null, "", 1, @dt, 1, @dt, 1);
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId2, "2021-01-01", 53820401, null, null, "", 1, @dt, 1, @dt, 1);
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId3, "2021-01-01", 39102354, null, null, "", 1, @dt, 1, @dt, 1);
+
+INSERT INTO ap_label values (null, 'Adults 2nd Line', null, null, null, 1, @dt, 1, @dt, 49);
+SELECT last_insert_id() into @labelId;
+insert into rm_forecast_tree_node values (null, @treeId, @parentNodeId, "00.01.02", 3, 2, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeId;
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId1, "2021-01-01", 55442475, null, null, "", 1, @dt, 1, @dt, 1);
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId2, "2021-01-01", 60420158, null, null, "", 1, @dt, 1, @dt, 1);
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId3, "2021-01-01", 48391200, null, null, "", 1, @dt, 1, @dt, 1);
+
+SET @parentNodeId = @nodeId - 1;
+INSERT INTO ap_label values (null, 'TLD', null, null, null, 1, @dt, 1, @dt, 49);
+SELECT last_insert_id() into @labelId;
+insert into rm_forecast_tree_node values (null, @treeId, @parentNodeId, "00.01.01.01", 4, 3, @unitId, 1, @labelId, 1, @dt, 1, @dt, 1);
+SELECT last_insert_id() into @nodeId;
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId1, "2021-01-01", 36.8, null, null, "", 1, @dt, 1, @dt, 1);
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId2, "2021-01-01", 33.5, null, null, "", 1, @dt, 1, @dt, 1);
+insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId3, "2021-01-01", 45.9, null, null, "", 1, @dt, 1, @dt, 1);
