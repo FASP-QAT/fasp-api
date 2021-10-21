@@ -893,10 +893,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Entrar DataSet');
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.program.datasetDisplayName','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Dataset Display Name');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nom d affichage de l ensemble de données');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nombre para mostrar del conjunto de datos');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nome de exibição do conjunto de dados');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program Display Name');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nom d affichage du programme');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nombre de visualización del programa');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nome de exibição do programa');
 
 
 
@@ -1639,10 +1639,10 @@ VIEW `vw_tree_template_node` AS
 -- Tree labels
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.datasetmanagement','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Dataset Managment');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Gestion des jeux de données');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Gestión de conjuntos de datos');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Gerenciamento de conjunto de dados');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program Managment');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Gestion de programme');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Gestión de programas');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Gestão do Programa');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.listtree','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -1716,10 +1716,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Copiar linha');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.loadDeleteDataSet','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Load or delete dataset');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Charger ou supprimer un ensemble de données');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cargar o eliminar conjunto de datos');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Carregar ou excluir conjunto de dados');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Load or delete program');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Charger ou supprimer un programme');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cargar o eliminar programa');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Carregar ou deletar programa');
 
 
 CREATE TABLE `rm_forecast_tree` (
@@ -2578,8 +2578,8 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Conversão para UE');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.calculatorReminderText','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Right click to open the Interval to Frequency calculator');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Faites un clic droit pour ouvrir le calculateur d intervalle à fréquence');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Haga clic derecho para abrir la calculadora de intervalo a frecuencia');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Clique com o botão direito para abrir a calculadora de intervalo para frequência');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Right click to open the interval to frequency calculator where type is discrete and one time usage flag is Unchecked');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Faites un clic droit pour ouvrir le calculateur d intervalle à fréquence où le type est discret et une valeur d utilisation du temps est fausse');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Haga clic derecho para abrir la calculadora de intervalo a frecuencia donde el tipo es discreto y un valor de uso de tiempo es falso');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Clique com o botão direito para abrir o intervalo para a calculadora de frequência onde o tipo é discreto e um valor de uso de tempo é falso');
 
