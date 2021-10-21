@@ -126,36 +126,28 @@ public class CountryDaoImpl implements CountryDao {
 
     @Override
     public List<Country> getCountryListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2, "
                 + "	c.LABEL_ID, c.LABEL_EN, c.LABEL_FR, c.LABEL_PR, c.LABEL_SP, "
                 + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CONVERSION_RATE_TO_USD, "
                 + "    cu.LABEL_ID `CURRENCY_LABEL_ID`, cu.LABEL_EN `CURRENCY_LABEL_EN`, cu.LABEL_FR `CURRENCY_LABEL_FR`, cu.LABEL_PR `CURRENCY_LABEL_PR`, cu.LABEL_SP `CURRENCY_LABEL_SP`, "
                 + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, c.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, c.LAST_MODIFIED_DATE, c.ACTIVE  "
-                + "FROM vw_program p "
-                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "FROM rm_realm_country rc  "
                 + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + "LEFT JOIN vw_currency cu ON c.CURRENCY_ID=cu.CURRENCY_ID "
                 + "LEFT JOIN us_user cb ON c.CREATED_BY=cb.USER_ID "
                 + "LEFT JOIN us_user lmb ON c.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") AND c.COUNTRY_ID IS NOT NULL ");
-        Map<String, Object> params = new HashMap<>();
+                + "WHERE rc.REALM_COUNTRY_ID IN ( "
+                + "     SELECT p.REALM_COUNTRY_ID FROM vw_program p LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "     WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") ");
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(" GROUP BY c.COUNTRY_ID");
         sqlStringBuilder.append(" UNION ")
-                .append("SELECT c.COUNTRY_ID, c.COUNTRY_CODE, c.COUNTRY_CODE2, "
-                        + "	c.LABEL_ID, c.LABEL_EN, c.LABEL_FR, c.LABEL_PR, c.LABEL_SP, "
-                        + "    cu.CURRENCY_ID, cu.CURRENCY_CODE, cu.CONVERSION_RATE_TO_USD, "
-                        + "    cu.LABEL_ID `CURRENCY_LABEL_ID`, cu.LABEL_EN `CURRENCY_LABEL_EN`, cu.LABEL_FR `CURRENCY_LABEL_FR`, cu.LABEL_PR `CURRENCY_LABEL_PR`, cu.LABEL_SP `CURRENCY_LABEL_SP`, "
-                        + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, c.CREATED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, c.LAST_MODIFIED_DATE, c.ACTIVE  "
-                        + "FROM vw_dataset p "
-                        + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
-                        + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
-                        + "LEFT JOIN vw_currency cu ON c.CURRENCY_ID=cu.CURRENCY_ID "
-                        + "LEFT JOIN us_user cb ON c.CREATED_BY=cb.USER_ID "
-                        + "LEFT JOIN us_user lmb ON c.LAST_MODIFIED_BY=lmb.USER_ID "
-                        + "WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") AND c.COUNTRY_ID IS NOT NULL ");
+                .append("     SELECT p.REALM_COUNTRY_ID FROM vw_dataset p LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                        + "     WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") ");
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append(" GROUP BY c.COUNTRY_ID");
+        sqlStringBuilder.append(")");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new CountryRowMapper());
     }
 

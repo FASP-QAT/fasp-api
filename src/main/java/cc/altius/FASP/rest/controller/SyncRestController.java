@@ -192,24 +192,24 @@ public class SyncRestController {
         }
     }
 
-//    @PostMapping(value = "/sync/test/forPrograms/{lastSyncDate}")
-//    public ResponseEntity getRegionsForSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
-//        try {
-//            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-//            sdf.parse(lastSyncDate);
-//            String programIdsString = getProgramIds(programIds);
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            MastersSync masters = new MastersSync();
-//            masters.setTreeTemplateList(this.treeTemplateService.getTreeTemplateListForSync(lastSyncDate, curUser));
-//        return new ResponseEntity(masters, HttpStatus.OK);
-//        } catch (ParseException p) {
-//            logger.error("Error in masters sync", p);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (Exception e) {
-//            logger.error("Error in masters sync", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+    @PostMapping(value = "/sync/test/forPrograms/{lastSyncDate}")
+    public ResponseEntity getRegionsForSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            sdf.parse(lastSyncDate);
+            String programIdsString = getProgramIds(programIds);
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            MastersSync masters = new MastersSync();
+            masters.setRealmCountryPlanningUnitList(this.realmCountryService.getRealmCountryPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds , 
+        return new ResponseEntity(masters, HttpStatus.OK);
+        } catch (ParseException p) {
+            logger.error("Error in masters sync", p);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (Exception e) {
+            logger.error("Error in masters sync", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     
     @PostMapping(value = "/sync/allMasters/forPrograms/{lastSyncDate}")
     public ResponseEntity getAllMastersForSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
@@ -220,67 +220,36 @@ public class SyncRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             MastersSync masters = new MastersSync();
             masters.setCountryList(this.countryService.getCountryListForSyncProgram(programIdsString, curUser));//programIds -- Done for Dataset
-//            System.out.println("Country -> " + masters.getCountryList().size());
             masters.setCurrencyList(this.currencyService.getCurrencyListForSync(lastSyncDate));
-//            System.out.println("Currency -> " + masters.getCurrencyList().size());
             masters.setDimensionList(this.dimensionService.getDimensionListForSync(lastSyncDate));
-//            System.out.println("Dimension -> " + masters.getDimensionList().size());
             masters.setLanguageList(this.languageService.getLanguageListForSync(lastSyncDate));
-//            System.out.println("Language -> " + masters.getLanguageList().size());
             masters.setShipmentStatusList(this.shipmentStatusService.getShipmentStatusListForSync(lastSyncDate, curUser));
-//            System.out.println("ShipmentStatus -> " + masters.getShipmentStatusList().size());
             masters.setUnitList(this.unitService.getUnitListForSync(lastSyncDate));
-//            System.out.println("Unit -> " + masters.getUnitList().size());
             masters.setDataSourceTypeList(this.dataSourceTypeService.getDataSourceTypeListForSync(lastSyncDate, curUser));
-//            System.out.println("DataSourceType -> " + masters.getDataSourceTypeList().size());
             masters.setDataSourceList(this.dataSourceService.getDataSourceListForSync(lastSyncDate, curUser));
-//            System.out.println("DataSource -> " + masters.getDataSourceList().size());
             masters.setTracerCategoryList(this.tracerCategoryService.getTracerCategoryListForSync(lastSyncDate, curUser));
-//            System.out.println("TracerCategory -> " + masters.getTracerCategoryList().size());
             masters.setProductCategoryList(this.productCategoryService.getProductCategoryListForSync(lastSyncDate, curUser));
-//            System.out.println("ProductCategory -> " + masters.getProductCategoryList().size());
             masters.setRealmList(this.realmService.getRealmListForSync(lastSyncDate, curUser));
-//            System.out.println("Realm -> " + masters.getRealmList().size());
             masters.setHealthAreaList(this.healthAreaService.getHealthAreaListForSync(lastSyncDate, curUser));
-//            System.out.println("HealthArea -> " + masters.getHealthAreaList().size());
             masters.setOrganisationList(this.organisationService.getOrganisationListForSync(lastSyncDate, curUser));
             masters.setOrganisationTypeList(this.organisationTypeService.getOrganisationTypeListForSync(lastSyncDate, curUser));
-//            System.out.println("Organisation -> " + masters.getOrganisationList().size());
             masters.setFundingSourceList(this.fundingSourceService.getFundingSourceListForSync(lastSyncDate, curUser));
-//            System.out.println("FundingSource -> " + masters.getFundingSourceList().size());
             masters.setProcurementAgentList(this.procurementAgentService.getProcurementAgentListForSync(lastSyncDate, curUser));
-//            System.out.println("ProcurementAgent -> " + masters.getProcurementAgentList().size());
-//            masters.setSupplierList(this.supplierService.getSupplierListForSync(lastSyncDate, curUser));
-            masters.setForecastingUnitList(this.forecastingUnitService.getForecastingUnitListForSyncProgram(programIdsString, curUser)); // programIds, 
-//            System.out.println("ForecastingUnit -> " + masters.getForecastingUnitList().size());
-            masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSyncProgram(programIdsString, curUser)); //programIds, 
-//            System.out.println("PlanningUnit -> " + masters.getPlanningUnitList().size());
+            masters.setForecastingUnitList(this.forecastingUnitService.getForecastingUnitListForSyncProgram(programIdsString, curUser)); // programIds -- Done for Dataset, 
+            masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSyncProgram(programIdsString, curUser)); //programIds, -- Done for Dataset
             masters.setProcurementUnitList(this.procurementUnitService.getProcurementUnitListForSyncProgram(programIdsString, curUser));//programIds, 
-//            System.out.println("ProcurementUnit -> " + masters.getProcurementUnitList().size());
             masters.setRealmCountryList(this.realmCountryService.getRealmCountryListForSyncProgram(programIdsString, curUser));//programIds,  -- Done for Dataset
-//            System.out.println("RealmCountry -> " + masters.getRealmCountryList().size());
-            masters.setRealmCountryPlanningUnitList(this.realmCountryService.getRealmCountryPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
-//            System.out.println("RealmCountryPlanningUnit -> " + masters.getRealmCountryPlanningUnitList().size());
+            masters.setRealmCountryPlanningUnitList(this.realmCountryService.getRealmCountryPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds , 
             masters.setProcurementAgentPlanningUnitList(this.procurementAgentService.getProcurementAgentPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
-//            System.out.println("ProcurementAgentPlanningUnit -> " + masters.getProcurementAgentPlanningUnitList().size());
             masters.setProcurementAgentProcurementUnitList(this.procurementAgentService.getProcurementAgentProcurementUnitListForSyncProgram(programIdsString, curUser));//programIds, 
-//            System.out.println("ProcurementAgentProcurementUnit -> " + masters.getProcurementAgentProcurementUnitList().size());
             masters.setProgramList(this.programService.getProgramListForSyncProgram(programIdsString, curUser));//programIds,  -- Done for Dataset
-//            System.out.println("Program -> " + m/sync/allMasters/forPrograms/{lastSyncDate}asters.getProgramList().size());
             masters.setProgramPlanningUnitList(this.programService.getProgramPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
-//            System.out.println("ProgramPlanningUnit -> " + masters.getProgramPlanningUnitList().size());
             masters.setRegionList(this.regionService.getRegionListForSyncProgram(programIdsString, curUser));//programIds,  -- Done for Dataset
-//            System.out.println("Region -> " + masters.getRegionList().size());
             masters.setBudgetList(this.budgetService.getBudgetListForSyncProgram(programIdsString, curUser));//programIds, 
-//            System.out.println("Budget -> " + masters.getBudgetList().size());
             masters.setProblemStatusList(this.problemService.getProblemStatusForSync(lastSyncDate, curUser));
-//            System.out.println("ProblemStatus -> " + masters.getProblemStatusList().size());
             masters.setProblemCriticalityList(this.problemService.getProblemCriticalityForSync(lastSyncDate, curUser));
-//            System.out.println("ProblemCriticality -> " + masters.getProblemCriticalityList().size());
             masters.setProblemCategoryList(this.problemService.getProblemCategoryForSync(lastSyncDate, curUser));
-//            System.out.println("ProblemCategory -> " + masters.getProblemCategoryList().size());
             masters.setRealmProblemList(this.problemService.getProblemListForSync(lastSyncDate, curUser));
-//            System.out.println("RealmProblem -> " + masters.getRealmProblemList().size());
             masters.setUsageTypeList(this.forecastingStaticDataService.getUsageTypeListForSync(lastSyncDate, curUser));
             masters.setNodeTypeList(this.forecastingStaticDataService.getNodeTypeListForSync(lastSyncDate, curUser));
             masters.setForecastMethodTypeList(this.forecastingStaticDataService.getForecastMethodTypeListForSync(lastSyncDate, curUser));
