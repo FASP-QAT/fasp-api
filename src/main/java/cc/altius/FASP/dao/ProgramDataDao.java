@@ -42,7 +42,7 @@ public interface ProgramDataDao {
 
     public List<Batch> getBatchList(int programId, int versionId);
 
-    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
+    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
     public List<SupplyPlanCommitRequest> getPendingSupplyPlanProcessList();
 

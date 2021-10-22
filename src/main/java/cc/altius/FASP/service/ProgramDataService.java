@@ -33,7 +33,7 @@ public interface ProgramDataService {
 
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
 
-    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
+    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
     public void processCommitRequest(CustomUserDetails curUser);
 

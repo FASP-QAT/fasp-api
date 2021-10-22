@@ -12,6 +12,7 @@ import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.SupplyPlanCommitRequest;
 import cc.altius.FASP.model.UpdateProgramVersion;
+import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.model.report.SupplyPlanCommitRequestInput;
 import cc.altius.FASP.service.ProgramDataService;
@@ -134,14 +135,18 @@ public class ProgramDataRestController {
         }
     }
 
-    // Part 1 of the Commit Request
-    @PutMapping("/programData")
-    public ResponseEntity putProgramData(@RequestBody ProgramData programData, Authentication auth) {
+    @PutMapping("/programData/{comparedVersionId}")
+    public ResponseEntity putProgramData(@RequestBody ProgramData programData, @PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            int commitRequestId = this.programDataService.saveProgramData(programData, curUser);
-            return new ResponseEntity(commitRequestId, HttpStatus.OK);
-//            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
+            int latestVersion = this.programDataService.getLatestVersionForProgram(programData.getProgramId());
+            if (latestVersion == comparedVersionId) {
+                CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+                Version v = this.programDataService.saveProgramData(programData, curUser);
+                return new ResponseEntity(this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser, false), HttpStatus.OK);
+            } else {
+                logger.error("Compared version is not latest");
+                return new ResponseEntity(new ResponseCode("static.commitVersion.versionIsOutDated"), HttpStatus.NOT_ACCEPTABLE);
+            }
         } catch (CouldNotSaveException e) {
             logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
@@ -156,6 +161,11 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+    
+    
+    
+    
 
     // Part 2 of the Commit Request
 //    @GetMapping("/processCommitRequest")
