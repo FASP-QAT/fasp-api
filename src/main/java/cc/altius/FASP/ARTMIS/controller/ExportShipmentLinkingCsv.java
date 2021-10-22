@@ -104,7 +104,7 @@ public class ExportShipmentLinkingCsv {
                     fileWriter.append(',');
                     fileWriter.append(Integer.toString(e.getProgramId()));
                     fileWriter.append(',');
-                    fileWriter.append(e.getProgramName());
+                    fileWriter.append(this.appendDQ(e.getProgramName()));
                     fileWriter.append(',');
                     fileWriter.append(Integer.toString(e.getParentShipmentId()));
                     fileWriter.append(',');
@@ -181,4 +181,8 @@ public class ExportShipmentLinkingCsv {
         }
         return sb.toString();
     }
+    
+    private  String appendDQ(String str) {
+    return "\"" + str + "\"";
+}
 }
