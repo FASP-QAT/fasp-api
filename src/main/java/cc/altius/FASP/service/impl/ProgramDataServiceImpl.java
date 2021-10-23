@@ -23,21 +23,17 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.Version;
-import cc.altius.FASP.rest.controller.ProgramDataRestController;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.ProblemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ProgramDataService;
-import cc.altius.utils.DateUtils;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
 import java.util.LinkedList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
 
 /**
@@ -57,7 +53,6 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     private AclService aclService;
     @Autowired
     private EmailService emailService;
-    private final Logger logger = LoggerFactory.getLogger(ProgramDataRestController.class);
 
     @Override
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean active) {
@@ -97,27 +92,17 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 
     @Override
     public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
-        logger.info("((((Inside save program data service impl"+DateUtils.getCurrentDateObject(DateUtils.EST));
         Program p = this.programDao.getProgramById(programData.getProgramId(), curUser);
-        logger.info("((((After getting program object"+DateUtils.getCurrentDateObject(DateUtils.EST));
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
-            logger.info("((((After checking acl"+DateUtils.getCurrentDateObject(DateUtils.EST));
             programData.setCurrentVersion(p.getCurrentVersion());
 //            System.out.println("++++" + p.getCurrentVersion());
-            logger.info("((((Before save service"+DateUtils.getCurrentDateObject(DateUtils.EST));
             Version version = this.programDataDao.saveProgramData(programData, curUser);
-            logger.info("((((After save service"+DateUtils.getCurrentDateObject(DateUtils.EST));
 //            System.out.println("version++++" + version);
             try {
-                logger.info("((((before building supply plan"+DateUtils.getCurrentDateObject(DateUtils.EST));
                 getNewSupplyPlanList(programData.getProgramId(), version.getVersionId(), true, false);
-                logger.info("((((After building supply plan"+DateUtils.getCurrentDateObject(DateUtils.EST));
                 if (programData.getVersionType().getId() == 2 && version.getVersionId() != 0) {
-                    logger.info("((((In if for version type"+DateUtils.getCurrentDateObject(DateUtils.EST));
                     List<NotificationUser> toEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(programData.getProgramId(), version.getVersionId(), 1, "To");
-                    logger.info("((((After to email ids list"+DateUtils.getCurrentDateObject(DateUtils.EST));
                     List<NotificationUser> ccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(programData.getProgramId(), version.getVersionId(), 1, "Cc");
-                    logger.info("((((After cc email ids list"+DateUtils.getCurrentDateObject(DateUtils.EST));
                     System.out.println("toEmailIdsList===>" + toEmailIdsList);
                     System.out.println("ccEmailIdsList===>" + ccEmailIdsList);
                     StringBuilder sbToEmails = new StringBuilder();
@@ -139,7 +124,6 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                         System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
                     }
                     EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(6);
-                    logger.info("((((After getting email template"+DateUtils.getCurrentDateObject(DateUtils.EST));
                     String[] subjectParam = new String[]{};
                     String[] bodyParam = null;
                     Emailer emailer = new Emailer();
@@ -151,7 +135,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                     emailer.setEmailerId(emailerId);
                     this.emailService.sendMail(emailer);
                 }
-                
+
                 return version;
             } catch (ParseException pe) {
                 throw new CouldNotSaveException(pe.getMessage());
