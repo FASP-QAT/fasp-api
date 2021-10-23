@@ -15,7 +15,6 @@ import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.UserService;
-import cc.altius.utils.DateUtils;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -136,17 +135,11 @@ public class ProgramDataRestController {
     @PutMapping("/programData/{comparedVersionId}")
     public ResponseEntity putProgramData(@RequestBody ProgramData programData, @PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, Authentication auth) {
         try {
-            logger.info("((((Inside put program data"+DateUtils.getCurrentDateObject(DateUtils.EST));
             int latestVersion = this.programDataService.getLatestVersionForProgram(programData.getProgramId());
-            logger.info("((((Inside get latest version"+latestVersion);
             if (latestVersion == comparedVersionId) {
-                logger.info("((((latest version is equal to compared version"+comparedVersionId);
                 CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
                 Version v = this.programDataService.saveProgramData(programData, curUser);
-                logger.info("((((latest version"+v);
-                ProgramData d = this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser, false);
-                logger.info("((((latest version Id"+d.getCurrentVersion().getVersionId());
-                return new ResponseEntity(d, HttpStatus.OK);
+                return new ResponseEntity(this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser, false), HttpStatus.OK);
             } else {
                 logger.error("Compared version is not latest");
                 return new ResponseEntity(new ResponseCode("static.commitVersion.versionIsOutDated"), HttpStatus.NOT_ACCEPTABLE);
