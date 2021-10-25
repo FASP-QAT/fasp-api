@@ -5,7 +5,7 @@
  */
 package cc.altius.FASP.service.impl;
 
-import cc.altius.FASP.dao.ProgramDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -46,7 +46,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Autowired
     private ProgramDataDao programDataDao;
     @Autowired
-    private ProgramDao programDao;
+    private ProgramCommonDao programCommonDao;
     @Autowired
     private ProblemService problemService;
     @Autowired
@@ -56,7 +56,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 
     @Override
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean active) {
-        ProgramData pd = new ProgramData(this.programDao.getProgramById(programId, curUser));
+        ProgramData pd = new ProgramData(this.programCommonDao.getProgramById(programId, curUser));
         pd.setRequestedProgramVersion(versionId);
         pd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
         versionId = pd.getCurrentVersion().getVersionId();
@@ -74,7 +74,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
         List<ProgramData> programDataList = new LinkedList<>();
         programVersionList.forEach(pv -> {
-            ProgramData pd = new ProgramData(this.programDao.getProgramById(pv.getProgramId(), curUser));
+            ProgramData pd = new ProgramData(this.programCommonDao.getProgramById(pv.getProgramId(), curUser));
             pd.setRequestedProgramVersion(pv.getVersionId());
             pd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), pv.getVersionId()));
             int versionId = pd.getCurrentVersion().getVersionId();
@@ -92,7 +92,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 
     @Override
     public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
-        Program p = this.programDao.getProgramById(programData.getProgramId(), curUser);
+        Program p = this.programCommonDao.getProgramById(programData.getProgramId(), curUser);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             programData.setCurrentVersion(p.getCurrentVersion());
 //            System.out.println("++++" + p.getCurrentVersion());
@@ -211,7 +211,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         for (int programId : programMap.keySet()) {
             Integer versionId = programMap.get(programId).stream().mapToInt(v -> v).max().orElse(-1);
             if (versionId != -1) {
-                Program p = this.programDao.getProgramById(programId, curUser);
+                Program p = this.programCommonDao.getProgramById(programId, curUser);
                 if (p.getCurrentVersion().getVersionId() > versionId) {
                     newer = true;
                 }

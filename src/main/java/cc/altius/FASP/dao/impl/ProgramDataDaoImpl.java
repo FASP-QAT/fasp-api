@@ -5,7 +5,7 @@
  */
 package cc.altius.FASP.dao.impl;
 
-import cc.altius.FASP.dao.ProgramDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.Batch;
@@ -92,7 +92,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Autowired
     private EmailService emailService;
     @Autowired
-    private ProgramDao programDao;
+    private ProgramCommonDao programCommonDao;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -1240,7 +1240,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
         //        when version is rejcted
         if (versionStatusId == 3) {
-            Program program = this.programDao.getProgramById(programId, curUser);
+            Program program = this.programCommonDao.getProgramById(programId, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "Cc");
@@ -1280,7 +1280,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
 //        when version is approved
         if (versionStatusId == 2) {
-            Program program = this.programDao.getProgramById(programId, curUser);
+            Program program = this.programCommonDao.getProgramById(programId, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "Cc");
