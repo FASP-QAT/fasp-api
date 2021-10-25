@@ -41,8 +41,8 @@ public interface ProgramDao {
 
     public List<Program> getProgramListForRealmId(int realmId, int programTypeId, CustomUserDetails curUser);
 
-    public Program getProgramById(int programId, int programTypeId, CustomUserDetails curUser);
-
+//    public Program getProgramById(int programId, CustomUserDetails curUser);
+    // Moved to ProgramCommonDao
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
@@ -110,10 +110,6 @@ public interface ProgramDao {
     public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser);
 
     public int tab3ShipmentCreation(int shipmentId, CustomUserDetails curUser);
-
-    public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser);
-
-    public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser);
 
     public int checkIfOrderNoAlreadyTagged(String orderNo, int primeLineNo);
 

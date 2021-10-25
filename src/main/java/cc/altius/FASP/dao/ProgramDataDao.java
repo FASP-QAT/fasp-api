@@ -10,6 +10,8 @@ import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
+import cc.altius.FASP.model.DatasetTree;
+import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.NotificationUser;
 import cc.altius.FASP.model.ProgramData;
@@ -20,6 +22,7 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitForSupplyPlanObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
+import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
 import java.text.ParseException;
 import java.util.List;
@@ -79,4 +82,8 @@ public interface ProgramDataDao {
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
 
     public String getLastModifiedDateForProgram(int programId, int versionId);
+    
+    public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser);
+
+    public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser);
 }
