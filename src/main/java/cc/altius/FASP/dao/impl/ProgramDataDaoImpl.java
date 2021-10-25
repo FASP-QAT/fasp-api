@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.dao.impl;
 
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.Batch;
@@ -61,7 +62,6 @@ import cc.altius.FASP.model.rowMapper.SupplyPlanCommitRequestRowMapper;
 import cc.altius.FASP.model.rowMapper.SupplyPlanResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
-import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.UserService;
 import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
@@ -101,7 +101,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Autowired
     private EmailService emailService;
     @Autowired
-    private ProgramService programService;
+    private ProgramCommonDao programCommonDao;
     @Autowired
     private UserService userService;
 
@@ -389,7 +389,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         this.namedParameterJdbcTemplate.update("UPDATE ct_supply_plan_commit_request spcr SET spcr.STARTED_DATE=:curDate WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
         CustomUserDetails commitUser = this.userService.getCustomUserByUserId(spcr.getCreatedBy().getUserId());
-        Program p = this.programService.getProgramById(spcr.getProgram().getId(), commitUser);
+        Program p = this.programCommonDao.getProgramById(spcr.getProgram().getId(), commitUser);
         ProgramData pd = new ProgramData(p);
         pd.setVersionType(spcr.getVersionType());
         pd.setVersionStatus(new SimpleObject(1, new Label(0)));
@@ -1659,7 +1659,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
         //        when version is rejcted
         if (versionStatusId == 3) {
-            Program program = this.programService.getProgramById(programId, curUser);
+            Program program = this.programCommonDao.getProgramById(programId, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "Cc");
@@ -1699,7 +1699,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
 //        when version is approved
         if (versionStatusId == 2) {
-            Program program = this.programService.getProgramById(programId, curUser);
+            Program program = this.programCommonDao.getProgramById(programId, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "Cc");
@@ -2180,7 +2180,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList() {
-        String sqlString = "SELECT f.PROGRAM_ID, pv.VERSION_ID, pv.VERSION_TYPE_ID, pv.VERSION_STATUS_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, i.FILE_NAME, i.FOLDER_LOCATION, i.INTEGRATION_VIEW_ID, iv.INTEGRATION_VIEW_NAME "
+        String sqlString = "SELECT pvt.PROGRAM_VERSION_TRANS_ID, p.PROGRAM_ID, p.PROGRAM_CODE,  pv.VERSION_ID, pv.VERSION_TYPE_ID, pv.VERSION_STATUS_ID, i.INTEGRATION_ID, i.INTEGRATION_NAME, i.FILE_NAME, i.FOLDER_LOCATION, i.INTEGRATION_VIEW_ID, iv.INTEGRATION_VIEW_NAME "
                 + " FROM ("
                 + "SELECT pv.PROGRAM_ID, MAX(pvt.PROGRAM_VERSION_TRANS_ID) PROGRAM_VERSION_TRANS_ID "
                 + "FROM rm_program_version_trans pvt "
@@ -2191,6 +2191,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN (SELECT pv.PROGRAM_ID, IFNULL(mp.MAX_VERSION_ID, max(pv.VERSION_ID)-1) MAX_VERSION_ID FROM rm_program_version pv LEFT JOIN (SELECT pv.PROGRAM_ID, max(pv.VERSION_ID) MAX_VERSION_ID FROM rm_integration_program_completed ipc LEFT JOIN rm_program_version_trans pvt ON ipc.PROGRAM_VERSION_TRANS_ID=pvt.PROGRAM_VERSION_TRANS_ID LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID group by pv.PROGRAM_ID) mp ON pv.PROGRAM_ID=mp.PROGRAM_ID group by PROGRAM_ID) mp ON pv.PROGRAM_ID=mp.PROGRAM_ID AND pv.VERSION_ID>mp.MAX_VERSION_ID "
                 + "WHERE ip.ACTIVE AND ip.INTEGRATION_PROGRAM_ID IS NOT NULL AND ipc.COMPLETED_DATE IS NULL AND mp.PROGRAM_ID IS NOT NULL "
                 + "GROUP BY pv.PROGRAM_ID) as f "
+                + "LEFT JOIN vw_program p ON f.PROGRAM_ID=p.PROGRAM_ID "
                 + "LEFT JOIN rm_program_version_trans pvt ON f.PROGRAM_VERSION_TRANS_ID=pvt.PROGRAM_VERSION_TRANS_ID "
                 + "LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
                 + "LEFT JOIN rm_integration_program ip ON  ip.PROGRAM_ID=f.PROGRAM_ID AND (ip.VERSION_TYPE_ID=pvt.VERSION_TYPE_ID OR ip.VERSION_TYPE_ID IS NULL) AND (ip.VERSION_STATUS_ID=pvt.VERSION_STATUS_ID OR ip.VERSION_STATUS_ID IS NULL) "
