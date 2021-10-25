@@ -7,6 +7,7 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.ProgramDao;
+import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ARTMISHistoryDTO;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
@@ -51,8 +52,6 @@ import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.service.ProgramDataService;
-import cc.altius.FASP.service.ProgramService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
 import java.util.Date;
@@ -85,7 +84,7 @@ public class ProgramDaoImpl implements ProgramDao {
     @Autowired
     private AclService aclService;
     @Autowired
-    private ProgramDataService programDataService;
+    private ProgramDataDao programDataDao;
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
@@ -97,8 +96,6 @@ public class ProgramDaoImpl implements ProgramDao {
         this.jdbcTemplate = new JdbcTemplate(dataSource);
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
-    @Autowired
-    private ProgramService programService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public String sqlListString = "SELECT   "
@@ -519,7 +516,7 @@ public class ProgramDaoImpl implements ProgramDao {
             s.setCommittedVersionId(-1);
             s.setSaveData(false);
             s.setNotes("Supply Plan Rebuild After program planning unit data modified");
-            this.programDataService.addSupplyPlanCommitRequest(s,curUser);
+            this.programDataDao.addSupplyPlanCommitRequest(s,curUser);
         }
         return rowsEffected;
     }
@@ -2521,7 +2518,7 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public int getNotificationCount(CustomUserDetails curUser) {
         String programIds = "", sql;
-        List<Program> programList = this.programService.getProgramList(curUser, true);
+        List<Program> programList = this.getProgramList(curUser, true);
         for (Program p : programList) {
             programIds = programIds + p.getProgramId() + ",";
         }
@@ -2612,7 +2609,7 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser) {
         String programIds = "", sql;
-        List<Program> programList = this.programService.getProgramList(curUser, true);
+        List<Program> programList = this.getProgramList(curUser, true);
         for (Program p : programList) {
             programIds = programIds + p.getProgramId() + ",";
         }
