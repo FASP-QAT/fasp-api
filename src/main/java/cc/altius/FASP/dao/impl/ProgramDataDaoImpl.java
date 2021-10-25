@@ -5,7 +5,7 @@
  */
 package cc.altius.FASP.dao.impl;
 
-import cc.altius.FASP.dao.ProgramDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.Batch;
@@ -101,7 +101,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Autowired
     private EmailService emailService;
     @Autowired
-    private ProgramDao programDao;
+    private ProgramCommonDao programCommonDao;
     @Autowired
     private UserService userService;
 
@@ -1149,7 +1149,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         this.namedParameterJdbcTemplate.update("UPDATE ct_supply_plan_commit_request spcr SET spcr.STARTED_DATE=:curDate WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
         CustomUserDetails commitUser = this.userService.getCustomUserByUserId(spcr.getCreatedBy().getUserId());
-        Program p = this.programDao.getProgramById(spcr.getProgram().getId(), commitUser);
+        Program p = this.programCommonDao.getProgramById(spcr.getProgram().getId(), commitUser);
         ProgramData pd = new ProgramData(p);
         pd.setVersionType(spcr.getVersionType());
         pd.setVersionStatus(new SimpleObject(1, new Label(0)));
@@ -2419,7 +2419,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
         //        when version is rejcted
         if (versionStatusId == 3) {
-            Program program = this.programDao.getProgramById(programId, curUser);
+            Program program = this.programCommonDao.getProgramById(programId, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "Cc");
@@ -2459,7 +2459,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
 //        when version is approved
         if (versionStatusId == 2) {
-            Program program = this.programDao.getProgramById(programId, curUser);
+            Program program = this.programCommonDao.getProgramById(programId, curUser);
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "Cc");
