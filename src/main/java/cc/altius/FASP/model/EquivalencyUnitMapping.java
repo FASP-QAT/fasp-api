@@ -86,4 +86,29 @@ public class EquivalencyUnitMapping extends BaseModel implements Serializable {
         this.program = program;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 53 * hash + this.equivalencyUnitMappingId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final EquivalencyUnitMapping other = (EquivalencyUnitMapping) obj;
+        if (this.equivalencyUnitMappingId != other.equivalencyUnitMappingId) {
+            return false;
+        }
+        return true;
+    }
+
 }

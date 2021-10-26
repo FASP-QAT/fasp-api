@@ -2672,3 +2672,53 @@ INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2022-01-01', 
 INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2023-01-01', '2023-12-31', 2, -6340, 45, '6340 Patients move from Line 1 to Line 2 every month', 9, now(), 9, now(), 1);
 INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2024-01-01', '2024-12-31', 2, -7120, 45, '7120 Patients move from Line 1 to Line 2 every month', 9, now(), 9, now(), 1);
 INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2025-01-01', '2025-12-31', 2, -8030, 45, '8030 Patients move from Line 1 to Line 2 every month', 9, now(), 9, now(), 1);
+
+CREATE TABLE `fasp`.`rm_equivalency_unit_health_area` (
+  `EQUIVALENCY_UNIT_HEALTH_AREA_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `EQUIVALENCY_UNIT_ID` INT(10) UNSIGNED NOT NULL,
+  `HEALTH_AREA_ID` INT(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (`EQUIVALENCY_UNIT_HEALTH_AREA_ID`),
+  INDEX `fk_rm_equivalency_unit_health_area_equivalencyUnitId_idx` (`EQUIVALENCY_UNIT_ID` ASC),
+  INDEX `fk_rm_equivalency_unit_health_area_healthAreaId_idx` (`HEALTH_AREA_ID` ASC),
+  CONSTRAINT `fk_rm_equivalency_unit_health_area_equivalencyUnitId`
+    FOREIGN KEY (`EQUIVALENCY_UNIT_ID`)
+    REFERENCES `fasp`.`rm_equivalency_unit` (`EQUIVALENCY_UNIT_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_equivalency_unit_health_area_healthAreaId`
+    FOREIGN KEY (`HEALTH_AREA_ID`)
+    REFERENCES `fasp`.`rm_health_area` (`HEALTH_AREA_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+INSERT INTO rm_equivalency_unit_health_area SELECT null, eu.EQUIVALENCY_UNIT_ID, eu.HEALTH_AREA_ID from rm_equivalency_unit eu;
+
+ALTER TABLE `fasp`.`rm_equivalency_unit` DROP FOREIGN KEY `fk_rm_equivalency_unit_healthAreaId`;
+ALTER TABLE `fasp`.`rm_equivalency_unit` DROP COLUMN `HEALTH_AREA_ID`, DROP INDEX `fk_rm_equivalency_unit_healthAreaId_idx` ;
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_equivalency_unit` AS
+    SELECT 
+        `ut`.`EQUIVALENCY_UNIT_ID` AS `EQUIVALENCY_UNIT_ID`,
+        `ut`.`REALM_ID` AS `REALM_ID`,
+        GROUP_CONCAT(`euha`.`HEALTH_AREA_ID`) AS `HEALTH_AREA_ID`,
+        `ut`.`LABEL_ID` AS `LABEL_ID`,
+        `ut`.`ACTIVE` AS `ACTIVE`,
+        `ut`.`CREATED_BY` AS `CREATED_BY`,
+        `ut`.`CREATED_DATE` AS `CREATED_DATE`,
+        `ut`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `ut`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_equivalency_unit` `ut`
+        LEFT JOIN `ap_label` `l` ON ((`ut`.`LABEL_ID` = `l`.`LABEL_ID`))
+        LEFT JOIN rm_equivalency_unit_health_area euha ON ut.EQUIVALENCY_UNIT_ID=euha.EQUIVALENCY_UNIT_ID)
+    GROUP BY ut.EQUIVALENCY_UNIT_ID;
+INSERT INTO rm_equivalency_unit_health_area values (null, 2, 2),(null, 7, 2);

@@ -11,8 +11,9 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EquivalencyUnit;
 import cc.altius.FASP.model.EquivalencyUnitMapping;
 import cc.altius.FASP.model.LabelConstants;
-import cc.altius.FASP.model.rowMapper.EquivalencyUnitMappingRowMapper;
-import cc.altius.FASP.model.rowMapper.EquivalencyUnitRowMapper;
+import cc.altius.FASP.model.rowMapper.EquivalencyUnitMappingResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.EquivalencyUnitResultSetExtractor;
+import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.Arrays;
 import java.util.Date;
@@ -41,6 +42,8 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     @Autowired
     private LabelDao labelDao;
+    @Autowired
+    private AclService aclService;
 
     @Autowired
     public void setDataSource(DataSource dataSource) {
@@ -50,7 +53,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
 
     @Override
     public List<EquivalencyUnit> getEquivalencyUnitList(boolean active, CustomUserDetails curUser) {
-        String sqlString = "SELECT  "
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT  "
                 + "    eu.EQUIVALENCY_UNIT_ID,  "
                 + "    eu.LABEL_ID, eu.LABEL_EN, eu.LABEL_FR, eu.LABEL_SP, eu.LABEL_PR, "
                 + "    eu.ACTIVE, eu.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, eu.`LAST_MODIFIED_DATE`, eu.LAST_MODIFIED_BY, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, "
@@ -58,54 +61,25 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 + "    ha.HEALTH_AREA_ID, ha.LABEL_ID `HA_LABEL_ID`, ha.LABEL_EN `HA_LABEL_EN`, ha.LABEL_FR `HA_LABEL_FR`, ha.LABEL_SP `HA_LABEL_SP`, ha.LABEL_PR `HA_LABEL_PR`, ha.HEALTH_AREA_CODE "
                 + "FROM vw_equivalency_unit eu "
                 + "LEFT JOIN vw_realm r ON eu.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN vw_health_area ha on eu.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
+                + "LEFT JOIN vw_health_area ha on FIND_IN_SET(ha.HEALTH_AREA_ID,eu.HEALTH_AREA_ID) "
                 + "LEFT JOIN us_user cb ON cb.USER_ID=eu.CREATED_BY "
-                + "LEFT JOIN us_user lmb ON lmb.USER_ID=eu.LAST_MODIFIED_BY ";
+                + "LEFT JOIN us_user lmb ON lmb.USER_ID=eu.LAST_MODIFIED_BY ");
         if (active) {
-            sqlString += " AND eu.ACTIVE ";
+            sqlStringBuilder.append(" AND eu.ACTIVE ");
         }
-        sqlString += "ORDER BY eu.LABEL_EN";
+        sqlStringBuilder.append("ORDER BY eu.LABEL_EN");
         Map<String, Object> params = new HashMap<>();
-        params.put("realmId", curUser.getRealm().getRealmId());
-        return namedParameterJdbcTemplate.query(sqlString, params, new EquivalencyUnitRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        return namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new EquivalencyUnitResultSetExtractor());
     }
 
     @Override
     @Transactional
     public int addAndUpdateEquivalencyUnit(List<EquivalencyUnit> equivalencyUnitList, CustomUserDetails curUser) {
-        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_equivalency_unit");
+        SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_equivalency_unit").usingGeneratedKeyColumns("EQUIVALENCY_UNIT_ID");
+        SimpleJdbcInsert siHa = new SimpleJdbcInsert(dataSource).withTableName("rm_equivalency_unit_health_area");
         Date dt = DateUtils.getCurrentDateObject(DateUtils.EST);
-        List<SqlParameterSource> paramList = new LinkedList<>();
-        equivalencyUnitList.stream().filter(ut -> ut.getEquivalencyUnitId() == 0).collect(Collectors.toList()).forEach(ut -> {
-            MapSqlParameterSource param = new MapSqlParameterSource();
-            param.addValue("LABEL_ID", this.labelDao.addLabel(ut.getLabel(), LabelConstants.RM_EQUIVALENCY_UNIT, curUser.getUserId()));
-            param.addValue("REALM_ID", curUser.getRealm().getRealmId());
-            param.addValue("HEALTH_AREA_ID", ut.getHealthArea().getId());
-            param.addValue("ACTIVE", 1);
-            param.addValue("CREATED_BY", curUser.getUserId());
-            param.addValue("CREATED_DATE", dt);
-            param.addValue("LAST_MODIFIED_BY", curUser.getUserId());
-            param.addValue("LAST_MODIFIED_DATE", dt);
-            paramList.add(param);
-        }
-        );
         int rows = 0;
-        int[] updatedRows;
-        if (paramList.size() > 0) {
-            updatedRows = si.executeBatch(paramList.toArray(new MapSqlParameterSource[paramList.size()]));
-            rows += Arrays.stream(updatedRows).filter(i -> i == 1).count();
-            paramList.clear();
-        }
-        equivalencyUnitList.stream().filter(ut -> ut.getEquivalencyUnitId() != 0).collect(Collectors.toList()).forEach(ut -> {
-            Map<String, Object> param = new HashMap<>();
-            param.put("equivalencyUnitId", ut.getEquivalencyUnitId());
-            param.put("labelEn", ut.getLabel().getLabel_en());
-            param.put("active", ut.isActive());
-            param.put("curUser", curUser.getUserId());
-            param.put("dt", dt);
-            paramList.add(new MapSqlParameterSource(param));
-        }
-        );
         String sql = "UPDATE rm_equivalency_unit eu "
                 + "LEFT JOIN ap_label l ON eu.LABEL_ID=l.LABEL_ID "
                 + "SET "
@@ -119,18 +93,68 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 + "     eu.EQUIVALENCY_UNIT_ID=:equivalencyUnitId AND "
                 + "     ( "
                 + "         l.LABEL_EN!=:labelEn OR "
-                + "         eu.ACTIVE!=:active"
+                + "         eu.ACTIVE!=:active OR "
+                + "         :rowsEffected > 0 "
                 + "     )";
-        if (paramList.size() > 0) {
-            updatedRows = namedParameterJdbcTemplate.batchUpdate(sql, paramList.toArray(new MapSqlParameterSource[paramList.size()]));
-            rows += Arrays.stream(updatedRows).filter(i -> i > 0).count();
+        for (EquivalencyUnit ut : equivalencyUnitList) {
+            if (ut.getEquivalencyUnitId() == 0) {
+                MapSqlParameterSource param = new MapSqlParameterSource();
+                param.addValue("LABEL_ID", this.labelDao.addLabel(ut.getLabel(), LabelConstants.RM_EQUIVALENCY_UNIT, curUser.getUserId()));
+                param.addValue("REALM_ID", curUser.getRealm().getRealmId());
+                param.addValue("ACTIVE", 1);
+                param.addValue("CREATED_BY", curUser.getUserId());
+                param.addValue("CREATED_DATE", dt);
+                param.addValue("LAST_MODIFIED_BY", curUser.getUserId());
+                param.addValue("LAST_MODIFIED_DATE", dt);
+                ut.setEquivalencyUnitId(si.executeAndReturnKey(param).intValue());
+                rows++;
+                ut.getHealthAreaList().forEach(ha -> {
+                    MapSqlParameterSource haParam = new MapSqlParameterSource();
+                    haParam.addValue("EQUIVALENCY_UNIT_ID", ut.getEquivalencyUnitId());
+                    haParam.addValue("HEALTH_AREA_ID", ha.getId());
+                    siHa.execute(haParam);
+                });
+            } else {
+                Map<String, Object> param = new HashMap<>();
+                param.put("equivalencyUnitId", ut.getEquivalencyUnitId());
+                String haIdList = "0";
+                if (ut.getHealthAreaList().size() > 0) {
+                    haIdList = String.join(",", ut.getHealthAreaList().stream().map(h -> h.getIdString()).toArray(String[]::new));
+                }
+                int rowsEffected = namedParameterJdbcTemplate.update("DELETE euha.* FROM rm_equivalency_unit_health_area euha where euha.EQUIVALENCY_UNIT_ID=:equivalencyUnitId and euha.HEALTH_AREA_ID not in (" + haIdList + ");", param);
+                List<Integer> curHaList = namedParameterJdbcTemplate.queryForList("SELECT euha.HEALTH_AREA_ID FROM rm_equivalency_unit_health_area euha WHERE euha.EQUIVALENCY_UNIT_ID=:equivalencyUnitId", param, Integer.class);
+                List<MapSqlParameterSource> paramList = new LinkedList<>();
+                ut.getHealthAreaList().forEach(ha -> {
+                    if (!curHaList.contains(ha.getId())) {
+                        MapSqlParameterSource haParam = new MapSqlParameterSource();
+                        haParam.addValue("EQUIVALENCY_UNIT_ID", ut.getEquivalencyUnitId());
+                        haParam.addValue("HEALTH_AREA_ID", ha.getId());
+                        paramList.add(haParam);
+                    }
+                });
+                int[] updatedRows;
+                if (paramList.size() > 0) {
+                    updatedRows = siHa.executeBatch(paramList.toArray(new MapSqlParameterSource[paramList.size()]));
+                    rowsEffected += Arrays.stream(updatedRows).filter(i -> i == 1).count();
+                }
+                param.clear();
+                param.put("equivalencyUnitId", ut.getEquivalencyUnitId());
+                param.put("labelEn", ut.getLabel().getLabel_en());
+                param.put("active", ut.isActive());
+                param.put("curUser", curUser.getUserId());
+                param.put("dt", dt);
+                param.put("rowsEffected", rowsEffected);
+                if (namedParameterJdbcTemplate.update(sql, param) > 0) {
+                    rows++;
+                }
+            }
         }
         return rows;
     }
 
     @Override
     public List<EquivalencyUnitMapping> getEquivalencyUnitMappingList(boolean active, CustomUserDetails curUser) {
-        String sqlString = "SELECT  "
+        StringBuilder sqlStringBuilder = new StringBuilder("SELECT  "
                 + "    eum.EQUIVALENCY_UNIT_MAPPING_ID, eum.CONVERT_TO_EU, eum.NOTES,  "
                 + "    eum.ACTIVE, eum.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, eum.`LAST_MODIFIED_DATE`, eum.LAST_MODIFIED_BY, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, "
                 + "    eu.EQUIVALENCY_UNIT_ID, eu.LABEL_ID, eu.LABEL_EN, eu.LABEL_FR, eu.LABEL_SP, eu.LABEL_PR, "
@@ -143,8 +167,8 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 + "    p.PROGRAM_ID, p.LABEL_ID `P_LABEL_ID`, p.LABEL_EN `P_LABEL_EN`, p.LABEL_FR `P_LABEL_FR`, p.LABEL_SP `P_LABEL_SP`, p.LABEL_PR `P_LABEL_PR`, p.PROGRAM_CODE "
                 + "FROM rm_equivalency_unit_mapping eum "
                 + "LEFT JOIN vw_equivalency_unit eu ON eum.EQUIVALENCY_UNIT_ID=eu.EQUIVALENCY_UNIT_ID "
+                + "LEFT JOIN vw_health_area ha ON FIND_IN_SET(ha.HEALTH_AREA_ID, eu.HEALTH_AREA_ID) "
                 + "LEFT JOIN vw_realm r ON eu.REALM_ID=r.REALM_ID "
-                + "LEFT JOIN vw_health_area ha ON eu.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
                 + "LEFT JOIN us_user eucb ON eucb.USER_ID=eu.CREATED_BY "
                 + "LEFT JOIN us_user eulmb ON eulmb.USER_ID=eu.LAST_MODIFIED_BY "
                 + "LEFT JOIN us_user cb ON cb.USER_ID=eum.CREATED_BY "
@@ -153,14 +177,14 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 + "LEFT JOIN vw_unit u ON fu.UNIT_ID=u.UNIT_ID "
                 + "LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID "
                 + "LEFT JOIN vw_dataset p ON p.PROGRAM_ID=eum.PROGRAM_ID "
-                + "WHERE TRUE ";
+                + "WHERE TRUE ");
         if (active) {
-            sqlString += " AND eum.ACTIVE ";
+            sqlStringBuilder.append(" AND eum.ACTIVE ");
         }
-        sqlString += "ORDER BY eu.LABEL_EN";
+        sqlStringBuilder.append("ORDER BY eu.LABEL_EN");
         Map<String, Object> params = new HashMap<>();
-        params.put("realmId", curUser.getRealm().getRealmId());
-        return namedParameterJdbcTemplate.query(sqlString, params, new EquivalencyUnitMappingRowMapper());
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
+        return namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new EquivalencyUnitMappingResultSetExtractor());
     }
 
     @Override

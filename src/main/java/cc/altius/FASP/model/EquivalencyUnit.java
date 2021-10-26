@@ -6,6 +6,8 @@
 package cc.altius.FASP.model;
 
 import java.io.Serializable;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *
@@ -15,17 +17,18 @@ public class EquivalencyUnit extends BaseModel implements Serializable {
 
     private int equivalencyUnitId;
     private SimpleCodeObject realm;
-    private SimpleCodeObject healthArea;
+    private List<SimpleCodeObject> healthAreaList;
     private Label label;
 
     public EquivalencyUnit() {
+        healthAreaList = new LinkedList<>();
     }
 
-    public EquivalencyUnit(int equivalencyUnitId, SimpleCodeObject realm, SimpleCodeObject healthArea, Label label) {
+    public EquivalencyUnit(int equivalencyUnitId, SimpleCodeObject realm, Label label) {
         this.equivalencyUnitId = equivalencyUnitId;
         this.realm = realm;
-        this.healthArea = healthArea;
         this.label = label;
+        healthAreaList = new LinkedList<>();
     }
 
     public int getEquivalencyUnitId() {
@@ -44,12 +47,12 @@ public class EquivalencyUnit extends BaseModel implements Serializable {
         this.realm = realm;
     }
 
-    public SimpleCodeObject getHealthArea() {
-        return healthArea;
+    public List<SimpleCodeObject> getHealthAreaList() {
+        return healthAreaList;
     }
 
-    public void setHealthArea(SimpleCodeObject healthArea) {
-        this.healthArea = healthArea;
+    public void setHealthAreaList(List<SimpleCodeObject> healthAreaList) {
+        this.healthAreaList = healthAreaList;
     }
 
     public Label getLabel() {
