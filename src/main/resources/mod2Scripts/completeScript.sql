@@ -1914,16 +1914,19 @@ CREATE TABLE `rm_forecast_tree_node_data_override` (
   CONSTRAINT `fk_forecastTreeNodeDataOverride_nodeDataId_idx` FOREIGN KEY (`NODE_DATA_ID`) REFERENCES `rm_forecast_tree_node_data` (`NODE_DATA_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-ALTER TABLE `fasp`.`rm_forecast_tree` 
-ADD COLUMN `VERSION_ID` INT(10) UNSIGNED NOT NULL AFTER `PROGRAM_ID`;
+ALTER TABLE `fasp`.`rm_forecast_tree` ADD COLUMN `VERSION_ID` INT(10) UNSIGNED NOT NULL AFTER `PROGRAM_ID`;
 
 
-ALTER TABLE `fasp`.`rm_forecast_tree` 
-ADD CONSTRAINT `fk_forecastTree_versionId_idx`
- FOREIGN KEY (`PROGRAM_ID` , `VERSION_ID`)
- REFERENCES `fasp`.`rm_program_version` (`PROGRAM_ID` , `VERSION_ID`)
- ON DELETE NO ACTION
- ON UPDATE NO ACTION;
+ALTER TABLE `fasp`.`rm_forecast_tree` ADD CONSTRAINT `fk_forecastTree_versionId_idx` FOREIGN KEY (`PROGRAM_ID` , `VERSION_ID`) REFERENCES `fasp`.`rm_program_version` (`PROGRAM_ID` , `VERSION_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_modeling` DROP FOREIGN KEY `fk_forecastTreeNodeDataModeling_transferNodeId_idx`;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_modeling` CHANGE COLUMN `TRANSFER_NODE_ID` `TRANSFER_NODE_ID` INT(10) UNSIGNED NULL COMMENT 'Indicates the Node that this data Scale gets transferred to. If null then it does not get transferred.' ;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_modeling` ADD CONSTRAINT `fk_forecastTreeNodeDataModeling_transferNodeId_idx`  FOREIGN KEY (`TRANSFER_NODE_ID`)  REFERENCES `fasp`.`rm_forecast_tree_node` (`NODE_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_modeling` CHANGE COLUMN `DATA_VALUE` `DATA_VALUE` DECIMAL(18,6) NOT NULL COMMENT 'Data value could be a number of a % based on the ScaleTypeId' ;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_modeling` DROP FOREIGN KEY `fk_forecastTreeNodeDataModeling_transferNodeId_idx`;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_modeling` CHANGE COLUMN `TRANSFER_NODE_ID` `TRANSFER_NODE_DATA_ID` INT(10) UNSIGNED NULL DEFAULT NULL COMMENT 'Indicates the Node that this data Scale gets transferred to. If null then it does not get transferred.' , DROP INDEX `fk_forecastTreeNodeDataModeling_transferNodeId_idx` , ADD INDEX `fk_forecastTreeNodeDataModeling_transferNodeDataId_idx_idx` (`TRANSFER_NODE_DATA_ID` ASC);
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_modeling` ADD CONSTRAINT `fk_forecastTreeNodeDataModeling_transferNodeDataId_idx`  FOREIGN KEY (`TRANSFER_NODE_DATA_ID`)  REFERENCES `fasp`.`rm_forecast_tree_node_data` (`NODE_DATA_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+
 
 
 USE `fasp`;
@@ -2655,3 +2658,17 @@ insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId1, "202
 insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId2, "2021-01-01", 33.5, null, null, "", 1, @dt, 1, @dt, 1);
 insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId3, "2021-01-01", 45.9, null, null, "", 1, @dt, 1, @dt, 1);
 INSERT INTO rm_forecast_tree_region values (null, @treeId, 70);
+
+
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 1, '2021-01-01', '2021-12-31', 3, 0.0875, null, 'An increase of 0.0875% every month which equates to a 1.05% increase every year', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 1, '2022-01-01', '2025-12-31', 3, 0.0975, null, 'An increase of 0.0975% every month which equates to a 1.05% increase every year', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 4, '2021-01-01', '2021-12-31', 4, 0.05, null, 'An increase of 0.05% of sexually active men every month which equates to a 1.05% increase every year', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 4, '2022-01-01', '2025-12-31', 4, 0.073, null, 'An increase of 0.073% of sexually active men every month which equates to a 1.05% increase every year', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 6, '2021-01-01', '2025-12-31', 2, -8750, 7, '8750 men move over from No logo to Strawberry condoms every month', 9, now(), 9, now(), 1);
+
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2021-01-01', '2025-12-31', 2, 25500, null, 'An increase of 25500 number of Patients every month', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2021-01-01', '2021-12-31', 2, -4760, 45, '4760 Patients move from Line 1 to Line 2 every month', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2022-01-01', '2022-12-31', 2, -5500, 45, '5500 Patients move from Line 1 to Line 2 every month', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2023-01-01', '2023-12-31', 2, -6340, 45, '6340 Patients move from Line 1 to Line 2 every month', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2024-01-01', '2024-12-31', 2, -7120, 45, '7120 Patients move from Line 1 to Line 2 every month', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2025-01-01', '2025-12-31', 2, -8030, 45, '8030 Patients move from Line 1 to Line 2 every month', 9, now(), 9, now(), 1);

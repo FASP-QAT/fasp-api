@@ -125,5 +125,9 @@ public class TreeNodeDataFu implements Serializable {
         this.repeatUsagePeriod = repeatUsagePeriod;
     }
 
+    @Override
+    public String toString() {
+        return "TreeNodeDataFu{" + "nodeDataFuId=" + nodeDataFuId + '}';
+    }
 
 }

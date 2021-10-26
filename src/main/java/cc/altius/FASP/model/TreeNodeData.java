@@ -41,6 +41,13 @@ public class TreeNodeData implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<NodeDataOverride> nodeDataOverrideList;
 
+    public TreeNodeData() {
+    }
+
+    public TreeNodeData(int nodeDataId) {
+        this.nodeDataId = nodeDataId;
+    }
+
     public int getNodeDataId() {
         return nodeDataId;
     }
@@ -111,6 +118,36 @@ public class TreeNodeData implements Serializable {
 
     public void setCalculatedDataValue(Double calculatedDataValue) {
         this.calculatedDataValue = calculatedDataValue;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 67 * hash + this.nodeDataId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final TreeNodeData other = (TreeNodeData) obj;
+        if (this.nodeDataId != other.nodeDataId) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "TreeNodeData{" + "nodeDataId=" + nodeDataId + '}';
     }
 
 }
