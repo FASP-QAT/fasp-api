@@ -55,4 +55,9 @@ public class TreeNodeDataPu implements Serializable {
         this.refillMonths = refillMonths;
     }
 
+    @Override
+    public String toString() {
+        return "TreeNodeDataPu{" + "nodeDataPuId=" + nodeDataPuId + '}';
+    }
+
 }

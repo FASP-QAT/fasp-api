@@ -5,6 +5,11 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
+import cc.altius.FASP.framework.JsonDateSerializer;
+import com.fasterxml.jackson.annotation.JsonView;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -12,15 +17,33 @@ import java.util.Date;
  *
  * @author akil
  */
-public class NodeDataModeling extends BaseModel implements Serializable {
+public class NodeDataModeling implements Serializable {
 
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int nodeDataModelingId;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
-    private ModelingType modelingType;
-    private Double dataValue;
-    private int transferNodeId;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private SimpleObject modelingType;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private double dataValue;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private Integer transferNodeDataId;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String notes;
+
+    public NodeDataModeling() {
+    }
+
+    public NodeDataModeling(int nodeDataModelingId) {
+        this.nodeDataModelingId = nodeDataModelingId;
+    }
 
     public int getNodeDataModelingId() {
         return nodeDataModelingId;
@@ -46,28 +69,28 @@ public class NodeDataModeling extends BaseModel implements Serializable {
         this.stopDate = stopDate;
     }
 
-    public ModelingType getModelingType() {
+    public SimpleObject getModelingType() {
         return modelingType;
     }
 
-    public void setModelingType(ModelingType modelingType) {
+    public void setModelingType(SimpleObject modelingType) {
         this.modelingType = modelingType;
     }
 
-    public Double getDataValue() {
+    public double getDataValue() {
         return dataValue;
     }
 
-    public void setDataValue(Double dataValue) {
+    public void setDataValue(double dataValue) {
         this.dataValue = dataValue;
     }
 
-    public int getTransferNodeId() {
-        return transferNodeId;
+    public Integer getTransferNodeDataId() {
+        return transferNodeDataId;
     }
 
-    public void setTransferNodeId(int transferNodeId) {
-        this.transferNodeId = transferNodeId;
+    public void setTransferNodeDataId(Integer transferNodeDataId) {
+        this.transferNodeDataId = transferNodeDataId;
     }
 
     public String getNotes() {
@@ -76,6 +99,31 @@ public class NodeDataModeling extends BaseModel implements Serializable {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 53 * hash + this.nodeDataModelingId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final NodeDataModeling other = (NodeDataModeling) obj;
+        if (this.nodeDataModelingId != other.nodeDataModelingId) {
+            return false;
+        }
+        return true;
     }
     
     

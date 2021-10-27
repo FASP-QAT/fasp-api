@@ -8,6 +8,7 @@ package cc.altius.FASP.model.rowMapper;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.ForecastTree;
+import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeType;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
@@ -67,7 +68,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                     tndList = new LinkedList<>();
                     tn.getNodeDataMap().put(scenarioId, tndList);
                 }
-                tndList.add(getNodeData(rs, 1));
+                addNodeData(rs, 1, tndList);
             }
         } catch (Exception e) {
             throw new DataAccessResourceFailureException(e.getMessage());
@@ -97,40 +98,69 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
         return tn;
     }
 
-    private TreeNodeData getNodeData(ResultSet rs, int count) throws SQLException {
-        TreeNodeData tnd = new TreeNodeData();
-        tnd.setNodeDataId(rs.getInt("NODE_DATA_ID"));
-        tnd.setMonth(rs.getDate("MONTH"));
-        tnd.setDataValue(rs.getDouble("DATA_VALUE"));
-        tnd.setNotes(rs.getString("NOTES"));
-        int nodeDataFuId = rs.getInt("NODE_DATA_FU_ID");
-        if (!rs.wasNull()) {
-            tnd.setFuNode(new TreeNodeDataFu());
-            TreeNodeDataFu tndf = tnd.getFuNode();
-            tndf.setNodeDataFuId(nodeDataFuId);
-            tndf.setUsageType(new SimpleObject(rs.getInt("USAGE_TYPE_ID"), new LabelRowMapper("UT_").mapRow(rs, count)));
-            tndf.setLagInMonths(rs.getInt("LAG_IN_MONTHS"));
-            tndf.setForecastingUnit(new SimpleUnitAndTracerObject(new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, count)), new SimpleCodeObject(rs.getInt("FUU_UNIT_ID"), new LabelRowMapper("FUU_").mapRow(rs, count), rs.getString("FUU_UNIT_CODE")), rs.getInt("FORECASTING_UNIT_ID"), new LabelRowMapper("FU_").mapRow(rs, count)));
-            tndf.setNoOfPersons(rs.getInt("NO_OF_PERSONS"));
-            tndf.setNoOfForecastingUnitsPerPerson(rs.getInt("FORECASTING_UNITS_PER_PERSON"));
-            tndf.setOneTimeUsage(rs.getBoolean("ONE_TIME_USAGE"));
-            if (tndf.isOneTimeUsage() != true) {
-                tndf.setUsageFrequency(rs.getDouble("USAGE_FREQUENCY"));
-                tndf.setUsagePeriod(new UsagePeriod(rs.getInt("UPF_USAGE_PERIOD_ID"), new LabelRowMapper("UPF_").mapRow(rs, count), rs.getDouble("UPF_CONVERT_TO_MONTH")));
-                if (tndf.getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) { // Discrete
-                    tndf.setRepeatCount(rs.getDouble("REPEAT_COUNT"));
-                    tndf.setRepeatUsagePeriod(new UsagePeriod(rs.getInt("UPR_USAGE_PERIOD_ID"), new LabelRowMapper("UPR_").mapRow(rs, count), rs.getDouble("UPR_CONVERT_TO_MONTH")));
+    private TreeNodeData addNodeData(ResultSet rs, int count, List<TreeNodeData> tndList) throws SQLException {
+        TreeNodeData tnd = new TreeNodeData(rs.getInt("NODE_DATA_ID"));
+        int idx = tndList.indexOf(tnd);
+        if (idx == -1) {
+            // NodeData was not present so add the base values for NodeData
+            tnd.setMonth(rs.getDate("MONTH"));
+            tnd.setDataValue(rs.getDouble("DATA_VALUE"));
+            tnd.setNotes(rs.getString("NOTES"));
+            int nodeDataFuId = rs.getInt("NODE_DATA_FU_ID");
+            if (!rs.wasNull()) {
+                tnd.setFuNode(new TreeNodeDataFu());
+                TreeNodeDataFu tndf = tnd.getFuNode();
+                tndf.setNodeDataFuId(nodeDataFuId);
+                tndf.setUsageType(new SimpleObject(rs.getInt("USAGE_TYPE_ID"), new LabelRowMapper("UT_").mapRow(rs, count)));
+                tndf.setLagInMonths(rs.getInt("LAG_IN_MONTHS"));
+                tndf.setForecastingUnit(new SimpleUnitAndTracerObject(new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, count)), new SimpleCodeObject(rs.getInt("FUU_UNIT_ID"), new LabelRowMapper("FUU_").mapRow(rs, count), rs.getString("FUU_UNIT_CODE")), rs.getInt("FORECASTING_UNIT_ID"), new LabelRowMapper("FU_").mapRow(rs, count)));
+                tndf.setNoOfPersons(rs.getInt("NO_OF_PERSONS"));
+                tndf.setNoOfForecastingUnitsPerPerson(rs.getInt("FORECASTING_UNITS_PER_PERSON"));
+                tndf.setOneTimeUsage(rs.getBoolean("ONE_TIME_USAGE"));
+                if (tndf.isOneTimeUsage() != true) {
+                    tndf.setUsageFrequency(rs.getDouble("USAGE_FREQUENCY"));
+                    tndf.setUsagePeriod(new UsagePeriod(rs.getInt("UPF_USAGE_PERIOD_ID"), new LabelRowMapper("UPF_").mapRow(rs, count), rs.getDouble("UPF_CONVERT_TO_MONTH")));
+                    if (tndf.getUsageType().getId() == GlobalConstants.USAGE_TEMPLATE_DISCRETE) { // Discrete
+                        tndf.setRepeatCount(rs.getDouble("REPEAT_COUNT"));
+                        tndf.setRepeatUsagePeriod(new UsagePeriod(rs.getInt("UPR_USAGE_PERIOD_ID"), new LabelRowMapper("UPR_").mapRow(rs, count), rs.getDouble("UPR_CONVERT_TO_MONTH")));
+                    }
                 }
             }
+            int nodeDataPuId = rs.getInt("NODE_DATA_PU_ID");
+            if (!rs.wasNull()) {
+                tnd.setPuNode(new TreeNodeDataPu());
+                TreeNodeDataPu tndp = tnd.getPuNode();
+                tndp.setNodeDataPuId(nodeDataPuId);
+                tndp.setRefillMonths(rs.getInt("REFILL_MONTHS"));
+                tndp.setSharePlanningUnit(rs.getBoolean("SHARE_PLANNING_UNIT"));
+                tndp.setPlanningUnit(new SimpleUnitObject(new SimpleCodeObject(rs.getInt("PUU_UNIT_ID"), new LabelRowMapper("PUU_").mapRow(rs, count), rs.getString("PUU_UNIT_CODE")), rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, count)));
+            }
+            tnd.setNodeDataModelingList(new LinkedList<>()); // Initiate Modeling list
+            tnd.setNodeDataOverrideList(new LinkedList<>()); // Initiate Override list
+            tndList.add(tnd);
+        } else {
+            // NodeData was already present so point tnd to the existing nodeData
+            tnd = tndList.get(idx);
         }
-        int nodeDataPuId = rs.getInt("NODE_DATA_PU_ID");
+        // Check if Modeling is already present
+        idx = -1;
+        NodeDataModeling ndm = new NodeDataModeling(rs.getInt("NODE_DATA_MODELING_ID"));
         if (!rs.wasNull()) {
-            tnd.setPuNode(new TreeNodeDataPu());
-            TreeNodeDataPu tndp = tnd.getPuNode();
-            tndp.setNodeDataPuId(nodeDataPuId);
-            tndp.setRefillMonths(rs.getInt("REFILL_MONTHS"));
-            tndp.setSharePlanningUnit(rs.getBoolean("SHARE_PLANNING_UNIT"));
-            tndp.setPlanningUnit(new SimpleUnitObject(new SimpleCodeObject(rs.getInt("PUU_UNIT_ID"), new LabelRowMapper("PUU_").mapRow(rs, count), rs.getString("PUU_UNIT_CODE")), rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, count)));
+            idx = tnd.getNodeDataModelingList().indexOf(ndm);
+            if (idx == -1) {
+                // Not found so add it
+                ndm.setStartDate(rs.getDate("MODELING_START_DATE"));
+                ndm.setStopDate(rs.getDate("MODELING_STOP_DATE"));
+                ndm.setDataValue(rs.getDouble("MODELING_DATA_VALUE"));
+                ndm.setTransferNodeDataId(rs.getInt("MODELING_TRANSFER_NODE_DATA_ID"));
+                if (rs.wasNull()) {
+                    ndm.setTransferNodeDataId(null);
+                }
+                ndm.setNotes(rs.getString("MODELING_NOTES"));
+                ndm.setModelingType(new SimpleObject(rs.getInt("MODELING_TYPE_ID"), new LabelRowMapper("MODELING_TYPE_").mapRow(rs, 1)));
+//            ndm.setBaseModel(new BaseModelRowMapper("MODELING_").mapRow(rs, 1));
+                tnd.getNodeDataModelingList().add(ndm);
+            }
         }
         return tnd;
     }

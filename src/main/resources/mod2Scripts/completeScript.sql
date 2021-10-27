@@ -794,7 +794,7 @@ CONSTRAINT `fk_rm_usage_template_lastModifiedBy`
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastProgram.forecastProgram','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Dataset');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Program');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Base de données');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Conjunto de datos');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Conjunto de dados');
@@ -882,10 +882,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Conversão para FU');
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataSet.dataSettext','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enter DataSet');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enter Program');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Entrer l ensemble de données');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingresar DataSet');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Entrar DataSet');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingresar Program');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Entrar Program');
 
 
 
@@ -893,10 +893,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Entrar DataSet');
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.program.datasetDisplayName','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Dataset Display Name');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nom d affichage de l ensemble de données');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nombre para mostrar del conjunto de datos');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nome de exibição do conjunto de dados');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program Display Name');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nom d affichage du programme');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nombre de visualización del programa');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nome de exibição do programa');
 
 
 
@@ -980,7 +980,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Dados adicionados / at
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.module.forecastDatasetModule','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Dataset Module');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Program Module');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Module de jeu de données de prévision');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Módulo de conjunto de datos de pronóstico');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Módulo de conjunto de dados de previsão');
@@ -1023,12 +1023,12 @@ ALTER TABLE `fasp`.`us_user` CHANGE `DEFAULT_MODULE_ID` `DEFAULT_MODULE_ID` INT(
 UPDATE `fasp`.`us_user` SET `DEFAULT_MODULE_ID`='2'; 
 
 
-INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Dataset Admin',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'8');
+INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Forecast Program Admin',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'8');
 SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
 INSERT INTO `fasp`.`us_role`(`ROLE_ID`,`LABEL_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( 'ROLE_DATASET_ADMIN',@MAX,'1',NOW(),'1',NOW());
 
 
-INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Dataset User',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'8');
+INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Forecast Program User',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'8');
 SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
 INSERT INTO `fasp`.`us_role`(`ROLE_ID`,`LABEL_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( 'ROLE_DATASET_USER',@MAX,'1',NOW(),'1',NOW());
 
@@ -1115,13 +1115,13 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Use esta página para 
 -- Shubham script end date-16th sep
 
 -- Anchal's script for access control screen
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.programAndDataset','1'); 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.programAndProgram','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program/Dataset');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Programme/Ensemble de données');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Programa / conjunto de datos');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Programa / conjunto de dados');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Programme');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Programa');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Programa');-- pr
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.pr','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -1296,7 +1296,7 @@ PRIMARY KEY(`NODE_ID`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 DROP TABLE IF EXISTS rm_tree_template_node_data;
 Create table `rm_tree_template_node_data` (`NODE_DATA_ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique node data id for the node and scenario',	
 `NODE_ID` int(10) UNSIGNED NOT NULL COMMENT 'node id ',	
-`MONTH` date NOT NULL COMMENT 'Indicates the month that this Data is for, Defaults to the StartDate of the Forecast Dataset. Cannot be later than start of Forecast DataSet',	
+`MONTH` date NOT NULL COMMENT 'Indicates the month that this Data is for, Defaults to the StartDate of the Forecast Program. Cannot be later than start of Forecast Program',	
 `DATA_VALUE` decimal(14,4) NULL COMMENT 'Based on the NODE_TYPE_ID this value will be used either as a direct value or as a Perc of the Parent',	
 `NODE_DATA_FU_ID` int(10) UNSIGNED NULL COMMENT '',	
 `NODE_DATA_PU_ID` int(10) UNSIGNED NULL COMMENT '',	
@@ -1333,8 +1333,8 @@ PRIMARY KEY(`NODE_DATA_PU_ID`)) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 DROP TABLE IF EXISTS rm_tree_template_node_data_modeling;
 Create table `rm_tree_template_node_data_modeling` (`NODE_DATA_MODELING_ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for NodeScaleUp',	
 `NODE_DATA_ID` int(10) UNSIGNED NOT NULL COMMENT 'Node that this ScaleUp referrs to',	
-`START_DATE` date NOT NULL COMMENT 'Start date that the Scale up is applicable from. Startes from the Forecast Dataset Start',	
-`STOP_DATE` date NOT NULL COMMENT 'Stop date that the Scale up is applicable from. Defaults to Forecast Dataset End but user can override',	
+`START_DATE` date NOT NULL COMMENT 'Start date that the Scale up is applicable from. Startes from the Forecast Program Start',	
+`STOP_DATE` date NOT NULL COMMENT 'Stop date that the Scale up is applicable from. Defaults to Forecast Program End but user can override',	
 `MODELING_TYPE_ID` int(10) UNSIGNED NOT NULL COMMENT 'Foreign key to indicate scale type id',	
 `DATA_VALUE` decimal(14,2) NULL COMMENT 'Data value could be a number of a % based on the ScaleTypeId',	
 `TRANSFER_NODE_ID` int(10) UNSIGNED NOT NULL COMMENT 'Indicates the Node that this data Scale gets transferred to. If null then it does not get transferred.',	
@@ -1639,10 +1639,10 @@ VIEW `vw_tree_template_node` AS
 -- Tree labels
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.datasetmanagement','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Dataset Managment');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Gestion des jeux de données');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Gestión de conjuntos de datos');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Gerenciamento de conjunto de dados');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program Managment');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Gestion de programme');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Gestión de programas');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Gestão do Programa');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.listtree','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -1716,10 +1716,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Copiar linha');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.loadDeleteDataSet','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Load or delete dataset');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Charger ou supprimer un ensemble de données');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cargar o eliminar conjunto de datos');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Carregar ou excluir conjunto de dados');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Load or delete program');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Charger ou supprimer un programme');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cargar o eliminar programa');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Carregar ou deletar programa');
 
 
 CREATE TABLE `rm_forecast_tree` (
@@ -1842,7 +1842,7 @@ CREATE TABLE `rm_forecast_tree_node_data` (
   `NODE_DATA_ID` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique node data id for the node and scenario',
   `NODE_ID` int(10) unsigned NOT NULL COMMENT 'node id ',
   `SCENARIO_ID` int (10) unsigned NOT NULL COMMENT 'Scenario that this Node data is for',
-  `MONTH` date NOT NULL COMMENT 'Indicates the month that this Data is for, Defaults to the StartDate of the Forecast Dataset. Cannot be later than start of Forecast DataSet',
+  `MONTH` date NOT NULL COMMENT 'Indicates the month that this Data is for, Defaults to the StartDate of the Forecast Program. Cannot be later than start of Forecast Program',
   `DATA_VALUE` decimal(14,4) DEFAULT NULL COMMENT 'Based on the forecast_tree_node.NODE_TYPE_ID this value will be used either as a direct value or as a Perc of the Parent',
   `NODE_DATA_FU_ID` int(10) unsigned DEFAULT NULL,
   `NODE_DATA_PU_ID` int(10) unsigned DEFAULT NULL,
@@ -1870,8 +1870,8 @@ CREATE TABLE `rm_forecast_tree_node_data` (
 CREATE TABLE `rm_forecast_tree_node_data_modeling` (
   `NODE_DATA_MODELING_ID` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique Id for NodeScaleUp',
   `NODE_DATA_ID` int(10) unsigned NOT NULL COMMENT 'Node that this ScaleUp referrs to',
-  `START_DATE` date NOT NULL COMMENT 'Start date that the Scale up is applicable from. Startes from the Forecast Dataset Start',
-  `STOP_DATE` date NOT NULL COMMENT 'Stop date that the Scale up is applicable from. Defaults to Forecast Dataset End but user can override',
+  `START_DATE` date NOT NULL COMMENT 'Start date that the Scale up is applicable from. Startes from the Forecast Program Start',
+  `STOP_DATE` date NOT NULL COMMENT 'Stop date that the Scale up is applicable from. Defaults to Forecast Program End but user can override',
   `MODELING_TYPE_ID` int(10) unsigned NOT NULL COMMENT 'Foreign key to indicate scale type id',
   `DATA_VALUE` decimal(14,2) DEFAULT NULL COMMENT 'Data value could be a number of a % based on the ScaleTypeId',
   `TRANSFER_NODE_ID` int(10) unsigned NOT NULL COMMENT 'Indicates the Node that this data Scale gets transferred to. If null then it does not get transferred.',
@@ -1914,16 +1914,19 @@ CREATE TABLE `rm_forecast_tree_node_data_override` (
   CONSTRAINT `fk_forecastTreeNodeDataOverride_nodeDataId_idx` FOREIGN KEY (`NODE_DATA_ID`) REFERENCES `rm_forecast_tree_node_data` (`NODE_DATA_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-ALTER TABLE `fasp`.`rm_forecast_tree` 
-ADD COLUMN `VERSION_ID` INT(10) UNSIGNED NOT NULL AFTER `PROGRAM_ID`;
+ALTER TABLE `fasp`.`rm_forecast_tree` ADD COLUMN `VERSION_ID` INT(10) UNSIGNED NOT NULL AFTER `PROGRAM_ID`;
 
 
-ALTER TABLE `fasp`.`rm_forecast_tree` 
-ADD CONSTRAINT `fk_forecastTree_versionId_idx`
- FOREIGN KEY (`PROGRAM_ID` , `VERSION_ID`)
- REFERENCES `fasp`.`rm_program_version` (`PROGRAM_ID` , `VERSION_ID`)
- ON DELETE NO ACTION
- ON UPDATE NO ACTION;
+ALTER TABLE `fasp`.`rm_forecast_tree` ADD CONSTRAINT `fk_forecastTree_versionId_idx` FOREIGN KEY (`PROGRAM_ID` , `VERSION_ID`) REFERENCES `fasp`.`rm_program_version` (`PROGRAM_ID` , `VERSION_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_modeling` DROP FOREIGN KEY `fk_forecastTreeNodeDataModeling_transferNodeId_idx`;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_modeling` CHANGE COLUMN `TRANSFER_NODE_ID` `TRANSFER_NODE_ID` INT(10) UNSIGNED NULL COMMENT 'Indicates the Node that this data Scale gets transferred to. If null then it does not get transferred.' ;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_modeling` ADD CONSTRAINT `fk_forecastTreeNodeDataModeling_transferNodeId_idx`  FOREIGN KEY (`TRANSFER_NODE_ID`)  REFERENCES `fasp`.`rm_forecast_tree_node` (`NODE_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_modeling` CHANGE COLUMN `DATA_VALUE` `DATA_VALUE` DECIMAL(18,6) NOT NULL COMMENT 'Data value could be a number of a % based on the ScaleTypeId' ;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_modeling` DROP FOREIGN KEY `fk_forecastTreeNodeDataModeling_transferNodeId_idx`;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_modeling` CHANGE COLUMN `TRANSFER_NODE_ID` `TRANSFER_NODE_DATA_ID` INT(10) UNSIGNED NULL DEFAULT NULL COMMENT 'Indicates the Node that this data Scale gets transferred to. If null then it does not get transferred.' , DROP INDEX `fk_forecastTreeNodeDataModeling_transferNodeId_idx` , ADD INDEX `fk_forecastTreeNodeDataModeling_transferNodeDataId_idx_idx` (`TRANSFER_NODE_DATA_ID` ASC);
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_modeling` ADD CONSTRAINT `fk_forecastTreeNodeDataModeling_transferNodeDataId_idx`  FOREIGN KEY (`TRANSFER_NODE_DATA_ID`)  REFERENCES `fasp`.`rm_forecast_tree_node_data` (`NODE_DATA_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+
 
 
 USE `fasp`;
@@ -2033,7 +2036,6 @@ INSERT INTO rm_program values (null, "TZA-CON/ARV-MOH", 1, 44 , 1, @labelId, 1, 
 SELECT last_insert_id() into @programId;
 INSERT INTO rm_program_version values (null, @programId, 1, 1, 1, "Loaded during testing", 9, @dt, 9, @dt, 1, "2020-01-01", "2024-12-31");
 INSERT INTO rm_program_health_area values (null, @programId, 8);
-INSERT INTO rm_program_health_area values (null, @programId, 1);
 INSERT INTO rm_program_region VALUES (null, @programId, 70, 1, 1, @dt, 1, @dt);
 
 INSERT INTO rm_forecast_tree SELECT null, @programId, 1, tt.LABEL_ID, tt.FORECAST_METHOD_ID, tt.CREATED_BY, tt.CREATED_DATE, tt.LAST_MODIFIED_BY, tt.LAST_MODIFIED_DATE, 1 FROM rm_tree_template tt WHERE tt.TREE_TEMPLATE_ID=1;
@@ -2084,15 +2086,15 @@ SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
 INSERT INTO `fasp`.`us_business_function`(`BUSINESS_FUNCTION_ID`,`LABEL_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( 'ROLE_BF_LIST_EQUIVALENCY_UNIT_MAPPING',@MAX,'1',NOW(),'1',NOW());
 
 
-INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Add Dataset',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'24');
+INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Add Forecast Program',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'24');
 SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
 INSERT INTO `fasp`.`us_business_function`(`BUSINESS_FUNCTION_ID`,`LABEL_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( 'ROLE_BF_ADD_DATASET',@MAX,'1',NOW(),'1',NOW());
 
-INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Edit Dataset',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'24');
+INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Edit Forecast Program',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'24');
 SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
 INSERT INTO `fasp`.`us_business_function`(`BUSINESS_FUNCTION_ID`,`LABEL_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( 'ROLE_BF_EDIT_DATASET',@MAX,'1',NOW(),'1',NOW());
 
-INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'List Dataset',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'24');
+INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'List Forecast Program',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'24');
 SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
 INSERT INTO `fasp`.`us_business_function`(`BUSINESS_FUNCTION_ID`,`LABEL_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( 'ROLE_BF_LIST_DATASET',@MAX,'1',NOW(),'1',NOW());
 
@@ -2267,7 +2269,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Discreta');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataSet.dataSet','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Dataset');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Program');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Base de données');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Conjunto de datos');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Conjunto de dados');
@@ -2275,7 +2277,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Conjunto de dados');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataSet.dataSetManager','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Dataset Manager');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Progarm Manager');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Gestionnaire de jeux de données');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Administrador de conjuntos de datos');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Gerenciador de conjunto de dados');
@@ -2579,10 +2581,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Conversão para UE');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.calculatorReminderText','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Right click to open the Interval to Frequency calculator');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Faites un clic droit pour ouvrir le calculateur d intervalle à fréquence');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Haga clic derecho para abrir la calculadora de intervalo a frecuencia');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Clique com o botão direito para abrir a calculadora de intervalo para frequência');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Right click to open the interval to frequency calculator where type is discrete and one time usage flag is Unchecked');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Faites un clic droit pour ouvrir le calculateur d intervalle à fréquence où le type est discret et une valeur d utilisation du temps est fausse');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Haga clic derecho para abrir la calculadora de intervalo a frecuencia donde el tipo es discreto y un valor de uso de tiempo es falso');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Clique com o botão direito para abrir o intervalo para a calculadora de frequência onde o tipo é discreto e um valor de uso de tempo é falso');
+
 
 
 INSERT INTO ap_label values (null, 'ARV Tree', null, null, null, 1, @dt, 1, @dt, 48);
@@ -2654,3 +2657,68 @@ SELECT last_insert_id() into @nodeId;
 insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId1, "2021-01-01", 36.8, null, null, "", 1, @dt, 1, @dt, 1);
 insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId2, "2021-01-01", 33.5, null, null, "", 1, @dt, 1, @dt, 1);
 insert into rm_forecast_tree_node_data values (null, @nodeId, @scenarioId3, "2021-01-01", 45.9, null, null, "", 1, @dt, 1, @dt, 1);
+INSERT INTO rm_forecast_tree_region values (null, @treeId, 70);
+
+
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 1, '2021-01-01', '2021-12-31', 3, 0.0875, null, 'An increase of 0.0875% every month which equates to a 1.05% increase every year', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 1, '2022-01-01', '2025-12-31', 3, 0.0975, null, 'An increase of 0.0975% every month which equates to a 1.05% increase every year', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 4, '2021-01-01', '2021-12-31', 4, 0.05, null, 'An increase of 0.05% of sexually active men every month which equates to a 1.05% increase every year', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 4, '2022-01-01', '2025-12-31', 4, 0.073, null, 'An increase of 0.073% of sexually active men every month which equates to a 1.05% increase every year', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 6, '2021-01-01', '2025-12-31', 2, -8750, 7, '8750 men move over from No logo to Strawberry condoms every month', 9, now(), 9, now(), 1);
+
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2021-01-01', '2025-12-31', 2, 25500, null, 'An increase of 25500 number of Patients every month', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2021-01-01', '2021-12-31', 2, -4760, 45, '4760 Patients move from Line 1 to Line 2 every month', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2022-01-01', '2022-12-31', 2, -5500, 45, '5500 Patients move from Line 1 to Line 2 every month', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2023-01-01', '2023-12-31', 2, -6340, 45, '6340 Patients move from Line 1 to Line 2 every month', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2024-01-01', '2024-12-31', 2, -7120, 45, '7120 Patients move from Line 1 to Line 2 every month', 9, now(), 9, now(), 1);
+INSERT INTO rm_forecast_tree_node_data_modeling VALUES (null, 42, '2025-01-01', '2025-12-31', 2, -8030, 45, '8030 Patients move from Line 1 to Line 2 every month', 9, now(), 9, now(), 1);
+
+CREATE TABLE `fasp`.`rm_equivalency_unit_health_area` (
+  `EQUIVALENCY_UNIT_HEALTH_AREA_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `EQUIVALENCY_UNIT_ID` INT(10) UNSIGNED NOT NULL,
+  `HEALTH_AREA_ID` INT(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (`EQUIVALENCY_UNIT_HEALTH_AREA_ID`),
+  INDEX `fk_rm_equivalency_unit_health_area_equivalencyUnitId_idx` (`EQUIVALENCY_UNIT_ID` ASC),
+  INDEX `fk_rm_equivalency_unit_health_area_healthAreaId_idx` (`HEALTH_AREA_ID` ASC),
+  CONSTRAINT `fk_rm_equivalency_unit_health_area_equivalencyUnitId`
+    FOREIGN KEY (`EQUIVALENCY_UNIT_ID`)
+    REFERENCES `fasp`.`rm_equivalency_unit` (`EQUIVALENCY_UNIT_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_equivalency_unit_health_area_healthAreaId`
+    FOREIGN KEY (`HEALTH_AREA_ID`)
+    REFERENCES `fasp`.`rm_health_area` (`HEALTH_AREA_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+INSERT INTO rm_equivalency_unit_health_area SELECT null, eu.EQUIVALENCY_UNIT_ID, eu.HEALTH_AREA_ID from rm_equivalency_unit eu;
+
+ALTER TABLE `fasp`.`rm_equivalency_unit` DROP FOREIGN KEY `fk_rm_equivalency_unit_healthAreaId`;
+ALTER TABLE `fasp`.`rm_equivalency_unit` DROP COLUMN `HEALTH_AREA_ID`, DROP INDEX `fk_rm_equivalency_unit_healthAreaId_idx` ;
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_equivalency_unit` AS
+    SELECT 
+        `ut`.`EQUIVALENCY_UNIT_ID` AS `EQUIVALENCY_UNIT_ID`,
+        `ut`.`REALM_ID` AS `REALM_ID`,
+        GROUP_CONCAT(`euha`.`HEALTH_AREA_ID`) AS `HEALTH_AREA_ID`,
+        `ut`.`LABEL_ID` AS `LABEL_ID`,
+        `ut`.`ACTIVE` AS `ACTIVE`,
+        `ut`.`CREATED_BY` AS `CREATED_BY`,
+        `ut`.`CREATED_DATE` AS `CREATED_DATE`,
+        `ut`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `ut`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_equivalency_unit` `ut`
+        LEFT JOIN `ap_label` `l` ON ((`ut`.`LABEL_ID` = `l`.`LABEL_ID`))
+        LEFT JOIN rm_equivalency_unit_health_area euha ON ut.EQUIVALENCY_UNIT_ID=euha.EQUIVALENCY_UNIT_ID)
+    GROUP BY ut.EQUIVALENCY_UNIT_ID;
+INSERT INTO rm_equivalency_unit_health_area values (null, 2, 2),(null, 7, 2);

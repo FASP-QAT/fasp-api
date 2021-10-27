@@ -126,4 +126,9 @@ public class TreeNode implements Serializable {
         return true;
     }
 
+    @Override
+    public String toString() {
+        return "TreeNode{" + "nodeId=" + nodeId + ", parentNodeId=" + parentNodeId + ", label=" + label + ", nodeDataMap=" + nodeDataMap + '}';
+    }
+
 }

@@ -6,7 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ProductCategoryDao;
-import cc.altius.FASP.dao.ProgramDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -38,8 +38,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
     @Autowired
     private AclService aclService;
     @Autowired
-    private ProgramDao programDao;
-    
+    private ProgramCommonDao programCommonDao;
 
     @Override
     @Transactional
@@ -113,7 +112,7 @@ public class ProductCategoryServiceImpl implements ProductCategoryService {
 
     @Override
     public List<Node<ExtendedProductCategory>> getProductCategoryListForProgram(CustomUserDetails curUser, int realmId, int programId) {
-        Program r = this.programDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        Program r = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkProgramAccessForUser(curUser, r.getRealmCountry().getRealm().getRealmId(), programId, r.getHealthAreaIdList(), r.getOrganisation().getId())) {
             return this.productCategoryDao.getProductCategoryListForProgram(curUser, realmId, programId);
         } else {
