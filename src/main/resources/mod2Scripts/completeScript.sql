@@ -2722,3 +2722,7 @@ VIEW `vw_equivalency_unit` AS
         LEFT JOIN rm_equivalency_unit_health_area euha ON ut.EQUIVALENCY_UNIT_ID=euha.EQUIVALENCY_UNIT_ID)
     GROUP BY ut.EQUIVALENCY_UNIT_ID;
 INSERT INTO rm_equivalency_unit_health_area values (null, 2, 2),(null, 7, 2);
+
+ALTER TABLE `fasp`.`rm_tree_template_node_data_modeling` DROP FOREIGN KEY `fk_treeTemplateNodeDataModeling_transferNodeId_idx`;
+ALTER TABLE `fasp`.`rm_tree_template_node_data_modeling` CHANGE COLUMN `TRANSFER_NODE_ID` `TRANSFER_NODE_DATA_ID` INT(10) UNSIGNED NULL COMMENT 'Indicates the Node that this data Scale gets transferred to. If null then it does not get transferred.' ,DROP INDEX `fk_treeTemplateNodeDataModeling_transferNodeId_idx` ,ADD INDEX `fk_treeTemplateNodeDataModeling_transferNodeId_idx_idx` (`TRANSFER_NODE_DATA_ID` ASC);
+ALTER TABLE `fasp`.`rm_tree_template_node_data_modeling` ADD CONSTRAINT `fk_treeTemplateNodeDataModeling_transferNodeId_idx`  FOREIGN KEY (`TRANSFER_NODE_DATA_ID`)  REFERENCES `fasp`.`rm_tree_template_node_data` (`NODE_DATA_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
