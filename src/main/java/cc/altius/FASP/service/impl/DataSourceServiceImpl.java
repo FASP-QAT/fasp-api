@@ -7,7 +7,7 @@ package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.DataSourceDao;
 import cc.altius.FASP.dao.DataSourceTypeDao;
-import cc.altius.FASP.dao.ProgramDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DataSource;
@@ -36,7 +36,7 @@ public class DataSourceServiceImpl implements DataSourceService {
     @Autowired
     private RealmDao realmDao;
     @Autowired 
-    private ProgramDao programDao;
+    private ProgramCommonDao programCommonDao;
     @Autowired
     private AclService aclService;
 
@@ -85,7 +85,7 @@ public class DataSourceServiceImpl implements DataSourceService {
         if (r == null) {
             throw new EmptyResultDataAccessException(1);
         }
-        Program p = this.programDao.getProgramById(programId, curUser);
+        Program p = this.programCommonDao.getProgramById(programId, curUser);
         if (this.aclService.checkRealmAccessForUser(curUser, realmId) && this.aclService.checkProgramAccessForUser(curUser, realmId, programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             return this.dataSourceDao.getDataSourceForRealmAndProgram(realmId, programId, active, curUser);
         } else {
