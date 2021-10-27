@@ -81,6 +81,8 @@ public class ProgramDaoImpl implements ProgramDao {
     private LabelDao labelDao;
     @Autowired
     private AclService aclService;
+    @Autowired
+    private ProgramCommonDaoImpl programCommonDaoImpl;
 
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
     private DataSource dataSource;
@@ -94,7 +96,7 @@ public class ProgramDaoImpl implements ProgramDao {
     }
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    public String sqlListString = "SELECT   "
+    public static final String sqlListString = "SELECT   "
             + "     p.PROGRAM_ID, p.`PROGRAM_CODE`, p.AIR_FREIGHT_PERC, p.SEA_FREIGHT_PERC, p.PLANNED_TO_SUBMITTED_LEAD_TIME,  "
             + "     cpv.VERSION_ID `CV_VERSION_ID`, cpv.NOTES `CV_VERSION_NOTES`, cpv.CREATED_DATE `CV_CREATED_DATE`, cpvcb.USER_ID `CV_CB_USER_ID`, cpvcb.USERNAME `CV_CB_USERNAME`, cpv.LAST_MODIFIED_DATE `CV_LAST_MODIFIED_DATE`, cpvlmb.USER_ID `CV_LMB_USER_ID`, cpvlmb.USERNAME `CV_LMB_USERNAME`,  "
             + "     vt.VERSION_TYPE_ID `CV_VERSION_TYPE_ID`, vt.LABEL_ID `CV_VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `CV_VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `CV_VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `CV_VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `CV_VERSION_TYPE_LABEL_PR`,  "
@@ -144,7 +146,7 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN us_user pvcb ON pv.CREATED_BY=pvcb.USER_ID  "
             + " LEFT JOIN us_user pvlmb ON pv.LAST_MODIFIED_BY=pvlmb.USER_ID  "
             + " WHERE TRUE ";
-    private final String sqlOrderBy = " ORDER BY p.PROGRAM_CODE, pv.VERSION_ID";
+    public static final String sqlOrderBy = " ORDER BY p.PROGRAM_CODE, pv.VERSION_ID";
 
     public String sqlListStringForProgramPlanningUnit = "SELECT ppu.PROGRAM_PLANNING_UNIT_ID,   "
             + "    pg.PROGRAM_ID, pg.LABEL_ID `PROGRAM_LABEL_ID`, pg.LABEL_EN `PROGRAM_LABEL_EN`, pg.LABEL_FR `PROGRAM_LABEL_FR`, pg.LABEL_PR `PROGRAM_LABEL_PR`, pg.LABEL_SP `PROGRAM_LABEL_SP`,  "
@@ -394,23 +396,8 @@ public class ProgramDaoImpl implements ProgramDao {
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramListResultSetExtractor());
     }
 
-    @Override
-    public Program getProgramById(int programId, CustomUserDetails curUser) {
-        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListString).append(" AND p.PROGRAM_ID=:programId");
-        Map<String, Object> params = new HashMap<>();
-        params.put("programId", programId);
-        sqlStringBuilder.append(this.sqlOrderBy);
-        Program p = this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramResultSetExtractor());
-        if (p == null) {
-            throw new EmptyResultDataAccessException(1);
-        }
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
-            return p;
-        } else {
-            return null;
-        }
-    }
-
+//  Moved to ProgramCommonDaoImpl
+//  public Program getProgramById(int programId, CustomUserDetails curUser)
     @Override
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForProgramPlanningUnit).append(" AND pg.PROGRAM_ID=:programId");
@@ -868,19 +855,26 @@ public class ProgramDaoImpl implements ProgramDao {
         logger.info("ERP Linking : updated conversion factor and notes rows---" + rowsUpdated);
 
 //            System.out.println("conversion factor---" + manualTaggingOrderDTO.getConversionFactor());
-        sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`PRODUCT_COST`=?, "
-                + "st.`LAST_MODIFIED_DATE`=?,st.`LAST_MODIFIED_BY`=?,st.`NOTES`=? "
-                + "WHERE st.`SHIPMENT_TRANS_ID`=?;";
+       
 //            long convertedQty = ((new BigDecimal(manualTaggingOrderDTO.getQuantity())).multiply(manualTaggingOrderDTO.getConversionFactor())).longValueExact();
 
         long convertedQty = (long) Math.round((double) manualTaggingOrderDTO.getQuantity() * manualTaggingOrderDTO.getConversionFactor());
         logger.info("ERP Linking : convertedQty---" + convertedQty);
         logger.info("ERP Linking : rate---" + map.get("RATE"));
-        logger.info("ERP Linking : product cost---" + Double.parseDouble(map.get("RATE").toString()));
-        double rate = Double.parseDouble(map.get("RATE").toString());
-        double productCost = rate * (double) convertedQty;
+
+//        double rate = Double.parseDouble(map.get("RATE").toString());
+        sql = "SELECT e.`PRICE` FROM rm_erp_order e WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=? "
+                + " ORDER BY e.`ERP_ORDER_ID` DESC LIMIT 1;";
+        double rate = this.jdbcTemplate.queryForObject(sql,Double.class, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
+        logger.info("ERP Linking : calculated rate---" + rate);
+        double finalRate = (rate / manualTaggingOrderDTO.getConversionFactor());
+        logger.info("ERP Linking : calculated final rate---" + finalRate);
+        double productCost = finalRate * (double) convertedQty;
         logger.info("ERP Linking : final product cost---" + productCost);
-        rowsUpdated = this.jdbcTemplate.update(sql, Math.round(convertedQty), productCost, curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
+         sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`RATE`=?,st.`PRODUCT_COST`=?, "
+                + "st.`LAST_MODIFIED_DATE`=?,st.`LAST_MODIFIED_BY`=?,st.`NOTES`=? "
+                + "WHERE st.`SHIPMENT_TRANS_ID`=?;";
+        rowsUpdated = this.jdbcTemplate.update(sql, Math.round(convertedQty),finalRate, productCost, curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
         logger.info("ERP Linking : updated shipment trans---" + rowsUpdated);
         return -1;
     }
@@ -1257,8 +1251,8 @@ public class ProgramDaoImpl implements ProgramDao {
                             logger.info("ERP Linking : qty---" + erpOrderDTO.getEoQty());
                             logger.info("ERP Linking : conversion factor---" + erpOrderDTO.getConversionFactor());
                             params.put("SHIPMENT_QTY", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (Math.round(erpOrderDTO.getEoQty() * erpOrderDTO.getConversionFactor())) : erpOrderDTO.getEoQty()));
-                            params.put("RATE", erpOrderDTO.getEoPrice());
-                            params.put("PRODUCT_COST", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (erpOrderDTO.getConversionFactor() * erpOrderDTO.getEoQty()) * erpOrderDTO.getEoPrice() : (erpOrderDTO.getEoPrice() * erpOrderDTO.getEoQty())));
+                            params.put("RATE", (erpOrderDTO.getEoPrice() / erpOrderDTO.getConversionFactor()));
+                            params.put("PRODUCT_COST", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (erpOrderDTO.getConversionFactor() * erpOrderDTO.getEoQty()) * (erpOrderDTO.getEoPrice() / manualTaggingOrderDTO.getConversionFactor()) : (erpOrderDTO.getEoPrice() * erpOrderDTO.getEoQty())));
                             params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
                             params.put("FREIGHT_COST", erpOrderDTO.getEoShippingCost());
                             params.put("PLANNED_DATE", erpOrderDTO.getEoCreatedDate());
@@ -1513,7 +1507,7 @@ public class ProgramDaoImpl implements ProgramDao {
                         params.put("PROCUREMENT_UNIT_ID", (erpOrderDTO.getEoProcurementUnitId() != 0 ? erpOrderDTO.getEoProcurementUnitId() : null));
                         params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
                         params.put("SHIPMENT_QTY", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (Math.round(erpOrderDTO.getEoQty() * erpOrderDTO.getConversionFactor())) : erpOrderDTO.getEoQty()));
-                        params.put("RATE", erpOrderDTO.getEoPrice());
+                        params.put("RATE", (erpOrderDTO.getEoPrice() / erpOrderDTO.getConversionFactor()));
                         params.put("PRODUCT_COST", (erpOrderDTO.getConversionFactor() != 0 && erpOrderDTO.getConversionFactor() != 0.0 ? (erpOrderDTO.getConversionFactor() * erpOrderDTO.getEoQty()) * erpOrderDTO.getEoPrice() : (erpOrderDTO.getEoPrice() * erpOrderDTO.getEoQty())));
                         params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
                         params.put("FREIGHT_COST", erpOrderDTO.getEoShippingCost());
@@ -1880,8 +1874,8 @@ public class ProgramDaoImpl implements ProgramDao {
                         params.put("PROCUREMENT_UNIT_ID", (erpOrderDTO.getEoProcurementUnitId() != 0 ? erpOrderDTO.getEoProcurementUnitId() : null));
                         params.put("SUPPLIER_ID", erpOrderDTO.getEoSupplierId());
                         params.put("SHIPMENT_QTY", (manualTaggingOrderDTO.getConversionFactor() != 0 && manualTaggingOrderDTO.getConversionFactor() != 0.0 ? (Math.round(manualTaggingOrderDTO.getQuantity() * manualTaggingOrderDTO.getConversionFactor())) : manualTaggingOrderDTO.getQuantity()));
-                        params.put("RATE", erpOrderDTO.getEoPrice());
-                        params.put("PRODUCT_COST", (manualTaggingOrderDTO.getConversionFactor() != 0 && manualTaggingOrderDTO.getConversionFactor() != 0.0 ? (manualTaggingOrderDTO.getConversionFactor() * manualTaggingOrderDTO.getQuantity()) * erpOrderDTO.getEoPrice() : (erpOrderDTO.getEoPrice() * manualTaggingOrderDTO.getQuantity())));
+                        params.put("RATE", (erpOrderDTO.getEoPrice() / manualTaggingOrderDTO.getConversionFactor()));
+                        params.put("PRODUCT_COST", (manualTaggingOrderDTO.getConversionFactor() != 0 && manualTaggingOrderDTO.getConversionFactor() != 0.0 ? (manualTaggingOrderDTO.getConversionFactor() * manualTaggingOrderDTO.getQuantity()) * (erpOrderDTO.getEoPrice() / manualTaggingOrderDTO.getConversionFactor()) : (erpOrderDTO.getEoPrice() * manualTaggingOrderDTO.getQuantity())));
 //                    params.put("PRODUCT_COST", manualTaggingOrderDTO.getQuantity() * erpOrderDTO.getEoPrice());
                         params.put("SHIPMENT_MODE", (erpOrderDTO.getEoShipBy().equals("Land") || erpOrderDTO.getEoShipBy().equals("Ship") ? "Sea" : erpOrderDTO.getEoShipBy().equals("Air") ? "Air" : "Sea"));
                         params.put("FREIGHT_COST", erpOrderDTO.getEoShippingCost());
@@ -2350,7 +2344,7 @@ public class ProgramDaoImpl implements ProgramDao {
 
     @Override
     public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) {
-        Program p = this.getProgramById(programId, curUser);
+        Program p = this.programCommonDaoImpl.getProgramById(programId, curUser);
         StringBuilder sb = new StringBuilder();
         sb.append("SELECT u.EMAIL_ID "
                 + "FROM us_user u "
