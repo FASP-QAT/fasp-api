@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.ProgramCommonDao;
+import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
@@ -47,6 +48,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 
     @Autowired
     private ProgramDataDao programDataDao;
+    @Autowired
+    private ProgramDao programDao;
     @Autowired
     private ProgramCommonDao programCommonDao;
     @Autowired
@@ -102,6 +105,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             dd.getTreeList().forEach(t -> {
                 t.setTree(this.programDataDao.getTreeData(t.getTreeId(), curUser));
             });
+            dd.setConsumptionList(this.programDataDao.getForecastConsumptionData(pv.getProgramId(), pv.getVersionId(), curUser));
             datasetDataList.add(dd);
         });
         return datasetDataList;

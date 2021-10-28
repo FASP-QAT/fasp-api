@@ -2726,3 +2726,201 @@ INSERT INTO rm_equivalency_unit_health_area values (null, 2, 2),(null, 7, 2);
 ALTER TABLE `fasp`.`rm_tree_template_node_data_modeling` DROP FOREIGN KEY `fk_treeTemplateNodeDataModeling_transferNodeId_idx`;
 ALTER TABLE `fasp`.`rm_tree_template_node_data_modeling` CHANGE COLUMN `TRANSFER_NODE_ID` `TRANSFER_NODE_DATA_ID` INT(10) UNSIGNED NULL COMMENT 'Indicates the Node that this data Scale gets transferred to. If null then it does not get transferred.' ,DROP INDEX `fk_treeTemplateNodeDataModeling_transferNodeId_idx` ,ADD INDEX `fk_treeTemplateNodeDataModeling_transferNodeId_idx_idx` (`TRANSFER_NODE_DATA_ID` ASC);
 ALTER TABLE `fasp`.`rm_tree_template_node_data_modeling` ADD CONSTRAINT `fk_treeTemplateNodeDataModeling_transferNodeId_idx`  FOREIGN KEY (`TRANSFER_NODE_DATA_ID`)  REFERENCES `fasp`.`rm_tree_template_node_data` (`NODE_DATA_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+
+
+CREATE TABLE `fasp`.`rm_forecast_consumption_unit` (
+  `CONSUMPTION_UNIT_ID` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `PROGRAM_ID` int(10) unsigned NOT NULL,
+  `FORECASTING_UNIT_ID` int(10) unsigned NOT NULL,
+  `DATA_TYPE` INT(10) UNSIGNED NOT NULL,
+  `PLANNING_UNIT_ID` INT(10) UNSIGNED NULL,
+  `OTHER_UNIT_LABEL_ID` INT(10) UNSIGNED NULL,
+  `OTHER_UNIT_MULTIPLIER_FOR_FU` DECIMAL(16,4) UNSIGNED NULL,
+  `VERSION_ID` INT(10) UNSIGNED NOT NULL,
+  `CREATED_BY` INT(10) UNSIGNED NOT NULL,
+  `CREATED_DATE` DATETIME NOT NULL,
+  PRIMARY KEY (`CONSUMPTION_UNIT_ID`),
+  KEY `fk_rm_forecast_consumption_unit_programId_idx` (`PROGRAM_ID`),
+  KEY `fk_rm_forecast_consumption_unit_forecastingUnitId_idx` (`FORECASTING_UNIT_ID`),
+  KEY `fk_rm_forecast_consumption_unit_planningUnitId_idx` (`PLANNING_UNIT_ID` ASC),
+  KEY `fk_rm_forecast_consumption_unit_labelId_idx` (`OTHER_UNIT_LABEL_ID` ASC),
+  KEY `fk_rm_forecast_consumption_unit_createdBy_idx` (`CREATED_BY` ASC),
+  CONSTRAINT `fk_rm_forecast_consumption_unit_programId` FOREIGN KEY (`PROGRAM_ID`) REFERENCES `rm_program` (`PROGRAM_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION, 
+  CONSTRAINT `fk_rm_forecast_consumption_unit_forecastingUnitId` FOREIGN KEY (`FORECASTING_UNIT_ID`) REFERENCES `rm_forecasting_unit` (`FORECASTING_UNIT_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_forecast_consumption_unit_planningUnitId`    FOREIGN KEY (`PLANNING_UNIT_ID`)    REFERENCES `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`)    ON DELETE NO ACTION    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_forecast_consumption_unit_labelId`  FOREIGN KEY (`OTHER_UNIT_LABEL_ID`)  REFERENCES `fasp`.`ap_label` (`LABEL_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_forecast_consumption_unit_createdBy`    FOREIGN KEY (`CREATED_BY`)    REFERENCES `fasp`.`us_user` (`USER_ID`)    ON DELETE NO ACTION    ON UPDATE NO ACTION);
+
+
+ALTER TABLE `fasp`.`rm_forecast_consumption_unit` ADD INDEX `idx_rm_forecast_consumption_unit_versionId` (`VERSION_ID` ASC);
+
+
+CREATE TABLE `fasp`.`rm_forecast_consumption` (
+  `CONSUMPTION_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `PROGRAM_ID` INT(10) UNSIGNED NOT NULL,
+  `CONSUMPTION_UNIT_ID` INT(10) UNSIGNED NOT NULL,
+  `REGION_ID` INT(10) UNSIGNED NOT NULL,
+  `MONTH` DATE NOT NULL,
+  `ACTUAL_CONSUMPTION` DECIMAL(16,4) UNSIGNED NULL,
+  `REPORTING_RATE` DECIMAL(6,2) UNSIGNED NULL,
+  `DAYS_OF_STOCK_OUT` INT(10) UNSIGNED NULL,
+  `EXCLUDE` TINYINT(1) UNSIGNED NOT NULL,
+  `VERSION_ID` INT(10) UNSIGNED NOT NULL,
+  `CREATED_BY` INT(10) UNSIGNED NOT NULL,
+  `CREATED_DATE` DATETIME NOT NULL,
+  PRIMARY KEY (`CONSUMPTION_ID`),
+  INDEX `fk_rm_forecast_consumption_programId_idx` (`PROGRAM_ID` ASC),
+  INDEX `fk_rm_forecast_consumption_consumptionUnitId_idx` (`CONSUMPTION_UNIT_ID` ASC),
+  INDEX `fk_rm_forecast_consumption_regionId_idx` (`REGION_ID` ASC),
+  INDEX `fk_rm_forecast_consumption_createdBy_idx` (`CREATED_BY` ASC),
+  INDEX `idx_rm_forecast_consumption_versionId` (`VERSION_ID` ASC),
+  CONSTRAINT `fk_rm_forecast_consumption_programId`    FOREIGN KEY (`PROGRAM_ID`)    REFERENCES `fasp`.`rm_program` (`PROGRAM_ID`)    ON DELETE NO ACTION    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_forecast_consumption_consumptionUnitId`    FOREIGN KEY (`CONSUMPTION_UNIT_ID`)    REFERENCES `fasp`.`rm_forecast_consumption_unit` (`CONSUMPTION_UNIT_ID`)    ON DELETE NO ACTION    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_forecast_consumption_regionId`    FOREIGN KEY (`REGION_ID`)    REFERENCES `fasp`.`rm_region` (`REGION_ID`)    ON DELETE NO ACTION    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_forecast_consumption_createdBy`    FOREIGN KEY (`CREATED_BY`)    REFERENCES `fasp`.`us_user` (`USER_ID`)    ON DELETE NO ACTION    ON UPDATE NO ACTION);
+
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_forecast_consumption_unit` AS
+    SELECT 
+        `cu`.`CONSUMPTION_UNIT_ID` AS `CONSUMPTION_UNIT_ID`,
+        `cu`.`PROGRAM_ID` AS `PROGRAM_ID`,
+        `cu`.`DATA_TYPE` AS `DATA_TYPE`,
+        `cu`.`FORECASTING_UNIT_ID` AS `FORECASTING_UNIT_ID`,
+        `cu`.`PLANNING_UNIT_ID` AS `PLANNING_UNIT_ID`,
+        `cu`.`OTHER_UNIT_LABEL_ID` AS `OTHER_UNIT_LABEL_ID`,
+        `cu`.`OTHER_UNIT_MULTIPLIER_FOR_FU` AS `OTHER_UNIT_MULTIPLIER_FOR_FU`,
+        `cu`.`VERSION_ID` AS `VERSION_ID`,
+        `cu`.`CREATED_BY` AS `CREATED_BY`,
+        `cu`.`CREATED_DATE` AS `CREATED_DATE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_forecast_consumption_unit` `cu`
+        LEFT JOIN `ap_label` `l` ON ((`cu`.`OTHER_UNIT_LABEL_ID` = `l`.`LABEL_ID`)));
+
+INSERT INTO ap_label_source VALUES (null, 'rm_forecast_consumption_unit');
+INSERT INTO `fasp`.`rm_forecast_consumption_unit` (`PROGRAM_ID`, `FORECASTING_UNIT_ID`, `DATA_TYPE`, `PLANNING_UNIT_ID`, `OTHER_UNIT_LABEL_ID`, `OTHER_UNIT_MULTIPLIER_FOR_FU`, `VERSION_ID`, `CREATED_BY`, `CREATED_DATE`) VALUES ('2551', '911', '1', NULL, NULL, NULL, '1', '1', '2021-10-27 00:00:00');
+INSERT INTO `fasp`.`rm_forecast_consumption_unit` (`PROGRAM_ID`, `FORECASTING_UNIT_ID`, `DATA_TYPE`, `PLANNING_UNIT_ID`, `OTHER_UNIT_LABEL_ID`, `OTHER_UNIT_MULTIPLIER_FOR_FU`, `VERSION_ID`, `CREATED_BY`, `CREATED_DATE`) VALUES ('2551', '915', '2', '4148', NULL, NULL, '1', '1', '2021-10-27 00:00:00');
+INSERT INTO ap_label values (null, "10 Bottles of TLD 90", null, null, null, 1, now(), 1, now(), 51);
+SELECT LAST_INSERT_ID() into @labelId;
+INSERT INTO `fasp`.`rm_forecast_consumption_unit` (`PROGRAM_ID`, `FORECASTING_UNIT_ID`, `DATA_TYPE`, `PLANNING_UNIT_ID`, `OTHER_UNIT_LABEL_ID`, `OTHER_UNIT_MULTIPLIER_FOR_FU`, `VERSION_ID`, `CREATED_BY`, `CREATED_DATE`) VALUES ('2551', '2665', '3', NULL, @labelId, 900, '1', '1', '2021-10-27 00:00:00');
+
+INSERT INTO ap_label values (null, "North", null, null, null, 1, now(), 1, now(), 11);
+SELECT LAST_INSERT_ID() into @labelId;
+INSERT INTO rm_region values (null, 1, 44, @labelId, null, null, 1, 1, now(), 1, now());
+SELECT LAST_INSERT_ID() into @northId;
+INSERT INTO rm_program_region values (null, 2551, @northId, 1, 1, now(), 1, now());
+
+INSERT INTO ap_label values (null, "South", null, null, null, 1, now(), 1, now(), 11);
+SELECT LAST_INSERT_ID() into @labelId;
+INSERT INTO rm_region values (null, 1, 44, @labelId, null, null, 1, 1, now(), 1, now());
+SELECT LAST_INSERT_ID() into @southId;
+INSERT INTO rm_program_region values (null, 2551, @southId, 1, 1, now(), 1, now());
+
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2020-01-01', 5000, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2020-02-01', 6500, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2020-03-01', 6200, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2020-04-01', 7000, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2020-05-01', 6800, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2020-06-01', 6400, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2020-07-01', 5800, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2020-08-01', 5900, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2020-09-01', 6300, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2020-10-01', 6900, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2020-11-01', 7500, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2020-12-01', 7000, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2021-01-01', 7100, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2021-02-01', 8400, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2021-03-01', 8300, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2021-04-01', 9000, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2021-05-01', 7600, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2021-06-01', 7000, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 1, 70, '2021-07-01', 6700, null, null, 0, 1, 1, now());
+
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-01-01', 3600, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-02-01', 3800, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-03-01', 3500, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-04-01', 3650, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-05-01', 3700, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-06-01', 3200, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-07-01', 3780, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-08-01', 3900, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-09-01', 3450, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-10-01', 3280, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-11-01', 3450, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-12-01', 3600, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2021-01-01', 3730, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2021-02-01', 3500, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2021-03-01', 3380, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2021-04-01', 3840, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2021-05-01', 3480, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2021-06-01', 3370, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2021-07-01', 3600, null, null, 0, 1, 1, now());
+
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @southId, '2020-01-01', 5292, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-02-01', 5586, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-03-01', 5145, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-04-01', 5365, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-05-01', 5439, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-06-01', 4704, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-07-01', 5556, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-08-01', 5733, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-09-01', 5071, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-10-01', 4821, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-11-01', 5071, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2020-12-01', 5292, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2021-01-01', 5483, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2021-02-01', 5145, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2021-03-01', 4968, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2021-04-01', 5644, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2021-05-01', 5115, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2021-06-01', 4953, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 2, @northId, '2021-07-01', 5292, null, null, 0, 1, 1, now());
+
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-01-01', 540, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-02-01', 480, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-03-01', 580, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-04-01', 500, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-05-01', 560, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-06-01', 590, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-07-01', 570, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-08-01', 610, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-09-01', 570, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-10-01', 590, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-11-01', 630, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-12-01', 610, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-01-01', 600, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-02-01', 620, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-03-01', 610, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-04-01', 650, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-05-01', 620, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-06-01', 630, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-07-01', 680, null, null, 0, 1, 1, now());
+
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @southId, '2020-01-01', 1274, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-02-01', 1132, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-03-01', 1368, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-04-01', 1180, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-05-01', 1321, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-06-01', 1392, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-07-01', 1345, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-08-01', 1439, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-09-01', 1345, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-10-01', 1392, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-11-01', 1486, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2020-12-01', 1439, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-01-01', 1416, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-02-01', 1463, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-03-01', 1439, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-04-01', 1534, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-05-01', 1463, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-06-01', 1486, null, null, 0, 1, 1, now());
+INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-07-01', 1604, null, null, 0, 1, 1, now());
+

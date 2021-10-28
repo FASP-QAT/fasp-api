@@ -19,6 +19,7 @@ import cc.altius.FASP.model.DTO.rowMapper.ProgramIntegrationDTORowMapper;
 import cc.altius.FASP.model.DatasetTree;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
+import cc.altius.FASP.model.ForecastConsumption;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.IdByAndDate;
 import cc.altius.FASP.model.Inventory;
@@ -45,6 +46,7 @@ import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.rowMapper.BatchRowMapper;
 import cc.altius.FASP.model.rowMapper.ConsumptionListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.DatasetTreeResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ForecastConsumptionRowMapper;
 import cc.altius.FASP.model.rowMapper.IdByAndDateRowMapper;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanBatchResultSetExtractor;
@@ -1800,11 +1802,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public String getSupplyPlanReviewerEmialList(int realmCountryId) {
-        String sql = "select group_concat(u.EMAIL_ID)\n"
-                + "from us_user u\n"
-                + "left join us_user_role ur on u.USER_ID=ur.USER_ID\n"
-                + "left join us_user_acl ua on ua.USER_ID=u.USER_ID\n"
-                + "where ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER' and\n"
+        String sql = "select group_concat(u.EMAIL_ID) "
+                + "from us_user u "
+                + "left join us_user_role ur on u.USER_ID=ur.USER_ID "
+                + "left join us_user_acl ua on ua.USER_ID=u.USER_ID "
+                + "where ur.ROLE_ID='ROLE_SUPPLY_PLAN_REVIEWER' and "
                 + "(ua.REALM_COUNTRY_ID is null OR ua.REALM_COUNTRY_ID=?)";
         return this.jdbcTemplate.queryForObject(sql, String.class, realmCountryId);
     }
@@ -1845,8 +1847,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public String getLastModifiedDateForProgram(int programId, int versionId) {
-        String sql = "select MAX(st.LAST_MODIFIED_DATE) from rm_shipment s \n"
-                + "left join rm_shipment_trans st on s.SHIPMENT_ID=st.SHIPMENT_ID and s.MAX_VERSION_ID=st.VERSION_ID\n"
+        String sql = "select MAX(st.LAST_MODIFIED_DATE) from rm_shipment s  "
+                + "left join rm_shipment_trans st on s.SHIPMENT_ID=st.SHIPMENT_ID and s.MAX_VERSION_ID=st.VERSION_ID "
                 + "where s.PROGRAM_ID=? and st.VERSION_ID<=?;";
         return this.jdbcTemplate.queryForObject(sql, String.class, programId, versionId);
     }
@@ -1915,6 +1917,31 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         Map<String, Object> params = new HashMap<>();
         params.put("treeId", treeId);
         return this.namedParameterJdbcTemplate.query(sql, params, new TreeNodeResultSetExtractor());
+    }
+
+    @Override
+    public List<ForecastConsumption> getForecastConsumptionData(int programId, int versionId, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<String, Object>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        StringBuilder sqlBuilder = new StringBuilder("SELECT "
+                + "    fc.CONSUMPTION_ID, fc.MONTH, fc.ACTUAL_CONSUMPTION, fc.REPORTING_RATE, fc.DAYS_OF_STOCK_OUT, fc.EXCLUDE, fc.VERSION_ID, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fc.CREATED_DATE, "
+                + "    p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
+                + "    fcu.CONSUMPTION_UNIT_ID, fcu.DATA_TYPE, "
+                + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
+                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, pu.MULTIPLIER `PU_MULTIPLIER_FOR_FU`, "
+                + "    fcu.OTHER_UNIT_LABEL_ID `OU_LABEL_ID`, fcu.LABEL_EN `OU_LABEL_EN`, fcu.LABEL_EN `OU_LABEL_EN`, fcu.LABEL_FR `OU_LABEL_FR`, fcu.LABEL_SP `OU_LABEL_SP`, fcu.LABEL_PR `OU_LABEL_PR`, fcu.OTHER_UNIT_MULTIPLIER_FOR_FU `OU_MULTIPLIER_FOR_FU`, "
+                + "    r.REGION_ID, r.LABEL_ID `REG_LABEL_ID`, r.LABEL_EN `REG_LABEL_EN`, r.LABEL_FR `REG_LABEL_FR`, r.LABEL_SP `REG_LABEL_SP`, r.LABEL_PR `REG_LABEL_PR` "
+                + "FROM rm_forecast_consumption fc "
+                + "LEFT JOIN vw_dataset p ON fc.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN vw_forecast_consumption_unit fcu ON fc.CONSUMPTION_UNIT_ID=fcu.CONSUMPTION_UNIT_ID "
+                + "LEFT JOIN vw_forecasting_unit fu ON fcu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "LEFT JOIN vw_planning_unit pu ON fcu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_region r ON fc.REGION_ID=r.REGION_ID "
+                + "LEFT JOIN us_user cb ON fc.CREATED_BY=cb.USER_ID "
+                + "WHERE fc.PROGRAM_ID=:programId AND fc.VERSION_ID=:versionId ");
+        this.aclService.addFullAclForProgram(sqlBuilder, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), params, new ForecastConsumptionRowMapper());
     }
 
 }

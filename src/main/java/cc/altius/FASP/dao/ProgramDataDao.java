@@ -11,6 +11,7 @@ import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
 import cc.altius.FASP.model.DatasetTree;
+import cc.altius.FASP.model.ForecastConsumption;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.NotificationUser;
@@ -86,4 +87,6 @@ public interface ProgramDataDao {
     public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser);
 
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser);
+    
+    public List<ForecastConsumption> getForecastConsumptionData(int programId, int versionId, CustomUserDetails curUser);
 }

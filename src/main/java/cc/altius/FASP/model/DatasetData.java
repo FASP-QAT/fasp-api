@@ -23,7 +23,9 @@ public class DatasetData {
     private String programNotes;
     private List<Region> regionList;
     private Version currentVersion;
+    private List<Version> versionList;
     private List<DatasetTree> treeList;
+    private List<ForecastConsumption> consumptionList;
 
     public DatasetData() {
     }
@@ -39,6 +41,7 @@ public class DatasetData {
         this.programNotes = p.getProgramNotes();
         this.regionList = p.getRegionList();
         this.currentVersion = p.getCurrentVersion();
+        this.versionList = p.getVersionList();
     }
 
     public int getProgramId() {
@@ -127,6 +130,22 @@ public class DatasetData {
 
     public void setTreeList(List<DatasetTree> treeList) {
         this.treeList = treeList;
+    }
+
+    public List<Version> getVersionList() {
+        return versionList;
+    }
+
+    public void setVersionList(List<Version> versionList) {
+        this.versionList = versionList;
+    }
+
+    public List<ForecastConsumption> getConsumptionList() {
+        return consumptionList;
+    }
+
+    public void setConsumptionList(List<ForecastConsumption> consumptionList) {
+        this.consumptionList = consumptionList;
     }
 
 }
