@@ -50,6 +50,8 @@ public class TreeTemplateRestController {
      * @param auth
      * @return returns the active list of active Tree Templates
      */
+    
+//    @JsonView(Views.InternalView.class)
     @GetMapping("")
     @Operation(description = "API used to get the complete TreeTemplate list. Will only return those TreeTemplates that are marked Active.", summary = "Get active TreeTemplate list", tags = ("treeTemplate"))
     @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the TreeTemplate list")
@@ -107,6 +109,7 @@ public class TreeTemplateRestController {
     @PostMapping("")
     public ResponseEntity addTreeTemplate(@RequestBody TreeTemplate treeTemplate, Authentication auth) {
         try {
+            System.out.println("treeTemplate---"+treeTemplate.toString());
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             int treeTemplateId = this.treeTemplateService.addTreeTemplate(treeTemplate, curUser);
             return new ResponseEntity(this.treeTemplateService.getTreeTemplateById(treeTemplateId, true, curUser), HttpStatus.OK);
