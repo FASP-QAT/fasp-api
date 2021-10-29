@@ -13,7 +13,7 @@ import cc.altius.FASP.model.NodeType;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleUnitAndTracerObject;
-import cc.altius.FASP.model.SimpleUnitObject;
+import cc.altius.FASP.model.SimpleUnitObjectWithMultiplier;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.TreeNodeData;
 import cc.altius.FASP.model.TreeNodeDataFu;
@@ -133,7 +133,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 tndp.setNodeDataPuId(nodeDataPuId);
                 tndp.setRefillMonths(rs.getInt("REFILL_MONTHS"));
                 tndp.setSharePlanningUnit(rs.getBoolean("SHARE_PLANNING_UNIT"));
-                tndp.setPlanningUnit(new SimpleUnitObject(new SimpleCodeObject(rs.getInt("PUU_UNIT_ID"), new LabelRowMapper("PUU_").mapRow(rs, count), rs.getString("PUU_UNIT_CODE")), rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, count)));
+                tndp.setPlanningUnit(new SimpleUnitObjectWithMultiplier(new SimpleCodeObject(rs.getInt("PUU_UNIT_ID"), new LabelRowMapper("PUU_").mapRow(rs, count), rs.getString("PUU_UNIT_CODE")), rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, count), rs.getDouble("PU_MULTIPLIER")));
             }
             tnd.setNodeDataModelingList(new LinkedList<>()); // Initiate Modeling list
             tnd.setNodeDataOverrideList(new LinkedList<>()); // Initiate Override list

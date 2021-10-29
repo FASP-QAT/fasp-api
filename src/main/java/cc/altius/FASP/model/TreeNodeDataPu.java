@@ -17,7 +17,7 @@ public class TreeNodeDataPu implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int nodeDataPuId;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
-    private SimpleUnitObject planningUnit;
+    private SimpleUnitObjectWithMultiplier planningUnit;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private boolean sharePlanningUnit;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
@@ -31,11 +31,11 @@ public class TreeNodeDataPu implements Serializable {
         this.nodeDataPuId = nodeDataPuId;
     }
 
-    public SimpleUnitObject getPlanningUnit() {
+    public SimpleUnitObjectWithMultiplier getPlanningUnit() {
         return planningUnit;
     }
 
-    public void setPlanningUnit(SimpleUnitObject planningUnit) {
+    public void setPlanningUnit(SimpleUnitObjectWithMultiplier planningUnit) {
         this.planningUnit = planningUnit;
     }
 
