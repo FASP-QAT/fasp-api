@@ -2581,10 +2581,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Conversão para UE');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.calculatorReminderText','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Right click to open the interval to frequency calculator where type is discrete and one time usage flag is Unchecked');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Faites un clic droit pour ouvrir le calculateur d intervalle à fréquence où le type est discret et une valeur d utilisation du temps est fausse');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Haga clic derecho para abrir la calculadora de intervalo a frecuencia donde el tipo es discreto y un valor de uso de tiempo es falso');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Clique com o botão direito para abrir o intervalo para a calculadora de frequência onde o tipo é discreto e um valor de uso de tempo é falso');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For products used more than once,right click to open the Interval to frequency calculator');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour les produits utilisés plus d une fois, faites un clic droit pour ouvrir le calculateur d intervalle à fréquence');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para productos utilizados más de una vez, haga clic derecho para abrir la calculadora de intervalo a frecuencia');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para produtos usados ​​mais de uma vez, clique com o botão direito para abrir a calculadora de intervalo para frequência');
 
 
 
@@ -2979,3 +2979,11 @@ INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-04-01
 INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-05-01', 1463, null, null, 0, 1, 1, now());
 INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-06-01', 1486, null, null, 0, 1, 1, now());
 INSERT INTO rm_forecast_consumption values (null, 2551, 3, @northId, '2021-07-01', 1604, null, null, 0, 1, 1, now());
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.usageTemplateText','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Usage templates on this screen are available when building forecasting unit nodes in forecast trees.Usage templates are set at the realm (across all programs) or program level.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les modèles d utilisation sur cet écran sont disponibles lors de la création de nœuds d unité de prévision dans les arbres de prévision. Les modèles d utilisation sont définis au niveau du domaine (dans tous les programmes) ou au niveau du programme.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Las plantillas de uso en esta pantalla están disponibles cuando se construyen nodos de unidad de pronóstico en árboles de pronóstico. Las plantillas de uso se establecen en el ámbito (en todos los programas) o en el nivel del programa.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Os modelos de uso nesta tela estão disponíveis ao construir nós de unidade de previsão em árvores de previsão. Os modelos de uso são definidos no domínio (em todos os programas) ou no nível do programa.');
