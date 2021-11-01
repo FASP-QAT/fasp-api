@@ -135,12 +135,24 @@ public class ProgramDataRestController {
     }
 
     // Part 1 of the Commit Request
-    @PutMapping("/programData")
-    public ResponseEntity putProgramData(@RequestBody ProgramData programData, Authentication auth) {
+    @PutMapping("/programData/{comparedVersionId}")
+    public ResponseEntity putProgramData(@RequestBody ProgramData programData, @PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, Authentication auth) {
         try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            int commitRequestId = this.programDataService.saveProgramData(programData, curUser);
-            return new ResponseEntity(commitRequestId, HttpStatus.OK);
+            int latestVersion = this.programDataService.getLatestVersionForProgram(programData.getProgramId());
+            if (latestVersion == comparedVersionId) {
+                var checkIfRequestExists = this.programDataService.checkIfCommitRequestExistsForProgram(programData.getProgramId());
+                if (!checkIfRequestExists) {
+                    CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+                    int commitRequestId = this.programDataService.saveProgramData(programData, curUser);
+                    return new ResponseEntity(commitRequestId, HttpStatus.OK);
+                } else {
+                    logger.error("Request already exists");
+                    return new ResponseEntity(new ResponseCode("static.commitVersion.requestAlreadyExists"), HttpStatus.NOT_ACCEPTABLE);
+                }
+            } else {
+                logger.error("Compared version is not latest");
+                return new ResponseEntity(new ResponseCode("static.commitVersion.versionIsOutDated"), HttpStatus.NOT_ACCEPTABLE);
+            }
 //            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
         } catch (CouldNotSaveException e) {
             logger.error("Error while trying to update ProgramData", e);
@@ -406,19 +418,6 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             logger.error("Error while trying to get last modified date for program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping("/programData/checkIfCommitRequestExistsForProgram/{programId}")
-    public ResponseEntity checkIfCommitRequestExistsForProgram(@PathVariable(value = "programId", required = true) int programId) {
-        try {
-            return new ResponseEntity(this.programDataService.checkIfCommitRequestExistsForProgram(programId), HttpStatus.OK);
-        } catch (AccessDeniedException e) {
-            logger.error("Error while trying to check if commit request exists for program", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-        } catch (Exception e) {
-            logger.error("Error while trying to check if commit request exists for program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

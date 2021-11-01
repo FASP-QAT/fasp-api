@@ -126,7 +126,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                         version.setVersionId(spcr.getCommittedVersionId());
                     }
                 } catch (Exception e) {
-                    version = this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 3, e.getMessage());
+                    version = this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 3, e.getMessage(),0);
                     EmailTemplate emailTemplateForSpcr = this.emailService.getEmailTemplateByEmailTemplateId(9);
                     String[] subjectParamForSpcr = new String[]{};
                     String[] bodyParamForSpcr = new String[]{};
@@ -141,8 +141,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 //            System.out.println("version++++" + version);
                 try {
                     getNewSupplyPlanList(spcr.getProgram().getId(), version.getVersionId(), true, false);
-                    if (version.getVersionId() != 0 && !spcr.isSaveData()) {
-                        this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 2, "");
+                    if (version.getVersionId() != 0) {
+                        this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 2, "",version.getVersionId());
                     }
                     if (version.getVersionId() != 0 && spcr.isSaveData()) {
                         EmailTemplate emailTemplateForSpcr = this.emailService.getEmailTemplateByEmailTemplateId(8);
@@ -201,8 +201,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message) {
-        return this.programDataDao.updateSupplyPlanCommitRequest(commitRequestId, status, message);
+    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message,int versionId) {
+        return this.programDataDao.updateSupplyPlanCommitRequest(commitRequestId, status, message,versionId);
     }
 
     @Override

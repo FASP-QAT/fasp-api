@@ -48,7 +48,7 @@ public interface ProgramDataDao {
 
     public Version processCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser);
 
-    public Version updateSupplyPlanCommitRequest(int commitRequestId,int status, String message);
+    public Version updateSupplyPlanCommitRequest(int commitRequestId,int status, String message,int versionId);
 
     public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser);
 

@@ -1493,7 +1493,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
         params.put("versionId", version.getVersionId());
         params.put("COMMIT_REQUEST_ID", spcr.getCommitRequestId());
-        this.namedParameterJdbcTemplate.update("UPDATE ct_supply_plan_commit_request spcr SET spcr.STATUS=2, spcr.COMPLETED_DATE=:curDate, spcr.VERSION_ID=:versionId WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
+//        this.namedParameterJdbcTemplate.update("UPDATE ct_supply_plan_commit_request spcr SET spcr.STATUS=2, spcr.COMPLETED_DATE=:curDate, spcr.VERSION_ID=:versionId WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
         return version;
 //        } catch (Exception e) {
 //            params.clear();
@@ -1505,13 +1505,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message) {
+    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message,int versionId) {
         Map<String, Object> params = new HashMap<>();
         params.put("FAILED_REASON", message != "" ? message : null);
         params.put("COMMIT_REQUEST_ID", commitRequestId);
         params.put("STATUS", status);
+        params.put("VERSION_ID", versionId);
         params.put("curDate", DateUtils.getCurrentDateObject(DateUtils.EST));
-        this.namedParameterJdbcTemplate.update("UPDATE ct_supply_plan_commit_request spcr SET spcr.STATUS=:STATUS, FAILED_REASON=:FAILED_REASON,COMPLETED_DATE=:curDate WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
+        this.namedParameterJdbcTemplate.update("UPDATE ct_supply_plan_commit_request spcr SET spcr.STATUS=:STATUS, spcr.FAILED_REASON=:FAILED_REASON,spcr.COMPLETED_DATE=:curDate,spcr.VERSION_ID=:VERSION_ID WHERE spcr.COMMIT_REQUEST_ID=:COMMIT_REQUEST_ID", params);
         return new Version(0, null, null, null, null, null, null, null);
     }
 
