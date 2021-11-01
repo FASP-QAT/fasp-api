@@ -32,7 +32,6 @@ public class MastersSync implements Serializable {
     private List<OrganisationType> organisationTypeList;
     private List<FundingSource> fundingSourceList;
     private List<ProcurementAgent> procurementAgentList;
-    private List<Supplier> supplierList;
     private List<ForecastingUnit> forecastingUnitList;
     private List<PlanningUnit> planningUnitList;
     private List<ProcurementUnit> procurementUnitList;
@@ -47,6 +46,8 @@ public class MastersSync implements Serializable {
     private List<SimpleObject> problemCategoryList;
     private List<RealmProblem> realmProblemList;
     private List<Budget> budgetList;
+    private List<SimpleObject> versionTypeList;
+    private List<SimpleObject> versionStatusList;
     private List<SimpleBaseModel> usageTypeList;
     private List<NodeTypeSync> nodeTypeList;
     private List<SimpleBaseModel> forecastMethodTypeList;
@@ -192,14 +193,6 @@ public class MastersSync implements Serializable {
         this.procurementAgentList = procurementAgentList;
     }
 
-    public List<Supplier> getSupplierList() {
-        return supplierList;
-    }
-
-    public void setSupplierList(List<Supplier> supplierList) {
-        this.supplierList = supplierList;
-    }
-
     public List<ForecastingUnit> getForecastingUnitList() {
         return forecastingUnitList;
     }
@@ -310,6 +303,22 @@ public class MastersSync implements Serializable {
 
     public void setBudgetList(List<Budget> budgetList) {
         this.budgetList = budgetList;
+    }
+
+    public List<SimpleObject> getVersionTypeList() {
+        return versionTypeList;
+    }
+
+    public void setVersionTypeList(List<SimpleObject> versionTypeList) {
+        this.versionTypeList = versionTypeList;
+    }
+
+    public List<SimpleObject> getVersionStatusList() {
+        return versionStatusList;
+    }
+
+    public void setVersionStatusList(List<SimpleObject> versionStatusList) {
+        this.versionStatusList = versionStatusList;
     }
 
     public List<SimpleBaseModel> getUsageTypeList() {

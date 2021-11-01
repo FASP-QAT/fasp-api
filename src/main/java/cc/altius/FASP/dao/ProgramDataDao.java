@@ -83,10 +83,10 @@ public interface ProgramDataDao {
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
 
     public String getLastModifiedDateForProgram(int programId, int versionId);
-    
+
     public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser);
 
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser);
-    
+
     public List<ForecastConsumption> getForecastConsumptionData(int programId, int versionId, CustomUserDetails curUser);
 }

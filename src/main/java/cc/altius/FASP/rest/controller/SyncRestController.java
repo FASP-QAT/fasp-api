@@ -28,12 +28,12 @@ import cc.altius.FASP.service.ProblemService;
 import cc.altius.FASP.service.ProcurementAgentService;
 import cc.altius.FASP.service.ProcurementUnitService;
 import cc.altius.FASP.service.ProductCategoryService;
+import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.ProgramService;
 import cc.altius.FASP.service.RealmCountryService;
 import cc.altius.FASP.service.RealmService;
 import cc.altius.FASP.service.RegionService;
 import cc.altius.FASP.service.ShipmentStatusService;
-import cc.altius.FASP.service.SupplierService;
 import cc.altius.FASP.service.TracerCategoryService;
 import cc.altius.FASP.service.TreeTemplateService;
 import cc.altius.FASP.service.UnitService;
@@ -99,8 +99,6 @@ public class SyncRestController {
     @Autowired
     private ProcurementAgentService procurementAgentService;
     @Autowired
-    private SupplierService supplierService;
-    @Autowired
     private ForecastingUnitService forecastingUnitService;
     @Autowired
     private PlanningUnitService planningUnitService;
@@ -118,6 +116,8 @@ public class SyncRestController {
     private ProblemService problemService;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ProgramDataService programDataService;
     @Autowired
     private ForecastingStaticDataService forecastingStaticDataService;
     @Autowired
@@ -200,7 +200,9 @@ public class SyncRestController {
             String programIdsString = getProgramIds(programIds);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             MastersSync masters = new MastersSync();
-            masters.setRealmCountryPlanningUnitList(this.realmCountryService.getRealmCountryPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds , 
+            masters.setVersionTypeList(this.programDataService.getVersionTypeList());
+            masters.setVersionStatusList(this.programDataService.getVersionStatusList());
+            
         return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);
@@ -250,6 +252,8 @@ public class SyncRestController {
             masters.setProblemCriticalityList(this.problemService.getProblemCriticalityForSync(lastSyncDate, curUser));
             masters.setProblemCategoryList(this.problemService.getProblemCategoryForSync(lastSyncDate, curUser));
             masters.setRealmProblemList(this.problemService.getProblemListForSync(lastSyncDate, curUser));
+            masters.setVersionTypeList(this.programDataService.getVersionTypeList());
+            masters.setVersionStatusList(this.programDataService.getVersionStatusList());
             masters.setUsageTypeList(this.forecastingStaticDataService.getUsageTypeListForSync(lastSyncDate, curUser));
             masters.setNodeTypeList(this.forecastingStaticDataService.getNodeTypeListForSync(lastSyncDate, curUser));
             masters.setForecastMethodTypeList(this.forecastingStaticDataService.getForecastMethodTypeListForSync(lastSyncDate, curUser));
