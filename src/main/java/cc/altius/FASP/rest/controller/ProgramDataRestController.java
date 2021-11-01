@@ -138,7 +138,7 @@ public class ProgramDataRestController {
     @PutMapping("/programData/{comparedVersionId}")
     public ResponseEntity putProgramData(@RequestBody ProgramData programData, @PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, Authentication auth) {
         try {
-            int latestVersion = this.programDataService.getLatestVersionForProgram(programData.getProgramId());
+            int latestVersion = this.programDataService.getLatestVersionForPrograms(""+programData.getProgramId()).get(0).getVersionId();
             if (latestVersion == comparedVersionId) {
                 var checkIfRequestExists = this.programDataService.checkIfCommitRequestExistsForProgram(programData.getProgramId());
                 if (!checkIfRequestExists) {
@@ -399,7 +399,8 @@ public class ProgramDataRestController {
     @GetMapping("/programData/getLatestVersionForProgram/{programId}")
     public ResponseEntity getLatestVersionForProgram(@PathVariable(value = "programId", required = true) int programId) {
         try {
-            return new ResponseEntity(this.programDataService.getLatestVersionForProgram(programId), HttpStatus.OK);
+            
+            return new ResponseEntity(this.programDataService.getLatestVersionForPrograms(""+programId).get(0).getVersionId(), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get latest version for program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
@@ -419,6 +420,33 @@ public class ProgramDataRestController {
         } catch (Exception e) {
             logger.error("Error while trying to get last modified date for program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/programData/getLatestVersionForPrograms")
+    public ResponseEntity getLatestVersionForProgram(@RequestBody String[] programIds) {
+        try {
+            String programIdsString = getProgramIds(programIds);
+            return new ResponseEntity(this.programDataService.getLatestVersionForPrograms(programIdsString), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get latest version for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get latest version for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private String getProgramIds(String[] programIds) {
+        if (programIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", programIds);
+            if (programIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
         }
     }
 

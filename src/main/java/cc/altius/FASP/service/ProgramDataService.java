@@ -68,7 +68,7 @@ public interface ProgramDataService {
 
     public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId);
 
-    public int getLatestVersionForProgram(int programId);
+    public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
 
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
 

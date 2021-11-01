@@ -13,6 +13,7 @@ import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.NotificationUser;
 import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ReviewedProblem;
 import cc.altius.FASP.model.Shipment;
@@ -77,7 +78,7 @@ public interface ProgramDataDao {
 
     public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId);
 
-    public int getLatestVersionForProgram(int programId);
+    public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
 
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList();
 
