@@ -2987,3 +2987,53 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Usage templates on thi
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les modèles d utilisation sur cet écran sont disponibles lors de la création de nœuds d unité de prévision dans les arbres de prévision. Les modèles d utilisation sont définis au niveau du domaine (dans tous les programmes) ou au niveau du programme.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Las plantillas de uso en esta pantalla están disponibles cuando se construyen nodos de unidad de pronóstico en árboles de pronóstico. Las plantillas de uso se establecen en el ámbito (en todos los programas) o en el nivel del programa.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Os modelos de uso nesta tela estão disponíveis ao construir nós de unidade de previsão em árvores de previsão. Os modelos de uso são definidos no domínio (em todos os programas) ou no nível do programa.');
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.versionSettings.versionSettings','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Version Settings');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Paramètres de version');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Configurações de versão');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Configuración de versión');
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.program.programDiscription','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'program Discription');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Description du programme');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'descrição do programa');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'descripción del programa');
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.program.dateCommitted','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Date Committed');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Date dengagement');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Data de Compromisso');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Fecha de compromiso');
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.program.commitedbyUser','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Commited by User');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Engagé par lutilisateur');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Comprometido pelo usuário');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Comprometido por el usuario');
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.program.forecastStart','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Start');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Début de la prévision');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Previsão de Início');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Inicio del pronóstico');
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.program.forecastEnd','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast End');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Fin de la prévision');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fim da previsão');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Fin del pronóstico');
+
