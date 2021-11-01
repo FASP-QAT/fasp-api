@@ -148,7 +148,7 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
         programList.forEach(p -> {
             try {
                 System.out.println("p-----------" + p);
-                int versionId = this.programDataDao.getLatestVersionForProgram(p);
+                int versionId = this.programDataDao.getLatestVersionForPrograms(""+p).get(0).getVersionId();
                 logger.info("Going to rebuild Supply plan for Program " + p + " Version " + versionId);
                 this.programDataDao.getNewSupplyPlanList(p, -1, true, false);
                 logger.info("Supply plan rebuilt");

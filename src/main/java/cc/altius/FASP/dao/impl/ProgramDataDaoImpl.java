@@ -28,6 +28,7 @@ import cc.altius.FASP.model.ProblemReport;
 import cc.altius.FASP.model.ProblemReportTrans;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ReviewedProblem;
 import cc.altius.FASP.model.Shipment;
@@ -52,6 +53,7 @@ import cc.altius.FASP.model.rowMapper.NewSupplyPlanRegionResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NotificationUserRowMapper;
 import cc.altius.FASP.model.rowMapper.ProblemReportFromCommitRequestResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramVersionResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ProgramIdAndVersionIdRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListFromCommitRequestResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.model.rowMapper.ShipmentListResultSetExtractor;
@@ -1505,7 +1507,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message,int versionId) {
+    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message, int versionId) {
         Map<String, Object> params = new HashMap<>();
         params.put("FAILED_REASON", message != "" ? message : null);
         params.put("COMMIT_REQUEST_ID", commitRequestId);
@@ -2163,20 +2165,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public int getLatestVersionForProgram(int programId) {
-        String sqlString = "SELECT p.CURRENT_VERSION_ID FROM rm_program p WHERE p.PROGRAM_ID=:programId";
-        Map<String, Object> params = new HashMap<>();
-        params.put("programId", programId);
-        try {
-            Integer versionId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
-            if (versionId == null) {
-                return -1;
-            } else {
-                return versionId;
-            }
-        } catch (Exception e) {
-            return -1;
-        }
+    public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds) {
+        String sqlString = "SELECT p.CURRENT_VERSION_ID,p.PROGRAM_ID FROM rm_program p WHERE p.PROGRAM_ID IN (" + programIds + ")";
+        return this.jdbcTemplate.query(sqlString, new ProgramIdAndVersionIdRowMapper());
     }
 
     @Override
