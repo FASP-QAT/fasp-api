@@ -33,11 +33,11 @@ public interface ProgramDataService {
 
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
 
-    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
+    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
     public void processCommitRequest(CustomUserDetails curUser);
 
-    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message);
+    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message,int versionId);
 
     public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser);
 

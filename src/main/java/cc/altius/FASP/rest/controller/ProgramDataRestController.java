@@ -135,18 +135,26 @@ public class ProgramDataRestController {
         }
     }
 
+    // Part 1 of the Commit Request
     @PutMapping("/programData/{comparedVersionId}")
     public ResponseEntity putProgramData(@RequestBody ProgramData programData, @PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, Authentication auth) {
         try {
             int latestVersion = this.programDataService.getLatestVersionForProgram(programData.getProgramId());
             if (latestVersion == comparedVersionId) {
-                CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-                Version v = this.programDataService.saveProgramData(programData, curUser);
-                return new ResponseEntity(this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser, false), HttpStatus.OK);
+                var checkIfRequestExists = this.programDataService.checkIfCommitRequestExistsForProgram(programData.getProgramId());
+                if (!checkIfRequestExists) {
+                    CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+                    int commitRequestId = this.programDataService.saveProgramData(programData, curUser);
+                    return new ResponseEntity(commitRequestId, HttpStatus.OK);
+                } else {
+                    logger.error("Request already exists");
+                    return new ResponseEntity(new ResponseCode("static.commitVersion.requestAlreadyExists"), HttpStatus.NOT_ACCEPTABLE);
+                }
             } else {
                 logger.error("Compared version is not latest");
                 return new ResponseEntity(new ResponseCode("static.commitVersion.versionIsOutDated"), HttpStatus.NOT_ACCEPTABLE);
             }
+//            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
         } catch (CouldNotSaveException e) {
             logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
@@ -161,11 +169,6 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-    
-    
-    
-    
 
     // Part 2 of the Commit Request
 //    @GetMapping("/processCommitRequest")

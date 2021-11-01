@@ -42,13 +42,13 @@ public interface ProgramDataDao {
 
     public List<Batch> getBatchList(int programId, int versionId);
 
-    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
+    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
     public List<SupplyPlanCommitRequest> getPendingSupplyPlanProcessList();
 
     public Version processCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser);
 
-    public Version updateSupplyPlanCommitRequest(int commitRequestId,int status, String message);
+    public Version updateSupplyPlanCommitRequest(int commitRequestId,int status, String message,int versionId);
 
     public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser);
 

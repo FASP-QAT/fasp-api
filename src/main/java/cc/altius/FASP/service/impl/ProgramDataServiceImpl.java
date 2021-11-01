@@ -97,55 +97,12 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
+    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
         Program p = this.programCommonDao.getProgramById(programData.getProgramId(), curUser);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+            programData.setRequestedProgramVersion(programData.getCurrentVersion().getVersionId());
             programData.setCurrentVersion(p.getCurrentVersion());
-//            System.out.println("++++" + p.getCurrentVersion());
-            Version version = this.programDataDao.saveProgramData(programData, curUser);
-//            System.out.println("version++++" + version);
-            try {
-                getNewSupplyPlanList(programData.getProgramId(), version.getVersionId(), true, false);
-                if (programData.getVersionType().getId() == 2 && version.getVersionId() != 0) {
-                    List<NotificationUser> toEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(programData.getProgramId(), version.getVersionId(), 1, "To");
-                    List<NotificationUser> ccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(programData.getProgramId(), version.getVersionId(), 1, "Cc");
-                    System.out.println("toEmailIdsList===>" + toEmailIdsList);
-                    System.out.println("ccEmailIdsList===>" + ccEmailIdsList);
-                    StringBuilder sbToEmails = new StringBuilder();
-                    StringBuilder sbCcEmails = new StringBuilder();
-                    if (toEmailIdsList.size() > 0) {
-                        for (NotificationUser ns : toEmailIdsList) {
-                            sbToEmails.append(ns.getEmailId()).append(",");
-                        }
-                    }
-                    if (ccEmailIdsList.size() > 0) {
-                        for (NotificationUser ns : ccEmailIdsList) {
-                            sbCcEmails.append(ns.getEmailId()).append(",");
-                        }
-                    }
-                    if (sbToEmails.length() != 0) {
-                        System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
-                    }
-                    if (sbCcEmails.length() != 0) {
-                        System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
-                    }
-                    EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(6);
-                    String[] subjectParam = new String[]{};
-                    String[] bodyParam = null;
-                    Emailer emailer = new Emailer();
-                    subjectParam = new String[]{programData.getProgramCode()};
-                    bodyParam = new String[]{programData.getProgramCode(), String.valueOf(version.getVersionId()), programData.getNotes()};
-//                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "shubham.y@altius.cc,harshana.c@altius.cc", "palash.n@altius.cc,dolly.c@altius.cc", subjectParam, bodyParam);
-                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
-                    int emailerId = this.emailService.saveEmail(emailer);
-                    emailer.setEmailerId(emailerId);
-                    this.emailService.sendMail(emailer);
-                }
-
-                return version;
-            } catch (ParseException pe) {
-                throw new CouldNotSaveException(pe.getMessage());
-            }
+            return this.programDataDao.saveProgramData(programData, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -169,7 +126,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                         version.setVersionId(spcr.getCommittedVersionId());
                     }
                 } catch (Exception e) {
-                    version = this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 3, e.getMessage());
+                    version = this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 3, e.getMessage(),0);
                     EmailTemplate emailTemplateForSpcr = this.emailService.getEmailTemplateByEmailTemplateId(9);
                     String[] subjectParamForSpcr = new String[]{};
                     String[] bodyParamForSpcr = new String[]{};
@@ -184,8 +141,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 //            System.out.println("version++++" + version);
                 try {
                     getNewSupplyPlanList(spcr.getProgram().getId(), version.getVersionId(), true, false);
-                    if (version.getVersionId() != 0 && !spcr.isSaveData()) {
-                        this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 2, "");
+                    if (version.getVersionId() != 0) {
+                        this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 2, "",version.getVersionId());
                     }
                     if (version.getVersionId() != 0 && spcr.isSaveData()) {
                         EmailTemplate emailTemplateForSpcr = this.emailService.getEmailTemplateByEmailTemplateId(8);
@@ -244,8 +201,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message) {
-        return this.programDataDao.updateSupplyPlanCommitRequest(commitRequestId, status, message);
+    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message,int versionId) {
+        return this.programDataDao.updateSupplyPlanCommitRequest(commitRequestId, status, message,versionId);
     }
 
     @Override
