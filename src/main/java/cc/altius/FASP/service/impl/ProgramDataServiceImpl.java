@@ -127,16 +127,6 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                     }
                 } catch (Exception e) {
                     version = this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 3, e.getMessage(), 0);
-                    EmailTemplate emailTemplateForSpcr = this.emailService.getEmailTemplateByEmailTemplateId(9);
-                    String[] subjectParamForSpcr = new String[]{};
-                    String[] bodyParamForSpcr = new String[]{};
-                    Emailer emailerForSpcr = new Emailer();
-                    subjectParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommittedVersionId())};
-                    bodyParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommittedVersionId())};
-                    emailerForSpcr = this.emailService.buildEmail(emailTemplateForSpcr.getEmailTemplateId(), user.getEmailId(), "", subjectParamForSpcr, bodyParamForSpcr);
-                    int emailerIdForSpcr = this.emailService.saveEmail(emailerForSpcr);
-                    emailerForSpcr.setEmailerId(emailerIdForSpcr);
-                    this.emailService.sendMail(emailerForSpcr);
                 }
 //            System.out.println("version++++" + version);
                 try {
@@ -145,16 +135,6 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                         this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 2, "", version.getVersionId());
                     }
                     if (version.getVersionId() != 0 && spcr.isSaveData()) {
-                        EmailTemplate emailTemplateForSpcr = this.emailService.getEmailTemplateByEmailTemplateId(8);
-                        String[] subjectParamForSpcr = new String[]{};
-                        String[] bodyParamForSpcr = new String[]{};
-                        Emailer emailerForSpcr = new Emailer();
-                        subjectParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommittedVersionId())};
-                        bodyParamForSpcr = new String[]{spcr.getProgram().getCode(), String.valueOf(spcr.getCommittedVersionId()), spcr.getVersionType().getLabel().getLabel_en(), spcr.getNotes()};
-                        emailerForSpcr = this.emailService.buildEmail(emailTemplateForSpcr.getEmailTemplateId(), user.getEmailId(), "", subjectParamForSpcr, bodyParamForSpcr);
-                        int emailerIdForSpcr = this.emailService.saveEmail(emailerForSpcr);
-                        emailerForSpcr.setEmailerId(emailerIdForSpcr);
-                        this.emailService.sendMail(emailerForSpcr);
                         if (spcr.getVersionType().getId() == 2) {
                             List<NotificationUser> toEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "To");
                             List<NotificationUser> ccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "Cc");
