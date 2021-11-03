@@ -109,7 +109,6 @@ public class TreeTemplateRestController {
     @PostMapping("")
     public ResponseEntity addTreeTemplate(@RequestBody TreeTemplate treeTemplate, Authentication auth) {
         try {
-            System.out.println("treeTemplate---"+treeTemplate.toString());
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             int treeTemplateId = this.treeTemplateService.addTreeTemplate(treeTemplate, curUser);
             return new ResponseEntity(this.treeTemplateService.getTreeTemplateById(treeTemplateId, true, curUser), HttpStatus.OK);

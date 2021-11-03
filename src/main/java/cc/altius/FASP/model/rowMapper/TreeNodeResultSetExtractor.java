@@ -19,8 +19,10 @@ import cc.altius.FASP.model.TreeNodeData;
 import cc.altius.FASP.model.TreeNodeDataFu;
 import cc.altius.FASP.model.TreeNodeDataPu;
 import cc.altius.FASP.model.UsagePeriod;
+import cc.altius.utils.DateUtils;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import org.springframework.dao.DataAccessException;
@@ -32,6 +34,14 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  * @author akil
  */
 public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTree<TreeNode>> {
+
+    private boolean isTemplate;
+    private Date curDate;
+
+    public TreeNodeResultSetExtractor(boolean isTemplate) {
+        this.isTemplate = isTemplate;
+        this.curDate = DateUtils.getStartOfMonthObject();
+    }
 
     @Override
     public ForecastTree<TreeNode> extractData(ResultSet rs) throws SQLException, DataAccessException {
@@ -103,7 +113,12 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
         int idx = tndList.indexOf(tnd);
         if (idx == -1) {
             // NodeData was not present so add the base values for NodeData
-            tnd.setMonth(rs.getDate("MONTH"));
+            if (this.isTemplate) {
+                tnd.setMonthNo(rs.getInt("MONTH"));
+                tnd.setMonth(DateUtils.addMonths(curDate, tnd.getMonthNo()));
+            } else {
+                tnd.setMonth(rs.getDate("MONTH"));
+            }
             tnd.setDataValue(rs.getDouble("DATA_VALUE"));
             tnd.setNotes(rs.getString("NOTES"));
             int nodeDataFuId = rs.getInt("NODE_DATA_FU_ID");
@@ -149,8 +164,15 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
             idx = tnd.getNodeDataModelingList().indexOf(ndm);
             if (idx == -1) {
                 // Not found so add it
-                ndm.setStartDate(rs.getDate("MODELING_START_DATE"));
-                ndm.setStopDate(rs.getDate("MODELING_STOP_DATE"));
+                if (this.isTemplate) {
+                    ndm.setStartDateNo(rs.getInt("MODELING_START_DATE"));
+                    ndm.setStartDate(DateUtils.addMonths(curDate, ndm.getStartDateNo()));
+                    ndm.setStopDateNo(rs.getInt("MODELING_STOP_DATE"));
+                    ndm.setStartDate(DateUtils.addMonths(curDate, ndm.getStopDateNo()));
+                } else {
+                    ndm.setStartDate(rs.getDate("MODELING_START_DATE"));
+                    ndm.setStopDate(rs.getDate("MODELING_STOP_DATE"));
+                }
                 ndm.setDataValue(rs.getDouble("MODELING_DATA_VALUE"));
                 ndm.setTransferNodeDataId(rs.getInt("MODELING_TRANSFER_NODE_DATA_ID"));
                 if (rs.wasNull()) {

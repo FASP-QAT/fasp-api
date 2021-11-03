@@ -12,6 +12,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.TreeNodeData;
 import cc.altius.FASP.model.TreeTemplate;
@@ -52,7 +53,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     private static final String treeTemplateSql = "SELECT  "
-            + "    tt.TREE_TEMPLATE_ID, tt.LABEL_ID, tt.LABEL_EN, tt.LABEL_FR, tt.LABEL_SP, tt.LABEL_PR, tt.ACTIVE, tt.CREATED_DATE, tt.LAST_MODIFIED_DATE, "
+            + "    tt.TREE_TEMPLATE_ID, tt.LABEL_ID, tt.LABEL_EN, tt.LABEL_FR, tt.LABEL_SP, tt.LABEL_PR, tt.ACTIVE, tt.CREATED_DATE, tt.LAST_MODIFIED_DATE, tt.MONTHS_IN_PAST, tt.MONTHS_IN_FUTURE,  "
             + "    r.REALM_ID, r.REALM_CODE, r.LABEL_ID `R_LABEL_ID`,  r.LABEL_EN `R_LABEL_EN`, r.LABEL_FR `R_LABEL_FR`, r.LABEL_SP `R_LABEL_SP`, r.LABEL_PR `R_LABEL_PR`, "
             + "    fm.FORECAST_METHOD_ID, fm.LABEL_ID `FM_LABEL_ID`, fm.LABEL_EN `FM_LABEL_EN`, fm.LABEL_FR `FM_LABEL_FR`, fm.LABEL_SP `FM_LABEL_SP`, fm.LABEL_PR `FM_LABEL_PR`, fm.FORECAST_METHOD_TYPE_ID, "
             + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME` "
@@ -108,7 +109,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                 + "      ORDER BY ttn.SORT_ORDER, ttnd.NODE_DATA_ID";
         Map<String, Object> params = new HashMap<>();
         params.put("treeTemplateId", treeTemplateId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new TreeNodeResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query(sql, params, new TreeNodeResultSetExtractor(true));
     }
 
     @Override
@@ -134,6 +135,8 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         int labelId = this.labelDao.addLabel(tt.getLabel(), LabelConstants.RM_FORECAST_TREE_TEMPLATE, curUser.getUserId());
         params.put("LABEL_ID", labelId);
         params.put("FORECAST_METHOD_ID", tt.getForecastMethod().getId());
+        params.put("MONTHS_IN_PAST", tt.getMonthsInPast());
+        params.put("MONTHS_IN_FUTURE", tt.getMonthsInFuture());
         params.put("CREATED_BY", curUser.getUserId());
         params.put("CREATED_DATE", curDate);
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
@@ -165,7 +168,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                 TreeNodeData tnd = n.getPayload().getNodeDataMap().get(0).get(0);
                 if (tnd != null) {
                     nodeParams.put("NODE_ID", nodeId);
-                    nodeParams.put("MONTH", tnd.getMonth());
+                    nodeParams.put("MONTH", tnd.getMonthNo());
                     nodeParams.put("DATA_VALUE", tnd.getDataValue());
                     nodeParams.put("NOTES", tnd.getNotes());
                     nodeParams.put("CREATED_BY", curUser.getUserId());
@@ -221,6 +224,9 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("nodeDataId", nodeDataId);
                         this.namedParameterJdbcTemplate.update("UPDATE rm_tree_template_node_data SET NODE_DATA_PU_ID=:nodePuId WHERE NODE_DATA_ID=:nodeDataId", nodeParams);
                     }
+                    for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
+                        // TODO insert into the TreeTemplate Modeling section
+                    }
                 }
             }
         }
@@ -239,12 +245,16 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                 + "SET "
                 + "l.LABEL_EN=:labelEn, "
                 + "tt.FORECAST_METHOD_ID=:forecastMethod, "
+                + "tt.MONTHS_IN_PAST=:monthsInPast, "
+                + "tt.MONTHS_IN_FUTURE=:monthsInFuture, "
                 + "tt.LAST_MODIFIED_BY=:curUser, "
                 + "tt.LAST_MODIFIED_DATE=:curDate, "
                 + "tt.ACTIVE=:active "
                 + "WHERE tt.TREE_TEMPLATE_ID=:treeTemplateId";
         params.put("labelEn", tt.getLabel().getLabel_en());
         params.put("forecastMethod", tt.getForecastMethod().getId());
+        params.put("monthsInPast", tt.getMonthsInPast());
+        params.put("monthsInFuture", tt.getMonthsInFuture());
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         params.put("active", tt.isActive());
@@ -343,6 +353,9 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("nodeDataId", nodeDataId);
                         this.namedParameterJdbcTemplate.update("UPDATE rm_tree_template_node_data SET NODE_DATA_PU_ID=:nodePuId WHERE NODE_DATA_ID=:nodeDataId", nodeParams);
                     }
+                    for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
+                        // TODO insert into the TreeTemplate Modeling section
+                    }
                 }
             }
         }
@@ -359,6 +372,5 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         params.put("lastSyncDate", lastSyncDate);
         return this.namedParameterJdbcTemplate.query(sql, params, new TreeTemplateRowMapper());
     }
-    
-    
+
 }

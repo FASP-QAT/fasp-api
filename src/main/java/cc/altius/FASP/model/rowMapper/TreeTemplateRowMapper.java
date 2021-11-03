@@ -25,6 +25,14 @@ public class TreeTemplateRowMapper implements RowMapper<TreeTemplate> {
         tt.setLabel(new LabelRowMapper().mapRow(rs, 1));
         tt.setRealm(new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("R_").mapRow(rs, 1), rs.getString("REALM_CODE")));
         tt.setForecastMethod(new SimpleObjectWithType(rs.getInt("FORECAST_METHOD_ID"), new LabelRowMapper("FM_").mapRow(rs, 1), rs.getInt("FORECAST_METHOD_TYPE_ID")));
+        tt.setMonthsInPast(rs.getInt("MONTHS_IN_PAST"));
+        if (rs.wasNull()) {
+            tt.setMonthsInPast(null);
+        }
+        tt.setMonthsInFuture(rs.getInt("MONTHS_IN_FUTURE"));
+        if (rs.wasNull()) {
+            tt.setMonthsInFuture(null);
+        }
         tt.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
         return tt;
     }

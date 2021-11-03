@@ -19,6 +19,8 @@ public class TreeTemplate extends BaseModel implements Serializable {
     private SimpleCodeObject realm;
     private Label label;
     private SimpleObjectWithType forecastMethod;
+    private Integer monthsInPast;
+    private Integer monthsInFuture;
     @JsonIgnore
     private ForecastTree<TreeNode> tree;
 
@@ -59,6 +61,22 @@ public class TreeTemplate extends BaseModel implements Serializable {
 
     public void setForecastMethod(SimpleObjectWithType forecastMethod) {
         this.forecastMethod = forecastMethod;
+    }
+
+    public Integer getMonthsInPast() {
+        return monthsInPast;
+    }
+
+    public void setMonthsInPast(Integer monthsInPast) {
+        this.monthsInPast = monthsInPast;
+    }
+
+    public Integer getMonthsInFuture() {
+        return monthsInFuture;
+    }
+
+    public void setMonthsInFuture(Integer monthsInFuture) {
+        this.monthsInFuture = monthsInFuture;
     }
 
     public ForecastTree<TreeNode> getTree() {

@@ -3037,3 +3037,41 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Fin de la prévision')
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fim da previsão');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Fin del pronóstico');
 
+
+ALTER TABLE `fasp`.`rm_tree_template` ADD COLUMN `MONTHS_IN_PAST` INT(10) UNSIGNED NULL AFTER `FORECAST_METHOD_ID`, ADD COLUMN `MONTHS_IN_FUTURE` INT(10) UNSIGNED NULL AFTER `MONTHS_IN_PAST`;
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_tree_template` AS
+    SELECT 
+        `tt`.`TREE_TEMPLATE_ID` AS `TREE_TEMPLATE_ID`,
+        `tt`.`REALM_ID` AS `REALM_ID`,
+        `tt`.`LABEL_ID` AS `LABEL_ID`,
+        `tt`.`FORECAST_METHOD_ID` AS `FORECAST_METHOD_ID`,
+        `tt`.`MONTHS_IN_PAST` AS `MONTHS_IN_PAST`,
+        `tt`.`MONTHS_IN_FUTURE` AS `MONTHS_IN_FUTURE`,
+        `tt`.`CREATED_BY` AS `CREATED_BY`,
+        `tt`.`CREATED_DATE` AS `CREATED_DATE`,
+        `tt`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `tt`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `tt`.`ACTIVE` AS `ACTIVE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_tree_template` `tt`
+        LEFT JOIN `ap_label` `l` ON ((`tt`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+
+ALTER TABLE `fasp`.`rm_tree_template_node_data` CHANGE COLUMN `MONTH` `MONTH` INT(10) NOT NULL COMMENT 'Indicates the month that this Data is for, is always a +ve number starting from 0 which is for the Start month. Cannot be greater than the MonthsInPast+MonthsInFuture+1' ;
+ALTER TABLE `fasp`.`rm_tree_template_node_data_modeling` CHANGE COLUMN `START_DATE` `START_DATE` INT(10) UNSIGNED NOT NULL COMMENT 'Start date that the Modeling is applicable from. Starts from the Forecast Program Start' , CHANGE COLUMN `STOP_DATE` `STOP_DATE` INT(10) UNSIGNED NOT NULL COMMENT 'Stop date that the Modeling is applicable from. Defaults to Forecast Program End but user can override' ;
+
+
+UPDATE rm_tree_template tt set tt.MONTHS_IN_PAST=0, tt.MONTHS_IN_FUTURE=36 WHERE tt.TREE_TEMPLATE_ID=1; 
+UPDATE rm_tree_template tt set tt.MONTHS_IN_PAST=0, tt.MONTHS_IN_FUTURE=24 WHERE tt.TREE_TEMPLATE_ID=2; 
+
+UPDATE rm_tree_template_node_data ttnd SET ttnd.MONTH=0;

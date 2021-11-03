@@ -99,13 +99,17 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
         List<DatasetData> datasetDataList = new LinkedList<>();
         programVersionList.forEach(pv -> {
+            int versionId = pv.getVersionId();
+            if (versionId == -1) {
+                versionId = this.programDataDao.getLatestVersionForProgram(pv.getProgramId());
+            }
             DatasetData dd = new DatasetData(this.programCommonDao.getProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser));
-            dd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), pv.getVersionId()));
-            dd.setTreeList(this.programDataDao.getTreeListForDataset(pv.getProgramId(), pv.getVersionId(), curUser));
+            dd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), versionId));
+            dd.setTreeList(this.programDataDao.getTreeListForDataset(pv.getProgramId(), versionId, curUser));
             dd.getTreeList().forEach(t -> {
                 t.setTree(this.programDataDao.getTreeData(t.getTreeId(), curUser));
             });
-            dd.setConsumptionList(this.programDataDao.getForecastConsumptionData(pv.getProgramId(), pv.getVersionId(), curUser));
+            dd.setConsumptionList(this.programDataDao.getForecastConsumptionData(pv.getProgramId(), versionId, curUser));
             datasetDataList.add(dd);
         });
         return datasetDataList;

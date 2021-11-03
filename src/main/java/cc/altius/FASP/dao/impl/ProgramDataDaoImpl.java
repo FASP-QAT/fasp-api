@@ -1916,7 +1916,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "      ORDER BY ttn.SORT_ORDER, ttnd.NODE_DATA_ID";
         Map<String, Object> params = new HashMap<>();
         params.put("treeId", treeId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new TreeNodeResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query(sql, params, new TreeNodeResultSetExtractor(false));
     }
 
     @Override

@@ -27,6 +27,8 @@ public class TreeNodeData implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date month;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private int monthNo;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double dataValue;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double calculatedDataValue;
@@ -54,6 +56,14 @@ public class TreeNodeData implements Serializable {
 
     public void setNodeDataId(int nodeDataId) {
         this.nodeDataId = nodeDataId;
+    }
+
+    public int getMonthNo() {
+        return monthNo;
+    }
+
+    public void setMonthNo(int monthNo) {
+        this.monthNo = monthNo;
     }
 
     public Date getMonth() {

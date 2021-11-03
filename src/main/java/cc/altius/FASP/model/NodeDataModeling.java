@@ -26,9 +26,13 @@ public class NodeDataModeling implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date startDate;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private int startDateNo;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date stopDate;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private int stopDateNo;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObject modelingType;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
@@ -61,12 +65,28 @@ public class NodeDataModeling implements Serializable {
         this.startDate = startDate;
     }
 
+    public int getStartDateNo() {
+        return startDateNo;
+    }
+
+    public void setStartDateNo(int startDateNo) {
+        this.startDateNo = startDateNo;
+    }
+
     public Date getStopDate() {
         return stopDate;
     }
 
     public void setStopDate(Date stopDate) {
         this.stopDate = stopDate;
+    }
+
+    public int getStopDateNo() {
+        return stopDateNo;
+    }
+
+    public void setStopDateNo(int stopDateNo) {
+        this.stopDateNo = stopDateNo;
     }
 
     public SimpleObject getModelingType() {
