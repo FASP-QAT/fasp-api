@@ -3075,3 +3075,20 @@ UPDATE rm_tree_template tt set tt.MONTHS_IN_PAST=0, tt.MONTHS_IN_FUTURE=36 WHERE
 UPDATE rm_tree_template tt set tt.MONTHS_IN_PAST=0, tt.MONTHS_IN_FUTURE=24 WHERE tt.TREE_TEMPLATE_ID=2; 
 
 UPDATE rm_tree_template_node_data ttnd SET ttnd.MONTH=0;
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.program.monthsInPast','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Months In Past');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois passés');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Meses en el pasado');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Meses No Passado');
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.program.monthsInFuture','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Months In Future');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois à venir');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Meses en el futuro');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Meses No Futuro');
