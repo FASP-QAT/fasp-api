@@ -408,26 +408,18 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El procesamiento del s
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O processamento do servidor foi concluído com sucesso. Atualizando a versão local');-- pr
 
 
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.syncProgram.laterVersionAvailable','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.syncProgram.loadAndDeleteWithUncommittedChanges','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For program {{programCode}}, there is later version available do you want to load the lastest version and delete this version');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour le programme {{programCode}}, une version ultérieure est disponible voulez-vous charger la dernière version et supprimer cette version');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para el programa {{programCode}}, hay una versión posterior disponible. ¿Desea cargar la última versión y eliminar esta versión?');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para o programa {{programCode}}, há uma versão posterior disponível. Você deseja carregar a última versão e excluir esta versão');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For program {{programCode}}, Do you want to load and delete? (Warning! you have uncommitted changes)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour le programme {{programCode}}, Voulez-vous charger et supprimer ? (Attention ! Vous avez des modifications non validées)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para el programa {{programCode}}, ¿Quieres cargar y borrar? (¡Advertencia! Tiene cambios no confirmados)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para o programa {{programCode}}, Você quer carregar e deletar? (Aviso! Você tem alterações não confirmadas)');-- pr
 
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.syncProgram.programwithsameversion','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.syncProgram.loadAndDeleteWithoutUncommittedChanges','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For program {{programCode}}, the latest version number already exists in the local machine. Do you want to overwrite that program with the new data?');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour le programme {{programCode}}, le dernier numéro de version existe déjà sur la machine locale. Voulez-vous écraser ce programme avec les nouvelles données ?');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para el programa {{programCode}}, el número de versión más reciente ya existe en la máquina local. ¿Quiere sobrescribir ese programa con los nuevos datos?');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para o programa {{programCode}}, o número da versão mais recente já existe na máquina local. Você deseja sobrescrever esse programa com os novos dados?');-- pr
-
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.syncProgram.confirmLoad','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For program {{programCode}}, You have modified the local latest version of this program.\n\nLocal changes not committed to the server will not be saved. Are you sure you want to overwrite local program?');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour le programme {{programCode}}, vous avez modifié la dernière version locale de ce programme.\n\nLes modifications locales non validées sur le serveur ne seront pas enregistrées. Voulez-vous vraiment écraser le programme local ?');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para el programa {{programCode}}, ha modificado la última versión local de este programa.\n\nLos cambios locales que no se hayan confirmado en el servidor no se guardarán. ¿Está seguro de que desea sobrescribir el programa local?');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para o programa {{programCode}}, você modificou a última versão local deste programa.\n\nAs alterações locais não confirmadas para o servidor não serão salvas. Tem certeza de que deseja substituir o programa local?');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For program {{programCode}}, Do you want to load and delete? (No server data will be deleted)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour le programme {{programCode}}, Voulez-vous charger et supprimer ? (Aucune donnée du serveur ne sera supprimée) ');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para el programa {{programCode}}, ¿Quieres cargar y borrar? (No se eliminarán los datos del servidor)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para o programa {{programCode}}, Você quer carregar e deletar? (Nenhum dado do servidor será excluído)');-- pr
