@@ -368,7 +368,7 @@ public class RealmCountryDaoImpl implements RealmCountryDao {
                     params.put("versionTypeId", 1);
                     params.put("versionStatusId", 1);
                     params.put("notes", null);
-                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, :curUser, :curDate)";
+                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, :curUser, :curDate)";
                     version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                     sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption`";
                     this.namedParameterJdbcTemplate.update(sqlString, params);

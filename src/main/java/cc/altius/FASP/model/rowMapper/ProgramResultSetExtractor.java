@@ -69,6 +69,10 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
                 ));
                 p.getCurrentVersion().setForecastStartDate(rs.getDate("CV_FORECAST_START_DATE"));
                 p.getCurrentVersion().setForecastStopDate(rs.getDate("CV_FORECAST_STOP_DATE"));
+                p.getCurrentVersion().setDaysInMonth(rs.getInt("DAYS_IN_MONTH"));
+                if (rs.wasNull()) {
+                    p.getCurrentVersion().setDaysInMonth(null);
+                }
                 p.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 p.setRegionList(new LinkedList<>());
                 p.setVersionList(new LinkedList<>());
@@ -96,6 +100,10 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
             );
             v.setForecastStartDate(rs.getDate("VT_FORECAST_START_DATE"));
             v.setForecastStopDate(rs.getDate("VT_FORECAST_STOP_DATE"));
+            v.setDaysInMonth(rs.getInt("VT_DAYS_IN_MONTH"));
+            if (rs.wasNull()) {
+                v.setDaysInMonth(null);
+            }
             if (p.getVersionList().indexOf(v) == -1) {
                 p.getVersionList().add(v);
             }

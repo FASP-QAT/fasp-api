@@ -31,6 +31,10 @@ public class VersionRowMapper implements RowMapper<Version> {
                 rs.getTimestamp("LAST_MODIFIED_DATE"));
         v.setForecastStartDate(rs.getDate("FORECAST_START_DATE"));
         v.setForecastStopDate(rs.getDate("FORECAST_STOP_DATE"));
+        v.setDaysInMonth(rs.getInt("DAYS_IN_MONTH"));
+        if (rs.wasNull()) {
+            v.setDaysInMonth(null);
+        }
         return v;
     }
 

@@ -47,6 +47,8 @@ public class Version implements Serializable {
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     @JsonView(Views.InternalView.class)
     private Date forecastStopDate;
+    @JsonView(Views.InternalView.class)
+    private Integer daysInMonth;
 
     public Version() {
     }
@@ -151,6 +153,14 @@ public class Version implements Serializable {
 
     public void setForecastStopDate(Date forecastStopDate) {
         this.forecastStopDate = forecastStopDate;
+    }
+
+    public Integer getDaysInMonth() {
+        return daysInMonth;
+    }
+
+    public void setDaysInMonth(Integer daysInMonth) {
+        this.daysInMonth = daysInMonth;
     }
 
     @Override
