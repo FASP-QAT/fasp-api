@@ -117,7 +117,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("programId", programId);
             versionId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
         }
-        String sqlString = "SELECT pv.VERSION_ID, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, "
+        String sqlString = "SELECT pv.VERSION_ID, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, pv.DAYS_IN_MONTH, "
                 + "    pv.PROGRAM_ID, pv.NOTES, pv.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, pv.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`,  "
                 + "    vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
                 + "    vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR` "
@@ -339,7 +339,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("versionTypeId", programData.getVersionType().getId());
             params.put("versionStatusId", programData.getVersionStatus().getId());
             params.put("notes", programData.getNotes());
-            sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, :curUser, :curDate)";
+            sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, :curUser, :curDate)";
 //            try {
             version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
             logger.info(version + " is the new version no");
@@ -583,7 +583,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", programData.getVersionType().getId());
                 params.put("versionStatusId", programData.getVersionStatus().getId());
                 params.put("notes", programData.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, :curUser, :curDate)";
 //                try {
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
@@ -892,7 +892,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", programData.getVersionType().getId());
                 params.put("versionStatusId", programData.getVersionStatus().getId());
                 params.put("notes", programData.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, :curUser, :curDate)";
 //                try {
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
@@ -1084,7 +1084,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 params.put("versionTypeId", programData.getVersionType().getId());
                 params.put("versionStatusId", programData.getVersionStatus().getId());
                 params.put("notes", programData.getNotes());
-                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, :curUser, :curDate)";
+                sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, :curUser, :curDate)";
 //                try {
                 version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                 logger.info(version + " is the new version no");
@@ -1103,7 +1103,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     params.put("versionTypeId", programData.getVersionType().getId());
                     params.put("versionStatusId", programData.getVersionStatus().getId());
                     params.put("notes", programData.getNotes());
-                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, :curUser, :curDate)";
+                    sqlString = "CALL getVersionId(:programId, :versionTypeId, :versionStatusId, :notes, null, null, null, :curUser, :curDate)";
 //                    try {
                     version = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, new VersionRowMapper());
                     logger.info(version + " is the new version no");

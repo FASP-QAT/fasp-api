@@ -3092,3 +3092,59 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Months In Future');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois à venir');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Meses en el futuro');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Meses No Futuro');
+
+ALTER TABLE `fasp`.`rm_program_version` ADD COLUMN `DAYS_IN_MONTH` INT(10) UNSIGNED NULL AFTER `FORECAST_STOP_DATE`;
+UPDATE `fasp`.`rm_program_version` SET `DAYS_IN_MONTH`='28' WHERE `PROGRAM_VERSION_ID`='1643';
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `getVersionId`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getVersionId`(PROGRAM_ID INT(10), VERSION_TYPE_ID INT(10), VERSION_STATUS_ID INT(10), NOTES TEXT, FORECAST_START_DATE DATETIME, FORECAST_STOP_DATE DATETIME, DAYS_IN_MONTH INT(10), CREATED_BY INT(10), CREATED_DATE DATETIME)
+BEGIN
+	SET @programId = PROGRAM_ID;
+	SET @cbUserId = CREATED_BY;
+	SET @createdDate = CREATED_DATE;
+	SET @versionTypeId = VERSION_TYPE_ID;
+	SET @versionStatusId = VERSION_STATUS_ID;
+    SET @forecastStartDate = FORECAST_START_DATE;
+    SET @forecastStopDate = FORECAST_STOP_DATE;
+    SET @daysInMonth = DAYS_IN_MONTH;
+	SET @notes = NOTES;
+    INSERT INTO `fasp`.`rm_program_version`
+        (`PROGRAM_ID`, `VERSION_ID`, `VERSION_TYPE_ID`, `VERSION_STATUS_ID`,
+        `NOTES`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`,
+        `SENT_TO_ARTMIS`, `FORECAST_START_DATE`, `FORECAST_STOP_DATE`, `DAYS_IN_MONTH`)
+    SELECT
+        @programId, IFNULL(MAX(pv.VERSION_ID)+1,1), @versionTypeId, @versionStatusId, 
+        @notes, @cbUserId, @createdDate, @cbUserId, @createdDate, 
+        0, @forecastStartDate, @forecastStopDate, @daysInMonth
+    FROM rm_program_version pv WHERE pv.`PROGRAM_ID`=@programId;
+	SELECT pv.VERSION_ID INTO @versionId FROM rm_program_version pv WHERE pv.`PROGRAM_VERSION_ID`= LAST_INSERT_ID();
+	UPDATE rm_program p SET p.CURRENT_VERSION_ID=@versionId WHERE p.PROGRAM_ID=@programId;
+	SELECT pv.VERSION_ID, pv.NOTES, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, pv.DAYS_IN_MONTH,
+		pv.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`,
+		pv.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`,
+		vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, 
+		vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR` 
+	FROM rm_program_version pv 
+	LEFT JOIN ap_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID
+	LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID 
+	LEFT JOIN ap_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID
+	LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID
+	LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID
+	LEFT JOIN us_user lmb ON pv.LAST_MODIFIED_BY=lmb.USER_ID
+	WHERE pv.VERSION_ID=@versionId AND pv.PROGRAM_ID=@programId;
+END$$
+
+DELIMITER ;
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.program.noOfDaysInMonth','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# Of Days In Month');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nombre de jours dans le mois');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# De días en el mes');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº de dias do mês');

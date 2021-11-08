@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -44,6 +45,8 @@ public class TreeNodeData implements Serializable {
     private List<NodeDataOverride> nodeDataOverrideList;
 
     public TreeNodeData() {
+        nodeDataModelingList = new LinkedList<>();
+        nodeDataOverrideList = new LinkedList<>();
     }
 
     public TreeNodeData(int nodeDataId) {
