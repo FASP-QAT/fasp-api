@@ -168,7 +168,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                     ndm.setStartDateNo(rs.getInt("MODELING_START_DATE"));
                     ndm.setStartDate(DateUtils.addMonths(curDate, ndm.getStartDateNo()));
                     ndm.setStopDateNo(rs.getInt("MODELING_STOP_DATE"));
-                    ndm.setStartDate(DateUtils.addMonths(curDate, ndm.getStopDateNo()));
+                    ndm.setStopDate(DateUtils.addMonths(curDate, ndm.getStopDateNo()));
                 } else {
                     ndm.setStartDate(rs.getDate("MODELING_START_DATE"));
                     ndm.setStopDate(rs.getDate("MODELING_STOP_DATE"));
@@ -180,7 +180,6 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 }
                 ndm.setNotes(rs.getString("MODELING_NOTES"));
                 ndm.setModelingType(new SimpleObject(rs.getInt("MODELING_TYPE_ID"), new LabelRowMapper("MODELING_TYPE_").mapRow(rs, 1)));
-//            ndm.setBaseModel(new BaseModelRowMapper("MODELING_").mapRow(rs, 1));
                 tnd.getNodeDataModelingList().add(ndm);
             }
         }

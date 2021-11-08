@@ -3148,3 +3148,12 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# Of Days In Month');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nombre de jours dans le mois');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# De días en el mes');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº de dias do mês');
+
+ALTER TABLE `fasp`.`rm_tree_template_node_data_modeling` CHANGE COLUMN `DATA_VALUE` `DATA_VALUE` DECIMAL(18,6) NULL DEFAULT NULL COMMENT 'Data value could be a number of a % based on the ModelingTypeId' ;
+
+INSERT INTO rm_tree_template_node_data_modeling values (null, 1, 0, 11, 3, 0.0875, null, ' An increase of 0.0875% every month which equates to a 1.05% increase every year', 1, now(), 1, now(), 1);
+INSERT INTO rm_tree_template_node_data_modeling values (null, 1, 12, 48, 3, 0.0975, null, ' An increase of 0.0975% every month which equates to a 1.05% increase every year', 1, now(), 1, now(), 1);
+INSERT INTO rm_tree_template_node_data_modeling values (null, 4, 0, 11, 4, 0.05, null, ' An increase of 0.05% of sexually active men every month which equates to a 1.05% increase every year', 1, now(), 1, now(), 1);
+INSERT INTO rm_tree_template_node_data_modeling values (null, 4, 12, 48, 4, 0.073, null, ' An increase of 0.073% of sexually active men every month which equates to a 1.05% increase every year', 1, now(), 1, now(), 1);
+INSERT INTO rm_tree_template_node_data_modeling values (null, 6, 0, 48, 2, -8750, 7, ' 8750 men move over from No logo to Strawberry condoms every month', 1, now(), 1, now(), 1);
+

@@ -147,6 +147,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data").usingGeneratedKeyColumns("NODE_DATA_ID");
         SimpleJdbcInsert nidf = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_fu").usingGeneratedKeyColumns("NODE_DATA_FU_ID");
         SimpleJdbcInsert nidp = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_pu").usingGeneratedKeyColumns("NODE_DATA_PU_ID");
+        SimpleJdbcInsert nidm = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_modeling");
         for (ForecastNode<TreeNode> n : tt.getTree().getFlatList()) {
             Map<String, Object> nodeParams = new HashMap<>();
             nodeParams.put("TREE_TEMPLATE_ID", treeTemplateId);
@@ -225,7 +226,19 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         this.namedParameterJdbcTemplate.update("UPDATE rm_tree_template_node_data SET NODE_DATA_PU_ID=:nodePuId WHERE NODE_DATA_ID=:nodeDataId", nodeParams);
                     }
                     for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
-                        // TODO insert into the TreeTemplate Modeling section
+                        nodeParams.put("NODE_DATA_ID", nodeDataId);
+                        nodeParams.put("START_DATE", ndm.getStartDateNo());
+                        nodeParams.put("STOP_DATE", ndm.getStopDateNo());
+                        nodeParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
+                        nodeParams.put("DATA_VALUE", ndm.getDataValue());
+                        nodeParams.put("TRANSFER_NODE_DATA_ID", ndm.getTransferNodeDataId());
+                        nodeParams.put("NOTES", ndm.getNotes());
+                        nodeParams.put("CREATED_BY", curUser.getUserId());
+                        nodeParams.put("CREATED_DATE", curDate);
+                        nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
+                        nodeParams.put("LAST_MODIFIED_DATE", curDate);
+                        nodeParams.put("ACTIVE", 1);
+                        nidm.execute(nodeParams);
                     }
                 }
             }
@@ -263,6 +276,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         this.namedParameterJdbcTemplate.update(sql, params);
         params.clear();
         params.put("treeTemplateId", tt.getTreeTemplateId());
+        this.namedParameterJdbcTemplate.update("DELETE ttndm.* FROM rm_tree_template_node_data_modeling ttndm LEFT JOIN rm_tree_template_node_data ttnd ON ttndm.NODE_DATA_ID=ttnd.NODE_DATA_ID LEFT JOIN rm_tree_template_node ttn ON ttnd.NODE_ID=ttn.NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
         this.namedParameterJdbcTemplate.update("DELETE ttnd.* FROM rm_tree_template_node_data ttnd LEFT JOIN rm_tree_template_node ttn ON ttnd.NODE_ID=ttn.NODE_ID WHERE ttn.TREE_TEMPLATE_ID=:treeTemplateId", params);
         this.namedParameterJdbcTemplate.update("DELETE ttndp.* FROM rm_tree_template_node_data_pu ttndp LEFT JOIN rm_tree_template_node_data ttnd ON ttndp.NODE_DATA_PU_ID=ttnd.NODE_DATA_PU_ID WHERE ttnd.NODE_DATA_PU_ID IS NULL", params);
         this.namedParameterJdbcTemplate.update("DELETE ttndf.* FROM rm_tree_template_node_data_fu ttndf LEFT JOIN rm_tree_template_node_data ttnd ON ttndf.NODE_DATA_FU_ID=ttnd.NODE_DATA_FU_ID WHERE ttnd.NODE_DATA_FU_ID IS NULL", params);
@@ -276,6 +290,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data").usingGeneratedKeyColumns("NODE_DATA_ID");
         SimpleJdbcInsert nidf = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_fu").usingGeneratedKeyColumns("NODE_DATA_FU_ID");
         SimpleJdbcInsert nidp = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_pu").usingGeneratedKeyColumns("NODE_DATA_PU_ID");
+        SimpleJdbcInsert nidm = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_modeling");
         for (ForecastNode<TreeNode> n : tt.getTree().getFlatList()) {
             Map<String, Object> nodeParams = new HashMap<>();
             nodeParams.put("TREE_TEMPLATE_ID", treeTemplateId);
@@ -354,7 +369,19 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         this.namedParameterJdbcTemplate.update("UPDATE rm_tree_template_node_data SET NODE_DATA_PU_ID=:nodePuId WHERE NODE_DATA_ID=:nodeDataId", nodeParams);
                     }
                     for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
-                        // TODO insert into the TreeTemplate Modeling section
+                        nodeParams.put("NODE_DATA_ID", nodeDataId);
+                        nodeParams.put("START_DATE", ndm.getStartDateNo());
+                        nodeParams.put("STOP_DATE", ndm.getStopDateNo());
+                        nodeParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
+                        nodeParams.put("DATA_VALUE", ndm.getDataValue());
+                        nodeParams.put("TRANSFER_NODE_DATA_ID", ndm.getTransferNodeDataId());
+                        nodeParams.put("NOTES", ndm.getNotes());
+                        nodeParams.put("CREATED_BY", curUser.getUserId());
+                        nodeParams.put("CREATED_DATE", curDate);
+                        nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
+                        nodeParams.put("LAST_MODIFIED_DATE", curDate);
+                        nodeParams.put("ACTIVE", 1);
+                        nidm.execute(nodeParams);
                     }
                 }
             }
