@@ -3075,6 +3075,24 @@ UPDATE rm_tree_template tt set tt.MONTHS_IN_PAST=0, tt.MONTHS_IN_FUTURE=36 WHERE
 UPDATE rm_tree_template tt set tt.MONTHS_IN_PAST=0, tt.MONTHS_IN_FUTURE=24 WHERE tt.TREE_TEMPLATE_ID=2; 
 
 UPDATE rm_tree_template_node_data ttnd SET ttnd.MONTH=0;
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.program.monthsInPast','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Months In Past');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois passés');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Meses en el pasado');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Meses No Passado');
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.program.monthsInFuture','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Months In Future');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois à venir');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Meses en el futuro');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Meses No Futuro');
+
 ALTER TABLE `fasp`.`rm_program_version` ADD COLUMN `DAYS_IN_MONTH` INT(10) UNSIGNED NULL AFTER `FORECAST_STOP_DATE`;
 UPDATE `fasp`.`rm_program_version` SET `DAYS_IN_MONTH`='28' WHERE `PROGRAM_VERSION_ID`='1643';
 
@@ -3122,6 +3140,14 @@ BEGIN
 END$$
 
 DELIMITER ;
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.program.noOfDaysInMonth','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# Of Days In Month');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nombre de jours dans le mois');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# De días en el mes');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº de dias do mês');
 
 ALTER TABLE `fasp`.`rm_tree_template_node_data_modeling` CHANGE COLUMN `DATA_VALUE` `DATA_VALUE` DECIMAL(18,6) NULL DEFAULT NULL COMMENT 'Data value could be a number of a % based on the ModelingTypeId' ;
 
