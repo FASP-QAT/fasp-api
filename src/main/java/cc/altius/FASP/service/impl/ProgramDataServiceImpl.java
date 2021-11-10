@@ -26,6 +26,8 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.ActualConsumptionDataInput;
+import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.ProblemService;
@@ -279,6 +281,16 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public String getLastModifiedDateForProgram(int programId, int versionId) {
         return this.programDataDao.getLastModifiedDateForProgram(programId, versionId);
+    }
+
+    @Override
+    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) {
+        Program p = this.programCommonDao.getProgramById(acd.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+            return this.programDataDao.getActualConsumptionDataInput(acd, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
     }
 
 }

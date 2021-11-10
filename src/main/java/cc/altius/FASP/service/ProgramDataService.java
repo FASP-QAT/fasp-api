@@ -19,6 +19,8 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.ActualConsumptionDataInput;
+import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import java.text.ParseException;
 import java.util.List;
 
@@ -67,4 +69,6 @@ public interface ProgramDataService {
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
 
     public String getLastModifiedDateForProgram(int programId, int versionId);
+    
+    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
 }

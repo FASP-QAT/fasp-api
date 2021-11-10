@@ -202,6 +202,8 @@ public class SyncRestController {
             MastersSync masters = new MastersSync();
             masters.setVersionTypeList(this.programDataService.getVersionTypeList());
             masters.setVersionStatusList(this.programDataService.getVersionStatusList());
+            masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSyncProgram(programIdsString, curUser)); //programIds, -- Done for Dataset
+            masters.setProgramPlanningUnitList(this.programService.getProgramPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
             
         return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {

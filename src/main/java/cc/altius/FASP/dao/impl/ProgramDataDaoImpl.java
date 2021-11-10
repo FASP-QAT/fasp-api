@@ -43,6 +43,9 @@ import cc.altius.FASP.model.SupplyPlanBatchInfo;
 import cc.altius.FASP.model.SupplyPlanDate;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.ActualConsumptionDataInput;
+import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
+import cc.altius.FASP.model.rowMapper.ActualConsumptionDataOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.BatchRowMapper;
 import cc.altius.FASP.model.rowMapper.ConsumptionListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.DatasetTreeResultSetExtractor;
@@ -1944,4 +1947,17 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         return this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), params, new ForecastConsumptionRowMapper());
     }
 
+    @Override
+    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", acd.getProgramId());
+        params.put("versionId", acd.getVersionId());
+        params.put("startDate", acd.getStartDate());
+        params.put("stopDate", acd.getStopDate());
+        params.put("planningUnitListString", acd.getPlanningUnitIdString());
+        params.put("regionListString", acd.getRegionIdString());
+        return this.namedParameterJdbcTemplate.query("CALL getSupplyPlanActualConsumption(:programId, :versionId, :planningUnitListString, :regionListString, :startDate, :stopDate)", params, new ActualConsumptionDataOutputRowMapper());
+    }
+
+    
 }
