@@ -1938,8 +1938,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "FROM rm_forecast_consumption fc "
                 + "LEFT JOIN vw_dataset p ON fc.PROGRAM_ID=p.PROGRAM_ID "
                 + "LEFT JOIN vw_forecast_consumption_unit fcu ON fc.CONSUMPTION_UNIT_ID=fcu.CONSUMPTION_UNIT_ID "
-                + "LEFT JOIN vw_forecasting_unit fu ON fcu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
                 + "LEFT JOIN vw_planning_unit pu ON fcu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
                 + "LEFT JOIN vw_region r ON fc.REGION_ID=r.REGION_ID "
                 + "LEFT JOIN us_user cb ON fc.CREATED_BY=cb.USER_ID "
                 + "WHERE fc.PROGRAM_ID=:programId AND fc.VERSION_ID=:versionId ");

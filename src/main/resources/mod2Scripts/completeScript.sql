@@ -3250,3 +3250,34 @@ VIEW `vw_forecast_tree` AS
     FROM
         (`rm_forecast_tree` `ft`
         LEFT JOIN `ap_label` `l` ON ((`ft`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+UPDATE `fasp`.`rm_forecast_consumption_unit` SET `PLANNING_UNIT_ID`='2733' WHERE `CONSUMPTION_UNIT_ID`='3';
+UPDATE `fasp`.`rm_forecast_consumption_unit` SET `PLANNING_UNIT_ID`='4159' WHERE `CONSUMPTION_UNIT_ID`='1';
+
+ALTER TABLE `fasp`.`rm_forecast_consumption_unit` DROP FOREIGN KEY `fk_rm_forecast_consumption_unit_planningUnitId`, DROP FOREIGN KEY `fk_rm_forecast_consumption_unit_forecastingUnitId`;
+ALTER TABLE `fasp`.`rm_forecast_consumption_unit` DROP COLUMN `FORECASTING_UNIT_ID`, CHANGE COLUMN `PLANNING_UNIT_ID` `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL , DROP INDEX `fk_rm_forecast_consumption_unit_forecastingUnitId_idx` ;
+ALTER TABLE `fasp`.`rm_forecast_consumption_unit` ADD CONSTRAINT `fk_rm_forecast_consumption_unit_planningUnitId` FOREIGN KEY (`PLANNING_UNIT_ID`) REFERENCES `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_forecast_consumption_unit` AS
+    SELECT 
+        `cu`.`CONSUMPTION_UNIT_ID` AS `CONSUMPTION_UNIT_ID`,
+        `cu`.`PROGRAM_ID` AS `PROGRAM_ID`,
+        `cu`.`DATA_TYPE` AS `DATA_TYPE`,
+        `cu`.`PLANNING_UNIT_ID` AS `PLANNING_UNIT_ID`,
+        `cu`.`OTHER_UNIT_LABEL_ID` AS `OTHER_UNIT_LABEL_ID`,
+        `cu`.`OTHER_UNIT_MULTIPLIER_FOR_FU` AS `OTHER_UNIT_MULTIPLIER_FOR_FU`,
+        `cu`.`VERSION_ID` AS `VERSION_ID`,
+        `cu`.`CREATED_BY` AS `CREATED_BY`,
+        `cu`.`CREATED_DATE` AS `CREATED_DATE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_forecast_consumption_unit` `cu`
+        LEFT JOIN `ap_label` `l` ON ((`cu`.`OTHER_UNIT_LABEL_ID` = `l`.`LABEL_ID`)));
