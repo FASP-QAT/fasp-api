@@ -13,6 +13,7 @@ import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.UpdateProgramVersion;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.Views;
+import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -369,6 +370,34 @@ public class ProgramDataRestController {
         } catch (Exception e) {
             logger.error("Error while trying to get last modified date for program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    // Used in Forecasting Unit import data from Supply Plan
+    /**
+     * <pre>
+     * Sample JSON {"programId": 2442, "versionId": 1, "planningUnitIds": ["1074","1082","2802"], "startDate": "2018-01-01", "stopDate":"2021-12-01", "regionIds":["70", "73", "74"]}
+     * -- Program Id must be a valid Supply Plan Program Id, cannot be -1 (Any)      *
+     * -- versionId must be a valid VersionId of that Program
+     * -- forecastingUnitIds must be a list of ForecastingUnits whose PlanningUnits you want the Consumption data for
+     * -- startDate and stopDate are required fields and indicate the start and stop dates that you want the consumption from
+     * -- regionIdList is the list of regionIds that you want the data from
+     * -- Return the list of Actual Consumption data for the given filters
+     * </pre>
+     *
+     * @param ActualConsumptionDataInput
+     * @param auth Authentication object from JWT
+     * @return ProgramProductCatalogOutput
+     */
+    @JsonView(Views.ReportView.class)
+    @PostMapping(value = "/program/actualConsumptionReport")
+    public ResponseEntity getProgramProductCatalog(@RequestBody ActualConsumptionDataInput acd, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.programDataService.getActualConsumptionDataInput(acd, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("/api/program/actualConsumptionReport", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -43,6 +43,9 @@ import cc.altius.FASP.model.SupplyPlanBatchInfo;
 import cc.altius.FASP.model.SupplyPlanDate;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.ActualConsumptionDataInput;
+import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
+import cc.altius.FASP.model.rowMapper.ActualConsumptionDataOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.BatchRowMapper;
 import cc.altius.FASP.model.rowMapper.ConsumptionListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.DatasetTreeResultSetExtractor;
@@ -1861,7 +1864,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "fm.LABEL_ID `FM_LABEL_ID`, fm.LABEL_EN `FM_LABEL_EN`, fm.LABEL_FR `FM_LABEL_FR`, fm.LABEL_SP `FM_LABEL_SP`, fm.LABEL_PR `FM_LABEL_PR`, "
                 + "s.SCENARIO_ID, s.LABEL_ID `S_LABEL_ID`, s.LABEL_EN `S_LABEL_EN`, s.LABEL_FR `S_LABEL_FR`, s.LABEL_SP `S_LABEL_SP`, s.LABEL_PR `S_LABEL_PR`, "
                 + "r.REGION_ID, r.LABEL_ID `REG_LABEL_ID`, r.LABEL_EN `REG_LABEL_EN`, r.LABEL_FR `REG_LABEL_FR`, r.LABEL_SP `REG_LABEL_SP`, r.LABEL_PR `REG_LABEL_PR`, "
-                + "ft.CREATED_DATE, ft.LAST_MODIFIED_DATE, ft.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME` "
+                + "ft.CREATED_DATE, ft.LAST_MODIFIED_DATE, ft.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ft.`NOTES` "
                 + "FROM vw_forecast_tree ft "
                 + "LEFT JOIN vw_forecast_method fm ON ft.FORECAST_METHOD_ID=fm.FORECAST_METHOD_ID "
                 + "LEFT JOIN vw_scenario s ON ft.TREE_ID=s.TREE_ID "
@@ -1935,8 +1938,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "FROM rm_forecast_consumption fc "
                 + "LEFT JOIN vw_dataset p ON fc.PROGRAM_ID=p.PROGRAM_ID "
                 + "LEFT JOIN vw_forecast_consumption_unit fcu ON fc.CONSUMPTION_UNIT_ID=fcu.CONSUMPTION_UNIT_ID "
-                + "LEFT JOIN vw_forecasting_unit fu ON fcu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
                 + "LEFT JOIN vw_planning_unit pu ON fcu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
                 + "LEFT JOIN vw_region r ON fc.REGION_ID=r.REGION_ID "
                 + "LEFT JOIN us_user cb ON fc.CREATED_BY=cb.USER_ID "
                 + "WHERE fc.PROGRAM_ID=:programId AND fc.VERSION_ID=:versionId ");
@@ -1944,4 +1947,17 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         return this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), params, new ForecastConsumptionRowMapper());
     }
 
+    @Override
+    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", acd.getProgramId());
+        params.put("versionId", acd.getVersionId());
+        params.put("startDate", acd.getStartDate());
+        params.put("stopDate", acd.getStopDate());
+        params.put("planningUnitListString", acd.getPlanningUnitIdString());
+        params.put("regionListString", acd.getRegionIdString());
+        return this.namedParameterJdbcTemplate.query("CALL getSupplyPlanActualConsumption(:programId, :versionId, :planningUnitListString, :regionListString, :startDate, :stopDate)", params, new ActualConsumptionDataOutputRowMapper());
+    }
+
+    
 }

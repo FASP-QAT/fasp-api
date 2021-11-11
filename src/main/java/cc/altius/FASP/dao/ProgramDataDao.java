@@ -25,6 +25,8 @@ import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.ActualConsumptionDataInput;
+import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import java.text.ParseException;
 import java.util.List;
 
@@ -89,4 +91,6 @@ public interface ProgramDataDao {
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser);
 
     public List<ForecastConsumption> getForecastConsumptionData(int programId, int versionId, CustomUserDetails curUser);
+    
+    public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
 }

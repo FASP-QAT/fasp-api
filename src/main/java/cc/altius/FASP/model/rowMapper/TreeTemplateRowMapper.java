@@ -33,6 +33,7 @@ public class TreeTemplateRowMapper implements RowMapper<TreeTemplate> {
         if (rs.wasNull()) {
             tt.setMonthsInFuture(null);
         }
+        tt.setNotes(rs.getString("NOTES"));
         tt.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
         return tt;
     }

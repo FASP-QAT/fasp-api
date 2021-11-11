@@ -23,6 +23,7 @@ public class TreeTemplate extends BaseModel implements Serializable {
     private Integer monthsInFuture;
     @JsonIgnore
     private ForecastTree<TreeNode> tree;
+    private String notes;
 
     public TreeTemplate() {
     }
@@ -85,6 +86,14 @@ public class TreeTemplate extends BaseModel implements Serializable {
 
     public void setTree(ForecastTree<TreeNode> tree) {
         this.tree = tree;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     public ForecastNode<TreeNode>[] getFlatList() {

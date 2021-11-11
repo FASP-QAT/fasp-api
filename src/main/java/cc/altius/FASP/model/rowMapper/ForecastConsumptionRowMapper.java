@@ -30,9 +30,7 @@ public class ForecastConsumptionRowMapper implements RowMapper<ForecastConsumpti
         fcu.setForecastConsumptionUnitId(rs.getInt("CONSUMPTION_UNIT_ID"));
         fcu.setDataType(rs.getInt("DATA_TYPE"));
         fcu.setForecastingUnit(new SimpleObjectWithMultiplier(rs.getInt("FORECASTING_UNIT_ID"), new LabelRowMapper("FU_").mapRow(rs, rowNum), 1));
-        if (fcu.getDataType()==2) {
-            fcu.setPlanningUnit(new SimpleObjectWithMultiplier(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, rowNum), rs.getDouble("PU_MULTIPLIER_FOR_FU")));
-        }
+        fcu.setPlanningUnit(new SimpleObjectWithMultiplier(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, rowNum), rs.getDouble("PU_MULTIPLIER_FOR_FU")));
         if (fcu.getDataType()==3) {
             fcu.setOtherUnit(new SimpleObjectWithMultiplier(0, new LabelRowMapper("OU_").mapRow(rs, rowNum), rs.getDouble("OU_MULTIPLIER_FOR_FU")));
         }

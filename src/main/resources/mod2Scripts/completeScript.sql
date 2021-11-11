@@ -3157,3 +3157,127 @@ INSERT INTO rm_tree_template_node_data_modeling values (null, 4, 0, 11, 4, 0.05,
 INSERT INTO rm_tree_template_node_data_modeling values (null, 4, 12, 48, 4, 0.073, null, ' An increase of 0.073% of sexually active men every month which equates to a 1.05% increase every year', 1, now(), 1, now(), 1);
 INSERT INTO rm_tree_template_node_data_modeling values (null, 6, 0, 48, 2, -8750, 7, ' 8750 men move over from No logo to Strawberry condoms every month', 1, now(), 1, now(), 1);
 
+USE `fasp`;
+DROP procedure IF EXISTS `getSupplyPlanActualConsumption`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getSupplyPlanActualConsumption`(PROGRAM_ID INT(10), VERSION_ID INT (10), PLANNING_UNIT_LIST TEXT, REGION_LIST VARCHAR(255), START_DATE DATE, STOP_DATE DATE)
+BEGIN
+	SET @programId = PROGRAM_ID;
+    SET @versionId = VERSION_ID;
+    SET @planningUnitList = PLANNING_UNIT_LIST;
+    SET @regionList = REGION_LIST;
+    SET @startDate = START_DATE;
+    SET @stopDate = STOP_DATE;  
+    
+    SELECT 
+        ct.CONSUMPTION_DATE, ct.CONSUMPTION_QTY, 
+        pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`,
+        r.REGION_ID, r.LABEL_ID `REG_LABEL_ID`, r.LABEL_EN `REG_LABEL_EN`, r.LABEL_FR `REG_LABEL_FR`, r.LABEL_SP `REG_LABEL_SP`, r.LABEL_PR `REG_LABEL_PR`
+    FROM (SELECT ct.CONSUMPTION_ID, MAX(ct.VERSION_ID) MAX_VERSION_ID FROM rm_consumption c LEFT JOIN rm_consumption_trans ct ON c.CONSUMPTION_ID=ct.CONSUMPTION_ID WHERE (ct.VERSION_ID<=@versionId) AND c.PROGRAM_ID=@programId GROUP BY ct.CONSUMPTION_ID) tc 
+    LEFT JOIN rm_consumption cons ON tc.CONSUMPTION_ID=cons.CONSUMPTION_ID
+    LEFT JOIN rm_consumption_trans ct ON tc.CONSUMPTION_ID=ct.CONSUMPTION_ID AND tc.MAX_VERSION_ID=ct.VERSION_ID
+    LEFT JOIN vw_planning_unit pu ON ct.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID
+    LEFT JOIN vw_region r ON ct.REGION_ID=r.REGION_ID
+    WHERE ct.CONSUMPTION_DATE BETWEEN @startDate AND @stopDate   
+    AND FIND_IN_SET(ct.PLANNING_UNIT_ID, @planningUnitList) 
+    AND ct.ACTIVE AND ct.ACTUAL_FLAG AND FIND_IN_SET(ct.REGION_ID, @regionList)
+    ORDER BY ct.PLANNING_UNIT_ID, ct.REGION_ID, ct.CONSUMPTION_DATE;
+END$$
+
+DELIMITER ;
+
+
+INSERT INTO ap_label VALUES (null, 'Linear (% point)', null, null, null, 1, now(), 1, now(), 41);
+SELECT last_insert_id() into @labelId;
+INSERT INTO ap_modeling_type values (null, @labelId, 1, 1, now(), 1, now());
+
+ALTER TABLE `fasp`.`rm_forecast_tree` ADD COLUMN `NOTES` TEXT NULL AFTER `ACTIVE`;
+ALTER TABLE `fasp`.`rm_tree_template` ADD COLUMN `NOTES` TEXT NULL AFTER `ACTIVE`;
+
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_tree_template` AS
+    SELECT 
+        `tt`.`TREE_TEMPLATE_ID` AS `TREE_TEMPLATE_ID`,
+        `tt`.`REALM_ID` AS `REALM_ID`,
+        `tt`.`LABEL_ID` AS `LABEL_ID`,
+        `tt`.`FORECAST_METHOD_ID` AS `FORECAST_METHOD_ID`,
+        `tt`.`MONTHS_IN_PAST` AS `MONTHS_IN_PAST`,
+        `tt`.`MONTHS_IN_FUTURE` AS `MONTHS_IN_FUTURE`,
+        `tt`.`CREATED_BY` AS `CREATED_BY`,
+        `tt`.`CREATED_DATE` AS `CREATED_DATE`,
+        `tt`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `tt`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `tt`.`ACTIVE` AS `ACTIVE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`,
+        `tt`.`NOTES` AS `NOTES`
+    FROM
+        (`rm_tree_template` `tt`
+        LEFT JOIN `ap_label` `l` ON ((`tt`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_forecast_tree` AS
+    SELECT 
+        `ft`.`TREE_ID` AS `TREE_ID`,
+        `ft`.`PROGRAM_ID` AS `PROGRAM_ID`,
+        `ft`.`VERSION_ID` AS `VERSION_ID`,
+        `ft`.`LABEL_ID` AS `LABEL_ID`,
+        `ft`.`FORECAST_METHOD_ID` AS `FORECAST_METHOD_ID`,
+        `ft`.`CREATED_BY` AS `CREATED_BY`,
+        `ft`.`CREATED_DATE` AS `CREATED_DATE`,
+        `ft`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `ft`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `ft`.`ACTIVE` AS `ACTIVE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`,
+        `ft`.`NOTES` AS `NOTES`
+    FROM
+        (`rm_forecast_tree` `ft`
+        LEFT JOIN `ap_label` `l` ON ((`ft`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+UPDATE `fasp`.`rm_forecast_consumption_unit` SET `PLANNING_UNIT_ID`='2733' WHERE `CONSUMPTION_UNIT_ID`='3';
+UPDATE `fasp`.`rm_forecast_consumption_unit` SET `PLANNING_UNIT_ID`='4159' WHERE `CONSUMPTION_UNIT_ID`='1';
+
+ALTER TABLE `fasp`.`rm_forecast_consumption_unit` DROP FOREIGN KEY `fk_rm_forecast_consumption_unit_planningUnitId`, DROP FOREIGN KEY `fk_rm_forecast_consumption_unit_forecastingUnitId`;
+ALTER TABLE `fasp`.`rm_forecast_consumption_unit` DROP COLUMN `FORECASTING_UNIT_ID`, CHANGE COLUMN `PLANNING_UNIT_ID` `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL , DROP INDEX `fk_rm_forecast_consumption_unit_forecastingUnitId_idx` ;
+ALTER TABLE `fasp`.`rm_forecast_consumption_unit` ADD CONSTRAINT `fk_rm_forecast_consumption_unit_planningUnitId` FOREIGN KEY (`PLANNING_UNIT_ID`) REFERENCES `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION;
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_forecast_consumption_unit` AS
+    SELECT 
+        `cu`.`CONSUMPTION_UNIT_ID` AS `CONSUMPTION_UNIT_ID`,
+        `cu`.`PROGRAM_ID` AS `PROGRAM_ID`,
+        `cu`.`DATA_TYPE` AS `DATA_TYPE`,
+        `cu`.`PLANNING_UNIT_ID` AS `PLANNING_UNIT_ID`,
+        `cu`.`OTHER_UNIT_LABEL_ID` AS `OTHER_UNIT_LABEL_ID`,
+        `cu`.`OTHER_UNIT_MULTIPLIER_FOR_FU` AS `OTHER_UNIT_MULTIPLIER_FOR_FU`,
+        `cu`.`VERSION_ID` AS `VERSION_ID`,
+        `cu`.`CREATED_BY` AS `CREATED_BY`,
+        `cu`.`CREATED_DATE` AS `CREATED_DATE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_forecast_consumption_unit` `cu`
+        LEFT JOIN `ap_label` `l` ON ((`cu`.`OTHER_UNIT_LABEL_ID` = `l`.`LABEL_ID`)));
