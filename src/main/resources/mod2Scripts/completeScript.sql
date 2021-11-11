@@ -1662,10 +1662,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Criar modelo de árvor
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.scenarioName','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Scenarion Name');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nom du scénario');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nombre del escenario');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nome do Cenário');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Scenarios');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Scénarios');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Escenarios');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Cenários');
 
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.region','1');
