@@ -270,7 +270,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("versionStatusId", 1);
         params.put("notes", "");
         Version version = new Version();
-        version = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId,:versionTypeId,:versionStatusId,:notes,null,null,:curUser, :curDate)", params, new VersionRowMapper());
+        version = this.namedParameterJdbcTemplate.queryForObject("CALL getVersionId(:programId,:versionTypeId,:versionStatusId,:notes,null,null,null,:curUser,:curDate)", params, new VersionRowMapper());
         params.put("versionId", version.getVersionId());
         this.namedParameterJdbcTemplate.update("UPDATE rm_program SET CURRENT_VERSION_ID=:versionId WHERE PROGRAM_ID=:programId", params);
         return programId;
