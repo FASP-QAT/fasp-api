@@ -3188,3 +3188,65 @@ END$$
 
 DELIMITER ;
 
+
+INSERT INTO ap_label VALUES (null, 'Linear (% point)', null, null, null, 1, now(), 1, now(), 41);
+SELECT last_insert_id() into @labelId;
+INSERT INTO ap_modeling_type values (null, @labelId, 1, 1, now(), 1, now());
+
+ALTER TABLE `fasp`.`rm_forecast_tree` ADD COLUMN `NOTES` TEXT NULL AFTER `ACTIVE`;
+ALTER TABLE `fasp`.`rm_tree_template` ADD COLUMN `NOTES` TEXT NULL AFTER `ACTIVE`;
+
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_tree_template` AS
+    SELECT 
+        `tt`.`TREE_TEMPLATE_ID` AS `TREE_TEMPLATE_ID`,
+        `tt`.`REALM_ID` AS `REALM_ID`,
+        `tt`.`LABEL_ID` AS `LABEL_ID`,
+        `tt`.`FORECAST_METHOD_ID` AS `FORECAST_METHOD_ID`,
+        `tt`.`MONTHS_IN_PAST` AS `MONTHS_IN_PAST`,
+        `tt`.`MONTHS_IN_FUTURE` AS `MONTHS_IN_FUTURE`,
+        `tt`.`CREATED_BY` AS `CREATED_BY`,
+        `tt`.`CREATED_DATE` AS `CREATED_DATE`,
+        `tt`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `tt`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `tt`.`ACTIVE` AS `ACTIVE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`,
+        `tt`.`NOTES` AS `NOTES`
+    FROM
+        (`rm_tree_template` `tt`
+        LEFT JOIN `ap_label` `l` ON ((`tt`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_forecast_tree` AS
+    SELECT 
+        `ft`.`TREE_ID` AS `TREE_ID`,
+        `ft`.`PROGRAM_ID` AS `PROGRAM_ID`,
+        `ft`.`VERSION_ID` AS `VERSION_ID`,
+        `ft`.`LABEL_ID` AS `LABEL_ID`,
+        `ft`.`FORECAST_METHOD_ID` AS `FORECAST_METHOD_ID`,
+        `ft`.`CREATED_BY` AS `CREATED_BY`,
+        `ft`.`CREATED_DATE` AS `CREATED_DATE`,
+        `ft`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `ft`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `ft`.`ACTIVE` AS `ACTIVE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`,
+        `ft`.`NOTES` AS `NOTES`
+    FROM
+        (`rm_forecast_tree` `ft`
+        LEFT JOIN `ap_label` `l` ON ((`ft`.`LABEL_ID` = `l`.`LABEL_ID`)));

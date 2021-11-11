@@ -27,6 +27,8 @@ public class DatasetTree extends BaseModel {
     private List<SimpleObject> scenarioList;
     @JsonView(Views.InternalView.class)
     private List<SimpleObject> regionList;
+    @JsonView(Views.InternalView.class)
+    private String notes;
 
     public DatasetTree() {
         this.scenarioList = new LinkedList<>();
@@ -83,6 +85,14 @@ public class DatasetTree extends BaseModel {
 
     public void setRegionList(List<SimpleObject> regionList) {
         this.regionList = regionList;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     @Override

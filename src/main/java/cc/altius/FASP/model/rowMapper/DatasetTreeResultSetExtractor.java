@@ -27,6 +27,7 @@ public class DatasetTreeResultSetExtractor implements ResultSetExtractor<List<Da
         while (rs.next()) {
             DatasetTree t = new DatasetTree();
             t.setTreeId(rs.getInt("TREE_ID"));
+            t.setNotes(rs.getString("NOTES"));
             int idx = treeList.indexOf(t);
             if (idx == -1) {
                 t.setForecastMethod(new SimpleObjectWithType(rs.getInt("FORECAST_METHOD_ID"), new LabelRowMapper("FM_").mapRow(rs, 1), rs.getInt("FORECAST_METHOD_TYPE_ID")));
