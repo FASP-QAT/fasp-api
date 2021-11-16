@@ -3284,3 +3284,6 @@ VIEW `vw_forecast_consumption_unit` AS
     FROM
         (`rm_forecast_consumption_unit` `cu`
         LEFT JOIN `ap_label` `l` ON ((`cu`.`OTHER_UNIT_LABEL_ID` = `l`.`LABEL_ID`)));
+UPDATE `fasp`.`rm_forecast_tree_node_data_modeling` SET `MODELING_TYPE_ID`='5', `DATA_VALUE`='-0.5' WHERE `NODE_DATA_MODELING_ID`='5';
+UPDATE `fasp`.`rm_forecast_tree_node_data_modeling` SET `MODELING_TYPE_ID`='5' WHERE `NODE_DATA_MODELING_ID`='3';
+UPDATE `fasp`.`rm_forecast_tree_node_data_modeling` SET `MODELING_TYPE_ID`='5' WHERE `NODE_DATA_MODELING_ID`='4';
