@@ -411,15 +411,15 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O processamento do ser
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.syncProgram.loadAndDeleteWithUncommittedChanges','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For program {{programCode}}, Do you want to load and delete? (Warning! you have uncommitted changes)');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour le programme {{programCode}}, Voulez-vous charger et supprimer ? (Attention ! Vous avez des modifications non validées)');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para el programa {{programCode}}, ¿Quieres cargar y borrar? (¡Advertencia! Tiene cambios no confirmados)');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para o programa {{programCode}}, Você quer carregar e deletar? (Aviso! Você tem alterações não confirmadas)');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For program {{programCode}}, There is a most recent server version. Do you want to load and delete? (Warning! you have uncommitted changes)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour le programme {{programCode}}, il existe une version du serveur la plus récente. Voulez-vous charger et supprimer ? (Attention ! Vous avez des modifications non validées)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para el programa {{programCode}}, hay una versión de servidor más reciente. ¿Quieres cargar y borrar? (¡Advertencia! Tiene cambios no confirmados)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para o programa {{programCode}}, existe uma versão mais recente do servidor. Você quer carregar e deletar? (Aviso! Você tem alterações não confirmadas)');-- pr
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.syncProgram.loadAndDeleteWithoutUncommittedChanges','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For program {{programCode}}, Do you want to load and delete? (No server data will be deleted)');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour le programme {{programCode}}, Voulez-vous charger et supprimer ? (Aucune donnée du serveur ne sera supprimée) ');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para el programa {{programCode}}, ¿Quieres cargar y borrar? (No se eliminarán los datos del servidor)');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para o programa {{programCode}}, Você quer carregar e deletar? (Nenhum dado do servidor será excluído)');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For program {{programCode}}, There is a most recent server version. Do you want to load and delete? (No server data will be deleted)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour le programme {{programCode}}, il existe une version du serveur la plus récente. Voulez-vous charger et supprimer ? (Aucune donnée du serveur ne sera supprimée)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para el programa {{programCode}}, hay una versión de servidor más reciente. ¿Quieres cargar y borrar? (No se eliminarán los datos del servidor)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para o programa {{programCode}}, existe uma versão mais recente do servidor. Você quer carregar e deletar? (Nenhum dado do servidor será excluído)');-- pr

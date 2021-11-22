@@ -133,6 +133,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                     getNewSupplyPlanList(spcr.getProgram().getId(), version.getVersionId(), true, false);
                     if (version.getVersionId() != 0) {
                         this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 2, "", version.getVersionId());
+                    } else {
+                        version = this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 3, "No new changes found", 0);
                     }
                     if (version.getVersionId() != 0 && spcr.isSaveData()) {
                         if (spcr.getVersionType().getId() == 2) {
