@@ -3287,3 +3287,271 @@ VIEW `vw_forecast_consumption_unit` AS
 UPDATE `fasp`.`rm_forecast_tree_node_data_modeling` SET `MODELING_TYPE_ID`='5', `DATA_VALUE`='-0.5' WHERE `NODE_DATA_MODELING_ID`='5';
 UPDATE `fasp`.`rm_forecast_tree_node_data_modeling` SET `MODELING_TYPE_ID`='5' WHERE `NODE_DATA_MODELING_ID`='3';
 UPDATE `fasp`.`rm_forecast_tree_node_data_modeling` SET `MODELING_TYPE_ID`='5' WHERE `NODE_DATA_MODELING_ID`='4';
+
+
+
+INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Add Import From QAT Supply Plan',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'24');
+SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
+INSERT INTO `fasp`.`us_business_function`(`BUSINESS_FUNCTION_ID`,`LABEL_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( 'ROLE_BF_ADD_IMPORT_FROM_QAT_SUPPLY_PLAN',@MAX,'1',NOW(),'1',NOW());
+
+INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Edit Import From QAT Supply Plan',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'24');
+SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
+INSERT INTO `fasp`.`us_business_function`(`BUSINESS_FUNCTION_ID`,`LABEL_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( 'ROLE_BF_EDIT_IMPORT_FROM_QAT_SUPPLY_PLAN',@MAX,'1',NOW(),'1',NOW());
+
+INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'List Import From QAT Supply Plan',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'24');
+SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
+INSERT INTO `fasp`.`us_business_function`(`BUSINESS_FUNCTION_ID`,`LABEL_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( 'ROLE_BF_LIST_IMPORT_FROM_QAT_SUPPLY_PLAN',@MAX,'1',NOW(),'1',NOW());
+
+
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_REALM_ADMIN','ROLE_BF_ADD_IMPORT_FROM_QAT_SUPPLY_PLAN','1',NOW(),'1',NOW());
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_REALM_ADMIN','ROLE_BF_EDIT_IMPORT_FROM_QAT_SUPPLY_PLAN','1',NOW(),'1',NOW());
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_REALM_ADMIN','ROLE_BF_LIST_IMPORT_FROM_QAT_SUPPLY_PLAN','1',NOW(),'1',NOW());
+
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.importFromQATSupplyPlan','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Import From QAT Supply Plan');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Importer du plan d approvisionnement QAT');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Importar desde el plan de suministro QAT');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Importar do plano de abastecimento QAT');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.ProgramAndPlanningUnits','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program and Planning Units');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unités de programme et de planification');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Unidades de programación y planificación');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Programa e unidades de planejamento');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.belongsSameCountry','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Supply Plan Program and Forecast Program should belong to same Country');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Le programme de plan d approvisionnement et le programme de prévision doivent appartenir au même pays');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El programa del plan de suministro y el programa de previsión deben pertenecer al mismo país');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O Programa de Plano de Abastecimento e o Programa de Previsão devem pertencer ao mesmo país');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.selectSupplyPlanProgram','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select supply plan program');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner le programme de plan d approvisionnement');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione el programa del plan de suministros');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione o programa de plano de abastecimento');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.pleaseSelectSupplyPlanVersion','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select supply plan version');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner la version du plan d approvisionnement');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione la versión del plan de suministros');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione a versão do plano de abastecimento');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.pleaseSelectForecastProgram','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select forecast program');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner le programme de prévision');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione el programa de previsión');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione o programa de previsão');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.supplyPlanPlanningUnit','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Supply Plan Planning Unit');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unité de planification du plan d approvisionnement');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Unidad de planificación del plan de suministro');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Unidade de Planejamento do Plano de Abastecimento');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.forecastPlanningUnit','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Planning Unit');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unité de planification des prévisions');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Unidad de planificación de previsiones');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Unidade de planejamento de previsão');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.conversionFactor','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Conversion Factor (Supply Plan to Forecast Planning Unit)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Facteur de conversion (plan d approvisionnement en unité de planification prévisionnelle)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Factor de conversión (plan de suministro a unidad de planificación de previsión)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Fator de conversão (plano de fornecimento para unidade de planejamento de previsão)');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.supplyPlanProgram','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Supply Plan Program');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'équivalence');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'equivalencia');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'equivalência');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.supplyPlanVersion','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Supply Plan Version');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Programme de plan d approvisionnement');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Programa de plan de suministro');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Programa de Plano de Abastecimento');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.forecastProgram','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Program');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Programme de prévision');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Programa de previsión');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Programa de previsão');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.Range','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Range');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Varier');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Distancia');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Faixa');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.supplyPlanRegion','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Supply Plan Region');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Région du plan d approvisionnement');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Región del plan de suministro');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'equivalência');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.isRegionInForecastProgram','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Is region in forecast program?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La région est-elle dans le programme de prévision ?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'¿Está la región en el programa de pronóstico?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A região está no programa de previsão?');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.Import','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Import');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Importer');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Importar');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Importar');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.noRegionToImportInto','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No region to import into');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aucune région dans laquelle importer');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'No hay región a la que importar');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nenhuma região para importar para');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.supplyPlanConsumption','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Supply Plan Consumption');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Plan d approvisionnement Consommation');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Plan d approvisionnement Consommation');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consumo do Plano de Abastecimento');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.multiplier','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Multiplier');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Multiplicateur');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Multiplicadora');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Multiplicadora');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.currentQATConsumption','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Current QAT Consumption');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Consommation QAT actuelle');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consommation QAT actuelle');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consumo atual de QAT');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.confirmAlert','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Selected rows will be imported. Note that imported data will override any existing consumption for those months, region & planning units.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les lignes sélectionnées seront importées. Notez que les données importées remplaceront toute consommation existante pour ces mois, régions et unités de planification.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se importarán las filas seleccionadas. Tenga en cuenta que los datos importados anularán cualquier consumo existente para esos meses, regiones y unidades de planificación.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'As linhas selecionadas serão importadas. Observe que os dados importados substituirão qualquer consumo existente para esses meses, regiões e unidades de planejamento.');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.actualConsumption(SupplyPlanModule)','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Actual Consumption(Supply Plan Module)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Consommation réelle (module de plan d approvisionnement)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consumo real (módulo de plan de suministro)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consumo real (Módulo de Plano de Abastecimento)');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.conversionFactor(SupplyPlantoForecast)','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Conversion Factor(Supply Plan to Forecast)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Facteur de conversion (plan d approvisionnement à prévision)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Factor de conversión (plan de suministro a pronóstico)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Fator de conversão (plano de fornecimento para previsão)');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.convertedActualConsumption(SupplyPlanModule)','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Converted Actual Consumption(Supply Plan Module)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Consommation réelle convertie (module de plan d approvisionnement)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consumo real convertido (módulo de plan de suministro)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consumo real convertido (Módulo de Plano de Abastecimento)');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.currentActualConsumption(ForecastModule)','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Current Actual Consumption(Forecast Module)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Consommation réelle actuelle (module de prévision)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consumo real actual (módulo de pronóstico)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consumo real atual (módulo de previsão)');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.dataAlreadyExistsInForecastProgram','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Data already exists in Forecast Program');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les données existent déjà dans le programme de prévision');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Los datos ya existen en el programa de previsión');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Os dados já existem no programa de previsão');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.importFromQATSupplyPlan.allValuesBelowAreInSupplyPlanningUnits.','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'All values below are in supply planning units.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Toutes les valeurs ci-dessous sont exprimées en unités de planification des approvisionnements.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Todos los valores siguientes están en unidades de planificación de aprovisionamiento.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Todos os valores abaixo estão em unidades de planejamento de abastecimento.');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.versionSettings.ForecastPeriodInMonth','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Period (Months)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Période de prévision (mois)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Período de previsión (meses)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Período de previsão (meses)');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.versionSettings.freight%','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Freight %');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Cargaison %');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Transporte %');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'% De frete');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.versionSettings.forecastThresholdHigh','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Threshold (high, %)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Seuil de prévision (élevé, %)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Umbral de pronóstico (alto,%)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Limite de previsão (alto,%)');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.versionSettings.ForecastThresholdLow','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Threshold (low, %)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Seuil de prévision (bas, %)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Umbral de pronóstico (bajo,%)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Limite de previsão (baixo,%)');
