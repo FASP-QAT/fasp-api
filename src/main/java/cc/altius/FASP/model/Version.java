@@ -49,6 +49,13 @@ public class Version implements Serializable {
     private Date forecastStopDate;
     @JsonView(Views.InternalView.class)
     private Integer daysInMonth;
+    @JsonView(Views.InternalView.class)
+    private Double freightPerc;
+    @JsonView(Views.InternalView.class)
+    private Double forecastThresholdHighPerc;
+    @JsonView(Views.InternalView.class)
+    private Double forecastThresholdLowPerc;
+    
 
     public Version() {
     }
@@ -161,6 +168,30 @@ public class Version implements Serializable {
 
     public void setDaysInMonth(Integer daysInMonth) {
         this.daysInMonth = daysInMonth;
+    }
+
+    public Double getFreightPerc() {
+        return freightPerc;
+    }
+
+    public void setFreightPerc(Double freightPerc) {
+        this.freightPerc = freightPerc;
+    }
+
+    public Double getForecastThresholdHighPerc() {
+        return forecastThresholdHighPerc;
+    }
+
+    public void setForecastThresholdHighPerc(Double forecastThresholdHighPerc) {
+        this.forecastThresholdHighPerc = forecastThresholdHighPerc;
+    }
+
+    public Double getForecastThresholdLowPerc() {
+        return forecastThresholdLowPerc;
+    }
+
+    public void setForecastThresholdLowPerc(Double forecastThresholdLowPerc) {
+        this.forecastThresholdLowPerc = forecastThresholdLowPerc;
     }
 
     @Override

@@ -73,6 +73,18 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
                 if (rs.wasNull()) {
                     p.getCurrentVersion().setDaysInMonth(null);
                 }
+                p.getCurrentVersion().setFreightPerc(rs.getDouble("FREIGHT_PERC"));
+                if(rs.wasNull()) {
+                    p.getCurrentVersion().setFreightPerc(null);
+                }
+                p.getCurrentVersion().setForecastThresholdHighPerc(rs.getDouble("FORECAST_THRESHOLD_HIGH_PERC"));
+                if(rs.wasNull()) {
+                    p.getCurrentVersion().setForecastThresholdHighPerc(null);
+                }
+                p.getCurrentVersion().setForecastThresholdLowPerc(rs.getDouble("FORECAST_THRESHOLD_HIGH_PERC"));
+                if(rs.wasNull()) {
+                    p.getCurrentVersion().setForecastThresholdLowPerc(null);
+                }
                 p.setBaseModel(new BaseModelRowMapper().mapRow(rs, 1));
                 p.setRegionList(new LinkedList<>());
                 p.setVersionList(new LinkedList<>());
@@ -103,6 +115,18 @@ public class ProgramResultSetExtractor implements ResultSetExtractor<Program> {
             v.setDaysInMonth(rs.getInt("VT_DAYS_IN_MONTH"));
             if (rs.wasNull()) {
                 v.setDaysInMonth(null);
+            }
+            v.setFreightPerc(rs.getDouble("VT_FREIGHT_PERC"));
+            if (rs.wasNull()) {
+                v.setFreightPerc(null);
+            }
+            v.setForecastThresholdHighPerc(rs.getDouble("VT_FORECAST_THRESHOLD_HIGH_PERC"));
+            if (rs.wasNull()) {
+                v.setForecastThresholdHighPerc(null);
+            }
+            v.setForecastThresholdLowPerc(rs.getDouble("VT_FORECAST_THRESHOLD_LOW_PERC"));
+            if (rs.wasNull()) {
+                v.setForecastThresholdLowPerc(null);
             }
             if (p.getVersionList().indexOf(v) == -1) {
                 p.getVersionList().add(v);
