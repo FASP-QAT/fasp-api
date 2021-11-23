@@ -423,3 +423,13 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For program {{programC
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour le programme {{programCode}}, il existe une version du serveur la plus récente. Voulez-vous charger et supprimer ? (Aucune donnée du serveur ne sera supprimée)');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para el programa {{programCode}}, hay una versión de servidor más reciente. ¿Quieres cargar y borrar? (No se eliminarán los datos del servidor)');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Para o programa {{programCode}}, existe uma versão mais recente do servidor. Você quer carregar e deletar? (Nenhum dado do servidor será excluído)');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.requestAlreadyExists','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Commit Request already exists please wait for the existing request to get completed');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La demande de validation existe déjà, veuillez attendre que la demande existante soit terminée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La solicitud de confirmación ya existe, espere a que se complete la solicitud existente');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A solicitação de confirmação já existe, aguarde até que a solicitação existente seja concluída');-- pr
+
+
