@@ -31,6 +31,7 @@ import cc.altius.FASP.model.DTO.rowMapper.NotERPLinkedShipmentsRowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.NotificationSummaryDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ProgramDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ShipmentNotificationDTORowMapper;
+import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
@@ -41,6 +42,7 @@ import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.Views;
+import cc.altius.FASP.model.rowMapper.DatasetPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.LoadProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.LoadProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.LoadProgramVersionRowMapper;
@@ -888,9 +890,7 @@ public class ProgramDaoImpl implements ProgramDao {
         logger.info("ERP Linking : updated conversion factor and notes rows---" + rowsUpdated);
 
 //            System.out.println("conversion factor---" + manualTaggingOrderDTO.getConversionFactor());
-       
 //            long convertedQty = ((new BigDecimal(manualTaggingOrderDTO.getQuantity())).multiply(manualTaggingOrderDTO.getConversionFactor())).longValueExact();
-
         long convertedQty = (long) Math.round((double) manualTaggingOrderDTO.getQuantity() * manualTaggingOrderDTO.getConversionFactor());
         logger.info("ERP Linking : convertedQty---" + convertedQty);
         logger.info("ERP Linking : rate---" + map.get("RATE"));
@@ -898,16 +898,16 @@ public class ProgramDaoImpl implements ProgramDao {
 //        double rate = Double.parseDouble(map.get("RATE").toString());
         sql = "SELECT e.`PRICE` FROM rm_erp_order e WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=? "
                 + " ORDER BY e.`ERP_ORDER_ID` DESC LIMIT 1;";
-        double rate = this.jdbcTemplate.queryForObject(sql,Double.class, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
+        double rate = this.jdbcTemplate.queryForObject(sql, Double.class, manualTaggingOrderDTO.getOrderNo(), manualTaggingOrderDTO.getPrimeLineNo());
         logger.info("ERP Linking : calculated rate---" + rate);
         double finalRate = (rate / manualTaggingOrderDTO.getConversionFactor());
         logger.info("ERP Linking : calculated final rate---" + finalRate);
         double productCost = finalRate * (double) convertedQty;
         logger.info("ERP Linking : final product cost---" + productCost);
-         sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`RATE`=?,st.`PRODUCT_COST`=?, "
+        sql = "UPDATE rm_shipment_trans st  SET st.`SHIPMENT_QTY`=?,st.`RATE`=?,st.`PRODUCT_COST`=?, "
                 + "st.`LAST_MODIFIED_DATE`=?,st.`LAST_MODIFIED_BY`=?,st.`NOTES`=? "
                 + "WHERE st.`SHIPMENT_TRANS_ID`=?;";
-        rowsUpdated = this.jdbcTemplate.update(sql, Math.round(convertedQty),finalRate, productCost, curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
+        rowsUpdated = this.jdbcTemplate.update(sql, Math.round(convertedQty), finalRate, productCost, curDate, curUser.getUserId(), manualTaggingOrderDTO.getNotes(), (long) map.get("SHIPMENT_TRANS_ID"));
         logger.info("ERP Linking : updated shipment trans---" + rowsUpdated);
         return -1;
     }
@@ -2681,5 +2681,29 @@ public class ProgramDaoImpl implements ProgramDao {
         return id;
     }
 
-    
+    @Override
+    public List<DatasetPlanningUnit> getDatasetPlanningUnitList(int programId, int versionId) {
+         String sqlString = "SELECT  "
+                + "    dpu.PROGRAM_PLANNING_UNIT_ID, dpu.CONSUMPTION_FORECAST, dpu.TREE_FORECAST, "
+                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR, "
+                + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
+                + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PC_LABEL_ID`, pc.LABEL_EN `PC_LABEL_EN`, pc.LABEL_FR `PC_LABEL_FR`, pc.LABEL_SP `PC_LABEL_SP`, pc.LABEL_PR `PC_LABEL_PR`,  "
+                + "    dpu.STOCK, dpu.EXISTING_SHIPMENTS, dpu.MONTHS_OF_STOCK,  "
+                + "    pa.PROCUREMENT_AGENT_ID, pa.LABEL_ID `PA_LABEL_ID`, pa.LABEL_EN `PA_LABEL_EN`, pa.LABEL_FR `PA_LABEL_FR`, pa.LABEL_SP `PA_LABEL_SP`, pa.LABEL_PR `PA_LABEL_PR`, pa.PROCUREMENT_AGENT_CODE, "
+                + "    dpu.PRICE "
+                + "     "
+                + " FROM rm_dataset_planning_unit dpu  "
+                + " LEFT JOIN vw_planning_unit pu ON dpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + " LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + " LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
+                + " LEFT JOIN vw_procurement_agent pa ON dpu.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID "
+                + " where dpu.PROGRAM_ID=:programId and dpu.VERSION_ID=:versionId";
+         
+         Map<String, Object> params = new HashMap<String, Object>();
+         params.put("programId", programId);
+         params.put("versionId", versionId);
+         return this.namedParameterJdbcTemplate.query(sqlString, params, new DatasetPlanningUnitRowMapper());
+         
+    }
+
 }

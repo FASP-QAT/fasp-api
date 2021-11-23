@@ -3341,3 +3341,28 @@ END$$
 
 DELIMITER ;
 
+CREATE TABLE `rm_dataset_planning_unit` (
+  `PROGRAM_PLANNING_UNIT_ID` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `PROGRAM_ID` int(10) unsigned NOT NULL,
+  `VERSION_ID` int(10) unsigned NOT NULL,
+  `PLANNING_UNIT_ID` int(10) unsigned NOT NULL,
+  `CONSUMPTION_FORECAST` tinyint(1) unsigned NOT NULL,
+  `TREE_FORECAST` tinyint(1) unsigned NOT NULL,
+  `STOCK` int(10) DEFAULT NULL,
+  `EXISTING_SHIPMENTS` int(10) DEFAULT NULL,
+  `MONTHS_OF_STOCK` int(10) unsigned DEFAULT NULL,
+  `PROCUREMENT_AGENT_ID` int(10) unsigned DEFAULT NULL,
+  `PRICE` decimal(16,4) unsigned DEFAULT NULL,
+  PRIMARY KEY (`PROGRAM_PLANNING_UNIT_ID`),
+  KEY `fk_rm_dataset_planning_unit_programId_idx` (`PROGRAM_ID`),
+  KEY `fk_rm_dataset_planning_unit_planningUnitId_idx` (`PLANNING_UNIT_ID`),
+  KEY `fk_rm_dataset_planning_unit_procurementAgentId_idx` (`PROCUREMENT_AGENT_ID`),
+  KEY `idx_rm_dataset_planning_unit_versionId` (`VERSION_ID`),
+  CONSTRAINT `fk_rm_dataset_planning_unit_planningUnitId` FOREIGN KEY (`PLANNING_UNIT_ID`) REFERENCES `rm_planning_unit` (`PLANNING_UNIT_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_dataset_planning_unit_procurementAgentId` FOREIGN KEY (`PROCUREMENT_AGENT_ID`) REFERENCES `rm_procurement_agent` (`PROCUREMENT_AGENT_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_dataset_planning_unit_programId` FOREIGN KEY (`PROGRAM_ID`) REFERENCES `rm_program` (`PROGRAM_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+INSERT INTO `fasp`.`rm_dataset_planning_unit` (`PROGRAM_ID`, `VERSION_ID`, `PLANNING_UNIT_ID`, `CONSUMPTION_FORECAST`, `TREE_FORECAST`, `PROCUREMENT_AGENT_ID`, `PRICE`) VALUES (@programId, '1', '4148', '1', '1', '1', '0.03');
+INSERT INTO `fasp`.`rm_dataset_planning_unit` (`PROGRAM_ID`, `VERSION_ID`, `PLANNING_UNIT_ID`, `CONSUMPTION_FORECAST`, `TREE_FORECAST`, `PRICE`) VALUES (@programId, '1', '4149', '1', '1', '0.045');
+INSERT INTO `fasp`.`rm_dataset_planning_unit` (`PROGRAM_ID`, `VERSION_ID`, `PLANNING_UNIT_ID`, `CONSUMPTION_FORECAST`, `TREE_FORECAST`, `PROCUREMENT_AGENT_ID`, `PRICE`) VALUES (@programId, '1', '2733', '1', '0', '1', '5.49');

@@ -26,6 +26,7 @@ public class DatasetData {
     private List<Version> versionList;
     private List<DatasetTree> treeList;
     private List<ForecastConsumption> consumptionList;
+    private List<DatasetPlanningUnit> planningUnitList;
 
     public DatasetData() {
     }
@@ -146,6 +147,14 @@ public class DatasetData {
 
     public void setConsumptionList(List<ForecastConsumption> consumptionList) {
         this.consumptionList = consumptionList;
+    }
+
+    public List<DatasetPlanningUnit> getPlanningUnitList() {
+        return planningUnitList;
+    }
+
+    public void setPlanningUnitList(List<DatasetPlanningUnit> planningUnitList) {
+        this.planningUnitList = planningUnitList;
     }
 
 }
