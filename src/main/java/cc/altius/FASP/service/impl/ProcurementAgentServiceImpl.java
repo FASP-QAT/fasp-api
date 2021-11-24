@@ -16,6 +16,7 @@ import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProcurementAgentService;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.security.access.AccessDeniedException;
@@ -160,6 +161,11 @@ public class ProcurementAgentServiceImpl implements ProcurementAgentService {
         } else {
             return new LinkedList<>();
         }
+    }
+
+    @Override
+    public Map<Integer, List<ProcurementAgentPlanningUnit>> getProcurementAgentPlanningUnitListByPlanningUnitList(int[] planningUnitIds, CustomUserDetails curUser) {
+        return this.procurementAgentDao.getProcurementAgentPlanningUnitListByPlanningUnitList(planningUnitIds, curUser);
     }
 
 }

@@ -210,4 +210,9 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
         return this.planningUnitDao.getPlanningUnitByProgramAndTracerCategory(programAndTracerCategory, curUser);
     }
 
+    @Override
+    public List<SimpleObject> getPlanningUnitListByTracerCategory(int tracerCategoryId, boolean active, CustomUserDetails curUser) {
+        return this.planningUnitDao.getPlanningUnitListByTracerCategory(tracerCategoryId, active, curUser);
+    }
+
 }
