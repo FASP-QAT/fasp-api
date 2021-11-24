@@ -6,7 +6,6 @@
 package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.ProgramCommonDao;
-import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.Program;

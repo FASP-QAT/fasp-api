@@ -35,6 +35,18 @@ public class VersionRowMapper implements RowMapper<Version> {
         if (rs.wasNull()) {
             v.setDaysInMonth(null);
         }
+        v.setFreightPerc(rs.getDouble("FREIGHT_PERC"));
+        if (rs.wasNull()) {
+            v.setFreightPerc(null);
+        }
+        v.setForecastThresholdHighPerc(rs.getDouble("FORECAST_THRESHOLD_HIGH_PERC"));
+        if (rs.wasNull()) {
+            v.setForecastThresholdHighPerc(null);
+        }
+        v.setForecastThresholdLowPerc(rs.getDouble("FORECAST_THRESHOLD_LOW_PERC"));
+        if (rs.wasNull()) {
+            v.setForecastThresholdLowPerc(null);
+        }
         return v;
     }
 
