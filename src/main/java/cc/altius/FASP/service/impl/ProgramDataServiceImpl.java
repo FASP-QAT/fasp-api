@@ -106,6 +106,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                 versionId = this.programDataDao.getLatestVersionForProgram(pv.getProgramId());
             }
             DatasetData dd = new DatasetData(this.programCommonDao.getProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser));
+            dd.setPlanningUnitList(this.programDao.getDatasetPlanningUnitList(pv.getProgramId(), pv.getVersionId()));
             dd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), versionId));
             dd.setTreeList(this.programDataDao.getTreeListForDataset(pv.getProgramId(), versionId, curUser));
             dd.getTreeList().forEach(t -> {
