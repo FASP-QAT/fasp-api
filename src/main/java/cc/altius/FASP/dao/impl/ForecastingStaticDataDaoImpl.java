@@ -14,9 +14,9 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import cc.altius.FASP.dao.ForecastingStaticDataDao;
 import cc.altius.FASP.model.NodeType;
-import cc.altius.FASP.model.SimpleBaseModel;
+import cc.altius.FASP.model.NodeTypeRowMapper;
 import cc.altius.FASP.model.NodeTypeSync;
-import cc.altius.FASP.model.rowMapper.NodeTypeRowMapper;
+import cc.altius.FASP.model.SimpleBaseModel;
 import cc.altius.FASP.model.rowMapper.NodeTypeSyncResultSetExtractor;
 import java.util.HashMap;
 import java.util.Map;
@@ -47,7 +47,15 @@ public class ForecastingStaticDataDaoImpl implements ForecastingStaticDataDao {
             + "LEFT JOIN us_user lmb ON ut.LAST_MODIFIED_BY=lmb.USER_ID "
             + "WHERE 1 ";
 
-    private static String nodeTypeString = "SELECT nt.NODE_TYPE_ID ID, nt.MODELING_ALLOWED, ntr.CHILD_NODE_TYPE_ID, "
+    private static String nodeTypeString = "SELECT nt.NODE_TYPE_ID ID, nt.MODELING_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, "
+            + "nt.LABEL_ID, nt.LABEL_EN, nt.LABEL_FR, nt.LABEL_SP, nt.LABEL_PR, "
+            + "nt.ACTIVE, nt.CREATED_DATE, cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, nt.LAST_MODIFIED_DATE, lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME "
+            + "FROM vw_node_type nt "
+            + "LEFT JOIN us_user cb ON nt.CREATED_BY=cb.USER_ID "
+            + "LEFT JOIN us_user lmb ON nt.LAST_MODIFIED_BY=lmb.USER_ID "
+            + "WHERE 1 ";
+    
+        private static String nodeTypeSyncString = "SELECT nt.NODE_TYPE_ID ID, nt.MODELING_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, ntr.CHILD_NODE_TYPE_ID, "
             + "nt.LABEL_ID, nt.LABEL_EN, nt.LABEL_FR, nt.LABEL_SP, nt.LABEL_PR, "
             + "nt.ACTIVE, nt.CREATED_DATE, cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, nt.LAST_MODIFIED_DATE, lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME "
             + "FROM vw_node_type nt "
@@ -103,7 +111,7 @@ public class ForecastingStaticDataDaoImpl implements ForecastingStaticDataDao {
 
     @Override
     public List<NodeTypeSync> getNodeTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
-        String sqlString = nodeTypeString + " AND nt.LAST_MODIFIED_DATE>:lastSyncDate";
+        String sqlString = nodeTypeSyncString + " AND nt.LAST_MODIFIED_DATE>:lastSyncDate";
         sqlString += " ORDER BY nt.NODE_TYPE_ID, ntr.CHILD_NODE_TYPE_ID ";
         Map<String, Object> params = new HashMap<>();
         params.put("lastSyncDate", lastSyncDate);

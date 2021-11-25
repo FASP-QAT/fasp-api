@@ -35,8 +35,8 @@ public class NodeTypeSync extends NodeType {
         this.allowedChildList = new LinkedList<>();
     }
 
-    public NodeTypeSync(int id, Label label, boolean modelingAllowed) {
-        super(id, label, modelingAllowed);
+    public NodeTypeSync(int id, Label label, boolean modelingAllowed, boolean treeTemplateAllowed, boolean forecastTreeAllowed) {
+        super(id, label, modelingAllowed, treeTemplateAllowed, forecastTreeAllowed);
         this.allowedChildList = new LinkedList<>();
     }
 

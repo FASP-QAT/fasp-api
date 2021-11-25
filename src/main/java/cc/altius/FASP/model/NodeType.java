@@ -6,6 +6,8 @@
 package cc.altius.FASP.model;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -16,14 +18,18 @@ public class NodeType implements Serializable {
     private int id;
     private Label label;
     private boolean modelingAllowed;
-
+    private boolean treeTemplateAllowed;
+    private boolean forecastTreeAllowed;
+    
     public NodeType() {
     }
 
-    public NodeType(int id, Label label, boolean modelingAllowed) {
+    public NodeType(int id, Label label, boolean modelingAllowed, boolean treeTemplateAllowed, boolean forecastTreeAllowed) {
         this.id = id;
         this.label = label;
         this.modelingAllowed = modelingAllowed;
+        this.treeTemplateAllowed = treeTemplateAllowed;
+        this.forecastTreeAllowed = forecastTreeAllowed;
     }
 
     public int getId() {
@@ -48,6 +54,22 @@ public class NodeType implements Serializable {
 
     public void setModelingAllowed(boolean modelingAllowed) {
         this.modelingAllowed = modelingAllowed;
+    }
+
+    public boolean isTreeTemplateAllowed() {
+        return treeTemplateAllowed;
+    }
+
+    public void setTreeTemplateAllowed(boolean treeTemplateAllowed) {
+        this.treeTemplateAllowed = treeTemplateAllowed;
+    }
+
+    public boolean isForecastTreeAllowed() {
+        return forecastTreeAllowed;
+    }
+
+    public void setForecastTreeAllowed(boolean forecastTreeAllowed) {
+        this.forecastTreeAllowed = forecastTreeAllowed;
     }
 
     @Override

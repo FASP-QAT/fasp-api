@@ -40,6 +40,8 @@ public class TreeNodeData implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String notes;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private boolean manualChangesEffectFuture;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<NodeDataModeling> nodeDataModelingList;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<NodeDataOverride> nodeDataOverrideList;
@@ -107,6 +109,14 @@ public class TreeNodeData implements Serializable {
 
     public void setNotes(String notes) {
         this.notes = notes;
+    }
+
+    public boolean isManualChangesEffectFuture() {
+        return manualChangesEffectFuture;
+    }
+
+    public void setManualChangesEffectFuture(boolean manualChangesEffectFuture) {
+        this.manualChangesEffectFuture = manualChangesEffectFuture;
     }
 
     public List<NodeDataModeling> getNodeDataModelingList() {

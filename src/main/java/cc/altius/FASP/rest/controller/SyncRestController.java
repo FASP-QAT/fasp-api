@@ -130,7 +130,7 @@ public class SyncRestController {
     private UsageTemplateService usageTemplateService;
     @Autowired
     private TreeTemplateService treeTemplateService;
-    
+
 //    @GetMapping(value = "/sync/allMasters/{lastSyncDate}")
 //    public ResponseEntity getAllMastersForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
 //        try {
@@ -200,12 +200,9 @@ public class SyncRestController {
             String programIdsString = getProgramIds(programIds);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             MastersSync masters = new MastersSync();
-            masters.setVersionTypeList(this.programDataService.getVersionTypeList());
-            masters.setVersionStatusList(this.programDataService.getVersionStatusList());
-            masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSyncProgram(programIdsString, curUser)); //programIds, -- Done for Dataset
-            masters.setProgramPlanningUnitList(this.programService.getProgramPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
-            
-        return new ResponseEntity(masters, HttpStatus.OK);
+            masters.setNodeTypeList(this.forecastingStaticDataService.getNodeTypeListForSync(lastSyncDate, curUser));
+
+            return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
@@ -214,7 +211,7 @@ public class SyncRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping(value = "/sync/allMasters/forPrograms/{lastSyncDate}")
     public ResponseEntity getAllMastersForSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
         try {

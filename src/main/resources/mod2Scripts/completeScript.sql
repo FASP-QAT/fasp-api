@@ -3632,3 +3632,39 @@ CREATE TABLE `rm_dataset_planning_unit` (
 INSERT INTO `fasp`.`rm_dataset_planning_unit` (`PROGRAM_ID`, `VERSION_ID`, `PLANNING_UNIT_ID`, `CONSUMPTION_FORECAST`, `TREE_FORECAST`, `PROCUREMENT_AGENT_ID`, `PRICE`) VALUES (@programId, '1', '4148', '1', '1', '1', '0.03');
 INSERT INTO `fasp`.`rm_dataset_planning_unit` (`PROGRAM_ID`, `VERSION_ID`, `PLANNING_UNIT_ID`, `CONSUMPTION_FORECAST`, `TREE_FORECAST`, `PRICE`) VALUES (@programId, '1', '4149', '1', '1', '0.045');
 INSERT INTO `fasp`.`rm_dataset_planning_unit` (`PROGRAM_ID`, `VERSION_ID`, `PLANNING_UNIT_ID`, `CONSUMPTION_FORECAST`, `TREE_FORECAST`, `PROCUREMENT_AGENT_ID`, `PRICE`) VALUES (@programId, '1', '2733', '1', '0', '1', '5.49');
+
+ALTER TABLE `fasp`.`ap_node_type` ADD COLUMN `TREE_TEMPLATE_ALLOWED` TINYINT(1) UNSIGNED NOT NULL AFTER `MODELING_ALLOWED`, ADD COLUMN `FORECAST_TREE_ALLOWED` TINYINT(1) UNSIGNED NOT NULL AFTER `TREE_TEMPLATE_ALLOWED`;
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_node_type` AS
+    SELECT 
+        `ut`.`NODE_TYPE_ID` AS `NODE_TYPE_ID`,
+        `ut`.`LABEL_ID` AS `LABEL_ID`,
+        `ut`.`MODELING_ALLOWED` AS `MODELING_ALLOWED`,
+        `ut`.`TREE_TEMPLATE_ALLOWED` AS `TREE_TEMPLATE_ALLOWED`,
+        `ut`.`FORECAST_TREE_ALLOWED` AS `FORECAST_TREE_ALLOWED`,
+        `ut`.`ACTIVE` AS `ACTIVE`,
+        `ut`.`CREATED_BY` AS `CREATED_BY`,
+        `ut`.`CREATED_DATE` AS `CREATED_DATE`,
+        `ut`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `ut`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`ap_node_type` `ut`
+        LEFT JOIN `ap_label` `l` ON ((`ut`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+INSERT INTO ap_label VALUES (null, 'Extrapolation', null, null, null, 1, @dt, 1, @dt, 39);
+SELECT LAST_INSERT_ID() INTO @labelId;
+INSERT INTO ap_node_type VALUES (null, @labelId, 0, 0, 1, 1, 1, @dt, 1, @dt);
+INSERT INTO ap_node_type_rule VALUES (null, 1, 6), (null, 6, 3), (null, 6, 4);
+
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data` ADD COLUMN `MANUAL_CHANGES_EFFECT_FUTURE` TINYINT(1) UNSIGNED NOT NULL AFTER `NOTES`;
+ALTER TABLE `fasp`.`rm_tree_template_node_data` ADD COLUMN `MANUAL_CHANGES_EFFECT_FUTURE` TINYINT(1) UNSIGNED NOT NULL AFTER `NOTES`;
+
