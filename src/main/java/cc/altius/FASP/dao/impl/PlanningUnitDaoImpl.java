@@ -414,4 +414,14 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new SimpleObjectRowMapper());
     }
 
+    @Override
+    public List<SimpleObject> getPlanningUnitListByTracerCategory(int tracerCategoryId, boolean active, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT pu.PLANNING_UNIT_ID as ID, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM rm_forecasting_unit fu LEFT JOIN vw_planning_unit pu ON fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID WHERE fu.TRACER_CATEGORY_ID=:tracerCategoryId AND ((:active=TRUE AND pu.ACTIVE) OR (:active=FALSE))");
+        Map<String, Object> params = new HashMap<>();
+        params.put("tracerCategoryId", tracerCategoryId);
+        params.put("active", active);
+        this.aclService.addUserAclForRealm(sb, params, "fu", curUser);
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new SimpleObjectRowMapper());
+    }
+
 }

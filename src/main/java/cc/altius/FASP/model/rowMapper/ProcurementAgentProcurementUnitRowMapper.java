@@ -15,7 +15,7 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author akil
  */
-public class ProcurementAgentProcurementUnitRowMapper implements RowMapper<ProcurementAgentProcurementUnit>{
+public  class ProcurementAgentProcurementUnitRowMapper implements RowMapper<ProcurementAgentProcurementUnit>{
 
     @Override
     public ProcurementAgentProcurementUnit mapRow(ResultSet rs, int rowNum) throws SQLException {
