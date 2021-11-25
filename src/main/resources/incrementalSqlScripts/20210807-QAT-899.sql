@@ -330,10 +330,10 @@ ALTER TABLE `fasp`.`ct_supply_plan_commit_request` CHANGE `COMMITTED_VERSION_ID`
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataentry.readonly','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note: Commit currently in process. Data entry frozen until commit is completed.');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : validation en cours. La saisie des données est gelée jusqu`à ce que la validation soit terminée.');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: Confirmar actualmente en proceso. La entrada de datos se congela hasta que se completa la confirmación.');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: Confirmação atualmente em andamento. Entrada de dados congelada até que a confirmação seja concluída.');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note: Data entry is frozen until both the commit process is complete and master data sync is performed. If the down (Load) arrow is red, the commit process is complete - click Master Data Sync to unlock data entry.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : la saisie des données est gelée jusqu`à ce que le processus de validation soit terminé et que la synchronisation des données principales soit effectuée. Si la flèche vers le bas (Charger) est rouge, le processus de validation est terminé - cliquez sur Master Data Sync pour déverrouiller la saisie des données.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: La entrada de datos se congela hasta que se completa el proceso de confirmación y se realiza la sincronización de datos maestros. Si la flecha hacia abajo (Cargar) está roja, el proceso de confirmación está completo; haga clic en Sincronización de datos maestros para desbloquear la entrada de datos.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: A entrada de dados é congelada até que o processo de confirmação seja concluído e a sincronização de dados mestre seja executada. Se a seta para baixo (Carregar) estiver vermelha, o processo de confirmação foi concluído - clique em Master Data Sync para desbloquear a entrada de dados.');-- pr
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.compareData','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -432,4 +432,18 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La demande de validati
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La solicitud de confirmación ya existe, espere a que se complete la solicitud existente');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A solicitação de confirmação já existe, aguarde até que a solicitação existente seja concluída');-- pr
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.program.programSync','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program sync');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Synchronisation du programme');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Sincronización de programa');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Sincronização de programa');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitVersion.commitNote','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please do not navigate away from this page during the commit. If you do, Master Data Sync or re-logging in is required for continued data entry.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez ne pas quitter cette page pendant le commit. Si vous le faites, Master Data Sync ou une nouvelle connexion est nécessaire pour continuer la saisie des données.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'No navegue fuera de esta página durante la confirmación. Si lo hace, se requiere Master Data Sync o volver a iniciar sesión para continuar con la entrada de datos.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Por favor, não saia desta página durante o commit. Se você fizer isso, o Master Data Sync ou o novo login é necessário para a entrada contínua de dados.');-- pr
