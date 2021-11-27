@@ -56,6 +56,7 @@ public class MastersSync implements Serializable {
     private List<ForecastMethod> forecastMethodList;
     private List<UsageTemplate> usageTemplateList;
     private List<TreeTemplate> treeTemplateList;
+    private List<EquivalencyUnitMapping> equivalencyUnitMappingList;
 
     public List<Country> getCountryList() {
         return countryList;
@@ -383,6 +384,14 @@ public class MastersSync implements Serializable {
 
     public void setTreeTemplateList(List<TreeTemplate> treeTemplateList) {
         this.treeTemplateList = treeTemplateList;
+    }
+
+    public List<EquivalencyUnitMapping> getEquivalencyUnitMappingList() {
+        return equivalencyUnitMappingList;
+    }
+
+    public void setEquivalencyUnitMappingList(List<EquivalencyUnitMapping> equivalencyUnitMappingList) {
+        this.equivalencyUnitMappingList = equivalencyUnitMappingList;
     }
 
 }

@@ -40,10 +40,18 @@ public class EquivalencyUnitServiceImpl implements EquivalencyUnitService {
     }
 
     @Override
-    public int addAndUpdateEquivalencyUnitMapping(List<EquivalencyUnitMapping> equivalencyUnitMappingList, CustomUserDetails curUser) {
-        // TODO        
-        // ensure that each EquivalencyUnit in this list is from the same Realm
+    public int addAndUpdateEquivalencyUnitMapping(List<EquivalencyUnitMapping> equivalencyUnitMappingList, CustomUserDetails curUser) throws IllegalAccessException {
+        for(EquivalencyUnitMapping eum : equivalencyUnitMappingList) {
+            if (curUser.getRealm().getRealmId()!=eum.getEquivalencyUnit().getRealm().getId()) {
+                throw new IllegalAccessException ("Equivalency Unit from a different Realm");
+            }
+        }
         return this.equivalencyUnitDao.addAndUpdateEquivalencyUnitMapping(equivalencyUnitMappingList, curUser);
+    }
+
+    @Override
+    public List<EquivalencyUnitMapping> getEquivalencyUnitMappingListForSync(String programIdsString, CustomUserDetails curUser) {
+        return this.equivalencyUnitDao.getEquivalencyUnitMappingListForSync(programIdsString, curUser);
     }
 
 }
