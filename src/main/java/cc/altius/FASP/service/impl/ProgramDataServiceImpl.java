@@ -112,6 +112,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     public void processCommitRequest(CustomUserDetails curUser) {
         List<SupplyPlanCommitRequest> spcrList = this.programDataDao.getPendingSupplyPlanProcessList();
         for (SupplyPlanCommitRequest spcr : spcrList) {
+            boolean isStatusUpdated = false;
             Program p = this.programCommonDao.getProgramById(spcr.getProgram().getId(), curUser);
             if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
 //            programData.setCurrentVersion(p.getCurrentVersion());
@@ -127,6 +128,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                     }
                 } catch (Exception e) {
                     version = this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 3, e.getMessage(), 0);
+                    isStatusUpdated = true;
                 }
 //            System.out.println("version++++" + version);
                 try {
@@ -134,7 +136,9 @@ public class ProgramDataServiceImpl implements ProgramDataService {
                     if (version.getVersionId() != 0) {
                         this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 2, "", version.getVersionId());
                     } else {
-                        version = this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 3, "No new changes found", 0);
+                        if (!isStatusUpdated) {
+                            version = this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 3, "No new changes found", 0);
+                        }
                     }
                     if (version.getVersionId() != 0 && spcr.isSaveData()) {
                         if (spcr.getVersionType().getId() == 2) {
