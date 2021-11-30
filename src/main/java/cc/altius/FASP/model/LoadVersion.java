@@ -27,9 +27,11 @@ public class LoadVersion implements Serializable {
     private SimpleObject versionStatus;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Date forecastStartDate;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Date forecastStopDate;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private BasicUser createdBy;
