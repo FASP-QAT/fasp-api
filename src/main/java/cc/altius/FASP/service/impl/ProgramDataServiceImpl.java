@@ -93,6 +93,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
         Program p = this.programCommonDao.getProgramById(programData.getProgramId(), curUser);
+        programData.setAirFreightPerc(p.getAirFreightPerc());
+        programData.setSeaFreightPerc(p.getSeaFreightPerc());
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             programData.setCurrentVersion(p.getCurrentVersion());
 //            System.out.println("++++" + p.getCurrentVersion());
