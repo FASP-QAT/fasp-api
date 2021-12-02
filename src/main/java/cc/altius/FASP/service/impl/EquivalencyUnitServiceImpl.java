@@ -10,6 +10,7 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EquivalencyUnit;
 import cc.altius.FASP.model.EquivalencyUnitMapping;
 import cc.altius.FASP.service.EquivalencyUnitService;
+import java.util.LinkedList;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,9 +42,9 @@ public class EquivalencyUnitServiceImpl implements EquivalencyUnitService {
 
     @Override
     public int addAndUpdateEquivalencyUnitMapping(List<EquivalencyUnitMapping> equivalencyUnitMappingList, CustomUserDetails curUser) throws IllegalAccessException {
-        for(EquivalencyUnitMapping eum : equivalencyUnitMappingList) {
-            if (curUser.getRealm().getRealmId()!=eum.getEquivalencyUnit().getRealm().getId()) {
-                throw new IllegalAccessException ("Equivalency Unit from a different Realm");
+        for (EquivalencyUnitMapping eum : equivalencyUnitMappingList) {
+            if (curUser.getRealm().getRealmId() != eum.getEquivalencyUnit().getRealm().getId()) {
+                throw new IllegalAccessException("Equivalency Unit from a different Realm");
             }
         }
         return this.equivalencyUnitDao.addAndUpdateEquivalencyUnitMapping(equivalencyUnitMappingList, curUser);
@@ -51,7 +52,11 @@ public class EquivalencyUnitServiceImpl implements EquivalencyUnitService {
 
     @Override
     public List<EquivalencyUnitMapping> getEquivalencyUnitMappingListForSync(String programIdsString, CustomUserDetails curUser) {
-        return this.equivalencyUnitDao.getEquivalencyUnitMappingListForSync(programIdsString, curUser);
+        if (programIdsString.length() > 0) {
+            return this.equivalencyUnitDao.getEquivalencyUnitMappingListForSync(programIdsString, curUser);
+        } else {
+            return new LinkedList<>();
+        }
     }
 
 }
