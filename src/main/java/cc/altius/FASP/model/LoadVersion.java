@@ -25,6 +25,14 @@ public class LoadVersion implements Serializable {
     private SimpleObject versionType;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObject versionStatus;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private Date forecastStartDate;
+    @JsonDeserialize(using = JsonDateDeserializer.class)
+    @JsonSerialize(using = JsonDateSerializer.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private Date forecastStopDate;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private BasicUser createdBy;
     @JsonDeserialize(using = JsonDateDeserializer.class)
@@ -54,6 +62,22 @@ public class LoadVersion implements Serializable {
 
     public void setVersionStatus(SimpleObject versionStatus) {
         this.versionStatus = versionStatus;
+    }
+
+    public Date getForecastStartDate() {
+        return forecastStartDate;
+    }
+
+    public void setForecastStartDate(Date forecastStartDate) {
+        this.forecastStartDate = forecastStartDate;
+    }
+
+    public Date getForecastStopDate() {
+        return forecastStopDate;
+    }
+
+    public void setForecastStopDate(Date forecastStopDate) {
+        this.forecastStopDate = forecastStopDate;
     }
 
     public BasicUser getCreatedBy() {

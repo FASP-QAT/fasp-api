@@ -23,4 +23,8 @@ public interface EquivalencyUnitDao {
     public List<EquivalencyUnitMapping> getEquivalencyUnitMappingList(boolean active, CustomUserDetails curUser);
 
     public int addAndUpdateEquivalencyUnitMapping(List<EquivalencyUnitMapping> equivalencyUnitMappingList, CustomUserDetails curUser);
+    
+    public List<EquivalencyUnitMapping> getEquivalencyUnitMappingListForSync(String programIdsString, CustomUserDetails curUser);
+    
+    public EquivalencyUnit getEquivalencyUnitById(int equivalencyUnitId, CustomUserDetails curUser);
 }

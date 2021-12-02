@@ -183,7 +183,7 @@ public class EquivalencyUnitRestController {
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to add EquivalencyUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.FORBIDDEN);
-        } catch (DuplicateKeyException e) {
+        } catch (DuplicateKeyException | IllegalAccessException e) {
             logger.error("Error while trying to add EquivalencyUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.addFailed"), HttpStatus.NOT_ACCEPTABLE);
         } catch (Exception e) {

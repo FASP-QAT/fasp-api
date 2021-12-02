@@ -33,7 +33,7 @@ public class Inventory implements Serializable {
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class})
     private SimpleObject alternateReportingUnit;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
-    private SimplePlanningUnitObject planningUnit;
+    private SimplePlanningUnitProductCategoryObject planningUnit;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class, Views.InternalView.class})
     private double multiplier;
     @JsonView({Views.GfpVanView.class})
@@ -119,11 +119,11 @@ public class Inventory implements Serializable {
         this.alternateReportingUnit = realmCountryPlanningUnit;
     }
 
-    public SimplePlanningUnitObject getPlanningUnit() {
+    public SimplePlanningUnitProductCategoryObject getPlanningUnit() {
         return planningUnit;
     }
 
-    public void setPlanningUnit(SimplePlanningUnitObject planningUnit) {
+    public void setPlanningUnit(SimplePlanningUnitProductCategoryObject planningUnit) {
         this.planningUnit = planningUnit;
     }
 

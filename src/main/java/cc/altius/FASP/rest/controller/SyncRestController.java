@@ -14,6 +14,7 @@ import cc.altius.FASP.service.CurrencyService;
 import cc.altius.FASP.service.DataSourceService;
 import cc.altius.FASP.service.DataSourceTypeService;
 import cc.altius.FASP.service.DimensionService;
+import cc.altius.FASP.service.EquivalencyUnitService;
 import cc.altius.FASP.service.ForecastMethodService;
 import cc.altius.FASP.service.ForecastingStaticDataService;
 import cc.altius.FASP.service.ForecastingUnitService;
@@ -130,7 +131,9 @@ public class SyncRestController {
     private UsageTemplateService usageTemplateService;
     @Autowired
     private TreeTemplateService treeTemplateService;
-    
+    @Autowired
+    private EquivalencyUnitService equivalencyUnitService;
+
 //    @GetMapping(value = "/sync/allMasters/{lastSyncDate}")
 //    public ResponseEntity getAllMastersForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
 //        try {
@@ -200,12 +203,9 @@ public class SyncRestController {
             String programIdsString = getProgramIds(programIds);
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             MastersSync masters = new MastersSync();
-            masters.setVersionTypeList(this.programDataService.getVersionTypeList());
-            masters.setVersionStatusList(this.programDataService.getVersionStatusList());
-            masters.setPlanningUnitList(this.planningUnitService.getPlanningUnitListForSyncProgram(programIdsString, curUser)); //programIds, -- Done for Dataset
-            masters.setProgramPlanningUnitList(this.programService.getProgramPlanningUnitListForSyncProgram(programIdsString, curUser));//programIds, 
-            
-        return new ResponseEntity(masters, HttpStatus.OK);
+            masters.setEquivalencyUnitMappingList(this.equivalencyUnitService.getEquivalencyUnitMappingListForSync(programIdsString, curUser));
+
+            return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
@@ -214,7 +214,7 @@ public class SyncRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping(value = "/sync/allMasters/forPrograms/{lastSyncDate}")
     public ResponseEntity getAllMastersForSyncWithProgramIds(@RequestBody String[] programIds, @PathVariable("lastSyncDate") String lastSyncDate, Authentication auth, HttpServletResponse response) {
         try {
@@ -264,6 +264,7 @@ public class SyncRestController {
             masters.setForecastMethodList(this.forecastMethodService.getForecastMethodListForSync(lastSyncDate, curUser));
             masters.setUsageTemplateList(this.usageTemplateService.getUsageTemplateListForSync(programIdsString, curUser));
             masters.setTreeTemplateList(this.treeTemplateService.getTreeTemplateListForSync(lastSyncDate, curUser));
+            masters.setEquivalencyUnitMappingList(this.equivalencyUnitService.getEquivalencyUnitMappingListForSync(programIdsString, curUser));
             return new ResponseEntity(masters, HttpStatus.OK);
         } catch (ParseException p) {
             logger.error("Error in masters sync", p);

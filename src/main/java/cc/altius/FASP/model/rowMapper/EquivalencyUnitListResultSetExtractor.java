@@ -18,34 +18,37 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  *
  * @author akil
  */
-public class EquivalencyUnitResultSetExtractor implements ResultSetExtractor<EquivalencyUnit> {
+public class EquivalencyUnitListResultSetExtractor implements ResultSetExtractor<List<EquivalencyUnit>> {
 
     private String prefix;
 
-    public EquivalencyUnitResultSetExtractor(String prefix) {
+    public EquivalencyUnitListResultSetExtractor(String prefix) {
         this.prefix = prefix;
     }
 
-    public EquivalencyUnitResultSetExtractor() {
+    public EquivalencyUnitListResultSetExtractor() {
         prefix = "";
     }
 
     @Override
-    public EquivalencyUnit extractData(ResultSet rs) throws SQLException, DataAccessException {
-        boolean isFirst = true;
-        EquivalencyUnit eq = new EquivalencyUnit();
+    public List<EquivalencyUnit> extractData(ResultSet rs) throws SQLException, DataAccessException {
+        List<EquivalencyUnit> eqList = new LinkedList<>();
         while (rs.next()) {
-            if (isFirst) {
-                eq = new EquivalencyUnit(
-                        rs.getInt("EQUIVALENCY_UNIT_ID"),
-                        new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")),
-                        new LabelRowMapper().mapRow(rs, 1));
+            EquivalencyUnit eq = new EquivalencyUnit(
+                    rs.getInt("EQUIVALENCY_UNIT_ID"),
+                    new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")),
+                    new LabelRowMapper().mapRow(rs, 1));
+            int idx = eqList.indexOf(eq);
+            if (idx == -1) {
+                // Equivalency Unit is not found
+                eqList.add(eq);
                 eq.setBaseModel(new BaseModelRowMapper(prefix).mapRow(rs, 1));
-                isFirst = false;
+            } else {
+                eq = eqList.get(idx);
             }
             eq.getHealthAreaList().add(new SimpleCodeObject(rs.getInt("HEALTH_AREA_ID"), new LabelRowMapper("HA_").mapRow(rs, 1), rs.getString("HEALTH_AREA_CODE")));
         }
-        return eq;
+        return eqList;
     }
 
 }

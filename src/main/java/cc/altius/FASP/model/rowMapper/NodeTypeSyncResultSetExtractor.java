@@ -23,7 +23,7 @@ public class NodeTypeSyncResultSetExtractor implements ResultSetExtractor<List<N
     public List<NodeTypeSync> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<NodeTypeSync> ntList = new LinkedList<>();
         while (rs.next()) {
-            NodeTypeSync nt = new NodeTypeSync(rs.getInt("ID"), new LabelRowMapper().mapRow(rs, 1), rs.getBoolean("MODELING_ALLOWED"));
+            NodeTypeSync nt = new NodeTypeSync(rs.getInt("ID"), new LabelRowMapper().mapRow(rs, 1), rs.getBoolean("MODELING_ALLOWED"), rs.getBoolean("TREE_TEMPLATE_ALLOWED"), rs.getBoolean("FORECAST_TREE_ALLOWED"));
             int idx = ntList.indexOf(nt);
             if (idx == -1) {
                 ntList.add(nt);

@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class DatasetPlanningUnit implements Serializable {
 
     private int programPlanningUnitId;
-    private SimplePlanningUnitObject planningUnit;
+    private SimplePlanningUnitTracerCategoryObject planningUnit;
     private boolean consuptionForecast;
     private boolean treeForecast;
     private Integer stock;
@@ -31,11 +31,11 @@ public class DatasetPlanningUnit implements Serializable {
         this.programPlanningUnitId = programPlanningUnitId;
     }
 
-    public SimplePlanningUnitObject getPlanningUnit() {
+    public SimplePlanningUnitTracerCategoryObject getPlanningUnit() {
         return planningUnit;
     }
 
-    public void setPlanningUnit(SimplePlanningUnitObject planningUnit) {
+    public void setPlanningUnit(SimplePlanningUnitTracerCategoryObject planningUnit) {
         this.planningUnit = planningUnit;
     }
 

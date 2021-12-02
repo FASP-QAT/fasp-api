@@ -7,9 +7,9 @@ package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.SimpleCodeObject;
-import cc.altius.FASP.model.SimpleForecastingUnitObject;
+import cc.altius.FASP.model.SimpleForecastingUnitTracerCategoryObject;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.SimplePlanningUnitObject;
+import cc.altius.FASP.model.SimplePlanningUnitTracerCategoryObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -24,7 +24,7 @@ public class DatasetPlanningUnitRowMapper implements RowMapper<DatasetPlanningUn
     public DatasetPlanningUnit mapRow(ResultSet rs, int rowNum) throws SQLException {
         DatasetPlanningUnit dpu = new DatasetPlanningUnit();
         dpu.setProgramPlanningUnitId(rs.getInt("PROGRAM_PLANNING_UNIT_ID"));
-        dpu.setPlanningUnit(new SimplePlanningUnitObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper().mapRow(rs, rowNum), new SimpleForecastingUnitObject(rs.getInt("FORECASTING_UNIT_ID"), new LabelRowMapper("FU_").mapRow(rs, rowNum), new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PC_").mapRow(rs, rowNum)))));
+        dpu.setPlanningUnit(new SimplePlanningUnitTracerCategoryObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper().mapRow(rs, rowNum), new SimpleForecastingUnitTracerCategoryObject(rs.getInt("FORECASTING_UNIT_ID"), new LabelRowMapper("FU_").mapRow(rs, rowNum), new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, rowNum)))));
         dpu.setConsuptionForecast(rs.getBoolean("CONSUMPTION_FORECAST"));
         dpu.setTreeForecast(rs.getBoolean("TREE_FORECAST"));
         dpu.setStock(rs.getInt("STOCK"));
