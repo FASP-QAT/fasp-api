@@ -140,7 +140,7 @@ public class ProgramDataRestController {
         try {
             int latestVersion = this.programDataService.getLatestVersionForPrograms(""+programData.getProgramId()).get(0).getVersionId();
             if (latestVersion == comparedVersionId) {
-                var checkIfRequestExists = this.programDataService.checkIfCommitRequestExistsForProgram(programData.getProgramId());
+                boolean checkIfRequestExists = this.programDataService.checkIfCommitRequestExistsForProgram(programData.getProgramId());
                 if (!checkIfRequestExists) {
                     CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
                     int commitRequestId = this.programDataService.saveProgramData(programData, curUser);
