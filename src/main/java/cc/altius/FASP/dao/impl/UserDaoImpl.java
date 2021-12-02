@@ -88,8 +88,8 @@ public class UserDaoImpl implements UserDao {
             + "LEFT JOIN us_user_acl cuacl ON cu.USER_ID=cuacl.USER_ID "
             + "WHERE  "
             + "    cu.USER_ID=:curUser   "
-            + "    AND user.REALM_ID=:realmId   "
-            + "    AND user.REALM_ID=:userRealmId   "
+            + "    AND (-1=:realmId OR user.REALM_ID=:realmId)   "
+            + "    AND (-1=:userRealmId OR user.REALM_ID=:userRealmId)   "
             + "group by user.USER_ID "
             + "having access) a1";
     private final static String customUserString = " SELECT "
@@ -399,8 +399,8 @@ public class UserDaoImpl implements UserDao {
         String sql = this.userString + "AND `user`.`USER_ID` IN (" + userAccessString + ")" + this.userOrderBy;
         Map<String, Object> params = new HashMap<>();
         params.put("curUser", curUser.getUserId());
-        params.put("realmId", curUser.getRealm().getRealmId());
-        params.put("userRealmId", curUser.getRealm().getRealmId());
+        params.put("realmId", curUser.getRealm().getRealmId() == null ? -1 : curUser.getRealm().getRealmId());
+        params.put("userRealmId", curUser.getRealm().getRealmId() == null ? -1 : curUser.getRealm().getRealmId());
         return this.namedParameterJdbcTemplate.query(sql, params, new UserListResultSetExtractor());
     }
 
