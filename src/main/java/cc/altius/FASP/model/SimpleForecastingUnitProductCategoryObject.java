@@ -9,15 +9,15 @@ package cc.altius.FASP.model;
  *
  * @author akil
  */
-public class SimpleForecastingUnitObject extends SimpleObject {
+public class SimpleForecastingUnitProductCategoryObject extends SimpleObject {
 
     SimpleObject productCategory;
 
-    public SimpleForecastingUnitObject() {
+    public SimpleForecastingUnitProductCategoryObject() {
         super();
     }
 
-    public SimpleForecastingUnitObject(Integer id, Label label, SimpleObject productCategory) {
+    public SimpleForecastingUnitProductCategoryObject(Integer id, Label label, SimpleObject productCategory) {
         super(id, label);
         this.productCategory = productCategory;
     }
