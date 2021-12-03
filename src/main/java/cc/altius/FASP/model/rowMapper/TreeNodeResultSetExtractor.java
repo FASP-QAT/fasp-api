@@ -9,6 +9,7 @@ import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.NodeDataModeling;
+import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeType;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
@@ -154,6 +155,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
             }
             tnd.setNodeDataModelingList(new LinkedList<>()); // Initiate Modeling list
             tnd.setNodeDataOverrideList(new LinkedList<>()); // Initiate Override list
+            tnd.setNodeDataMomList(new LinkedList<>()); // Initiate Mom list
             tndList.add(tnd);
         } else {
             // NodeData was already present so point tnd to the existing nodeData
@@ -184,6 +186,26 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 ndm.setModelingType(new SimpleObject(rs.getInt("MODELING_TYPE_ID"), new LabelRowMapper("MODELING_TYPE_").mapRow(rs, 1)));
                 tnd.getNodeDataModelingList().add(ndm);
             }
+        }
+        idx = -1;
+        NodeDataMom ndMom = new NodeDataMom(rs.getInt("NODE_DATA_MOM_ID"));
+        if (!rs.wasNull()) {
+            idx = tnd.getNodeDataMomList().indexOf(ndMom);
+            // Not found so add it
+            ndMom.setMonth(rs.getDate("NDM_MONTH"));
+            ndMom.setStartValue(rs.getDouble("NDM_START_VALUE"));
+            if (rs.wasNull()) {
+                ndMom.setStartValue(null);
+            }
+            ndMom.setEndValue(rs.getDouble("NDM_END_VALUE"));
+            if (rs.wasNull()) {
+                ndMom.setEndValue(null);
+            }
+            ndMom.setCalculatedValue(rs.getDouble("NDM_CALCULATED_VALUE"));
+            if (rs.wasNull()) {
+                ndMom.setCalculatedValue(null);
+            }
+            tnd.getNodeDataMomList().add(ndMom);
         }
         return tnd;
     }

@@ -49,6 +49,8 @@ import cc.altius.FASP.model.rowMapper.ActualConsumptionDataOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.BatchRowMapper;
 import cc.altius.FASP.model.rowMapper.ConsumptionListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.DatasetTreeResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationSettings;
+import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationSettingsListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ForecastConsumptionRowMapper;
 import cc.altius.FASP.model.rowMapper.IdByAndDateRowMapper;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
@@ -1898,7 +1900,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "          pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, pu.MULTIPLIER `PU_MULTIPLIER`, "
                 + "          puu.UNIT_ID `PUU_UNIT_ID`, puu.UNIT_CODE `PUU_UNIT_CODE`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR`, "
                 + "          ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
-                + "          mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR` "
+                + "          mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR`, "
+                + "          ndm.NODE_DATA_MOM_ID, ndm.MONTH `NDM_MONTH`, ndm.START_VALUE `NDM_START_VALUE`, ndm.END_VALUE `NDM_END_VALUE`, ndm.CALCULATED_VALUE `NDM_CALCULATED_VALUE` "
                 + "      FROM vw_forecast_tree_node ttn "
                 + "      LEFT JOIN vw_node_type nt ON ttn.NODE_TYPE_ID=nt.NODE_TYPE_ID "
                 + "      LEFT JOIN vw_unit u ON ttn.UNIT_ID=u.UNIT_ID "
@@ -1915,6 +1918,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "      LEFT JOIN vw_unit puu ON pu.UNIT_ID=puu.UNIT_ID "
                 + "      LEFT JOIN rm_forecast_tree_node_data_modeling ttndm on ttnd.NODE_DATA_ID=ttndm.NODE_DATA_ID "
                 + "      LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data_mom ndm ON ttnd.NODE_DATA_ID=ndm.NODE_DATA_ID "
                 + "      WHERE ttn.TREE_ID=:treeId "
                 + "      ORDER BY ttn.SORT_ORDER, ttnd.NODE_DATA_ID";
         Map<String, Object> params = new HashMap<>();
@@ -1948,6 +1952,30 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
+    public List<ForecastConsumptionExtrapolationSettings> getForecastConsumptionExtrapolationSettings(int programId, int versionId, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder("SELECT "
+                + "    fcel.CONSUMPTION_EXTRAPOLATION_LIST_ID, "
+                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
+                + "    r.REGION_ID, r.LABEL_ID `R_LABEL_ID`, r.LABEL_EN `R_LABEL_EN`, r.LABEL_FR `R_LABEL_FR`, r.LABEL_SP `R_LABEL_SP`, r.LABEL_PR `R_LABEL_PR`, "
+                + "    fcel.PROGRAM_ID, fcel.VERSION_ID, "
+                + "    fces.CONSUMPTION_EXTRAPOLATION_SETTINGS_ID, fces.JSON_PROPERTIES, "
+                + "    em.EXTRAPOLATION_METHOD_ID, l.LABEL_ID `EM_LABEL_ID`, l.LABEL_EN `EM_LABEL_EN`, l.LABEL_FR `EM_LABEL_FR`, l.LABEL_SP `EM_LABEL_SP`, l.LABEL_PR `EM_LABEL_PR` "
+                + "FROM rm_forecast_consumption_extrapolation_list fcel "
+                + "LEFT JOIN vw_dataset p ON fcel.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN vw_planning_unit pu ON fcel.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_region r ON fcel.REGION_ID=r.REGION_ID "
+                + "LEFT JOIN rm_forecast_consumption_extrapolation_settings fces ON fcel.CONSUMPTION_EXTRAPOLATION_LIST_ID=fces.CONSUMPTION_EXTRAPOLATION_LIST_ID "
+                + "LEFT JOIN ap_extrapolation_method em ON fces.EXTRAPOLATION_METHOD_ID=em.EXTRAPOLATION_METHOD_ID "
+                + "LEFT JOIN ap_label l ON em.LABEL_ID=l.LABEL_ID "
+                + "WHERE fcel.PROGRAM_ID=:programId AND fcel.VERSION_ID=:versionId ");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        this.aclService.addFullAclForProgram(sb, params, "p", curUser);
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ForecastConsumptionExtrapolationSettingsListResultSetExtractor());
+    }
+
+    @Override
     public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", acd.getProgramId());
@@ -1959,5 +1987,4 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         return this.namedParameterJdbcTemplate.query("CALL getSupplyPlanActualConsumption(:programId, :versionId, :planningUnitListString, :regionListString, :startDate, :stopDate)", params, new ActualConsumptionDataOutputRowMapper());
     }
 
-    
 }

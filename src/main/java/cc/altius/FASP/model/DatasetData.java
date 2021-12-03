@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationSettings;
 import java.util.List;
 
 /**
@@ -27,6 +28,7 @@ public class DatasetData {
     private List<DatasetTree> treeList;
     private List<ForecastConsumption> consumptionList;
     private List<DatasetPlanningUnit> planningUnitList;
+    private List<ForecastConsumptionExtrapolationSettings> extrapolationSettings;
 
     public DatasetData() {
     }
@@ -155,6 +157,14 @@ public class DatasetData {
 
     public void setPlanningUnitList(List<DatasetPlanningUnit> planningUnitList) {
         this.planningUnitList = planningUnitList;
+    }
+
+    public List<ForecastConsumptionExtrapolationSettings> getExtrapolationSettings() {
+        return extrapolationSettings;
+    }
+
+    public void setExtrapolationSettings(List<ForecastConsumptionExtrapolationSettings> extrapolationSettings) {
+        this.extrapolationSettings = extrapolationSettings;
     }
 
 }
