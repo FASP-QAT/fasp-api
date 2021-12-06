@@ -17,7 +17,9 @@ import cc.altius.FASP.model.ShipmentSync;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
+import cc.altius.FASP.model.SupplyPlanCommitRequest;
 import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.SupplyPlanCommitRequestInput;
 import java.text.ParseException;
 import java.util.List;
 
@@ -31,8 +33,15 @@ public interface ProgramDataService {
 
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
 
-    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
+    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
+    public void processCommitRequest(CustomUserDetails curUser);
+
+    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message,int versionId);
+
+    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser);
+
+//    public Version executeProgramDataCommit(int commitRequestId, ProgramData programData) throws CouldNotSaveException;
     public List<SimpleObject> getVersionTypeList();
 
     public List<SimpleObject> getVersionStatusList();
@@ -59,9 +68,15 @@ public interface ProgramDataService {
 
     public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId);
 
-    public int getLatestVersionForProgram(int programId);
+    public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
 
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
 
     public String getLastModifiedDateForProgram(int programId, int versionId);
+
+    public boolean checkIfCommitRequestExistsForProgram(int programId);
+
+    public SupplyPlanCommitRequest getCommitRequestByCommitRequestId(int commitRequestId);
+
+    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser);
 }
