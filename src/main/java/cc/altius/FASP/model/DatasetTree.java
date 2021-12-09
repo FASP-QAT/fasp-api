@@ -24,7 +24,7 @@ public class DatasetTree extends BaseModel {
     @JsonView(Views.InternalView.class)
     private ForecastTree<TreeNode> tree;
     @JsonView(Views.InternalView.class)
-    private List<SimpleObject> scenarioList;
+    private List<TreeScenario> scenarioList;
     @JsonView(Views.InternalView.class)
     private List<SimpleObject> regionList;
     @JsonView(Views.InternalView.class)
@@ -71,11 +71,11 @@ public class DatasetTree extends BaseModel {
         this.tree = tree;
     }
 
-    public List<SimpleObject> getScenarioList() {
+    public List<TreeScenario> getScenarioList() {
         return scenarioList;
     }
 
-    public void setScenarioList(List<SimpleObject> scenarioList) {
+    public void setScenarioList(List<TreeScenario> scenarioList) {
         this.scenarioList = scenarioList;
     }
 

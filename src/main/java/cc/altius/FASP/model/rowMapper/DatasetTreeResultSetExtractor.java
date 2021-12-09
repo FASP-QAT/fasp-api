@@ -8,6 +8,7 @@ package cc.altius.FASP.model.rowMapper;
 import cc.altius.FASP.model.DatasetTree;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleObjectWithType;
+import cc.altius.FASP.model.TreeScenario;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -37,7 +38,7 @@ public class DatasetTreeResultSetExtractor implements ResultSetExtractor<List<Da
             } else {
                 t = treeList.get(idx);
             }
-            SimpleObject scenario = new SimpleObject(rs.getInt("SCENARIO_ID"), new LabelRowMapper("S_").mapRow(rs, 1));
+            TreeScenario scenario = new TreeScenario(rs.getInt("SCENARIO_ID"), new LabelRowMapper("S_").mapRow(rs, 1), rs.getString("S_NOTES"), rs.getBoolean("S_ACTIVE"));
             idx = t.getScenarioList().indexOf(scenario);
             if (idx == -1) {
                 t.getScenarioList().add(scenario);
