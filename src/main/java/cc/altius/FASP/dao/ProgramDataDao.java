@@ -11,7 +11,7 @@ import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
 import cc.altius.FASP.model.DatasetTree;
-import cc.altius.FASP.model.ForecastConsumption;
+import cc.altius.FASP.model.ForecastActualConsumption;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.NotificationUser;
@@ -27,7 +27,7 @@ import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
-import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationSettings;
+import cc.altius.FASP.model.ForecastConsumptionExtrapolation;
 import java.text.ParseException;
 import java.util.List;
 
@@ -91,9 +91,9 @@ public interface ProgramDataDao {
 
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser);
 
-    public List<ForecastConsumption> getForecastConsumptionData(int programId, int versionId, CustomUserDetails curUser);
+    public List<ForecastActualConsumption> getForecastActualConsumptionData(int programId, int versionId, CustomUserDetails curUser);
 
-    public List<ForecastConsumptionExtrapolationSettings> getForecastConsumptionExtrapolationSettings(int programId, int versionId, CustomUserDetails curUser);
+    public List<ForecastConsumptionExtrapolation> getForecastConsumptionExtrapolation(int programId, int versionId, CustomUserDetails curUser);
 
     public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
 }

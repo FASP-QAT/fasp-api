@@ -3690,30 +3690,6 @@ INSERT INTO ap_label VALUES (null, 'Semi-Averages', null, null, null, 1, @dt, 1,
 INSERT INTO ap_label VALUES (null, 'Moving Averages', null, null, null, 1, @dt, 1, @dt, 52);	SELECT LAST_INSERT_ID() INTO @labelId;	INSERT INTO ap_extrapolation_method VALUES (null, @labelId);
 
 
-CREATE TABLE `rm_dataset_output` (
-  `DATASET_OUTPUT_ID` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `PROGRAM_ID` int(10) unsigned NOT NULL,
-  `PLANNING_UNIT_ID` int(10) unsigned NOT NULL,
-  `REGION_ID` int(10) unsigned NOT NULL,
-  `TREE_ID` int(10) unsigned NOT NULL,
-  `CONSUMPTION_METHOD_ID` int(10) unsigned NOT NULL,
-  `TOTAL_FORECAST` bigint(20) DEFAULT NULL,
-  `VERSION_ID` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`DATASET_OUTPUT_ID`),
-  KEY `fk_rm_dataset_output_programId_idx` (`PROGRAM_ID`),
-  KEY `fk_rm_dataset_output_planningUnitId_idx` (`PLANNING_UNIT_ID`),
-  KEY `fk_rm_dataset_output_regionId_idx` (`REGION_ID`),
-  KEY `fk_rm_dataset_output_treeId_idx` (`TREE_ID`),
-  KEY `fk_rm_dataset_output_consumptionMethodId_idx` (`CONSUMPTION_METHOD_ID`),
-  KEY `idx_rm_dataset_output_versionId` (`VERSION_ID`),
-  CONSTRAINT `fk_rm_dataset_output_consumptionMethodId` FOREIGN KEY (`CONSUMPTION_METHOD_ID`) REFERENCES `ap_extrapolation_method` (`EXTRAPOLATION_METHOD_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_rm_dataset_output_planningUnitId` FOREIGN KEY (`PLANNING_UNIT_ID`) REFERENCES `rm_planning_unit` (`PLANNING_UNIT_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_rm_dataset_output_programId` FOREIGN KEY (`PROGRAM_ID`) REFERENCES `rm_program` (`PROGRAM_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_rm_dataset_output_regionId` FOREIGN KEY (`REGION_ID`) REFERENCES `rm_region` (`REGION_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION,
-  CONSTRAINT `fk_rm_dataset_output_treeId` FOREIGN KEY (`TREE_ID`) REFERENCES `rm_forecast_tree` (`TREE_ID`) ON DELETE NO ACTION ON UPDATE NO ACTION
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
-
-
 CREATE TABLE `rm_forecast_consumption_extrapolation` (
   `CONSUMPTION_EXTRAPOLATION_ID` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `PROGRAM_ID` int(10) unsigned NOT NULL,
@@ -3841,3 +3817,300 @@ VIEW `vw_scenario` AS
         (`rm_scenario` `s`
         LEFT JOIN `ap_label` `l` ON ((`s`.`LABEL_ID` = `l`.`LABEL_ID`)));
 
+CREATE TABLE `fasp`.`rm_dataset_planning_unit_selected` (
+  `PROGRAM_PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL,
+  `REGION_ID` INT(10) UNSIGNED NOT NULL,
+  `SCENARIO_ID` INT(10) UNSIGNED NULL,
+  `EXTRAPOLATION_SETTINGS_ID` INT(10) UNSIGNED NULL,
+  PRIMARY KEY (`PROGRAM_PLANNING_UNIT_ID`));
+
+ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` ADD COLUMN `TOTAL_FORECAST` BIGINT(20) UNSIGNED NULL AFTER `EXTRAPOLATION_SETTINGS_ID`;
+
+ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` 
+DROP PRIMARY KEY,
+ADD PRIMARY KEY (`PROGRAM_PLANNING_UNIT_ID`, `REGION_ID`),
+ADD INDEX `fk_rm_dataset_planning_unit_selected_regionId_idx` (`REGION_ID` ASC),
+ADD INDEX `fk_rm_dataset_planning_unit_selected_scenarioId_idx` (`SCENARIO_ID` ASC),
+ADD INDEX `fk_rm_dataset_planning_unit_selected_extrapolationSettingsId_idx` (`EXTRAPOLATION_SETTINGS_ID` ASC);
+ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` 
+ADD CONSTRAINT `fk_rm_dataset_planning_unit_selected_programPlanningUnitId`
+  FOREIGN KEY (`PROGRAM_PLANNING_UNIT_ID`)
+  REFERENCES `fasp`.`rm_dataset_planning_unit` (`PROGRAM_PLANNING_UNIT_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_rm_dataset_planning_unit_selected_regionId`
+  FOREIGN KEY (`REGION_ID`)
+  REFERENCES `fasp`.`rm_region` (`REGION_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_rm_dataset_planning_unit_selected_scenarioId`
+  FOREIGN KEY (`SCENARIO_ID`)
+  REFERENCES `fasp`.`rm_scenario` (`SCENARIO_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_rm_dataset_planning_unit_selected_extrapolationSettingsId`
+  FOREIGN KEY (`EXTRAPOLATION_SETTINGS_ID`)
+  REFERENCES `fasp`.`rm_forecast_consumption_extrapolation_settings` (`CONSUMPTION_EXTRAPOLATION_SETTINGS_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+INSERT INTO `fasp`.`rm_dataset_planning_unit_selected` (`PROGRAM_PLANNING_UNIT_ID`, `REGION_ID`, `SCENARIO_ID`) VALUES ('1', '70', '1');
+INSERT INTO `fasp`.`rm_dataset_planning_unit_selected` (`PROGRAM_PLANNING_UNIT_ID`, `REGION_ID`, `SCENARIO_ID`) VALUES ('2', '70', '2');
+INSERT INTO `fasp`.`rm_dataset_planning_unit_selected` (`PROGRAM_PLANNING_UNIT_ID`, `REGION_ID`, `EXTRAPOLATION_SETTINGS_ID`) VALUES ('3', '70', '19');
+
+
+ALTER TABLE `fasp`.`rm_dataset_planning_unit` 
+ADD COLUMN `CONSUMPTION_DATA_TYPE_ID` INT(10) UNSIGNED NULL COMMENT 'null=Not a Consumption Unit, 1=Forecast, 2=PlanningUnit, 3=Other Unit' AFTER `PRICE`,
+ADD COLUMN `OTHER_LABEL_ID` INT(10) UNSIGNED NULL AFTER `CONSUMPTION_DATA_TYPE_ID`,
+ADD COLUMN `OTHER_MULTIPLIER` DECIMAL(16,4) UNSIGNED NULL AFTER `OTHER_LABEL_ID`,
+ADD COLUMN `CONSUMPTION_NOTES` TEXT NULL AFTER `OTHER_MULTIPLIER`;
+
+
+ALTER TABLE `fasp`.`rm_dataset_planning_unit` 
+ADD INDEX `fk_rm_dataset_planning_unit_otherLabelId_idx` (`OTHER_LABEL_ID` ASC);
+ALTER TABLE `fasp`.`rm_dataset_planning_unit` 
+ADD CONSTRAINT `fk_rm_dataset_planning_unit_otherLabelId`
+  FOREIGN KEY (`OTHER_LABEL_ID`)
+  REFERENCES `fasp`.`ap_label` (`LABEL_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+ALTER TABLE `fasp`.`rm_dataset_planning_unit` 
+ADD INDEX `idx_rm_dataset_planning_unit_consumptionDataTypeId` (`CONSUMPTION_DATA_TYPE_ID` ASC);
+
+ALTER TABLE `fasp`.`rm_forecast_consumption` 
+DROP FOREIGN KEY `fk_rm_forecast_consumption_consumptionUnitId`;
+ALTER TABLE `fasp`.`rm_forecast_consumption` 
+CHANGE COLUMN `CONSUMPTION_UNIT_ID` `PLANNING_UNIT_ID` INT(10) UNSIGNED NOT NULL ,
+ADD INDEX `fk_rm_forecast_consumption_planningUnitId_idx` (`PLANNING_UNIT_ID` ASC),
+DROP INDEX `fk_rm_forecast_consumption_consumptionUnitId_idx` ;
+ALTER TABLE `fasp`.`rm_forecast_consumption` 
+ADD CONSTRAINT `fk_rm_forecast_consumption_planningUnitId`
+  FOREIGN KEY (`PLANNING_UNIT_ID`)
+  REFERENCES `fasp`.`rm_planning_unit` (`PLANNING_UNIT_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+-- MySQL Workbench Synchronization
+-- Generated: 2021-12-10 01:23
+-- Model: New Model
+-- Version: 1.0
+-- Project: Name of the project
+-- Author: Akil Mahimwala
+
+SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+
+ALTER SCHEMA `fasp`  DEFAULT CHARACTER SET utf8  DEFAULT COLLATE utf8_general_ci ;
+
+ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` 
+DROP FOREIGN KEY `fk_rm_dataset_planning_unit_selected_extrapolationSettingsId`;
+
+ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation` 
+DROP FOREIGN KEY `fk_rm_forecast_consumption_extrapolation_regionId`,
+DROP FOREIGN KEY `fk_rm_forecast_consumption_extrapolation_programId`,
+DROP FOREIGN KEY `fk_rm_forecast_consumption_extrapolation_planningUnitId`,
+DROP FOREIGN KEY `fk_rm_forecast_consumption_extrapolation_createdBy`;
+
+ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation_settings` 
+DROP FOREIGN KEY `fk_rm_fce_settings_consumptionExtrapolationListId`;
+
+ALTER TABLE `fasp`.`rm_dataset_planning_unit` 
+DROP COLUMN `CONSUMPTION_NOTES`,
+ADD COLUMN `CREATED_BY` INT(10) UNSIGNED NOT NULL AFTER `OTHER_MULTIPLIER`,
+ADD COLUMN `CREATED_DATE` DATETIME NULL DEFAULT NULL AFTER `CREATED_BY`;
+
+ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` 
+CHANGE COLUMN `EXTRAPOLATION_SETTINGS_ID` `CONSUMPTION_EXTRAPOLATION_ID` INT(10) UNSIGNED NULL DEFAULT NULL ,
+ADD INDEX `fk_rm_dataset_planning_unit_selected_extrapolationSettingsI_idx` (`CONSUMPTION_EXTRAPOLATION_ID` ASC) VISIBLE,
+DROP INDEX `fk_rm_dataset_planning_unit_selected_extrapolationSettingsId_idx` ;
+
+ALTER TABLE `fasp`.`rm_forecast_consumption` 
+CHANGE COLUMN `CONSUMPTION_ID` `ACTUAL_CONSUMPTION_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
+CHANGE COLUMN `CREATED_DATE` `CREATED_DATE` DATETIME NULL DEFAULT NULL , RENAME TO  `fasp`.`rm_forecast_actual_consumption` ;
+
+ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation` 
+DROP COLUMN `CREATED_BY`,
+DROP COLUMN `CREATED_DATE`,
+DROP COLUMN `VERSION_ID`,
+DROP COLUMN `MOVING_AVERAGE`,
+DROP COLUMN `SEMI_AVERAGE`,
+DROP COLUMN `LINEAR_REGRESSION`,
+DROP COLUMN `ARMIA`,
+DROP COLUMN `TES_UPPER`,
+DROP COLUMN `TES_MIDDLE`,
+DROP COLUMN `TES_LOWER`,
+DROP COLUMN `MONTH`,
+CHANGE COLUMN `CONSUMPTION_EXTRAPOLATION_ID` `CONSUMPTION_EXTRAPOLATION_DATA_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
+CHANGE COLUMN `PROGRAM_ID` `CONSUMPTION_EXTRAPOLATION_ID` INT(10) UNSIGNED NOT NULL ,
+CHANGE COLUMN `PLANNING_UNIT_ID` `MONTH` INT(10) UNSIGNED NOT NULL COMMENT '	' ,
+CHANGE COLUMN `REGION_ID` `AMT` DECIMAL(16,2) UNSIGNED NOT NULL ,
+ADD INDEX `fk_rm_forecast_consumption_extrapolation_data_consumptionEx_idx` (`CONSUMPTION_EXTRAPOLATION_ID` ASC) VISIBLE,
+DROP INDEX `idx_rm_forecast_consumption_extrapolation_versionId` ,
+DROP INDEX `fk_rm_forecast_consumption_extrapolation_createdBy_idx` ,
+DROP INDEX `fk_rm_forecast_consumption_extrapolation_regionId_idx` ,
+DROP INDEX `fk_rm_forecast_consumption_extrapolation_planningUnitId_idx` ,
+DROP INDEX `fk_rm_forecast_consumption_extrapolation_programId_idx` 
+, RENAME TO  `fasp`.`rm_forecast_consumption_extrapolation_data` ;
+
+ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation_list` 
+ADD COLUMN `EXTRAPOLATION_METHOD_ID` INT(10) UNSIGNED NOT NULL AFTER `REGION_ID`,
+ADD COLUMN `JSON_PROPERTIES` VARCHAR(255) NULL AFTER `VERSION_ID`,
+ADD COLUMN `CONSUMPTION_NOTES` TEXT NULL DEFAULT NULL AFTER `JSON_PROPERTIES`,
+ADD COLUMN `CREATED_BY` INT(10) UNSIGNED NOT NULL AFTER `CONSUMPTION_NOTES`,
+ADD COLUMN `CREATED_DATE` DATETIME NULL DEFAULT NULL AFTER `CREATED_BY`,
+CHANGE COLUMN `CONSUMPTION_EXTRAPOLATION_LIST_ID` `CONSUMPTION_EXTRAPOLATION_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
+ADD INDEX `fk_rm_forecast_consumption_extrapolation_extrapolationMetho_idx` (`EXTRAPOLATION_METHOD_ID` ASC) VISIBLE
+, RENAME TO  `fasp`.`rm_forecast_consumption_extrapolation` ;
+
+ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` 
+ADD CONSTRAINT `fk_rm_dataset_planning_unit_selected_extrapolationSettingsId`
+  FOREIGN KEY (`CONSUMPTION_EXTRAPOLATION_ID`)
+  REFERENCES `fasp`.`rm_forecast_consumption_extrapolation` (`CONSUMPTION_EXTRAPOLATION_ID`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+UPDATE fasp.rm_dataset_planning_unit dpu LEFT JOIN rm_forecast_consumption_unit fcu ON dpu.PROGRAM_ID=fcu.PROGRAM_ID AND dpu.PLANNING_UNIT_ID=fcu.PLANNING_UNIT_ID 
+SET 
+dpu.CONSUMPTION_DATA_TYPE_ID=fcu.DATA_TYPE,
+dpu.OTHER_LABEL_ID=fcu.OTHER_UNIT_LABEL_ID,
+dpu.OTHER_MULTIPLIER=fcu.OTHER_UNIT_MULTIPLIER_FOR_FU,
+dpu.CREATED_BY=COALESCE(fcu.CREATED_BY,1),
+dpu.CREATED_DATE=COALESCE(fcu.CREATED_DATE,now());
+
+TRUNCATE TABLE rm_forecast_consumption_extrapolation;
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4149', '70', '1', '1', '{"confidenceLevel":"95","seasonality":"12","alpha":"1","beta":"1","gamma":"1","phi":"1"}', now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4149', '70', '1', '2', '{"confidenceLevel":"95","seasonality":"12","alpha":"1","beta":"1","gamma":"1","phi":"1"}', now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4149', '70', '1', '3', '{"confidenceLevel":"95","seasonality":"12","alpha":"1","beta":"1","gamma":"1","phi":"1"}', now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4149', '70', '1', '4', '{"p":"95","d":"12","q":"12"}', now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4149', '70', '1', '5', null, now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4149', '70', '1', '6', null, now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4149', '70', '1', '7', '{"months":"5"}', now(), 1);
+
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4149', '73', '1', '1', '{"confidenceLevel":"95","seasonality":"12","alpha":"1","beta":"1","gamma":"1","phi":"1"}', now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4149', '73', '1', '2', '{"confidenceLevel":"95","seasonality":"12","alpha":"1","beta":"1","gamma":"1","phi":"1"}', now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4149', '73', '1', '3', '{"confidenceLevel":"95","seasonality":"12","alpha":"1","beta":"1","gamma":"1","phi":"1"}', now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4149', '73', '1', '4', '{"p":"95","d":"12","q":"12"}', now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4149', '73', '1', '5', null, now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4149', '73', '1', '6', null, now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4149', '73', '1', '7', '{"months":"5"}', now(), 1);
+
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4148', '70', '1', '4', '{"p":"95","d":"12","q":"12"}', now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4148', '70', '1', '5', null, now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4148', '70', '1', '6', null, now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '4148', '70', '1', '7', '{"months":"5"}', now(), 1);
+
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '2733', '70', '1', '5', null, now(), 1);
+INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation` (`PROGRAM_ID`, `PLANNING_UNIT_ID`, `REGION_ID`, `VERSION_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`, `CREATED_DATE`, `CREATED_BY`) VALUES ('2557', '2733', '70', '1', '6', null, now(), 1);
+
+DROP TABLE rm_forecast_consumption_extrapolation_settings;
+DROP TABLE rm_forecast_consumption_unit;
+DROP VIEW `fasp`.`vw_forecast_consumption_unit`;
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+ALTER TABLE `fasp`.`rm_forecast_actual_consumption` CHANGE COLUMN `ACTUAL_CONSUMPTION` `AMOUNT` DECIMAL(16,4) UNSIGNED NULL DEFAULT NULL ;
+
+
+USE `fasp`;
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_extrapolation_method` AS
+    SELECT 
+        `em`.`EXTRAPOLATION_METHOD_ID` AS `EXTRAPOLATION_METHOD_ID`,
+        `em`.`LABEL_ID` AS `LABEL_ID`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`ap_extrapolation_method` `em`
+        LEFT JOIN `ap_label` `l` ON ((`em`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation_data` CHANGE COLUMN `AMT` `AMOUNT` DECIMAL(16,2) UNSIGNED NOT NULL ;
+
+UPDATE `fasp`.`rm_dataset_planning_unit` SET `CONSUMPTION_DATA_TYPE_ID` = '1' WHERE (`PROGRAM_PLANNING_UNIT_ID` = '2');
+
+ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation` 
+ADD INDEX `fk_rm_fce_list_createdBy_idx` (`CREATED_BY` ASC) VISIBLE;
+;
+ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation` 
+ADD CONSTRAINT `fk_rm_fce_list_extrapolationMethodId`
+  FOREIGN KEY (`EXTRAPOLATION_METHOD_ID`)
+  REFERENCES `fasp`.`ap_extrapolation_method` (`EXTRAPOLATION_METHOD_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_rm_fce_list_createdBy`
+  FOREIGN KEY (`CREATED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation_data` 
+ADD CONSTRAINT `fk_rm_fced_consumptionExtrapolationDataId`
+  FOREIGN KEY (`CONSUMPTION_EXTRAPOLATION_ID`)
+  REFERENCES `fasp`.`rm_forecast_consumption_extrapolation` (`CONSUMPTION_EXTRAPOLATION_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+ALTER TABLE `fasp`.`rm_dataset_planning_unit` 
+ADD INDEX `fk_rm_dataset_planning_unit_createdBy_idx` (`CREATED_BY` ASC) VISIBLE;
+;
+ALTER TABLE `fasp`.`rm_dataset_planning_unit` 
+ADD CONSTRAINT `fk_rm_dataset_planning_unit_createdBy`
+  FOREIGN KEY (`CREATED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` 
+DROP FOREIGN KEY `fk_rm_dataset_planning_unit_selected_extrapolationSettingsId`;
+ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` 
+ADD CONSTRAINT `fk_rm_dataset_planning_unit_selected_consumptionExtrapolationId`
+  FOREIGN KEY (`CONSUMPTION_EXTRAPOLATION_ID`)
+  REFERENCES `fasp`.`rm_forecast_consumption_extrapolation` (`CONSUMPTION_EXTRAPOLATION_ID`)
+  ON DELETE RESTRICT
+  ON UPDATE RESTRICT;
+
+
+ALTER TABLE `fasp`.`rm_dataset_planning_unit` ADD COLUMN `CONSUMPTION_NOTES` TEXT NULL DEFAULT NULL AFTER `PRICE`;
+
+ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation` DROP COLUMN `CONSUMPTION_NOTES`;
+
+ALTER TABLE `fasp`.`rm_forecast_tree_node` DROP COLUMN `MANUAL_CHANGE_EFFECTS_FUTURE_MONTHS`;
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_forecast_tree_node` AS
+    SELECT 
+        `tn`.`NODE_ID` AS `NODE_ID`,
+        `tn`.`TREE_ID` AS `TREE_ID`,
+        `tn`.`PARENT_NODE_ID` AS `PARENT_NODE_ID`,
+        `tn`.`SORT_ORDER` AS `SORT_ORDER`,
+        `tn`.`LEVEL_NO` AS `LEVEL_NO`,
+        `tn`.`NODE_TYPE_ID` AS `NODE_TYPE_ID`,
+        `tn`.`UNIT_ID` AS `UNIT_ID`,
+        `tn`.`LABEL_ID` AS `LABEL_ID`,
+        `tn`.`CREATED_BY` AS `CREATED_BY`,
+        `tn`.`CREATED_DATE` AS `CREATED_DATE`,
+        `tn`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `tn`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `tn`.`ACTIVE` AS `ACTIVE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_forecast_tree_node` `tn`
+        LEFT JOIN `ap_label` `l` ON ((`tn`.`LABEL_ID` = `l`.`LABEL_ID`)));

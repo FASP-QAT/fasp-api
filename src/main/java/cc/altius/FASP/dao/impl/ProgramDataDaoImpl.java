@@ -19,7 +19,7 @@ import cc.altius.FASP.model.DTO.rowMapper.ProgramIntegrationDTORowMapper;
 import cc.altius.FASP.model.DatasetTree;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
-import cc.altius.FASP.model.ForecastConsumption;
+import cc.altius.FASP.model.ForecastActualConsumption;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.IdByAndDate;
 import cc.altius.FASP.model.Inventory;
@@ -49,9 +49,9 @@ import cc.altius.FASP.model.rowMapper.ActualConsumptionDataOutputRowMapper;
 import cc.altius.FASP.model.rowMapper.BatchRowMapper;
 import cc.altius.FASP.model.rowMapper.ConsumptionListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.DatasetTreeResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationSettings;
-import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationSettingsListResultSetExtractor;
-import cc.altius.FASP.model.rowMapper.ForecastConsumptionRowMapper;
+import cc.altius.FASP.model.ForecastConsumptionExtrapolation;
+import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationListResultSetExtractor;
+import cc.altius.FASP.model.rowMapper.ForecastActualConsumptionRowMapper;
 import cc.altius.FASP.model.rowMapper.IdByAndDateRowMapper;
 import cc.altius.FASP.model.rowMapper.InventoryListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.NewSupplyPlanBatchResultSetExtractor;
@@ -1884,7 +1884,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser) {
         String sql = "SELECT "
-                + "          ttn.NODE_ID, ttn.TREE_ID, ttn.PARENT_NODE_ID, ttn.MANUAL_CHANGE_EFFECTS_FUTURE_MONTHS, "
+                + "          ttn.NODE_ID, ttn.TREE_ID, ttn.PARENT_NODE_ID, "
                 + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
                 + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.MODELING_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
                 + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
@@ -1927,52 +1927,45 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<ForecastConsumption> getForecastConsumptionData(int programId, int versionId, CustomUserDetails curUser) {
+    public List<ForecastActualConsumption> getForecastActualConsumptionData(int programId, int versionId, CustomUserDetails curUser) {
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("programId", programId);
         params.put("versionId", versionId);
         StringBuilder sqlBuilder = new StringBuilder("SELECT "
-                + "    fc.CONSUMPTION_ID, fc.MONTH, fc.ACTUAL_CONSUMPTION, fc.REPORTING_RATE, fc.DAYS_OF_STOCK_OUT, fc.EXCLUDE, fc.VERSION_ID, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fc.CREATED_DATE, "
-                + "    p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
-                + "    fcu.CONSUMPTION_UNIT_ID, fcu.DATA_TYPE, "
-                + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
-                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, pu.MULTIPLIER `PU_MULTIPLIER_FOR_FU`, "
-                + "    fcu.OTHER_UNIT_LABEL_ID `OU_LABEL_ID`, fcu.LABEL_EN `OU_LABEL_EN`, fcu.LABEL_EN `OU_LABEL_EN`, fcu.LABEL_FR `OU_LABEL_FR`, fcu.LABEL_SP `OU_LABEL_SP`, fcu.LABEL_PR `OU_LABEL_PR`, fcu.OTHER_UNIT_MULTIPLIER_FOR_FU `OU_MULTIPLIER_FOR_FU`, "
+                + "    fac.ACTUAL_CONSUMPTION_ID, fac.MONTH, fac.AMOUNT, fac.REPORTING_RATE, fac.DAYS_OF_STOCK_OUT, fac.EXCLUDE, fac.VERSION_ID, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fac.CREATED_DATE, "
+                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
                 + "    r.REGION_ID, r.LABEL_ID `REG_LABEL_ID`, r.LABEL_EN `REG_LABEL_EN`, r.LABEL_FR `REG_LABEL_FR`, r.LABEL_SP `REG_LABEL_SP`, r.LABEL_PR `REG_LABEL_PR` "
-                + "FROM rm_forecast_consumption fc "
-                + "LEFT JOIN vw_dataset p ON fc.PROGRAM_ID=p.PROGRAM_ID "
-                + "LEFT JOIN vw_forecast_consumption_unit fcu ON fc.CONSUMPTION_UNIT_ID=fcu.CONSUMPTION_UNIT_ID "
-                + "LEFT JOIN vw_planning_unit pu ON fcu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
-                + "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
-                + "LEFT JOIN vw_region r ON fc.REGION_ID=r.REGION_ID "
-                + "LEFT JOIN us_user cb ON fc.CREATED_BY=cb.USER_ID "
-                + "WHERE fc.PROGRAM_ID=:programId AND fc.VERSION_ID=:versionId ");
+                + "FROM rm_forecast_actual_consumption fac "
+                + "LEFT JOIN vw_dataset p ON fac.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN vw_planning_unit pu ON fac.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_region r ON fac.REGION_ID=r.REGION_ID "
+                + "LEFT JOIN us_user cb ON fac.CREATED_BY=cb.USER_ID "
+                + "WHERE fac.PROGRAM_ID=:programId AND fac.VERSION_ID=:versionId ");
         this.aclService.addFullAclForProgram(sqlBuilder, params, "p", curUser);
-        return this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), params, new ForecastConsumptionRowMapper());
+        return this.namedParameterJdbcTemplate.query(sqlBuilder.toString(), params, new ForecastActualConsumptionRowMapper());
     }
 
     @Override
-    public List<ForecastConsumptionExtrapolationSettings> getForecastConsumptionExtrapolationSettings(int programId, int versionId, CustomUserDetails curUser) {
+    public List<ForecastConsumptionExtrapolation> getForecastConsumptionExtrapolation(int programId, int versionId, CustomUserDetails curUser) {
         StringBuilder sb = new StringBuilder("SELECT "
-                + "    fcel.CONSUMPTION_EXTRAPOLATION_LIST_ID, "
-                + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
-                + "    r.REGION_ID, r.LABEL_ID `R_LABEL_ID`, r.LABEL_EN `R_LABEL_EN`, r.LABEL_FR `R_LABEL_FR`, r.LABEL_SP `R_LABEL_SP`, r.LABEL_PR `R_LABEL_PR`, "
-                + "    fcel.PROGRAM_ID, fcel.VERSION_ID, "
-                + "    fces.CONSUMPTION_EXTRAPOLATION_SETTINGS_ID, fces.JSON_PROPERTIES, "
-                + "    em.EXTRAPOLATION_METHOD_ID, l.LABEL_ID `EM_LABEL_ID`, l.LABEL_EN `EM_LABEL_EN`, l.LABEL_FR `EM_LABEL_FR`, l.LABEL_SP `EM_LABEL_SP`, l.LABEL_PR `EM_LABEL_PR` "
-                + "FROM rm_forecast_consumption_extrapolation_list fcel "
-                + "LEFT JOIN vw_dataset p ON fcel.PROGRAM_ID=p.PROGRAM_ID "
-                + "LEFT JOIN vw_planning_unit pu ON fcel.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
-                + "LEFT JOIN vw_region r ON fcel.REGION_ID=r.REGION_ID "
-                + "LEFT JOIN rm_forecast_consumption_extrapolation_settings fces ON fcel.CONSUMPTION_EXTRAPOLATION_LIST_ID=fces.CONSUMPTION_EXTRAPOLATION_LIST_ID "
-                + "LEFT JOIN ap_extrapolation_method em ON fces.EXTRAPOLATION_METHOD_ID=em.EXTRAPOLATION_METHOD_ID "
-                + "LEFT JOIN ap_label l ON em.LABEL_ID=l.LABEL_ID "
-                + "WHERE fcel.PROGRAM_ID=:programId AND fcel.VERSION_ID=:versionId ");
+                + "     fce.CONSUMPTION_EXTRAPOLATION_ID, "
+                + "     pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
+                + "     r.REGION_ID, r.LABEL_ID `R_LABEL_ID`, r.LABEL_EN `R_LABEL_EN`, r.LABEL_FR `R_LABEL_FR`, r.LABEL_SP `R_LABEL_SP`, r.LABEL_PR `R_LABEL_PR`, "
+                + "     em.EXTRAPOLATION_METHOD_ID, em.LABEL_ID `EM_LABEL_ID`, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, "
+                + "     fce.JSON_PROPERTIES, fce.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fced.MONTH, fced.AMOUNT "
+                + "FROM rm_forecast_consumption_extrapolation fce "
+                + "LEFT JOIN vw_dataset p ON fce.PROGRAM_ID=p.PROGRAM_ID "
+                + "LEFT JOIN vw_planning_unit pu ON fce.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_region r ON fce.REGION_ID=r.REGION_ID "
+                + "LEFT JOIN vw_extrapolation_method em ON fce.EXTRAPOLATION_METHOD_ID=em.EXTRAPOLATION_METHOD_ID "
+                + "LEFT JOIN us_user cb ON fce.CREATED_BY=cb.USER_ID "
+                + "LEFT JOIN rm_forecast_consumption_extrapolation_data fced ON fce.CONSUMPTION_EXTRAPOLATION_ID=fced.CONSUMPTION_EXTRAPOLATION_ID "
+                + "WHERE fce.PROGRAM_ID=:programId and fce.VERSION_ID=:versionId");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
-        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ForecastConsumptionExtrapolationSettingsListResultSetExtractor());
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ForecastConsumptionExtrapolationListResultSetExtractor());
     }
 
     @Override

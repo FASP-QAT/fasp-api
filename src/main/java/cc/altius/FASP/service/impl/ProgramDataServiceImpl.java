@@ -112,8 +112,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             dd.getTreeList().forEach(t -> {
                 t.setTree(this.programDataDao.getTreeData(t.getTreeId(), curUser));
             });
-            dd.setConsumptionList(this.programDataDao.getForecastConsumptionData(pv.getProgramId(), versionId, curUser));
-            dd.setExtrapolationSettings(this.programDataDao.getForecastConsumptionExtrapolationSettings(pv.getProgramId(), versionId, curUser));
+            dd.setActualConsumptionList(this.programDataDao.getForecastActualConsumptionData(pv.getProgramId(), versionId, curUser));
+            dd.setConsumptionExtrapolation(this.programDataDao.getForecastConsumptionExtrapolation(pv.getProgramId(), versionId, curUser));
             datasetDataList.add(dd);
         });
         return datasetDataList;
