@@ -3815,3 +3815,29 @@ INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation_settings` (`CONSUMPTIO
 INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation_settings` (`CONSUMPTION_EXTRAPOLATION_LIST_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`) VALUES ('4', '5', null);
 INSERT INTO `fasp`.`rm_forecast_consumption_extrapolation_settings` (`CONSUMPTION_EXTRAPOLATION_LIST_ID`, `EXTRAPOLATION_METHOD_ID`, `JSON_PROPERTIES`) VALUES ('4', '6', null);
 
+ALTER TABLE `fasp`.`rm_scenario` ADD COLUMN `NOTES` TEXT NULL AFTER `ACTIVE`;
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_scenario` AS
+    SELECT 
+        `s`.`SCENARIO_ID` AS `SCENARIO_ID`,
+        `s`.`TREE_ID` AS `TREE_ID`,
+        `s`.`LABEL_ID` AS `LABEL_ID`,
+        `s`.`CREATED_BY` AS `CREATED_BY`,
+        `s`.`CREATED_DATE` AS `CREATED_DATE`,
+        `s`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `s`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `s`.`ACTIVE` AS `ACTIVE`,
+        `s`.`NOTES` AS `NOTES`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_scenario` `s`
+        LEFT JOIN `ap_label` `l` ON ((`s`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
