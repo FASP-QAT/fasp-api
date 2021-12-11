@@ -10,10 +10,11 @@ import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ResponseCode;
+import cc.altius.FASP.model.SupplyPlanCommitRequest;
 import cc.altius.FASP.model.UpdateProgramVersion;
-import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.Views;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
+import cc.altius.FASP.model.report.SupplyPlanCommitRequestInput;
 import cc.altius.FASP.service.ProgramDataService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -96,7 +98,7 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @JsonView(Views.ArtmisView.class)
     @GetMapping("/programData/artmis/programId/{programId}/versionId/{versionId}")
     public ResponseEntity getProgramDataArtmis(@PathVariable(value = "programId", required = true) int programId, @PathVariable(value = "versionId", required = true) int versionId, Authentication auth) {
@@ -133,18 +135,26 @@ public class ProgramDataRestController {
         }
     }
 
+    // Part 1 of the Commit Request
     @PutMapping("/programData/{comparedVersionId}")
     public ResponseEntity putProgramData(@RequestBody ProgramData programData, @PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, Authentication auth) {
         try {
-            int latestVersion = this.programDataService.getLatestVersionForProgram(programData.getProgramId());
+            int latestVersion = this.programDataService.getLatestVersionForPrograms("" + programData.getProgramId()).get(0).getVersionId();
             if (latestVersion == comparedVersionId) {
-                CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-                Version v = this.programDataService.saveProgramData(programData, curUser);
-                return new ResponseEntity(this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser, false), HttpStatus.OK);
+                boolean checkIfRequestExists = this.programDataService.checkIfCommitRequestExistsForProgram(programData.getProgramId());
+                if (!checkIfRequestExists) {
+                    CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+                    int commitRequestId = this.programDataService.saveProgramData(programData, curUser);
+                    return new ResponseEntity(commitRequestId, HttpStatus.OK);
+                } else {
+                    logger.error("Request already exists");
+                    return new ResponseEntity(new ResponseCode("static.commitVersion.requestAlreadyExists"), HttpStatus.NOT_ACCEPTABLE);
+                }
             } else {
                 logger.error("Compared version is not latest");
                 return new ResponseEntity(new ResponseCode("static.commitVersion.versionIsOutDated"), HttpStatus.NOT_ACCEPTABLE);
             }
+//            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
         } catch (CouldNotSaveException e) {
             logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
@@ -157,6 +167,46 @@ public class ProgramDataRestController {
         } catch (Exception e) {
             logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Part 2 of the Commit Request
+//    @GetMapping("/processCommitRequest")
+    //sec min hour day_of_month month day_of_week
+    @Scheduled(cron = "00 */1 * * * *")
+    public ResponseEntity processCommitRequest() {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(1);
+            this.programDataService.processCommitRequest(curUser);
+            return new ResponseEntity(HttpStatus.OK);
+//        } catch (CouldNotSaveException e) {
+//            logger.error("Error while trying to processCommitRequest", e);
+//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to processCommitRequest", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to processCommitRequest", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to processCommitRequest", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/getCommitRequest/{requestStatus}")
+    public ResponseEntity getProgramDataCommitRequest(@RequestBody SupplyPlanCommitRequestInput spcr, @PathVariable(value = "requestStatus", required = true) int requestStatus, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            List<SupplyPlanCommitRequest> spcrList = this.programDataService.getSupplyPlanCommitRequestList(spcr, requestStatus, curUser);
+            return new ResponseEntity(spcrList, HttpStatus.OK);
+//            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get SupplyPlanCommitRequest list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get SupplyPlanCommitRequest list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -350,7 +400,7 @@ public class ProgramDataRestController {
     @GetMapping("/programData/getLatestVersionForProgram/{programId}")
     public ResponseEntity getLatestVersionForProgram(@PathVariable(value = "programId", required = true) int programId) {
         try {
-            return new ResponseEntity(this.programDataService.getLatestVersionForProgram(programId), HttpStatus.OK);
+            return new ResponseEntity(this.programDataService.getLatestVersionForPrograms("" + programId).get(0).getVersionId(), HttpStatus.OK);
         } catch (AccessDeniedException e) {
             logger.error("Error while trying to get latest version for program", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
@@ -372,7 +422,7 @@ public class ProgramDataRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     // Used in Forecasting Unit import data from Supply Plan
     /**
      * <pre>
@@ -398,6 +448,33 @@ public class ProgramDataRestController {
         } catch (Exception e) {
             logger.error("/api/program/actualConsumptionReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/programData/getLatestVersionForPrograms")
+    public ResponseEntity getLatestVersionForProgram(@RequestBody String[] programIds) {
+        try {
+            String programIdsString = getProgramIds(programIds);
+            return new ResponseEntity(this.programDataService.getLatestVersionForPrograms(programIdsString), HttpStatus.OK);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get latest version for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get latest version for program", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private String getProgramIds(String[] programIds) {
+        if (programIds == null) {
+            return "";
+        } else {
+            String opt = String.join("','", programIds);
+            if (programIds.length > 0) {
+                return "'" + opt + "'";
+            } else {
+                return opt;
+            }
         }
     }
 

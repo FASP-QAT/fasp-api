@@ -25,15 +25,19 @@ import cc.altius.FASP.model.ShipmentSync;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
+import cc.altius.FASP.model.SupplyPlanCommitRequest;
+import cc.altius.FASP.model.User;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
+import cc.altius.FASP.model.report.SupplyPlanCommitRequestInput;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.ProblemService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import cc.altius.FASP.service.ProgramDataService;
+import cc.altius.FASP.service.UserService;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.text.ParseException;
@@ -60,6 +64,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     private AclService aclService;
     @Autowired
     private EmailService emailService;
+    @Autowired
+    private UserService userService;
 
     @Override
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean active) {
@@ -99,19 +105,19 @@ public class ProgramDataServiceImpl implements ProgramDataService {
 
     @Override
     public DatasetData getDatasetData(int programId, int versionId, CustomUserDetails curUser) {
-            if (versionId == -1) {
-                versionId = this.programDataDao.getLatestVersionForProgram(programId);
-            }
-            DatasetData dd = new DatasetData(this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser));
-            dd.setPlanningUnitList(this.programDao.getDatasetPlanningUnitList(programId, versionId));
-            dd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
-            dd.setTreeList(this.programDataDao.getTreeListForDataset(programId, versionId, curUser));
-            dd.getTreeList().forEach(t -> {
-                t.setTree(this.programDataDao.getTreeData(t.getTreeId(), curUser));
-            });
-            dd.setActualConsumptionList(this.programDataDao.getForecastActualConsumptionData(programId, versionId, curUser));
-            dd.setConsumptionExtrapolation(this.programDataDao.getForecastConsumptionExtrapolation(programId, versionId, curUser));
-            return dd;
+        if (versionId == -1) {
+            versionId = this.programDataDao.getLatestVersionForPrograms(""+programId).get(0).getVersionId();
+        }
+        DatasetData dd = new DatasetData(this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser));
+        dd.setPlanningUnitList(this.programDao.getDatasetPlanningUnitList(programId, versionId));
+        dd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
+        dd.setTreeList(this.programDataDao.getTreeListForDataset(programId, versionId, curUser));
+        dd.getTreeList().forEach(t -> {
+            t.setTree(this.programDataDao.getTreeData(t.getTreeId(), curUser));
+        });
+        dd.setActualConsumptionList(this.programDataDao.getForecastActualConsumptionData(programId, versionId, curUser));
+        dd.setConsumptionExtrapolation(this.programDataDao.getForecastConsumptionExtrapolation(programId, versionId, curUser));
+        return dd;
     }
 
     @Override
@@ -124,58 +130,103 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
+    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException {
         Program p = this.programCommonDao.getProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+            programData.setRequestedProgramVersion(programData.getCurrentVersion().getVersionId());
             programData.setCurrentVersion(p.getCurrentVersion());
-//            System.out.println("++++" + p.getCurrentVersion());
-            Version version = this.programDataDao.saveProgramData(programData, curUser);
-//            System.out.println("version++++" + version);
-            try {
-                getNewSupplyPlanList(programData.getProgramId(), version.getVersionId(), true, false);
-                if (programData.getVersionType().getId() == 2 && version.getVersionId() != 0) {
-                    List<NotificationUser> toEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(programData.getProgramId(), version.getVersionId(), 1, "To");
-                    List<NotificationUser> ccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(programData.getProgramId(), version.getVersionId(), 1, "Cc");
-                    System.out.println("toEmailIdsList===>" + toEmailIdsList);
-                    System.out.println("ccEmailIdsList===>" + ccEmailIdsList);
-                    StringBuilder sbToEmails = new StringBuilder();
-                    StringBuilder sbCcEmails = new StringBuilder();
-                    if (toEmailIdsList.size() > 0) {
-                        for (NotificationUser ns : toEmailIdsList) {
-                            sbToEmails.append(ns.getEmailId()).append(",");
-                        }
-                    }
-                    if (ccEmailIdsList.size() > 0) {
-                        for (NotificationUser ns : ccEmailIdsList) {
-                            sbCcEmails.append(ns.getEmailId()).append(",");
-                        }
-                    }
-                    if (sbToEmails.length() != 0) {
-                        System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
-                    }
-                    if (sbCcEmails.length() != 0) {
-                        System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
-                    }
-                    EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(6);
-                    String[] subjectParam = new String[]{};
-                    String[] bodyParam = null;
-                    Emailer emailer = new Emailer();
-                    subjectParam = new String[]{programData.getProgramCode()};
-                    bodyParam = new String[]{programData.getProgramCode(), String.valueOf(version.getVersionId()), programData.getNotes()};
-//                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "shubham.y@altius.cc,harshana.c@altius.cc", "palash.n@altius.cc,dolly.c@altius.cc", subjectParam, bodyParam);
-                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
-                    int emailerId = this.emailService.saveEmail(emailer);
-                    emailer.setEmailerId(emailerId);
-                    this.emailService.sendMail(emailer);
-                }
-
-                return version;
-            } catch (ParseException pe) {
-                throw new CouldNotSaveException(pe.getMessage());
-            }
+            return this.programDataDao.saveProgramData(programData, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    @Override
+    public void processCommitRequest(CustomUserDetails curUser) {
+        List<SupplyPlanCommitRequest> spcrList = this.programDataDao.getPendingSupplyPlanProcessList();
+        for (SupplyPlanCommitRequest spcr : spcrList) {
+            boolean isStatusUpdated = false;
+            Program p = this.programCommonDao.getProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+            if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+//            programData.setCurrentVersion(p.getCurrentVersion());
+//            System.out.println("++++" + p.getCurrentVersion());
+                Version version;
+                User user = this.userService.getUserByUserId(spcr.getCreatedBy().getUserId(), curUser);
+                try {
+                    if (spcr.isSaveData()) {
+                        version = this.programDataDao.processCommitRequest(spcr, curUser);
+                    } else {
+                        version = new Version();
+                        version.setVersionId(spcr.getCommittedVersionId());
+                    }
+                } catch (Exception e) {
+                    version = this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 3, e.getMessage(), 0);
+                    isStatusUpdated = true;
+                }
+//            System.out.println("version++++" + version);
+                try {
+                    getNewSupplyPlanList(spcr.getProgram().getId(), version.getVersionId(), true, false);
+                    if (version.getVersionId() != 0) {
+                        this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 2, "", version.getVersionId());
+                    } else {
+                        if (!isStatusUpdated) {
+                            version = this.programDataDao.updateSupplyPlanCommitRequest(spcr.getCommitRequestId(), 3, "No new changes found", 0);
+                        }
+                    }
+                    if (version.getVersionId() != 0 && spcr.isSaveData()) {
+                        if (spcr.getVersionType().getId() == 2) {
+                            List<NotificationUser> toEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "To");
+                            List<NotificationUser> ccEmailIdsList = this.programDataDao.getSupplyPlanNotificationList(spcr.getProgram().getId(), version.getVersionId(), 1, "Cc");
+                            StringBuilder sbToEmails = new StringBuilder();
+                            StringBuilder sbCcEmails = new StringBuilder();
+                            if (toEmailIdsList.size() > 0) {
+                                for (NotificationUser ns : toEmailIdsList) {
+                                    sbToEmails.append(ns.getEmailId()).append(",");
+                                }
+                            }
+                            if (ccEmailIdsList.size() > 0) {
+                                for (NotificationUser ns : ccEmailIdsList) {
+                                    sbCcEmails.append(ns.getEmailId()).append(",");
+                                }
+                            }
+                            if (sbToEmails.length() != 0) {
+                                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
+                            }
+                            if (sbCcEmails.length() != 0) {
+                                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
+                            }
+                            EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(6);
+                            String[] subjectParam = new String[]{};
+                            String[] bodyParam = null;
+                            Emailer emailer = new Emailer();
+                            subjectParam = new String[]{spcr.getProgram().getCode()};
+                            bodyParam = new String[]{spcr.getProgram().getCode(), String.valueOf(version.getVersionId()), spcr.getNotes()};
+//                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), "shubham.y@altius.cc,harshana.c@altius.cc", "palash.n@altius.cc,dolly.c@altius.cc", subjectParam, bodyParam);
+                            emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), sbToEmails.length() != 0 ? sbToEmails.deleteCharAt(sbToEmails.length() - 1).toString() : "", sbCcEmails.length() != 0 ? sbCcEmails.deleteCharAt(sbCcEmails.length() - 1).toString() : "", subjectParam, bodyParam);
+                            int emailerId = this.emailService.saveEmail(emailer);
+                            emailer.setEmailerId(emailerId);
+                            this.emailService.sendMail(emailer);
+                        }
+                    } else {
+
+                    }
+                } catch (ParseException pe) {
+
+                }
+            } else {
+                throw new AccessDeniedException("Access denied");
+            }
+        }
+    }
+
+    @Override
+    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message, int versionId) {
+        return this.programDataDao.updateSupplyPlanCommitRequest(commitRequestId, status, message, versionId);
+    }
+
+    @Override
+    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser) {
+        return this.programDataDao.getSupplyPlanCommitRequestList(spcr, requestStatus, curUser);
     }
 
     @Override
@@ -264,8 +315,8 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public int getLatestVersionForProgram(int programId) {
-        return this.programDataDao.getLatestVersionForProgram(programId);
+    public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds) {
+        return this.programDataDao.getLatestVersionForPrograms(programIds);
     }
 
     /**
@@ -297,6 +348,20 @@ public class ProgramDataServiceImpl implements ProgramDataService {
         } else {
             throw new AccessDeniedException("Access denied");
         }
+    }
+
+    public boolean checkIfCommitRequestExistsForProgram(int programId) {
+        return this.programDataDao.checkIfCommitRequestExistsForProgram(programId);
+    }
+
+    @Override
+    public SupplyPlanCommitRequest getCommitRequestByCommitRequestId(int commitRequestId) {
+        return this.programDataDao.getCommitRequestByCommitRequestId(commitRequestId);
+    }
+
+    @Override
+    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser) {
+        return this.programDataDao.addSupplyPlanCommitRequest(spcr, curUser);
     }
 
 }
