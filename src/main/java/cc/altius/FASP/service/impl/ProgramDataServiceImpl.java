@@ -98,23 +98,27 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     }
 
     @Override
-    public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
-        List<DatasetData> datasetDataList = new LinkedList<>();
-        programVersionList.forEach(pv -> {
-            int versionId = pv.getVersionId();
+    public DatasetData getDatasetData(int programId, int versionId, CustomUserDetails curUser) {
             if (versionId == -1) {
-                versionId = this.programDataDao.getLatestVersionForProgram(pv.getProgramId());
+                versionId = this.programDataDao.getLatestVersionForProgram(programId);
             }
-            DatasetData dd = new DatasetData(this.programCommonDao.getProgramById(pv.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser));
-            dd.setPlanningUnitList(this.programDao.getDatasetPlanningUnitList(pv.getProgramId(), versionId));
-            dd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), versionId));
-            dd.setTreeList(this.programDataDao.getTreeListForDataset(pv.getProgramId(), versionId, curUser));
+            DatasetData dd = new DatasetData(this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser));
+            dd.setPlanningUnitList(this.programDao.getDatasetPlanningUnitList(programId, versionId));
+            dd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
+            dd.setTreeList(this.programDataDao.getTreeListForDataset(programId, versionId, curUser));
             dd.getTreeList().forEach(t -> {
                 t.setTree(this.programDataDao.getTreeData(t.getTreeId(), curUser));
             });
-            dd.setActualConsumptionList(this.programDataDao.getForecastActualConsumptionData(pv.getProgramId(), versionId, curUser));
-            dd.setConsumptionExtrapolation(this.programDataDao.getForecastConsumptionExtrapolation(pv.getProgramId(), versionId, curUser));
-            datasetDataList.add(dd);
+            dd.setActualConsumptionList(this.programDataDao.getForecastActualConsumptionData(programId, versionId, curUser));
+            dd.setConsumptionExtrapolation(this.programDataDao.getForecastConsumptionExtrapolation(programId, versionId, curUser));
+            return dd;
+    }
+
+    @Override
+    public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser) {
+        List<DatasetData> datasetDataList = new LinkedList<>();
+        programVersionList.forEach(pv -> {
+            datasetDataList.add(getDatasetData(pv.getProgramId(), pv.getVersionId(), curUser));
         });
         return datasetDataList;
     }

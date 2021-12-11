@@ -33,15 +33,17 @@ public interface ProgramDataService {
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean active);
 
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
-    
+
     public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
+
+    public DatasetData getDatasetData(int programId, int versionId, CustomUserDetails curUser);
 
     public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
     public List<SimpleObject> getVersionTypeList();
-    
+
     public List<SimpleObject> getVersionStatusList();
-    
+
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser);
 
     public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList);
@@ -69,6 +71,6 @@ public interface ProgramDataService {
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
 
     public String getLastModifiedDateForProgram(int programId, int versionId);
-    
+
     public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
 }

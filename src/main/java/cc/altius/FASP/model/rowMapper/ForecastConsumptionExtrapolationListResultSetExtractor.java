@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.ForecastConsumptionExtrapolation;
 import cc.altius.FASP.model.ForecastConsumptionExtrapolationData;
 import cc.altius.FASP.model.SimpleObject;
@@ -43,6 +44,8 @@ public class ForecastConsumptionExtrapolationListResultSetExtractor implements R
                     }.getType());
                     fces.setJsonProperties(jsonProperties);
                 }
+                fces.setCreatedBy(new BasicUser(rs.getInt("CB_USER_ID"), rs.getString("CB_USERNAME")));
+                fces.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
             } else {
                 fces = fcesList.get(idx);
             }
