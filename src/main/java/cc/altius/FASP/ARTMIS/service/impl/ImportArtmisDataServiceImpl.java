@@ -22,6 +22,7 @@ import org.springframework.jdbc.BadSqlGrammarException;
 import org.springframework.stereotype.Service;
 import org.xml.sax.SAXException;
 import cc.altius.FASP.ARTMIS.service.ImportArtmisDataService;
+import cc.altius.FASP.dao.ProgramDao;
 import cc.altius.FASP.dao.ProgramDataDao;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
@@ -44,6 +45,8 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
     private ImportArtmisDataDao importArtmisDataDao;
     @Autowired
     private ProgramDataDao programDataDao;
+    @Autowired
+    private ProgramDao programDao;
     @Autowired
     private EmailService emailService;
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -148,7 +151,7 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
         programList.forEach(p -> {
             try {
                 System.out.println("p-----------" + p);
-                int versionId = this.programDataDao.getLatestVersionForPrograms(""+p).get(0).getVersionId();
+                int versionId = this.programDao.getLatestVersionForPrograms(""+p).get(0).getVersionId();
                 logger.info("Going to rebuild Supply plan for Program " + p + " Version " + versionId);
                 this.programDataDao.getNewSupplyPlanList(p, -1, true, false);
                 logger.info("Supply plan rebuilt");

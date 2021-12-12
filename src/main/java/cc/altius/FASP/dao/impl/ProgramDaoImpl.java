@@ -41,7 +41,8 @@ import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.SupplyPlanCommitRequest;
+import cc.altius.FASP.model.CommitRequest;
+import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.Views;
@@ -49,6 +50,7 @@ import cc.altius.FASP.model.rowMapper.DatasetPlanningUnitListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.LoadProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.LoadProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.LoadProgramVersionRowMapper;
+import cc.altius.FASP.model.rowMapper.ProgramIdAndVersionIdRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitProcurementAgentPriceRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitResultSetExtractor;
@@ -516,7 +518,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 params.put("curUser", curUser.getUserId());
                 params.put("active", ppu.isActive());
                 updateList.add(new MapSqlParameterSource(params));
-                if(programIds.indexOf(ppu.getProgram().getId())==-1){
+                if (programIds.indexOf(ppu.getProgram().getId()) == -1) {
                     programIds.add(ppu.getProgram().getId());
                 }
             }
@@ -530,15 +532,15 @@ public class ProgramDaoImpl implements ProgramDao {
             String sqlString = "UPDATE rm_program_planning_unit ppu SET ppu.MIN_MONTHS_OF_STOCK=:minMonthsOfStock,ppu.REORDER_FREQUENCY_IN_MONTHS=:reorderFrequencyInMonths, ppu.LOCAL_PROCUREMENT_LEAD_TIME=:localProcurementLeadTime, ppu.SHELF_LIFE=:shelfLife, ppu.CATALOG_PRICE=:catalogPrice, ppu.MONTHS_IN_PAST_FOR_AMC=:monthsInPastForAmc, ppu.MONTHS_IN_FUTURE_FOR_AMC=:monthsInFutureForAmc, ppu.ACTIVE=:active, ppu.LAST_MODIFIED_DATE=:curDate, ppu.LAST_MODIFIED_BY=:curUser WHERE ppu.PROGRAM_PLANNING_UNIT_ID=:programPlanningUnitId";
             rowsEffected += this.namedParameterJdbcTemplate.batchUpdate(sqlString, updateList.toArray(updateParams)).length;
         }
-        for(Integer pId:programIds){
-            SupplyPlanCommitRequest s = new SupplyPlanCommitRequest();
+        for (Integer pId : programIds) {
+            CommitRequest s = new CommitRequest();
             SimpleCodeObject program = new SimpleCodeObject();
             program.setId(pId);
             s.setProgram(program);
             s.setCommittedVersionId(-1);
             s.setSaveData(false);
             s.setNotes("Supply Plan Rebuild After program planning unit data modified");
-            this.programDataDao.addSupplyPlanCommitRequest(s,curUser);
+            this.programDataDao.addSupplyPlanCommitRequest(s, curUser);
         }
         return rowsEffected;
     }
@@ -2724,6 +2726,12 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("versionId", versionId);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new DatasetPlanningUnitListResultSetExtractor());
 
+    }
+
+    @Override
+    public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds) {
+        String sqlString = "SELECT p.CURRENT_VERSION_ID,p.PROGRAM_ID FROM rm_program p WHERE p.PROGRAM_ID IN (" + programIds + ")";
+        return this.jdbcTemplate.query(sqlString, new ProgramIdAndVersionIdRowMapper());
     }
 
 }
