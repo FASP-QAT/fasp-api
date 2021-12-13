@@ -42,6 +42,7 @@ import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.SupplyPlanBatchInfo;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.DatasetData;
+import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.SupplyPlanDate;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.Version;
@@ -1216,7 +1217,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 nodeParams.put("LEVEL_NO", n.getLevel() + 1);
                 nodeParams.put("NODE_TYPE_ID", n.getPayload().getNodeType().getId());
                 nodeParams.put("UNIT_ID", (n.getPayload().getNodeUnit() == null ? null : (n.getPayload().getNodeUnit().getId() == null || n.getPayload().getNodeUnit().getId() == 0 ? null : n.getPayload().getNodeUnit().getId())));
-                int nodeLabelId = this.labelDao.addLabel(n.getPayload().getLabel(), LabelConstants.RM_FORECAST_TREE_NODE, curUser.getUserId());
+                int nodeLabelId = this.labelDao.addLabel(n.getPayload().getLabel(), LabelConstants.RM_FORECAST_TREE_NODE, spcr.getCreatedBy().getUserId());
                 nodeParams.put("LABEL_ID", nodeLabelId);
                 nodeParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
                 nodeParams.put("CREATED_DATE", spcr.getCreatedDate());
@@ -1240,7 +1241,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             for (TreeScenario ts : dt.getScenarioList()) {
                 Map<String, Object> nodeParams = new HashMap<>();
                 nodeParams.put("TREE_ID", treeId);
-                int scenarioLabelId = this.labelDao.addLabel(ts.getLabel(), LabelConstants.RM_SCENARIO, curUser.getUserId());
+                int scenarioLabelId = this.labelDao.addLabel(ts.getLabel(), LabelConstants.RM_SCENARIO, spcr.getCreatedBy().getUserId());
                 nodeParams.put("LABEL_ID", scenarioLabelId);
                 nodeParams.put("CREATED_DATE", spcr.getCreatedBy().getUserId());
                 nodeParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
@@ -1346,7 +1347,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             nodeDataParams.put("ACTIVE", 1);
                             ni.execute(nodeDataParams);
                         }
-                        
+
                         // Step 3J -- Add the Node Data MOM
                         ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_mom");
                         for (NodeDataMom ndo : tnd.getNodeDataMomList()) {
@@ -1368,6 +1369,59 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
 
         //Step 4 -- Insert the Planning Units and the Selected Forecasts
+        si = null;
+        params.clear();
+        si = new SimpleJdbcInsert(dataSource).withTableName("rm_dataset_planning_unit").usingGeneratedKeyColumns("PROGRAM_PLANNING_UNIT_ID");
+        siData = null;
+        siData = new SimpleJdbcInsert(dataSource).withTableName("rm_dataset_planning_unit_selected");
+        for (DatasetPlanningUnit dpu : dd.getPlanningUnitList()) {
+            params.put("PROGRAM_ID", dd.getProgramId());
+            params.put("VERSION_ID", version.getVersionId());
+            params.put("PLANNING_UNIT_ID", dpu.getPlanningUnit().getId());
+            params.put("CONSUMPTION_FORECAST", dpu.isConsuptionForecast());
+            params.put("TREE_FORECAST", dpu.isTreeForecast());
+            params.put("STOCK", dpu.getStock());
+            params.put("EXISTING_SHIPMENTS", dpu.getExistingShipments());
+            params.put("MONTHS_OF_STOCK", dpu.getMonthsOfStock());
+            params.put("PRICE", dpu.getPrice());
+            params.put("CONSUMPTION_NOTES", dpu.getConsumptionNotes());
+            params.put("CONSUMPTION_DATA_TYPE_ID", dpu.getConsumptionDataType());
+            if (dpu.getOtherUnit() != null) {
+                int ouLabelId = this.labelDao.addLabel(dpu.getOtherUnit().getLabel(), LabelConstants.RM_DATASET_PLANNING_UNIT, spcr.getCreatedBy().getUserId());
+                params.put("OTHER_LABEL_ID", ouLabelId);
+                params.put("OTHER_MULTIPLIER", (dpu.getOtherUnit() == null ? null : dpu.getOtherUnit().getMultiplier()));
+            }
+            params.put("CREATED_BY", spcr.getCreatedBy().getUserId());
+            params.put("CREATED_DATE", spcr.getCreatedDate());
+            int programPlanningUnitId = si.executeAndReturnKey(params).intValue();
+            updateOldAndNewId(oldAndNewIdMap, "rm_dataset_planning_unit", dpu.getProgramPlanningUnitId(), programPlanningUnitId);
+            if (dpu.getSelectedForecastMap() != null) {
+                insertList.clear();
+                insertBatch = null;
+                for (int regionId : dpu.getSelectedForecastMap().keySet()) {
+                    Map<String, Object> batchParams = new HashMap<>();
+                    batchParams.put("PROGRAM_PLANNING_UNIT_ID", programPlanningUnitId);
+                    batchParams.put("REGION_ID", regionId);
+                    if (dpu.getSelectedForecastMap().get(regionId).getScenarioId() != null) {
+                        batchParams.put("SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", dpu.getSelectedForecastMap().get(regionId).getScenarioId()));
+                    }
+                    if (dpu.getSelectedForecastMap().get(regionId).getConsumptionExtrapolationId() != null) {
+                        batchParams.put("CONSUMPTION_EXTRAPOLATION_ID", getNewId(oldAndNewIdMap, "rm_forecast_consumption_extrapolation", dpu.getSelectedForecastMap().get(regionId).getConsumptionExtrapolationId()));
+                    }
+                    batchParams.put("TOTAL_FORECAST", dpu.getSelectedForecastMap().get(regionId).getTotalForecast());
+                    insertList.add(new MapSqlParameterSource(batchParams));
+                }
+                insertBatch = new SqlParameterSource[insertList.size()];
+                siData.executeBatch(insertList.toArray(insertBatch));
+            }
+        }
+
+        // Step 5 -- Update the Version no on the Program table
+        sqlString = "UPDATE rm_program p SET p.CURRENT_VERSION_ID=:versionId WHERE p.PROGRAM_ID=:programId";
+        params.clear();
+        params.put("programId", spcr.getProgram().getId());
+        params.put("versionId", version.getVersionId());
+        this.namedParameterJdbcTemplate.update(sqlString, params);
         return version;
     }
 
