@@ -3923,7 +3923,7 @@ ADD COLUMN `CREATED_DATE` DATETIME NULL DEFAULT NULL AFTER `CREATED_BY`;
 
 ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` 
 CHANGE COLUMN `EXTRAPOLATION_SETTINGS_ID` `CONSUMPTION_EXTRAPOLATION_ID` INT(10) UNSIGNED NULL DEFAULT NULL ,
-ADD INDEX `fk_rm_dataset_planning_unit_selected_extrapolationSettingsI_idx` (`CONSUMPTION_EXTRAPOLATION_ID` ASC) VISIBLE,
+ADD INDEX `fk_rm_dataset_planning_unit_selected_extrapolationSettingsI_idx` (`CONSUMPTION_EXTRAPOLATION_ID` ASC) ,
 DROP INDEX `fk_rm_dataset_planning_unit_selected_extrapolationSettingsId_idx` ;
 
 ALTER TABLE `fasp`.`rm_forecast_consumption` 
@@ -3946,7 +3946,7 @@ CHANGE COLUMN `CONSUMPTION_EXTRAPOLATION_ID` `CONSUMPTION_EXTRAPOLATION_DATA_ID`
 CHANGE COLUMN `PROGRAM_ID` `CONSUMPTION_EXTRAPOLATION_ID` INT(10) UNSIGNED NOT NULL ,
 CHANGE COLUMN `PLANNING_UNIT_ID` `MONTH` INT(10) UNSIGNED NOT NULL COMMENT '	' ,
 CHANGE COLUMN `REGION_ID` `AMT` DECIMAL(16,2) UNSIGNED NOT NULL ,
-ADD INDEX `fk_rm_forecast_consumption_extrapolation_data_consumptionEx_idx` (`CONSUMPTION_EXTRAPOLATION_ID` ASC) VISIBLE,
+ADD INDEX `fk_rm_forecast_consumption_extrapolation_data_consumptionEx_idx` (`CONSUMPTION_EXTRAPOLATION_ID` ASC) ,
 DROP INDEX `idx_rm_forecast_consumption_extrapolation_versionId` ,
 DROP INDEX `fk_rm_forecast_consumption_extrapolation_createdBy_idx` ,
 DROP INDEX `fk_rm_forecast_consumption_extrapolation_regionId_idx` ,
@@ -3961,7 +3961,7 @@ ADD COLUMN `CONSUMPTION_NOTES` TEXT NULL DEFAULT NULL AFTER `JSON_PROPERTIES`,
 ADD COLUMN `CREATED_BY` INT(10) UNSIGNED NOT NULL AFTER `CONSUMPTION_NOTES`,
 ADD COLUMN `CREATED_DATE` DATETIME NULL DEFAULT NULL AFTER `CREATED_BY`,
 CHANGE COLUMN `CONSUMPTION_EXTRAPOLATION_LIST_ID` `CONSUMPTION_EXTRAPOLATION_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
-ADD INDEX `fk_rm_forecast_consumption_extrapolation_extrapolationMetho_idx` (`EXTRAPOLATION_METHOD_ID` ASC) VISIBLE
+ADD INDEX `fk_rm_forecast_consumption_extrapolation_extrapolationMetho_idx` (`EXTRAPOLATION_METHOD_ID` ASC) 
 , RENAME TO  `fasp`.`rm_forecast_consumption_extrapolation` ;
 
 ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` 
@@ -4037,7 +4037,7 @@ ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation_data` CHANGE COLUMN `A
 UPDATE `fasp`.`rm_dataset_planning_unit` SET `CONSUMPTION_DATA_TYPE_ID` = '1' WHERE (`PROGRAM_PLANNING_UNIT_ID` = '2');
 
 ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation` 
-ADD INDEX `fk_rm_fce_list_createdBy_idx` (`CREATED_BY` ASC) VISIBLE;
+ADD INDEX `fk_rm_fce_list_createdBy_idx` (`CREATED_BY` ASC) ;
 ;
 ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation` 
 ADD CONSTRAINT `fk_rm_fce_list_extrapolationMethodId`
@@ -4061,7 +4061,7 @@ ADD CONSTRAINT `fk_rm_fced_consumptionExtrapolationDataId`
 
 
 ALTER TABLE `fasp`.`rm_dataset_planning_unit` 
-ADD INDEX `fk_rm_dataset_planning_unit_createdBy_idx` (`CREATED_BY` ASC) VISIBLE;
+ADD INDEX `fk_rm_dataset_planning_unit_createdBy_idx` (`CREATED_BY` ASC) ;
 ;
 ALTER TABLE `fasp`.`rm_dataset_planning_unit` 
 ADD CONSTRAINT `fk_rm_dataset_planning_unit_createdBy`
