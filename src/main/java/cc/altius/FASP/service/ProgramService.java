@@ -18,6 +18,7 @@ import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.SimpleObject;
@@ -113,5 +114,7 @@ public interface ProgramService {
     public List<DatasetTree> getTreeListForDataset(int programId, int versionId, CustomUserDetails curUser);
 
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser);
+
+    public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
 
 }

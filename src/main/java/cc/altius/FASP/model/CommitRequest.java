@@ -16,7 +16,7 @@ import java.util.Date;
  *
  * @author akil
  */
-public class SupplyPlanCommitRequest {
+public class CommitRequest {
 
     private int commitRequestId;
     private SimpleCodeObject program;
@@ -34,6 +34,10 @@ public class SupplyPlanCommitRequest {
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     @JsonView(Views.IgnoreView.class)
     private Date completedDate;
+    private String json;
+    private int programTypeId;
+    private ProgramData programData;
+    private DatasetData datasetData;
 
     public int getCommitRequestId() {
         return commitRequestId;
@@ -113,6 +117,38 @@ public class SupplyPlanCommitRequest {
 
     public void setCompletedDate(Date completedDate) {
         this.completedDate = completedDate;
+    }
+
+    public String getJson() {
+        return json;
+    }
+
+    public void setJson(String json) {
+        this.json = json;
+    }
+
+    public ProgramData getProgramData() {
+        return programData;
+    }
+
+    public void setProgramData(ProgramData programData) {
+        this.programData = programData;
+    }
+
+    public DatasetData getDatasetData() {
+        return datasetData;
+    }
+
+    public void setDatasetData(DatasetData datasetData) {
+        this.datasetData = datasetData;
+    }
+
+    public int getProgramTypeId() {
+        return programTypeId;
+    }
+
+    public void setProgramTypeId(int programTypeId) {
+        this.programTypeId = programTypeId;
     }
 
 }

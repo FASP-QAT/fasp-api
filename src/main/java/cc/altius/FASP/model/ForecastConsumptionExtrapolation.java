@@ -9,8 +9,12 @@ import cc.altius.FASP.framework.JsonDateTimeDeserializer;
 import cc.altius.FASP.framework.JsonDateTimeSerializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -31,6 +35,7 @@ public class ForecastConsumptionExtrapolation implements Serializable {
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     private Date createdDate;
     private List<ForecastConsumptionExtrapolationData> extrapolationDataList;
+    private final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
     public ForecastConsumptionExtrapolation() {
         this.extrapolationDataList = new LinkedList<>();
@@ -81,6 +86,14 @@ public class ForecastConsumptionExtrapolation implements Serializable {
         this.jsonProperties = jsonProperties;
     }
 
+    public void setJsonProperties(String json) {
+        this.jsonProperties = null;
+        if (json != null) {
+            this.jsonProperties = gson.fromJson(json, new TypeToken<HashMap<String, Object>>() {
+            }.getType());
+        }
+    }
+
     public BasicUser getCreatedBy() {
         return createdBy;
     }
@@ -103,6 +116,14 @@ public class ForecastConsumptionExtrapolation implements Serializable {
 
     public void setExtrapolationDataList(List<ForecastConsumptionExtrapolationData> extrapolationDataList) {
         this.extrapolationDataList = extrapolationDataList;
+    }
+
+    public String getJsonPropertiesString() {
+        if (this.jsonProperties != null) {
+            return gson.toJson(this.jsonProperties);
+        } else {
+            return null;
+        }
     }
 
     @Override

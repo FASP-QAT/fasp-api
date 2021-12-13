@@ -17,7 +17,7 @@ import java.util.Date;
  *
  * @author akil
  */
-public class SupplyPlanCommitRequestInput implements Serializable {
+public class CommitRequestInput implements Serializable {
 
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)

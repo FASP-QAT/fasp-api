@@ -63,5 +63,7 @@ public class LabelConstants implements Serializable {
     public static final int RM_FORECAST_TREE = 48;
     public static final int RM_FORECAST_TREE_NODE = 49;
     public static final int RM_SCENARIO = 50;
+    public static final int RM_DATASET_PLANNING_UNIT = 51;
+    public static final int AP_EXTRAPOLATION_METHOD = 52;
 
 }

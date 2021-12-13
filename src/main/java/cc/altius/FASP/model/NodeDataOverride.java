@@ -6,7 +6,6 @@
 package cc.altius.FASP.model;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  *
@@ -16,8 +15,8 @@ public class NodeDataOverride extends BaseModel implements Serializable {
 
     private int nodeDataOverrideId;
     private int month;
-    private Date manualChange;
-    private Date seasonalityPerc;
+    private Double manualChange;
+    private Double seasonalityPerc;
 
     public int getNodeDataOverrideId() {
         return nodeDataOverrideId;
@@ -35,19 +34,19 @@ public class NodeDataOverride extends BaseModel implements Serializable {
         this.month = month;
     }
 
-    public Date getManualChange() {
+    public Double getManualChange() {
         return manualChange;
     }
 
-    public void setManualChange(Date manualChange) {
+    public void setManualChange(Double manualChange) {
         this.manualChange = manualChange;
     }
 
-    public Date getSeasonalityPerc() {
+    public Double getSeasonalityPerc() {
         return seasonalityPerc;
     }
 
-    public void setSeasonalityPerc(Date seasonalityPerc) {
+    public void setSeasonalityPerc(Double seasonalityPerc) {
         this.seasonalityPerc = seasonalityPerc;
     }
 

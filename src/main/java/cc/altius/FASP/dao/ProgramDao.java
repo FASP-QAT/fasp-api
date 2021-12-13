@@ -16,6 +16,7 @@ import cc.altius.FASP.model.DTO.ProgramDTO;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleObject;
@@ -112,7 +113,9 @@ public interface ProgramDao {
     public int checkIfOrderNoAlreadyTagged(String orderNo, int primeLineNo);
 
     public int updateERPLinking(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser);
-    
+
     public List<DatasetPlanningUnit> getDatasetPlanningUnitList(int programId, int versionId);
+
+    public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
 
 }

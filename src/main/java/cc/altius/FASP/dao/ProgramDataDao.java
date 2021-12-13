@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.dao;
 
-import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.CustomUserDetails;
@@ -15,7 +14,6 @@ import cc.altius.FASP.model.ForecastActualConsumption;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.NotificationUser;
-import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ReviewedProblem;
@@ -28,9 +26,8 @@ import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import cc.altius.FASP.model.ForecastConsumptionExtrapolation;
-import cc.altius.FASP.model.SupplyPlanCommitRequest;
+import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.Version;
-import cc.altius.FASP.model.report.SupplyPlanCommitRequestInput;
 import java.text.ParseException;
 import java.util.List;
 
@@ -50,17 +47,10 @@ public interface ProgramDataDao {
 
     public List<Batch> getBatchList(int programId, int versionId);
 
-    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
+    public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
 
-    public List<SupplyPlanCommitRequest> getPendingSupplyPlanProcessList();
+    public Version processDatasetCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
 
-    public Version processCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser);
-
-    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message, int versionId);
-
-    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser);
-
-//    public Version executeProgramDataCommit(int commitRequestId, ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
     public List<SimpleObject> getVersionTypeList();
 
     public List<SimpleObject> getVersionStatusList();
@@ -85,8 +75,6 @@ public interface ProgramDataDao {
 
     public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId);
 
-    public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
-
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList();
 
     public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId);
@@ -109,10 +97,6 @@ public interface ProgramDataDao {
 
     public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
 
-    public boolean checkIfCommitRequestExistsForProgram(int programId);
-
-    public SupplyPlanCommitRequest getCommitRequestByCommitRequestId(int commitRequestId);
-
-    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser);
+    public int addSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
 
 }

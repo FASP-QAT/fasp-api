@@ -3923,7 +3923,7 @@ ADD COLUMN `CREATED_DATE` DATETIME NULL DEFAULT NULL AFTER `CREATED_BY`;
 
 ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` 
 CHANGE COLUMN `EXTRAPOLATION_SETTINGS_ID` `CONSUMPTION_EXTRAPOLATION_ID` INT(10) UNSIGNED NULL DEFAULT NULL ,
-ADD INDEX `fk_rm_dataset_planning_unit_selected_extrapolationSettingsI_idx` (`CONSUMPTION_EXTRAPOLATION_ID` ASC) VISIBLE,
+ADD INDEX `fk_rm_dataset_planning_unit_selected_extrapolationSettingsI_idx` (`CONSUMPTION_EXTRAPOLATION_ID` ASC) ,
 DROP INDEX `fk_rm_dataset_planning_unit_selected_extrapolationSettingsId_idx` ;
 
 ALTER TABLE `fasp`.`rm_forecast_consumption` 
@@ -3946,7 +3946,7 @@ CHANGE COLUMN `CONSUMPTION_EXTRAPOLATION_ID` `CONSUMPTION_EXTRAPOLATION_DATA_ID`
 CHANGE COLUMN `PROGRAM_ID` `CONSUMPTION_EXTRAPOLATION_ID` INT(10) UNSIGNED NOT NULL ,
 CHANGE COLUMN `PLANNING_UNIT_ID` `MONTH` INT(10) UNSIGNED NOT NULL COMMENT '	' ,
 CHANGE COLUMN `REGION_ID` `AMT` DECIMAL(16,2) UNSIGNED NOT NULL ,
-ADD INDEX `fk_rm_forecast_consumption_extrapolation_data_consumptionEx_idx` (`CONSUMPTION_EXTRAPOLATION_ID` ASC) VISIBLE,
+ADD INDEX `fk_rm_forecast_consumption_extrapolation_data_consumptionEx_idx` (`CONSUMPTION_EXTRAPOLATION_ID` ASC) ,
 DROP INDEX `idx_rm_forecast_consumption_extrapolation_versionId` ,
 DROP INDEX `fk_rm_forecast_consumption_extrapolation_createdBy_idx` ,
 DROP INDEX `fk_rm_forecast_consumption_extrapolation_regionId_idx` ,
@@ -3961,7 +3961,7 @@ ADD COLUMN `CONSUMPTION_NOTES` TEXT NULL DEFAULT NULL AFTER `JSON_PROPERTIES`,
 ADD COLUMN `CREATED_BY` INT(10) UNSIGNED NOT NULL AFTER `CONSUMPTION_NOTES`,
 ADD COLUMN `CREATED_DATE` DATETIME NULL DEFAULT NULL AFTER `CREATED_BY`,
 CHANGE COLUMN `CONSUMPTION_EXTRAPOLATION_LIST_ID` `CONSUMPTION_EXTRAPOLATION_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT ,
-ADD INDEX `fk_rm_forecast_consumption_extrapolation_extrapolationMetho_idx` (`EXTRAPOLATION_METHOD_ID` ASC) VISIBLE
+ADD INDEX `fk_rm_forecast_consumption_extrapolation_extrapolationMetho_idx` (`EXTRAPOLATION_METHOD_ID` ASC) 
 , RENAME TO  `fasp`.`rm_forecast_consumption_extrapolation` ;
 
 ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` 
@@ -4037,7 +4037,7 @@ ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation_data` CHANGE COLUMN `A
 UPDATE `fasp`.`rm_dataset_planning_unit` SET `CONSUMPTION_DATA_TYPE_ID` = '1' WHERE (`PROGRAM_PLANNING_UNIT_ID` = '2');
 
 ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation` 
-ADD INDEX `fk_rm_fce_list_createdBy_idx` (`CREATED_BY` ASC) VISIBLE;
+ADD INDEX `fk_rm_fce_list_createdBy_idx` (`CREATED_BY` ASC) ;
 ;
 ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation` 
 ADD CONSTRAINT `fk_rm_fce_list_extrapolationMethodId`
@@ -4061,7 +4061,7 @@ ADD CONSTRAINT `fk_rm_fced_consumptionExtrapolationDataId`
 
 
 ALTER TABLE `fasp`.`rm_dataset_planning_unit` 
-ADD INDEX `fk_rm_dataset_planning_unit_createdBy_idx` (`CREATED_BY` ASC) VISIBLE;
+ADD INDEX `fk_rm_dataset_planning_unit_createdBy_idx` (`CREATED_BY` ASC) ;
 ;
 ALTER TABLE `fasp`.`rm_dataset_planning_unit` 
 ADD CONSTRAINT `fk_rm_dataset_planning_unit_createdBy`
@@ -4114,3 +4114,59 @@ VIEW `vw_forecast_tree_node` AS
     FROM
         (`rm_forecast_tree_node` `tn`
         LEFT JOIN `ap_label` `l` ON ((`tn`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+ALTER TABLE `fasp`.`ct_supply_plan_commit_request` ADD COLUMN `JSON` LONGTEXT NULL AFTER `FAILED_REASON`;
+
+ALTER TABLE `fasp`.`ct_supply_plan_commit_request` RENAME TO  `fasp`.`ct_commit_request` ;
+
+
+USE `fasp`;
+DROP procedure IF EXISTS `fasp`.`getVersionId`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `getVersionId`(PROGRAM_ID INT(10), VERSION_TYPE_ID INT(10), VERSION_STATUS_ID INT(10), NOTES TEXT, FORECAST_START_DATE DATETIME, FORECAST_STOP_DATE DATETIME, DAYS_IN_MONTH INT(10), FREIGHT_PERC DECIMAL, FORECAST_THRESHOLD_HIGH_PERC DECIMAL, FORECAST_THRESHOLD_LOW_PERC DECIMAL, CREATED_BY INT(10), CREATED_DATE DATETIME)
+BEGIN
+	SET @programId = PROGRAM_ID;
+	SET @cbUserId = CREATED_BY;
+	SET @createdDate = CREATED_DATE;
+	SET @versionTypeId = VERSION_TYPE_ID;
+	SET @versionStatusId = VERSION_STATUS_ID;
+        SET @forecastStartDate = FORECAST_START_DATE;
+        SET @forecastStopDate = FORECAST_STOP_DATE;
+        SET @daysInMonth = DAYS_IN_MONTH;
+        SET @freightPerc = FREIGHT_PERC;
+        SET @forecastThresholdHighPerc = FORECAST_THRESHOLD_HIGH_PERC;
+        SET @forecastThresholdLowPerc = FORECAST_THRESHOLD_LOW_PERC;
+	SET @notes = NOTES;
+        INSERT INTO `fasp`.`rm_program_version`
+            (`PROGRAM_ID`, `VERSION_ID`, `VERSION_TYPE_ID`, `VERSION_STATUS_ID`,
+            `NOTES`, `CREATED_BY`, `CREATED_DATE`, `LAST_MODIFIED_BY`, `LAST_MODIFIED_DATE`,
+            `SENT_TO_ARTMIS`, `FORECAST_START_DATE`, `FORECAST_STOP_DATE`, `DAYS_IN_MONTH`, `FREIGHT_PERC`,
+            `FORECAST_THRESHOLD_HIGH_PERC`, `FORECAST_THRESHOLD_LOW_PERC`)
+        SELECT
+            @programId, IFNULL(MAX(pv.VERSION_ID)+1,1), @versionTypeId, @versionStatusId, 
+            @notes, @cbUserId, @createdDate, @cbUserId, @createdDate, 
+            0, @forecastStartDate, @forecastStopDate, @daysInMonth, @freightPerc, 
+            @forecastThresholdHighPerc, @forecastThresholdLowPerc
+        FROM rm_program_version pv WHERE pv.`PROGRAM_ID`=@programId;
+            SELECT pv.VERSION_ID INTO @versionId FROM rm_program_version pv WHERE pv.`PROGRAM_VERSION_ID`= LAST_INSERT_ID();
+            UPDATE rm_program p SET p.CURRENT_VERSION_ID=@versionId WHERE p.PROGRAM_ID=@programId;
+            SELECT pv.VERSION_ID, pv.NOTES, pv.FORECAST_START_DATE, pv.FORECAST_STOP_DATE, pv.DAYS_IN_MONTH, pv.FREIGHT_PERC, pv.FORECAST_THRESHOLD_HIGH_PERC, pv.FORECAST_THRESHOLD_LOW_PERC,
+                    pv.LAST_MODIFIED_DATE, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`,
+                    pv.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`,
+                    vt.VERSION_TYPE_ID, vtl.LABEL_ID `VERSION_TYPE_LABEL_ID`, vtl.LABEL_EN `VERSION_TYPE_LABEL_EN`, vtl.LABEL_FR `VERSION_TYPE_LABEL_FR`, vtl.LABEL_SP `VERSION_TYPE_LABEL_SP`, vtl.LABEL_PR `VERSION_TYPE_LABEL_PR`, 
+                    vs.VERSION_STATUS_ID, vsl.LABEL_ID `VERSION_STATUS_LABEL_ID`, vsl.LABEL_EN `VERSION_STATUS_LABEL_EN`, vsl.LABEL_FR `VERSION_STATUS_LABEL_FR`, vsl.LABEL_SP `VERSION_STATUS_LABEL_SP`, vsl.LABEL_PR `VERSION_STATUS_LABEL_PR` 
+            FROM rm_program_version pv 
+            LEFT JOIN ap_version_type vt ON pv.VERSION_TYPE_ID=vt.VERSION_TYPE_ID
+            LEFT JOIN ap_label vtl ON vt.LABEL_ID=vtl.LABEL_ID 
+            LEFT JOIN ap_version_status vs ON pv.VERSION_STATUS_ID=vs.VERSION_STATUS_ID
+            LEFT JOIN ap_label vsl ON vs.LABEL_ID=vsl.LABEL_ID
+            LEFT JOIN us_user cb ON pv.CREATED_BY=cb.USER_ID
+            LEFT JOIN us_user lmb ON pv.LAST_MODIFIED_BY=lmb.USER_ID
+            WHERE pv.VERSION_ID=@versionId AND pv.PROGRAM_ID=@programId;
+END$$
+
+DELIMITER ;
+
+UPDATE `fasp`.`ap_label_source` SET `SOURCE_DESC` = 'rm_dataset_planning_unit' WHERE (`SOURCE_ID` = '51');

@@ -28,6 +28,7 @@ import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.ProcurementAgent;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramInitialize;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
@@ -439,4 +440,8 @@ public class ProgramServiceImpl implements ProgramService {
         return this.programDataDao.getTreeData(treeId, curUser);
     }
 
+    @Override
+    public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds) {
+        return this.programDao.getLatestVersionForPrograms(programIds);
+    }
 }

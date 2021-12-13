@@ -33,7 +33,6 @@ public class Realm extends BaseModel implements Serializable {
     private int minQplToleranceCutOff;
     @JsonView(Views.InternalView.class)
     private int maxQplTolerance;
-    private boolean active;
 
     public Realm(Integer realmId, Label label, String realmCode, int minMosMinGaurdrail, int minMosMaxGaurdrail, int maxMosMaxGaurdrail, int minQplTolerance, int minQplToleranceCutOff, int maxQplTolerance) {
         if (realmId == null || realmId == 0) {
@@ -150,14 +149,6 @@ public class Realm extends BaseModel implements Serializable {
 
     public void setMaxQplTolerance(int maxQplTolerance) {
         this.maxQplTolerance = maxQplTolerance;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     @Override

@@ -7,7 +7,7 @@ package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.SupplyPlanCommitRequest;
+import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.DTO.ERPNotificationDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingDTO;
@@ -533,7 +533,7 @@ public class ProgramRestController {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             List<Integer> result = this.programService.linkShipmentWithARTMIS(erpOrderDTO, curUser);
             logger.info("ERP Linking : Going to get new supply plan list ");
-            SupplyPlanCommitRequest s = new SupplyPlanCommitRequest();
+            CommitRequest s = new CommitRequest();
             SimpleCodeObject program = new SimpleCodeObject();
             program.setId(erpOrderDTO[0].getProgramId());
             s.setProgram(program);
