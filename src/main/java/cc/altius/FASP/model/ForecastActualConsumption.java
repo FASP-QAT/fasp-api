@@ -18,47 +18,37 @@ import java.util.Date;
  *
  * @author akil
  */
-public class ForecastConsumption implements Serializable {
+public class ForecastActualConsumption implements Serializable {
 
-    private int forecastConsumptionId;
-    private SimpleCodeObject program;
-    private ForecastConsumptionUnit consumptionUnit;
+    private int actualConsumptionId;
+    private SimpleObject planningUnit;
     private SimpleObject region;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date month;
-    private Double actualConsumption;
+    private Double amount;
     private Double reportingRate;
     private Integer daysOfStockOut;
     private boolean exclude;
-    private int versionId;
     private BasicUser createdBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     private Date createdDate;
 
-    public int getForecastConsumptionId() {
-        return forecastConsumptionId;
+    public int getActualConsumptionId() {
+        return actualConsumptionId;
     }
 
-    public void setForecastConsumptionId(int forecastConsumptionId) {
-        this.forecastConsumptionId = forecastConsumptionId;
+    public void setActualConsumptionId(int actualConsumptionId) {
+        this.actualConsumptionId = actualConsumptionId;
     }
 
-    public SimpleCodeObject getProgram() {
-        return program;
+    public SimpleObject getPlanningUnit() {
+        return planningUnit;
     }
 
-    public void setProgram(SimpleCodeObject program) {
-        this.program = program;
-    }
-
-    public ForecastConsumptionUnit getConsumptionUnit() {
-        return consumptionUnit;
-    }
-
-    public void setConsumptionUnit(ForecastConsumptionUnit consumptionUnit) {
-        this.consumptionUnit = consumptionUnit;
+    public void setPlanningUnit(SimpleObject planningUnit) {
+        this.planningUnit = planningUnit;
     }
 
     public SimpleObject getRegion() {
@@ -77,12 +67,12 @@ public class ForecastConsumption implements Serializable {
         this.month = month;
     }
 
-    public Double getActualConsumption() {
-        return actualConsumption;
+    public Double getAmount() {
+        return amount;
     }
 
-    public void setActualConsumption(Double actualConsumption) {
-        this.actualConsumption = actualConsumption;
+    public void setAmount(Double amount) {
+        this.amount = amount;
     }
 
     public Double getReportingRate() {
@@ -107,14 +97,6 @@ public class ForecastConsumption implements Serializable {
 
     public void setExclude(boolean exclude) {
         this.exclude = exclude;
-    }
-
-    public int getVersionId() {
-        return versionId;
-    }
-
-    public void setVersionId(int versionId) {
-        this.versionId = versionId;
     }
 
     public BasicUser getCreatedBy() {

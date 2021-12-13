@@ -11,11 +11,12 @@ import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramIntegrationDTO;
 import cc.altius.FASP.model.DatasetTree;
-import cc.altius.FASP.model.ForecastConsumption;
+import cc.altius.FASP.model.ForecastActualConsumption;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.NotificationUser;
 import cc.altius.FASP.model.ProgramData;
+import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ReviewedProblem;
 import cc.altius.FASP.model.Shipment;
@@ -24,10 +25,12 @@ import cc.altius.FASP.model.SimplePlanningUnitForSupplyPlanObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
 import cc.altius.FASP.model.TreeNode;
-import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
-import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationSettings;
+import cc.altius.FASP.model.ForecastConsumptionExtrapolation;
+import cc.altius.FASP.model.SupplyPlanCommitRequest;
+import cc.altius.FASP.model.Version;
+import cc.altius.FASP.model.report.SupplyPlanCommitRequestInput;
 import java.text.ParseException;
 import java.util.List;
 
@@ -47,8 +50,17 @@ public interface ProgramDataDao {
 
     public List<Batch> getBatchList(int programId, int versionId);
 
-    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
+    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
+    public List<SupplyPlanCommitRequest> getPendingSupplyPlanProcessList();
+
+    public Version processCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser);
+
+    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message, int versionId);
+
+    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser);
+
+//    public Version executeProgramDataCommit(int commitRequestId, ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
     public List<SimpleObject> getVersionTypeList();
 
     public List<SimpleObject> getVersionStatusList();
@@ -73,7 +85,7 @@ public interface ProgramDataDao {
 
     public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId);
 
-    public int getLatestVersionForProgram(int programId);
+    public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
 
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList();
 
@@ -91,9 +103,16 @@ public interface ProgramDataDao {
 
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser);
 
-    public List<ForecastConsumption> getForecastConsumptionData(int programId, int versionId, CustomUserDetails curUser);
+    public List<ForecastActualConsumption> getForecastActualConsumptionData(int programId, int versionId, CustomUserDetails curUser);
 
-    public List<ForecastConsumptionExtrapolationSettings> getForecastConsumptionExtrapolationSettings(int programId, int versionId, CustomUserDetails curUser);
+    public List<ForecastConsumptionExtrapolation> getForecastConsumptionExtrapolation(int programId, int versionId, CustomUserDetails curUser);
 
     public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
+
+    public boolean checkIfCommitRequestExistsForProgram(int programId);
+
+    public SupplyPlanCommitRequest getCommitRequestByCommitRequestId(int commitRequestId);
+
+    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser);
+
 }

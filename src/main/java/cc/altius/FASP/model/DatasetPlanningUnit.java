@@ -5,7 +5,13 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.framework.JsonDateTimeDeserializer;
+import cc.altius.FASP.framework.JsonDateTimeSerializer;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
+import java.util.Date;
+import java.util.Map;
 
 /**
  *
@@ -22,6 +28,14 @@ public class DatasetPlanningUnit implements Serializable {
     private Integer monthsOfStock;
     private SimpleCodeObject procurementAgent;
     private Double price;
+    private String consumptionNotes;
+    private Integer consumptionDataType; // null=Not a Consumption Unit, 1=Forecast, 2=PlanningUnit, 3=Other Unit
+    private SimpleObjectWithMultiplier otherUnit;
+    private Map<Integer, SelectedForecast> selectedForecastMap;
+    private BasicUser createdBy;
+    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonSerialize(using = JsonDateTimeSerializer.class)
+    private Date createdDate;
 
     public int getProgramPlanningUnitId() {
         return programPlanningUnitId;
@@ -93,6 +107,79 @@ public class DatasetPlanningUnit implements Serializable {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public String getConsumptionNotes() {
+        return consumptionNotes;
+    }
+
+    public void setConsumptionNotes(String consumptionNotes) {
+        this.consumptionNotes = consumptionNotes;
+    }
+
+    public Integer getConsumptionDataType() {
+        return consumptionDataType;
+    }
+
+    public void setConsumptionDataType(Integer consumptionDataType) {
+        this.consumptionDataType = consumptionDataType;
+    }
+
+    public SimpleObjectWithMultiplier getOtherUnit() {
+        return otherUnit;
+    }
+
+    public void setOtherUnit(SimpleObjectWithMultiplier otherUnit) {
+        this.otherUnit = otherUnit;
+    }
+
+    public Map<Integer, SelectedForecast> getSelectedForecastMap() {
+        return selectedForecastMap;
+    }
+
+    public void setSelectedForecastMap(Map<Integer, SelectedForecast> selectedForecastMap) {
+        this.selectedForecastMap = selectedForecastMap;
+    }
+
+    public BasicUser getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(BasicUser createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public Date getCreatedDate() {
+        return createdDate;
+    }
+
+    public void setCreatedDate(Date createdDate) {
+        this.createdDate = createdDate;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 61 * hash + this.programPlanningUnitId;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final DatasetPlanningUnit other = (DatasetPlanningUnit) obj;
+        if (this.programPlanningUnitId != other.programPlanningUnitId) {
+            return false;
+        }
+        return true;
     }
 
 }

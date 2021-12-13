@@ -18,9 +18,11 @@ import cc.altius.FASP.model.ShipmentSync;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplifiedSupplyPlan;
 import cc.altius.FASP.model.SupplyPlan;
+import cc.altius.FASP.model.SupplyPlanCommitRequest;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.ActualConsumptionDataInput;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
+import cc.altius.FASP.model.report.SupplyPlanCommitRequestInput;
 import java.text.ParseException;
 import java.util.List;
 
@@ -33,15 +35,24 @@ public interface ProgramDataService {
     public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean active);
 
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
-    
+
     public List<DatasetData> getDatasetData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
 
-    public Version saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
+    public DatasetData getDatasetData(int programId, int versionId, CustomUserDetails curUser);
 
+    public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
+
+    public void processCommitRequest(CustomUserDetails curUser);
+
+    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message, int versionId);
+
+    public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser);
+
+//    public Version executeProgramDataCommit(int commitRequestId, ProgramData programData) throws CouldNotSaveException;
     public List<SimpleObject> getVersionTypeList();
-    
+
     public List<SimpleObject> getVersionStatusList();
-    
+
     public List<ProgramVersion> getProgramVersionList(int programId, int versionId, int realmCountryId, int healthAreaId, int organisationId, int versionTypeId, int versionStatusId, String startDate, String stopDate, CustomUserDetails curUser);
 
     public Version updateProgramVersion(int programId, int versionId, int versionStatusId, String notes, CustomUserDetails curUser, List<ReviewedProblem> reviewedProblemList);
@@ -64,11 +75,17 @@ public interface ProgramDataService {
 
     public boolean updateSupplyPlanAsExported(int programVersionTransId, int integrationId);
 
-    public int getLatestVersionForProgram(int programId);
+    public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
 
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
 
     public String getLastModifiedDateForProgram(int programId, int versionId);
-    
+
     public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser);
+
+    public boolean checkIfCommitRequestExistsForProgram(int programId);
+
+    public SupplyPlanCommitRequest getCommitRequestByCommitRequestId(int commitRequestId);
+
+    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser);
 }

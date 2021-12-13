@@ -10,7 +10,7 @@
     </parent>
     <groupId>cc.altius.FASP.rest.webservice</groupId>
     <artifactId>FASP</artifactId>
-    <version>1.46[2606]</version>
+    <version>1.47[2659]</version>
     <name>QAT</name>
     <description>Quantification Analytics Tool</description>
     <packaging>jar</packaging>
@@ -51,7 +51,7 @@
         <dependency>
             <groupId>com.google.code.gson</groupId>
             <artifactId>gson</artifactId>
-            <type>jar</type>
+            <version>2.8.9</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

@@ -5,7 +5,6 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationSettings;
 import java.util.List;
 
 /**
@@ -26,9 +25,10 @@ public class DatasetData {
     private Version currentVersion;
     private List<Version> versionList;
     private List<DatasetTree> treeList;
-    private List<ForecastConsumption> consumptionList;
+    private List<ForecastActualConsumption> actualConsumptionList;
+    private List<ForecastConsumptionExtrapolation> consumptionExtrapolation;
     private List<DatasetPlanningUnit> planningUnitList;
-    private List<ForecastConsumptionExtrapolationSettings> extrapolationSettings;
+    
 
     public DatasetData() {
     }
@@ -143,12 +143,12 @@ public class DatasetData {
         this.versionList = versionList;
     }
 
-    public List<ForecastConsumption> getConsumptionList() {
-        return consumptionList;
+    public List<ForecastActualConsumption> getActualConsumptionList() {
+        return actualConsumptionList;
     }
 
-    public void setConsumptionList(List<ForecastConsumption> consumptionList) {
-        this.consumptionList = consumptionList;
+    public void setActualConsumptionList(List<ForecastActualConsumption> actualConsumptionList) {
+        this.actualConsumptionList = actualConsumptionList;
     }
 
     public List<DatasetPlanningUnit> getPlanningUnitList() {
@@ -159,12 +159,12 @@ public class DatasetData {
         this.planningUnitList = planningUnitList;
     }
 
-    public List<ForecastConsumptionExtrapolationSettings> getExtrapolationSettings() {
-        return extrapolationSettings;
+    public List<ForecastConsumptionExtrapolation> getConsumptionExtrapolation() {
+        return consumptionExtrapolation;
     }
 
-    public void setExtrapolationSettings(List<ForecastConsumptionExtrapolationSettings> extrapolationSettings) {
-        this.extrapolationSettings = extrapolationSettings;
+    public void setConsumptionExtrapolation(List<ForecastConsumptionExtrapolation> consumptionExtrapolation) {
+        this.consumptionExtrapolation = consumptionExtrapolation;
     }
 
 }
