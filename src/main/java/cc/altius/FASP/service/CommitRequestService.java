@@ -12,6 +12,7 @@ import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.report.CommitRequestInput;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 /**
  *
@@ -30,4 +31,6 @@ public interface CommitRequestService {
     public CommitRequest getCommitRequestByCommitRequestId(int commitRequestId);
     
     public boolean checkIfCommitRequestExistsForProgram(int programId);
+    
+    public CompletableFuture<Object> getCommitRequestStatusByCommitRequestId(int commitRequestId);
 }
