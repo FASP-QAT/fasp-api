@@ -4196,3 +4196,568 @@ VIEW `vw_all_program` AS
         LEFT JOIN `rm_program_health_area` `pha` ON ((`p`.`PROGRAM_ID` = `pha`.`PROGRAM_ID`)))
         LEFT JOIN `ap_label` `pl` ON ((`p`.`LABEL_ID` = `pl`.`LABEL_ID`)))
     GROUP BY `p`.`PROGRAM_ID`;
+
+-- Tree labels
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.+AddTree','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'+ Add Tree');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'+ Ajouter un arbre');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'+ Agregar árbol');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'+ Adicionar Árvore');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.blank','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'(blank)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'(Vide)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'(blanca)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'(em branco)');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.node','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'node');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'nœud');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'nodo');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'nó');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.validation.fieldRequired','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'This is required');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ceci est nécessaire');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Esto es requerido');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Isso é obrigatório');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.validation.selectForecastMethod','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select forecast method');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner la méthode de prévision');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione el método de previsión');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione o método de previsão');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.validation.selectTreeName','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please enter tree name');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez saisir le nom de larbre');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Por favor ingrese el nombre del árbol');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Por favor insira o nome da árvore');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.%of','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'% of');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'% de');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'% de');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'% de');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.monthStart','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'(Month Start)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'(Début du mois)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'(Inicio del mes)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'(Início do mês)');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.calculatedChange','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calculated Change (+/- %)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Variation calculée (+/- %)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cambio calculado (+/-%)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mudança calculada (+/-%)');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.manualChange','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Manual Change (+/- %)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modification manuelle (+/- %)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cambio manual (+/-%)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mudança manual (+/-%)');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.MonthEnd','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'(Month End)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'(La fin du mois)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'(Fin de mes)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'(Fim do mês)');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.monthStartNoSeasonality','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Month Start (no seasonality)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Début du mois (pas de saisonnalité)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Inicio del mes (sin estacionalidad)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Início do mês (sem sazonalidade)');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.calculatedChange+-','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calculated change (+/-)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Variation calculée (+/-)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cambio calculado (+/-)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Alteração calculada (+/-)');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.monthlyEndNoSeasonality','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Monthly End (no seasonality)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Fin du mois (pas de saisonnalité)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fin de mes (sin estacionalidad)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Fim do mês (sem sazonalidade)');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.seasonalityIndex','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Seasonality Index');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Indice de saisonnalité');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Índice de estacionalidad');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Índice de Sazonalidade');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.manualChange+-','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Manual Change (+/-)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Changement manuel (+/-)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cambio manual (+/-)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mudança manual (+/-)');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.validation.pleaseEnterValidDate','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please enter valid date');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez entrer une date valide');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Por favor ingrese una fecha válida');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Por favor insira uma data válida');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.transferToNode','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Transfer To Node');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Transfert vers le nœud');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Transferir al nodo');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Transferir para o nó');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.Note','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Noter');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Observação');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.modelingType','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Modeling type');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Type de modélisation');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Tipo de modelado');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Tipo de modelagem');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.monthlyChange%','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Monthly Change (%)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Variation mensuelle (%)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cambio mensual (%)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mudança Mensal (%)');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.MonthlyChange#','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Monthly Change (#)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Variation mensuelle (#)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cambio mensual (#)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mudança Mensal (#)');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.modelingCalculater','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Modeling Calculater');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Calculatrice de modélisation');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Calculadora de modelado');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Calculadora de modelagem');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.calculatedChangeForMonth','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calculated change for month');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Variation calculée pour le mois');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cambio calculado por mes');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Alteração calculada para o mês');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.usageTemplate.requires','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'(s) requires');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'(s) nécessite');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'(s) requiere');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'(s) requer');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.timesPer','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'times per');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'fois par');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'veces por');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'vezes por');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.for','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'for');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'pour');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'por');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'por');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.forEach','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For each');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Conversion');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Conversion');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Conversão');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.weNeed','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'we need');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'nous avons besoin');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nosotras necesitamos');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'nós precisamos');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.parent','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Parent');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Parente');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Madre');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mãe');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.nodeTitle','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Node Title');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Titre du nœud');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Título de nodo');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Título do Nó');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.lagMessage','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Lag is the delay between the parent node date and the user consumption the product. This is often for phased treatement.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Le décalage est le délai entre la date du nœud parent et la consommation du produit par lutilisateur. Cest souvent pour un traitement échelonné.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Lag es la demora entre la fecha del nodo principal y el consumo del producto por parte del usuario. A menudo, esto es para tratamiento por fases.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Lag é o atraso entre a data do nó pai e o consumo do produto pelo usuário. Isso geralmente é para tratamento em fases.');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.nodeType','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Node Type');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Type de nœud');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Tipo de nodo');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Tipo de Nó');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.nodeUnit','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Node Unit');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unité de nœud');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Unidad de nodo');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Unidade de Nó');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.percentageOfParent','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Percentage of Parent');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pourcentage de parents');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Porcentaje de padres');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Porcentagem do pai');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.parentValue','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Parent Value');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Valeur parente');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Valor de los padres');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Valor Pai');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.nodeValue','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Node Value');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Valeur du nœud');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Valor de nodo');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Valor do Nó');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.conversion.ConversionFactorFUPU','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Conversion Factor (FU:PU)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Facteur de conversion (FU:PU)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Factor de conversión (FU: PU)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Fator de conversão (FU: PU)');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.QATEstimateForIntervalEvery_months','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'QAT estimate for interval (Every _ months)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Estimation QAT pour lintervalle (tous les _ mois)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Estimación de QAT para el intervalo (cada _ meses)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Estimativa QAT para intervalo (a cada _ meses)');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.consumptionIntervalEveryXMonths','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Consumption interval (Every X months)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Intervalle de consommation (Tous les X mois)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Intervalo de consumo (cada X meses)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Intervalo de consumo (a cada X meses)');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.willClientsShareOnePU?','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Will Clients share one PU?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les clients partageront-ils une seule unité centrale ?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'¿Las clientas compartirán una PU?');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Os clientes compartilharão um PU?');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.copyFromTemplate','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Copy from Template');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Copier à partir du modèle');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Copiar de plantilla');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Copiar do modelo');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.lagInMonth0Immediate','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Lag in months (0=immediate)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Décalage en mois (0=immédiat)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Retraso en meses (0 = inmediato)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Atraso em meses (0 = imediato)');
+
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.requires','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'requires');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'a besoin');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'requiere');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'requer');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.singleUse','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Single Use');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Usage unique');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'De un solo uso');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Uso único');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.#OfFURequiredForPeriod','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# of FU required for period');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'# dUF requis pour la période');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# de FU requerida para el período');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'# de FU necessário para o período');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.#OfMonthsInPeriod','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# Of Months In Period');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nombre de mois dans la période');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# De meses en el período');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº de meses no período');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.#OfFU/month/','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# of FU / month /');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'# Of FU / mois /');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# Of FU / mes /');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'# Of FU / mês /');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.#OfFU/','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'# of FU /');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'# dUF /');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'# de FU /');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'# de FU /');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.viewMonthlyData','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'View monthly data');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher les données mensuelles');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ver datos mensuales');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ver dados mensais');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.modelingCalculaterTool:','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Modeling Calculater Tool:');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Outil de calcul de modélisation :');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Herramienta de calculadora de modelado:');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ferramenta Calculadora de Modelagem:');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.targetDate','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Target Date');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Date cible');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fecha objetivo');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Data Alvo');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.startValue','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Start Value');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Valeur de départ');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Valor inicial');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Valor inicial');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.StartPercentage','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Start Percentage');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pourcentage de départ');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Porcentaje de inicio');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Porcentagem inicial');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.targetEnding','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Target Ending');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Fin cible');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Finalización del objetivo');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Finalidade Alvo');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.or','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'or');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'ou');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'o');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'ou');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.Change(#)','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Change (#)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Changer (#)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cambio (#)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mudar (#)');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.CalculatedMonth-on-MonthChange','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calculated Month-on-Month change');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Variation mensuelle calculée');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cambio mes a mes calculado');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mudança calculada mês a mês');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.monthlyData','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Monthly Data');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Données mensuelles');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Datos mensuales');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Dados Mensais');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.tableDisplays','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Table displays');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Tableaux daffichage');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pantallas de mesa');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Telas de mesa');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.forNode','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'for Node');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'pour le nœud');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'para nodo');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'para Nó');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.asA%OfParent','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'as a % of parent');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'en % des parents');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Como% de madre');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'como um% dos pais');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.pleaseSaveAndDoARecalculateAfterDragAndDrop.','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please save and do a recalculate after drag and drop.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez enregistrer et recalculer après un glisser-déposer.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Guarde y vuelva a calcular después de arrastrar y soltar.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Salve e faça um recálculo após arrastar e soltar.');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.calculated','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calculated');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Calculé');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Calculada');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Calculada');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.Add/EditTreeData','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Add/Edit Tree Data');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ajouter/Modifier les données de larborescence');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Agregar / editar datos de árbol');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Adicionar / Editar Dados da Árvore');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.scenarioName','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Scenario Name');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nom du scénario');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nombre del escenario');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nome do Cenário');
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.Add/EditNode','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Add/Edit Node');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ajouter/Modifier un nœud');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Agregar / editar nodo');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Adicionar / Editar Nó');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.Modeling/Transfer','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Modeling/Transfer');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modélisation/Transfert');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Modelado / Transferencia');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Modelagem / Transferência');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.nodeData','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Node Data');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Données de nœud');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Datos de nodo');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Dados do Nó');
+
