@@ -36,10 +36,12 @@ public class DatasetPlanningUnitListResultSetExtractor implements ResultSetExtra
             if (idx == -1) {
                 dpu.setPlanningUnit(
                         new SimplePlanningUnitTracerCategoryObject(
+                                new SimpleCodeObject(rs.getInt("PUU_UNIT_ID"), new LabelRowMapper("PUU_").mapRow(rs, 1), rs.getString("PUU_UNIT_CODE")),
                                 rs.getInt("PLANNING_UNIT_ID"),
                                 new LabelRowMapper("PU_").mapRow(rs, 1),
                                 rs.getDouble("PU_MULTIPLIER_FOR_FU"),
                                 new SimpleForecastingUnitTracerCategoryObject(
+                                        new SimpleCodeObject(rs.getInt("FUU_UNIT_ID"), new LabelRowMapper("FUU_").mapRow(rs, 1), rs.getString("FUU_UNIT_CODE")),
                                         rs.getInt("FORECASTING_UNIT_ID"),
                                         new LabelRowMapper("FU_").mapRow(rs, 1),
                                         new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, 1))
