@@ -1639,7 +1639,7 @@ VIEW `vw_tree_template_node` AS
 -- Tree labels
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.datasetmanagement','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program Managment');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program Management');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Gestion de programme');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Gestión de programas');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Gestão do Programa');
@@ -4694,10 +4694,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Salve e faça um recá
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.calculated','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calculated');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Calculé');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Calculada');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Calculada');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calculate');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Calculer');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Calcular');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Calcular');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.Add/EditTreeData','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -4734,3 +4734,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Node Data');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Données de nœud');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Datos de nodo');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Dados do Nó');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.report.exportWordDoc','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Export to word doc');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Exporter vers word doc');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Exportar a documento de Word');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Exportar para Word Doc');
