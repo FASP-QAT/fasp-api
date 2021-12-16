@@ -4761,3 +4761,6 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Données de nœud');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Datos de nodo');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Dados do Nó');
 
+ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` ADD COLUMN `NOTES` TEXT NULL AFTER `TOTAL_FORECAST`;
+
+ALTER TABLE `fasp`.`rm_dataset_planning_unit` ADD COLUMN `HIGHER_THEN_CONSUMPTION_THRESHOLD` DECIMAL(14,2) NULL AFTER `PRICE`, ADD COLUMN `LOWER_THEN_CONSUMPTION_THRESHOLD` DECIMAL(14,2) NULL AFTER `HIGHER_THEN_CONSUMPTION_THRESHOLD`;
