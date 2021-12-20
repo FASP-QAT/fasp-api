@@ -9,7 +9,7 @@ package cc.altius.FASP.model;
  *
  * @author akil
  */
-public class SimpleForecastingUnitTracerCategoryObject extends SimpleObject {
+public class SimpleForecastingUnitTracerCategoryObject extends SimpleUnitObject {
 
     SimpleObject tracerCategory;
 
@@ -17,8 +17,8 @@ public class SimpleForecastingUnitTracerCategoryObject extends SimpleObject {
         super();
     }
 
-    public SimpleForecastingUnitTracerCategoryObject(Integer id, Label label, SimpleObject tracerCategory) {
-        super(id, label);
+    public SimpleForecastingUnitTracerCategoryObject(SimpleCodeObject unit, Integer id, Label label, SimpleObject tracerCategory) {
+        super(unit, id, label);
         this.tracerCategory = tracerCategory;
     }
 

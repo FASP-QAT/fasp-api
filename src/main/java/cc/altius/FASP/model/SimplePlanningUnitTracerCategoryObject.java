@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonView;
  *
  * @author akil
  */
-public class SimplePlanningUnitTracerCategoryObject extends SimpleObjectWithMultiplier {
+public class SimplePlanningUnitTracerCategoryObject extends SimpleUnitObjectWithMultiplier {
 
     @JsonView(Views.InternalView.class)
     private SimpleForecastingUnitTracerCategoryObject forecastingUnit;
@@ -20,8 +20,8 @@ public class SimplePlanningUnitTracerCategoryObject extends SimpleObjectWithMult
         super();
     }
 
-    public SimplePlanningUnitTracerCategoryObject(Integer id, Label label, double multiplier, SimpleForecastingUnitTracerCategoryObject forecastingUnit) {
-        super(id, label, multiplier);
+    public SimplePlanningUnitTracerCategoryObject(SimpleCodeObject unit, Integer id, Label label, double multiplier, SimpleForecastingUnitTracerCategoryObject forecastingUnit) {
+        super(unit, id, label, multiplier);
         this.forecastingUnit = forecastingUnit;
     }
 
