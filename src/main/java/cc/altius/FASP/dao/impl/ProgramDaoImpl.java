@@ -2516,8 +2516,7 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
 
     @Transactional
-    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser
-    ) {
+    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser) {
 
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         logger.info("ERP Notification : Going to update notification---" + eRPNotificationDTO.toString());
@@ -2704,7 +2703,7 @@ public class ProgramDaoImpl implements ProgramDao {
     @Override
     public List<DatasetPlanningUnit> getDatasetPlanningUnitList(int programId, int versionId) {
         String sqlString = "SELECT "
-                + "    dpu.PROGRAM_PLANNING_UNIT_ID, dpu.CONSUMPTION_FORECAST, dpu.TREE_FORECAST, dpu.CONSUMPTION_NOTES, "
+                + "    dpu.PROGRAM_PLANNING_UNIT_ID, dpu.CONSUMPTION_FORECAST, dpu.TREE_FORECAST, dpu.CONSUMPTION_NOTES, dpu.HIGHER_THEN_CONSUMPTION_THRESHOLD, dpu.LOWER_THEN_CONSUMPTION_THRESHOLD, "
                 + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, pu.MULTIPLIER `PU_MULTIPLIER_FOR_FU`, "
                 + "    puu.UNIT_ID `PUU_UNIT_ID`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR`, puu.UNIT_CODE `PUU_UNIT_CODE`, "
                 + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
@@ -2713,7 +2712,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "    dpu.STOCK, dpu.EXISTING_SHIPMENTS, dpu.MONTHS_OF_STOCK, dpu.PRICE, dpu.CONSUMPTION_DATA_TYPE_ID, "
                 + "    pa.PROCUREMENT_AGENT_ID, pa.LABEL_ID `PA_LABEL_ID`, pa.LABEL_EN `PA_LABEL_EN`, pa.LABEL_FR `PA_LABEL_FR`, pa.LABEL_SP `PA_LABEL_SP`, pa.LABEL_PR `PA_LABEL_PR`, pa.PROCUREMENT_AGENT_CODE, "
                 + "    l.LABEL_ID `OU_LABEL_ID`, l.LABEL_EN `OU_LABEL_EN`, l.LABEL_FR `OU_LABEL_FR`, l.LABEL_SP `OU_LABEL_SP`, l.LABEL_PR `OU_LABEL_PR`, dpu.OTHER_MULTIPLIER `OU_MULTIPLIER_FOR_FU`, "
-                + "    dpus.REGION_ID, dpus.SCENARIO_ID, dpus.CONSUMPTION_EXTRAPOLATION_ID, dpus.TOTAL_FORECAST "
+                + "    dpus.REGION_ID, dpus.SCENARIO_ID, dpus.CONSUMPTION_EXTRAPOLATION_ID, dpus.TOTAL_FORECAST, dpus.NOTES `SELECTED_NOTES` "
                 + " FROM rm_dataset_planning_unit dpu  "
                 + " LEFT JOIN vw_planning_unit pu ON dpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + " LEFT JOIN vw_unit puu ON pu.UNIT_ID=puu.UNIT_ID"

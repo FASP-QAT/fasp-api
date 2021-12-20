@@ -133,7 +133,13 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
         params.put("stopDate", spcr.getStopDateString() + " 23:59:59");
         params.put("curUser", curUser.getUserId());
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
-        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new CommitRequestRowMapper());
+        try {
+            return this.namedParameterJdbcTemplate.query(sb.toString(), params, new CommitRequestRowMapper());
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+        
     }
 
     @Override

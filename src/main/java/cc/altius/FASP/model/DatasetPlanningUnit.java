@@ -28,6 +28,8 @@ public class DatasetPlanningUnit implements Serializable {
     private Integer monthsOfStock;
     private SimpleCodeObject procurementAgent;
     private Double price;
+    private Double higherThenConsumptionThreshold;
+    private Double lowerThenConsumptionThreshold;
     private String consumptionNotes;
     private Integer consumptionDataType; // null=Not a Consumption Unit, 1=Forecast, 2=PlanningUnit, 3=Other Unit
     private SimpleObjectWithMultiplier otherUnit;
@@ -107,6 +109,22 @@ public class DatasetPlanningUnit implements Serializable {
 
     public void setPrice(Double price) {
         this.price = price;
+    }
+
+    public Double getHigherThenConsumptionThreshold() {
+        return higherThenConsumptionThreshold;
+    }
+
+    public void setHigherThenConsumptionThreshold(Double higherThenConsumptionThreshold) {
+        this.higherThenConsumptionThreshold = higherThenConsumptionThreshold;
+    }
+
+    public Double getLowerThenConsumptionThreshold() {
+        return lowerThenConsumptionThreshold;
+    }
+
+    public void setLowerThenConsumptionThreshold(Double lowerThenConsumptionThreshold) {
+        this.lowerThenConsumptionThreshold = lowerThenConsumptionThreshold;
     }
 
     public String getConsumptionNotes() {

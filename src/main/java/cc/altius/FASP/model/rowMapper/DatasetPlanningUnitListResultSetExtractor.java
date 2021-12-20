@@ -81,6 +81,14 @@ public class DatasetPlanningUnitListResultSetExtractor implements ResultSetExtra
                 if (rs.wasNull()) {
                     dpu.setPrice(null);
                 }
+                dpu.setLowerThenConsumptionThreshold(rs.getDouble("LOWER_THEN_CONSUMPTION_THRESHOLD"));
+                if (rs.wasNull()) {
+                    dpu.setLowerThenConsumptionThreshold(null);
+                }
+                dpu.setHigherThenConsumptionThreshold(rs.getDouble("HIGHER_THEN_CONSUMPTION_THRESHOLD"));
+                if (rs.wasNull()) {
+                    dpu.setHigherThenConsumptionThreshold(null);
+                }
                 dpu.setConsumptionNotes(rs.getString("CONSUMPTION_NOTES"));
                 dpuList.add(dpu);
                 dpu.setSelectedForecastMap(new HashMap<>());
@@ -104,6 +112,7 @@ public class DatasetPlanningUnitListResultSetExtractor implements ResultSetExtra
             if (!rs.wasNull()) {
                 dpu.getSelectedForecastMap().put(regionId, sf);
             }
+            String notes = rs.getString("SELECTED_NOTES");
         }
         return dpuList;
     }

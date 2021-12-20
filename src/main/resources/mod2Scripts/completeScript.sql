@@ -4767,3 +4767,6 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Export to word doc');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Exporter vers word doc');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Exportar a documento de Word');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Exportar para Word Doc');
+ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` ADD COLUMN `NOTES` TEXT NULL AFTER `TOTAL_FORECAST`;
+
+ALTER TABLE `fasp`.`rm_dataset_planning_unit` ADD COLUMN `HIGHER_THEN_CONSUMPTION_THRESHOLD` DECIMAL(14,2) NULL AFTER `PRICE`, ADD COLUMN `LOWER_THEN_CONSUMPTION_THRESHOLD` DECIMAL(14,2) NULL AFTER `HIGHER_THEN_CONSUMPTION_THRESHOLD`;
