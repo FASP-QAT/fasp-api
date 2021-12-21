@@ -4770,3 +4770,41 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Exportar para Word Doc
 ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` ADD COLUMN `NOTES` TEXT NULL AFTER `TOTAL_FORECAST`;
 
 ALTER TABLE `fasp`.`rm_dataset_planning_unit` ADD COLUMN `HIGHER_THEN_CONSUMPTION_THRESHOLD` DECIMAL(14,2) NULL AFTER `PRICE`, ADD COLUMN `LOWER_THEN_CONSUMPTION_THRESHOLD` DECIMAL(14,2) NULL AFTER `HIGHER_THEN_CONSUMPTION_THRESHOLD`;
+
+UPDATE `fasp`.`ap_label_source` SET `SOURCE_DESC` = 'rm_tree_template' WHERE (`SOURCE_ID` = '45');
+UPDATE `fasp`.`ap_label_source` SET `SOURCE_DESC` = 'rm_tree_template_node' WHERE (`SOURCE_ID` = '46');
+
+insert into ap_label select null, LABEL_EN, LABEL_FR, LABEL_SP, LABEL_PR, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, 46 FROM vw_forecast_tree_node ftn where ftn.TREE_ID=2;
+SELECT last_insert_id() into @labelId;
+select min(LABEL_ID) into @oldLabelId from rm_forecast_tree_node ftn where ftn.TREE_ID=2;
+ALTER TABLE `fasp`.`rm_tree_template_node` DROP COLUMN `MANUAL_CHANGE_EFFECTS_FUTURE_MONTHS`;
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_tree_template_node` AS
+    SELECT 
+        `ttn`.`NODE_ID` AS `NODE_ID`,
+        `ttn`.`TREE_TEMPLATE_ID` AS `TREE_TEMPLATE_ID`,
+        `ttn`.`PARENT_NODE_ID` AS `PARENT_NODE_ID`,
+        `ttn`.`SORT_ORDER` AS `SORT_ORDER`,
+        `ttn`.`LEVEL_NO` AS `LEVEL_NO`,
+        `ttn`.`NODE_TYPE_ID` AS `NODE_TYPE_ID`,
+        `ttn`.`UNIT_ID` AS `UNIT_ID`,
+        `ttn`.`LABEL_ID` AS `LABEL_ID`,
+        `ttn`.`CREATED_BY` AS `CREATED_BY`,
+        `ttn`.`CREATED_DATE` AS `CREATED_DATE`,
+        `ttn`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `ttn`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `ttn`.`ACTIVE` AS `ACTIVE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_tree_template_node` `ttn`
+        LEFT JOIN `ap_label` `l` ON ((`ttn`.`LABEL_ID` = `l`.`LABEL_ID`)))
+    ORDER BY `ttn`.`TREE_TEMPLATE_ID` , `ttn`.`SORT_ORDER`;
+insert into rm_tree_template_node SELECT ftn.NODE_ID, 2, ftn.PARENT_NODE_ID, ftn.SORT_ORDER, ftn.LEVEL_NO, ftn.NODE_TYPE_ID, ftn.UNIT_ID, ftn.LABEL_ID+@labelId-@oldLabelId, ftn.CREATED_BY, ftn.CREATED_DATE, ftn.LAST_MODIFIED_BY, ftn.LAST_MODIFIED_DATE, ftn.ACTIVE from rm_forecast_tree_node ftn where ftn.TREE_ID=2;
+INSERT INTO rm_tree_template_node_data SELECT NODE_DATA_ID, NODE_ID, 0, DATA_VALUE, NODE_DATA_FU_ID, NODE_DATA_PU_ID, NOTES, MANUAL_CHANGES_EFFECT_FUTURE, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, ACTIVE FROM rm_forecast_tree_node_data ftnd where ftnd.NODE_ID between 16 and 21 AND ftnd.SCENARIO_ID=3;
