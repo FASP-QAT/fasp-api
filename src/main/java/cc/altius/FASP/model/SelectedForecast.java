@@ -15,6 +15,7 @@ public class SelectedForecast implements Serializable {
 
     private Integer scenarioId;
     private Integer consumptionExtrapolationId;
+    private String notes;
     private Integer totalForecast;
 
     public Integer getScenarioId() {
@@ -39,6 +40,14 @@ public class SelectedForecast implements Serializable {
 
     public void setTotalForecast(Integer totalForecast) {
         this.totalForecast = totalForecast;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
 }

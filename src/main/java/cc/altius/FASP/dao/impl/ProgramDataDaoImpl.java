@@ -1384,6 +1384,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("EXISTING_SHIPMENTS", dpu.getExistingShipments());
             params.put("MONTHS_OF_STOCK", dpu.getMonthsOfStock());
             params.put("PRICE", dpu.getPrice());
+            params.put("LOWER_THEN_CONSUMPTION_THRESHOLD", dpu.getLowerThenConsumptionThreshold());
+            params.put("HIGHER_THEN_CONSUMPTION_THRESHOLD", dpu.getHigherThenConsumptionThreshold());
             params.put("CONSUMPTION_NOTES", dpu.getConsumptionNotes());
             params.put("CONSUMPTION_DATA_TYPE_ID", dpu.getConsumptionDataType());
             if (dpu.getOtherUnit() != null) {
@@ -1409,6 +1411,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         batchParams.put("CONSUMPTION_EXTRAPOLATION_ID", getNewId(oldAndNewIdMap, "rm_forecast_consumption_extrapolation", dpu.getSelectedForecastMap().get(regionId).getConsumptionExtrapolationId()));
                     }
                     batchParams.put("TOTAL_FORECAST", dpu.getSelectedForecastMap().get(regionId).getTotalForecast());
+                    batchParams.put("NOTES", dpu.getSelectedForecastMap().get(regionId).getNotes());
                     insertList.add(new MapSqlParameterSource(batchParams));
                 }
                 insertBatch = new SqlParameterSource[insertList.size()];

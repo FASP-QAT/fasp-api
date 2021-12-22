@@ -36,10 +36,12 @@ public class DatasetPlanningUnitListResultSetExtractor implements ResultSetExtra
             if (idx == -1) {
                 dpu.setPlanningUnit(
                         new SimplePlanningUnitTracerCategoryObject(
+                                new SimpleCodeObject(rs.getInt("PUU_UNIT_ID"), new LabelRowMapper("PUU_").mapRow(rs, 1), rs.getString("PUU_UNIT_CODE")),
                                 rs.getInt("PLANNING_UNIT_ID"),
                                 new LabelRowMapper("PU_").mapRow(rs, 1),
                                 rs.getDouble("PU_MULTIPLIER_FOR_FU"),
                                 new SimpleForecastingUnitTracerCategoryObject(
+                                        new SimpleCodeObject(rs.getInt("FUU_UNIT_ID"), new LabelRowMapper("FUU_").mapRow(rs, 1), rs.getString("FUU_UNIT_CODE")),
                                         rs.getInt("FORECASTING_UNIT_ID"),
                                         new LabelRowMapper("FU_").mapRow(rs, 1),
                                         new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, 1))
@@ -79,6 +81,14 @@ public class DatasetPlanningUnitListResultSetExtractor implements ResultSetExtra
                 if (rs.wasNull()) {
                     dpu.setPrice(null);
                 }
+                dpu.setLowerThenConsumptionThreshold(rs.getDouble("LOWER_THEN_CONSUMPTION_THRESHOLD"));
+                if (rs.wasNull()) {
+                    dpu.setLowerThenConsumptionThreshold(null);
+                }
+                dpu.setHigherThenConsumptionThreshold(rs.getDouble("HIGHER_THEN_CONSUMPTION_THRESHOLD"));
+                if (rs.wasNull()) {
+                    dpu.setHigherThenConsumptionThreshold(null);
+                }
                 dpu.setConsumptionNotes(rs.getString("CONSUMPTION_NOTES"));
                 dpuList.add(dpu);
                 dpu.setSelectedForecastMap(new HashMap<>());
@@ -102,6 +112,7 @@ public class DatasetPlanningUnitListResultSetExtractor implements ResultSetExtra
             if (!rs.wasNull()) {
                 dpu.getSelectedForecastMap().put(regionId, sf);
             }
+            String notes = rs.getString("SELECTED_NOTES");
         }
         return dpuList;
     }

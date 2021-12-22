@@ -18,7 +18,11 @@ import cc.altius.FASP.service.UserService;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -27,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,6 +40,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -135,7 +141,7 @@ public class CommitRequestRestController {
     // Part 2 of the Commit Request
     @GetMapping("/processCommitRequest")
     //sec min hour day_of_month month day_of_week
-//    @Scheduled(cron = "00 */1 * * * *")
+    @Scheduled(cron = "00 */1 * * * *")
     public ResponseEntity processCommitRequest() {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(1);
@@ -170,5 +176,23 @@ public class CommitRequestRestController {
             logger.error("Error while trying to get SupplyPlanCommitRequest list", e);
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+    
+    /**
+     * Asynchronous API used to get the commit status
+     *
+     *
+     * @return returns the commit status
+     */
+    @Operation(description = "Asynchronous API used to get the commit status.", summary = "Asynchronous API to get commit status", tags = ("commitStatus"))
+    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Integration Program list")
+    @GetMapping("sendNotification/{commitRequestId}")
+    public @ResponseBody
+    CompletableFuture<ResponseEntity> sendNotification(@PathVariable("commitRequestId") int commitRequestId) throws InterruptedException {
+        System.out.println("inside send notification"+commitRequestId);
+        return this.commitRequestService.getCommitRequestStatusByCommitRequestId(commitRequestId).thenApplyAsync(ResponseEntity -> {
+            System.out.println("ResponseEntity+++"+ResponseEntity);
+            return new ResponseEntity(ResponseEntity, HttpStatus.OK);
+        });
     }
 }
