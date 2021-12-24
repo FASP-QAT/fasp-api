@@ -172,7 +172,7 @@ public class ProgramDataRestController {
     // Part 2 of the Commit Request
 //    @GetMapping("/processCommitRequest")
     //sec min hour day_of_month month day_of_week
-    @Scheduled(cron = "00 */1 * * * *")
+    @Scheduled(fixedDelay = 60000, initialDelay = 60000)//fixedDelay=1mins and initialDelay=1min
     public ResponseEntity processCommitRequest() {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(1);
