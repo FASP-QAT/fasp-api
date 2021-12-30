@@ -134,79 +134,79 @@ public class ProgramDataRestController {
     }
 
     // Part 1 of the Commit Request
-//    @PutMapping("/programData/{comparedVersionId}")
-//    public ResponseEntity putProgramData(@RequestBody ProgramData programData, @PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, Authentication auth) {
-//        try {
-//            int latestVersion = this.programDataService.getLatestVersionForPrograms(""+programData.getProgramId()).get(0).getVersionId();
-//            if (latestVersion == comparedVersionId) {
-//                boolean checkIfRequestExists = this.programDataService.checkIfCommitRequestExistsForProgram(programData.getProgramId());
-//                if (!checkIfRequestExists) {
-//                    CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//                    int commitRequestId = this.programDataService.saveProgramData(programData, curUser);
-//                    return new ResponseEntity(commitRequestId, HttpStatus.OK);
-//                } else {
-//                    logger.error("Request already exists");
-//                    return new ResponseEntity(new ResponseCode("static.commitVersion.requestAlreadyExists"), HttpStatus.NOT_ACCEPTABLE);
-//                }
-//            } else {
-//                logger.error("Compared version is not latest");
-//                return new ResponseEntity(new ResponseCode("static.commitVersion.versionIsOutDated"), HttpStatus.NOT_ACCEPTABLE);
-//            }
-////            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
+    @PutMapping("/programData/{comparedVersionId}")
+    public ResponseEntity putProgramData(@RequestBody ProgramData programData, @PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, Authentication auth) {
+        try {
+            int latestVersion = this.programDataService.getLatestVersionForPrograms(""+programData.getProgramId()).get(0).getVersionId();
+            if (latestVersion == comparedVersionId) {
+                boolean checkIfRequestExists = this.programDataService.checkIfCommitRequestExistsForProgram(programData.getProgramId());
+                if (!checkIfRequestExists) {
+                    CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+                    int commitRequestId = this.programDataService.saveProgramData(programData, curUser);
+                    return new ResponseEntity(commitRequestId, HttpStatus.OK);
+                } else {
+                    logger.error("Request already exists");
+                    return new ResponseEntity(new ResponseCode("static.commitVersion.requestAlreadyExists"), HttpStatus.NOT_ACCEPTABLE);
+                }
+            } else {
+                logger.error("Compared version is not latest");
+                return new ResponseEntity(new ResponseCode("static.commitVersion.versionIsOutDated"), HttpStatus.NOT_ACCEPTABLE);
+            }
+//            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
+        } catch (CouldNotSaveException e) {
+            logger.error("Error while trying to update ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to update ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to update ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to update ProgramData", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Part 2 of the Commit Request
+//    @GetMapping("/processCommitRequest")
+    //sec min hour day_of_month month day_of_week
+    @Scheduled(fixedDelay = 60000, initialDelay = 60000)//fixedDelay=1mins and initialDelay=1min
+    public ResponseEntity processCommitRequest() {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(1);
+            this.programDataService.processCommitRequest(curUser);
+            return new ResponseEntity(HttpStatus.OK);
 //        } catch (CouldNotSaveException e) {
-//            logger.error("Error while trying to update ProgramData", e);
+//            logger.error("Error while trying to processCommitRequest", e);
 //            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (EmptyResultDataAccessException e) {
-//            logger.error("Error while trying to update ProgramData", e);
-//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
-//        } catch (AccessDeniedException e) {
-//            logger.error("Error while trying to update ProgramData", e);
-//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to update ProgramData", e);
-//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
-//    // Part 2 of the Commit Request
-////    @GetMapping("/processCommitRequest")
-//    //sec min hour day_of_month month day_of_week
-//    @Scheduled(fixedDelay = 60000, initialDelay = 60000)//fixedDelay=1mins and initialDelay=1min
-//    public ResponseEntity processCommitRequest() {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(1);
-//            this.programDataService.processCommitRequest(curUser);
-//            return new ResponseEntity(HttpStatus.OK);
-////        } catch (CouldNotSaveException e) {
-////            logger.error("Error while trying to processCommitRequest", e);
-////            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.PRECONDITION_FAILED);
-//        } catch (EmptyResultDataAccessException e) {
-//            logger.error("Error while trying to processCommitRequest", e);
-//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
-//        } catch (AccessDeniedException e) {
-//            logger.error("Error while trying to processCommitRequest", e);
-//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to processCommitRequest", e);
-//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
-//
-//    @PostMapping("/getCommitRequest/{requestStatus}")
-//    public ResponseEntity getProgramDataCommitRequest(@RequestBody SupplyPlanCommitRequestInput spcr, @PathVariable(value = "requestStatus", required = true) int requestStatus, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            List<SupplyPlanCommitRequest> spcrList = this.programDataService.getSupplyPlanCommitRequestList(spcr, requestStatus, curUser);
-//            return new ResponseEntity(spcrList, HttpStatus.OK);
-////            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
-//        } catch (AccessDeniedException e) {
-//            logger.error("Error while trying to get SupplyPlanCommitRequest list", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to get SupplyPlanCommitRequest list", e);
-//            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
+        } catch (EmptyResultDataAccessException e) {
+            logger.error("Error while trying to processCommitRequest", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.NOT_FOUND);
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to processCommitRequest", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to processCommitRequest", e);
+            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/getCommitRequest/{requestStatus}")
+    public ResponseEntity getProgramDataCommitRequest(@RequestBody SupplyPlanCommitRequestInput spcr, @PathVariable(value = "requestStatus", required = true) int requestStatus, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            List<SupplyPlanCommitRequest> spcrList = this.programDataService.getSupplyPlanCommitRequestList(spcr, requestStatus, curUser);
+            return new ResponseEntity(spcrList, HttpStatus.OK);
+//            this.programDataService.getProgramData(programData.getProgramId(), v.getVersionId(), curUser,false)
+        } catch (AccessDeniedException e) {
+            logger.error("Error while trying to get SupplyPlanCommitRequest list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.FORBIDDEN);
+        } catch (Exception e) {
+            logger.error("Error while trying to get SupplyPlanCommitRequest list", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @GetMapping("/versionType")
     public ResponseEntity getVersionType(Authentication auth) {
