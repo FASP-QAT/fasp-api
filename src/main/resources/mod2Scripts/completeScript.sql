@@ -3003,10 +3003,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Configuración de vers
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.program.programDiscription','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Program Description');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Description du programme');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'descrição do programa');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'descripción del programa');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Version Notes');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Notes de version');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Notas de la versión');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Notas de versão');
 
 INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.program.dateCommitted','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -4808,3 +4808,11 @@ VIEW `vw_tree_template_node` AS
     ORDER BY `ttn`.`TREE_TEMPLATE_ID` , `ttn`.`SORT_ORDER`;
 insert into rm_tree_template_node SELECT ftn.NODE_ID, 2, ftn.PARENT_NODE_ID, ftn.SORT_ORDER, ftn.LEVEL_NO, ftn.NODE_TYPE_ID, ftn.UNIT_ID, ftn.LABEL_ID+@labelId-@oldLabelId, ftn.CREATED_BY, ftn.CREATED_DATE, ftn.LAST_MODIFIED_BY, ftn.LAST_MODIFIED_DATE, ftn.ACTIVE from rm_forecast_tree_node ftn where ftn.TREE_ID=2;
 INSERT INTO rm_tree_template_node_data SELECT NODE_DATA_ID, NODE_ID, 0, DATA_VALUE, NODE_DATA_FU_ID, NODE_DATA_PU_ID, NOTES, MANUAL_CHANGES_EFFECT_FUTURE, CREATED_BY, CREATED_DATE, LAST_MODIFIED_BY, LAST_MODIFIED_DATE, ACTIVE FROM rm_forecast_tree_node_data ftnd where ftnd.NODE_ID between 16 and 21 AND ftnd.SCENARIO_ID=3;
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.message.invalidStringLength','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Version Notes should not exceed 1000 characters');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les notes de version ne doivent pas dépasser 1000 caractères');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Las notas de la versión no deben exceder los 1000 caracteres');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'As notas da versão não devem exceder 1000 caracteres');
