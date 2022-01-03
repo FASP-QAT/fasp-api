@@ -170,6 +170,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                     nodeParams.put("NODE_ID", nodeId);
                     nodeParams.put("MONTH", tnd.getMonthNo());
                     nodeParams.put("DATA_VALUE", tnd.getDataValue());
+                    nodeParams.put("MANUAL_CHANGES_EFFECT_FUTURE", tnd.isManualChangesEffectFuture());
                     nodeParams.put("NOTES", tnd.getNotes());
                     nodeParams.put("CREATED_BY", curUser.getUserId());
                     nodeParams.put("CREATED_DATE", curDate);
