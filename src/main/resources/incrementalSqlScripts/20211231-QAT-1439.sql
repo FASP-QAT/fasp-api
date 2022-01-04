@@ -1,0 +1,1 @@
+UPDATE rm_procurement_agent_planning_unit papu SET papu.MOQ=null, papu.UNITS_PER_PALLET_EURO1=null, papu.UNITS_PER_PALLET_EURO2=null, papu.UNITS_PER_CONTAINER=null, papu.VOLUME=null, papu.WEIGHT=null WHERE papu.MOQ is not null and papu.MOQ=0;
