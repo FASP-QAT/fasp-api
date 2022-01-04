@@ -5149,3 +5149,31 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Qty');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité prévue');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cant. De previsión');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Qtd prevista');-- pr
+
+ALTER TABLE `fasp`.`ap_node_type` ADD COLUMN `EXTRAPOLATION_ALLOWED` TINYINT UNSIGNED NOT NULL AFTER `MODELING_ALLOWED`;
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_node_type` AS
+    SELECT 
+        `ut`.`NODE_TYPE_ID` AS `NODE_TYPE_ID`,
+        `ut`.`LABEL_ID` AS `LABEL_ID`,
+        `ut`.`MODELING_ALLOWED` AS `MODELING_ALLOWED`,
+        `ut`.`EXTRAPOLATION_ALLOWED` AS `EXTRAPOLATION_ALLOWED`,
+        `ut`.`TREE_TEMPLATE_ALLOWED` AS `TREE_TEMPLATE_ALLOWED`,
+        `ut`.`FORECAST_TREE_ALLOWED` AS `FORECAST_TREE_ALLOWED`,
+        `ut`.`ACTIVE` AS `ACTIVE`,
+        `ut`.`CREATED_BY` AS `CREATED_BY`,
+        `ut`.`CREATED_DATE` AS `CREATED_DATE`,
+        `ut`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `ut`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`ap_node_type` `ut`
+        LEFT JOIN `ap_label` `l` ON ((`ut`.`LABEL_ID` = `l`.`LABEL_ID`)));
