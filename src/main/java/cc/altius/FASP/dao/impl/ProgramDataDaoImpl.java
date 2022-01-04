@@ -179,7 +179,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  INDEX `fk_tmp_consumption_2_idx` (`REGION_ID` ASC), "
                 + "  INDEX `fk_tmp_consumption_3_idx` (`PLANNING_UNIT_ID` ASC), "
                 + "  INDEX `fk_tmp_consumption_4_idx` (`DATA_SOURCE_ID` ASC),"
-                + "  INDEX `fk_tmp_consumption_5_idx` (`VERSION_ID` ASC))";
+                + "  INDEX `fk_tmp_consumption_5_idx` (`VERSION_ID` ASC)) "
+                + "  ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info("tmp_consumption temporary table created");
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_consumption_batch_info`";
@@ -198,7 +199,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  PRIMARY KEY (`ID`), "
                 + "  INDEX `fk_tmp_consumption_1_idx` (`CONSUMPTION_TRANS_ID` ASC), "
                 + "  INDEX `fk_tmp_consumption_2_idx` (`CONSUMPTION_TRANS_BATCH_INFO_ID` ASC), "
-                + "  INDEX `fk_tmp_consumption_3_idx` (`BATCH_ID` ASC))";
+                + "  INDEX `fk_tmp_consumption_3_idx` (`BATCH_ID` ASC)) "
+                + "  ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         logger.info("tmp_consumption_batch_info temporary table created");
         logger.info("Going to load all the Consumption records into temp table");
@@ -428,7 +430,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  INDEX `fk_tmp_inventory_2_idx` (`REGION_ID` ASC), "
                 + "  INDEX `fk_tmp_inventory_3_idx` (`REALM_COUNTRY_PLANNING_UNIT_ID` ASC), "
                 + "  INDEX `fk_tmp_inventory_4_idx` (`DATA_SOURCE_ID` ASC), "
-                + "  INDEX `fk_tmp_inventory_5_idx` (`VERSION_ID` ASC))";
+                + "  INDEX `fk_tmp_inventory_5_idx` (`VERSION_ID` ASC)) "
+                + "  ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_inventory_batch_info`";
 //        sqlString = "DROP TABLE IF EXISTS `tmp_inventory_batch_info`";
@@ -446,7 +449,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  PRIMARY KEY (`ID`), "
                 + "  INDEX `fk_tmp_consumption_1_idx` (`INVENTORY_TRANS_ID` ASC), "
                 + "  INDEX `fk_tmp_consumption_2_idx` (`INVENTORY_TRANS_BATCH_INFO_ID` ASC), "
-                + "  INDEX `fk_tmp_consumption_3_idx` (`BATCH_ID` ASC))";
+                + "  INDEX `fk_tmp_consumption_3_idx` (`BATCH_ID` ASC)) "
+                + "  ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
         this.namedParameterJdbcTemplate.update(sqlString, params);
 
         insertList.clear();
@@ -705,7 +709,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  INDEX `fk_tmp_shipment_9_idx` (`VERSION_ID` ASC),"
                 + "  INDEX `fk_tmp_shipment_10_idx` (`PROCUREMENT_AGENT_ID` ASC), "
                 + "  INDEX `fk_tmp_shipment_11_idx` (`FUNDING_SOURCE_ID` ASC), "
-                + "  INDEX `fk_tmp_shipment_12_idx` (`BUDGET_ID` ASC) )";
+                + "  INDEX `fk_tmp_shipment_12_idx` (`BUDGET_ID` ASC) ) "
+                + "  ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
         this.namedParameterJdbcTemplate.update(sqlString, params);
         sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_shipment_batch_info`";
 //        sqlString = "DROP TABLE IF EXISTS `tmp_shipment_batch_info`";
@@ -722,7 +727,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "  PRIMARY KEY (`ID`), "
                 + "  INDEX `fk_tmp_consumption_1_idx` (`SHIPMENT_TRANS_ID` ASC), "
                 + "  INDEX `fk_tmp_consumption_2_idx` (`SHIPMENT_TRANS_BATCH_INFO_ID` ASC), "
-                + "  INDEX `fk_tmp_consumption_3_idx` (`BATCH_ID` ASC))";
+                + "  INDEX `fk_tmp_consumption_3_idx` (`BATCH_ID` ASC)) "
+                + "  ENGINE=INNODB DEFAULT CHARSET=utf8 COLLATE=utf8_bin";
         this.namedParameterJdbcTemplate.update(sqlString, params);
 
         insertList.clear();
@@ -2147,7 +2153,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN rm_program_version pv ON pvt.PROGRAM_VERSION_ID=pv.PROGRAM_VERSION_ID "
                 + "LEFT JOIN rm_integration_program ip ON  ip.PROGRAM_ID=f.PROGRAM_ID AND (ip.VERSION_TYPE_ID=pvt.VERSION_TYPE_ID OR ip.VERSION_TYPE_ID IS NULL) AND (ip.VERSION_STATUS_ID=pvt.VERSION_STATUS_ID OR ip.VERSION_STATUS_ID IS NULL) "
                 + "LEFT JOIN ap_integration i ON ip.INTEGRATION_ID=i.INTEGRATION_ID "
-                + "LEFT JOIN ap_integration_view iv ON i.INTEGRATION_VIEW_ID=iv.INTEGRATION_VIEW_ID";
+                + "LEFT JOIN ap_integration_view iv ON i.INTEGRATION_VIEW_ID=iv.INTEGRATION_VIEW_ID WHERE ip.`ACTIVE`";
         return this.jdbcTemplate.query(sqlString, new ProgramIntegrationDTORowMapper());
     }
 
@@ -2242,7 +2248,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         String sql = "SELECT "
                 + "          ttn.NODE_ID, ttn.TREE_ID, ttn.PARENT_NODE_ID, "
                 + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
-                + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.MODELING_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
+                + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.MODELING_ALLOWED, nt.EXTRAPOLATION_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
                 + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
                 + "          ttnd.`SCENARIO_ID`, ttnd.NODE_DATA_ID, ttnd.MONTH, ttnd.DATA_VALUE, ttnd.NOTES, ttnd.MANUAL_CHANGES_EFFECT_FUTURE, "
                 + "          ttndf.NODE_DATA_FU_ID, ttndf.LAG_IN_MONTHS, ttndf.NO_OF_PERSONS, ttndf.FORECASTING_UNITS_PER_PERSON, "
