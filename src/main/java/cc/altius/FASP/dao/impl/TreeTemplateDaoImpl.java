@@ -74,7 +74,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         String sql = "SELECT "
                 + "          ttn.NODE_ID, ttn.TREE_TEMPLATE_ID, ttn.PARENT_NODE_ID, "
                 + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
-                + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.MODELING_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
+                + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.MODELING_ALLOWED, nt.EXTRAPOLATION_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
                 + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
                 + "          0 `SCENARIO_ID`, ttnd.NODE_DATA_ID, ttnd.MONTH, ttnd.DATA_VALUE, ttnd.NOTES, ttnd.MANUAL_CHANGES_EFFECT_FUTURE, "
                 + "          ttndf.NODE_DATA_FU_ID, ttndf.LAG_IN_MONTHS, ttndf.NO_OF_PERSONS, ttndf.FORECASTING_UNITS_PER_PERSON, "
@@ -148,6 +148,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         SimpleJdbcInsert nidf = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_fu").usingGeneratedKeyColumns("NODE_DATA_FU_ID");
         SimpleJdbcInsert nidp = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_pu").usingGeneratedKeyColumns("NODE_DATA_PU_ID");
         SimpleJdbcInsert nidm = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_modeling");
+        Map<Integer, Integer> nodeDataIdMap = new HashMap<>();
         for (ForecastNode<TreeNode> n : tt.getTree().getFlatList()) {
             Map<String, Object> nodeParams = new HashMap<>();
             nodeParams.put("TREE_TEMPLATE_ID", treeTemplateId);
@@ -178,6 +179,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                     nodeParams.put("LAST_MODIFIED_DATE", curDate);
                     nodeParams.put("ACTIVE", 1);
                     int nodeDataId = nid.executeAndReturnKey(nodeParams).intValue();
+                    nodeDataIdMap.put(tnd.getNodeDataId(), nodeDataId);
                     nodeParams.clear();
                     if (tnd.getFuNode() != null && n.getPayload().getNodeType().getId() == 4) { // ForecastingUnitNode
                         nodeParams.put("FORECASTING_UNIT_ID", tnd.getFuNode().getForecastingUnit().getId());
@@ -231,7 +233,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("STOP_DATE", ndm.getStopDateNo());
                         nodeParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
                         nodeParams.put("DATA_VALUE", ndm.getDataValue());
-                        nodeParams.put("TRANSFER_NODE_DATA_ID", ndm.getTransferNodeDataId());
+                        nodeParams.put("TRANSFER_NODE_DATA_ID", nodeDataIdMap.get(ndm.getTransferNodeDataId()));
                         nodeParams.put("NOTES", ndm.getNotes());
                         nodeParams.put("CREATED_BY", curUser.getUserId());
                         nodeParams.put("CREATED_DATE", curDate);
@@ -291,6 +293,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         SimpleJdbcInsert nidf = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_fu").usingGeneratedKeyColumns("NODE_DATA_FU_ID");
         SimpleJdbcInsert nidp = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_pu").usingGeneratedKeyColumns("NODE_DATA_PU_ID");
         SimpleJdbcInsert nidm = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data_modeling");
+        Map<Integer, Integer> nodeDataIdMap = new HashMap<>();
         for (ForecastNode<TreeNode> n : tt.getTree().getFlatList()) {
             Map<String, Object> nodeParams = new HashMap<>();
             nodeParams.put("TREE_TEMPLATE_ID", treeTemplateId);
@@ -321,6 +324,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                     nodeParams.put("LAST_MODIFIED_DATE", curDate);
                     nodeParams.put("ACTIVE", 1);
                     int nodeDataId = nid.executeAndReturnKey(nodeParams).intValue();
+                    nodeDataIdMap.put(tnd.getNodeDataId(), nodeDataId);
                     nodeParams.clear();
                     if (tnd.getFuNode() != null && n.getPayload().getNodeType().getId() == 4) { // ForecastingUnitNode
                         nodeParams.put("FORECASTING_UNIT_ID", tnd.getFuNode().getForecastingUnit().getId());
@@ -374,7 +378,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("STOP_DATE", ndm.getStopDateNo());
                         nodeParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
                         nodeParams.put("DATA_VALUE", ndm.getDataValue());
-                        nodeParams.put("TRANSFER_NODE_DATA_ID", ndm.getTransferNodeDataId());
+                        nodeParams.put("TRANSFER_NODE_DATA_ID", nodeDataIdMap.get(ndm.getTransferNodeDataId()));
                         nodeParams.put("NOTES", ndm.getNotes());
                         nodeParams.put("CREATED_BY", curUser.getUserId());
                         nodeParams.put("CREATED_DATE", curDate);

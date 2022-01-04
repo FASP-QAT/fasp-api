@@ -47,7 +47,7 @@ public class ForecastingStaticDataDaoImpl implements ForecastingStaticDataDao {
             + "LEFT JOIN us_user lmb ON ut.LAST_MODIFIED_BY=lmb.USER_ID "
             + "WHERE 1 ";
 
-    private static String nodeTypeString = "SELECT nt.NODE_TYPE_ID ID, nt.MODELING_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, "
+    private static String nodeTypeString = "SELECT nt.NODE_TYPE_ID ID, nt.MODELING_ALLOWED, nt.EXTRAPOLATION_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, "
             + "nt.LABEL_ID, nt.LABEL_EN, nt.LABEL_FR, nt.LABEL_SP, nt.LABEL_PR, "
             + "nt.ACTIVE, nt.CREATED_DATE, cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, nt.LAST_MODIFIED_DATE, lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME "
             + "FROM vw_node_type nt "
@@ -55,7 +55,7 @@ public class ForecastingStaticDataDaoImpl implements ForecastingStaticDataDao {
             + "LEFT JOIN us_user lmb ON nt.LAST_MODIFIED_BY=lmb.USER_ID "
             + "WHERE 1 ";
     
-        private static String nodeTypeSyncString = "SELECT nt.NODE_TYPE_ID ID, nt.MODELING_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, ntr.CHILD_NODE_TYPE_ID, "
+        private static String nodeTypeSyncString = "SELECT nt.NODE_TYPE_ID ID, nt.MODELING_ALLOWED, nt.EXTRAPOLATION_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, ntr.CHILD_NODE_TYPE_ID, "
             + "nt.LABEL_ID, nt.LABEL_EN, nt.LABEL_FR, nt.LABEL_SP, nt.LABEL_PR, "
             + "nt.ACTIVE, nt.CREATED_DATE, cb.USER_ID CB_USER_ID, cb.USERNAME CB_USERNAME, nt.LAST_MODIFIED_DATE, lmb.USER_ID LMB_USER_ID, lmb.USERNAME LMB_USERNAME "
             + "FROM vw_node_type nt "

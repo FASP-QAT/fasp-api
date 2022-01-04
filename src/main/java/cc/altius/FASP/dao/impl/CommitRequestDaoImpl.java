@@ -25,6 +25,7 @@ import javax.sql.DataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -70,7 +71,11 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
     public CommitRequest getPendingCommitRequestProcessList() {
         StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND STATUS=1 LIMIT 1");
         Map<String, Object> params = new HashMap<>();
-        return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new CommitRequestRowMapper());
+        try {
+            return this.namedParameterJdbcTemplate.queryForObject(sb.toString(), params, new CommitRequestRowMapper());
+        } catch (EmptyResultDataAccessException erda) {
+            return null;
+        }
     }
 
     @Override
