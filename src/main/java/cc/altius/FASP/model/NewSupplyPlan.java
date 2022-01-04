@@ -549,7 +549,7 @@ public class NewSupplyPlan implements Serializable {
 
     public void updateExpiredStock() {
         this.batchDataList.forEach(bd -> {
-            if (bd.getExpiryDate() != null && DateUtils.compareDates(bd.getExpiryDate(), this.transDate) <= 0) {
+            if (bd.getExpiryDate() != null && DateUtils.compareDates(bd.getExpiryDate().substring(0,7)+"-01", this.transDate) <= 0) {
                 bd.setExpiredStock(Optional.ofNullable(bd.getShipment()).orElse(0L) + bd.getOpeningBalance());
                 this.expiredStock = Optional.ofNullable(this.expiredStock).orElse(0L) + bd.getExpiredStock();
                 bd.setExpiredStockWps(Optional.ofNullable(bd.getShipmentWps()).orElse(0L) + bd.getOpeningBalanceWps());
