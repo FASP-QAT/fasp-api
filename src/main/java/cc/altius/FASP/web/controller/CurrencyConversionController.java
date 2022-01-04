@@ -8,6 +8,8 @@ package cc.altius.FASP.web.controller;
 import cc.altius.FASP.model.DTO.CurrencyQuote;
 import cc.altius.FASP.service.CurrencyService;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Controller;
@@ -22,16 +24,22 @@ public class CurrencyConversionController {
 
     @Autowired
     CurrencyService currencyService;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @Scheduled(cron = "0 0 8 * * ?")
     public void updateCurrencyConversion() {
-
-        String currencyCodes = currencyService.getAllCurrencyCode();
-        Map<String, Double> currencyConversions = null;
-        if (currencyCodes != null && !currencyCodes.isEmpty() && !currencyCodes.equals("")) {
-            currencyConversions = getLiveCurrencyValue(currencyCodes);
-        }
-        if (currencyConversions != null) {
-            currencyService.updateCurrencyConversionRate(currencyConversions);
+        logger.info("Starting the Cron for Currency Conversion");
+        try {
+            String currencyCodes = currencyService.getAllCurrencyCode();
+            Map<String, Double> currencyConversions = null;
+            if (currencyCodes != null && !currencyCodes.isEmpty() && !currencyCodes.equals("")) {
+                currencyConversions = getLiveCurrencyValue(currencyCodes);
+            }
+            if (currencyConversions != null) {
+                currencyService.updateCurrencyConversionRate(currencyConversions);
+            }
+        } catch (Exception e) {
+            logger.info("Error in Currency Scheduler", e);
         }
 
     }

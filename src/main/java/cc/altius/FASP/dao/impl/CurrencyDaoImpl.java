@@ -11,11 +11,15 @@ import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.rowMapper.CurrencyRowMapper;
+import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.sql.DataSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -29,11 +33,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Repository
 public class CurrencyDaoImpl implements CurrencyDao {
 
-    private javax.sql.DataSource dataSource;
+    private DataSource dataSource;
     private NamedParameterJdbcTemplate namedParameterJdbcTemplate;
+    private final Logger logger = LoggerFactory.getLogger(cc.altius.FASP.web.controller.CurrencyConversionController.class);
 
     @Autowired
-    public void setDataSource(javax.sql.DataSource dataSource) {
+    public void setDataSource(DataSource dataSource) {
         this.dataSource = dataSource;
         this.namedParameterJdbcTemplate = new NamedParameterJdbcTemplate(dataSource);
     }
@@ -127,10 +132,11 @@ public class CurrencyDaoImpl implements CurrencyDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.IST);
         for (Map.Entry<String, Double> entry : currencyConversions.entrySet()) {
             Map<String, Object> params = new HashMap<>();
-            params.put("currencyCode", entry.getKey());
+            params.put("currencyCode", entry.getKey().substring(3,6));
             params.put("conversionRate", entry.getValue());
             params.put("curDate", curDate);
-            String sql = "UPDATE ap_currency SET CONVERSION_RATE_TO_USD=:conversionRate ,LAST_MODIFIED_DATE=:curDate, LAST_MODIFIED_BY=1 where CURRENCY_CODE =:currencyCode";
+            String sql = "UPDATE ap_currency SET CONVERSION_RATE_TO_USD=1/:conversionRate ,LAST_MODIFIED_DATE=:curDate, LAST_MODIFIED_BY=1 where CURRENCY_CODE =:currencyCode AND CONVERSION_RATE_TO_USD!=1/:conversionRate AND CURRENCY_CODE!='USD'";
+            logger.info(LogUtils.buildStringForLog(sql, params));
             this.namedParameterJdbcTemplate.update(sql, params);
         }
     }
