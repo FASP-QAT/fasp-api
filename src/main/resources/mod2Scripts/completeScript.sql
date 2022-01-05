@@ -5177,3 +5177,15 @@ VIEW `vw_node_type` AS
     FROM
         (`ap_node_type` `ut`
         LEFT JOIN `ap_label` `l` ON ((`ut`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+update rm_forecast_actual_consumption a 
+set a.PLANNING_UNIT_ID = '4148'
+where a.PLANNING_UNIT_ID =1;
+
+UPDATE rm_forecast_actual_consumption a 
+SET a.PLANNING_UNIT_ID = '4149'
+WHERE a.PLANNING_UNIT_ID =2;
+
+UPDATE rm_forecast_actual_consumption a 
+SET a.PLANNING_UNIT_ID = '2733'
+WHERE a.PLANNING_UNIT_ID =3;
