@@ -5108,6 +5108,48 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Validation du produit'
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Validación de producto');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Validação de Produto');-- pr
 
+INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Compare Version',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'24');
+SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
+INSERT INTO `fasp`.`us_business_function`(`BUSINESS_FUNCTION_ID`,`LABEL_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( 'ROLE_BF_COMPARE_VERSION',@MAX,'1',NOW(),'1',NOW());
+
+
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_REALM_ADMIN','ROLE_BF_COMPARE_VERSION','1',NOW(),'1',NOW());
+
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_INTERNAL_USER','ROLE_BF_COMPARE_VERSION','1',NOW(),'1',NOW());
+
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_PROGRAM_ADMIN','ROLE_BF_COMPARE_VERSION','1',NOW(),'1',NOW());
+
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_PROGRAM_USER','ROLE_BF_COMPARE_VERSION','1',NOW(),'1',NOW());
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dashboard.compareVersion','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Compare Version');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Comparer les versions');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Comparar versión');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Comparar versão');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareVersion.compareWithVersion','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Compare with version');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Comparer avec la version');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Comparar con la versión');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Compare com a versão');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareVersion.selectedForecast','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Selected Forecast');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Prévision sélectionnée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pronóstico seleccionado');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Previsão Selecionada');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareVersion.forecastQty','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Qty');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité prévue');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cant. De previsión');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Qtd prevista');-- pr
+
 ALTER TABLE `fasp`.`ap_node_type` ADD COLUMN `EXTRAPOLATION_ALLOWED` TINYINT UNSIGNED NOT NULL AFTER `MODELING_ALLOWED`;
 
 USE `fasp`;
@@ -5136,3 +5178,14 @@ VIEW `vw_node_type` AS
         (`ap_node_type` `ut`
         LEFT JOIN `ap_label` `l` ON ((`ut`.`LABEL_ID` = `l`.`LABEL_ID`)));
 
+update rm_forecast_actual_consumption a 
+set a.PLANNING_UNIT_ID = '4148'
+where a.PLANNING_UNIT_ID =1;
+
+UPDATE rm_forecast_actual_consumption a 
+SET a.PLANNING_UNIT_ID = '4149'
+WHERE a.PLANNING_UNIT_ID =2;
+
+UPDATE rm_forecast_actual_consumption a 
+SET a.PLANNING_UNIT_ID = '2733'
+WHERE a.PLANNING_UNIT_ID =3;
