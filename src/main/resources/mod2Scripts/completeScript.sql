@@ -5177,3 +5177,18 @@ VIEW `vw_node_type` AS
     FROM
         (`ap_node_type` `ut`
         LEFT JOIN `ap_label` `l` ON ((`ut`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.message.addTreeTemplate','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Tree Template Added Successfully');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modèle darborescence ajouté avec succès');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Plantilla de árbol agregada con éxito');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Modelo de árvore adicionado com sucesso');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.message.editTreeTemplate','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Tree Template Updated Successfully');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modèle darborescence mis à jour avec succès');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Plantilla de árbol actualizada correctamente');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Modelo de árvore atualizado com sucesso');
