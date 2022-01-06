@@ -18,7 +18,7 @@ public class NodeTypeRowMapper implements RowMapper<NodeType> {
 
     @Override
     public NodeType mapRow(ResultSet rs, int rowNum) throws SQLException {
-        return new NodeType(rs.getInt("ID"), new LabelRowMapper().mapRow(rs, rowNum), rs.getBoolean("MODELING_ALLOWED"), rs.getBoolean("TREE_TEMPLATE_ALLOWED"), rs.getBoolean("FORECAST_TREE_ALLOWED"));
+        return new NodeType(rs.getInt("ID"), new LabelRowMapper().mapRow(rs, rowNum), rs.getBoolean("MODELING_ALLOWED"), rs.getBoolean("EXTRAPOLATION_ALLOWED"), rs.getBoolean("TREE_TEMPLATE_ALLOWED"), rs.getBoolean("FORECAST_TREE_ALLOWED"));
     }
 
 }
