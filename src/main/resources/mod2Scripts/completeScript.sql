@@ -5178,7 +5178,6 @@ VIEW `vw_node_type` AS
         (`ap_node_type` `ut`
         LEFT JOIN `ap_label` `l` ON ((`ut`.`LABEL_ID` = `l`.`LABEL_ID`)));
 
-
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.message.addTreeTemplate','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Tree Template Added Successfully');
@@ -5192,3 +5191,16 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Tree Template Updated 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modèle darborescence mis à jour avec succès');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Plantilla de árbol actualizada correctamente');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Modelo de árvore atualizado com sucesso');
+
+update rm_forecast_actual_consumption a 
+set a.PLANNING_UNIT_ID = '4148'
+where a.PLANNING_UNIT_ID =1;
+
+UPDATE rm_forecast_actual_consumption a 
+SET a.PLANNING_UNIT_ID = '4149'
+WHERE a.PLANNING_UNIT_ID =2;
+
+UPDATE rm_forecast_actual_consumption a 
+SET a.PLANNING_UNIT_ID = '2733'
+WHERE a.PLANNING_UNIT_ID =3;
+
