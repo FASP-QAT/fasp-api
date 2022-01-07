@@ -5480,10 +5480,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nº de meses');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.extrapolation.tripleExponential','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Triple-Exponential Smoothing (Holts-Winters)');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Lissage triple exponentiel (Holts-Winters)');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suavizado triple exponencial (Holts-Winters)');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Suavização Exponencial Tripla (Holts-Winters)');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Triple-Exponential Smoothing (TES, Holt-Winters)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Lissage triple exponentiel (TES, Holt-Winters)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Suavizado triple exponencial (TES, Holt-Winters)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Suavização Exponencial Tripla (TES, Holt-Winters)');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.extrapolation.confidenceLevel','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
@@ -5612,3 +5612,32 @@ INSERT INTO fasp.us_role_business_function(ROLE_BUSINESS_FUNCTION_ID,ROLE_ID,BUS
 
 INSERT INTO fasp.us_role_business_function(ROLE_BUSINESS_FUNCTION_ID,ROLE_ID,BUSINESS_FUNCTION_ID,CREATED_BY,CREATED_DATE,LAST_MODIFIED_BY,LAST_MODIFIED_DATE) VALUES ( NULL,'ROLE_PROGRAM_USER','ROLE_BF_COMMIT_DATASET','1',NOW(),'1',NOW());
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.for','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'For');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pour');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Para');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Por');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.and','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'and');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'et');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'y');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'e');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.extrpolate.selectYourExtrapolationParameters','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Region, Select your extrapolation parameters:');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Région, Sélectionnez vos paramètres d`extrapolation :');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Región, seleccione sus parámetros de extrapolación:');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Região, selecione seus parâmetros de extrapolação:');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.extrapolation.lowestError','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Lowest Error');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Erreur la plus faible');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Error más bajo');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Erro mais baixo');-- pr
