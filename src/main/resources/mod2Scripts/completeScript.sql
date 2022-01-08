@@ -5596,3 +5596,8 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Data Check');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Vérification des données');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Comprobación de datos');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Verificação de dados');-- pr
+
+
+UPDATE ap_node_type nt set TREE_TEMPLATE_ALLOWED=1 where nt.NODE_TYPE_ID<6;
+UPDATE ap_node_type nt set FORECAST_TREE_ALLOWED=1 where nt.NODE_TYPE_ID<6;
+UPDATE ap_node_type nt set EXTRAPOLATION_ALLOWED=1 where nt.NODE_TYPE_ID=6;

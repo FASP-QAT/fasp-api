@@ -451,8 +451,8 @@ public class ReportController {
     public ResponseEntity getProgramLeadTimes(@RequestBody ProgramLeadTimesInput plt, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            System.out.println("parameters ---" + plt);
-            System.out.println("program lead times ---" + this.reportService.getProgramLeadTimes(plt, curUser));
+//            System.out.println("parameters ---" + plt);
+//            System.out.println("program lead times ---" + this.reportService.getProgramLeadTimes(plt, curUser));
             return new ResponseEntity(this.reportService.getProgramLeadTimes(plt, curUser), HttpStatus.OK);
         } catch (Exception e) {
             logger.error("/api/report/programLeadTimes", e);

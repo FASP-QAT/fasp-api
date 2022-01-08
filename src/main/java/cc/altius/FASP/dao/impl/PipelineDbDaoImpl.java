@@ -753,7 +753,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         }
         si.executeBatch(paramListha);
 //        params.clear();
-        System.out.println("params===>" + params);
+//        System.out.println("params===>" + params);
         this.namedParameterJdbcTemplate.update("DELETE FROM qat_temp_program_region WHERE PIPELINE_ID=:pipelineId", params);
         si = new SimpleJdbcInsert(this.dataSource).withTableName("qat_temp_program_region");
         SqlParameterSource[] paramList = new SqlParameterSource[p.getRegionArray().length];
@@ -1048,9 +1048,9 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             i++;
         }
         int[] batchResult = si.executeBatch(paramList);
-        for (int j : batchResult) {
-            System.out.println("shipments" + j);
-        }
+//        for (int j : batchResult) {
+//            System.out.println("shipments" + j);
+//        }
         return 1;
     }
 
@@ -1382,7 +1382,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
         int programId = si.executeAndReturnKey(params).intValue();
-        System.out.println("" + programId);
+//        System.out.println("" + programId);
         si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_program_region");
         SqlParameterSource[] paramList = new SqlParameterSource[p.getRegionArray().length];
         int i = 0;
@@ -1404,7 +1404,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
         si = new SimpleJdbcInsert(this.dataSource).withTableName("rm_program_health_area");
         SqlParameterSource[] paramListHA = new SqlParameterSource[p.getHealthAreaArray().length];
         int iha = 0;
-        System.out.println("p.getHealthAreaArray()" + Arrays.toString(p.getHealthAreaArray()));
+//        System.out.println("p.getHealthAreaArray()" + Arrays.toString(p.getHealthAreaArray()));
         for (String rId : p.getHealthAreaArray()) {
             params = new HashMap<>();
             params.put("HEALTH_AREA_ID", rId);
@@ -1524,7 +1524,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + " WHERE s.`PIPELINE_ID`=:pipelineId GROUP BY s.`FUNDING_SOURCE_ID`";
         params.put("pipelineId", pipelineId);
         List<Map<String, Object>> budgetList = this.namedParameterJdbcTemplate.queryForList(sql, params);
-        System.out.println("budget list=======>" + budgetList);
+//        System.out.println("budget list=======>" + budgetList);
         List<Map<String, Object>> newList = new LinkedList<>();
         params.clear();
         si = new SimpleJdbcInsert(dataSource).withTableName("rm_budget").usingGeneratedKeyColumns("BUDGET_ID");
@@ -1643,7 +1643,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             String sqlString = "SELECT LAST_INSERT_ID()";
             int shipmentId = this.namedParameterJdbcTemplate.queryForObject(sqlString, params, Integer.class);
             String batchNumbers = "QAT" + String.format("%06d", programId) + String.format("%07d", Integer.parseInt(s.getPlanningUnit())) + df.format(curDate) + getAlphaNumeric(4);
-            System.out.println("=====>" + batchNumbers);
+//            System.out.println("=====>" + batchNumbers);
             params.put("BATCH_NO", batchNumbers);
             params.put("PLANNING_UNIT_ID", s.getPlanningUnit());
             params.put("pipelineId", pipelineId);
@@ -1765,7 +1765,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
             params.put("NOTES", inv.getNotes());
             params.put("ACTIVE", true);
             params.put("VERSION_ID", version.getVersionId());
-            System.out.println("param" + params);
+//            System.out.println("param" + params);
             rowsEffected = +si_trans.execute(params);
             params.clear();
         }
@@ -2025,7 +2025,7 @@ public class PipelineDbDaoImpl implements PipelineDbDao {
                 + "left join rm_health_area ha on ha.HEALTH_AREA_ID=ph.HEALTH_AREA_ID "
                 + "where ph.PIPELINE_ID=?";
         haCodes = this.jdbcTemplate.queryForObject(sqlHa, String.class, pipelineId).replaceAll(",", "");
-        System.out.println("haCodes+++" + haCodes);
+//        System.out.println("haCodes+++" + haCodes);
 
         String sql1 = "insert into rm_realm_country_planning_unit (SELECT null,qtpu.PLANNING_UNIT_ID,qtp.REALM_COUNTRY_ID,rpu.LABEL_ID "
                 + ",concat(ac.COUNTRY_CODE2,\"-\",?,\"-\",qtpu.PIPELINE_PRODUCT_ID,\"-\",qtpu.PLANNING_UNIT_ID)  "

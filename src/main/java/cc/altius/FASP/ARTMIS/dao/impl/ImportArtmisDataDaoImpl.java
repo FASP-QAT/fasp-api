@@ -439,10 +439,10 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                 logger.info("Program Id - " + erpOrderDTO.getShProgramId());
                 logger.info("Shipment id - " + erpOrderDTO.getShShipmentId());
                 if (erpOrderDTO.getShProgramId() == 0 || erpOrderDTO.getShShipmentId() == 0) {
-                    System.out.println("---------------1--------------");
+//                    System.out.println("---------------1--------------");
                     logger.info("Either Program Id is 0 or Shipment Id is 0 so skipping this record");
                 } else if (erpOrderDTO.getEoChangeCode() == 2) {
-                    System.out.println("---------------2--------------");
+//                    System.out.println("---------------2--------------");
                     // This is the Delete code so go ahead and delete this Order
                     logger.info("Change code is 2 so therefore delete this line item where shipmentId=" + erpOrderDTO.getShShipmentId());
                     sqlString = "UPDATE rm_shipment s LEFT JOIN rm_shipment_trans st ON s.SHIPMENT_ID=st.SHIPMENT_ID AND s.MAX_VERSION_ID=st.VERSION_ID SET st.ACTIVE=0, st.LAST_MODIFIED_BY=1, st.LAST_MODIFIED_DATE=:curDate, s.LAST_MODIFIED_BY=1, s.LAST_MODIFIED_DATE=:curDate WHERE s.PARENT_SHIPMENT_ID=:shipmentId AND st.ORDER_NO=:orderNo AND st.PRIME_LINE_NO=:primeLineNo AND st.ACTIVE AND st.ERP_FLAG";
@@ -456,7 +456,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                     logger.info(rows + " rows updated");
 
                 } else if (erpOrderDTO.isShErpFlag() && erpOrderDTO.getShParentShipmentId() == null) {
-                    System.out.println("---------------3--------------");
+//                    System.out.println("---------------3--------------");
                     // The ERP Flag is true and the Parent Shipment Id is null
                     logger.info("ERP Flag is true and Parent Shipment Id is null");
                     // Find all Shipments whose Parent Shipment Id is :parentShipmentId and :orderNo and :primeLineNo are matching
@@ -501,7 +501,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                         params.put("arrivedDate", erpOrderDTO.getMinArrivalAtDestinationDate());
                         params.put("receivedDate", erpOrderDTO.getMinActualDeliveryDate());
                         params.put("curDate", curDate);
-                        System.out.println("----------removed notes---------");
+//                        System.out.println("----------removed notes---------");
                         this.namedParameterJdbcTemplate.update(sqlString, params);
                         logger.info("Updated the already existing Shipment Trans record (" + shipmentTransId + ") with new data");
                         logger.info("Now need to update the Batch information");
@@ -677,7 +677,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
                                     params.clear();
                                     params.put("shipmentTransBatchInfoId", eb.getShipmentTransBatchInfoId());
                                     this.namedParameterJdbcTemplate.update(sqlString, params);
-                                    System.out.println("---------Batch case 5---------");
+//                                    System.out.println("---------Batch case 5---------");
                                 }
                             }
                         }
@@ -905,8 +905,8 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
 //                            logger.info("Pushed into shipmentBatchTrans with Qty " + erpOrderDTO.getEoQty());
 //                        }
                     }
-                    System.out.println("is shipment cancelled---------------------------------------------------------------" + erpOrderDTO.isShipmentCancelled());
-                    System.out.println("is shipment sku changed---------------------------------------------------------------" + (erpOrderDTO.getErpPlanningUnitId() != this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo())));
+//                    System.out.println("is shipment cancelled---------------------------------------------------------------" + erpOrderDTO.isShipmentCancelled());
+//                    System.out.println("is shipment sku changed---------------------------------------------------------------" + (erpOrderDTO.getErpPlanningUnitId() != this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo())));
                     if (erpOrderDTO.isShipmentCancelled() || (erpOrderDTO.getErpPlanningUnitId() != this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
                         logger.info("Inside notification------------------------------------------------------------");
                         logger.info("Is shipment cancelled-------------------------" + erpOrderDTO.isShipmentCancelled());
@@ -1158,8 +1158,8 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
 //                        this.programService.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
 //                    }
                 }
-                System.out.println("erpOrderDTO.getShProgramId()---" + erpOrderDTO.getShProgramId());
-                System.out.println("programList----" + programList);
+//                System.out.println("erpOrderDTO.getShProgramId()---" + erpOrderDTO.getShProgramId());
+//                System.out.println("programList----" + programList);
                 if (programList.indexOf(erpOrderDTO.getShProgramId()) == -1) {
                     programList.add(erpOrderDTO.getShProgramId());
                 }

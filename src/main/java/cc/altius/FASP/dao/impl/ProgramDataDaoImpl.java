@@ -1636,8 +1636,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 3, "Cc");
-            System.out.println("toEmailIdsListReject===>" + toEmailIdsList);
-            System.out.println("ccEmailIdsListReject===>" + ccEmailIdsList);
+//            System.out.println("toEmailIdsListReject===>" + toEmailIdsList);
+//            System.out.println("ccEmailIdsListReject===>" + ccEmailIdsList);
 
             StringBuilder sbToEmails = new StringBuilder();
             StringBuilder sbCcEmails = new StringBuilder();
@@ -1651,12 +1651,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     sbCcEmails.append(ns.getEmailId()).append(",");
                 }
             }
-            if (sbToEmails.length() != 0) {
-                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
-            }
-            if (sbCcEmails.length() != 0) {
-                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
-            }
+//            if (sbToEmails.length() != 0) {
+//                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
+//            }
+//            if (sbCcEmails.length() != 0) {
+//                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
+//            }
 
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(7);
             String[] subjectParam = new String[]{};
@@ -1676,8 +1676,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
             List<NotificationUser> toEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "To");
             List<NotificationUser> ccEmailIdsList = this.getSupplyPlanNotificationList(programId, versionId, 2, "Cc");
-            System.out.println("toEmailIdsListApproved===>" + toEmailIdsList);
-            System.out.println("ccEmailIdsListApproved===>" + ccEmailIdsList);
+//            System.out.println("toEmailIdsListApproved===>" + toEmailIdsList);
+//            System.out.println("ccEmailIdsListApproved===>" + ccEmailIdsList);
 
             StringBuilder sbToEmails = new StringBuilder();
             StringBuilder sbCcEmails = new StringBuilder();
@@ -1691,12 +1691,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     sbCcEmails.append(ns.getEmailId()).append(",");
                 }
             }
-            if (sbToEmails.length() != 0) {
-                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
-            }
-            if (sbCcEmails.length() != 0) {
-                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
-            }
+//            if (sbToEmails.length() != 0) {
+//                System.out.println("sbToemails===>" + sbToEmails == "" ? "" : sbToEmails.toString());
+//            }
+//            if (sbCcEmails.length() != 0) {
+//                System.out.println("sbCcemails===>" + sbCcEmails == "" ? "" : sbCcEmails.toString());
+//            }
 
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(5);
             String[] subjectParam = new String[]{};
@@ -1879,18 +1879,18 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public SupplyPlan getSupplyPlan(int programId, int versionId) {
-        System.out.println("Going to call buildSimpleSupplyPlan SP");
-        System.out.println(new Date());
+//        System.out.println("Going to call buildSimpleSupplyPlan SP");
+//        System.out.println(new Date());
         String sqlString = "CALL buildSimpleSupplyPlan(:programId, :versionId)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
         SupplyPlan sp = this.namedParameterJdbcTemplate.query(sqlString, params, new SupplyPlanResultSetExtractor());
-        System.out.println("SP call completed");
-        System.out.println(new Date());
-        System.out.println("Going through the loops to calculate on basis of FEFO");
-        System.out.println(new Date());
-        System.out.println("PLANNING_UNIT_ID\tBATCH_ID\tTRANS_DATE\tEXPIRY_DATE\tSHIPMENT_QTY\tSHIPMENT_QTY_WPS\tCONSUMPTION\tADJUSTMENT\tEXPIRED\tUNALLOCATED\tCALCULCATED\tOPEN_BAL\tCLOSE_BAL\tUNMET DEMAND\tEXPIRED_WPS\tUNALLOCATED_WPS\tCALCULCATED_WPS\tOPEN_BAL_WPS\tCLOSE_BAL_WPS\tUNMET DEMAND_WPS");
+//        System.out.println("SP call completed");
+//        System.out.println(new Date());
+//        System.out.println("Going through the loops to calculate on basis of FEFO");
+//        System.out.println(new Date());
+//        System.out.println("PLANNING_UNIT_ID\tBATCH_ID\tTRANS_DATE\tEXPIRY_DATE\tSHIPMENT_QTY\tSHIPMENT_QTY_WPS\tCONSUMPTION\tADJUSTMENT\tEXPIRED\tUNALLOCATED\tCALCULCATED\tOPEN_BAL\tCLOSE_BAL\tUNMET DEMAND\tEXPIRED_WPS\tUNALLOCATED_WPS\tCALCULCATED_WPS\tOPEN_BAL_WPS\tCLOSE_BAL_WPS\tUNMET DEMAND_WPS");
         for (SupplyPlanDate sd : sp.getSupplyPlanDateList()) {
             for (SupplyPlanBatchInfo spbi : sd.getBatchList()) {
                 int prevCB = sp.getPrevClosingBalance(sd.getPlanningUnitId(), spbi.getBatchId(), sd.getPrevTransDate());
@@ -1915,11 +1915,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     spbi.setUnmetDemandWps(unallocatedConsumptionWps);
                     sd.setUnallocatedConsumptionWps(0);
                 }
-                System.out.println(sd.getPlanningUnitId() + "\t\t" + spbi.getBatchId() + "\t\t" + sd.getTransDate() + "\t\t" + spbi.getExpiryDate() + "\t\t" + spbi.getShipmentQty() + "\t\t" + (spbi.getShipmentQty() - spbi.getManualPlannedShipmentQty()) + "\t\t" + spbi.getConsumption() + "\t\t" + spbi.getAdjustment() + "\t\t" + spbi.getExpiredStock() + "\t\t" + sd.getUnallocatedConsumption() + "\t\t" + spbi.getCalculatedConsumption() + "\t\t" + spbi.getOpeningBalance() + "\t\t" + spbi.getClosingBalance() + "\t\t" + spbi.getUnmetDemand() + "\t\t" + spbi.getExpiredStockWps() + "\t\t" + sd.getUnallocatedConsumptionWps() + "\t\t" + spbi.getCalculatedConsumptionWps() + "\t\t" + spbi.getOpeningBalanceWps() + "\t\t" + spbi.getClosingBalanceWps() + "\t\t" + spbi.getUnmetDemandWps());
+//                System.out.println(sd.getPlanningUnitId() + "\t\t" + spbi.getBatchId() + "\t\t" + sd.getTransDate() + "\t\t" + spbi.getExpiryDate() + "\t\t" + spbi.getShipmentQty() + "\t\t" + (spbi.getShipmentQty() - spbi.getManualPlannedShipmentQty()) + "\t\t" + spbi.getConsumption() + "\t\t" + spbi.getAdjustment() + "\t\t" + spbi.getExpiredStock() + "\t\t" + sd.getUnallocatedConsumption() + "\t\t" + spbi.getCalculatedConsumption() + "\t\t" + spbi.getOpeningBalance() + "\t\t" + spbi.getClosingBalance() + "\t\t" + spbi.getUnmetDemand() + "\t\t" + spbi.getExpiredStockWps() + "\t\t" + sd.getUnallocatedConsumptionWps() + "\t\t" + spbi.getCalculatedConsumptionWps() + "\t\t" + spbi.getOpeningBalanceWps() + "\t\t" + spbi.getClosingBalanceWps() + "\t\t" + spbi.getUnmetDemandWps());
             }
         }
-        System.out.println("Completed loops");
-        System.out.println(new Date());
+//        System.out.println("Completed loops");
+//        System.out.println(new Date());
         return sp;
     }
 
@@ -1999,7 +1999,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             newBatchParams.put("curDate", nsp.getTransDate());
                             newBatchParams.put("expiryDate", bd.getExpiryDate());
                             try {
-                                System.out.println(LogUtils.buildStringForLog(sql, newBatchParams));
+//                                System.out.println(LogUtils.buildStringForLog(sql, newBatchParams));
                                 batchId = this.namedParameterJdbcTemplate.queryForObject(sql, newBatchParams, Integer.class);
                             } catch (EmptyResultDataAccessException erda) {
                                 sql = "INSERT INTO `rm_batch_info` SELECT "

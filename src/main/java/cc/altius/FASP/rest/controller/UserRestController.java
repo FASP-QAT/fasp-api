@@ -379,12 +379,12 @@ public class UserRestController {
     public ResponseEntity confirmForgotPasswordToken(@RequestBody EmailUser user, HttpServletRequest request) {
         try {
             logger.info("------------------------------------------------------ Reset password Start ----------------------------------------------------");
-            System.out.println("---------------reset password start-----------");
+//            System.out.println("---------------reset password start-----------");
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getEmailId(), user.getToken());
-            System.out.println("---------------1-----------");
+//            System.out.println("---------------1-----------");
             auditLogger.info("Confirm forgot password has been triggered for EmailId:" + user.getEmailId() + " with ForgotPasswordToken:" + fpt, request.getRemoteAddr());
 //            if (fpt.isValidForCompletion()) {
-            System.out.println("---------------2-----------");
+//            System.out.println("---------------2-----------");
             logger.info("fpt.isValidForCompletion()=true");
             auditLogger.info("Token is valid and reset can proceed");
 //                this.userService.updateTriggeredDateForForgotPasswordToken(user.getEmailId(), user.getToken());
@@ -408,24 +408,24 @@ public class UserRestController {
             auditLogger.info("Update password triggered for Email: " + user.getEmailId(), request.getRemoteAddr());
             ForgotPasswordToken fpt = this.userService.getForgotPasswordToken(user.getEmailId(), user.getToken());
             logger.info("ForgotPasswordToken is " + fpt);
-            System.out.println("ForgotPasswordToken is " + fpt.toString());
+//            System.out.println("ForgotPasswordToken is " + fpt.toString());
             if (fpt.isValidForCompletion()) {
                 logger.info("fpt.isValidForCompletion()=true");
-                System.out.println("fpt.isValidForCompletion()=true");
+//                System.out.println("fpt.isValidForCompletion()=true");
                 // Go ahead and reset the password
                 CustomUserDetails curUser = this.userService.getCustomUserByEmailId(user.getEmailId());
                 logger.info("Current userL " + curUser);
                 BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
                 if (bcrypt.matches(user.getPassword(), curUser.getPassword())) {
                     auditLogger.info("Failed to reset the password because New password is same as current password");
-                    System.out.println("Failed to reset the password because New password is same as current password");
+//                    System.out.println("Failed to reset the password because New password is same as current password");
                     return new ResponseEntity(new ResponseCode("static.message.user.previousPasswordSame"), HttpStatus.PRECONDITION_FAILED);
                 } else {
                     logger.info("Password provided is valid and we can proceed");
-                    System.out.println("Password provided is valid and we can proceed");
+//                    System.out.println("Password provided is valid and we can proceed");
                     this.userService.updatePassword(user.getEmailId(), user.getToken(), user.getHashPassword(), 365);
                     auditLogger.info("Password has now been updated successfully for Username: " + user.getUsername());
-                    System.out.println("Password has now been updated successfully for Username: " + user.getUsername());
+//                    System.out.println("Password has now been updated successfully for Username: " + user.getUsername());
                     return new ResponseEntity(new ResponseCode("static.message.passwordSuccess"), HttpStatus.OK);
                 }
             } else {

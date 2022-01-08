@@ -79,16 +79,16 @@ public class SupplyPlanRestController {
             if (versionId == -1) {
                 versionId = p.getCurrentVersion().getVersionId();
             }
-            System.out.println("Starting supply plan build for ProgramId:" + programId + " versionId:" + versionId + " rebuild:" + rebuild);
-            System.out.println(new Date());
+//            System.out.println("Starting supply plan build for ProgramId:" + programId + " versionId:" + versionId + " rebuild:" + rebuild);
+//            System.out.println(new Date());
             List<SimplifiedSupplyPlan> spList = this.programDataService.getNewSupplyPlanList(programId, versionId, rebuild, true);
             if (rebuild) {
-                System.out.println("Completed Supply plan build");
-                System.out.println(new Date());
+//                System.out.println("Completed Supply plan build");
+//                System.out.println(new Date());
                 return new ResponseEntity("Completed", HttpStatus.OK);
             } else {
-                System.out.println("Completed Supply plan build");
-                System.out.println(new Date());
+//                System.out.println("Completed Supply plan build");
+//                System.out.println(new Date());
                 return new ResponseEntity(spList, HttpStatus.OK);
             }
 
@@ -113,21 +113,21 @@ public class SupplyPlanRestController {
         CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
         for (ProgramIdAndVersionId pv : pvList) {
             try {
-                System.out.println("Starting supply plan build for ProgramId:" + pv.getProgramId() + " versionId:" + pv.getVersionId());
+//                System.out.println("Starting supply plan build for ProgramId:" + pv.getProgramId() + " versionId:" + pv.getVersionId());
                 sb.append("Starting supply plan build for ProgramId:" + pv.getProgramId() + " versionId:" + pv.getVersionId()).append(nl);
                 Date dt1 = new Date();
-                System.out.println(sdf.format(dt1));
+//                System.out.println(sdf.format(dt1));
                 sb.append(sdf.format(dt1)).append(nl);
                 List<SimplifiedSupplyPlan> spList = this.programDataService.getNewSupplyPlanList(pv.getProgramId(), pv.getVersionId(), true, true);
                 Date dt2 = new Date();
-                System.out.println(sdf.format(dt2));
+//                System.out.println(sdf.format(dt2));
                 sb.append(sdf.format(dt2)).append(nl);
-                System.out.println("Completed Supply plan build in " + (dt2.getTime() - dt1.getTime()) / 1000.0);
+//                System.out.println("Completed Supply plan build in " + (dt2.getTime() - dt1.getTime()) / 1000.0);
                 sb.append("Completed Supply plan build in " + (dt2.getTime() - dt1.getTime()) / 1000.0).append(nl);
-                System.out.println("-----------------------------------------------------------");
+//                System.out.println("-----------------------------------------------------------");
                 sb.append("-----------------------------------------------------------").append(nl);
             } catch (ParseException ex) {
-                System.out.println("Error occurred while trying to rebuild Supply plan " + ex.getMessage());
+//                System.out.println("Error occurred while trying to rebuild Supply plan " + ex.getMessage());
                 sb.append("Error occurred while trying to rebuild Supply plan " + ex.getMessage()).append(nl);
             }
         }

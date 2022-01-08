@@ -14,11 +14,8 @@ import cc.altius.FASP.model.DTO.rowMapper.ExportOrderDataDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ExportProgramDataDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ExportShipmentLinkingDTORowMapper;
 import cc.altius.utils.DateUtils;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.TimeZone;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -48,8 +45,8 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
                 + "LEFT JOIN vw_country c ON rc.COUNTRY_ID=c.COUNTRY_ID "
                 + "LEFT JOIN vw_health_area ha ON p.HEALTH_AREA_ID=ha.HEALTH_AREA_ID "
                 + "WHERE p.`LAST_MODIFIED_DATE` > ? AND p.`LAST_MODIFIED_DATE` < ?";
-        System.out.println("lastDate---" + lastDate);
-        System.out.println("today---" + today);
+//        System.out.println("lastDate---" + lastDate);
+//        System.out.println("today---" + today);
         return this.jdbcTemplate.query(sql, new ExportProgramDataDTORowMapper(), lastDate, today);
     }
 
@@ -68,8 +65,8 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
                 + "LEFT JOIN rm_forecasting_unit fu ON fu.`FORECASTING_UNIT_ID`=pu.`FORECASTING_UNIT_ID`  "
                 + "LEFT JOIN vw_tracer_category tc ON tc.`TRACER_CATEGORY_ID`=fu.`TRACER_CATEGORY_ID`  "
                 + "WHERE s.`LAST_MODIFIED_DATE` > ? AND s.`LAST_MODIFIED_DATE` < ? AND st.`SHIPMENT_TRANS_ID` IS NOT NULL";
-        System.out.println("lastDate---" + lastDate);
-        System.out.println("today---" + today);
+//        System.out.println("lastDate---" + lastDate);
+//        System.out.println("today---" + today);
         return this.jdbcTemplate.query(sql, new ExportOrderDataDTORowMapper(), lastDate, today);
     }
 
@@ -96,7 +93,7 @@ public class ExportArtmisDataDaoImpl implements ExportArtmisDataDao {
                 + "ORDER BY o.`ERP_ORDER_ID` DESC) AS a "
                 + "GROUP BY a.RO_NO,a.ORDER_NO,a.PRIME_LINE_NO ) AS b ON b.ORDER_NO=m.`ORDER_NO` AND b.PRIME_LINE_NO =m.`PRIME_LINE_NO` "
                 + " WHERE m.`ACTIVE`=1;";
-        System.out.println("list-------" + this.jdbcTemplate.query(sql, new ExportShipmentLinkingDTORowMapper()));
+//        System.out.println("list-------" + this.jdbcTemplate.query(sql, new ExportShipmentLinkingDTORowMapper()));
         return this.jdbcTemplate.query(sql, new ExportShipmentLinkingDTORowMapper());
     }
 
