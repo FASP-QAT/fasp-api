@@ -289,9 +289,9 @@ public class ProgramServiceImpl implements ProgramService {
     public List<Integer> linkShipmentWithARTMIS(ManualTaggingOrderDTO[] manualTaggingOrderDTO, CustomUserDetails curUser) {
         try {
             List<Integer> result = new ArrayList<>();
-            System.out.println("length---" + manualTaggingOrderDTO.length);
+//            System.out.println("length---" + manualTaggingOrderDTO.length);
             for (int i = 0; i < manualTaggingOrderDTO.length; i++) {
-                System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
+//                System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
                 if (manualTaggingOrderDTO[i].isActive()) {
                     int id=0;
                     int count = this.programDao.checkIfOrderNoAlreadyTagged(manualTaggingOrderDTO[i].getOrderNo(), manualTaggingOrderDTO[i].getPrimeLineNo());
@@ -308,7 +308,7 @@ public class ProgramServiceImpl implements ProgramService {
                     }
                     result.add(id);
                 } else if (!manualTaggingOrderDTO[i].isActive()) {
-                    System.out.println("****************************************************************************************" + manualTaggingOrderDTO[i]);
+//                    System.out.println("****************************************************************************************" + manualTaggingOrderDTO[i]);
                     this.programDao.delinkShipment(manualTaggingOrderDTO[i], curUser);
                 }
             }

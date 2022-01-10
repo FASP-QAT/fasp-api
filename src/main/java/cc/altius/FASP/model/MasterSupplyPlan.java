@@ -232,7 +232,7 @@ public class MasterSupplyPlan implements Serializable {
 
     public void buildPlan() throws ParseException {
         for (NewSupplyPlan nsp : this.nspList) {
-            System.out.println(nsp.getTransDate() + " " + nsp.getPlanningUnitId());
+//            System.out.println(nsp.getTransDate() + " " + nsp.getPlanningUnitId());
             // For Regions
             updateOpeningBalance(nsp); // handles both All and WPS // Also copies Opening Balance and Batch info from the previous month
             // Shipments are already stored from the ResultSetExtractor

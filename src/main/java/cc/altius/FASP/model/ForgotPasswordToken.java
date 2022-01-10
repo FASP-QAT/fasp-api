@@ -115,7 +115,7 @@ public class ForgotPasswordToken implements Serializable {
 //        } else 
 //            
         if (this.tokenCompletionDate != null) {
-            System.out.println("inside else if token");
+//            System.out.println("inside else if token");
             logger.info("this.tokenCompletionDate---" + this.tokenCompletionDate);
             return "static.message.user.forgotPasswordTokenUsed";
         }
@@ -129,10 +129,10 @@ public class ForgotPasswordToken implements Serializable {
         logger.info("curDate---" + curDate);
         if (DateUtils.compareDate(allowedCompletionDate.getTime(), curDate.getTime()) == 1) {
             logger.info("compare date d inside if---");
-            System.out.println("compare date");
+//            System.out.println("compare date");
             return "";
         } else {
-            System.out.println("compare date ");
+//            System.out.println("compare date ");
             logger.info("compare date d inside else---");
             return "static.message.user.TokenExpired";
         }

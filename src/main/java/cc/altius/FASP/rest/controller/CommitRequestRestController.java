@@ -189,9 +189,9 @@ public class CommitRequestRestController {
     @GetMapping("sendNotification/{commitRequestId}")
     public @ResponseBody
     CompletableFuture<ResponseEntity> sendNotification(@PathVariable("commitRequestId") int commitRequestId) throws InterruptedException {
-        System.out.println("inside send notification"+commitRequestId);
+//        System.out.println("inside send notification"+commitRequestId);
         return this.commitRequestService.getCommitRequestStatusByCommitRequestId(commitRequestId).thenApplyAsync(ResponseEntity -> {
-            System.out.println("ResponseEntity+++"+ResponseEntity);
+//            System.out.println("ResponseEntity+++"+ResponseEntity);
             return new ResponseEntity(ResponseEntity, HttpStatus.OK);
         });
     }

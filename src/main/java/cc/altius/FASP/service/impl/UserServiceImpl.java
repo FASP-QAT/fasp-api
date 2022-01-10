@@ -175,10 +175,10 @@ public class UserServiceImpl implements UserService {
 //            if (emailTemplateId == 1) {
 //                bodyParam = new String[]{HOST_URL, PASSWORD_RESET_URL, user.getUsername(), token};
 //            } else if (emailTemplateId == 2) {
-            System.out.println("emailId---" + emailId);
-            System.out.println("HOST_URL---" + HOST_URL);
-            System.out.println("PASSWORD_RESET_URL---" + PASSWORD_RESET_URL);
-            System.out.println("token---" + token);
+//            System.out.println("emailId---" + emailId);
+//            System.out.println("HOST_URL---" + HOST_URL);
+//            System.out.println("PASSWORD_RESET_URL---" + PASSWORD_RESET_URL);
+//            System.out.println("token---" + token);
             bodyParam = new String[]{emailId, HOST_URL, PASSWORD_RESET_URL, emailId, token};
 //            }
             Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), user.getEmailId(), emailTemplate.getCcTo(), subjectParam, bodyParam);

@@ -1037,7 +1037,7 @@ public class ProgramDaoImpl implements ProgramDao {
                         logger.info(rows + " rows updated");
 
                     } else if (erpOrderDTO.isShErpFlag() && erpOrderDTO.getShParentShipmentId() == null) {
-                        System.out.println("---------------3--------------");
+//                        System.out.println("---------------3--------------");
                         // The ERP Flag is true and the Parent Shipment Id is null
                         logger.info("ERP Linking : ERP Flag is true and Parent Shipment Id is null");
                         logger.info("ERP Linking : Find all Shipments whose Parent Shipment Id is :parentShipmentId and :orderNo and :primeLineNo are matching");
@@ -1512,7 +1512,7 @@ public class ProgramDaoImpl implements ProgramDao {
 //                            this.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
 //                        }
                     } else {
-                        System.out.println("---------------4--------------");
+//                        System.out.println("---------------4--------------");
                         // This is a new Link request coming through
                         // So make the Shipment, Active = fasle and ERPFlag = true
                         logger.info("ERP Linking : This is a new Link request coming through.So make the Shipment, Active = fasle and ERPFlag = true");
@@ -1527,7 +1527,7 @@ public class ProgramDaoImpl implements ProgramDao {
                                 + " WHERE st.SHIPMENT_TRANS_ID=:shipmentTransId";
                         params.clear();
 //                        params.put("planningUnitId", erpOrderDTO.getEoPlanningUnitId());
-                        System.out.println("shipment trans id-------------------------" + erpOrderDTO.getShShipmentTransId());
+//                        System.out.println("shipment trans id-------------------------" + erpOrderDTO.getShShipmentTransId());
                         params.put("curUser", curUser.getUserId());
                         params.put("curDate", curDate);
                         params.put("shipmentTransId", erpOrderDTO.getShShipmentTransId());
@@ -2440,8 +2440,8 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programId", programId);
         params.put("realmId", p.getRealmCountry().getRealm().getRealmId());
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
-        System.out.println(sb.toString());
-        System.out.println(params);
+//        System.out.println(sb.toString());
+//        System.out.println(params);
         List<String> emailList = this.namedParameterJdbcTemplate.queryForList(sb.toString(), params, String.class);
         return StringUtils.join(emailList, ",");
     }
@@ -2509,7 +2509,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programId", eRPNotificationDTO.getProgramId());
         sql = "CALL getShipmentLinkingNotifications(:programId, :planningUnitId, -1)";
         list = this.namedParameterJdbcTemplate.query(sql, params, new ShipmentNotificationDTORowMapper());
-        System.out.println("list---" + list);
+//        System.out.println("list---" + list);
         return list;
     }
 
@@ -2575,7 +2575,7 @@ public class ProgramDaoImpl implements ProgramDao {
             programIds = programIds + p.getProgramId() + ",";
         }
         programIds = programIds.substring(0, programIds.lastIndexOf(","));
-        System.out.println("ids%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
+//        System.out.println("ids%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" + programIds);
         sql = "SELECT COUNT(*) FROM ( "
                 + "SELECT n.`NOTIFICATION_ID` FROM rm_erp_notification n "
                 + " LEFT JOIN rm_shipment s ON s.`SHIPMENT_ID`=n.`CHILD_SHIPMENT_ID` "
@@ -2596,9 +2596,9 @@ public class ProgramDaoImpl implements ProgramDao {
                 + " LEFT JOIN rm_erp_shipment es ON es.`ERP_ORDER_ID`=e.`ERP_ORDER_ID` "
                 + " WHERE e.`ORDER_NO`=? AND e.`PRIME_LINE_NO`=? ORDER BY es.`FILE_NAME` DESC";
 //                --+ " GROUP BY e.`ERP_ORDER_ID`,es.BATCH_NO;";
-        System.out.println("history------------------------------------------------------------" + this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo));
+//        System.out.println("history------------------------------------------------------------" + this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo));
         List<ARTMISHistoryDTO> history = this.jdbcTemplate.query(sql, new ARTMISHistoryDTORowMapper(), orderNo, primeLineNo);
-        System.out.println("history---" + history);
+//        System.out.println("history---" + history);
         return history;
     }
 
