@@ -28,4 +28,6 @@ public interface ForecastingStaticDataDao {
     public List<NodeTypeSync> getNodeTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
 
     public List<SimpleBaseModel> getForecastMethodTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
+    
+    public List<SimpleBaseModel> getExtrapolationMethodListForSync(String lastSyncDate, CustomUserDetails curUser);
 }

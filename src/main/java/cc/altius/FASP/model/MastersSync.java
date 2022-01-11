@@ -57,6 +57,7 @@ public class MastersSync implements Serializable {
     private List<UsageTemplate> usageTemplateList;
     private List<TreeTemplate> treeTemplateList;
     private List<EquivalencyUnitMapping> equivalencyUnitMappingList;
+    private List<SimpleBaseModel> extrapolationMethodList;
 
     public List<Country> getCountryList() {
         return countryList;
@@ -392,6 +393,14 @@ public class MastersSync implements Serializable {
 
     public void setEquivalencyUnitMappingList(List<EquivalencyUnitMapping> equivalencyUnitMappingList) {
         this.equivalencyUnitMappingList = equivalencyUnitMappingList;
+    }
+
+    public List<SimpleBaseModel> getExtrapolationMethodList() {
+        return extrapolationMethodList;
+    }
+
+    public void setExtrapolationMethodList(List<SimpleBaseModel> extrapolationMethodList) {
+        this.extrapolationMethodList = extrapolationMethodList;
     }
 
 }
