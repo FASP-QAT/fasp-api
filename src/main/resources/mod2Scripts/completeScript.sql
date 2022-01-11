@@ -5634,8 +5634,8 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'e');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.extrpolate.selectYourExtrapolationParameters','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Region, Select your extrapolation parameters:');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Région, Sélectionnez vos paramètres d`extrapolation :');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Region, select your extrapolation parameters:');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Région, sélectionnez vos paramètres d`extrapolation :');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Región, seleccione sus parámetros de extrapolación:');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Região, selecione seus parâmetros de extrapolação:');-- pr
 
