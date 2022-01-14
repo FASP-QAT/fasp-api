@@ -5286,10 +5286,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Comparar versão');-- 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareVersion.compareWithVersion','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Compare with version');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Compare With Version');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Comparer avec la version');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Comparar con la versión');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Compare com a versão');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Comparar com a versão');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.compareVersion.selectedForecast','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
