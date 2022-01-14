@@ -1,14 +1,7 @@
 SET @dt='2021-09-01 00:00:00';
 
-ALTER TABLE `fasp`.`rm_tracer_category` 
-ADD COLUMN `HEALTH_AREA_ID` INT(10) UNSIGNED NULL AFTER `LABEL_ID`,
-ADD INDEX `fk_rm_tracer_category_healthAreaId_idx` (`HEALTH_AREA_ID` ASC);
-ALTER TABLE `fasp`.`rm_tracer_category` 
-ADD CONSTRAINT `fk_rm_tracer_category_healthAreaId`
-  FOREIGN KEY (`HEALTH_AREA_ID`)
-  REFERENCES `fasp`.`rm_health_area` (`HEALTH_AREA_ID`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
+ALTER TABLE `fasp`.`rm_tracer_category` ADD COLUMN `HEALTH_AREA_ID` INT(10) UNSIGNED NULL AFTER `LABEL_ID`,ADD INDEX `fk_rm_tracer_category_healthAreaId_idx` (`HEALTH_AREA_ID` ASC);
+ALTER TABLE `fasp`.`rm_tracer_category` ADD CONSTRAINT `fk_rm_tracer_category_healthAreaId`  FOREIGN KEY (`HEALTH_AREA_ID`)  REFERENCES `fasp`.`rm_health_area` (`HEALTH_AREA_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
 
 UPDATE rm_tracer_category SET HEALTH_AREA_ID=2 WHERE TRACER_CATEGORY_ID=1;
 UPDATE rm_tracer_category SET HEALTH_AREA_ID=3 WHERE TRACER_CATEGORY_ID=2;
