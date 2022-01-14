@@ -1,14 +1,7 @@
 SET @dt='2021-09-01 00:00:00';
 
-ALTER TABLE `fasp`.`rm_tracer_category` 
-ADD COLUMN `HEALTH_AREA_ID` INT(10) UNSIGNED NULL AFTER `LABEL_ID`,
-ADD INDEX `fk_rm_tracer_category_healthAreaId_idx` (`HEALTH_AREA_ID` ASC);
-ALTER TABLE `fasp`.`rm_tracer_category` 
-ADD CONSTRAINT `fk_rm_tracer_category_healthAreaId`
-  FOREIGN KEY (`HEALTH_AREA_ID`)
-  REFERENCES `fasp`.`rm_health_area` (`HEALTH_AREA_ID`)
-  ON DELETE NO ACTION
-  ON UPDATE NO ACTION;
+ALTER TABLE `fasp`.`rm_tracer_category` ADD COLUMN `HEALTH_AREA_ID` INT(10) UNSIGNED NULL AFTER `LABEL_ID`,ADD INDEX `fk_rm_tracer_category_healthAreaId_idx` (`HEALTH_AREA_ID` ASC);
+ALTER TABLE `fasp`.`rm_tracer_category` ADD CONSTRAINT `fk_rm_tracer_category_healthAreaId`  FOREIGN KEY (`HEALTH_AREA_ID`)  REFERENCES `fasp`.`rm_health_area` (`HEALTH_AREA_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
 
 UPDATE rm_tracer_category SET HEALTH_AREA_ID=2 WHERE TRACER_CATEGORY_ID=1;
 UPDATE rm_tracer_category SET HEALTH_AREA_ID=3 WHERE TRACER_CATEGORY_ID=2;
@@ -3682,7 +3675,7 @@ CREATE TABLE `ap_extrapolation_method` (
 INSERT INTO `fasp`.`ap_label_source` (`SOURCE_ID`, `SOURCE_DESC`) VALUES ('52', 'ap_extrapolation_method');
 
 INSERT INTO ap_label VALUES (null, 'TES Low Confidence', null, null, null, 1, @dt, 1, @dt, 52);	SELECT LAST_INSERT_ID() INTO @labelId;	INSERT INTO ap_extrapolation_method VALUES (null, @labelId);
-INSERT INTO ap_label VALUES (null, 'TES Med Confidence', null, null, null, 1, @dt, 1, @dt, 52);	SELECT LAST_INSERT_ID() INTO @labelId;	INSERT INTO ap_extrapolation_method VALUES (null, @labelId);
+INSERT INTO ap_label VALUES (null, 'TES Holts-Winters', null, null, null, 1, @dt, 1, @dt, 52);	SELECT LAST_INSERT_ID() INTO @labelId;	INSERT INTO ap_extrapolation_method VALUES (null, @labelId);
 INSERT INTO ap_label VALUES (null, 'TES High Confidence', null, null, null, 1, @dt, 1, @dt, 52);	SELECT LAST_INSERT_ID() INTO @labelId;	INSERT INTO ap_extrapolation_method VALUES (null, @labelId);
 INSERT INTO ap_label VALUES (null, 'ARIMA', null, null, null, 1, @dt, 1, @dt, 52);	SELECT LAST_INSERT_ID() INTO @labelId;	INSERT INTO ap_extrapolation_method VALUES (null, @labelId);
 INSERT INTO ap_label VALUES (null, 'Linear Regression', null, null, null, 1, @dt, 1, @dt, 52);	SELECT LAST_INSERT_ID() INTO @labelId;	INSERT INTO ap_extrapolation_method VALUES (null, @labelId);
@@ -5634,8 +5627,8 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'e');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.extrpolate.selectYourExtrapolationParameters','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Region, Select your extrapolation parameters:');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Région, Sélectionnez vos paramètres d`extrapolation :');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Region, select your extrapolation parameters:');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Région, sélectionnez vos paramètres d`extrapolation :');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Región, seleccione sus parámetros de extrapolación:');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Região, selecione seus parâmetros de extrapolação:');-- pr
 
@@ -5647,3 +5640,53 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Erreur la plus faible'
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Error más bajo');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Erro mais baixo');-- pr
 
+ALTER TABLE `fasp`.`ap_extrapolation_method` 
+ADD COLUMN `ACTIVE` TINYINT(1) UNSIGNED NOT NULL AFTER `LABEL_ID`,
+ADD COLUMN `CREATED_BY` INT(10) UNSIGNED NOT NULL AFTER `ACTIVE`,
+ADD COLUMN `CREATED_DATE` DATETIME NULL AFTER `CREATED_BY`,
+ADD COLUMN `LAST_MODIFIED_BY` INT(10) UNSIGNED NOT NULL AFTER `CREATED_DATE`,
+ADD COLUMN `LAST_MODIFIED_DATE` DATETIME NULL AFTER `LAST_MODIFIED_BY`,
+ADD INDEX `fk_ap_extrapolation_method_createdBy_idx` (`CREATED_BY` ASC),
+ADD INDEX `fk_ap_extrapolation_method_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC);
+
+UPDATE ap_extrapolation_method SET ACTIVE=1, CREATED_BY=1, CREATED_DATE='2020-06-01 00:00:00', LAST_MODIFIED_BY=1, LAST_MODIFIED_DATE='2020-06-01 00:00:00';
+UPDATE ap_extrapolation_method SET ACTIVE=0 WHERE EXTRAPOLATION_METHOD_ID in (1,3);
+
+ALTER TABLE `fasp`.`ap_extrapolation_method` 
+CHANGE COLUMN `CREATED_DATE` `CREATED_DATE` DATETIME NOT NULL ,
+CHANGE COLUMN `LAST_MODIFIED_DATE` `LAST_MODIFIED_DATE` DATETIME NOT NULL ;
+
+ALTER TABLE `fasp`.`ap_extrapolation_method` 
+ADD CONSTRAINT `fk_ap_extrapolation_method_createdBy`
+  FOREIGN KEY (`CREATED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION,
+ADD CONSTRAINT `fk_ap_extrapolation_method_lastModifiedBy`
+  FOREIGN KEY (`LAST_MODIFIED_BY`)
+  REFERENCES `fasp`.`us_user` (`USER_ID`)
+  ON DELETE NO ACTION
+  ON UPDATE NO ACTION;
+
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_extrapolation_method` AS
+    SELECT 
+        `em`.`EXTRAPOLATION_METHOD_ID` AS `EXTRAPOLATION_METHOD_ID`,
+        `em`.`LABEL_ID` AS `LABEL_ID`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`,
+        `em`.`ACTIVE` AS `ACTIVE`, 
+        `em`.`CREATED_BY` AS `CREATED_BY`, 
+        `em`.`CREATED_DATE` AS `CREATED_DATE`, 
+        `em`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`, 
+        `em`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`
+    FROM
+        (`ap_extrapolation_method` `em`
+        LEFT JOIN `ap_label` `l` ON ((`em`.`LABEL_ID` = `l`.`LABEL_ID`)));

@@ -29,4 +29,6 @@ public interface ForecastingStaticDataService {
 
     public List<SimpleBaseModel> getForecastMethodTypeListForSync(String lastSyncDate, CustomUserDetails curUser);
     
+    public List<SimpleBaseModel> getExtrapolationMethodListForSync(String lastSyncDate, CustomUserDetails curUser);
+    
 }

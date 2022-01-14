@@ -54,7 +54,10 @@ public class ForecastingStaticDataServiceImpl implements ForecastingStaticDataSe
     public List<SimpleBaseModel> getForecastMethodTypeListForSync(String lastSyncDate, CustomUserDetails curUser) {
         return this.forecastingStaticDataDao.getForecastMethodTypeListForSync(lastSyncDate, curUser);
     }
-    
-    
+
+    @Override
+    public List<SimpleBaseModel> getExtrapolationMethodListForSync(String lastSyncDate, CustomUserDetails curUser) {
+        return this.forecastingStaticDataDao.getExtrapolationMethodListForSync(lastSyncDate, curUser);
+    }
 
 }
