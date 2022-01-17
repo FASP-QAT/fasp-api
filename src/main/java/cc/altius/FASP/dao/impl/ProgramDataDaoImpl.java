@@ -1526,7 +1526,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
     @Override
     public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser) {
-        StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND FIND_IN_SET(spcr.PROGRAM_ID,'" + spcr.getProgramIdsString() + "') AND spcr.CREATED_DATE BETWEEN :startDate AND :stopDate AND spcr.CREATED_BY=:curUser");
+        StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND FIND_IN_SET(spcr.PROGRAM_ID,'" + spcr.getProgramIdsString() + "') AND spcr.CREATED_DATE BETWEEN :startDate AND :stopDate ");
         Map<String, Object> params = new HashMap<>();
         if (requestStatus != -1) {
             sb.append(" AND STATUS=:requestStatus");
