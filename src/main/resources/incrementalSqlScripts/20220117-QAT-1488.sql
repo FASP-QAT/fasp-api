@@ -1,4 +1,18 @@
-CREATE DEFINER=`faspUser`@`localhost` PROCEDURE `stockAdjustmentReport`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PLANNING_UNIT_IDS TEXT)
+/* 
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Other/SQLTemplate.sql to edit this template
+ */
+/**
+ * Author:  altius
+ * Created: 17-Jan-2022
+ */
+
+USE `fasp`;
+DROP procedure IF EXISTS `stockAdjustmentReport`;
+
+DELIMITER $$
+USE `fasp`$$
+CREATE DEFINER=`faspUser`@`%` PROCEDURE `stockAdjustmentReport`(VAR_PROGRAM_ID INT(10), VAR_VERSION_ID INT(10), VAR_START_DATE DATE, VAR_STOP_DATE DATE, VAR_PLANNING_UNIT_IDS TEXT)
 BEGIN
 
  -- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -49,4 +63,7 @@ END IF;
 
 PREPARE s2 FROM @sqlString;
 EXECUTE s2;
-END
+END$$
+
+DELIMITER ;
+
