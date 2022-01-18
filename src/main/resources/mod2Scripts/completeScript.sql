@@ -5784,3 +5784,11 @@ INSERT INTO fasp.us_role_business_function(ROLE_BUSINESS_FUNCTION_ID,ROLE_ID,BUS
 INSERT INTO fasp.us_role_business_function(ROLE_BUSINESS_FUNCTION_ID,ROLE_ID,BUSINESS_FUNCTION_ID,CREATED_BY,CREATED_DATE,LAST_MODIFIED_BY,LAST_MODIFIED_DATE) VALUES ( NULL,'ROLE_PROGRAM_ADMIN','ROLE_BF_CONSUMPTION_DATA_ENTRY_ADJUSTMENT','1',NOW(),'1',NOW());
 
 INSERT INTO fasp.us_role_business_function(ROLE_BUSINESS_FUNCTION_ID,ROLE_ID,BUSINESS_FUNCTION_ID,CREATED_BY,CREATED_DATE,LAST_MODIFIED_BY,LAST_MODIFIED_DATE) VALUES ( NULL,'ROLE_PROGRAM_USER','ROLE_BF_CONSUMPTION_DATA_ENTRY_ADJUSTMENT','1',NOW(),'1',NOW());
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitTree.commitFailed','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'An error occurred while processing the commit. Please try again');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Une erreur s`est produite lors du traitement de la validation. Veuillez réessayer');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ocurrió un error al procesar la confirmación. Inténtalo de nuevo');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ocorreu um erro ao processar a confirmação. Por favor, tente novamente');-- pr
