@@ -72,7 +72,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
         Program p = this.programCommonDao.getProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             int requestedVersionId = programData.getCurrentVersion().getVersionId();
-            programData.setCurrentVersion(p.getCurrentVersion());
+//            programData.setCurrentVersion(p.getCurrentVersion());
             return this.commitRequestDao.saveDatasetData(programData, requestedVersionId, json, curUser);
         } else {
             throw new AccessDeniedException("Access denied");

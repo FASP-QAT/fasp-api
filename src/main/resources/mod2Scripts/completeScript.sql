@@ -5960,3 +5960,103 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'X-axis Aggregate By Ye
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Agrégat de l axe X par année');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Agregado del eje X por año');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Agregado do eixo X por ano');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dashboard.dataEntryAndAdjustments','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Data Entry and Adjustment');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Saisie et ajustement des données');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingreso y ajuste de datos');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Entrada e Ajuste de Dados');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.UpdateversionSettings.UpdateversionSettings','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Update Version settings');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mettre à jour les paramètres de version');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Actualizar la configuración de la versión');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Atualizar configurações de versão');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.updatePlanningUnit.updatePlanningUnit','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Update Planning Unit');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mettre à jour l`unité de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Actualizar unidad de planificación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Atualizar Unidade de Planejamento');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.LoadConsumptionFromSupplyPlanning.LoadConsumptionFromSupplyPlanning','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Load Consumption from Supply Planning');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Charger la consommation à partir de la planification des approvisionnements');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Consumo de carga de la planificación de suministro');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Consumo de Carga do Planejamento de Fornecimento');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.commitProgram.commitProgram','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Commit Program');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Programme d`engagement');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Programa de compromiso');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Programa de Compromisso');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.TreeForecast.TreeForecast','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Tree Forecast');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Prévision d`arbre');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pronóstico del árbol');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Previsão de árvore');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.UpdateplanningUnitSetting.UpdateplanningUnitSetting','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Planning Unit Settings');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Paramètres d`unité de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Configuración de la unidad de planificación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Configurações da Unidade de Planejamento');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataset.manageProgramInfo','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Update Program Info');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mettre à jour les informations sur le programme');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Actualizar información del programa');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Atualizar informações do programa');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataset.TreeTemplate','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Tree Templates');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modèles d`arbre');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Plantillas de árboles');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Modelos de árvore');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.ConsumptionBasedForecast.ConsumptionBasedForecast','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Consumption-Based Forecast');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Prévision basée sur la consommation');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pronóstico basado en el consumo');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Previsão com base no consumo');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.ForecastAnalysisOutput.ForecastAnalysisOutput','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ForecastAnalysisOutput');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'ForecastAnalysisOutput');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'PronósticoAnálisisSalida');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'PrevisãoAnáliseSaída');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dashboard.Versioncomarition','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Version Camparison');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Version Camparison');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Comparación de versiones');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Versão Camparison');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.MonthlyForecast.MonthlyForecast','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'MonthlyForecast');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Prévisions mensuelles');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pronóstico Mensual');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Previsão Mensal');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.ForecastSummary.ForecastSummary','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ForecastSummary');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Récapitulatif des prévisions');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'PronósticoResumen');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Resumo da previsão');-- pr
