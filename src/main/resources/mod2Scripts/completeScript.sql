@@ -5960,10 +5960,3 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'X-axis Aggregate By Ye
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Agrégat de l axe X par année');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Agregado del eje X por año');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Agregado do eixo X por ano');
-
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.display','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Display');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Affichage');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Monitor');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Exibição');
