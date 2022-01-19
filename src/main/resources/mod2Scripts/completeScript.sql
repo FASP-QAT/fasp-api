@@ -5792,3 +5792,178 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'An error occurred whil
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Une erreur s`est produite lors du traitement de la validation. Veuillez réessayer');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ocurrió un error al procesar la confirmación. Inténtalo de nuevo');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ocorreu um erro ao processar a confirmação. Por favor, tente novamente');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.NoPriceTypeAvailable','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No price type available');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aucun type de prix disponible');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'No hay tipo de precio disponible');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nenhum tipo de preço disponível');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.custom','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Custom');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Personnalisé');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Personalizada');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Personalizado');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.forecastQuantity','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Quantity');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité prévue');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad de pronóstico');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade prevista');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.totalForecastQuantity','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total Forecasted Qunatity');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité totale prévue');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad total prevista');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade total prevista');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.allRegions','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'All Regions');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Toutes les régions');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Todas las regiones');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Todas as regiões');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.returnToMonthlyForecast','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Return To Monthly Forecast');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Retour aux prévisions mensuelles');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Regresar al Pronóstico Mensual');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Retornar à previsão mensal');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.display','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Display');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Affichage');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Monitor');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Exibição');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.regionalView','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Regional View');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Vue régionale');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Vista regional');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Visualização Regional');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.nationalView','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'National View');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Vue nationale');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Vista Nacional');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Visão Nacional');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.hideCalculations','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Hide Calculations');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Masquer les calculs');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ocultar cálculos');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ocultar cálculos');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Prévoir');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pronóstico');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Previsão');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.endOf','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'(end of');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'(Fin de');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'(final de');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'(fim do');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.existingShipments','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Existing Shipments');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Expéditions existantes');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Envíos existentes');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Remessas existentes');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.desiredMonthsOfStock','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Desired Months of Stock');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Mois de stock souhaités');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Meses deseados de existencias');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Meses de Estoque Desejados');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.desiredStock','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Desired Stock');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Stock souhaité');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Acción deseada');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Estoque Desejado');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.procurementSurplus','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Procurement Surplus/Gap');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Excédent/déficit d approvisionnement');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Superávit/brecha de adquisiciones');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Excedente/Lacuna de Aquisição');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.priceType','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Price Type');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Type de prix');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Tipo de precio');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Tipo de preço');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.unitPrice','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Unit Price');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Prix ​​unitaire');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Precio unitario');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Preço unitário');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.ProcurementsNeeded','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Procurements Needed');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Achats nécessaires');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Adquisiciones necesarias');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Aquisições Necessárias');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.productCost','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Product Cost');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Coût du produit');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Costo del producto');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Custo do produto');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.freight','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Freight');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Cargaison');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Transporte');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Frete');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.forecastSummary','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Summary');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Résumé des prévisions');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Resumen de pronóstico');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Resumo da previsão');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.yAxisInEquivalencyUnit','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Y axis in equivalency unit');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Axe Y en unité d équivalence');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Eje Y en unidad de equivalencia');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Eixo Y na unidade de equivalência');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.xAxisAggregateByYear','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'X-axis Aggregate By Year');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Agrégat de l axe X par année');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Agregado del eje X por año');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Agregado do eixo X por ano');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastReport.display','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Display');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Affichage');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Monitor');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Exibição');
