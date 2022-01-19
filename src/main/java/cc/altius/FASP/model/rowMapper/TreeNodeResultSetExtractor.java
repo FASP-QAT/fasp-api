@@ -205,6 +205,18 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 if (rs.wasNull()) {
                     ndMom.setCalculatedValue(null);
                 }
+                ndMom.setDifference(rs.getDouble("NDM_DIFFERENCE"));
+                if (rs.wasNull()) {
+                    ndMom.setDifference(null);
+                }
+                ndMom.setSeasonalityPerc(rs.getDouble("NDM_SEASONALITY_PERC"));
+                if (rs.wasNull()) {
+                    ndMom.setSeasonalityPerc(null);
+                }
+                ndMom.setManualChange(rs.getDouble("NDM_MANUAL_CHANGE"));
+                if (rs.wasNull()) {
+                    ndMom.setManualChange(null);
+                }
                 tnd.getNodeDataMomList().add(ndMom);
             }
         }
