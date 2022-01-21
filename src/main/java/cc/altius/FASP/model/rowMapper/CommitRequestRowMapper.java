@@ -11,6 +11,8 @@ import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.CommitRequest;
+import cc.altius.FASP.model.EmptyDoubleTypeAdapter;
+import cc.altius.FASP.model.EmptyIntegerTypeAdapter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -38,16 +40,26 @@ public class CommitRequestRowMapper implements RowMapper<CommitRequest> {
         spcr.setCompletedDate(rs.getTimestamp("COMPLETED_DATE"));
         spcr.setStatus(rs.getInt("STATUS"));
         String json = rs.getString("JSON");
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").setLenient().create();
+        GsonBuilder gsonBuilder = new GsonBuilder()
+                .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
+                .registerTypeAdapter(Integer.class, new EmptyIntegerTypeAdapter())
+                .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                .setLenient();
         spcr.setProgramTypeId(rs.getInt("PROGRAM_TYPE_ID"));
-        if (spcr.getProgramTypeId() == 1) {
-            ProgramData data = gson.fromJson(json, new TypeToken<ProgramData>() {
-            }.getType());
-            spcr.setProgramData(data);
-        } else if (spcr.getProgramTypeId() == 2) {
-            DatasetData data = gson.fromJson(json, new TypeToken<DatasetData>() {
-            }.getType());
-            spcr.setDatasetData(data);
+        spcr.setJsonError(null);
+        Gson gson = gsonBuilder.create();
+        try {
+            if (spcr.getProgramTypeId() == 1) {
+                ProgramData data = gson.fromJson(json, new TypeToken<ProgramData>() {
+                }.getType());
+                spcr.setProgramData(data);
+            } else if (spcr.getProgramTypeId() == 2) {
+                DatasetData data = gson.fromJson(json, new TypeToken<DatasetData>() {
+                }.getType());
+                spcr.setDatasetData(data);
+            }
+        } catch (Exception e) {
+            spcr.setJsonError(e.getMessage());
         }
         return spcr;
     }

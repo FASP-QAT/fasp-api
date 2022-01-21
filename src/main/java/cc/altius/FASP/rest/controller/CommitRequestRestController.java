@@ -9,6 +9,7 @@ import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DatasetData;
+import cc.altius.FASP.model.DatasetDataJson;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.report.CommitRequestInput;
@@ -102,10 +103,17 @@ public class CommitRequestRestController {
     // Part 1 of the Commit Request for Dataset
     @PutMapping("/datasetData/{comparedVersionId}")
     public ResponseEntity putDatasetData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, HttpServletRequest request, Authentication auth) {
+        String json = null;
         try {
-            String json = IOUtils.toString(request.getReader());
+            json = IOUtils.toString(request.getReader());
+            String emptyFuNodeString1 = "\"fuNode\":{\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":\"\"},\"repeatUsagePeriod\":{},\"noOfPersons\":\"\"}";
+            json = json.replace(emptyFuNodeString1, "\"fuNode\": null");
+            json = json.replace(",,", ",");
+            String emptyPuNodeString1 = "\"puNode\":{\"planningUnit\":{\"unit\":{}},\"refillMonths\":\"\"}";
+            json = json.replace(emptyPuNodeString1, "\"puNode\": null");
+            json = json.replace(",,", ",");
             Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").setLenient().create();
-            DatasetData datasetData = gson.fromJson(json, new TypeToken<DatasetData>() {
+            DatasetDataJson datasetData = gson.fromJson(json, new TypeToken<DatasetDataJson>() {
             }.getType());
             int latestVersion = this.programService.getLatestVersionForPrograms("" + datasetData.getProgramId()).get(0).getVersionId();
             if (latestVersion == comparedVersionId) {
@@ -113,6 +121,7 @@ public class CommitRequestRestController {
                 if (!checkIfRequestExists) {
                     CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
                     int commitRequestId = this.commitRequestService.saveDatasetData(datasetData, json, curUser);
+                    logger.info("Commit request received and stored in the db commitRequestId=" + commitRequestId);
                     return new ResponseEntity(commitRequestId, HttpStatus.OK);
                 } else {
                     logger.error("Request already exists");
@@ -133,6 +142,7 @@ public class CommitRequestRestController {
             logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
+            logger.error(json);
             logger.error("Error while trying to update ProgramData", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
@@ -144,6 +154,7 @@ public class CommitRequestRestController {
     @Scheduled(cron = "00 */1 * * * *")
     public ResponseEntity processCommitRequest() {
         try {
+            logger.info("Starting the Commit request scheduler");
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(1);
             this.commitRequestService.processCommitRequest(curUser);
             return new ResponseEntity(HttpStatus.OK);
@@ -177,7 +188,7 @@ public class CommitRequestRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     /**
      * Asynchronous API used to get the commit status
      *

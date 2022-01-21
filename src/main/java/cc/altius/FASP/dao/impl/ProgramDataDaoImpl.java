@@ -79,7 +79,6 @@ import cc.altius.FASP.model.rowMapper.TreeNodeResultSetExtractor;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -1199,7 +1198,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         //Step 3 -- Insert ForecastTree and related tables
         for (DatasetTree dt : dd.getTreeList()) {
             si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree").usingGeneratedKeyColumns("TREE_ID");
-            // Step 3A -- Insert the Forecast Tree
+            // Step 3Ai -- Insert the Forecast Tree
             params.put("PROGRAM_ID", spcr.getProgram().getId());
             params.put("VERSION_ID", version.getVersionId());
             int labelId = this.labelDao.addLabel(dt.getLabel(), LabelConstants.RM_FORECAST_TREE, spcr.getCreatedBy().getUserId());
@@ -1207,13 +1206,25 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("FORECAST_METHOD_ID", dt.getForecastMethod().getId());
             params.put("CREATED_BY", spcr.getCreatedBy().getUserId());
             params.put("CREATED_DATE", spcr.getCreatedDate());
-            params.put("LAST_MODIFIED_BY", dt.getLastModifiedBy().getUserId());
-            params.put("LAST_MODIFIED_DATE", dt.getLastModifiedDate());
+            params.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
+            params.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
             params.put("ACTIVE", dt.isActive());
             params.put("NOTES", dt.getNotes());
             int treeId = si.executeAndReturnKey(params).intValue();
             updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree", dt.getTreeId(), treeId);
             SimpleJdbcInsert ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node").usingGeneratedKeyColumns("NODE_ID");
+
+            // Step 3Aii -- Insert the Region list for the Forecast Tree
+            insertList.clear();
+            for (SimpleObject region : dt.getRegionList()) {
+                Map<String, Object> batchParams = new HashMap<>();
+                batchParams.put("TREE_ID", treeId);
+                batchParams.put("REGION_ID", region.getId());
+                insertList.add(new MapSqlParameterSource(batchParams));
+            }
+            insertBatch = new SqlParameterSource[insertList.size()];
+            si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_region");
+            si.executeBatch(insertList.toArray(insertBatch));
 
             // Step 3B -- Insert all the Nodes for the Tree
             for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
@@ -1265,7 +1276,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         Map<String, Object> nodeDataParams = new HashMap<>();
                         Integer nodeDataFuId = null;
                         Integer nodeDataPuId = null;
-                        if (tnd.getFuNode() != null) {
+                        if (n.getPayload().getNodeType().getId() == 4) { // FU node //TODO change to GlobalConstants
                             // Step 3F -- If it is a FU Node then insert that first
                             nodeDataParams.clear();
                             nodeDataParams.put("FORECASTING_UNIT_ID", tnd.getFuNode().getForecastingUnit().getId());
@@ -1277,7 +1288,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             nodeDataParams.put("USAGE_FREQUENCY", tnd.getFuNode().getUsageFrequency());
                             nodeDataParams.put("USAGE_FREQUENCY_USAGE_PERIOD_ID", (tnd.getFuNode().getUsagePeriod() == null ? null : tnd.getFuNode().getUsagePeriod().getUsagePeriodId()));
                             nodeDataParams.put("REPEAT_COUNT", tnd.getFuNode().getRepeatCount());
-                            nodeDataParams.put("REPEAT_USAGE_PERIOD_ID", (tnd.getFuNode().getRepeatUsagePeriod() == null ? null : tnd.getFuNode().getRepeatUsagePeriod().getUsagePeriodId()));
+                            nodeDataParams.put("REPEAT_USAGE_PERIOD_ID", (tnd.getFuNode().getRepeatUsagePeriod() == null ? null : (tnd.getFuNode().getRepeatUsagePeriod().getUsagePeriodId() == 0 ? null : tnd.getFuNode().getRepeatUsagePeriod().getUsagePeriodId())));
                             nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
                             nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
                             nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
@@ -1286,7 +1297,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_fu").usingGeneratedKeyColumns("NODE_DATA_FU_ID");
                             nodeDataFuId = ni.executeAndReturnKey(nodeDataParams).intValue();
                         }
-                        if (tnd.getPuNode() != null) {
+                        if (n.getPayload().getNodeType().getId() == 5) { // PU node //TODO change to GlobalConstants
                             // Step 3G -- If it is a PU Node then insert that first
                             nodeDataParams.clear();
                             nodeDataParams.put("PLANNING_UNIT_ID", tnd.getPuNode().getPlanningUnit().getId());
@@ -1301,7 +1312,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             nodeDataPuId = ni.executeAndReturnKey(nodeDataParams).intValue();
                         }
                         nodeDataParams.clear();
-                        nodeDataParams.put("NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", n.getId()));
+                        nodeDataParams.put("NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", n.getPayload().getNodeId()));
                         nodeDataParams.put("SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", ts.getId()));
                         nodeDataParams.put("MONTH", tnd.getMonth());
                         nodeDataParams.put("DATA_VALUE", tnd.getDataValue());
