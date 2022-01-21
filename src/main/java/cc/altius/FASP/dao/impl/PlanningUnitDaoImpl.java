@@ -425,14 +425,14 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     }
 
     @Override
-    public List<SimpleObject> getPlanningUnitListByTracerCategoryIds(String[] tracerCategoryIds, boolean active, CustomUserDetails curUser) {
-        StringBuilder sb = new StringBuilder("SELECT pu.PLANNING_UNIT_ID as ID, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM vw_planning_unit pu LEFT JOIN rm_forecasting_unit fu ON fu.FORECASTING_UNIT_ID=pu.FORECASTING_UNIT_ID WHERE FIND_IN_SET(fu.TRACER_CATEGORY_ID, :tracerCategoryIds) AND ((:active=TRUE AND pu.ACTIVE) OR (:active=FALSE))");
+    public List<PlanningUnit> getPlanningUnitListByTracerCategoryIds(String[] tracerCategoryIds, boolean active, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder(sqlListString).append(" AND FIND_IN_SET(fu.TRACER_CATEGORY_ID, :tracerCategoryIds) AND ((:active=TRUE AND pu.ACTIVE) OR (:active=FALSE))");
         Map<String, Object> params = new HashMap<>();
         if (tracerCategoryIds != null) {
             params.put("tracerCategoryIds", String.join(",", tracerCategoryIds));
             params.put("active", active);
             this.aclService.addUserAclForRealm(sb, params, "fu", curUser);
-            return this.namedParameterJdbcTemplate.query(sb.toString(), params, new SimpleObjectRowMapper());
+            return this.namedParameterJdbcTemplate.query(sb.toString(), params, new PlanningUnitRowMapper());
         } else {
             return null;
         }
