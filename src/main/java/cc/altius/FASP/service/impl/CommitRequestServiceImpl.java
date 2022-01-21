@@ -12,7 +12,7 @@ import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DatasetData;
+import cc.altius.FASP.model.DatasetDataJson;
 import cc.altius.FASP.model.EmailTemplate;
 import cc.altius.FASP.model.Emailer;
 import cc.altius.FASP.model.NotificationUser;
@@ -68,7 +68,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
     }
 
     @Override
-    public int saveDatasetData(DatasetData programData, String json, CustomUserDetails curUser) throws CouldNotSaveException {
+    public int saveDatasetData(DatasetDataJson programData, String json, CustomUserDetails curUser) throws CouldNotSaveException {
         Program p = this.programCommonDao.getProgramById(programData.getProgramId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             int requestedVersionId = programData.getCurrentVersion().getVersionId();
@@ -82,7 +82,10 @@ public class CommitRequestServiceImpl implements CommitRequestService {
     @Override
     public void processCommitRequest(CustomUserDetails curUser) {
         CommitRequest spcr = this.commitRequestDao.getPendingCommitRequestProcessList();
-        if (spcr != null) {
+        if (spcr.getJsonError() != null) {
+            logger.error("Error while trying to process CommitRequest " + spcr.getJsonError());
+            this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 3, spcr.getJsonError(), 0);
+        } else if (spcr != null) {
             boolean isStatusUpdated = false;
             if (spcr.getProgramTypeId() == 1) {
                 Program p = this.programCommonDao.getProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
@@ -205,11 +208,11 @@ public class CommitRequestServiceImpl implements CommitRequestService {
     public boolean checkIfCommitRequestExistsForProgram(int programId) {
         return this.commitRequestDao.checkIfCommitRequestExistsForProgram(programId);
     }
-    
+
     @Override
     @Async
     public CompletableFuture<Object> getCommitRequestStatusByCommitRequestId(int commitRequestId) {
-        CommitRequest spcr=new CommitRequest();
+        CommitRequest spcr = new CommitRequest();
         spcr.setStatus(0);
         while (spcr.getStatus() != 2 && spcr.getStatus() != 3) {
             try {

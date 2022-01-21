@@ -8,7 +8,7 @@ package cc.altius.FASP.dao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DatasetData;
+import cc.altius.FASP.model.DatasetDataJson;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.CommitRequestInput;
@@ -22,7 +22,7 @@ public interface CommitRequestDao {
 
     public int saveProgramData(ProgramData programData, String json, CustomUserDetails curUser) throws CouldNotSaveException;
 
-    public int saveDatasetData(DatasetData programData, int requestedVersionId, String json, CustomUserDetails curUser) throws CouldNotSaveException;
+    public int saveDatasetData(DatasetDataJson programData, int requestedVersionId, String json, CustomUserDetails curUser) throws CouldNotSaveException;
 
     public CommitRequest getPendingCommitRequestProcessList();
 

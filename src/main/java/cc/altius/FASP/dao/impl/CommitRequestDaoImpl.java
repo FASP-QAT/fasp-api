@@ -9,7 +9,7 @@ import cc.altius.FASP.dao.CommitRequestDao;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DatasetData;
+import cc.altius.FASP.model.DatasetDataJson;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.report.CommitRequestInput;
@@ -68,6 +68,7 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
             + "WHERE TRUE ";
 
     @Override
+    @Transactional
     public CommitRequest getPendingCommitRequestProcessList() {
         StringBuilder sb = new StringBuilder(commitRequestSql).append(" AND STATUS=1 LIMIT 1");
         Map<String, Object> params = new HashMap<>();
@@ -98,7 +99,7 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
 
     @Override
     @Transactional
-    public int saveDatasetData(DatasetData programData, int requestedVersionId, String json, CustomUserDetails curUser) throws CouldNotSaveException {
+    public int saveDatasetData(DatasetDataJson programData, int requestedVersionId, String json, CustomUserDetails curUser) throws CouldNotSaveException {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("ct_commit_request").usingGeneratedKeyColumns("ID");
         Map<String, Object> params = new HashMap<>();
@@ -144,7 +145,7 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
             e.printStackTrace();
             return null;
         }
-        
+
     }
 
     @Override

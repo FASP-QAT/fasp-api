@@ -6060,3 +6060,8 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ForecastSummary');-- e
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Récapitulatif des prévisions');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'PronósticoResumen');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Resumo da previsão');-- pr
+
+
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_pu` CHANGE COLUMN `REFILL_MONTHS` `REFILL_MONTHS` INT UNSIGNED NULL COMMENT '# of moths over which refulls are taken' ;
+ALTER TABLE `fasp`.`rm_tree_template_node_data_pu` CHANGE COLUMN `REFILL_MONTHS` `REFILL_MONTHS` INT UNSIGNED NULL COMMENT '# of moths over which refulls are taken' ;
+

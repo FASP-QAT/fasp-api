@@ -38,6 +38,7 @@ public class CommitRequest {
     private int programTypeId;
     private ProgramData programData;
     private DatasetData datasetData;
+    private String jsonError;
 
     public int getCommitRequestId() {
         return commitRequestId;
@@ -149,6 +150,14 @@ public class CommitRequest {
 
     public void setProgramTypeId(int programTypeId) {
         this.programTypeId = programTypeId;
+    }
+
+    public String getJsonError() {
+        return jsonError;
+    }
+
+    public void setJsonError(String jsonError) {
+        this.jsonError = jsonError;
     }
 
 }
