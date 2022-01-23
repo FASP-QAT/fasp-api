@@ -6064,4 +6064,4 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Resumo da previsão');
 
 ALTER TABLE `fasp`.`rm_forecast_tree_node_data_pu` CHANGE COLUMN `REFILL_MONTHS` `REFILL_MONTHS` INT UNSIGNED NULL COMMENT '# of moths over which refulls are taken' ;
 ALTER TABLE `fasp`.`rm_tree_template_node_data_pu` CHANGE COLUMN `REFILL_MONTHS` `REFILL_MONTHS` INT UNSIGNED NULL COMMENT '# of moths over which refulls are taken' ;
-
+ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` CHANGE COLUMN `TOTAL_FORECAST` `TOTAL_FORECAST` DOUBLE(16,2) UNSIGNED NULL DEFAULT NULL ;
