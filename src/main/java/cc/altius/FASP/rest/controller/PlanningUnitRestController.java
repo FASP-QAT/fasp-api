@@ -412,7 +412,7 @@ public class PlanningUnitRestController {
         }
     }
     
-    @GetMapping("/planningUnit/tracerCategorys")
+    @PostMapping("/planningUnit/tracerCategorys")    
     public ResponseEntity getPlanningUnitForTracerCategorys(@RequestBody String[] tracerCategoryIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
