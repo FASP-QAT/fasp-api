@@ -151,7 +151,7 @@ public class CommitRequestRestController {
     // Part 2 of the Commit Request
     @GetMapping("/processCommitRequest")
     //sec min hour day_of_month month day_of_week
-//    @Scheduled(cron = "00 */1 * * * *")
+    @Scheduled(cron = "00 */1 * * * *")
     public ResponseEntity processCommitRequest() {
         try {
             logger.info("Starting the Commit request scheduler");
