@@ -104,7 +104,7 @@ public class DatasetPlanningUnitListResultSetExtractor implements ResultSetExtra
             if (rs.wasNull()) {
                 sf.setConsumptionExtrapolationId(null);
             }
-            sf.setTotalForecast(rs.getInt("TOTAL_FORECAST"));
+            sf.setTotalForecast(rs.getDouble("TOTAL_FORECAST"));
             if (rs.wasNull()) {
                 sf.setTotalForecast(null);
             }
