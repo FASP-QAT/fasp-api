@@ -113,6 +113,7 @@ public class DatasetPlanningUnitListResultSetExtractor implements ResultSetExtra
                 dpu.getSelectedForecastMap().put(regionId, sf);
             }
             String notes = rs.getString("SELECTED_NOTES");
+            sf.setNotes(notes);
         }
         return dpuList;
     }
