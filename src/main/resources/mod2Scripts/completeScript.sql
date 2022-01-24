@@ -6136,7 +6136,7 @@ INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE
 
 ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` CHANGE COLUMN `TOTAL_FORECAST` `TOTAL_FORECAST` DOUBLE(16,2) UNSIGNED NULL DEFAULT NULL ;
 ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation_data` CHANGE COLUMN `MONTH` `MONTH` DATE NOT NULL COMMENT '' ;
-
+ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation_data` CHANGE COLUMN `AMOUNT` `AMOUNT` DECIMAL(16,2) UNSIGNED NULL ;
 
 -- tree business function
 INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'List Tree Template',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'24');
