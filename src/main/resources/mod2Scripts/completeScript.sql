@@ -6162,3 +6162,20 @@ INSERT INTO `fasp`.`us_business_function`(`BUSINESS_FUNCTION_ID`,`LABEL_ID`,`CRE
 INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_REALM_ADMIN','ROLE_BF_ADD_EDIT_TREE','1',NOW(),'1',NOW());
 INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_DATASET_ADMIN','ROLE_BF_ADD_EDIT_TREE','1',NOW(),'1',NOW());
 INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_DATASET_USER','ROLE_BF_ADD_EDIT_TREE','1',NOW(),'1',NOW());
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.extrapolation.selectedExtraploationMethods','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Selected Extraploation Methods');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Méthodes d\`extraplomation sélectionnées');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Métodos de extraploación seleccionados');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Métodos de Extraploação Selecionados');-- p
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.pipeline.interpolateMissingValues','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Interpolate Missing values');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Interpoler les valeurs manquantes');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Interpolar valores perdidos');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Interpolar valores ausentes');-- p
