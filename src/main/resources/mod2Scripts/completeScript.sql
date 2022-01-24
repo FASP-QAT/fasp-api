@@ -6035,10 +6035,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Previsão com base no 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.ForecastAnalysisOutput.ForecastAnalysisOutput','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ForecastAnalysisOutput');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'ForecastAnalysisOutput');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'PronósticoAnálisisSalida');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'PrevisãoAnáliseSaída');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Analysis Output');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Sortie de l`analyse des prévisions');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Salida de análisis de pronóstico');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Saída de Análise de Previsão');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dashboard.Versioncomarition','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
@@ -6049,14 +6049,14 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Versão Camparison');-
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.MonthlyForecast.MonthlyForecast','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'MonthlyForecast');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Monthly Forecast');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Prévisions mensuelles');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Pronóstico Mensual');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Previsão Mensal');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.ForecastSummary.ForecastSummary','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'ForecastSummary');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Récapitulatif des prévisions');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'PronósticoResumen');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast Summary');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Résumé des prévisions');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Resumen de pronóstico');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Resumo da previsão');-- pr
