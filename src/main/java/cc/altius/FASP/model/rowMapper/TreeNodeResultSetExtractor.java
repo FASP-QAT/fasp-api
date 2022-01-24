@@ -149,6 +149,9 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 TreeNodeDataPu tndp = tnd.getPuNode();
                 tndp.setNodeDataPuId(nodeDataPuId);
                 tndp.setRefillMonths(rs.getInt("REFILL_MONTHS"));
+                if(rs.wasNull()) {
+                    tndp.setRefillMonths(null);
+                }
                 tndp.setSharePlanningUnit(rs.getBoolean("SHARE_PLANNING_UNIT"));
                 tndp.setPlanningUnit(new SimpleUnitObjectWithMultiplier(new SimpleCodeObject(rs.getInt("PUU_UNIT_ID"), new LabelRowMapper("PUU_").mapRow(rs, count), rs.getString("PUU_UNIT_CODE")), rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, count), rs.getDouble("PU_MULTIPLIER")));
             }

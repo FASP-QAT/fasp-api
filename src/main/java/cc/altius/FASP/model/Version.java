@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model;
 
+import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateTimeDeserializer;
 import cc.altius.FASP.framework.JsonDateTimeSerializer;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -39,11 +40,11 @@ public class Version implements Serializable {
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     @JsonView(Views.InternalView.class)
     private Date lastModifiedDate;
-    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     @JsonView(Views.InternalView.class)
     private Date forecastStartDate;
-    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
+    @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     @JsonView(Views.InternalView.class)
     private Date forecastStopDate;

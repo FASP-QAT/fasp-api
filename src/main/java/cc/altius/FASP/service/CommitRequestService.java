@@ -8,7 +8,7 @@ package cc.altius.FASP.service;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DatasetData;
+import cc.altius.FASP.model.DatasetDataJson;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.report.CommitRequestInput;
 import java.util.List;
@@ -22,7 +22,7 @@ public interface CommitRequestService {
 
     public int saveProgramData(ProgramData programData, String json, CustomUserDetails curUser) throws CouldNotSaveException;
 
-    public int saveDatasetData(DatasetData programData, String json, CustomUserDetails curUser) throws CouldNotSaveException;
+    public int saveDatasetData(DatasetDataJson programData, String json, CustomUserDetails curUser) throws CouldNotSaveException;
 
     public void processCommitRequest(CustomUserDetails curUser);
 
