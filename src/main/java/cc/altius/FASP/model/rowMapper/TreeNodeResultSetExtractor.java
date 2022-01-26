@@ -10,6 +10,7 @@ import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeDataMom;
+import cc.altius.FASP.model.NodeDataOverride;
 import cc.altius.FASP.model.NodeType;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
@@ -23,6 +24,8 @@ import cc.altius.FASP.model.UsagePeriod;
 import cc.altius.utils.DateUtils;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -149,7 +152,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 TreeNodeDataPu tndp = tnd.getPuNode();
                 tndp.setNodeDataPuId(nodeDataPuId);
                 tndp.setRefillMonths(rs.getInt("REFILL_MONTHS"));
-                if(rs.wasNull()) {
+                if (rs.wasNull()) {
                     tndp.setRefillMonths(null);
                 }
                 tndp.setSharePlanningUnit(rs.getBoolean("SHARE_PLANNING_UNIT"));
@@ -189,6 +192,32 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 tnd.getNodeDataModelingList().add(ndm);
             }
         }
+        // Check if the Override is already present
+        idx = -1;
+        NodeDataOverride ndo = new NodeDataOverride(rs.getInt("NODE_DATA_OVERRIDE_ID"));
+        if (!rs.wasNull()) {
+            idx = tnd.getNodeDataOverrideList().indexOf(ndo);
+            if (idx == -1) {
+                // Not found so add it
+                ndo.setMonth(rs.getDate("OVERRIDE_MONTH"));
+                if (this.isTemplate) {
+                    ndo.setMonthNo(rs.getInt("OVERRIDE_MONTH_NO"));
+                    if (rs.wasNull()) {
+                        ndo.setMonthNo(null);
+                    }
+                }
+                ndo.setManualChange(rs.getDouble("OVERRIDE_MANUAL_CHANGE"));
+                if (rs.wasNull()) {
+                    ndo.setManualChange(null);
+                }
+                ndo.setSeasonalityPerc(rs.getDouble("OVERRIDE_SEASONALITY_PERC"));
+                if (rs.wasNull()) {
+                    ndo.setSeasonalityPerc(null);
+                }
+                tnd.getNodeDataOverrideList().add(ndo);
+            }
+        }
+
         if (!isTemplate) {
             idx = -1;
             NodeDataMom ndMom = new NodeDataMom(rs.getInt("NODE_DATA_MOM_ID"));

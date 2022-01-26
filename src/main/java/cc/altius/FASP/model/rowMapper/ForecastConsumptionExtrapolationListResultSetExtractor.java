@@ -9,14 +9,10 @@ import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.ForecastConsumptionExtrapolation;
 import cc.altius.FASP.model.ForecastConsumptionExtrapolationData;
 import cc.altius.FASP.model.SimpleObject;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
