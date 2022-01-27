@@ -6202,3 +6202,4 @@ INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE
 ALTER TABLE `fasp`.`rm_tree_template_node_data_override` CHANGE COLUMN `MONTH` `MONTH_NO` INT NOT NULL COMMENT 'Month that this Override is for' ;
 ALTER TABLE `fasp`.`rm_forecast_tree_node_data_override` CHANGE COLUMN `MANUAL_CHANGE` `MANUAL_CHANGE` DECIMAL(16,4) NULL COMMENT 'The manual change value' ;
 
+ALTER TABLE `fasp`.`rm_tree_template_node_data_modeling` CHANGE `START_DATE` `START_DATE` INT(10) NOT NULL COMMENT 'Start date that the Modeling is applicable from. Starts from the Forecast Program Start', CHANGE `STOP_DATE` `STOP_DATE` INT(10) NOT NULL COMMENT 'Stop date that the Modeling is applicable from. Defaults to Forecast Program End but user can override'; 
