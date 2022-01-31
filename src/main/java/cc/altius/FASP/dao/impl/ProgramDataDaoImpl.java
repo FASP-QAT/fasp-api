@@ -1140,7 +1140,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
         params.clear();
         // Step 1 -- Insert Actual Consumption
-        final List<SqlParameterSource> insertList = new ArrayList<>();
+        final List<SqlParameterSource> batchList = new ArrayList<>();
         for (ForecastActualConsumption fac : dd.getActualConsumptionList()) {
             Map<String, Object> batchParams = new HashMap<>();
             batchParams.put("PROGRAM_ID", spcr.getProgram().getId());
@@ -1153,15 +1153,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             batchParams.put("VERSION_ID", version.getVersionId());
             batchParams.put("CREATED_BY", fac.getCreatedBy().getUserId());
             batchParams.put("CREATED_DATE", fac.getCreatedDate());
-            insertList.add(new MapSqlParameterSource(batchParams));
+            batchList.add(new MapSqlParameterSource(batchParams));
         }
-        SqlParameterSource[] insertBatch = new SqlParameterSource[insertList.size()];
+        SqlParameterSource[] batchArray = new SqlParameterSource[batchList.size()];
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_actual_consumption");
-        si.executeBatch(insertList.toArray(insertBatch));
+        si.executeBatch(batchList.toArray(batchArray));
 
-        insertList.clear();
+        batchList.clear();
         params.clear();
-        insertBatch = null;
+        batchArray = null;
         si = null;
 
         // Step 2 -- Inser Consumption Extrapolation and Data
@@ -1183,15 +1183,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 batchParams.put("CONSUMPTION_EXTRAPOLATION_ID", conspuptionExtrapolationId);
                 batchParams.put("MONTH", fced.getMonth());
                 batchParams.put("AMOUNT", fced.getAmount());
-                insertList.add(new MapSqlParameterSource(batchParams));
+                batchList.add(new MapSqlParameterSource(batchParams));
             }
-            insertBatch = new SqlParameterSource[insertList.size()];
-            siData.executeBatch(insertList.toArray(insertBatch));
+            batchArray = new SqlParameterSource[batchList.size()];
+            siData.executeBatch(batchList.toArray(batchArray));
         }
 
         params.clear();
-        insertList.clear();
-        insertBatch = null;
+        batchList.clear();
+        batchArray = null;
         si = null;
         siData = null;
 
@@ -1215,16 +1215,16 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             SimpleJdbcInsert ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node").usingGeneratedKeyColumns("NODE_ID");
 
             // Step 3Aii -- Insert the Region list for the Forecast Tree
-            insertList.clear();
+            batchList.clear();
             for (SimpleObject region : dt.getRegionList()) {
                 Map<String, Object> batchParams = new HashMap<>();
                 batchParams.put("TREE_ID", treeId);
                 batchParams.put("REGION_ID", region.getId());
-                insertList.add(new MapSqlParameterSource(batchParams));
+                batchList.add(new MapSqlParameterSource(batchParams));
             }
-            insertBatch = new SqlParameterSource[insertList.size()];
+            batchArray = new SqlParameterSource[batchList.size()];
             si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_region");
-            si.executeBatch(insertList.toArray(insertBatch));
+            si.executeBatch(batchList.toArray(batchArray));
 
             // Step 3B -- Insert all the Nodes for the Tree
             for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
@@ -1337,7 +1337,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             nodeDataParams.put("STOP_DATE", ndm.getStopDate());
                             nodeDataParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
                             nodeDataParams.put("DATA_VALUE", ndm.getDataValue());
-                            nodeDataParams.put("TRANSFER_NODE_DATA_ID", (ndm.getTransferNodeDataId() == null ? null : getNewId(oldAndNewIdMap, "rm_forecast_tree_node_data", ndm.getTransferNodeDataId())));
+                            nodeDataParams.put("TRANSFER_NODE_DATA_ID", null);
                             nodeDataParams.put("NOTES", ndm.getNotes());
                             nodeDataParams.put("CREATED_DATE", spcr.getCreatedBy().getUserId());
                             nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
@@ -1381,6 +1381,27 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         }
                     }
                 }
+
+
+                batchList.clear();
+                String sql = "UPDATE rm_forecast_tree_node_data_modeling tndm SET tndm.TRANSFER_NODE_DATA_ID=:transferNodeDataId WHERE tndm.NODE_DATA_ID=:nodeDataId";
+                // go back and update the TransferNodeDataId's
+                for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
+                    for (TreeNodeData tnd : n.getPayload().getNodeDataMap().get(ts.getId())) {
+                        for (NodeDataModeling tndm : tnd.getNodeDataModelingList()) {
+                            if (tndm.getTransferNodeDataId() != null) {
+                                Map<String, Object> batchParams = new HashMap<>();
+                                batchParams.put("transferNodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(tndm.getTransferNodeDataId()));
+                                batchParams.put("nodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(tnd.getNodeDataId()));
+                                batchList.add(new MapSqlParameterSource(batchParams));
+                            }
+                        }
+                    }
+                }
+                if (batchList.size() > 0) {
+                    batchArray = new SqlParameterSource[batchList.size()]; 
+                    namedParameterJdbcTemplate.batchUpdate(sql, batchList.toArray(batchArray));
+                }
             }
 
         }
@@ -1415,8 +1436,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             int programPlanningUnitId = si.executeAndReturnKey(params).intValue();
             updateOldAndNewId(oldAndNewIdMap, "rm_dataset_planning_unit", dpu.getProgramPlanningUnitId(), programPlanningUnitId);
             if (dpu.getSelectedForecastMap() != null) {
-                insertList.clear();
-                insertBatch = null;
+                batchList.clear();
+                batchArray = null;
                 for (int regionId : dpu.getSelectedForecastMap().keySet()) {
                     Map<String, Object> batchParams = new HashMap<>();
                     batchParams.put("PROGRAM_PLANNING_UNIT_ID", programPlanningUnitId);
@@ -1429,10 +1450,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     }
                     batchParams.put("TOTAL_FORECAST", dpu.getSelectedForecastMap().get(regionId).getTotalForecast());
                     batchParams.put("NOTES", dpu.getSelectedForecastMap().get(regionId).getNotes());
-                    insertList.add(new MapSqlParameterSource(batchParams));
+                    batchList.add(new MapSqlParameterSource(batchParams));
                 }
-                insertBatch = new SqlParameterSource[insertList.size()];
-                siData.executeBatch(insertList.toArray(insertBatch));
+                batchArray = new SqlParameterSource[batchList.size()];
+                siData.executeBatch(batchList.toArray(batchArray));
             }
         }
 

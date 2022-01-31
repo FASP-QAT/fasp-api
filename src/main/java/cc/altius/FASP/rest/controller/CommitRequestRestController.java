@@ -10,6 +10,8 @@ import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.DatasetDataJson;
+import cc.altius.FASP.model.EmptyDoubleTypeAdapter;
+import cc.altius.FASP.model.EmptyIntegerTypeAdapter;
 import cc.altius.FASP.model.ProgramData;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.report.CommitRequestInput;
@@ -66,7 +68,12 @@ public class CommitRequestRestController {
     public ResponseEntity putProgramData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, HttpServletRequest request, Authentication auth) {
         try {
             String json = IOUtils.toString(request.getReader());
-            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").setLenient().create();
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
+                    .registerTypeAdapter(Integer.class, new EmptyIntegerTypeAdapter())
+                    .setDateFormat("yyyy-MM-dd HH:mm:ss")
+                    .setLenient()
+                    .create();
             ProgramData programData = gson.fromJson(json, new TypeToken<DatasetData>() {
             }.getType());
             int latestVersion = this.programService.getLatestVersionForPrograms("" + programData.getProgramId()).get(0).getVersionId();
@@ -106,6 +113,7 @@ public class CommitRequestRestController {
         String json = null;
         try {
             json = IOUtils.toString(request.getReader());
+
             String emptyFuNodeString1 = "\"fuNode\":{\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":\"\"},\"repeatUsagePeriod\":{},\"noOfPersons\":\"\"}";
             json = json.replace(emptyFuNodeString1, "\"fuNode\": null");
             json = json.replace(",,", ",");
