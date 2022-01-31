@@ -111,6 +111,8 @@ public class CommitRequestRestController {
             json = json.replace(",,", ",");
             String emptyPuNodeString1 = "\"puNode\":{\"planningUnit\":{\"unit\":{}},\"refillMonths\":\"\"}";
             json = json.replace(emptyPuNodeString1, "\"puNode\": null");
+            String emptyPuNodeString2 = "\"puNode\":{\"planningUnit\":{\"id\":\"\",\"unit\":{},\"multiplier\":\"\"},\"refillMonths\":\"\"}";
+            json = json.replace(emptyPuNodeString2, "\"puNode\": null");
             json = json.replace(",,", ",");
             Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").setLenient().create();
             DatasetDataJson datasetData = gson.fromJson(json, new TypeToken<DatasetDataJson>() {
