@@ -6220,3 +6220,34 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Duplicate Tree');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Arborescence dupliquée');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Árbol duplicado');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Árvore duplicada');-- p
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.positiveIntegerWithLength','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Max 10 digit positive number and 2 digits after decimal are allowed.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Un nombre positif maximum de 10 chiffres et 2 chiffres après la virgule sont autorisés.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se permiten un número positivo máximo de 10 dígitos y 2 dígitos después del decimal.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Número positivo máximo de 10 dígitos e 2 dígitos após o decimal são permitidos.');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.versionSettings.calendardays','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calendar Days');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Jours calendaires');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Días del calendario');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Dias do calendário');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.onlyPositiveIntegerGreaterThan0AreAllowed','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enter valid positive numbers greater than 0');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Entrez des nombres positifs valides supérieurs à 0');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Introduzca números positivos válidos mayores que 0');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Insira números positivos válidos maiores que 0');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.versionSettings.committedDate','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Committed date');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Date d`engagement');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fecha comprometida');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Data confirmada');-- pr
