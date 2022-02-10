@@ -6226,3 +6226,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enter valid positive n
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Entrez des nombres positifs valides supérieurs à 0');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Introduzca números positivos válidos mayores que 0');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Insira números positivos válidos maiores que 0');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.versionSettings.committedDate','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Committed date');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Date d`engagement');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fecha comprometida');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Data confirmada');-- pr
