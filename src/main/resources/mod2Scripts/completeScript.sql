@@ -6234,3 +6234,45 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Committed date');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Date d`engagement');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fecha comprometida');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Data confirmada');-- pr
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='No Forecast selected'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Aucune prévision sélectionnée'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='No se ha seleccionado ninguna previsión'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Nenhuma previsão selecionada'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=4;
+
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Branches missing Planning Unit'
+where l.LABEL_CODE='static.commitTree.branchesMissingPlanningUnit' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Branches manquant Unité de planification'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Sucursales faltan Unidad de Planificación'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Filiais sem Unidade de Planejamento'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=4;
+
