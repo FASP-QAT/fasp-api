@@ -98,4 +98,9 @@ public class ForecastingUnitServiceImpl implements ForecastingUnitService {
         return this.forecastingUnitDao.getForecastingUnitListByTracerCategory(tracerCategoryId, active, curUser);
     }
 
+    @Override
+    public List<ForecastingUnit> getForecastingUnitListByTracerCategoryIds(String[] tracerCategoryIds, boolean active, CustomUserDetails curUser) {
+        return this.forecastingUnitDao.getForecastingUnitListByTracerCategoryIds(tracerCategoryIds, active, curUser);
+    }
+
 }
