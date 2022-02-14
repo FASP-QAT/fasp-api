@@ -7,7 +7,7 @@ package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.ForecastConsumptionExtrapolation;
-import cc.altius.FASP.model.ForecastConsumptionExtrapolationData;
+import cc.altius.FASP.model.ExtrapolationData;
 import cc.altius.FASP.model.SimpleObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -39,7 +39,7 @@ public class ForecastConsumptionExtrapolationListResultSetExtractor implements R
             } else {
                 fces = fcesList.get(idx);
             }
-            ForecastConsumptionExtrapolationData fced = new ForecastConsumptionExtrapolationData();
+            ExtrapolationData fced = new ExtrapolationData();
             fced.setMonth(rs.getDate("MONTH"));
             if (!rs.wasNull()) {
                 idx = fces.getExtrapolationDataList().indexOf(fced);

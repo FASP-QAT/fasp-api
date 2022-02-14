@@ -6251,3 +6251,40 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Committed date');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Date d`engagement');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fecha comprometida');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Data confirmada');-- pr
+
+
+CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation` (
+  `NODE_DATA_EXTRAPOLATION_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `NODE_DATA_ID` INT(10) UNSIGNED NOT NULL,
+  `EXTRAPOLATION_METHOD_ID` INT(10) UNSIGNED NOT NULL,
+  `JSON_PROPERTIES` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`NODE_DATA_EXTRAPOLATION_ID`),
+  INDEX `fk_rm_forecast_tree_node_data_extrapolation_nodeDataId_idx` (`NODE_DATA_ID` ASC) VISIBLE,
+  INDEX `fk_rm_forecast_tree_node_data_extrapolation_extrapolationMe_idx` (`EXTRAPOLATION_METHOD_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_rm_ftnde_nodeDataId`
+    FOREIGN KEY (`NODE_DATA_ID`)
+    REFERENCES `fasp`.`rm_forecast_tree_node_data` (`NODE_DATA_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_ftnde_extrapolationMethodId`
+    FOREIGN KEY (`EXTRAPOLATION_METHOD_ID`)
+    REFERENCES `fasp`.`ap_extrapolation_method` (`EXTRAPOLATION_METHOD_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation_data` (
+  `NODE_DATA_EXTRAPOLATION_DATA_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `NODE_DATA_EXTRAPOLATION_ID` INT(10) UNSIGNED NOT NULL,
+  `MONTH` DATE NOT NULL,
+  `AMOUNT` DECIMAL(16,2) NULL,
+  PRIMARY KEY (`NODE_DATA_EXTRAPOLATION_DATA_ID`),
+  INDEX `fk_rm_ftnded_nodeDataExtrapolationDataId_idx` (`NODE_DATA_EXTRAPOLATION_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_rm_ftnded_nodeDataExtrapolationDataId`
+    FOREIGN KEY (`NODE_DATA_EXTRAPOLATION_ID`)
+    REFERENCES `fasp`.`rm_forecast_tree_node_data_extrapolation` (`NODE_DATA_EXTRAPOLATION_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+
+UPDATE ap_node_type nt SET nt.ACTIVE=0 WHERE nt.NODE_TYPE_ID=6;
+DELETE FROM ap_node_type_rule WHERE NODE_TYPE_RULE_ID >=9;

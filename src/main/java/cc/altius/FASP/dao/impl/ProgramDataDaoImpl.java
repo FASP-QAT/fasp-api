@@ -53,9 +53,10 @@ import cc.altius.FASP.model.rowMapper.BatchRowMapper;
 import cc.altius.FASP.model.rowMapper.ConsumptionListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.DatasetTreeResultSetExtractor;
 import cc.altius.FASP.model.ForecastConsumptionExtrapolation;
-import cc.altius.FASP.model.ForecastConsumptionExtrapolationData;
+import cc.altius.FASP.model.ExtrapolationData;
 import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.NodeDataExtrapolation;
 import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
@@ -1178,7 +1179,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("CREATED_BY", fce.getCreatedBy().getUserId());
             params.put("CREATED_DATE", fce.getCreatedDate());
             int conspuptionExtrapolationId = si.executeAndReturnKey(params).intValue();
-            for (ForecastConsumptionExtrapolationData fced : fce.getExtrapolationDataList()) {
+            for (ExtrapolationData fced : fce.getExtrapolationDataList()) {
                 Map<String, Object> batchParams = new HashMap<>();
                 batchParams.put("CONSUMPTION_EXTRAPOLATION_ID", conspuptionExtrapolationId);
                 batchParams.put("MONTH", fced.getMonth());
@@ -1329,26 +1330,48 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree_node_data", tnd.getNodeDataId(), nodeDataId);
 
                         // Step 3H -- Add the Node Data Modelling values
-                        ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_modeling");
-                        for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
-                            nodeDataParams.clear();
-                            nodeDataParams.put("NODE_DATA_ID", nodeDataId);
-                            nodeDataParams.put("START_DATE", ndm.getStartDate());
-                            nodeDataParams.put("STOP_DATE", ndm.getStopDate());
-                            nodeDataParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
-                            nodeDataParams.put("DATA_VALUE", ndm.getDataValue());
-                            nodeDataParams.put("TRANSFER_NODE_DATA_ID", null);
-                            nodeDataParams.put("NOTES", ndm.getNotes());
-                            nodeDataParams.put("CREATED_DATE", spcr.getCreatedBy().getUserId());
-                            nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
-                            nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
-                            nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
-                            nodeDataParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
-                            nodeDataParams.put("ACTIVE", 1);
-                            ni.execute(nodeDataParams);
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
+                            ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_modeling");
+                            for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
+                                nodeDataParams.clear();
+                                nodeDataParams.put("NODE_DATA_ID", nodeDataId);
+                                nodeDataParams.put("START_DATE", ndm.getStartDate());
+                                nodeDataParams.put("STOP_DATE", ndm.getStopDate());
+                                nodeDataParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
+                                nodeDataParams.put("DATA_VALUE", ndm.getDataValue());
+                                nodeDataParams.put("TRANSFER_NODE_DATA_ID", null);
+                                nodeDataParams.put("NOTES", ndm.getNotes());
+                                nodeDataParams.put("CREATED_DATE", spcr.getCreatedBy().getUserId());
+                                nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
+                                nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
+                                nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
+                                nodeDataParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
+                                nodeDataParams.put("ACTIVE", 1);
+                                ni.execute(nodeDataParams);
+                            }
                         }
 
-                        // Step 3I -- Add the Node Data Override
+                        // Step #I -- Add the Node Data Extrapolation values 
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_EXTRAPOLATION) {
+                            ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_ID");
+                            for (NodeDataExtrapolation nde : tnd.getNodeDataExtrapolationList()) {
+                                nodeDataParams.clear();
+                                nodeDataParams.put("NODE_DATA_ID", nodeDataId);
+                                nodeDataParams.put("EXTRAPOLATION_METHOD_ID", nde.getExtrapolationMethod().getId());
+                                nodeDataParams.put("JSON_PROPERTIES", nde.getJsonPropertiesString());
+                                int ndeId = ni.executeAndReturnKey(nodeDataParams).intValue();
+                                SimpleJdbcInsert di = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_forecast_tree_node_data_extrapolation_data");
+                                for (ExtrapolationData ed : nde.getExtrapolationDataList()) {
+                                    nodeParams.clear();
+                                    nodeParams.put("NODE_DATA_EXTRAPOLATION_ID", ndeId);
+                                    nodeParams.put("MONTH", ed.getMonth());
+                                    nodeParams.put("AMOUNT", ed.getAmount());
+                                    di.execute(nodeParams);
+                                }
+                            }
+                        }
+
+                        // Step 3J -- Add the Node Data Override
                         ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_override");
                         for (NodeDataOverride ndo : tnd.getNodeDataOverrideList()) {
                             nodeDataParams.clear();
@@ -1365,7 +1388,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             ni.execute(nodeDataParams);
                         }
 
-                        // Step 3J -- Add the Node Data MOM
+                        // Step 3K -- Add the Node Data MOM
                         ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_mom");
                         for (NodeDataMom ndo : tnd.getNodeDataMomList()) {
                             nodeDataParams.clear();
@@ -1381,7 +1404,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         }
                     }
                 }
-
 
                 batchList.clear();
                 String sql = "UPDATE rm_forecast_tree_node_data_modeling tndm SET tndm.TRANSFER_NODE_DATA_ID=:transferNodeDataId WHERE tndm.NODE_DATA_ID=:nodeDataId";
@@ -1399,7 +1421,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     }
                 }
                 if (batchList.size() > 0) {
-                    batchArray = new SqlParameterSource[batchList.size()]; 
+                    batchArray = new SqlParameterSource[batchList.size()];
                     namedParameterJdbcTemplate.batchUpdate(sql, batchList.toArray(batchArray));
                 }
             }
@@ -2303,7 +2325,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "          ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
                 + "          mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR`, "
                 + "          ndm.NODE_DATA_MOM_ID, ndm.MONTH `NDM_MONTH`, ndm.START_VALUE `NDM_START_VALUE`, ndm.END_VALUE `NDM_END_VALUE`, ndm.CALCULATED_VALUE `NDM_CALCULATED_VALUE`, ndm.DIFFERENCE `NDM_DIFFERENCE`, ndm.SEASONALITY_PERC `NDM_SEASONALITY_PERC`, ndm.MANUAL_CHANGE `NDM_MANUAL_CHANGE`, "
-                + "          ndo.`NODE_DATA_OVERRIDE_ID`, ndo.`MONTH` `OVERRIDE_MONTH`, ndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ndo.SEASONALITY_PERC` 'OVERRIDE_SEASONALITY_PERC` "
+                + "          ndo.`NODE_DATA_OVERRIDE_ID`, ndo.`MONTH` `OVERRIDE_MONTH`, ndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ndo.SEASONALITY_PERC` 'OVERRIDE_SEASONALITY_PERC`, "
+                + "          nde.NODE_DATA_EXTRAPOLATION_ID, em.EXTRAPOLATION_METHOD_ID, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, nde.JSON_PROPERTIES, "
+                + "          nded.NODE_DATA_EXTRAPOLATION_DATA_ID, nded.MONTH `EM_MONTH`, nded.AMOUNT `EM_AMOUNT` "
                 + "      FROM vw_forecast_tree_node ttn "
                 + "      LEFT JOIN vw_node_type nt ON ttn.NODE_TYPE_ID=nt.NODE_TYPE_ID "
                 + "      LEFT JOIN vw_unit u ON ttn.UNIT_ID=u.UNIT_ID "
@@ -2322,6 +2346,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "      LEFT JOIN vw_modeling_type mt ON ttndm.MODELING_TYPE_ID=mt.MODELING_TYPE_ID "
                 + "      LEFT JOIN rm_forecast_tree_node_data_mom ndm ON ttnd.NODE_DATA_ID=ndm.NODE_DATA_ID "
                 + "      LEFT JOIN rm_forecast_tree_node_data_override ndo ON ttnd.NODE_DATA_ID=ndo.NODE_DATA_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data_extrapolation nde ON ttnd.NODE_DATA_ID=nde.NODE_DATA_ID "
+                + "      LEFT JOIN rm_forecast_tree_node_data_extrapolation_data nded ON nde.NODE_DATA_EXTRAPOLATION_ID=nded.NODE_DATA_EXTRAPOLATION_ID "
+                + "      LEFT JOIN vw_extrapolation_method em ON nde.EXTRAPOLATION_METHOD_ID=em.EXTRAPOLATION_METHOD_ID "
                 + "      WHERE ttn.TREE_ID=? "
                 + "      ORDER BY ttn.SORT_ORDER, ttnd.NODE_DATA_ID";
 //        Map<String, Object> params = new HashMap<>();
