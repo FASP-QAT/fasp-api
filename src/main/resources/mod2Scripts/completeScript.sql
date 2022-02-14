@@ -6252,15 +6252,14 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Date d`engagement');--
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fecha comprometida');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Data confirmada');-- pr
 
-
 CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation` (
   `NODE_DATA_EXTRAPOLATION_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `NODE_DATA_ID` INT(10) UNSIGNED NOT NULL,
   `EXTRAPOLATION_METHOD_ID` INT(10) UNSIGNED NOT NULL,
-  `JSON_PROPERTIES` VARCHAR(255) NOT NULL,
+  `NOTES` TEXT,
   PRIMARY KEY (`NODE_DATA_EXTRAPOLATION_ID`),
-  INDEX `fk_rm_forecast_tree_node_data_extrapolation_nodeDataId_idx` (`NODE_DATA_ID` ASC) VISIBLE,
-  INDEX `fk_rm_forecast_tree_node_data_extrapolation_extrapolationMe_idx` (`EXTRAPOLATION_METHOD_ID` ASC) VISIBLE,
+  INDEX `fk_rm_ftnde_nodeDataId_idx` (`NODE_DATA_ID` ASC) VISIBLE,
+  INDEX `fk_rm_ftnde_extrapolationMethodId_idx` (`EXTRAPOLATION_METHOD_ID` ASC) VISIBLE,
   CONSTRAINT `fk_rm_ftnde_nodeDataId`
     FOREIGN KEY (`NODE_DATA_ID`)
     REFERENCES `fasp`.`rm_forecast_tree_node_data` (`NODE_DATA_ID`)
@@ -6272,19 +6271,48 @@ CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation` (
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
+CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation_option` (
+  `NODE_DATA_EXTRAPOLATION_OPTION_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `NODE_DATA_ID` INT(10) UNSIGNED NOT NULL,
+  `EXTRAPOLATION_METHOD_ID` INT(10) UNSIGNED NOT NULL,
+  `JSON_PROPERTIES` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`NODE_DATA_EXTRAPOLATION_OPTION_ID`),
+  INDEX `fk_rm_ftndeo_nodeDataId_idx` (`NODE_DATA_ID` ASC) VISIBLE,
+  INDEX `fk_rm_ftndeo_extrapolationMethod_idx` (`EXTRAPOLATION_METHOD_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_rm_ftnde_nodeDataId`
+    FOREIGN KEY (`NODE_DATA_ID`)
+    REFERENCES `fasp`.`rm_forecast_tree_node_data` (`NODE_DATA_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_ftndeo_extrapolationMethodId`
+    FOREIGN KEY (`EXTRAPOLATION_METHOD_ID`)
+    REFERENCES `fasp`.`ap_extrapolation_method` (`EXTRAPOLATION_METHOD_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
 CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation_data` (
   `NODE_DATA_EXTRAPOLATION_DATA_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
   `NODE_DATA_EXTRAPOLATION_ID` INT(10) UNSIGNED NOT NULL,
   `MONTH` DATE NOT NULL,
   `AMOUNT` DECIMAL(16,2) NULL,
+  `REPORTING_RATE` DECIMAL(6,2) NULL,
   PRIMARY KEY (`NODE_DATA_EXTRAPOLATION_DATA_ID`),
   INDEX `fk_rm_ftnded_nodeDataExtrapolationDataId_idx` (`NODE_DATA_EXTRAPOLATION_ID` ASC) VISIBLE,
-  CONSTRAINT `fk_rm_ftnded_nodeDataExtrapolationDataId`
+  CONSTRAINT `fk_rm_ftnded_nodeDataExtrapolationId`
     FOREIGN KEY (`NODE_DATA_EXTRAPOLATION_ID`)
     REFERENCES `fasp`.`rm_forecast_tree_node_data_extrapolation` (`NODE_DATA_EXTRAPOLATION_ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION);
 
-
-UPDATE ap_node_type nt SET nt.ACTIVE=0 WHERE nt.NODE_TYPE_ID=6;
-DELETE FROM ap_node_type_rule WHERE NODE_TYPE_RULE_ID >=9;
+CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation_option_data` (
+  `NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `NODE_DATA_EXTRAPOLATION_OPTION_ID` INT(10) UNSIGNED NOT NULL,
+  `MONTH` DATE NOT NULL,
+  `AMOUNT` DECIMAL(16,2) NULL,
+  PRIMARY KEY (`NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID`),
+  INDEX `fk_rm_ftndeo_nodeDataExtrapolationOptionId_idx` (`NODE_DATA_EXTRAPOLATION_OPTION_ID` ASC) VISIBLE,
+  CONSTRAINT `fk_rm_ftnded_nodeDataExtrapolationOptionId`
+    FOREIGN KEY (`NODE_DATA_EXTRAPOLATION_OPTION_ID`)
+    REFERENCES `fasp`.`rm_forecast_tree_node_data_extrapolation_option` (`NODE_DATA_EXTRAPOLATION_OPTION_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);

@@ -6,13 +6,8 @@
 package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  *
@@ -25,10 +20,9 @@ public class NodeDataExtrapolation implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleObject extrapolationMethod;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
-    private Map<String, Object> jsonProperties;
+    private String notes;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
-    List<ExtrapolationData> extrapolationDataList;
-    private final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+    List<ExtrapolationDataReportingRate> extrapolationDataList;
 
     public NodeDataExtrapolation() {
     }
@@ -53,31 +47,19 @@ public class NodeDataExtrapolation implements Serializable {
         this.extrapolationMethod = extrapolationMethod;
     }
 
-    public Map<String, Object> getJsonProperties() {
-        return jsonProperties;
+    public String getNotes() {
+        return notes;
     }
 
-    public String getJsonPropertiesString() {
-        if (this.jsonProperties != null) {
-            return gson.toJson(this.jsonProperties);
-        } else {
-            return null;
-        }
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
-    public void setJsonProperties(String json) {
-        this.jsonProperties = null;
-        if (json != null) {
-            this.jsonProperties = gson.fromJson(json, new TypeToken<HashMap<String, Object>>() {
-            }.getType());
-        }
-    }
-
-    public List<ExtrapolationData> getExtrapolationDataList() {
+    public List<ExtrapolationDataReportingRate> getExtrapolationDataList() {
         return extrapolationDataList;
     }
 
-    public void setExtrapolationDataList(List<ExtrapolationData> extrapolationDataList) {
+    public void setExtrapolationDataList(List<ExtrapolationDataReportingRate> extrapolationDataList) {
         this.extrapolationDataList = extrapolationDataList;
     }
 

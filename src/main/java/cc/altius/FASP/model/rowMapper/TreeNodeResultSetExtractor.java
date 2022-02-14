@@ -7,9 +7,11 @@ package cc.altius.FASP.model.rowMapper;
 
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.ExtrapolationData;
+import cc.altius.FASP.model.ExtrapolationDataReportingRate;
 import cc.altius.FASP.model.ForecastNode;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.NodeDataExtrapolation;
+import cc.altius.FASP.model.NodeDataExtrapolationOption;
 import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
@@ -264,28 +266,59 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
         // Check if Extrapolation exists
         idx = -1;
         NodeDataExtrapolation nde = new NodeDataExtrapolation(rs.getInt("NODE_DATA_EXTRAPOLATION_ID"));
+        if (!rs.wasNull() && tnd.getNodeDataExtrapolation() == null) {
+            // Not found so add it
+            nde.setExtrapolationMethod(new SimpleObject(rs.getInt("EXTRAPOLATION_METHOD_ID"), new LabelRowMapper("EM_").mapRow(rs, 1)));
+            nde.setNotes(rs.getString("EM_NOTES"));
+            tnd.setNodeDataExtrapolation(nde);
+        } else {
+            nde = tnd.getNodeDataExtrapolation();
+        }
+
+        // Check if Extrapolation Data exists
+        idx = -1;
+        ExtrapolationDataReportingRate edrr = new ExtrapolationDataReportingRate(rs.getDate("EM_MONTH"));
         if (!rs.wasNull()) {
-            idx = tnd.getNodeDataExtrapolationList().indexOf(nde);
+            idx = nde.getExtrapolationDataList().indexOf(edrr);
             if (idx == -1) {
                 // Not found so add it
-                nde.setExtrapolationMethod(new SimpleObject(rs.getInt("EXTRAPOLATION_METHOD_ID"), new LabelRowMapper("EM_").mapRow(rs, 1)));
-                nde.setJsonProperties(rs.getString("JSON_PROPERTIES"));
-                tnd.getNodeDataExtrapolationList().add(nde);
+                edrr.setAmount(rs.getDouble("EM_AMOUNT"));
+                if (rs.wasNull()) {
+                    edrr.setAmount(null);
+                }
+                edrr.setReportingRate(rs.getDouble("EM_REPORTING_RATE"));
+                if (rs.wasNull()) {
+                    edrr.setReportingRate(null);
+                }
+                nde.getExtrapolationDataList().add(edrr);
             }
-            idx = tnd.getNodeDataExtrapolationList().indexOf(nde);
-            nde = tnd.getNodeDataExtrapolationList().get(idx);
+        }
+
+        // Check if Extrapolation Options exists
+        idx = -1;
+        NodeDataExtrapolationOption ndeo = new NodeDataExtrapolationOption(rs.getInt("NODE_DATA_EXTRAPOLATION_OPTION_ID"));
+        if (!rs.wasNull()) {
+            idx = tnd.getNodeDataExtrapolationOptionList().indexOf(ndeo);
+            if (idx == -1) {
+                // Not found so add it
+                ndeo.setExtrapolationMethod(new SimpleObject(rs.getInt("EO_EXTRAPOLATION_METHOD_ID"), new LabelRowMapper("EO_").mapRow(rs, 1)));
+                ndeo.setJsonProperties(rs.getString("JSON_PROPERTIES"));
+                tnd.getNodeDataExtrapolationOptionList().add(ndeo);
+            }
+            idx = tnd.getNodeDataExtrapolationOptionList().indexOf(ndeo);
+            ndeo = tnd.getNodeDataExtrapolationOptionList().get(idx);
             // Check if Extrapolation Data exists
             idx = -1;
-            ExtrapolationData ed = new ExtrapolationData(rs.getDate("EM_MONTH"));
-            if(!rs.wasNull()) {
-                idx = nde.getExtrapolationDataList().indexOf(ed);
+            ExtrapolationData ed = new ExtrapolationData(rs.getDate("EO_MONTH"));
+            if (!rs.wasNull()) {
+                idx = ndeo.getExtrapolationOptionDataList().indexOf(ed);
                 if (idx == -1) {
                     // Not found so add it
-                    ed.setAmount(rs.getDouble("EM_AMOUNT"));
+                    ed.setAmount(rs.getDouble("EO_AMOUNT"));
                     if (rs.wasNull()) {
                         ed.setAmount(null);
                     }
-                    nde.getExtrapolationDataList().add(ed);
+                    ndeo.getExtrapolationOptionDataList().add(ed);
                 }
             }
         }

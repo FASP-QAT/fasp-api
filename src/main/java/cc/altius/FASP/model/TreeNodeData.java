@@ -48,13 +48,15 @@ public class TreeNodeData implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private List<NodeDataMom> nodeDataMomList;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
-    private List<NodeDataExtrapolation> nodeDataExtrapolationList;
+    private NodeDataExtrapolation nodeDataExtrapolation;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private List<NodeDataExtrapolationOption> nodeDataExtrapolationOptionList;
 
     public TreeNodeData() {
         nodeDataModelingList = new LinkedList<>();
         nodeDataOverrideList = new LinkedList<>();
         nodeDataMomList = new LinkedList<>();
-        nodeDataExtrapolationList = new LinkedList<>();
+        nodeDataExtrapolationOptionList = new LinkedList<>();
     }
 
     public TreeNodeData(int nodeDataId) {
@@ -149,12 +151,20 @@ public class TreeNodeData implements Serializable {
         this.nodeDataMomList = nodeDataMomList;
     }
 
-    public List<NodeDataExtrapolation> getNodeDataExtrapolationList() {
-        return nodeDataExtrapolationList;
+    public NodeDataExtrapolation getNodeDataExtrapolation() {
+        return nodeDataExtrapolation;
     }
 
-    public void setNodeDataExtrapolationList(List<NodeDataExtrapolation> nodeDataExtrapolationList) {
-        this.nodeDataExtrapolationList = nodeDataExtrapolationList;
+    public void setNodeDataExtrapolation(NodeDataExtrapolation nodeDataExtrapolation) {
+        this.nodeDataExtrapolation = nodeDataExtrapolation;
+    }
+
+    public List<NodeDataExtrapolationOption> getNodeDataExtrapolationOptionList() {
+        return nodeDataExtrapolationOptionList;
+    }
+
+    public void setNodeDataExtrapolationOptionList(List<NodeDataExtrapolationOption> nodeDataExtrapolationOptionList) {
+        this.nodeDataExtrapolationOptionList = nodeDataExtrapolationOptionList;
     }
 
     public Double getCalculatedDataValue() {
