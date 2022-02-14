@@ -4215,10 +4215,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'+ Adicionar Árvore');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.blank','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'(blank)');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'(Vide)');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'(blanca)');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'(em branco)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Draw your own tree');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Dessinez votre propre arbre');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Dibuja tu propio árbol');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Desenhe sua própria árvore');
 
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.node','1');
@@ -6204,6 +6204,23 @@ ALTER TABLE `fasp`.`rm_forecast_tree_node_data_override` CHANGE COLUMN `MANUAL_C
 
 ALTER TABLE `fasp`.`rm_tree_template_node_data_modeling` CHANGE `START_DATE` `START_DATE` INT(10) NOT NULL COMMENT 'Start date that the Modeling is applicable from. Starts from the Forecast Program Start', CHANGE `STOP_DATE` `STOP_DATE` INT(10) NOT NULL COMMENT 'Stop date that the Modeling is applicable from. Defaults to Forecast Program End but user can override'; 
 
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.common.deleteTree','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Delete Tree');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Supprimer l arborescence');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Eliminar árbol');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Excluir árvore');-- p
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.common.duplicateTree','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Duplicate Tree');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Arborescence dupliquée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Árbol duplicado');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Árvore duplicada');-- p
+
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.positiveIntegerWithLength','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
@@ -6226,3 +6243,53 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enter valid positive n
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Entrez des nombres positifs valides supérieurs à 0');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Introduzca números positivos válidos mayores que 0');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Insira números positivos válidos maiores que 0');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.versionSettings.committedDate','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Committed date');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Date d`engagement');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fecha comprometida');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Data confirmada');-- pr
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='No Forecast selected'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Aucune prévision sélectionnée'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='No se ha seleccionado ninguna previsión'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Nenhuma previsão selecionada'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=4;
+
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Branches missing Planning Unit'
+where l.LABEL_CODE='static.commitTree.branchesMissingPlanningUnit' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Branches manquant Unité de planification'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Sucursales faltan Unidad de Planificación'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Filiais sem Unidade de Planejamento'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=4;
+
