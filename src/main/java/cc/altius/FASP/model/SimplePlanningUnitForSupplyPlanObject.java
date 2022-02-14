@@ -17,7 +17,7 @@ public class SimplePlanningUnitForSupplyPlanObject extends SimpleObject {
 
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class})
     private SimpleObject forecastingUnit;
-    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class})
+    @JsonView({Views.InternalView.class, Views.ArtmisView.class, Views.GfpVanView.class})
     private boolean active;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class})
     private double conversionFactor;
