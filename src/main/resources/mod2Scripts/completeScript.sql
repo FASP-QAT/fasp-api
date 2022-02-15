@@ -6259,8 +6259,8 @@ CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation` (
   `EXTRAPOLATION_METHOD_ID` INT(10) UNSIGNED NOT NULL,
   `NOTES` TEXT,
   PRIMARY KEY (`NODE_DATA_EXTRAPOLATION_ID`),
-  INDEX `fk_rm_ftnde_nodeDataId_idx` (`NODE_DATA_ID` ASC) VISIBLE,
-  INDEX `fk_rm_ftnde_extrapolationMethodId_idx` (`EXTRAPOLATION_METHOD_ID` ASC) VISIBLE,
+  INDEX `fk_rm_ftnde_nodeDataId_idx` (`NODE_DATA_ID` ASC) ,
+  INDEX `fk_rm_ftnde_extrapolationMethodId_idx` (`EXTRAPOLATION_METHOD_ID` ASC) ,
   CONSTRAINT `fk_rm_ftnde_nodeDataId`
     FOREIGN KEY (`NODE_DATA_ID`)
     REFERENCES `fasp`.`rm_forecast_tree_node_data` (`NODE_DATA_ID`)
@@ -6278,8 +6278,8 @@ CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation_option` (
   `EXTRAPOLATION_METHOD_ID` INT(10) UNSIGNED NOT NULL,
   `JSON_PROPERTIES` VARCHAR(255) NOT NULL,
   PRIMARY KEY (`NODE_DATA_EXTRAPOLATION_OPTION_ID`),
-  INDEX `fk_rm_ftndeo_nodeDataId_idx` (`NODE_DATA_ID` ASC) VISIBLE,
-  INDEX `fk_rm_ftndeo_extrapolationMethod_idx` (`EXTRAPOLATION_METHOD_ID` ASC) VISIBLE,
+  INDEX `fk_rm_ftndeo_nodeDataId_idx` (`NODE_DATA_ID` ASC) ,
+  INDEX `fk_rm_ftndeo_extrapolationMethod_idx` (`EXTRAPOLATION_METHOD_ID` ASC) ,
   CONSTRAINT `fk_rm_ftnde_nodeDataId`
     FOREIGN KEY (`NODE_DATA_ID`)
     REFERENCES `fasp`.`rm_forecast_tree_node_data` (`NODE_DATA_ID`)
@@ -6298,7 +6298,7 @@ CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation_data` (
   `AMOUNT` DECIMAL(16,2) NULL,
   `REPORTING_RATE` DECIMAL(6,2) NULL,
   PRIMARY KEY (`NODE_DATA_EXTRAPOLATION_DATA_ID`),
-  INDEX `fk_rm_ftnded_nodeDataExtrapolationDataId_idx` (`NODE_DATA_EXTRAPOLATION_ID` ASC) VISIBLE,
+  INDEX `fk_rm_ftnded_nodeDataExtrapolationDataId_idx` (`NODE_DATA_EXTRAPOLATION_ID` ASC) ,
   CONSTRAINT `fk_rm_ftnded_nodeDataExtrapolationId`
     FOREIGN KEY (`NODE_DATA_EXTRAPOLATION_ID`)
     REFERENCES `fasp`.`rm_forecast_tree_node_data_extrapolation` (`NODE_DATA_EXTRAPOLATION_ID`)
@@ -6311,7 +6311,7 @@ CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation_option_data` (
   `MONTH` DATE NOT NULL,
   `AMOUNT` DECIMAL(16,2) NULL,
   PRIMARY KEY (`NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID`),
-  INDEX `fk_rm_ftndeo_nodeDataExtrapolationOptionId_idx` (`NODE_DATA_EXTRAPOLATION_OPTION_ID` ASC) VISIBLE,
+  INDEX `fk_rm_ftndeo_nodeDataExtrapolationOptionId_idx` (`NODE_DATA_EXTRAPOLATION_OPTION_ID` ASC) ,
   CONSTRAINT `fk_rm_ftnded_nodeDataExtrapolationOptionId`
     FOREIGN KEY (`NODE_DATA_EXTRAPOLATION_OPTION_ID`)
     REFERENCES `fasp`.`rm_forecast_tree_node_data_extrapolation_option` (`NODE_DATA_EXTRAPOLATION_OPTION_ID`)
