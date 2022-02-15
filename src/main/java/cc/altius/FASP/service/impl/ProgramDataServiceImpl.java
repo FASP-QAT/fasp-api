@@ -61,18 +61,18 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     private UserService userService;
 
     @Override
-    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean active) {
+    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean shipmentActive, boolean planningUnitActive) {
         ProgramData pd = new ProgramData(this.programCommonDao.getProgramById(programId, curUser));
         pd.setRequestedProgramVersion(versionId);
         pd.setCurrentVersion(this.programDataDao.getVersionInfo(programId, versionId));
         versionId = pd.getCurrentVersion().getVersionId();
-        pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId));
-        pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId));
-        pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId, active));
-        pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId));
+        pd.setConsumptionList(this.programDataDao.getConsumptionList(programId, versionId, planningUnitActive));
+        pd.setInventoryList(this.programDataDao.getInventoryList(programId, versionId, planningUnitActive));
+        pd.setShipmentList(this.programDataDao.getShipmentList(programId, versionId, shipmentActive, planningUnitActive));
+        pd.setBatchInfoList(this.programDataDao.getBatchList(programId, versionId, planningUnitActive));
         pd.setProblemReportList(this.problemService.getProblemReportList(programId, versionId, curUser));
-        pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId));
-        pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(programId, curUser));
+        pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(programId, versionId, planningUnitActive));
+        pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(programId, curUser, planningUnitActive));
         return pd;
     }
 
@@ -84,13 +84,13 @@ public class ProgramDataServiceImpl implements ProgramDataService {
             pd.setRequestedProgramVersion(pv.getVersionId());
             pd.setCurrentVersion(this.programDataDao.getVersionInfo(pv.getProgramId(), pv.getVersionId()));
             int versionId = pd.getCurrentVersion().getVersionId();
-            pd.setConsumptionList(this.programDataDao.getConsumptionList(pv.getProgramId(), versionId));
-            pd.setInventoryList(this.programDataDao.getInventoryList(pv.getProgramId(), versionId));
-            pd.setShipmentList(this.programDataDao.getShipmentList(pv.getProgramId(), versionId, false));
-            pd.setBatchInfoList(this.programDataDao.getBatchList(pv.getProgramId(), versionId));
+            pd.setConsumptionList(this.programDataDao.getConsumptionList(pv.getProgramId(), versionId, false));
+            pd.setInventoryList(this.programDataDao.getInventoryList(pv.getProgramId(), versionId, false));
+            pd.setShipmentList(this.programDataDao.getShipmentList(pv.getProgramId(), versionId, false, false));
+            pd.setBatchInfoList(this.programDataDao.getBatchList(pv.getProgramId(), versionId, false));
             pd.setProblemReportList(this.problemService.getProblemReportList(pv.getProgramId(), versionId, curUser));
-            pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId));
-            pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(pv.getProgramId(), curUser));
+            pd.setSupplyPlan(this.programDataDao.getSimplifiedSupplyPlan(pv.getProgramId(), versionId, false));
+            pd.setPlanningUnitList(this.programDataDao.getPlanningUnitListForProgramData(pv.getProgramId(), curUser, false));
             programDataList.add(pd);
         });
         return programDataList;
