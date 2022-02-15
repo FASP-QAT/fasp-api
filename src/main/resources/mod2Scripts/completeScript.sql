@@ -4622,7 +4622,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ver datos mensuales');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ver dados mensais');
 
 
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.modelingCalculaterTool:','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.modelingCalculaterTool','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Modeling Calculater Tool:');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Outil de calcul de modélisation :');
@@ -4727,10 +4727,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Salve e faça um recá
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.calculated','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calculate');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Calculer');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Calcular');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Calcular');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Recalculate');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Recalculer');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Recalcular');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Recalcular');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.Add/EditTreeData','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
