@@ -6,6 +6,7 @@
 package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
+import java.util.Objects;
 
 /**
  *
@@ -33,5 +34,31 @@ public class SimpleProcurementAgentSkuObject extends SimpleCodeObject {
     public void setActive(boolean active) {
         this.active = active;
     }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 97 * hash + Objects.hashCode(this.getId());
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SimpleProcurementAgentSkuObject other = (SimpleProcurementAgentSkuObject) obj;
+        if (!Objects.equals(this.getId(), other.getId())) {
+            return false;
+        }
+        return true;
+    }
+    
 
 }
