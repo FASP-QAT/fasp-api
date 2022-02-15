@@ -35,13 +35,13 @@ public interface ProgramDataDao {
 
     public Version getVersionInfo(int programId, int versionId);
 
-    public List<Consumption> getConsumptionList(int programId, int versionId);
+    public List<Consumption> getConsumptionList(int programId, int versionId, boolean planningUnitActive);
 
-    public List<Inventory> getInventoryList(int programId, int versionId);
+    public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive);
 
-    public List<Shipment> getShipmentList(int programId, int versionId, boolean active);
+    public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive);
 
-    public List<Batch> getBatchList(int programId, int versionId);
+    public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive);
 
     public int saveProgramData(ProgramData programData, CustomUserDetails curUser) throws CouldNotSaveException;
 
@@ -49,7 +49,7 @@ public interface ProgramDataDao {
 
     public Version processCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser);
 
-    public Version updateSupplyPlanCommitRequest(int commitRequestId,int status, String message,int versionId);
+    public Version updateSupplyPlanCommitRequest(int commitRequestId, int status, String message, int versionId);
 
     public List<SupplyPlanCommitRequest> getSupplyPlanCommitRequestList(SupplyPlanCommitRequestInput spcr, int requestStatus, CustomUserDetails curUser);
 
@@ -76,7 +76,7 @@ public interface ProgramDataDao {
 
     public List<Batch> getBatchListForSync(int programId, int versionId, String lastSyncDate);
 
-    public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId);
+    public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId, boolean planningUnitActive);
 
     public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
 
@@ -86,16 +86,16 @@ public interface ProgramDataDao {
 
     public String getSupplyPlanReviewerEmialList(int realmCountryId);
 
-    public List<SimplePlanningUnitForSupplyPlanObject> getPlanningUnitListForProgramData(int programId, CustomUserDetails curUser);
+    public List<SimplePlanningUnitForSupplyPlanObject> getPlanningUnitListForProgramData(int programId, CustomUserDetails curUser, boolean planningUnitActive);
 
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
 
     public String getLastModifiedDateForProgram(int programId, int versionId);
 
     public boolean checkIfCommitRequestExistsForProgram(int programId);
-    
+
     public SupplyPlanCommitRequest getCommitRequestByCommitRequestId(int commitRequestId);
-    
-    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr,CustomUserDetails curUser);
+
+    public int addSupplyPlanCommitRequest(SupplyPlanCommitRequest spcr, CustomUserDetails curUser);
 
 }

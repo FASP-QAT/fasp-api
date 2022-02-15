@@ -8,6 +8,7 @@ package cc.altius.FASP.model;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  *
@@ -17,7 +18,7 @@ public class SimplePlanningUnitForSupplyPlanObject extends SimpleObject {
 
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class})
     private SimpleObject forecastingUnit;
-    @JsonView({Views.ArtmisView.class, Views.GfpVanView.class})
+    @JsonView({Views.InternalView.class, Views.ArtmisView.class, Views.GfpVanView.class})
     private boolean active;
     @JsonView({Views.ArtmisView.class, Views.GfpVanView.class})
     private double conversionFactor;
@@ -109,6 +110,31 @@ public class SimplePlanningUnitForSupplyPlanObject extends SimpleObject {
 
     public void setProductCategory(SimpleObject productCategory) {
         this.productCategory = productCategory;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 89 * hash + this.getId();
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final SimplePlanningUnitForSupplyPlanObject other = (SimplePlanningUnitForSupplyPlanObject) obj;
+        if (!Objects.equals(this.getId(), other.getId())) {
+            return false;
+        }
+        return true;
     }
 
 }
