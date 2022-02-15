@@ -17,12 +17,19 @@ import java.util.Objects;
  *
  * @author akil
  */
-public class ForecastConsumptionExtrapolationData implements Serializable {
+public class ExtrapolationData implements Serializable {
 
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date month;
     private Double amount;
+
+    public ExtrapolationData() {
+    }
+
+    public ExtrapolationData(Date month) {
+        this.month = month;
+    }
 
     public Date getMonth() {
         return month;
@@ -58,7 +65,7 @@ public class ForecastConsumptionExtrapolationData implements Serializable {
         if (getClass() != obj.getClass()) {
             return false;
         }
-        final ForecastConsumptionExtrapolationData other = (ForecastConsumptionExtrapolationData) obj;
+        final ExtrapolationData other = (ExtrapolationData) obj;
         if (!Objects.equals(this.month, other.month)) {
             return false;
         }
