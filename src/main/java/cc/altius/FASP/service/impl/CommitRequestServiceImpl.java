@@ -88,7 +88,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                 this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 3, spcr.getJsonError(), 0);
             } else {
                 boolean isStatusUpdated = false;
-                if (spcr.getProgramTypeId() == 1) {
+                if (spcr.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
                     Program p = this.programCommonDao.getProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
                     if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
                         Version version;
@@ -154,7 +154,7 @@ public class CommitRequestServiceImpl implements CommitRequestService {
                     } else {
                         throw new AccessDeniedException("Access denied");
                     }
-                } else if (spcr.getProgramTypeId() == 2) {
+                } else if (spcr.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_DATASET) {
                     Program p = this.programCommonDao.getProgramById(spcr.getProgram().getId(), GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
                     if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
                         Version version;
