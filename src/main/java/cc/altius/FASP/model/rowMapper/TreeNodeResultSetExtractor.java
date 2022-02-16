@@ -107,8 +107,9 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 nodeId,
                 parentNodeId,
                 new NodeType(rs.getInt("NODE_TYPE_ID"), new LabelRowMapper("NT_").mapRow(rs, count), rs.getBoolean("MODELING_ALLOWED"), rs.getBoolean("EXTRAPOLATION_ALLOWED"), rs.getBoolean("TREE_TEMPLATE_ALLOWED"), rs.getBoolean("FORECAST_TREE_ALLOWED")),
+                (isTemplate ? rs.getBoolean("IS_EXTRAPOLATION") : false),
                 new SimpleCodeObject(rs.getInt("U_UNIT_ID"), new LabelRowMapper("U_").mapRow(rs, count), rs.getString("U_UNIT_CODE")),
-                new LabelRowMapper().mapRow(rs, count)
+                 new LabelRowMapper().mapRow(rs, count)
         );
         return tn;
     }

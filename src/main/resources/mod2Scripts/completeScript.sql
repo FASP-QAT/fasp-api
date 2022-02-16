@@ -6374,3 +6374,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarques sur le scén
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Notas del escenario');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Notas do cenário');-- pr
 
+ALTER TABLE `fasp`.`rm_forecast_tree_node` ADD COLUMN `IS_EXTRAPOLATION` TINYINT(1) UNSIGNED NOT NULL DEFAULT 0 AFTER `NODE_TYPE_ID`;
+DELETE ntr.* FROM ap_node_type_rule ntr where ntr.NODE_TYPE_ID=6;
+DELETE ntr.* FROM ap_node_type_rule ntr where ntr.CHILD_NODE_TYPE_ID=6;
+DELETE nt.* FROM ap_node_type nt WHERE nt.NODE_TYPE_ID=6;
