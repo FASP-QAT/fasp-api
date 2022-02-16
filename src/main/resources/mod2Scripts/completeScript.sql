@@ -6280,7 +6280,7 @@ CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation_option` (
   PRIMARY KEY (`NODE_DATA_EXTRAPOLATION_OPTION_ID`),
   INDEX `fk_rm_ftndeo_nodeDataId_idx` (`NODE_DATA_ID` ASC) ,
   INDEX `fk_rm_ftndeo_extrapolationMethod_idx` (`EXTRAPOLATION_METHOD_ID` ASC) ,
-  CONSTRAINT `fk_rm_ftnde_nodeDataId`
+  CONSTRAINT `fk_rm_ftndeo_nodeDataId`
     FOREIGN KEY (`NODE_DATA_ID`)
     REFERENCES `fasp`.`rm_forecast_tree_node_data` (`NODE_DATA_ID`)
     ON DELETE NO ACTION
