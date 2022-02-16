@@ -150,7 +150,7 @@ public class ForecastingUnitRestController {
         }
     }
 
-    @GetMapping("/forecastingUnit/tracerCategorys")
+    @PostMapping("/forecastingUnit/tracerCategorys")
     public ResponseEntity getForecastingUnitForTracerCategory(@RequestBody String[] tracerCategoryIds, Authentication auth) {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
