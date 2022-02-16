@@ -1123,18 +1123,18 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Programa');-- pr
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.pr','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'PR - ');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'RP - ');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'PR - ');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'PR - ');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'PR');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'RP');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'PR');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'PR');-- pr
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.common.fr','1'); 
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'FR - ');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'FP - ');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'FR - ');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'FR - ');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'FR');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'FP');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'FR');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'FR');-- pr
 
 USE `fasp`;
 CREATE 
