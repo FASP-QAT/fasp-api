@@ -34,7 +34,7 @@ public class ForecastConsumptionExtrapolation implements Serializable {
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
     private Date createdDate;
-    private List<ForecastConsumptionExtrapolationData> extrapolationDataList;
+    private List<ExtrapolationData> extrapolationDataList;
     private final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
     public ForecastConsumptionExtrapolation() {
@@ -110,11 +110,11 @@ public class ForecastConsumptionExtrapolation implements Serializable {
         this.createdDate = createdDate;
     }
 
-    public List<ForecastConsumptionExtrapolationData> getExtrapolationDataList() {
+    public List<ExtrapolationData> getExtrapolationDataList() {
         return extrapolationDataList;
     }
 
-    public void setExtrapolationDataList(List<ForecastConsumptionExtrapolationData> extrapolationDataList) {
+    public void setExtrapolationDataList(List<ExtrapolationData> extrapolationDataList) {
         this.extrapolationDataList = extrapolationDataList;
     }
 

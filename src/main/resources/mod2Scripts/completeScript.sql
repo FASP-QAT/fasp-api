@@ -4622,7 +4622,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ver datos mensuales');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ver dados mensais');
 
 
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.modelingCalculaterTool:','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.modelingCalculaterTool','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Modeling Calculater Tool:');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Outil de calcul de modélisation :');
@@ -4727,10 +4727,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Salve e faça um recá
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.calculated','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calculate');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Calculer');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Calcular');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Calcular');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Recalculate');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Recalculer');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Recalcular');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Recalcular');
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.Add/EditTreeData','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
@@ -6252,6 +6252,72 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Date d`engagement');--
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Fecha comprometida');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Data confirmada');-- pr
 
+
+CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation` (
+  `NODE_DATA_EXTRAPOLATION_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `NODE_DATA_ID` INT(10) UNSIGNED NOT NULL,
+  `EXTRAPOLATION_METHOD_ID` INT(10) UNSIGNED NOT NULL,
+  `NOTES` TEXT,
+  PRIMARY KEY (`NODE_DATA_EXTRAPOLATION_ID`),
+  INDEX `fk_rm_ftnde_nodeDataId_idx` (`NODE_DATA_ID` ASC) ,
+  INDEX `fk_rm_ftnde_extrapolationMethodId_idx` (`EXTRAPOLATION_METHOD_ID` ASC) ,
+  CONSTRAINT `fk_rm_ftnde_nodeDataId`
+    FOREIGN KEY (`NODE_DATA_ID`)
+    REFERENCES `fasp`.`rm_forecast_tree_node_data` (`NODE_DATA_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_ftnde_extrapolationMethodId`
+    FOREIGN KEY (`EXTRAPOLATION_METHOD_ID`)
+    REFERENCES `fasp`.`ap_extrapolation_method` (`EXTRAPOLATION_METHOD_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation_option` (
+  `NODE_DATA_EXTRAPOLATION_OPTION_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `NODE_DATA_ID` INT(10) UNSIGNED NOT NULL,
+  `EXTRAPOLATION_METHOD_ID` INT(10) UNSIGNED NOT NULL,
+  `JSON_PROPERTIES` VARCHAR(255) NOT NULL,
+  PRIMARY KEY (`NODE_DATA_EXTRAPOLATION_OPTION_ID`),
+  INDEX `fk_rm_ftndeo_nodeDataId_idx` (`NODE_DATA_ID` ASC) ,
+  INDEX `fk_rm_ftndeo_extrapolationMethod_idx` (`EXTRAPOLATION_METHOD_ID` ASC) ,
+  CONSTRAINT `fk_rm_ftnde_nodeDataId`
+    FOREIGN KEY (`NODE_DATA_ID`)
+    REFERENCES `fasp`.`rm_forecast_tree_node_data` (`NODE_DATA_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_ftndeo_extrapolationMethodId`
+    FOREIGN KEY (`EXTRAPOLATION_METHOD_ID`)
+    REFERENCES `fasp`.`ap_extrapolation_method` (`EXTRAPOLATION_METHOD_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation_data` (
+  `NODE_DATA_EXTRAPOLATION_DATA_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `NODE_DATA_EXTRAPOLATION_ID` INT(10) UNSIGNED NOT NULL,
+  `MONTH` DATE NOT NULL,
+  `AMOUNT` DECIMAL(16,2) NULL,
+  `REPORTING_RATE` DECIMAL(6,2) NULL,
+  PRIMARY KEY (`NODE_DATA_EXTRAPOLATION_DATA_ID`),
+  INDEX `fk_rm_ftnded_nodeDataExtrapolationDataId_idx` (`NODE_DATA_EXTRAPOLATION_ID` ASC) ,
+  CONSTRAINT `fk_rm_ftnded_nodeDataExtrapolationId`
+    FOREIGN KEY (`NODE_DATA_EXTRAPOLATION_ID`)
+    REFERENCES `fasp`.`rm_forecast_tree_node_data_extrapolation` (`NODE_DATA_EXTRAPOLATION_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
+CREATE TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation_option_data` (
+  `NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `NODE_DATA_EXTRAPOLATION_OPTION_ID` INT(10) UNSIGNED NOT NULL,
+  `MONTH` DATE NOT NULL,
+  `AMOUNT` DECIMAL(16,2) NULL,
+  PRIMARY KEY (`NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID`),
+  INDEX `fk_rm_ftndeo_nodeDataExtrapolationOptionId_idx` (`NODE_DATA_EXTRAPOLATION_OPTION_ID` ASC) ,
+  CONSTRAINT `fk_rm_ftnded_nodeDataExtrapolationOptionId`
+    FOREIGN KEY (`NODE_DATA_EXTRAPOLATION_OPTION_ID`)
+    REFERENCES `fasp`.`rm_forecast_tree_node_data_extrapolation_option` (`NODE_DATA_EXTRAPOLATION_OPTION_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION);
+
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
 set ll.LABEL_TEXT='No Forecast selected'
@@ -6292,4 +6358,19 @@ update ap_static_label l
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
 set ll.LABEL_TEXT='Filiais sem Unidade de Planejamento'
 where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=4;
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataValidation.treeNotes','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Tree Notes');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarques sur l`arbre');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Notas del árbol');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Notas da Árvore');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataValidation.scenarioNotes','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Scenario Notes');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarques sur le scénario');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Notas del escenario');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Notas do cenário');-- pr
 
