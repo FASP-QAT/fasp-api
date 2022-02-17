@@ -7,6 +7,7 @@ package cc.altius.FASP.dao.impl;
 
 import cc.altius.FASP.dao.LabelDao;
 import cc.altius.FASP.dao.EquivalencyUnitDao;
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EquivalencyUnit;
 import cc.altius.FASP.model.EquivalencyUnitMapping;
@@ -15,7 +16,6 @@ import cc.altius.FASP.model.rowMapper.EquivalencyUnitMappingResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.EquivalencyUnitListResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.EquivalencyUnitResultSetExtractor;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.utils.LogUtils;
 import cc.altius.utils.DateUtils;
 import java.util.Arrays;
 import java.util.Date;
@@ -23,12 +23,10 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -193,44 +191,9 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
 
     @Override
     @Transactional
-    public int addAndUpdateEquivalencyUnitMapping(List<EquivalencyUnitMapping> equivalencyUnitMappingList, CustomUserDetails curUser) {
+    public int addAndUpdateEquivalencyUnitMapping(List<EquivalencyUnitMapping> equivalencyUnitMappingList, CustomUserDetails curUser) throws CouldNotSaveException {
         SimpleJdbcInsert si = new SimpleJdbcInsert(dataSource).withTableName("rm_equivalency_unit_mapping");
         Date dt = DateUtils.getCurrentDateObject(DateUtils.EST);
-        List<SqlParameterSource> paramList = new LinkedList<>();
-        equivalencyUnitMappingList.stream().filter(eum -> eum.getEquivalencyUnitMappingId() == 0).collect(Collectors.toList()).forEach(eum -> {
-            MapSqlParameterSource param = new MapSqlParameterSource();
-            param.addValue("REALM_ID", curUser.getRealm().getRealmId());
-            param.addValue("EQUIVALENCY_UNIT_ID", eum.getEquivalencyUnit().getEquivalencyUnitId());
-            param.addValue("FORECASTING_UNIT_ID", eum.getForecastingUnit().getId());
-            param.addValue("PROGRAM_ID", (eum.getProgram() == null ? null : (eum.getProgram().getId() == 0 ? null : eum.getProgram().getId())));
-            param.addValue("NOTES", eum.getNotes());
-            param.addValue("CONVERT_TO_EU", eum.getConvertToEu());
-            param.addValue("ACTIVE", 1);
-            param.addValue("CREATED_BY", curUser.getUserId());
-            param.addValue("CREATED_DATE", dt);
-            param.addValue("LAST_MODIFIED_BY", curUser.getUserId());
-            param.addValue("LAST_MODIFIED_DATE", dt);
-            paramList.add(param);
-        }
-        );
-        int rows = 0;
-        int[] updatedRows;
-        if (paramList.size() > 0) {
-            updatedRows = si.executeBatch(paramList.toArray(new MapSqlParameterSource[paramList.size()]));
-            rows += Arrays.stream(updatedRows).filter(i -> i == 1).count();
-            paramList.clear();
-        }
-        equivalencyUnitMappingList.stream().filter(eum -> eum.getEquivalencyUnitMappingId() != 0).collect(Collectors.toList()).forEach(eum -> {
-            Map<String, Object> param = new HashMap<>();
-            param.put("equivalencyUnitMappingId", eum.getEquivalencyUnitMappingId());
-            param.put("active", eum.isActive());
-            param.put("notes", eum.getNotes());
-            param.put("convertToEu", eum.getConvertToEu());
-            param.put("curUser", curUser.getUserId());
-            param.put("dt", dt);
-            paramList.add(new MapSqlParameterSource(param));
-        }
-        );
         String sql = "UPDATE rm_equivalency_unit_mapping eum "
                 + "SET "
                 + "eum.ACTIVE=:active, "
@@ -245,11 +208,47 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 + "         eum.CONVERT_TO_EU!=:convertToEu OR "
                 + "         eum.NOTES!=:notes"
                 + "     )";
-        if (paramList.size() > 0) {
-            updatedRows = namedParameterJdbcTemplate.batchUpdate(sql, paramList.toArray(new MapSqlParameterSource[paramList.size()]));
-            rows += Arrays.stream(updatedRows).filter(i -> i > 0).count();
+        int updatedRows = 0;
+
+        String sqlDuplicateCheck = "SELECT COUNT(*) FROM rm_equivalency_unit_mapping eum WHERE eum.EQUIVALENCY_UNIT_ID=:equivalencyUnitId AND eum.FORECASTING_UNIT_ID=:forecastingUnitId AND eum.REALM_ID=:realmId";
+        for (EquivalencyUnitMapping eum : equivalencyUnitMappingList) {
+            // Check if the Equivalency Unit is duplicate across the Realm
+            if ((eum.getProgram() == null || eum.getProgram().getId() == null || eum.getProgram().getId() == 0) && eum.getEquivalencyUnitMappingId() == 0) {
+                MapSqlParameterSource params = new MapSqlParameterSource();
+                params.addValue("equivalencyUnitId", eum.getEquivalencyUnit().getEquivalencyUnitId());
+                params.addValue("forecastingUnitId", eum.getForecastingUnit().getId());
+                params.addValue("realmId", curUser.getRealm().getRealmId());
+                if (this.namedParameterJdbcTemplate.queryForObject(sqlDuplicateCheck, params, Integer.class) > 0) {
+                    throw new CouldNotSaveException("Duplicate Key " + eum.getEquivalencyUnit().getEquivalencyUnitId() + "-" + eum.getForecastingUnit().getId() + "-" + curUser.getRealm().getRealmId());
+                }
+
+            }
+            if (eum.getEquivalencyUnitMappingId() == 0) {
+                MapSqlParameterSource params = new MapSqlParameterSource();
+                params.addValue("REALM_ID", curUser.getRealm().getRealmId());
+                params.addValue("EQUIVALENCY_UNIT_ID", eum.getEquivalencyUnit().getEquivalencyUnitId());
+                params.addValue("FORECASTING_UNIT_ID", eum.getForecastingUnit().getId());
+                params.addValue("PROGRAM_ID", (eum.getProgram() == null ? null : (eum.getProgram().getId() == 0 ? null : eum.getProgram().getId())));
+                params.addValue("NOTES", eum.getNotes());
+                params.addValue("CONVERT_TO_EU", eum.getConvertToEu());
+                params.addValue("ACTIVE", 1);
+                params.addValue("CREATED_BY", curUser.getUserId());
+                params.addValue("CREATED_DATE", dt);
+                params.addValue("LAST_MODIFIED_BY", curUser.getUserId());
+                params.addValue("LAST_MODIFIED_DATE", dt);
+                updatedRows += si.execute(params);
+            } else {
+                MapSqlParameterSource params = new MapSqlParameterSource();
+                params.addValue("equivalencyUnitMappingId", eum.getEquivalencyUnitMappingId());
+                params.addValue("active", eum.isActive());
+                params.addValue("notes", eum.getNotes());
+                params.addValue("convertToEu", eum.getConvertToEu());
+                params.addValue("curUser", curUser.getUserId());
+                params.addValue("dt", dt);
+                updatedRows += namedParameterJdbcTemplate.update(sql, params);
+            }
         }
-        return rows;
+        return updatedRows;
     }
 
     @Override

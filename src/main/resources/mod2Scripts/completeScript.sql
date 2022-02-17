@@ -673,11 +673,11 @@ INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 915, 1, '', 1, null, 1,
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 983, 1, '', 1, null, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 928, 1, '', 1, null, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 0.1667, '', 1, null, 1, 1, @dt, 1, @dt);
-INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 0.0417, '', 1, null, 1, 1, @dt, 1, @dt);
-INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 1, '', 1, null, 1, 1, @dt, 1, @dt);
+-- INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 0.0417, '', 1, null, 1, 1, @dt, 1, @dt);
+-- INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 1, '', 1, null, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 5, 455, 0.0104, '', 1, null, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 6, 928, 120, '', 1, null, 1, 1, @dt, 1, @dt);
-INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 928, 1, '', 1, 2030, 1, 1, @dt, 1, @dt);
+-- INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 928, 1, '', 1, 2030, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 227, 1, '', 1, 2030, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 7, 1813, 1, '', 1, 2030, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 7, 1814, 1, '', 1, 2030, 1, 1, @dt, 1, @dt);
@@ -6416,3 +6416,5 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Show validation');-- e
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher la validation');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar validación');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar validação');-- pr
+
+ALTER TABLE `fasp`.`rm_equivalency_unit_mapping` ADD UNIQUE `fk_rm_equivalency_mapping_uniqueRule` (`EQUIVALENCY_UNIT_ID` ASC, `FORECASTING_UNIT_ID` ASC, `PROGRAM_ID` ASC);
