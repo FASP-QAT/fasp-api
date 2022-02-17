@@ -673,11 +673,11 @@ INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 915, 1, '', 1, null, 1,
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 983, 1, '', 1, null, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 928, 1, '', 1, null, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 0.1667, '', 1, null, 1, 1, @dt, 1, @dt);
-INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 0.0417, '', 1, null, 1, 1, @dt, 1, @dt);
-INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 1, '', 1, null, 1, 1, @dt, 1, @dt);
+-- INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 0.0417, '', 1, null, 1, 1, @dt, 1, @dt);
+-- INSERT INTO rm_equivalency_unit_mapping VALUES (null, 4, 164, 1, '', 1, null, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 5, 455, 0.0104, '', 1, null, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 6, 928, 120, '', 1, null, 1, 1, @dt, 1, @dt);
-INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 928, 1, '', 1, 2030, 1, 1, @dt, 1, @dt);
+-- INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 928, 1, '', 1, 2030, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 2, 227, 1, '', 1, 2030, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 7, 1813, 1, '', 1, 2030, 1, 1, @dt, 1, @dt);
 INSERT INTO rm_equivalency_unit_mapping VALUES (null, 7, 1814, 1, '', 1, 2030, 1, 1, @dt, 1, @dt);
@@ -6407,3 +6407,5 @@ VIEW `vw_forecast_tree_node` AS
     FROM
         (`rm_forecast_tree_node` `tn`
         LEFT JOIN `ap_label` `l` ON ((`tn`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+ALTER TABLE `fasp`.`rm_equivalency_unit_mapping` ADD UNIQUE `fk_rm_equivalency_mapping_uniqueRule` (`EQUIVALENCY_UNIT_ID` ASC, `FORECASTING_UNIT_ID` ASC, `PROGRAM_ID` ASC);

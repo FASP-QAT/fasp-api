@@ -6,6 +6,7 @@
 package cc.altius.FASP.service.impl;
 
 import cc.altius.FASP.dao.EquivalencyUnitDao;
+import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.EquivalencyUnit;
 import cc.altius.FASP.model.EquivalencyUnitMapping;
@@ -41,7 +42,7 @@ public class EquivalencyUnitServiceImpl implements EquivalencyUnitService {
     }
 
     @Override
-    public int addAndUpdateEquivalencyUnitMapping(List<EquivalencyUnitMapping> equivalencyUnitMappingList, CustomUserDetails curUser) throws IllegalAccessException {
+    public int addAndUpdateEquivalencyUnitMapping(List<EquivalencyUnitMapping> equivalencyUnitMappingList, CustomUserDetails curUser) throws IllegalAccessException, CouldNotSaveException {
         for (EquivalencyUnitMapping eum : equivalencyUnitMappingList) {
             if (curUser.getRealm().getRealmId() != eum.getEquivalencyUnit().getRealm().getId()) {
                 throw new IllegalAccessException("Equivalency Unit from a different Realm");
