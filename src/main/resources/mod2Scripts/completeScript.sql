@@ -6409,3 +6409,76 @@ VIEW `vw_forecast_tree_node` AS
         LEFT JOIN `ap_label` `l` ON ((`tn`.`LABEL_ID` = `l`.`LABEL_ID`)));
 
 ALTER TABLE `fasp`.`rm_equivalency_unit_mapping` ADD UNIQUE `fk_rm_equivalency_mapping_uniqueRule` (`EQUIVALENCY_UNIT_ID` ASC, `FORECASTING_UNIT_ID` ASC, `PROGRAM_ID` ASC);
+
+DROP TABLE IF EXISTS `fasp`.`rm_forecast_tree_level`;
+CREATE TABLE IF NOT EXISTS `fasp`.`rm_forecast_tree_level` (
+  `TREE_LEVEL_ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `TREE_ID` INT(10) UNSIGNED NOT NULL,
+  `LEVEL_NO` INT(10) UNSIGNED NOT NULL,
+  `LABEL_ID` INT(10) UNSIGNED NOT NULL,
+  `UNIT_ID` INT(10) UNSIGNED NOT NULL,
+  PRIMARY KEY (`TREE_LEVEL_ID`),
+  INDEX `fk_rm_forecast_tree_level_treeId_idx` (`TREE_ID` ASC) ,
+  INDEX `fk_rm_forecast_tree_level_unitId_idx` (`UNIT_ID` ASC) ,
+  INDEX `fk_rm_forecast_tree_level_labelId_idx` (`LABEL_ID` ASC) ,
+  INDEX `idx_rm_forecast_tree_level_levelNo` (`LEVEL_NO` ASC) ,
+  CONSTRAINT `fk_rm_forecast_tree_level_treeId`
+    FOREIGN KEY (`TREE_ID`)
+    REFERENCES `fasp`.`rm_forecast_tree` (`TREE_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_forecast_tree_level_unitId`
+    FOREIGN KEY (`UNIT_ID`)
+    REFERENCES `fasp`.`ap_unit` (`UNIT_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_rm_forecast_tree_level_labelId`
+    FOREIGN KEY (`LABEL_ID`)
+    REFERENCES `fasp`.`ap_label` (`LABEL_ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+CREATE OR REPLACE
+    ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_tree_level` AS
+    SELECT 
+        `tl`.`TREE_LEVEL_ID` AS `TREE_LEVEL_ID`,
+        `tl`.`TREE_ID` AS `TREE_ID`,
+        `tl`.`LEVEL_NO` AS `LEVEL_NO`,
+        `tl`.`LABEL_ID` AS `LABEL_ID`,
+        `tl`.`UNIT_ID` AS `UNIT_ID`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_forecast_tree_level` `tl`
+        LEFT JOIN `ap_label` `l` ON ((`tl`.`LABEL_ID` = `l`.`LABEL_ID`)));
+
+ALTER TABLE `fasp`.`rm_dataset_planning_unit_selected` ADD COLUMN `TREE_ID` INT(10) UNSIGNED NULL AFTER `REGION_ID`;
+INSERT INTO `fasp`.`ap_label_source` (`SOURCE_DESC`) VALUES ('rm_forecast_tree_level');
+
+SET @treeId = 1;
+INSERT INTO ap_label values (null, "Country level", null, null, null, 1, now(), 1, now(), 53);
+SELECT LAST_INSERT_ID() into @labelId;
+INSERT INTO rm_forecast_tree_level VALUES (null, @treeId, 0, @labelId, 94);
+INSERT INTO ap_label values (null, "Gender level", null, null, null, 1, now(), 1, now(), 53);
+SELECT LAST_INSERT_ID() into @labelId;
+INSERT INTO rm_forecast_tree_level VALUES (null, @treeId, 1, @labelId, 94);
+INSERT INTO ap_label values (null, "Sexually active level", null, null, null, 1, now(), 1, now(), 53);
+SELECT LAST_INSERT_ID() into @labelId;
+INSERT INTO rm_forecast_tree_level VALUES (null, @treeId, 2, @labelId, 94);
+INSERT INTO ap_label values (null, "Contraceptive level", null, null, null, 1, now(), 1, now(), 53);
+SELECT LAST_INSERT_ID() into @labelId;
+INSERT INTO rm_forecast_tree_level VALUES (null, @treeId, 3, @labelId, 94);
+INSERT INTO ap_label values (null, "FU level", null, null, null, 1, now(), 1, now(), 53);
+SELECT LAST_INSERT_ID() into @labelId;
+INSERT INTO rm_forecast_tree_level VALUES (null, @treeId, 4, @labelId, null);
+INSERT INTO ap_label values (null, "PU level", null, null, null, 1, now(), 1, now(), 53);
+SELECT LAST_INSERT_ID() into @labelId;
+INSERT INTO rm_forecast_tree_level VALUES (null, @treeId, 5, @labelId, null);
+
+UPDATE rm_dataset_planning_unit_selected pus SET pus.TREE_ID=1 where pus.SCENARIO_ID between 1 AND 2;

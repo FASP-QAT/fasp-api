@@ -96,6 +96,10 @@ public class DatasetPlanningUnitListResultSetExtractor implements ResultSetExtra
                 dpu = dpuList.get(idx);
             }
             SelectedForecast sf = new SelectedForecast();
+            sf.setTreeId(rs.getInt("TREE_ID"));
+            if (rs.wasNull()) {
+                sf.setTreeId(null);
+            }
             sf.setScenarioId(rs.getInt("SCENARIO_ID"));
             if (rs.wasNull()) {
                 sf.setScenarioId(null);

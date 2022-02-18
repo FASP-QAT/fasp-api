@@ -2714,7 +2714,7 @@ public class ProgramDaoImpl implements ProgramDao {
                 + "    dpu.STOCK, dpu.EXISTING_SHIPMENTS, dpu.MONTHS_OF_STOCK, dpu.PRICE, dpu.CONSUMPTION_DATA_TYPE_ID, "
                 + "    pa.PROCUREMENT_AGENT_ID, pa.LABEL_ID `PA_LABEL_ID`, pa.LABEL_EN `PA_LABEL_EN`, pa.LABEL_FR `PA_LABEL_FR`, pa.LABEL_SP `PA_LABEL_SP`, pa.LABEL_PR `PA_LABEL_PR`, pa.PROCUREMENT_AGENT_CODE, "
                 + "    l.LABEL_ID `OU_LABEL_ID`, l.LABEL_EN `OU_LABEL_EN`, l.LABEL_FR `OU_LABEL_FR`, l.LABEL_SP `OU_LABEL_SP`, l.LABEL_PR `OU_LABEL_PR`, dpu.OTHER_MULTIPLIER `OU_MULTIPLIER_FOR_FU`, "
-                + "    dpus.REGION_ID, dpus.SCENARIO_ID, dpus.CONSUMPTION_EXTRAPOLATION_ID, dpus.TOTAL_FORECAST, dpus.NOTES `SELECTED_NOTES` "
+                + "    dpus.REGION_ID, dpus.TREE_ID, dpus.SCENARIO_ID, dpus.CONSUMPTION_EXTRAPOLATION_ID, dpus.TOTAL_FORECAST, dpus.NOTES `SELECTED_NOTES` "
                 + " FROM rm_dataset_planning_unit dpu  "
                 + " LEFT JOIN vw_planning_unit pu ON dpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + " LEFT JOIN vw_unit puu ON pu.UNIT_ID=puu.UNIT_ID"
