@@ -6491,3 +6491,23 @@ SELECT LAST_INSERT_ID() into @labelId;
 INSERT INTO rm_forecast_tree_level VALUES (null, @treeId, 5, @labelId, null);
 
 UPDATE rm_dataset_planning_unit_selected pus SET pus.TREE_ID=1 where pus.SCENARIO_ID between 1 AND 2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Period for Graph/Table'
+where l.LABEL_CODE='static.compareAndSelect.startMonthForGraph' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Période pour le graphique/tableau'
+where l.LABEL_CODE='static.compareAndSelect.startMonthForGraph' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Período para Gráfico/Tabla'
+where l.LABEL_CODE='static.compareAndSelect.startMonthForGraph' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Período para Gráfico/Tabela'
+where l.LABEL_CODE='static.compareAndSelect.startMonthForGraph' and ll.LANGUAGE_ID=4;
