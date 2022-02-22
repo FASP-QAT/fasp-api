@@ -6425,7 +6425,7 @@ CREATE TABLE IF NOT EXISTS `fasp`.`rm_forecast_tree_level` (
   `TREE_ID` INT(10) UNSIGNED NOT NULL,
   `LEVEL_NO` INT(10) UNSIGNED NOT NULL,
   `LABEL_ID` INT(10) UNSIGNED NOT NULL,
-  `UNIT_ID` INT(10) UNSIGNED NOT NULL,
+  `UNIT_ID` INT(10) UNSIGNED NULL,
   PRIMARY KEY (`TREE_LEVEL_ID`),
   INDEX `fk_rm_forecast_tree_level_treeId_idx` (`TREE_ID` ASC) ,
   INDEX `fk_rm_forecast_tree_level_unitId_idx` (`UNIT_ID` ASC) ,

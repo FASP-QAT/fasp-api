@@ -8,7 +8,6 @@ package cc.altius.FASP.rest.controller;
 import cc.altius.FASP.exception.CouldNotSaveException;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.CustomUserDetails;
-import cc.altius.FASP.model.DatasetData;
 import cc.altius.FASP.model.DatasetDataJson;
 import cc.altius.FASP.model.EmptyDoubleTypeAdapter;
 import cc.altius.FASP.model.EmptyIntegerTypeAdapter;
@@ -34,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import static org.springframework.http.converter.json.Jackson2ObjectMapperBuilder.json;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -65,23 +65,23 @@ public class CommitRequestRestController {
 
     // Part 1 of the Commit Request for Supply Plan
     @PutMapping("/programData/{comparedVersionId}")
-    public ResponseEntity putProgramData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, HttpServletRequest request, Authentication auth) {
+    public ResponseEntity putProgramData(@PathVariable(value = "comparedVersionId", required = true) int comparedVersionId, @RequestBody ProgramData programData, Authentication auth) {
         try {
-            String json = IOUtils.toString(request.getReader());
+//            String json = IOUtils.toString(request.getReader());
             Gson gson = new GsonBuilder()
                     .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
                     .registerTypeAdapter(Integer.class, new EmptyIntegerTypeAdapter())
                     .setDateFormat("yyyy-MM-dd HH:mm:ss")
                     .setLenient()
                     .create();
-            ProgramData programData = gson.fromJson(json, new TypeToken<DatasetData>() {
-            }.getType());
+//            ProgramData programData = gson.fromJson(json, new TypeToken<ProgramData>() {
+//            }.getType());
             int latestVersion = this.programService.getLatestVersionForPrograms("" + programData.getProgramId()).get(0).getVersionId();
             if (latestVersion == comparedVersionId) {
                 boolean checkIfRequestExists = this.commitRequestService.checkIfCommitRequestExistsForProgram(programData.getProgramId());
                 if (!checkIfRequestExists) {
                     CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-                    int commitRequestId = this.commitRequestService.saveProgramData(programData, json, curUser);
+                    int commitRequestId = this.commitRequestService.saveProgramData(programData, gson.toJson(programData), curUser);
                     return new ResponseEntity(commitRequestId, HttpStatus.OK);
                 } else {
                     logger.error("Request already exists");
@@ -113,7 +113,6 @@ public class CommitRequestRestController {
         String json = null;
         try {
             json = IOUtils.toString(request.getReader());
-
             String emptyFuNodeString1 = "\"fuNode\":{\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":\"\"},\"repeatUsagePeriod\":{},\"noOfPersons\":\"\"}";
             json = json.replace(emptyFuNodeString1, "\"fuNode\": null");
             json = json.replace(",,", ",");
@@ -122,7 +121,11 @@ public class CommitRequestRestController {
             String emptyPuNodeString2 = "\"puNode\":{\"planningUnit\":{\"id\":\"\",\"unit\":{},\"multiplier\":\"\"},\"refillMonths\":\"\"}";
             json = json.replace(emptyPuNodeString2, "\"puNode\": null");
             json = json.replace(",,", ",");
-            Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").setLenient().create();
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
+                    .registerTypeAdapter(Integer.class, new EmptyIntegerTypeAdapter())
+                    .setDateFormat("yyyy-MM-dd HH:mm:ss").setLenient()
+                    .create();
             DatasetDataJson datasetData = gson.fromJson(json, new TypeToken<DatasetDataJson>() {
             }.getType());
             int latestVersion = this.programService.getLatestVersionForPrograms("" + datasetData.getProgramId()).get(0).getVersionId();
