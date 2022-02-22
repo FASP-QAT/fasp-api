@@ -22,7 +22,6 @@ import org.springframework.stereotype.Repository;
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.service.AclService;
-import cc.altius.FASP.utils.LogUtils;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 
@@ -193,6 +192,7 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
 
     @Override
     public List<ForecastingUnit> getForecastingUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
         StringBuilder sqlStringBuilder = new StringBuilder("SELECT fu.FORECASTING_UNIT_ID,  "
                 + "	fu.LABEL_ID, fu.LABEL_EN, fu.LABEL_FR, fu.LABEL_PR, fu.LABEL_SP, "
                 + "    pgl.LABEL_ID `GENERIC_LABEL_ID`, pgl.LABEL_EN `GENERIC_LABEL_EN`, pgl.LABEL_FR `GENERIC_LABEL_FR`, pgl.LABEL_PR `GENERIC_LABEL_PR`, pgl.LABEL_SP `GENERIC_LABEL_SP`, "
@@ -201,10 +201,7 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
                 + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PRODUCT_CATEGORY_LABEL_ID`, pc.LABEL_EN `PRODUCT_CATEGORY_LABEL_EN`, pc.LABEL_FR `PRODUCT_CATEGORY_LABEL_FR`, pc.LABEL_PR `PRODUCT_CATEGORY_LABEL_PR`, pc.LABEL_SP `PRODUCT_CATEGORY_LABEL_SP`, "
                 + "    tc.TRACER_CATEGORY_ID, tc.LABEL_ID `TRACER_CATEGORY_LABEL_ID`, tc.LABEL_EN `TRACER_CATEGORY_LABEL_EN`, tc.LABEL_FR `TRACER_CATEGORY_LABEL_FR`, tc.LABEL_PR `TRACER_CATEGORY_LABEL_PR`, tc.LABEL_SP `TRACER_CATEGORY_LABEL_SP`, "
                 + "    cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, fu.ACTIVE, fu.CREATED_DATE, fu.LAST_MODIFIED_DATE "
-                + "FROM vw_program p "
-                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID "
-                + "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
-                + "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "FROM vw_forecasting_unit fu "
                 + "LEFT JOIN ap_label pgl ON fu.GENERIC_LABEL_ID=pgl.LABEL_ID "
                 + "LEFT JOIN vw_realm r ON fu.REALM_ID=r.REALM_ID "
                 + "LEFT JOIN vw_unit u ON fu.UNIT_ID=u.UNIT_ID "
@@ -212,12 +209,50 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
                 + "LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID "
                 + "LEFT JOIN us_user cb ON fu.CREATED_BY=cb.USER_ID "
                 + "LEFT JOIN us_user lmb ON fu.LAST_MODIFIED_BY=lmb.USER_ID "
-                + "WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") AND fu.`FORECASTING_UNIT_ID`  IS NOT NULL ");
-        Map<String, Object> params = new HashMap<>();
-        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "fu", curUser);
+                + "WHERE fu.FORECASTING_UNIT_ID IN ("
+                + "SELECT pu.FORECASTING_UNIT_ID "
+                + "FROM vw_program p "
+                + "LEFT JOIN rm_program_planning_unit ppu ON p.PROGRAM_ID=ppu.PROGRAM_ID "
+                + "LEFT JOIN rm_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "WHERE p.PROGRAM_ID IN (").append(programIdsString).append(") AND pu.`FORECASTING_UNIT_ID`  IS NOT NULL ");
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
         this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
-        sqlStringBuilder.append("GROUP BY fu.FORECASTING_UNIT_ID");
+        sqlStringBuilder.append("UNION "
+                + "SELECT fu.FORECASTING_UNIT_ID "
+                + "FROM vw_dataset p "
+                + "LEFT JOIN rm_tracer_category tc ON find_in_set(tc.HEALTH_AREA_ID, p.HEALTH_AREA_ID) "
+                + "LEFT JOIN vw_forecasting_unit fu ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID "
+                + "LEFT JOIN rm_realm_country rc ON p.REALM_COUNTRY_ID=rc.REALM_COUNTRY_ID "
+                + "WHERE p.PROGRAM_ID IN ("
+        ).append(programIdsString).append(") AND fu.`FORECASTING_UNIT_ID`  IS NOT NULL ");
+        this.aclService.addUserAclForRealm(sqlStringBuilder, params, "rc", curUser);
+        this.aclService.addFullAclForProgram(sqlStringBuilder, params, "p", curUser);
+        sqlStringBuilder.append(")");
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ForecastingUnitRowMapper());
     }
 
+    @Override
+    public List<ForecastingUnit> getForecastingUnitListByTracerCategory(int tracerCategoryId, boolean active, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder(this.sqlListString).append(" AND fu.TRACER_CATEGORY_ID=:tracerCategoryId ");
+        if (active) {
+            sb.append(" AND fu.ACTIVE ");
+        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("tracerCategoryId", tracerCategoryId);
+        this.aclService.addUserAclForRealm(sb, params, "fu", curUser);
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ForecastingUnitRowMapper());
+    }
+
+    @Override
+    public List<ForecastingUnit> getForecastingUnitListByTracerCategoryIds(String[] tracerCategoryIds, boolean active, CustomUserDetails curUser) {
+        StringBuilder sb = new StringBuilder(this.sqlListString).append(" AND FIND_IN_SET(fu.TRACER_CATEGORY_ID, :tracerCategoryIds) ");
+        if (active) {
+            sb.append(" AND fu.ACTIVE ");
+        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("tracerCategoryIds", String.join(",", tracerCategoryIds));
+        this.aclService.addUserAclForRealm(sb, params, "fu", curUser);
+        return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ForecastingUnitRowMapper());
+    }
 }

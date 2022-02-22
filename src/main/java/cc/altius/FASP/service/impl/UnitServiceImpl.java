@@ -48,4 +48,10 @@ public class UnitServiceImpl implements UnitService {
     public Unit getUnitById(int UnitId) {
         return this.unitDao.getUnitById(UnitId);
     }
+
+    @Override
+    public List<Unit> getUnitListByDimensionId(int dimensionId) {
+        return this.unitDao.getUnitListByDimensionId(dimensionId);
+    }
+
 }

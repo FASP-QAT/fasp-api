@@ -19,6 +19,8 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
     private SimpleObject program;
     private SimpleObject planningUnit;
     private SimpleObject productCategory;
+    private SimpleObject forecastingUnit;
+    private double multiplier;
     private int reorderFrequencyInMonths;
     private int minMonthsOfStock;
     private double localProcurementLeadTime;
@@ -32,10 +34,12 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
         programPlanningUnitProcurementAgentPrices = new LinkedList<>();
     }
 
-    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, SimpleObject productCategory, int reorderFrequencyInMonths, int minMonthsOfStock, double localProcurementLeadTime, int shelfLife, double catalogPrice, int monthsInPastForAmc, int monthsInFutureForAmc) {
+    public ProgramPlanningUnit(int programPlanningUnitId, SimpleObject program, SimpleObject planningUnit, double multiplier, SimpleObject forecastingUnit, SimpleObject productCategory, int reorderFrequencyInMonths, int minMonthsOfStock, double localProcurementLeadTime, int shelfLife, double catalogPrice, int monthsInPastForAmc, int monthsInFutureForAmc) {
         this.programPlanningUnitId = programPlanningUnitId;
         this.program = program;
         this.planningUnit = planningUnit;
+        this.multiplier = multiplier;
+        this.forecastingUnit = forecastingUnit;
         this.productCategory = productCategory;
         this.reorderFrequencyInMonths = reorderFrequencyInMonths;
         this.minMonthsOfStock = minMonthsOfStock;
@@ -69,6 +73,22 @@ public class ProgramPlanningUnit extends BaseModel implements Serializable {
 
     public void setPlanningUnit(SimpleObject planningUnit) {
         this.planningUnit = planningUnit;
+    }
+
+    public SimpleObject getForecastingUnit() {
+        return forecastingUnit;
+    }
+
+    public void setForecastingUnit(SimpleObject forecastingUnit) {
+        this.forecastingUnit = forecastingUnit;
+    }
+
+    public double getMultiplier() {
+        return multiplier;
+    }
+
+    public void setMultiplier(double multiplier) {
+        this.multiplier = multiplier;
     }
 
     public SimpleObject getProductCategory() {

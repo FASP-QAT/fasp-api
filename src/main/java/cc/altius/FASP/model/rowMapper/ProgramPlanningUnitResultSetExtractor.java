@@ -30,6 +30,8 @@ public class ProgramPlanningUnitResultSetExtractor implements ResultSetExtractor
                     rs.getInt("PROGRAM_PLANNING_UNIT_ID"),
                     new SimpleObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, 1)),
                     new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, 1)),
+                    rs.getDouble("MULTIPLIER"),
+                    new SimpleObject(rs.getInt("FORECASTING_UNIT_ID"), new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, 1)),
                     new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, 1)),
                     rs.getInt("REORDER_FREQUENCY_IN_MONTHS"),
                     rs.getInt("MIN_MONTHS_OF_STOCK"),

@@ -13,8 +13,10 @@ import cc.altius.FASP.model.DTO.ManualTaggingDTO;
 import cc.altius.FASP.model.DTO.ManualTaggingOrderDTO;
 import cc.altius.FASP.model.DTO.NotificationSummaryDTO;
 import cc.altius.FASP.model.DTO.ProgramDTO;
+import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.LoadProgram;
 import cc.altius.FASP.model.Program;
+import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramPlanningUnit;
 import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.SimpleObject;
@@ -32,11 +34,11 @@ public interface ProgramDao {
 
     public int updateProgram(Program p, CustomUserDetails curUser);
 
-    public List<Program> getProgramList(CustomUserDetails curUser, boolean active);
+    public List<Program> getProgramList(int programTypeId, CustomUserDetails curUser, boolean active);
 
     public List<Program> getProgramListForProgramIds(String[] programIds, CustomUserDetails curUser);
 
-    public List<Program> getProgramListForRealmId(int realmId, CustomUserDetails curUser);
+    public List<Program> getProgramListForRealmId(int realmId, int programTypeId, CustomUserDetails curUser);
 
 //    public Program getProgramById(int programId, CustomUserDetails curUser);
     // Moved to ProgramCommonDao
@@ -76,9 +78,9 @@ public interface ProgramDao {
 
     public void delinkShipment(ManualTaggingOrderDTO erpOrderDTO, CustomUserDetails curUser);
 
-    public List<LoadProgram> getLoadProgram(CustomUserDetails curUser);
+    public List<LoadProgram> getLoadProgram(int programTypeId, CustomUserDetails curUser);
 
-    public LoadProgram getLoadProgram(int programId, int page, CustomUserDetails curUser);
+    public LoadProgram getLoadProgram(int programId, int page, int programTypeId, CustomUserDetails curUser);
 
     public boolean validateProgramCode(int realmId, int programId, String programCode, CustomUserDetails curUser);
 
@@ -111,5 +113,9 @@ public interface ProgramDao {
     public int checkIfOrderNoAlreadyTagged(String orderNo, int primeLineNo);
 
     public int updateERPLinking(ManualTaggingOrderDTO manualTaggingOrderDTO, CustomUserDetails curUser);
+
+    public List<DatasetPlanningUnit> getDatasetPlanningUnitList(int programId, int versionId);
+
+    public List<ProgramIdAndVersionId> getLatestVersionForPrograms(String programIds);
 
 }

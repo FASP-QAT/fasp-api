@@ -8,9 +8,9 @@ package cc.altius.FASP.model.rowMapper;
 import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.Consumption;
 import cc.altius.FASP.model.ConsumptionBatchInfo;
-import cc.altius.FASP.model.SimpleForecastingUnitObject;
+import cc.altius.FASP.model.SimpleForecastingUnitProductCategoryObject;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.SimplePlanningUnitObject;
+import cc.altius.FASP.model.SimplePlanningUnitProductCategoryObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.LinkedList;
@@ -37,10 +37,10 @@ public class ConsumptionListResultSetExtractor implements ResultSetExtractor<Lis
                 c = consumptionList.get(idx);
             }
             c.setRegion(new SimpleObject(rs.getInt("REGION_ID"), new LabelRowMapper("REGION_").mapRow(rs, 1)));
-            c.setPlanningUnit(new SimplePlanningUnitObject(
+            c.setPlanningUnit(new SimplePlanningUnitProductCategoryObject(
                     rs.getInt("PLANNING_UNIT_ID"),
                     new LabelRowMapper("PLANNING_UNIT_").mapRow(rs, 1),
-                    new SimpleForecastingUnitObject(
+                    new SimpleForecastingUnitProductCategoryObject(
                             rs.getInt("FORECASTING_UNIT_ID"),
                             new LabelRowMapper("FORECASTING_UNIT_").mapRow(rs, 1),
                             new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PRODUCT_CATEGORY_").mapRow(rs, 1)))));
