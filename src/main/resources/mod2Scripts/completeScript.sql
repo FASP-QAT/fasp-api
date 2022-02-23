@@ -6511,3 +6511,23 @@ update ap_static_label l
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
 set ll.LABEL_TEXT='Período para Gráfico/Tabela'
 where l.LABEL_CODE='static.compareAndSelect.startMonthForGraph' and ll.LANGUAGE_ID=4;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='No Forecast Selected'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Aucune prévision sélectionnée'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Ningún pronóstico seleccionado'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Nenhuma previsão selecionada'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=4;
