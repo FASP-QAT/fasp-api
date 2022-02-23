@@ -30,7 +30,7 @@ import java.util.List;
  */
 public interface ProgramDataService {
 
-    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean active);
+    public ProgramData getProgramData(int programId, int versionId, CustomUserDetails curUser, boolean shipmentActive, boolean planningUnitActive);
 
     public List<ProgramData> getProgramData(List<ProgramIdAndVersionId> programVersionList, CustomUserDetails curUser);
 

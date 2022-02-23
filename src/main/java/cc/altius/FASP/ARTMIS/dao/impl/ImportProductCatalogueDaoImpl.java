@@ -116,7 +116,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         }
         if (files.length < 1) {
             subjectParam = new String[]{"Product Catalogue", "File not found"};
-            bodyParam = new String[]{"Product Catalogue", date, "File not found", "File not found"};
+            bodyParam = new String[]{"Product Catalogue", "File not found", "File not found"};
             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
             int emailerId = this.emailService.saveEmail(emailer);
             emailer.setEmailerId(emailerId);
@@ -132,7 +132,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 }
                 if (!extension.equalsIgnoreCase("xml")) {
                     subjectParam = new String[]{"Product Catalogue", "File is not an xml"};
-                    bodyParam = new String[]{"Product Catalogue", date, "File is not an xml", fileList};
+                    bodyParam = new String[]{"Product Catalogue", "File is not an xml", fileList};
                     emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                     int emailerId = this.emailService.saveEmail(emailer);
                     emailer.setEmailerId(emailerId);
@@ -338,7 +338,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                                     map.put("euro1", planningUnitPerPallet);
                                     map.put("euro2", null);
 //                                    subjectParam = new String[]{"Product Catalog", "Planning Unit Per Pallet not found for "+dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent()};
-//                                    bodyParam = new String[]{"Product Catalog", date, "Planning Unit Per Pallet not found for "+dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent(), e.getMessage()};
+//                                    bodyParam = new String[]{"Product Catalog", "Planning Unit Per Pallet not found for "+dataRecordElement.getElementsByTagName("product_name").item(0).getTextContent(), e.getMessage()};
 //                                    emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
 //                                    int emailerId = this.emailService.saveEmail(emailer);
 //                                    emailer.setEmailerId(emailerId);
@@ -394,7 +394,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             pullUnit(sb);
                         } catch (Exception e) {
                             subjectParam = new String[]{"Product Catalog", "Error while pulling units"};
-                            bodyParam = new String[]{"Product Catalog", date, "Error while pulling units", e.getMessage()};
+                            bodyParam = new String[]{"Product Catalog", "Error while pulling units", e.getMessage()};
                             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                             int emailerId = this.emailService.saveEmail(emailer);
                             emailer.setEmailerId(emailerId);
@@ -405,7 +405,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             pullTracerCategory(sb);
                         } catch (Exception e) {
                             subjectParam = new String[]{"Product Catalog", "Error while pulling tracer category"};
-                            bodyParam = new String[]{"Product Catalog", date, "Error while pulling tracer category", e.getMessage()};
+                            bodyParam = new String[]{"Product Catalog", "Error while pulling tracer category", e.getMessage()};
                             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                             int emailerId = this.emailService.saveEmail(emailer);
                             emailer.setEmailerId(emailerId);
@@ -416,7 +416,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             pullProductCategory(sb);
                         } catch (Exception e) {
                             subjectParam = new String[]{"Product Catalog", "Error while pulling product category"};
-                            bodyParam = new String[]{"Product Catalog", date, "Error while pulling product category", e.getMessage()};
+                            bodyParam = new String[]{"Product Catalog", "Error while pulling product category", e.getMessage()};
                             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                             int emailerId = this.emailService.saveEmail(emailer);
                             emailer.setEmailerId(emailerId);
@@ -427,7 +427,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             pullForecastingUnit(sb);
                         } catch (Exception e) {
                             subjectParam = new String[]{"Product Catalog", "Error while pulling forecasting unit"};
-                            bodyParam = new String[]{"Product Catalog", date, "Error while pulling forecasting unit", e.getMessage()};
+                            bodyParam = new String[]{"Product Catalog", "Error while pulling forecasting unit", e.getMessage()};
                             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                             int emailerId = this.emailService.saveEmail(emailer);
                             emailer.setEmailerId(emailerId);
@@ -438,7 +438,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             pullPlanningUnit(sb);
                         } catch (Exception e) {
                             subjectParam = new String[]{"Product Catalog", "Error while pulling planning unit"};
-                            bodyParam = new String[]{"Product Catalog", date, "Error while pulling planning unit", e.getMessage()};
+                            bodyParam = new String[]{"Product Catalog", "Error while pulling planning unit", e.getMessage()};
                             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                             int emailerId = this.emailService.saveEmail(emailer);
                             emailer.setEmailerId(emailerId);
@@ -449,7 +449,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             pullSupplier(sb);
                         } catch (Exception e) {
                             subjectParam = new String[]{"Product Catalog", "Error while pulling supplier"};
-                            bodyParam = new String[]{"Product Catalog", date, "Error while pulling supplier", e.getMessage()};
+                            bodyParam = new String[]{"Product Catalog", "Error while pulling supplier", e.getMessage()};
                             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                             int emailerId = this.emailService.saveEmail(emailer);
                             emailer.setEmailerId(emailerId);
@@ -460,7 +460,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             pullProcurementUnit(sb);
                         } catch (Exception e) {
                             subjectParam = new String[]{"Product Catalog", "Error while pulling procurement unit"};
-                            bodyParam = new String[]{"Product Catalog", date, "Error while pulling procurement unit", e.getMessage()};
+                            bodyParam = new String[]{"Product Catalog", "Error while pulling procurement unit", e.getMessage()};
                             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                             int emailerId = this.emailService.saveEmail(emailer);
                             emailer.setEmailerId(emailerId);
@@ -474,7 +474,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                             sb.append("Product catalog file moved to processed folder successfully").append(br);
                         } else {
                             subjectParam = new String[]{"Product Catalogue", "Backup directory does not exists"};
-                            bodyParam = new String[]{"Product Catalogue", date, "Backup directory does not exists", "Backup directory does not exists"};
+                            bodyParam = new String[]{"Product Catalogue", "Backup directory does not exists", "Backup directory does not exists"};
                             emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                             int emailerId = this.emailService.saveEmail(emailer);
                             emailer.setEmailerId(emailerId);
@@ -917,7 +917,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     logger.info("Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + "because either the ProductCategory or TracerCategory is not provided");
                     sb.append("Skipping the Forecasting Unit ").append(fu.getLabel().getLabel_en()).append("because either the ProductCategory or TracerCategory is not provided").append(br);
                     subjectParam = new String[]{"Product Catalog", "Skipping the Forecasting Unit " + fu.getLabel().getLabel_en()};
-                    bodyParam = new String[]{"Product Catalog", date, "Skipping the Forecasting Unit " + fu.getLabel().getLabel_en(), "Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + "because either the ProductCategory or TracerCategory is not provided"};
+                    bodyParam = new String[]{"Product Catalog", "Skipping the Forecasting Unit " + fu.getLabel().getLabel_en(), "Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + "because either the ProductCategory or TracerCategory is not provided"};
                     emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                     int emailerId = this.emailService.saveEmail(emailer);
                     emailer.setEmailerId(emailerId);
@@ -928,7 +928,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info("Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + " because there was an error " + e.getMessage());
                 sb.append("Skipping the Forecasting Unit ").append(fu.getLabel().getLabel_en()).append(" because there was an error ").append(e.getMessage()).append(br);
                 subjectParam = new String[]{"Product Catalog", "Error while pulling forecasting unit " + fu.getLabel().getLabel_en()};
-                bodyParam = new String[]{"Product Catalog", date, "Error while pulling forecasting unit " + fu.getLabel().getLabel_en(), e.getMessage()};
+                bodyParam = new String[]{"Product Catalog", "Error while pulling forecasting unit " + fu.getLabel().getLabel_en(), e.getMessage()};
                 emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
@@ -1086,7 +1086,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     logger.info("Skipping the Planning Unit " + pu.getLabel() + " since there is no ForecastingUnit defined");
                     sb.append("Skipping the Planning Unit ").append(pu.getLabel()).append(" since there is no ForecastingUnit defined").append(br);
                     subjectParam = new String[]{"Product Catalog", "Skipping the Planning Unit " + pu.getLabel()};
-                    bodyParam = new String[]{"Product Catalog", date, "Skipping the Planning Unit " + pu.getLabel(), "Skipping the Planning Unit " + pu.getSkuCode() + " since there is no ForecastingUnit defined"};
+                    bodyParam = new String[]{"Product Catalog", "Skipping the Planning Unit " + pu.getLabel(), "Skipping the Planning Unit " + pu.getSkuCode() + " since there is no ForecastingUnit defined"};
                     emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                     int emailerId = this.emailService.saveEmail(emailer);
                     emailer.setEmailerId(emailerId);
@@ -1096,7 +1096,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info("Skipping the Planning Unit " + pu.getLabel() + " because there was an error " + e.getMessage());
                 sb.append("Skipping the Planning Unit ").append(pu.getLabel()).append(" because there was an error ").append(e.getMessage()).append(br);
                 subjectParam = new String[]{"Product Catalog", "Error while pulling planning unit " + pu.getLabel()};
-                bodyParam = new String[]{"Product Catalog", date, "Error while pulling planning unit " + pu.getLabel(), e.getMessage()};
+                bodyParam = new String[]{"Product Catalog", "Error while pulling planning unit " + pu.getLabel(), e.getMessage()};
                 emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);
@@ -1392,7 +1392,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                         logger.info("Skipping the Procurement Unit " + pu.getLabel() + " since there is no Supplier Id defined");
                         sb.append("Skipping the Procurement Unit ").append(pu.getLabel()).append(" since there is no Supplier Id defined").append(br);
                         subjectParam = new String[]{"Product Catalog", "Skipping the Procurement Unit " + pu.getLabel()};
-                        bodyParam = new String[]{"Product Catalog", date, "Skipping the Procurement Unit " + pu.getLabel(), "Skipping the Procurement Unit " + pu.getSkuCode() + " since there is no Supplier Id defined"};
+                        bodyParam = new String[]{"Product Catalog", "Skipping the Procurement Unit " + pu.getLabel(), "Skipping the Procurement Unit " + pu.getSkuCode() + " since there is no Supplier Id defined"};
                         emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                         int emailerId = this.emailService.saveEmail(emailer);
                         emailer.setEmailerId(emailerId);
@@ -1402,7 +1402,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     logger.info("Skipping the Procurement Unit " + pu.getLabel() + " since there is no PlanningUnit defined");
                     sb.append("Skipping the Procurement Unit ").append(pu.getLabel()).append(" since there is no PlanningUnit defined").append(br);
                     subjectParam = new String[]{"Product Catalog", "Skipping the Procurement Unit " + pu.getLabel()};
-                    bodyParam = new String[]{"Product Catalog", date, "Skipping the Procurement Unit " + pu.getLabel(), "Skipping the Procurement Unit " + pu.getSkuCode() + " since there is no PlanningUnit defined"};
+                    bodyParam = new String[]{"Product Catalog", "Skipping the Procurement Unit " + pu.getLabel(), "Skipping the Procurement Unit " + pu.getSkuCode() + " since there is no PlanningUnit defined"};
                     emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                     int emailerId = this.emailService.saveEmail(emailer);
                     emailer.setEmailerId(emailerId);
@@ -1412,7 +1412,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info("Skipping the Procurement Unit " + pu.getLabel() + " because there was an error " + e.getMessage());
                 sb.append("Skipping the Procurement Unit ").append(pu.getLabel()).append(" because there was an error ").append(e.getMessage()).append(br);
                 subjectParam = new String[]{"Product Catalog", "Error while pulling procurement unit " + pu.getLabel()};
-                bodyParam = new String[]{"Product Catalog", date, "Error while pulling procurement unit " + pu.getLabel(), e.getMessage()};
+                bodyParam = new String[]{"Product Catalog", "Error while pulling procurement unit " + pu.getLabel(), e.getMessage()};
                 emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);
                 int emailerId = this.emailService.saveEmail(emailer);
                 emailer.setEmailerId(emailerId);

@@ -14,7 +14,6 @@ import cc.altius.FASP.model.ForecastActualConsumption;
 import cc.altius.FASP.model.ForecastTree;
 import cc.altius.FASP.model.Inventory;
 import cc.altius.FASP.model.NotificationUser;
-import cc.altius.FASP.model.ProgramIdAndVersionId;
 import cc.altius.FASP.model.ProgramVersion;
 import cc.altius.FASP.model.ReviewedProblem;
 import cc.altius.FASP.model.Shipment;
@@ -39,13 +38,13 @@ public interface ProgramDataDao {
 
     public Version getVersionInfo(int programId, int versionId);
 
-    public List<Consumption> getConsumptionList(int programId, int versionId);
+    public List<Consumption> getConsumptionList(int programId, int versionId, boolean planningUnitActive);
 
-    public List<Inventory> getInventoryList(int programId, int versionId);
+    public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive);
 
-    public List<Shipment> getShipmentList(int programId, int versionId, boolean active);
+    public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive);
 
-    public List<Batch> getBatchList(int programId, int versionId);
+    public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive);
 
     public Version processSupplyPlanCommitRequest(CommitRequest spcr, CustomUserDetails curUser);
 
@@ -73,7 +72,7 @@ public interface ProgramDataDao {
 
     public List<Batch> getBatchListForSync(int programId, int versionId, String lastSyncDate);
 
-    public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId);
+    public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId, boolean planningUnitActive);
 
     public List<ProgramIntegrationDTO> getSupplyPlanToExportList();
 
@@ -81,7 +80,7 @@ public interface ProgramDataDao {
 
     public String getSupplyPlanReviewerEmialList(int realmCountryId);
 
-    public List<SimplePlanningUnitForSupplyPlanObject> getPlanningUnitListForProgramData(int programId, CustomUserDetails curUser);
+    public List<SimplePlanningUnitForSupplyPlanObject> getPlanningUnitListForProgramData(int programId, CustomUserDetails curUser, boolean planningUnitActive);
 
     public List<NotificationUser> getSupplyPlanNotificationList(int programId, int versionId, int statusType, String toCc);
 
