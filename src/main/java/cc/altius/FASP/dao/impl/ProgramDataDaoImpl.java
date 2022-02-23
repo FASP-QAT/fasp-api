@@ -62,6 +62,7 @@ import cc.altius.FASP.model.NodeDataExtrapolationOption;
 import cc.altius.FASP.model.NodeDataModeling;
 import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
+import cc.altius.FASP.model.TreeLevel;
 import cc.altius.FASP.model.TreeNodeData;
 import cc.altius.FASP.model.TreeScenario;
 import cc.altius.FASP.model.rowMapper.ForecastConsumptionExtrapolationListResultSetExtractor;
@@ -1229,6 +1230,20 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_region");
             si.executeBatch(batchList.toArray(batchArray));
 
+            // Step 3Aiii -- Insert the Level list for the Forecast Tree
+            batchList.clear();
+            for (TreeLevel level : dt.getLevelList()) {
+                Map<String, Object> batchParams = new HashMap<>();
+                batchParams.put("TREE_ID", treeId);
+                batchParams.put("LEVEL_NO", level.getLevelNo());
+                int treeLevelLabelId = this.labelDao.addLabel(level.getLabel(), LabelConstants.RM_FORECAST_TREE_LEVEL, spcr.getCreatedBy().getUserId());
+                batchParams.put("LABEL_ID", treeLevelLabelId);
+                batchList.add(new MapSqlParameterSource(batchParams));
+            }
+            batchArray = new SqlParameterSource[batchList.size()];
+            si = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_level");
+            si.executeBatch(batchList.toArray(batchArray));
+
             // Step 3B -- Insert all the Nodes for the Tree
             for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
                 Map<String, Object> nodeParams = new HashMap<>();
@@ -1487,6 +1502,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     Map<String, Object> batchParams = new HashMap<>();
                     batchParams.put("PROGRAM_PLANNING_UNIT_ID", programPlanningUnitId);
                     batchParams.put("REGION_ID", regionId);
+                    if (dpu.getSelectedForecastMap().get(regionId).getTreeId() != null) {
+                        batchParams.put("TREE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree", dpu.getSelectedForecastMap().get(regionId).getTreeId()));
+                    }
                     if (dpu.getSelectedForecastMap().get(regionId).getScenarioId() != null) {
                         batchParams.put("SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", dpu.getSelectedForecastMap().get(regionId).getScenarioId()));
                     }
@@ -1556,28 +1574,31 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<Consumption> getConsumptionList(int programId, int versionId) {
+    public List<Consumption> getConsumptionList(int programId, int versionId, boolean planningUnitActive) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
-        return this.namedParameterJdbcTemplate.query("CALL getConsumptionData(:programId, :versionId)", params, new ConsumptionListResultSetExtractor());
+        params.put("planningUnitActive", planningUnitActive);
+        return this.namedParameterJdbcTemplate.query("CALL getConsumptionData(:programId, :versionId, :planningUnitActive)", params, new ConsumptionListResultSetExtractor());
     }
 
     @Override
-    public List<Inventory> getInventoryList(int programId, int versionId) {
+    public List<Inventory> getInventoryList(int programId, int versionId, boolean planningUnitActive) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
-        return this.namedParameterJdbcTemplate.query("CALL getInventoryData(:programId, :versionId)", params, new InventoryListResultSetExtractor());
+        params.put("planningUnitActive", planningUnitActive);
+        return this.namedParameterJdbcTemplate.query("CALL getInventoryData(:programId, :versionId, :planningUnitActive)", params, new InventoryListResultSetExtractor());
     }
 
     @Override
-    public List<Shipment> getShipmentList(int programId, int versionId, boolean active) {
+    public List<Shipment> getShipmentList(int programId, int versionId, boolean shipmentActive, boolean planningUnitActive) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
-        params.put("active", active);
-        return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId, :active)", params, new ShipmentListResultSetExtractor());
+        params.put("shipmentActive", shipmentActive);
+        params.put("planningUnitActive", planningUnitActive);
+        return this.namedParameterJdbcTemplate.query("CALL getShipmentData(:programId, :versionId, :shipmentActive, :planningUnitActive)", params, new ShipmentListResultSetExtractor());
     }
 
     @Override
@@ -1593,10 +1614,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<Batch> getBatchList(int programId, int versionId) {
-        String sqlString = "SELECT bi.BATCH_ID, bi.BATCH_NO, bi.PROGRAM_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.`AUTO_GENERATED`, bi.EXPIRY_DATE, bi.CREATED_DATE FROM rm_batch_info bi WHERE bi.PROGRAM_ID=:programId";
+    public List<Batch> getBatchList(int programId, int versionId, boolean planningUnitActive) {
+        String sqlString = "SELECT bi.BATCH_ID, bi.BATCH_NO, bi.PROGRAM_ID, bi.PLANNING_UNIT_ID `BATCH_PLANNING_UNIT_ID`, bi.`AUTO_GENERATED`, bi.EXPIRY_DATE, bi.CREATED_DATE FROM rm_batch_info bi LEFT JOIN rm_program_planning_unit ppu ON bi.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND ppu.PROGRAM_ID=:programId WHERE bi.PROGRAM_ID=:programId AND (:planningUnitActive = FALSE OR ppu.ACTIVE)";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
+        params.put("planningUnitActive", planningUnitActive);
         return this.namedParameterJdbcTemplate.query(sqlString, params, new BatchRowMapper());
     }
 
@@ -1822,19 +1844,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
     }
 
-//    @Override
-//    public void buildStockBalances(int programId, int versionId) {
-//        String sqlString = "CALL buildSupplyPlan(:programId, :versionId)";
-//        Map<String, Object> params = new HashMap<>();
-//        params.put("programId", programId);
-//        params.put("versionId", versionId);
-//        this.namedParameterJdbcTemplate.update(sqlString, params);
-//        sqlString = "SELECT spbi.TRANS_DATE, SUM(spbi.FORECASTED_CONSUMPTION_QTY+spbi.EXPIRED_CONSUMPTION) CONSUMPTION FROM rm_supply_plan_batch_info spbi WHERE spbi.PROGRAM_ID=:progarmId AND spbi.VERSION_ID=:versionId GROUP BY spbi.TRANS_DATE HAVING SUM(spbi.FORECASTED_CONSUMPTION_QTY)>0 OR SUM(spbi.EXPIRED_CONSUMPTION)>0";
-//        List<UnaccountedConsumption> ucList = this.namedParameterJdbcTemplate.query(sqlString, new UnaccountedConsumptionRowMapper());
-//        for (UnaccountedConsumption u : ucList) {
-//
-//        }
-//    }
     @Override
     public List<SimplifiedSupplyPlan> updateSupplyPlanBatchInfo(SupplyPlan sp) {
         String sqlString = "UPDATE rm_supply_plan_batch_info spbi "
@@ -1924,13 +1933,14 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "    spa.MAX_STOCK_QTY = IF(ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS>r.MAX_MOS_MAX_GAURDRAIL, r.MAX_MOS_MAX_GAURDRAIL, ppu.MIN_MONTHS_OF_STOCK+ppu.REORDER_FREQUENCY_IN_MONTHS) * amc.AMC "
                 + "WHERE spa.PROGRAM_ID=@programId and spa.VERSION_ID=@versionId";
         this.namedParameterJdbcTemplate.update(sqlString, params);
-        return this.getSimplifiedSupplyPlan(sp.getProgramId(), sp.getVersionId());
+        return this.getSimplifiedSupplyPlan(sp.getProgramId(), sp.getVersionId(), false);
     }
 
-    public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId) {
+    public List<SimplifiedSupplyPlan> getSimplifiedSupplyPlan(int programId, int versionId, boolean planningUnitActive) {
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
+        params.put("planningUnitActive", planningUnitActive);
         String sqlString = "SELECT  "
                 + "    spa.`SUPPLY_PLAN_AMC_ID` `SUPPLY_PLAN_ID`, spa.`PROGRAM_ID`, spa.`VERSION_ID`, "
                 + "    spa.`PLANNING_UNIT_ID`, pu.`MULTIPLIER` `CONVERSION_FACTOR`, spa.`TRANS_DATE`,  "
@@ -1947,10 +1957,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "    spa.`AMC`, spa.`AMC_COUNT`, spa.`MOS`, spa.`MOS_WPS`, spa.`MIN_STOCK_MOS`, spa.`MIN_STOCK_QTY`, spa.`MAX_STOCK_MOS`, spa.`MAX_STOCK_QTY`, "
                 + "    b2.`BATCH_ID`, b2.`BATCH_NO`, b2.`EXPIRY_DATE`, b2.`AUTO_GENERATED`, b2.`BATCH_OPENING_BALANCE`, b2.`BATCH_OPENING_BALANCE_WPS`, b2.`BATCH_CALCULATED_CONSUMPTION_QTY`, b2.`BATCH_CALCULATED_CONSUMPTION_QTY_WPS`, b2.`BATCH_CONSUMPTION_QTY`, b2.`BATCH_STOCK_MULTIPLIED_QTY`, b2.`BATCH_ADJUSTMENT_MULTIPLIED_QTY`, b2.`BATCH_SHIPMENT_QTY`, b2.`BATCH_SHIPMENT_QTY_WPS`, b2.`BATCH_EXPIRED_STOCK`, b2.`BATCH_EXPIRED_STOCK_WPS`, b2.`BATCH_CLOSING_BALANCE`, b2.`BATCH_CLOSING_BALANCE_WPS`, bi.CREATED_DATE `BATCH_CREATED_DATE` "
                 + "FROM rm_supply_plan_amc spa  "
+                + "LEFT JOIN rm_program_planning_unit ppu ON spa.PLANNING_UNIT_ID=ppu.PLANNING_UNIT_ID AND ppu.PROGRAM_ID=:programId "
                 + "LEFT JOIN rm_planning_unit pu ON spa.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
                 + "LEFT JOIN (SELECT spbq.`PLANNING_UNIT_ID`, spbq.`TRANS_DATE`, spbq.`BATCH_ID`, bi.`BATCH_NO`, bi.`EXPIRY_DATE`, bi.`AUTO_GENERATED`, SUM(spbq.`OPENING_BALANCE`) `BATCH_OPENING_BALANCE`, SUM(spbq.`OPENING_BALANCE_WPS`) `BATCH_OPENING_BALANCE_WPS`, SUM(spbq.`CALCULATED_CONSUMPTION`) `BATCH_CALCULATED_CONSUMPTION_QTY`, SUM(spbq.`CALCULATED_CONSUMPTION_WPS`) `BATCH_CALCULATED_CONSUMPTION_QTY_WPS`, SUM(spbq.`ACTUAL_CONSUMPTION_QTY`) BATCH_CONSUMPTION_QTY, SUM(spbq.`STOCK_MULTIPLIED_QTY`) `BATCH_STOCK_MULTIPLIED_QTY`, SUM(spbq.`ADJUSTMENT_MULTIPLIED_QTY`) `BATCH_ADJUSTMENT_MULTIPLIED_QTY`, SUM(spbq.`SHIPMENT_QTY`) `BATCH_SHIPMENT_QTY`, SUM(spbq.`SHIPMENT_QTY_WPS`) `BATCH_SHIPMENT_QTY_WPS`, SUM(spbq.`EXPIRED_STOCK_WPS`) `BATCH_EXPIRED_STOCK_WPS`, SUM(spbq.`EXPIRED_STOCK`) `BATCH_EXPIRED_STOCK`, SUM(spbq.`CLOSING_BALANCE`) `BATCH_CLOSING_BALANCE`, SUM(spbq.`CLOSING_BALANCE_WPS`) `BATCH_CLOSING_BALANCE_WPS` FROM rm_supply_plan_batch_qty spbq LEFT JOIN rm_batch_info bi ON spbq.`BATCH_ID`=bi.`BATCH_ID` WHERE spbq.`PROGRAM_ID`=:programId and spbq.`VERSION_ID`=:versionId GROUP by spbq.`PLANNING_UNIT_ID`, spbq.`TRANS_DATE`, spbq.`BATCH_ID`) b2 ON spa.`PLANNING_UNIT_ID`=b2.`PLANNING_UNIT_ID` AND spa.`TRANS_DATE`=b2.`TRANS_DATE` "
                 + "LEFT JOIN rm_batch_info bi ON b2.BATCH_ID=bi.BATCH_ID "
-                + "WHERE spa.`PROGRAM_ID`=:programId AND spa.`VERSION_ID`=:versionId ";
+                + "WHERE spa.`PROGRAM_ID`=:programId AND spa.`VERSION_ID`=:versionId AND (:planningUnitActive = FALSE OR ppu.ACTIVE)";
         return this.namedParameterJdbcTemplate.query(sqlString, params, new SimplifiedSupplyPlanResultSetExtractor());
     }
 
@@ -2180,7 +2191,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         }
 
         if (returnSupplyPlan) {
-            List<SimplifiedSupplyPlan> sp = getSimplifiedSupplyPlan(programId, versionId);
+            List<SimplifiedSupplyPlan> sp = getSimplifiedSupplyPlan(programId, versionId, false);
             return sp;
         } else {
             return new LinkedList<>();
@@ -2263,7 +2274,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     }
 
     @Override
-    public List<SimplePlanningUnitForSupplyPlanObject> getPlanningUnitListForProgramData(int programId, CustomUserDetails curUser) {
+    public List<SimplePlanningUnitForSupplyPlanObject> getPlanningUnitListForProgramData(int programId, CustomUserDetails curUser, boolean planningUnitActive) {
         StringBuilder sql = new StringBuilder("SELECT "
                 + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PLANNING_UNIT_LABEL_ID`, pu.LABEL_EN `PLANNING_UNIT_LABEL_EN`, pu.LABEL_FR `PLANNING_UNIT_LABEL_FR`, pu.LABEL_SP `PLANNING_UNIT_LABEL_SP`, pu.LABEL_PR `PLANNING_UNIT_LABEL_PR`, ppu.ACTIVE `PROGRAM_PLANNING_UNIT_ACTIVE`, pu.MULTIPLIER, "
                 + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FORECASTING_UNIT_LABEL_ID`, fu.LABEL_EN `FORECASTING_UNIT_LABEL_EN`, fu.LABEL_FR `FORECASTING_UNIT_LABEL_FR`, fu.LABEL_SP `FORECASTING_UNIT_LABEL_SP`, fu.LABEL_PR `FORECASTING_UNIT_LABEL_PR`, "
@@ -2278,9 +2289,10 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID "
                 + "LEFT JOIN rm_procurement_agent_planning_unit papu ON ppu.PLANNING_UNIT_ID=papu.PLANNING_UNIT_ID "
                 + "LEFT JOIN vw_procurement_agent pa ON papu.PROCUREMENT_AGENT_ID=pa.PROCUREMENT_AGENT_ID "
-                + "WHERE ppu.PROGRAM_ID=:programId");
+                + "WHERE ppu.PROGRAM_ID=:programId AND (:planningUnitActive = FALSE OR ppu.ACTIVE)");
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
+        params.put("planningUnitActive", planningUnitActive);
         this.aclService.addFullAclForProgram(sql, params, "p", curUser);
         sql.append("ORDER BY pu.PLANNING_UNIT_ID, papu.PROCUREMENT_AGENT_ID");
         return namedParameterJdbcTemplate.query(sql.toString(), params, new SimplePlanningUnitForSupplyPlanObjectResultSetExtractor());
@@ -2310,11 +2322,15 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "ft.TREE_ID, ft.PROGRAM_ID, ft.VERSION_ID, ft.LABEL_ID, ft.LABEL_EN, ft.LABEL_FR, ft.LABEL_SP, ft.LABEL_PR, "
                 + "fm.FORECAST_METHOD_ID, fm.FORECAST_METHOD_TYPE_ID, "
                 + "fm.LABEL_ID `FM_LABEL_ID`, fm.LABEL_EN `FM_LABEL_EN`, fm.LABEL_FR `FM_LABEL_FR`, fm.LABEL_SP `FM_LABEL_SP`, fm.LABEL_PR `FM_LABEL_PR`, "
+                + "tl.TREE_LEVEL_ID `LEVEL_ID`, tl.LEVEL_NO, tl.LABEL_ID `TL_LABEL_ID`, tl.LABEL_EN `TL_LABEL_EN`, tl.LABEL_FR `TL_LABEL_FR`, tl.LABEL_SP `TL_LABEL_SP`, tl.LABEL_PR `TL_LABEL_PR`, "
+                + "u.UNIT_ID, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, u.`UNIT_CODE`, "
                 + "s.SCENARIO_ID, s.LABEL_ID `S_LABEL_ID`, s.LABEL_EN `S_LABEL_EN`, s.LABEL_FR `S_LABEL_FR`, s.LABEL_SP `S_LABEL_SP`, s.LABEL_PR `S_LABEL_PR`, s.ACTIVE `S_ACTIVE`, s.NOTES `S_NOTES`, "
                 + "r.REGION_ID, r.LABEL_ID `REG_LABEL_ID`, r.LABEL_EN `REG_LABEL_EN`, r.LABEL_FR `REG_LABEL_FR`, r.LABEL_SP `REG_LABEL_SP`, r.LABEL_PR `REG_LABEL_PR`, "
                 + "ft.CREATED_DATE, ft.LAST_MODIFIED_DATE, ft.ACTIVE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, lmb.USER_ID `LMB_USER_ID`, lmb.USERNAME `LMB_USERNAME`, ft.`NOTES` "
                 + "FROM vw_forecast_tree ft "
                 + "LEFT JOIN vw_forecast_method fm ON ft.FORECAST_METHOD_ID=fm.FORECAST_METHOD_ID "
+                + "LEFT JOIN vw_tree_level tl ON ft.TREE_ID=tl.TREE_ID "
+                + "LEFT JOIN vw_unit u ON tl.UNIT_ID=u.UNIT_ID "
                 + "LEFT JOIN vw_scenario s ON ft.TREE_ID=s.TREE_ID "
                 + "LEFT JOIN rm_forecast_tree_region ftr ON ft.TREE_ID=ftr.TREE_ID "
                 + "LEFT JOIN vw_region r ON ftr.REGION_ID=r.REGION_ID "

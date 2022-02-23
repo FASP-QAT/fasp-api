@@ -137,7 +137,7 @@ public class ImportArtmisDataServiceImpl implements ImportArtmisDataService {
         if (!errorCode.isEmpty()) {
             errorCode += " " + orderFileName;
             subjectParam = new String[]{"Order/Shipment - ", errorCode};
-            bodyParam = new String[]{"Order/Shipment", date, errorCode, exceptionMessage};
+            bodyParam = new String[]{"Order/Shipment", errorCode, exceptionMessage};
             logger.info(errorCode + " " + exceptionMessage);
             EmailTemplate emailTemplate = this.emailService.getEmailTemplateByEmailTemplateId(3);
             Emailer emailer = this.emailService.buildEmail(emailTemplate.getEmailTemplateId(), toList, ccList, subjectParam, bodyParam);

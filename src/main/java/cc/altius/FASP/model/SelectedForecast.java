@@ -13,10 +13,19 @@ import java.io.Serializable;
  */
 public class SelectedForecast implements Serializable {
 
+    private Integer treeId;
     private Integer scenarioId;
     private Integer consumptionExtrapolationId;
     private String notes;
     private Double totalForecast;
+
+    public Integer getTreeId() {
+        return treeId;
+    }
+
+    public void setTreeId(Integer treeId) {
+        this.treeId = treeId;
+    }
 
     public Integer getScenarioId() {
         return scenarioId;
