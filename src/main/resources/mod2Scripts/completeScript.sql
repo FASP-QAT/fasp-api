@@ -6531,3 +6531,11 @@ update ap_static_label l
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
 set ll.LABEL_TEXT='Nenhuma previsão selecionada'
 where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=4;
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.dataentry.graphNotes','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note: Graph and summary table only update after submitting.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : Le graphique et le tableau récapitulatif ne sont mis à jour qu\`aap_languageprès la soumission.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: el gráfico y la tabla de resumen solo se actualizan después de enviarlos.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: O gráfico e a tabela de resumo só são atualizados após o envio.');-- p
