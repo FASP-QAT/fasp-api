@@ -4526,10 +4526,10 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Fator de conversão (F
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.QATEstimateForIntervalEvery_months','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'QAT estimate for interval (Every _ months)');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Estimation QAT pour lintervalle (tous les _ mois)');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Estimación de QAT para el intervalo (cada _ meses)');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Estimativa QAT para intervalo (a cada _ meses)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'QAT estimate for interval (Every X months)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Estimation QAT pour lintervalle (tous les X mois)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Estimación de QAT para el intervalo (cada X meses)');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Estimativa QAT para intervalo (a cada X meses)');
 
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.consumptionIntervalEveryXMonths','1');
