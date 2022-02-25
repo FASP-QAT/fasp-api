@@ -6511,3 +6511,95 @@ update ap_static_label l
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
 set ll.LABEL_TEXT='Período para Gráfico/Tabela'
 where l.LABEL_CODE='static.compareAndSelect.startMonthForGraph' and ll.LANGUAGE_ID=4;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='No Forecast Selected'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Aucune prévision sélectionnée'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Ningún pronóstico seleccionado'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Nenhuma previsão selecionada'
+where l.LABEL_CODE='static.commitTree.noForecastSelected' and ll.LANGUAGE_ID=4;
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.dataentry.graphNotes','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note: Graph and summary table only update after submitting.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : Le graphique et le tableau récapitulatif ne sont mis à jour qu\`aap_languageprès la soumission.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: el gráfico y la tabla de resumen solo se actualizan después de enviarlos.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nota: O gráfico e a tabela de resumo só são atualizados após o envio.');-- p
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastValidation.noMissingSelectedForecastFound','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No missing selected forecast found');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aucune prévision sélectionnée manquante n`a été trouvée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'No se encontró ningún pronóstico seleccionado faltante');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nenhuma previsão selecionada ausente encontrada');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastValidation.noMissingGaps','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No months missing actual consumption values (gap)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aucun mois manquant de valeurs de consommation réelles (écart)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ningún mes faltan valores de consumo real (brecha)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nenhum mês sem valores reais de consumo (gap)');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastValidation.noMonthsHaveLessData','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No planning units have less than 24 months of consumption data');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aucune unité de planification n`a moins de 24 mois de données de consommation');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ninguna unidad de planificación tiene menos de 24 meses de datos de consumo');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nenhuma unidade de planejamento tem menos de 24 meses de dados de consumo');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastValidation.noMissingPlanningUnitsFound','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No missing planning units found');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aucune unité de planification manquante trouvée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'No se encontraron unidades de planificación faltantes');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nenhuma unidade de planejamento ausente encontrada');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastValidation.noBranchesMissingPU','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No branches missing planning units');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aucune succursale ne manque d`unités de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'No hay sucursales que falten unidades de planificación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nenhuma filial sem unidades de planejamento');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastValidation.noNodesHaveChildrenLessThanPerc','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No nodes have children that do not add upto 100%');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aucun nœud n`a d`enfants qui ne totalisent pas 100 %');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ningún nodo tiene hijos que no suman 100%');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nenhum nó tem filhos que não somam 100%');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastValidation.noConsumptionNotesFound','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No Consumption notes found');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aucune note de consommation trouvée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'No se encontraron notas de consumo');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nenhuma nota de consumo encontrada');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastValidation.noTreeScenarioNotesFound','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No tree scenario notes found');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aucune note de scénario d`arbre trouvée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'No se encontraron notas de escenario de árbol');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nenhuma nota de cenário de árvore encontrada');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastValidation.noTreeNodesNotesFound','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No tree nodes notes found');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aucune note de nœud d`arbre trouvée');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'No se encontraron notas de nodos de árbol');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nenhuma nota de nós de árvore encontrada');-- pr
