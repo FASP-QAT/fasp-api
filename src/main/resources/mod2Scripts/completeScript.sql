@@ -6603,3 +6603,14 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'No tree nodes notes fo
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Aucune note de nœud d`arbre trouvée');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'No se encontraron notas de nodos de árbol');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nenhuma nota de nós de árvore encontrada');-- pr
+
+
+
+
+---- All new Scripts from here ---
+
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_mom` ADD COLUMN `CALCULATED_MMD_VALUE` DECIMAL(16,2) UNSIGNED NOT NULL AFTER `CALCULATED_VALUE`;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_pu` ADD COLUMN `PU_PER_VISIT` INT UNSIGNED NOT NULL AFTER `REFILL_MONTHS`;
+ALTER TABLE `fasp`.`rm_tree_template_node_data_pu` ADD COLUMN `PU_PER_VISIT` INT UNSIGNED NOT NULL AFTER `REFILL_MONTHS`;
+UPDATE rm_tree_template_node_data_pu SET PU_PER_VISIT = 1;
+UPDATE rm_forecast_tree_node_data_pu SET PU_PER_VISIT = 1;
