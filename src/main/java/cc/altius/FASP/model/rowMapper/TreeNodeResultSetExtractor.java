@@ -158,6 +158,10 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 if (rs.wasNull()) {
                     tndp.setRefillMonths(null);
                 }
+                tndp.setPuPerVisit(rs.getInt("PU_PER_VISIT"));
+                if (rs.wasNull()) {
+                    tndp.setPuPerVisit(null);
+                }
                 tndp.setSharePlanningUnit(rs.getBoolean("SHARE_PLANNING_UNIT"));
                 tndp.setPlanningUnit(new SimpleUnitObjectWithMultiplier(new SimpleCodeObject(rs.getInt("PUU_UNIT_ID"), new LabelRowMapper("PUU_").mapRow(rs, count), rs.getString("PUU_UNIT_CODE")), rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, count), rs.getDouble("PU_MULTIPLIER")));
             }
@@ -246,6 +250,10 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                     ndMom.setCalculatedValue(rs.getDouble("NDM_CALCULATED_VALUE"));
                     if (rs.wasNull()) {
                         ndMom.setCalculatedValue(null);
+                    }
+                    ndMom.setCalculatedMmdValue(rs.getDouble("NDM_CALCULATED_MMD_VALUE"));
+                    if (rs.wasNull()) {
+                        ndMom.setCalculatedMmdValue(null);
                     }
                     ndMom.setDifference(rs.getDouble("NDM_DIFFERENCE"));
                     if (rs.wasNull()) {
