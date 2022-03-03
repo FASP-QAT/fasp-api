@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.EquivalencyUnit;
 import cc.altius.FASP.model.EquivalencyUnitMapping;
 import cc.altius.FASP.model.SimpleCodeObject;
@@ -34,6 +35,11 @@ public class EquivalencyUnitMappingResultSetExtractor implements ResultSetExtrac
                         rs.getInt("EQUIVALENCY_UNIT_ID"),
                         new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, 1), rs.getString("REALM_CODE")),
                         new LabelRowMapper().mapRow(rs, 1)));
+                eum.getEquivalencyUnit().setActive(rs.getBoolean("EU_ACTIVE"));
+                eum.getEquivalencyUnit().setCreatedBy(new BasicUser(rs.getInt("EU_CB_USER_ID"), rs.getString("EU_CB_USERNAME")));
+                eum.getEquivalencyUnit().setCreatedDate(rs.getTimestamp("EU_CREATED_DATE"));
+                eum.getEquivalencyUnit().setLastModifiedBy(new BasicUser(rs.getInt("EU_LMB_USER_ID"), rs.getString("EU_LMB_USERNAME")));
+                eum.getEquivalencyUnit().setLastModifiedDate(rs.getTimestamp("EU_LAST_MODIFIED_DATE"));
                 eum.setForecastingUnit(new SimpleObject(rs.getInt("FORECASTING_UNIT_ID"), new LabelRowMapper("FU_").mapRow(rs, 1)));
                 eum.setUnit(new SimpleCodeObject(rs.getInt("UNIT_ID"), new LabelRowMapper("U_").mapRow(rs, 1), rs.getString("UNIT_CODE")));
                 eum.setTracerCategory(new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, 1)));
