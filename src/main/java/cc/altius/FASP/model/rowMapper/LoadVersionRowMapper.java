@@ -16,7 +16,7 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author akil
  */
-public class LoadProgramVersionRowMapper implements RowMapper<LoadVersion> {
+public class LoadVersionRowMapper implements RowMapper<LoadVersion> {
 
     @Override
     public LoadVersion mapRow(ResultSet rs, int i) throws SQLException {
@@ -28,6 +28,7 @@ public class LoadProgramVersionRowMapper implements RowMapper<LoadVersion> {
         lv.setForecastStopDate(rs.getDate("FORECAST_STOP_DATE"));
         lv.setCreatedBy(new BasicUser(rs.getInt("USER_ID"), rs.getString("USERNAME")));
         lv.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
+        lv.setNotes(rs.getString("NOTES"));
         return lv;
     }
 

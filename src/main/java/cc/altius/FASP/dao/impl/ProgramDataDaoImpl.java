@@ -1495,6 +1495,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             }
             params.put("CREATED_BY", spcr.getCreatedBy().getUserId());
             params.put("CREATED_DATE", spcr.getCreatedDate());
+            params.put("ACTIVE", dpu.isActive());
             int programPlanningUnitId = si.executeAndReturnKey(params).intValue();
             updateOldAndNewId(oldAndNewIdMap, "rm_dataset_planning_unit", dpu.getProgramPlanningUnitId(), programPlanningUnitId);
             if (dpu.getSelectedForecastMap() != null) {
