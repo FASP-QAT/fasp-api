@@ -1371,7 +1371,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         }
 
                         // Step 3I -- Add the Node Data Extrapolation Option values 
-                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_EXTRAPOLATION) {
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && n.getPayload().isExtrapolation()) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_OPTION_ID");
                             for (NodeDataExtrapolationOption ndeo : tnd.getNodeDataExtrapolationOptionList()) {
                                 nodeDataParams.clear();
@@ -1391,7 +1391,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         }
 
                         // Step 3J -- Add the Node Data Extrapolation and Data values
-                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_EXTRAPOLATION) {
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && n.getPayload().isExtrapolation()) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_ID");
                             NodeDataExtrapolation nde = tnd.getNodeDataExtrapolation();
                             nodeDataParams.clear();
