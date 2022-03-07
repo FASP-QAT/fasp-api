@@ -55,7 +55,8 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
             + "    ut.REALM_ID, ut.LAG_IN_MONTHS, ut.NO_OF_PATIENTS, ut.NO_OF_FORECASTING_UNITS, ut.ONE_TIME_USAGE, ut.USAGE_FREQUENCY_COUNT, ut.REPEAT_COUNT, ut.ACTIVE, "
             + "    p.PROGRAM_ID, p.PROGRAM_CODE, p.LABEL_ID `PROGRAM_LABEL_ID`, p.LABEL_EN `PROGRAM_LABEL_EN`, p.LABEL_FR `PROGRAM_LABEL_FR`, p.LABEL_SP `PROGRAM_LABEL_SP`, p.LABEL_PR `PROGRAM_LABEL_PR`, "
             + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
-            + "    u.UNIT_ID, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, u.UNIT_CODE, "
+            + "    fuu.UNIT_ID `FUU_UNIT_ID`, fuu.LABEL_ID `FUU_LABEL_ID`, fuu.LABEL_EN `FUU_LABEL_EN`, fuu.LABEL_FR `FUU_LABEL_FR`, fuu.LABEL_SP `FUU_LABEL_SP`, fuu.LABEL_PR `FUU_LABEL_PR`, fuu.UNIT_CODE `FUU_UNIT_CODE`, "
+            + "    u.UNIT_ID `U_UNIT_ID`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, u.UNIT_CODE `U_UNIT_CODE`, "
             + "    tc.TRACER_CATEGORY_ID, tc.LABEL_ID `TC_LABEL_ID`, tc.LABEL_EN `TC_LABEL_EN`, tc.LABEL_FR `TC_LABEL_FR`, tc.LABEL_SP `TC_LABEL_SP`, tc.LABEL_PR `TC_LABEL_PR`, "
             + "    uty.USAGE_TYPE_ID, uty.LABEL_ID `UT_LABEL_ID`, uty.LABEL_EN `UT_LABEL_EN`, uty.LABEL_FR `UT_LABEL_FR`, uty.LABEL_SP `UT_LABEL_SP`, uty.LABEL_PR `UT_LABEL_PR`, "
             + "    upf.USAGE_PERIOD_ID `UF_USAGE_PERIOD_ID`, upf.CONVERT_TO_MONTH `UF_CONVERT_TO_MONTH`, upf.LABEL_ID `UF_LABEL_ID`, upf.LABEL_EN `UF_LABEL_EN`, upf.LABEL_FR `UF_LABEL_FR`, upf.LABEL_SP `UF_LABEL_SP`, upf.LABEL_PR `UF_LABEL_PR`,  "
@@ -65,7 +66,8 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
             + "FROM vw_usage_template ut "
             + "LEFT JOIN vw_dataset p ON ut.PROGRAM_ID=p.PROGRAM_ID "
             + "LEFT JOIN vw_forecasting_unit fu ON ut.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
-            + "LEFT JOIN vw_unit u ON fu.UNIT_ID=u.UNIT_ID "
+            + "LEFT JOIN vw_unit fuu ON fu.UNIT_ID=fuu.UNIT_ID "
+            + "LEFT JOIN vw_unit u ON ut.UNIT_ID=u.UNIT_ID "
             + "LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID "
             + "LEFT JOIN vw_usage_type uty ON ut.USAGE_TYPE_ID=uty.USAGE_TYPE_ID "
             + "LEFT JOIN vw_usage_period upf ON ut.USAGE_FREQUENCY_USAGE_PERIOD_ID=upf.USAGE_PERIOD_ID "
@@ -127,6 +129,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
             param.addValue("LABEL_ID", labelId);
             param.addValue("PROGRAM_ID", (ut.getProgram() == null ? null : (ut.getProgram().getId() == null || ut.getProgram().getId() == 0 ? null : ut.getProgram().getId())));
             param.addValue("FORECASTING_UNIT_ID", ut.getForecastingUnit().getId());
+            param.addValue("UNIT_ID", ut.getUnit().getId());
             param.addValue("LAG_IN_MONTHS", ut.getLagInMonths());
             param.addValue("USAGE_TYPE_ID", ut.getUsageType().getId());
             param.addValue("NO_OF_PATIENTS", ut.getNoOfPatients());
@@ -168,6 +171,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
             param.put("usageTemplateId", ut.getUsageTemplateId());
             param.put("labelEn", ut.getLabel().getLabel_en());
             param.put("programId", (ut.getProgram() == null ? null : (ut.getProgram().getId() == null || ut.getProgram().getId() == 0 ? null : ut.getProgram().getId())));
+            param.put("unitId", ut.getUnit().getId());
             param.put("forecastingUnitId", ut.getForecastingUnit().getId());
             param.put("lagInMonths", ut.getLagInMonths());
             param.put("noOfPatients", ut.getNoOfPatients());
@@ -206,6 +210,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
                 + "SET "
                 + "l.LABEL_EN=:labelEn, "
                 + "ut.PROGRAM_ID=:programId, "
+                + "ut.UNIT_ID=:unitId, "
                 + "ut.FORECASTING_UNIT_ID=:forecastingUnitId, "
                 + "ut.LAG_IN_MONTHS=:lagInMonths, "
                 + "ut.USAGE_TYPE_ID=:usageTypeId, "
@@ -225,6 +230,7 @@ public class UsageTemplateDaoImpl implements UsageTemplateDao {
                 + " ("
                 + "     l.LABEL_EN!=:labelEn OR "
                 + "     ut.PROGRAM_ID!=:programId OR "
+                + "     ut.UNIT_ID!=:unitId OR "
                 + "     ut.FORECASTING_UNIT_ID!=:forecastingUnitId OR "
                 + "     ut.LAG_IN_MONTHS!=:lagInMonths OR "
                 + "     ut.USAGE_TYPE_ID!=:usageTypeId OR "

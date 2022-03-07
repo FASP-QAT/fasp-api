@@ -17,7 +17,7 @@ public class UsageTemplate extends BaseModel implements Serializable {
     private Label label;
     private int realmId;
     private SimpleCodeObject program;
-    private SimpleObject forecastingUnit;
+    private SimpleUnitObject forecastingUnit;
     private SimpleCodeObject unit;
     private SimpleObject tracerCategory;
     private int lagInMonths;
@@ -66,11 +66,11 @@ public class UsageTemplate extends BaseModel implements Serializable {
         this.program = program;
     }
 
-    public SimpleObject getForecastingUnit() {
+    public SimpleUnitObject getForecastingUnit() {
         return forecastingUnit;
     }
 
-    public void setForecastingUnit(SimpleObject forecastingUnit) {
+    public void setForecastingUnit(SimpleUnitObject forecastingUnit) {
         this.forecastingUnit = forecastingUnit;
     }
 

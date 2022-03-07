@@ -31,6 +31,8 @@ public class NodeDataMom implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double calculatedValue;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private Double calculatedMmdValue;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double difference;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double seasonalityPerc;
@@ -82,6 +84,14 @@ public class NodeDataMom implements Serializable {
 
     public void setCalculatedValue(Double calculatedValue) {
         this.calculatedValue = calculatedValue;
+    }
+
+    public Double getCalculatedMmdValue() {
+        return calculatedMmdValue;
+    }
+
+    public void setCalculatedMmdValue(Double calculatedMmdValue) {
+        this.calculatedMmdValue = calculatedMmdValue;
     }
 
     public Double getDifference() {

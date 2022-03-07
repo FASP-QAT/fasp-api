@@ -1322,6 +1322,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             nodeDataParams.put("PLANNING_UNIT_ID", tnd.getPuNode().getPlanningUnit().getId());
                             nodeDataParams.put("SHARE_PLANNING_UNIT", tnd.getPuNode().isSharePlanningUnit());
                             nodeDataParams.put("REFILL_MONTHS", tnd.getPuNode().getRefillMonths());
+                            nodeDataParams.put("PU_PER_VISIT", tnd.getPuNode().getPuPerVisit());
                             nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
                             nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
                             nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
@@ -1370,7 +1371,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         }
 
                         // Step 3I -- Add the Node Data Extrapolation Option values 
-                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_EXTRAPOLATION) {
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && n.getPayload().isExtrapolation()) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_OPTION_ID");
                             for (NodeDataExtrapolationOption ndeo : tnd.getNodeDataExtrapolationOptionList()) {
                                 nodeDataParams.clear();
@@ -1390,7 +1391,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         }
 
                         // Step 3J -- Add the Node Data Extrapolation and Data values
-                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_EXTRAPOLATION) {
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && n.getPayload().isExtrapolation()) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_ID");
                             NodeDataExtrapolation nde = tnd.getNodeDataExtrapolation();
                             nodeDataParams.clear();
@@ -1403,7 +1404,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeParams.clear();
                                 nodeParams.put("NODE_DATA_EXTRAPOLATION_ID", ndeId);
                                 nodeParams.put("MONTH", edrr.getMonth());
-                                nodeParams.put("AMOUNT", edrr.getAmount());
+                                nodeParams.put("AMOUNT", (edrr.getAmount() < 0 ? 0 : edrr.getAmount()));
                                 nodeParams.put("AMOUNT", edrr.getReportingRate());
                                 di.execute(nodeParams);
                             }
@@ -1435,6 +1436,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             nodeDataParams.put("START_VALUE", ndo.getStartValue());
                             nodeDataParams.put("END_VALUE", ndo.getEndValue());
                             nodeDataParams.put("CALCULATED_VALUE", ndo.getCalculatedValue());
+                            nodeDataParams.put("CALCULATED_MMD_VALUE", ndo.getCalculatedMmdValue());
                             nodeDataParams.put("DIFFERENCE", ndo.getDifference());
                             nodeDataParams.put("SEASONALITY_PERC", ndo.getSeasonalityPerc());
                             nodeDataParams.put("MANUAL_CHANGE", ndo.getManualChange());
@@ -1493,6 +1495,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             }
             params.put("CREATED_BY", spcr.getCreatedBy().getUserId());
             params.put("CREATED_DATE", spcr.getCreatedDate());
+            params.put("ACTIVE", dpu.isActive());
             int programPlanningUnitId = si.executeAndReturnKey(params).intValue();
             updateOldAndNewId(oldAndNewIdMap, "rm_dataset_planning_unit", dpu.getProgramPlanningUnitId(), programPlanningUnitId);
             if (dpu.getSelectedForecastMap() != null) {
@@ -2358,12 +2361,12 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "          ut.USAGE_TYPE_ID, ut.LABEL_ID `UT_LABEL_ID`, ut.LABEL_EN `UT_LABEL_EN`, ut.LABEL_FR `UT_LABEL_FR`, ut.LABEL_SP `UT_LABEL_SP`, ut.LABEL_PR `UT_LABEL_PR`, "
                 + "          ttndf.ONE_TIME_USAGE, ttndf.USAGE_FREQUENCY, upf.USAGE_PERIOD_ID `UPF_USAGE_PERIOD_ID`, upf.CONVERT_TO_MONTH `UPF_CONVERT_TO_MONTH`, upf.LABEL_ID `UPF_LABEL_ID`, upf.LABEL_EN `UPF_LABEL_EN`, upf.LABEL_FR `UPF_LABEL_FR`, upf.LABEL_SP `UPF_LABEL_SP`, upf.LABEL_PR `UPF_LABEL_PR`, "
                 + "          ttndf.REPEAT_COUNT, upr.USAGE_PERIOD_ID `UPR_USAGE_PERIOD_ID`, upr.CONVERT_TO_MONTH `UPR_CONVERT_TO_MONTH`, upr.LABEL_ID `UPR_LABEL_ID`, upr.LABEL_EN `UPR_LABEL_EN`, upr.LABEL_FR `UPR_LABEL_FR`, upr.LABEL_SP `UPR_LABEL_SP`, upr.LABEL_PR `UPR_LABEL_PR`, "
-                + "          ttndp.NODE_DATA_PU_ID, ttndp.REFILL_MONTHS, ttndp.SHARE_PLANNING_UNIT, "
+                + "          ttndp.NODE_DATA_PU_ID, ttndp.REFILL_MONTHS, ttndp.PU_PER_VISIT, ttndp.SHARE_PLANNING_UNIT, "
                 + "          pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, pu.MULTIPLIER `PU_MULTIPLIER`, "
                 + "          puu.UNIT_ID `PUU_UNIT_ID`, puu.UNIT_CODE `PUU_UNIT_CODE`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR`, "
                 + "          ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
                 + "          mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR`, "
-                + "          ndm.NODE_DATA_MOM_ID, ndm.MONTH `NDM_MONTH`, ndm.START_VALUE `NDM_START_VALUE`, ndm.END_VALUE `NDM_END_VALUE`, ndm.CALCULATED_VALUE `NDM_CALCULATED_VALUE`, ndm.DIFFERENCE `NDM_DIFFERENCE`, ndm.SEASONALITY_PERC `NDM_SEASONALITY_PERC`, ndm.MANUAL_CHANGE `NDM_MANUAL_CHANGE`, "
+                + "          ndm.NODE_DATA_MOM_ID, ndm.MONTH `NDM_MONTH`, ndm.START_VALUE `NDM_START_VALUE`, ndm.END_VALUE `NDM_END_VALUE`, ndm.CALCULATED_VALUE `NDM_CALCULATED_VALUE`, ndm.CALCULATED_MMD_VALUE `NDM_CALCULATED_MMD_VALUE`, ndm.DIFFERENCE `NDM_DIFFERENCE`, ndm.SEASONALITY_PERC `NDM_SEASONALITY_PERC`, ndm.MANUAL_CHANGE `NDM_MANUAL_CHANGE`, "
                 + "          ndo.`NODE_DATA_OVERRIDE_ID`, ndo.`MONTH` `OVERRIDE_MONTH`, ndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ndo.SEASONALITY_PERC` 'OVERRIDE_SEASONALITY_PERC`, "
                 + "          nde.NODE_DATA_EXTRAPOLATION_ID, em.EXTRAPOLATION_METHOD_ID, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, nde.`NOTES` `EM_NOTES`, "
                 + "          nded.NODE_DATA_EXTRAPOLATION_DATA_ID, nded.MONTH `EM_MONTH`, nded.AMOUNT `EM_AMOUNT`, nded.REPORTING_RATE `EM_REPORTING_RATE`, "

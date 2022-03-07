@@ -39,6 +39,8 @@ public class LoadVersion implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Date createdDate;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private String notes;
 
     public String getVersionId() {
         return versionId;
@@ -95,6 +97,12 @@ public class LoadVersion implements Serializable {
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }
-    
-    
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
 }
