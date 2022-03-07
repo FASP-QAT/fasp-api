@@ -198,6 +198,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 + "SET "
                 + "eum.ACTIVE=:active, "
                 + "eum.CONVERT_TO_EU=:convertToEu, "
+                + "eum.PROGRAM_ID=:programId, "
                 + "eum.NOTES=:notes, "
                 + "eum.LAST_MODIFIED_DATE=:dt, "
                 + "eum.LAST_MODIFIED_BY=:curUser "
@@ -240,6 +241,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
             } else {
                 MapSqlParameterSource params = new MapSqlParameterSource();
                 params.addValue("equivalencyUnitMappingId", eum.getEquivalencyUnitMappingId());
+                params.addValue("programId", (eum.getProgram() == null ? null : (eum.getProgram().getId() == 0 ? null : eum.getProgram().getId())));
                 params.addValue("active", eum.isActive());
                 params.addValue("notes", eum.getNotes());
                 params.addValue("convertToEu", eum.getConvertToEu());

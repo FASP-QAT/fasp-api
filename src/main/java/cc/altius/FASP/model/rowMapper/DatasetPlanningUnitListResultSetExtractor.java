@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.SelectedForecast;
 import cc.altius.FASP.model.SimpleCodeObject;
@@ -90,6 +91,9 @@ public class DatasetPlanningUnitListResultSetExtractor implements ResultSetExtra
                     dpu.setHigherThenConsumptionThreshold(null);
                 }
                 dpu.setConsumptionNotes(rs.getString("CONSUMPTION_NOTES"));
+                dpu.setActive(rs.getBoolean("ACTIVE"));
+                dpu.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
+                dpu.setCreatedBy(new BasicUser(rs.getInt("CB_USER_ID"), rs.getString("CB_USERNAME")));
                 dpuList.add(dpu);
                 dpu.setSelectedForecastMap(new HashMap<>());
             } else {

@@ -5,19 +5,14 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateTimeDeserializer;
-import cc.altius.FASP.framework.JsonDateTimeSerializer;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Map;
 
 /**
  *
  * @author akil
  */
-public class DatasetPlanningUnit implements Serializable {
+public class DatasetPlanningUnit extends BaseModel implements Serializable {
 
     private int programPlanningUnitId;
     private SimplePlanningUnitTracerCategoryObject planningUnit;
@@ -34,10 +29,6 @@ public class DatasetPlanningUnit implements Serializable {
     private Integer consumptionDataType; // null=Not a Consumption Unit, 1=Forecast, 2=PlanningUnit, 3=Other Unit
     private SimpleObjectWithMultiplier otherUnit;
     private Map<Integer, SelectedForecast> selectedForecastMap;
-    private BasicUser createdBy;
-    @JsonDeserialize(using = JsonDateTimeDeserializer.class)
-    @JsonSerialize(using = JsonDateTimeSerializer.class)
-    private Date createdDate;
 
     public int getProgramPlanningUnitId() {
         return programPlanningUnitId;
@@ -157,22 +148,6 @@ public class DatasetPlanningUnit implements Serializable {
 
     public void setSelectedForecastMap(Map<Integer, SelectedForecast> selectedForecastMap) {
         this.selectedForecastMap = selectedForecastMap;
-    }
-
-    public BasicUser getCreatedBy() {
-        return createdBy;
-    }
-
-    public void setCreatedBy(BasicUser createdBy) {
-        this.createdBy = createdBy;
-    }
-
-    public Date getCreatedDate() {
-        return createdDate;
-    }
-
-    public void setCreatedDate(Date createdDate) {
-        this.createdDate = createdDate;
     }
 
     @Override

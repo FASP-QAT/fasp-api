@@ -8,6 +8,7 @@ package cc.altius.FASP.model.rowMapper;
 import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimpleUnitObject;
 import cc.altius.FASP.model.UsagePeriod;
 import cc.altius.FASP.model.UsageTemplate;
 import java.sql.ResultSet;
@@ -35,8 +36,8 @@ public class UsageTemplateRowMapper implements RowMapper<UsageTemplate> {
             p.setCode(rs.getString("PROGRAM_CODE"));
             ut.setProgram(p);
         }
-        ut.setForecastingUnit(new SimpleObject(rs.getInt("FORECASTING_UNIT_ID"), new LabelRowMapper("FU_").mapRow(rs, i)));
-        ut.setUnit(new SimpleCodeObject(rs.getInt("UNIT_ID"), new LabelRowMapper("U_").mapRow(rs, i), rs.getString("UNIT_CODE")));
+        ut.setForecastingUnit(new SimpleUnitObject(new SimpleCodeObject(rs.getInt("FUU_UNIT_ID"), new LabelRowMapper("FUU_").mapRow(rs, i), rs.getString("FUU_UNIT_CODE")), rs.getInt("FORECASTING_UNIT_ID"), new LabelRowMapper("FU_").mapRow(rs, i)));
+        ut.setUnit(new SimpleCodeObject(rs.getInt("U_UNIT_ID"), new LabelRowMapper("U_").mapRow(rs, i), rs.getString("U_UNIT_CODE")));
         ut.setTracerCategory(new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, i)));
         ut.setLagInMonths(rs.getInt("LAG_IN_MONTHS"));
         ut.setUsageType(new SimpleObject(rs.getInt("USAGE_TYPE_ID"), new LabelRowMapper("UT_").mapRow(rs, i)));
