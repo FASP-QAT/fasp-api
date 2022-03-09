@@ -1116,7 +1116,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
         // Get the Dataset that needs to be committed
         DatasetData dd = spcr.getDatasetData();
-        Map<String, Map<Integer, Integer>> oldAndNewIdMap = new HashMap<>();
+        Map<String, Map<String, Integer>> oldAndNewIdMap = new HashMap<>();
 
         // Mark the CommitRequest as Started
         String sqlString = "UPDATE ct_commit_request cr SET cr.STARTED_DATE=:curDate WHERE cr.COMMIT_REQUEST_ID=:commitRequestId";
@@ -1215,7 +1215,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("ACTIVE", dt.isActive());
             params.put("NOTES", dt.getNotes());
             int treeId = si.executeAndReturnKey(params).intValue();
-            updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree", dt.getTreeId(), treeId);
+            updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(dt.getTreeId()), treeId);
             SimpleJdbcInsert ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node").usingGeneratedKeyColumns("NODE_ID");
 
             // Step 3Aii -- Insert the Region list for the Forecast Tree
@@ -1261,7 +1261,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 nodeParams.put("LAST_MODIFIED_DATE", spcr.getCreatedDate());
                 nodeParams.put("ACTIVE", 1);
                 int nodeId = ni.executeAndReturnKey(nodeParams).intValue();
-                updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree_node", n.getPayload().getNodeId(), nodeId);
+                updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree_node", Integer.toString(n.getPayload().getNodeId()), nodeId);
                 nodeParams.clear();
             }
 
@@ -1287,7 +1287,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 nodeParams.put("ACTIVE", 1);
                 nodeParams.put("NOTES", ts.getNotes());
                 int scenarioId = si.executeAndReturnKey(nodeParams).intValue();
-                updateOldAndNewId(oldAndNewIdMap, "rm_scenario", ts.getId(), scenarioId);
+                updateOldAndNewId(oldAndNewIdMap, "rm_scenario", dt.getTreeId() + "-" + ts.getId(), scenarioId);
 
                 // Step 3E Insert the NodeData
                 for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
@@ -1332,8 +1332,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                             nodeDataPuId = ni.executeAndReturnKey(nodeDataParams).intValue();
                         }
                         nodeDataParams.clear();
-                        nodeDataParams.put("NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", n.getPayload().getNodeId()));
-                        nodeDataParams.put("SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", ts.getId()));
+                        nodeDataParams.put("NODE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree_node", Integer.toString(n.getPayload().getNodeId())));
+                        nodeDataParams.put("SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", dt.getTreeId() + "-" + ts.getId()));
                         nodeDataParams.put("MONTH", tnd.getMonth());
                         nodeDataParams.put("DATA_VALUE", tnd.getDataValue());
                         nodeDataParams.put("NODE_DATA_FU_ID", nodeDataFuId);
@@ -1346,7 +1346,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         nodeDataParams.put("ACTIVE", 1);
                         ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data").usingGeneratedKeyColumns("NODE_DATA_ID");
                         int nodeDataId = ni.executeAndReturnKey(nodeDataParams).intValue();
-                        updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree_node_data", tnd.getNodeDataId(), nodeDataId);
+                        updateOldAndNewId(oldAndNewIdMap, "rm_forecast_tree_node_data", Integer.toString(tnd.getNodeDataId()), nodeDataId);
 
                         // Step 3H -- Add the Node Data Modelling values
                         if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PERCENTAGE || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_FU || n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_PU) {
@@ -1497,7 +1497,9 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("CREATED_DATE", spcr.getCreatedDate());
             params.put("ACTIVE", dpu.isActive());
             int programPlanningUnitId = si.executeAndReturnKey(params).intValue();
-            updateOldAndNewId(oldAndNewIdMap, "rm_dataset_planning_unit", dpu.getProgramPlanningUnitId(), programPlanningUnitId);
+            updateOldAndNewId(oldAndNewIdMap, "rm_dataset_planning_unit", Integer.toString(dpu.getProgramPlanningUnitId()), programPlanningUnitId);
+
+            // Now store the selected Forecast for this Planning Unit
             if (dpu.getSelectedForecastMap() != null) {
                 batchList.clear();
                 batchArray = null;
@@ -1506,13 +1508,13 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                     batchParams.put("PROGRAM_PLANNING_UNIT_ID", programPlanningUnitId);
                     batchParams.put("REGION_ID", regionId);
                     if (dpu.getSelectedForecastMap().get(regionId).getTreeId() != null) {
-                        batchParams.put("TREE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree", dpu.getSelectedForecastMap().get(regionId).getTreeId()));
+                        batchParams.put("TREE_ID", getNewId(oldAndNewIdMap, "rm_forecast_tree", Integer.toString(dpu.getSelectedForecastMap().get(regionId).getTreeId())));
                     }
                     if (dpu.getSelectedForecastMap().get(regionId).getScenarioId() != null) {
-                        batchParams.put("SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", dpu.getSelectedForecastMap().get(regionId).getScenarioId()));
+                        batchParams.put("SCENARIO_ID", getNewId(oldAndNewIdMap, "rm_scenario", dpu.getSelectedForecastMap().get(regionId).getTreeId() + "-" + dpu.getSelectedForecastMap().get(regionId).getScenarioId()));
                     }
                     if (dpu.getSelectedForecastMap().get(regionId).getConsumptionExtrapolationId() != null) {
-                        batchParams.put("CONSUMPTION_EXTRAPOLATION_ID", getNewId(oldAndNewIdMap, "rm_forecast_consumption_extrapolation", dpu.getSelectedForecastMap().get(regionId).getConsumptionExtrapolationId()));
+                        batchParams.put("CONSUMPTION_EXTRAPOLATION_ID", getNewId(oldAndNewIdMap, "rm_forecast_consumption_extrapolation", Integer.toString(dpu.getSelectedForecastMap().get(regionId).getConsumptionExtrapolationId())));
                     }
                     batchParams.put("TOTAL_FORECAST", dpu.getSelectedForecastMap().get(regionId).getTotalForecast());
                     batchParams.put("NOTES", dpu.getSelectedForecastMap().get(regionId).getNotes());
@@ -1532,17 +1534,17 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         return version;
     }
 
-    private void updateOldAndNewId(Map<String, Map<Integer, Integer>> oldAndNewId, String tableName, int oldId, int newId) {
-        Map<Integer, Integer> tableData = oldAndNewId.get(tableName);
+    private void updateOldAndNewId(Map<String, Map<String, Integer>> oldAndNewId, String tableName, String oldId, int newId) {
+        Map<String, Integer> tableData = oldAndNewId.get(tableName);
         if (tableData == null) {
-            tableData = new HashMap<Integer, Integer>();
+            tableData = new HashMap<String, Integer>();
             oldAndNewId.put(tableName, tableData);
         }
         tableData.put(oldId, newId);
     }
 
-    private Integer getNewId(Map<String, Map<Integer, Integer>> oldAndNewId, String tableName, int oldId) {
-        Map<Integer, Integer> tableData = oldAndNewId.get(tableName);
+    private Integer getNewId(Map<String, Map<String, Integer>> oldAndNewId, String tableName, String oldId) {
+        Map<String, Integer> tableData = oldAndNewId.get(tableName);
         if (tableData == null) {
             return null;
         } else {
