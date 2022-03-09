@@ -4395,14 +4395,6 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cambio mensual (#)');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mudança Mensal (#)');
 
 
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.modelingCalculater','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Modeling Calculater');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Calculatrice de modélisation');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Calculadora de modelado');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Calculadora de modelagem');
-
-
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.calculatedChangeForMonth','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calculated change for month');
@@ -4620,14 +4612,6 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'View monthly data');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher les données mensuelles');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ver datos mensuales');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ver dados mensais');
-
-
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.modelingCalculaterTool','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Modeling Calculater Tool:');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Outil de calcul de modélisation :');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Herramienta de calculadora de modelado:');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ferramenta Calculadora de Modelagem:');
 
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.targetDate','1');
