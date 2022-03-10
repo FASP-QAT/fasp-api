@@ -650,12 +650,14 @@ public class ProgramDaoImpl implements ProgramDao {
         logger.info("ERP Linking : going to get tab wise list---");
         logger.info("ERP Linking : linking type ---" + manualTaggingDTO.getLinkingType());
         if (manualTaggingDTO.getLinkingType() == 1) {
+            // Shipments that need to be linked
             params.put("programId", manualTaggingDTO.getProgramId());
             sql = "CALL getShipmentListForManualLinking(:programId, :planningUnitId, -1)";
             list = this.namedParameterJdbcTemplate.query(sql, params, new ManualTaggingDTORowMapper());
             logger.info("ERP Linking : tab 1 params ---" + params);
             logger.info("ERP Linking : tab 1 list ---" + list);
         } else if (manualTaggingDTO.getLinkingType() == 2) {
+            // Shipments that are already linked
             params.put("programId", manualTaggingDTO.getProgramId());
             sql = "CALL getShipmentListForAlreadyLinkedShipments(:programId, :planningUnitId, -1)";
             list = this.namedParameterJdbcTemplate.query(sql, params, new ERPLinkedShipmentsDTORowMapper());
