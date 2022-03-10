@@ -120,6 +120,13 @@ public class CommitRequestRestController {
             String emptyPuNodeString2 = "\"puNode\":{\"planningUnit\":{\"id\":\"\",\"unit\":{},\"multiplier\":\"\"},\"refillMonths\":\"\"}";
             json = json.replace(emptyPuNodeString2, "\"puNode\": null");
             json = json.replace(",,", ",");
+            String emptyUsageFrequency="\"usageFrequency\":\"\",";
+            json = json.replace(emptyUsageFrequency, "\"usageFrequency\":null,");
+            String emptyUsagePeriod="\"usagePeriod\":{\"usagePeriodId\":\"\"},";
+            json = json.replace(emptyUsagePeriod, "\"usagePeriod\":null,");
+            String emptyRepeatUsagePeriod="\"repeatUsagePeriod\":{\"usagePeriodId\":\"\"},";
+            json = json.replace(emptyRepeatUsagePeriod, "\"repeatUsagePeriod\":null,");
+                    
             Gson gson = new GsonBuilder()
                     .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
                     .registerTypeAdapter(Integer.class, new EmptyIntegerTypeAdapter())
