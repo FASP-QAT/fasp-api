@@ -46,3 +46,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Duplicate Template');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Dupliquer le modèle');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Plantilla duplicada');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Modelo duplicado');
+
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_fu` DROP FOREIGN KEY `fk_forecastTreeNodeDataFu_usageFrequencyUsagePeriodId_idx`;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_fu` CHANGE COLUMN `USAGE_FREQUENCY` `USAGE_FREQUENCY` DECIMAL(16,4) UNSIGNED NULL COMMENT '# of times the Forecasting Unit is given per Usage' , CHANGE COLUMN `USAGE_FREQUENCY_USAGE_PERIOD_ID` `USAGE_FREQUENCY_USAGE_PERIOD_ID` INT UNSIGNED NULL COMMENT 'Foreign Key that points to the UsagePeriod (every day, week, month etc)' ;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_fu` ADD CONSTRAINT `fk_forecastTreeNodeDataFu_usageFrequencyUsagePeriodId_idx`  FOREIGN KEY (`USAGE_FREQUENCY_USAGE_PERIOD_ID`)  REFERENCES `fasp`.`ap_usage_period` (`USAGE_PERIOD_ID`);
