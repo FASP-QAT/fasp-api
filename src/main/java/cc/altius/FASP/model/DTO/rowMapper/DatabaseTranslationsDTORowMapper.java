@@ -15,17 +15,14 @@ import org.springframework.jdbc.core.RowMapper;
  *
  * @author altius
  */
-public class DatabaseTranslationsDTORowMapper implements RowMapper<DatabaseTranslationsDTO>{
+public class DatabaseTranslationsDTORowMapper implements RowMapper<DatabaseTranslationsDTO> {
 
     @Override
     public DatabaseTranslationsDTO mapRow(ResultSet rs, int i) throws SQLException {
-                DatabaseTranslationsDTO l = new DatabaseTranslationsDTO();
+        DatabaseTranslationsDTO l = new DatabaseTranslationsDTO();
         l.setLabelFor(rs.getString("LABEL_FOR"));
-        l.setRealmId(rs.getInt("REALM_ID"));
         l.setLabel(new LabelRowMapper().mapRow(rs, i));
         return l;
     }
-    
-    
-    
+
 }

@@ -16,7 +16,7 @@ import java.util.List;
  */
 public interface LabelService {
 
-    public List<DatabaseTranslationsDTO> getDatabaseLabelsList(int realmId);
+    public List<DatabaseTranslationsDTO> getDatabaseLabelsList(CustomUserDetails curUser);
     
     public boolean saveDatabaseLabels(List<String> label,CustomUserDetails curUser);
     
