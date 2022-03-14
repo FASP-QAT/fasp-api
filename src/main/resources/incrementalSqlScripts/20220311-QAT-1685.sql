@@ -466,3 +466,32 @@ INSERT INTO us_role_business_function values (null, 'ROLE_APPLICATION_ADMIN', 'R
 INSERT INTO us_role_business_function values (null, 'ROLE_REALM_ADMIN', 'ROLE_BUSINESS_FUNCTION_EDIT_REALM_LABELS', 1, now(), 1, now());
 INSERT INTO us_role_business_function values (null, 'ROLE_PROGRAM_ADMIN', 'ROLE_BUSINESS_FUNCTION_EDIT_PROGRAM_LABELS', 1, now(), 1, now());
 
+ALTER TABLE `fasp`.`rm_data_source_type` ADD INDEX `fk_rm_data_source_type_labelId_idx` (`LABEL_ID` ASC);
+ALTER TABLE `fasp`.`rm_data_source_type` ADD CONSTRAINT `fk_rm_data_source_type_labelId`  FOREIGN KEY (`LABEL_ID`)  REFERENCES `fasp`.`ap_label` (`LABEL_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+
+ALTER TABLE `fasp`.`ap_unit` ADD INDEX `fk_ap_unit_labelId_idx` (`LABEL_ID` ASC);
+ALTER TABLE `fasp`.`ap_unit` ADD CONSTRAINT `fk_ap_unit_labelId`  FOREIGN KEY (`LABEL_ID`)  REFERENCES `fasp`.`ap_label` (`LABEL_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+
+ALTER TABLE `fasp`.`ap_problem` ADD INDEX `fk_ap_problem_actionLabelId_idx` (`ACTION_LABEL_ID` ASC);
+ALTER TABLE `fasp`.`ap_problem` ADD CONSTRAINT `fk_ap_problem_actionLabelId`  FOREIGN KEY (`ACTION_LABEL_ID`)  REFERENCES `fasp`.`ap_label` (`LABEL_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+
+ALTER TABLE `fasp`.`rm_realm_country_planning_unit` ADD INDEX `fk_rm_realm_country_planning_unit_labelId_idx` (`LABEL_ID` ASC);
+ALTER TABLE `fasp`.`rm_realm_country_planning_unit` ADD CONSTRAINT `fk_rm_realm_country_planning_unit_labelId`  FOREIGN KEY (`LABEL_ID`)  REFERENCES `fasp`.`ap_label` (`LABEL_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+
+ALTER TABLE `fasp`.`ap_notification_type` 
+    CHANGE COLUMN `LABEL_ID` `LABEL_ID` INT UNSIGNED NOT NULL, 
+    CHANGE COLUMN `CREATED_BY` `CREATED_BY` INT UNSIGNED NOT NULL, 
+    CHANGE COLUMN `LAST_MODIFIED_BY` `LAST_MODIFIED_BY` INT UNSIGNED NOT NULL, 
+    CHANGE COLUMN `ACTIVE` `ACTIVE` TINYINY UNSIGNED NOT NULL DEFAULT 1;
+
+ALTER TABLE `fasp`.`ap_notification_type` 
+    ADD INDEX `fk_ap_notification_type_labelId_idx` (`LABEL_ID` ASC), 
+    ADD INDEX `fk_ap_notification_type_createdBy_idx` (`CREATED_BY` ASC), 
+    ADD INDEX `fk_ap_notification_type_lastModifiedBy_idx` (`LAST_MODIFIED_BY` ASC);
+    
+ALTER TABLE `fasp`.`ap_notification_type` 
+    ADD CONSTRAINT `fk_ap_notification_type_labelId`  FOREIGN KEY (`LABEL_ID`)  REFERENCES `fasp`.`ap_label` (`LABEL_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_ap_notification_type_createdBy` FOREIGN KEY (`CREATED_BY`)  REFERENCES `fasp`.`us_user` (`USER_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION,
+    ADD CONSTRAINT `fk_ap_notification_type_lastModifiedBy` FOREIGN KEY (`LAST_MODIFIED_BY`)  REFERENCES `fasp`.`us_user` (`USER_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
+
+UPDATE rm_program p LEFT JOIN ap_label l ON p.LABEL_ID=l.LABEL_ID SET l.SOURCE_ID=18 where p.PROGRAM_CODE='TZA-CON/ARV-MOH';
