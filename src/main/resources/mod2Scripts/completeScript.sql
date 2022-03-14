@@ -4395,14 +4395,6 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cambio mensual (#)');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mudança Mensal (#)');
 
 
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.modelingCalculater','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Modeling Calculater');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Calculatrice de modélisation');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Calculadora de modelado');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Calculadora de modelagem');
-
-
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.calculatedChangeForMonth','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calculated change for month');
@@ -4620,14 +4612,6 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'View monthly data');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher les données mensuelles');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ver datos mensuales');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ver dados mensais');
-
-
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.modelingCalculaterTool','1');
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Modeling Calculater Tool:');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Outil de calcul de modélisation :');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Herramienta de calculadora de modelado:');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Ferramenta Calculadora de Modelagem:');
 
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.targetDate','1');
@@ -6181,6 +6165,9 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Interpoler les valeurs
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Interpolar valores perdidos');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Interpolar valores ausentes');-- p
 
+
+INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Add Tree',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'24');
+SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
 INSERT INTO `fasp`.`us_business_function`(`BUSINESS_FUNCTION_ID`,`LABEL_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( 'ROLE_BF_ADD_TREE',@MAX,'1',NOW(),'1',NOW());
 INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_REALM_ADMIN','ROLE_BF_ADD_TREE','1',NOW(),'1',NOW());
 INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_DATASET_ADMIN','ROLE_BF_ADD_TREE','1',NOW(),'1',NOW());

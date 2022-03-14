@@ -112,7 +112,7 @@ public class CommitRequestRestController {
         String json = null;
         try {
             json = IOUtils.toString(request.getReader());
-            String emptyFuNodeString1 = "\"fuNode\":{\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":\"\"},\"repeatUsagePeriod\":{},\"noOfPersons\":\"\"}";
+            String emptyFuNodeString1 = "\"fuNode\":{\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":\"\"},\"repeatUsagePeriod\":{\"usagePeriodId\":\"\"},\"noOfPersons\":\"\"}";
             json = json.replace(emptyFuNodeString1, "\"fuNode\": null");
             json = json.replace(",,", ",");
             String emptyPuNodeString1 = "\"puNode\":{\"planningUnit\":{\"unit\":{}},\"refillMonths\":\"\"}";
@@ -120,6 +120,13 @@ public class CommitRequestRestController {
             String emptyPuNodeString2 = "\"puNode\":{\"planningUnit\":{\"id\":\"\",\"unit\":{},\"multiplier\":\"\"},\"refillMonths\":\"\"}";
             json = json.replace(emptyPuNodeString2, "\"puNode\": null");
             json = json.replace(",,", ",");
+            String emptyUsageFrequency="\"usageFrequency\":\"\",";
+            json = json.replace(emptyUsageFrequency, "\"usageFrequency\":null,");
+            String emptyUsagePeriod="\"usagePeriod\":{\"usagePeriodId\":\"\"},";
+            json = json.replace(emptyUsagePeriod, "\"usagePeriod\":null,");
+            String emptyRepeatUsagePeriod="\"repeatUsagePeriod\":{\"usagePeriodId\":\"\"},";
+            json = json.replace(emptyRepeatUsagePeriod, "\"repeatUsagePeriod\":null,");
+                    
             Gson gson = new GsonBuilder()
                     .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
                     .registerTypeAdapter(Integer.class, new EmptyIntegerTypeAdapter())
