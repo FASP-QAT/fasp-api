@@ -6,6 +6,8 @@
 package cc.altius.FASP.model.DTO;
 
 import cc.altius.FASP.model.Label;
+import cc.altius.FASP.model.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 
 /**
  *
@@ -13,16 +15,8 @@ import cc.altius.FASP.model.Label;
  */
 public class DatabaseTranslationsDTO extends Label {
 
-    private int realmId;
+    @JsonView(Views.InternalView.class)
     private String labelFor;
-
-    public int getRealmId() {
-        return realmId;
-    }
-
-    public void setRealmId(int realmId) {
-        this.realmId = realmId;
-    }
 
     public String getLabelFor() {
         return labelFor;
