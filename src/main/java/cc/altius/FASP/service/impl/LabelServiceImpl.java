@@ -25,8 +25,8 @@ public class LabelServiceImpl implements LabelService {
     private LabelDao labelDao;
 
     @Override
-    public List<DatabaseTranslationsDTO> getDatabaseLabelsList(int realmId) {
-        return this.labelDao.getDatabaseLabelsList(realmId);
+    public List<DatabaseTranslationsDTO> getDatabaseLabelsList(CustomUserDetails curUser) {
+        return this.labelDao.getDatabaseLabelsList(curUser);
     }
 
     @Override
