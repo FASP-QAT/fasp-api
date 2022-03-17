@@ -368,6 +368,9 @@ public class ProgramDataRestController {
         try {
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             return new ResponseEntity(this.programDataService.getActualConsumptionDataInput(acd, curUser), HttpStatus.OK);
+        } catch (AccessDeniedException ade) {
+            logger.error("/api/program/actualConsumptionReport", ade);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.FORBIDDEN);
         } catch (Exception e) {
             logger.error("/api/program/actualConsumptionReport", e);
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);

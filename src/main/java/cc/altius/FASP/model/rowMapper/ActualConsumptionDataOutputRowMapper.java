@@ -5,7 +5,9 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.SimpleForecastingUnitProductCategoryObject;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitProductCategoryObject;
 import cc.altius.FASP.model.report.ActualConsumptionDataOutput;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -20,7 +22,7 @@ public class ActualConsumptionDataOutputRowMapper implements RowMapper<ActualCon
     @Override
     public ActualConsumptionDataOutput mapRow(ResultSet rs, int rowNum) throws SQLException {
         ActualConsumptionDataOutput acd = new ActualConsumptionDataOutput();
-        acd.setPlanningUnit(new SimpleObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, rowNum)));
+        acd.setPlanningUnit(new SimplePlanningUnitProductCategoryObject(rs.getInt("PLANNING_UNIT_ID"), new LabelRowMapper("PU_").mapRow(rs, rowNum), new SimpleForecastingUnitProductCategoryObject(rs.getInt("FORECASTING_UNIT_ID"), new LabelRowMapper("FU_").mapRow(rs, rowNum), new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PC_").mapRow(rs, rowNum)))));
         acd.setRegion(new SimpleObject(rs.getInt("REGION_ID"), new LabelRowMapper("REG_").mapRow(rs, rowNum)));
         acd.setMonth(rs.getDate("CONSUMPTION_DATE"));
         acd.setActualConsumption(rs.getDouble("CONSUMPTION_QTY"));

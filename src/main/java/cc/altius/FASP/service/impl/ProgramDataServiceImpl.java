@@ -226,7 +226,7 @@ public class ProgramDataServiceImpl implements ProgramDataService {
     @Override
     public List<ActualConsumptionDataOutput> getActualConsumptionDataInput(ActualConsumptionDataInput acd, CustomUserDetails curUser) {
         Program p = this.programCommonDao.getProgramById(acd.getProgramId(), GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
-        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+        if (p != null && this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), p.getProgramId(), p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             return this.programDataDao.getActualConsumptionDataInput(acd, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
