@@ -58,11 +58,3 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Note: Before committin
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Remarque : Avant de vous engager, n`oubliez pas d`établir une prévision pour chaque unité de planification dans l`écran `Comparer et sélectionner`.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nota: antes de comprometerse, recuerde un pronóstico para cada unidad de planificación en la pantalla `Comparar y seleccionar`');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Observação: antes de confirmar, lembre-se de uma previsão para cada unidade de planejamento na tela `Comparar e selecionar`');-- pr
-
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.forecastValidation.editMe','1'); 
-SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Edit me');-- en
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Modifiez-moi');-- fr
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'editarme');-- sp
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Edite-me');-- pr
