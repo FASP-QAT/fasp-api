@@ -42,7 +42,7 @@ public interface ProgramService {
     public Program getProgramById(int programId, CustomUserDetails curUser);
 
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramId(int programId, boolean active, CustomUserDetails curUser);
-    
+
     public List<ProgramPlanningUnit> getPlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser);
 
     public List<SimpleObject> getPlanningUnitListForProgramIds(Integer[] programIds, CustomUserDetails curUser);
@@ -63,18 +63,6 @@ public interface ProgramService {
 
     public Program getProgramList(int realmId, int programId, int versionId);
 
-    public List<ManualTaggingDTO> getShipmentListForManualTagging(ManualTaggingDTO manualTaggingDTO, CustomUserDetails curUser);
-
-    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int programId, int planningUnitId, int linkingType, int parentShipmentId);
-
-    public List<Integer> linkShipmentWithARTMIS(ManualTaggingOrderDTO[] manualTaggingOrderDTO, CustomUserDetails curUser);
-
-    public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId);
-
-    public List<ManualTaggingDTO> getNotLinkedShipments(int programId, int linkingTypeId);
-
-    public void delinkShipment(ManualTaggingOrderDTO erpOrderDTO, CustomUserDetails curUser);
-
     public List<LoadProgram> getLoadProgram(CustomUserDetails curUser);
 
     public LoadProgram getLoadProgram(int programId, int page, CustomUserDetails curUser);
@@ -85,25 +73,6 @@ public interface ProgramService {
 
     public List<ProgramPlanningUnit> getProgramPlanningUnitListForSyncProgram(String programIdsString, CustomUserDetails curUser);
 
-    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId, int linkingType);
-
     public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser);
 
-    public List<ManualTaggingDTO> getOrderDetailsByForNotLinkedERPShipments(String roNoOrderNo, int planningUnitId, int linkingType);
-
-    public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId);
-
-    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO);
-
-    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser);
-
-    public int getNotificationCount(CustomUserDetails curUser);
-
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo);
-
-    public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId);
-
-    public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo);
-
-    public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser);
 }

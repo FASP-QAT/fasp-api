@@ -18,14 +18,12 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.xml.sax.SAXException;
 import cc.altius.FASP.ARTMIS.dao.ImportArtmisDataDao;
-import cc.altius.FASP.model.Batch;
 import cc.altius.FASP.model.DTO.ErpBatchDTO;
 import cc.altius.FASP.model.DTO.ErpOrderDTO;
 import cc.altius.FASP.model.DTO.ErpShipmentDTO;
-import cc.altius.FASP.model.DTO.rowMapper.ERPNewBatchDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ErpBatchDTORowMapper;
 import cc.altius.FASP.model.DTO.rowMapper.ErpOrderDTOListResultSetExtractor;
-import cc.altius.FASP.service.ProgramService;
+import cc.altius.FASP.service.ErpLinkingService;
 import cc.altius.utils.DateUtils;
 import java.io.FileReader;
 import java.sql.ResultSet;
@@ -69,7 +67,7 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
     }
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
-    private ProgramService programService;
+    private ErpLinkingService erpLinkingService;
 
     @Override
     @Transactional
@@ -906,14 +904,14 @@ public class ImportArtmisDataDaoImpl implements ImportArtmisDataDao {
 //                        }
                     }
                     System.out.println("is shipment cancelled---------------------------------------------------------------" + erpOrderDTO.isShipmentCancelled());
-                    System.out.println("is shipment sku changed---------------------------------------------------------------" + (erpOrderDTO.getErpPlanningUnitId() != this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo())));
-                    if (erpOrderDTO.isShipmentCancelled() || (erpOrderDTO.getErpPlanningUnitId() != this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
+                    System.out.println("is shipment sku changed---------------------------------------------------------------" + (erpOrderDTO.getErpPlanningUnitId() != this.erpLinkingService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo())));
+                    if (erpOrderDTO.isShipmentCancelled() || (erpOrderDTO.getErpPlanningUnitId() != this.erpLinkingService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()))) {
                         logger.info("Inside notification------------------------------------------------------------");
                         logger.info("Is shipment cancelled-------------------------" + erpOrderDTO.isShipmentCancelled());
                         logger.info("Is sku changed--------------------------------------" + erpOrderDTO.isSkuChanged());
-                        logger.info("previous erp order------------" + this.programService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()));
+                        logger.info("previous erp order------------" + this.erpLinkingService.checkPreviousARTMISPlanningUnitId(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo()));
                         logger.info("Current erp planning unit---" + erpOrderDTO.getErpPlanningUnitId());
-                        this.programService.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
+                        this.erpLinkingService.createERPNotification(erpOrderDTO.getEoOrderNo(), erpOrderDTO.getEoPrimeLineNo(), erpOrderDTO.getShShipmentId(), (erpOrderDTO.isShipmentCancelled() ? 1 : 2));
                     }
                 } else {
 //                    System.out.println("---------------4--------------");

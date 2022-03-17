@@ -65,7 +65,7 @@ public class ProgramServiceImpl implements ProgramService {
     private ProcurementAgentDao procurementAgentDao;
     @Autowired
     private AclService aclService;
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -268,65 +268,6 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<ManualTaggingDTO> getShipmentListForManualTagging(ManualTaggingDTO manualTaggingDTO, CustomUserDetails curUser) {
-        return this.programDao.getShipmentListForManualTagging(manualTaggingDTO, curUser);
-    }
-
-    @Override
-    public List<ManualTaggingOrderDTO> getOrderDetailsByOrderNoAndPrimeLineNo(String roNoOrderNo, int programId, int planningUnitId, int linkingType, int parentShipmentId) {
-        return this.programDao.getOrderDetailsByOrderNoAndPrimeLineNo(roNoOrderNo, programId, planningUnitId, linkingType, parentShipmentId);
-    }
-
-    @Override
-    public List<Integer> linkShipmentWithARTMIS(ManualTaggingOrderDTO[] manualTaggingOrderDTO, CustomUserDetails curUser) {
-        try {
-            List<Integer> result = new ArrayList<>();
-            System.out.println("length---" + manualTaggingOrderDTO.length);
-            for (int i = 0; i < manualTaggingOrderDTO.length; i++) {
-                System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
-                if (manualTaggingOrderDTO[i].isActive()) {
-                    int id=0;
-                    int count = this.programDao.checkIfOrderNoAlreadyTagged(manualTaggingOrderDTO[i].getOrderNo(), manualTaggingOrderDTO[i].getPrimeLineNo());
-                    if (manualTaggingOrderDTO[i].getShipmentId() != 0) {
-                        if (count != 0) {
-                            id = this.programDao.updateERPLinking(manualTaggingOrderDTO[i], curUser);
-                        } else {
-                            id = this.programDao.linkShipmentWithARTMIS(manualTaggingOrderDTO[i], curUser);
-                        }
-                    } else {
-                        if (count == 0) {
-                            id = this.programDao.linkShipmentWithARTMISWithoutShipmentid(manualTaggingOrderDTO[i], curUser);
-                        }
-                    }
-                    result.add(id);
-                } else if (!manualTaggingOrderDTO[i].isActive()) {
-                    System.out.println("****************************************************************************************" + manualTaggingOrderDTO[i]);
-                    this.programDao.delinkShipment(manualTaggingOrderDTO[i], curUser);
-                }
-            }
-            return result;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    @Override
-    public List<ManualTaggingDTO> getShipmentListForDelinking(int programId, int planningUnitId) {
-        return this.programDao.getShipmentListForDelinking(programId, planningUnitId);
-    }
-
-    @Override
-    public List<ManualTaggingDTO> getNotLinkedShipments(int programId, int linkingTypeId) {
-        return this.programDao.getNotLinkedShipments(programId, linkingTypeId);
-    }
-
-    @Override
-    public void delinkShipment(ManualTaggingOrderDTO erpOrderDTO, CustomUserDetails curUser) {
-        this.programDao.delinkShipment(erpOrderDTO, curUser);
-    }
-
-    @Override
     public List<LoadProgram> getLoadProgram(CustomUserDetails curUser) {
         return this.programDao.getLoadProgram(curUser);
     }
@@ -363,58 +304,8 @@ public class ProgramServiceImpl implements ProgramService {
     }
 
     @Override
-    public List<ErpOrderAutocompleteDTO> getErpOrderSearchData(String term, int programId, int planningUnitId, int linkingType) {
-        return this.programDao.getErpOrderSearchData(term, programId, planningUnitId, linkingType);
-    }
-
-    @Override
     public String getSupplyPlanReviewerList(int programId, CustomUserDetails curUser) {
         return this.programDao.getSupplyPlanReviewerList(programId, curUser);
-    }
-
-    @Override
-    public List<ManualTaggingDTO> getOrderDetailsByForNotLinkedERPShipments(String roNoOrderNo, int planningUnitId, int linkingType) {
-        return this.programDao.getOrderDetailsByForNotLinkedERPShipments(roNoOrderNo, planningUnitId, linkingType);
-    }
-
-    @Override
-    public int createERPNotification(String orderNo, int primeLineNo, int shipmentId, int notificationTypeId) {
-        return this.programDao.createERPNotification(orderNo, primeLineNo, shipmentId, notificationTypeId);
-    }
-
-    @Override
-    public List<ERPNotificationDTO> getNotificationList(ERPNotificationDTO eRPNotificationDTO) {
-        return this.programDao.getNotificationList(eRPNotificationDTO);
-    }
-
-    @Override
-    public int updateNotification(ERPNotificationDTO eRPNotificationDTO, CustomUserDetails curUser) {
-        return this.programDao.updateNotification(eRPNotificationDTO, curUser);
-    }
-
-    @Override
-    public int getNotificationCount(CustomUserDetails curUser) {
-        return this.programDao.getNotificationCount(curUser);
-    }
-
-    @Override
-    public List<ARTMISHistoryDTO> getARTMISHistory(String orderNo, int primeLineNo) {
-        return this.programDao.getARTMISHistory(orderNo, primeLineNo);
-    }
-
-    @Override
-    public ManualTaggingDTO getShipmentDetailsByParentShipmentId(int parentShipmentId) {
-        return this.programDao.getShipmentDetailsByParentShipmentId(parentShipmentId);
-    }
-
-    @Override
-    public int checkPreviousARTMISPlanningUnitId(String orderNo, int primeLineNo) {
-        return this.programDao.checkPreviousARTMISPlanningUnitId(orderNo, primeLineNo);
-    }
-
-    @Override
-    public List<NotificationSummaryDTO> getNotificationSummary(CustomUserDetails curUser) {
-        return this.programDao.getNotificationSummary(curUser);
     }
 
 }
