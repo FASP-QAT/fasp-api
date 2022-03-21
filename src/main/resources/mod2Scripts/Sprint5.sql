@@ -41,5 +41,22 @@ END$$
 
 DELIMITER ;
 
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Before committing, remember to select a forecast for each planning unit in the `Compare and Select` screen'
+where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=1;
 
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Avant de vous engager, n`oubliez pas de sélectionner une prévision pour chaque unité de planification dans l`écran `Comparer et sélectionner`'
+where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=2;
 
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Antes de comprometerse, recuerde seleccionar un pronóstico para cada unidad de planificación en la pantalla `Comparar y seleccionar`.'
+where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Antes de confirmar, lembre-se de selecionar uma previsão para cada unidade de planejamento na tela `Compare and Select`'
+where l.LABEL_CODE='static.commitTree.note' and ll.LANGUAGE_ID=4;
