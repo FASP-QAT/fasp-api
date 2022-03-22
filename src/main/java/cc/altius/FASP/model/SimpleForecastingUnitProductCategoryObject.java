@@ -14,7 +14,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 public class SimpleForecastingUnitProductCategoryObject extends SimpleObject {
 
     @JsonView(Views.InternalView.class)
-            SimpleObject productCategory;
+    SimpleObject productCategory;
 
     public SimpleForecastingUnitProductCategoryObject() {
         super();

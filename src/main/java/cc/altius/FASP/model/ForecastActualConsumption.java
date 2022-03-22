@@ -21,7 +21,7 @@ import java.util.Date;
 public class ForecastActualConsumption implements Serializable {
 
     private int actualConsumptionId;
-    private SimpleObject planningUnit;
+    private SimplePlanningUnitProductCategoryObject planningUnit;
     private SimpleObject region;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
@@ -43,11 +43,11 @@ public class ForecastActualConsumption implements Serializable {
         this.actualConsumptionId = actualConsumptionId;
     }
 
-    public SimpleObject getPlanningUnit() {
+    public SimplePlanningUnitProductCategoryObject getPlanningUnit() {
         return planningUnit;
     }
 
-    public void setPlanningUnit(SimpleObject planningUnit) {
+    public void setPlanningUnit(SimplePlanningUnitProductCategoryObject planningUnit) {
         this.planningUnit = planningUnit;
     }
 
