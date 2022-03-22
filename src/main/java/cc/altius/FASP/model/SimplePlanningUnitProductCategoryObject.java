@@ -13,7 +13,7 @@ import com.fasterxml.jackson.annotation.JsonView;
  */
 public class SimplePlanningUnitProductCategoryObject extends SimpleObject {
 
-    @JsonView(Views.InternalView.class)
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private SimpleForecastingUnitProductCategoryObject forecastingUnit;
 
     public SimplePlanningUnitProductCategoryObject() {
@@ -32,5 +32,5 @@ public class SimplePlanningUnitProductCategoryObject extends SimpleObject {
     public void setForecastingUnit(SimpleForecastingUnitProductCategoryObject forecastingUnit) {
         this.forecastingUnit = forecastingUnit;
     }
-    
+
 }

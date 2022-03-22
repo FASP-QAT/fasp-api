@@ -5,12 +5,15 @@
  */
 package cc.altius.FASP.model;
 
+import com.fasterxml.jackson.annotation.JsonView;
+
 /**
  *
  * @author akil
  */
 public class SimpleForecastingUnitProductCategoryObject extends SimpleObject {
 
+    @JsonView(Views.InternalView.class)
     SimpleObject productCategory;
 
     public SimpleForecastingUnitProductCategoryObject() {

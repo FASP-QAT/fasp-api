@@ -8,6 +8,7 @@ package cc.altius.FASP.model.report;
 import cc.altius.FASP.framework.JsonDateDeserializer;
 import cc.altius.FASP.framework.JsonDateSerializer;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitProductCategoryObject;
 import cc.altius.FASP.model.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
@@ -22,7 +23,7 @@ import java.util.Date;
 public class ActualConsumptionDataOutput implements Serializable {
 
     @JsonView(Views.ReportView.class)
-    private SimpleObject planningUnit;
+    private SimplePlanningUnitProductCategoryObject planningUnit;
     @JsonView(Views.ReportView.class)
     private SimpleObject region;
     @JsonView(Views.ReportView.class)
@@ -32,11 +33,11 @@ public class ActualConsumptionDataOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Double actualConsumption;
 
-    public SimpleObject getPlanningUnit() {
+    public SimplePlanningUnitProductCategoryObject getPlanningUnit() {
         return planningUnit;
     }
 
-    public void setPlanningUnit(SimpleObject planningUnit) {
+    public void setPlanningUnit(SimplePlanningUnitProductCategoryObject planningUnit) {
         this.planningUnit = planningUnit;
     }
 

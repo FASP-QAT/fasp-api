@@ -207,7 +207,10 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 + "     ("
                 + "         eum.ACTIVE!=:active OR "
                 + "         eum.CONVERT_TO_EU!=:convertToEu OR "
-                + "         eum.NOTES!=:notes"
+                + "         eum.NOTES!=:notes OR "
+                + "         eum.PROGRAM_ID!=:programId OR "
+                + "         (eum.PROGRAM_ID IS NULL AND :programId IS NOT NULL) OR "
+                + "         (eum.PROGRAM_ID IS NOT NULL AND :programId IS NULL) "
                 + "     )";
         int updatedRows = 0;
 
