@@ -32,6 +32,7 @@ public class ForecastActualConsumptionRowMapper implements RowMapper<ForecastAct
                         )
                 )
         );
+        fc.setPuMultiplier(rs.getDouble("MULTIPLIER"));
         fc.setRegion(new SimpleObject(rs.getInt("REGION_ID"), new LabelRowMapper("REG_").mapRow(rs, rowNum)));
         fc.setMonth(rs.getDate("MONTH"));
         fc.setAmount(rs.getDouble("AMOUNT"));
