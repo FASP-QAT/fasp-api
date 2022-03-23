@@ -22,6 +22,7 @@ public class ForecastActualConsumption implements Serializable {
 
     private int actualConsumptionId;
     private SimplePlanningUnitProductCategoryObject planningUnit;
+    private double puMultiplier;
     private SimpleObject region;
     @JsonDeserialize(using = JsonDateDeserializer.class)
     @JsonSerialize(using = JsonDateSerializer.class)
@@ -49,6 +50,14 @@ public class ForecastActualConsumption implements Serializable {
 
     public void setPlanningUnit(SimplePlanningUnitProductCategoryObject planningUnit) {
         this.planningUnit = planningUnit;
+    }
+
+    public double getPuMultiplier() {
+        return puMultiplier;
+    }
+
+    public void setPuMultiplier(double puMultiplier) {
+        this.puMultiplier = puMultiplier;
     }
 
     public SimpleObject getRegion() {
