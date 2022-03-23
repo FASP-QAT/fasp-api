@@ -19,7 +19,7 @@ public interface LabelDao {
 
     public int addLabel(Label label, int sourceId, int curUser);
 
-    public List<DatabaseTranslationsDTO> getDatabaseLabelsList(int realmId);
+    public List<DatabaseTranslationsDTO> getDatabaseLabelsList(CustomUserDetails curUser);
     
     public boolean saveDatabaseLabels(List<String> label,CustomUserDetails curUser);
     
