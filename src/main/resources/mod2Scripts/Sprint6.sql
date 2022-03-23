@@ -63,3 +63,19 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Node Forecast');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Node Forecast');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Node Forecast');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Node Forecast');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.levelDetails','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Level Details');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Détails du niveau');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Detalles del nivel');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Detalhes do nível');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.levelName','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Level name');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nom du niveau');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nombre del nivel');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nome do nível');-- pr
+
