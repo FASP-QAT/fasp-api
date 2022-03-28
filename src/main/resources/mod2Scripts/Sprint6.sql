@@ -79,3 +79,4 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Nom du niveau');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Nombre del nivel');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Nome do nível');-- pr
 
+update ap_static_label l set l.LABEL_CODE=TRIM(l.LABEL_CODE);
