@@ -208,7 +208,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 + "     eum.EQUIVALENCY_UNIT_MAPPING_ID=:equivalencyUnitMappingId AND "
                 + "     ("
                 + "         eum.EQUIVALENCY_UNIT_ID!=:equivalencyUnitId OR "
-                + "         eum.FORECASTING_UNIT_ID=:forecastingUnitId OR "
+                + "         eum.FORECASTING_UNIT_ID!=:forecastingUnitId OR "
                 + "         eum.ACTIVE!=:active OR "
                 + "         eum.CONVERT_TO_EU!=:convertToEu OR "
                 + "         eum.NOTES!=:notes OR "
@@ -252,7 +252,6 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 params.addValue("programId", (eum.getProgram() == null ? null : (eum.getProgram().getId() == 0 ? null : eum.getProgram().getId())));
                 params.addValue("equivalencyUnitId", eum.getEquivalencyUnit().getEquivalencyUnitId());
                 params.addValue("forecastingUnitId", eum.getForecastingUnit().getId());
-                params.addValue("active", eum.isActive());
                 params.addValue("active", eum.isActive());
                 params.addValue("notes", eum.getNotes());
                 params.addValue("convertToEu", eum.getConvertToEu());

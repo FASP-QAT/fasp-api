@@ -17,7 +17,9 @@ import cc.altius.FASP.model.report.CostOfInventoryInput;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
+import cc.altius.FASP.model.report.ForecastSummaryInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
+import cc.altius.FASP.model.report.MonthlyForecastInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProgramLeadTimesInput;
 import cc.altius.FASP.model.report.ProgramProductCatalogInput;
@@ -254,11 +256,11 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     //Report no 
     // Reports -> Inventory Reports -> Warehouse Capcity (By Country)
     /**
-     * 
+     *
      */
     @JsonView(Views.ReportView.class)
     @PostMapping("/warehouseByCountry")
@@ -338,7 +340,7 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     // Report no 11
     // Reports -> Inventory Reports -> Expiries
     /**
@@ -526,7 +528,7 @@ public class ReportController {
                 }
                 return new ResponseEntity(ssvoFullList, HttpStatus.OK);
             } else {
-            return new ResponseEntity(ssvoList, HttpStatus.OK);
+                return new ResponseEntity(ssvoList, HttpStatus.OK);
             }
         } catch (Exception e) {
             logger.error("/api/report/stockStatusVertical", e);
@@ -830,4 +832,42 @@ public class ReportController {
         }
     }
 
+    /**
+     * Mod 2 Report 1 -- Monthly Forecast -- programId must be a single Program
+     * -- versionId must be the actual version -- startDate is the month from
+     * which you want the consumption data -- stopDate is the month till which
+     * you want the consumption data -- reportView 1 = PU view, 2 = FU View --
+     * unitIdsList -- List of the PU Id's or FU Id's that you want the report
+     * for
+     *
+     */
+    @JsonView(Views.ReportView.class)
+    @PostMapping(value = "/monthlyForecast")
+    public ResponseEntity getMonthlyForecast(@RequestBody MonthlyForecastInput mf, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.reportService.getMonthlyForecast(mf, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("/api/report/monthlyForecast", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    /**
+     * Mod 2 Report 2 -- Forecast Summary
+     * -- programId must be a single Program
+     * -- versionId must be the actual version 
+     *
+     */
+    @JsonView(Views.ReportView.class)
+    @PostMapping(value = "/forecastSummary")
+    public ResponseEntity getForecastSummary(@RequestBody ForecastSummaryInput fs, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.reportService.getForecastSummary(fs, curUser), HttpStatus.OK);
+        } catch (Exception e) {
+            logger.error("/api/report/forecastSummary", e);
+            return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }
