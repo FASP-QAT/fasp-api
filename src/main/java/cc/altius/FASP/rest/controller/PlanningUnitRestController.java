@@ -16,7 +16,6 @@ import cc.altius.FASP.service.ProcurementAgentService;
 import cc.altius.FASP.service.UserService;
 import com.fasterxml.jackson.annotation.JsonView;
 import java.text.ParseException;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -273,6 +272,20 @@ public class PlanningUnitRestController {
         } catch (Exception e) {
             logger.error("Error while listing planningUnit", e);
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    
+    @GetMapping(value="/planningUnit/programId/{programId}/versionId/{versionId}")
+    public ResponseEntity getPlanningUnitForDataset(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
+        try {
+            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+            return new ResponseEntity(this.planningUnitService.getPlanningUnitListForDataset(programId, versionId, curUser), HttpStatus.OK);
+        } catch (EmptyResultDataAccessException er) {
+            logger.error("Error while trying to list PlanningUnit", er);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
+        } catch (Exception e) {
+            logger.error("Error while trying to list PlanningUnit", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 

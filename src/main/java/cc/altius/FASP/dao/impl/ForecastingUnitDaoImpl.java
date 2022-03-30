@@ -21,6 +21,8 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.model.LabelConstants;
+import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -255,4 +257,14 @@ public class ForecastingUnitDaoImpl implements ForecastingUnitDao {
         this.aclService.addUserAclForRealm(sb, params, "fu", curUser);
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ForecastingUnitRowMapper());
     }
+    
+    @Override
+    public List<SimpleObject> getForecastingUnitListForDataset(int programId, int versionId, CustomUserDetails curUser) {
+        String sql = "SELECT fu.FORECASTING_UNIT_ID `ID`, fu.LABEL_ID, fu.LABEL_EN, fu.LABEL_FR, fu.LABEL_SP, fu.LABEL_PR FROM rm_dataset_planning_unit dpu LEFT JOIN vw_planning_unit pu ON dpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID WHERE dpu.PROGRAM_ID=:programId AND dpu.VERSION_ID=:versionId";
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        params.put("versionId", versionId);
+        return this.namedParameterJdbcTemplate.query(sql, params, new SimpleObjectRowMapper());
+    }
+
 }
