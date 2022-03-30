@@ -238,7 +238,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 idx = tnd.getNodeDataMomList().indexOf(ndMom);
                 // Not found so add it
                 if (idx == -1) {
-                    ndMom.setMonth(rs.getDate("NDM_MONTH"));
+                    ndMom.setMonth(rs.getString("NDM_MONTH"));
                     ndMom.setStartValue(rs.getDouble("NDM_START_VALUE"));
                     if (rs.wasNull()) {
                         ndMom.setStartValue(null);

@@ -611,13 +611,13 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         int max = 0;
 
         // Step 1 - Drop the table if it exists
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_tracer_category`";
-//        String sqlString = "DROP TABLE IF EXISTS `tmp_tracer_category`";
+//        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_tracer_category`";
+        String sqlString = "DROP TABLE IF EXISTS `tmp_tracer_category`";
         this.jdbcTemplate.update(sqlString);
 
         // Step 2 - Create the tmp table
-        sqlString = "CREATE TEMPORARY TABLE `tmp_tracer_category` ( "
-                //        sqlString = "CREATE TABLE `tmp_tracer_category` ( "
+//        sqlString = "CREATE TEMPORARY TABLE `tmp_tracer_category` ( "
+                        sqlString = "CREATE TABLE `tmp_tracer_category` ( "
                 + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + "  `LABEL` varchar(255) COLLATE utf8_bin NOT NULL, "
                 + "  `TRACER_CATEGORY_ID` int(10) unsigned DEFAULT NULL, "
@@ -768,13 +768,13 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         sb.append("------------------------------- Forecasting Unit ------------------------------------").append(br);
         //------------Forcasting Unit--------------------------
         // Step 1 - Drop the table if it exists
-        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
-//        String sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
+//        String sqlString = "DROP TEMPORARY TABLE IF EXISTS `tmp_forecasting_unit`";
+        String sqlString = "DROP TABLE IF EXISTS `tmp_forecasting_unit`";
         this.jdbcTemplate.update(sqlString);
 
         // Step 2 - Create Temporary Table
-        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
-                //        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
+//        sqlString = "CREATE TEMPORARY TABLE `tmp_forecasting_unit` (   "
+                        sqlString = "CREATE TABLE `tmp_forecasting_unit` (   "
                 + "    `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,   "
                 + "    `LABEL` varchar(200) COLLATE utf8_bin NOT NULL,   "
                 + "    `LABEL_ID` int (10) unsigned DEFAULT NULL,   "
@@ -879,19 +879,19 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                 logger.info("unit id---" + this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getUnit().getCode(), fu.getUnit().getLabel().getLabel_en()));
                 fu.getUnit().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getUnit().getCode(), fu.getUnit().getLabel().getLabel_en()));
                 forecastingUnitParams.replace("UNIT_ID", fu.getUnit().getId());
-                sb.append("----------fu 1--------------");
+                sb.append("----------fu 1--------------").append(br);
                 sqlString = "SELECT SORT_ORDER FROM vw_product_category pc WHERE pc.REALM_ID=1 AND pc.LABEL_EN LIKE '%" + fu.getProductCategory().getLabel().getLabel_fr() + "' AND length(pc.SORT_ORDER)=5";
                 String sortOrder = this.jdbcTemplate.queryForObject(sqlString, String.class);
-                sb.append("----------fu 2--------------");
+                sb.append("----------fu 2--------------").append(br);
                 sqlString = "SELECT PRODUCT_CATEGORY_ID FROM vw_product_category pc WHERE pc.REALM_ID=1 AND pc.LABEL_EN=? AND pc.SORT_ORDER LIKE '" + sortOrder + "%'";
                 fu.getProductCategory().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getProductCategory().getLabel().getLabel_en()));
                 forecastingUnitParams.replace("PRODUCT_CATEGORY_ID", fu.getProductCategory().getId());
-                sb.append("----------fu 3--------------");
+                sb.append("----------fu 3--------------").append(br);
                 sqlString = "SELECT TRACER_CATEGORY_ID FROM vw_tracer_category tc WHERE tc.REALM_ID=1 AND tc.LABEL_EN=?";
 //                System.out.println("tracer category---" + fu.getTracerCategory().getLabel().getLabel_en());
                 fu.getTracerCategory().setId(this.jdbcTemplate.queryForObject(sqlString, Integer.class, fu.getTracerCategory().getLabel().getLabel_en()));
                 forecastingUnitParams.replace("TRACER_CATEGORY_ID", fu.getTracerCategory().getId());
-                sb.append("----------fu 4--------------");
+                sb.append("----------fu 4--------------").append(br);
                 if (fu.getProductCategory().getId() != null
                         && fu.getTracerCategory().getId() != null
                         && fu.getProductCategory().getId() != 0
@@ -901,18 +901,18 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
                     fu.getLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
                     forecastingUnitParams.replace("LABEL_ID", fu.getLabel().getLabelId());
                     if (fu.getGenericLabel().getLabel_en() != null) {
-                        sb.append("----------fu 5--------------");
+                        sb.append("----------fu 5--------------").append(br);
                         labelParams.replace("SOURCE_ID", 29);
                         labelParams.replace("LABEL_EN", fu.getGenericLabel().getLabel_en());
                         fu.getGenericLabel().setLabelId(siLabel.executeAndReturnKey(labelParams).intValue());
                         forecastingUnitParams.replace("GENERIC_LABEL_ID", fu.getGenericLabel().getLabelId());
                     } else {
-                        sb.append("----------fu 6--------------");
+                        sb.append("----------fu 6--------------").append(br);
                         forecastingUnitParams.replace("GENERIC_LABEL_ID", null);
                     }
-                    sb.append("----------fu 7--------------");
+                    sb.append("----------fu 7--------------").append(br);
                     siForecastingUnit.execute(forecastingUnitParams);
-                    sb.append("----------fu 8--------------");
+                    sb.append("----------fu 8--------------").append(br);
                 } else {
                     logger.info("Skipping the Forecasting Unit " + fu.getLabel().getLabel_en() + "because either the ProductCategory or TracerCategory is not provided");
                     sb.append("Skipping the Forecasting Unit ").append(fu.getLabel().getLabel_en()).append("because either the ProductCategory or TracerCategory is not provided").append(br);
