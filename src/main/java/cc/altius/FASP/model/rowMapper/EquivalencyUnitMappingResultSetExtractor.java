@@ -44,7 +44,7 @@ public class EquivalencyUnitMappingResultSetExtractor implements ResultSetExtrac
                 eum.setUnit(new SimpleCodeObject(rs.getInt("UNIT_ID"), new LabelRowMapper("U_").mapRow(rs, 1), rs.getString("UNIT_CODE")));
                 eum.setTracerCategory(new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, 1)));
                 int programId = rs.getInt("PROGRAM_ID");
-                if (rs.wasNull()) {
+                if (programId == 0) {
                     eum.setProgram(null);
                 } else {
                     eum.setProgram(new SimpleCodeObject(programId, new LabelRowMapper("P_").mapRow(rs, programId), rs.getString("PROGRAM_CODE")));
