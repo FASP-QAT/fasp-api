@@ -217,26 +217,13 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
                 + "         (eum.PROGRAM_ID IS NOT NULL AND :programId IS NULL) "
                 + "     )";
         int updatedRows = 0;
-
-        String sqlDuplicateCheck = "SELECT COUNT(*) FROM rm_equivalency_unit_mapping eum WHERE eum.EQUIVALENCY_UNIT_ID=:equivalencyUnitId AND eum.FORECASTING_UNIT_ID=:forecastingUnitId AND eum.REALM_ID=:realmId";
         for (EquivalencyUnitMapping eum : equivalencyUnitMappingList) {
-            // Check if the Equivalency Unit is duplicate across the Realm
-            if ((eum.getProgram() == null || eum.getProgram().getId() == null || eum.getProgram().getId() == 0) && eum.getEquivalencyUnitMappingId() == 0) {
-                MapSqlParameterSource params = new MapSqlParameterSource();
-                params.addValue("equivalencyUnitId", eum.getEquivalencyUnit().getEquivalencyUnitId());
-                params.addValue("forecastingUnitId", eum.getForecastingUnit().getId());
-                params.addValue("realmId", curUser.getRealm().getRealmId());
-                if (this.namedParameterJdbcTemplate.queryForObject(sqlDuplicateCheck, params, Integer.class) > 0) {
-                    throw new CouldNotSaveException("Duplicate Key " + eum.getEquivalencyUnit().getEquivalencyUnitId() + "-" + eum.getForecastingUnit().getId() + "-" + curUser.getRealm().getRealmId());
-                }
-
-            }
             if (eum.getEquivalencyUnitMappingId() == 0) {
                 MapSqlParameterSource params = new MapSqlParameterSource();
                 params.addValue("REALM_ID", curUser.getRealm().getRealmId());
                 params.addValue("EQUIVALENCY_UNIT_ID", eum.getEquivalencyUnit().getEquivalencyUnitId());
                 params.addValue("FORECASTING_UNIT_ID", eum.getForecastingUnit().getId());
-                params.addValue("PROGRAM_ID", (eum.getProgram() == null ? null : (eum.getProgram().getId() == 0 ? null : eum.getProgram().getId())));
+                params.addValue("PROGRAM_ID", (eum.getProgram() == null ? (Integer) 0 : eum.getProgram().getId()));
                 params.addValue("NOTES", eum.getNotes());
                 params.addValue("CONVERT_TO_EU", eum.getConvertToEu());
                 params.addValue("ACTIVE", 1);
@@ -248,8 +235,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
             } else {
                 MapSqlParameterSource params = new MapSqlParameterSource();
                 params.addValue("equivalencyUnitMappingId", eum.getEquivalencyUnitMappingId());
-                
-                params.addValue("programId", (eum.getProgram() == null ? null : (eum.getProgram().getId() == 0 ? null : eum.getProgram().getId())));
+                params.addValue("programId", (eum.getProgram() == null ? (Integer) 0 : eum.getProgram().getId()));
                 params.addValue("equivalencyUnitId", eum.getEquivalencyUnit().getEquivalencyUnitId());
                 params.addValue("forecastingUnitId", eum.getForecastingUnit().getId());
                 params.addValue("active", eum.isActive());
