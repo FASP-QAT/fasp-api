@@ -38,7 +38,8 @@ public class CommitRequestRowMapper implements RowMapper<CommitRequest> {
         spcr.setCreatedBy(new BasicUser(rs.getInt("CB_USER_ID"), rs.getString("CB_USERNAME")));
         spcr.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
         spcr.setCompletedDate(rs.getTimestamp("COMPLETED_DATE"));
-        spcr.setStatus(rs.getInt("STATUS"));
+        spcr.setStatus (rs.getInt("STATUS"));
+        spcr.setFailedReason(rs.getString("FAILED_REASON"));
         String json = rs.getString("JSON");
         GsonBuilder gsonBuilder = new GsonBuilder()
                 .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
@@ -46,7 +47,6 @@ public class CommitRequestRowMapper implements RowMapper<CommitRequest> {
                 .setDateFormat("yyyy-MM-dd HH:mm:ss")
                 .setLenient();
         spcr.setProgramTypeId(rs.getInt("PROGRAM_TYPE_ID"));
-        spcr.setJsonError(null);
         Gson gson = gsonBuilder.create();
         try {
             if (spcr.getProgramTypeId() == 1) {
@@ -59,7 +59,7 @@ public class CommitRequestRowMapper implements RowMapper<CommitRequest> {
                 spcr.setDatasetData(data);
             }
         } catch (Exception e) {
-            spcr.setJsonError(e.getMessage());
+            spcr.setFailedReason(e.getMessage());
         }
         return spcr;
     }

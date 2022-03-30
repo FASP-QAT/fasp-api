@@ -59,7 +59,7 @@ public class CommitRequestDaoImpl implements CommitRequestDao {
     private static String commitRequestSql = "SELECT spcr.COMMIT_REQUEST_ID,spcr.`COMMITTED_VERSION_ID`, "
             + "p.PROGRAM_ID, p.PROGRAM_CODE, l.LABEL_ID `PROGRAM_LABEL_ID`, l.LABEL_EN `PROGRAM_LABEL_EN`, l.LABEL_FR `PROGRAM_LABEL_FR`, l.LABEL_SP `PROGRAM_LABEL_SP`, l.LABEL_PR `PROGRAM_LABEL_PR`, p.PROGRAM_TYPE_ID, "
             + "vt.VERSION_TYPE_ID, vt.LABEL_ID `VERSION_TYPE_LABEL_ID`, vt.LABEL_EN `VERSION_TYPE_LABEL_EN`, vt.LABEL_FR `VERSION_TYPE_LABEL_FR`, vt.LABEL_SP `VERSION_TYPE_LABEL_SP`, vt.LABEL_PR `VERSION_TYPE_LABEL_PR`, "
-            + "spcr.`NOTES`,spcr.`SAVE_DATA`, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, spcr.CREATED_DATE, spcr.COMPLETED_DATE, spcr.STATUS, spcr.JSON "
+            + "spcr.`NOTES`,spcr.`SAVE_DATA`, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, spcr.CREATED_DATE, spcr.COMPLETED_DATE, spcr.STATUS, spcr.JSON, spcr.FAILED_REASON "
             + "FROM ct_commit_request spcr "
             + "LEFT JOIN vw_all_program p ON spcr.PROGRAM_ID=p.PROGRAM_ID "
             + "LEFT JOIN ap_label l ON p.LABEL_ID=l.LABEL_ID "
