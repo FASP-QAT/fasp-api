@@ -881,3 +881,33 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Data Check');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Données saisies dans');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Datos ingresados ​​en');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Dados inseridos');-- pr
+
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation_data` CHANGE COLUMN `AMOUNT` `AMOUNT` DECIMAL(18,4) NULL DEFAULT NULL ;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation_option_data` CHANGE COLUMN `AMOUNT` `AMOUNT` DECIMAL(18,4) NULL DEFAULT NULL ;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data` CHANGE COLUMN `DATA_VALUE` `DATA_VALUE` DECIMAL(18,4) NULL DEFAULT NULL COMMENT 'Based on the forecast_tree_node.NODE_TYPE_ID this value will be used either as a direct value or as a Perc of the Parent' ;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_mom` 
+CHANGE COLUMN `START_VALUE` `START_VALUE` DECIMAL(18,4) UNSIGNED NOT NULL ,
+CHANGE COLUMN `END_VALUE` `END_VALUE` DECIMAL(18,4) UNSIGNED NOT NULL ,
+CHANGE COLUMN `CALCULATED_VALUE` `CALCULATED_VALUE` DECIMAL(18,4) UNSIGNED NOT NULL ,
+CHANGE COLUMN `CALCULATED_MMD_VALUE` `CALCULATED_MMD_VALUE` DECIMAL(18,4) UNSIGNED NOT NULL ,
+CHANGE COLUMN `DIFFERENCE` `DIFFERENCE` DECIMAL(18,4) NOT NULL ,
+CHANGE COLUMN `MANUAL_CHANGE` `MANUAL_CHANGE` DECIMAL(18,4) NOT NULL ;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_override` 
+CHANGE COLUMN `MANUAL_CHANGE` `MANUAL_CHANGE` DECIMAL(18,4) NULL DEFAULT NULL COMMENT 'The manual change value' ,
+CHANGE COLUMN `SEASONALITY_PERC` `SEASONALITY_PERC` DECIMAL(18,4) NULL DEFAULT NULL COMMENT 'Seasonality % value. Only applicable for Number nodes not for Percentage nodes, FU or PU nodes' ;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_fu` 
+CHANGE COLUMN `FORECASTING_UNITS_PER_PERSON` `FORECASTING_UNITS_PER_PERSON` DECIMAL(18,4) UNSIGNED NOT NULL COMMENT '# of Forecasting Units ' ,
+CHANGE COLUMN `USAGE_FREQUENCY` `USAGE_FREQUENCY` DECIMAL(18,4) UNSIGNED NULL DEFAULT NULL COMMENT '# of times the Forecasting Unit is given per Usage' ,
+CHANGE COLUMN `REPEAT_COUNT` `REPEAT_COUNT` DECIMAL(18,4) UNSIGNED NULL DEFAULT NULL COMMENT '# of times it is repeated for the Discrete type' ;
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_modeling` CHANGE COLUMN `DATA_VALUE` `DATA_VALUE` DECIMAL(18,4) NOT NULL COMMENT 'Data value could be a number of a % based on the ScaleTypeId' ;
+ALTER TABLE `fasp`.`rm_tree_template_node_data` CHANGE COLUMN `DATA_VALUE` `DATA_VALUE` DECIMAL(18,4) NULL DEFAULT NULL COMMENT 'Based on the NODE_TYPE_ID this value will be used either as a direct value or as a Perc of the Parent' ;
+ALTER TABLE `fasp`.`rm_tree_template_node_data_fu` 
+CHANGE COLUMN `FORECASTING_UNITS_PER_PERSON` `FORECASTING_UNITS_PER_PERSON` DECIMAL(18,4) UNSIGNED NOT NULL COMMENT '# of Forecasting Units ' ,
+CHANGE COLUMN `USAGE_FREQUENCY` `USAGE_FREQUENCY` DECIMAL(18,4) UNSIGNED NULL DEFAULT NULL COMMENT '# of times the Forecasting Unit is given per Usage' ,
+CHANGE COLUMN `REPEAT_COUNT` `REPEAT_COUNT` DECIMAL(18,4) UNSIGNED NULL DEFAULT NULL COMMENT '# of times it is repeated for the Discrete type' ;
+ALTER TABLE `fasp`.`rm_tree_template_node_data_modeling` CHANGE COLUMN `DATA_VALUE` `DATA_VALUE` DECIMAL(18,4) NULL DEFAULT NULL COMMENT 'Data value could be a number of a % based on the ModelingTypeId' ;
+ALTER TABLE `fasp`.`rm_tree_template_node_data_override` CHANGE COLUMN `MANUAL_CHANGE` `MANUAL_CHANGE` DECIMAL(18,4) NOT NULL COMMENT 'The manual change value' ,CHANGE COLUMN `SEASONALITY_PERC` `SEASONALITY_PERC` DECIMAL(18,4) NULL DEFAULT NULL COMMENT 'Seasonality % value. Only applicable for Number nodes not for Percentage nodes, FU or PU nodes' ;
+
+
+
+
