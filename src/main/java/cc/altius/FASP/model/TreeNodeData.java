@@ -5,13 +5,8 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -24,9 +19,7 @@ public class TreeNodeData implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int nodeDataId;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date month;
+    private String month;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int monthNo;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
@@ -79,11 +72,11 @@ public class TreeNodeData implements Serializable {
         this.monthNo = monthNo;
     }
 
-    public Date getMonth() {
+    public String getMonth() {
         return month;
     }
 
-    public void setMonth(Date month) {
+    public void setMonth(String month) {
         this.month = month;
     }
 
