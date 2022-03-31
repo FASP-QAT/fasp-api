@@ -157,15 +157,17 @@ END$$
 DELIMITER ;
 
 
+SET foreign_key_checks = 0;
 
 ALTER TABLE `fasp`.`rm_equivalency_unit_mapping` DROP FOREIGN KEY `fk_rm_equivalency_mapping_programId`;
 ALTER TABLE `fasp`.`rm_equivalency_unit_mapping` DROP INDEX `fk_rm_equivalency_mapping_programId_idx` ,
 ADD INDEX `fk_rm_equivalency_mapping_programId_idx` (`PROGRAM_ID` ASC);
 
 UPDATE rm_equivalency_unit_mapping m SET m.PROGRAM_ID=0 where m.PROGRAM_ID is null;
-ALTER TABLE `fasp`.`rm_equivalency_unit_mapping` DROP INDEX `unq_rm_equivalency_mapping_uniqueRule` ,
+ALTER TABLE `fasp`.`rm_equivalency_unit_mapping` DROP INDEX `fk_rm_equivalency_mapping_uniqueRule` ,
 ADD UNIQUE INDEX `unq_rm_equivalency_mapping_uniqueRule` (`REALM_ID` ASC, `EQUIVALENCY_UNIT_ID` ASC, `FORECASTING_UNIT_ID` ASC, `PROGRAM_ID` ASC);
 
+SET foreign_key_checks = 1;
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
