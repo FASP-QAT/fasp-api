@@ -276,7 +276,7 @@ public class ProgramDaoImpl implements ProgramDao {
         params.put("programId", programId);
         params.put("versionTypeId", 1);
         params.put("versionStatusId", 1);
-        params.put("notes", "");
+        params.put("notes", p.getProgramNotes());
         params.put("forecastStartDate", (p.getCurrentVersion() == null ? null : p.getCurrentVersion().getForecastStartDate()));
         params.put("forecastStopDate", (p.getCurrentVersion() == null ? null : p.getCurrentVersion().getForecastStopDate()));
         Version version = new Version();
