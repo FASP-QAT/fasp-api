@@ -911,5 +911,18 @@ ALTER TABLE `fasp`.`rm_tree_template_node_data_modeling` CHANGE COLUMN `DATA_VAL
 ALTER TABLE `fasp`.`rm_tree_template_node_data_override` CHANGE COLUMN `MANUAL_CHANGE` `MANUAL_CHANGE` DECIMAL(18,4) NOT NULL COMMENT 'The manual change value' ,CHANGE COLUMN `SEASONALITY_PERC` `SEASONALITY_PERC` DECIMAL(18,4) NULL DEFAULT NULL COMMENT 'Seasonality % value. Only applicable for Number nodes not for Percentage nodes, FU or PU nodes' ;
 
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.modelingValidation.puLevel','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'PU');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'PU');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'PU');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'PU');-- pr
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.modelingValidation.fuLevel','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'FU');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'FU');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'FU');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'FU');-- pr
