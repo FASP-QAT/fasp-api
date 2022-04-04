@@ -616,8 +616,8 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         this.jdbcTemplate.update(sqlString);
 
         // Step 2 - Create the tmp table
-//        sqlString = "CREATE TEMPORARY TABLE `tmp_tracer_category` ( "
-                        sqlString = "CREATE TABLE `tmp_tracer_category` ( "
+        sqlString = "CREATE TEMPORARY TABLE `tmp_tracer_category` ( "
+//                        sqlString = "CREATE TABLE `tmp_tracer_category` ( "
                 + "  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT, "
                 + "  `LABEL` varchar(255) COLLATE utf8_bin NOT NULL, "
                 + "  `TRACER_CATEGORY_ID` int(10) unsigned DEFAULT NULL, "
@@ -648,7 +648,7 @@ public class ImportProductCatalogueDaoImpl implements ImportProductCatalogueDao 
         sqlString = "SELECT "
                 + " ttc.TRACER_CATEGORY_ID, 1 REALM_ID, null REALM_CODE, null REALM_LABEL_ID, null REALM_LABEL_EN, null REALM_LABEL_FR, null REALM_LABEL_SP, null REALM_LABEL_PR, "
                 + " null LABEL_ID, ttc.LABEL LABEL_EN, ttc.LABEL LABEL_Fr, ttc.LABEL LABEL_SP, ttc.LABEL LABEL_PR, "
-                + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME "
+                + " 0 ACTIVE, null CREATED_DATE, null LAST_MODIFIED_DATE, null CB_USER_ID, null CB_USERNAME, null LMB_USER_ID, null LMB_USERNAME,null HEALTH_AREA_ID,null HA_LABEL_ID,null HA_LABEL_EN,null HA_LABEL_FR,null HA_LABEL_SP,null HA_LABEL_PR,NULL HEALTH_AREA_CODE "
                 + "FROM tmp_tracer_category ttc WHERE ttc.FOUND=0";
         this.jdbcTemplate.query(sqlString, new TracerCategoryRowMapper());
         SimpleJdbcInsert siLabel = new SimpleJdbcInsert(jdbcTemplate).withTableName("ap_label").usingGeneratedKeyColumns("LABEL_ID");
