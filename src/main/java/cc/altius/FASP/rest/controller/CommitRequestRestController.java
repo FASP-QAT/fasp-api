@@ -122,7 +122,9 @@ public class CommitRequestRestController {
             String emptyPuNodeString1 = "\"puNode\":{\"planningUnit\":{\"unit\":{}},\"refillMonths\":\"\"}";
             json = json.replace(emptyPuNodeString1, "\"puNode\": null");
             String emptyPuNodeString2 = "\"puNode\":{\"planningUnit\":{\"id\":\"\",\"unit\":{},\"multiplier\":\"\"},\"refillMonths\":\"\"}";
+            String emptyPuNodeString3 = "\"puNode\":{\"planningUnit\":{\"id\":\"\",\"unit\":{\"id\":\"\"},\"multiplier\":\"\"},\"refillMonths\":\"\"}";
             json = json.replace(emptyPuNodeString2, "\"puNode\": null");
+            json = json.replace(emptyPuNodeString3, "\"puNode\": null");
             json = json.replace(",,", ",");
             String emptyUsageFrequency="\"usageFrequency\":\"\",";
             json = json.replace(emptyUsageFrequency, "\"usageFrequency\":null,");
@@ -223,9 +225,7 @@ public class CommitRequestRestController {
     @GetMapping("sendNotification/{commitRequestId}")
     public @ResponseBody
     CompletableFuture<ResponseEntity> sendNotification(@PathVariable("commitRequestId") int commitRequestId) throws InterruptedException {
-//        System.out.println("inside send notification"+commitRequestId);
         return this.commitRequestService.getCommitRequestStatusByCommitRequestId(commitRequestId).thenApplyAsync(ResponseEntity -> {
-//            System.out.println("ResponseEntity+++"+ResponseEntity);
             return new ResponseEntity(ResponseEntity, HttpStatus.OK);
         });
     }

@@ -8,13 +8,16 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.dao.ForecastingUnitDao;
 import cc.altius.FASP.dao.PlanningUnitDao;
 import cc.altius.FASP.dao.ProductCategoryDao;
+import cc.altius.FASP.dao.ProgramCommonDao;
 import cc.altius.FASP.dao.RealmDao;
+import cc.altius.FASP.framework.GlobalConstants;
 import cc.altius.FASP.model.CustomUserDetails;
 import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.ForecastingUnit;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.ProductCategory;
+import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.service.AclService;
@@ -46,6 +49,8 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     private AclService aclService;
     @Autowired
     private ProductCategoryDao productCategoryDao;
+    @Autowired
+    private ProgramCommonDao programCommonDao;
 
     @Override
     public List<PlanningUnit> getPlanningUnitList(boolean active, CustomUserDetails curUser) {
@@ -218,6 +223,16 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     @Override
     public List<PlanningUnit> getPlanningUnitListByTracerCategoryIds(String[] tracerCategoryIds, boolean active, CustomUserDetails curUser) {
         return this.planningUnitDao.getPlanningUnitListByTracerCategoryIds(tracerCategoryIds, active, curUser);
+    }
+
+    @Override
+    public List<SimpleObject> getPlanningUnitListForDataset(int programId, int versionId, CustomUserDetails curUser) {
+        Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+            return this.planningUnitDao.getPlanningUnitListForDataset(programId, versionId, curUser);
+        } else {
+            throw new AccessDeniedException("You do not have access to this Program");
+        }
     }
 
 }

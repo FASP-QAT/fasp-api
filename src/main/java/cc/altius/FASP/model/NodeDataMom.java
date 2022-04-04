@@ -5,13 +5,8 @@
  */
 package cc.altius.FASP.model;
 
-import cc.altius.FASP.framework.JsonDateDeserializer;
-import cc.altius.FASP.framework.JsonDateSerializer;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  *
@@ -21,9 +16,8 @@ public class NodeDataMom implements Serializable {
 
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int nodeDataMomId;
-    @JsonDeserialize(using = JsonDateDeserializer.class)
-    @JsonSerialize(using = JsonDateSerializer.class)
-    private Date month;
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private String month;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Double startValue;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
@@ -54,11 +48,11 @@ public class NodeDataMom implements Serializable {
         this.nodeDataMomId = nodeDataMomId;
     }
 
-    public Date getMonth() {
+    public String getMonth() {
         return month;
     }
 
-    public void setMonth(Date month) {
+    public void setMonth(String month) {
         this.month = month;
     }
 

@@ -30,6 +30,9 @@ import cc.altius.FASP.model.report.ForecastMetricsComparisionOutputRowMapper;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyOutput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyOutputRowMapper;
+import cc.altius.FASP.model.report.ForecastSummaryInput;
+import cc.altius.FASP.model.report.ForecastSummaryOutput;
+import cc.altius.FASP.model.report.ForecastSummaryOutputListResultSetExtractor;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportOutput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportOutputRowMapper;
@@ -40,6 +43,9 @@ import cc.altius.FASP.model.report.InventoryInfo;
 import cc.altius.FASP.model.report.InventoryInfoRowMapper;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
 import cc.altius.FASP.model.report.InventoryTurnsOutputRowMapper;
+import cc.altius.FASP.model.report.MonthlyForecastInput;
+import cc.altius.FASP.model.report.MonthlyForecastOutput;
+import cc.altius.FASP.model.report.MonthlyForecastOutputListResultSetExtractor;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutputRowMapper;
@@ -564,6 +570,30 @@ public class ReportDaoImpl implements ReportDao {
         params.put("dt", dt);
         params.put("approvedSupplyPlanOnly", useApprovedSupplyPlanOnly);
         return this.namedParameterJdbcTemplate.queryForObject(sql, params, new StockStatusAcrossProductsForProgramRowMapper());
+    }
+
+    // Mod 2 Report 1 -- Monthly Forecast
+    @Override
+    public List<MonthlyForecastOutput> getMonthlyForecast(MonthlyForecastInput mf, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", mf.getProgramId());
+        params.put("versionId", mf.getVersionId());
+        params.put("startMonth", mf.getStartDate());
+        params.put("stopMonth", mf.getStopDate());
+        params.put("reportView", mf.getReportView());
+        params.put("unitIds", mf.getUnitIdString());
+        String sql = "CALL getMonthlyForecast(:programId, :versionId, :startMonth, :stopMonth, :reportView, :unitIds)";
+        return this.namedParameterJdbcTemplate.query(sql, params, new MonthlyForecastOutputListResultSetExtractor(mf.isAggregateByYear()));
+    }
+
+    // Mod 2 Report 2 -- Forecast Summary
+    @Override
+    public List<ForecastSummaryOutput> getForecastSummary(ForecastSummaryInput fs, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", fs.getProgramId());
+        params.put("versionId", fs.getVersionId());
+        String sql = "CALL getForecastSummary(:programId, :versionId)";
+        return this.namedParameterJdbcTemplate.query(sql, params, new ForecastSummaryOutputListResultSetExtractor(fs.getReportView()));
     }
 
 }

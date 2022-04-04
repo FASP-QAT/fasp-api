@@ -1238,6 +1238,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 batchParams.put("LEVEL_NO", level.getLevelNo());
                 int treeLevelLabelId = this.labelDao.addLabel(level.getLabel(), LabelConstants.RM_FORECAST_TREE_LEVEL, spcr.getCreatedBy().getUserId());
                 batchParams.put("LABEL_ID", treeLevelLabelId);
+                batchParams.put("UNIT_ID", (level.getUnit() == null ? null : level.getUnit().getId()));
                 batchList.add(new MapSqlParameterSource(batchParams));
             }
             batchArray = new SqlParameterSource[batchList.size()];
@@ -1483,6 +1484,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("STOCK", dpu.getStock());
             params.put("EXISTING_SHIPMENTS", dpu.getExistingShipments());
             params.put("MONTHS_OF_STOCK", dpu.getMonthsOfStock());
+            params.put("PROCUREMENT_AGENT_ID", (dpu.getProcurementAgent() == null || dpu.getProcurementAgent().getId() == 0 ? null : dpu.getProcurementAgent().getId()));
             params.put("PRICE", dpu.getPrice());
             params.put("LOWER_THEN_CONSUMPTION_THRESHOLD", dpu.getLowerThenConsumptionThreshold());
             params.put("HIGHER_THEN_CONSUMPTION_THRESHOLD", dpu.getHigherThenConsumptionThreshold());

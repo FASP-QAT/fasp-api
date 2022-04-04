@@ -40,7 +40,7 @@ public class CommitRequest {
     private ProgramData programData;
     @JsonIgnore
     private DatasetData datasetData;
-    private String jsonError;
+    private String failedReason;
 
     public int getCommitRequestId() {
         return commitRequestId;
@@ -154,12 +154,12 @@ public class CommitRequest {
         this.programTypeId = programTypeId;
     }
 
-    public String getJsonError() {
-        return jsonError;
+    public String getFailedReason() {
+        return failedReason;
     }
 
-    public void setJsonError(String jsonError) {
-        this.jsonError = jsonError;
+    public void setFailedReason(String failedReason) {
+        this.failedReason = failedReason;
     }
 
 }

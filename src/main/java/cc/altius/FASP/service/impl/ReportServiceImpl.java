@@ -22,12 +22,16 @@ import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyInput;
 import cc.altius.FASP.model.report.ForecastMetricsMonthlyOutput;
+import cc.altius.FASP.model.report.ForecastSummaryInput;
+import cc.altius.FASP.model.report.ForecastSummaryOutput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportInput;
 import cc.altius.FASP.model.report.FundingSourceShipmentReportOutput;
 import cc.altius.FASP.model.report.GlobalConsumptionInput;
 import cc.altius.FASP.model.report.GlobalConsumptionOutput;
 import cc.altius.FASP.model.report.InventoryInfo;
 import cc.altius.FASP.model.report.InventoryTurnsOutput;
+import cc.altius.FASP.model.report.MonthlyForecastInput;
+import cc.altius.FASP.model.report.MonthlyForecastOutput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportInput;
 import cc.altius.FASP.model.report.ProcurementAgentShipmentReportOutput;
 import cc.altius.FASP.model.report.ProgramLeadTimesInput;
@@ -231,6 +235,18 @@ public class ReportServiceImpl implements ReportService {
             }
         }
         return finalList;
+    }
+
+    // Mod 2 Report 1 -- Monthly Forecast
+    @Override
+    public List<MonthlyForecastOutput> getMonthlyForecast(MonthlyForecastInput mf, CustomUserDetails curUser) {
+        return this.reportDao.getMonthlyForecast(mf, curUser);
+    }
+
+    // Mod 2 Report 2 -- Forecast Summary
+    @Override
+    public List<ForecastSummaryOutput> getForecastSummary(ForecastSummaryInput fs, CustomUserDetails curUser) {
+        return this.reportDao.getForecastSummary(fs, curUser);
     }
 
 }

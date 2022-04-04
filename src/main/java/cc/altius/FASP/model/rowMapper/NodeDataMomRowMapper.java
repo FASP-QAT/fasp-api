@@ -25,7 +25,7 @@ public class NodeDataMomRowMapper implements RowMapper<NodeDataMom> {
     @Override
     public NodeDataMom mapRow(ResultSet rs, int rowNum) throws SQLException {
         NodeDataMom ndm = new NodeDataMom();
-        ndm.setMonth(rs.getDate(prefix + "MONTH"));
+        ndm.setMonth(rs.getString(prefix + "MONTH"));
         ndm.setStartValue(rs.getDouble(prefix + "START_VALUE"));
         if (rs.wasNull()) {
             ndm.setStartValue(null);

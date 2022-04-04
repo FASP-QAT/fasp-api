@@ -466,6 +466,7 @@ INSERT INTO us_role_business_function values (null, 'ROLE_APPLICATION_ADMIN', 'R
 INSERT INTO us_role_business_function values (null, 'ROLE_REALM_ADMIN', 'ROLE_BUSINESS_FUNCTION_EDIT_REALM_LABELS', 1, now(), 1, now());
 INSERT INTO us_role_business_function values (null, 'ROLE_PROGRAM_ADMIN', 'ROLE_BUSINESS_FUNCTION_EDIT_PROGRAM_LABELS', 1, now(), 1, now());
 
+
 ALTER TABLE `fasp`.`rm_data_source_type` ADD INDEX `fk_rm_data_source_type_labelId_idx` (`LABEL_ID` ASC);
 ALTER TABLE `fasp`.`rm_data_source_type` ADD CONSTRAINT `fk_rm_data_source_type_labelId`  FOREIGN KEY (`LABEL_ID`)  REFERENCES `fasp`.`ap_label` (`LABEL_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
 
@@ -485,3 +486,7 @@ ALTER TABLE `fasp`.`ap_notification_type`    ADD INDEX `fk_ap_notification_type_
 ALTER TABLE `fasp`.`ap_notification_type`     ADD CONSTRAINT `fk_ap_notification_type_labelId`  FOREIGN KEY (`LABEL_ID`)  REFERENCES `fasp`.`ap_label` (`LABEL_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION,    ADD CONSTRAINT `fk_ap_notification_type_createdBy` FOREIGN KEY (`CREATED_BY`)  REFERENCES `fasp`.`us_user` (`USER_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION,    ADD CONSTRAINT `fk_ap_notification_type_lastModifiedBy` FOREIGN KEY (`LAST_MODIFIED_BY`)  REFERENCES `fasp`.`us_user` (`USER_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
 
 UPDATE rm_program p LEFT JOIN ap_label l ON p.LABEL_ID=l.LABEL_ID SET l.SOURCE_ID=18 where p.PROGRAM_CODE='TZA-CON/ARV-MOH';
+
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_REALM_ADMIN','ROLE_BF_LABEL_TRANSLATIONS','1',NOW(),'1',NOW()); 
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_BUSINESS_FUNCTION_ID`,`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'ROLE_PROGRAM_ADMIN','ROLE_BF_LABEL_TRANSLATIONS','1',NOW(),'1',NOW()); 
+

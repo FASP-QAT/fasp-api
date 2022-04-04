@@ -83,9 +83,9 @@ public class CommitRequestServiceImpl implements CommitRequestService {
     public void processCommitRequest(CustomUserDetails curUser) {
         CommitRequest spcr = this.commitRequestDao.getPendingCommitRequestProcessList();
         if (spcr != null) {
-            if (spcr.getJsonError() != null) {
-                logger.error("Error while trying to process CommitRequest " + spcr.getJsonError());
-                this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 3, spcr.getJsonError(), 0);
+            if (spcr.getFailedReason() != null) {
+                logger.error("Error while trying to process CommitRequest " + spcr.getFailedReason());
+                this.commitRequestDao.updateCommitRequest(spcr.getCommitRequestId(), 3, spcr.getFailedReason(), 0);
             } else {
                 boolean isStatusUpdated = false;
                 if (spcr.getProgramTypeId() == GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN) {
