@@ -28,6 +28,7 @@ import cc.altius.FASP.model.UsagePeriod;
 import cc.altius.utils.DateUtils;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,6 +44,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
 
     private final boolean isTemplate;
     private final Date curDate;
+    private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 
     public TreeNodeResultSetExtractor(boolean isTemplate) {
         this.isTemplate = isTemplate;
@@ -121,6 +123,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
             // NodeData was not present so add the base values for NodeData
             if (this.isTemplate) {
                 tnd.setMonthNo(rs.getInt("MONTH"));
+                tnd.setMonth(sdf.format(DateUtils.addMonths(curDate, tnd.getMonthNo())));
                 tnd.setManualChangesEffectFuture(rs.getBoolean("MANUAL_CHANGES_EFFECT_FUTURE"));
             } else {
                 tnd.setMonth(rs.getString("MONTH"));
@@ -185,7 +188,9 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                     // Not found so add it
                     if (this.isTemplate) {
                         ndm.setStartDateNo(rs.getInt("MODELING_START_DATE"));
+                        ndm.setStartDate(sdf.format(DateUtils.addMonths(curDate, ndm.getStartDateNo())));
                         ndm.setStopDateNo(rs.getInt("MODELING_STOP_DATE"));
+                        ndm.setStopDate(sdf.format(DateUtils.addMonths(curDate, ndm.getStopDateNo())));
                     } else {
                         ndm.setStartDate(rs.getString("MODELING_START_DATE"));
                         ndm.setStopDate(rs.getString("MODELING_STOP_DATE"));

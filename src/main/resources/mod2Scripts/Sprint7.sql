@@ -616,7 +616,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Usado em previsões de
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.FreightPercent','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Used in Forecast Summary screen to calculate freight cost.');
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilisé dans l'écran 'Résumé des prévisions pour calculer le coût du fret.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilisé dans l`écran `Résumé des prévisions pour calculer le coût du fret.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se utiliza en la pantalla Resumen del pronóstico para calcular el costo del flete.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Usado na tela Resumo da Previsão para calcular o custo do frete.');
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.ForecastThresholdHigh','1');
@@ -856,7 +856,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'q o MA (orden de la me
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'q ou MA (ordem da média móvel) o tamanho da janela da média móvel.');
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.ReportingRate','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
-INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Percentage of all data that was reported. This number is used to adjust the historical data upwards to account for missing data. ');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Percentage of all data that was reported. This number is used to adjust the historical data upwards to account for missing data.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Pourcentage de toutes les données qui ont été déclarées. Ce nombre est utilisé pour ajuster les données historiques vers le haut pour tenir compte des données manquantes.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Porcentaje de todos los datos que se informó. Este número se utiliza para ajustar los datos históricos hacia arriba para tener en cuenta los datos que faltan.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Porcentagem de todos os dados que foram relatados. Esse número é usado para ajustar os dados históricos para cima para contabilizar dados ausentes.');
@@ -911,6 +911,15 @@ ALTER TABLE `fasp`.`rm_tree_template_node_data_modeling` CHANGE COLUMN `DATA_VAL
 ALTER TABLE `fasp`.`rm_tree_template_node_data_override` CHANGE COLUMN `MANUAL_CHANGE` `MANUAL_CHANGE` DECIMAL(18,4) NOT NULL COMMENT 'The manual change value' ,CHANGE COLUMN `SEASONALITY_PERC` `SEASONALITY_PERC` DECIMAL(18,4) NULL DEFAULT NULL COMMENT 'Seasonality % value. Only applicable for Number nodes not for Percentage nodes, FU or PU nodes' ;
 
 
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.modelingValidation.puLevel','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'PU');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'PU');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'PU');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'PU');-- pr
+
+
 
 
 UPDATE ap_static_label l 
@@ -952,3 +961,11 @@ UPDATE ap_static_label l
 LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
 SET ll.LABEL_TEXT='Insira um número válido com no máximo 12 dígitos antes do decimal e no máximo 4 dígitos após o decimal.'
 WHERE l.LABEL_CODE='static.tree.decimalValidation12&2' AND ll.LANGUAGE_ID=4;
+
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.modelingValidation.fuLevel','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'FU');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'FU');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'FU');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'FU');-- pr
