@@ -577,133 +577,133 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enter your actual or p
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Entrez votre stock réel ou projeté au début de votre période de prévision Ceci est utilisé pour calculer lécart dapprovisionnement dans lécran Résumé des prévisions');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingrese su stock real o proyectado al comienzo de su período de pronóstico Esto se usa para calcular la brecha de adquisición en la pantalla Resumen de pronóstico');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Insira seu estoque real ou projetado no início do período de previsão Isso é usado para calcular a lacuna de suprimento na tela Resumo da previsão');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.ExistingShipments ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.ExistingShipments','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enter the total quantity of existing shipments during your forecast period This is used for calculating the procurement gap in the Forecast Summary screen Leave this blank to assume no existing shipments');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Entrez la quantité totale dexpéditions existantes au cours de votre période de prévision Ceci est utilisé pour calculer lécart dapprovisionnement dans lécran Résumé des prévisions Laissez ce champ vide pour supposer quil ny a pas dexpéditions existantes');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingrese la cantidad total de envíos existentes durante su período de pronóstico Esto se usa para calcular la brecha de adquisición en la pantalla Resumen de pronóstico Deje esto en blanco para asumir que no hay envíos existentes');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Introduza a quantidade total de envios existentes durante o seu período de previsão Istoéusado para calcular a lacuna de aprovisionamento no ecrã Resumo da Previsão Deixe em branco para assumir que não há envios existentes');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.DesiredMonthsofStock  ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.DesiredMonthsofStock','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Enter your desired Months of Stock at the end of your forecast period This is used for calculating the procurement gap in the Forecast Summary screen');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Entrez vos mois de stock souhaités à la fin de votre période de prévision Ceci est utilisé pour calculer lécart dapprovisionnement dans lécran Résumé des prévisions');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Ingrese los Meses de existencias deseados al final de su período de pronóstico Esto se usa para calcular la brecha de adquisición en la pantalla Resumen de pronóstico');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Insira os Meses de Estoque desejados no final do período de previsão Isso é usado para calcular a lacuna de aquisição na tela Resumo da Previsão');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.PriceType  ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.PriceType','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Select a procurement agent for your price type If PA proces are available QAT will populate the price You may override QAT provided prices with your own. If you dont see the desired procurement agent, select custom and indicate the procurement agent name in the notes.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Sélectionnez un agent dapprovisionnement pour votre type de prix Si les processus PA sont disponibles, QAT remplira le prix Vous pouvez remplacer les prix fournis par QAT par les vôtres. Si vous ne voyez pas lagent dapprovisionnement souhaité, sélectionnez personnalisé et indiquez le nom de lagent dapprovisionnement dans les notes.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione un agente de adquisiciones para su tipo de precio. Si los procesos de PA están disponibles, QAT completará el precio. Puede anular los precios provistos por QAT con los suyos. Si no ve el agente de compras deseado, seleccione personalizado e indique el nombre del agente de compras en las notas.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione um agente de compras para seu tipo de preço Se os processos de PA estiverem disponíveis, QAT preencherá o preço Você pode substituir os preços fornecidos pela QAT pelos seus próprios. Se você não vir o agente de compras desejado, selecione personalizado e indique o nome do agente de compras nas notas.');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.yAxisInEquivalencyUnit  ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.yAxisInEquivalencyUnit','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If yes - Y-axis is displayed in equivalency units, which allows the forecast to be displayed in programmatic units and combined with other products that share the same equivalency units. Program Admins: Use the Equivalency Units screen to manage equivalency units.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si oui - laxe Y est affiché en unités déquivalence, ce qui permet dafficher la prévision en unités programmatiques et de la combiner avec dautres produits partageant les mêmes unités déquivalence. Administrateurs du programme : utilisez lécran Unités déquivalence pour gérer les unités déquivalence.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si la respuesta es sí, el eje Y se muestra en unidades de equivalencia, lo que permite que el pronóstico se muestre en unidades programáticas y se combine con otros productos que comparten las mismas unidades de equivalencia. Administradores del programa: use la pantalla Unidades de equivalencia para administrar las unidades de equivalencia.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se sim - o eixo Y é exibido em unidades de equivalência, o que permite que a previsão seja exibida em unidades programáticas e combinada com outros produtos que compartilham as mesmas unidades de equivalência. Administradores do programa: Use a tela Unidades de equivalência para gerenciar unidades de equivalência.');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.version  ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.version','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Only local version settings are editable Please load program if you wish to edit version settings');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Seuls les paramètres de la version locale sont modifiables Veuillez charger le programme si vous souhaitez modifier les paramètres de la version');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Solo se puede editar la configuración de la versión local Cargue el programa si desea editar la configuración de la versión');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Apenas as configurações da versão local são editáveis ​​Carregue o programa se desejar editar as configurações da versão');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.HashOfDaysInMonth  ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.HashOfDaysInMonth','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Used in Consumption Forecasts for adjusting actual consumption against stock out days');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilisé dans les prévisions de consommation pour ajuster la consommation réelle par rapport aux jours de rupture de stock');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se utiliza en las previsiones de consumo para ajustar el consumo real frente a los días de desabastecimiento');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Usado em previsões de consumo para ajustar o consumo real em relação aos dias de falta de estoque');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.FreightPercent  ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.FreightPercent','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Used in Forecast Summary screen to calculate freight cost.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilisé dans l'écran 'Résumé des prévisions pour calculer le coût du fret.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se utiliza en la pantalla Resumen del pronóstico para calcular el costo del flete.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Usado na tela Resumo da Previsão para calcular o custo do frete.');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.ForecastThresholdHigh  ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.ForecastThresholdHigh','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Used in Compare and Select screen to compare tree forecasts againt consumption forecasts QAT will flag any tree forecasts that are this % above the highest consumption forecast');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilisé dans lécran Comparer et sélectionner pour comparer les prévisions darbre avec les prévisions de consommation QAT signalera toutes les prévisions darbre qui sont ce % au-dessus de la prévision de consommation la plus élevée');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se usa en la pantalla Comparar y Seleccionar para comparar pronósticos de árbol con pronósticos de consumo. QAT marcará cualquier pronóstico de árbol que esté este % por encima del pronóstico de consumo más alto.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Usado na tela Comparar e Selecionar para comparar as previsões da árvore com as previsões de consumo O QAT sinalizará qualquer previsão de árvore que esteja esta % acima da previsão de consumo mais alta');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.ForecastThresholdLow ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.ForecastThresholdLow','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Used in Compare and Select screen to compare tree forecasts againt consumption forecasts QAT will flag any tree forecasts that are this % below the lowest consumption forecast');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilisé dans lécran Comparer et sélectionner pour comparer les prévisions darbre avec les prévisions de consommation QAT signalera toutes les prévisions darbre qui sont à ce % en dessous de la prévision de consommation la plus basse');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Se usa en la pantalla Comparar y seleccionar para comparar pronósticos de árbol con pronósticos de consumo. QAT marcará cualquier pronóstico de árbol que esté este % por debajo del pronóstico de consumo más bajo.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Usado na tela Comparar e Selecionar para comparar as previsões da árvore com as previsões de consumo O QAT sinalizará qualquer previsão de árvore que esteja essa % abaixo da previsão de consumo mais baixa');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.ForecastProgram ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.ForecastProgram','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Realm-Level templates are available to all users. However, program admins can create program-specific templates.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Les modèles Realm-Level sont disponibles pour tous les utilisateurs. Cependant, les administrateurs du programme peuvent créer des modèles spécifiques au programme.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Las plantillas de nivel de reino están disponibles para todos los usuarios. Sin embargo, los administradores del programa pueden crear plantillas específicas del programa.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Os modelos de Nível de Realm estão disponíveis para todos os usuários. No entanto, os administradores do programa podem criar modelos específicos do programa.');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.UsageName ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.UsageName','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'These Ugsage Names will appear when adding editing a forecasting tree node in the Copy from Template dropdown');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ces noms Ugsage apparaîtront lors de lajout de la modification dun nœud darbre de prévision dans la liste déroulante Copier à partir du modèle');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Estos nombres de uso aparecerán al agregar la edición de un nodo de árbol de pronóstico en el menú desplegable Copiar de plantilla');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Esses nomes de Ugsage aparecerão ao adicionar a edição de um nó de árvore de previsão no menu suspenso Copiar do modelo');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.LagInMonth ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.LagInMonth','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'0 indicates immediate usage');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'0 indique une utilisation immédiate');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'0 indica uso inmediato');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'0 indica uso imediato');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.UsageType ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.UsageType','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Continuous usage product will be used for an indeterminate amount of time Discrete usage product will be used for a finite period as defined by the user');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Le produit à usage continu sera utilisé pendant une durée indéterminée Le produit à usage discret sera utilisé pendant une période déterminée définie par lutilisateur');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El producto de uso continuo se utilizará durante un período de tiempo indeterminado El producto de uso discreto se utilizará durante un período finito definido por el usuario');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O produto de uso contínuo será usado por um período indeterminado O produto de uso discreto será usado por um período finito conforme definido pelo usuário');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.Persons ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.Persons','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If product is shared, indicate how many person(s) share this product. If a product is not shared, enter 1.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si le produit est partagé, indiquez combien de personnes partagent ce produit. Si un produit nest pas partagé, entrez 1.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si se comparte el producto, indique cuántas personas comparten este producto. Si un producto no se comparte, ingrese 1.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se o produto for compartilhado, indique quantas pessoas compartilham este produto. Se um produto não for compartilhado, digite 1.');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.PersonsUnit ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.PersonsUnit','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'The desired unit for the # Person(s) column. Note: this is used in the Usage in Words column on this screen, but when the template is used, this unit does not carry over. Instead, the unit of the parent node is used.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Lunité souhaitée pour la colonne # Personne(s). Remarque : ceci est utilisé dans la colonne « Utilisation en mots » sur cet écran, mais lorsque le modèle est utilisé, cette unité nest pas reportée. Au lieu de cela, lunité du nœud parent est utilisée.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La unidad deseada para la columna # Person(s). Nota: esto se usa en la columna Uso en palabras en esta pantalla, pero cuando se usa la plantilla, esta unidad no se transfiere. En su lugar, se utiliza la unidad del nodo principal.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A unidade desejada para a coluna # pessoa(s). Nota: isso é usado na coluna Uso em palavras nesta tela, mas quando o modelo é usado, esta unidade não é transportada. Em vez disso, a unidade do nó pai é usada.');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.FUPersonTime ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.FUPersonTime','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'How much of the forecasting unit is consumed each time');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quelle quantité dunité de prévision est consommée à chaque fois');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cuánto de la unidad de pronóstico se consume cada vez');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quanto da unidade de previsão é consumida a cada vez');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.OneTimeUsage ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.OneTimeUsage','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'(Discrete only)) If Yes, the forecasting unit is only used once and subsequent fields will not be required');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'(Discrète uniquement)) Si Oui, lunité de prévision nest utilisée quune seule fois et les champs suivants ne seront pas requis');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'(Solo discreto)) Si la respuesta es Sí, la unidad de pronóstico solo se usa una vez y los campos subsiguientes no serán obligatorios');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'(Discreto apenas)) Se Sim, a unidade de previsão é usada apenas uma vez e os campos subsequentes não serão obrigatórios');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.OfTimeFreqwency ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.OfTimeFreqwency','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'How often the forecasting unit is used based on the time period in Frequency Unit. For example, if the product is used 4 times per year, enter 4 in this column and year in the next column.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Fréquence dutilisation de lunité de prévision en fonction de la période dans Unité de fréquence. Par exemple, si le produit est utilisé 4 fois par an, inscrivez « 4 » dans cette colonne et « année » dans la colonne suivante.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Con qué frecuencia se usa la unidad de pronóstico según el período de tiempo en Unidad de frecuencia. Por ejemplo, si el producto se usa 4 veces al año, ingrese 4 en esta columna y año en la columna siguiente.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Com que frequência a unidade de previsão é usada com base no período de tempo em Unidade de frequência. Por exemplo, se o produto for usado 4 vezes por ano, insira 4 nesta coluna e ano na coluna seguinte.');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.Freqwency ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.Freqwency','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'The time period referenced by the Frequency used in the previous column. For example, if the product is used 3 times per day, enter 3 in previous column and day in this column.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La période référencée par la Fréquence utilisée dans la colonne précédente. Par exemple, si le produit est utilisé 3 fois par jour, saisissez 3 dans la colonne précédente et jour dans cette colonne.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'El período de tiempo al que hace referencia la Frecuencia utilizada en la columna anterior. Por ejemplo, si el producto se usa 3 veces al día, ingrese 3 en la columna anterior y día en esta columna.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'O período de tempo referenciado pela Frequência usada na coluna anterior. Por exemplo, se o produto for usado 3 vezes por dia, insira 3 na coluna anterior e dia nesta coluna.');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.UsagePeriod ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.UsagePeriod','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'The length of the usage period. For continuous usage, choose indefinitely');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'La durée de la période dutilisation. Pour une utilisation continue, choisissez indéfiniment');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La duración del período de uso. Para uso continuo, elija indefinidamente');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A duração do período de uso. Para uso contínuo, escolha indefinidamente');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.PeriodUnit ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.PeriodUnit','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'The desired unit for the Period column.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Lunité souhaitée pour la colonne Période.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'La unidad deseada para la columna Período.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'A unidade desejada para a coluna Período.');
-INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.OfFuRequired ','1');
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.OfFuRequired','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'(Discrete only) The total forecasting units required for the period. Equal to: (# of FU / Person / Time) / (# People) * (Usage Frequency, converted to frequency/month) * (Usage Period, converted to months)');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'(Discrète uniquement) Le nombre total dunités de prévision requises pour la période. Égal à : (# dUF / Personne / Temps) / (# Personnes) * (Fréquence dutilisation, convertie en fréquence/mois) * (Période dutilisation, convertie en mois)');
@@ -913,3 +913,42 @@ ALTER TABLE `fasp`.`rm_tree_template_node_data_override` CHANGE COLUMN `MANUAL_C
 
 
 
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Please enter a valid number having max 3 digits before decimal and max 4 digit after decimal.'
+WHERE l.LABEL_CODE='static.tree.decimalValidation10&2' AND ll.LANGUAGE_ID=1;
+
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Veuillez saisir un nombre valide comportant au maximum 3 chiffres avant la virgule et au maximum 4 chiffres après la virgule.'
+WHERE l.LABEL_CODE='static.tree.decimalValidation10&2' AND ll.LANGUAGE_ID=2;
+
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Ingrese un número válido que tenga un máximo de 3 dígitos antes del decimal y un máximo de 4 dígitos después del decimal.'
+WHERE l.LABEL_CODE='static.tree.decimalValidation10&2' AND ll.LANGUAGE_ID=3;
+
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Insira um número válido com no máximo 3 dígitos antes do decimal e no máximo 4 dígitos após o decimal.'
+WHERE l.LABEL_CODE='static.tree.decimalValidation10&2' AND ll.LANGUAGE_ID=4;
+
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Please enter a valid number having max 12 digits before decimal and max 4 digit after decimal.'
+WHERE l.LABEL_CODE='static.tree.decimalValidation12&2' AND ll.LANGUAGE_ID=1;
+
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Veuillez saisir un nombre valide comportant au maximum 12 chiffres avant la virgule et au maximum 4 chiffres après la virgule.'
+WHERE l.LABEL_CODE='static.tree.decimalValidation12&2' AND ll.LANGUAGE_ID=2;
+
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Ingrese un número válido que tenga un máximo de 12 dígitos antes del decimal y un máximo de 4 dígitos después del decimal.'
+WHERE l.LABEL_CODE='static.tree.decimalValidation12&2' AND ll.LANGUAGE_ID=3;
+
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Insira um número válido com no máximo 12 dígitos antes do decimal e no máximo 4 dígitos após o decimal.'
+WHERE l.LABEL_CODE='static.tree.decimalValidation12&2' AND ll.LANGUAGE_ID=4;
