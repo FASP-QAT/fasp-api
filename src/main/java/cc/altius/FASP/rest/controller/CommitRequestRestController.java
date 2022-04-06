@@ -115,17 +115,19 @@ public class CommitRequestRestController {
             String emptyFuNodeString1 = "\"fuNode\":{\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":\"\"},\"repeatUsagePeriod\":{\"usagePeriodId\":\"\"},\"noOfPersons\":\"\"}";
             String emptyFuNodeString2 = "\"fuNode\":{\"lagInMonths\":0,\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":1},\"repeatUsagePeriod\":{\"usagePeriodId\":1},\"noOfPersons\":\"\"}";
             String emptyFuNodeString3 = "\"fuNode\":{\"lagInMonths\":0,\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{\"id\":3},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":1},\"repeatUsagePeriod\":{\"usagePeriodId\":1},\"noOfPersons\":\"\"}";
-            String emptyFuNodeString4 = "\"fuNode\":{\"oneTimeUsage\":\"false\",\"lagInMonths\":0,\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":1},\"repeatUsagePeriod\":{\"usagePeriodId\":1},\"noOfPersons\":\"\"}";
+            String emptyFuNodeString4 = "\"fuNode\":{\"oneTimeUsage\":\"false\",\"lagInMonths\":0,\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{\"id\":3},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":1},\"repeatUsagePeriod\":{\"usagePeriodId\":1},\"noOfPersons\":\"\"}";
+            String emptyFuNodeString5 = "\"fuNode\":{\"oneTimeUsage\":\"false\",\"lagInMonths\":0,\"noOfForecastingUnitsPerPerson\":\"\",\"usageFrequency\":\"\",\"forecastingUnit\":{\"label\":{\"label_en\":\"\"},\"tracerCategory\":{},\"unit\":{\"id\":\"\"}},\"usageType\":{\"id\":\"\"},\"usagePeriod\":{\"usagePeriodId\":1},\"repeatUsagePeriod\":{\"usagePeriodId\":1},\"noOfPersons\":\"\"}";
             json = json.replace(emptyFuNodeString1, "\"fuNode\": null");
             json = json.replace(emptyFuNodeString2, "\"fuNode\": null");
             json = json.replace(emptyFuNodeString3, "\"fuNode\": null");
             json = json.replace(emptyFuNodeString4, "\"fuNode\": null");
+            json = json.replace(emptyFuNodeString5, "\"fuNode\": null");
             json = json.replace(",,", ",");
             String emptyPuNodeString1 = "\"puNode\":{\"planningUnit\":{\"unit\":{}},\"refillMonths\":\"\"}";
-            json = json.replace(emptyPuNodeString1, "\"puNode\": null");
             String emptyPuNodeString2 = "\"puNode\":{\"planningUnit\":{\"id\":\"\",\"unit\":{},\"multiplier\":\"\"},\"refillMonths\":\"\"}";
             String emptyPuNodeString3 = "\"puNode\":{\"planningUnit\":{\"id\":\"\",\"unit\":{\"id\":\"\"},\"multiplier\":\"\"},\"refillMonths\":\"\"}";
             String emptyPuNodeString4 = "\"puNode\":{\"planningUnit\":{\"id\":\"\",\"unit\":{\"id\":\"\"},\"multiplier\":\"\"},\"refillMonths\":\"\",\"sharePlanningUnit\":\"false\"}";
+            json = json.replace(emptyPuNodeString1, "\"puNode\": null");
             json = json.replace(emptyPuNodeString2, "\"puNode\": null");
             json = json.replace(emptyPuNodeString3, "\"puNode\": null");
             json = json.replace(emptyPuNodeString4, "\"puNode\": null");
@@ -136,7 +138,10 @@ public class CommitRequestRestController {
             json = json.replace(emptyUsagePeriod, "\"usagePeriod\":null,");
             String emptyRepeatUsagePeriod="\"repeatUsagePeriod\":{\"usagePeriodId\":\"\"},";
             json = json.replace(emptyRepeatUsagePeriod, "\"repeatUsagePeriod\":null,");
-                    
+            String emptyNodeUnitString = "\"nodeUnit\":{\"id\":\"\"},";
+            json = json.replace(emptyNodeUnitString, "\"nodeUnit\":null,");
+            String emptyParentItem = ",\"parentItem\":{\"payload\":{\"nodeUnit\":{}}}";
+            json = json.replace(emptyParentItem, "");
             Gson gson = new GsonBuilder()
                     .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
                     .registerTypeAdapter(Integer.class, new EmptyIntegerTypeAdapter())

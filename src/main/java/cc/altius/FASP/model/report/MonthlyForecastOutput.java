@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleObjectWithMultiplier;
 import cc.altius.FASP.model.Views;
@@ -27,6 +28,8 @@ public class MonthlyForecastOutput {
     private SimpleObject region;
     @JsonView(Views.ReportView.class)
     private List<MonthlyForecastData> monthlyForecastData;
+    @JsonView(Views.ReportView.class)
+    private Label selectedForecast;
 
     public MonthlyForecastOutput() {
         this.monthlyForecastData = new LinkedList<>();
@@ -62,6 +65,14 @@ public class MonthlyForecastOutput {
 
     public void setMonthlyForecastData(List<MonthlyForecastData> monthlyForecastData) {
         this.monthlyForecastData = monthlyForecastData;
+    }
+
+    public Label getSelectedForecast() {
+        return selectedForecast;
+    }
+
+    public void setSelectedForecast(Label selectedForecast) {
+        this.selectedForecast = selectedForecast;
     }
 
     @Override

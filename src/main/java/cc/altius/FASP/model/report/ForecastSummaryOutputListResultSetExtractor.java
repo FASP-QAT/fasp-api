@@ -60,7 +60,7 @@ public class ForecastSummaryOutputListResultSetExtractor implements ResultSetExt
                 }
             }
             fso.setTracerCategory(new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, 1)));
-            fso.setSelectedForecast(new SimpleObject(0, new LabelRowMapper("SF_").mapRow(rs, 1)));
+            fso.setSelectedForecast(new LabelRowMapper("SF_").mapRow(rs, 1));
             fso.setNotes(rs.getString("NOTES"));
             fso.setStock(rs.getInt("STOCK"));
             if (rs.wasNull()) {
