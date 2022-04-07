@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.report;
 
+import cc.altius.FASP.model.Label;
 import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleObjectWithMultiplier;
@@ -26,7 +27,7 @@ public class ForecastSummaryOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private SimpleObject region;
     @JsonView(Views.ReportView.class)
-    private SimpleObject selectedForecast;
+    private Label selectedForecast;
     @JsonView(Views.ReportView.class)
     private Double totalForecast;
     @JsonView(Views.ReportView.class)
@@ -66,11 +67,11 @@ public class ForecastSummaryOutput implements Serializable {
         this.region = region;
     }
 
-    public SimpleObject getSelectedForecast() {
+    public Label getSelectedForecast() {
         return selectedForecast;
     }
 
-    public void setSelectedForecast(SimpleObject selectedForecast) {
+    public void setSelectedForecast(Label selectedForecast) {
         this.selectedForecast = selectedForecast;
     }
 

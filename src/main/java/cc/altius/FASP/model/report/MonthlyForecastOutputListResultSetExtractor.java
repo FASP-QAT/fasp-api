@@ -58,7 +58,7 @@ public class MonthlyForecastOutputListResultSetExtractor implements ResultSetExt
                 // Not aggregate by year
                 mfd.setMonth(mn);
             }
-
+            mfo.setSelectedForecast(new LabelRowMapper("SF_").mapRow(rs, 1));
             idx = mfo.getMonthlyForecastData().indexOf(mfd);
             if (idx == -1) {
                 mfd.setConsumptionQty(rs.getDouble("CALCULATED_MMD_VALUE"));
