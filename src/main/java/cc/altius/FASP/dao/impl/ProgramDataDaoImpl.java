@@ -1182,6 +1182,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             params.put("CREATED_BY", fce.getCreatedBy().getUserId());
             params.put("CREATED_DATE", fce.getCreatedDate());
             int conspuptionExtrapolationId = si.executeAndReturnKey(params).intValue();
+            updateOldAndNewId(oldAndNewIdMap, "rm_forecast_consumption_extrapolation", Integer.toString(fce.getConsumptionExtrapolationId()), conspuptionExtrapolationId);
             for (ExtrapolationData fced : fce.getExtrapolationDataList()) {
                 Map<String, Object> batchParams = new HashMap<>();
                 batchParams.put("CONSUMPTION_EXTRAPOLATION_ID", conspuptionExtrapolationId);
@@ -1361,6 +1362,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("STOP_DATE", ndm.getStopDate());
                                 nodeDataParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
                                 nodeDataParams.put("DATA_VALUE", ndm.getDataValue());
+                                nodeDataParams.put("INCREASE_DECREASE", ndm.getIncreaseDecrease());
                                 nodeDataParams.put("TRANSFER_NODE_DATA_ID", null);
                                 nodeDataParams.put("NOTES", ndm.getNotes());
                                 nodeDataParams.put("CREATED_DATE", spcr.getCreatedBy().getUserId());
@@ -2370,7 +2372,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "          ttndp.NODE_DATA_PU_ID, ttndp.REFILL_MONTHS, ttndp.PU_PER_VISIT, ttndp.SHARE_PLANNING_UNIT, "
                 + "          pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, pu.MULTIPLIER `PU_MULTIPLIER`, "
                 + "          puu.UNIT_ID `PUU_UNIT_ID`, puu.UNIT_CODE `PUU_UNIT_CODE`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR`, "
-                + "          ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
+                + "          ttndm.`NODE_DATA_MODELING_ID`, ttndm.`DATA_VALUE` `MODELING_DATA_VALUE`, ttndm.`INCREASE_DECREASE`, ttndm.`START_DATE` `MODELING_START_DATE`, ttndm.`STOP_DATE` `MODELING_STOP_DATE`, ttndm.`NOTES` `MODELING_NOTES`, ttndm.`TRANSFER_NODE_DATA_ID` `MODELING_TRANSFER_NODE_DATA_ID`, "
                 + "          mt.`MODELING_TYPE_ID`, mt.`LABEL_ID` `MODELING_TYPE_LABEL_ID`, mt.`LABEL_EN` `MODELING_TYPE_LABEL_EN`, mt.`LABEL_FR` `MODELING_TYPE_LABEL_FR`, mt.`LABEL_SP` `MODELING_TYPE_LABEL_SP`, mt.`LABEL_PR` `MODELING_TYPE_LABEL_PR`, "
                 + "          ndm.NODE_DATA_MOM_ID, ndm.MONTH `NDM_MONTH`, ndm.START_VALUE `NDM_START_VALUE`, ndm.END_VALUE `NDM_END_VALUE`, ndm.CALCULATED_VALUE `NDM_CALCULATED_VALUE`, ndm.CALCULATED_MMD_VALUE `NDM_CALCULATED_MMD_VALUE`, ndm.DIFFERENCE `NDM_DIFFERENCE`, ndm.SEASONALITY_PERC `NDM_SEASONALITY_PERC`, ndm.MANUAL_CHANGE `NDM_MANUAL_CHANGE`, "
                 + "          ndo.`NODE_DATA_OVERRIDE_ID`, ndo.`MONTH` `OVERRIDE_MONTH`, ndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ndo.SEASONALITY_PERC` 'OVERRIDE_SEASONALITY_PERC`, "
