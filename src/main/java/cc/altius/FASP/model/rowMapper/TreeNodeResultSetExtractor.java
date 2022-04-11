@@ -196,6 +196,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                         ndm.setStopDate(rs.getString("MODELING_STOP_DATE"));
                     }
                     ndm.setDataValue(rs.getDouble("MODELING_DATA_VALUE"));
+                    ndm.setIncreaseDecrease(rs.getInt("INCREASE_DECREASE"));
                     ndm.setTransferNodeDataId(rs.getInt("MODELING_TRANSFER_NODE_DATA_ID"));
                     if (rs.wasNull()) {
                         ndm.setTransferNodeDataId(null);

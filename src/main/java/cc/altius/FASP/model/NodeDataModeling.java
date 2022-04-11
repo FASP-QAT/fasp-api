@@ -7,7 +7,6 @@ package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  *
@@ -30,11 +29,14 @@ public class NodeDataModeling implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private double dataValue;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
+    private int increaseDecrease; // 1 for increase and -1 for decrease
+    @JsonView({Views.ReportView.class, Views.InternalView.class})
     private Integer transferNodeDataId;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String notes;
 
     public NodeDataModeling() {
+        this.increaseDecrease = 1;
     }
 
     public NodeDataModeling(int nodeDataModelingId) {
@@ -97,6 +99,14 @@ public class NodeDataModeling implements Serializable {
         this.dataValue = dataValue;
     }
 
+    public int getIncreaseDecrease() {
+        return increaseDecrease;
+    }
+
+    public void setIncreaseDecrease(int increaseDecrease) {
+        this.increaseDecrease = increaseDecrease;
+    }
+
     public Integer getTransferNodeDataId() {
         return transferNodeDataId;
     }
@@ -137,6 +147,5 @@ public class NodeDataModeling implements Serializable {
         }
         return true;
     }
-    
-    
+
 }
