@@ -44,3 +44,25 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,' in ');-- en
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,' dans ');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,' en ');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,' dentro ');-- pr
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.extrapolations.showFits','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Show Fits');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Afficher les coupes');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Mostrar ajustes');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Mostrar ajustes');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.extrapolation.missingDataNotePart1','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'You have months with no actual consumption data, which will cause unexpected results in the extrapolation. Return to the ');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Vous avez des mois sans données de consommation réelle, ce qui entraînera des résultats inattendus dans l`extrapolation. Retour à la ');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Tiene meses sin datos de consumo real, lo que provocará resultados inesperados en la extrapolación. Volver a la ');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Você tem meses sem dados reais de consumo, o que causará resultados inesperados na extrapolação. Retorne para ');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.extrapolation.missingDataNotePart2','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'screen to fill in or interpolate the missing data.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'écran pour compléter ou interpoler les données manquantes.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'pantalla para completar o interpolar los datos faltantes.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'tela para preencher ou interpolar os dados ausentes.');-- pr
