@@ -10,6 +10,7 @@ import cc.altius.FASP.model.DTO.ProgramAndTracerCategoryDTO;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitObject;
 import java.util.List;
 
 /**
@@ -54,5 +55,5 @@ public interface PlanningUnitDao {
 
     public List<PlanningUnit> getPlanningUnitListByTracerCategoryIds(String[] tracerCategoryIds, boolean active, CustomUserDetails curUser);
     
-    public List<SimpleObject> getPlanningUnitListForDataset(int programId, int versionId, CustomUserDetails curUser);
+    public List<SimplePlanningUnitObject> getPlanningUnitListForDataset(int programId, int versionId, CustomUserDetails curUser);
 }

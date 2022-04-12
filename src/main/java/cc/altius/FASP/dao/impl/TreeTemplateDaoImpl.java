@@ -255,9 +255,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                     for (NodeDataOverride ndo : tnd.getNodeDataOverrideList()) {
                         nodeParams.clear();
                         nodeParams.put("NODE_DATA_ID", nodeDataId);
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
-                        Period diff = Period.between(LocalDate.parse(sdf.format(curDate) + "-01"), LocalDate.parse(sdf.format(ndo.getMonth()) + "-01"));
-                        nodeParams.put("MONTH_NO", diff.getMonths());
+                        nodeParams.put("MONTH_NO", ndo.getMonthNo());
                         nodeParams.put("MANUAL_CHANGE", ndo.getManualChange());
                         nodeParams.put("SEASONALITY_PERC", ndo.getSeasonalityPerc());
                         nodeParams.put("CREATED_BY", curUser.getUserId());
@@ -404,10 +402,8 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                     for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
                         nodeParams.clear();
                         nodeParams.put("NODE_DATA_ID", nodeDataId);
-                        Period diff = Period.between(cd, LocalDate.parse(sdfYYYYMM.format(ndm.getStartDate()) + "-01"));
-                        nodeParams.put("START_DATE", diff.getYears() * 12 + diff.getMonths());
-                        diff = Period.between(cd, LocalDate.parse(sdfYYYYMM.format(ndm.getStopDate()) + "-01"));
-                        nodeParams.put("STOP_DATE", diff.getYears() * 12 + diff.getMonths());
+                        nodeParams.put("START_DATE", ndm.getStartDateNo());
+                        nodeParams.put("STOP_DATE", ndm.getStopDateNo());
                         nodeParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
                         nodeParams.put("DATA_VALUE", ndm.getDataValue());
                         nodeParams.put("INCREASE_DECREASE", ndm.getIncreaseDecrease());
@@ -423,8 +419,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                     for (NodeDataOverride ndo : tnd.getNodeDataOverrideList()) {
                         nodeParams.clear();
                         nodeParams.put("NODE_DATA_ID", nodeDataId);
-                        Period diff = Period.between(cd, LocalDate.parse(sdfYYYYMM.format(ndo.getMonth()) + "-01"));
-                        nodeParams.put("MONTH_NO", diff.getYears() * 12 + diff.getMonths());
+                        nodeParams.put("MONTH_NO", ndo.getMonthNo());
                         nodeParams.put("MANUAL_CHANGE", ndo.getManualChange());
                         nodeParams.put("SEASONALITY_PERC", ndo.getSeasonalityPerc());
                         nodeParams.put("CREATED_BY", curUser.getUserId());

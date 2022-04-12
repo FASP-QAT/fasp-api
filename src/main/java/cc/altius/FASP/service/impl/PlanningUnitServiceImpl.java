@@ -20,6 +20,7 @@ import cc.altius.FASP.model.ProductCategory;
 import cc.altius.FASP.model.Program;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.PlanningUnitService;
 import java.text.ParseException;
@@ -226,7 +227,7 @@ public class PlanningUnitServiceImpl implements PlanningUnitService {
     }
 
     @Override
-    public List<SimpleObject> getPlanningUnitListForDataset(int programId, int versionId, CustomUserDetails curUser) {
+    public List<SimplePlanningUnitObject> getPlanningUnitListForDataset(int programId, int versionId, CustomUserDetails curUser) {
         Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_DATASET, curUser);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             return this.planningUnitDao.getPlanningUnitListForDataset(programId, versionId, curUser);
