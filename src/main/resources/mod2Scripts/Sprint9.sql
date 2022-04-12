@@ -66,3 +66,23 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'screen to fill in or i
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'écran pour compléter ou interpoler les données manquantes.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'pantalla para completar o interpolar los datos faltantes.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'tela para preencher ou interpolar os dados ausentes.');-- pr
+
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Transfer'
+WHERE l.LABEL_CODE='static.tree.transferToNode' AND ll.LANGUAGE_ID=1;
+
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Transférer'
+WHERE l.LABEL_CODE='static.tree.transferToNode' AND ll.LANGUAGE_ID=2;
+
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Transferir'
+WHERE l.LABEL_CODE='static.tree.transferToNode' AND ll.LANGUAGE_ID=3;
+
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Transferir'
+WHERE l.LABEL_CODE='static.tree.transferToNode' AND ll.LANGUAGE_ID=4;
