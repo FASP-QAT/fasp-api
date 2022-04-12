@@ -13,9 +13,11 @@ import cc.altius.FASP.model.LabelConstants;
 import cc.altius.FASP.model.PlanningUnit;
 import cc.altius.FASP.model.PlanningUnitCapacity;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.rowMapper.PlanningUnitCapacityRowMapper;
 import cc.altius.FASP.model.rowMapper.PlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
+import cc.altius.FASP.model.rowMapper.SimplePlanningUnitObjectRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
 import java.util.ArrayList;
@@ -439,12 +441,19 @@ public class PlanningUnitDaoImpl implements PlanningUnitDao {
     }
 
     @Override
-    public List<SimpleObject> getPlanningUnitListForDataset(int programId, int versionId, CustomUserDetails curUser) {
-        String sql = "SELECT pu.PLANNING_UNIT_ID `ID`, pu.LABEL_ID, pu.LABEL_EN, pu.LABEL_FR, pu.LABEL_SP, pu.LABEL_PR FROM rm_dataset_planning_unit dpu LEFT JOIN vw_planning_unit pu ON dpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID WHERE dpu.PROGRAM_ID=:programId AND dpu.VERSION_ID=:versionId";
+    public List<SimplePlanningUnitObject> getPlanningUnitListForDataset(int programId, int versionId, CustomUserDetails curUser) {
+        String sql = "SELECT "
+                + "pu.PLANNING_UNIT_ID `PU_ID`, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
+                + "fu.FORECASTING_UNIT_ID `FU_ID`, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
+                + "pu.MULTIPLIER "
+                + "FROM rm_dataset_planning_unit dpu "
+                + "LEFT JOIN vw_planning_unit pu ON dpu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
+                + "LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID "
+                + "WHERE dpu.PROGRAM_ID=:programId AND dpu.VERSION_ID=:versionId";
         Map<String, Object> params = new HashMap<>();
         params.put("programId", programId);
         params.put("versionId", versionId);
-        return this.namedParameterJdbcTemplate.query(sql, params, new SimpleObjectRowMapper());
+        return this.namedParameterJdbcTemplate.query(sql, params, new SimplePlanningUnitObjectRowMapper());
     }
 
     

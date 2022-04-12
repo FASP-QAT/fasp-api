@@ -1153,7 +1153,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             batchParams.put("MONTH", fac.getMonth());
             batchParams.put("AMOUNT", fac.getAmount());
             batchParams.put("DAYS_OF_STOCK_OUT", fac.getDaysOfStockOut());
-            batchParams.put("EXCLUDE", fac.isExclude());
+            batchParams.put("ADJUSTED_AMOUNT", fac.getAdjustedAmount());
+            batchParams.put("PU_AMOUNT", fac.getPuAmount());
             batchParams.put("VERSION_ID", version.getVersionId());
             batchParams.put("CREATED_BY", fac.getCreatedBy().getUserId());
             batchParams.put("CREATED_DATE", fac.getCreatedDate());
@@ -2417,7 +2418,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("programId", programId);
         params.put("versionId", versionId);
         StringBuilder sqlBuilder = new StringBuilder("SELECT "
-                + "    fac.ACTUAL_CONSUMPTION_ID, fac.MONTH, fac.AMOUNT, fac.REPORTING_RATE, fac.DAYS_OF_STOCK_OUT, fac.EXCLUDE, fac.VERSION_ID, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fac.CREATED_DATE, "
+                + "    fac.ACTUAL_CONSUMPTION_ID, fac.MONTH, fac.AMOUNT, fac.REPORTING_RATE, fac.DAYS_OF_STOCK_OUT, fac.ADJUSTED_AMOUNT, fac.PU_AMOUNT, fac.VERSION_ID, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fac.CREATED_DATE, "
                 + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
                 + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, pu.MULTIPLIER, "
                 + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PC_LABEL_ID`, pc.LABEL_EN `PC_LABEL_EN`, pc.LABEL_FR `PC_LABEL_FR`, pc.LABEL_SP `PC_LABEL_SP`, pc.LABEL_PR `PC_LABEL_PR`, "

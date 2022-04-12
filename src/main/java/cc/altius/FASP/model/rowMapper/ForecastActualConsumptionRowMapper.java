@@ -39,6 +39,14 @@ public class ForecastActualConsumptionRowMapper implements RowMapper<ForecastAct
         if (rs.wasNull()) {
             fc.setAmount(null);
         }
+        fc.setAdjustedAmount(rs.getDouble("ADJUSTED_AMOUNT"));
+        if (rs.wasNull()) {
+            fc.setAdjustedAmount(null);
+        }
+        fc.setPuAmount(rs.getDouble("PU_AMOUNT"));
+        if (rs.wasNull()) {
+            fc.setPuAmount(null);
+        }
         fc.setReportingRate(rs.getDouble("REPORTING_RATE"));
         if (rs.wasNull()) {
             fc.setReportingRate(null);
@@ -47,7 +55,6 @@ public class ForecastActualConsumptionRowMapper implements RowMapper<ForecastAct
         if (rs.wasNull()) {
             fc.setDaysOfStockOut(null);
         }
-        fc.setExclude(rs.getBoolean("EXCLUDE"));
         fc.setCreatedBy(new BasicUser(rs.getInt("CB_USER_ID"), rs.getString("CB_USERNAME")));
         fc.setCreatedDate(rs.getTimestamp("CREATED_DATE"));
         return fc;
