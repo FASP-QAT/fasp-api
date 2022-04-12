@@ -86,3 +86,11 @@ UPDATE ap_static_label l
 LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
 SET ll.LABEL_TEXT='Transferir'
 WHERE l.LABEL_CODE='static.tree.transferToNode' AND ll.LANGUAGE_ID=4;
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.validation.includeOnlySelectedForecast','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Include only Selected Forecasts');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Inclure uniquement les prévisions sélectionnées');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Incluir solo pronósticos seleccionados');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Incluir apenas previsões selecionadas');-- pr
