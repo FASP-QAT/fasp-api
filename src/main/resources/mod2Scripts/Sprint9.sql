@@ -96,3 +96,23 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Incluir solo pronósti
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Incluir apenas previsões selecionadas');-- pr
 
 ALTER TABLE `fasp`.`rm_forecast_actual_consumption` ADD COLUMN `PU_AMOUNT` DECIMAL(16,4) UNSIGNED NULL AFTER `ADJUSTED_AMOUNT`, CHANGE COLUMN `EXCLUDE` `ADJUSTED_AMOUNT` DECIMAL(16,4) UNSIGNED NULL;
+
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Please enter a valid number having max 3 digits before decimal and max 4 digit after decimal.'
+WHERE l.LABEL_CODE='static.tree.decimalValidation10&2' AND ll.LANGUAGE_ID=1;
+
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Veuillez saisir un nombre valide comportant au maximum 3 chiffres avant la virgule et au maximum 4 chiffres après la virgule.'
+WHERE l.LABEL_CODE='static.tree.decimalValidation10&2' AND ll.LANGUAGE_ID=2;
+
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Ingrese un número válido que tenga un máximo de 3 dígitos antes del decimal y un máximo de 4 dígitos después del decimal.'
+WHERE l.LABEL_CODE='static.tree.decimalValidation10&2' AND ll.LANGUAGE_ID=3;
+
+UPDATE ap_static_label l 
+LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+SET ll.LABEL_TEXT='Insira um número válido com no máximo 3 dígitos antes do decimal e no máximo 4 dígitos após o decimal.'
+WHERE l.LABEL_CODE='static.tree.decimalValidation10&2' AND ll.LANGUAGE_ID=4;
