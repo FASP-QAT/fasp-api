@@ -20,10 +20,6 @@ import cc.altius.FASP.model.TreeTemplate;
 import cc.altius.FASP.model.rowMapper.TreeNodeResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.TreeTemplateRowMapper;
 import cc.altius.utils.DateUtils;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -149,6 +145,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
         params.put("ACTIVE", 1);
+        params.put("NOTES", tt.getNotes());
         int treeTemplateId = si.executeAndReturnKey(params).intValue();
         SimpleJdbcInsert ni = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node").usingGeneratedKeyColumns("TREE_TEMPLATE_NODE_ID");
         SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data").usingGeneratedKeyColumns("NODE_DATA_ID");
@@ -278,8 +275,6 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
     @Transactional
     public int updateTreeTemplate(TreeTemplate tt, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        LocalDate cd = LocalDate.now(ZoneId.systemDefault()).withDayOfMonth(1);
-        SimpleDateFormat sdfYYYYMM = new SimpleDateFormat("yyyy-MM");
         Map<String, Object> params = new HashMap<>();
         String sql = "UPDATE rm_tree_template tt LEFT JOIN ap_label l ON l.LABEL_ID=tt.LABEL_ID "
                 + "SET "
@@ -289,7 +284,8 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                 + "tt.MONTHS_IN_FUTURE=:monthsInFuture, "
                 + "tt.LAST_MODIFIED_BY=:curUser, "
                 + "tt.LAST_MODIFIED_DATE=:curDate, "
-                + "tt.ACTIVE=:active "
+                + "tt.ACTIVE=:active, "
+                + "tt.NOTES=:notes "
                 + "WHERE tt.TREE_TEMPLATE_ID=:treeTemplateId";
         params.put("labelEn", tt.getLabel().getLabel_en());
         params.put("forecastMethod", tt.getForecastMethod().getId());
@@ -298,6 +294,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         params.put("active", tt.isActive());
+        params.put("notes", tt.getNotes());
         params.put("treeTemplateId", tt.getTreeTemplateId());
         int treeTemplateId = tt.getTreeTemplateId();
         this.namedParameterJdbcTemplate.update(sql, params);
