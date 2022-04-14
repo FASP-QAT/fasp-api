@@ -116,3 +116,7 @@ UPDATE ap_static_label l
 LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
 SET ll.LABEL_TEXT='Insira um número válido com no máximo 3 dígitos antes do decimal e no máximo 4 dígitos após o decimal.'
 WHERE l.LABEL_CODE='static.tree.decimalValidation10&2' AND ll.LANGUAGE_ID=4;
+
+UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Patient' WHERE `LABEL_ID`='35260'; 
+UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Client' WHERE `LABEL_ID`='35261'; 
+UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Customer' WHERE `LABEL_ID`='35262'; 
