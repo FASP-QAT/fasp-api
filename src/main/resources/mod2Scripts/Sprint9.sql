@@ -120,3 +120,12 @@ WHERE l.LABEL_CODE='static.tree.decimalValidation10&2' AND ll.LANGUAGE_ID=4;
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Patient' WHERE `LABEL_ID`='35260'; 
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Client' WHERE `LABEL_ID`='35261'; 
 UPDATE `fasp`.`ap_label` SET `LABEL_EN`='Customer' WHERE `LABEL_ID`='35262'; 
+
+INSERT INTO ap_label VALUES (null, 'ARIMA Low Confidence', null, null, null, 1, now(), 1, now(), 52);
+INSERT INTO ap_extrapolation_method VALUES (null, last_insert_id(), 0, 1, now(), 1, now()); 
+INSERT INTO ap_label VALUES (null, 'ARIMA High Confidence', null, null, null, 1, now(), 1, now(), 52);
+INSERT INTO ap_extrapolation_method VALUES (null, last_insert_id(), 0, 1, now(), 1, now());
+INSERT INTO ap_label VALUES (null, 'Linear Regression Low Confidence', null, null, null, 1, now(), 1, now(), 52);
+INSERT INTO ap_extrapolation_method VALUES (null, last_insert_id(), 0, 1, now(), 1, now());
+INSERT INTO ap_label VALUES (null, 'Linear Regression High Confidence', null, null, null, 1, now(), 1, now(), 52);
+INSERT INTO ap_extrapolation_method VALUES (null, last_insert_id(), 0, 1, now(), 1, now());
