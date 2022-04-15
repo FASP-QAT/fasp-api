@@ -96,3 +96,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Incluir solo pronósti
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Incluir apenas previsões selecionadas');-- pr
 
 ALTER TABLE `fasp`.`rm_forecast_actual_consumption` ADD COLUMN `PU_AMOUNT` DECIMAL(16,4) UNSIGNED NULL AFTER `ADJUSTED_AMOUNT`, CHANGE COLUMN `EXCLUDE` `ADJUSTED_AMOUNT` DECIMAL(16,4) UNSIGNED NULL;
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.dataentry.maxRange','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select date range within 36 months');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner une plage de dates dans les 36 mois');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione el rango de fechas dentro de los 36 meses');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione o intervalo de datas dentro de 36 meses');-- pr
