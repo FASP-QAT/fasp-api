@@ -116,3 +116,12 @@ UPDATE ap_static_label l
 LEFT JOIN ap_static_label_languages ll ON l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
 SET ll.LABEL_TEXT='Insira um número válido com no máximo 3 dígitos antes do decimal e no máximo 4 dígitos após o decimal.'
 WHERE l.LABEL_CODE='static.tree.decimalValidation10&2' AND ll.LANGUAGE_ID=4;
+
+INSERT INTO ap_label VALUES (null, 'ARIMA Low Confidence', null, null, null, 1, now(), 1, now(), 52);
+INSERT INTO ap_extrapolation_method VALUES (null, last_insert_id(), 0, 1, now(), 1, now()); 
+INSERT INTO ap_label VALUES (null, 'ARIMA High Confidence', null, null, null, 1, now(), 1, now(), 52);
+INSERT INTO ap_extrapolation_method VALUES (null, last_insert_id(), 0, 1, now(), 1, now());
+INSERT INTO ap_label VALUES (null, 'Linear Regression Low Confidence', null, null, null, 1, now(), 1, now(), 52);
+INSERT INTO ap_extrapolation_method VALUES (null, last_insert_id(), 0, 1, now(), 1, now());
+INSERT INTO ap_label VALUES (null, 'Linear Regression High Confidence', null, null, null, 1, now(), 1, now(), 52);
+INSERT INTO ap_extrapolation_method VALUES (null, last_insert_id(), 0, 1, now(), 1, now());
