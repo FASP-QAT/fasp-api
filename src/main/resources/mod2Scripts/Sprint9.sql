@@ -137,3 +137,32 @@ INSERT INTO ap_label VALUES (null, 'Linear Regression Low Confidence', null, nul
 INSERT INTO ap_extrapolation_method VALUES (null, last_insert_id(), 0, 1, now(), 1, now());
 INSERT INTO ap_label VALUES (null, 'Linear Regression High Confidence', null, null, null, 1, now(), 1, now(), 52);
 INSERT INTO ap_extrapolation_method VALUES (null, last_insert_id(), 0, 1, now(), 1, now());
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.extrapolation.arimaLower','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Arima (Lower Confidence Bound)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Arima (limite de confiance inférieure)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Arima (límite de confianza inferior)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Arima (Limite de Confiança Inferior)');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.extrapolation.arimaUpper','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Arima (Upper Confidence Bound)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Arima (limite de confiance supérieure)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Arima (límite superior de confianza)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Arima (Limite de Confiança Superior)');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.extrapolation.lrLower','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Linear Regression (Lower Confidence Bound)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Régression linéaire (limite de confiance inférieure)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Regresión lineal (límite de confianza inferior)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Regressão linear (limite de confiança inferior)');-- pr
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.extrapolation.lrUpper','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Linear Regression (Upper Confidence Bound)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Régression linéaire (limite de confiance supérieure)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Regresión lineal (límite de confianza superior)');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Regressão linear (limite de confiança superior)');-- pr
