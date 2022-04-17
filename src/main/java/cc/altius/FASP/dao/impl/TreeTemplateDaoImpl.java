@@ -385,6 +385,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("PLANNING_UNIT_ID", tnd.getPuNode().getPlanningUnit().getId());
                         nodeParams.put("SHARE_PLANNING_UNIT", tnd.getPuNode().isSharePlanningUnit());
                         nodeParams.put("REFILL_MONTHS", tnd.getPuNode().getRefillMonths());
+                        nodeParams.put("PU_PER_VISIT", tnd.getPuNode().getPuPerVisit());
                         nodeParams.put("CREATED_BY", curUser.getUserId());
                         nodeParams.put("CREATED_DATE", curDate);
                         nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
