@@ -1364,7 +1364,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
                                 nodeDataParams.put("DATA_VALUE", ndm.getDataValue());
                                 nodeDataParams.put("INCREASE_DECREASE", ndm.getIncreaseDecrease());
-                                nodeDataParams.put("TRANSFER_NODE_DATA_ID", null);
+                                nodeDataParams.put("TRANSFER_NODE_DATA_ID", null); // Null over here because we go back and update it later
                                 nodeDataParams.put("NOTES", ndm.getNotes());
                                 nodeDataParams.put("CREATED_DATE", spcr.getCreatedBy().getUserId());
                                 nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
@@ -1459,8 +1459,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         for (NodeDataModeling tndm : tnd.getNodeDataModelingList()) {
                             if (tndm.getTransferNodeDataId() != null) {
                                 Map<String, Object> batchParams = new HashMap<>();
-                                batchParams.put("transferNodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(tndm.getTransferNodeDataId()));
-                                batchParams.put("nodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(tnd.getNodeDataId()));
+                                batchParams.put("transferNodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(Integer.toString(tndm.getTransferNodeDataId())));
+                                batchParams.put("nodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(Integer.toString(tnd.getNodeDataId())));
                                 batchList.add(new MapSqlParameterSource(batchParams));
                             }
                         }
