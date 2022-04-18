@@ -1294,8 +1294,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
                 // Step 3E Insert the NodeData
                 for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
-                    System.out.println("Scenario Id =" + ts.getId());
-                    System.out.println(n.getPayload().getNodeDataMap().get(ts.getId()));
                     for (TreeNodeData tnd : n.getPayload().getNodeDataMap().get(ts.getId())) {
                         Map<String, Object> nodeDataParams = new HashMap<>();
                         Integer nodeDataFuId = null;
