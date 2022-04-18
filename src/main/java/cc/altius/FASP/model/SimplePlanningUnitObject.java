@@ -17,22 +17,22 @@ public class SimplePlanningUnitObject extends SimpleObject {
     @JsonView({Views.InternalView.class, Views.ReportView.class})
     private double multiplier;
     @JsonView({Views.InternalView.class, Views.ReportView.class})
-    private SimpleObject forecastingUnit;
+    private SimpleForecastingUnitObject forecastingUnit;
 
     public SimplePlanningUnitObject() {
     }
 
-    public SimplePlanningUnitObject(Integer id, Label label, double multiplier, SimpleObject forecastingUnit) {
+    public SimplePlanningUnitObject(Integer id, Label label, double multiplier, SimpleForecastingUnitObject forecastingUnit) {
         super(id, label);
         this.multiplier = multiplier;
         this.forecastingUnit = forecastingUnit;
     }
 
-    public SimpleObject getForecastingUnit() {
+    public SimpleForecastingUnitObject getForecastingUnit() {
         return forecastingUnit;
     }
 
-    public void setForecastingUnit(SimpleObject forecastingUnit) {
+    public void setForecastingUnit(SimpleForecastingUnitObject forecastingUnit) {
         this.forecastingUnit = forecastingUnit;
     }
 

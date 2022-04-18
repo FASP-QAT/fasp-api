@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.SimpleForecastingUnitObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
 import java.sql.ResultSet;
@@ -23,7 +24,11 @@ public class SimplePlanningUnitObjectRowMapper implements RowMapper<SimplePlanni
                 rs.getInt("PU_ID"),
                 new LabelRowMapper("PU_").mapRow(rs, 1),
                 rs.getDouble("MULTIPLIER"),
-                new SimpleObject(rs.getInt("FU_ID"), new LabelRowMapper("FU_").mapRow(rs, 1))
+                new SimpleForecastingUnitObject(
+                        rs.getInt("FU_ID"), new LabelRowMapper("FU_").mapRow(rs, 1),
+                        new SimpleObject(rs.getInt("TC_ID"), new LabelRowMapper("TC_").mapRow(rs, 1)),
+                        new SimpleObject(rs.getInt("PC_ID"), new LabelRowMapper("PC_").mapRow(rs, 1))
+                )
         );
     }
 
