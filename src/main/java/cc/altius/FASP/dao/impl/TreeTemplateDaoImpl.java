@@ -20,10 +20,6 @@ import cc.altius.FASP.model.TreeTemplate;
 import cc.altius.FASP.model.rowMapper.TreeNodeResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.TreeTemplateRowMapper;
 import cc.altius.utils.DateUtils;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.Period;
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -149,6 +145,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         params.put("LAST_MODIFIED_BY", curUser.getUserId());
         params.put("LAST_MODIFIED_DATE", curDate);
         params.put("ACTIVE", 1);
+        params.put("NOTES", tt.getNotes());
         int treeTemplateId = si.executeAndReturnKey(params).intValue();
         SimpleJdbcInsert ni = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node").usingGeneratedKeyColumns("TREE_TEMPLATE_NODE_ID");
         SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_tree_template_node_data").usingGeneratedKeyColumns("NODE_DATA_ID");
@@ -255,9 +252,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                     for (NodeDataOverride ndo : tnd.getNodeDataOverrideList()) {
                         nodeParams.clear();
                         nodeParams.put("NODE_DATA_ID", nodeDataId);
-                        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM");
-                        Period diff = Period.between(LocalDate.parse(sdf.format(curDate) + "-01"), LocalDate.parse(sdf.format(ndo.getMonth()) + "-01"));
-                        nodeParams.put("MONTH_NO", diff.getMonths());
+                        nodeParams.put("MONTH_NO", ndo.getMonthNo());
                         nodeParams.put("MANUAL_CHANGE", ndo.getManualChange());
                         nodeParams.put("SEASONALITY_PERC", ndo.getSeasonalityPerc());
                         nodeParams.put("CREATED_BY", curUser.getUserId());
@@ -280,8 +275,6 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
     @Transactional
     public int updateTreeTemplate(TreeTemplate tt, CustomUserDetails curUser) {
         Date curDate = DateUtils.getCurrentDateObject(DateUtils.EST);
-        LocalDate cd = LocalDate.now(ZoneId.systemDefault()).withDayOfMonth(1);
-        SimpleDateFormat sdfYYYYMM = new SimpleDateFormat("yyyy-MM");
         Map<String, Object> params = new HashMap<>();
         String sql = "UPDATE rm_tree_template tt LEFT JOIN ap_label l ON l.LABEL_ID=tt.LABEL_ID "
                 + "SET "
@@ -291,7 +284,8 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                 + "tt.MONTHS_IN_FUTURE=:monthsInFuture, "
                 + "tt.LAST_MODIFIED_BY=:curUser, "
                 + "tt.LAST_MODIFIED_DATE=:curDate, "
-                + "tt.ACTIVE=:active "
+                + "tt.ACTIVE=:active, "
+                + "tt.NOTES=:notes "
                 + "WHERE tt.TREE_TEMPLATE_ID=:treeTemplateId";
         params.put("labelEn", tt.getLabel().getLabel_en());
         params.put("forecastMethod", tt.getForecastMethod().getId());
@@ -300,6 +294,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
         params.put("curUser", curUser.getUserId());
         params.put("curDate", curDate);
         params.put("active", tt.isActive());
+        params.put("notes", tt.getNotes());
         params.put("treeTemplateId", tt.getTreeTemplateId());
         int treeTemplateId = tt.getTreeTemplateId();
         this.namedParameterJdbcTemplate.update(sql, params);
@@ -390,6 +385,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("PLANNING_UNIT_ID", tnd.getPuNode().getPlanningUnit().getId());
                         nodeParams.put("SHARE_PLANNING_UNIT", tnd.getPuNode().isSharePlanningUnit());
                         nodeParams.put("REFILL_MONTHS", tnd.getPuNode().getRefillMonths());
+                        nodeParams.put("PU_PER_VISIT", tnd.getPuNode().getPuPerVisit());
                         nodeParams.put("CREATED_BY", curUser.getUserId());
                         nodeParams.put("CREATED_DATE", curDate);
                         nodeParams.put("LAST_MODIFIED_BY", curUser.getUserId());
@@ -404,10 +400,8 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                     for (NodeDataModeling ndm : tnd.getNodeDataModelingList()) {
                         nodeParams.clear();
                         nodeParams.put("NODE_DATA_ID", nodeDataId);
-                        Period diff = Period.between(cd, LocalDate.parse(sdfYYYYMM.format(ndm.getStartDate()) + "-01"));
-                        nodeParams.put("START_DATE", diff.getYears() * 12 + diff.getMonths());
-                        diff = Period.between(cd, LocalDate.parse(sdfYYYYMM.format(ndm.getStopDate()) + "-01"));
-                        nodeParams.put("STOP_DATE", diff.getYears() * 12 + diff.getMonths());
+                        nodeParams.put("START_DATE", ndm.getStartDateNo());
+                        nodeParams.put("STOP_DATE", ndm.getStopDateNo());
                         nodeParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
                         nodeParams.put("DATA_VALUE", ndm.getDataValue());
                         nodeParams.put("INCREASE_DECREASE", ndm.getIncreaseDecrease());
@@ -423,8 +417,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                     for (NodeDataOverride ndo : tnd.getNodeDataOverrideList()) {
                         nodeParams.clear();
                         nodeParams.put("NODE_DATA_ID", nodeDataId);
-                        Period diff = Period.between(cd, LocalDate.parse(sdfYYYYMM.format(ndo.getMonth()) + "-01"));
-                        nodeParams.put("MONTH_NO", diff.getYears() * 12 + diff.getMonths());
+                        nodeParams.put("MONTH_NO", ndo.getMonthNo());
                         nodeParams.put("MANUAL_CHANGE", ndo.getManualChange());
                         nodeParams.put("SEASONALITY_PERC", ndo.getSeasonalityPerc());
                         nodeParams.put("CREATED_BY", curUser.getUserId());

@@ -30,7 +30,8 @@ public class ForecastActualConsumption implements Serializable {
     private Double amount;
     private Double reportingRate;
     private Integer daysOfStockOut;
-    private boolean exclude;
+    private Double adjustedAmount;
+    private Double puAmount;
     private BasicUser createdBy;
     @JsonDeserialize(using = JsonDateTimeDeserializer.class)
     @JsonSerialize(using = JsonDateTimeSerializer.class)
@@ -100,12 +101,20 @@ public class ForecastActualConsumption implements Serializable {
         this.daysOfStockOut = daysOfStockOut;
     }
 
-    public boolean isExclude() {
-        return exclude;
+    public Double getAdjustedAmount() {
+        return adjustedAmount;
     }
 
-    public void setExclude(boolean exclude) {
-        this.exclude = exclude;
+    public void setAdjustedAmount(Double adjustedAmount) {
+        this.adjustedAmount = adjustedAmount;
+    }
+
+    public Double getPuAmount() {
+        return puAmount;
+    }
+
+    public void setPuAmount(Double puAmount) {
+        this.puAmount = puAmount;
     }
 
     public BasicUser getCreatedBy() {
