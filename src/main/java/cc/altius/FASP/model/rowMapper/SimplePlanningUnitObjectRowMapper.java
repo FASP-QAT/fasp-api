@@ -5,6 +5,7 @@
  */
 package cc.altius.FASP.model.rowMapper;
 
+import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleForecastingUnitObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimplePlanningUnitObject;
@@ -21,10 +22,12 @@ public class SimplePlanningUnitObjectRowMapper implements RowMapper<SimplePlanni
     @Override
     public SimplePlanningUnitObject mapRow(ResultSet rs, int rowNum) throws SQLException {
         return new SimplePlanningUnitObject(
+                new SimpleCodeObject(rs.getInt("PU_UNIT_ID"), new LabelRowMapper("PUU_").mapRow(rs, 1), rs.getString("PU_UNIT_CODE")),
                 rs.getInt("PU_ID"),
                 new LabelRowMapper("PU_").mapRow(rs, 1),
                 rs.getDouble("MULTIPLIER"),
                 new SimpleForecastingUnitObject(
+                        new SimpleCodeObject(rs.getInt("FU_UNIT_ID"), new LabelRowMapper("FUU_").mapRow(rs, 1), rs.getString("FU_UNIT_CODE")),
                         rs.getInt("FU_ID"), new LabelRowMapper("FU_").mapRow(rs, 1),
                         new SimpleObject(rs.getInt("TC_ID"), new LabelRowMapper("TC_").mapRow(rs, 1)),
                         new SimpleObject(rs.getInt("PC_ID"), new LabelRowMapper("PC_").mapRow(rs, 1))
