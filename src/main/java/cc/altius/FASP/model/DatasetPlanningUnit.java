@@ -15,7 +15,7 @@ import java.util.Map;
 public class DatasetPlanningUnit extends BaseModel implements Serializable {
 
     private int programPlanningUnitId;
-    private SimplePlanningUnitTracerCategoryObject planningUnit;
+    private SimplePlanningUnitObject planningUnit;
     private boolean consuptionForecast;
     private boolean treeForecast;
     private Integer stock;
@@ -38,11 +38,11 @@ public class DatasetPlanningUnit extends BaseModel implements Serializable {
         this.programPlanningUnitId = programPlanningUnitId;
     }
 
-    public SimplePlanningUnitTracerCategoryObject getPlanningUnit() {
+    public SimplePlanningUnitObject getPlanningUnit() {
         return planningUnit;
     }
 
-    public void setPlanningUnit(SimplePlanningUnitTracerCategoryObject planningUnit) {
+    public void setPlanningUnit(SimplePlanningUnitObject planningUnit) {
         this.planningUnit = planningUnit;
     }
 

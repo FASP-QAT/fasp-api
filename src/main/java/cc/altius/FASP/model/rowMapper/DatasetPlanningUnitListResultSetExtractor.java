@@ -9,10 +9,10 @@ import cc.altius.FASP.model.BasicUser;
 import cc.altius.FASP.model.DatasetPlanningUnit;
 import cc.altius.FASP.model.SelectedForecast;
 import cc.altius.FASP.model.SimpleCodeObject;
-import cc.altius.FASP.model.SimpleForecastingUnitTracerCategoryObject;
+import cc.altius.FASP.model.SimpleForecastingUnitObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.SimpleObjectWithMultiplier;
-import cc.altius.FASP.model.SimplePlanningUnitTracerCategoryObject;
+import cc.altius.FASP.model.SimplePlanningUnitObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -36,16 +36,17 @@ public class DatasetPlanningUnitListResultSetExtractor implements ResultSetExtra
             int idx = dpuList.indexOf(dpu);
             if (idx == -1) {
                 dpu.setPlanningUnit(
-                        new SimplePlanningUnitTracerCategoryObject(
+                        new SimplePlanningUnitObject(
                                 new SimpleCodeObject(rs.getInt("PUU_UNIT_ID"), new LabelRowMapper("PUU_").mapRow(rs, 1), rs.getString("PUU_UNIT_CODE")),
                                 rs.getInt("PLANNING_UNIT_ID"),
                                 new LabelRowMapper("PU_").mapRow(rs, 1),
                                 rs.getDouble("PU_MULTIPLIER_FOR_FU"),
-                                new SimpleForecastingUnitTracerCategoryObject(
+                                new SimpleForecastingUnitObject(
                                         new SimpleCodeObject(rs.getInt("FUU_UNIT_ID"), new LabelRowMapper("FUU_").mapRow(rs, 1), rs.getString("FUU_UNIT_CODE")),
                                         rs.getInt("FORECASTING_UNIT_ID"),
                                         new LabelRowMapper("FU_").mapRow(rs, 1),
-                                        new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, 1))
+                                        new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, 1)),
+                                        new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PC_").mapRow(rs, 1))
                                 )
                         )
                 );

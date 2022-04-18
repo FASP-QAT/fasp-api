@@ -12,19 +12,16 @@ import java.util.Objects;
  *
  * @author akil
  */
-public class SimplePlanningUnitObject extends SimpleObject {
+public class SimplePlanningUnitObject extends SimpleUnitObjectWithMultiplier {
 
-    @JsonView({Views.InternalView.class, Views.ReportView.class})
-    private double multiplier;
     @JsonView({Views.InternalView.class, Views.ReportView.class})
     private SimpleForecastingUnitObject forecastingUnit;
 
     public SimplePlanningUnitObject() {
     }
 
-    public SimplePlanningUnitObject(Integer id, Label label, double multiplier, SimpleForecastingUnitObject forecastingUnit) {
-        super(id, label);
-        this.multiplier = multiplier;
+    public SimplePlanningUnitObject(SimpleCodeObject unit, Integer id, Label label, double multiplier, SimpleForecastingUnitObject forecastingUnit) {
+        super(unit, id, label, multiplier);
         this.forecastingUnit = forecastingUnit;
     }
 
@@ -34,14 +31,6 @@ public class SimplePlanningUnitObject extends SimpleObject {
 
     public void setForecastingUnit(SimpleForecastingUnitObject forecastingUnit) {
         this.forecastingUnit = forecastingUnit;
-    }
-
-    public double getMultiplier() {
-        return multiplier;
-    }
-
-    public void setMultiplier(double multiplier) {
-        this.multiplier = multiplier;
     }
 
     @Override
