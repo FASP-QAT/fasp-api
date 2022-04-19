@@ -1382,15 +1382,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("NODE_DATA_ID", nodeDataId);
                                 nodeDataParams.put("EXTRAPOLATION_METHOD_ID", ndeo.getExtrapolationMethod().getId());
                                 nodeDataParams.put("JSON_PROPERTIES", ndeo.getJsonPropertiesString());
-                                int ndeoId = ni.executeAndReturnKey(nodeDataParams).intValue();
-                                SimpleJdbcInsert di = new SimpleJdbcInsert(jdbcTemplate).withTableName("rm_forecast_tree_node_data_extrapolation_option_data");
-                                for (ExtrapolationData ed : ndeo.getExtrapolationOptionDataList()) {
-                                    nodeParams.clear();
-                                    nodeParams.put("NODE_DATA_EXTRAPOLATION_OPTION_ID", ndeoId);
-                                    nodeParams.put("MONTH", ed.getMonth());
-                                    nodeParams.put("AMOUNT", ed.getAmount());
-                                    di.execute(nodeParams);
-                                }
+                                ni.executeAndReturnKey(nodeDataParams).intValue();
                             }
                         }
 
@@ -1408,8 +1400,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeParams.clear();
                                 nodeParams.put("NODE_DATA_EXTRAPOLATION_ID", ndeId);
                                 nodeParams.put("MONTH", edrr.getMonth());
-                                nodeParams.put("AMOUNT", (edrr.getAmount() < 0 ? 0 : edrr.getAmount()));
-                                nodeParams.put("AMOUNT", edrr.getReportingRate());
+                                nodeParams.put("AMOUNT", (edrr.getAmount() == null ? null : (edrr.getAmount() < 0 ? 0 : edrr.getAmount())));
+                                nodeParams.put("REPORTING_RATE", edrr.getReportingRate());
                                 di.execute(nodeParams);
                             }
                         }

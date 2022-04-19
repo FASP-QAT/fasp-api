@@ -275,7 +275,7 @@ DELETE FROM ap_static_label_languages WHERE STATIC_LABEL_ID IN (SELECT l.`STATIC
 'static.tooltip.ComparetoConsumptionForecast',
 'static.tooltip.NumberNodeValue'));
 
-DELETE FROM ap_static_label l WHERE l.`LABEL_CODE` IN ('static.tooltip.scenario','static.tooltip.NodeTitle',
+DELETE l.* FROM ap_static_label l WHERE l.`LABEL_CODE` IN ('static.tooltip.scenario','static.tooltip.NodeTitle',
 'static.tooltip.NodeType',
 'static.tooltip.NodeValue',
 'static.tooltip.ModelingTransferMonth',
@@ -372,6 +372,8 @@ DELETE FROM ap_static_label WHERE LABEL_CODE IN ('static.tooltip.MovingAverages'
 'static.tooltip.ReportingRate',
 'static.tooltip.errors',
 'static.tooltip.ChooseMethod');
+
+SET FOREIGN_KEY_CHECKS=1;
 
 INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tooltip.scenario','1');
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
