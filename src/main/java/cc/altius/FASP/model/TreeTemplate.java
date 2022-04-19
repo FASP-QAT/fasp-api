@@ -7,7 +7,6 @@ package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -22,8 +21,6 @@ public class TreeTemplate extends BaseModel implements Serializable {
     private SimpleObjectWithType forecastMethod;
     private Integer monthsInPast;
     private Integer monthsInFuture;
-    private Date startDate;
-    private Date stopDate;
     @JsonIgnore
     private ForecastTree<TreeNode> tree;
     private String notes;

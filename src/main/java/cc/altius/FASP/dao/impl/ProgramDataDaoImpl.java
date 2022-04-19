@@ -1153,7 +1153,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
             batchParams.put("MONTH", fac.getMonth());
             batchParams.put("AMOUNT", fac.getAmount());
             batchParams.put("DAYS_OF_STOCK_OUT", fac.getDaysOfStockOut());
-            batchParams.put("EXCLUDE", fac.isExclude());
+            batchParams.put("ADJUSTED_AMOUNT", fac.getAdjustedAmount());
+            batchParams.put("PU_AMOUNT", fac.getPuAmount());
             batchParams.put("VERSION_ID", version.getVersionId());
             batchParams.put("CREATED_BY", fac.getCreatedBy().getUserId());
             batchParams.put("CREATED_DATE", fac.getCreatedDate());
@@ -1293,8 +1294,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
 
                 // Step 3E Insert the NodeData
                 for (ForecastNode<TreeNode> n : dt.getTree().getFlatList()) {
-                    System.out.println("Scenario Id =" + ts.getId());
-                    System.out.println(n.getPayload().getNodeDataMap().get(ts.getId()));
                     for (TreeNodeData tnd : n.getPayload().getNodeDataMap().get(ts.getId())) {
                         Map<String, Object> nodeDataParams = new HashMap<>();
                         Integer nodeDataFuId = null;
@@ -1363,7 +1362,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeDataParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
                                 nodeDataParams.put("DATA_VALUE", ndm.getDataValue());
                                 nodeDataParams.put("INCREASE_DECREASE", ndm.getIncreaseDecrease());
-                                nodeDataParams.put("TRANSFER_NODE_DATA_ID", null);
+                                nodeDataParams.put("TRANSFER_NODE_DATA_ID", null); // Null over here because we go back and update it later
                                 nodeDataParams.put("NOTES", ndm.getNotes());
                                 nodeDataParams.put("CREATED_DATE", spcr.getCreatedBy().getUserId());
                                 nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
@@ -1458,8 +1457,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         for (NodeDataModeling tndm : tnd.getNodeDataModelingList()) {
                             if (tndm.getTransferNodeDataId() != null) {
                                 Map<String, Object> batchParams = new HashMap<>();
-                                batchParams.put("transferNodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(tndm.getTransferNodeDataId()));
-                                batchParams.put("nodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(tnd.getNodeDataId()));
+                                batchParams.put("transferNodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(Integer.toString(tndm.getTransferNodeDataId())));
+                                batchParams.put("nodeDataId", oldAndNewIdMap.get("rm_forecast_tree_node_data").get(Integer.toString(tnd.getNodeDataId())));
                                 batchList.add(new MapSqlParameterSource(batchParams));
                             }
                         }
@@ -2417,7 +2416,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         params.put("programId", programId);
         params.put("versionId", versionId);
         StringBuilder sqlBuilder = new StringBuilder("SELECT "
-                + "    fac.ACTUAL_CONSUMPTION_ID, fac.MONTH, fac.AMOUNT, fac.REPORTING_RATE, fac.DAYS_OF_STOCK_OUT, fac.EXCLUDE, fac.VERSION_ID, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fac.CREATED_DATE, "
+                + "    fac.ACTUAL_CONSUMPTION_ID, fac.MONTH, fac.AMOUNT, fac.REPORTING_RATE, fac.DAYS_OF_STOCK_OUT, fac.ADJUSTED_AMOUNT, fac.PU_AMOUNT, fac.VERSION_ID, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fac.CREATED_DATE, "
                 + "    pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
                 + "    fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, pu.MULTIPLIER, "
                 + "    pc.PRODUCT_CATEGORY_ID, pc.LABEL_ID `PC_LABEL_ID`, pc.LABEL_EN `PC_LABEL_EN`, pc.LABEL_FR `PC_LABEL_FR`, pc.LABEL_SP `PC_LABEL_SP`, pc.LABEL_PR `PC_LABEL_PR`, "

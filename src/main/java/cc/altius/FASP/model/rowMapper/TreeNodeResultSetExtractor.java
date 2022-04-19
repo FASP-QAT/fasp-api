@@ -214,12 +214,13 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
             idx = tnd.getNodeDataOverrideList().indexOf(ndo);
             if (idx == -1) {
                 // Not found so add it
-                ndo.setMonth(rs.getDate("OVERRIDE_MONTH"));
                 if (this.isTemplate) {
                     ndo.setMonthNo(rs.getInt("OVERRIDE_MONTH_NO"));
                     if (rs.wasNull()) {
                         ndo.setMonthNo(null);
                     }
+                } else {
+                    ndo.setMonth(rs.getDate("OVERRIDE_MONTH"));
                 }
                 ndo.setManualChange(rs.getDouble("OVERRIDE_MANUAL_CHANGE"));
                 if (rs.wasNull()) {
