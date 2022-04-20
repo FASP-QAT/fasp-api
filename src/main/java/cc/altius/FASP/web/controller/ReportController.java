@@ -833,13 +833,16 @@ public class ReportController {
     }
 
     /**
-     * Mod 2 Report 1 -- Monthly Forecast -- programId must be a single Program
-     * -- versionId must be the actual version -- startDate is the month from
-     * which you want the consumption data -- stopDate is the month till which
-     * you want the consumption data -- reportView 1 = PU view, 2 = FU View --
-     * unitIdsList -- List of the PU Id's or FU Id's that you want the report
-     * for
-     *
+     * Mod 2 Report 1
+     * <pre>
+     * -- Monthly Forecast
+     * -- programId must be a single Program
+     * -- versionId must be the actual version
+     * -- startDate is the month from which you want the consumption data
+     * -- stopDate is the month till which you want the consumption data
+     * -- reportView 1 = PU view, 2 = FU View
+     * -- unitIdsList -- List of the PU Id's or FU Id's that you want the report for
+     * </pre>
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/monthlyForecast")
@@ -852,12 +855,14 @@ public class ReportController {
             return new ResponseEntity(new ResponseCode("static.label.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     /**
-     * Mod 2 Report 2 -- Forecast Summary
+     * Mod 2 Report 2
+     * <pre>
+     * -- Forecast Summary
      * -- programId must be a single Program
-     * -- versionId must be the actual version 
-     *
+     * -- versionId must be the actual version
+     * </pre>
      */
     @JsonView(Views.ReportView.class)
     @PostMapping(value = "/forecastSummary")

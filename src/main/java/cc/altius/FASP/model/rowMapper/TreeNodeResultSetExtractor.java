@@ -302,6 +302,10 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                     if (rs.wasNull()) {
                         edrr.setReportingRate(null);
                     }
+                    edrr.setManualChange(rs.getDouble("EM_MANUAL_CHANGE"));
+                    if (rs.wasNull()) {
+                        edrr.setManualChange(null);
+                    }
                     nde.getExtrapolationDataList().add(edrr);
                 }
             }
