@@ -1,3 +1,29 @@
 INSERT IGNORE INTO us_role_business_function SELECT null, 'ROLE_INTERNAL_USER', r1.BUSINESS_FUNCTION_ID, 1, now(), 1, now() FROM us_role_business_function r1 where r1.ROLE_ID='ROLE_REALM_ADMIN' and r1.BUSINESS_FUNCTION_ID!='ROLE_BF_NOTIFICATION_CC_APPROVE';
 ALTER TABLE `fasp`.`rm_forecast_tree_node_data_mom` CHANGE COLUMN `CALCULATED_MMD_VALUE` `CALCULATED_MMD_VALUE` DECIMAL(18,4) UNSIGNED NULL ;
 ALTER TABLE `fasp`.`rm_forecast_tree_node_data_mom` CHANGE COLUMN `DIFFERENCE` `DIFFERENCE` DECIMAL(18,4) NULL ,CHANGE COLUMN `SEASONALITY_PERC` `SEASONALITY_PERC` DECIMAL(6,2) NULL ,CHANGE COLUMN `MANUAL_CHANGE` `MANUAL_CHANGE` DECIMAL(18,4) NULL ;
+
+INSERT INTO ap_label VALUES (null, 'QAT Forecast Import', null, null, null, 1, now(), 1, now(), 24);
+SELECT LAST_INSERT_ID() into @labelId;
+INSERT INTO `us_business_function`VALUES ('ROLE_BF_SUPPLY_PLAN_IMPORT', @labelId, 1, now(), 1, now());
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.importIntoQATSupplyPlan.pleaseSelectForecastProgramVersion','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Please select forecast program version');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Veuillez sélectionner la version du programme de prévision');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Seleccione la versión del programa de previsión');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Selecione a versão do programa de previsão');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.importIntoQATSupplyPlan.importIntoQATSupplyPlanSuccess','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Supply Plan data imported successfully');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Données du plan d`approvisionnement importées avec succès');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Datos del Plan de Abastecimiento importados con éxito');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Dados do plano de fornecimento importados com sucesso');-- pr
+
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ('ROLE_REALM_ADMIN','ROLE_BF_SUPPLY_PLAN_IMPORT',1,now(),1,now());
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ('ROLE_INTERNAL_USER','ROLE_BF_SUPPLY_PLAN_IMPORT',1,now(),1,now());
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ('ROLE_PROGRAM_ADMIN','ROLE_BF_SUPPLY_PLAN_IMPORT',1,now(),1,now());
+INSERT INTO `fasp`.`us_role_business_function`(`ROLE_ID`,`BUSINESS_FUNCTION_ID`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ('ROLE_PROGRAM_USER','ROLE_BF_SUPPLY_PLAN_IMPORT',1,now(),1,now());
