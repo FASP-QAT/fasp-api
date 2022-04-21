@@ -241,6 +241,7 @@ public class TreeTemplateDaoImpl implements TreeTemplateDao {
                         nodeParams.put("MODELING_TYPE_ID", ndm.getModelingType().getId());
                         nodeParams.put("DATA_VALUE", ndm.getDataValue());
                         nodeParams.put("TRANSFER_NODE_DATA_ID", nodeDataIdMap.get(ndm.getTransferNodeDataId()));
+                        nodeParams.put("INCREASE_DECREASE", ndm.getIncreaseDecrease());
                         nodeParams.put("NOTES", ndm.getNotes());
                         nodeParams.put("CREATED_BY", curUser.getUserId());
                         nodeParams.put("CREATED_DATE", curDate);
