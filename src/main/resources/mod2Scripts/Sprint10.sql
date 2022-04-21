@@ -80,3 +80,7 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Use this feature for p
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Utilisez cette fonction pour une utilisation progressive du produit. Par exemple, si le décalage est de 2, lutilisation du produit commencera 2 mois après les dates du nœud parent.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Utilice esta función para el uso del producto por etapas. Por ejemplo, si el retraso es 2, el uso del producto comenzará 2 meses después de las fechas del nodo principal.');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Use esse recurso para uso do produto em fases. Por exemplo, se o atraso for 2, o uso do produto começará 2 meses após as datas do nó pai.');
+
+INSERT INTO ap_label VALUES (null, 'QAT', null, null, null, 1, now(), 1, now(), 15);
+SELECT LAST_INSERT_ID() into @labelId;
+INSERT INTO `fasp`.`rm_data_source` (`DATA_SOURCE_ID`,`REALM_ID`,`PROGRAM_ID`,`DATA_SOURCE_TYPE_ID`,`LABEL_ID`,`ACTIVE`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES (null,1,null,2,@labelId,0,1,now(),1,now());
