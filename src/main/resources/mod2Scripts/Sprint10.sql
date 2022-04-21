@@ -107,20 +107,20 @@ where l.LABEL_CODE='static.extrapolations.showFits' and ll.LANGUAGE_ID=4;
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='These Usage Names will appear when adding/editing a forecasting tree node in the 'Copy from Template' dropdown.'
+set ll.LABEL_TEXT='These Usage Names will appear when adding/editing a forecasting tree node in the `Copy from Template` dropdown.'
 where l.LABEL_CODE='static.tooltip.UsageName' and ll.LANGUAGE_ID=1;
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='Ces noms d'utilisation apparaîtront lors de l'ajout/de la modification d'un nœud d'arbre de prévision dans la liste déroulante 'Copier à partir du modèle'.'
+set ll.LABEL_TEXT='Ces noms d`utilisation apparaîtront lors de l`ajout/de la modification d`un nœud d`arbre de prévision dans la liste déroulante `Copier à partir du modèle`.'
 where l.LABEL_CODE='static.tooltip.UsageName' and ll.LANGUAGE_ID=2;
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='Estos nombres de uso aparecerán al agregar/editar un nodo de árbol de pronóstico en el menú desplegable 'Copiar de plantilla'.'
+set ll.LABEL_TEXT='Estos nombres de uso aparecerán al agregar/editar un nodo de árbol de pronóstico en el menú desplegable `Copiar de plantilla`.'
 where l.LABEL_CODE='static.tooltip.UsageName' and ll.LANGUAGE_ID=3;
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='Esses nomes de uso aparecerão ao adicionar/editar um nó de árvore de previsão no menu suspenso 'Copiar do modelo'.'
+set ll.LABEL_TEXT='Esses nomes de uso aparecerão ao adicionar/editar um nó de árvore de previsão no menu suspenso `Copiar do modelo`.'
 where l.LABEL_CODE='static.tooltip.UsageName' and ll.LANGUAGE_ID=4;
