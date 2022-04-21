@@ -16,6 +16,7 @@ import java.util.Objects;
 public class ExtrapolationDataReportingRate extends ExtrapolationData implements Serializable {
 
     private Double reportingRate;
+    private Double manualChange;
 
     public ExtrapolationDataReportingRate() {
     }
@@ -30,6 +31,14 @@ public class ExtrapolationDataReportingRate extends ExtrapolationData implements
 
     public void setReportingRate(Double reportingRate) {
         this.reportingRate = reportingRate;
+    }
+
+    public Double getManualChange() {
+        return manualChange;
+    }
+
+    public void setManualChange(Double manualChange) {
+        this.manualChange = manualChange;
     }
 
     @Override
