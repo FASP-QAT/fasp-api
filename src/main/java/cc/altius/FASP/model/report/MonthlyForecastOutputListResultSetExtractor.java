@@ -48,24 +48,26 @@ public class MonthlyForecastOutputListResultSetExtractor implements ResultSetExt
             MonthlyForecastData mfd = new MonthlyForecastData();
             Calendar cMn = Calendar.getInstance(new Locale(DateUtils.EST));
             Date mn = rs.getDate("MONTH");
-            cMn.setTime(mn);
-            if (this.aggregateByYear) {
-                // Aggregate by Year
-                cMn.set(Calendar.DAY_OF_MONTH, 1);
-                cMn.set(Calendar.MONTH, 0);
-                mfd.setMonth(cMn.getTime());
-            } else {
-                // Not aggregate by year
-                mfd.setMonth(mn);
-            }
-            mfo.setSelectedForecast(new LabelRowMapper("SF_").mapRow(rs, 1));
-            idx = mfo.getMonthlyForecastData().indexOf(mfd);
-            if (idx == -1) {
-                mfd.setConsumptionQty(rs.getDouble("CALCULATED_MMD_VALUE"));
-                mfo.getMonthlyForecastData().add(mfd);
-            } else {
-                mfd = mfo.getMonthlyForecastData().get(idx);
-                mfd.setConsumptionQty(mfd.getConsumptionQty() + rs.getDouble("CALCULATED_MMD_VALUE"));
+            if (mn != null) {
+                cMn.setTime(mn);
+                if (this.aggregateByYear) {
+                    // Aggregate by Year
+                    cMn.set(Calendar.DAY_OF_MONTH, 1);
+                    cMn.set(Calendar.MONTH, 0);
+                    mfd.setMonth(cMn.getTime());
+                } else {
+                    // Not aggregate by year
+                    mfd.setMonth(mn);
+                }
+                mfo.setSelectedForecast(new LabelRowMapper("SF_").mapRow(rs, 1));
+                idx = mfo.getMonthlyForecastData().indexOf(mfd);
+                if (idx == -1) {
+                    mfd.setConsumptionQty(rs.getDouble("CALCULATED_MMD_VALUE"));
+                    mfo.getMonthlyForecastData().add(mfd);
+                } else {
+                    mfd = mfo.getMonthlyForecastData().get(idx);
+                    mfd.setConsumptionQty(mfd.getConsumptionQty() + rs.getDouble("CALCULATED_MMD_VALUE"));
+                }
             }
         }
         return mfList;

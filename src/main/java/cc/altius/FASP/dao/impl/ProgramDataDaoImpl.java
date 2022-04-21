@@ -1402,6 +1402,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                 nodeParams.put("MONTH", edrr.getMonth());
                                 nodeParams.put("AMOUNT", (edrr.getAmount() == null ? null : (edrr.getAmount() < 0 ? 0 : edrr.getAmount())));
                                 nodeParams.put("REPORTING_RATE", edrr.getReportingRate());
+                                nodeParams.put("MANUAL_CHANGE", edrr.getManualChange());
                                 di.execute(nodeParams);
                             }
                         }
@@ -2368,7 +2369,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "          ndm.NODE_DATA_MOM_ID, ndm.MONTH `NDM_MONTH`, ndm.START_VALUE `NDM_START_VALUE`, ndm.END_VALUE `NDM_END_VALUE`, ndm.CALCULATED_VALUE `NDM_CALCULATED_VALUE`, ndm.CALCULATED_MMD_VALUE `NDM_CALCULATED_MMD_VALUE`, ndm.DIFFERENCE `NDM_DIFFERENCE`, ndm.SEASONALITY_PERC `NDM_SEASONALITY_PERC`, ndm.MANUAL_CHANGE `NDM_MANUAL_CHANGE`, "
                 + "          ndo.`NODE_DATA_OVERRIDE_ID`, ndo.`MONTH` `OVERRIDE_MONTH`, ndo.`MANUAL_CHANGE` `OVERRIDE_MANUAL_CHANGE`, ndo.SEASONALITY_PERC` 'OVERRIDE_SEASONALITY_PERC`, "
                 + "          nde.NODE_DATA_EXTRAPOLATION_ID, em.EXTRAPOLATION_METHOD_ID, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, nde.`NOTES` `EM_NOTES`, "
-                + "          nded.NODE_DATA_EXTRAPOLATION_DATA_ID, nded.MONTH `EM_MONTH`, nded.AMOUNT `EM_AMOUNT`, nded.REPORTING_RATE `EM_REPORTING_RATE`, "
+                + "          nded.NODE_DATA_EXTRAPOLATION_DATA_ID, nded.MONTH `EM_MONTH`, nded.AMOUNT `EM_AMOUNT`, nded.REPORTING_RATE `EM_REPORTING_RATE`, nded.MANUAL_CHANGE `EM_MANUAL_CHANGE`, "
                 + "          ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID, eo.EXTRAPOLATION_METHOD_ID `EO_EXTRAPOLATION_METHOD_ID`, eo.LABEL_EN `EO_LABEL_EN`, eo.LABEL_FR `EO_LABEL_FR`, eo.LABEL_SP `EO_LABEL_SP`, eo.LABEL_PR `EO_LABEL_PR`, ndeo.JSON_PROPERTIES, "
                 + "          ndeod.NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID, ndeod.MONTH `EO_MONTH`, ndeod.AMOUNT `EO_AMOUNT` "
                 + "      FROM vw_forecast_tree_node ttn "
