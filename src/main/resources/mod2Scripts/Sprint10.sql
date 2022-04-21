@@ -84,3 +84,43 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Use esse recurso para 
 INSERT INTO ap_label VALUES (null, 'QAT', null, null, null, 1, now(), 1, now(), 15);
 SELECT LAST_INSERT_ID() into @labelId;
 INSERT INTO `fasp`.`rm_data_source` (`DATA_SOURCE_ID`,`REALM_ID`,`PROGRAM_ID`,`DATA_SOURCE_TYPE_ID`,`LABEL_ID`,`ACTIVE`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES (null,1,null,2,@labelId,0,1,now(),1,now());
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Display forecasts in months with actual consumption.'
+where l.LABEL_CODE='static.extrapolations.showFits' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Affichez les prévisions en mois avec la consommation réelle.'
+where l.LABEL_CODE='static.extrapolations.showFits' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Mostrar previsiones en meses con consumo real.'
+where l.LABEL_CODE='static.extrapolations.showFits' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Exiba previsões em meses com consumo real.'
+where l.LABEL_CODE='static.extrapolations.showFits' and ll.LANGUAGE_ID=4;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='These Usage Names will appear when adding/editing a forecasting tree node in the 'Copy from Template' dropdown.'
+where l.LABEL_CODE='static.tooltip.UsageName' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Ces noms d'utilisation apparaîtront lors de l'ajout/de la modification d'un nœud d'arbre de prévision dans la liste déroulante 'Copier à partir du modèle'.'
+where l.LABEL_CODE='static.tooltip.UsageName' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Estos nombres de uso aparecerán al agregar/editar un nodo de árbol de pronóstico en el menú desplegable 'Copiar de plantilla'.'
+where l.LABEL_CODE='static.tooltip.UsageName' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Esses nomes de uso aparecerão ao adicionar/editar um nó de árvore de previsão no menu suspenso 'Copiar do modelo'.'
+where l.LABEL_CODE='static.tooltip.UsageName' and ll.LANGUAGE_ID=4;
