@@ -9,7 +9,6 @@ import cc.altius.FASP.model.Budget;
 import cc.altius.FASP.model.Currency;
 import cc.altius.FASP.model.FundingSource;
 import cc.altius.FASP.model.SimpleCodeObject;
-import cc.altius.FASP.model.SimpleObject;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.springframework.jdbc.core.RowMapper;
@@ -23,7 +22,7 @@ public class BudgetRowMapper implements RowMapper<Budget> {
     @Override
     public Budget mapRow(ResultSet rs, int rowNum) throws SQLException {
         Budget b = new Budget(rs.getInt("BUDGET_ID"), rs.getString("BUDGET_CODE"), new LabelRowMapper().mapRow(rs, rowNum));
-        b.setProgram(new SimpleObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, rowNum)));
+        b.setProgram(new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, rowNum), rs.getString("PROGRAM_CODE")));
         b.setFundingSource(
                 new FundingSource(
                         rs.getInt("FUNDING_SOURCE_ID"),

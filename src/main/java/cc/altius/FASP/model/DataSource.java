@@ -15,18 +15,18 @@ public class DataSource extends BaseModel implements Serializable {
     
     public int dataSourceId;
     public SimpleCodeObject realm;
-    public SimpleObject program;
+    public SimpleCodeObject program;
     public Label label;
     public SimpleObject dataSourceType;
 
-    public DataSource(int dataSourceId, SimpleCodeObject realm, SimpleObject program, Label label) {
+    public DataSource(int dataSourceId, SimpleCodeObject realm, SimpleCodeObject program, Label label) {
         this.dataSourceId = dataSourceId;
         this.realm = realm;
         this.program = program;
         this.label = label;
     }
 
-    public DataSource(int dataSourceId, SimpleCodeObject realm, SimpleObject program, Label label, SimpleObject dataSourceType) {
+    public DataSource(int dataSourceId, SimpleCodeObject realm, SimpleCodeObject program, Label label, SimpleObject dataSourceType) {
         this.dataSourceId = dataSourceId;
         this.realm = realm;
         this.program = program;
@@ -53,11 +53,11 @@ public class DataSource extends BaseModel implements Serializable {
         this.realm = realm;
     }
 
-    public SimpleObject getProgram() {
+    public SimpleCodeObject getProgram() {
         return program;
     }
 
-    public void setProgram(SimpleObject program) {
+    public void setProgram(SimpleCodeObject program) {
         this.program = program;
     }
 
