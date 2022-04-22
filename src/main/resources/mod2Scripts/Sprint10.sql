@@ -2,6 +2,11 @@ INSERT IGNORE INTO us_role_business_function SELECT null, 'ROLE_INTERNAL_USER', 
 ALTER TABLE `fasp`.`rm_forecast_tree_node_data_mom` CHANGE COLUMN `CALCULATED_MMD_VALUE` `CALCULATED_MMD_VALUE` DECIMAL(18,4) UNSIGNED NULL ;
 ALTER TABLE `fasp`.`rm_forecast_tree_node_data_mom` CHANGE COLUMN `DIFFERENCE` `DIFFERENCE` DECIMAL(18,4) NULL ,CHANGE COLUMN `SEASONALITY_PERC` `SEASONALITY_PERC` DECIMAL(6,2) NULL ,CHANGE COLUMN `MANUAL_CHANGE` `MANUAL_CHANGE` DECIMAL(18,4) NULL ;
 
+
+/*[4:02:36 PM][ 3 ms]*/ INSERT INTO `fasp`.`ap_label`(`LABEL_ID`,`LABEL_EN`,`LABEL_FR`,`LABEL_SP`,`LABEL_PR`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`,`SOURCE_ID`) VALUES ( NULL,'Services',NULL,NULL,NULL,'1',NOW(),'1',NOW(),'43');
+SELECT MAX(l.LABEL_ID) INTO @MAX FROM ap_label l ;
+INSERT INTO `fasp`.`rm_forecast_method`(`FORECAST_METHOD_ID`,`REALM_ID`,`FORECAST_METHOD_TYPE_ID`,`LABEL_ID`,`ACTIVE`,`CREATED_BY`,`CREATED_DATE`,`LAST_MODIFIED_BY`,`LAST_MODIFIED_DATE`) VALUES ( NULL,'1','1',@MAX,'1','1',NOW(),'1',NOW());  
+
 INSERT INTO ap_label VALUES (null, 'QAT Forecast Import', null, null, null, 1, now(), 1, now(), 24);
 SELECT LAST_INSERT_ID() into @labelId;
 INSERT INTO `us_business_function`VALUES ('ROLE_BF_SUPPLY_PLAN_IMPORT', @labelId, 1, now(), 1, now());
@@ -107,20 +112,38 @@ where l.LABEL_CODE='static.extrapolations.showFits' and ll.LANGUAGE_ID=4;
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='These Usage Names will appear when adding/editing a forecasting tree node in the 'Copy from Template' dropdown.'
+set ll.LABEL_TEXT='These Usage Names will appear when adding/editing a forecasting tree node in the `Copy from Template` dropdown.'
 where l.LABEL_CODE='static.tooltip.UsageName' and ll.LANGUAGE_ID=1;
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='Ces noms d'utilisation apparaîtront lors de l'ajout/de la modification d'un nœud d'arbre de prévision dans la liste déroulante 'Copier à partir du modèle'.'
+set ll.LABEL_TEXT='Ces noms d`utilisation apparaîtront lors de l`ajout/de la modification d`un nœud d`arbre de prévision dans la liste déroulante `Copier à partir du modèle`.'
 where l.LABEL_CODE='static.tooltip.UsageName' and ll.LANGUAGE_ID=2;
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='Estos nombres de uso aparecerán al agregar/editar un nodo de árbol de pronóstico en el menú desplegable 'Copiar de plantilla'.'
+set ll.LABEL_TEXT='Estos nombres de uso aparecerán al agregar/editar un nodo de árbol de pronóstico en el menú desplegable `Copiar de plantilla`.'
 where l.LABEL_CODE='static.tooltip.UsageName' and ll.LANGUAGE_ID=3;
 
 update ap_static_label l 
 left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
-set ll.LABEL_TEXT='Esses nomes de uso aparecerão ao adicionar/editar um nó de árvore de previsão no menu suspenso 'Copiar do modelo'.'
+set ll.LABEL_TEXT='Esses nomes de uso aparecerão ao adicionar/editar um nó de árvore de previsão no menu suspenso `Copiar do modelo`.'
 where l.LABEL_CODE='static.tooltip.UsageName' and ll.LANGUAGE_ID=4;
+
+
+-- Added on 22nd Apr 2022
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.message.treeExtrapolationSave','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If you changed any inputs, please click the extrapolate button again to update calculations. Then click save.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si vous avez modifié des entrées, veuillez cliquer à nouveau sur le bouton dextrapolation pour mettre à jour les calculs. Cliquez ensuite sur enregistrer.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si cambió alguna entrada, vuelva a hacer clic en el botón Extrapolar para actualizar los cálculos. Luego haga clic en guardar.');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se você alterou alguma entrada, clique no botão extrapolar novamente para atualizar os cálculos. Em seguida, clique em salvar.');
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.minDataRequiredToExtrapolate','1'); 
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'NOTE: The minimum values needed to get correct graphs and reports for the various features are as under:\n1) ARIMA : This needs at least 14 months of data\n2) TES will need at least 24 months of data\n3) Other(including things like Moving averages etc) will need at least 3 months of data');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'REMARQUE : les valeurs minimales nécessaires pour obtenir des graphiques et des rapports corrects pour les différentes fonctionnalités sont les suivantes :\n1) ARIMA : cela nécessite au moins 14 mois de données\n2) TES nécessite au moins 24 mois de données\n3) Autre( y compris des éléments tels que les moyennes mobiles, etc.) nécessiteront au moins 3 mois de données');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'NOTA: Los valores mínimos necesarios para obtener gráficos e informes correctos para las diversas funciones son los siguientes:\n1) ARIMA: esto necesita al menos 14 meses de datos\n2) TES necesitará al menos 24 meses de datos\n3) Otro( incluyendo cosas como promedios móviles, etc.) necesitará al menos 3 meses de datos');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'NOTA: Os valores mínimos necessários para obter gráficos e relatórios corretos para os vários recursos são os seguintes:\n1) ARIMA: Isso precisa de pelo menos 14 meses de dados\n2) TES precisará de pelo menos 24 meses de dados\n3) Outros( incluindo coisas como médias móveis, etc) precisará de pelo menos 3 meses de dados');

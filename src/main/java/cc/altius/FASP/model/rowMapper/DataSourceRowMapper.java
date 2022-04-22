@@ -23,10 +23,13 @@ public class DataSourceRowMapper implements RowMapper<DataSource> {
         DataSource ds = new DataSource(
                 rs.getInt("DATA_SOURCE_ID"), 
                 new SimpleCodeObject(rs.getInt("REALM_ID"), new LabelRowMapper("REALM_").mapRow(rs, i), rs.getString("REALM_CODE")),
-                new SimpleObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, i)),
+                new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, i), rs.getString("PROGRAM_CODE")),
                 new LabelRowMapper("").mapRow(rs, i),
                 new SimpleObject(rs.getInt("DATA_SOURCE_TYPE_ID"), new LabelRowMapper("DATA_SOURCE_TYPE_").mapRow(rs, i))
         );
+        if (ds.getProgram().getId()==0) {
+            ds.setProgram(null);
+        }
         ds.setBaseModel(new BaseModelRowMapper().mapRow(rs, i));
         return ds;
     }

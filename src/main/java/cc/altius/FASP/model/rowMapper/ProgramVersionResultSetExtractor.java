@@ -27,7 +27,7 @@ public class ProgramVersionResultSetExtractor implements ResultSetExtractor<List
         List<ProgramVersion> pvList = new LinkedList<>();
         while (rs.next()) {
             ProgramVersion pv = new ProgramVersion(rs.getInt("PROGRAM_VERSION_ID"),
-                    new SimpleObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, 1)),
+                    new SimpleCodeObject(rs.getInt("PROGRAM_ID"), new LabelRowMapper("PROGRAM_").mapRow(rs, 1), rs.getString("PROGRAM_CODE")),
                     new SimpleCodeObject(rs.getInt("REALM_COUNTRY_ID"), new LabelRowMapper("COUNTRY_").mapRow(rs, 1), rs.getString("COUNTRY_CODE")),
                     new SimpleCodeObject(rs.getInt("HEALTH_AREA_ID"), new LabelRowMapper("HEALTH_AREA_").mapRow(rs, 1), rs.getString("HEALTH_AREA_CODE")),
                     new SimpleCodeObject(rs.getInt("ORGANISATION_ID"), new LabelRowMapper("ORGANISATION_").mapRow(rs, 1), rs.getString("ORGANISATION_CODE")),
