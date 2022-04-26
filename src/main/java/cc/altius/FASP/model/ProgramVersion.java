@@ -16,7 +16,7 @@ import java.util.List;
 public class ProgramVersion extends Version {
 
     private int programVersionId;
-    private SimpleObject program;
+    private SimpleCodeObject program;
     private SimpleCodeObject realmCountry;
     private List<SimpleCodeObject> healthAreaList;
     private SimpleCodeObject organisation;
@@ -25,7 +25,7 @@ public class ProgramVersion extends Version {
         healthAreaList = new LinkedList<>();
     }
 
-    public ProgramVersion(int programVersionId, SimpleObject program, SimpleCodeObject realmCountry, SimpleCodeObject healthArea, SimpleCodeObject organisation, int versionId, SimpleObject versionType, SimpleObject versionStatus, String notes, BasicUser createdBy, Date createdDate, BasicUser lastModifiedBy, Date lastModifiedDate) {
+    public ProgramVersion(int programVersionId, SimpleCodeObject program, SimpleCodeObject realmCountry, SimpleCodeObject healthArea, SimpleCodeObject organisation, int versionId, SimpleObject versionType, SimpleObject versionStatus, String notes, BasicUser createdBy, Date createdDate, BasicUser lastModifiedBy, Date lastModifiedDate) {
         super(versionId, versionType, versionStatus, notes, createdBy, createdDate, lastModifiedBy, lastModifiedDate);
         this.programVersionId = programVersionId;
         this.program = program;
@@ -50,11 +50,11 @@ public class ProgramVersion extends Version {
         this.programVersionId = programVersionId;
     }
 
-    public SimpleObject getProgram() {
+    public SimpleCodeObject getProgram() {
         return program;
     }
 
-    public void setProgram(SimpleObject program) {
+    public void setProgram(SimpleCodeObject program) {
         this.program = program;
     }
 
