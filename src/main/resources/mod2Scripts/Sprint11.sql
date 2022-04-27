@@ -36,7 +36,7 @@ UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Vincule los cambios 
 
 UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Vincule as mudanças neste nó às mudanças em outro nó no mesmo nível. Se uma linha estiver acinzentada, edite no nó de origem (ou \'de\').' WHERE `STATIC_LABEL_LANGUAGE_ID`='200325'; 
 
-INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.importIntoQATSupplyPlan.conversionFactor','1');
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,"static.importIntoQATSupplyPlan.conversionFactor","1");
 SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Conversion Factor (Forecast Planning Unit to Supply Plan)');-- en

@@ -7,6 +7,7 @@ package cc.altius.FASP.model;
 
 import com.fasterxml.jackson.annotation.JsonView;
 import java.io.Serializable;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -29,6 +30,7 @@ public class NodeDataExtrapolation implements Serializable {
 
     public NodeDataExtrapolation(int nodeDataExtapolationId) {
         this.nodeDataExtapolationId = nodeDataExtapolationId;
+        this.extrapolationDataList = new LinkedList<>();
     }
 
     public int getNodeDataExtapolationId() {

@@ -252,7 +252,7 @@ public class EquivalencyUnitDaoImpl implements EquivalencyUnitDao {
     @Override
     public List<EquivalencyUnitMapping> getEquivalencyUnitMappingListForSync(String programIdsString, CustomUserDetails curUser) {
         StringBuilder sqlStringBuilder = new StringBuilder(EQUIVALENCY_UNIT_MAPPING_SELECT).append(" AND eum.ACTIVE ");
-        sqlStringBuilder.append(" AND (eum.PROGRAM_ID IS NULL OR eum.PROGRAM_ID in (").append(programIdsString).append("))");
+        sqlStringBuilder.append(" AND (eum.PROGRAM_ID = 0 OR eum.PROGRAM_ID in (").append(programIdsString).append("))");
         Map<String, Object> params = new HashMap<>();
         params.put("programIdsString", programIdsString);
         this.aclService.addUserAclForRealm(sqlStringBuilder, params, "r", curUser);
