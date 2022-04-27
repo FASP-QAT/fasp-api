@@ -74,3 +74,10 @@ UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Mientras que un prom
 
 UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Enquanto uma média móvel pesa cada ponto de dados igualmente, a suavização exponencial usa dados mais antigos com pesos exponencialmente decrescentes ao longo do tempo. A suavização exponencial tripla aplica a suavização ao nível (alfa), tendência (beta) e sazonalidade (gama) - os parâmetros são definidos entre 0 e 1, com valores próximos de 1 favorecendo valores recentes e valores próximos de 0 favorecendo valores passados.\r\nIntervalo de confiança: entre 0% e 100% (exclusivo) ex. O nível de confiança de 90% indica que 90% dos pontos futuros devem cair dentro desse raio de previsão.\r\nAlfa (nível), beta (tendência), gama (sazonalidade): entre 0 e 1, com valores próximos de 1 favorecendo valores recentes e valores próximos de 0 favorecendo valores passados.\r\nConsulte \'Mostrar Orientação\' para mais informações.' WHERE `STATIC_LABEL_LANGUAGE_ID`='200573';
 
+
+INSERT INTO `fasp`.`ap_static_label`(`STATIC_LABEL_ID`,`LABEL_CODE`,`ACTIVE`) VALUES ( NULL,'static.tree.calculatedChangeForMonthTree','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calculated change for');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Variation calculée pour le');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cambio calculado por');
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Alteração calculada para o');
