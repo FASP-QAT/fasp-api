@@ -81,3 +81,11 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Calculated change for'
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Variation calculée pour le');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cambio calculado por');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Alteração calculada para o');
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.importIntoQATSupplyPlan.forecastFinalVersion','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Forecast version (Final Versions Only)');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Version prévisionnelle (versions finales uniquement)');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Versão de previsão (somente versões finais)');-- pr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Versión de previsión (solo versiones finales)');-- sp
