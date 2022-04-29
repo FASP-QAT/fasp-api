@@ -39,3 +39,35 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'QAT Forecast Import');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Importation des prévisions QAT');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Importación de pronóstico QAT');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Dados do plano de fornecimento importados com sucesso');-- pr
+
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data` ADD COLUMN `IS_EXTRAPOLATION` TINYINT(1) UNSIGNED NOT NULL AFTER `NODE_DATA_PU_ID`;
+UPDATE rm_forecast_tree_node_data ftnd LEFT JOIN rm_forecast_tree_node ftn ON ftnd.NODE_ID=ftn.NODE_ID SET ftnd.IS_EXTRAPOLATION=ftn.IS_EXTRAPOLATION;
+ALTER TABLE `fasp`.`rm_forecast_tree_node` DROP COLUMN `IS_EXTRAPOLATION`;
+
+USE `fasp`;
+CREATE 
+     OR REPLACE ALGORITHM = UNDEFINED 
+    DEFINER = `faspUser`@`%` 
+    SQL SECURITY DEFINER
+VIEW `vw_forecast_tree_node` AS
+    SELECT 
+        `tn`.`NODE_ID` AS `NODE_ID`,
+        `tn`.`TREE_ID` AS `TREE_ID`,
+        `tn`.`PARENT_NODE_ID` AS `PARENT_NODE_ID`,
+        `tn`.`SORT_ORDER` AS `SORT_ORDER`,
+        `tn`.`LEVEL_NO` AS `LEVEL_NO`,
+        `tn`.`NODE_TYPE_ID` AS `NODE_TYPE_ID`,
+        `tn`.`UNIT_ID` AS `UNIT_ID`,
+        `tn`.`LABEL_ID` AS `LABEL_ID`,
+        `tn`.`CREATED_BY` AS `CREATED_BY`,
+        `tn`.`CREATED_DATE` AS `CREATED_DATE`,
+        `tn`.`LAST_MODIFIED_BY` AS `LAST_MODIFIED_BY`,
+        `tn`.`LAST_MODIFIED_DATE` AS `LAST_MODIFIED_DATE`,
+        `tn`.`ACTIVE` AS `ACTIVE`,
+        `l`.`LABEL_EN` AS `LABEL_EN`,
+        `l`.`LABEL_FR` AS `LABEL_FR`,
+        `l`.`LABEL_SP` AS `LABEL_SP`,
+        `l`.`LABEL_PR` AS `LABEL_PR`
+    FROM
+        (`rm_forecast_tree_node` `tn`
+        LEFT JOIN `ap_label` `l` ON ((`tn`.`LABEL_ID` = `l`.`LABEL_ID`)));
