@@ -30,6 +30,8 @@ public class TreeNodeData implements Serializable {
     private TreeNodeDataFu fuNode;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private TreeNodeDataPu puNode;
+    @JsonView(Views.InternalView.class)
+    private boolean extrapolation;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private String notes;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
@@ -102,6 +104,14 @@ public class TreeNodeData implements Serializable {
 
     public void setPuNode(TreeNodeDataPu puNode) {
         this.puNode = puNode;
+    }
+
+    public boolean isExtrapolation() {
+        return extrapolation;
+    }
+
+    public void setExtrapolation(boolean extrapolation) {
+        this.extrapolation = extrapolation;
     }
 
     public String getNotes() {

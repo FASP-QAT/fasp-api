@@ -275,20 +275,6 @@ public class PlanningUnitRestController {
         }
     }
     
-    @GetMapping(value="/planningUnit/programId/{programId}/versionId/{versionId}")
-    public ResponseEntity getPlanningUnitForDataset(@PathVariable("programId") int programId, @PathVariable("versionId") int versionId, Authentication auth) {
-        try {
-            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-            return new ResponseEntity(this.planningUnitService.getPlanningUnitListForDataset(programId, versionId, curUser), HttpStatus.OK);
-        } catch (EmptyResultDataAccessException er) {
-            logger.error("Error while trying to list PlanningUnit", er);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.NOT_FOUND);
-        } catch (Exception e) {
-            logger.error("Error while trying to list PlanningUnit", e);
-            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
 //    @GetMapping(value = "/sync/planningUnit/{lastSyncDate}")
 //    public ResponseEntity getPlanningUnitListForSync(@PathVariable("lastSyncDate") String lastSyncDate, Authentication auth) {
 //        try {
