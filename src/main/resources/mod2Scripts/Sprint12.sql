@@ -39,3 +39,24 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'QAT Forecast Import');
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Importation des prévisions QAT');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Importación de pronóstico QAT');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Dados do plano de fornecimento importados com sucesso');-- pr
+
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Compare With Version (* indicates Final)'
+where l.LABEL_CODE='static.compareVersion.compareWithVersion' and ll.LANGUAGE_ID=1;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Comparer avec la version (* indique la version finale)'
+where l.LABEL_CODE='static.compareVersion.compareWithVersion' and ll.LANGUAGE_ID=2;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Comparar con la versión (* indica final)'
+where l.LABEL_CODE='static.compareVersion.compareWithVersion' and ll.LANGUAGE_ID=3;
+
+update ap_static_label l 
+left join ap_static_label_languages ll on l.STATIC_LABEL_ID=ll.STATIC_LABEL_ID
+set ll.LABEL_TEXT='Comparar com a versão (* indica Final)'
+where l.LABEL_CODE='static.compareVersion.compareWithVersion' and ll.LANGUAGE_ID=4;
