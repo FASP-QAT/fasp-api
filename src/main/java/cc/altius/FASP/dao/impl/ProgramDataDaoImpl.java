@@ -1254,7 +1254,6 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 nodeParams.put("SORT_ORDER", n.getSortOrder());
                 nodeParams.put("LEVEL_NO", n.getLevel() + 1);
                 nodeParams.put("NODE_TYPE_ID", n.getPayload().getNodeType().getId());
-                nodeParams.put("IS_EXTRAPOLATION", n.getPayload().isExtrapolation());
                 nodeParams.put("UNIT_ID", (n.getPayload().getNodeUnit() == null ? null : (n.getPayload().getNodeUnit().getId() == null || n.getPayload().getNodeUnit().getId() == 0 ? null : n.getPayload().getNodeUnit().getId())));
                 int nodeLabelId = this.labelDao.addLabel(n.getPayload().getLabel(), LabelConstants.RM_FORECAST_TREE_NODE, spcr.getCreatedBy().getUserId());
                 nodeParams.put("LABEL_ID", nodeLabelId);
@@ -1342,6 +1341,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         nodeDataParams.put("NODE_DATA_FU_ID", nodeDataFuId);
                         nodeDataParams.put("NODE_DATA_PU_ID", nodeDataPuId);
                         nodeDataParams.put("MANUAL_CHANGES_EFFECT_FUTURE", tnd.isManualChangesEffectFuture());
+                        nodeDataParams.put("IS_EXTRAPOLATION", tnd.isExtrapolation());
                         nodeDataParams.put("CREATED_BY", spcr.getCreatedBy().getUserId());
                         nodeDataParams.put("CREATED_DATE", spcr.getCreatedDate());
                         nodeDataParams.put("LAST_MODIFIED_BY", spcr.getCreatedBy().getUserId());
@@ -1375,19 +1375,28 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         }
 
                         // Step 3I -- Add the Node Data Extrapolation Option values 
-                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && n.getPayload().isExtrapolation()) {
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation()) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_OPTION_ID");
+                            SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option_data");
+                            
                             for (NodeDataExtrapolationOption ndeo : tnd.getNodeDataExtrapolationOptionList()) {
                                 nodeDataParams.clear();
                                 nodeDataParams.put("NODE_DATA_ID", nodeDataId);
                                 nodeDataParams.put("EXTRAPOLATION_METHOD_ID", ndeo.getExtrapolationMethod().getId());
                                 nodeDataParams.put("JSON_PROPERTIES", ndeo.getJsonPropertiesString());
-                                ni.executeAndReturnKey(nodeDataParams).intValue();
+                                int nodeDataExtrapolationOptionId = ni.executeAndReturnKey(nodeDataParams).intValue();
+                                for (ExtrapolationData ed : ndeo.getExtrapolationOptionDataList()) {
+                                    nodeDataParams.clear();
+                                    nodeDataParams.put("NODE_DATA_EXTRAPOLATION_OPTION_ID", nodeDataExtrapolationOptionId);
+                                    nodeDataParams.put("MONTH", ed.getMonth());
+                                    nodeDataParams.put("AMOUNT", ed.getAmount());
+                                    nid.execute(nodeDataParams);
+                                }
                             }
                         }
 
                         // Step 3J -- Add the Node Data Extrapolation and Data values
-                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && n.getPayload().isExtrapolation()) {
+                        if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation()) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_ID");
                             NodeDataExtrapolation nde = tnd.getNodeDataExtrapolation();
                             nodeDataParams.clear();
@@ -2349,11 +2358,11 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
     @Override
     public ForecastTree<TreeNode> getTreeData(int treeId, CustomUserDetails curUser) {
         String sql = "SELECT "
-                + "          ttn.NODE_ID, ttn.TREE_ID, ttn.PARENT_NODE_ID, ttn.IS_EXTRAPOLATION, "
+                + "          ttn.NODE_ID, ttn.TREE_ID, ttn.PARENT_NODE_ID, "
                 + "          ttn.LABEL_ID, ttn.LABEL_EN, ttn.LABEL_FR, ttn.LABEL_SP, ttn.LABEL_PR, "
                 + "          nt.NODE_TYPE_ID `NODE_TYPE_ID`, nt.MODELING_ALLOWED, nt.EXTRAPOLATION_ALLOWED, nt.TREE_TEMPLATE_ALLOWED, nt.FORECAST_TREE_ALLOWED, nt.LABEL_ID `NT_LABEL_ID`, nt.LABEL_EN `NT_LABEL_EN`, nt.LABEL_FR `NT_LABEL_FR`, nt.LABEL_SP `NT_LABEL_SP`, nt.LABEL_PR `NT_LABEL_PR`, "
                 + "          u.UNIT_ID `U_UNIT_ID`, u.UNIT_CODE `U_UNIT_CODE`, u.LABEL_ID `U_LABEL_ID`, u.LABEL_EN `U_LABEL_EN`, u.LABEL_FR `U_LABEL_FR`, u.LABEL_SP `U_LABEL_SP`, u.LABEL_PR `U_LABEL_PR`, "
-                + "          ttnd.`SCENARIO_ID`, ttnd.NODE_DATA_ID, ttnd.MONTH, ttnd.DATA_VALUE, ttnd.NOTES, ttnd.MANUAL_CHANGES_EFFECT_FUTURE, "
+                + "          ttnd.`SCENARIO_ID`, ttnd.NODE_DATA_ID, ttnd.MONTH, ttnd.DATA_VALUE, ttnd.NOTES, ttnd.MANUAL_CHANGES_EFFECT_FUTURE, ttnd.IS_EXTRAPOLATION, "
                 + "          ttndf.NODE_DATA_FU_ID, ttndf.LAG_IN_MONTHS, ttndf.NO_OF_PERSONS, ttndf.FORECASTING_UNITS_PER_PERSON, "
                 + "          fu.FORECASTING_UNIT_ID, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
                 + "          fuu.UNIT_ID `FUU_UNIT_ID`, fuu.UNIT_CODE `FUU_UNIT_CODE`, fuu.LABEL_ID `FUU_LABEL_ID`, fuu.LABEL_EN `FUU_LABEL_EN`, fuu.LABEL_FR `FUU_LABEL_FR`, fuu.LABEL_SP `FUU_LABEL_SP`, fuu.LABEL_PR `FUU_LABEL_PR`, "

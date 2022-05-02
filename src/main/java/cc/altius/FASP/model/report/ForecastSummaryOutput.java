@@ -31,7 +31,7 @@ public class ForecastSummaryOutput implements Serializable {
     @JsonView(Views.ReportView.class)
     private Double totalForecast;
     @JsonView(Views.ReportView.class)
-    private String notes;
+    private Label notes;
     @JsonView(Views.ReportView.class)
     private Integer stock;
     @JsonView(Views.ReportView.class)
@@ -42,6 +42,8 @@ public class ForecastSummaryOutput implements Serializable {
     private SimpleCodeObject procurementAgent;
     @JsonView(Views.ReportView.class)
     private Double price;
+    @JsonView(Views.ReportView.class)
+    private Double freightPerc;
 
     public SimpleObjectWithMultiplier getPlanningUnit() {
         return planningUnit;
@@ -83,11 +85,11 @@ public class ForecastSummaryOutput implements Serializable {
         this.totalForecast = totalForecast;
     }
 
-    public String getNotes() {
+    public Label getNotes() {
         return notes;
     }
 
-    public void setNotes(String notes) {
+    public void setNotes(Label notes) {
         this.notes = notes;
     }
 
@@ -131,7 +133,13 @@ public class ForecastSummaryOutput implements Serializable {
         this.price = price;
     }
 
-    
+    public Double getFreightPerc() {
+        return freightPerc;
+    }
+
+    public void setFreightPerc(Double freightPerc) {
+        this.freightPerc = freightPerc;
+    }
 
     @Override
     public int hashCode() {

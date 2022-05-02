@@ -55,5 +55,5 @@ public interface PlanningUnitDao {
 
     public List<PlanningUnit> getPlanningUnitListByTracerCategoryIds(String[] tracerCategoryIds, boolean active, CustomUserDetails curUser);
     
-    public List<SimplePlanningUnitObject> getPlanningUnitListForDataset(int programId, int versionId, CustomUserDetails curUser);
+//    public List<SimplePlanningUnitObject> getPlanningUnitListForDataset(int programId, int versionId, CustomUserDetails curUser);
 }

@@ -24,8 +24,6 @@ public class TreeNode implements Serializable {
     @JsonView(Views.InternalView.class)
     private NodeType nodeType;
     @JsonView(Views.InternalView.class)
-    private boolean extrapolation;
-    @JsonView(Views.InternalView.class)
     private SimpleCodeObject nodeUnit;
     @JsonView(Views.InternalView.class)
     private Label label;
@@ -36,11 +34,10 @@ public class TreeNode implements Serializable {
         this.nodeDataMap = new HashMap<>();
     }
 
-    public TreeNode(int nodeId, Integer parentNodeId, NodeType nodeType, boolean extrapolation, SimpleCodeObject nodeUnit, Label label) {
+    public TreeNode(int nodeId, Integer parentNodeId, NodeType nodeType, SimpleCodeObject nodeUnit, Label label) {
         this.nodeId = nodeId;
         this.parentNodeId = parentNodeId;
         this.nodeType = nodeType;
-        this.extrapolation = extrapolation;
         this.nodeUnit = nodeUnit;
         this.label = label;
         this.nodeDataMap = new HashMap<>();
@@ -68,14 +65,6 @@ public class TreeNode implements Serializable {
 
     public void setNodeType(NodeType nodeType) {
         this.nodeType = nodeType;
-    }
-
-    public boolean isExtrapolation() {
-        return extrapolation;
-    }
-
-    public void setExtrapolation(boolean extrapolation) {
-        this.extrapolation = extrapolation;
     }
 
     public SimpleCodeObject getNodeUnit() {
