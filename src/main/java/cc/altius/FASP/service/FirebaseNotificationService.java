@@ -5,7 +5,7 @@
  */
 package cc.altius.FASP.service;
 
-import java.util.concurrent.CompletableFuture;
+import cc.altius.FASP.model.SupplyPlanCommitRequest;
 
 /**
  *
@@ -13,6 +13,6 @@ import java.util.concurrent.CompletableFuture;
  */
 public interface FirebaseNotificationService {
     
-    public CompletableFuture<Object> getCommitRequestStatusByCommitRequestId(int commitRequestId);
+    public SupplyPlanCommitRequest getCommitRequestStatusByCommitRequestId(int commitRequestId);
     
 }

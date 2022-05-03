@@ -398,6 +398,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
         ProgramData pd = new ProgramData(p);
         pd.setVersionType(spcr.getVersionType());
         pd.setVersionStatus(new SimpleObject(1, new Label(0)));
+        pd.setNotes(spcr.getNotes());
         String sql = "SELECT  "
                 + "    spc.ID, spcbi.PARENT_ID, spc.CONSUMPTION_ID, spc.CONSUMPTION_DATE, spc.RCPU_QTY `CONSUMPTION_RCPU_QTY`, spc.QTY `CONSUMPTION_QTY`, spc.DAYS_OF_STOCK_OUT,  "
                 + "    spc.ACTUAL_FLAG,  "
