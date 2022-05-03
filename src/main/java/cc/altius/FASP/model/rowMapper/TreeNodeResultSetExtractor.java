@@ -109,9 +109,8 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 nodeId,
                 parentNodeId,
                 new NodeType(rs.getInt("NODE_TYPE_ID"), new LabelRowMapper("NT_").mapRow(rs, count), rs.getBoolean("MODELING_ALLOWED"), rs.getBoolean("EXTRAPOLATION_ALLOWED"), rs.getBoolean("TREE_TEMPLATE_ALLOWED"), rs.getBoolean("FORECAST_TREE_ALLOWED")),
-                (isTemplate ? rs.getBoolean("IS_EXTRAPOLATION") : false),
                 new SimpleCodeObject(rs.getInt("U_UNIT_ID"), new LabelRowMapper("U_").mapRow(rs, count), rs.getString("U_UNIT_CODE")),
-                 new LabelRowMapper().mapRow(rs, count)
+                new LabelRowMapper().mapRow(rs, count)
         );
         return tn;
     }
@@ -125,9 +124,11 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 tnd.setMonthNo(rs.getInt("MONTH"));
                 tnd.setMonth(sdf.format(DateUtils.addMonths(curDate, tnd.getMonthNo())));
                 tnd.setManualChangesEffectFuture(rs.getBoolean("MANUAL_CHANGES_EFFECT_FUTURE"));
+                tnd.setExtrapolation(false);
             } else {
                 tnd.setMonth(rs.getString("MONTH"));
                 tnd.setManualChangesEffectFuture(rs.getBoolean("MANUAL_CHANGES_EFFECT_FUTURE"));
+                tnd.setExtrapolation(rs.getBoolean("IS_EXTRAPOLATION"));
             }
             tnd.setDataValue(rs.getDouble("DATA_VALUE"));
             tnd.setNotes(rs.getString("NOTES"));
@@ -170,6 +171,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
             tnd.setNodeDataModelingList(new LinkedList<>()); // Initiate Modeling list
             tnd.setNodeDataOverrideList(new LinkedList<>()); // Initiate Override list
             tnd.setNodeDataMomList(new LinkedList<>()); // Initiate Mom list
+            tnd.setNodeDataExtrapolationOptionList(new LinkedList<>()); // Initiate the Extrapolation Option list
             tndList.add(tnd);
         } else {
             // NodeData was already present so point tnd to the existing nodeData
