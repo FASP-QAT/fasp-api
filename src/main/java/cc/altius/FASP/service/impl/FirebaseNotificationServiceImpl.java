@@ -8,12 +8,7 @@ package cc.altius.FASP.service.impl;
 import cc.altius.FASP.model.SupplyPlanCommitRequest;
 import cc.altius.FASP.service.FirebaseNotificationService;
 import cc.altius.FASP.service.ProgramDataService;
-import java.util.Date;
-import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 /**
@@ -27,20 +22,10 @@ public class FirebaseNotificationServiceImpl implements FirebaseNotificationServ
     ProgramDataService programDataService;
 
     @Override
-    @Async
-    public CompletableFuture<Object> getCommitRequestStatusByCommitRequestId(int commitRequestId) {
-        SupplyPlanCommitRequest spcr=new SupplyPlanCommitRequest();
-        spcr.setStatus(0);
-        while (spcr.getStatus() != 2 && spcr.getStatus() != 3) {
-            try {
-                spcr = this.programDataService.getCommitRequestByCommitRequestId(commitRequestId);
-                Thread.sleep(5000L);
-            } catch (InterruptedException ex) {
-                Logger.getLogger(FirebaseNotificationServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-
-        return CompletableFuture.completedFuture(spcr);
+    public SupplyPlanCommitRequest getCommitRequestStatusByCommitRequestId(int commitRequestId) {
+        SupplyPlanCommitRequest spcr = new SupplyPlanCommitRequest();
+        spcr = this.programDataService.getCommitRequestByCommitRequestId(commitRequestId);
+        return spcr;
     }
 
 }
