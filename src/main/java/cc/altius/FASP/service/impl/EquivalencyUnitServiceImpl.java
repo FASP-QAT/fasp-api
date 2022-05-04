@@ -53,11 +53,7 @@ public class EquivalencyUnitServiceImpl implements EquivalencyUnitService {
 
     @Override
     public List<EquivalencyUnitMapping> getEquivalencyUnitMappingListForSync(String programIdsString, CustomUserDetails curUser) {
-        if (programIdsString.length() > 0) {
-            return this.equivalencyUnitDao.getEquivalencyUnitMappingListForSync(programIdsString, curUser);
-        } else {
-            return new LinkedList<>();
-        }
+        return this.equivalencyUnitDao.getEquivalencyUnitMappingListForSync(programIdsString, curUser);
     }
 
 }
