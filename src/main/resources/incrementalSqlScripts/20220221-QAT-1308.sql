@@ -86,7 +86,7 @@ CREATE TABLE `rm_erp_shipment_consolidated` (
   KEY `idx_erp_shipment_consolidated_erpOrderId_idx` (`ERP_ORDER_ID`),
   KEY `idx_erp_shipment_consolidated_fileName` (`FILE_NAME`),
   CONSTRAINT `fk_rm_erp_shipment_consolidated_erpOrderId` FOREIGN KEY (`ERP_ORDER_ID`) REFERENCES `rm_erp_order_consolidated` (`ERP_ORDER_ID`)
-) ENGINE=InnoDB AUTO_INCREMENT=146290 DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8_bin;
 
 
 USE `fasp`;
