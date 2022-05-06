@@ -35,6 +35,7 @@ import cc.altius.FASP.model.ProgramPlanningUnitProcurementAgentPrice;
 import cc.altius.FASP.model.Realm;
 import cc.altius.FASP.model.RealmCountry;
 import cc.altius.FASP.model.SimpleObject;
+import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.service.AclService;
 import cc.altius.FASP.service.ProgramService;
@@ -73,7 +74,7 @@ public class ProgramServiceImpl implements ProgramService {
     private ProcurementAgentDao procurementAgentDao;
     @Autowired
     private AclService aclService;
-    
+
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Override
@@ -177,6 +178,16 @@ public class ProgramServiceImpl implements ProgramService {
         Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
         if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
             return this.programDao.getPlanningUnitListForProgramIdAndTracerCategoryIds(programId, active, tracerCategoryIds, curUser);
+        } else {
+            throw new AccessDeniedException("Access denied");
+        }
+    }
+
+    @Override
+    public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) {
+        Program p = this.programCommonDao.getProgramById(programId, GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN, curUser);
+        if (this.aclService.checkProgramAccessForUser(curUser, p.getRealmCountry().getRealm().getRealmId(), programId, p.getHealthAreaIdList(), p.getOrganisation().getId())) {
+            return this.programDao.getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(programId, active, tracerCategoryIds, curUser);
         } else {
             throw new AccessDeniedException("Access denied");
         }
@@ -293,7 +304,7 @@ public class ProgramServiceImpl implements ProgramService {
             for (int i = 0; i < manualTaggingOrderDTO.length; i++) {
 //                System.out.println("manualTaggingOrderDTO[i]---" + manualTaggingOrderDTO[i]);
                 if (manualTaggingOrderDTO[i].isActive()) {
-                    int id=0;
+                    int id = 0;
                     int count = this.programDao.checkIfOrderNoAlreadyTagged(manualTaggingOrderDTO[i].getOrderNo(), manualTaggingOrderDTO[i].getPrimeLineNo());
                     if (manualTaggingOrderDTO[i].getShipmentId() != 0) {
                         if (count != 0) {
