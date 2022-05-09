@@ -178,14 +178,101 @@ END$$
 DELIMITER ;
 ;
 
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.Tooltip.levelModelingValdation','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'These are based on the various levels in the Forecast Tree, including an automated level which consolidates FUs or PUs, should they span across multiple levels. Users can choose to manually update the name of each level in the Forecast Tree screen, if desired, and it will update in this dropdown.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Ceux-ci sont basés sur les différents niveaux de l arborescence des prévisions, y compris un niveau automatisé qui consolide les FU ou les PU, s ils s étendent sur plusieurs niveaux. Les utilisateurs peuvent choisir de mettre à jour manuellement le nom de chaque niveau dans l écran de l arborescence des prévisions, s ils le souhaitent, et il sera mis à jour dans cette liste déroulante.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Estos se basan en los distintos niveles del árbol de pronóstico, incluido un nivel automatizado que consolida las FU o las PU, en caso de que abarquen varios niveles. Los usuarios pueden optar por actualizar manualmente el nombre de cada nivel en la pantalla Árbol de pronóstico, si lo desean, y se actualizará en este menú desplegable.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Eles são baseados nos vários níveis da Árvore de Previsão, incluindo um nível automatizado que consolida FUs ou PUs, caso eles se estendam por vários níveis. Os usuários podem optar por atualizar manualmente o nome de cada nível na tela Árvore de previsão, se desejarem, e isso será atualizado neste menu suspenso.');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.Tooltip.TotalForecastedQuantity','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Total forecasted quantity during the Forecast Period.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Quantité totale prévue pendant la période de prévision.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Cantidad total prevista durante el Período de previsión.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Quantidade total prevista durante o período de previsão.');-- pr
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.Tooltip.StockEndOfDec','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'User-entered in the Update Planning Units screen');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Saisie par l utilisateur dans l écran Mettre à jour les unités de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Introducido por el usuario en la pantalla Actualizar unidades de planificación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Inserido pelo usuário na tela Atualizar unidades de planejamento');-- pr
 
 
-ALTER TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation_option_data` ADD COLUMN `CI` DECIMAL(18,4) NULL AFTER `AMOUNT`;
-ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation_data` ADD COLUMN `CI` DECIMAL(16,2) NULL AFTER `AMOUNT`;
-DELETE fced.* FROM rm_forecast_consumption_extrapolation fce LEFT JOIN vw_extrapolation_method em ON fce.EXTRAPOLATION_METHOD_ID=em.EXTRAPOLATION_METHOD_ID LEFT JOIN rm_forecast_consumption_extrapolation_data fced ON fce.CONSUMPTION_EXTRAPOLATION_ID=fced.CONSUMPTION_EXTRAPOLATION_ID WHERE em.ACTIVE=0;
-DELETE fce.* FROM rm_forecast_consumption_extrapolation fce LEFT JOIN vw_extrapolation_method em ON fce.EXTRAPOLATION_METHOD_ID=em.EXTRAPOLATION_METHOD_ID WHERE em.ACTIVE=0;
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.Tooltip.ExistingShipments','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
 
-SET FOREIGN_KEY_CHECKS=0;
-DELETE l.*, em.* FROM ap_extrapolation_method em LEFT JOIN ap_label l ON em.LABEL_ID=l.LABEL_ID where em.ACTIVE=0;
-SET FOREIGN_KEY_CHECKS=1;
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'User-entered in the Update Planning Units screen');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Saisie par l utilisateur dans l écran Mettre à jour les unités de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Introducido por el usuario en la pantalla Actualizar unidades de planificación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Inserido pelo usuário na tela Atualizar unidades de planejamento');-- pr
 
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.Tooltip.StockorUnmetDemand','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'(Stock + Existing Shipments) - Total Forecasted Quantity. If this amount is below zero, QAT calculates an Unmet Demand quantity, which will appear in red text.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'(Stock + Livraisons existantes) - Quantité totale prévue. Si ce montant est inférieur à zéro, QAT calcule une quantité de demande non satisfaite, qui apparaîtra en texte rouge.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'(Stock + Envíos existentes) - Cantidad total pronosticada. Si esta cantidad es inferior a cero, QAT calcula una cantidad de Demanda no satisfecha, que aparecerá en texto rojo.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'(Estoque + Remessas Existentes) - Quantidade Total Prevista. Se esse valor estiver abaixo de zero, o QAT calcula uma quantidade de Demanda não atendida, que aparecerá em texto vermelho.');-- pr
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.Tooltip.desiredMonthsOfStock','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'User-entered in the Update Planning Units screen');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Saisie par l utilisateur dans l écran Mettre à jour les unités de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Introducido por el usuario en la pantalla Actualizar unidades de planificación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Inserido pelo usuário na tela Atualizar unidades de planejamento');-- pr
+
+
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.Tooltip.DesiredStock','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'(Desired Months of Stock * Total Forecast Quantity) / Number of Months in Forecast Period');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'(Mois de stock souhaités * Quantité totale prévue) / Nombre de mois dans la période de prévision');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'(Meses deseados de existencias * Cantidad total prevista) / Número de meses en el período de previsión');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'(Meses de Estoque Desejados * Quantidade Total de Previsão) / Número de Meses no Período de Previsão');-- pr
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.Tooltip.ProcurementSurplusGap','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Stock or Unmet Demand - Desired Stock. If this amount is below zero, QAT calculates a Gap in procurement, which will appear in red text.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Stock ou demande non satisfaite - Stock souhaité. Si ce montant est inférieur à zéro, QAT calcule un écart dans l approvisionnement, qui apparaîtra en texte rouge.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Stock o Demanda Insatisfecha - Stock Deseado. Si este monto es inferior a cero, QAT calcula una brecha en la contratación, que aparecerá en texto rojo.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Estoque ou Demanda Insatisfeita - Estoque Desejado. Se esse valor estiver abaixo de zero, o QAT calcula um Gap nas compras, que aparecerá em texto vermelho.');-- pr
+
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.Tooltip.forecastReportpriceType','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'User-entered in the Update Planning Units screen');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Saisie par l utilisateur dans l écran Mettre à jour les unités de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Introducido por el usuario en la pantalla Actualizar unidades de planificación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Inserido pelo usuário na tela Atualizar unidades de planejamento');-- pr
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.Tooltip.forecastReportUnitPrice','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Automatically calculated from the Price Type or User-entered in the Update Planning Units screen');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Calculé automatiquement à partir du type de prix ou saisi par l utilisateur dans l écran Mettre à jour les unités de planification');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Calculado automáticamente a partir del tipo de precio o ingresado por el usuario en la pantalla Actualizar unidades de planificación');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Calculado automaticamente a partir do Tipo de preço ou inserido pelo usuário na tela Atualizar unidades de planejamento');-- pr
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.Tooltip.ProcurementsNeeded','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If there is a Procurement Gap, QAT will calculate the amount (in USD) needed to cover that gap using the Unit Price.');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'S il y a un écart d approvisionnement, QAT calculera le montant (en USD) nécessaire pour couvrir cet écart en utilisant le prix unitaire.');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si hay una Brecha de Adquisiciones, QAT calculará la cantidad (en USD) necesaria para cubrir esa brecha usando el Precio Unitario.');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se houver uma lacuna de aquisição, a QAT calculará o valor (em dólares) necessário para cobrir essa lacuna usando o preço unitário.');-- pr
