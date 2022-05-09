@@ -63,10 +63,17 @@ public class MonthlyForecastOutputListResultSetExtractor implements ResultSetExt
                 idx = mfo.getMonthlyForecastData().indexOf(mfd);
                 if (idx == -1) {
                     mfd.setConsumptionQty(rs.getDouble("CALCULATED_MMD_VALUE"));
+                    if (rs.wasNull()) {
+                        mfd.setConsumptionQty(null);
+                    }
                     mfo.getMonthlyForecastData().add(mfd);
                 } else {
                     mfd = mfo.getMonthlyForecastData().get(idx);
-                    mfd.setConsumptionQty(mfd.getConsumptionQty() + rs.getDouble("CALCULATED_MMD_VALUE"));
+                    Double calculatedMMDValue = rs.getDouble("CALCULATED_MMD_VALUE");
+                    if (rs.wasNull()) {
+                        calculatedMMDValue = null;
+                    }
+                    mfd.setConsumptionQty(mfd.getConsumptionQty() + (calculatedMMDValue == null ? 0 : calculatedMMDValue));
                 }
             }
         }
