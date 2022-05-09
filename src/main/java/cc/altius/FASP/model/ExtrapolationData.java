@@ -23,6 +23,7 @@ public class ExtrapolationData implements Serializable {
     @JsonSerialize(using = JsonDateSerializer.class)
     private Date month;
     private Double amount;
+    private Double ci;
 
     public ExtrapolationData() {
     }
@@ -45,6 +46,14 @@ public class ExtrapolationData implements Serializable {
 
     public void setAmount(Double amount) {
         this.amount = amount;
+    }
+
+    public Double getCi() {
+        return ci;
+    }
+
+    public void setCi(Double ci) {
+        this.ci = ci;
     }
 
     @Override

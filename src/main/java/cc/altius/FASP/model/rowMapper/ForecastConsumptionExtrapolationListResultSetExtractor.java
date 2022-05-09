@@ -21,7 +21,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
  * @author akil
  */
 public class ForecastConsumptionExtrapolationListResultSetExtractor implements ResultSetExtractor<List<ForecastConsumptionExtrapolation>> {
-
+    
     @Override
     public List<ForecastConsumptionExtrapolation> extractData(ResultSet rs) throws SQLException, DataAccessException {
         List<ForecastConsumptionExtrapolation> fcesList = new LinkedList<>();
@@ -52,9 +52,13 @@ public class ForecastConsumptionExtrapolationListResultSetExtractor implements R
                 if (rs.wasNull()) {
                     fced.setAmount(null);
                 }
+                fced.setCi(rs.getDouble("CI"));
+                if (rs.wasNull()) {
+                    fced.setCi(null);
+                }
             }
         }
         return fcesList;
     }
-
+    
 }
