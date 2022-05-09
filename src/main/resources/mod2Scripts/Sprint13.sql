@@ -276,3 +276,12 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If there is a Procurem
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'S il y a un écart d approvisionnement, QAT calculera le montant (en USD) nécessaire pour couvrir cet écart en utilisant le prix unitaire.');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si hay una Brecha de Adquisiciones, QAT calculará la cantidad (en USD) necesaria para cubrir esa brecha usando el Precio Unitario.');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se houver uma lacuna de aquisição, a QAT calculará o valor (em dólares) necessário para cobrir essa lacuna usando o preço unitário.');-- pr
+
+
+INSERT INTO fasp.ap_static_label(STATIC_LABEL_ID,LABEL_CODE,ACTIVE) VALUES ( NULL,'static.tooltip.StartValueModelingTool','1');
+SELECT MAX(l.STATIC_LABEL_ID) INTO @MAX FROM ap_static_label l ;
+
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'If you wish to create multiple rows of modeling in which the ending value of the first row should be the start value of the second row and you are using the modeling calculator, you will need to click the update button before creating the second row, otherwise the start value will be the same as the first row');-- en
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Si vous souhaitez créer plusieurs lignes de modélisation dans lesquelles la valeur de fin de la première ligne doit être la valeur de début de la deuxième ligne et que vous utilisez la calculatrice de modélisation, vous devrez cliquer sur le bouton de mise à jour avant de créer la deuxième ligne, sinon la valeur de départ sera la même que la première ligne');-- fr
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Si desea crear varias filas de modelado en las que el valor final de la primera fila debe ser el valor inicial de la segunda fila y está utilizando la calculadora de modelado, deberá hacer clic en el botón Actualizar antes de crear la segunda fila, de lo contrario el valor inicial será el mismo que el de la primera fila');-- sp
+INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Se você deseja criar várias linhas de modelagem nas quais o valor final da primeira linha deve ser o valor inicial da segunda linha e você está usando a calculadora de modelagem, você precisará clicar no botão atualizar antes de criar a segunda linha, caso contrário o valor inicial será o mesmo da primeira linha');-- pr
