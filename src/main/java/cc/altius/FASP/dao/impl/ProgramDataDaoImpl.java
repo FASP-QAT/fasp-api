@@ -1189,6 +1189,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 batchParams.put("CONSUMPTION_EXTRAPOLATION_ID", conspuptionExtrapolationId);
                 batchParams.put("MONTH", fced.getMonth());
                 batchParams.put("AMOUNT", fced.getAmount());
+                batchParams.put("CI", fced.getCi());
                 batchList.add(new MapSqlParameterSource(batchParams));
             }
             batchArray = new SqlParameterSource[batchList.size()];
@@ -1390,6 +1391,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                                     nodeDataParams.put("NODE_DATA_EXTRAPOLATION_OPTION_ID", nodeDataExtrapolationOptionId);
                                     nodeDataParams.put("MONTH", ed.getMonth());
                                     nodeDataParams.put("AMOUNT", ed.getAmount());
+                                    nodeDataParams.put("CI", ed.getCi());
                                     nid.execute(nodeDataParams);
                                 }
                             }
@@ -2381,7 +2383,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "          nde.NODE_DATA_EXTRAPOLATION_ID, em.EXTRAPOLATION_METHOD_ID, em.LABEL_ID `EM_LABEL_ID`, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, nde.`NOTES` `EM_NOTES`, "
                 + "          nded.NODE_DATA_EXTRAPOLATION_DATA_ID, nded.MONTH `EM_MONTH`, nded.AMOUNT `EM_AMOUNT`, nded.REPORTING_RATE `EM_REPORTING_RATE`, nded.MANUAL_CHANGE `EM_MANUAL_CHANGE`, "
                 + "          ndeo.NODE_DATA_EXTRAPOLATION_OPTION_ID, eo.EXTRAPOLATION_METHOD_ID `EO_EXTRAPOLATION_METHOD_ID`, eo.LABEL_ID `EO_LABEL_ID`, eo.LABEL_EN `EO_LABEL_EN`, eo.LABEL_FR `EO_LABEL_FR`, eo.LABEL_SP `EO_LABEL_SP`, eo.LABEL_PR `EO_LABEL_PR`, ndeo.JSON_PROPERTIES, "
-                + "          ndeod.NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID, ndeod.MONTH `EO_MONTH`, ndeod.AMOUNT `EO_AMOUNT` "
+                + "          ndeod.NODE_DATA_EXTRAPOLATION_OPTION_DATA_ID, ndeod.MONTH `EO_MONTH`, ndeod.AMOUNT `EO_AMOUNT`, ndeod.CI `EO_CI` "
                 + "      FROM vw_forecast_tree_node ttn "
                 + "      LEFT JOIN vw_node_type nt ON ttn.NODE_TYPE_ID=nt.NODE_TYPE_ID "
                 + "      LEFT JOIN vw_unit u ON ttn.UNIT_ID=u.UNIT_ID "
@@ -2444,7 +2446,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "     pu.PLANNING_UNIT_ID, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_SP `PU_LABEL_SP`, pu.LABEL_PR `PU_LABEL_PR`, "
                 + "     r.REGION_ID, r.LABEL_ID `R_LABEL_ID`, r.LABEL_EN `R_LABEL_EN`, r.LABEL_FR `R_LABEL_FR`, r.LABEL_SP `R_LABEL_SP`, r.LABEL_PR `R_LABEL_PR`, "
                 + "     em.EXTRAPOLATION_METHOD_ID, em.LABEL_ID `EM_LABEL_ID`, em.LABEL_EN `EM_LABEL_EN`, em.LABEL_FR `EM_LABEL_FR`, em.LABEL_SP `EM_LABEL_SP`, em.LABEL_PR `EM_LABEL_PR`, "
-                + "     fce.JSON_PROPERTIES, fce.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fced.MONTH, fced.AMOUNT "
+                + "     fce.JSON_PROPERTIES, fce.CREATED_DATE, cb.USER_ID `CB_USER_ID`, cb.USERNAME `CB_USERNAME`, fced.MONTH, fced.AMOUNT, fced.CI "
                 + "FROM rm_forecast_consumption_extrapolation fce "
                 + "LEFT JOIN vw_dataset p ON fce.PROGRAM_ID=p.PROGRAM_ID "
                 + "LEFT JOIN vw_planning_unit pu ON fce.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID "
