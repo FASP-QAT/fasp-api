@@ -140,14 +140,13 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 tndf.setUsageType(new SimpleObject(rs.getInt("USAGE_TYPE_ID"), new LabelRowMapper("UT_").mapRow(rs, count)));
                 tndf.setLagInMonths(rs.getInt("LAG_IN_MONTHS"));
                 tndf.setForecastingUnit(new SimpleForecastingUnitObject(
-                        new SimpleCodeObject(rs.getInt("FUU_UNIT_ID"), new LabelRowMapper("FUU_").mapRow(rs, count), rs.getString("FUU_UNIT_CODE")), 
-                        rs.getInt("FORECASTING_UNIT_ID"), 
+                        new SimpleCodeObject(rs.getInt("FUU_UNIT_ID"), new LabelRowMapper("FUU_").mapRow(rs, count), rs.getString("FUU_UNIT_CODE")),
+                        rs.getInt("FORECASTING_UNIT_ID"),
                         new LabelRowMapper("FU_").mapRow(rs, count),
                         new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, count)),
                         new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PC_").mapRow(rs, count))
                 ));
-                        
-                        
+
                 tndf.setNoOfPersons(rs.getInt("NO_OF_PERSONS"));
                 tndf.setNoOfForecastingUnitsPerPerson(rs.getInt("FORECASTING_UNITS_PER_PERSON"));
                 tndf.setOneTimeUsage(rs.getBoolean("ONE_TIME_USAGE"));
@@ -343,6 +342,10 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                         ed.setAmount(rs.getDouble("EO_AMOUNT"));
                         if (rs.wasNull()) {
                             ed.setAmount(null);
+                        }
+                        ed.setCi(rs.getDouble("EO_CI"));
+                        if (rs.wasNull()) {
+                            ed.setCi(null);
                         }
                         ndeo.getExtrapolationOptionDataList().add(ed);
                     }

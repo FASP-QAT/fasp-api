@@ -178,3 +178,14 @@ END$$
 DELIMITER ;
 ;
 
+
+
+ALTER TABLE `fasp`.`rm_forecast_tree_node_data_extrapolation_option_data` ADD COLUMN `CI` DECIMAL(18,4) NULL AFTER `AMOUNT`;
+ALTER TABLE `fasp`.`rm_forecast_consumption_extrapolation_data` ADD COLUMN `CI` DECIMAL(16,2) NULL AFTER `AMOUNT`;
+DELETE fced.* FROM rm_forecast_consumption_extrapolation fce LEFT JOIN vw_extrapolation_method em ON fce.EXTRAPOLATION_METHOD_ID=em.EXTRAPOLATION_METHOD_ID LEFT JOIN rm_forecast_consumption_extrapolation_data fced ON fce.CONSUMPTION_EXTRAPOLATION_ID=fced.CONSUMPTION_EXTRAPOLATION_ID WHERE em.ACTIVE=0;
+DELETE fce.* FROM rm_forecast_consumption_extrapolation fce LEFT JOIN vw_extrapolation_method em ON fce.EXTRAPOLATION_METHOD_ID=em.EXTRAPOLATION_METHOD_ID WHERE em.ACTIVE=0;
+
+SET FOREIGN_KEY_CHECKS=0;
+DELETE l.*, em.* FROM ap_extrapolation_method em LEFT JOIN ap_label l ON em.LABEL_ID=l.LABEL_ID where em.ACTIVE=0;
+SET FOREIGN_KEY_CHECKS=1;
+
