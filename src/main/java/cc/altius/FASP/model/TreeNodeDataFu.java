@@ -17,7 +17,7 @@ public class TreeNodeDataFu implements Serializable {
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int nodeDataFuId;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
-    private SimpleUnitAndTracerObject forecastingUnit;
+    private SimpleForecastingUnitObject forecastingUnit;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
     private int lagInMonths;
     @JsonView({Views.ReportView.class, Views.InternalView.class})
@@ -45,11 +45,11 @@ public class TreeNodeDataFu implements Serializable {
         this.nodeDataFuId = nodeDataFuId;
     }
 
-    public SimpleUnitAndTracerObject getForecastingUnit() {
+    public SimpleForecastingUnitObject getForecastingUnit() {
         return forecastingUnit;
     }
 
-    public void setForecastingUnit(SimpleUnitAndTracerObject forecastingUnit) {
+    public void setForecastingUnit(SimpleForecastingUnitObject forecastingUnit) {
         this.forecastingUnit = forecastingUnit;
     }
 

@@ -17,8 +17,8 @@ import cc.altius.FASP.model.NodeDataMom;
 import cc.altius.FASP.model.NodeDataOverride;
 import cc.altius.FASP.model.NodeType;
 import cc.altius.FASP.model.SimpleCodeObject;
+import cc.altius.FASP.model.SimpleForecastingUnitObject;
 import cc.altius.FASP.model.SimpleObject;
-import cc.altius.FASP.model.SimpleUnitAndTracerObject;
 import cc.altius.FASP.model.SimpleUnitObjectWithMultiplier;
 import cc.altius.FASP.model.TreeNode;
 import cc.altius.FASP.model.TreeNodeData;
@@ -139,7 +139,14 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 tndf.setNodeDataFuId(nodeDataFuId);
                 tndf.setUsageType(new SimpleObject(rs.getInt("USAGE_TYPE_ID"), new LabelRowMapper("UT_").mapRow(rs, count)));
                 tndf.setLagInMonths(rs.getInt("LAG_IN_MONTHS"));
-                tndf.setForecastingUnit(new SimpleUnitAndTracerObject(new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, count)), new SimpleCodeObject(rs.getInt("FUU_UNIT_ID"), new LabelRowMapper("FUU_").mapRow(rs, count), rs.getString("FUU_UNIT_CODE")), rs.getInt("FORECASTING_UNIT_ID"), new LabelRowMapper("FU_").mapRow(rs, count)));
+                tndf.setForecastingUnit(new SimpleForecastingUnitObject(
+                        new SimpleCodeObject(rs.getInt("FUU_UNIT_ID"), new LabelRowMapper("FUU_").mapRow(rs, count), rs.getString("FUU_UNIT_CODE")),
+                        rs.getInt("FORECASTING_UNIT_ID"),
+                        new LabelRowMapper("FU_").mapRow(rs, count),
+                        new SimpleObject(rs.getInt("TRACER_CATEGORY_ID"), new LabelRowMapper("TC_").mapRow(rs, count)),
+                        new SimpleObject(rs.getInt("PRODUCT_CATEGORY_ID"), new LabelRowMapper("PC_").mapRow(rs, count))
+                ));
+
                 tndf.setNoOfPersons(rs.getInt("NO_OF_PERSONS"));
                 tndf.setNoOfForecastingUnitsPerPerson(rs.getInt("FORECASTING_UNITS_PER_PERSON"));
                 tndf.setOneTimeUsage(rs.getBoolean("ONE_TIME_USAGE"));
@@ -335,6 +342,10 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                         ed.setAmount(rs.getDouble("EO_AMOUNT"));
                         if (rs.wasNull()) {
                             ed.setAmount(null);
+                        }
+                        ed.setCi(rs.getDouble("EO_CI"));
+                        if (rs.wasNull()) {
+                            ed.setCi(null);
                         }
                         ndeo.getExtrapolationOptionDataList().add(ed);
                     }

@@ -43,6 +43,7 @@ import cc.altius.FASP.model.SimpleCodeObject;
 import cc.altius.FASP.model.SimpleObject;
 import cc.altius.FASP.model.CommitRequest;
 import cc.altius.FASP.model.ProgramIdAndVersionId;
+import cc.altius.FASP.model.SimplePlanningUnitObject;
 import cc.altius.FASP.model.UserAcl;
 import cc.altius.FASP.model.Version;
 import cc.altius.FASP.model.Views;
@@ -57,6 +58,7 @@ import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.ProgramPlanningUnitRowMapper;
 import cc.altius.FASP.model.rowMapper.ProgramResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.SimpleObjectRowMapper;
+import cc.altius.FASP.model.rowMapper.SimplePlanningUnitObjectRowMapper;
 import cc.altius.FASP.model.rowMapper.VersionRowMapper;
 import cc.altius.FASP.service.AclService;
 import cc.altius.utils.DateUtils;
@@ -179,6 +181,22 @@ public class ProgramDaoImpl implements ProgramDao {
             + " LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID  "
             + " LEFT JOIN us_user cb ON ppu.CREATED_BY=cb.USER_ID  "
             + " LEFT JOIN us_user lmb ON ppu.LAST_MODIFIED_BY=lmb.USER_ID "
+            + " WHERE TRUE ";
+    
+    public String sqlListStringForSimplePlanningUnit = "SELECT "
+            + "    pu.PLANNING_UNIT_ID    `PU_ID`, pu.LABEL_ID `PU_LABEL_ID`, pu.LABEL_EN `PU_LABEL_EN`, pu.LABEL_FR `PU_LABEL_FR`, pu.LABEL_PR `PU_LABEL_PR`, pu.LABEL_SP `PU_LABEL_SP`, pu.MULTIPLIER, "
+            + "    puu.UNIT_ID `PU_UNIT_ID`, puu.LABEL_ID `PUU_LABEL_ID`, puu.LABEL_EN `PUU_LABEL_EN`, puu.LABEL_FR `PUU_LABEL_FR`, puu.LABEL_SP `PUU_LABEL_SP`, puu.LABEL_PR `PUU_LABEL_PR`, puu.UNIT_CODE `PU_UNIT_CODE`, "
+            + "    fu.FORECASTING_UNIT_ID `FU_ID`, fu.LABEL_ID `FU_LABEL_ID`, fu.LABEL_EN `FU_LABEL_EN`, fu.LABEL_FR `FU_LABEL_FR`, fu.LABEL_SP `FU_LABEL_SP`, fu.LABEL_PR `FU_LABEL_PR`, "
+            + "    fuu.UNIT_ID `FU_UNIT_ID`, fuu.LABEL_ID `FUU_LABEL_ID`, fuu.LABEL_EN `FUU_LABEL_EN`, fuu.LABEL_FR `FUU_LABEL_FR`, fuu.LABEL_SP `FUU_LABEL_SP`, fuu.LABEL_PR `FUU_LABEL_PR`, fuu.UNIT_CODE `FU_UNIT_CODE`, "
+            + "    pc.PRODUCT_CATEGORY_ID `PC_ID`, pc.LABEL_ID `PC_LABEL_ID`, pc.LABEL_EN `PC_LABEL_EN`, pc.LABEL_FR `PC_LABEL_FR`, pc.LABEL_PR `PC_LABEL_PR`, pc.LABEL_SP `PC_LABEL_SP`,  "
+            + "    tc.TRACER_CATEGORY_ID  `TC_ID`, tc.LABEL_ID `TC_LABEL_ID`, tc.LABEL_EN `TC_LABEL_EN`, tc.LABEL_FR `TC_LABEL_FR`, tc.LABEL_PR `TC_LABEL_PR`, tc.LABEL_SP `TC_LABEL_SP`  "
+            + " FROM  rm_program_planning_unit ppu   "
+            + " LEFT JOIN vw_planning_unit pu ON ppu.PLANNING_UNIT_ID=pu.PLANNING_UNIT_ID  "
+            + " LEFT JOIN vw_unit puu ON pu.UNIT_ID=puu.UNIT_ID  "
+            + " LEFT JOIN vw_forecasting_unit fu ON pu.FORECASTING_UNIT_ID=fu.FORECASTING_UNIT_ID  "
+            + " LEFT JOIN vw_unit fuu ON fu.UNIT_ID=fuu.UNIT_ID  "
+            + " LEFT JOIN vw_product_category pc ON fu.PRODUCT_CATEGORY_ID=pc.PRODUCT_CATEGORY_ID  "
+            + " LEFT JOIN vw_tracer_category tc ON fu.TRACER_CATEGORY_ID=tc.TRACER_CATEGORY_ID  "
             + " WHERE TRUE ";
 
     public String sqlListStringForProgramPlanningUnitProcurementAgentPricing = "SELECT ppu.PROGRAM_PLANNING_UNIT_ID,   "
@@ -466,6 +484,21 @@ public class ProgramDaoImpl implements ProgramDao {
             sqlStringBuilder = sqlStringBuilder.append(" AND ppu.ACTIVE ");
         }
         return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new ProgramPlanningUnitRowMapper());
+    }
+    
+    @Override
+    public List<SimplePlanningUnitObject> getSimplePlanningUnitListForProgramIdAndTracerCategoryIds(int programId, boolean active, String[] tracerCategoryIds, CustomUserDetails curUser) {
+        StringBuilder sqlStringBuilder = new StringBuilder(this.sqlListStringForSimplePlanningUnit).append(" AND ppu.PROGRAM_ID=:programId");
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", programId);
+        if (tracerCategoryIds.length > 0) {
+            sqlStringBuilder.append(" AND find_in_set(fu.TRACER_CATEGORY_ID,:tracerCategoryIds)");
+            params.put("tracerCategoryIds", String.join(",", tracerCategoryIds));
+        }
+        if (active) {
+            sqlStringBuilder = sqlStringBuilder.append(" AND ppu.ACTIVE ");
+        }
+        return this.namedParameterJdbcTemplate.query(sqlStringBuilder.toString(), params, new SimplePlanningUnitObjectRowMapper());
     }
 
     @Override

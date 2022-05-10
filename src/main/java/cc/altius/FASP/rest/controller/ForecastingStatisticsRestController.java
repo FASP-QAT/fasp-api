@@ -36,8 +36,10 @@ public class ForecastingStatisticsRestController {
     public ResponseEntity postArima(HttpServletRequest request, Authentication auth) {
         try {
             String json = IOUtils.toString(request.getReader());
+            System.out.println("arima json---"+json);
             RestTemplate apiCall = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
+            System.out.println("arima headers---"+headers);
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<String> entity = new HttpEntity<String>(json, headers);
             String output = apiCall.postForObject("http://50.16.62.249:8000/arima", entity, String.class);
@@ -55,8 +57,10 @@ public class ForecastingStatisticsRestController {
     public ResponseEntity postTes(HttpServletRequest request, Authentication auth) {
         try {
             String json = IOUtils.toString(request.getReader());
+            System.out.println("tes json---"+json);
             RestTemplate apiCall = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
+            System.out.println("tes headers---"+headers);
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<String> entity = new HttpEntity<String>(json, headers);
             String output = apiCall.postForObject("http://50.16.62.249:8000/tes", entity, String.class);
