@@ -26,12 +26,8 @@ import cc.altius.FASP.service.EmailService;
 import cc.altius.FASP.service.UserService;
 import java.text.ParseException;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import static jxl.biff.BaseCellFeatures.logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -212,21 +208,11 @@ public class CommitRequestServiceImpl implements CommitRequestService {
     }
 
     @Override
-    @Async
-    public CompletableFuture<Object> getCommitRequestStatusByCommitRequestId(int commitRequestId) {
+    public CommitRequest getCommitRequestStatusByCommitRequestId(int commitRequestId) {
         CommitRequest spcr = new CommitRequest();
-        spcr.setStatus(0);
-        while (spcr.getStatus() != 2 && spcr.getStatus() != 3) {
-            try {
-                spcr = this.commitRequestDao.getCommitRequestByCommitRequestId(commitRequestId);
-                Thread.sleep(5000L);
-            } catch (InterruptedException ex) {
-                ex.printStackTrace();
-                Logger.getLogger(CommitRequestServiceImpl.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-
-        return CompletableFuture.completedFuture(spcr);
+        spcr = this.commitRequestDao.getCommitRequestByCommitRequestId(commitRequestId);
+        return spcr;
     }
+
 
 }

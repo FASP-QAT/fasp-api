@@ -227,7 +227,7 @@ public class CommitRequestRestController {
         }
     }
 
-    @GetMapping("/{commitRequestId}")
+    @GetMapping("/sendNotification/{commitRequestId}")
     public ResponseEntity sendNotification(@PathVariable("commitRequestId") int commitRequestId) {
         try {
             return new ResponseEntity(this.commitRequestService.getCommitRequestStatusByCommitRequestId(commitRequestId), HttpStatus.OK);
