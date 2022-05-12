@@ -1379,7 +1379,7 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                         if (n.getPayload().getNodeType().getId() == GlobalConstants.NODE_TYPE_NUMBER && tnd.isExtrapolation()) {
                             ni = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option").usingGeneratedKeyColumns("NODE_DATA_EXTRAPOLATION_OPTION_ID");
                             SimpleJdbcInsert nid = new SimpleJdbcInsert(dataSource).withTableName("rm_forecast_tree_node_data_extrapolation_option_data");
-                            
+
                             for (NodeDataExtrapolationOption ndeo : tnd.getNodeDataExtrapolationOptionList()) {
                                 nodeDataParams.clear();
                                 nodeDataParams.put("NODE_DATA_ID", nodeDataId);
@@ -1674,7 +1674,8 @@ public class ProgramDataDaoImpl implements ProgramDataDao {
                 + "AND (:organisationId = -1 OR p.ORGANISATION_ID = :organisationId) "
                 + "AND (:versionTypeId = -1 OR pv.VERSION_TYPE_ID = :versionTypeId) "
                 + "AND (:versionStatusId = -1 OR pv.VERSION_STATUS_ID = :versionStatusId) "
-                + "AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate ");
+                + "AND pv.CREATED_DATE BETWEEN :startDate AND :stopDate "
+                + "AND p.PROGRAM_TYPE_ID=" + GlobalConstants.PROGRAM_TYPE_SUPPLY_PLAN);
         this.aclService.addFullAclForProgram(sb, params, "p", curUser);
         return this.namedParameterJdbcTemplate.query(sb.toString(), params, new ProgramVersionResultSetExtractor());
 
