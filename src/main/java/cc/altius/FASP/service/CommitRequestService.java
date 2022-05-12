@@ -32,5 +32,5 @@ public interface CommitRequestService {
     
     public boolean checkIfCommitRequestExistsForProgram(int programId);
     
-    public CompletableFuture<Object> getCommitRequestStatusByCommitRequestId(int commitRequestId);
+    public CommitRequest getCommitRequestStatusByCommitRequestId(int commitRequestId);
 }

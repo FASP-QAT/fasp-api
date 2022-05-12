@@ -137,11 +137,11 @@ public class CommitRequestRestController {
             json = json.replace(emptyPuNodeString3, "\"puNode\": null");
             json = json.replace(emptyPuNodeString4, "\"puNode\": null");
             json = json.replace(",,", ",");
-            String emptyUsageFrequency="\"usageFrequency\":\"\",";
+            String emptyUsageFrequency = "\"usageFrequency\":\"\",";
             json = json.replace(emptyUsageFrequency, "\"usageFrequency\":null,");
-            String emptyUsagePeriod="\"usagePeriod\":{\"usagePeriodId\":\"\"},";
+            String emptyUsagePeriod = "\"usagePeriod\":{\"usagePeriodId\":\"\"},";
             json = json.replace(emptyUsagePeriod, "\"usagePeriod\":null,");
-            String emptyRepeatUsagePeriod="\"repeatUsagePeriod\":{\"usagePeriodId\":\"\"},";
+            String emptyRepeatUsagePeriod = "\"repeatUsagePeriod\":{\"usagePeriodId\":\"\"},";
             json = json.replace(emptyRepeatUsagePeriod, "\"repeatUsagePeriod\":null,");
             String emptyNodeUnitString = "\"nodeUnit\":{\"id\":\"\"},";
             json = json.replace(emptyNodeUnitString, "\"nodeUnit\":null,");
@@ -228,19 +228,12 @@ public class CommitRequestRestController {
         }
     }
 
-    /**
-     * Asynchronous API used to get the commit status
-     *
-     *
-     * @return returns the commit status
-     */
-    @Operation(description = "Asynchronous API used to get the commit status.", summary = "Asynchronous API to get commit status", tags = ("commitStatus"))
-    @ApiResponse(content = @Content(mediaType = "text/json"), responseCode = "200", description = "Returns the Integration Program list")
-    @GetMapping("sendNotification/{commitRequestId}")
-    public @ResponseBody
-    CompletableFuture<ResponseEntity> sendNotification(@PathVariable("commitRequestId") int commitRequestId) throws InterruptedException {
-        return this.commitRequestService.getCommitRequestStatusByCommitRequestId(commitRequestId).thenApplyAsync(ResponseEntity -> {
-            return new ResponseEntity(ResponseEntity, HttpStatus.OK);
-        });
+    @GetMapping("/sendNotification/{commitRequestId}")
+    public ResponseEntity sendNotification(@PathVariable("commitRequestId") int commitRequestId) {
+        try {
+            return new ResponseEntity(this.commitRequestService.getCommitRequestStatusByCommitRequestId(commitRequestId), HttpStatus.OK);
+        } catch (Exception e) {
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 }
