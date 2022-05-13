@@ -24,6 +24,9 @@ import cc.altius.FASP.model.report.CostOfInventoryRowMapper;
 import cc.altius.FASP.model.report.ExpiredStockInput;
 import cc.altius.FASP.model.report.ExpiredStockOutput;
 import cc.altius.FASP.model.report.ExpiredStockOutputResultSetExtractor;
+import cc.altius.FASP.model.report.ForecastErrorInput;
+import cc.altius.FASP.model.report.ForecastErrorOutput;
+import cc.altius.FASP.model.report.ForecastErrorOutputListResultSetExtractor;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionInput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionOutput;
 import cc.altius.FASP.model.report.ForecastMetricsComparisionOutputRowMapper;
@@ -102,6 +105,7 @@ import cc.altius.FASP.model.report.WarehouseCapacityOutput;
 import cc.altius.FASP.model.report.WarehouseCapacityOutputResultSetExtractor;
 import cc.altius.FASP.model.rowMapper.StockAdjustmentReportOutputRowMapper;
 import cc.altius.FASP.service.AclService;
+import cc.altius.FASP.utils.LogUtils;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -570,6 +574,27 @@ public class ReportDaoImpl implements ReportDao {
         params.put("dt", dt);
         params.put("approvedSupplyPlanOnly", useApprovedSupplyPlanOnly);
         return this.namedParameterJdbcTemplate.queryForObject(sql, params, new StockStatusAcrossProductsForProgramRowMapper());
+    }
+
+    // Report no 30
+    @Override
+    public List<ForecastErrorOutput> getForecastError(ForecastErrorInput fei, CustomUserDetails curUser) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("programId", fei.getProgramId());
+        params.put("versionId", fei.getVersionId());
+        params.put("startDate", fei.getStartDate());
+        params.put("stopDate", fei.getStopDate());
+        params.put("viewBy", fei.getViewBy());
+        params.put("unitId", fei.getUnitId());
+        params.put("regionIds", fei.getRegionIdString());
+        params.put("equivalencyUnitId", fei.getEquivalencyUnitId());
+        String sql = "CALL getForecastError(:programId, :versionId, :viewBy, :unitId, :startDate, :stopDate, :regionIds, :equivalencyUnitId); ";
+        System.out.println(LogUtils.buildStringForLog(sql, params));
+        List<ForecastErrorOutput> feList = this.namedParameterJdbcTemplate.query(sql, params, new ForecastErrorOutputListResultSetExtractor());
+        for (ForecastErrorOutput fe : feList) {
+            fe.calcErrorPerc();
+        }
+        return feList;
     }
 
     // Mod 2 Report 1 -- Monthly Forecast

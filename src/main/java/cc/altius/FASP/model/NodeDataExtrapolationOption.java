@@ -11,6 +11,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,6 +32,7 @@ public class NodeDataExtrapolationOption implements Serializable {
     private final Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
 
     public NodeDataExtrapolationOption() {
+        this.extrapolationOptionDataList = new LinkedList<>();
     }
 
     public NodeDataExtrapolationOption(int nodeDataExtapolationOptionId) {

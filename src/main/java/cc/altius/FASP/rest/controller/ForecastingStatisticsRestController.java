@@ -31,8 +31,8 @@ import org.springframework.web.client.RestTemplate;
 public class ForecastingStatisticsRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
-    private static final String URL = "http://localhost:7876";
-//    private static final String URL = "http://50.16.62.249:8000";
+//    private static final String URL = "http://localhost:7876";
+    private static final String URL = "http://50.16.62.249:8000";
 
     @PostMapping(path = "/arima")
     public ResponseEntity postArima(HttpServletRequest request, Authentication auth) {
