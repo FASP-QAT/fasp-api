@@ -1,14 +1,12 @@
 ALTER TABLE `fasp`.`rm_forecast_tree_node_data_mom` ADD COLUMN `CALCULATED_MMD_VALUE` DECIMAL(16,2) UNSIGNED NOT NULL AFTER `CALCULATED_VALUE`;
 ALTER TABLE `fasp`.`rm_forecast_tree_node_data_pu` ADD COLUMN `PU_PER_VISIT` INT UNSIGNED NOT NULL AFTER `REFILL_MONTHS`;
 ALTER TABLE `fasp`.`rm_tree_template_node_data_pu` ADD COLUMN `PU_PER_VISIT` INT UNSIGNED NOT NULL AFTER `REFILL_MONTHS`;
-UPDATE rm_tree_template_node_data_pu SET PU_PER_VISIT = 1;
-UPDATE rm_forecast_tree_node_data_pu SET PU_PER_VISIT = 1;
 
 ALTER TABLE `fasp`.`rm_usage_template` ADD COLUMN `UNIT_ID` INT UNSIGNED NULL AFTER `LABEL_ID`, ADD INDEX `fk_rm_usage_template_unitId_idx` (`UNIT_ID` ASC);
 UPDATE rm_usage_template ut SET ut.UNIT_ID=91;
 ALTER TABLE `fasp`.`rm_usage_template` ADD CONSTRAINT `fk_rm_usage_template_unitId`  FOREIGN KEY (`UNIT_ID`)  REFERENCES `fasp`.`ap_unit` (`UNIT_ID`)  ON DELETE NO ACTION  ON UPDATE NO ACTION;
 ALTER TABLE `fasp`.`rm_dataset_planning_unit` ADD COLUMN `ACTIVE` TINYINT(1) UNSIGNED NOT NULL AFTER `CREATED_DATE`;
-UPDATE rm_dataset_planning_unit dpu SET dpu.ACTIVE=1;
+
 ALTER TABLE `fasp`.`rm_usage_template` DROP FOREIGN KEY `fk_rm_usage_template_unitId`;
 ALTER TABLE `fasp`.`rm_usage_template` CHANGE COLUMN `UNIT_ID` `UNIT_ID` INT UNSIGNED NOT NULL ;
 ALTER TABLE `fasp`.`rm_usage_template` ADD CONSTRAINT `fk_rm_usage_template_unitId`  FOREIGN KEY (`UNIT_ID`)  REFERENCES `fasp`.`ap_unit` (`UNIT_ID`);

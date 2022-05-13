@@ -32,6 +32,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataAccessResourceFailureException;
 import org.springframework.jdbc.core.ResultSetExtractor;
@@ -45,6 +47,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
     private final boolean isTemplate;
     private final Date curDate;
     private final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     public TreeNodeResultSetExtractor(boolean isTemplate) {
         this.isTemplate = isTemplate;
@@ -89,6 +92,7 @@ public class TreeNodeResultSetExtractor implements ResultSetExtractor<ForecastTr
                 addNodeData(rs, 1, tndList, tn);
             }
         } catch (Exception e) {
+            logger.error("Error while trying to extract TreeNode", e);
             throw new DataAccessResourceFailureException(e.getMessage());
         }
         return tree;

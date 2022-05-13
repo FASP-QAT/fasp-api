@@ -31,18 +31,19 @@ import org.springframework.web.client.RestTemplate;
 public class ForecastingStatisticsRestController {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
+    private static final String URL = "http://localhost:7876";
+//    private static final String URL = "http://50.16.62.249:8000";
 
     @PostMapping(path = "/arima")
     public ResponseEntity postArima(HttpServletRequest request, Authentication auth) {
         try {
             String json = IOUtils.toString(request.getReader());
-            System.out.println("arima json---"+json);
             RestTemplate apiCall = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
-            System.out.println("arima headers---"+headers);
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<String> entity = new HttpEntity<String>(json, headers);
-            String output = apiCall.postForObject("http://50.16.62.249:8000/arima", entity, String.class);
+            String output = apiCall.postForObject(URL + "/arima", entity, String.class
+            );
             return new ResponseEntity(output, HttpStatus.OK);
         } catch (IOException ioe) {
             logger.error("Error while trying to read the Json", ioe);
@@ -52,18 +53,35 @@ public class ForecastingStatisticsRestController {
             return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
+
     @PostMapping(path = "/tes")
     public ResponseEntity postTes(HttpServletRequest request, Authentication auth) {
         try {
             String json = IOUtils.toString(request.getReader());
-            System.out.println("tes json---"+json);
             RestTemplate apiCall = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
-            System.out.println("tes headers---"+headers);
             headers.setContentType(MediaType.APPLICATION_JSON);
             HttpEntity<String> entity = new HttpEntity<String>(json, headers);
-            String output = apiCall.postForObject("http://50.16.62.249:8000/tes", entity, String.class);
+            String output = apiCall.postForObject(URL + "/tes", entity, String.class);
+            return new ResponseEntity(output, HttpStatus.OK);
+        } catch (IOException ioe) {
+            logger.error("Error while trying to read the Json", ioe);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.PRECONDITION_FAILED);
+        } catch (Exception e) {
+            logger.error("Error while trying to read the Json", e);
+            return new ResponseEntity(new ResponseCode("static.message.listFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping(path = "/regression")
+    public ResponseEntity postRegression(HttpServletRequest request, Authentication auth) {
+        try {
+            String json = IOUtils.toString(request.getReader());
+            RestTemplate apiCall = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            HttpEntity<String> entity = new HttpEntity<String>(json, headers);
+            String output = apiCall.postForObject(URL + "/regression", entity, String.class);
             return new ResponseEntity(output, HttpStatus.OK);
         } catch (IOException ioe) {
             logger.error("Error while trying to read the Json", ioe);
