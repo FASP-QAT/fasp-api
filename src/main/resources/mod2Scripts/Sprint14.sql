@@ -1,0 +1,12 @@
+SET FOREIGN_KEY_CHECKS=0;
+TRUNCATE table rm_tree_template_node_data_pu;
+TRUNCATE table rm_tree_template_node_data_fu;
+TRUNCATE table rm_tree_template_node_data_modeling;
+TRUNCATE table rm_tree_template_node_data_override;
+TRUNCATE table rm_tree_template_node_data;
+TRUNCATE table rm_tree_template_node;
+TRUNCATE table rm_tree_template;
+TRUNCATE table rm_equivalency_unit_health_area;
+TRUNCATE table rm_equivalency_unit_mapping;
+TRUNCATE table rm_equivalency_unit;
+SET FOREIGN_KEY_CHECKS=1;
