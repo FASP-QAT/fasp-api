@@ -603,3 +603,5 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,1,'Duplicate equivalency 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unité d équivalence en double, unité de prévision, combinaison de programmes non autorisée');-- fr
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Unidad de equivalencia duplicada, unidad de previsión, combinación de programas no permitida');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Unidade de equivalência duplicada, unidade de previsão, combinação de programa não permitida');-- pr
+
+UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Version Comparison' WHERE `STATIC_LABEL_LANGUAGE_ID`='199818'; 
