@@ -604,4 +604,6 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,2,'Unité d équivalence 
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,3,'Unidad de equivalencia duplicada, unidad de previsión, combinación de programas no permitida');-- sp
 INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Unidade de equivalência duplicada, unidade de previsão, combinação de programa não permitida');-- pr
 
-UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Version Comparison' WHERE `STATIC_LABEL_LANGUAGE_ID`='199818'; 
+SELECT l.`STATIC_LABEL_ID` INTO @MAX FROM ap_static_label l WHERE l.`LABEL_CODE`='static.dashboard.Versioncomarition';
+SELECT l.`STATIC_LABEL_LANGUAGE_ID` INTO @MAX FROM ap_static_label_languages l WHERE l.`STATIC_LABEL_ID`=@MAX AND l.`LANGUAGE_ID`=1;
+UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Version Comparison' WHERE `STATIC_LABEL_LANGUAGE_ID`=@MAX; 
