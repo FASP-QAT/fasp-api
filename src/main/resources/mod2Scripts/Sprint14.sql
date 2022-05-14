@@ -426,3 +426,12 @@ END$$
 DELIMITER ;
 ;
 
+select min(s.STATIC_LABEL_ID) into @min from ap_static_label s where s.LABEL_CODE='static.tooltip.LagInMonth';
+
+delete l.* from ap_static_label_languages l where l.STATIC_LABEL_ID=@min;
+delete l.* from ap_static_label l where l.STATIC_LABEL_ID=@min;
+
+select min(s.STATIC_LABEL_ID) into @min from ap_static_label s where s.LABEL_CODE='static.common.dataEnteredIn';
+
+delete l.* from ap_static_label_languages l where l.STATIC_LABEL_ID=@min;
+delete l.* from ap_static_label l where l.STATIC_LABEL_ID=@min;
