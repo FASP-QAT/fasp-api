@@ -18,6 +18,9 @@ public class SimpleForecastingUnitObject extends SimpleUnitObject {
     @JsonView({Views.InternalView.class, Views.ReportView.class})
     private SimpleObject productCategory;
 
+    public SimpleForecastingUnitObject() {
+    }
+
     public SimpleForecastingUnitObject(SimpleCodeObject unit, Integer id, Label label, SimpleObject tracerCategory, SimpleObject productCategory) {
         super(unit, id, label);
         this.tracerCategory = tracerCategory;

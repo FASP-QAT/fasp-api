@@ -607,3 +607,8 @@ INSERT INTO ap_static_label_languages VALUES(NULL,@MAX,4,'Unidade de equivalênc
 SELECT l.`STATIC_LABEL_ID` INTO @MAX FROM ap_static_label l WHERE l.`LABEL_CODE`='static.dashboard.Versioncomarition';
 SELECT l.`STATIC_LABEL_LANGUAGE_ID` INTO @MAX FROM ap_static_label_languages l WHERE l.`STATIC_LABEL_ID`=@MAX AND l.`LANGUAGE_ID`=1;
 UPDATE `fasp`.`ap_static_label_languages` SET `LABEL_TEXT`='Version Comparison' WHERE `STATIC_LABEL_LANGUAGE_ID`=@MAX; 
+
+DELETE ntr.* FROM ap_node_type_rule ntr where ntr.NODE_TYPE_ID=6;
+SET FOREIGN_KEY_CHECKS=0;
+DELETE nt.*,l.* FROM ap_node_type nt LEFT JOIN ap_label l ON nt.LABEL_ID=l.LABEL_ID where nt.NODE_TYPE_ID=6;
+SET FOREIGN_KEY_CHECKS=1;

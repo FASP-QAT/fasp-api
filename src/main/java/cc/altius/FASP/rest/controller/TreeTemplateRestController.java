@@ -57,7 +57,6 @@ public class TreeTemplateRestController {
      * @param auth
      * @return returns the active list of active Tree Templates
      */
-    
 //    @JsonView(Views.InternalView.class)
     @GetMapping("")
     @Operation(description = "API used to get the complete TreeTemplate list. Will only return those TreeTemplates that are marked Active.", summary = "Get active TreeTemplate list", tags = ("treeTemplate"))
@@ -129,17 +128,8 @@ public class TreeTemplateRestController {
     }
 
     @PutMapping("")
-    public ResponseEntity updateTreeTemplate(HttpServletRequest request, Authentication auth) {
+    public ResponseEntity updateTreeTemplate(@RequestBody TreeTemplate treeTemplate, Authentication auth) {
         try {
-            String json = IOUtils.toString(request.getReader());
-            System.out.println(json);
-            Gson gson = new GsonBuilder()
-                    .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
-                    .registerTypeAdapter(Integer.class, new EmptyIntegerTypeAdapter())
-                    .setDateFormat("yyyy-MM-dd HH:mm:ss").setLenient()
-                    .create();
-            TreeTemplate treeTemplate = gson.fromJson(json, new TypeToken<TreeTemplate>() {
-            }.getType());
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.treeTemplateService.updateTreeTemplate(treeTemplate, curUser);
             return new ResponseEntity(this.treeTemplateService.getTreeTemplateById(treeTemplate.getTreeTemplateId(), true, curUser), HttpStatus.OK);
@@ -151,19 +141,4 @@ public class TreeTemplateRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
-    
-//        @PutMapping("")
-//    public ResponseEntity updateTreeTemplate(@RequestBody TreeTemplate treeTemplate, Authentication auth) {
-//        try {
-//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
-//            this.treeTemplateService.updateTreeTemplate(treeTemplate, curUser);
-//            return new ResponseEntity(this.treeTemplateService.getTreeTemplateById(treeTemplate.getTreeTemplateId(), true, curUser), HttpStatus.OK);
-//        } catch (AccessDeniedException ae) {
-//            logger.error("Error while trying to add Tree Template", ae);
-//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
-//        } catch (Exception e) {
-//            logger.error("Error while trying to add Tree Template", e);
-//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
-//        }
-//    }
 }
