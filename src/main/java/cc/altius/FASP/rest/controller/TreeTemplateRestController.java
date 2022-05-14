@@ -6,13 +6,20 @@
 package cc.altius.FASP.rest.controller;
 
 import cc.altius.FASP.model.CustomUserDetails;
+import cc.altius.FASP.model.EmptyDoubleTypeAdapter;
+import cc.altius.FASP.model.EmptyIntegerTypeAdapter;
 import cc.altius.FASP.model.ResponseCode;
 import cc.altius.FASP.model.TreeTemplate;
 import cc.altius.FASP.service.TreeTemplateService;
 import cc.altius.FASP.service.UserService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,8 +129,17 @@ public class TreeTemplateRestController {
     }
 
     @PutMapping("")
-    public ResponseEntity updateTreeTemplate(@RequestBody TreeTemplate treeTemplate, Authentication auth) {
+    public ResponseEntity updateTreeTemplate(HttpServletRequest request, Authentication auth) {
         try {
+            String json = IOUtils.toString(request.getReader());
+            System.out.println(json);
+            Gson gson = new GsonBuilder()
+                    .registerTypeAdapter(Double.class, new EmptyDoubleTypeAdapter())
+                    .registerTypeAdapter(Integer.class, new EmptyIntegerTypeAdapter())
+                    .setDateFormat("yyyy-MM-dd HH:mm:ss").setLenient()
+                    .create();
+            TreeTemplate treeTemplate = gson.fromJson(json, new TypeToken<TreeTemplate>() {
+            }.getType());
             CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
             this.treeTemplateService.updateTreeTemplate(treeTemplate, curUser);
             return new ResponseEntity(this.treeTemplateService.getTreeTemplateById(treeTemplate.getTreeTemplateId(), true, curUser), HttpStatus.OK);
@@ -135,4 +151,19 @@ public class TreeTemplateRestController {
             return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    
+//        @PutMapping("")
+//    public ResponseEntity updateTreeTemplate(@RequestBody TreeTemplate treeTemplate, Authentication auth) {
+//        try {
+//            CustomUserDetails curUser = this.userService.getCustomUserByUserId(((CustomUserDetails) auth.getPrincipal()).getUserId());
+//            this.treeTemplateService.updateTreeTemplate(treeTemplate, curUser);
+//            return new ResponseEntity(this.treeTemplateService.getTreeTemplateById(treeTemplate.getTreeTemplateId(), true, curUser), HttpStatus.OK);
+//        } catch (AccessDeniedException ae) {
+//            logger.error("Error while trying to add Tree Template", ae);
+//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.FORBIDDEN);
+//        } catch (Exception e) {
+//            logger.error("Error while trying to add Tree Template", e);
+//            return new ResponseEntity(new ResponseCode("static.message.updateFailed"), HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 }
